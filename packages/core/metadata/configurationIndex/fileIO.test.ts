@@ -58,6 +58,39 @@ describe("configuration index file IO", () => {
     expect(await indexDirectoryEntries(projectDir)).toEqual(["configuration-index.bin"])
   })
 
+  it("does not report a save failure after rename committed the new index", async () => {
+    const projectDir = await createProjectDir()
+    const previous = sampleSnapshot()
+    await writeConfigurationIndexAtomically({
+      projectDir,
+      address: { kind: "configuration" },
+      data: previous,
+    })
+    const targetDirectory = dirname(configurationIndexPath(projectDir, { kind: "configuration" }))
+    const originalOpen = fs.promises.open.bind(fs.promises)
+    vi.spyOn(fs.promises, "open").mockImplementation(async (path, flags) => {
+      const handle = await originalOpen(path, flags)
+      if (String(path) === targetDirectory && flags === "r") {
+        vi.spyOn(handle, "sync").mockRejectedValueOnce(new Error("directory sync failed"))
+      }
+      return handle
+    })
+    const next = { ...previous, indexGeneration: previous.indexGeneration + 1n }
+
+    await expect(
+      writeConfigurationIndexAtomically({
+        projectDir,
+        address: { kind: "configuration" },
+        data: next,
+      })
+    ).resolves.toBeUndefined()
+
+    expect(await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).toEqual(
+      reverseInputOrder(next)
+    )
+    expect(await indexDirectoryEntries(projectDir)).toEqual(["configuration-index.bin"])
+  })
+
   it("keeps a colliding temporary file owned by another writer and retries with a new name", async () => {
     const projectDir = await createProjectDir()
     const data = sampleSnapshot()

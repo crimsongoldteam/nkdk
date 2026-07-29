@@ -7,7 +7,10 @@ import { createConfigurationIndexExportRuntime } from "../../configurationIndex/
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { configurationChildObjectsRule } from "./builders"
+import type { ConfigurationChildObjectsXML } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 
 const address = "Конфигурация.Свойство.childObjects"
@@ -48,6 +51,45 @@ describe("ConfigurationChildObjects omittedChildren", () => {
         },
       },
     ])
+  })
+
+  it("сохраняет межтиповое чередование A/B/A в настоящем XML round-trip", () => {
+    const source = [
+      "<ChildObjects>",
+      "\t<Catalog>Товары</Catalog>",
+      "\t<Document>Заказ</Document>",
+      "\t<Catalog>Услуги</Catalog>",
+      "</ChildObjects>",
+    ].join("\n")
+    const parsed = importContentFromXML<{ ChildObjects: ConfigurationChildObjectsXML }>(source)
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, address)
+    const collect = getTypeRule("ConfigurationChildObjects", "collectConfigurationIndexFromXML")
+    const rule = configurationChildObjectsRule({
+      xml: "ChildObjects",
+      toYAML: false,
+      fromYAML: false,
+      toXML: false,
+    })
+
+    collect?.({
+      context,
+      rule,
+      xml: parsed.ChildObjects,
+      propertyKey: "childObjects",
+    })
+    const omittedChildren = collector.fragment("Конфигурация.yaml").entities[0]?.omittedChildren
+    expect(omittedChildren).toEqual({
+      kind: "typedNames",
+      items: [
+        { xmlName: "Catalog", name: "Товары" },
+        { xmlName: "Document", name: "Заказ" },
+        { xmlName: "Catalog", name: "Услуги" },
+      ],
+    })
+
+    const restored = configurationChildObjectsFromIndex(exportRuntime(omittedChildren!), parsed.ChildObjects)
+    expect(xmlExport({ ChildObjects: restored }, false)).toBe(source)
   })
 
   it("сохраняет порядок существующих пар и добавляет новые из текущего состава", () => {

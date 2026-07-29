@@ -280,7 +280,7 @@ function createHarness(options: HarnessOptions = {}) {
     },
     async readHashes({ structure: value }) {
       events.push(readingBase ? "baseHashes" : "targetHashes")
-      return hashes(value)
+      return hashes(value, options.previousFiles)
     },
     async readIndexes({ structure: value, hashes: valueHashes }) {
       events.push(readingBase ? "baseIndexes" : "targetIndexes")
@@ -421,10 +421,13 @@ function structure(
   }
 }
 
-function hashes(structure: ComponentProjectStructure): ComponentHashState {
+function hashes(
+  structure: ComponentProjectStructure,
+  projectFiles: ConfigurationSnapshot["files"] = [{ projectPath: "Конфигурация.yaml", contentHash: 10n }]
+): ComponentHashState {
   return {
     componentPath: structure.componentPath,
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+    projectFiles,
   }
 }
 

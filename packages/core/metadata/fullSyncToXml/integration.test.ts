@@ -92,4 +92,32 @@ describe("full XML sync integration", () => {
     expect(fs.existsSync(join(yamlDir, ".nkdk"))).toBe(false)
     expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).files.length).toBeGreaterThan(0)
   })
+
+  it("removes snapshot entities of a deleted YAML file", async () => {
+    const root = createTempRoot()
+    const projectDir = join(root, "project")
+    const outDir = join(root, "out")
+    const deletedYaml = join(projectDir, "cf", "Бот", "БотВсеСвойства", "Свойства.yaml")
+    await writeSmallYamlProjectWithIndex(projectDir)
+    await fs.promises.rm(join(projectDir, "cf", "Бот"), { recursive: true })
+
+    const synced = await syncConfigurationToXml(
+      {
+        context: mockContextToXML(),
+        componentPath: "cf",
+        projectDir,
+        xmlDir: outDir,
+        concurrency: 1,
+      },
+      createDirectFullSyncDependencies()
+    )
+
+    expect(synced.failed).toEqual([])
+    expect(fs.existsSync(deletedYaml)).toBe(false)
+    const index = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
+    expect(index.indexGeneration).toBe(2n)
+    expect(index.files.some(({ projectPath }) => projectPath === "Бот/БотВсеСвойства/Свойства.yaml")).toBe(false)
+    expect(index.entities.some(({ logicalAddress }) => logicalAddress === "Бот.БотВсеСвойства")).toBe(false)
+    expect(index.entities.some(({ logicalAddress }) => logicalAddress === "ВнешнееСостояние")).toBe(false)
+  })
 })

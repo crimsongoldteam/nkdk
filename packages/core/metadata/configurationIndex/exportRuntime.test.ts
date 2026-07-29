@@ -4,6 +4,8 @@ import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
 import type { CreateConfigurationIndexExportRuntimeOptions } from "./exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
+import type { ConfigurationIndexReader } from "./sharedSnapshot"
+import type { ConfigurationSnapshot } from "./types"
 import { sampleSnapshot, TEST_UUID } from "./testData"
 
 describe("configuration index export runtime", () => {
@@ -15,11 +17,11 @@ describe("configuration index export runtime", () => {
     expectTypeOf<HasTargetGeneration>().toEqualTypeOf<false>()
   })
 
-  function createRuntime(logicalAddress = "Документ.Заказ") {
+  function createRuntime(
+    logicalAddress = "Документ.Заказ",
+    source: ConfigurationIndexReader = createReader(sampleSnapshot())
+  ) {
     const collector = createConfigurationIndexCollector()
-    const source = createConfigurationIndexReader(
-      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
-    )
     const runtime = createConfigurationIndexExportRuntime({
       source,
       collector,
@@ -63,13 +65,36 @@ describe("configuration index export runtime", () => {
     expect(firstVersion).toMatch(/^[0-9a-f]{40}$/)
   })
 
-  it("uses snapshot bytes, next generation, address and kind in deterministic derivation", () => {
+  it("uses address and kind in deterministic derivation", () => {
     const first = createRuntime("Документ.Новый")
     const second = createRuntime("Документ.Другой")
 
     expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
     expect(first.runtime.identityOrCreate("uuid")).not.toBe(first.runtime.identityOrCreate("xmlId"))
     expect(first.runtime.configVersion("Документ.Новый")).not.toBe(first.runtime.configVersion("Документ.Другой"))
+  })
+
+  it("uses snapshot bytes in deterministic derivation at the same generation", () => {
+    const firstSnapshot = sampleSnapshot()
+    const secondSnapshot: ConfigurationSnapshot = {
+      ...firstSnapshot,
+      files: firstSnapshot.files.map((file, index) =>
+        index === 0 ? { ...file, contentHash: file.contentHash + 1n } : file
+      ),
+    }
+    const first = createRuntime("Документ.Новый", createReader(firstSnapshot))
+    const second = createRuntime("Документ.Новый", createReader(secondSnapshot))
+
+    expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
+  })
+
+  it("uses the next indexGeneration separately from identical snapshot bytes", () => {
+    const source = createReader(sampleSnapshot())
+    const first = createRuntime("Документ.Новый", withIndexGeneration(source, 7n))
+    const second = createRuntime("Документ.Новый", withIndexGeneration(source, 8n))
+
+    expect(first.runtime.source.snapshot).toBe(second.runtime.source.snapshot)
+    expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
   })
 
   it("reads identities, XML and omitted children from one source entity", () => {
@@ -102,3 +127,19 @@ describe("configuration index export runtime", () => {
     expect(() => runtime.identityOrCreate("uuid")).toThrow("Конфликт logicalAddress")
   })
 })
+
+function createReader(snapshot: ConfigurationSnapshot): ConfigurationIndexReader {
+  return createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)))
+}
+
+function withIndexGeneration(source: ConfigurationIndexReader, indexGeneration: bigint): ConfigurationIndexReader {
+  return {
+    snapshot: source.snapshot,
+    header: () => ({ ...source.header(), indexGeneration }),
+    file: source.file.bind(source),
+    files: source.files.bind(source),
+    entity: source.entity.bind(source),
+    entities: source.entities.bind(source),
+    entitiesBySourceProjectPath: source.entitiesBySourceProjectPath.bind(source),
+  }
+}

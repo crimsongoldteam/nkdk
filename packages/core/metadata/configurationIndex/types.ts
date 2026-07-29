@@ -1,11 +1,3 @@
-export interface ConfigurationIndexBinding {
-  indexGeneration: bigint
-  producerVersion: string
-  componentPath: string
-  baseFingerprint: Uint8Array
-  configurationVersion: Uint8Array
-}
-
 export interface ConfigurationProjectFile {
   projectPath: string
   contentHash: bigint

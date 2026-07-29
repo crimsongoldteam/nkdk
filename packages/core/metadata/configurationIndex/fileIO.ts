@@ -42,15 +42,23 @@ export async function writeConfigurationIndexAtomically(params: {
       await handle.close()
     }
     await fs.promises.rename(temporary, target)
+  } catch (caught) {
+    await fs.promises.unlink(temporary).catch(() => undefined)
+    throw caught
+  }
+  await syncDirectoryBestEffort(directory)
+}
+
+async function syncDirectoryBestEffort(directory: string): Promise<void> {
+  try {
     const directoryHandle = await fs.promises.open(directory, "r")
     try {
       await directoryHandle.sync()
     } finally {
       await directoryHandle.close()
     }
-  } catch (caught) {
-    await fs.promises.unlink(temporary).catch(() => undefined)
-    throw caught
+  } catch {
+    // rename — точка фиксации: опубликованный файл уже нельзя безопасно откатить.
   }
 }
 

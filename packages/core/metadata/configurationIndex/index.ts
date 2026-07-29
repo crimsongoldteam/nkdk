@@ -36,7 +36,6 @@ export {
   type SharedConfigurationIndexSnapshot,
 } from "./sharedSnapshot"
 export type {
-  ConfigurationIndexBinding,
   ConfigurationProjectFile,
   ConfigurationSnapshot,
   ConfigurationSnapshotEntity,

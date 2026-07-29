@@ -13,7 +13,7 @@ export function canonicalFormSyncXML(params: { path: string; result: string; exp
   const result = canonicalXML(params.result)
   const expected = canonicalXML(params.expected)
 
-  assertYAMLEventOrder(yaml, result, params.path)
+  assertYAMLEventOrder(yaml, result, expected, params.path)
   return {
     result: normalizeEventCollections(result),
     expected: normalizeEventCollections(expected),
@@ -33,66 +33,189 @@ function formYamlPath(inputDir: string, xmlPath: string): string {
   return join(inputDir, ...segments.slice(0, formsIndex), "Формы", segments[formsIndex + 1], "Форма.yaml")
 }
 
-function assertYAMLEventOrder(yaml: unknown, xml: unknown, path: string): void {
+interface YAMLEventBinding {
+  readonly eventKey: string
+  readonly callType?: string
+  readonly handler: string
+}
+
+interface YAMLEventGroup {
+  readonly ownerPath: readonly string[]
+  readonly bindings: readonly YAMLEventBinding[]
+}
+
+interface XMLEventBinding {
+  readonly name: string
+  readonly callType?: string
+  readonly handler: string
+}
+
+interface XMLEventGroup {
+  readonly ownerPath: readonly string[]
+  readonly bindings: readonly XMLEventBinding[]
+}
+
+function assertYAMLEventOrder(yaml: unknown, xml: unknown, expectedXml: unknown, path: string): void {
   const yamlGroups = collectYAMLEventGroups(yaml)
-  const unmatched = collectXMLEventGroups(xml)
+  const resultGroups = eventGroupsByOwner(collectXMLEventGroups(xml), path, "результате")
+  const expectedGroups = eventGroupsByOwner(collectXMLEventGroups(expectedXml), path, "reference XML")
 
   for (const yamlGroup of yamlGroups) {
-    const matchIndex = unmatched.findIndex(
-      (xmlGroup) =>
-        xmlGroup.length >= yamlGroup.length && yamlGroup.every((handler, index) => xmlGroup[index] === handler)
+    const ownerKey = ownerPathKey(yamlGroup.ownerPath)
+    const owner = yamlGroup.ownerPath.join("/") || "форма"
+    const resultGroup = resultGroups.get(ownerKey)
+    const expectedGroup = expectedGroups.get(ownerKey)
+    assert.notEqual(expectedGroup, undefined, `${path}: владелец ${owner}: группа Event отсутствует в reference XML`)
+    assert.notEqual(resultGroup, undefined, `${path}: владелец ${owner}: группа Event отсутствует в результате`)
+
+    const unmatchedExpected = [...expectedGroup!.bindings]
+    const desiredOrder = yamlGroup.bindings.map((binding) => {
+      const candidates = unmatchedExpected
+        .map((event, index) => ({ event, index }))
+        .filter(({ event }) => event.handler === binding.handler && event.callType === binding.callType)
+      const canonicalName = capitalize(binding.eventKey)
+      const matched = candidates.find(({ event }) => event.name === canonicalName) ?? candidates[0]
+      assert.notEqual(
+        matched,
+        undefined,
+        `${path}: владелец ${owner}: не найдено reference-событие ${binding.eventKey}/${binding.callType ?? "Auto"}`
+      )
+      unmatchedExpected.splice(matched!.index, 1)
+      return eventSignature(matched!.event)
+    })
+    const actualOrder = resultGroup!.bindings.slice(0, desiredOrder.length).map(eventSignature)
+    assert.deepEqual(
+      actualOrder,
+      desiredOrder,
+      `${path}: владелец ${owner}: порядок обработчиков XML не соответствует разделу События из YAML`
     )
-    assert.notEqual(
-      matchIndex,
-      -1,
-      `${path}: порядок обработчиков XML не начинается с порядка раздела События из YAML: ${yamlGroup.join(", ")}`
-    )
-    unmatched.splice(matchIndex, 1)
   }
 }
 
-function collectYAMLEventGroups(value: unknown): string[][] {
-  const result: string[][] = []
-  visitRecords(value, (record) => {
-    const events = asRecord(record.События)
-    if (events === undefined) return
-    const handlers = Object.values(events).flatMap((event) => {
-      if (typeof event === "string") return [event]
-      const callHandlers = asRecord(event)
-      return callHandlers === undefined
-        ? []
-        : Object.values(callHandlers).filter((handler): handler is string => typeof handler === "string")
-    })
-    if (handlers.length > 0) result.push(handlers)
-  })
+function collectYAMLEventGroups(value: unknown): YAMLEventGroup[] {
+  const result: YAMLEventGroup[] = []
+  visitYAMLRecords(value, [], result)
   return result
 }
 
-function collectXMLEventGroups(value: unknown): string[][] {
-  const result: string[][] = []
-  visitRecords(value, (record) => {
-    const events = asRecord(record.Events)
-    if (events === undefined) return
-    const source = events.Event
-    const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
-    const handlers = items.flatMap((item) => {
-      const handler = asRecord(item)?.["#text"]
-      return typeof handler === "string" ? [handler] : []
-    })
-    if (handlers.length > 0) result.push(handlers)
-  })
-  return result
-}
-
-function visitRecords(value: unknown, visitor: (record: Record<string, unknown>) => void): void {
+function visitYAMLRecords(
+  value: unknown,
+  ownerPath: readonly string[],
+  result: YAMLEventGroup[]
+): void {
   if (Array.isArray(value)) {
-    for (const child of value) visitRecords(child, visitor)
+    for (const child of value) visitYAMLRecords(child, ownerPath, result)
     return
   }
   const record = asRecord(value)
   if (record === undefined) return
-  visitor(record)
-  for (const child of Object.values(record)) visitRecords(child, visitor)
+
+  const events = asRecord(record.События)
+  if (events !== undefined) {
+    const bindings = Object.entries(events).flatMap(([eventKey, event]): YAMLEventBinding[] => {
+      if (typeof event === "string") return [{ eventKey, handler: event }]
+      const callHandlers = asRecord(event)
+      if (callHandlers === undefined) return []
+      return Object.entries(callHandlers).flatMap(([callType, handler]) => {
+        const xmlCallType = yamlCallTypeToXML(callType)
+        return typeof handler === "string" && xmlCallType !== undefined
+          ? [{ eventKey, callType: xmlCallType, handler }]
+          : []
+      })
+    })
+    if (bindings.length > 0) result.push({ ownerPath, bindings })
+  }
+
+  for (const [key, child] of Object.entries(record)) {
+    if (key === "События") continue
+    if (key === "Элементы") {
+      const elements = asRecord(child)
+      if (elements !== undefined) {
+        for (const [name, element] of Object.entries(elements)) {
+          visitYAMLRecords(element, [...ownerPath, name], result)
+        }
+      }
+      continue
+    }
+    visitYAMLRecords(child, ownerPath, result)
+  }
+}
+
+function collectXMLEventGroups(value: unknown): XMLEventGroup[] {
+  const result: XMLEventGroup[] = []
+  visitXMLRecords(value, [], result)
+  return result
+}
+
+function visitXMLRecords(value: unknown, parentPath: readonly string[], result: XMLEventGroup[]): void {
+  if (Array.isArray(value)) {
+    for (const child of value) visitXMLRecords(child, parentPath, result)
+    return
+  }
+  const record = asRecord(value)
+  if (record === undefined) return
+  const ownerPath = typeof record._name === "string" ? [...parentPath, record._name] : parentPath
+  const events = asRecord(record.Events)
+  if (events !== undefined) {
+    const source = events.Event
+    const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
+    const bindings = items.flatMap((item): XMLEventBinding[] => {
+      const event = asRecord(item)
+      const name = event?._name
+      const callType = event?._callType
+      const handler = event?.["#text"]
+      if (
+        typeof name !== "string" ||
+        typeof handler !== "string" ||
+        (callType !== undefined && typeof callType !== "string")
+      ) {
+        return []
+      }
+      return [{ name, ...(callType === undefined ? {} : { callType }), handler }]
+    })
+    if (bindings.length > 0) result.push({ ownerPath, bindings })
+  }
+  for (const [key, child] of Object.entries(record)) {
+    if (key !== "Events") visitXMLRecords(child, ownerPath, result)
+  }
+}
+
+function eventGroupsByOwner(
+  groups: readonly XMLEventGroup[],
+  path: string,
+  source: string
+): ReadonlyMap<string, XMLEventGroup> {
+  const result = new Map<string, XMLEventGroup>()
+  for (const group of groups) {
+    const key = ownerPathKey(group.ownerPath)
+    assert.equal(
+      result.has(key),
+      false,
+      `${path}: повторный structural owner path в ${source}: ${group.ownerPath.join("/") || "форма"}`
+    )
+    result.set(key, group)
+  }
+  return result
+}
+
+function ownerPathKey(ownerPath: readonly string[]): string {
+  return JSON.stringify(ownerPath)
+}
+
+function eventSignature(event: Pick<XMLEventBinding, "name" | "callType">): string {
+  return JSON.stringify([event.name, event.callType ?? null])
+}
+
+function yamlCallTypeToXML(value: string): string | undefined {
+  if (value === "Перед") return "Before"
+  if (value === "После") return "After"
+  if (value === "Вместо") return "Override"
+  if (value === "Before" || value === "After" || value === "Override") return value
+  return undefined
+}
+
+function capitalize(value: string): string {
+  return value.length === 0 ? value : `${value[0]!.toUpperCase()}${value.slice(1)}`
 }
 
 function normalizeEventCollections(value: unknown, key?: string): unknown {

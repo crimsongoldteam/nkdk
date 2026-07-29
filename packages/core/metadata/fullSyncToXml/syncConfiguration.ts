@@ -329,13 +329,17 @@ function buildFullXmlSyncConfigurationSnapshot(params: {
   readonly target: ConfirmedComponentState
   readonly fragmentData: MergedConfigurationSnapshotFragments
 }): ConfigurationSnapshot {
+  const files = [...params.target.hashes.projectFiles]
+  const currentProjectPaths = new Set(files.map(({ projectPath }) => projectPath))
   return {
     specificationVersion: "1.3",
     indexGeneration: params.previous.indexGeneration + 1n,
     componentPath: params.previous.componentPath,
-    files: [...params.target.hashes.projectFiles],
+    files,
     entities: replaceSnapshotEntities({
-      previous: params.previous.entities,
+      previous: params.previous.entities.filter(({ sourceProjectPath }) =>
+        currentProjectPaths.has(sourceProjectPath)
+      ),
       replacements: params.fragmentData,
     }),
   }
