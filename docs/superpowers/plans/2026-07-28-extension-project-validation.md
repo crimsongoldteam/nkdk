@@ -20,6 +20,24 @@
 - Диагностики публичного результата адресуются от корня проекта: `cf/...` и `cfe/<ИмяРасширения>/...`.
 - Перед завершением обязательно запустить `pnpm test` из корня worktree.
 
+## Статус реализации
+
+Задачи 1–8 выполнены соответствующими коммитами ветки. Флажки в пошаговых
+разделах ниже сохраняют исходный исполняемый план; фактический статус и
+последующие уточнения фиксируются здесь.
+
+| Задача | Статус | Результат |
+|---|---|---|
+| 1. Удаление partial validation | Выполнена | Удалены публичный, worker и queue partial-договоры. |
+| 2. Обнаружение компонентов | Выполнена | Validation обнаруживает `cf` и непосредственные `cfe`. |
+| 3. Schema корня расширения | Выполнена | Runtime и standalone выбирают схему по root rule. |
+| 4. Компонентный shared graph | Выполнена | Добавлены component-qualified owner/reference таблицы и views. |
+| 5. Общий first pass | Выполнена | Один worker pool читает смешанный список и вычисляет readiness `cf`. |
+| 6. Layered second pass | Выполнена | Реализованы изоляция, локальный приоритет и schema-only деградация. |
+| 7. MCP | Выполнена | MCP передаёт корень проекта и сохраняет компонентные пути. |
+| 8. Архитектура и проверка | Выполнена | Архитектура обновлена, полный `pnpm test` и type-check проходят. |
+| 9. Уточнения после итогового ревью | Выполнена | Зафиксирован snapshot-договор, формализованы validation-артефакты и удалены служебные отчёты. |
+
 ---
 
 ## File Structure
@@ -46,6 +64,8 @@
 - `packages/core/metadata/validation/projectValidationPasses.ts` — раздельный результат schema stage и готовность вклада.
 - `packages/core/metadata/validation/projectValidationStandaloneSchemas.ts` и соседние standalone-файлы — схема корня расширения по `itemType`.
 - `packages/mcp/src/services/validateProject.ts` — передача корня проекта без предварительного выбора `cf`.
+- `packages/core/metadata/operations/projectSnapshot.ts` — разделение component-local `projectDir` и корневого `validationProjectDir`.
+- `packages/core/metadata/fullSyncToXml/*` — передача обязательной компонентной адресации в общие prepared YAML descriptors.
 - `.agents/architecture.md` — поток validation всего проекта.
 
 Удаляемые файлы:
@@ -1433,3 +1453,59 @@ Expected: нет whitespace errors; изменены только файлы val
 git add .agents/architecture.md
 git commit -m "docs: :memo: обновить архитектуру validation"
 ```
+
+---
+
+### Task 9: Синхронизировать договоры после итогового ревью
+
+**Files:**
+
+- Modify: `.agents/architecture.md`
+- Modify: `docs/superpowers/specs/2026-07-28-extension-project-validation-design.md`
+- Modify: `docs/superpowers/plans/2026-07-28-extension-project-validation.md`
+- Delete: `.superpowers/sdd/2026-07-28-extension-project-validation/task-*-report.md`
+
+**Interfaces:**
+
+- Consumes: реализованный root-only `validateProject` и component-local
+  `buildMetadataOperationSnapshot`.
+- Produces: формально согласованные архитектурные артефакты и явно
+  документированный `validationProjectDir`.
+
+- [x] **Step 1: Формализовать validation-артефакты**
+
+Добавить определения first-pass вкладов и диагностик, readiness `cf`, единого
+shared graph, component views, частичных проверок зависимостей, публикуемых
+диагностик и координаторных ошибок деградации. Использовать их точные имена и
+ссылки в таблице операции.
+
+- [x] **Step 2: Зафиксировать snapshot-договор**
+
+Указать в спецификации, что `projectDir` остаётся каталогом компонента, а
+`validationProjectDir` обязателен только вместе с `requireValidProject: true` и
+всегда указывает на корень NKDK-проекта.
+
+- [x] **Step 3: Отразить фактические границы реализации**
+
+Добавить `projectSnapshot.ts` и адаптацию `fullSyncToXml` в список изменяемых
+файлов, а статус задач 1–9 — в начало плана.
+
+- [x] **Step 4: Удалить служебные отчёты**
+
+Не включать промежуточные `.superpowers/sdd/*-report.md` в результат ветки.
+
+- [x] **Step 5: Проверить документацию и diff**
+
+Run:
+
+```bash
+sed -n '/^### Task 9:/,$p' \
+  docs/superpowers/plans/2026-07-28-extension-project-validation.md |
+  rg -n '^- \[ \]'
+git diff --check
+git status --short
+```
+
+Expected: в Task 9 незавершённым остаётся только этот шаг до выполнения
+проверки; whitespace errors отсутствуют, а рабочее дерево содержит только
+согласованные документационные изменения и удаления служебных отчётов.
