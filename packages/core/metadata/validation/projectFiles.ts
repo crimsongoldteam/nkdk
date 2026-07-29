@@ -18,6 +18,7 @@ export interface ValidationProjectFile extends ComponentFileAddress {
   absolutePath: string
   projectPath: string
   kind: "configuration" | "properties" | "form"
+  itemType: string
   owner: { dir: string; name: string; spec: ValidationProjectSpec }
   formName?: string
 }
@@ -66,6 +67,7 @@ function toValidationProjectFile(
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "configuration",
+      itemType: resource.owner.spec.rule.itemType,
       owner: resource.owner,
     }
   }
@@ -76,6 +78,7 @@ function toValidationProjectFile(
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "properties",
+      itemType: resource.owner.spec.rule.itemType,
       owner: resource.owner,
     }
   }
@@ -86,6 +89,7 @@ function toValidationProjectFile(
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "form",
+      itemType: resource.itemType,
       owner: resource.owner,
       formName: resource.formName,
     }

@@ -86,6 +86,7 @@ describe("validation project files", () => {
       absolutePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
       projectPath: "Справочник/Товары/Свойства.yaml",
       kind: "properties",
+      itemType: "MetadataCatalog",
       owner: {
         dir: "Справочник",
         name: "Товары",
@@ -106,6 +107,7 @@ describe("validation project files", () => {
       absolutePath,
       projectPath: "Документ/Заказ/Формы/ФормаДокумента/Форма.yaml",
       kind: "form",
+      itemType: "ClientApplicationForm",
       owner: {
         dir: "Документ",
         name: "Заказ",
@@ -197,6 +199,7 @@ describe("validation project files", () => {
       absolutePath: join(projectDir, "Конфигурация.yaml"),
       projectPath: "Конфигурация.yaml",
       kind: "configuration",
+      itemType: "MetadataConfiguration",
       owner: {
         dir: "",
         name: "Конфигурация",

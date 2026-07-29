@@ -1,16 +1,103 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { registerValidationMetadata } from "./registerValidationMetadata"
+import {
+  registerLocalYamlValueValidator,
+  restoreLocalYamlValueValidationRegistryForTests,
+  snapshotLocalYamlValueValidationRegistryForTests,
+  type LocalYamlValueValidationRegistrySnapshot,
+} from "./yamlValueValidationRegistry"
+import { diagnosticAtYamlPath } from "./yamlLocations"
 
 registerValidationMetadata()
 
 describe("extractValidationYamlFacts", () => {
+  let valueValidationRegistry: LocalYamlValueValidationRegistrySnapshot
+
+  beforeEach(() => {
+    valueValidationRegistry = snapshotLocalYamlValueValidationRegistryForTests()
+  })
+
+  afterEach(() => {
+    restoreLocalYamlValueValidationRegistryForTests(valueValidationRegistry)
+  })
+
+  it("запускает локальную проверку для корневого item type", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+    registerLocalYamlValueValidator({
+      type: file.itemType,
+      validator: (params) => [
+        diagnosticAtYamlPath({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          path: params.yamlPath,
+          severity: "error",
+          source: "structure",
+          message: `${params.owner.dir}.${params.owner.name}:${String(params.value === params.parsed.data)}`,
+        }),
+      ],
+    })
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("{}\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: "Справочник.Товары:true",
+        }),
+      ])
+    )
+    expect(facts.diagnostics.find(({ message }) => message === "Справочник.Товары:true")?.path).toBeUndefined()
+  })
+
+  it("запускает локальную проверку присутствующего свойства с его YAML-путём", () => {
+    const projectDir = "/project"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+    registerLocalYamlValueValidator({
+      type: "Picture",
+      validator: (params) => [
+        diagnosticAtYamlPath({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          path: params.yamlPath,
+          severity: "error",
+          source: "structure",
+          message: String(params.value),
+        }),
+      ],
+    })
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Картинка",
+          message: "ОбщаяКартинка.Печать",
+        }),
+      ])
+    )
+  })
+
   it("extracts object index entries from properties YAML without model import", () => {
     const projectDir = join(__dirname, "__fixtures__/project-with-form")
     const filePath = join(projectDir, "Справочник/СправочникСФормой/Свойства.yaml")
