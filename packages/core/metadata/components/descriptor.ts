@@ -8,9 +8,7 @@ export interface MetadataComponentDescriptor {
 
 const descriptorsByKind = new Map<string, MetadataComponentDescriptor>()
 
-export function registerMetadataComponentDescriptor(
-  descriptor: MetadataComponentDescriptor
-): void {
+export function registerMetadataComponentDescriptor(descriptor: MetadataComponentDescriptor): void {
   if (descriptorsByKind.has(descriptor.kind)) {
     throw new Error(`Вид metadata-компонента уже зарегистрирован: ${descriptor.kind}`)
   }
@@ -18,9 +16,13 @@ export function registerMetadataComponentDescriptor(
 }
 
 export function getMetadataComponentDescriptor(kind: string): MetadataComponentDescriptor {
-  const descriptor = descriptorsByKind.get(kind)
+  const descriptor = findMetadataComponentDescriptor(kind)
   if (descriptor === undefined) {
     throw new Error(`Не найдено описание metadata-компонента: ${kind}`)
   }
   return descriptor
+}
+
+export function findMetadataComponentDescriptor(kind: string): MetadataComponentDescriptor | undefined {
+  return descriptorsByKind.get(kind)
 }

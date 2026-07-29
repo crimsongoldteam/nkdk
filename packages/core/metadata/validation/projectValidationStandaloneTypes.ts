@@ -8,9 +8,9 @@ export interface ProjectValidationStandaloneValidator {
 }
 
 export interface ProjectValidationStandaloneModule {
-  format: "project-validation-ajv-standalone-v1"
+  format: "project-validation-ajv-standalone-v2"
   context: ConfigurationContext
   refs?: Record<string, TSchema>
   form: ProjectValidationStandaloneValidator
-  byProjectDir: Record<string, ProjectValidationStandaloneValidator>
+  byItemType: Record<string, ProjectValidationStandaloneValidator>
 }

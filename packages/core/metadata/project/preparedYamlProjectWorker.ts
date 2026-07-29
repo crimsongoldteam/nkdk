@@ -1,9 +1,8 @@
-import { resolve } from "node:path"
+import { join, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import type { ConfigurationContext } from "../context/types"
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
-import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
   ProjectMemberIndexEntry,
@@ -12,6 +11,7 @@ import type {
   PendingMetadataTargetReference,
 } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { validationProjectComponentFromAddress } from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import { validatePendingReferencesWithIndex } from "../validation/projectReferenceIndex"
 import {
@@ -29,15 +29,14 @@ import { createProjectValidationWorkerSchemaCache } from "../validation/projectV
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { SharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
-import type { ValidationYamlLifetime } from "../validation/validationWorkerPoolTypes"
-import { validateProjectPartial } from "../validation/validateProjectPartial"
 import type {
-  ValidationIndexContribution,
-  ValidationMode,
-  ValidationObjectRecord,
-} from "../validation/projectValidationTypes"
+  ComponentFirstPassPoolResult,
+  ValidationFirstPassFileResult,
+  ValidationYamlLifetime,
+} from "../validation/validationWorkerPoolTypes"
+import type { ValidationGraphContribution, ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { prepareYamlFiles } from "./prepareYamlFiles"
 import type {
   PreparedMetadataDeclaration,
@@ -82,16 +81,12 @@ export type PreparedYamlProjectWorkerTask =
       workerIndex: number
       projectDir: string
       context: ConfigurationContext
-      mode: ValidationMode
-      sharedValidationSnapshot: SharedValidationSnapshot
-      pendingReferences: PendingMetadataTargetReference[]
-    }
-  | {
-      kind: "validatePartial"
-      workerIndex: number
-      projectDir: string
-      filePath: string
-      context: ConfigurationContext
+      sharedProjectValidationGraph: SharedProjectValidationGraph
+      blockedComponentPaths: readonly string[]
+      pendingReferenceLayers: Array<{
+        componentPath: string
+        references: PendingMetadataTargetReference[]
+      }>
     }
 
 export type PreparedYamlProjectWorkerTaskResult =
@@ -105,12 +100,10 @@ export type PreparedYamlProjectWorkerTaskResult =
   | ({ kind: "initValidationResult" } & ValidationSchemaCacheCompileProfile)
   | {
       kind: "validateFirstPassResult"
+      components: ComponentFirstPassPoolResult[]
       diagnostics: Diagnostic[]
-      objectRecords: ValidationObjectRecord[]
-      objectIndexEntries: ProjectObjectIndexEntry[]
-      memberIndexEntries: ProjectMemberIndexEntry[]
-      valueIndexEntries: ProjectValueIndexEntry[]
-      pendingReferences: PendingMetadataTargetReference[]
+      schemaDiagnostics: Diagnostic[]
+      fileResults: ValidationFirstPassFileResult[]
       yamlLifetime: ValidationYamlLifetime
     }
   | {
@@ -119,10 +112,6 @@ export type PreparedYamlProjectWorkerTaskResult =
     }
   | {
       kind: "validateSecondPassResult"
-      diagnostics: Diagnostic[]
-    }
-  | {
-      kind: "validatePartialResult"
       diagnostics: Diagnostic[]
     }
 
@@ -137,17 +126,6 @@ interface WorkerValidationState {
 export default async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
-  if (message.kind === "validatePartial") {
-    try {
-      const result = await validateProjectPartial(message)
-      return { kind: "validatePartialResult", diagnostics: result.diagnostics }
-    } catch (caught) {
-      if (caught instanceof ProjectFileSchemaError) {
-        throw new Error(caught.message, { cause: { code: "project_file_schema" } })
-      }
-      throw caught
-    }
-  }
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
     validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
@@ -311,28 +289,53 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
 }
 
 function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" }>): {
+  components: ComponentFirstPassPoolResult[]
   diagnostics: Diagnostic[]
-  objectRecords: ValidationObjectRecord[]
-  objectIndexEntries: ProjectObjectIndexEntry[]
-  memberIndexEntries: ProjectMemberIndexEntry[]
-  valueIndexEntries: ProjectValueIndexEntry[]
-  pendingReferences: PendingMetadataTargetReference[]
+  schemaDiagnostics: Diagnostic[]
+  fileResults: ValidationFirstPassFileResult[]
   yamlLifetime: ValidationYamlLifetime
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   validationState = createEmptyWorkerValidationState()
   resetValidationYamlLifetimeForTests()
-  const diagnostics: Diagnostic[] = []
-  const objectRecords: ValidationObjectRecord[] = []
+  const components = new Map<string, ComponentFirstPassPoolResult>()
   const schemaCache = requireValidationSchemaCache()
   const firstPassProfile = createEmptyFirstPassProfileSummary()
 
   for (const descriptor of message.files) {
-    const file = resolveValidationProjectFile(message.projectDir, descriptor.filePath)
-    if (file === undefined) continue
+    const component = componentFirstPassResult(components, descriptor.componentPath)
+    const projectComponent = validationProjectComponentFromAddress(message.projectDir, descriptor)
+    const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
+    if (file === undefined) {
+      const filePath = resolve(descriptor.filePath)
+      component.diagnostics.push({
+        filePath,
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "structure",
+        message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
+      })
+      component.fileResults.push({
+        componentPath: descriptor.componentPath,
+        filePath,
+        rootProjectPath: descriptor.rootProjectPath,
+        contributedFacts: false,
+        schemaDiagnostics: [],
+      })
+      continue
+    }
     const entry = readProjectYamlEntryForValidation(file.absolutePath)
     if ("error" in entry) {
-      diagnostics.push(readProjectYamlDiagnostic(entry))
+      const diagnostic = readProjectYamlDiagnostic(entry)
+      component.diagnostics.push(diagnostic)
+      component.fileResults.push({
+        componentPath: descriptor.componentPath,
+        filePath: file.absolutePath,
+        rootProjectPath: descriptor.rootProjectPath,
+        contributedFacts: false,
+        schemaDiagnostics: [],
+      })
       continue
     }
 
@@ -345,7 +348,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     let first
     try {
       first = validateProjectFileFirstPass({
-        projectDir: message.projectDir,
+        projectDir: descriptor.componentDir,
         file,
         cache: createProjectYamlCacheFromEntries([entry]),
         context: message.context,
@@ -363,20 +366,61 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     validationState.memberIndexEntries.push(...first.memberIndexEntries)
     validationState.valueIndexEntries.push(...first.valueIndexEntries)
     validationState.pendingReferences.push(...first.pendingReferences)
-    diagnostics.push(...first.diagnostics)
-    objectRecords.push(...first.objectRecords)
+    component.contribution.objectRecords.push(...first.objectRecords)
+    component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
+    component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
+    component.contribution.valueIndexEntries?.push(...first.valueIndexEntries)
+    component.contribution.pendingReferences?.push(...first.pendingReferences)
+    component.diagnostics.push(...first.diagnostics)
+    component.schemaDiagnostics.push(...first.schemaDiagnostics)
+    component.fileResults.push({
+      componentPath: descriptor.componentPath,
+      filePath: file.absolutePath,
+      rootProjectPath: descriptor.rootProjectPath,
+      contributedFacts: first.contributedFacts,
+      schemaDiagnostics: first.schemaDiagnostics,
+    })
   }
   recordFirstPassProfile(profiler, message.files.length, firstPassProfile)
   profiler.flush()
 
+  const componentResults = [...components.values()].sort((left, right) =>
+    left.componentPath.localeCompare(right.componentPath, "ru")
+  )
   return {
-    diagnostics,
-    objectRecords,
-    objectIndexEntries: validationState.objectIndexEntries,
-    memberIndexEntries: validationState.memberIndexEntries,
-    valueIndexEntries: validationState.valueIndexEntries,
-    pendingReferences: validationState.pendingReferences,
+    components: componentResults,
+    diagnostics: componentResults.flatMap(({ diagnostics }) => diagnostics),
+    schemaDiagnostics: componentResults.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
+    fileResults: componentResults.flatMap(({ fileResults }) => fileResults),
     yamlLifetime: getValidationYamlLifetimeForTests(),
+  }
+}
+
+function componentFirstPassResult(
+  components: Map<string, ComponentFirstPassPoolResult>,
+  componentPath: string
+): ComponentFirstPassPoolResult {
+  const existing = components.get(componentPath)
+  if (existing !== undefined) return existing
+
+  const created: ComponentFirstPassPoolResult = {
+    componentPath,
+    contribution: emptyValidationGraphContribution(),
+    diagnostics: [],
+    schemaDiagnostics: [],
+    fileResults: [],
+  }
+  components.set(componentPath, created)
+  return created
+}
+
+function emptyValidationGraphContribution(): ValidationGraphContribution {
+  return {
+    objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
   }
 }
 
@@ -445,34 +489,71 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const diagnostics: Diagnostic[] = []
-  const { ownerCache, referenceIndex } = profiler.measure(
+  const blocked = new Set(message.blockedComponentPaths)
+  const activeStates = [...validationState.states.values()].filter(({ file }) => !blocked.has(file.componentPath))
+  const activeReferenceLayers = message.pendingReferenceLayers.filter(({ componentPath }) => !blocked.has(componentPath))
+  const activeComponentPaths = [
+    ...new Set([
+      ...activeStates.map(({ file }) => file.componentPath),
+      ...activeReferenceLayers.map(({ componentPath }) => componentPath),
+    ]),
+  ]
+  const views = profiler.measure(
     "Проверка зависимостей",
     "Построение контекста worker",
-    { items: validationState.states.size },
+    { items: activeComponentPaths.length },
     () => {
-      const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
-        projectDir: message.projectDir,
-        snapshot: message.sharedValidationSnapshot,
-      })
-      const referenceIndex = createSharedProjectReferenceIndex({
-        projectDir: message.projectDir,
-        mode: message.mode,
-        snapshot: message.sharedValidationSnapshot.reference,
-        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-      })
-      return { ownerCache, referenceIndex }
+      const views = new Map<
+        string,
+        {
+          ownerCache: ReturnType<typeof createOwnerMetadataCacheFromSharedProjectValidationGraph>
+          referenceIndex: ReturnType<typeof createSharedProjectReferenceIndex>
+        }
+      >()
+      for (const componentPath of activeComponentPaths) {
+        views.set(componentPath, {
+          ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
+            projectDir: message.projectDir,
+            componentPath,
+            graph: message.sharedProjectValidationGraph,
+          }),
+          referenceIndex: createSharedProjectReferenceIndex({
+            projectDir: message.projectDir,
+            componentPath,
+            snapshot: message.sharedProjectValidationGraph.reference,
+            resolveObjectFilePath: (target) =>
+              resolveObjectFilePath({
+                projectDir: join(message.projectDir, componentPath),
+                target,
+              }),
+          }),
+        })
+      }
+      return views
     }
   )
-  const referenceResult = profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: message.pendingReferences.length }, () =>
-    validatePendingReferencesWithIndex({
-      index: referenceIndex,
-      references: message.pendingReferences,
-    })
+  const view = (componentPath: string) => {
+    const created = views.get(componentPath)
+    if (created === undefined) throw new Error(`Не построен validation view компонента: ${componentPath}`)
+    return created
+  }
+  const pendingReferenceCount = activeReferenceLayers.reduce(
+    (count, layer) => count + layer.references.length,
+    0
   )
-  diagnostics.push(...referenceResult.diagnostics)
+  profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: pendingReferenceCount }, () => {
+    for (const layer of activeReferenceLayers) {
+      const referenceResult = validatePendingReferencesWithIndex({
+        index: view(layer.componentPath).referenceIndex,
+        references: layer.references,
+      })
+      diagnostics.push(...referenceResult.diagnostics)
+    }
+  })
 
-  profiler.measure("Проверка зависимостей", "Worker second pass", { items: validationState.states.size }, () => {
-    for (const state of validationState.states.values()) {
+  profiler.measure("Проверка зависимостей", "Worker second pass", { items: activeStates.length }, () => {
+    for (const state of activeStates) {
+      const { ownerCache, referenceIndex } = view(state.file.componentPath)
       const second = validateProjectFileSecondPass({
         projectDir: message.projectDir,
         state,

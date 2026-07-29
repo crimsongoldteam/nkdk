@@ -2,14 +2,8 @@ import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { hashFileBytes } from "../configurationIndex/hash"
-import {
-  createConfigurationIndexReader,
-  type ConfigurationIndexReader,
-} from "../configurationIndex/sharedSnapshot"
-import type {
-  ConfigurationContext,
-  ConfigurationContextWithExportToXML,
-} from "../context/types"
+import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
 import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
@@ -26,16 +20,13 @@ import type {
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
-import {
-  BaseFormSourceError,
-  createVerifiedBaseFormSource,
-  type BaseFormSource,
-} from "./baseFormSource"
+import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
+  readonly componentPath: string
   readonly componentDir: string
   readonly outputDir: string
   readonly context: ConfigurationContext
@@ -61,6 +52,7 @@ export async function runFullXmlSyncWorkerCommand(
         : createConfigurationIndexReader(command.profile.baseForms.snapshot)
     initializedState = {
       workerIndex: command.workerIndex,
+      componentPath: command.componentPath,
       componentDir: command.componentDir,
       outputDir: command.outputDir,
       context: {
@@ -75,9 +67,7 @@ export async function runFullXmlSyncWorkerCommand(
       composition: createFullXmlSyncCompositionReader(command.composition),
       ownerMetadataCache: createLayeredOwnerMetadataCache({
         localProjectDir: command.componentDir,
-        ...(command.profile.baseForms === undefined
-          ? {}
-          : { baseProjectDir: command.profile.baseForms.componentDir }),
+        ...(command.profile.baseForms === undefined ? {} : { baseProjectDir: command.profile.baseForms.componentDir }),
         snapshots: {
           local: command.localMetadata,
           ...(command.baseMetadata === undefined ? {} : { base: command.baseMetadata }),
@@ -131,14 +121,12 @@ async function executeAssignments(
       }
 
       const preparedYaml = prepareYamlFiles({
-        files: [assignmentDescriptor(assignment)],
+        files: [assignmentDescriptor(assignment, state)],
         itemTypeByYamlDir: itemTypes,
         sourceBytes: new Map([[assignment.sourcePath, bytes]]),
       })
       diagnostics.push(
-        ...preparedYaml.diagnostics.map((diagnostic) =>
-          syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
-        )
+        ...preparedYaml.diagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic, assignment))
       )
       const yamlFile = preparedYaml.yamlFiles[0]
       if (yamlFile === undefined) continue
@@ -156,9 +144,7 @@ async function executeAssignments(
           ? {}
           : {
               basePreparedYamlFile,
-              ...(state.baseIndex === undefined
-                ? {}
-                : { baseConfigurationIndex: state.baseIndex }),
+              ...(state.baseIndex === undefined ? {} : { baseConfigurationIndex: state.baseIndex }),
             }),
         context: exportContext(state),
         index: state.index,
@@ -182,9 +168,7 @@ async function executeAssignments(
       diagnostics.push(
         assignmentDiagnostic(
           assignment,
-          caught instanceof BaseFormSourceError
-            ? caught.code
-            : "full_xml_sync_assignment_failed",
+          caught instanceof BaseFormSourceError ? caught.code : "full_xml_sync_assignment_failed",
           errorMessage(caught)
         )
       )
@@ -203,23 +187,13 @@ async function executeAssignments(
   }
 }
 
-async function readBaseFormIfAdopted(
-  assignment: FullXmlSyncAssignment,
-  state: InitializedFullXmlSyncWorkerState
-) {
-  const baseInput = assignment.potentialOutputs
-    .map((output) => output.baseInput)
-    .find((value) => value !== undefined)
-  if (
-    baseInput === undefined ||
-    state.profile.adoptedUuids[assignment.logicalAddress] === undefined
-  ) {
+async function readBaseFormIfAdopted(assignment: FullXmlSyncAssignment, state: InitializedFullXmlSyncWorkerState) {
+  const baseInput = assignment.potentialOutputs.map((output) => output.baseInput).find((value) => value !== undefined)
+  if (baseInput === undefined || state.profile.adoptedUuids[assignment.logicalAddress] === undefined) {
     return undefined
   }
   if (state.baseFormSource === undefined) {
-    throw new Error(
-      `Для заимствованной формы не настроен источник основной конфигурации: ${assignment.logicalAddress}`
-    )
+    throw new Error(`Для заимствованной формы не настроен источник основной конфигурации: ${assignment.logicalAddress}`)
   }
   return state.baseFormSource.read({
     extensionAssignment: assignment,
@@ -227,9 +201,7 @@ async function readBaseFormIfAdopted(
   })
 }
 
-function createBaseFormSource(
-  profile: FullXmlSyncWorkerProfileRuntime
-): BaseFormSource | undefined {
+function createBaseFormSource(profile: FullXmlSyncWorkerProfileRuntime): BaseFormSource | undefined {
   if (profile.baseForms === undefined) return undefined
   const topology = compileRegisteredMetadataResourceTopology()
   const resources = profile.baseForms.projectFiles.flatMap(({ projectPath }) => {
@@ -253,9 +225,13 @@ function createBaseFormSource(
 }
 
 function assignmentDescriptor(
-  assignment: FullXmlSyncAssignment
+  assignment: FullXmlSyncAssignment,
+  state: Pick<InitializedFullXmlSyncWorkerState, "componentPath" | "componentDir">
 ): PreparedYamlProjectFileDescriptor {
   return {
+    componentPath: state.componentPath,
+    componentDir: state.componentDir,
+    rootProjectPath: `${state.componentPath}/${assignment.sourceProjectPath}`,
     projectPath: assignment.sourceProjectPath,
     filePath: assignment.sourcePath,
     role: assignment.role,
@@ -264,19 +240,17 @@ function assignmentDescriptor(
   }
 }
 
-function ownerFromAssignment(
-  assignment: Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath">
-): { dir: string; name: string } {
+function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath">): {
+  dir: string
+  name: string
+} {
   if (assignment.role === "configuration") return { dir: "", name: assignment.itemName }
   const parts = assignment.sourceProjectPath.split("/")
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 
 function itemTypeByYamlDir(
-  assignments: readonly Pick<
-    FullXmlSyncAssignment,
-    "role" | "itemName" | "sourceProjectPath" | "itemType"
-  >[]
+  assignments: readonly Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath" | "itemType">[]
 ): Record<string, string> {
   return Object.fromEntries(
     assignments
@@ -285,9 +259,7 @@ function itemTypeByYamlDir(
   )
 }
 
-function exportContext(
-  state: InitializedFullXmlSyncWorkerState
-): ConfigurationContextWithExportToXML {
+function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
   return {
     ...state.context,
     exportToYAML: {
@@ -307,10 +279,8 @@ function exportContext(
       },
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
-      xmlDefaultVariantByLogicalAddress:
-        state.profile.xmlDefaultVariantByLogicalAddress,
-      indexedPropertyOrderByLogicalAddress:
-        state.profile.indexedPropertyOrderByLogicalAddress,
+      xmlDefaultVariantByLogicalAddress: state.profile.xmlDefaultVariantByLogicalAddress,
+      indexedPropertyOrderByLogicalAddress: state.profile.indexedPropertyOrderByLogicalAddress,
     },
   }
 }
@@ -339,11 +309,7 @@ function syncDiagnosticFromProjectDiagnostic(
   }
 }
 
-function assignmentDiagnostic(
-  assignment: FullXmlSyncAssignment,
-  code: string,
-  message: string
-): FullXmlSyncDiagnostic {
+function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, message: string): FullXmlSyncDiagnostic {
   return {
     severity: "error",
     code,
@@ -376,9 +342,7 @@ export function fullXmlSyncWorkerStateForTests(): {
     componentDir: initializedState.componentDir,
     importProjectDir: initializedState.context.importFromYAML?.projectDir,
     outputDir: initializedState.outputDir,
-    ...(initializedState.baseIndex === undefined
-      ? {}
-      : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
+    ...(initializedState.baseIndex === undefined ? {} : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
     ...(initializedState.activeAssignmentId === undefined
       ? {}
       : { activeAssignmentId: initializedState.activeAssignmentId }),
@@ -400,9 +364,7 @@ export function createExecutionTransferable(result: FullXmlSyncExecutionResult) 
   }
 }
 
-function movableExecutionResult(
-  result: FullXmlSyncExecutionResult
-): FullXmlSyncExecutionResult {
+function movableExecutionResult(result: FullXmlSyncExecutionResult): FullXmlSyncExecutionResult {
   return move(createExecutionTransferable(result)) as unknown as FullXmlSyncExecutionResult
 }
 

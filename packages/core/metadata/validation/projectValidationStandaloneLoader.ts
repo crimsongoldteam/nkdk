@@ -1,6 +1,8 @@
 import { performance } from "node:perf_hooks"
 import { pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "../context/types"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import {
   createValidationSchemaFromAjvFunction,
   type ValidationSchemaValidator,
@@ -34,17 +36,17 @@ export function createValidationSchemaCacheFromStandaloneModule(
     form() {
       return form
     },
-    properties(spec) {
-      const existing = properties.get(spec.dir)
+    properties(rule) {
+      const existing = properties.get(rule.itemType)
       if (existing !== undefined) return existing
 
-      const validator = module.byProjectDir[spec.dir]
+      const validator = module.byItemType[rule.itemType]
       if (validator === undefined) {
-        throw new Error(`Standalone validation schema was not generated for project dir "${spec.dir}"`)
+        throw new Error(`Standalone validation schema was not generated for item type "${rule.itemType}"`)
       }
 
       const compiled = createCompiledStandaloneValidator(validator, schemaContext)
-      properties.set(spec.dir, compiled)
+      properties.set(rule.itemType, compiled)
       return compiled
     },
     compileAll(): ValidationSchemaCacheCompileProfile {
@@ -54,9 +56,8 @@ export function createValidationSchemaCacheFromStandaloneModule(
       const formMs = performance.now() - formStartedAt
 
       const propertiesStartedAt = performance.now()
-      this.properties(configurationValidationProjectSpec)
-      for (const spec of validationProjectSpecs) {
-        this.properties(spec)
+      for (const rule of validationProjectPropertyRules()) {
+        this.properties(rule)
       }
       const propertiesMs = performance.now() - propertiesStartedAt
 
@@ -93,7 +94,19 @@ function createCompiledStandaloneValidator(
 }
 
 function assertProjectValidationStandaloneModule(module: ProjectValidationStandaloneModule): void {
-  if (module.format !== "project-validation-ajv-standalone-v1") {
+  if (module.format !== "project-validation-ajv-standalone-v2") {
     throw new Error(`Unsupported standalone validation module format: ${String(module.format)}`)
   }
+}
+
+function validationProjectPropertyRules(): MetadataItemRule[] {
+  return uniqueRulesByItemType([
+    configurationValidationProjectSpec.rule,
+    getMetadataComponentDescriptor("configurationExtension").rootRule,
+    ...validationProjectSpecs.map((spec) => spec.rule),
+  ])
+}
+
+function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItemRule[] {
+  return [...new Map(rules.map((rule) => [rule.itemType, rule])).values()]
 }

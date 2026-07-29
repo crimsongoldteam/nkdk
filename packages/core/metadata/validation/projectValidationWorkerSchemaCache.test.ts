@@ -15,6 +15,6 @@ describe("projectValidationWorkerSchemaCache", () => {
       workerUrl: "file:///project/metadata/validation/projectValidationWorker.ts",
     })
 
-    expect(cache.properties(configurationValidationProjectSpec).Check({ Имя: "Конфигурация" })).toBe(false)
+    expect(cache.properties(configurationValidationProjectSpec.rule).Check({ Имя: "Конфигурация" })).toBe(false)
   })
 })

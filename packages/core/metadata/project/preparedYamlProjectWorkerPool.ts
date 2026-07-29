@@ -5,16 +5,17 @@ import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
+  ComponentFirstPassPoolResult,
   FirstPassPoolResult,
   SecondPassPoolParams,
   SecondPassPoolResult,
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
 import { createValidationProfiler } from "../validation/profile"
-import { ProjectFileSchemaError } from "../validation/projectFileSchema"
+import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
-import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -43,11 +44,6 @@ export interface PreparedYamlProjectWorkerPool {
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<ValidationIndexContribution>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
-  runPartialValidation(params: {
-    projectDir: string
-    filePath: string
-    context: ConfigurationContext
-  }): Promise<{ diagnostics: Diagnostic[] }>
   close(): Promise<void>
   size(): number
 }
@@ -207,12 +203,10 @@ export function createPreparedYamlProjectWorkerPool(params: {
           if (files.length === 0) {
             return {
               kind: "validateFirstPassResult" as const,
+              components: [],
               diagnostics: [],
-              objectRecords: [],
-              objectIndexEntries: [],
-              memberIndexEntries: [],
-              valueIndexEntries: [],
-              pendingReferences: [],
+              schemaDiagnostics: [],
+              fileResults: [],
               yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
             }
           }
@@ -234,13 +228,12 @@ export function createPreparedYamlProjectWorkerPool(params: {
         })
       )
 
+      const components = mergeComponentFirstPassResults(results.flatMap((result) => result.components))
       return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
-        objectRecords: results.flatMap((result) => result.objectRecords),
-        objectIndexEntries: results.flatMap((result) => result.objectIndexEntries),
-        memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
-        valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
-        pendingReferences: results.flatMap((result) => result.pendingReferences),
+        components,
+        diagnostics: components.flatMap(({ diagnostics }) => diagnostics),
+        schemaDiagnostics: components.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
+        fileResults: components.flatMap(({ fileResults }) => fileResults),
         yamlLifetime: {
           current: results.reduce((sum, result) => sum + result.yamlLifetime.current, 0),
           max: Math.max(0, ...results.map((result) => result.yamlLifetime.max)),
@@ -287,9 +280,16 @@ export function createPreparedYamlProjectWorkerPool(params: {
       const activeIndexes = Array.from(activeWorkerIndexes)
       if (activeIndexes.length === 0) return { diagnostics: [] }
 
-      const provider = createValidationSnapshotProvider(secondPassParams.objectTable)
-      const sharedValidationSnapshot = provider.sharedPayload()
-      const referencePartitions = partitionRoundRobin(secondPassParams.objectTable.pendingReferences ?? [], activeIndexes.length)
+      const sharedProjectValidationGraph = createSharedProjectValidationGraph(secondPassParams.graph)
+      const blocked = new Set(secondPassParams.blockedComponentPaths)
+      const referencePartitions = partitionRoundRobin(
+        secondPassParams.graph.layers
+          .filter(({ componentPath }) => !blocked.has(componentPath))
+          .flatMap(({ componentPath, contribution }) =>
+            (contribution.pendingReferences ?? []).map((reference) => ({ componentPath, reference }))
+          ),
+        activeIndexes.length
+      )
       const results = await Promise.all(
         activeIndexes.map(async (index, partitionIndex) => {
           const task = {
@@ -297,9 +297,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             workerIndex: index,
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
-            mode: secondPassParams.mode,
-            sharedValidationSnapshot,
-            pendingReferences: referencePartitions[partitionIndex] ?? [],
+            sharedProjectValidationGraph,
+            blockedComponentPaths: secondPassParams.blockedComponentPaths,
+            pendingReferenceLayers: groupPendingReferencesByComponent(referencePartitions[partitionIndex] ?? []),
           } satisfies PreparedYamlProjectWorkerTask
           const response = (await getOrCreatePool(pools, index, createPool).run(
             task
@@ -313,26 +313,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
     },
-    async runPartialValidation(partialParams) {
-      const task = {
-        kind: "validatePartial",
-        workerIndex: 0,
-        projectDir: partialParams.projectDir,
-        filePath: partialParams.filePath,
-        context: partialParams.context,
-      } satisfies PreparedYamlProjectWorkerTask
-      let response: PreparedYamlProjectWorkerTaskResult
-      try {
-        response = (await getOrCreatePool(pools, 0, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult
-      } catch (caught) {
-        if (isProjectFileSchemaWorkerError(caught)) throw new ProjectFileSchemaError(caught.message)
-        throw caught
-      }
-      if (response.kind !== "validatePartialResult") {
-        throw new Error("Worker вернул неожиданный результат validatePartial")
-      }
-      return { diagnostics: response.diagnostics }
-    },
     async close() {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
       pools.clear()
@@ -343,6 +323,52 @@ export function createPreparedYamlProjectWorkerPool(params: {
     size() {
       return params.concurrency
     },
+  }
+}
+
+function mergeComponentFirstPassResults(
+  results: readonly ComponentFirstPassPoolResult[]
+): ComponentFirstPassPoolResult[] {
+  const merged = new Map<string, ComponentFirstPassPoolResult>()
+  for (const result of results) {
+    const current = merged.get(result.componentPath) ?? emptyComponentFirstPassResult(result.componentPath)
+    merged.set(result.componentPath, {
+      componentPath: result.componentPath,
+      contribution: mergeGraphContributions(current.contribution, result.contribution),
+      diagnostics: [...current.diagnostics, ...result.diagnostics],
+      schemaDiagnostics: [...current.schemaDiagnostics, ...result.schemaDiagnostics],
+      fileResults: [...current.fileResults, ...result.fileResults],
+    })
+  }
+  return [...merged.values()].sort((left, right) => left.componentPath.localeCompare(right.componentPath, "ru"))
+}
+
+function emptyComponentFirstPassResult(componentPath: string): ComponentFirstPassPoolResult {
+  return {
+    componentPath,
+    contribution: {
+      objectRecords: [],
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: [],
+    },
+    diagnostics: [],
+    schemaDiagnostics: [],
+    fileResults: [],
+  }
+}
+
+function mergeGraphContributions(
+  left: ComponentFirstPassPoolResult["contribution"],
+  right: ComponentFirstPassPoolResult["contribution"]
+): ComponentFirstPassPoolResult["contribution"] {
+  return {
+    objectRecords: [...left.objectRecords, ...right.objectRecords],
+    objectIndexEntries: [...(left.objectIndexEntries ?? []), ...(right.objectIndexEntries ?? [])],
+    memberIndexEntries: [...(left.memberIndexEntries ?? []), ...(right.memberIndexEntries ?? [])],
+    valueIndexEntries: [...(left.valueIndexEntries ?? []), ...(right.valueIndexEntries ?? [])],
+    pendingReferences: [...(left.pendingReferences ?? []), ...(right.pendingReferences ?? [])],
   }
 }
 
@@ -358,9 +384,22 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
   }
 }
 
-function isProjectFileSchemaWorkerError(caught: unknown): caught is Error {
-  if (!(caught instanceof Error) || typeof caught.cause !== "object" || caught.cause === null) return false
-  return "code" in caught.cause && caught.cause.code === "project_file_schema"
+function groupPendingReferencesByComponent(
+  assignments: readonly {
+    componentPath: string
+    reference: PendingMetadataTargetReference
+  }[]
+): Array<{
+  componentPath: string
+  references: PendingMetadataTargetReference[]
+}> {
+  const byComponent = new Map<string, PendingMetadataTargetReference[]>()
+  for (const { componentPath, reference } of assignments) {
+    const references = byComponent.get(componentPath) ?? []
+    references.push(reference)
+    byComponent.set(componentPath, references)
+  }
+  return [...byComponent].map(([componentPath, references]) => ({ componentPath, references }))
 }
 
 function getOrCreatePool(

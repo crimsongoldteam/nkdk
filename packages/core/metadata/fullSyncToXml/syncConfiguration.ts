@@ -2,14 +2,8 @@ import fs from "node:fs"
 import { resolve } from "node:path"
 import { NKDK_CORE_VERSION } from "../../version"
 import { parseComponentPath, type ComponentAddress } from "../components/address"
-import {
-  configurationIndexPath,
-  writeConfigurationIndexAtomically,
-} from "../configurationIndex/fileIO"
-import {
-  decodeConfigurationIndex,
-  readConfigurationIndexSnapshot,
-} from "../configurationIndex"
+import { configurationIndexPath, writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
+import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import {
@@ -21,18 +15,12 @@ import {
 } from "../project/componentState"
 import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { createValidationProfiler } from "../validation/profile"
-import {
-  resolveFullXmlSyncComponentProfile,
-} from "./componentProfile"
+import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
-import {
-  createFullXmlSyncWorkerPool,
-  normalizeFullXmlSyncConcurrency,
-  type FullXmlSyncWorkerPool,
-} from "./workerPool"
+import { createFullXmlSyncWorkerPool, normalizeFullXmlSyncConcurrency, type FullXmlSyncWorkerPool } from "./workerPool"
 import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 
 export interface SyncComponentToXmlParams {
@@ -176,6 +164,7 @@ export async function syncComponentToXml(
       concurrency: normalizeFullXmlSyncConcurrency(params.concurrency),
     })
     await pool.initialize({
+      componentPath: target.structure.componentPath,
       componentDir: target.structure.componentDir,
       outputDir: xmlDir,
       context: params.context,
@@ -194,9 +183,7 @@ export async function syncComponentToXml(
     const external = await deps.transferExternalFiles({
       outputDir: xmlDir,
       files: plan.externalFiles,
-      ...(params.transferConcurrency === undefined
-        ? {}
-        : { concurrency: params.transferConcurrency }),
+      ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
     })
     const outputDiagnostics = deps.validateWrittenFiles({
       expectedOutputs: execution.expectedOutputs,
@@ -220,9 +207,7 @@ export async function syncComponentToXml(
       configurationIndexPath: configurationIndexPath(projectDir, address),
     }
   } catch (caught) {
-    return failedResult([
-      operationDiagnostic(diagnosticCode(caught), errorMessage(caught)),
-    ], warnings)
+    return failedResult([operationDiagnostic(diagnosticCode(caught), errorMessage(caught))], warnings)
   } finally {
     profiler.flush()
     await pool?.close()
@@ -315,22 +300,11 @@ async function readConfirmedComponentState(params: {
 async function preflightFullXmlSync(params: {
   readonly projectDir: string
   readonly xmlDir: string
-  readonly deps: Pick<
-    FullXmlSyncCoordinatorDependencies,
-    "exists" | "isDirectoryEmpty"
-  >
-}): Promise<
-  { readonly targetExists: boolean } |
-  { readonly failed: readonly FullXmlSyncDiagnostic[] }
-> {
+  readonly deps: Pick<FullXmlSyncCoordinatorDependencies, "exists" | "isDirectoryEmpty">
+}): Promise<{ readonly targetExists: boolean } | { readonly failed: readonly FullXmlSyncDiagnostic[] }> {
   if (!(await params.deps.exists(params.projectDir))) {
     return {
-      failed: [
-        operationDiagnostic(
-          "full_xml_sync_project_not_found",
-          `Проект не найден: ${params.projectDir}`
-        ),
-      ],
+      failed: [operationDiagnostic("full_xml_sync_project_not_found", `Проект не найден: ${params.projectDir}`)],
     }
   }
   if (await params.deps.exists(params.xmlDir)) {
@@ -352,10 +326,7 @@ async function preflightFullXmlSync(params: {
 function buildFullXmlSyncConfigurationIndex(params: {
   readonly previous: ConfigurationIndexData
   readonly target: ConfirmedComponentState
-  readonly fragmentData: Pick<
-    ConfigurationIndexData,
-    "identities" | "xmlNodes" | "xmlValues"
-  >
+  readonly fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }): ConfigurationIndexData {
   return {
     binding: {
@@ -365,10 +336,7 @@ function buildFullXmlSyncConfigurationIndex(params: {
     },
     projectFiles: [...params.target.hashes.projectFiles],
     identities: [...params.fragmentData.identities].sort((left, right) =>
-      compareIndexKeys(
-        `${left.logicalAddress}\0${left.kind}`,
-        `${right.logicalAddress}\0${right.kind}`
-      )
+      compareIndexKeys(`${left.logicalAddress}\0${left.kind}`, `${right.logicalAddress}\0${right.kind}`)
     ),
     xmlNodes: [...params.fragmentData.xmlNodes].sort((left, right) =>
       compareIndexKeys(left.logicalAddress, right.logicalAddress)
@@ -385,9 +353,7 @@ function buildFullXmlSyncConfigurationIndex(params: {
 }
 
 function decodeSnapshot(snapshot: ConfirmedComponentState["snapshot"]): ConfigurationIndexData {
-  return decodeConfigurationIndex(
-    new Uint8Array(snapshot.bytes, 0, snapshot.byteLength)
-  )
+  return decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))
 }
 
 function withExternalAssignmentIds(
@@ -404,26 +370,17 @@ function withExternalAssignmentIds(
       file.assignmentId ??
       plan.externalFiles.find(
         (candidate) =>
-          candidate.sourceProjectPath === file.sourceProjectPath &&
-          candidate.targetXmlPath === file.targetXmlPath
+          candidate.sourceProjectPath === file.sourceProjectPath && candidate.targetXmlPath === file.targetXmlPath
       )?.assignmentId ??
       file.sourceProjectPath,
   }))
 }
 
-function assertCompleteSelection(
-  selection: XmlSyncSelection,
-  projectPaths: readonly string[]
-): void {
+function assertCompleteSelection(selection: XmlSyncSelection, projectPaths: readonly string[]): void {
   if (selection.kind === "all") return
   const selected = new Set(selection.projectPaths)
-  if (
-    selected.size !== projectPaths.length ||
-    projectPaths.some((projectPath) => !selected.has(projectPath))
-  ) {
-    throw new Error(
-      "Публичная частичная синхронизация в XML пока не поддерживается"
-    )
+  if (selected.size !== projectPaths.length || projectPaths.some((projectPath) => !selected.has(projectPath))) {
+    throw new Error("Публичная частичная синхронизация в XML пока не поддерживается")
   }
 }
 
@@ -440,9 +397,7 @@ class UnsupportedComponentError extends Error {
 }
 
 function diagnosticCode(caught: unknown): string {
-  return caught instanceof UnsupportedComponentError
-    ? caught.code
-    : "full_xml_sync_operation_failed"
+  return caught instanceof UnsupportedComponentError ? caught.code : "full_xml_sync_operation_failed"
 }
 
 function failedResult(
@@ -456,10 +411,7 @@ function hasErrors(diagnostics: readonly FullXmlSyncDiagnostic[]): boolean {
   return diagnostics.some((diagnostic) => diagnostic.severity === "error")
 }
 
-function operationDiagnostic(
-  code: string,
-  message: string
-): FullXmlSyncDiagnostic {
+function operationDiagnostic(code: string, message: string): FullXmlSyncDiagnostic {
   return { severity: "error", code, message }
 }
 

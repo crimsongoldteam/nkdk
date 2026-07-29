@@ -6,6 +6,8 @@ import { dirname, join, resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
@@ -26,8 +28,8 @@ import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { configurationValidationProjectSpec, validationProjectSpecs, type ValidationProjectSpec } from "./projectSpecs"
-import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
+import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import type { ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
@@ -40,7 +42,7 @@ const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
 export interface ValidationSchemaCache {
   form: () => CompiledSchema
-  properties: (spec: ValidationProjectSpec) => CompiledSchema
+  properties: (rule: MetadataItemRule) => CompiledSchema
   compileAll: () => ValidationSchemaCacheCompileProfile
 }
 
@@ -67,6 +69,8 @@ export type ProjectValidationFileState =
 
 export interface ProjectValidationFirstPassResult {
   state: ProjectValidationFileState
+  schemaDiagnostics: Diagnostic[]
+  contributedFacts: boolean
   objectRecords: ValidationObjectRecord[]
   objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
@@ -118,9 +122,7 @@ export interface ProjectValidationSecondPassParams {
   skipMetadataTargetValidation?: boolean
 }
 
-export type ProjectValidationSecondPassResult =
-  | { status: "ok"; diagnostics: Diagnostic[] }
-  | { status: "needsDependency"; diagnostics: Diagnostic[]; dependency: ValidationDependencyRequest }
+export type ProjectValidationSecondPassResult = { status: "ok"; diagnostics: Diagnostic[] }
 
 type ProjectValidationYamlReadResult = ProjectYamlEntry | { filePath: string; error: Error }
 
@@ -166,13 +168,13 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 
       return formSchema
     },
-    properties(spec) {
-      const key = spec.dir
+    properties(rule) {
+      const key = rule.itemType
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}`
-      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, spec)
+      const globalKey = [context.version, context.defaultLanguage, rule.itemType].join(":")
+      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, rule)
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -185,10 +187,9 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const formMs = performance.now() - formStartedAt
 
       const propertiesStartedAt = performance.now()
-      for (const spec of validationProjectSpecs) {
-        this.properties(spec)
+      for (const rule of validationProjectPropertyRules()) {
+        this.properties(rule)
       }
-      this.properties(configurationValidationProjectSpec)
       const propertiesMs = performance.now() - propertiesStartedAt
 
       return {
@@ -200,15 +201,27 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
   }
 }
 
-function compileProjectPropertiesSchema(context: ConfigurationContext, spec: ValidationProjectSpec): CompiledSchema {
+function compileProjectPropertiesSchema(context: ConfigurationContext, rule: MetadataItemRule): CompiledSchema {
   const graph = exportJSONSchemaGraph({
     context,
     excludeImplicitValueYAML: true,
     validationPropertyRefs: true,
-    roots: [{ key: "properties", name: spec.rule.itemType }],
+    roots: [{ key: "properties", name: rule.itemType }],
   })
   const rootSchema = stripCollectedSchemaRefs(graph.roots["properties"]!)
   return compileValidationSchema(graph.schemas, rootSchema, { inlineRefs: false })
+}
+
+function validationProjectPropertyRules(): MetadataItemRule[] {
+  return uniqueRulesByItemType([
+    configurationValidationProjectSpec.rule,
+    getMetadataComponentDescriptor("configurationExtension").rootRule,
+    ...validationProjectSpecs.map((spec) => spec.rule),
+  ])
+}
+
+function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItemRule[] {
+  return [...new Map(rules.map((rule) => [rule.itemType, rule])).values()]
 }
 
 function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSchema {
@@ -367,9 +380,6 @@ export function validateProjectFileSecondPass(
     references: collected.references,
   })
   const diagnostics = [...collected.diagnostics, ...resolved.diagnostics]
-  if (resolved.firstDependency !== undefined) {
-    return { status: "needsDependency", diagnostics, dependency: resolved.firstDependency }
-  }
   return { status: "ok", diagnostics }
 }
 
@@ -400,12 +410,17 @@ function validateProjectFormFirstPass(params: {
 
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry) {
-    return failedFirstPass(params.file, schemaDiagnostics, {
-      ...emptyFirstPassProfile("form"),
-      totalMs: performance.now() - totalStartedAt,
-      schemaMs,
-      diagnostics: schemaDiagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      schemaDiagnostics,
+      {
+        ...emptyFirstPassProfile("form"),
+        totalMs: performance.now() - totalStartedAt,
+        schemaMs,
+        diagnostics: schemaDiagnostics.length,
+      },
+      []
+    )
   }
 
   const facts = extractProjectValidationFileFacts({
@@ -423,6 +438,8 @@ function validateProjectFormFirstPass(params: {
       pendingChecks: facts.pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
+    schemaDiagnostics,
+    contributedFacts: true,
     diagnostics,
     objectRecords: facts.objectRecords,
     objectIndexEntries: facts.objectIndexEntries,
@@ -458,16 +475,21 @@ function validateProjectPropertiesFirstPass(params: {
     const diagnostics = validateProjectFileSchema({
       file: params.file,
       cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec),
+      schema: params.schemaCache.properties(params.file.owner.spec.rule),
     })
     const schemaMs = performance.now() - schemaStartedAt
-    return failedFirstPass(params.file, diagnostics, {
-      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-      totalMs: performance.now() - totalStartedAt,
-      cacheMs,
-      schemaMs,
-      diagnostics: diagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      diagnostics,
+      {
+        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        diagnostics: diagnostics.length,
+      },
+      []
+    )
   }
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
@@ -475,7 +497,7 @@ function validateProjectPropertiesFirstPass(params: {
   const baseSchemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec),
+    schema: params.schemaCache.properties(params.file.owner.spec.rule),
     parsed,
   })
   const schemaDiagnostics = baseSchemaDiagnostics
@@ -498,14 +520,19 @@ function validateProjectPropertiesFirstPass(params: {
   const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
     const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
-    return failedFirstPass(params.file, diagnostics, {
-      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-      totalMs: performance.now() - totalStartedAt,
-      cacheMs,
-      schemaMs,
-      validatorsMs,
-      diagnostics: diagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      diagnostics,
+      {
+        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        validatorsMs,
+        diagnostics: diagnostics.length,
+      },
+      schemaDiagnostics
+    )
   }
 
   const equalNameValidationName =
@@ -525,8 +552,9 @@ function validateProjectPropertiesFirstPass(params: {
     entry: { ...entry, parsed },
     rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
   })
+  const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const diagnostics = [
-    ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
+    ...publishedSchemaDiagnostics,
     ...equalNameDiagnostics,
     ...facts.diagnostics,
   ]
@@ -538,6 +566,8 @@ function validateProjectPropertiesFirstPass(params: {
       pendingReferences: facts.pendingReferences,
       firstPassDiagnostics: diagnostics,
     },
+    schemaDiagnostics: publishedSchemaDiagnostics,
+    contributedFacts: true,
     diagnostics,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
@@ -565,10 +595,13 @@ function validateProjectPropertiesFirstPass(params: {
 function failedFirstPass(
   file: ValidationProjectFile,
   diagnostics: Diagnostic[],
-  profile?: ProjectValidationFirstPassProfile
+  profile?: ProjectValidationFirstPassProfile,
+  schemaDiagnostics: Diagnostic[] = diagnostics
 ): ProjectValidationFirstPassResult {
   return {
     state: { kind: "failed", file, diagnostics },
+    schemaDiagnostics,
+    contributedFacts: false,
     diagnostics,
     objectRecords: [],
     objectIndexEntries: [],

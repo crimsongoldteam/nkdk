@@ -41,6 +41,24 @@ export function compileRegisteredMetadataResourceTopology(): CompiledMetadataRes
 }
 
 let cachedTopology: { readonly revision: string; readonly topology: CompiledMetadataResourceTopology } | undefined
+const topologiesByRootRule = new WeakMap<MetadataItemRule, CompiledMetadataResourceTopology>()
+
+export function compileMetadataResourceTopologyForRootRule(
+  rootRule: MetadataItemRule
+): CompiledMetadataResourceTopology {
+  const cached = topologiesByRootRule.get(rootRule)
+  if (cached !== undefined) return cached
+
+  const specs = getRegisteredProjectSpecs().map((spec) => (spec.dir === "" ? { ...spec, rule: rootRule } : spec))
+  const topology = compileMetadataResourceTopology(
+    specs.map((spec) => ({
+      ...spec,
+      resources: describeProjectSpecResourceTopology(spec),
+    }))
+  )
+  topologiesByRootRule.set(rootRule, topology)
+  return topology
+}
 
 export function describeProjectSpecResourceTopology(
   spec: RegisteredProjectSpec

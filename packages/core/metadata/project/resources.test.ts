@@ -3,6 +3,8 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import {
   assertMetadataProjectPathInside,
   classifyMetadataProjectPath,
@@ -67,6 +69,20 @@ describe("metadata project resources", () => {
         { dir: "Подсистема", name: "Администрирование" },
         { dir: "Подсистема", name: "Настройки" },
       ],
+    })
+  })
+
+  it("classifies root YAML with the configuration extension root spec", async () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "cfe/Продажи/Конфигурация.yaml")
+    const component = (await discoverValidationProjectComponents(projectDir)).components[0]!
+
+    expect(classifyMetadataProjectPath("Конфигурация.yaml", component)).toMatchObject({
+      owner: {
+        spec: {
+          rule: MetadataConfigurationExtensionRules,
+        },
+      },
     })
   })
 

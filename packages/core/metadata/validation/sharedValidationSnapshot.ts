@@ -1,13 +1,30 @@
 import {
   createSharedProjectReferenceSnapshot,
+  createSharedProjectReferenceSnapshotFromGraph,
   type SharedProjectReferenceSnapshot,
 } from "./sharedProjectReferenceIndex"
-import { createBinarySharedOwnersSnapshot, type BinarySharedOwnersSnapshot } from "./sharedValidationBinaryOwners"
-import type { ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import {
+  createBinarySharedOwnersSnapshot,
+  createBinarySharedProjectOwnersSnapshot,
+  type BinarySharedOwnersSnapshot,
+} from "./sharedValidationBinaryOwners"
+import type { ProjectValidationGraph, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 
 export interface SharedValidationSnapshot {
   reference: SharedProjectReferenceSnapshot
   owners: BinarySharedOwnersSnapshot
+}
+
+export interface SharedProjectValidationGraph {
+  reference: SharedProjectReferenceSnapshot
+  owners: BinarySharedOwnersSnapshot
+}
+
+export function createSharedProjectValidationGraph(graph: ProjectValidationGraph): SharedProjectValidationGraph {
+  return {
+    reference: createSharedProjectReferenceSnapshotFromGraph(graph),
+    owners: createBinarySharedProjectOwnersSnapshot(graph),
+  }
 }
 
 export function createSharedValidationSnapshot(snapshot: ValidationObjectTableSnapshot): SharedValidationSnapshot {

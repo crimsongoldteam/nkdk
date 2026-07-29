@@ -4,10 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { hashFileBytes } from "../configurationIndex/hash"
-import {
-  childSegmentUid,
-  childUid,
-} from "../configurationIndex/logicalAddress"
+import { childSegmentUid, childUid } from "../configurationIndex/logicalAddress"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
@@ -61,17 +58,12 @@ describe("full XML sync worker", () => {
     })
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("activeAssignmentId")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("preparedIds")
-    expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty(
-      "baseIndexSnapshot"
-    )
+    expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("baseIndexSnapshot")
   })
 
   it("keeps an already written XML and stops when the next YAML hash changed", async () => {
     const projectDir = createProject(["Первый", "Второй"])
-    const assignments = [
-      assignment(projectDir, "Первый"),
-      assignment(projectDir, "Второй"),
-    ]
+    const assignments = [assignment(projectDir, "Первый"), assignment(projectDir, "Второй")]
     await initialize(projectDir, assignments)
     fs.writeFileSync(assignments[1]!.sourcePath, "Имя: Изменён\n")
 
@@ -82,10 +74,12 @@ describe("full XML sync worker", () => {
 
     expect(result?.kind).toBe("executionResult")
     if (result?.kind !== "executionResult") throw new Error("unexpected result")
-    expect(result.diagnostics).toContainEqual(expect.objectContaining({
-      code: "full_xml_sync_source_changed",
-      sourceProjectPath: assignments[1]!.sourceProjectPath,
-    }))
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "full_xml_sync_source_changed",
+        sourceProjectPath: assignments[1]!.sourceProjectPath,
+      })
+    )
     expect(fs.existsSync(join(projectDir, ".out", "Catalogs", "Первый.xml"))).toBe(true)
     expect(fs.existsSync(join(projectDir, ".out", "Catalogs", "Второй.xml"))).toBe(false)
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("activeAssignmentId")
@@ -94,13 +88,10 @@ describe("full XML sync worker", () => {
   it("releases all state on dispose", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
-    const baseSnapshot = snapshotConfigurationIndex(
-      encodeConfigurationIndex(sampleIndex())
-    )
+    const baseSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))
     await initialize(projectDir, [assigned], context, baseSnapshot)
 
-    expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot)
-      .toBe(baseSnapshot)
+    expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot).toBe(baseSnapshot)
 
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })
 
@@ -134,10 +125,7 @@ describe("full XML sync worker", () => {
     })
 
     expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
-    const xml = fs.readFileSync(
-      join(projectDir, ".out", "Catalogs", "Товары.xml"),
-      "utf8"
-    )
+    const xml = fs.readFileSync(join(projectDir, ".out", "Catalogs", "Товары.xml"), "utf8")
     expect(xml).not.toContain("<ObjectBelonging>Adopted</ObjectBelonging>")
     expect(xml).not.toContain("<ExtendedConfigurationObject>")
   })
@@ -145,43 +133,26 @@ describe("full XML sync worker", () => {
   it("строит BaseForm заимствованной общей формы и не строит его собственной", async () => {
     for (const adopted of [true, false]) {
       resetFullXmlSyncWorkerStateForTests()
-      const projectDir = fs.mkdtempSync(
-        join(os.tmpdir(), "nkdk-full-sync-common-form-")
-      )
+      const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-common-form-"))
       tempDirs.push(projectDir)
       const componentDir = join(projectDir, "cfe", "Расширение")
       const baseComponentDir = join(projectDir, "cf")
       const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
       const sourcePath = join(componentDir, ...projectPath.split("/"))
-      const baseSourcePath = join(
-        baseComponentDir,
-        ...projectPath.split("/")
-      )
+      const baseSourcePath = join(baseComponentDir, ...projectPath.split("/"))
       fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
       fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
       fs.writeFileSync(
         sourcePath,
-        [
-          "Имя: ФормаПродаж",
-          "Форма:",
-          "  Ширина: 100",
-          "  Элементы:",
-          "    Поле:",
-          "      Вид: ПолеВвода",
-          "",
-        ].join("\n")
+        ["Имя: ФормаПродаж", "Форма:", "  Ширина: 100", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join(
+          "\n"
+        )
       )
       fs.writeFileSync(
         baseSourcePath,
-        [
-          "Имя: ФормаПродаж",
-          "Форма:",
-          "  Ширина: 80",
-          "  Элементы:",
-          "    Поле:",
-          "      Вид: ПолеВвода",
-          "",
-        ].join("\n")
+        ["Имя: ФормаПродаж", "Форма:", "  Ширина: 80", "  Элементы:", "    Поле:", "      Вид: ПолеВвода", ""].join(
+          "\n"
+        )
       )
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
       const formAddress = logicalAddress
@@ -193,11 +164,7 @@ describe("full XML sync worker", () => {
           identities: [
             ...baseIndex.identities,
             {
-              logicalAddress: childUid(
-                formAddress,
-                "Элемент",
-                "ФормаКоманднаяПанель"
-              ),
+              logicalAddress: childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"),
               kind: "xmlId",
               value: "9",
             },
@@ -207,18 +174,12 @@ describe("full XML sync worker", () => {
               value: "10",
             },
             {
-              logicalAddress: childSegmentUid(
-                elementAddress,
-                "КонтекстноеМеню"
-              ),
+              logicalAddress: childSegmentUid(elementAddress, "КонтекстноеМеню"),
               kind: "xmlId",
               value: "11",
             },
             {
-              logicalAddress: childSegmentUid(
-                elementAddress,
-                "РасширеннаяПодсказка"
-              ),
+              logicalAddress: childSegmentUid(elementAddress, "РасширеннаяПодсказка"),
               kind: "xmlId",
               value: "12",
             },
@@ -240,6 +201,7 @@ describe("full XML sync worker", () => {
       await runFullXmlSyncWorkerCommand({
         kind: "initialize",
         workerIndex: 0,
+        componentPath: "cfe/Продажи",
         componentDir,
         outputDir: join(projectDir, ".out"),
         context,
@@ -248,8 +210,7 @@ describe("full XML sync worker", () => {
           componentKind: "configurationExtension",
           adoptedUuids: adopted
             ? {
-                [logicalAddress]:
-                  "11111111-1111-4111-8111-111111111111",
+                [logicalAddress]: "11111111-1111-4111-8111-111111111111",
               }
             : {},
           baseForms: {
@@ -257,9 +218,7 @@ describe("full XML sync worker", () => {
             projectFiles: [
               {
                 projectPath,
-                contentHash: hashFileBytes(
-                  fs.readFileSync(baseSourcePath)
-                ),
+                contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)),
               },
             ],
             snapshot: baseSnapshot,
@@ -282,8 +241,7 @@ describe("full XML sync worker", () => {
         localMetadata,
         baseMetadata: localMetadata,
       })
-      expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot)
-        .toBe(baseSnapshot)
+      expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot).toBe(baseSnapshot)
 
       const result = await runFullXmlSyncWorkerCommand({
         kind: "execute",
@@ -294,10 +252,7 @@ describe("full XML sync worker", () => {
         kind: "executionResult",
         diagnostics: [],
       })
-      const formXml = fs.readFileSync(
-        join(projectDir, ".out", "CommonForms", "ФормаПродаж", "Ext", "Form.xml"),
-        "utf8"
-      )
+      const formXml = fs.readFileSync(join(projectDir, ".out", "CommonForms", "ФормаПродаж", "Ext", "Form.xml"), "utf8")
       if (adopted) {
         expect(formXml).toContain("<BaseForm")
         expect(formXml).toContain("<Width>80</Width>")
@@ -333,18 +288,13 @@ describe("full XML sync worker", () => {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
+      componentPath: "cf",
       componentDir: projectDir,
       outputDir: join(projectDir, ".out"),
       context: workerContext,
       profile: {
-        kind:
-          baseSnapshot === undefined
-            ? "configuration"
-            : "configurationExtension",
-        componentKind:
-          baseSnapshot === undefined
-            ? "configuration"
-            : "configurationExtension",
+        kind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
+        componentKind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         adoptedUuids: {},
         ...(baseSnapshot === undefined
           ? {}
@@ -357,9 +307,7 @@ describe("full XML sync worker", () => {
             }),
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
-      targetIndex: snapshotConfigurationIndex(
-        encodeConfigurationIndex(sampleIndex())
-      ),
+      targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
       localMetadata,
       ...(baseSnapshot === undefined ? {} : { baseMetadata: localMetadata }),
     })

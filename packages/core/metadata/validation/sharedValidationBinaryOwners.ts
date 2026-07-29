@@ -1,10 +1,15 @@
 import { resolve } from "path"
+import { validationComponentLayers } from "./componentVisibility"
 import { getDataPathOwnerKind } from "./dataPath/registry"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import type { ObjectField, ObjectFieldIndex, ObjectFieldTableSource } from "./dataPath/objectFields"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./dataPath/types"
-import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import type {
+  ProjectValidationGraph,
+  ValidationObjectRecord,
+  ValidationObjectTableSnapshot,
+} from "./projectValidationTypes"
 import { createSharedStringPool, createSharedStringPoolView, type SharedStringPool } from "./sharedStringPool"
 import type { Diagnostic, DiagnosticSource } from "./types"
 
@@ -12,6 +17,9 @@ const MAGIC = 0x4e4b444f
 const VERSION = 1
 const HEADER_INTS = 8
 const OWNER_INTS = 11
+const PROJECT_MAGIC = 0x4e4b504f
+const PROJECT_VERSION = 1
+const PROJECT_OWNER_INTS = 12
 const FIELD_INTS = 19
 const ALIAS_INTS = 2
 const DIAGNOSTIC_INTS = 5
@@ -50,6 +58,11 @@ interface EncodedOwner {
   aliases: Array<[string, string]>
 }
 
+interface EncodedOwnerRow {
+  componentPath?: string
+  owner: EncodedOwner
+}
+
 interface EncodedField {
   name: string
   targetName?: string
@@ -67,27 +80,57 @@ interface FlatField {
 }
 
 export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTableSnapshot): BinarySharedOwnersSnapshot {
-  const owners = snapshot.records
-    .filter((record) => record.ownerRef !== undefined)
-    .map(encodeOwner)
-    .sort(compareOwners)
+  return createBinaryOwnersSnapshot({
+    owners: snapshot.records
+      .filter((record) => record.ownerRef !== undefined)
+      .map((record) => ({ owner: encodeOwner(record) }))
+      .sort((left, right) => compareOwners(left.owner, right.owner)),
+    filePaths: snapshot.filePaths,
+    project: false,
+  })
+}
 
+export function createBinarySharedProjectOwnersSnapshot(graph: ProjectValidationGraph): BinarySharedOwnersSnapshot {
+  const owners = graph.layers
+    .flatMap(({ componentPath, contribution }) =>
+      contribution.objectRecords
+        .filter((record) => record.ownerRef !== undefined)
+        .map((record) => ({
+          componentPath,
+          owner: encodeOwner(record),
+        }))
+    )
+    .sort(compareProjectOwners)
+  const filePaths = [
+    ...new Set(graph.layers.flatMap(({ contribution }) => contribution.objectRecords.map(({ filePath }) => filePath))),
+  ].sort()
+
+  return createBinaryOwnersSnapshot({ owners, filePaths, project: true })
+}
+
+function createBinaryOwnersSnapshot(params: {
+  owners: EncodedOwnerRow[]
+  filePaths: readonly string[]
+  project: boolean
+}): BinarySharedOwnersSnapshot {
+  const { owners } = params
   const flatFields: FlatField[] = []
   const flatAliases: Array<[string, string]> = []
   const flatDiagnostics: Diagnostic[] = []
-  const ownerRows = owners.map((owner) => {
+  const ownerRows = owners.map(({ componentPath, owner }) => {
     const fieldStart = flatFields.length
     for (const field of owner.fields) flatFields.push({ field, columnStart: 0, columnCount: 0 })
     const aliasStart = flatAliases.length
     flatAliases.push(...owner.aliases)
     const diagnosticStart = flatDiagnostics.length
     flatDiagnostics.push(...owner.diagnostics)
-    return { owner, fieldStart, aliasStart, diagnosticStart }
+    return { componentPath, owner, fieldStart, aliasStart, diagnosticStart }
   })
   appendColumns(flatFields)
 
-  const stringValues = [EMPTY, ...snapshot.filePaths]
-  for (const owner of owners) {
+  const stringValues = [EMPTY, ...params.filePaths]
+  for (const { componentPath, owner } of owners) {
+    if (componentPath !== undefined) stringValues.push(componentPath)
     stringValues.push(owner.ref.kind, owner.ref.name ?? EMPTY, owner.filePath, owner.factsText ?? EMPTY)
     for (const diagnostic of owner.diagnostics) {
       stringValues.push(diagnostic.filePath, diagnostic.source, diagnostic.message)
@@ -99,7 +142,8 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
   const stringId = createStringId(strings)
 
   const headerBytes = HEADER_INTS * Int32Array.BYTES_PER_ELEMENT
-  const ownerBytes = ownerRows.length * OWNER_INTS * Int32Array.BYTES_PER_ELEMENT
+  const ownerInts = params.project ? PROJECT_OWNER_INTS : OWNER_INTS
+  const ownerBytes = ownerRows.length * ownerInts * Int32Array.BYTES_PER_ELEMENT
   const fieldBytes = flatFields.length * FIELD_INTS * Int32Array.BYTES_PER_ELEMENT
   const aliasBytes = flatAliases.length * ALIAS_INTS * Int32Array.BYTES_PER_ELEMENT
   const diagnosticBytes = flatDiagnostics.length * DIAGNOSTIC_INTS * Int32Array.BYTES_PER_ELEMENT
@@ -107,32 +151,36 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
   const ints = new Int32Array(table)
 
   const ownersOffset = HEADER_INTS
-  const fieldsOffset = ownersOffset + ownerRows.length * OWNER_INTS
+  const fieldsOffset = ownersOffset + ownerRows.length * ownerInts
   const aliasesOffset = fieldsOffset + flatFields.length * FIELD_INTS
   const diagnosticsOffset = aliasesOffset + flatAliases.length * ALIAS_INTS
 
-  ints[0] = MAGIC
-  ints[1] = VERSION
+  ints[0] = params.project ? PROJECT_MAGIC : MAGIC
+  ints[1] = params.project ? PROJECT_VERSION : VERSION
   ints[2] = ownerRows.length
   ints[3] = flatFields.length
   ints[4] = flatAliases.length
   ints[5] = flatDiagnostics.length
-  ints[6] = snapshot.filePaths.length
+  ints[6] = params.filePaths.length
   ints[7] = table.byteLength + strings.bytes
 
-  ownerRows.forEach(({ owner, fieldStart, aliasStart, diagnosticStart }, index) => {
-    const base = ownersOffset + index * OWNER_INTS
-    ints[base] = stringId(owner.ref.kind)
-    ints[base + 1] = stringId(owner.ref.name ?? EMPTY)
-    ints[base + 2] = stringId(owner.filePath)
-    ints[base + 3] = fieldStart
-    ints[base + 4] = owner.fields.length
-    ints[base + 5] = aliasStart
-    ints[base + 6] = owner.aliases.length
-    ints[base + 7] = diagnosticStart
-    ints[base + 8] = owner.diagnostics.length
-    ints[base + 9] = owner.status
-    ints[base + 10] = stringId(owner.factsText ?? EMPTY)
+  ownerRows.forEach(({ componentPath, owner, fieldStart, aliasStart, diagnosticStart }, index) => {
+    const base = ownersOffset + index * ownerInts
+    const valueOffset = params.project ? 1 : 0
+    if (params.project) {
+      ints[base] = stringId(componentPath ?? EMPTY)
+    }
+    ints[base + valueOffset] = stringId(owner.ref.kind)
+    ints[base + valueOffset + 1] = stringId(owner.ref.name ?? EMPTY)
+    ints[base + valueOffset + 2] = stringId(owner.filePath)
+    ints[base + valueOffset + 3] = fieldStart
+    ints[base + valueOffset + 4] = owner.fields.length
+    ints[base + valueOffset + 5] = aliasStart
+    ints[base + valueOffset + 6] = owner.aliases.length
+    ints[base + valueOffset + 7] = diagnosticStart
+    ints[base + valueOffset + 8] = owner.diagnostics.length
+    ints[base + valueOffset + 9] = owner.status
+    ints[base + valueOffset + 10] = stringId(owner.factsText ?? EMPTY)
   })
 
   flatFields.forEach(({ field, columnStart, columnCount }, index) => {
@@ -180,7 +228,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
     table,
     bytes: table.byteLength + strings.bytes,
     records: owners.length,
-    files: snapshot.filePaths.length,
+    files: params.filePaths.length,
   }
 }
 
@@ -218,50 +266,113 @@ export function createOwnerMetadataCacheFromBinarySharedOwners(params: {
   }
 }
 
-function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
+export function createOwnerMetadataCacheFromBinarySharedProjectOwners(params: {
+  projectDir: string
+  componentPath: string
+  snapshot: BinarySharedOwnersSnapshot
+}): OwnerMetadataCache {
+  const view = createBinaryOwnersView(params.snapshot, true)
+  const results = new Map<string, OwnerMetadataResult>()
+  const layers = validationComponentLayers(params.componentPath)
+
+  return {
+    get(ref) {
+      const key = ownerKey(ref)
+      const cached = results.get(key)
+      if (cached !== undefined) return cached
+
+      const ownerKind = getDataPathOwnerKind(ref.kind)
+      const tableRef = ownerKind ? { kind: ownerKind.projectDir, name: ref.name } : ref
+      let ownerId: number | undefined
+      for (const layer of layers) {
+        ownerId = view.findOwner(tableRef, layer)
+        if (ownerId !== undefined) break
+      }
+      const result =
+        ownerId === undefined
+          ? notFound(
+              resolve(params.projectDir, params.componentPath),
+              ownerKind?.projectDir ?? ref.kind,
+              ref
+            )
+          : ownerResult(ref, view, ownerId)
+      results.set(key, result)
+      return result
+    },
+    listRefs(kind) {
+      const ownerKind = getDataPathOwnerKind(kind)
+      const tableKind = ownerKind?.projectDir ?? kind
+      const refs = new Map<string, OwnerTypeRef>()
+      for (const layer of layers) {
+        for (const ref of view.listOwners(tableKind, layer)) {
+          const result = {
+            kind,
+            ...(ref.name !== undefined ? { name: ref.name } : {}),
+          }
+          refs.set(ownerKey(result), result)
+        }
+      }
+      return [...refs.values()]
+    },
+  }
+}
+
+function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot, project = false) {
   const header = new Int32Array(snapshot.table, 0, HEADER_INTS)
-  if (header[0] !== MAGIC || header[1] !== VERSION) throw new Error("Некорректный binary shared owner snapshot")
+  const expectedMagic = project ? PROJECT_MAGIC : MAGIC
+  const expectedVersion = project ? PROJECT_VERSION : VERSION
+  if (header[0] !== expectedMagic || header[1] !== expectedVersion) {
+    throw new Error("Некорректный binary shared owner snapshot")
+  }
   const ownerCount = header[2] ?? 0
   const fieldCount = header[3] ?? 0
   const aliasCount = header[4] ?? 0
   const strings = createSharedStringPoolView(snapshot.strings)
   const ints = new Int32Array(snapshot.table)
+  const ownerInts = project ? PROJECT_OWNER_INTS : OWNER_INTS
+  const valueOffset = project ? 1 : 0
   const ownersOffset = HEADER_INTS
-  const fieldsOffset = ownersOffset + ownerCount * OWNER_INTS
+  const fieldsOffset = ownersOffset + ownerCount * ownerInts
   const aliasesOffset = fieldsOffset + fieldCount * FIELD_INTS
   const diagnosticsOffset = aliasesOffset + aliasCount * ALIAS_INTS
 
   return {
-    findOwner(ref: OwnerTypeRef): number | undefined {
+    findOwner(ref: OwnerTypeRef, componentPath?: string): number | undefined {
       let left = 0
       let right = ownerCount - 1
       const kind = ref.kind
       const name = ref.name ?? EMPTY
       while (left <= right) {
         const middle = Math.floor((left + right) / 2)
-        const base = ownersOffset + middle * OWNER_INTS
-        const currentKind = strings.get(ints[base] ?? 0)
-        const currentName = strings.get(ints[base + 1] ?? 0)
-        const order = compareOwnerKey(currentKind, currentName, kind, name)
+        const base = ownersOffset + middle * ownerInts
+        const currentComponentPath = project ? strings.get(ints[base] ?? 0) : EMPTY
+        const currentKind = strings.get(ints[base + valueOffset] ?? 0)
+        const currentName = strings.get(ints[base + valueOffset + 1] ?? 0)
+        const order = project
+          ? compareProjectOwnerKey(currentComponentPath, currentKind, currentName, componentPath ?? EMPTY, kind, name)
+          : compareOwnerKey(currentKind, currentName, kind, name)
         if (order === 0) return middle
         if (order < 0) left = middle + 1
         else right = middle - 1
       }
       return undefined
     },
-    listOwners(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[] {
+    listOwners(kind: OwnerTypeRef["kind"], componentPath?: string): readonly OwnerTypeRef[] {
       const result: OwnerTypeRef[] = []
       for (let ownerId = 0; ownerId < ownerCount; ownerId += 1) {
-        const base = ownersOffset + ownerId * OWNER_INTS
-        const currentKind = strings.get(ints[base] ?? 0)
+        const base = ownersOffset + ownerId * ownerInts
+        if (project && strings.get(ints[base] ?? 0) !== (componentPath ?? EMPTY)) {
+          continue
+        }
+        const currentKind = strings.get(ints[base + valueOffset] ?? 0)
         if (currentKind !== kind) continue
-        const name = strings.get(ints[base + 1] ?? 0)
+        const name = strings.get(ints[base + valueOffset + 1] ?? 0)
         result.push({ kind, ...(name.length > 0 ? { name } : {}) })
       }
       return result
     },
     owner(ownerId: number) {
-      const base = ownersOffset + ownerId * OWNER_INTS
+      const base = ownersOffset + ownerId * ownerInts + valueOffset
       return {
         filePath: strings.get(ints[base + 2] ?? 0),
         fieldStart: ints[base + 3] ?? 0,
@@ -349,7 +460,9 @@ function encodeField(field: ObjectField): EncodedField {
     typeInfo: field.typeInfo,
     ...(field.tableSource === undefined ? {} : { tableSource: field.tableSource }),
     columns:
-      field.tableSource === undefined ? [] : [...field.tableSource.columns.values()].map((column) => encodeField(column)),
+      field.tableSource === undefined
+        ? []
+        : [...field.tableSource.columns.values()].map((column) => encodeField(column)),
   }
 }
 
@@ -385,7 +498,11 @@ function collectFieldStrings(field: EncodedField, values: string[]): void {
   for (const column of field.columns) collectFieldStrings(column, values)
 }
 
-function ownerResult(ref: OwnerTypeRef, view: ReturnType<typeof createBinaryOwnersView>, ownerId: number): OwnerMetadataResult {
+function ownerResult(
+  ref: OwnerTypeRef,
+  view: ReturnType<typeof createBinaryOwnersView>,
+  ownerId: number
+): OwnerMetadataResult {
   const owner = view.owner(ownerId)
   if (owner.status === STATUS_IMPORT_ERROR) return { status: "import-error", diagnostics: readDiagnostics(view, owner) }
 
@@ -438,7 +555,9 @@ function readFieldIndex(
   return { fields, standardAttributeAliases, diagnostics: readDiagnostics(view, owner) }
 }
 
-function ownerFactsWithoutIndex(facts: ValidationOwnerFacts): Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex"> {
+function ownerFactsWithoutIndex(
+  facts: ValidationOwnerFacts
+): Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex"> {
   const { ref: _ref, filePath: _filePath, fieldIndex: _fieldIndex, ...compact } = facts
   return compact
 }
@@ -449,7 +568,8 @@ function decodeOwnerFacts(
   filePath: string,
   fieldIndex: ObjectFieldIndex
 ): ValidationOwnerFacts {
-  const compact = factsText === EMPTY ? {} : (JSON.parse(factsText) as Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">)
+  const compact =
+    factsText === EMPTY ? {} : (JSON.parse(factsText) as Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">)
   return { ref, filePath, fieldIndex, ...compact }
 }
 
@@ -464,7 +584,11 @@ function readDiagnostics(
   return diagnostics
 }
 
-function readColumns(view: ReturnType<typeof createBinaryOwnersView>, columnStart: number, columnCount: number): Map<string, ObjectField> {
+function readColumns(
+  view: ReturnType<typeof createBinaryOwnersView>,
+  columnStart: number,
+  columnCount: number
+): Map<string, ObjectField> {
   const columns = new Map<string, ObjectField>()
   for (let offset = 0; offset < columnCount; offset++) {
     const column = view.field(columnStart + offset)
@@ -558,7 +682,7 @@ function tableOwnerKind(table: DataPathTableInfo | undefined): string {
 }
 
 function tableOwnerName(table: DataPathTableInfo | undefined): string {
-  return table !== undefined && "owner" in table ? table.owner.name ?? EMPTY : EMPTY
+  return table !== undefined && "owner" in table ? (table.owner.name ?? EMPTY) : EMPTY
 }
 
 function tableName(table: DataPathTableInfo | undefined): string {
@@ -597,6 +721,29 @@ function compareOwners(left: EncodedOwner, right: EncodedOwner): number {
   return compareOwnerKey(left.ref.kind, left.ref.name ?? EMPTY, right.ref.kind, right.ref.name ?? EMPTY)
 }
 
+function compareProjectOwners(left: EncodedOwnerRow, right: EncodedOwnerRow): number {
+  return compareProjectOwnerKey(
+    left.componentPath ?? EMPTY,
+    left.owner.ref.kind,
+    left.owner.ref.name ?? EMPTY,
+    right.componentPath ?? EMPTY,
+    right.owner.ref.kind,
+    right.owner.ref.name ?? EMPTY
+  )
+}
+
+function compareProjectOwnerKey(
+  leftComponentPath: string,
+  leftKind: string,
+  leftName: string,
+  rightComponentPath: string,
+  rightKind: string,
+  rightName: string
+): number {
+  const componentPath = leftComponentPath.localeCompare(rightComponentPath)
+  return componentPath === 0 ? compareOwnerKey(leftKind, leftName, rightKind, rightName) : componentPath
+}
+
 function compareOwnerKey(leftKind: string, leftName: string, rightKind: string, rightName: string): number {
   const kind = leftKind.localeCompare(rightKind)
   return kind === 0 ? leftName.localeCompare(rightName) : kind
@@ -613,7 +760,12 @@ function createStringId(strings: SharedStringPool): (value: string) => number {
 function notFound(projectDir: string, dir: string, ref: OwnerTypeRef): OwnerMetadataResult {
   return {
     status: "not-found",
-    diagnostics: [crossFileDiagnostic(`${projectDir}/${dir}/${ref.name ?? EMPTY}/Свойства.yaml`, `Не найден владелец ${formatOwnerRef(ref)}`)],
+    diagnostics: [
+      crossFileDiagnostic(
+        `${projectDir}/${dir}/${ref.name ?? EMPTY}/Свойства.yaml`,
+        `Не найден владелец ${formatOwnerRef(ref)}`
+      ),
+    ],
   }
 }
 

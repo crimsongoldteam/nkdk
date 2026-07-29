@@ -2,10 +2,17 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
+import {
+  registerProjectFileValidator,
+  restoreProjectReferenceIndexRegistryForTests,
+  snapshotProjectReferenceIndexRegistryForTests,
+} from "./projectReferenceIndexRegistry"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 
@@ -18,7 +25,7 @@ describe("validateProjectFileFirstPass references", () => {
 
     const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
-    sharedSchemaCache.properties(commonFormSpec)
+    sharedSchemaCache.properties(commonFormSpec.rule)
   }, 120_000)
 
   afterEach(() => {
@@ -32,11 +39,129 @@ describe("validateProjectFileFirstPass references", () => {
     expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
   }, 120_000)
 
+  it("distinguishes extension root properties from configuration properties", () => {
+    const cache = createValidationSchemaCache(mockContext)
+    const yaml = {
+      Имя: "Продажи",
+      НазначениеРасширенияКонфигурации: "Адаптация",
+    }
+
+    expect(cache.properties(MetadataConfigurationExtensionRules).Check(yaml)).toBe(true)
+    expect(cache.properties(MetadataConfigurationRules).Check(yaml)).toBe(false)
+  }, 20_000)
+
+  it("marks syntax failure as a file without contributed facts", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Реквизиты: [")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(false)
+    expect(first.schemaDiagnostics).toEqual(
+      expect.arrayContaining([expect.objectContaining({ source: "syntax", severity: "error" })])
+    )
+  })
+
+  it("keeps a read failure out of schema diagnostics and rejects the contribution", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(false)
+    expect(first.diagnostics).toEqual(
+      expect.arrayContaining([expect.objectContaining({ source: "external-file", severity: "error" })])
+    )
+    expect(first.schemaDiagnostics).toEqual([])
+  })
+
+  it("keeps contributed facts after JSON Schema errors when extraction succeeds", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "НесуществующееПоле: true")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(true)
+    expect(first.schemaDiagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ source: "structure", severity: "error", path: "/НесуществующееПоле" }),
+      ])
+    )
+  })
+
+  it("keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectFileValidator(file.owner.spec.kind, ({ filePath }) => [
+        {
+          filePath,
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "structure",
+          path: "/RegisteredFailure",
+          message: "registered first-pass failure",
+        },
+      ])
+
+      const first = validateProjectFileFirstPass({
+        projectDir,
+        file,
+        cache: createProjectYamlCache(),
+        context: mockContext,
+        schemaCache: sharedSchemaCache,
+        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      })
+
+      expect(first.contributedFacts).toBe(false)
+      expect(first.diagnostics).toEqual(
+        expect.arrayContaining([expect.objectContaining({ path: "/RegisteredFailure", source: "structure" })])
+      )
+      expect(first.schemaDiagnostics).toEqual([])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
+
   it("compiles common form properties in the same validation graph", () => {
     const spec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (spec === undefined) throw new Error("Common form validation spec is not registered")
 
-    const compiled = sharedSchemaCache.properties(spec)
+    const compiled = sharedSchemaCache.properties(spec.rule)
 
     expect(compiled.Schema()).toMatchObject({
       properties: {
