@@ -292,8 +292,9 @@ sed -n '498,570p' \
   packages/core/metadata/appliedObjects/metadataCatalog/__fixtures__/full.xml
 ```
 
-Expected: контейнеры табличной части идут как `Properties`, затем `ChildObjects`, затем
-`InternalInfo`; наблюдения содержат `internalInfo`.
+Expected: в репозиторной фикстуре контейнеры табличной части идут как `InternalInfo`, затем
+`Properties`, затем `ChildObjects`; наблюдения содержат `internalInfo`. Реальный `cf/all`
+проверяется отдельно в Task 5, потому что там `InternalInfo` расположен после `ChildObjects`.
 
 - [ ] **Step 4: Зафиксировать интеграционный тест**
 
