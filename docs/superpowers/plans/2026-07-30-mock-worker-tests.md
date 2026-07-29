@@ -51,7 +51,7 @@ describe("unit-test Piscina guard", () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run tests/forbidRealPiscina.test.ts
+pnpm --filter @nkdk/core exec vitest run tests/forbidRealPiscina.test.ts
 ```
 
 Expected: FAIL because `packages/core/tests/forbidRealPiscina.ts` does not exist.
@@ -89,7 +89,7 @@ setupFiles: [
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   tests/forbidRealPiscina.test.ts \
   metadata/importFromXml/worker.test.ts
 ```
@@ -161,7 +161,7 @@ it("records commands separately for each mock physical worker", async () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run tests/mockWorkerThreadPool.test.ts
+pnpm --filter @nkdk/core exec vitest run tests/mockWorkerThreadPool.test.ts
 ```
 
 Expected: FAIL because the helper is not defined.
@@ -213,7 +213,7 @@ Use the helper in pool protocol tests. Preserve protocol-specific assertions by 
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   tests/mockWorkerThreadPool.test.ts \
   metadata/importFromXml/workerPool.test.ts \
   metadata/fullSyncToXml/workerPool.test.ts \
@@ -251,7 +251,7 @@ git commit -m "test: :white_check_mark: унифицировать mock worker p
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/importFromXml/worker.test.ts \
   metadata/importFromXml/importConfiguration.test.ts \
   --reporter=json \
@@ -275,7 +275,7 @@ Also remove imports and `process.chdir` setup used only by that test. Do not add
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/importFromXml/workerPool.test.ts \
   metadata/importFromXml/worker.test.ts \
   metadata/importFromXml/importConfiguration.test.ts
@@ -341,7 +341,7 @@ it("prepares one YAML file without constructing Piscina", async () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run tests/preparedYamlWorkerTestPool.test.ts
+pnpm --filter @nkdk/core exec vitest run tests/preparedYamlWorkerTestPool.test.ts
 ```
 
 Expected: FAIL because the helper does not exist.
@@ -379,7 +379,7 @@ Do not compile schemas or initialize additional worker counts in the helper unle
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   tests/preparedYamlWorkerTestPool.test.ts \
   metadata/project/preparedYamlProject.test.ts \
   metadata/project/componentState/indexes.test.ts \
@@ -458,7 +458,7 @@ expect(result).toMatchObject({
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/operations/projectSnapshot.test.ts \
   metadata/operations/renameItem.test.ts \
   metadata/operations/findMetadataReferences.test.ts
@@ -478,7 +478,7 @@ Expected before migration: FAIL with `Настоящий Piscina запрещё�
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/operations/projectSnapshot.test.ts \
   metadata/operations/renameItem.test.ts \
   metadata/operations/findMetadataReferences.test.ts \
@@ -573,7 +573,7 @@ Delete only after the mapping from Step 1 is complete. Do not create replacement
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/fullSyncToXml/syncConfiguration.test.ts \
   metadata/fullSyncToXml/worker.test.ts \
   metadata/fullSyncToXml/workerPool.test.ts \
@@ -644,7 +644,7 @@ and their `afterAll(close)` hooks. Coordinator tests use mocks; subject tests ca
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run \
+pnpm --filter @nkdk/core exec vitest run \
   metadata/appliedObjects/__tests__/importSync.test.ts \
   metadata/appliedObjects/configuration/convertFromXML.test.ts \
   metadata/appliedObjects/configuration/syncToXML.test.ts \
@@ -712,7 +712,7 @@ Test strict boundary behavior: `50` passes, `50.01` fails.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run scripts/assert-test-durations.test.ts
+pnpm --filter @nkdk/core exec vitest run scripts/assert-test-durations.test.ts
 ```
 
 Expected: FAIL because the module is missing.
@@ -742,7 +742,7 @@ Do not yet make the 50 ms checker part of `pnpm test`: non-worker delays are han
 Run:
 
 ```bash
-pnpm --filter @nakidka/core run test:profile
+pnpm --filter @nkdk/core run test:profile
 node packages/core/scripts/assert-test-durations.mjs \
   --report /private/tmp/nkdk-vitest-core.json \
   --max-ms 50
