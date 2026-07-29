@@ -110,6 +110,14 @@ function staticNestedRules(
       result.push({ rule: itemRule, propertyPath: ["properties", propertyKey, "itemRule"] })
     }
   }
+  for (const [index, collection] of (rule.childCollections ?? []).entries()) {
+    if (isMetadataItemRule(collection.itemRule)) {
+      result.push({
+        rule: collection.itemRule,
+        propertyPath: ["childCollections", String(index), "itemRule"],
+      })
+    }
+  }
   return result
 }
 

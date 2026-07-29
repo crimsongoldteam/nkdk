@@ -1,6 +1,7 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
+import { MetadataAccountingRegisterRules } from "../appliedObjects/metadataAccountingRegister/rules"
 import { MetadataDataProcessorRules } from "../appliedObjects/metadataDataProcessor/rules"
 import {
   MetadataAttributesWithAllowedTypesRules,
@@ -42,6 +43,26 @@ describe("buildRuntimeRuleOrderCatalog", () => {
       exportName: "MetadataDataProcessorRules",
       propertyPath: ["properties", "attributes", "itemRule"],
     })
+  })
+
+  it("indexes a child collection item rule through its concrete owner", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const commandRule = MetadataAccountingRegisterRules.childCollections?.[0]?.itemRule
+    expect(commandRule).toBeDefined()
+
+    expect(catalog.sourceOf(commandRule!)).toMatchObject({
+      filePath: join(metadataDir, "appliedObjects/metadataAccountingRegister/rules.ts"),
+      exportName: "MetadataAccountingRegisterRules",
+      propertyPath: ["childCollections", "0", "itemRule"],
+    })
+  })
+
+  it("does not index reusable property fragments as rules", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+
+    expect(catalog.sources().map(({ candidate }) => candidate)).not.toContain(
+      "forms/elements/formGroup/rules.ts#formGroupCommonProperties"
+    )
   })
 
   it("перечисляет все конкретные источники без дубликатов и в стабильном порядке", async () => {

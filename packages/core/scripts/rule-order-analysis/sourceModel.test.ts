@@ -117,6 +117,40 @@ export const Rules = {
     expect(edit.updatedText.match(/xmlOrder:/g)).toHaveLength(1)
   })
 
+  it("добавляет xmlOrder в правило элемента childCollections", async () => {
+    const nestedSource = ruleSource({
+      candidate: "rules.ts#Rules.childCollections.0.itemRule",
+      propertyPath: ["childCollections", "0", "itemRule"],
+      declarationOrder: ["name", "group"],
+    })
+    const edit = await editFor(
+      `
+const LocalCommandRules = {
+  itemType: "MetadataCommand",
+  properties: {
+    name: { type: "string" },
+    group: { type: "string" },
+  },
+}
+export const Rules = {
+  itemType: "Owner",
+  properties: {},
+  childCollections: [{ propertyKey: "commands", itemRule: LocalCommandRules }],
+}
+`,
+      [order(["name", "group"], nestedSource)]
+    )
+
+    expect(edit.updatedText).toContain(`const LocalCommandRules = {
+  itemType: "MetadataCommand",
+  xmlOrder: [
+    "name",
+    "group",
+  ],
+  properties:`)
+    expect(edit.updatedText.match(/xmlOrder:/g)).toHaveLength(1)
+  })
+
   it("проходит propertyPath через объект параметров builder", async () => {
     const nestedSource = ruleSource({
       candidate: "rules.ts#Rules.properties.predefined.itemRule",
