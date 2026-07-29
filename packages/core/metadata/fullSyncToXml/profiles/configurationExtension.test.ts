@@ -97,7 +97,7 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
   })
 
-  it("adopts a new current address absent from the old extension snapshot", () => {
+  it("reads a localized worker entity when the canonical entity is absent", () => {
     const logicalAddress = "Catalog.Товары.Attribute.Артикул"
     const workerLogicalAddress = "Справочник.Товары.Реквизит.Артикул"
     const base = state({
@@ -116,6 +116,49 @@ describe("configuration extension full XML sync profile", () => {
       [workerLogicalAddress]: "33333333-3333-4333-8333-333333333333",
     })
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
+  })
+
+  it.each([
+    [
+      "ExternalDataSource.Источник.Table.Таблица.Field.Поле",
+      "ВнешнийИсточникДанных.Источник.Таблица.Таблица.Поле.Поле",
+    ],
+    [
+      "ExternalDataSource.Источник.Table.Таблица.Command.Команда",
+      "ВнешнийИсточникДанных.Источник.Таблица.Таблица.Команда.Команда",
+    ],
+    [
+      "ExternalDataSource.Источник.Cube.Куб.DimensionTable.ТаблицаИзмерения.Field.Поле",
+      "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерения.ТаблицаИзмерения.Поле.Поле",
+    ],
+    [
+      "ExternalDataSource.Источник.Cube.Куб.Dimension.Измерение",
+      "ВнешнийИсточникДанных.Источник.Куб.Куб.Измерение.Измерение",
+    ],
+    [
+      "ExternalDataSource.Источник.Cube.Куб.Resource.Ресурс",
+      "ВнешнийИсточникДанных.Источник.Куб.Куб.Ресурс.Ресурс",
+    ],
+    [
+      "ExternalDataSource.Источник.Cube.Куб.Command.Команда",
+      "ВнешнийИсточникДанных.Источник.Куб.Куб.Команда.Команда",
+    ],
+  ] as const)("projects exact nested address %s to worker address", (canonical, workerLogicalAddress) => {
+    const uuid = "44444444-4444-4444-8444-444444444444"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [canonical],
+      entities: [uuidEntity(workerLogicalAddress, uuid)],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [canonical],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+
+    expect(runtime.workerProfile.adoptedUuids).toEqual({ [workerLogicalAddress]: uuid })
+    expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(canonical)
   })
 
   it("does not treat the extension root as an adopted base object", () => {
