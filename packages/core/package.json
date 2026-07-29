@@ -18,8 +18,7 @@
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
-    "measure:validation-workers": "node scripts/measure-validation-workers.mjs",
-    "prepare": "ts-patch install"
+    "measure:validation-workers": "node scripts/measure-validation-workers.mjs"
   },
   "dependencies": {
     "@node-rs/xxhash": "^1.7.6",
@@ -37,9 +36,8 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^26.0.0",
     "esbuild": "^0.28.1",
-    "ts-patch": "^3.3.0",
     "tsx": "^4.22.4",
-    "typescript": "~6.0.0",
+    "typescript": "~7.0.0",
     "vitest": "^4.1.9"
   }
 }
