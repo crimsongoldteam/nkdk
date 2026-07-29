@@ -13,6 +13,7 @@ export const MetadataEventSubscriptionRules = {
   itemTypePrefix: "ПодпискаНаСобытие",
   xmlDir: "EventSubscriptions",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

@@ -13,6 +13,7 @@ export const MetadataDocumentNumeratorRules = {
   itemTypePrefix: "Нумератор",
   xmlDir: "DocumentNumerators",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

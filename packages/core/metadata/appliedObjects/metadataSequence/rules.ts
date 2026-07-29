@@ -17,6 +17,7 @@ export const MetadataSequenceRules = {
   xmlDir: "Sequences",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

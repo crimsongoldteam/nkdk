@@ -46,6 +46,7 @@ export const MetadataInformationRegisterRules = {
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

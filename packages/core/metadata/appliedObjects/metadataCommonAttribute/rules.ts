@@ -20,6 +20,7 @@ export const MetadataCommonAttributeRules = {
   itemTypePrefix: "ОбщийРеквизит",
   xmlDir: "CommonAttributes",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

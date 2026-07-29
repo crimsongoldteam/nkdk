@@ -52,6 +52,7 @@ export const MetadataExchangePlanRules = {
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

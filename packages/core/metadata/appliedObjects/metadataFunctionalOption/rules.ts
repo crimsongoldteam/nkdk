@@ -110,6 +110,7 @@ export const MetadataFunctionalOptionRules = {
   itemTypePrefix: "ФункциональнаяОпция",
   xmlDir: "FunctionalOptions",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

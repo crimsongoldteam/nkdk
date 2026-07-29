@@ -420,6 +420,7 @@ export const MetadataExternalDataSourceTableRules = {
   externalMetadata: { segment: "Table", placement: "ownedEntry" },
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

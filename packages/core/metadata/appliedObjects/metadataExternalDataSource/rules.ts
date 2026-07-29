@@ -25,6 +25,7 @@ export const MetadataExternalDataSourceRules = {
   xmlDir: "ExternalDataSources",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

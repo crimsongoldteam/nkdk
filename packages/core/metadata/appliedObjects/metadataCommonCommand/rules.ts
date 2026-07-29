@@ -11,6 +11,7 @@ export const MetadataCommonCommandRules = {
   xmlDir: "CommonCommands",
   externalMetadata: { segment: "CommonCommand", placement: "rootEntry" },
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

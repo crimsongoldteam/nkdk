@@ -16,6 +16,7 @@ export const MetadataWSReferenceRules = {
   xmlDir: "WSReferences",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

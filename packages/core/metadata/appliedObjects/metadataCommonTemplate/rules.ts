@@ -13,6 +13,7 @@ export const MetadataCommonTemplateRules = {
   itemTypePrefix: "ОбщийМакет",
   xmlDir: "CommonTemplates",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

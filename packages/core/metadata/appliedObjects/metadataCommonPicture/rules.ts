@@ -14,6 +14,7 @@ export const MetadataCommonPictureRules = {
   itemTypePrefix: "ОбщаяКартинка",
   xmlDir: "CommonPictures",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

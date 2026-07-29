@@ -229,6 +229,7 @@ export const MetadataExternalDataSourceCubeRules = {
   externalMetadata: { segment: "Cube", placement: "ownedEntry" },
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

@@ -13,6 +13,7 @@ export const MetadataSessionParameterRules = {
   itemTypePrefix: "ПараметрСеанса",
   xmlDir: "SessionParameters",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

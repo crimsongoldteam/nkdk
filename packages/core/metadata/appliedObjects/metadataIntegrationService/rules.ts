@@ -17,6 +17,7 @@ export const MetadataIntegrationServiceRules = {
   xmlDir: "IntegrationServices",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

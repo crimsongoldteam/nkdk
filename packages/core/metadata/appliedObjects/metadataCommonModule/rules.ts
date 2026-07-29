@@ -14,6 +14,7 @@ export const MetadataCommonModuleRules = {
   itemTypePrefix: "ОбщийМодуль",
   xmlDir: "CommonModules",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

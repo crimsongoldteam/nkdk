@@ -15,6 +15,7 @@ export const MetadataScheduledJobRules = {
   itemTypePrefix: "РегламентноеЗадание",
   xmlDir: "ScheduledJobs",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

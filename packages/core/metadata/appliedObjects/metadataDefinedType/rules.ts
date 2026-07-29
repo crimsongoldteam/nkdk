@@ -15,6 +15,7 @@ export const MetadataDefinedTypeRules = {
   xmlDir: "DefinedTypes",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

@@ -15,6 +15,7 @@ export const MetadataBotRules = {
   itemTypePrefix: "Бот",
   xmlDir: "Bots",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

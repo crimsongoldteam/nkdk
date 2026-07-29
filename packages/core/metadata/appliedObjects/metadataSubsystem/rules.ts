@@ -69,6 +69,7 @@ export const MetadataSubsystemRules = {
   itemTypePrefix: "Подсистема",
   xmlDir: "Subsystems",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

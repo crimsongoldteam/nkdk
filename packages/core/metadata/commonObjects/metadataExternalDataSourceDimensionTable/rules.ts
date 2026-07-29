@@ -257,6 +257,7 @@ export const MetadataExternalDataSourceDimensionTableRules = {
   externalMetadata: { segment: "DimensionTable", placement: "ownedEntry" },
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

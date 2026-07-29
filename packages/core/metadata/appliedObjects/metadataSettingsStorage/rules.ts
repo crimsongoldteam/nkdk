@@ -18,6 +18,7 @@ export const MetadataSettingsStorageRules = {
   xmlDir: "SettingsStorages",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

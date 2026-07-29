@@ -16,6 +16,7 @@ export const MetadataHTTPServiceRules = {
   itemTypePrefix: "HTTPСервис",
   xmlDir: "HTTPServices",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

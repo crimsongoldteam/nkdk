@@ -13,6 +13,7 @@ export const MetadataStyleRules = {
   itemTypePrefix: "Стиль",
   xmlDir: "Styles",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

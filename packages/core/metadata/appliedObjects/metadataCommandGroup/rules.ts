@@ -13,6 +13,7 @@ export const MetadataCommandGroupRules = {
   itemTypePrefix: "ГруппаКоманд",
   xmlDir: "CommandGroups",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

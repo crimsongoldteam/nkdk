@@ -49,6 +49,7 @@ export const MetadataReportRules = {
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

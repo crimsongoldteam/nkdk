@@ -47,6 +47,7 @@ export const MetadataDocumentRules = {
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

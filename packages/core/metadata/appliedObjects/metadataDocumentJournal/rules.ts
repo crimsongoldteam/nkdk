@@ -43,6 +43,7 @@ export const MetadataDocumentJournalRules = {
   xmlDir: "DocumentJournals",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

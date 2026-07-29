@@ -60,6 +60,7 @@ export const MetadataChartOfAccountsRules = {
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

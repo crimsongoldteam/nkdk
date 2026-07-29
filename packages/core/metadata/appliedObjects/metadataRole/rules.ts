@@ -13,6 +13,7 @@ export const MetadataRoleRules = {
   itemTypePrefix: "Роль",
   xmlDir: "Roles",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

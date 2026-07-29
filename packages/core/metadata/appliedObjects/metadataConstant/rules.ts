@@ -21,6 +21,7 @@ export const MetadataConstantRules = {
   xmlDir: "Constants",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

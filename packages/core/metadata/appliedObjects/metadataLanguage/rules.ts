@@ -14,6 +14,7 @@ export const MetadataLanguageRules = {
   itemTypePrefix: "Язык",
   xmlDir: "Languages",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

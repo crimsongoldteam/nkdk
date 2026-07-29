@@ -16,6 +16,7 @@ export const MetadataWebSocketClientRules = {
   itemTypePrefix: "WebSocketКлиент",
   xmlDir: "WebSocketClients",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

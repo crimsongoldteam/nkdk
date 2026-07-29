@@ -101,6 +101,7 @@ export const MetadataAccountingRegisterRules = {
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

@@ -22,6 +22,7 @@ export const MetadataFilterCriterionRules = {
   xmlDir: "FilterCriteria",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

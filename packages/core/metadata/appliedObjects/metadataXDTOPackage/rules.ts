@@ -13,6 +13,7 @@ export const MetadataXDTOPackageRules = {
   itemTypePrefix: "ПакетXDTO",
   xmlDir: "XDTOPackages",
   xmlOrder: [
+    "objectBelonging",
     "name",
     "synonym",
     "comment",

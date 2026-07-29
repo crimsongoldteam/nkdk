@@ -69,6 +69,7 @@ export const MetadataEnumerationRules = {
   xmlDir: "Enums",
   xmlOrder: [
     "internalInfo",
+    "objectBelonging",
     "name",
     "synonym",
     "comment",
