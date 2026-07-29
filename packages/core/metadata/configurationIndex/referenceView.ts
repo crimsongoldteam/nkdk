@@ -1,24 +1,12 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import type { OmittedChildren } from "./types"
 import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid } from "./logicalAddress"
-
-export function getConfigurationIndexPropertyOrder(
-  context: ConfigurationContextWithExportToXML | undefined
-): readonly string[] {
-  const runtime = context?.exportToXML.configurationIndex
-  if (runtime === undefined) return []
-  return runtime.xmlNode()?.order ??
-    context?.exportToXML.indexedPropertyOrderByLogicalAddress?.[
-      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
-    ] ?? []
-}
 
 export function getConfigurationIndexXmlName(
   context: ConfigurationContextWithExportToXML | undefined
 ): string | undefined {
-  const runtime = context?.exportToXML.configurationIndex
-  if (runtime === undefined) return undefined
-  return runtime.identity("xmlName") ?? runtime.xmlNode(runtime.logicalAddress)?.aliases?.["_name"]
+  return context?.exportToXML.configurationIndex?.identity("xmlName")
 }
 
 export function getConfigurationIndexXmlNodeLogicalAddress(
@@ -29,19 +17,10 @@ export function getConfigurationIndexXmlNodeLogicalAddress(
   return runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
 }
 
-export function getConfigurationIndexSourceXmlKey(
-  context: ConfigurationContextWithExportToXML,
-  propertyKey: string
-): string | undefined {
-  return context.exportToXML.configurationIndex?.xmlNode()?.aliases?.[propertyKey]
-}
-
-export function isConfigurationIndexPropertyPresent(
-  context: ConfigurationContextWithExportToXML | undefined,
-  propertyKey: string
-): boolean {
-  const node = context?.exportToXML.configurationIndex?.xmlNode()
-  return node?.present?.includes(propertyKey) === true
+export function getConfigurationIndexOmittedChildren(
+  context: ConfigurationContextWithExportToXML | undefined
+): OmittedChildren | undefined {
+  return context?.exportToXML.configurationIndex?.omittedChildren()
 }
 
 export function getConfigurationIndexPropertyXmlValue(
@@ -50,14 +29,7 @@ export function getConfigurationIndexPropertyXmlValue(
 ) {
   const runtime = context?.exportToXML.configurationIndex
   if (runtime === undefined) return undefined
-  return runtime.xmlValue(`${runtime.logicalAddress}.${propertyKey}`)
-}
-
-export function isConfigurationIndexPropertyExcludedEqualName(
-  context: ConfigurationContextWithExportToXML | undefined,
-  propertyKey: string
-): boolean {
-  return getConfigurationIndexPropertyXmlValue(context, propertyKey)?.excludedEqualName === true
+  return runtime.xml(`${runtime.logicalAddress}.${propertyKey}`)
 }
 
 export function getConfigurationIndexPropertyReferenceXMLValue(
@@ -66,7 +38,6 @@ export function getConfigurationIndexPropertyReferenceXMLValue(
 ): unknown {
   const value = getConfigurationIndexPropertyXmlValue(context, propertyKey)
   if (value === undefined) return undefined
-  if (value.userSettingsId !== undefined) return value.userSettingsId
   if (value.xsiNil === true) return { "_xsi:nil": true }
   if (
     value.xsiType !== undefined ||

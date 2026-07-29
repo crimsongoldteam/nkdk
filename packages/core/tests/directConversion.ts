@@ -8,7 +8,6 @@ import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
 } from "../metadata/configurationIndex/sharedSnapshot"
-import { NKDK_CORE_VERSION } from "../version"
 import { importMetadataItemFromXMLToYAML } from "../metadata/orchestration/metadataItem/fromXMLToYAML"
 import { convertMetadataItemFromYAMLToXML } from "../metadata/orchestration/metadataItem/fromYAMLToXML"
 import { importPropertiesFromXMLToYAML } from "../metadata/orchestration/property/fromXMLToYAML"
@@ -21,7 +20,6 @@ import type {
 import type { MetadataItemRule } from "../metadata/orchestration/property/types"
 import type { PropertyRule } from "../metadata/orchestration/property/types"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/project/localIndexes"
-import { createEmptyPersistedSharedValidationSnapshot } from "../metadata/validation/persistedSharedValidationSnapshot"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "../xml/export/exporter"
@@ -58,22 +56,11 @@ export function createDirectRoundTripContexts(
       const source = createConfigurationIndexReader(
         snapshotConfigurationIndex(
           encodeConfigurationIndex({
-            binding: {
-              indexGeneration: 1n,
-              producerVersion: NKDK_CORE_VERSION,
-              componentPath: "cf",
-              baseFingerprint: new Uint8Array(),
-              configurationVersion: new Uint8Array(),
-            },
-            projectFiles: [{ projectPath: targetProjectPath, contentHash: 1n }],
-            identities: fragment.identities,
-            xmlNodes: fragment.xmlNodes,
-            xmlValues: fragment.xmlValues,
-            localIndexes: {
-              metadata: createEmptyPersistedSharedValidationSnapshot(),
-              dependencies: [],
-              logicalAddresses: [],
-            },
+            specificationVersion: "1.3",
+            indexGeneration: 1n,
+            componentPath: "cf",
+            files: [{ projectPath: targetProjectPath, contentHash: 1n }],
+            entities: fragment.entities,
           })
         )
       )

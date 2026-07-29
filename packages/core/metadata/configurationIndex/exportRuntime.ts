@@ -2,9 +2,11 @@ import { createHash } from "crypto"
 import type { ConfigurationIndexCollector } from "./collector/writer"
 import type { SharedConfigurationIndexSnapshot } from "./sharedSnapshot"
 import type { ConfigurationIndexReader } from "./sharedSnapshot"
-import type { ConfigurationIdentity, ConfigurationXmlNode, ConfigurationXmlValue } from "./types"
+import type { ConfigurationSnapshotXml, OmittedChildren } from "./types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
 import { childUid, yamlPropertyUid } from "./logicalAddress"
+
+type IdentityKind = "uuid" | "xmlId" | "xmlName"
 
 export interface ConfigurationIndexExportRuntime {
   readonly source: ConfigurationIndexReader
@@ -15,10 +17,10 @@ export interface ConfigurationIndexExportRuntime {
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
-  identity(kind: ConfigurationIdentity["kind"], address?: string): string | undefined
+  identity(kind: IdentityKind, address?: string): string | undefined
   identityOrCreate(kind: "uuid" | "xmlId", address?: string): string
-  xmlNode(address?: string): ConfigurationXmlNode | undefined
-  xmlValue(address?: string): ConfigurationXmlValue | undefined
+  xml(address?: string): ConfigurationSnapshotXml | undefined
+  omittedChildren(address?: string): OmittedChildren | undefined
   configVersion(address: string): string
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
   withXmlNodeLogicalAddress(xmlNodeLogicalAddress: string): ConfigurationIndexExportRuntime
@@ -70,28 +72,27 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.formElementRootLogicalAddress = options.formElementRootLogicalAddress
     this.childCollectionUidSegment = options.childCollectionUidSegment
     this.yamlPathAddressing = options.yamlPathAddressing
-    this.targetGeneration = options.targetGeneration ?? this.source.binding().indexGeneration + 1n
+    this.targetGeneration = options.targetGeneration ?? this.source.header().indexGeneration + 1n
     this.seed = operationSeed(this.source.snapshot, this.targetGeneration)
   }
 
-  identity(kind: ConfigurationIdentity["kind"], address = this.logicalAddress): string | undefined {
-    return this.source.identity(address, kind)
+  identity(kind: IdentityKind, address = this.logicalAddress): string | undefined {
+    return this.source.entity(address)?.identities?.[kind]
   }
 
   identityOrCreate(kind: "uuid" | "xmlId", address = this.logicalAddress): string {
     const existing = this.identity(kind, address)
     const value = existing ?? this.generatedIdentity(kind, address)
-    if (kind === "uuid") this.collector.setUuid(address, value)
-    else this.collector.setXmlId(address, value)
+    this.collector.setIdentity(address, kind, value)
     return value
   }
 
-  xmlNode(address = this.xmlNodeLogicalAddress ?? this.logicalAddress): ConfigurationXmlNode | undefined {
-    return this.source.xmlNode(address)
+  xml(address = this.logicalAddress): ConfigurationSnapshotXml | undefined {
+    return this.source.entity(address)?.xml
   }
 
-  xmlValue(address = this.logicalAddress): ConfigurationXmlValue | undefined {
-    return this.source.xmlValue(address)
+  omittedChildren(address = this.xmlNodeLogicalAddress ?? this.logicalAddress): OmittedChildren | undefined {
+    return this.source.entity(address)?.omittedChildren
   }
 
   configVersion(address: string): string {
