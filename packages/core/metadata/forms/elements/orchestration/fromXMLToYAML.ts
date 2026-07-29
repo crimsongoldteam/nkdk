@@ -42,6 +42,8 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
     profile: params.traversal.profile,
+    ruleOrderCollector: params.traversal.ruleOrderCollector,
+    sourceXmlPath: params.traversal.sourceXmlPath,
   })
 }
 
@@ -90,6 +92,8 @@ export function importSingleFormElementFromXMLToYAML(params: {
       collector: params.traversal.collector,
       deferred: params.traversal.deferred,
       profile: params.traversal.profile,
+      ruleOrderCollector: params.traversal.ruleOrderCollector,
+      sourceXmlPath: params.traversal.sourceXmlPath,
     }) ?? {}
   )
 }

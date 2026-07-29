@@ -464,6 +464,9 @@ function fakeDependencies(params: {
             fragmentData,
           }
         },
+        async analyzeRuleOrder() {
+          return { diagnostics: [], observations: [], unmatchedObservationCount: 0, unmatchedItemTypes: [] }
+        },
         async runSecondPass() {
           call("secondPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")

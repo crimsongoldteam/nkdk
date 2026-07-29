@@ -18,6 +18,7 @@ import type {
   DeferredRulePathSegment,
   DirectImportProfile,
   DirectImportXMLSource,
+  RulePropertyOrderCollector,
 } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
@@ -57,6 +58,8 @@ export function importPropertiesFromXMLToYAML(params: {
   deferred?: DeferredValuePathCollector
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
+  ruleOrderCollector?: RulePropertyOrderCollector
+  sourceXmlPath?: string
 }): Record<string, unknown> | undefined {
   const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
@@ -65,11 +68,15 @@ export function importPropertiesFromXMLToYAML(params: {
   const owner = metadataTargetOwnerFromRule({ itemRule: rule, name: itemName, context })
   const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
-  const configurationPresenceByXmlNode = new Map<
+  const observedOrderByXmlNode = new Map<
     string,
     {
       collector: ConfigurationIndexCollector
+      keys: string[]
+      seen: Set<string>
       present: Set<string>
+      sourceXmlPath?: string
+      logicalAddress: string
     }
   >()
 
@@ -140,15 +147,23 @@ export function importPropertiesFromXMLToYAML(params: {
 
     if (indexCollection !== undefined && presentInXML) {
       const indexStartedAt = performance.now()
-      const existingObservation = configurationPresenceByXmlNode.get(xmlNodeLogicalAddress!)
+      const existingObservation = observedOrderByXmlNode.get(xmlNodeLogicalAddress!)
       if (existingObservation !== undefined && existingObservation.collector !== indexCollection.collector) {
         throw new Error(`Для одного XML-узла ${xmlNodeLogicalAddress} используются разные сборщики снимка`)
       }
       const observation = existingObservation ?? {
         collector: indexCollection.collector,
+        keys: [],
+        seen: new Set<string>(),
         present: new Set<string>(),
+        sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
+        logicalAddress: indexCollection.logicalAddress,
       }
-      configurationPresenceByXmlNode.set(xmlNodeLogicalAddress!, observation)
+      if (!observation.seen.has(key)) {
+        observation.seen.add(key)
+        observation.keys.push(key)
+      }
+      observedOrderByXmlNode.set(xmlNodeLogicalAddress!, observation)
       if (sourceXMLKey !== undefined && sourceXMLKey !== entry.canonicalXMLKey)
         indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
       if (
@@ -244,6 +259,8 @@ export function importPropertiesFromXMLToYAML(params: {
             collector,
             deferred,
             profile: params.profile,
+            ruleOrderCollector: params.ruleOrderCollector,
+            sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
           },
           nested.itemRule.itemType
         )
@@ -269,6 +286,8 @@ export function importPropertiesFromXMLToYAML(params: {
               collector,
               deferred,
               profile: params.profile,
+              ruleOrderCollector: params.ruleOrderCollector,
+              sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
             }),
           { configurationIndexAddressing: nestedConfigurationIndexAddressing }
         )
@@ -324,6 +343,8 @@ export function importPropertiesFromXMLToYAML(params: {
                 collector,
                 deferred,
                 profile: params.profile,
+                ruleOrderCollector: params.ruleOrderCollector,
+                sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
               },
             }),
           { configurationIndexAddressing: nestedConfigurationIndexAddressing }
@@ -417,7 +438,7 @@ export function importPropertiesFromXMLToYAML(params: {
               })
             )))
       ) {
-        configurationPresenceByXmlNode.get(xmlNodeLogicalAddress!)?.present.add(key)
+        observedOrderByXmlNode.get(xmlNodeLogicalAddress!)?.present.add(key)
       }
       if (propertyRule.externalFile && propertyRule.toYAML !== false) {
         const outputStartedAt = performance.now()
@@ -539,7 +560,20 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
-  for (const [xmlNodeLogicalAddress, observation] of configurationPresenceByXmlNode) {
+  for (const [xmlNodeLogicalAddress, observation] of observedOrderByXmlNode) {
+    if (observation.keys.length === 0) continue
+    if (params.ruleOrderCollector !== undefined) {
+      const sourceXmlPath = observation.sourceXmlPath
+      if (sourceXmlPath === undefined) throw new Error(`Не определён XML-путь наблюдения ${xmlNodeLogicalAddress}`)
+      params.ruleOrderCollector.accept({
+        rule,
+        rulePath,
+        sourceXmlPath,
+        logicalAddress: observation.logicalAddress,
+        xmlNodeLogicalAddress,
+        fields: [...observation.keys],
+      })
+    }
     const indexStartedAt = performance.now()
     for (const propertyKey of Object.keys(rule.properties)) {
       if (observation.present.has(propertyKey)) {

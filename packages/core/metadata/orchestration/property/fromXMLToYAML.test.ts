@@ -172,6 +172,46 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
+  it("reports model property keys and source path for one rule XML node", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+    const facts: unknown[] = []
+    const rule = {
+      itemType: "TestObservedItem",
+      properties: {
+        name: { type: "string", xml: "Name", yaml: "Имя" },
+        legacyValue: { type: "string", xml: "Value", xmlAliases: ["LegacyValue"], yaml: "Значение" },
+      },
+    } as MetadataItemRule
+
+    importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: { Name: "Товары", LegacyValue: "legacy" }, sourceXmlPath: "/xml/Test.xml" }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      ruleOrderCollector: { accept: (fact) => facts.push(fact) },
+    })
+
+    expect(facts).toEqual([
+      expect.objectContaining({
+        rule,
+        sourceXmlPath: "/xml/Test.xml",
+        logicalAddress: "Справочник.Товары",
+        xmlNodeLogicalAddress: "Справочник.Товары",
+        fields: ["name", "legacyValue"],
+      }),
+    ])
+    expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        present: ["name", "legacyValue"],
+        aliases: { legacyValue: "LegacyValue" },
+      },
+    ])
+  })
+
   it("rejects different snapshot collectors for one physical XML node", () => {
     const firstContext = withConfigurationIndexCollector(
       mockContextFromXML(),
