@@ -1,8 +1,8 @@
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises"
+import { mkdtemp, mkdir, rm } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { afterEach, describe, expect, it } from "vitest"
-import { readXmlDirFromRules, resolveMetadataTarget } from "./targetResolver"
+import { resolveMetadataTarget, resolveXmlDir } from "./targetResolver"
 
 const tempRoots: string[] = []
 
@@ -12,13 +12,9 @@ async function createTempProject() {
   return projectRoot
 }
 
-async function createMetadataItem(projectRoot: string, metadataItem: string, rulesSource?: string) {
+async function createMetadataItem(projectRoot: string, metadataItem: string) {
   const itemDir = join(projectRoot, "packages/core/metadata/appliedObjects", metadataItem)
   await mkdir(join(itemDir, "__fixtures__/sync/xml"), { recursive: true })
-
-  if (rulesSource !== undefined) {
-    await writeFile(join(itemDir, "rules.ts"), rulesSource, "utf-8")
-  }
 
   return itemDir
 }
@@ -28,42 +24,23 @@ describe("targetResolver", () => {
     await Promise.all(tempRoots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
   })
 
-  it("читает xmlDir из rules.ts через синтаксическое дерево TypeScript", async () => {
-    const projectRoot = await createTempProject()
-    const itemDir = await createMetadataItem(
-      projectRoot,
-      "metadataCatalog",
-      `export const MetadataCatalogRules = {
-        itemType: "MetadataCatalog",
-        xmlDir: "Catalogs",
-      }`
+  it("находит строковый xmlDir по имени каталога metadataItem", () => {
+    expect(resolveXmlDir("metadataCatalog", [{ itemType: "MetadataCatalog", xmlDir: "Catalogs" }])).toBe(
+      "Catalogs"
     )
-
-    await expect(readXmlDirFromRules(itemDir)).resolves.toBe("Catalogs")
   })
 
-  it("возвращает undefined, если rules.ts не содержит xmlDir", async () => {
-    const projectRoot = await createTempProject()
-    const itemDir = await createMetadataItem(
-      projectRoot,
-      "metadataProbe",
-      `export const MetadataProbeRules = {
-        itemType: "MetadataProbe",
-      }`
-    )
+  it("возвращает undefined для неизвестного metadataItem", () => {
+    expect(resolveXmlDir("metadataUnknown", [{ itemType: "MetadataCatalog", xmlDir: "Catalogs" }])).toBeUndefined()
+  })
 
-    await expect(readXmlDirFromRules(itemDir)).resolves.toBeUndefined()
+  it("возвращает undefined для правила без xmlDir", () => {
+    expect(resolveXmlDir("metadataProbe", [{ itemType: "MetadataProbe" }])).toBeUndefined()
   })
 
   it("разрешает целевой metadataItem в каталоги фикстур и синхронизации", async () => {
     const projectRoot = await createTempProject()
-    const itemDir = await createMetadataItem(
-      projectRoot,
-      "metadataDocument",
-      `export const MetadataDocumentRules = {
-        xmlDir: "Documents",
-      }`
-    )
+    const itemDir = await createMetadataItem(projectRoot, "metadataDocument")
 
     await expect(resolveMetadataTarget(projectRoot, "metadataDocument")).resolves.toEqual({
       metadataItem: "metadataDocument",
