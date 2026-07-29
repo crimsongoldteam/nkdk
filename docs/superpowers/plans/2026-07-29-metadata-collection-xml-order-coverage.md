@@ -305,7 +305,153 @@ git commit -m "test: :white_check_mark: проверить порядок вло
 
 ---
 
-### Task 3: Повторно проверить все конкретные runtime-правила
+### Task 3: Сделать зарегистрированные itemRule видимыми каталогу
+
+**Files:**
+
+- Move: `packages/core/metadata/appliedObjects/metadataChartOfAccounts/predefinedRules.ts`
+  → `packages/core/metadata/appliedObjects/metadataChartOfAccounts/predefined/rules.ts`
+- Modify: `packages/core/metadata/appliedObjects/metadataChartOfAccounts/rules.ts`
+- Modify: `packages/core/metadata/appliedObjects/metadataReport/rules.ts`
+- Modify: `packages/core/metadata/ruleOrderAnalysis/catalogImports.generated.ts`
+- Modify: `packages/core/metadata/ruleOrderAnalysis/catalog.test.ts`
+
+**Interfaces:**
+
+- Produces exported rules:
+  - `PredefinedAccountingFlagRules`
+  - `PredefinedExtDimensionTypeRules`
+  - `ChartOfAccountsPredefinedItemRules`
+  - `ChartOfAccountsPredefinedRules`
+  - `MetadataReportAttributeRules`
+- Produces explicit `itemRule` links from owning property rules
+- Preserves the existing property types and XML/YAML conversion
+
+- [ ] **Step 1: Написать падающие тесты каталога**
+
+В `catalog.test.ts` импортировать `MetadataChartOfAccountsRules`, `MetadataReportRules` и
+`getTypeRule`. Добавить тесты:
+
+```ts
+it("сопоставляет зарегистрированное правило реквизита отчёта", async () => {
+  const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+  const nested = getTypeRule("MetadataReportAttributes", "nestedItemRule")
+  if (nested === undefined || !("itemRule" in nested)) throw new Error("Не найден itemRule реквизита отчёта")
+
+  expect(catalog.sourceOf(nested.itemRule)?.candidate).toBe(
+    "appliedObjects/metadataReport/rules.ts#MetadataReportAttributeRules"
+  )
+  expect(MetadataReportRules.properties.attributes.itemRule).toBe(nested.itemRule)
+})
+
+it("сопоставляет вложенные правила предопределённых счетов", async () => {
+  const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+  const accountingFlags = getTypeRule("ChartOfAccountsPredefinedAccountingFlags", "nestedItemRule")
+  const extDimensionTypes = getTypeRule("ChartOfAccountsPredefinedExtDimensionTypes", "nestedItemRule")
+  if (accountingFlags === undefined || !("itemRule" in accountingFlags)) {
+    throw new Error("Не найден itemRule признака учёта")
+  }
+  if (extDimensionTypes === undefined || !("itemRule" in extDimensionTypes)) {
+    throw new Error("Не найден itemRule вида субконто")
+  }
+
+  expect(catalog.sourceOf(accountingFlags.itemRule)?.candidate).toBe(
+    "appliedObjects/metadataChartOfAccounts/predefined/rules.ts#PredefinedAccountingFlagRules"
+  )
+  expect(catalog.sourceOf(extDimensionTypes.itemRule)?.candidate).toBe(
+    "appliedObjects/metadataChartOfAccounts/predefined/rules.ts#PredefinedExtDimensionTypeRules"
+  )
+  expect(MetadataChartOfAccountsRules.properties.predefined.itemRule).toBeDefined()
+})
+```
+
+- [ ] **Step 2: Запустить тест и подтвердить RED**
+
+Run:
+
+```bash
+pnpm --dir packages/core exec vitest run metadata/ruleOrderAnalysis/catalog.test.ts
+```
+
+Expected: FAIL — type registry возвращает runtime-правила, но `catalog.sourceOf` не находит их;
+у property реквизитов отчёта отсутствует явный `itemRule`.
+
+- [ ] **Step 3: Перенести и экспортировать правила предопределённых счетов**
+
+Переместить `predefinedRules.ts` в `predefined/rules.ts`, исправить относительные импорты на один
+уровень вверх и добавить `export` к четырём объектам правил:
+
+```ts
+export const PredefinedAccountingFlagRules = { /* существующее тело */ }
+export const PredefinedExtDimensionTypeRules = { /* существующее тело */ }
+export const ChartOfAccountsPredefinedItemRules = { /* существующее тело */ }
+export const ChartOfAccountsPredefinedRules = { /* существующее тело */ }
+```
+
+В свойствах `accountingFlags` и `extDimensionTypes` явно указать соответствующие `itemRule`.
+В `metadataChartOfAccounts/rules.ts` заменить импорт на:
+
+```ts
+import { ChartOfAccountsPredefinedRules } from "./predefined/rules"
+```
+
+- [ ] **Step 4: Экспортировать и прикрепить правило реквизита отчёта**
+
+В `metadataReport/rules.ts` изменить объявление на:
+
+```ts
+export const MetadataReportAttributeRules = {
+  ...MetadataAttributeRules,
+} as const satisfies MetadataItemRule
+```
+
+В `MetadataReportRules.properties.attributes` добавить:
+
+```ts
+itemRule: MetadataReportAttributeRules,
+```
+
+- [ ] **Step 5: Перегенерировать каталог импортов**
+
+Run:
+
+```bash
+node packages/core/scripts/rule-order-analysis/generateCatalogImports.mjs
+```
+
+Expected: `catalogImports.generated.ts` содержит
+`appliedObjects/metadataChartOfAccounts/predefined/rules.ts`.
+
+- [ ] **Step 6: Запустить тесты и type-check**
+
+Run:
+
+```bash
+pnpm --dir packages/core exec vitest run \
+  metadata/ruleOrderAnalysis/catalog.test.ts \
+  metadata/appliedObjects/metadataChartOfAccounts \
+  metadata/appliedObjects/metadataReport \
+  metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts
+pnpm --dir packages/core type-check
+git diff --check
+```
+
+Expected: PASS.
+
+- [ ] **Step 7: Зафиксировать явные itemRule**
+
+```bash
+git add \
+  packages/core/metadata/appliedObjects/metadataChartOfAccounts \
+  packages/core/metadata/appliedObjects/metadataReport/rules.ts \
+  packages/core/metadata/ruleOrderAnalysis/catalog.test.ts \
+  packages/core/metadata/ruleOrderAnalysis/catalogImports.generated.ts
+git commit -m "refactor: :recycle: сделать itemRule коллекций явными"
+```
+
+---
+
+### Task 4: Повторно проверить все конкретные runtime-правила
 
 **Files:**
 
@@ -405,7 +551,7 @@ Expected before proceeding:
 
 ---
 
-### Task 4: Записать новые `xmlOrder` и проверить идемпотентность
+### Task 5: Записать новые `xmlOrder` и проверить идемпотентность
 
 **Files:**
 
@@ -417,7 +563,7 @@ Expected before proceeding:
 
 **Interfaces:**
 
-- Consumes: canonical orders из Task 3
+- Consumes: canonical orders из Task 4
 - Produces: частичные `MetadataItemRule.xmlOrder`
 - Preserves: порядок `properties` и `ConfigurationXmlNode.order`
 
@@ -521,7 +667,7 @@ Expected: `rewrite-plan.json` содержит пустой массив; worktr
 
 ---
 
-### Task 5: Проверить round-trip `cf/all`
+### Task 6: Проверить round-trip `cf/all`
 
 **Files:**
 
@@ -583,7 +729,7 @@ Expected: `cf/all` возвращён к состоянию HEAD родител�
 
 ---
 
-### Task 6: Выполнить финальную проверку и сохранить анализатор
+### Task 7: Выполнить финальную проверку и сохранить анализатор
 
 **Files:**
 
