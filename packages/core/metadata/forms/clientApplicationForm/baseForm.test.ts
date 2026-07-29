@@ -98,11 +98,11 @@ describe("client application BaseForm", () => {
             "ЧастьФормы",
             "Содержимое"
           ),
-          order: ["autoCommandBar"],
+          present: ["autoCommandBar"],
         },
         {
           logicalAddress: autoCommandBarAddress,
-          order: ["name"],
+          present: ["name"],
         },
       ],
     })

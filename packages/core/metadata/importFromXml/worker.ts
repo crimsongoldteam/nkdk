@@ -3,7 +3,9 @@ import { dirname, join, posix } from "node:path"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import {
+  createConfigurationIndexCollector,
+} from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
@@ -11,9 +13,7 @@ import { finalizeImportedYamlValues } from "../orchestration/property/finalizeIm
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
-import {
-  type LayeredImportReferenceSnapshot,
-} from "./componentReferenceIndex"
+import { type LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
@@ -86,9 +86,7 @@ async function runSecondPass(
 
   for (const [id, prepared] of preparedYaml) {
     try {
-      files.push(
-        ...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler))
-      )
+      files.push(...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)))
       files.push(
         ...prepared.assignment.externalFiles.map((file) => ({
           sourceKind: "xml" as const,
@@ -149,10 +147,15 @@ async function writePreparedYamlToOutput(
     prepared.yaml === undefined ? "" : exportToYAML(prepared.yaml)
   )
   const yamlSourcePath = join(state.outputDir, prepared.targetProjectPath)
-  await profiler.measureAsync("Подготовка импорта конфигурации", "Запись основного YAML-файла", { items: 1 }, async () => {
-    await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
-    await fs.promises.writeFile(yamlSourcePath, exported, "utf-8")
-  })
+  await profiler.measureAsync(
+    "Подготовка импорта конфигурации",
+    "Запись основного YAML-файла",
+    { items: 1 },
+    async () => {
+      await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
+      await fs.promises.writeFile(yamlSourcePath, exported, "utf-8")
+    }
+  )
 
   const files: ImportResultFile[] = [
     {
@@ -225,11 +228,15 @@ async function runFirstPass(
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
-
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
     try {
-      const prepared = await prepareImportYaml({ assignment, context: state.context, collector, profiler })
+      const prepared = await prepareImportYaml({
+        assignment,
+        context: state.context,
+        collector,
+        profiler,
+      })
       const preparedOwnerFacts = profiler.measure(
         "Подготовка импорта конфигурации",
         "Извлечение локального индекса метаданных",

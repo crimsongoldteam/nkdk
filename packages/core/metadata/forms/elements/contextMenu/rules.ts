@@ -12,6 +12,11 @@ export const ContextMenuRules = {
   itemType: "ContextMenu",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ContextMenu",
+  xmlOrder: [
+    "autofill",
+    "childItems",
+    "name",
+  ],
   properties: {
     name: stringRule({
       xml: "_name",

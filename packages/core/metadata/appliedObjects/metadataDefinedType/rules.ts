@@ -13,6 +13,15 @@ export const MetadataDefinedTypeRules = {
   metadataTargetOwner: { kind: "self", root: "DefinedType" },
   itemTypePrefix: "ОпределяемыйТип",
   xmlDir: "DefinedTypes",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "DefinedType",

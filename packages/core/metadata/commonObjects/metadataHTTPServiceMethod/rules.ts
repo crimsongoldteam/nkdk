@@ -5,6 +5,15 @@ const propertiesParents = ["Properties"]
 
 export const MetadataHTTPServiceMethodRules = {
   itemType: "MetadataHTTPServiceMethod",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "httpMethod",
+    "handler",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: {

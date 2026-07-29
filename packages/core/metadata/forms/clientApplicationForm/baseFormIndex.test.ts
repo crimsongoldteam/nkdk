@@ -79,7 +79,9 @@ describe("BaseForm configuration index reader", () => {
     expect(projected.identity(attributeAddress, "xmlId")).toBe("1000001")
     expect(projected.identity(commandAddress, "xmlId")).toBe("1000002")
     expect(projected.identity(parameterAddress, "xmlId")).toBe("1000003")
-    expect(projected.xmlNode(elementAddress)).toEqual(base.xmlNode(elementAddress))
+    expect(projected.xmlNode(elementAddress)).toEqual({
+      logicalAddress: elementAddress,
+    })
     expect(projected.xmlValue(elementPropertyAddress)).toEqual(
       base.xmlValue(elementPropertyAddress)
     )
@@ -157,7 +159,7 @@ describe("BaseForm configuration index reader", () => {
     expect(projected.xmlNodes()).toEqual(base.xmlNodes())
   })
 
-  it("projects a base implicit property-state in the effective form order", () => {
+  it("projects a base implicit property-state in xmlOrder", () => {
     const implicitPropertyAddress = childUid(
       formAddress,
       "Свойство",
@@ -195,23 +197,16 @@ describe("BaseForm configuration index reader", () => {
         xmlNodeLogicalAddress: formBodyAddress,
         rule: ClientApplicationFormRules,
         selectedPropertyKeys: new Set(["title"]),
-        effectivePropertyOrder: [
-          "title",
-          "formWindowOpeningMode",
-          "commands",
-          "attributes",
-        ],
       }],
     })
 
     expect(projected.xmlNode(formBodyAddress)).toEqual({
       logicalAddress: formBodyAddress,
-      order: ["title", "formWindowOpeningMode", "attributes"],
       present: ["formWindowOpeningMode", "attributes"],
     })
   })
 
-  it("projects shared nested presence into the property context", () => {
+  it("does not project nested presence from order-only extension state", () => {
     const propertyAddress = childUid(
       formAddress,
       "Свойство",
@@ -244,13 +239,10 @@ describe("BaseForm configuration index reader", () => {
       }],
     })
 
-    expect(projected.xmlNode(propertyAddress)).toEqual({
-      logicalAddress: propertyAddress,
-      present: ["autoCommandBar"],
-    })
+    expect(projected.xmlNode(propertyAddress)).toBeUndefined()
   })
 
-  it("keeps selected order-only state without treating it as present", () => {
+  it("ignores selected order-only state", () => {
     const base = reader({
       componentPath: "cf",
       xmlNodes: [{
@@ -280,83 +272,9 @@ describe("BaseForm configuration index reader", () => {
 
     expect(projected.xmlNode(elementAddress)).toEqual({
       logicalAddress: elementAddress,
-      order: ["dataPath"],
     })
-  })
-
-  it("preserves the relative order shared by both snapshots", () => {
-    const projected = projectedRootOrder({
-      baseOrder: ["title", "commands", "attributes"],
-      extensionOrder: ["title", "commands", "attributes"],
-      fallbackOrder: ["attributes", "commands", "title"],
-    })
-
-    expect(projected).toEqual(["title", "commands", "attributes"])
-  })
-
-  it("inserts cfe properties between available base anchors", () => {
-    const projected = projectedRootOrder({
-      baseOrder: ["title", "attributes"],
-      extensionOrder: ["title", "commands", "attributes"],
-      fallbackOrder: ["attributes", "title", "commands"],
-    })
-
-    expect(projected).toEqual(["title", "commands", "attributes"])
-  })
-
-  it("resolves cyclic snapshot constraints in deterministic fallback order", () => {
-    const params = {
-      baseOrder: ["title", "commands"],
-      extensionOrder: ["commands", "title"],
-      fallbackOrder: ["commands", "title", "attributes"],
-    }
-
-    expect(projectedRootOrder(params)).toEqual([
-      "commands",
-      "title",
-      "attributes",
-    ])
-    expect(projectedRootOrder(params)).toEqual(projectedRootOrder(params))
   })
 })
-
-function projectedRootOrder(params: {
-  readonly baseOrder: readonly string[]
-  readonly extensionOrder: readonly string[]
-  readonly fallbackOrder: readonly string[]
-}): readonly string[] | undefined {
-  const base = reader({
-    componentPath: "cf",
-    xmlNodes: [{
-      logicalAddress: formBodyAddress,
-      order: params.baseOrder,
-    }],
-  })
-  const extension = reader({
-    componentPath: "cfe/Дополнение",
-    xmlNodes: [{
-      logicalAddress: formBodyAddress,
-      order: params.extensionOrder,
-    }],
-  })
-  const projected = createBaseFormConfigurationIndexReader({
-    base,
-    extension,
-    extensionIdentityAddresses: new Set(),
-    nodeProjections: [{
-      logicalAddress: formAddress,
-      xmlNodeLogicalAddress: formBodyAddress,
-      rule: ClientApplicationFormRules,
-      selectedPropertyKeys: new Set([
-        "title",
-        "commands",
-        "attributes",
-      ]),
-      effectivePropertyOrder: params.fallbackOrder,
-    }],
-  })
-  return projected.xmlNode(formBodyAddress)?.order
-}
 
 function reader(params: {
   readonly componentPath: string

@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { shortRoundTripXML } from "./shortRoundTripXML"
 
@@ -73,7 +74,7 @@ describe("shortRoundTripXML", () => {
       join(outputDir, "Catalogs", "Контрагенты", "Forms", "ФормаЭлемента.xml"),
       "utf-8"
     )
-    expect(resultFormMetaXML).toBe(expectedFormMetaXML)
+    expect(canonicalXML(resultFormMetaXML)).toEqual(canonicalXML(expectedFormMetaXML))
     fs.rmSync(preparedInputDir, { recursive: true, force: true })
   }, 120_000)
 

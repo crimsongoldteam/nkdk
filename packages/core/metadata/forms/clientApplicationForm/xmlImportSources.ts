@@ -34,7 +34,10 @@ export function createClientApplicationFormImportSources(params: {
   metadataXML: unknown
 }): DirectImportXMLSource[] {
   return [
-    createClientApplicationFormBodyImportSource({ context: params.context, xml: params.formXML }),
+    createClientApplicationFormBodyImportSource({
+      context: params.context,
+      xml: params.formXML,
+    }),
     {
       context: params.context,
       xml: asRecord(params.metadataXML) ?? {},

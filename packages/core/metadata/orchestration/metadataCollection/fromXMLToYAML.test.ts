@@ -55,6 +55,20 @@ registerMetadataItemCollectionRule({
   configurationIndexAddressing: "yamlPath",
 })
 registerMetadataItemCollectionRule({
+  propertyType: "TestPreservedNamesCollection" as PropertyRuleType,
+  itemRule,
+  xmlElement: "Item",
+  keyField: "name",
+  preserveOmittedItemNames: true,
+})
+registerMetadataItemCollectionRule({
+  propertyType: "TestPreservedPresenceCollection" as PropertyRuleType,
+  itemRule,
+  xmlElement: "Item",
+  keyField: "name",
+  preserveItemPropertyPresence: true,
+})
+registerMetadataItemCollectionRule({
   propertyType: "TestCustomKeyCollection" as PropertyRuleType,
   itemRule,
   xmlElement: "Item",
@@ -170,8 +184,8 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     )
     expect(recordCollector.fragment("test.yaml").xmlNodes).toEqual(
       expect.arrayContaining([
-        { logicalAddress: "Владелец.A.Элемент.Первый", order: ["uuid", "name", "value"] },
-        { logicalAddress: "Владелец.A.Элемент.Второй", order: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элемент.Первый", present: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элемент.Второй", present: ["uuid", "name", "value"] },
       ])
     )
     expect(arrayCollector.fragment("test.yaml").identities).toEqual(
@@ -182,10 +196,29 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     )
     expect(arrayCollector.fragment("test.yaml").xmlNodes).toEqual(
       expect.arrayContaining([
-        { logicalAddress: "Владелец.A.Элементы[0]", order: ["uuid", "name", "value"] },
-        { logicalAddress: "Владелец.A.Элементы[1]", order: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элементы[0]", present: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элементы[1]", present: ["uuid", "name", "value"] },
       ])
     )
+  })
+
+  it("keeps special collection item order in the snapshot", () => {
+    const indexCollector = createConfigurationIndexCollector()
+
+    runDirectRule(
+      "TestPreservedNamesCollection",
+      {
+        Items: {
+          Item: [{ Name: "Второй" }, { Name: "Первый" }],
+        },
+      },
+      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
+    )
+
+    expect(indexCollector.fragment("test.yaml").xmlNodes).toContainEqual({
+      logicalAddress: "Владелец.A.Свойство.Элементы",
+      order: ["Второй", "Первый"],
+    })
   })
 
   it("addresses an array item by keyField when YAML-path addressing is disabled", () => {
@@ -241,7 +274,11 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
   })
 })
 
-function runDirectRule(type: PropertyRuleType, xml: Record<string, unknown>, context = mockContextFromXML()) {
+function runDirectRule(
+  type: PropertyRuleType,
+  xml: Record<string, unknown>,
+  context = mockContextFromXML()
+) {
   const collector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
   const importContext = { ...context, exportToYAML: { toTyped: true } }

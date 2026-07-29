@@ -12,6 +12,18 @@ export const MetadataDocumentNumeratorRules = {
   metadataTargetOwner: { kind: "self", root: "DocumentNumerator" },
   itemTypePrefix: "Нумератор",
   xmlDir: "DocumentNumerators",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "numberType",
+    "numberLength",
+    "numberAllowedLength",
+    "numberPeriodicity",
+    "checkUnique",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "DocumentNumerator",

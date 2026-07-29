@@ -12,6 +12,14 @@ export const MetadataXDTOPackageRules = {
   metadataTargetOwner: { kind: "self", root: "XDTOPackage" },
   itemTypePrefix: "ПакетXDTO",
   xmlDir: "XDTOPackages",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "namespace",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "XDTOPackage",

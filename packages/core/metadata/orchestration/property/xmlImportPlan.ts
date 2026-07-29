@@ -13,6 +13,7 @@ export interface XMLImportMatch extends XMLImportPlanEntry {
   sourceXMLKey: string
   xmlPath: readonly string[]
   xmlValue: unknown
+  ambiguousXMLKey: boolean
 }
 
 export interface XMLImportPlan {
@@ -148,7 +149,13 @@ const visitNode = (
     for (const entry of entries) {
       if (visitedPropertyKeys.has(entry.propertyKey)) continue
       visitedPropertyKeys.add(entry.propertyKey)
-      visit({ ...entry, sourceXMLKey: xmlKey, xmlPath: propertyXMLPath, xmlValue })
+      visit({
+        ...entry,
+        sourceXMLKey: xmlKey,
+        xmlPath: propertyXMLPath,
+        xmlValue,
+        ambiguousXMLKey: entries.length > 1,
+      })
     }
 
     const child = node.childrenByXMLKey.get(xmlKey)

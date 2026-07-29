@@ -6,6 +6,13 @@ import { uuidPropertyRule } from "../uuid/rule"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
+  xmlOrder: [
+    "name",
+    "table",
+    "indexedFields",
+    "additionalFields",
+    "id",
+  ],
   properties: {
     id: {
       ...uuidPropertyRule,
@@ -14,28 +21,27 @@ export const AdditionalIndexItemRules = {
     additionalFields: indexFieldRule({
       xml: "AdditionalFields",
       yaml: "ДополнительныеПоля",
-      order: 4,
     }),
     name: stringRule({
       xml: "Name",
       yaml: "Имя",
       required: true,
-      order: 1,
     }),
     indexedFields: indexFieldRule({
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
-      order: 3,
     }),
     table: stringRule({
       xml: "Table",
       yaml: "Таблица",
-      order: 2,
     }),
   },
 } as const satisfies MetadataItemRule
 export const AdditionalIndexRules = {
   itemType: "AdditionalIndex",
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "AdditionalIndexes",

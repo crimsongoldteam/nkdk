@@ -24,6 +24,13 @@ export const MetadataEnumerationStandardAttributeNames: Record<string, string> =
 export const MetadataEnumerationValueRules = {
   itemType: "MetadataEnumerationValue",
   externalMetadata: { segment: "EnumValue", placement: "ownerChild" },
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "uuid",
+  ],
   properties: {
     uuid: uuidRule({
       xml: "_uuid",
@@ -67,6 +74,31 @@ export const MetadataEnumerationRules = {
   metadataTargetOwner: { kind: "self", root: "Enum" },
   itemTypePrefix: "Перечисление",
   xmlDir: "Enums",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "useStandardCommands",
+    "standardAttributes",
+    "characteristics",
+    "quickChoice",
+    "choiceMode",
+    "defaultListForm",
+    "defaultChoiceForm",
+    "auxiliaryListForm",
+    "auxiliaryChoiceForm",
+    "listPresentation",
+    "extendedListPresentation",
+    "explanation",
+    "choiceHistoryOnInput",
+    "enumValues",
+    "forms",
+    "templates",
+    "commands",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Enum",

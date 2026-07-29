@@ -88,7 +88,7 @@ function runProfile(options) {
     mkdirProjectSymlink(projectDir, options.yamlDir)
     writeFileSync(
       inputJson,
-      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", allowWrite: true })}\n`,
+      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", concurrency: 1, allowWrite: true })}\n`,
       "utf8"
     )
 

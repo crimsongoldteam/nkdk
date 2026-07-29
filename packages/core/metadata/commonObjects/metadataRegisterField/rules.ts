@@ -49,7 +49,6 @@ export const commonRegisterFieldProperties = {
     type: "string",
     required: true,
     xmlParents: propertiesParents,
-    order: 1,
   },
   synonym: {
     yaml: "Синоним",
@@ -74,7 +73,6 @@ export const commonRegisterFieldProperties = {
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
     preserveEmptyXML: true,
-    order: 2,
   },
   comment: {
     yaml: "Комментарий",
@@ -82,14 +80,12 @@ export const commonRegisterFieldProperties = {
     type: "string",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 3,
   },
   type: {
     yaml: "Тип",
     type: "TypeDescription",
     xml: "Type",
     xmlParents: propertiesParents,
-    order: 4,
   },
   passwordMode: {
     yaml: "РежимПароля",
@@ -98,7 +94,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
     xmlParents: propertiesParents,
-    order: 5,
   },
   format: {
     yaml: "Формат",
@@ -106,7 +101,6 @@ export const commonRegisterFieldProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 6,
   },
   editFormat: {
     yaml: "ФорматРедактирования",
@@ -114,7 +108,6 @@ export const commonRegisterFieldProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 7,
   },
   toolTip: {
     yaml: "Подсказка",
@@ -122,7 +115,6 @@ export const commonRegisterFieldProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 8,
   },
   markNegatives: {
     yaml: "ВыделятьОтрицательные",
@@ -131,7 +123,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
     xmlParents: propertiesParents,
-    order: 9,
   },
   mask: {
     yaml: "Маска",
@@ -139,7 +130,6 @@ export const commonRegisterFieldProperties = {
     type: "string",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 10,
   },
   multiLine: {
     yaml: "МногострочныйРежим",
@@ -148,7 +138,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
     xmlParents: propertiesParents,
-    order: 11,
   },
   extendedEdit: {
     yaml: "РасширенноеРедактирование",
@@ -157,7 +146,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
     xmlParents: propertiesParents,
-    order: 12,
   },
   minValue: {
     yaml: "МинимальноеЗначение",
@@ -166,7 +154,6 @@ export const commonRegisterFieldProperties = {
     xmlParents: propertiesParents,
     typedXML: "xs:string",
     defaultValueXMLRaw: { "_xsi:nil": true },
-    order: 13,
   },
   maxValue: {
     yaml: "МаксимальноеЗначение",
@@ -175,7 +162,6 @@ export const commonRegisterFieldProperties = {
     xmlParents: propertiesParents,
     typedXML: "xs:string",
     defaultValueXMLRaw: { "_xsi:nil": true },
-    order: 14,
   },
   fillFromFillingValue: {
     yaml: "ЗаполнятьИзДанныхЗаполнения",
@@ -185,7 +171,6 @@ export const commonRegisterFieldProperties = {
     implicitValueYAML: false,
     xmlParents: propertiesParents,
     toXML: exportInformationRegisterOrExplicit("fillFromFillingValue"),
-    order: 15,
   },
   fillValue: {
     yaml: "ЗначениеЗаполнения",
@@ -194,7 +179,6 @@ export const commonRegisterFieldProperties = {
     xmlParents: propertiesParents,
     defaultValueXMLRaw: { "_xsi:nil": true },
     toXML: exportInformationRegisterOrExplicit("fillValue"),
-    order: 16,
   },
   fillChecking: {
     yaml: "ПроверкаЗаполнения",
@@ -204,7 +188,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "DontCheck",
     implicitValueYAML: "DontCheck",
     xmlParents: propertiesParents,
-    order: 17,
   },
   choiceFoldersAndItems: {
     yaml: "ВыборГруппИЭлементов",
@@ -214,7 +197,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Items",
     implicitValueYAML: "Items",
     xmlParents: propertiesParents,
-    order: 18,
   },
   choiceParameterLinks: {
     yaml: "СвязиПараметровВыбора",
@@ -222,7 +204,6 @@ export const commonRegisterFieldProperties = {
     type: "ChoiceParameterLinks",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 19,
   },
   choiceParameters: {
     yaml: "ПараметрыВыбора",
@@ -230,7 +211,6 @@ export const commonRegisterFieldProperties = {
     type: "ChoiceParameters",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 20,
   },
   quickChoice: {
     yaml: "БыстрыйВыбор",
@@ -240,7 +220,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Auto",
     implicitValueYAML: "Auto",
     xmlParents: propertiesParents,
-    order: 21,
   },
   createOnInput: {
     yaml: "СозданиеПриВводе",
@@ -250,7 +229,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Auto",
     implicitValueYAML: "Auto",
     xmlParents: propertiesParents,
-    order: 22,
   },
   choiceForm: {
     yaml: "ФормаВыбора",
@@ -258,7 +236,6 @@ export const commonRegisterFieldProperties = {
     type: "string",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 23,
   },
   linkByType: {
     yaml: "СвязьПоТипу",
@@ -266,7 +243,6 @@ export const commonRegisterFieldProperties = {
     type: "TypeLink",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 24,
   },
   choiceHistoryOnInput: {
     yaml: "ИсторияВыбораПриВводе",
@@ -276,7 +252,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Auto",
     implicitValueYAML: "Auto",
     xmlParents: propertiesParents,
-    order: 25,
   },
   indexing: {
     yaml: "Индексирование",
@@ -293,7 +268,6 @@ export const commonRegisterFieldProperties = {
       if (!isMetadataRegisterResource(context)) return true
       return hasProperty(source, "indexing")
     },
-    order: 27,
   },
   fullTextSearch: {
     yaml: "ПолнотекстовыйПоиск",
@@ -303,7 +277,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
     xmlParents: propertiesParents,
-    order: 28,
   },
   dataHistory: {
     yaml: "ИсторияДанных",
@@ -314,7 +287,6 @@ export const commonRegisterFieldProperties = {
     implicitValueYAML: "Use",
     xmlParents: propertiesParents,
     toXML: exportInformationRegisterOrExplicit("dataHistory"),
-    order: 29,
   },
   binaryDataStorageLocationUse: {
     yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
@@ -323,14 +295,12 @@ export const commonRegisterFieldProperties = {
     typeSE: "BinaryDataStorageLocationUse",
     xmlParents: propertiesParents,
     noImplicitValueYAML: true,
-    order: 30,
   },
   binaryDataStorageLocationUseField: {
     yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
     xml: "BinaryDataStorageLocationUseField",
     type: "string",
     xmlParents: propertiesParents,
-    order: 31,
   },
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",

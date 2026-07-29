@@ -11,6 +11,21 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const FormCommandRules = {
   itemType: "FormCommand",
+  xmlOrder: [
+    "title",
+    "toolTip",
+    "use",
+    "shortcut",
+    "picture",
+    "action",
+    "functionalOptions",
+    "representation",
+    "modifiesSavedData",
+    "currentRowUse",
+    "table",
+    "name",
+    "id",
+  ],
   properties: {
     id: elementIdRule({
       xml: "_id",

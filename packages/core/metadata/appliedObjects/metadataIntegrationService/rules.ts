@@ -15,6 +15,16 @@ export const MetadataIntegrationServiceRules = {
   metadataTargetOwner: { kind: "self", root: "IntegrationService" },
   itemTypePrefix: "СервисИнтеграции",
   xmlDir: "IntegrationServices",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "externalIntegrationServiceAddress",
+    "channels",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "IntegrationService",

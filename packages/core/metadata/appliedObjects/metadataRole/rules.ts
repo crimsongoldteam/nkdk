@@ -12,6 +12,13 @@ export const MetadataRoleRules = {
   metadataTargetOwner: { kind: "self", root: "Role" },
   itemTypePrefix: "Роль",
   xmlDir: "Roles",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Role",

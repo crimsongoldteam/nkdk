@@ -5,6 +5,14 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const StandardTabularSectionDescriptionRules = {
   itemType: "StandardTabularSectionDescription",
+  xmlOrder: [
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "name",
+  ],
   properties: {
     name: stringRule({
       xml: "_name",

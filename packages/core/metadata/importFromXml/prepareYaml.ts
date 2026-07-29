@@ -87,7 +87,8 @@ export async function prepareImportYaml(params: {
     const result = measureYaml(params.profiler, () => {
       if (rule === ClientApplicationFormRules) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
-        const bodyXML = xmlInputs?.find(({ input }) => input.role === "body")?.parsed
+        const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
+        const bodyXML = bodyInput?.parsed
         return importClientApplicationFormFromXMLToYAML({
           context: importContext,
           formName: params.assignment.itemName,
@@ -105,7 +106,13 @@ export async function prepareImportYaml(params: {
         rule,
         name: params.assignment.itemName,
         xml: metadataXML["MetaDataObject"],
-        traversal: { yamlPath: [], rulePath: [], collector, deferred, profile: importProfile },
+        traversal: {
+          yamlPath: [],
+          rulePath: [],
+          collector,
+          deferred,
+          profile: importProfile,
+        },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")

@@ -14,6 +14,15 @@ export const MetadataWSReferenceRules = {
   metadataTargetOwner: { kind: "self", root: "WSReference" },
   itemTypePrefix: "WSСсылка",
   xmlDir: "WSReferences",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "locationURL",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "WSReference",

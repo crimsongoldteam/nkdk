@@ -178,7 +178,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("собирает порядок Form.xml отдельно от metadata XML", () => {
+  it("собирает присутствие свойств Form.xml отдельно от metadata XML", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -197,10 +197,10 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(collector.fragment("Форма.yaml").xmlNodes).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ logicalAddress, order: ["uuid", "name", "comment", "formType"] }),
+        expect.objectContaining({ logicalAddress, present: ["uuid", "name", "formType", "comment"] }),
         expect.objectContaining({
           logicalAddress: `${logicalAddress}.ЧастьФормы.Содержимое`,
-          order: ["title", "width"],
+          present: ["title", "width"],
         }),
       ])
     )

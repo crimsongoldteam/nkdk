@@ -3,10 +3,7 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationIndexData, ConfigurationLocalDependency } from "../configurationIndex/types"
-import type {
-  ConfigurationContextFromXML,
-  XmlImportConfigurationContext,
-} from "../context/types"
+import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
@@ -282,26 +279,26 @@ function createXmlImportOperationPool(params: {
   }
 
   async function closeOperation(): Promise<void> {
-      if (phase === "closed") return
-      if (phase === "crashed") {
-        try {
-          await destroyAfterCrash()
-        } catch {
-          // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
-        } finally {
-          phase = "closed"
-          await params.releaseOperation?.()
-        }
-        return
-      }
-
+    if (phase === "closed") return
+    if (phase === "crashed") {
       try {
-        if (params.closeMode === "destroy") await destroyAllWorkers()
-        else await disposeActiveWorkers()
+        await destroyAfterCrash()
+      } catch {
+        // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
       } finally {
         phase = "closed"
         await params.releaseOperation?.()
       }
+      return
+    }
+
+    try {
+      if (params.closeMode === "destroy") await destroyAllWorkers()
+      else await disposeActiveWorkers()
+    } finally {
+      phase = "closed"
+      await params.releaseOperation?.()
+    }
   }
 
   async function runCommand(workerIndex: number, command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
@@ -388,9 +385,7 @@ function xmlImportContext(params: {
     fromXML: {
       ...params.context.fromXML,
       componentKind: params.componentKind,
-      ...(params.metadataItemAugmenter === undefined
-        ? {}
-        : { metadataItemAugmenter: params.metadataItemAugmenter }),
+      ...(params.metadataItemAugmenter === undefined ? {} : { metadataItemAugmenter: params.metadataItemAugmenter }),
     },
   }
 }

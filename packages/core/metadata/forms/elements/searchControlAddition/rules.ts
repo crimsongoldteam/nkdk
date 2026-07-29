@@ -82,6 +82,12 @@ export const SingleSearchControlAdditionRules = {
   itemType: "SingleSearchControlAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
+  xmlOrder: [
+    "additionSource",
+    "title",
+    "contextMenu",
+    "extendedTooltip",
+  ],
   properties: {
     additionSource: {
       type: "TableAdditionalSource",
@@ -96,6 +102,18 @@ export const SearchControlAdditionRules = {
   itemType: "SearchControlAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
+  xmlOrder: [
+    "visible",
+    "additionSource",
+    "title",
+    "autoMaxWidth",
+    "horizontalAlignInGroup",
+    "contextMenu",
+    "extendedTooltip",
+    "childItems",
+    "name",
+    "displayImportance",
+  ],
   properties: {
     name: stringRule({
       xml: "_name",

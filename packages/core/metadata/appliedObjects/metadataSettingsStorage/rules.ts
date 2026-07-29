@@ -16,6 +16,20 @@ export const MetadataSettingsStorageRules = {
   metadataTargetOwner: { kind: "self", root: "SettingsStorage" },
   itemTypePrefix: "ХранилищеНастроек",
   xmlDir: "SettingsStorages",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "defaultSaveForm",
+    "defaultLoadForm",
+    "auxiliarySaveForm",
+    "auxiliaryLoadForm",
+    "forms",
+    "templates",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "SettingsStorage",

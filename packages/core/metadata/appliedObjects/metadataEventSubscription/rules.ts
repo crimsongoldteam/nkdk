@@ -12,6 +12,16 @@ export const MetadataEventSubscriptionRules = {
   metadataTargetOwner: { kind: "self", root: "EventSubscription" },
   itemTypePrefix: "ПодпискаНаСобытие",
   xmlDir: "EventSubscriptions",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "source",
+    "event",
+    "handler",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "EventSubscription",
@@ -28,35 +38,29 @@ export const MetadataEventSubscriptionRules = {
     name: stringRule({
       xmlParents: properties,
       required: true,
-      order: 1,
     }),
     synonym: i8nTextRule({
       yaml: "Синоним",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
-      order: 2,
     }),
     comment: stringRule({
       yaml: "Комментарий",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-      order: 3,
     }),
     source: typeDescriptionRule({
       yaml: "Источник",
       xmlParents: properties,
-      order: 4,
     }),
     event: stringRule({
       yaml: "Событие",
       xmlParents: properties,
-      order: 5,
     }),
     handler: stringRule({
       yaml: "Обработчик",
       xmlParents: properties,
-      order: 6,
     }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
@@ -65,7 +69,6 @@ export const MetadataEventSubscriptionRules = {
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
-      order: 7,
     }),
     extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",

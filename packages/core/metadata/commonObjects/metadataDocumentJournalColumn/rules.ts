@@ -7,6 +7,15 @@ import { uuidPropertyRule } from "../uuid/rule"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataDocumentJournalColumnRules = {
   itemType: "MetadataDocumentJournalColumn",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "indexing",
+    "references",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: stringRule({

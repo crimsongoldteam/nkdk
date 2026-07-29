@@ -5,6 +5,12 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const OrderRules = {
   itemType: "Order",
+  xmlOrder: [
+    "items",
+    "viewMode",
+    "userSettingID",
+    "userSettingPresentation",
+  ],
   properties: {
     items: orderItemFieldsRule({
       xml: "dcsset:item",

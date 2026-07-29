@@ -237,6 +237,34 @@ describe("importFromXml service", () => {
     })
   })
 
+  it("передаёт concurrency в XML-import ядра", async () => {
+    const projectDir = createProject()
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      componentPath: "cf",
+      succeeded: 1,
+      failed: [],
+      warnings: [],
+    })
+
+    await importFromXml(
+      { xmlDir: "/xml", projectDir, componentPath: "cf", concurrency: 1, allowWrite: true },
+      { importConfigurationFromXml },
+    )
+
+    expect(importConfigurationFromXml).toHaveBeenCalledWith({
+      context: {
+        defaultLanguage: "ru",
+        version: "2.20",
+        exportToYAML: { toTyped: false },
+        fromXML: { forReference: false },
+      },
+      inputDir: "/xml",
+      projectDir,
+      requestedComponentPath: "cf",
+      concurrency: 1,
+    })
+  })
+
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-import-"))
     tempDirs.push(projectDir)

@@ -280,10 +280,7 @@ export type DataPathRuleParams = Omit<DataPathWidePropertyRule, "type">
 export function dataPathRule<const Params extends DataPathRuleParams>(
   params: WideExactRuleParams<DataPathRuleParams, Params>
 ): Readonly<{ type: "DataPath" } & Params> {
-  return defineWidePropertyRule("DataPath", {
-    ...params,
-    configurationIndexPresenceFromOrder: false,
-  })
+  return defineWidePropertyRule("DataPath", params)
 }
 export interface MetadataItemLinksWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataItemLinks"

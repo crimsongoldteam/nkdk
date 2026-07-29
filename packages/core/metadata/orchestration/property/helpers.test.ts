@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { createDirectRoundTripContexts, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { getOrderedKeysFromXML, getOrderedKeysToXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 
 const createRule = (
@@ -17,10 +16,12 @@ const createRule = (
       yaml?: string
       forReferenceOnly?: true
     }
-  >
+  >,
+  xmlOrder?: readonly string[]
 ): any => {
   return {
     itemType: "TestDirectItem",
+    xmlOrder,
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
       Object.entries(properties).map(([name, rule]) => [
@@ -35,7 +36,7 @@ const createRule = (
 }
 
 describe("getOrderedKeysFromXML", () => {
-  it("возвращает ключи в порядке сортировки по XML-именам, когда xml не передан", () => {
+  it("возвращает ключи в порядке объявления, когда xml не передан", () => {
     const rule = createRule({
       firstName: { xml: "Имя" },
       lastName: { xml: "Фамилия" },
@@ -47,8 +48,7 @@ describe("getOrderedKeysFromXML", () => {
       xml: undefined,
     })
 
-    // Ожидаем порядок по отсортированным XML-ключам
-    expect(result).toEqual(["age", "firstName", "lastName"])
+    expect(result).toEqual(["firstName", "lastName", "age"])
   })
 
   it("располагает ключи по порядку следования в xml и добавляет отсутствующие в конце", () => {
@@ -146,100 +146,68 @@ describe("getOrderedKeysFromXML", () => {
 })
 
 describe("getOrderedKeysToXML", () => {
-  const contextWithImportedOrder = (rule: any) => {
-    const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары" })
-    testPropertyFromXMLToYAML({
-      context: contexts.importContext,
-      rule,
-      xml: {
-        InternalInfo: {},
-        Properties: { Name: "Товары" },
-        ChildObjects: { Resource: "Ресурс1" },
+  it("использует xmlOrder и дописывает неназванные свойства", () => {
+    const rule = createRule(
+      {
+        name: {},
+        group: {},
+        title: {},
+        unseen: {},
       },
-    })
-    return contexts.exportContext()
-  }
+      ["title", "group"]
+    )
 
-  it("без reference ставит InternalInfo перед ordered Properties и ChildObjects", () => {
-    const rule = createRule({
-      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
-      internalInfo: { xml: "InternalInfo" },
-      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
-    })
-
-    const result = getOrderedKeysToXML({
-      rule,
-      referenceMetadata: undefined,
-    })
-
-    expect(result).toEqual(["internalInfo", "name", "dimensions"])
+    expect(getOrderedKeysToXML({ rule })).toEqual(["title", "group", "name", "unseen"])
   })
 
-  it("без reference сортирует Properties перед ChildObjects даже если ChildObjects объявлен раньше", () => {
+  it("фильтрует служебные свойства после применения xmlOrder", () => {
+    const rule = createRule(
+      {
+        name: { tag: "form" },
+        runtime: { runtimeOnly: true, tag: "form" },
+        external: { syncExternalOnly: true, tag: "form" },
+        file: { filePath: "Module.bsl", tag: "form" },
+        metadata: { tag: "metadata" },
+        title: { tag: "form" },
+      },
+      ["title", "runtime", "external", "file", "metadata", "name"]
+    )
+
+    expect(getOrderedKeysToXML({ rule, tag: ["form"] })).toEqual(["title", "name"])
+  })
+
+  it("использует порядок объявления вместо порядка XML-имён", () => {
+    const rule = createRule({
+      lastAlphabetically: { xml: "Zulu" },
+      firstAlphabetically: { xml: "Alpha" },
+    })
+
+    const result = getOrderedKeysToXML({ rule })
+
+    expect(result).toEqual(["lastAlphabetically", "firstAlphabetically"])
+  })
+
+  it("не переставляет свойства по известным XML-контейнерам", () => {
     const rule = createRule({
       dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
       name: { xml: "Name", xmlParents: ["Properties"] },
     })
 
-    const result = getOrderedKeysToXML({
-      rule,
-      referenceMetadata: undefined,
-    })
+    const result = getOrderedKeysToXML({ rule })
 
-    expect(result).toEqual(["name", "dimensions"])
+    expect(result).toEqual(["dimensions", "name"])
   })
 
-  it("с reference сохраняет порядок ключей referenceMetadata главным", () => {
+  it("сохраняет относительный порядок после фильтрации по tag", () => {
     const rule = createRule({
-      name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
-      internalInfo: { xml: "InternalInfo" },
-      dimensions: { xml: "Dimension", xmlParents: ["ChildObjects"] },
+      first: { tag: "form" },
+      skipped: { tag: "metadata" },
+      last: { tag: "form" },
     })
 
-    const result = getOrderedKeysToXML({
-      rule,
-      referenceMetadata: {
-        itemType: "Recalculation",
-        name: "Имя",
-        internalInfo: {},
-        dimensions: [],
-      },
-    })
+    const result = getOrderedKeysToXML({ rule, tag: ["form"] })
 
-    expect(result).toEqual(["name", "internalInfo", "dimensions"])
-  })
-
-  it("восстанавливает полный порядок свойств из снимка без reference", () => {
-    const rule = createRule({
-      resources: { xml: "Resource", xmlParents: ["ChildObjects"], order: 3 },
-      name: { xml: "Name", xmlParents: ["Properties"], order: 1, yaml: "Имя" },
-      internalInfo: { xml: "InternalInfo", forReferenceOnly: true },
-    })
-
-    expect(
-      getOrderedKeysToXML({
-        context: contextWithImportedOrder(rule),
-        rule,
-        referenceMetadata: undefined,
-      })
-    ).toEqual(["internalInfo", "name", "resources"])
-  })
-
-  it("вставляет новое свойство по rules.ts без перестановки существовавших", () => {
-    const rule = createRule({
-      resources: { xml: "Resource", xmlParents: ["ChildObjects"], order: 3 },
-      synonym: { xml: "Synonym", xmlParents: ["Properties"], order: 2, yaml: "Синоним" },
-      name: { xml: "Name", xmlParents: ["Properties"], order: 1, yaml: "Имя" },
-      internalInfo: { xml: "InternalInfo", forReferenceOnly: true },
-    })
-
-    expect(
-      getOrderedKeysToXML({
-        context: contextWithImportedOrder(rule),
-        rule,
-        referenceMetadata: undefined,
-      })
-    ).toEqual(["internalInfo", "name", "synonym", "resources"])
+    expect(result).toEqual(["first", "last"])
   })
 })
 

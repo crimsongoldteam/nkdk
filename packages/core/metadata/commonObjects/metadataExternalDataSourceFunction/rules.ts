@@ -8,6 +8,16 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 const propertiesParents = ["Properties"]
 export const MetadataExternalDataSourceFunctionRules = {
   itemType: "MetadataExternalDataSourceFunction",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "returnValue",
+    "type",
+    "expressionInDataSource",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: stringRule({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { createConfigurationIndexCollector } from "./writer"
+import { createConfigurationIndexCollector, createDiscardingConfigurationIndexCollector } from "./writer"
 
 describe("configuration index collector", () => {
   it("сохраняет Extended как особое XML-значение по адресу свойства", () => {
@@ -13,6 +13,19 @@ describe("configuration index collector", () => {
         extended: true,
       },
     ])
+  })
+
+  it("can discard index facts without validating conflicting identities", () => {
+    const collector = createDiscardingConfigurationIndexCollector()
+    collector.setXmlId("Объект.Элемент", "1")
+    collector.setXmlId("Объект.Элемент", "2")
+
+    expect(collector.fragment("ignored.yaml")).toEqual({
+      targetProjectPath: "ignored.yaml",
+      identities: [],
+      xmlNodes: [],
+      xmlValues: [],
+    })
   })
 
   it("collects identity, order, aliases and explicit values by uid", () => {
@@ -106,6 +119,22 @@ describe("configuration index collector", () => {
       setIdentity("same")
       expect(() => setIdentity("other")).toThrow(`Конфликт logicalAddress ${address}`)
     }
+  })
+
+  it("can keep the first conflicting xmlId without weakening other identities", () => {
+    const collector = createConfigurationIndexCollector({ conflictingXmlId: "keepFirst" })
+    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1823")
+    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1314")
+
+    expect(collector.fragment("Форма.yaml").identities).toEqual([
+      {
+        logicalAddress: "Форма.Элемент.ЕстьКЭП",
+        kind: "xmlId",
+        value: "1823",
+      },
+    ])
+    collector.setUuid("Объект", "first")
+    expect(() => collector.setUuid("Объект", "second")).toThrow("Конфликт logicalAddress")
   })
 
   it("deduplicates equal node and XML values and rejects conflicting replacements", () => {

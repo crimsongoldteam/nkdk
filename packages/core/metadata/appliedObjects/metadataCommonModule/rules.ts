@@ -13,6 +13,21 @@ export const MetadataCommonModuleRules = {
   metadataTargetOwner: { kind: "self", root: "CommonModule" },
   itemTypePrefix: "ОбщийМодуль",
   xmlDir: "CommonModules",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "global",
+    "clientManagedApplication",
+    "server",
+    "externalConnection",
+    "clientOrdinaryApplication",
+    "serverCall",
+    "privileged",
+    "returnValuesReuse",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommonModule",

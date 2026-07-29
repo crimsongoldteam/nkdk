@@ -15,6 +15,20 @@ export const MetadataSequenceRules = {
   metadataTargetOwner: { kind: "self", root: "Sequence" },
   itemTypePrefix: "Последовательность",
   xmlDir: "Sequences",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "moveBoundaryOnPosting",
+    "documents",
+    "registerRecords",
+    "dataLockControlMode",
+    "dimensions",
+    "uuid",
+    "additionalIndexes",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Sequence",

@@ -9,6 +9,7 @@ const clientApplicationInterfaceRootAttributes = {
 }
 export const ClientApplicationInterfaceRules = {
   itemType: "ClientApplicationInterface",
+  xmlOrder: ["top", "left", "right", "bottom", "panelDefs"],
   properties: {
     xmlRoot: xmlRootRule({
       container: "ClientApplicationInterface",
