@@ -3,7 +3,6 @@ import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { ConfigurationLocalDependency } from "../configurationIndex/types"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
-import type { RawRuleOrderObservation } from "../ruleOrderAnalysis/types"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -64,7 +63,6 @@ export type ImportWorkerCommand =
       outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "analyzeRuleOrder"; configuration: string; metadataDir: string; assignments: ImportAssignment[] }
   | { kind: "secondPass"; referenceSnapshots: LayeredImportReferenceSnapshot }
   | { kind: "dispose" }
 
@@ -86,16 +84,7 @@ export interface ImportSecondPassResult {
   files: ImportResultFile[]
 }
 
-export interface RuleOrderAnalysisWorkerResult {
-  kind: "ruleOrderAnalysisResult"
-  diagnostics: ImportDiagnostic[]
-  observations: RawRuleOrderObservation[]
-  unmatchedObservationCount: number
-  unmatchedItemTypes: readonly { itemType: string; count: number }[]
-}
-
 export type ImportWorkerCommandResult =
   | ImportFirstPassResult
   | ImportSecondPassResult
-  | RuleOrderAnalysisWorkerResult
   | undefined

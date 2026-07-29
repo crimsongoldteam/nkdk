@@ -28,7 +28,6 @@ const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/minimalMetadata.xml"
 )
-const metadataDir = join(import.meta.dirname, "..")
 const tempDirs: string[] = []
 
 beforeEach(async () => {
@@ -269,64 +268,6 @@ describe("XML import worker first pass", () => {
 
     expect(workerStateForTests().preparedYamlIds).toEqual([])
     expect(workerStateForTests().initialized).toBe(false)
-  })
-})
-
-describe("XML import worker rule order analysis", () => {
-  it("returns observations without retaining or writing YAML", async () => {
-    const outputDir = createTempDir("rule-order")
-    await initializeWorker(outputDir)
-    const assignment = catalogAssignment()
-
-    const result = await runImportWorkerCommand({
-      kind: "analyzeRuleOrder",
-      configuration: "all",
-      metadataDir,
-      assignments: [assignment],
-    })
-
-    expect(result?.kind).toBe("ruleOrderAnalysisResult")
-    if (result?.kind !== "ruleOrderAnalysisResult") throw new Error("Ожидался результат анализа порядка")
-    expect(result.diagnostics).toEqual([])
-    expect(result.unmatchedObservationCount).toBe(0)
-    expect(result.observations).toHaveLength(1)
-    expect(result.observations[0]).toMatchObject({
-      configuration: "all",
-      sourceXmlPath: assignment.xmlFiles[0]?.sourcePath,
-      logicalAddress: assignment.logicalAddress,
-      itemType: "MetadataCatalog",
-    })
-    expect(result.observations[0]?.source.candidate).toBe(
-      "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
-    )
-    expect(result.observations[0]?.source.declarationOrder).toContain("name")
-    expect(workerStateForTests().preparedYamlIds).toEqual([])
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
-  })
-
-  it("собирает наблюдение вложенного UsualGroup", async () => {
-    const outputDir = createTempDir("rule-order-form")
-    await initializeWorker(outputDir)
-    const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber", "Товары", true)
-
-    const result = await runImportWorkerCommand({
-      kind: "analyzeRuleOrder",
-      configuration: "all",
-      metadataDir,
-      assignments: [assignments.form],
-    })
-
-    if (result?.kind !== "ruleOrderAnalysisResult") throw new Error("Ожидался результат анализа порядка")
-    expect(result.diagnostics).toEqual([])
-    expect(result.unmatchedObservationCount).toBe(0)
-    expect(result.observations).toContainEqual(
-      expect.objectContaining({
-        itemType: "UsualGroup",
-        source: expect.objectContaining({
-          candidate: "forms/elements/usualGroup/rules.ts#UsualGroupRules",
-        }),
-      })
-    )
   })
 })
 

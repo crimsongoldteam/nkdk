@@ -17,7 +17,6 @@ import {
 } from "./workerPool"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
-const constantXmlPath = join(import.meta.dirname, "../appliedObjects/metadataConstant/__fixtures__/minimal.xml")
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url))
 const tempDirs: string[] = []
 
@@ -26,67 +25,6 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
-  it("keeps exact rule identity in a real source worker", async () => {
-    const pool = createXmlImportWorkerPool({ concurrency: 1 })
-    await pool.initialize({
-      operationId: "real-rule-identity",
-      context: mockContextFromXML(),
-      outputDir: createTempDir("real-rule-identity"),
-      componentKind: "configuration",
-    })
-    try {
-      const result = await pool.analyzeRuleOrder({
-        configuration: "all",
-        metadataDir: join(repoRoot, "packages/core/metadata"),
-        assignments: [
-          assignment("Контрагенты", {
-            logicalAddress: "Справочник.Контрагенты",
-            xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
-          }),
-          assignment("Константа", {
-            itemType: "MetadataConstant",
-            logicalAddress: "Константа.Константа",
-            targetProjectPath: "Константа/Константа/Свойства.yaml",
-            xmlFiles: [{ role: "metadata", sourcePath: constantXmlPath }],
-          }),
-        ],
-      })
-
-      expect(result.diagnostics).toEqual([])
-      expect(result.unmatchedObservationCount).toBe(0)
-      expect(result.observations.map((observation) => observation.source.candidate)).toEqual([
-        "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules",
-        "appliedObjects/metadataConstant/rules.ts#MetadataConstantRules",
-      ])
-    } finally {
-      await pool.close()
-    }
-  })
-
-  it("combines rule-order observations from partitions in deterministic order", async () => {
-    const pools = createFakePools()
-    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
-    await pool.initialize({
-      operationId: "order",
-      context: mockContextFromXML(),
-      outputDir: createTempDir("order"),
-      componentKind: "configuration",
-    })
-
-    const result = await pool.analyzeRuleOrder({
-      configuration: "all",
-      metadataDir: join(repoRoot, "packages/core/metadata"),
-      assignments: [assignment("z"), assignment("a")],
-    })
-
-    expect(result.observations.map((observation) => observation.logicalAddress)).toEqual([
-      "Справочник.a",
-      "Справочник.z",
-    ])
-    expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "analyzeRuleOrder"])
-    await pool.close()
-  })
-
   it("keeps the generic XML context free of component selection", () => {
     expect(mockContextFromXML().fromXML).not.toHaveProperty("componentKind")
   })
@@ -392,30 +330,6 @@ function createFakePools() {
           }
           if (task.kind === "secondPass") {
             return { kind: "secondPassResult" as const, diagnostics: [], warnings: [], files: [] }
-          }
-          if (task.kind === "analyzeRuleOrder") {
-            return {
-              kind: "ruleOrderAnalysisResult" as const,
-              diagnostics: [],
-              unmatchedObservationCount: 0,
-              unmatchedItemTypes: [],
-              observations: task.assignments.map((item) => ({
-                configuration: task.configuration,
-                sourceXmlPath: item.xmlFiles[0]?.sourcePath ?? "",
-                logicalAddress: item.logicalAddress,
-                xmlNodeLogicalAddress: item.logicalAddress,
-                ruleId: item.id,
-                source: {
-                  candidate: `rules.ts#${item.id}`,
-                  filePath: "/rules.ts",
-                  exportName: item.id,
-                  propertyPath: [],
-                  declarationOrder: ["name"],
-                },
-                itemType: item.itemType,
-                fields: ["name"],
-              })),
-            }
           }
           return undefined
         },

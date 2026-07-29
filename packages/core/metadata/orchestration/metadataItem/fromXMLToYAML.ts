@@ -29,15 +29,13 @@ export function importMetadataItemFromXMLToYAML(params: {
   const yaml = importPropertiesFromXMLToYAML({
     context,
     rule: params.rule,
-    sources: [{ context, xml: source, sourceXmlPath: params.traversal.sourceXmlPath }],
+    sources: [{ context, xml: source }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
     profile: params.traversal.profile,
-    ruleOrderCollector: params.traversal.ruleOrderCollector,
-    sourceXmlPath: params.traversal.sourceXmlPath,
     propertyXML: params.propertyXML,
   })
   if (yaml !== undefined) {

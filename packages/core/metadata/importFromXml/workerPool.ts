@@ -18,9 +18,7 @@ import type {
   ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
-  RuleOrderAnalysisWorkerResult,
 } from "./types"
-import type { RawRuleOrderObservation } from "../ruleOrderAnalysis/types"
 
 export interface XmlImportWorkerPool {
   initialize(params: {
@@ -32,11 +30,6 @@ export interface XmlImportWorkerPool {
   }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
-  analyzeRuleOrder(params: {
-    configuration: string
-    metadataDir: string
-    assignments: readonly ImportAssignment[]
-  }): Promise<XmlImportRuleOrderPoolResult>
   close(): Promise<void>
 }
 
@@ -62,13 +55,6 @@ export interface XmlImportSecondPassPoolResult {
   files: ImportResultFile[]
 }
 
-export interface XmlImportRuleOrderPoolResult {
-  diagnostics: ImportDiagnostic[]
-  observations: RawRuleOrderObservation[]
-  unmatchedObservationCount: number
-  unmatchedItemTypes: readonly { itemType: string; count: number }[]
-}
-
 export interface XmlImportWorkerThreadPool {
   run(task: ImportWorkerCommand): Promise<unknown>
   destroy(): Promise<void>
@@ -82,8 +68,6 @@ type PoolPhase =
   | "firstPassReady"
   | "secondPassRunning"
   | "secondPassDone"
-  | "analysisRunning"
-  | "analysisDone"
   | "crashed"
   | "closed"
 
@@ -265,55 +249,6 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async analyzeRuleOrder(analysisParams) {
-      assertUsable(phase, fatalError)
-      assertPhase(phase, "initialized", "Анализ порядка XML уже был запущен")
-      if (initialization === undefined) throw new Error("XML-import worker pool не инициализирован")
-      const initialized = initialization
-      phase = "analysisRunning"
-      const partitions = partitionRoundRobin(analysisParams.assignments, params.concurrency)
-      for (let index = 0; index < partitions.length; index += 1) {
-        if ((partitions[index]?.length ?? 0) > 0) activeWorkerIndexes.push(index)
-      }
-
-      const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<RuleOrderAnalysisWorkerResult> => {
-          const initializeResponse = await runCommand(workerIndex, {
-            kind: "initialize",
-            operationId: initialized.operationId,
-            workerIndex,
-            context: xmlImportContext(initialized),
-            outputDir: initialized.outputDir,
-          })
-          if (initializeResponse !== undefined) {
-            return failWorker(new Error("Worker вернул неожиданный результат initialize"))
-          }
-          const response = await runCommand(workerIndex, {
-            kind: "analyzeRuleOrder",
-            configuration: analysisParams.configuration,
-            metadataDir: analysisParams.metadataDir,
-            assignments: [...(partitions[workerIndex] ?? [])],
-          })
-          if (response?.kind !== "ruleOrderAnalysisResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат analyzeRuleOrder"))
-          }
-          return response
-        })
-      )
-      phase = "analysisDone"
-      return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
-        unmatchedObservationCount: results.reduce(
-          (sum, result) => sum + result.unmatchedObservationCount,
-          0
-        ),
-        unmatchedItemTypes: mergeItemTypeCounts(results.flatMap((result) => result.unmatchedItemTypes)),
-        observations: results
-          .flatMap((result) => result.observations)
-          .sort((left, right) => compareObservation(left, right)),
-      }
-    },
-
     async runSecondPass(referenceSnapshots) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
@@ -402,30 +337,6 @@ function createXmlImportOperationPool(params: {
       })
     )
   }
-}
-
-function mergeItemTypeCounts(
-  entries: readonly { itemType: string; count: number }[]
-): readonly { itemType: string; count: number }[] {
-  const counts = new Map<string, number>()
-  for (const entry of entries) counts.set(entry.itemType, (counts.get(entry.itemType) ?? 0) + entry.count)
-  return [...counts]
-    .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
-    .map(([itemType, count]) => ({ itemType, count }))
-}
-
-function compareObservation(left: RawRuleOrderObservation, right: RawRuleOrderObservation): number {
-  for (const [leftPart, rightPart] of [
-    [left.configuration, right.configuration],
-    [left.sourceXmlPath, right.sourceXmlPath],
-    [left.logicalAddress, right.logicalAddress],
-    [left.xmlNodeLogicalAddress, right.xmlNodeLogicalAddress],
-    [left.ruleId, right.ruleId],
-  ]) {
-    const compared = Buffer.compare(Buffer.from(leftPart), Buffer.from(rightPart))
-    if (compared !== 0) return compared
-  }
-  return Buffer.compare(Buffer.from(left.fields.join("\0")), Buffer.from(right.fields.join("\0")))
 }
 
 function normalizeConcurrency(concurrency: number): number {

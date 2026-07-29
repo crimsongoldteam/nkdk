@@ -5,7 +5,6 @@ import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import {
   createConfigurationIndexCollector,
-  createDiscardingConfigurationIndexCollector,
 } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
@@ -16,9 +15,6 @@ import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { type LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
-import { buildRuntimeRuleOrderCatalog } from "../ruleOrderAnalysis/catalog"
-import { fingerprintMetadataItemRule } from "../ruleOrderAnalysis/fingerprint"
-import type { RuntimeRuleOrderCatalog } from "../ruleOrderAnalysis/types"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -34,7 +30,6 @@ import type {
   ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
-  RuleOrderAnalysisWorkerResult,
 } from "./types"
 
 interface InitializedImportWorkerState {
@@ -46,9 +41,6 @@ interface InitializedImportWorkerState {
 
 let initializedState: InitializedImportWorkerState | undefined
 const preparedYaml = new Map<string, PreparedImportYaml>()
-let ruleOrderCatalog:
-  | { metadataDir: string; value: Promise<RuntimeRuleOrderCatalog> }
-  | undefined
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
@@ -71,87 +63,7 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
     return runSecondPass(command.referenceSnapshots, requireInitializedState())
   }
 
-  if (command.kind === "analyzeRuleOrder") {
-    return runRuleOrderAnalysis(
-      command.configuration,
-      command.metadataDir,
-      command.assignments,
-      requireInitializedState()
-    )
-  }
-
   return runFirstPass(command.assignments, requireInitializedState())
-}
-
-async function runRuleOrderAnalysis(
-  configuration: string,
-  metadataDir: string,
-  assignments: readonly ImportAssignment[],
-  state: InitializedImportWorkerState
-): Promise<RuleOrderAnalysisWorkerResult> {
-  preparedYaml.clear()
-  const diagnostics: ImportDiagnostic[] = []
-  const observations: RuleOrderAnalysisWorkerResult["observations"] = []
-  let unmatchedObservationCount = 0
-  const unmatchedItemTypes = new Map<string, number>()
-  const catalog = await getRuleOrderCatalog(metadataDir)
-  diagnostics.push(
-    ...catalog.ambiguities().map((ambiguity) => ({
-      severity: "error" as const,
-      code: "xml_rule_order_catalog_ambiguous",
-      message: `${ambiguity.candidate}: ${ambiguity.reason}`,
-      targetProjectPath: assignments[0]?.targetProjectPath ?? "",
-    }))
-  )
-
-  for (const assignment of assignments) {
-    try {
-      await prepareImportYaml({
-        assignment,
-        context: state.context,
-        collector: createDiscardingConfigurationIndexCollector(),
-        ruleOrderCollector: {
-          accept(fact) {
-            const source = catalog.sourceOf(fact.rule)
-            if (source === undefined) {
-              unmatchedObservationCount += 1
-              unmatchedItemTypes.set(fact.rule.itemType, (unmatchedItemTypes.get(fact.rule.itemType) ?? 0) + 1)
-              return
-            }
-            observations.push({
-              configuration,
-              sourceXmlPath: fact.sourceXmlPath,
-              logicalAddress: assignment.logicalAddress,
-              xmlNodeLogicalAddress: fact.logicalAddress,
-              ruleId: fingerprintMetadataItemRule(fact.rule),
-              source,
-              itemType: fact.rule.itemType,
-              fields: [...fact.fields],
-            })
-          },
-        },
-      })
-    } catch (caught) {
-      diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_rule_order_analysis_failed"))
-    }
-  }
-
-  return {
-    kind: "ruleOrderAnalysisResult",
-    diagnostics,
-    observations,
-    unmatchedObservationCount,
-    unmatchedItemTypes: [...unmatchedItemTypes]
-      .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
-      .map(([itemType, count]) => ({ itemType, count })),
-  }
-}
-
-function getRuleOrderCatalog(metadataDir: string): Promise<RuntimeRuleOrderCatalog> {
-  if (ruleOrderCatalog?.metadataDir === metadataDir) return ruleOrderCatalog.value
-  const value = buildRuntimeRuleOrderCatalog({ metadataDir })
-  ruleOrderCatalog = { metadataDir, value }
-  return value
 }
 
 async function runSecondPass(
@@ -408,7 +320,6 @@ function requireInitializedState(): InitializedImportWorkerState {
 
 function disposeWorkerState(): void {
   preparedYaml.clear()
-  ruleOrderCatalog = undefined
   initializedState = undefined
 }
 

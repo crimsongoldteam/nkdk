@@ -19,21 +19,6 @@ export interface DirectImportTraversal {
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
   profile?: DirectImportProfile
-  ruleOrderCollector?: RulePropertyOrderCollector
-  sourceXmlPath?: string
-}
-
-export interface RulePropertyOrderFact {
-  rule: MetadataItemRule
-  rulePath: readonly DeferredRulePathSegment[]
-  sourceXmlPath: string
-  logicalAddress: string
-  xmlNodeLogicalAddress: string
-  fields: readonly string[]
-}
-
-export interface RulePropertyOrderCollector {
-  accept(fact: RulePropertyOrderFact): void
 }
 
 export interface DeferredValuePathCollector {
@@ -58,7 +43,6 @@ export interface DirectImportXMLSource {
   context: ConfigurationContextFromXML
   xml: Record<string, unknown>
   tags?: string[]
-  sourceXmlPath?: string
 }
 
 export interface DirectImportProfile {
