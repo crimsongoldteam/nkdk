@@ -83,6 +83,32 @@ describe("configuration snapshot worker fragments", () => {
     }
     expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("sourceProjectPath")
   })
+
+  it("отклоняет пустые uuid и xmlId из пула строк", () => {
+    for (const kind of ["uuid", "xmlId"] as const) {
+      const encoded = encodeConfigurationIndexFragments([
+        fragment("А.yaml", { ...entity("Объект", "А.yaml"), identities: { [kind]: "value" } }),
+      ])
+      const envelope = JSON.parse(new TextDecoder().decode(encoded)) as {
+        strings: string[]
+        fragments: Array<{
+          entities: Array<{ identities: { uuidStringId?: number; xmlIdStringId?: number } }>
+        }>
+      }
+      const identities = envelope.fragments[0]!.entities[0]!.identities
+      envelope.strings[identities[`${kind}StringId`]!] = ""
+
+      expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow(`Пустой ${kind}`)
+    }
+  })
+
+  it("отклоняет UUID неправильного синтаксиса из пула строк", () => {
+    const encoded = encodeConfigurationIndexFragments([
+      fragment("А.yaml", { ...entity("Объект", "А.yaml"), identities: { uuid: "not-a-uuid" } }),
+    ])
+
+    expect(() => decodeConfigurationIndexFragments(encoded)).toThrow("Некорректный UUID")
+  })
 })
 
 function encodeEnvelope(envelope: unknown): ArrayBuffer {

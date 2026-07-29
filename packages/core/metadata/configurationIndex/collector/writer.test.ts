@@ -78,6 +78,7 @@ describe("configuration snapshot collector", () => {
   it("проверяет обязательные идентификаторы и копирует omittedChildren", () => {
     const collector = createConfigurationIndexCollector()
     expect(() => collector.setIdentity("Объект", "uuid", "not-a-uuid")).toThrow("Некорректный UUID")
+    expect(() => collector.setIdentity("Объект", "uuid", "00000000-0000-0000-0000-000000000001")).not.toThrow()
     expect(() => collector.setIdentity("Объект", "xmlId", "")).toThrow("Пустой xmlId")
     expect(() => collector.setOmittedChildren("Объект", { kind: "names", names: [] })).toThrow("Пустой список")
 

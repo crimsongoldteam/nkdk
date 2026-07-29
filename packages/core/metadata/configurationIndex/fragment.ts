@@ -214,6 +214,14 @@ function decodeEncodedIdentities(value: unknown, strings: readonly string[]): En
     ...(value.xmlNameStringId === undefined ? {} : { xmlNameStringId: stringId(value.xmlNameStringId, strings) }),
   }
   if (Object.keys(identities).length === 0) throw new Error("пустая identities")
+  if (identities.uuidStringId !== undefined) {
+    const uuid = strings[identities.uuidStringId]!
+    if (uuid.length === 0) throw new Error("Пустой uuid")
+    if (!isUuid(uuid)) throw new Error("Некорректный UUID")
+  }
+  if (identities.xmlIdStringId !== undefined && strings[identities.xmlIdStringId]!.length === 0) {
+    throw new Error("Пустой xmlId")
+  }
   return identities
 }
 
@@ -436,6 +444,10 @@ function validateTargetProjectPath(projectPath: string): void {
 
 function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(value)
 }
 
 function errorMessage(value: unknown): string {
