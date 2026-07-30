@@ -343,7 +343,6 @@ export const MetadataAttributeRules = {
       yaml: "Использование",
       xml: "Use",
       typeSE: "AttributeUse",
-      defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       xmlParents: ["Properties"],
     }),
@@ -398,6 +397,14 @@ export const MetadataAttributesWithAllowedTypesRules = {
       ...commonAttributeProperties.type,
       allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
+    use: systemEnumerationRule({
+      yaml: "Использование",
+      xml: "Use",
+      typeSE: "AttributeUse",
+      defaultValueXML: "ForItem",
+      implicitValueYAML: "ForItem",
+      xmlParents: ["Properties"],
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataCatalogAttributeRules = {
