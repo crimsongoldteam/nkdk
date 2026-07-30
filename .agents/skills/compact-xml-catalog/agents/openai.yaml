@@ -1,0 +1,4 @@
+interface:
+  display_name: "��������������� XML-��������"
+  short_description: "������ ����������� ����� XML-��������"
+  default_prompt: "Use $compact-xml-catalog to create a lightweight copy of an XML catalog."
