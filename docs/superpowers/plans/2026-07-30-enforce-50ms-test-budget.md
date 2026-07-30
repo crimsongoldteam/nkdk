@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Устранить оставшиеся превышения 50 мс и включить обязательную проверку длительности каждого теста во всех пакетах.
+**Goal:** Устранить все превышения 50 мс и включить во всех пакетах обязательный лимит, который нельзя повысить параметром или переменной окружения.
 
 **Architecture:** Смешанные полные сценарии удаляются, а предметные проверки остаются рядом с непосредственными преобразователями. Дорогая подготовка схем и снимков исходников выполняется один раз в `beforeAll`, после чего тесты измеряют только проверяемое поведение. Файловые и конкурентные тесты используют минимальные данные и управляемые обещания без опроса по таймеру.
 
@@ -11,6 +11,8 @@
 ## Global Constraints
 
 - Каждый отдельный тест должен выполняться не дольше 50 мс.
+- Бюджет экспортируется как `TEST_DURATION_BUDGET_MS = 50`; параметр `--max-ms` запрещён.
+- Каждый неинтерактивный package script с `vitest run` обязан завершаться проверкой бюджета.
 - Настоящие Piscina worker запрещены в `pnpm test`.
 - Существующие XML-фикстуры не изменяются.
 - Смешанные тесты настоящего запуска приложения не сохраняются как «интеграционные»: они не являются ни unit, ни e2e.
@@ -18,7 +20,75 @@
 
 ---
 
-### Task 1: Удалить смешанный short round-trip набор
+### Task 1: Сделать лимит 50 мс неизменяемым
+
+**Files:**
+- Modify: `packages/core/scripts/assert-test-durations.mjs`
+- Modify: `packages/core/scripts/assert-test-durations.test.ts`
+
+**Interfaces:**
+- Produces: `export const TEST_DURATION_BUDGET_MS = 50`.
+- Produces: `findSlowTests(report)` без аргумента лимита.
+- CLI принимает только `--report` и `--files-from`; любой другой параметр завершает команду с кодом `1`.
+
+- [ ] **Step 1: Написать падающие тесты неизменяемого договора**
+
+```ts
+expect(TEST_DURATION_BUDGET_MS).toBe(50)
+expect(findSlowTests(report)).toEqual([
+  expect.objectContaining({ duration: 50.01 }),
+])
+expect(() => parseArguments(["--report", "report.json", "--max-ms", "100"]))
+  .toThrow("Неизвестный параметр: --max-ms")
+```
+
+Ровно `50` в `report` не должно попадать в результат.
+
+- [ ] **Step 2: Запустить тест и увидеть RED**
+
+```bash
+pnpm --filter @nkdk/core exec vitest run scripts/assert-test-durations.test.ts
+```
+
+Ожидается: FAIL — константа и экспортированный `parseArguments` отсутствуют.
+
+- [ ] **Step 3: Реализовать неизменяемый parser**
+
+Изменить сигнатуры:
+
+```js
+export const TEST_DURATION_BUDGET_MS = 50
+
+export function findSlowTests(report) {
+  // filter test.duration > TEST_DURATION_BUDGET_MS
+}
+
+export function parseArguments(argv) {
+  const allowed = new Set(["--report", "--files-from"])
+  // reject every key outside allowed
+}
+```
+
+Удалить чтение `--max-ms` и передачу лимита в `findSlowTests`.
+
+- [ ] **Step 4: Проверить GREEN**
+
+```bash
+pnpm --filter @nkdk/core exec vitest run scripts/assert-test-durations.test.ts
+pnpm --filter @nkdk/core type-check
+```
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add packages/core/scripts/assert-test-durations.mjs \
+  packages/core/scripts/assert-test-durations.test.ts
+git commit -m "test: :lock: зафиксировать бюджет теста 50 мс"
+```
+
+---
+
+### Task 2: Удалить смешанный short round-trip набор
 
 **Files:**
 - Delete: `packages/core/metadata/appliedObjects/configuration/shortRoundTripXML.test.ts`
@@ -56,7 +126,7 @@ pnpm --filter @nkdk/core exec vitest run \
   metadata/fullSyncToXml/worker.test.ts \
   --reporter=json --outputFile=/private/tmp/nkdk-subject-conversions.json
 node packages/core/scripts/assert-test-durations.mjs \
-  --report /private/tmp/nkdk-subject-conversions.json --max-ms 50
+  --report /private/tmp/nkdk-subject-conversions.json
 ```
 
 Ожидается: обе команды завершаются с кодом `0`.
@@ -70,7 +140,7 @@ git commit -m "test: :fire: удалить смешанный short round-trip"
 
 ---
 
-### Task 2: Вынести компиляцию JSON Schema из измеряемых тестов
+### Task 3: Вынести компиляцию JSON Schema из измеряемых тестов
 
 **Files:**
 - Modify: `packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts`
@@ -84,6 +154,7 @@ git commit -m "test: :fire: удалить смешанный short round-trip"
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts`
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.test.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataTabularSection/toJSONSchema.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/i8nText/toEnterprise.test.ts`
 
 **Interfaces:**
@@ -155,10 +226,11 @@ pnpm --filter @nkdk/core exec vitest run \
   metadata/commonObjects/dataCompositionSystem/parameterValue/toJSONSchema.test.ts \
   metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema.test.ts \
   metadata/commonObjects/metadataTabularSection/toJSONSchema.test.ts \
+  metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts \
   metadata/commonObjects/i8nText/toEnterprise.test.ts \
   --reporter=json --outputFile=/private/tmp/nkdk-schema-tests.json
 node packages/core/scripts/assert-test-durations.mjs \
-  --report /private/tmp/nkdk-schema-tests.json --max-ms 50
+  --report /private/tmp/nkdk-schema-tests.json
 ```
 
 Ожидается: код `0`, каждый тест не дольше 50 мс.
@@ -172,7 +244,7 @@ git commit -m "test: :zap: вынести подготовку схем из т�
 
 ---
 
-### Task 3: Кэшировать регистрации и снимок дерева исходников
+### Task 4: Кэшировать регистрации и снимок дерева исходников
 
 **Files:**
 - Create: `packages/core/tests/sourceTreeSnapshot.ts`
@@ -233,7 +305,7 @@ pnpm --filter @nkdk/core exec vitest run \
   metadata/resourceTopology/registry.test.ts \
   --reporter=json --outputFile=/private/tmp/nkdk-registry-boundary-tests.json
 node packages/core/scripts/assert-test-durations.mjs \
-  --report /private/tmp/nkdk-registry-boundary-tests.json --max-ms 50
+  --report /private/tmp/nkdk-registry-boundary-tests.json
 ```
 
 - [ ] **Step 6: Commit**
@@ -249,7 +321,7 @@ git commit -m "test: :zap: переиспользовать снимки рег�
 
 ---
 
-### Task 4: Убрать большие файлы и таймерный опрос из transfer-тестов
+### Task 5: Убрать большие файлы и таймерный опрос из transfer-тестов
 
 **Files:**
 - Modify: `packages/core/metadata/fullSyncToXml/transferExternalFiles.test.ts`
@@ -282,7 +354,7 @@ pnpm --filter @nkdk/core exec vitest run \
   metadata/fullSyncToXml/transferExternalFiles.test.ts \
   --reporter=json --outputFile=/private/tmp/nkdk-transfer-tests.json
 node packages/core/scripts/assert-test-durations.mjs \
-  --report /private/tmp/nkdk-transfer-tests.json --max-ms 50
+  --report /private/tmp/nkdk-transfer-tests.json
 ```
 
 - [ ] **Step 4: Commit**
@@ -294,13 +366,14 @@ git commit -m "test: :zap: ускорить проверки передачи ф
 
 ---
 
-### Task 5: Включить бюджет 50 мс во всех пакетах
+### Task 6: Включить и защитить бюджет 50 мс во всех пакетах
 
 **Files:**
 - Modify: `packages/core/package.json`
 - Modify: `packages/platform/package.json`
 - Modify: `packages/mcp/package.json`
 - Modify: `package.json`
+- Create: `packages/core/scripts/test-budget-policy.test.ts`
 
 **Interfaces:**
 - Consumes: `packages/core/scripts/assert-test-durations.mjs`.
@@ -311,7 +384,7 @@ git commit -m "test: :zap: ускорить проверки передачи ф
 ```bash
 pnpm --filter @nkdk/core run test:profile
 node packages/core/scripts/assert-test-durations.mjs \
-  --report /private/tmp/nkdk-vitest-core.json --max-ms 50
+  --report /private/tmp/nkdk-vitest-core.json
 ```
 
 Ожидается: код `0`.
@@ -321,12 +394,27 @@ node packages/core/scripts/assert-test-durations.mjs \
 Для core:
 
 ```json
-"test": "vitest run --no-isolate --sequence.shuffle --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-core.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core.json --max-ms 50"
+"test": "vitest run --no-isolate --sequence.shuffle --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-core.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core.json"
 ```
 
 Для platform и mcp использовать уникальные `/private/tmp/nkdk-vitest-platform.json` и `/private/tmp/nkdk-vitest-mcp.json`, а checker вызывать как `node ../core/scripts/assert-test-durations.mjs`.
 
-- [ ] **Step 3: Проверить каждый пакет**
+Также обновить `test:isolated` и `test:profile`: каждый script с `vitest run` должен формировать собственный JSON-отчёт и вызывать checker. `test:ui` остаётся интерактивным исключением.
+
+- [ ] **Step 3: Добавить policy-тест package scripts**
+
+`test-budget-policy.test.ts` читает три package.json и для каждого неинтерактивного script с `vitest run` проверяет:
+
+```ts
+expect(command).toContain("--reporter=json")
+expect(command).toContain("assert-test-durations.mjs")
+expect(command).not.toContain("--max-ms")
+expect(command).not.toMatch(/TEST_DURATION|MAX_TEST/i)
+```
+
+Отдельно импортировать `TEST_DURATION_BUDGET_MS` и проверить `toBe(50)`.
+
+- [ ] **Step 4: Проверить каждый пакет**
 
 ```bash
 pnpm --filter @nkdk/core test
@@ -336,7 +424,7 @@ pnpm --filter @nkdk/mcp test
 
 Ожидается: три команды завершаются с кодом `0`; JSON-отчёты созданы.
 
-- [ ] **Step 4: Проверить весь проект**
+- [ ] **Step 5: Проверить весь проект**
 
 ```bash
 pnpm test
@@ -344,9 +432,10 @@ pnpm test
 
 Ожидается: PASS; ни один тест не превышает 50 мс и guard настоящего Piscina не срабатывает.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add package.json packages/core/package.json packages/platform/package.json packages/mcp/package.json
+git add package.json packages/core/package.json packages/platform/package.json packages/mcp/package.json \
+  packages/core/scripts/test-budget-policy.test.ts
 git commit -m "test: :white_check_mark: ограничить тесты бюджетом 50 мс"
 ```
