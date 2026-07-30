@@ -12,8 +12,9 @@ describe("project validation standalone build output", () => {
   let schemaSet: ReturnType<typeof createProjectValidationStandaloneSchemaSet>
   let enumerationSchema: ReturnType<typeof compileValidationSchema>
   let catalogSchema: ReturnType<typeof compileValidationSchema>
+  let generatedValidatorsSummary: unknown
 
-  beforeAll(() => {
+  beforeAll(async () => {
     schemaSet = createProjectValidationStandaloneSchemaSet()
     const enumeration = getValidationProjectSpecByDir("Перечисление")
     const catalog = getValidationProjectSpecByDir("Справочник")
@@ -24,6 +25,27 @@ describe("project validation standalone build output", () => {
     catalogSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[catalog.rule.itemType])
     enumerationSchema.Check(undefined)
     catalogSchema.Check(undefined)
+
+    const modulePath = new URL("../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
+    if (!existsSync(modulePath)) return
+
+    const script = [
+      "const { pathToFileURL } = await import('node:url')",
+      `const module = (await import(pathToFileURL(${JSON.stringify(modulePath)}).href)).default`,
+      "console.log(JSON.stringify({",
+      "  format: module.format,",
+      "  moduleKeys: Object.keys(module).sort(),",
+      "  formKeys: Object.keys(module.form).sort(),",
+      "  configurationKeys: Object.keys(module.byItemType.MetadataConfiguration).sort(),",
+      "  formValidateType: typeof module.form.validate,",
+      "  formValidateResultType: typeof module.form.validate(42),",
+      "  formErrorKeys: Object.keys(module.form.validate.errors?.[0] ?? {}).sort(),",
+      "  hasConfiguration: module.byItemType.MetadataConfiguration !== undefined,",
+      "  hasConfigurationExtension: module.byItemType.MetadataConfigurationExtension !== undefined,",
+      "}))",
+    ].join("\n")
+    const { stdout } = await execFileAsync(process.execPath, ["-e", script])
+    generatedValidatorsSummary = JSON.parse(stdout)
   })
 
   it("includes refs produced by metadata collection registrations", () => {
@@ -60,28 +82,10 @@ describe("project validation standalone build output", () => {
     )
   })
 
-  it("loads generated validators from dist when build has produced them", async () => {
-    const modulePath = new URL("../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
-    if (!existsSync(modulePath)) return
+  it("loads generated validators from dist when build has produced them", () => {
+    if (generatedValidatorsSummary === undefined) return
 
-    const script = [
-      "const { pathToFileURL } = await import('node:url')",
-      `const module = (await import(pathToFileURL(${JSON.stringify(modulePath)}).href)).default`,
-      "console.log(JSON.stringify({",
-      "  format: module.format,",
-      "  moduleKeys: Object.keys(module).sort(),",
-      "  formKeys: Object.keys(module.form).sort(),",
-      "  configurationKeys: Object.keys(module.byItemType.MetadataConfiguration).sort(),",
-      "  formValidateType: typeof module.form.validate,",
-      "  formValidateResultType: typeof module.form.validate(42),",
-      "  formErrorKeys: Object.keys(module.form.validate.errors?.[0] ?? {}).sort(),",
-      "  hasConfiguration: module.byItemType.MetadataConfiguration !== undefined,",
-      "  hasConfigurationExtension: module.byItemType.MetadataConfigurationExtension !== undefined,",
-      "}))",
-    ].join("\n")
-    const { stdout } = await execFileAsync(process.execPath, ["-e", script])
-
-    expect(JSON.parse(stdout)).toEqual({
+    expect(generatedValidatorsSummary).toEqual({
       format: "project-validation-ajv-standalone-v3",
       moduleKeys: ["byItemType", "form", "format"],
       formKeys: ["validate"],

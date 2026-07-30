@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
 import { configurationValidationProjectSpec } from "./projectSpecs"
 
@@ -9,12 +9,19 @@ const context = {
 } as const
 
 describe("projectValidationWorkerSchemaCache", () => {
-  it("uses runtime schema cache for source TypeScript workers", async () => {
+  let acceptsConfigurationNameOnly: boolean
+
+  beforeAll(async () => {
     const cache = await createProjectValidationWorkerSchemaCache({
       context,
       workerUrl: "file:///project/metadata/validation/projectValidationWorker.ts",
     })
+    acceptsConfigurationNameOnly = cache
+      .properties(configurationValidationProjectSpec.rule)
+      .Check({ Имя: "Конфигурация" })
+  })
 
-    expect(cache.properties(configurationValidationProjectSpec.rule).Check({ Имя: "Конфигурация" })).toBe(false)
+  it("uses runtime schema cache for source TypeScript workers", () => {
+    expect(acceptsConfigurationNameOnly).toBe(false)
   })
 })

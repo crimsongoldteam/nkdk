@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
@@ -17,8 +17,10 @@ const normalizeLineEndings = (value: string) =>
     .trimEnd()
 
 describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
-  it("читает InformationRegister из YAML и записывает XML в outputDir", async () => {
-    const { inputDir, comparisons } = await testSyncAppliedObjectToXML({
+  let preparedInformationRegister: Awaited<ReturnType<typeof testSyncAppliedObjectToXML>>
+
+  beforeAll(async () => {
+    preparedInformationRegister = await testSyncAppliedObjectToXML({
       rule: MetadataInformationRegisterRules,
       name: "РегистрСведенийВсеСвойстваНезависимый",
       importMetaUrl: import.meta.url,
@@ -38,6 +40,10 @@ describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
         "РегистрСведенийВсеСвойстваНезависимый/Templates/Макет.xml",
       ],
     })
+  })
+
+  it("читает InformationRegister из YAML и записывает XML в outputDir", () => {
+    const { inputDir, comparisons } = preparedInformationRegister
     for (const { path, result, expected } of comparisons) {
       if (path.endsWith("/Ext/Form.xml")) {
         const form = canonicalFormSyncXML({ path, result, expected, inputDir })
@@ -56,19 +62,20 @@ describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
     const fixturesDir = join(testDir, "__fixtures__", "sync")
     const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "information-register-sync-modules-"))
     const inputDir = join(tmpDir, "yaml")
-    const referenceDir = join(tmpDir, "xml")
+    const referenceDir = join(fixturesDir, "xml")
     const outputDir = join(tmpDir, "out")
+    const inputObjectDir = join(inputDir, name)
     const managerModule =
       "Процедура ОбработкаПолученияДанныхВыбора(ДанныеВыбора, Параметры, СтандартнаяОбработка)\nКонецПроцедуры\n"
     const recordSetModule = "Процедура ПередЗаписью(Отказ, Замещение)\nКонецПроцедуры\n"
 
-    await fs.promises.cp(join(fixturesDir, "yaml"), inputDir, { recursive: true })
-    await fs.promises.cp(join(fixturesDir, "xml"), referenceDir, { recursive: true })
-    await fs.promises.writeFile(join(inputDir, name, "МодульМенеджера.bsl"), managerModule)
-    await fs.promises.writeFile(join(inputDir, name, "МодульНабораЗаписей.bsl"), recordSetModule)
-    await fs.promises.mkdir(join(referenceDir, name, "Ext"), { recursive: true })
-    await fs.promises.writeFile(join(referenceDir, name, "Ext", "ManagerModule.bsl"), managerModule)
-    await fs.promises.writeFile(join(referenceDir, name, "Ext", "RecordSetModule.bsl"), recordSetModule)
+    await fs.promises.mkdir(inputObjectDir, { recursive: true })
+    await fs.promises.copyFile(
+      join(fixturesDir, "yaml", name, "Свойства.yaml"),
+      join(inputObjectDir, "Свойства.yaml")
+    )
+    await fs.promises.writeFile(join(inputObjectDir, "МодульМенеджера.bsl"), managerModule)
+    await fs.promises.writeFile(join(inputObjectDir, "МодульНабораЗаписей.bsl"), recordSetModule)
 
     await syncAppliedObjectToXML({
       rule: MetadataInformationRegisterRules,
