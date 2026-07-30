@@ -3,18 +3,32 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import { createPreparedYamlWorkerTestPool } from "../../tests/preparedYamlWorkerTestPool"
 import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
-import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
-import { createValidationWorkerPoolHandle } from "../validation/validateProject"
+import type { ValidationWorkerPoolHandle } from "../validation/validateProject"
+import type { Diagnostic } from "../validation/types"
 import { buildMetadataOperationSnapshot, buildMetadataOperationSnapshotFromPreparedProject } from "./projectSnapshot"
+
+function validationHandle(diagnostics: Diagnostic[]): ValidationWorkerPoolHandle {
+  return {
+    async validateProject() {
+      return { diagnostics }
+    },
+    async close() {},
+    size() {
+      return 0
+    },
+  }
+}
 
 describe("buildMetadataOperationSnapshot", () => {
   const tempDirs: string[] = []
-  const preparePool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
-  const validationWorkerPoolHandle = createValidationWorkerPoolHandle({ concurrency: 1 })
+  const prepareTestPool = createPreparedYamlWorkerTestPool()
+  const preparePool = prepareTestPool.pool
+  const validationWorkerPoolHandle = validationHandle([])
 
   afterAll(async () => {
-    await Promise.all([preparePool.close(), validationWorkerPoolHandle.close()])
+    await prepareTestPool.close()
   })
 
   afterEach(() => {
@@ -47,7 +61,17 @@ describe("buildMetadataOperationSnapshot", () => {
       projectDir,
       validationProjectDir,
       requireValidProject: true,
-      validationWorkerPoolHandle,
+      validationWorkerPoolHandle: validationHandle([
+        {
+          filePath: "cf/Справочник/Товары/Свойства.yaml",
+          line: 1,
+          col: 1,
+          path: "/НеизвестноеПоле",
+          severity: "error",
+          source: "structure",
+          message: "Неизвестное поле",
+        },
+      ]),
     })
 
     expect(result).toMatchObject({
@@ -84,6 +108,7 @@ describe("buildMetadataOperationSnapshot", () => {
       projectDir,
       validationProjectDir,
       requireValidProject: true,
+      validationWorkerPoolHandle,
     })
 
     expect(result.ok).toBe(true)

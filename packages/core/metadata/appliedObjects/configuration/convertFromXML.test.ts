@@ -4,8 +4,8 @@ import { join } from "path"
 import { afterAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
 import { readConfigurationIndex } from "../../configurationIndex"
-import { createXmlImportWorkerPoolHandle } from "../../importFromXml"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
@@ -19,7 +19,7 @@ describe("sync configuration from xml", () => {
     __dirname,
     "../../commonObjects/clientApplicationInterface/__fixtures__"
   )
-  const xmlImportWorkerPoolHandle = createXmlImportWorkerPoolHandle({ concurrency: 1 })
+  const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
   const syncConfigurationFromXMLForTest = (
     params: Omit<Parameters<typeof syncConfigurationFromXML>[0], "xmlImportWorkerPoolHandle">
   ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle })

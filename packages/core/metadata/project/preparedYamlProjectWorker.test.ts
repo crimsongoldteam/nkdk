@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createProjectValidationGraph } from "../validation/projectValidationGraph"
@@ -11,6 +11,15 @@ import { createSharedProjectValidationGraph } from "../validation/sharedValidati
 import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
+
+beforeAll(async () => {
+  await runPreparedYamlProjectWorkerTask({
+    kind: "initValidation",
+    workerIndex: 0,
+    context: mockContext,
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  })
+})
 
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -92,7 +101,11 @@ describe("collectValidationFacts", () => {
 })
 
 describe("validation first-pass worker boundary", () => {
-  it("публикует отдельное время проверки уникальности имён элементов формы", async () => {
+  let uniqueNamesProfile = ""
+  let commonFormNamesProfile = ""
+  let commonFormDiagnostics: readonly { path?: string }[] = []
+
+  beforeAll(async () => {
     const projectDir = createTempDir()
     const componentDir = join(projectDir, "cf")
     const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
@@ -102,13 +115,6 @@ describe("validation first-pass worker boundary", () => {
     mkdirSync(dirname(properties.filePath), { recursive: true })
     writeFileSync(filePath, ["Элементы:", "  Поле:", "    Вид: ПолеВвода", ""].join("\n"))
     writeFileSync(properties.filePath, "{}\n")
-
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
 
     const previousProfile = process.env["NKDK_PROFILE"]
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
@@ -141,12 +147,15 @@ describe("validation first-pass worker boundary", () => {
       error.mockRestore()
     }
 
-    const namesProfile = profileLine(profileLines, "Проверка уникальности имён элементов формы")
-    expect(namesProfile).toContain("items=1")
-    expect(Number.isFinite(profileTime(namesProfile))).toBe(true)
+    uniqueNamesProfile = profileLine(profileLines, "Проверка уникальности имён элементов формы")
   }, 120_000)
 
-  it("учитывает в профиле только проверенные значения общих форм", async () => {
+  it("публикует отдельное время проверки уникальности имён элементов формы", () => {
+    expect(uniqueNamesProfile).toContain("items=1")
+    expect(Number.isFinite(profileTime(uniqueNamesProfile))).toBe(true)
+  })
+
+  beforeAll(async () => {
     const projectDir = createTempDir()
     const componentDir = join(projectDir, "cf")
     const commonFormProjectPath = "ОбщаяФорма/РабочийСтол/Свойства.yaml"
@@ -168,17 +177,9 @@ describe("validation first-pass worker boundary", () => {
     )
     writeFileSync(properties.filePath, "{}\n")
 
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
-
     const previousProfile = process.env["NKDK_PROFILE"]
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     let profileLines: string[] = []
-    let diagnostics: readonly { path?: string }[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
       const result = await runPreparedYamlProjectWorkerTask({
@@ -201,7 +202,7 @@ describe("validation first-pass worker boundary", () => {
         ],
       })
       if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
-      diagnostics = result.diagnostics
+      commonFormDiagnostics = result.diagnostics
       profileLines = error.mock.calls.map(([line]) => String(line))
     } finally {
       if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
@@ -209,13 +210,17 @@ describe("validation first-pass worker boundary", () => {
       error.mockRestore()
     }
 
-    expect(diagnostics).toEqual(
+    commonFormNamesProfile = profileLine(profileLines, "Проверка уникальности имён элементов формы")
+  }, 120_000)
+
+  it("учитывает в профиле только проверенные значения общих форм", () => {
+    expect(commonFormDiagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ path: "/Форма/Элементы/ПолеРасширеннаяПодсказка" }),
       ])
     )
-    expect(profileLine(profileLines, "Проверка уникальности имён элементов формы")).toContain("items=1")
-  }, 120_000)
+    expect(commonFormNamesProfile).toContain("items=1")
+  })
 
   it("parses a mixed component batch once and keeps contributions component-scoped", async () => {
     const projectDir = createTempDir()
@@ -229,12 +234,6 @@ describe("validation first-pass worker boundary", () => {
       writeFileSync(file.filePath, "{}\n")
     }
 
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
     const result = await runPreparedYamlProjectWorkerTask({
       kind: "validateFirstPass",
       workerIndex: 0,
@@ -273,13 +272,6 @@ describe("validation first-pass worker boundary", () => {
       owner: { dir: "", name: "Конфигурация" },
       itemType: "Configuration",
     }
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
-
     const result = await runPreparedYamlProjectWorkerTask({
       kind: "validateFirstPass",
       workerIndex: 0,
@@ -334,12 +326,6 @@ describe("validation second-pass worker profile", () => {
     writeFileSync(files[1]!.filePath, "{}\n")
     writeFileSync(files[2]!.filePath, "{}\n")
 
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
     const firstPass = await runPreparedYamlProjectWorkerTask({
       kind: "validateFirstPass",
       workerIndex: 0,

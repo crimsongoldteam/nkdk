@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import fs from "fs"
 import os from "os"
 import { join } from "path"
@@ -33,18 +33,10 @@ const minimalFormYAML = `Элементы:
 НазначенияИспользования: ПлатформаИМобильноеПриложение`
 
 describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
-  it("строит currentXMLPath формы вложенного file-item объекта без повторного имени объекта", () => {
-    expect(
-      buildChildFormCurrentXMLPath({
-        xmlDir: "/tmp/out/Tables/ТаблицаА",
-        name: "",
-        formName: "ФормаСписка",
-      })
-    ).toBe("Tables/ТаблицаА/Forms/ФормаСписка/Ext/Form.xml")
-  })
+  let preparedExternalDataSource: Awaited<ReturnType<typeof testSyncAppliedObjectToXML>>
 
-  it("читает ExternalDataSource из единого YAML-файла и записывает XML в outputDir", async () => {
-    const { comparisons, outputDir } = await testSyncAppliedObjectToXML({
+  beforeAll(async () => {
+    preparedExternalDataSource = await testSyncAppliedObjectToXML({
       rule: MetadataExternalDataSourceRules,
       name: "ВнешнийИсточникДанныхВсеСвойства",
       importMetaUrl: import.meta.url,
@@ -87,6 +79,20 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         "ВнешнийИсточникДанныхВсеСвойства/Cubes/КубПоУмолчанию.xml",
       ],
     })
+  })
+
+  it("строит currentXMLPath формы вложенного file-item объекта без повторного имени объекта", () => {
+    expect(
+      buildChildFormCurrentXMLPath({
+        xmlDir: "/tmp/out/Tables/ТаблицаА",
+        name: "",
+        formName: "ФормаСписка",
+      })
+    ).toBe("Tables/ТаблицаА/Forms/ФормаСписка/Ext/Form.xml")
+  })
+
+  it("читает ExternalDataSource из единого YAML-файла и записывает XML в outputDir", () => {
+    const { comparisons, outputDir } = preparedExternalDataSource
 
     for (const { path, result, expected } of comparisons) {
       expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))

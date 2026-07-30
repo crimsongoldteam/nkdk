@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../../tests/preparedYamlWorkerTestPool"
 import type { PreparedYamlProjectWorkerTask } from "../preparedYamlProjectWorker"
 import { readComponentIndexes } from "./indexes"
 import { readComponentHashState } from "./hashes"
@@ -90,6 +91,7 @@ describe("component indexes", () => {
       structure,
       hashes,
       context: mockContext,
+      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
@@ -114,6 +116,7 @@ describe("component indexes", () => {
       structure,
       hashes,
       context: mockContext,
+      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
 
     expect(indexes.logicalAddresses).toContainEqual({

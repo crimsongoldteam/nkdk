@@ -15,6 +15,7 @@ import {
   type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
+import type { PreparedWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { createOperationProfiler } from "../validation/profile"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
@@ -53,6 +54,7 @@ export interface ImportConfigurationFromXmlParams {
   hashConcurrency?: number
   operationId?: string
   xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
+  createReferenceWorkerPool?: () => PreparedWorkerPool
 }
 
 export interface ImportCoordinatorDependencies {
@@ -132,6 +134,7 @@ export async function importConfigurationFromXml(
       projectDir: params.projectDir,
       context: params.context,
       concurrency,
+      createReferenceWorkerPool: params.createReferenceWorkerPool,
       profiler,
     })
     pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
@@ -292,6 +295,7 @@ async function buildBaseSnapshot(params: {
   projectDir: string
   context: ConfigurationContextFromXML
   concurrency: number
+  createReferenceWorkerPool?: () => PreparedWorkerPool
   profiler: ReturnType<typeof createOperationProfiler>
 }): Promise<SharedValidationSnapshot | undefined> {
   const baseAddress = params.descriptor.baseAddress
@@ -305,6 +309,9 @@ async function buildBaseSnapshot(params: {
         componentDir: join(params.projectDir, componentPath(baseAddress)),
         context: params.context,
         concurrency: params.concurrency,
+        ...(params.createReferenceWorkerPool === undefined
+          ? {}
+          : { createWorkerPool: params.createReferenceWorkerPool }),
       })
   )
 }

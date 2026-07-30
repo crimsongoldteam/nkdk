@@ -1,13 +1,19 @@
 import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
+import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
 import { importConfigurationFromXml } from "../../importFromXml/importConfiguration"
 import "../../appliedObjects/metadataCatalog/register"
 
 const temporaryDirectories: string[] = []
+const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+
+afterAll(async () => {
+  await xmlImportWorkerPoolHandle.close()
+})
 
 afterEach(async () => {
   await Promise.all(
@@ -29,6 +35,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       inputDir,
       projectDir,
       concurrency: 1,
+      xmlImportWorkerPoolHandle,
     })
 
     expect(result.failed).toEqual([])
@@ -58,6 +65,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       inputDir,
       projectDir,
       concurrency: 1,
+      xmlImportWorkerPoolHandle,
     })
 
     expect(result.failed).toEqual([])
@@ -89,6 +97,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       inputDir,
       projectDir,
       concurrency: 1,
+      xmlImportWorkerPoolHandle,
     })
 
     expect(result.failed).toEqual([])

@@ -1,23 +1,16 @@
-import { execFile } from "node:child_process"
 import { mkdtempSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { fileURLToPath } from "node:url"
-import { promisify } from "node:util"
 import { describe, expect, it, vi } from "vitest"
 
-const execFileAsync = promisify(execFile)
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
 const callScriptModule = await import(callScript.href)
-const { reportServerStderr } = callScriptModule
+const { parseArgs, reportServerStderr } = callScriptModule
 
 describe("MCP call script", () => {
-  it("keeps the CLI usage contract", async () => {
-    await expect(execFileAsync(process.execPath, [fileURLToPath(callScript)])).rejects.toMatchObject({
-      code: 2,
-      stderr: expect.stringContaining("tool name is required"),
-    })
+  it("keeps the CLI usage contract", () => {
+    expect(() => parseArgs([])).toThrow("tool name is required")
   })
 
   it("persists and prints server stderr once when an MCP call fails", async () => {

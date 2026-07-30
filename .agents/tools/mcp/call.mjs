@@ -15,9 +15,11 @@ function requireFromMcpPackage(specifier) {
   return requireFromHere(requireFromHere.resolve(specifier, { paths: [mcpPackageRoot] }))
 }
 
-function parseArgs(argv) {
+class CallScriptUsageError extends Error {}
+
+export function parseArgs(argv) {
   const [toolName, ...rest] = argv
-  if (!toolName || toolName.startsWith("-")) usage("tool name is required")
+  if (!toolName || toolName.startsWith("-")) throw new CallScriptUsageError("tool name is required")
   const options = { toolName, debug: false }
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index]
@@ -26,17 +28,17 @@ function parseArgs(argv) {
       continue
     }
     const value = rest[index + 1]
-    if (value === undefined || value.startsWith("--")) usage(`${arg} requires a value`)
+    if (value === undefined || value.startsWith("--")) throw new CallScriptUsageError(`${arg} requires a value`)
     if (arg === "--input") options.input = value
     else if (arg === "--output") options.output = value
     else if (arg === "--request-log") options.requestLog = value
     else if (arg === "--response-log") options.responseLog = value
     else if (arg === "--server-stdout-log") options.serverStdoutLog = value
     else if (arg === "--server-stderr-log") options.serverStderrLog = value
-    else usage(`unknown option: ${arg}`)
+    else throw new CallScriptUsageError(`unknown option: ${arg}`)
     index += 1
   }
-  if (!options.input) usage("--input is required")
+  if (!options.input) throw new CallScriptUsageError("--input is required")
   return options
 }
 
@@ -184,6 +186,7 @@ const isCliEntrypoint =
 
 if (isCliEntrypoint) {
   main().catch((error) => {
+    if (error instanceof CallScriptUsageError) usage(error.message)
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
     process.exitCode = 1
   })

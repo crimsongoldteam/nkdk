@@ -100,22 +100,17 @@ describe("standalone server session", () => {
     )
   })
 
-  it("maps extension list timeout, cancellation, failure, and malformed output", async () => {
-    for (const [options, code] of [
-      [{ listTimedOut: true }, "session_timeout"],
-      [{ listCancelled: true }, "operation_cancelled"],
-      [{ listExitCode: 1 }, "platform_command_failed"],
-      [{ listStdout: "secret malformed output" }, "platform_command_failed"],
-    ] as const) {
-      const fixture = createFixture(options)
-      const session = await createStandaloneServerSession(
-        createParams(),
-        fixture.dependencies
-      )
-      const error = await session.listExtensions().catch((caught: unknown) => caught)
-      expect(error).toMatchObject({ code })
-      expect(String(error)).not.toContain("secret")
-    }
+  it.each([
+    ["timeout", { listTimedOut: true }, "session_timeout"],
+    ["cancellation", { listCancelled: true }, "operation_cancelled"],
+    ["failure", { listExitCode: 1 }, "platform_command_failed"],
+    ["malformed output", { listStdout: "secret malformed output" }, "platform_command_failed"],
+  ] as const)("maps extension list %s", async (_case, options, code) => {
+    const fixture = createFixture(options)
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+    const error = await session.listExtensions().catch((caught: unknown) => caught)
+    expect(error).toMatchObject({ code })
+    expect(String(error)).not.toContain("secret")
   })
 
   it("rejects a client-server connection without database credentials", async () => {

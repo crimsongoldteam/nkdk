@@ -4,15 +4,18 @@ import { dirname, join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { createPreparedYamlWorkerTestPool } from "../../../tests/preparedYamlWorkerTestPool"
+import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
 import { canonicalXML } from "../../../tests/canonicalXML"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { createPreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { planConfigurationToXMLMigrations, syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
-  const preparedYamlProjectPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+  const preparedYamlTestPool = createPreparedYamlWorkerTestPool()
+  const preparedYamlProjectPool = preparedYamlTestPool.pool
+  const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
   const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
@@ -32,7 +35,7 @@ describe("sync configuration to XML", () => {
   ) => syncConfigurationToXML({ ...params, preparedYamlProjectPool })
 
   afterAll(async () => {
-    await preparedYamlProjectPool.close()
+    await Promise.all([preparedYamlTestPool.close(), xmlImportWorkerPoolHandle.close()])
   })
 
   beforeEach(() => {
@@ -645,6 +648,7 @@ describe("sync configuration to XML", () => {
         context: mockContextFromXML(),
         inputDir: tmpInputXmlDir,
         projectDir: tmpProjectDir,
+        xmlImportWorkerPoolHandle,
       })
 
       await syncConfigurationToXMLForTest({

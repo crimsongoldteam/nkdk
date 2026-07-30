@@ -1,5 +1,5 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { mockContext } from "../../../tests/mockContext"
 
@@ -17,10 +17,14 @@ const compileSchema = () => {
   return compileValidationSchema(schema)
 }
 
-describe("Recalculations exportToJSONSchema", () => {
-  it("accepts empty recalculation items", () => {
-    const schema = compileSchema()
+let schema: ReturnType<typeof compileSchema>
 
+describe("Recalculations exportToJSONSchema", () => {
+  beforeAll(() => {
+    schema = compileSchema()
+  })
+
+  it("accepts empty recalculation items", () => {
     expect(
       schema.Check({
         ПерерасчетВсеСвойства: {},
@@ -30,8 +34,6 @@ describe("Recalculations exportToJSONSchema", () => {
   })
 
   it("rejects unknown recalculation item properties", () => {
-    const schema = compileSchema()
-
     expect(
       schema.Check({
         ПерерасчетВсеСвойства: {

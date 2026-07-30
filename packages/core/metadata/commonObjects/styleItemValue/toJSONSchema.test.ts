@@ -1,5 +1,5 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTypeRule, type PropertyRule } from "../../orchestration"
 import { registerCoreMetadata } from "../../register"
 import { mockContext } from "../../../tests/mockContext"
@@ -9,6 +9,8 @@ registerCoreMetadata()
 const rule = { type: "StyleItemValue" } as Extract<PropertyRule, { type: "StyleItemValue" }>
 
 describe("StyleItemValue exportToJSONSchema", () => {
+  let compiled: ReturnType<typeof compileValidationSchema>
+
   const compileStyleItemValueSchema = () => {
     const exportToJSONSchema = getTypeRule("StyleItemValue", "exportToJSONSchema")
     expect(exportToJSONSchema).toBeDefined()
@@ -21,17 +23,17 @@ describe("StyleItemValue exportToJSONSchema", () => {
     return compileValidationSchema(schema)
   }
 
-  it("accepts supported style item value kinds", () => {
-    const compiled = compileStyleItemValueSchema()
+  beforeAll(() => {
+    compiled = compileStyleItemValueSchema()
+  })
 
+  it("accepts supported style item value kinds", () => {
     expect(compiled.Check({ Вид: "Шрифт", Значение: { Вид: "ОбычныйШрифтТекста", Размер: 12 } })).toBe(true)
     expect(compiled.Check({ Вид: "Цвет", Значение: "#FFE100" })).toBe(true)
     expect(compiled.Check({ Вид: "Рамка", Значение: { Ширина: 1, ТипРамки: "БезРамки" } })).toBe(true)
   })
 
   it("rejects unknown kind and extra variant properties", () => {
-    const compiled = compileStyleItemValueSchema()
-
     expect(compiled.Check({ Вид: "Тень", Значение: "#FFE100" })).toBe(false)
     expect(compiled.Check({ Вид: "Цвет", Значение: "#FFE100", Лишнее: "значение" })).toBe(false)
   })

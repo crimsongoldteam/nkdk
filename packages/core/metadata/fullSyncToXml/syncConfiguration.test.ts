@@ -23,6 +23,7 @@ import {
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
+import { createMockFullSyncDependencies } from "./testHelpers"
 import type { FullXmlSyncExecutionPoolResult } from "./workerPool"
 
 describe("shared full XML sync coordinator", () => {
@@ -256,7 +257,7 @@ function createHarness(options: HarnessOptions = {}) {
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
 
-  const deps: FullXmlSyncCoordinatorDependencies = {
+  const deps: FullXmlSyncCoordinatorDependencies = createMockFullSyncDependencies({
     async exists(path) {
       if (path === resolve("/project")) events.push("preflight")
       return path === resolve("/project")
@@ -388,7 +389,7 @@ function createHarness(options: HarnessOptions = {}) {
       writtenIndex = params.data
       writtenAddress = params.address
     },
-  }
+  })
 
   return {
     events,

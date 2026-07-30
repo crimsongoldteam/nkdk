@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import {
@@ -18,6 +18,19 @@ import { exportMetadataAttributesToJSONSchema } from "./register"
 const rule = probeRule("MetadataAttributes")
 
 describe("MetadataAttributes YAML → XML", () => {
+  let attributeSchema: ReturnType<typeof compileValidationSchema>
+
+  beforeAll(() => {
+    attributeSchema = compileValidationSchema(
+      exportMetadataAttributesToJSONSchema({
+        context: mockContext,
+        rule: { type: "MetadataAttributes" },
+        value: undefined,
+      })
+    )
+    attributeSchema.Check(undefined)
+  })
+
   it("should return undefined when data is undefined", () => {
     expect(testPropertyFromYAMLToXML({ rule, yaml: {} }).xml).toEqual({})
   })
@@ -57,10 +70,8 @@ describe("MetadataAttributes YAML → XML", () => {
   })
 
   it("should reject scalar values in JSON Schema", () => {
-    const schema = exportMetadataAttributesToJSONSchema({ context: mockContext, rule: { type: "MetadataAttributes" }, value: undefined })
-    const compiled = compileValidationSchema(schema)
-    expect(compiled.Check({ Организация: "Справочник.Организации" })).toBe(false)
-    expect(compiled.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
+    expect(attributeSchema.Check({ Организация: "Справочник.Организации" })).toBe(false)
+    expect(attributeSchema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
   })
 
   it("should export minimal (round-trip)", () => expectFixtureRoundTrip("minimal.xml"))

@@ -2,33 +2,32 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
 import { configurationIndexPath, importConfigurationFromXml, readConfigurationIndex } from "../../index"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
+import { createXmlImportWorkerTestPool } from "../../tests/xmlImportWorkerTestPool"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const temporaryDirectories: string[] = []
+const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+let importedExtension: Awaited<ReturnType<typeof importExtension>>
 
-afterEach(() => {
+afterAll(async () => {
+  await xmlImportWorkerPoolHandle.close()
   for (const directory of temporaryDirectories.splice(0)) {
     fs.rmSync(directory, { recursive: true, force: true })
   }
 })
 
 describe("configuration extension XML import", () => {
-  it("imports extension controls, own children and an extended form through the public API", async () => {
-    const projectDir = temporaryDirectory()
-    writeBaseLanguage(projectDir)
-    writeBaseCatalog(projectDir)
+  beforeAll(async () => {
+    importedExtension = await importExtension()
+  })
 
-    const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
-      inputDir: fixtureDir,
-      projectDir,
-      concurrency: 1,
-      operationId: "configuration-extension-e2e",
-    })
+  it("imports extension controls, own children and an extended form through the public API", () => {
+    const { projectDir, result, configuration, catalog, form, yamlText, snapshot } = importedExtension
 
     expect(result).toEqual({
       componentPath: "cfe/РасширениеКонтроль",
@@ -41,7 +40,6 @@ describe("configuration extension XML import", () => {
       }),
     })
 
-    const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
     expect(configuration).toEqual({
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
@@ -50,7 +48,6 @@ describe("configuration extension XML import", () => {
       Контроль: ["ОсновнойРежимЗапуска"],
     })
 
-    const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
     expect(catalog).toEqual({
       Реквизиты: {
         РеквизитСправочника: {
@@ -66,7 +63,6 @@ describe("configuration extension XML import", () => {
       },
     })
 
-    const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
     expect(form).toEqual({
       Комментарий: "Форма расширения",
       Реквизиты: {
@@ -91,21 +87,12 @@ describe("configuration extension XML import", () => {
       },
     })
 
-    const yamlText = [
-      readText(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml"),
-      readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
-      readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml"),
-    ].join("\n")
     expect(yamlText).not.toMatch(/BaseForm|ObjectBelonging|ExtendedConfigurationObject|UUID|ПринадлежностьОбъекта/u)
     expect(yamlText).not.toContain("БазовоеПоле")
     expect(yamlText).not.toContain("БазовыйРеквизитФормы")
     expect(yamlText).not.toContain("UnknownProperty")
     expect(yamlText).not.toContain("FutureState")
 
-    const snapshot = await readConfigurationIndex({
-      projectDir,
-      address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
-    })
     expect(snapshot).toMatchObject({
       specificationVersion: "1.3",
       componentPath: "cfe/РасширениеКонтроль",
@@ -130,6 +117,36 @@ describe("configuration extension XML import", () => {
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
 })
+
+async function importExtension() {
+  const projectDir = temporaryDirectory()
+  writeBaseLanguage(projectDir)
+  writeBaseCatalog(projectDir)
+
+  const result = await importConfigurationFromXml({
+    context: mockContextFromXML(),
+    inputDir: fixtureDir,
+    projectDir,
+    concurrency: 1,
+    operationId: "configuration-extension-e2e",
+    xmlImportWorkerPoolHandle,
+    createReferenceWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
+  })
+  const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
+  const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
+  const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
+  const yamlText = [
+    readText(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml"),
+    readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
+    readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml"),
+  ].join("\n")
+  const snapshot = await readConfigurationIndex({
+    projectDir,
+    address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
+  })
+
+  return { projectDir, result, configuration, catalog, form, yamlText, snapshot }
+}
 
 function temporaryDirectory(): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))

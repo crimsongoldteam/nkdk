@@ -25,7 +25,9 @@ export async function readComponentIndexes(params: {
     context: params.context,
     concurrency: params.concurrency,
     projectPaths: selectedPaths,
-    createWorkerPool: params.createWorkerPool,
+    ...(params.createWorkerPool === undefined
+      ? {}
+      : { createWorkerPool: params.createWorkerPool }),
   })
   const logicalAddresses = params.structure.resources
     .filter(({ kind }) => kind === "content")

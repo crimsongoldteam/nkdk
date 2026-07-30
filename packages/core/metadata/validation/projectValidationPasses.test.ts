@@ -19,9 +19,11 @@ import { createValidationRulesSnapshot } from "./rulesSnapshot"
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
   let sharedSchemaCache: ReturnType<typeof createValidationSchemaCache>
+  let compiledAll: ReturnType<ReturnType<typeof createValidationSchemaCache>["compileAll"]>
 
   beforeAll(() => {
     sharedSchemaCache = createValidationSchemaCache(mockContext)
+    compiledAll = sharedSchemaCache.compileAll()
 
     const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
@@ -33,10 +35,7 @@ describe("validateProjectFileFirstPass references", () => {
   })
 
   it("compiles all validation schemas before validating files", () => {
-    const cache = createValidationSchemaCache({ version: "2.20", defaultLanguage: "ru" })
-    const result = cache.compileAll()
-
-    expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
+    expect(compiledAll.propertiesMs).toBeGreaterThanOrEqual(0)
   }, 120_000)
 
   it("distinguishes extension root properties from configuration properties", () => {

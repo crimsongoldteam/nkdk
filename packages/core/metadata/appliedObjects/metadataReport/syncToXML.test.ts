@@ -1,7 +1,7 @@
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
@@ -10,8 +10,10 @@ import { MetadataReportRules } from "./rules"
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataReport", () => {
-  it("читает Report из YAML и записывает XML в outputDir", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
+  let preparedReport: Awaited<ReturnType<typeof testSyncAppliedObjectToXML>>
+
+  beforeAll(async () => {
+    preparedReport = await testSyncAppliedObjectToXML({
       rule: MetadataReportRules,
       name: "ОтчетВсеСвойства",
       importMetaUrl: import.meta.url,
@@ -34,6 +36,10 @@ describe("syncAppliedObjectToXML — MetadataReport", () => {
         "ОтчетВсеСвойства/Forms/ФормаВарианта.xml",
       ],
     })
+  })
+
+  it("читает Report из YAML и записывает XML в outputDir", () => {
+    const { comparisons } = preparedReport
     for (const { path, result, expected } of comparisons) {
       expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
     }

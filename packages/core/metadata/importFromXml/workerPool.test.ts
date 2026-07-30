@@ -1,23 +1,18 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, it } from "vitest"
-import { mockContextFromXML, mockXmlImportContext } from "../../tests/mockContext"
+import { mockContextFromXML } from "../../tests/mockContext"
+import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import { createLayeredImportReferenceSnapshot } from "./componentReferenceIndex"
-import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import {
   createXmlImportWorkerPool,
   createXmlImportWorkerPoolHandle,
-  type XmlImportWorkerThreadPool,
 } from "./workerPool"
 
-const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
-const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url))
 const tempDirs: string[] = []
 
 afterEach(() => {
@@ -156,91 +151,6 @@ describe("XML import worker pool", () => {
     expect(pools.destroyCalls()).toEqual([1, 1])
   })
 
-  it("passes a real fragment buffer through Piscina when started outside the core package", async () => {
-    const source = assignment("real", {
-      itemName: "Контрагенты",
-      logicalAddress: "Справочник.Контрагенты",
-      targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
-      xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
-    })
-    const context = mockXmlImportContext()
-    const collector = createConfigurationIndexCollector()
-    await prepareImportYaml({ assignment: source, context, collector })
-    const expected = collector.fragment(source.targetProjectPath)
-    const pool = createXmlImportWorkerPool({ concurrency: 1 })
-    const originalCwd = process.cwd()
-    process.chdir(repoRoot)
-
-    try {
-      await pool.initialize({
-        operationId: "real",
-        context,
-        outputDir: createTempDir("piscina"),
-        componentKind: "configuration",
-      })
-      const result = await pool.runFirstPass([source])
-
-      expect(result.diagnostics).toEqual([])
-      expect(result.fragmentData).toEqual({
-        sourceProjectPaths: [source.targetProjectPath],
-        entities: expected.entities,
-      })
-    } finally {
-      try {
-        await pool.close()
-      } finally {
-        process.chdir(originalCwd)
-      }
-    }
-  }, 30_000)
-
-  it("passes an empty snapshot fragment through a real Piscina worker", async () => {
-    const sourceDir = createTempDir("empty-fragment-source")
-    const sourcePath = join(sourceDir, "БезФактов.xml")
-    fs.writeFileSync(
-      sourcePath,
-      `<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses">
-  <Catalog>
-    <Properties>
-      <Name>БезФактов</Name>
-    </Properties>
-  </Catalog>
-</MetaDataObject>`
-    )
-    const source = assignment("empty-real", {
-      itemName: "БезФактов",
-      logicalAddress: "Справочник.БезФактов",
-      targetProjectPath: "Справочник/БезФактов/Свойства.yaml",
-      xmlFiles: [{ role: "metadata", sourcePath }],
-    })
-    const pool = createXmlImportWorkerPool({ concurrency: 1 })
-    const originalCwd = process.cwd()
-    process.chdir(repoRoot)
-
-    try {
-      await pool.initialize({
-        operationId: "empty-fragment",
-        context: mockXmlImportContext(),
-        outputDir: createTempDir("empty-fragment-output"),
-        componentKind: "configuration",
-      })
-      const result = await pool.runFirstPass([source])
-
-      expect(result.diagnostics).toEqual([])
-      expect(result.fragmentData).toEqual({
-        sourceProjectPaths: [source.targetProjectPath],
-        entities: [],
-      })
-    } finally {
-      try {
-        await pool.close()
-      } finally {
-        process.chdir(originalCwd)
-      }
-    }
-  }, 30_000)
-
   it("reuses physical workers across operation pools created by a handle", async () => {
     const pools = createFakePools()
     const handle = createXmlImportWorkerPoolHandle({ concurrency: 2, createWorkerPool: pools.factory })
@@ -310,87 +220,83 @@ function assignment(id: string, overrides: Partial<ImportAssignment> = {}): Impo
 }
 
 function createFakePools() {
-  const commands: ImportWorkerCommand[][] = []
-  const destroyCounts: number[] = []
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, ImportDiagnostic[]>()
+  const pools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, unknown>(
+    async (task, workerIndex) => {
+      if (task.kind === "firstPass") {
+        const failure = failures.get(workerIndex)
+        if (failure !== undefined) throw failure
+        return {
+          kind: "firstPassResult" as const,
+          ownerFacts: [],
+          validationContribution: {
+            objectRecords: [],
+            objectIndexEntries: task.assignments.map((item) => {
+              const target = {
+                kind: "object" as const,
+                root: "Catalog" as const,
+                objectName: item.itemName,
+              }
+              return {
+                canonical: `Catalog.${item.itemName}`,
+                target,
+                result: {
+                  ok: true as const,
+                  filePath: item.targetProjectPath,
+                },
+              }
+            }),
+            memberIndexEntries: [],
+            valueIndexEntries: [],
+            pendingReferences: [],
+            localDependencies: task.assignments.map((item) => ({
+              sourceProjectPath: item.targetProjectPath,
+              yamlPath: ["ОсновнаяФорма"],
+              rulePath: [{ propertyKey: "defaultForm" }],
+              kind: "metadataTarget" as const,
+              canonical: `Catalog.${item.itemName}.Form.Основная`,
+            })),
+            logicalAddresses: [],
+          },
+          diagnostics: diagnostics.get(workerIndex) ?? [],
+          fragmentBuffer: encodeConfigurationIndexFragments(
+            task.assignments.map((item) => ({
+              targetProjectPath: item.targetProjectPath,
+              entities: [
+                {
+                  logicalAddress: item.logicalAddress,
+                  sourceProjectPath: item.targetProjectPath,
+                  identities: { xmlName: item.itemName },
+                },
+              ],
+            }))
+          ),
+        }
+      }
+      if (task.kind === "secondPass") {
+        return {
+          kind: "secondPassResult" as const,
+          diagnostics: [],
+          warnings: [],
+          files: [],
+        }
+      }
+      return undefined
+    }
+  )
 
   return {
-    factory(): XmlImportWorkerThreadPool {
-      const workerIndex = commands.length
-      commands.push([])
-      destroyCounts.push(0)
-      return {
-        async run(task) {
-          commands[workerIndex]?.push(task)
-          if (task.kind === "firstPass") {
-            const failure = failures.get(workerIndex)
-            if (failure !== undefined) throw failure
-            return {
-              kind: "firstPassResult" as const,
-              ownerFacts: [],
-              validationContribution: {
-                objectRecords: [],
-                objectIndexEntries: task.assignments.map((item) => {
-                  const target = {
-                    kind: "object" as const,
-                    root: "Catalog" as const,
-                    objectName: item.itemName,
-                  }
-                  return {
-                    canonical: `Catalog.${item.itemName}`,
-                    target,
-                    result: { ok: true as const, filePath: item.targetProjectPath },
-                  }
-                }),
-                memberIndexEntries: [],
-                valueIndexEntries: [],
-                pendingReferences: [],
-                localDependencies: task.assignments.map((item) => ({
-                  sourceProjectPath: item.targetProjectPath,
-                  yamlPath: ["ОсновнаяФорма"],
-                  rulePath: [{ propertyKey: "defaultForm" }],
-                  kind: "metadataTarget" as const,
-                  canonical: `Catalog.${item.itemName}.Form.Основная`,
-                })),
-                logicalAddresses: [],
-              },
-              diagnostics: diagnostics.get(workerIndex) ?? [],
-              fragmentBuffer: encodeConfigurationIndexFragments(
-                task.assignments.map((item) => ({
-                  targetProjectPath: item.targetProjectPath,
-                  entities: [
-                    {
-                      logicalAddress: item.logicalAddress,
-                      sourceProjectPath: item.targetProjectPath,
-                      identities: { xmlName: item.itemName },
-                    },
-                  ],
-                }))
-              ),
-            }
-          }
-          if (task.kind === "secondPass") {
-            return { kind: "secondPassResult" as const, diagnostics: [], warnings: [], files: [] }
-          }
-          return undefined
-        },
-        async destroy() {
-          destroyCounts[workerIndex] = (destroyCounts[workerIndex] ?? 0) + 1
-        },
-      }
-    },
+    factory: pools.factory,
     runs(workerIndex: number): ImportWorkerCommand[] {
-      return commands[workerIndex] ?? []
+      return [...pools.commands(workerIndex)]
     },
     firstPassIds(workerIndex: number): string[] {
-      return (commands[workerIndex] ?? []).flatMap((task) =>
+      return pools.commands(workerIndex).flatMap((task) =>
         task.kind === "firstPass" ? task.assignments.map((item) => item.id) : []
       )
     },
-    created(): number {
-      return commands.length
-    },
+    created: pools.created,
     failWorker(workerIndex: number, error: Error): void {
       failures.set(workerIndex, error)
     },
@@ -398,7 +304,9 @@ function createFakePools() {
       diagnostics.set(workerIndex, [diagnostic])
     },
     destroyCalls(): number[] {
-      return [...destroyCounts]
+      return Array.from({ length: pools.created() }, (_, workerIndex) =>
+        pools.destroyCalls(workerIndex)
+      )
     },
   }
 }

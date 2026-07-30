@@ -1,1680 +1,297 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
-import { tmpdir } from "os"
-import { isAbsolute, join, relative, resolve, sep } from "path"
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
-import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
-import { mockContext } from "../../tests/mockContext"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { isAbsolute, join, relative, resolve, sep } from "node:path"
+import { afterEach, describe, expect, it } from "vitest"
 import type { PreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
-import {
-  getProjectValidationReadCountForTests,
-  resetProjectValidationReadCountForTests,
-} from "./projectValidationPasses"
+import type { Diagnostic } from "./types"
 import {
   createValidationWorkerPoolHandle,
   toRootProjectDiagnostic,
-  validateProject as validateProjectOnce,
-  type ValidateProjectParams,
-  type ValidateProjectResult,
 } from "./validateProject"
 
-describe("validateProject", { timeout: 120_000 }, () => {
-  const tempDirs: string[] = []
-  const workerHandle = createValidationWorkerPoolHandle({ concurrency: 2 })
-  const singleWorkerHandle = createValidationWorkerPoolHandle({ concurrency: 1 })
-
-  beforeAll(async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Прогрев/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "Справочник/Прогрев/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
-
-    await workerHandle.validateProject({ projectDir, context: mockContext })
-    await singleWorkerHandle.validateProject({ projectDir, context: mockContext })
-  }, 120_000)
-
-  afterAll(async () => {
-    await workerHandle.close()
-    await singleWorkerHandle.close()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-    for (const dir of tempDirs.splice(0)) {
-      rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
-    const { concurrency, ...workerParams } = params
-    const handle = concurrency === 1 ? singleWorkerHandle : workerHandle
-
-    return handle.validateProject(workerParams)
-  }
-
-  it("returns a Promise from the public validateProject API", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
-
-    const result = validateProjectOnce({ projectDir, context: mockContext, concurrency: 1 })
-
-    expect(result).toBeInstanceOf(Promise)
-    await expect(result).resolves.toEqual({ diagnostics: [] })
-  })
-
-  it("does not expose a single-file worker protocol", async () => {
-    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
-      if (task.kind === "initValidation") {
-        return {
-          kind: "initValidationResult" as const,
-          formMs: 0,
-          propertiesMs: 0,
-          totalMs: 0,
-        }
-      }
-      if (task.kind === "validateFirstPass") {
-        return {
-          kind: "validateFirstPassResult" as const,
-          components: [],
-          diagnostics: [],
-          schemaDiagnostics: [],
-          fileResults: [],
-          yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
-        }
-      }
-      if (task.kind === "validateSecondPass") {
-        return { kind: "validateSecondPassResult" as const, diagnostics: [] }
-      }
-      throw new Error(`Неожиданное сообщение: ${task.kind}`)
-    })
-    const handle = createValidationWorkerPoolHandle({
-      concurrency: 1,
-      createWorkerPool: () => ({ run, destroy: vi.fn(async () => undefined) }),
-    })
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
-
-    // @ts-expect-error Однофайловый filePath не входит в публичный договор.
-    const partialParams: Parameters<typeof handle.validateProject>[0] = { projectDir, filePath: "Свойства.yaml" }
-    void partialParams
-
-    await handle.validateProject({ projectDir })
-
-    const removedTaskKind = `validate${"Partial"}`
-    expect(run.mock.calls.flatMap(([task]) => [task.kind])).not.toContain(removedTaskKind)
-    await handle.close()
-  })
-
-  it("emits detailed main-process validation profile records", async () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    const previous = process.env["NKDK_PROFILE"]
-    let lines: string[] = []
-    process.env["NKDK_PROFILE"] = "1"
-    try {
-      const projectDir = createProject()
-      writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
-
-      await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-      lines = error.mock.calls.map(([line]) => String(line))
-    } finally {
-      if (previous === undefined) delete process.env["NKDK_PROFILE"]
-      else process.env["NKDK_PROFILE"] = previous
-      error.mockRestore()
-    }
-
-    expect(
-      lines.some(
-        (line) =>
-          line.includes("[nkdk-profile-step]") &&
-          line.includes('operation="validation"') &&
-          line.includes('step="Инициализация"')
-      )
-    ).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Обобщение индексов"'))).toBe(
-      true
-    )
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Проверка зависимостей"'))).toBe(
-      true
-    )
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Завершение validation"'))).toBe(
-      true
-    )
-    expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
-  })
-
-  it("uses worker validation for a full project below the old file threshold", async () => {
-    const projectDir = createProject()
-    const filePath = absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Свойства.yaml")
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
-    resetProjectValidationReadCountForTests()
-
-    const result = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
-
-    expect(result.diagnostics).toEqual([])
-    expect(getProjectValidationReadCountForTests(filePath)).toBe(0)
-  }, 120_000)
-
-  it("reads mixed cf and cfe YAML only inside the common worker first pass", async () => {
-    const projectDir = createProject()
-    const projectPaths = [
-      "cf/Конфигурация.yaml",
-      "cf/Справочник/Основная/Свойства.yaml",
-      "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
-      "cfe/Склад/Справочник/Склад/Свойства.yaml",
-    ]
-    writeProjectFile(projectDir, projectPaths[0]!, ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    for (const projectPath of projectPaths.slice(1)) {
-      writeProjectFile(projectDir, projectPath, "НесуществующееПоле: true\n")
-    }
-    const filePaths = projectPaths.map((projectPath) => absoluteProjectFilePathForTest(projectDir, projectPath))
-    resetProjectValidationReadCountForTests()
-
-    const result = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
-
-    for (const filePath of filePaths) {
-      expect(getProjectValidationReadCountForTests(filePath)).toBe(0)
-    }
-    expect(
-      result.diagnostics
-        .filter(({ path }) => path === "/НесуществующееПоле")
-        .map(({ filePath }) => filePath)
-    ).toEqual(projectPaths.slice(1))
-  }, 120_000)
-
-  it("does not resolve references through a sibling extension", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "cf/Справочник/Базовый/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "cfe/Продажи/Справочник/Локальный/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "cfe/Продажи/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.Локальный",
-    ])
-    writeProjectFile(projectDir, "cfe/Склад/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.Локальный",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(messagesFor(diagnostics, projectDir, "cfe/Продажи")).not.toContain('Не найден объект "Справочник.Локальный"')
-    expect(messagesFor(diagnostics, projectDir, "cfe/Склад")).toContain('Не найден объект "Справочник.Локальный"')
-  })
-
-  it("prefers an extension reference over the same declaration in cf without a conflict", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "cf/Справочник/Общий/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "cfe/Продажи/Справочник/Общий/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "cfe/Продажи/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.Общий",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-    const messages = messagesFor(diagnostics, projectDir, "cfe/Продажи")
-
-    expect(messages).not.toContain('Не найден объект "Справочник.Общий"')
-    expect(messages).not.toContain('Неоднозначная ссылка "Catalog.Общий"')
-  })
-
-  it("resolves an extension DataPath through an owner from cf", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "cf/Справочник/Общий/Свойства.yaml", ["Реквизиты:", "  Базовый:", "    Тип: Строка"])
-    writeProjectFile(
-      projectDir,
-      "cfe/Продажи/Справочник/Общий/Формы/ФормаЭлемента/Форма.yaml",
-      catalogFormWithDataPaths(["Объект.Базовый"])
-    )
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(messagesFor(diagnostics, projectDir, "cfe/Продажи").join("\n")).not.toContain('ПутьКДанным "Объект.Базовый"')
-  })
-
-  it("uses a local DataPath owner before cf without exposing it to a sibling extension", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "cf/Справочник/Общий/Свойства.yaml", ["Реквизиты:", "  Базовый:", "    Тип: Строка"])
-    writeProjectFile(
-      projectDir,
-      "cfe/Продажи/Справочник/Общий/Формы/ФормаЭлемента/Форма.yaml",
-      catalogFormWithDataPaths(["Объект.Базовый"])
-    )
-    writeProjectFile(projectDir, "cfe/Склад/Справочник/Общий/Свойства.yaml", [
-      "Реквизиты:",
-      "  Локальный:",
-      "    Тип: Строка",
-    ])
-    writeProjectFile(
-      projectDir,
-      "cfe/Склад/Справочник/Общий/Формы/ФормаЭлемента/Форма.yaml",
-      catalogFormWithDataPaths(["Объект.Локальный", "Объект.Базовый"])
-    )
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-    const salesMessages = messagesFor(diagnostics, projectDir, "cfe/Продажи").join("\n")
-    const warehouseMessages = messagesFor(diagnostics, projectDir, "cfe/Склад").join("\n")
-
-    expect(salesMessages).not.toContain('ПутьКДанным "Объект.Базовый"')
-    expect(warehouseMessages).not.toContain('ПутьКДанным "Объект.Локальный"')
-    expect(warehouseMessages).toContain('ПутьКДанным "Объект.Базовый"')
-  })
-
-  it("keeps cf syntax and extension schema errors while blocking extension semantics", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", "Имя: [незакрытая скобка\n")
-    writeExtensionSchemaError(projectDir, "cfe/A")
-    writeExtensionSemanticErrors(projectDir, "cfe/A", "НетВA")
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ source: "syntax", severity: "error" }),
-        expect.objectContaining({
-          filePath: "cfe/A/Справочник/ОшибкаСхемы/Свойства.yaml",
-          path: "/НесуществующееПоле",
-          source: "structure",
-        }),
-      ])
-    )
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toEqual([
-      {
-        filePath: "cfe/A/Конфигурация.yaml",
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "cross-file",
-        message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
-      },
-    ])
-    expect(messagesFor(diagnostics, projectDir, "cfe/A").join("\n")).not.toMatch(
-      /Не найден объект "Справочник\.НетВA"|ПутьКДанным/
-    )
-  })
-
-  it("blocks extension semantics after a cf JSON Schema error even when facts were extracted", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: Русский",
-      "НесуществующееПоле: true",
-    ])
-    writeExtensionSemanticErrors(projectDir, "cfe/A", "НетПослеСхемы")
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Конфигурация.yaml",
-          path: "/НесуществующееПоле",
-          source: "structure",
-        }),
-      ])
-    )
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toHaveLength(1)
-    expect(messagesFor(diagnostics, projectDir, "cfe/A").join("\n")).not.toMatch(
-      /Не найден объект "Справочник\.НетПослеСхемы"|ПутьКДанным/
-    )
-  })
-
-  it("blocks extension semantics after a registered cf first-pass failure", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация"])
-    writeExtensionSemanticErrors(projectDir, "cfe/A", "НетПослеВалидатора")
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(messagesFor(diagnostics, projectDir, "cf")).toContain('Отсутствует обязательное свойство "ОсновнойЯзык"')
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toHaveLength(1)
-    expect(messagesFor(diagnostics, projectDir, "cfe/A").join("\n")).not.toMatch(
-      /Не найден объект "Справочник\.НетПослеВалидатора"|ПутьКДанным/
-    )
-  })
-
-  it("continues extension semantics when cf fails only during second pass", async () => {
-    const projectDir = createProject()
-    writeReadyConfiguration(projectDir)
-    writeProjectFile(projectDir, "cf/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетВCf",
-    ])
-    writeProjectFile(projectDir, "cfe/A/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетВA",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(messagesFor(diagnostics, projectDir, "cf")).toContain('Не найден объект "Справочник.НетВCf"')
-    expect(messagesFor(diagnostics, projectDir, "cfe/A")).toContain('Не найден объект "Справочник.НетВA"')
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toHaveLength(0)
-  })
-
-  it("does not let a broken extension block a sibling extension", async () => {
-    const projectDir = createProject()
-    writeReadyConfiguration(projectDir)
-    writeProjectFile(projectDir, "cfe/A/Справочник/Сломанный/Свойства.yaml", "Реквизиты: [")
-    writeProjectFile(projectDir, "cfe/B/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетВB",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cfe/A/Справочник/Сломанный/Свойства.yaml",
-          source: "syntax",
-        }),
-      ])
-    )
-    expect(messagesFor(diagnostics, projectDir, "cfe/B")).toContain('Не найден объект "Справочник.НетВB"')
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toHaveLength(0)
-    expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/B")).toHaveLength(0)
-  })
-
-  it("reports missing cf for an empty project root", async () => {
-    const projectDir = createProject()
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toContainEqual({
-      filePath: "cf/Конфигурация.yaml",
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      message: "Базовая конфигурация cf не найдена",
-    })
-  })
-
-  it("reports missing cf when the project contains an empty cfe directory", async () => {
-    const projectDir = createProject()
-    mkdirSync(join(projectDir, "cfe"), { recursive: true })
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toContainEqual({
-      filePath: "cf/Конфигурация.yaml",
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      message: "Базовая конфигурация cf не найдена",
-    })
-  })
-
-  it("reports missing cf when the project contains only erf and epf", async () => {
-    const projectDir = createProject()
-    mkdirSync(join(projectDir, "erf", "Отчёт"), { recursive: true })
-    mkdirSync(join(projectDir, "epf", "Обработка"), { recursive: true })
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toContainEqual({
-      filePath: "cf/Конфигурация.yaml",
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      message: "Базовая конфигурация cf не найдена",
-    })
-  })
-
-  it("keeps every extension schema error and blocks each extension when cf is absent", async () => {
-    const projectDir = createProject()
-    writeExtensionSchemaError(projectDir, "cfe/A")
-    writeExtensionSchemaError(projectDir, "cfe/B")
-    writeExtensionSemanticErrors(projectDir, "cfe/A", "НетВA")
-    writeExtensionSemanticErrors(projectDir, "cfe/B", "НетВB")
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(diagnostics).toContainEqual({
-      filePath: "cf/Конфигурация.yaml",
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      message: "Базовая конфигурация cf не найдена",
-    })
-    for (const componentPath of ["cfe/A", "cfe/B"]) {
-      expect(
-        diagnostics.some(
-          (diagnostic) =>
-            rootProjectPathForTest(projectDir, diagnostic.filePath) ===
-              `${componentPath}/Справочник/ОшибкаСхемы/Свойства.yaml` && diagnostic.path === "/НесуществующееПоле"
-        )
-      ).toBe(true)
-      expect(blockingDiagnosticsFor(diagnostics, projectDir, componentPath)).toHaveLength(1)
-      expect(messagesFor(diagnostics, projectDir, componentPath).join("\n")).not.toMatch(
-        /Не найден объект "Справочник\.НетВ[AB]"|ПутьКДанным/
-      )
-    }
-  })
-
-  it("returns diagnostics relative to the project root for cf and cfe", async () => {
-    const projectDir = createProject()
-    writeReadyConfiguration(projectDir)
-    writeProjectFile(projectDir, "cf/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетВCf",
-    ])
-    writeProjectFile(projectDir, "cfe/A/Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетВA",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 2 })).diagnostics
-
-    expect(diagnostics.map(({ filePath }) => filePath)).toEqual([
-      "cf/Справочник/НетВCf/Свойства.yaml",
-      "cfe/A/Справочник/НетВA/Свойства.yaml",
-    ])
-    expect(diagnostics.every(({ filePath }) => /^(?:cf|cfe\/[^/]+)\//.test(filePath))).toBe(true)
-  })
-
-  it("rejects a diagnostic path outside projectDir", () => {
-    const projectDir = createProject()
-
-    expect(() =>
-      toRootProjectDiagnostic(projectDir, {
-        filePath: resolve(projectDir, "..", "outside.yaml"),
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "cross-file",
-        message: "internal contract violation",
-      })
-    ).toThrow("Путь диагностики находится за пределами projectDir")
-  })
-
-  it("validates all supported project files and sorts diagnostics", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/АОшибочный/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
-    writeProjectFile(projectDir, "Справочник/ЯФорма/Свойства.yaml", ["Комментарий: владелец формы"])
-    writeProjectFile(projectDir, "Справочник/ЯФорма/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Неизвестный",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics.map((diagnostic) => diagnostic.filePath)).toEqual([
-      "cf/Справочник/АОшибочный/Свойства.yaml",
-      "cf/Справочник/ЯФорма/Формы/ФормаЭлемента/Форма.yaml",
-    ])
-    expect(diagnostics[0]).toMatchObject({ source: "structure", severity: "error" })
-    expect(diagnostics[1]?.message).toContain('ПутьКДанным "Неизвестный"')
-  })
-
-  it("validates a single form with schema and DataPath rules", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "ЛишнееПоле: true",
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Неизвестный",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ source: "structure", severity: "error", path: "/ЛишнееПоле" }),
-        expect.objectContaining({
-          source: "structure",
-          severity: "error",
-          message: expect.stringContaining('ПутьКДанным "Неизвестный"'),
-        }),
-      ])
-    )
-  }, 30_000)
-
-  it("accepts nested command bar child items during form validation", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "КоманднаяПанель:",
-      "  Элементы:",
-      "    ЗаписатьИЗакрыть:",
-      "      Вид: КнопкаКоманднойПанели",
-      "      ИмяКоманды: Form.Command.ЗаписатьИЗакрыть",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "structure",
-          severity: "error",
-          path: "/КоманднаяПанель/Элементы",
-        }),
-      ])
-    )
-  }, 30_000)
-
-  it("accepts standard picture names without resolving them as common pictures", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "ГруппаКоманд/ПечатьДокумента/Свойства.yaml", ["Картинка: Печать"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "reference",
-          severity: "error",
-          message: 'Не найден объект "ОбщаяКартинка.Печать"',
-        }),
-      ])
-    )
-  })
-
-  it("validates explicitly prefixed common picture names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "ГруппаКоманд/ПечатьДокумента/Свойства.yaml", ["Картинка: ОбщаяКартинка.Печать"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "reference",
-          severity: "error",
-          message: 'Не найден объект "ОбщаяКартинка.Печать"',
-        }),
-      ])
-    )
-  })
-
-  it("resolves file forms through reference index", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["ОсновнаяФормаОбъекта: ФормаЭлемента"])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("resolves file templates through reference index", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", [
-      "ОсновнаяСхемаКомпоновкиДанных: ОсновнаяСхемаКомпоновкиДанных",
-    ])
-    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<Template/>")
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("indexes document numerators by metadata target root", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Нумератор/Заказы/Свойства.yaml", "{}")
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", ["Нумератор: Заказы"])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("concurrency 1 keeps existing project diagnostics", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  Товар:",
-      "    Тип: Справочник.Номенклатура",
-    ])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект:",
-      "    Тип: СправочникОбъект.Товары",
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.НетТакогоРеквизита",
-    ])
-
-    const result = await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-
-    expect(result.diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: expect.stringContaining("Форма.yaml"),
-        message: 'ПутьКДанным "Объект.НетТакогоРеквизита": неизвестный реквизит "НетТакогоРеквизита"',
-      }),
-    ])
-  })
-
-  it("parallel full validation returns the same diagnostics as concurrency 1", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  Товар:",
-      "    Тип: Справочник.Номенклатура",
-    ])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект:",
-      "    Тип: СправочникОбъект.Товары",
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.НетТакогоРеквизита",
-    ])
-
-    const sequential = await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-    const parallel = await workerHandle.validateProject({ projectDir, context: mockContext })
-
-    expect(parallel.diagnostics).toEqual(sequential.diagnostics)
-  })
-
-  it("reusable worker pool handle validates projects repeatedly", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
-
-    const first = await workerHandle.validateProject({ projectDir, context: mockContext })
-    const second = await workerHandle.validateProject({ projectDir, context: mockContext })
-
-    expect(workerHandle.size()).toBe(2)
-    expect(second).toEqual(first)
-  })
-
-  it("parallel validation keeps subsystem files with duplicate local names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Подсистема/A/Свойства.yaml", [
-      "КомандныйИнтерфейс:",
-      "  ПорядокПодсистем:",
-      "    - Подсистема.A.Подсистема.Настройки",
-    ])
-    writeProjectFile(projectDir, "Подсистема/A/Подсистемы/Настройки/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "Подсистема/B/Свойства.yaml", [
-      "КомандныйИнтерфейс:",
-      "  ПорядокПодсистем:",
-      "    - Подсистема.B.Подсистема.Настройки",
-    ])
-    writeProjectFile(projectDir, "Подсистема/B/Подсистемы/Настройки/Свойства.yaml", "{}\n")
-
-    const parallel = await workerHandle.validateProject({ projectDir, context: mockContext })
-
-    expect(parallel.diagnostics).toEqual([])
-  })
-
-  it("parallel validation resolves remote records from worker supplements", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Подсистема/A/Свойства.yaml", [
-      "КомандныйИнтерфейс:",
-      "  ПорядокПодсистем:",
-      "    - Подсистема.B.Подсистема.Настройки",
-    ])
-    writeProjectFile(projectDir, "Подсистема/A/Подсистемы/Настройки/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "Подсистема/B/Свойства.yaml", [
-      "КомандныйИнтерфейс:",
-      "  ПорядокПодсистем:",
-      "    - Подсистема.A.Подсистема.Настройки",
-    ])
-    writeProjectFile(projectDir, "Подсистема/B/Подсистемы/Настройки/Свойства.yaml", "{}\n")
-
-    const parallel = await workerHandle.validateProject({ projectDir, context: mockContext })
-
-    expect(parallel.diagnostics).toEqual([])
-  })
-
-  it("validates functional option content through pending reference snapshot", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
-    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml", [
-      "СоставФункциональнойОпции:",
-      "  - Catalog.Номенклатура.Attribute.Артикул",
-    ])
-
-    await expect(workerHandle.validateProject({ projectDir, context: mockContext })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("keeps one reference index entry for register resources", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "РегистрСведений/Остатки/Свойства.yaml", [
-      "Ресурсы:",
-      "  Количество:",
-      "    Тип: Число",
-    ])
-    writeProjectFile(projectDir, "ФункциональнаяОпция/УчетОстатков/Свойства.yaml", [
-      "СоставФункциональнойОпции:",
-      "  - InformationRegister.Остатки.Resource.Количество",
-    ])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("accepts defined type attributes for input by string validation", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Документы/Свойства.yaml", [
-      "Реквизиты:",
-      "  Идентификатор:",
-      "    Тип: ОпределяемыйТип.ВнешнийИдентификатор",
-      "ВводПоСтроке:",
-      "  - Реквизит.Идентификатор",
-    ])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("accepts allowed standard attributes for input by string validation", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - СтандартныйРеквизит.Наименование",
-      "  - СтандартныйРеквизит.Код",
-    ])
-    writeProjectFile(projectDir, "ПланОбмена/ОбменДанными/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - СтандартныйРеквизит.Наименование",
-      "  - СтандартныйРеквизит.Код",
-    ])
-    writeProjectFile(projectDir, "ПланВидовХарактеристик/ДополнительныеРеквизиты/Свойства.yaml", [
-      "ТипЗначения: Строка",
-      "ВводПоСтроке:",
-      "  - ChartOfCharacteristicTypes.ДополнительныеРеквизиты.StandardAttribute.Description",
-      "  - ChartOfCharacteristicTypes.ДополнительныеРеквизиты.StandardAttribute.Code",
-    ])
-    writeProjectFile(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - ChartOfAccounts.Хозрасчетный.StandardAttribute.Description",
-      "  - ChartOfAccounts.Хозрасчетный.StandardAttribute.Code",
-    ])
-    writeProjectFile(projectDir, "ПланВидовРасчета/Начисления/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - ChartOfCalculationTypes.Начисления.StandardAttribute.Description",
-      "  - ChartOfCalculationTypes.Начисления.StandardAttribute.Code",
-    ])
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - Document.Заказ.StandardAttribute.Number",
-    ])
-    writeProjectFile(projectDir, "БизнесПроцесс/Согласование/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - BusinessProcess.Согласование.StandardAttribute.Number",
-    ])
-    writeProjectFile(projectDir, "Задача/Исполнение/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - Task.Исполнение.StandardAttribute.Number",
-      "  - Task.Исполнение.StandardAttribute.Description",
-    ])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("rejects standard attributes that are not allowed for input by string", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "ВводПоСтроке:",
-      "  - СтандартныйРеквизит.ПометкаУдаления",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        message: expect.stringContaining("ожидаются реквизиты, пригодные для ввода по строке"),
-      }),
-    ])
-  })
-
-  it("resolves standard attributes by metadata target names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
-      "Реквизиты:",
-      "  Ответственный:",
-      "    Тип: Строка",
-      "    СвязиПараметровВыбора:",
-      "      - Имя: Отбор.Дата",
-      "        ПутьКДанным: Document.Заказ.StandardAttribute.Date",
-    ])
-
-    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
-      diagnostics: [],
-    })
-  })
-
-  it("accepts dynamic list type discriminator values in conditional appearance", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаСписка/Форма.yaml", [
-      "Реквизиты:",
-      "  Список:",
-      "    Тип: ДинамическийСписок",
-      "    ОсновнойРеквизит: Истина",
-      "    ДинамическийСписок:",
-      "      УсловноеОформление:",
-      "        Элементы:",
-      "          - Поля:",
-      "              - Тип",
-      "            Отбор:",
-      "              Элементы:",
-      "                - ЛевоеЗначение: .Тип",
-      "                  ПравоеЗначение: Документ.ПоступлениеБезналичныхДенежныхСредств",
-      "            Оформление:",
-      "              Текст: '\"Поступление\"'",
-      "Элементы:",
-      "  Список:",
-      "    Вид: ТаблицаФормы",
-      "    ПутьКДанным: Список",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-    expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
-      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
-    )
-  }, 30_000)
-
-  it("does not add a form import diagnostic when schema errors already explain the invalid form shape", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: []"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([expect.objectContaining({ source: "structure", severity: "error", path: "/Элементы" })])
-    )
-    expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
-      expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
-    )
-  })
-
-  it("validates properties and sibling forms together", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  ОбщееИмя:",
-      "    Тип: Строка",
-      "ТабличныеЧасти:",
-      "  ОбщееИмя:",
-      "    Реквизиты: {}",
-    ])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Неизвестный",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Справочник/Товары/Свойства.yaml",
-          path: "/ТабличныеЧасти/ОбщееИмя",
-          source: "structure",
-          severity: "error",
-        }),
-        expect.objectContaining({
-          filePath: "cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-  })
-
-  it("validates every top-level metadata object with YAML directory", async () => {
-    const projectDir = createProject()
-
-    for (const dir of topLevelYamlDirs()) {
-      const content = minimalTopLevelPropertiesYAML(dir)
-      writeProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`, content)
-    }
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual([])
-  }, 180_000)
-
-  it("accepts an empty properties YAML file as an empty object", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Договоры/Свойства.yaml", "")
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("keeps an empty root configuration YAML invalid because Имя is required", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", "")
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Конфигурация.yaml",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-  })
-
-  it("rejects an explicit object synonym equal to the object name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним: Какое то поле"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/Справочник/КакоеТоПоле/Свойства.yaml",
-        source: "structure",
-        severity: "error",
-        path: "/Синоним",
-        message: expect.stringContaining('Поле "Синоним" не нужно указывать'),
-      }),
-    ])
-  })
-
-  it("rejects an explicit information register synonym equal to the register name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml", [
-      "Синоним: Задачи универсальных процессов",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml",
-        source: "structure",
-        severity: "error",
-        path: "/Синоним",
-        message: expect.stringContaining('Поле "Синоним" не нужно указывать'),
-      }),
-    ])
-  })
-
-  it("allows only non-default languages when the default synonym equals the object name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним:", "  en: Some field"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("rejects only the default language when a multilingual synonym equals the object name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", [
-      "Синоним:",
-      "  ru: Какое то поле",
-      "  en: Some field",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        path: "/Синоним/ru",
-      }),
-    ])
-  })
-
-  it("rejects a configuration synonym equal to the required configuration name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: КакоеТоПоле",
-      "Синоним: Какое то поле",
-      "ОсновнойЯзык: Русский",
-    ])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["КодЯзыка: ru"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/Конфигурация.yaml",
-        source: "structure",
-        severity: "error",
-        path: "/Синоним",
-      }),
-    ])
-  })
-
-  it("rejects a nested form attribute title equal to the attribute name", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  КакоеТоПоле:",
-      "    Заголовок: Какое то поле",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-        source: "structure",
-        severity: "error",
-        path: "/Реквизиты/КакоеТоПоле/Заголовок",
-        message: expect.stringContaining('Поле "Заголовок" не нужно указывать'),
-      }),
-    ])
-  })
-
-  it("rejects explicit document implicit YAML boolean value", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
-        path: "/Автонумерация",
-        source: "structure",
-        severity: "error",
-      }),
-    ])
-  })
-
-  it("accepts explicit document non-implicit YAML boolean value", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Ложь"])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("rejects non-canonical document attribute reference type names", async () => {
-    const attributeProjectDir = createProject()
-    writeProjectFile(attributeProjectDir, "Документ/Заказ/Свойства.yaml", [
-      "Реквизиты:",
-      "  Контрагент:",
-      "    Тип: СправочникСсылка.Контрагенты",
-      "ТабличныеЧасти:",
-      "  Товары:",
-      "    Реквизиты:",
-      "      Номенклатура:",
-      "        Тип: Справочник.Номенклатура",
-    ])
-
-    const attributeDiagnostics = (
-      await validateProject({
-        projectDir: attributeProjectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(attributeDiagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Документ/Заказ/Свойства.yaml",
-          path: "/Реквизиты/Контрагент/Тип",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-
-    const tabularSectionProjectDir = createProject()
-    writeProjectFile(tabularSectionProjectDir, "Документ/Заказ/Свойства.yaml", [
-      "Реквизиты:",
-      "  Контрагент:",
-      "    Тип: Справочник.Контрагенты",
-      "ТабличныеЧасти:",
-      "  Товары:",
-      "    Реквизиты:",
-      "      Номенклатура:",
-      "        Тип: СправочникСсылка.Номенклатура",
-    ])
-
-    const tabularSectionDiagnostics = (
-      await validateProject({
-        projectDir: tabularSectionProjectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(tabularSectionDiagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Документ/Заказ/Свойства.yaml",
-          path: "/ТабличныеЧасти/Товары/Реквизиты/Номенклатура/Тип",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-  })
-
-  it("accepts canonical document attribute reference type names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
-      "Реквизиты:",
-      "  Контрагент:",
-      "    Тип: Справочник.Контрагенты",
-      "ТабличныеЧасти:",
-      "  Товары:",
-      "    Реквизиты:",
-      "      Номенклатура:",
-      "        Тип: Справочник.Номенклатура",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("rejects non-canonical chart of characteristic types attribute reference type names", async () => {
-    const attributeProjectDir = createProject()
-    writeProjectFile(attributeProjectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
-      "Реквизиты:",
-      "  Контрагент:",
-      "    Тип: СправочникСсылка.Контрагенты",
-      "ТабличныеЧасти:",
-      "  Значения:",
-      "    Реквизиты:",
-      "      Номенклатура:",
-      "        Тип: Справочник.Номенклатура",
-    ])
-
-    const attributeDiagnostics = (
-      await validateProject({
-        projectDir: attributeProjectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(attributeDiagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
-          path: "/Реквизиты/Контрагент/Тип",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-
-    const tabularSectionProjectDir = createProject()
-    writeProjectFile(tabularSectionProjectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
-      "Реквизиты:",
-      "  Контрагент:",
-      "    Тип: Справочник.Контрагенты",
-      "ТабличныеЧасти:",
-      "  Значения:",
-      "    Реквизиты:",
-      "      Номенклатура:",
-      "        Тип: СправочникСсылка.Номенклатура",
-    ])
-
-    const tabularSectionDiagnostics = (
-      await validateProject({
-        projectDir: tabularSectionProjectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(tabularSectionDiagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
-          path: "/ТабличныеЧасти/Значения/Реквизиты/Номенклатура/Тип",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-  })
-
-  it("validates nested subsystem properties with schema rules", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml", [
-      "ЛишнееПоле: true",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        filePath: "cf/Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
-        source: "structure",
-        severity: "error",
-        path: "/ЛишнееПоле",
-      }),
-    ])
-  })
-
-  it("validates the root configuration YAML file", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Язык/НеСуществует/Свойства.yaml",
-          source: "reference",
-          severity: "error",
-          message: 'Не найден объект "Язык.НеСуществует"',
-        }),
-      ])
-    )
-  })
-
-  it("requires the root configuration default language in YAML", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Конфигурация.yaml",
-          source: "structure",
-          severity: "error",
-          path: "/ОсновнойЯзык",
-          message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
-        }),
-      ])
-    )
-  })
-
-  it("accepts a short root configuration default language reference", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Комментарий: язык конфигурации", "КодЯзыка: ru"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("requires language code in language YAML", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Синоним: Русский"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Язык/Русский/Свойства.yaml",
-          source: "structure",
-          severity: "error",
-          path: "/КодЯзыка",
-          message: 'Отсутствует обязательное свойство "КодЯзыка"',
-        }),
-      ])
-    )
-  })
-
-  it("rejects a full root configuration default language reference", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Язык.Русский"])
-    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["Комментарий: язык конфигурации", "КодЯзыка: ru"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Конфигурация.yaml",
-          source: "structure",
-          severity: "error",
-          path: "/ОсновнойЯзык",
-        }),
-      ])
-    )
-  })
-
-  it("reports a missing short root configuration default language target", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Язык/Русский/Свойства.yaml",
-          source: "reference",
-          severity: "error",
-          message: 'Не найден объект "Язык.Русский"',
-        }),
-      ])
-    )
-  })
-
-  it("validates the root configuration with all project files", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "cf/Язык/НеСуществует/Свойства.yaml",
-          message: 'Не найден объект "Язык.НеСуществует"',
-        }),
-        expect.objectContaining({
-          filePath: "cf/Справочник/Товары/Свойства.yaml",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
-  })
-
-  it("accepts SystemEnumeration properties in catalog attributes and standard attributes", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Файлы/Свойства.yaml", [
-      "Реквизиты:",
-      "  Автор:",
-      "    Тип: Справочник.Пользователи",
-      "    ПроверкаЗаполнения: ВыдаватьОшибку",
-      "    Индексирование: Индексировать",
-      "    ПолнотекстовыйПоиск: НеИспользовать",
-      "СтандартныеРеквизиты:",
-      "  Владелец:",
-      "    ПроверкаЗаполнения: ВыдаватьОшибку",
-      "    РежимСокращенияТипа: Запрещать",
-      "  Наименование:",
-      "    ПроверкаЗаполнения: ВыдаватьОшибку",
-    ])
-
-    const diagnostics = (
-      await validateProject({
-        projectDir,
-        context: mockContext,
-      })
-    ).diagnostics
-
-    expect(diagnostics).toEqual([])
-  })
-
-  it("uses one YAML cache for repeated owner reads", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", ["Реквизиты:", "  Артикул: Строка"])
-    writeProjectFile(projectDir, "Справочник/Номенклатура/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект: Справочник.Номенклатура",
-      "Элементы:",
-      "  Артикул:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.Артикул",
-      "  ЕщеАртикул:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.Артикул",
-    ])
-    resetProjectValidationReadCountForTests()
-
-    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-
-    const ownerPath = absoluteProjectFilePathForTest(projectDir, "Справочник/Номенклатура/Свойства.yaml")
-    expect(getProjectValidationReadCountForTests(ownerPath)).toBe(0)
-  })
-
-  it("full validation uses prepared YAML without the legacy validation reader", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", "Элементы: {}\n")
-
-    resetProjectValidationReadCountForTests()
-    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-
-    expect(
-      getProjectValidationReadCountForTests(
-        absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Свойства.yaml")
-      )
-    ).toBe(0)
-    expect(
-      getProjectValidationReadCountForTests(
-        absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
-      )
-    ).toBe(0)
-  })
-
-  it("validates MetadataObjectRefCollection targets from rules metadataTarget", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Справочник.НетТакого",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "reference",
-          severity: "error",
-          message: 'Не найден объект "Справочник.НетТакого"',
-        }),
-      ])
-    )
-  })
-
-  it("reports English YAML roots as ordinary structure errors", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Источник/Свойства.yaml", [
-      "ВводитсяНаОсновании:",
-      "  - Catalog.Контрагенты",
-    ])
-
-    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
-    const messages = diagnostics.map((diagnostic) => diagnostic.message).join("\n")
-
-    expect(messages).toContain('Неизвестный корень "Catalog"')
-    expect(messages).not.toContain("Справочник.Контрагенты")
-  })
-
-  function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validate-project-"))
-    tempDirs.push(projectDir)
-    return projectDir
+const tempDirs: string[] = []
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) {
+    rmSync(dir, { recursive: true, force: true })
   }
 })
 
-function topLevelYamlDirs(): string[] {
-  return TopLevelMetadataItemRules.flatMap((rule) =>
-    typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
-  )
+describe("validateProject coordinator", () => {
+  it("uses only the full-project worker protocol", async () => {
+    const projectDir = createProject()
+    const harness = createValidationHarness()
+
+    try {
+      await harness.handle.validateProject({ projectDir })
+
+      expect(harness.commands.map(({ kind }) => kind)).toEqual([
+        "initValidation",
+        "validateFirstPass",
+        "validateSecondPass",
+      ])
+      expect(harness.commands.map(({ kind }) => kind)).not.toContain(
+        `validate${"Partial"}`
+      )
+    } finally {
+      await harness.handle.close()
+    }
+  })
+
+  it("reports a missing cf component without subject validation", async () => {
+    const projectDir = createTempDir()
+    const harness = createValidationHarness()
+
+    try {
+      const result = await harness.handle.validateProject({ projectDir })
+
+      expect(result.diagnostics).toEqual([
+        expect.objectContaining({
+          severity: "error",
+          source: "structure",
+          message: expect.stringContaining("конфигурац"),
+        }),
+      ])
+    } finally {
+      await harness.handle.close()
+    }
+  })
+
+  it("publishes first- and second-pass diagnostics in stable order", async () => {
+    const projectDir = createProject()
+    const firstPath = join(projectDir, "cf", "Язык", "Русский.yaml")
+    const secondPath = join(projectDir, "cf", "Конфигурация.yaml")
+    const harness = createValidationHarness({
+      firstPassDiagnostics: [
+        diagnostic(firstPath, "first", "structure"),
+      ],
+      secondPassDiagnostics: [
+        diagnostic(secondPath, "second", "cross-file"),
+      ],
+    })
+
+    try {
+      const result = await harness.handle.validateProject({ projectDir })
+
+      expect(result.diagnostics.map(({ filePath, message }) => ({
+        filePath,
+        message,
+      }))).toEqual([
+        { filePath: "cf/Конфигурация.yaml", message: "second" },
+        { filePath: "cf/Язык/Русский.yaml", message: "first" },
+      ])
+    } finally {
+      await harness.handle.close()
+    }
+  })
+
+  it("passes blocked components to the second worker pass", async () => {
+    const projectDir = createProject()
+    const extensionDir = join(projectDir, "cfe", "Расширение")
+    mkdirSync(extensionDir, { recursive: true })
+    writeFileSync(
+      join(extensionDir, "Конфигурация.yaml"),
+      "Имя: Расширение\n"
+    )
+    const harness = createValidationHarness({
+      firstPassSchemaDiagnostics: [
+        diagnostic(
+          join(projectDir, "cf", "Конфигурация.yaml"),
+          "invalid cf",
+          "structure"
+        ),
+      ],
+    })
+
+    try {
+      await harness.handle.validateProject({ projectDir })
+
+      const secondPass = harness.commands.find(
+        (command) => command.kind === "validateSecondPass"
+      )
+      expect(secondPass).toMatchObject({
+        kind: "validateSecondPass",
+        blockedComponentPaths: ["cfe/Расширение"],
+      })
+    } finally {
+      await harness.handle.close()
+    }
+  })
+
+  it("reuses a mock physical worker across handle operations", async () => {
+    const firstProject = createProject()
+    const secondProject = createProject()
+    const harness = createValidationHarness()
+
+    try {
+      await harness.handle.validateProject({ projectDir: firstProject })
+      await harness.handle.validateProject({ projectDir: secondProject })
+
+      expect(
+        harness.commands.filter(({ kind }) => kind === "initValidation")
+      ).toHaveLength(1)
+      expect(
+        harness.commands.filter(({ kind }) => kind === "validateFirstPass")
+      ).toHaveLength(2)
+      expect(
+        harness.commands.filter(({ kind }) => kind === "validateSecondPass")
+      ).toHaveLength(2)
+    } finally {
+      await harness.handle.close()
+    }
+  })
+})
+
+describe("toRootProjectDiagnostic", () => {
+  it("returns a project-relative path", () => {
+    const projectDir = resolve("/project")
+
+    expect(
+      toRootProjectDiagnostic(
+        projectDir,
+        diagnostic(
+          join(projectDir, "cf", "Конфигурация.yaml"),
+          "invalid",
+          "structure"
+        )
+      )
+    ).toMatchObject({
+      filePath: join("cf", "Конфигурация.yaml"),
+      message: "invalid",
+    })
+  })
+
+  it("rejects a diagnostic path outside projectDir", () => {
+    const projectDir = resolve("/project")
+    const outsidePath = resolve("/other/Свойства.yaml")
+
+    expect(() =>
+      toRootProjectDiagnostic(
+        projectDir,
+        diagnostic(outsidePath, "outside", "structure")
+      )
+    ).toThrow("за пределами projectDir")
+  })
+})
+
+function createValidationHarness(options: {
+  firstPassDiagnostics?: Diagnostic[]
+  firstPassSchemaDiagnostics?: Diagnostic[]
+  secondPassDiagnostics?: Diagnostic[]
+} = {}) {
+  const commands: PreparedYamlProjectWorkerTask[] = []
+  const handle = createValidationWorkerPoolHandle({
+    concurrency: 1,
+    createWorkerPool: () => ({
+      async run(command: PreparedYamlProjectWorkerTask) {
+        commands.push(command)
+        if (command.kind === "initValidation") {
+          return {
+            kind: "initValidationResult" as const,
+            formMs: 0,
+            propertiesMs: 0,
+            totalMs: 0,
+          }
+        }
+        if (command.kind === "validateFirstPass") {
+          const componentPaths = [
+            ...new Set(command.files.map(({ componentPath }) => componentPath)),
+          ]
+          const schemaDiagnostics = options.firstPassSchemaDiagnostics ?? []
+          const diagnostics = [
+            ...(options.firstPassDiagnostics ?? []),
+            ...schemaDiagnostics,
+          ]
+          return {
+            kind: "validateFirstPassResult" as const,
+            components: componentPaths.map((componentPath) => ({
+              componentPath,
+              contribution: {
+                objectRecords: [],
+                objectIndexEntries: [],
+                memberIndexEntries: [],
+                valueIndexEntries: [],
+                pendingReferences: [],
+              },
+              diagnostics: diagnostics.filter((item) =>
+                belongsToComponent(item.filePath, command.projectDir, componentPath)
+              ),
+              schemaDiagnostics: schemaDiagnostics.filter((item) =>
+                belongsToComponent(
+                  item.filePath,
+                  command.projectDir,
+                  componentPath
+                )
+              ),
+              fileResults: [],
+            })),
+            diagnostics,
+            schemaDiagnostics,
+            fileResults: [],
+            yamlLifetime: {
+              current: 0,
+              max: 0,
+              parsed: command.files.length,
+              propertyEvents: 0,
+            },
+          }
+        }
+        if (command.kind === "validateSecondPass") {
+          return {
+            kind: "validateSecondPassResult" as const,
+            diagnostics: options.secondPassDiagnostics ?? [],
+          }
+        }
+        throw new Error(`Неожиданная команда: ${command.kind}`)
+      },
+      async destroy() {
+        return undefined
+      },
+    }),
+  })
+
+  return { handle, commands }
 }
 
-function minimalTopLevelPropertiesYAML(dir: string): string {
-  if (dir === "ПакетXDTO") return "ПространствоИмен: http://example.org/test\n"
-  if (dir === "Язык") return "КодЯзыка: ru\n"
-  return "{}\n"
+function createProject(): string {
+  const projectDir = createTempDir()
+  const cfDir = join(projectDir, "cf")
+  mkdirSync(cfDir, { recursive: true })
+  writeFileSync(join(cfDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
+  return projectDir
 }
 
-function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
-  const filePath = absoluteProjectFilePathForTest(projectDir, projectPath)
-  mkdirSync(resolve(filePath, ".."), { recursive: true })
-  writeFileSync(filePath, Array.isArray(lines) ? `${lines.join("\n")}\n` : lines)
+function createTempDir(): string {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-unit-"))
+  tempDirs.push(projectDir)
+  return projectDir
 }
 
-function absoluteProjectFilePathForTest(projectDir: string, projectPath: string): string {
-  const rootProjectPath = /^(?:cf|cfe\/[^/]+)\//.test(projectPath) ? projectPath : `cf/${projectPath}`
-  return join(projectDir, ...rootProjectPath.split("/"))
+function diagnostic(
+  filePath: string,
+  message: string,
+  source: Diagnostic["source"]
+): Diagnostic {
+  return {
+    filePath,
+    line: 1,
+    col: 1,
+    severity: "error",
+    source,
+    message,
+  }
 }
 
-function catalogFormWithDataPaths(dataPaths: readonly string[]): string[] {
-  return [
-    "Реквизиты:",
-    "  Объект:",
-    "    Тип: СправочникОбъект.Общий",
-    "Элементы:",
-    ...dataPaths.flatMap((dataPath, index) => [
-      `  Поле${index + 1}:`,
-      "    Вид: ПолеВвода",
-      `    ПутьКДанным: ${dataPath}`,
-    ]),
-  ]
-}
-
-function writeReadyConfiguration(projectDir: string): void {
-  writeProjectFile(projectDir, "cf/Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
-  writeProjectFile(projectDir, "cf/Язык/Русский/Свойства.yaml", ["КодЯзыка: ru"])
-}
-
-function writeExtensionSchemaError(projectDir: string, componentPath: string): void {
-  writeProjectFile(projectDir, `${componentPath}/Справочник/ОшибкаСхемы/Свойства.yaml`, "НесуществующееПоле: true\n")
-}
-
-function writeExtensionSemanticErrors(projectDir: string, componentPath: string, missingName: string): void {
-  writeProjectFile(projectDir, `${componentPath}/Справочник/Источник/Свойства.yaml`, [
-    "ВводитсяНаОсновании:",
-    `  - Справочник.${missingName}`,
-  ])
-  writeProjectFile(projectDir, `${componentPath}/Справочник/Общий/Свойства.yaml`, "{}\n")
-  writeProjectFile(
-    projectDir,
-    `${componentPath}/Справочник/Общий/Формы/ФормаЭлемента/Форма.yaml`,
-    catalogFormWithDataPaths(["Объект.НетТакогоРеквизита"])
-  )
-}
-
-function messagesFor(
-  diagnostics: ValidateProjectResult["diagnostics"],
+function belongsToComponent(
+  filePath: string,
   projectDir: string,
   componentPath: string
-): string[] {
-  return diagnostics
-    .filter((diagnostic) => rootProjectPathForTest(projectDir, diagnostic.filePath).startsWith(`${componentPath}/`))
-    .map(({ message }) => message)
-}
-
-function blockingDiagnosticsFor(
-  diagnostics: ValidateProjectResult["diagnostics"],
-  projectDir: string,
-  componentPath: string
-): ValidateProjectResult["diagnostics"] {
-  return diagnostics.filter(
-    (diagnostic) =>
-      rootProjectPathForTest(projectDir, diagnostic.filePath) === `${componentPath}/Конфигурация.yaml` &&
-      diagnostic.message === "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации"
+): boolean {
+  const relativePath = isAbsolute(filePath)
+    ? relative(projectDir, filePath)
+    : filePath
+  return (
+    relativePath === componentPath ||
+    relativePath.startsWith(`${componentPath}${sep}`)
   )
-}
-
-function rootProjectPathForTest(projectDir: string, filePath: string): string {
-  const projectPath = isAbsolute(filePath) ? relative(projectDir, filePath) : filePath
-  return projectPath.split(sep).join("/")
 }

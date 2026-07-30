@@ -2,15 +2,16 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterAll, afterEach, describe, expect, it } from "vitest"
-import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
+import { createPreparedYamlWorkerTestPool } from "../../tests/preparedYamlWorkerTestPool"
 import { renameMetadataItem } from "./renameItem"
 
 describe("renameMetadataItem", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
-  const preparedYamlProjectPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+  const preparedYamlTestPool = createPreparedYamlWorkerTestPool()
+  const preparedYamlProjectPool = preparedYamlTestPool.pool
 
   afterAll(async () => {
-    await preparedYamlProjectPool.close()
+    await preparedYamlTestPool.close()
   })
 
   afterEach(() => {

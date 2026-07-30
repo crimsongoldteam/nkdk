@@ -1,5 +1,5 @@
 import { compileValidationSchema } from "./compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTypeRule, PropertyRule } from "../orchestration"
 import { registerCoreMetadata } from "../register"
 import { mockContext } from "../../tests/mockContext"
@@ -16,6 +16,9 @@ type SchemaRuleType =
   | "StructureItemGroupCollection"
 
 const schemaFor = (type: SchemaRuleType) => {
+  const cached = schemas.get(type)
+  if (cached !== undefined) return cached
+
   const exportToJSONSchema = getTypeRule(type, "exportToJSONSchema")
   expect(exportToJSONSchema).toBeDefined()
   if (exportToJSONSchema === undefined) throw new Error(`${type} JSON schema export is not registered`)
@@ -28,10 +31,27 @@ const schemaFor = (type: SchemaRuleType) => {
   expect(schema).toBeDefined()
   if (schema === undefined) throw new Error(`${type} JSON schema is not registered`)
 
-  return compileValidationSchema(schema)
+  const compiled = compileValidationSchema(schema)
+  compiled.Check(undefined)
+  schemas.set(type, compiled)
+  return compiled
 }
 
+const schemas = new Map<SchemaRuleType, ReturnType<typeof compileValidationSchema>>()
+
 describe("YAML type JSON Schema registrations", () => {
+  beforeAll(() => {
+    ;([
+      "AssociatedTable",
+      "ChildSubsystemNames",
+      "CommonAttributeContent",
+      "GroupItemAuto",
+      "GroupItemField",
+      "StructureItemGroup",
+      "StructureItemGroupCollection",
+    ] as const).forEach(schemaFor)
+  })
+
   it("accepts simple hand-written YAML types", () => {
     expect(schemaFor("AssociatedTable").Check("Товары")).toBe(true)
     expect(schemaFor("ChildSubsystemNames").Check(["Подсистема1", "Подсистема2"])).toBe(true)

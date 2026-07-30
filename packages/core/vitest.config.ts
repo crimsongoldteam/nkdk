@@ -20,6 +20,9 @@ export default defineConfig({
     // на CI заметно дольше обычного модульного теста.
     testTimeout: 120_000,
     hookTimeout: 240_000,
-    setupFiles: [resolve(__dirname, "./tests/setupTests")],
+    setupFiles: [
+      resolve(__dirname, "./tests/forbidRealPiscina"),
+      resolve(__dirname, "./tests/setupTests"),
+    ],
   },
 })

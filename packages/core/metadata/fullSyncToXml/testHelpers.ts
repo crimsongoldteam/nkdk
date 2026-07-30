@@ -1,26 +1,21 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
-import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
-import { createFullXmlSyncWorkerPool } from "./workerPool"
-import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
+import type { ComponentAddress } from "../components/address"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
-import {
-  confirmComponentState,
-  readComponentHashState,
-  readComponentIndexes,
-  readComponentProjectStructure,
-} from "../project/componentState"
-import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
-import { buildXmlSyncPlan } from "./selection"
-import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 const tempDirs: string[] = []
 
 export async function removeFullSyncTempDirs(): Promise<void> {
-  await Promise.all(tempDirs.splice(0).map((dir) => fs.promises.rm(dir, { recursive: true, force: true })))
+  for (const dir of tempDirs.splice(0)) {
+    await fs.promises.rm(dir, { recursive: true, force: true })
+  }
 }
 
 export function createTempRoot(): string {
@@ -29,87 +24,171 @@ export function createTempRoot(): string {
   return root
 }
 
-export function writeSmallXmlDump(xmlDir: string): void {
-  fs.mkdirSync(xmlDir, { recursive: true })
-  fs.copyFileSync(
-    join(__dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"),
-    join(xmlDir, "Configuration.xml")
-  )
-  fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/xml"), join(xmlDir, "Bots"), {
-    recursive: true,
-  })
+export function createMockFullSyncDependencies(
+  overrides: Partial<FullXmlSyncCoordinatorDependencies> = {}
+): FullXmlSyncCoordinatorDependencies {
+  const topology = compileRegisteredMetadataResourceTopology()
+  const defaults: FullXmlSyncCoordinatorDependencies = {
+    async exists(path) {
+      return path === "/project"
+    },
+    async isDirectoryEmpty() {
+      return true
+    },
+    async mkdir() {},
+    async readStructure({ address }) {
+      return structure(address, topology)
+    },
+    async readSnapshot({ address }) {
+      return snapshot(address)
+    },
+    async readHashes({ structure: value }) {
+      return hashes(value)
+    },
+    async readIndexes({ structure: value, hashes: valueHashes }) {
+      return indexes(value, valueHashes)
+    },
+    confirmState(params) {
+      return Object.freeze(params)
+    },
+    resolveProfile(address) {
+      if (address.kind !== "configuration" && address.kind !== "configurationExtension") {
+        throw new Error(`Unsupported test component: ${address.kind}`)
+      }
+      return {
+        kind: address.kind,
+        supports: () => true,
+        baseAddress: () => (address.kind === "configurationExtension" ? { kind: "configuration" } : undefined),
+        confirm({ target, base }) {
+          return {
+            kind: address.kind,
+            target,
+            ...(base === undefined ? {} : { base }),
+            workerProfile: {
+              kind: address.kind,
+              componentKind: address.kind,
+              adoptedUuids: {},
+              ...(base === undefined
+                ? {}
+                : {
+                    baseForms: {
+                      componentDir: base.structure.componentDir,
+                      projectFiles: base.hashes.projectFiles,
+                      snapshot: base.snapshot,
+                    },
+                  }),
+            },
+          }
+        },
+      }
+    },
+    buildPlan({ structure: value }) {
+      return {
+        assignments: [
+          {
+            id: "Конфигурация.yaml",
+            sourceProjectPath: "Конфигурация.yaml",
+            sourcePath: `${value.componentDir}/Конфигурация.yaml`,
+            expectedContentHash: 10n,
+            role: "configuration",
+            itemType:
+              value.address.kind === "configuration"
+                ? "MetadataConfiguration"
+                : "MetadataConfigurationExtension",
+            itemName: "Конфигурация",
+            logicalAddress: "Конфигурация",
+            ...fullXmlSyncTestTopologyFields("Конфигурация.yaml"),
+          },
+        ],
+        externalFiles: [],
+      }
+    },
+    createWorkerPool() {
+      return {
+        async initialize() {},
+        async execute() {
+          return {
+            diagnostics: [],
+            warnings: [],
+            writtenFiles: [
+              {
+                assignmentId: "Конфигурация.yaml",
+                targetXmlPath: "Configuration.xml",
+              },
+            ],
+            expectedOutputs: [
+              {
+                assignmentId: "Конфигурация.yaml",
+                targetXmlPath: "Configuration.xml",
+              },
+            ],
+            fragmentData: {
+              sourceProjectPaths: ["Конфигурация.yaml"],
+              entities: [],
+            },
+          }
+        },
+        async close() {},
+      }
+    },
+    async transferExternalFiles() {
+      return { copiedFiles: [], projectFiles: [] }
+    },
+    validateWrittenFiles() {
+      return []
+    },
+    async writeIndex() {},
+  }
+
+  return { ...defaults, ...overrides }
 }
 
-export async function writeSmallYamlProjectWithIndex(projectDir: string): Promise<void> {
-  const yamlDir = join(projectDir, "cf")
-  fs.mkdirSync(yamlDir, { recursive: true })
-  fs.writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Конфигурация\n", "utf8")
-  fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/yaml"), join(yamlDir, "Бот"), {
-    recursive: true,
-  })
-  await writeConfigurationIndexAtomically({
-    projectDir,
-    address: { kind: "configuration" },
-    data: {
+function structure(
+  address: ComponentAddress,
+  topology: ReturnType<typeof compileRegisteredMetadataResourceTopology>
+): ComponentProjectStructure {
+  const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
+  return {
+    address,
+    componentPath,
+    componentDir: `/project/${componentPath}`,
+    topology,
+    resources: [],
+    projectPaths: ["Конфигурация.yaml"],
+  }
+}
+
+function hashes(structure: ComponentProjectStructure): ComponentHashState {
+  return {
+    componentPath: structure.componentPath,
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  }
+}
+
+function indexes(structure: ComponentProjectStructure, hashState: ComponentHashState): ComponentIndexes {
+  return {
+    componentPath: structure.componentPath,
+    sourceProjectFiles: hashState.projectFiles,
+    metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
+    dependencies: [],
+    logicalAddresses: [
+      {
+        logicalAddress: "Конфигурация",
+        sourceProjectPath: "Конфигурация.yaml",
+      },
+    ],
+  }
+}
+
+function snapshot(address: ComponentAddress) {
+  const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
+  return snapshotConfigurationIndex(
+    encodeConfigurationIndex({
       specificationVersion: "1.3",
       indexGeneration: 1n,
-      componentPath: "cf",
-      files: [{
-        projectPath: "Бот/БотВсеСвойства/Свойства.yaml",
-        contentHash: 0n,
-      }, {
-        projectPath: "Бот/БотВсеСвойства/Модуль.bsl",
-        contentHash: 0n,
-      }],
-      entities: [
-        {
-          logicalAddress: "Бот.БотВсеСвойства",
-          sourceProjectPath: "Бот/БотВсеСвойства/Свойства.yaml",
-          identities: {
-            uuid: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
-          },
-        },
-        {
-          logicalAddress: "ВнешнееСостояние",
-          sourceProjectPath: "Бот/БотВсеСвойства/Модуль.bsl",
-          xml: { explicitEmpty: true },
-        },
-      ],
-    },
-  })
-}
-
-export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDependencies {
-  return {
-    async exists(path) {
-      return fs.existsSync(path)
-    },
-    async isDirectoryEmpty(path) {
-      return fs.readdirSync(path).length === 0
-    },
-    async mkdir(path) {
-      fs.mkdirSync(path, { recursive: true })
-    },
-    readStructure: readComponentProjectStructure,
-    readSnapshot: readConfigurationIndexSnapshot,
-    readHashes: readComponentHashState,
-    readIndexes: readComponentIndexes,
-    confirmState: confirmComponentState,
-    resolveProfile: resolveFullXmlSyncComponentProfile,
-    buildPlan: buildXmlSyncPlan,
-    createWorkerPool({ concurrency }) {
-      return createFullXmlSyncWorkerPool({
-        concurrency,
-        createWorkerPool: () => ({
-          run: runFullXmlSyncWorkerCommand,
-          async destroy() {
-            resetFullXmlSyncWorkerStateForTests()
-          },
-        }),
-      })
-    },
-    transferExternalFiles: transferFullXmlSyncExternalFiles,
-    validateWrittenFiles: validateFullXmlSyncWrittenFiles,
-    writeIndex: writeConfigurationIndexAtomically,
-  }
+      componentPath,
+      files: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+      entities: [],
+    })
+  )
 }

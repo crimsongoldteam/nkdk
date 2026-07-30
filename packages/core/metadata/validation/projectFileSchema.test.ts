@@ -2,7 +2,7 @@ import { compileValidationSchema } from "./compileValidationSchema"
 import { mkdtempSync, rmSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
 import {
   exportJSONSchemaGraph,
@@ -16,6 +16,34 @@ const context = {
   defaultLanguage: "ru",
   version: "2.20",
 } as const
+
+const inlineSchemaPaths = [
+  "Справочник/Товары/Свойства.yaml",
+  "Документ/Заказ/Свойства.yaml",
+  "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+] as const
+const inlineSchemas = new Map<string, ReturnType<typeof exportJSONSchemaForProjectFile>>()
+const compiledInlineSchemas = new Map<string, ReturnType<typeof compileValidationSchema>>()
+let formSchemaGraph: ReturnType<typeof exportJSONSchemaGraph>
+let genericCatalogSchema: ReturnType<typeof compileValidationSchema>
+
+beforeAll(() => {
+  for (const filePath of inlineSchemaPaths) {
+    const schema = exportJSONSchemaForProjectFile({ context, filePath, mode: "inline" })
+    const compiled = compileValidationSchema(schema)
+    compiled.Check(undefined)
+    inlineSchemas.set(filePath, schema)
+    compiledInlineSchemas.set(filePath, compiled)
+  }
+  formSchemaGraph = exportJSONSchemaGraph({
+    context,
+    roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+  })
+  genericCatalogSchema = compileValidationSchema(
+    exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
+  )
+  genericCatalogSchema.Check(undefined)
+})
 
 describe("exportJSONSchemaForProjectFile", () => {
   const tempDirs: string[] = []
@@ -118,11 +146,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("exports inline catalog schema for properties path in inline mode", () => {
-    const schema = exportJSONSchemaForProjectFile({
-      context,
-      filePath: "Справочник/Товары/Свойства.yaml",
-      mode: "inline",
-    })
+    const schema = requiredMapValue(inlineSchemas, "Справочник/Товары/Свойства.yaml")
 
     expect(JSON.stringify(schema)).not.toContain("nkdk://schema/MetadataCatalogAttribute")
     expect(schema).toMatchObject({
@@ -134,22 +158,17 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("describes equal-name exclusion without making the schema name-dependent", () => {
-    const schema = exportJSONSchemaForProjectFile({
-      context,
-      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
-      mode: "inline",
-    })
+    const schema = requiredMapValue(inlineSchemas, "Справочник/Товары/Свойства.yaml")
     const synonymSchema = propertySchema(schema, "Синоним")
 
     expect(synonymSchema.description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
     expect(JSON.stringify(synonymSchema)).not.toContain("Какое то поле")
     expect(JSON.stringify(synonymSchema)).not.toContain('"not"')
 
-    const compiled = compileValidationSchema(schema)
     expect(
       validateFile({
         filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
-        schema: compiled,
+        schema: requiredMapValue(compiledInlineSchemas, "Справочник/Товары/Свойства.yaml"),
         text: "Синоним: Какое то поле\n",
       })
     ).toEqual([])
@@ -188,13 +207,8 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("exports form schema graph without replacing element refs with any", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
-
-    expect(JSON.stringify(graph.roots.form)).toContain("nkdk://schema/FormAttribute")
-    expect(JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])).toContain('"Тип"')
+    expect(JSON.stringify(formSchemaGraph.roots.form)).toContain("nkdk://schema/FormAttribute")
+    expect(JSON.stringify(formSchemaGraph.schemas["nkdk://schema/FormAttribute"])).toContain('"Тип"')
   })
 
   it("rejects non-yaml files", () => {
@@ -240,13 +254,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
-    const schema = compileValidationSchema(
-      exportJSONSchemaForProjectFile({
-        context,
-        filePath: "Справочник/Товары/Свойства.yaml",
-        mode: "inline",
-      })
-    )
+    const schema = requiredMapValue(compiledInlineSchemas, "Справочник/Товары/Свойства.yaml")
 
     expect(
       validateFile({
@@ -352,13 +360,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       ].join("\n"),
     },
   ])("validates allowed TypeDescription values for $label", ({ filePath, validText, invalidText }) => {
-    const schema = compileValidationSchema(
-      exportJSONSchemaForProjectFile({
-        context,
-        filePath,
-        mode: "inline",
-      })
-    )
+    const schema = requiredMapValue(compiledInlineSchemas, filePath)
 
     expect(validateFile({ filePath, schema, text: validText })).toEqual([])
     expect(validateFile({ filePath, schema, text: invalidText })).not.toEqual([])
@@ -414,18 +416,10 @@ describe("exportJSONSchemaForSchemaName", () => {
   })
 
   it("keeps generic schema by type name free from concrete object-name restrictions", () => {
-    const schema = compileValidationSchema(
-      exportJSONSchemaForSchemaName({
-        context,
-        name: "MetadataCatalog",
-        mode: "inline",
-      })
-    )
-
     expect(
       validateFile({
         filePath: "Свойства.yaml",
-        schema,
+        schema: genericCatalogSchema,
         text: "Синоним: Какое то поле\n",
       })
     ).toEqual([])
@@ -437,3 +431,9 @@ describe("exportJSONSchemaForSchemaName", () => {
     )
   })
 })
+
+function requiredMapValue<T>(map: ReadonlyMap<string, T>, key: string): T {
+  const value = map.get(key)
+  if (value === undefined) throw new Error(`Missing prepared schema for ${key}`)
+  return value
+}

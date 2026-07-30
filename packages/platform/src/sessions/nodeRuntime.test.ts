@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events"
 import { PassThrough } from "node:stream"
-import { describe, expect, it, vi } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import type { ProcessRunOptions, ProcessRunResult } from "./runtime"
 
 type TestChildProcess = EventEmitter & {
@@ -18,10 +18,15 @@ type RunNodeProcess = (
 ) => Promise<ProcessRunResult>
 
 describe("node process runtime", () => {
+  let runtimeModule: Record<string, unknown>
+
+  beforeAll(async () => {
+    runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
+  })
+
   it("terminates an aborted child after the grace period", async () => {
     vi.useFakeTimers()
     try {
-      const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
       const runNodeProcess = runtimeModule["runNodeProcess"]
       expect(runNodeProcess).toBeTypeOf("function")
 
@@ -49,7 +54,6 @@ describe("node process runtime", () => {
   it("keeps control until exit when SIGKILL cannot be sent", async () => {
     vi.useFakeTimers()
     try {
-      const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
       const runNodeProcess = runtimeModule["runNodeProcess"] as RunNodeProcess
       const controller = new AbortController()
       const child = controlledChildProcess({ forceKillSucceeds: false })
@@ -80,7 +84,6 @@ describe("node process runtime", () => {
   it("tries SIGKILL when SIGTERM throws", async () => {
     vi.useFakeTimers()
     try {
-      const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
       const runNodeProcess = runtimeModule["runNodeProcess"] as RunNodeProcess
       const controller = new AbortController()
       const child = controlledChildProcess({ termKillThrows: true })
@@ -102,7 +105,6 @@ describe("node process runtime", () => {
   })
 
   it("reports a failed signal for a still running owned process", async () => {
-    const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
     const wrapOwnedProcess = runtimeModule["wrapOwnedProcess"]
     expect(wrapOwnedProcess).toBeTypeOf("function")
     const child = controlledChildProcess({ forceKillSucceeds: false })

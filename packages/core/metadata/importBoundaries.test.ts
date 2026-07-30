@@ -1,6 +1,7 @@
-import { existsSync, lstatSync, readdirSync, readFileSync } from "fs"
-import { join, relative } from "path"
-import { describe, expect, it } from "vitest"
+import { existsSync, readFileSync } from "fs"
+import { join, relative, resolve } from "path"
+import { beforeAll, describe, expect, it } from "vitest"
+import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnapshot"
 
 const METADATA_DIR = join(process.cwd(), "metadata")
 const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
@@ -53,15 +54,30 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/appliedObjects/metadataExternalDataSource/toYAML.test.ts",
 ])
 const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
-const SKIPPED_SCAN_DIRS = new Set(["node_modules", ".git", ".worktrees", "dist", "coverage"])
+let sourceFiles: readonly SourceTreeFile[]
+let sourceByAbsolutePath: ReadonlyMap<string, string>
+let legacyAliasOffenders: {
+  readonly importOffenders: readonly { readonly filePath: string; readonly specifiers: readonly string[] }[]
+  readonly configOffenders: readonly { readonly filePath: string; readonly hasAlias: boolean }[]
+}
+let broadRegistrationOffenders: readonly {
+  readonly filePath: string
+  readonly forbiddenImports: readonly string[]
+}[]
+let compositeProductionOffenders: readonly string[]
 
 describe("metadata import boundaries", () => {
-  it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
+  beforeAll(() => {
+    sourceFiles = [
+      ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "core")),
+      ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "mcp")),
+    ]
+    sourceByAbsolutePath = new Map(sourceFiles.map((file) => [file.absolutePath, file.source]))
     const importOffenders = PACKAGES_FOR_ALIAS_SCAN.flatMap((packagePath) =>
       listTypeScriptFiles(join(WORKSPACE_ROOT, packagePath), { includeTests: true })
         .map((filePath) => ({
           filePath: relative(WORKSPACE_ROOT, filePath),
-          specifiers: extractModuleSpecifiers(readFileSync(filePath, "utf-8")).filter(
+          specifiers: extractModuleSpecifiers(readSource(filePath)).filter(
             (specifier) => specifier === "~" || specifier.startsWith("~/")
           ),
         }))
@@ -75,8 +91,14 @@ describe("metadata import boundaries", () => {
         hasAlias: /["']~(?:\/\*)?["']/.test(source),
       }
     }).filter(({ hasAlias }) => hasAlias)
+    legacyAliasOffenders = { importOffenders, configOffenders }
 
-    expect({ importOffenders, configOffenders }).toEqual({
+    broadRegistrationOffenders = findBroadRegistrationOffenders()
+    compositeProductionOffenders = findCompositeProductionOffenders()
+  })
+
+  it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
+    expect(legacyAliasOffenders).toEqual({
       importOffenders: [],
       configOffenders: [],
     })
@@ -298,18 +320,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("новые широкие metadata-регистрации идут через metadata/register", () => {
-    const offenders = listCoreTypeScriptFiles()
-      .filter((filePath) => !REGISTRATION_ENTRYPOINT_ALLOWLIST.has(filePath))
-      .map((filePath) => ({
-        filePath,
-        forbiddenImports: findForbiddenModuleSpecifiers(
-          readFileSync(join(process.cwd(), filePath), "utf-8"),
-          BROAD_METADATA_REGISTRATION_IMPORTS
-        ),
-      }))
-      .filter(({ forbiddenImports }) => forbiddenImports.length > 0)
-
-    expect(offenders).toEqual([])
+    expect(broadRegistrationOffenders).toEqual([])
   })
 
   it("старые boundary-правила поддерживают prefix imports, а broad-регистрации остаются exact", () => {
@@ -337,7 +348,7 @@ describe("metadata import boundaries", () => {
     const offenders = listTypeScriptFiles(METADATA_DIR)
       .map((filePath) => ({
         filePath: relative(process.cwd(), filePath),
-        source: readFileSync(filePath, "utf-8"),
+        source: readSource(filePath),
       }))
       .filter(({ source }) => {
         if (!source.includes("registerMetadataItemCollectionRule")) return false
@@ -349,34 +360,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("составные production-типы не вызывают общую YAML/XML-оркестрацию", () => {
-    const forbiddenSymbols = [
-      "importPropertiesFromYAML",
-      "exportPropertiesToXML",
-      "importPropertyFromYAML",
-      "exportPropertyToXML",
-      "importMetadataItemFromYAML",
-      "exportMetadataItemToXML",
-      "importMetadataItemCollectionFromYAMLAsArray",
-      "importMetadataItemCollectionFromYAMLAsRecord",
-      "exportMetadataCollectionToXML",
-      "importPropertiesFromXML",
-      "exportPropertiesToYAML",
-      "importMetadataItemFromXML",
-      "exportMetadataItemToYAML",
-      "importMetadataItemCollectionFromXML",
-      "exportMetadataCollectionToYAMLAsArray",
-      "exportMetadataCollectionToYAMLAsRecord",
-    ]
-    const offenders = listTypeScriptFiles(METADATA_DIR)
-      .filter((filePath) => !filePath.endsWith(".test.ts"))
-      .map((filePath) => ({
-        filePath: relative(process.cwd(), filePath),
-        source: readFileSync(filePath, "utf-8"),
-      }))
-      .filter(({ source }) => forbiddenSymbols.some((symbol) => new RegExp(`\\b${symbol}\\b`).test(source)))
-      .map(({ filePath }) => filePath)
-
-    expect(offenders).toEqual([])
+    expect(compositeProductionOffenders).toEqual([])
   })
 
   it("синхронизация и операции не хранят metadata-модель", () => {
@@ -385,7 +369,7 @@ describe("metadata import boundaries", () => {
       ...listTypeScriptFiles(join(METADATA_DIR, "operations")),
       join(METADATA_DIR, "orchestration", "appliedObject", "syncToXML.ts"),
     ].filter((filePath) => !filePath.endsWith(".test.ts"))
-    const source = files.map((filePath) => readFileSync(filePath, "utf-8")).join("\n")
+    const source = files.map(readSource).join("\n")
 
     expect(source).not.toContain("ownerModelStub")
     expect(source).not.toContain("modelStub")
@@ -393,11 +377,53 @@ describe("metadata import boundaries", () => {
   })
 })
 
+function findBroadRegistrationOffenders() {
+  return listCoreTypeScriptFiles()
+    .filter((filePath) => !REGISTRATION_ENTRYPOINT_ALLOWLIST.has(filePath))
+    .map((filePath) => ({
+      filePath,
+      forbiddenImports: findForbiddenModuleSpecifiers(
+        readSource(join(process.cwd(), filePath)),
+        BROAD_METADATA_REGISTRATION_IMPORTS
+      ),
+    }))
+    .filter(({ forbiddenImports }) => forbiddenImports.length > 0)
+}
+
+function findCompositeProductionOffenders(): string[] {
+  const forbiddenSymbols = [
+    "importPropertiesFromYAML",
+    "exportPropertiesToXML",
+    "importPropertyFromYAML",
+    "exportPropertyToXML",
+    "importMetadataItemFromYAML",
+    "exportMetadataItemToXML",
+    "importMetadataItemCollectionFromYAMLAsArray",
+    "importMetadataItemCollectionFromYAMLAsRecord",
+    "exportMetadataCollectionToXML",
+    "importPropertiesFromXML",
+    "exportPropertiesToYAML",
+    "importMetadataItemFromXML",
+    "exportMetadataItemToYAML",
+    "importMetadataItemCollectionFromXML",
+    "exportMetadataCollectionToYAMLAsArray",
+    "exportMetadataCollectionToYAMLAsRecord",
+  ]
+  return listTypeScriptFiles(METADATA_DIR)
+    .filter((filePath) => !filePath.endsWith(".test.ts"))
+    .map((filePath) => ({
+      filePath: relative(process.cwd(), filePath),
+      source: readSource(filePath),
+    }))
+    .filter(({ source }) => forbiddenSymbols.some((symbol) => new RegExp(`\\b${symbol}\\b`).test(source)))
+    .map(({ filePath }) => filePath)
+}
+
 function findImportOffenders(dir: string, forbiddenImports: readonly string[]) {
   return listTypeScriptFiles(dir)
     .map((filePath) => ({
       filePath: relative(process.cwd(), filePath),
-      forbiddenImports: findForbiddenImports(readFileSync(filePath, "utf-8"), forbiddenImports),
+      forbiddenImports: findForbiddenImports(readSource(filePath), forbiddenImports),
     }))
     .filter(({ forbiddenImports }) => forbiddenImports.length > 0)
 }
@@ -440,26 +466,18 @@ function listCoreTypeScriptFiles(): string[] {
 }
 
 function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = {}): string[] {
-  const result: string[] = []
-  for (const entry of readdirSync(dir)) {
-    if (SKIPPED_SCAN_DIRS.has(entry)) continue
+  const absoluteDir = resolve(dir)
+  const prefix = `${absoluteDir}/`
+  return sourceFiles
+    .filter(
+      (file) =>
+        (file.absolutePath === absoluteDir || file.absolutePath.startsWith(prefix)) &&
+        (options.includeTests || !file.absolutePath.endsWith(".test.ts"))
+    )
+    .map((file) => file.absolutePath)
+}
 
-    const fullPath = join(dir, entry)
-    let stat
-    try {
-      stat = lstatSync(fullPath)
-    } catch (caught) {
-      if (caught instanceof Error && "code" in caught && caught.code === "ENOENT") continue
-      throw caught
-    }
-    if (stat.isSymbolicLink()) continue
-    if (stat.isDirectory()) {
-      result.push(...listTypeScriptFiles(fullPath, options))
-      continue
-    }
-    if (entry.endsWith(".ts") && !entry.endsWith(".d.ts") && (options.includeTests || !entry.endsWith(".test.ts"))) {
-      result.push(fullPath)
-    }
-  }
-  return result
+function readSource(filePath: string): string {
+  const absolutePath = resolve(filePath)
+  return sourceByAbsolutePath.get(absolutePath) ?? readFileSync(absolutePath, "utf-8")
 }
