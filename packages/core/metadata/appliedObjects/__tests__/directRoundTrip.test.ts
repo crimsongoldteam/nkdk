@@ -1,26 +1,40 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { testAppliedObjectFromXMLToYAML, testAppliedObjectFromYAMLToXML } from "../../../tests/directConversion"
 import { appliedObjectModelCases } from "./yamlFixtures"
 
 describe("applied object direct XML → YAML → XML", () => {
-  it.each(appliedObjectModelCases)("$label direct XML → YAML → XML", ({ scenario, fixture }) => {
-    const imported = testAppliedObjectFromXMLToYAML({
-      rule: scenario.rule,
-      importMetaUrl: scenario.importMetaUrl,
-      fixture: fixture.fixture,
-      name: fixture.name,
-    })
-    const exported = testAppliedObjectFromYAMLToXML({
-      rule: scenario.rule,
-      importMetaUrl: scenario.importMetaUrl,
-      fixture: fixture.fixture,
-      name: fixture.name,
-      yaml: imported.yaml,
-    })
+  const prepared = new Map<string, { yaml: unknown; result: unknown; expected: unknown }>()
 
-    expect(imported.yaml).toBeDefined()
-    expect(normalizeXML(exported.result)).toEqual(normalizeXML(exported.expected))
+  beforeAll(() => {
+    for (const { label, scenario, fixture } of appliedObjectModelCases) {
+      const imported = testAppliedObjectFromXMLToYAML({
+        rule: scenario.rule,
+        importMetaUrl: scenario.importMetaUrl,
+        fixture: fixture.fixture,
+        name: fixture.name,
+      })
+      const exported = testAppliedObjectFromYAMLToXML({
+        rule: scenario.rule,
+        importMetaUrl: scenario.importMetaUrl,
+        fixture: fixture.fixture,
+        name: fixture.name,
+        yaml: imported.yaml,
+      })
+      prepared.set(label, {
+        yaml: imported.yaml,
+        result: normalizeXML(exported.result),
+        expected: normalizeXML(exported.expected),
+      })
+    }
+  })
+
+  it.each(appliedObjectModelCases)("$label direct XML → YAML → XML", ({ label }) => {
+    const result = prepared.get(label)
+    if (result === undefined) throw new Error(`Не подготовлен direct round-trip: ${label}`)
+
+    expect(result.yaml).toBeDefined()
+    expect(result.result).toEqual(result.expected)
   })
 })
 
