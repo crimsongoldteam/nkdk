@@ -23,6 +23,7 @@ export interface MetadataContentDeclaration {
   readonly required: boolean
   readonly repeatable: boolean
   readonly compositionImpact: "none" | "configurationComposition"
+  readonly projectRole?: "form"
   readonly itemRule: MetadataItemRule
   readonly logicalAddressSegment?: string
   readonly ownerProjectPattern?: string

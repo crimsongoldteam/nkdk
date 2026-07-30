@@ -206,6 +206,28 @@ describe("exportJSONSchemaForProjectFile", () => {
     })
   })
 
+  it("exports the form schema selected by the owner", () => {
+    const processorSchema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Обработка/Загрузка/Формы/Основная/Форма.yaml",
+      mode: "inline",
+    })
+    const catalogSchema = exportJSONSchemaForProjectFile({
+      context,
+      filePath:
+        "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+      mode: "inline",
+    })
+
+    expect((processorSchema as { properties: object }).properties).toHaveProperty(
+      "РасширенноеПредставление"
+    )
+    expect((catalogSchema as { properties: object }).properties).not.toHaveProperty(
+      "РасширенноеПредставление"
+    )
+
+  })
+
   it("exports form schema graph without replacing element refs with any", () => {
     expect(JSON.stringify(formSchemaGraph.roots.form)).toContain("nkdk://schema/FormAttribute")
     expect(JSON.stringify(formSchemaGraph.schemas["nkdk://schema/FormAttribute"])).toContain('"Тип"')

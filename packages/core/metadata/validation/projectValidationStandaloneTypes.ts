@@ -4,8 +4,14 @@ export interface ProjectValidationStandaloneValidator {
   validate: ValidateFunction
 }
 
-export interface ProjectValidationStandaloneModule {
-  format: "project-validation-ajv-standalone-v3"
-  form: ProjectValidationStandaloneValidator
-  byItemType: Record<string, ProjectValidationStandaloneValidator>
-}
+export type ProjectValidationStandaloneModule =
+  | {
+      format: "project-validation-ajv-standalone-v3"
+      form: ProjectValidationStandaloneValidator
+      byItemType: Record<string, ProjectValidationStandaloneValidator>
+    }
+  | {
+      format: "project-validation-ajv-standalone-v4"
+      forms: Record<string, ProjectValidationStandaloneValidator>
+      byItemType: Record<string, ProjectValidationStandaloneValidator>
+    }

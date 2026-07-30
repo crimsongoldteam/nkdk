@@ -4,6 +4,7 @@ import type { ConfigurationContext, JSONSchemaExportMode } from "../context/type
 import { classifyMetadataProjectPath } from "../project/resources"
 import {
   ensureJSONSchemaRegistry,
+  exportJSONSchemaForMetadataItemRule,
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
 } from "./schemaRegistry"
@@ -52,9 +53,9 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
   }
 
   if (resource.role === "form") {
-    return exportRegisteredJSONSchemaForSchemaName({
+    return exportJSONSchemaForMetadataItemRule({
       context: params.context,
-      name: resource.itemType,
+      rule: resource.itemRule,
       mode: params.mode,
     })
   }

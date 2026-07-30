@@ -18,18 +18,42 @@ import type {
   ProjectValidationStandaloneModule,
   ProjectValidationStandaloneValidator,
 } from "./projectValidationStandaloneTypes"
+import {
+  projectValidationFormRuleKey,
+  registeredProjectValidationFormRules,
+} from "./projectValidationFormRules"
 
 export function createValidationSchemaCacheFromStandaloneModule(
   module: ProjectValidationStandaloneModule
 ): ValidationSchemaCache {
   assertProjectValidationStandaloneModule(module)
 
-  const form = createCompiledStandaloneValidator(module.form)
+  const legacyForm =
+    module.format === "project-validation-ajv-standalone-v3"
+      ? createCompiledStandaloneValidator(module.form)
+      : undefined
+  const standaloneForms =
+    module.format === "project-validation-ajv-standalone-v4"
+      ? module.forms
+      : undefined
+  const forms = new WeakMap<MetadataItemRule, ValidationSchemaValidator>()
   const properties = new Map<string, ValidationSchemaValidator>()
 
   return {
-    form() {
-      return form
+    form(rule) {
+      if (legacyForm !== undefined) return legacyForm
+      const existing = forms.get(rule)
+      if (existing !== undefined) return existing
+      const key = projectValidationFormRuleKey(rule)
+      const validator = standaloneForms?.[key]
+      if (validator === undefined) {
+        throw new Error(
+          `Standalone validation schema was not generated for form rule "${key}"`
+        )
+      }
+      const compiled = createCompiledStandaloneValidator(validator)
+      forms.set(rule, compiled)
+      return compiled
     },
     properties(rule) {
       const existing = properties.get(rule.itemType)
@@ -47,7 +71,9 @@ export function createValidationSchemaCacheFromStandaloneModule(
     compileAll(): ValidationSchemaCacheCompileProfile {
       const startedAt = performance.now()
       const formStartedAt = performance.now()
-      this.form()
+      for (const { rule } of registeredProjectValidationFormRules()) {
+        this.form(rule)
+      }
       const formMs = performance.now() - formStartedAt
 
       const propertiesStartedAt = performance.now()
@@ -83,8 +109,14 @@ function createCompiledStandaloneValidator(
 }
 
 function assertProjectValidationStandaloneModule(module: ProjectValidationStandaloneModule): void {
-  if (module.format !== "project-validation-ajv-standalone-v3") {
-    throw new Error(`Unsupported standalone validation module format: ${String(module.format)}`)
+  const format = (module as { format?: unknown }).format
+  if (
+    format !== "project-validation-ajv-standalone-v3" &&
+    format !== "project-validation-ajv-standalone-v4"
+  ) {
+    throw new Error(
+      `Unsupported standalone validation module format: ${String(format)}`
+    )
   }
 }
 
