@@ -199,6 +199,10 @@ async function runFirstPass(
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationSnapshotFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
+  let earlyYamlCount = 0
+  let earlyYamlBytes = 0
+  let retainedYamlCount = 0
+  let deferredValueCount = 0
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
     try {
@@ -242,6 +246,8 @@ async function runFirstPass(
             profiler,
           })
           assignmentFiles.push(main.file)
+          earlyYamlCount += 1
+          earlyYamlBytes += main.bytes
         } else {
           preparedYaml.set(assignment.id, {
             diagnosticAssignment: {
@@ -255,6 +261,8 @@ async function runFirstPass(
             formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
             deferred: prepared.deferred,
           })
+          retainedYamlCount += 1
+          deferredValueCount += prepared.deferred.length
         }
         files.push(...assignmentFiles)
       } catch (caught) {
@@ -273,6 +281,19 @@ async function runFirstPass(
     }
   }
 
+  profiler.record("Подготовка импорта конфигурации", "Досрочно записанные YAML", {
+    items: earlyYamlCount,
+    bytes: earlyYamlBytes,
+    timeMs: 0,
+  })
+  profiler.record("Подготовка импорта конфигурации", "YAML, оставленные до второго прохода", {
+    items: retainedYamlCount,
+    timeMs: 0,
+  })
+  profiler.record("Подготовка импорта конфигурации", "Отложенные значения YAML", {
+    items: deferredValueCount,
+    timeMs: 0,
+  })
   profiler.flush()
   const validation = mergeImportValidationContributions(validationContributions)
   return {

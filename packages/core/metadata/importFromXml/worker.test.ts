@@ -222,18 +222,11 @@ describe("XML import worker first pass", () => {
     process.env["NKDK_PROFILE"] = "1"
     try {
       await initializeWorker(createTempDir("profile"))
+      const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
       const first = expectFirstPass(
         await runImportWorkerCommand({
           kind: "firstPass",
-          assignments: [
-            catalogAssignment({ id: "catalog-1" }),
-            catalogAssignment({
-              id: "catalog-2",
-              targetProjectPath: "Справочник/КонтрагентыКопия/Свойства.yaml",
-              itemName: "КонтрагентыКопия",
-              logicalAddress: "Справочник.КонтрагентыКопия",
-            }),
-          ],
+          assignments: [assignments.catalog, assignments.form],
         })
       )
       await runImportWorkerCommand({
@@ -265,15 +258,22 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
-    expect(lines.some((line) => line.includes('substep="Уточнение отложенных значений YAML"'))).toBe(false)
+    expect(lines.some((line) => line.includes('substep="Уточнение отложенных значений YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(true)
+    expect(lines).toContainEqual(
+      expect.stringMatching(/substep="Досрочно записанные YAML".*items=1.*bytes=[1-9][0-9]*/)
+    )
+    expect(lines).toContainEqual(
+      expect.stringMatching(/substep="YAML, оставленные до второго прохода".*items=1/)
+    )
+    expect(lines).toContainEqual(expect.stringMatching(/substep="Отложенные значения YAML".*items=1/))
     const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
     expect(readLines).toHaveLength(1)
-    expect(readLines[0]).toContain("items=2")
+    expect(readLines[0]).toContain("items=3")
     const serializationLines = lines.filter((line) => line.includes('substep="Сериализация YAML"'))
-    expect(serializationLines).toHaveLength(1)
-    expect(serializationLines[0]).toContain("items=2")
+    expect(serializationLines).toHaveLength(2)
+    expect(serializationLines.every((line) => line.includes("items=1"))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
