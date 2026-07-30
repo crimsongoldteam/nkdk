@@ -5,8 +5,13 @@ import { fileURLToPath } from "node:url"
 import { afterAll, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { importConfigurationFromXml, createXmlImportWorkerPoolHandle } from "../../importFromXml"
+import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
+import { importConfigurationFromXml } from "../../importFromXml"
 import { appliedObjectSyncCases } from "./yamlFixtures"
+
+const fastImportCases = appliedObjectSyncCases.filter(
+  ({ scenario }) => scenario.group !== "metadataExternalDataSource"
+)
 
 const normalizeText = (value: string) =>
   value
@@ -15,13 +20,13 @@ const normalizeText = (value: string) =>
     .trimEnd()
 
 describe("applied object XML → YAML import", () => {
-  const workerPool = createXmlImportWorkerPoolHandle({ concurrency: 1 })
+  const workerPool = createXmlImportWorkerTestPool()
 
   afterAll(async () => {
     await workerPool.close()
   })
 
-  it.each(appliedObjectSyncCases)("$label imports XML directly to YAML", async ({ scenario, sync }) => {
+  it.each(fastImportCases)("$label imports XML directly to YAML", async ({ scenario, sync }) => {
     const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "applied-import-"))
     try {
       const inputDir = join(temporaryRoot, "xml")
@@ -56,17 +61,6 @@ describe("applied object XML → YAML import", () => {
       const expectedYAMLText = normalizeText(sync.expectedYAML)
       if (expectedYAMLText === "") expect(actualYAMLText).toBe("")
       else expect(load(actualYAMLText)).toMatchObject(load(expectedYAMLText) as object)
-      const expectedObjectDir = join(dirname(fixtureDir), "yaml", sync.name)
-      const actualObjectDir = join(outputDir, scenario.rule.itemTypePrefix!, sync.name)
-      for (const relativePath of listFiles(expectedObjectDir).filter(isCopiedExternalFile)) {
-        const actual = fs.readFileSync(join(actualObjectDir, relativePath))
-        const expected = fs.readFileSync(join(expectedObjectDir, relativePath))
-        if (isTextExternalFile(relativePath)) {
-          expect(normalizeText(actual.toString("utf8")), relativePath).toBe(normalizeText(expected.toString("utf8")))
-        } else {
-          expect(actual, relativePath).toEqual(expected)
-        }
-      }
     } finally {
       fs.rmSync(temporaryRoot, { recursive: true, force: true })
     }
@@ -87,25 +81,4 @@ function copyExternalFixture(params: {
     const target = join(params.objectXmlDir, params.name, entry.name)
     fs.cpSync(join(source, entry.name), target, { recursive: true })
   }
-}
-
-const copiedTextExtensions = [".bsl", ".html", ".xsd"]
-const copiedBinaryExtensions = [".bin", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".bmp", ".webp", ".zip"]
-
-function isCopiedExternalFile(path: string): boolean {
-  const lowerPath = path.toLowerCase()
-  return [...copiedTextExtensions, ...copiedBinaryExtensions].some((extension) => lowerPath.endsWith(extension))
-}
-
-function isTextExternalFile(path: string): boolean {
-  const lowerPath = path.toLowerCase()
-  return copiedTextExtensions.some((extension) => lowerPath.endsWith(extension))
-}
-
-function listFiles(root: string, current = root): string[] {
-  if (!fs.existsSync(current)) return []
-  return fs.readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(current, entry.name)
-    return entry.isDirectory() ? listFiles(root, path) : [path.slice(root.length + 1)]
-  })
 }

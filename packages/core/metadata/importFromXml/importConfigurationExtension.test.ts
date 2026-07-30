@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
 import {
   configurationIndexPath,
@@ -10,6 +10,8 @@ import {
   readConfigurationIndex,
 } from "../../index"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
+import { createXmlImportWorkerTestPool } from "../../tests/xmlImportWorkerTestPool"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import { restoreSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 
@@ -19,6 +21,11 @@ const fixtureDir = join(
   "configurationExtension"
 )
 const temporaryDirectories: string[] = []
+const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+
+afterAll(async () => {
+  await xmlImportWorkerPoolHandle.close()
+})
 
 afterEach(() => {
   for (const directory of temporaryDirectories.splice(0)) {
@@ -38,6 +45,8 @@ describe("configuration extension XML import", () => {
       projectDir,
       concurrency: 1,
       operationId: "configuration-extension-e2e",
+      xmlImportWorkerPoolHandle,
+      createReferenceWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
 
     expect(result).toEqual({
