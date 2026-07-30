@@ -551,14 +551,13 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
-  it("не восстанавливает исключённый из YAML синоним из снимка", () => {
+  it("восстанавливает исключённый из YAML синоним по rules без данных снимка", () => {
     const logicalAddress = DEFAULT_TEST_LOGICAL_ADDRESS
     const testContext = contextWithXMLDefaultVariant(
       "indexed",
       ["synonym"],
       false,
-      logicalAddress,
-      [{ logicalAddress: `${logicalAddress}.synonym`, excludedEqualName: true }]
+      logicalAddress
     )
     const result = convertPropertiesFromYAMLToXML({
       context: testContext,
@@ -576,7 +575,14 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({})
+    expect(result.outputs.get("owner")).toEqual({
+      Synonym: {
+        "v8:item": [{
+          "v8:lang": "ru",
+          "v8:content": "Форма элемента",
+        }],
+      },
+    })
     expect(JSON.stringify(
       testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml").entities
     )).not.toContain("excludedEqualName")

@@ -590,6 +590,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         yaml,
         name: params.name,
         owner,
+        restoreExcludedEqualName:
+          !source.has(propertyKey) &&
+          planned.propertyRule.excludeIfEqualNameYAML === true &&
+          params.name !== undefined,
       }
       imported = callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
