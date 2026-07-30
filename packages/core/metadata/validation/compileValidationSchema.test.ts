@@ -20,6 +20,13 @@ describe("compileValidationSchema", () => {
     expect(compiled.Check({ Имя: "Документ" })).toBe(true)
     expect(compiled.Check({ Лишнее: true })).toBe(false)
     const [, errors] = compiled.Errors({ Лишнее: true })
+    expect(Object.keys(errors[0] ?? {}).sort()).toEqual([
+      "instancePath",
+      "keyword",
+      "message",
+      "params",
+      "schemaPath",
+    ])
     expect(errors).toEqual([
       expect.objectContaining({
         keyword: "required",

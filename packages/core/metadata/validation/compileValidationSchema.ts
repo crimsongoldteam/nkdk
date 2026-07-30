@@ -17,8 +17,6 @@ export interface ValidationSchemaError {
   instancePath: string
   params: Record<string, unknown>
   message: string
-  schema?: TSchema
-  value?: unknown
 }
 
 export interface ValidationSchemaValidator {
@@ -105,8 +103,6 @@ function normalizeAjvError(error: ErrorObject): ValidationSchemaError {
     instancePath: error.instancePath,
     params: error.params as Record<string, unknown>,
     message: error.message ?? error.keyword,
-    schema: error.schema as TSchema | undefined,
-    value: error.data,
   }
 }
 
