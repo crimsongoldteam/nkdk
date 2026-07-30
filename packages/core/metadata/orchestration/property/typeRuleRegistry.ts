@@ -34,6 +34,7 @@ import type {
   ImportFromXMLToYAMLFunction,
   NestedItemIdentityDescriptor,
   NestedItemRule,
+  RequiresImportedYAMLFinalizationFunction,
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 
@@ -65,6 +66,7 @@ const typeRulesRegistry = new Map<
   | NestedItemRule
   | ResolveNestedImportXMLSourcesFunction
   | FinalizeImportedYAMLFunction
+  | RequiresImportedYAMLFinalizationFunction
   | FinalizeExportedXMLFunction
   | CollectLocalFactsFromYAMLFunction
   | NestedItemIdentityDescriptor
@@ -133,13 +135,15 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                               ? ResolveNestedImportXMLSourcesFunction | undefined
                                               : O extends "finalizeImportedYAML"
                                                 ? FinalizeImportedYAMLFunction | undefined
-                                                : O extends "finalizeExportedXML"
-                                                  ? FinalizeExportedXMLFunction | undefined
-                                                  : O extends "collectLocalFactsFromYAML"
-                                                    ? CollectLocalFactsFromYAMLFunction | undefined
-                                                    : O extends "yamlToXMLNestedRule"
-                                                      ? YAMLToXMLNestedRule | undefined
-                                                      : never => {
+                                                : O extends "requiresImportedYAMLFinalization"
+                                                  ? RequiresImportedYAMLFinalizationFunction | undefined
+                                                  : O extends "finalizeExportedXML"
+                                                    ? FinalizeExportedXMLFunction | undefined
+                                                    : O extends "collectLocalFactsFromYAML"
+                                                      ? CollectLocalFactsFromYAMLFunction | undefined
+                                                      : O extends "yamlToXMLNestedRule"
+                                                        ? YAMLToXMLNestedRule | undefined
+                                                        : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any
