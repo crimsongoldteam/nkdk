@@ -19,8 +19,6 @@ describe("compileValidationSchema", () => {
 
     expect(compiled.Check({ Имя: "Документ" })).toBe(true)
     expect(compiled.Check({ Лишнее: true })).toBe(false)
-    expect(compiled.Schema()).toBe(schema)
-
     const [, errors] = compiled.Errors({ Лишнее: true })
     expect(errors).toEqual([
       expect.objectContaining({
@@ -48,7 +46,6 @@ describe("compileValidationSchema", () => {
 
     expect(compiled.Check({ Значение: "ok" })).toBe(true)
     expect(compiled.Check({ Значение: 1 })).toBe(false)
-    expect(compiled.Context()).toBe(context)
   })
 
   it("compiles root schema against external nkdk refs", () => {
@@ -90,56 +87,15 @@ describe("compileValidationSchema", () => {
     expect(compiled.Check({ Значения: { Тест: { Значение: "ok" } } })).toBe(true)
   })
 
-  it("оборачивает готовую AJV-функцию в совместимый интерфейс валидатора", () => {
-    const schema = Type.Object({ Имя: Type.String() }, { additionalProperties: false })
+  it("wraps a standalone Ajv function without schema metadata", () => {
     const validate = Object.assign(
-      (value: unknown) => {
-        const record = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
-        if (typeof record.Имя === "string" && Object.keys(record).every((key) => key === "Имя")) {
-          validate.errors = null
-          return true
-        }
-
-        validate.errors = [
-          {
-            keyword: "required",
-            instancePath: "",
-            schemaPath: "#/required",
-            params: { missingProperty: "Имя" },
-            message: "must have required property 'Имя'",
-          },
-          {
-            keyword: "additionalProperties",
-            instancePath: "",
-            schemaPath: "#/additionalProperties",
-            params: { additionalProperty: "Лишнее" },
-            message: "must NOT have additional properties",
-          },
-        ]
-        return false
-      },
+      (value: unknown) => typeof value === "string",
       { errors: null as ValidateFunction["errors"] }
     ) as ValidateFunction
 
-    const compiled = createValidationSchemaFromAjvFunction({ schema, context: {}, validate })
+    const compiled = createValidationSchemaFromAjvFunction(validate)
 
-    expect(compiled.Check({ Имя: "Документ" })).toBe(true)
-    expect(compiled.Check({ Лишнее: true })).toBe(false)
-    expect(compiled.Schema()).toBe(schema)
-    expect(compiled.Context()).toEqual({})
-
-    const [, errors] = compiled.Errors({ Лишнее: true })
-    expect(errors).toEqual([
-      expect.objectContaining({
-        keyword: "required",
-        instancePath: "",
-        params: { missingProperty: "Имя" },
-      }),
-      expect.objectContaining({
-        keyword: "additionalProperties",
-        instancePath: "",
-        params: { additionalProperty: "Лишнее" },
-      }),
-    ])
+    expect(compiled.Check("ok")).toBe(true)
+    expect(compiled.Check(42)).toBe(false)
   })
 })

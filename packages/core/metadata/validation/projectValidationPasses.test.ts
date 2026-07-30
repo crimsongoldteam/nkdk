@@ -162,12 +162,6 @@ describe("validateProjectFileFirstPass references", () => {
 
     const compiled = sharedSchemaCache.properties(spec.rule)
 
-    expect(compiled.Schema()).toMatchObject({
-      properties: {
-        Форма: expect.objectContaining({}),
-      },
-    })
-    expect(compiled.Context()["nkdk://schema/validation/2.20/ru/ClientApplicationForm"]).toBeDefined()
     expect(compiled.Check({ Форма: { Элементы: {} } })).toBe(true)
   }, 20_000)
 

@@ -1,5 +1,4 @@
 import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
-import { type TSchema } from "typebox"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
@@ -39,7 +38,7 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 
-type CompiledSchema = ValidationSchemaValidator<TSchema>
+type CompiledSchema = ValidationSchemaValidator
 const formSchemaCache = new Map<string, CompiledSchema>()
 const propertiesSchemaCache = new Map<string, CompiledSchema>()
 

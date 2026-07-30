@@ -14,8 +14,6 @@ const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataI
 
 describe("project validation standalone loader", () => {
   it("creates form and properties validators from a standalone-like module", () => {
-    const formSchema = Type.Object({ Вид: Type.String() })
-    const propertiesSchema = Type.Object({ Имя: Type.String() })
     const formValidate = validWhenHasString("Вид")
     const propertiesValidate = validWhenHasString("Имя")
     const cache = createValidationSchemaCacheFromStandaloneModule({
@@ -25,9 +23,9 @@ describe("project validation standalone loader", () => {
         defaultLanguage: "ru",
         exportToYAML: { toTyped: false },
       },
-      form: { schema: formSchema, validate: formValidate },
+      form: { validate: formValidate },
       byItemType: {
-        MetadataCatalog: { schema: propertiesSchema, validate: propertiesValidate },
+        MetadataCatalog: { validate: propertiesValidate },
       },
     })
 

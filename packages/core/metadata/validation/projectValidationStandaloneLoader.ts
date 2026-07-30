@@ -28,8 +28,7 @@ export function createValidationSchemaCacheFromStandaloneModule(
   assertProjectValidationStandaloneModule(module)
   assertStandaloneValidationContext(module.context, context)
 
-  const schemaContext = module.refs ?? {}
-  const form = createCompiledStandaloneValidator(module.form, schemaContext)
+  const form = createCompiledStandaloneValidator(module.form)
   const properties = new Map<string, ValidationSchemaValidator>()
 
   return {
@@ -45,7 +44,7 @@ export function createValidationSchemaCacheFromStandaloneModule(
         throw new Error(`Standalone validation schema was not generated for item type "${rule.itemType}"`)
       }
 
-      const compiled = createCompiledStandaloneValidator(validator, schemaContext)
+      const compiled = createCompiledStandaloneValidator(validator)
       properties.set(rule.itemType, compiled)
       return compiled
     },
@@ -83,14 +82,9 @@ export async function loadProjectValidationStandaloneCache(params: {
 }
 
 function createCompiledStandaloneValidator(
-  validator: ProjectValidationStandaloneValidator,
-  context: NonNullable<ProjectValidationStandaloneModule["refs"]>
+  validator: ProjectValidationStandaloneValidator
 ): ValidationSchemaValidator {
-  return createValidationSchemaFromAjvFunction({
-    schema: validator.schema,
-    context,
-    validate: validator.validate,
-  })
+  return createValidationSchemaFromAjvFunction(validator.validate)
 }
 
 function assertProjectValidationStandaloneModule(module: ProjectValidationStandaloneModule): void {

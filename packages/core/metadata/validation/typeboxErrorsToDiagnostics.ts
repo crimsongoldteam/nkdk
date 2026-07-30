@@ -114,7 +114,7 @@ export function typeboxErrorsToDiagnostics(
   errors: ValidationError[],
   parsed: ParsedYaml,
   filePath: string,
-  _schema?: ValidationSchemaValidator<TSchema>
+  _schema?: ValidationSchemaValidator
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
   const expandedErrors = normalizedErrors(errors)

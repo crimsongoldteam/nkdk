@@ -19,10 +19,10 @@ const context = {
 } as const
 
 const schemaCache = new Map<string, TSchema>()
-const compiledSchemaCache = new Map<string, ValidationSchemaValidator<TSchema>>()
+const compiledSchemaCache = new Map<string, ValidationSchemaValidator>()
 const graphCache = new Map<string, ReturnType<typeof exportJSONSchemaGraph>>()
-const compiledGraphCache = new Map<string, ValidationSchemaValidator<TSchema>>()
-let configurationSchema: ValidationSchemaValidator<TSchema>
+const compiledGraphCache = new Map<string, ValidationSchemaValidator>()
+let configurationSchema: ValidationSchemaValidator
 let inlineClientApplicationFormJSON = ""
 let inlineClientApplicationFormHasDcsArrays = false
 let inlineUsualGroupJSON = ""
@@ -64,7 +64,7 @@ function commonFormValidationGraph(): ReturnType<typeof exportJSONSchemaGraph> {
   return graph
 }
 
-function compiledClientApplicationFormGraph(): ValidationSchemaValidator<TSchema> {
+function compiledClientApplicationFormGraph(): ValidationSchemaValidator {
   const cacheKey = "ClientApplicationForm:withNestedChildItems"
   const cached = compiledGraphCache.get(cacheKey)
   if (cached !== undefined) return cached
@@ -79,7 +79,7 @@ function compiledClientApplicationFormGraph(): ValidationSchemaValidator<TSchema
   return compiled
 }
 
-function eagerCompiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator<TSchema> {
+function eagerCompiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator {
   const cacheKey = `eager:${name}:${mode ?? "externalRefs"}`
   const cached = compiledSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
@@ -655,7 +655,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 })
 
-function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator<TSchema> {
+function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator {
   const cacheKey = `${name}:${mode ?? "externalRefs"}`
   const cached = compiledSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
