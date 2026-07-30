@@ -26,6 +26,7 @@ export async function readComponentIndexes(params: {
   readonly context: ConfigurationContext
   readonly snapshot?: SharedConfigurationIndexSnapshot
   readonly concurrency?: number
+  readonly createWorkerPool?: () => PreparedWorkerPool
 }): Promise<ComponentIndexes> {
   if (params.snapshot !== undefined) {
     const reader = createConfigurationIndexReader(params.snapshot)
@@ -56,6 +57,9 @@ export async function readComponentIndexes(params: {
     context: params.context,
     concurrency: params.concurrency,
     projectPaths: selectedPaths,
+    ...(params.createWorkerPool === undefined
+      ? {}
+      : { createWorkerPool: params.createWorkerPool }),
   })
   const logicalAddresses = params.structure.resources
     .filter(({ kind }) => kind === "content")

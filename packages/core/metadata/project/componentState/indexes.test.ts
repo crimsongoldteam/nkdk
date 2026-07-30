@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../../tests/preparedYamlWorkerTestPool"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../../configurationIndex/testData"
@@ -70,6 +71,7 @@ describe("component indexes", () => {
       hashes,
       context: mockContext,
       snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
+      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
@@ -99,6 +101,7 @@ describe("component indexes", () => {
       structure,
       hashes,
       context: mockContext,
+      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
 
     expect(indexes.logicalAddresses).toContainEqual({

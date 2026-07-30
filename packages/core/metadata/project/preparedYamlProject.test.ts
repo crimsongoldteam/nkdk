@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
+import { createPreparedYamlWorkerTestPool } from "../../tests/preparedYamlWorkerTestPool"
 import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
@@ -19,33 +20,55 @@ describe("prepareYamlProject", () => {
   const testTimeout = 20_000
   const validationContext = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
   const tempDirs: string[] = []
-  const validationPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
-  const preparePool1 = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
-  const preparePool2 = createPreparedYamlProjectWorkerPool({ concurrency: 2 })
-  const preparePool4 = createPreparedYamlProjectWorkerPool({ concurrency: 4 })
+  const validationTestPool = createPreparedYamlWorkerTestPool()
+  const prepareTestPool1 = createPreparedYamlWorkerTestPool()
+  const prepareTestPool2 = createPreparedYamlWorkerTestPool(2)
+  const prepareTestPool4 = createPreparedYamlWorkerTestPool(4)
+  const validationPool = validationTestPool.pool
+  const preparePool1 = prepareTestPool1.pool
+  const preparePool2 = prepareTestPool2.pool
+  const preparePool4 = prepareTestPool4.pool
 
   beforeAll(async () => {
     const projectDir = createProject()
+    const warmupFilePath = join(
+      projectDir,
+      "Справочник",
+      "Товары",
+      "Свойства.yaml"
+    )
+    const warmupFile = {
+      ...componentFileAddress(
+        projectDir,
+        "Справочник/Товары/Свойства.yaml"
+      ),
+      projectPath: "Справочник/Товары/Свойства.yaml",
+      filePath: warmupFilePath,
+      role: "properties" as const,
+      owner: { dir: "Справочник", name: "Товары" },
+      itemType: "Catalog",
+    }
     await validationPool.run({
       projectDir,
       context: validationContext,
       includeYamlData: false,
-      files: [
-        {
-          ...componentFileAddress(projectDir, "Справочник/Товары/Свойства.yaml"),
-          projectPath: "Справочник/Товары/Свойства.yaml",
-          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
-          role: "properties",
-          owner: { dir: "Справочник", name: "Товары" },
-          itemType: "Catalog",
-        },
-      ],
+      files: [warmupFile],
     })
     await validationPool.initValidation(validationContext)
+    await validationPool.runValidationFirstPass({
+      projectDir,
+      context: validationContext,
+      files: [warmupFile],
+    })
   }, 120_000)
 
   afterAll(async () => {
-    await Promise.all([validationPool.close(), preparePool1.close(), preparePool2.close(), preparePool4.close()])
+    await Promise.all([
+      validationTestPool.close(),
+      prepareTestPool1.close(),
+      prepareTestPool2.close(),
+      prepareTestPool4.close(),
+    ])
   })
 
   afterEach(() => {
@@ -208,7 +231,6 @@ describe("prepareYamlProject", () => {
           (line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Ожидание результата подготовки"')
         )
       ).toBe(true)
-      expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
     },
     testTimeout
   )
@@ -372,7 +394,8 @@ describe("prepareYamlProject", () => {
   it(
     "reuses validation schema cache on repeated initValidation",
     async () => {
-      const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+      const testPool = createPreparedYamlWorkerTestPool()
+      const pool = testPool.pool
       const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
 
       try {
@@ -387,7 +410,7 @@ describe("prepareYamlProject", () => {
           propertiesSchemaMs: first.propertiesSchemaMs,
         })
       } finally {
-        await pool.close()
+        await testPool.close()
       }
     },
     testTimeout

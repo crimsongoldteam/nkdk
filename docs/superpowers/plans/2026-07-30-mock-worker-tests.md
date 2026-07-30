@@ -300,7 +300,6 @@ git commit -m "test: :white_check_mark: удалить проверку запу
 - Modify: `packages/core/metadata/project/preparedYamlProject.test.ts`
 - Modify: `packages/core/metadata/project/componentState/indexes.test.ts`
 - Modify: `packages/core/metadata/validation/validateProject.test.ts`
-- Modify: `packages/core/metadata/validation/projectValidationPasses.test.ts`
 
 **Interfaces:**
 - Consumes: `createMockWorkerThreadPoolFactory` from Task 2.
@@ -313,7 +312,13 @@ export function createPreparedYamlWorkerTestPool(): {
 }
 ```
 
-The helper uses mock physical pools whose `run` delegates to the already imported `runPreparedYamlProjectWorkerTask` in the current process. This is a transport substitute; direct tests in `preparedYamlProjectWorker.test.ts` remain the source of subject-logic coverage.
+The helper uses mock physical pools whose `run` delegates preparation commands
+to the already imported `runPreparedYamlProjectWorkerTask` in the current
+process. Validation commands do not use this helper: the real worker isolates
+module state, while direct calls would incorrectly share it. Coordinator
+validation tests therefore use scripted mock responses; subject validation
+stays in `projectValidationPasses.test.ts`, `validateFile.test.ts` and
+`validateForm.test.ts`.
 
 - [ ] **Step 1: Write a failing helper test**
 
@@ -370,7 +375,12 @@ Do not compile schemas or initialize additional worker counts in the helper unle
 
 - Replace top-level `createPreparedYamlProjectWorkerPool({ concurrency: 1 })` with `createPreparedYamlWorkerTestPool()`.
 - Pass `createWorkerPool: mockPools.factory` to tests that exercise concurrency 2 or 4.
-- Pass the same test transport into `createValidationWorkerPoolHandle({ createWorkerPool })`.
+- Replace broad `validateProject.test.ts` scenarios with coordinator tests using
+  scripted `initValidation`, `validateFirstPass` and `validateSecondPass`
+  responses.
+- Delete validation semantics duplicated by `projectValidationPasses.test.ts`,
+  `validateFile.test.ts`, `validateForm.test.ts` and
+  `projectFirstPassReadiness.test.ts`.
 - Pass `createWorkerPool` to `buildColdComponentIndexes` tests.
 - Preserve direct worker behavior in `preparedYamlProjectWorker.test.ts`; it must not import the pool helper.
 
@@ -384,7 +394,6 @@ pnpm --filter @nkdk/core exec vitest run \
   metadata/project/preparedYamlProject.test.ts \
   metadata/project/componentState/indexes.test.ts \
   metadata/validation/validateProject.test.ts \
-  metadata/validation/projectValidationPasses.test.ts \
   --reporter=json \
   --outputFile=/private/tmp/nkdk-prepared-worker-tests.json
 ```
@@ -398,8 +407,7 @@ git add packages/core/tests/preparedYamlWorkerTestPool.ts \
   packages/core/tests/preparedYamlWorkerTestPool.test.ts \
   packages/core/metadata/project/preparedYamlProject.test.ts \
   packages/core/metadata/project/componentState/indexes.test.ts \
-  packages/core/metadata/validation/validateProject.test.ts \
-  packages/core/metadata/validation/projectValidationPasses.test.ts
+  packages/core/metadata/validation/validateProject.test.ts
 git commit -m "test: :white_check_mark: подменить prepared YAML worker"
 ```
 
