@@ -52,7 +52,7 @@ describe("transferFullXmlSyncExternalFiles", () => {
     const projectDir = tempDir()
     const outputDir = join(projectDir, "xml")
     const sourcePath = join(projectDir, "large.bin")
-    const bytes = Buffer.alloc(2 * 1024 * 1024, 7)
+    const bytes = Buffer.from([1, 2, 3])
     fs.writeFileSync(sourcePath, bytes)
     const readFile = vi.spyOn(fs.promises, "readFile")
 
@@ -71,6 +71,11 @@ describe("transferFullXmlSyncExternalFiles", () => {
     let active = 0
     let peak = 0
     const release: Array<() => void> = []
+    const readStartedWaiters: Array<{ count: number; resolve: () => void }> = []
+    const waitForReadCount = (count: number): Promise<void> => {
+      if (release.length >= count) return Promise.resolve()
+      return new Promise((resolve) => readStartedWaiters.push({ count, resolve }))
+    }
     const readFile = vi.fn(
       () =>
         new Promise<Buffer>((resolve) => {
@@ -80,6 +85,10 @@ describe("transferFullXmlSyncExternalFiles", () => {
             active -= 1
             resolve(Buffer.from([1]))
           })
+          for (const waiter of readStartedWaiters.splice(0)) {
+            if (release.length >= waiter.count) waiter.resolve()
+            else readStartedWaiters.push(waiter)
+          }
         })
     )
     const promise = transferFullXmlSyncExternalFiles({
@@ -94,10 +103,12 @@ describe("transferFullXmlSyncExternalFiles", () => {
       async writeFile() {},
     })
 
-    await vi.waitUntil(() => release.length === 2)
+    await waitForReadCount(2)
+    expect(release).toHaveLength(2)
     expect(peak).toBe(2)
     release.splice(0).forEach((fn) => fn())
-    await vi.waitUntil(() => release.length === 1)
+    await waitForReadCount(1)
+    expect(release).toHaveLength(1)
     release.splice(0).forEach((fn) => fn())
     await promise
     expect(readFile).toHaveBeenCalledTimes(3)
