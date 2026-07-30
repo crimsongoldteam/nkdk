@@ -1,7 +1,4 @@
-import fs from "node:fs"
-import { dirname, join, posix } from "node:path"
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
@@ -29,6 +26,7 @@ import type {
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
+import { writeGeneratedImportFiles, writeMainImportYaml, xmlExternalImportFiles } from "./writeOutput"
 
 interface InitializedImportWorkerState {
   operationId: string
@@ -85,13 +83,7 @@ async function runSecondPass(
   for (const [id, prepared] of preparedYaml) {
     try {
       files.push(...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)))
-      files.push(
-        ...prepared.assignment.externalFiles.map((file) => ({
-          sourceKind: "xml" as const,
-          sourcePath: file.sourcePath,
-          targetProjectPath: file.targetProjectPath,
-        }))
-      )
+      files.push(...xmlExternalImportFiles(prepared.assignment))
     } catch (caught) {
       diagnostics.push(importAssignmentDiagnostic(prepared.assignment, caught, "xml_import_yaml_failed"))
     } finally {
@@ -141,41 +133,21 @@ async function writePreparedYamlToOutput(
         formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
       })
   )
-  const exported = profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
-    prepared.yaml === undefined ? "" : exportToYAML(prepared.yaml)
-  )
-  const yamlSourcePath = join(state.outputDir, prepared.targetProjectPath)
-  await profiler.measureAsync(
-    "Подготовка импорта конфигурации",
-    "Запись основного YAML-файла",
-    { items: 1 },
-    async () => {
-      await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
-      await fs.promises.writeFile(yamlSourcePath, exported, "utf-8")
-    }
-  )
-
-  const files: ImportResultFile[] = [
-    {
-      sourceKind: "worker",
-      sourcePath: yamlSourcePath,
+  const main = await writeMainImportYaml({
+    outputDir: state.outputDir,
+    targetProjectPath: prepared.targetProjectPath,
+    yaml: prepared.yaml,
+    profiler,
+  })
+  const files: ImportResultFile[] = [main.file]
+  files.push(
+    ...(await writeGeneratedImportFiles({
+      outputDir: state.outputDir,
       targetProjectPath: prepared.targetProjectPath,
-    },
-  ]
-  for (const externalFile of prepared.generatedFiles) {
-    const targetProjectPath = posix.join(posix.dirname(prepared.targetProjectPath), externalFile.relativePath)
-    const sourcePath = join(state.outputDir, targetProjectPath)
-    await profiler.measureAsync(
-      "Подготовка импорта конфигурации",
-      "Запись связанного файла",
-      { items: 1, bytes: Buffer.byteLength(externalFile.content, "utf-8") },
-      async () => {
-        await fs.promises.mkdir(dirname(sourcePath), { recursive: true })
-        await fs.promises.writeFile(sourcePath, externalFile.content, "utf-8")
-      }
-    )
-    files.push({ sourceKind: "worker", sourcePath, targetProjectPath })
-  }
+      generatedFiles: prepared.generatedFiles,
+      profiler,
+    }))
+  )
   return files
 }
 
