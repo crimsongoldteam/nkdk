@@ -1,10 +1,10 @@
 import fs from "fs"
 import { tmpdir } from "os"
-import { join } from "path"
+import { dirname, join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { ConfigurationIndexCompatibilityError } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
-import { configurationIndexPath, writeConfigurationIndexAtomically } from "./fileIO"
+import { configurationIndexPath } from "./fileIO"
 import {
   createConfigurationIndexReader,
   readConfigurationIndexSnapshot,
@@ -74,7 +74,9 @@ describe("shared configuration index snapshot", () => {
   it("reads the configuration component index into shared memory", async () => {
     const projectDir = await createProjectDir()
     const data = sampleSnapshot()
-    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data })
+    const indexPath = configurationIndexPath(projectDir, { kind: "configuration" })
+    await fs.promises.mkdir(dirname(indexPath), { recursive: true })
+    await fs.promises.writeFile(indexPath, encodeConfigurationIndex(data))
 
     const snapshot = await readConfigurationIndexSnapshot({ projectDir, address: { kind: "configuration" } })
     expect(createConfigurationIndexReader(snapshot).header()).toEqual({
@@ -83,7 +85,7 @@ describe("shared configuration index snapshot", () => {
       componentPath: "cf",
     })
     expect(Buffer.from(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))).toEqual(
-      await fs.promises.readFile(configurationIndexPath(projectDir, { kind: "configuration" }))
+      await fs.promises.readFile(indexPath)
     )
   })
 })

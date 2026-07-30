@@ -126,7 +126,13 @@ describe("collectSyncStateFilePaths", () => {
   })
 
   it("does not hard-code child form/template or ws schema property types", () => {
-    const source = readFileSync(join(process.cwd(), "metadata/project/syncStateFiles.ts"), "utf-8")
+    const sourceRoot = process.env["NKDK_MUTATION_SOURCE_ROOT"]
+    const source = readFileSync(
+      sourceRoot === undefined
+        ? join(process.cwd(), "metadata/project/syncStateFiles.ts")
+        : join(sourceRoot, "packages/core/metadata/project/syncStateFiles.ts"),
+      "utf-8"
+    )
 
     expect(source).not.toContain('propertyRule.type === "ClientApplicationForm"')
     expect(source).not.toContain('propertyRule.type === "WSDefinitionSchemas"')

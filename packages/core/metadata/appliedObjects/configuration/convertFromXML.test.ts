@@ -92,6 +92,19 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
       fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
+      fs.copyFileSync(
+        join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
+        join(rootInput, "Ext", "CommandInterface.xml")
+      )
+      fs.copyFileSync(
+        join(rootCommandInterfaceFixturesDir, "MainSectionCommandInterface.xml"),
+        join(rootInput, "Ext", "MainSectionCommandInterface.xml")
+      )
+      fs.copyFileSync(
+        join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
+        join(rootInput, "Ext", "ClientApplicationInterface.xml")
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
@@ -273,55 +286,25 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("импортирует корневые XML из Ext в Конфигурация.yaml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-ext-from-xml-"))
-    const rootInput = join(tmp, "xml")
-    const rootProject = join(tmp, "project")
-    const rootOutput = join(rootProject, "cf")
-    try {
-      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
-      fs.copyFileSync(
-        join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
-        join(rootInput, "Ext", "CommandInterface.xml")
-      )
-      fs.copyFileSync(
-        join(rootCommandInterfaceFixturesDir, "MainSectionCommandInterface.xml"),
-        join(rootInput, "Ext", "MainSectionCommandInterface.xml")
-      )
-      fs.copyFileSync(
-        join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
-        join(rootInput, "Ext", "ClientApplicationInterface.xml")
-      )
-      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
+  it("импортирует корневые XML из Ext в Конфигурация.yaml", () => {
+    const yaml = rootExternalFiles.configurationYaml
 
-      const result = await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        projectDir: rootProject,
-      })
-
-      expect(result.failed).toEqual([])
-      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
-      expect(yaml).toContain("КомандныйИнтерфейс:")
-      expect(yaml).toContain("ВидимостьПодсистем:")
-      expect(yaml).toContain("ПодсистемаПоУмолчанию:")
-      expect(yaml).toContain("КомандныйИнтерфейсОсновногоРаздела:")
-      expect(yaml).toContain("ПорядокГрупп:")
-      expect(yaml).toContain("ПанельНавигацииВажное")
-      expect(yaml).toContain("ИнтерфейсКлиентскогоПриложения:")
-      expect(yaml).toContain("Верх:")
-      expect(yaml).toContain("ПанельФункцийТекущегоРаздела")
-      expect(yaml).toContain("Представление: КартинкаСлеваИТекст")
-      expect(yaml).not.toContain("left-history")
-      expect(yaml).toContain("РабочаяОбластьНачальнойСтраницы:")
-      expect(yaml).toContain("ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины")
-      expect(yaml).toContain("Форма: CommonForm.НачалоРаботы")
-      expect(yaml).toContain("Администратор: Ложь")
-      expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
+    expect(yaml).toContain("КомандныйИнтерфейс:")
+    expect(yaml).toContain("ВидимостьПодсистем:")
+    expect(yaml).toContain("ПодсистемаПоУмолчанию:")
+    expect(yaml).toContain("КомандныйИнтерфейсОсновногоРаздела:")
+    expect(yaml).toContain("ПорядокГрупп:")
+    expect(yaml).toContain("ПанельНавигацииВажное")
+    expect(yaml).toContain("ИнтерфейсКлиентскогоПриложения:")
+    expect(yaml).toContain("Верх:")
+    expect(yaml).toContain("ПанельФункцийТекущегоРаздела")
+    expect(yaml).toContain("Представление: КартинкаСлеваИТекст")
+    expect(yaml).not.toContain("left-history")
+    expect(yaml).toContain("РабочаяОбластьНачальнойСтраницы:")
+    expect(yaml).toContain("ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины")
+    expect(yaml).toContain("Форма: CommonForm.НачалоРаботы")
+    expect(yaml).toContain("Администратор: Ложь")
+    expect(yaml).toContain("ОтображениеКомандногоИнтерфейса: Верх")
   })
 
   it("сохраняет простые корневые внешние файлы конфигурации", () => {
