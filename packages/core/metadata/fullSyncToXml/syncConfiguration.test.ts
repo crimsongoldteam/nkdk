@@ -15,9 +15,11 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
+  assembleFullXmlSyncConfigurationIndex,
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
+import { createMockFullSyncDependencies } from "./testHelpers"
 import type { FullXmlSyncExecutionPoolResult } from "./workerPool"
 
 describe("shared full XML sync coordinator", () => {
@@ -169,6 +171,59 @@ describe("shared full XML sync coordinator", () => {
     ])
     expect(partial.events).not.toContain("execute")
   })
+
+  it("sorts worker index fragments deterministically", () => {
+    const address: ComponentAddress = { kind: "configuration" }
+    const targetStructure = structure(address, compileRegisteredMetadataResourceTopology())
+    const targetHashes = hashes(targetStructure)
+    const target = {
+      structure: targetStructure,
+      snapshot: snapshot(address),
+      hashes: targetHashes,
+      indexes: indexes(targetStructure, targetHashes),
+    }
+    const previous = {
+      binding: {
+        indexGeneration: 1n,
+        producerVersion: "test",
+        componentPath: "cf",
+        baseFingerprint: new Uint8Array(),
+        configurationVersion: new Uint8Array(),
+      },
+      projectFiles: [],
+      identities: [],
+      xmlNodes: [],
+      xmlValues: [],
+      localIndexes: {
+        metadata: createEmptyPersistedSharedValidationSnapshot(),
+        dependencies: [],
+        logicalAddresses: [],
+      },
+    }
+
+    const result = assembleFullXmlSyncConfigurationIndex({
+      previous,
+      target,
+      fragmentData: {
+        identities: [
+          { logicalAddress: "Б", kind: "uuid", value: "2" },
+          { logicalAddress: "А", kind: "uuid", value: "1" },
+        ],
+        xmlNodes: [
+          { logicalAddress: "Б", order: ["2"] },
+          { logicalAddress: "А", order: ["1"] },
+        ],
+        xmlValues: [
+          { logicalAddress: "Б", xmlText: "2" },
+          { logicalAddress: "А", xmlText: "1" },
+        ],
+      },
+    })
+
+    expect(result.identities.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
+    expect(result.xmlNodes.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
+    expect(result.xmlValues.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
+  })
 })
 
 interface HarnessOptions {
@@ -184,7 +239,7 @@ function createHarness(options: HarnessOptions = {}) {
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
 
-  const deps: FullXmlSyncCoordinatorDependencies = {
+  const deps: FullXmlSyncCoordinatorDependencies = createMockFullSyncDependencies({
     async exists(path) {
       if (path === resolve("/project")) events.push("preflight")
       return path === resolve("/project")
@@ -317,7 +372,7 @@ function createHarness(options: HarnessOptions = {}) {
       writtenIndex = params.data
       writtenAddress = params.address
     },
-  }
+  })
 
   return {
     events,

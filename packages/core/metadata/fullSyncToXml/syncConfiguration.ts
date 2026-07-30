@@ -193,7 +193,7 @@ export async function syncComponentToXml(
     if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
 
     const previous = decodeSnapshot(target.snapshot)
-    const indexData = buildFullXmlSyncConfigurationIndex({
+    const indexData = assembleFullXmlSyncConfigurationIndex({
       previous,
       target,
       fragmentData: execution.fragmentData,
@@ -323,7 +323,7 @@ async function preflightFullXmlSync(params: {
   return { targetExists: false }
 }
 
-function buildFullXmlSyncConfigurationIndex(params: {
+export function assembleFullXmlSyncConfigurationIndex(params: {
   readonly previous: ConfigurationIndexData
   readonly target: ConfirmedComponentState
   readonly fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">

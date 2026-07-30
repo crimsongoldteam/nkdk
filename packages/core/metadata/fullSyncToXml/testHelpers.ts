@@ -1,23 +1,19 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
-import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
-import { createFullXmlSyncWorkerPool } from "./workerPool"
-import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
-import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
-import { NKDK_CORE_VERSION } from "../../version"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
-import {
-  confirmComponentState,
-  readComponentHashState,
-  readComponentIndexes,
-  readComponentProjectStructure,
+import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import type { ComponentAddress } from "../components/address"
+import type {
+  ComponentHashState,
+  ComponentIndexes,
+  ComponentProjectStructure,
 } from "../project/componentState"
-import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
-import { buildXmlSyncPlan } from "./selection"
-import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
+import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 const tempDirs: string[] = []
 
@@ -31,85 +27,175 @@ export function createTempRoot(): string {
   return root
 }
 
-export function writeSmallXmlDump(xmlDir: string): void {
-  fs.mkdirSync(xmlDir, { recursive: true })
-  fs.copyFileSync(
-    join(__dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"),
-    join(xmlDir, "Configuration.xml")
-  )
-  fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/xml"), join(xmlDir, "Bots"), {
-    recursive: true,
-  })
-}
-
-export async function writeSmallYamlProjectWithIndex(projectDir: string): Promise<void> {
-  const yamlDir = join(projectDir, "cf")
-  fs.mkdirSync(yamlDir, { recursive: true })
-  fs.writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Конфигурация\n", "utf8")
-  fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/yaml"), join(yamlDir, "Бот"), {
-    recursive: true,
-  })
-  await writeConfigurationIndexAtomically({
-    projectDir,
-    address: { kind: "configuration" },
-    data: {
-      binding: {
-        indexGeneration: 1n,
-        producerVersion: NKDK_CORE_VERSION,
-        componentPath: "cf",
-        baseFingerprint: new Uint8Array(),
-        configurationVersion: new Uint8Array(),
-      },
-      projectFiles: [],
-      identities: [
-        {
-          logicalAddress: "Бот.БотВсеСвойства",
-          kind: "uuid",
-          value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
-        },
-      ],
-      xmlNodes: [],
-      xmlValues: [],
-      localIndexes: {
-        metadata: createEmptyPersistedSharedValidationSnapshot(),
-        dependencies: [],
-        logicalAddresses: [],
-      },
-    },
-  })
-}
-
-export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDependencies {
-  return {
+export function createMockFullSyncDependencies(
+  overrides: Partial<FullXmlSyncCoordinatorDependencies> = {}
+): FullXmlSyncCoordinatorDependencies {
+  const topology = compileRegisteredMetadataResourceTopology()
+  const defaults: FullXmlSyncCoordinatorDependencies = {
     async exists(path) {
-      return fs.existsSync(path)
+      return path === "/project"
     },
-    async isDirectoryEmpty(path) {
-      return fs.readdirSync(path).length === 0
+    async isDirectoryEmpty() {
+      return true
     },
-    async mkdir(path) {
-      fs.mkdirSync(path, { recursive: true })
+    async mkdir() {},
+    async readStructure({ address }) {
+      return structure(address, topology)
     },
-    readStructure: readComponentProjectStructure,
-    readSnapshot: readConfigurationIndexSnapshot,
-    readHashes: readComponentHashState,
-    readIndexes: readComponentIndexes,
-    confirmState: confirmComponentState,
-    resolveProfile: resolveFullXmlSyncComponentProfile,
-    buildPlan: buildXmlSyncPlan,
-    createWorkerPool({ concurrency }) {
-      return createFullXmlSyncWorkerPool({
-        concurrency,
-        createWorkerPool: () => ({
-          run: runFullXmlSyncWorkerCommand,
-          async destroy() {
-            resetFullXmlSyncWorkerStateForTests()
-          },
-        }),
-      })
+    async readSnapshot({ address }) {
+      return snapshot(address)
     },
-    transferExternalFiles: transferFullXmlSyncExternalFiles,
-    validateWrittenFiles: validateFullXmlSyncWrittenFiles,
-    writeIndex: writeConfigurationIndexAtomically,
+    async readHashes({ structure: value }) {
+      return hashes(value)
+    },
+    async readIndexes({ structure: value, hashes: valueHashes }) {
+      return indexes(value, valueHashes)
+    },
+    confirmState(params) {
+      return Object.freeze(params)
+    },
+    resolveProfile(address) {
+      if (address.kind !== "configuration" && address.kind !== "configurationExtension") {
+        throw new Error(`Unsupported test component: ${address.kind}`)
+      }
+      return {
+        kind: address.kind,
+        supports: () => true,
+        baseAddress: () => address.kind === "configurationExtension" ? { kind: "configuration" } : undefined,
+        confirm({ target, base }) {
+          return {
+            kind: address.kind,
+            target,
+            ...(base === undefined ? {} : { base }),
+            workerProfile: {
+              kind: address.kind,
+              componentKind: address.kind,
+              adoptedUuids: {},
+              ...(base === undefined
+                ? {}
+                : {
+                    baseForms: {
+                      componentDir: base.structure.componentDir,
+                      projectFiles: base.hashes.projectFiles,
+                      snapshot: base.snapshot,
+                    },
+                  }),
+            },
+          }
+        },
+      }
+    },
+    buildPlan({ structure: value }) {
+      return {
+        assignments: [{
+          id: "Конфигурация.yaml",
+          sourceProjectPath: "Конфигурация.yaml",
+          sourcePath: `${value.componentDir}/Конфигурация.yaml`,
+          expectedContentHash: 10n,
+          role: "configuration",
+          itemType: value.address.kind === "configuration"
+            ? "MetadataConfiguration"
+            : "MetadataConfigurationExtension",
+          itemName: "Конфигурация",
+          logicalAddress: "Конфигурация",
+          ...fullXmlSyncTestTopologyFields("Конфигурация.yaml"),
+        }],
+        externalFiles: [],
+      }
+    },
+    createWorkerPool() {
+      return {
+        async initialize() {},
+        async execute() {
+          return {
+            diagnostics: [],
+            warnings: [],
+            writtenFiles: [{
+              assignmentId: "Конфигурация.yaml",
+              targetXmlPath: "Configuration.xml",
+            }],
+            expectedOutputs: [{
+              assignmentId: "Конфигурация.yaml",
+              targetXmlPath: "Configuration.xml",
+            }],
+            fragmentData: {
+              identities: [],
+              xmlNodes: [],
+              xmlValues: [],
+            },
+          }
+        },
+        async close() {},
+      }
+    },
+    async transferExternalFiles() {
+      return { copiedFiles: [], projectFiles: [] }
+    },
+    validateWrittenFiles() {
+      return []
+    },
+    async writeIndex() {},
   }
+
+  return { ...defaults, ...overrides }
+}
+
+function structure(
+  address: ComponentAddress,
+  topology: ReturnType<typeof compileRegisteredMetadataResourceTopology>
+): ComponentProjectStructure {
+  const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
+  return {
+    address,
+    componentPath,
+    componentDir: `/project/${componentPath}`,
+    topology,
+    resources: [],
+    projectPaths: ["Конфигурация.yaml"],
+  }
+}
+
+function hashes(structure: ComponentProjectStructure): ComponentHashState {
+  return {
+    componentPath: structure.componentPath,
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  }
+}
+
+function indexes(
+  structure: ComponentProjectStructure,
+  hashState: ComponentHashState
+): ComponentIndexes {
+  return {
+    componentPath: structure.componentPath,
+    sourceProjectFiles: hashState.projectFiles,
+    metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
+    dependencies: [],
+    logicalAddresses: [{
+      logicalAddress: "Конфигурация",
+      sourceProjectPath: "Конфигурация.yaml",
+    }],
+  }
+}
+
+function snapshot(address: ComponentAddress) {
+  const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
+  return snapshotConfigurationIndex(encodeConfigurationIndex({
+    binding: {
+      indexGeneration: 1n,
+      producerVersion: "test",
+      componentPath,
+      baseFingerprint: new Uint8Array(),
+      configurationVersion: new Uint8Array(),
+    },
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+    identities: [],
+    xmlNodes: [],
+    xmlValues: [],
+    localIndexes: {
+      metadata: createEmptyPersistedSharedValidationSnapshot(),
+      dependencies: [],
+      logicalAddresses: [],
+    },
+  }))
 }
