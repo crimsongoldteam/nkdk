@@ -1,26 +1,29 @@
 import fs from "node:fs"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { tsImport } from "tsx/esm/api"
 
 const HEADER_CHECKSUM_BYTES = 16
 const SECTION_CHECKSUM_BYTES = 16
 const STRING_OWNER_NAMES = ["container", "files", "entityBase", "identities", "omittedChildren", "xml"]
 
-try {
-  const snapshotPath = commandSnapshotPath(process.argv.slice(2))
-  const input = await fs.promises.readFile(snapshotPath)
-  const { decodeConfigurationIndex } = await tsImport("../metadata/configurationIndex/index.ts", import.meta.url)
-  const snapshot = decodeConfigurationIndex(input)
-  if (snapshot.specificationVersion !== "1.3") {
-    throw new Error(`Неподдерживаемая версия снимка: ${snapshot.specificationVersion}`)
+if (process.argv[1] !== undefined && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const snapshotPath = commandSnapshotPath(process.argv.slice(2))
+    const input = await fs.promises.readFile(snapshotPath)
+    const { decodeConfigurationIndex } = await tsImport("../metadata/configurationIndex/index.ts", import.meta.url)
+    const snapshot = decodeConfigurationIndex(input)
+    if (snapshot.specificationVersion !== "1.3") {
+      throw new Error(`Неподдерживаемая версия снимка: ${snapshot.specificationVersion}`)
+    }
+    process.stdout.write(`${JSON.stringify(measureConfigurationSnapshot(input, snapshot), null, 2)}\n`)
+  } catch (caught) {
+    process.stderr.write(`${caught instanceof Error ? caught.message : String(caught)}\n`)
+    process.exitCode = 1
   }
-  process.stdout.write(`${JSON.stringify(measureConfigurationSnapshot(input, snapshot), null, 2)}\n`)
-} catch (caught) {
-  process.stderr.write(`${caught instanceof Error ? caught.message : String(caught)}\n`)
-  process.exitCode = 1
 }
 
-function commandSnapshotPath(args) {
+export function commandSnapshotPath(args) {
   const normalized = args[0] === "--" ? args.slice(1) : args
   if (normalized.length !== 1) {
     throw new Error(
@@ -32,7 +35,7 @@ function commandSnapshotPath(args) {
   return snapshotPath
 }
 
-function measureConfigurationSnapshot(input, snapshot) {
+export function measureConfigurationSnapshot(input, snapshot) {
   const container = inspectContainer(input)
   const strings = measureStrings(container.stringValues, snapshot)
   const measurement = {

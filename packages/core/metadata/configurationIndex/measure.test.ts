@@ -1,28 +1,13 @@
-import fs from "node:fs"
-import os from "node:os"
-import { join } from "node:path"
-import { spawnSync } from "node:child_process"
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
+import { commandSnapshotPath, measureConfigurationSnapshot } from "../../scripts/measure-configuration-snapshot.mjs"
+import { decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { sampleSnapshot } from "./testData"
-
-const scriptPath = join(import.meta.dirname, "../../scripts/measure-configuration-snapshot.mjs")
-const tempDirs: string[] = []
-
-afterEach(() => {
-  for (const directory of tempDirs.splice(0)) fs.rmSync(directory, { recursive: true, force: true })
-})
 
 describe("measure-configuration-snapshot", () => {
   it("отделяет логические payload от полной физической раскладки", () => {
     const encoded = encodeConfigurationIndex(sampleSnapshot())
-    const snapshotPath = temporarySnapshot(encoded)
-
-    const result = spawnSync(process.execPath, [scriptPath, "--", snapshotPath], { encoding: "utf8" })
-
-    expect(result.status).toBe(0)
-    expect(result.stderr).toBe("")
-    const measurement = JSON.parse(result.stdout) as Measurement
+    const measurement = measureConfigurationSnapshot(encoded, decodeConfigurationIndex(encoded)) as Measurement
     expect(measurement.fileBytes).toBe(encoded.length)
     expect(measurement.files).toMatchObject({ records: 2, payloadBytes: expect.any(Number) })
     expect(measurement.entities).toMatchObject({
@@ -77,37 +62,19 @@ describe("measure-configuration-snapshot", () => {
         },
       ],
     })
-    const snapshotPath = temporarySnapshot(encoded)
-
-    const result = spawnSync(process.execPath, [scriptPath, "--", snapshotPath], { encoding: "utf8" })
-
-    expect(result.status).toBe(0)
-    expect(result.stderr).toBe("")
-    const measurement = JSON.parse(result.stdout) as Measurement
+    const measurement = measureConfigurationSnapshot(encoded, decodeConfigurationIndex(encoded)) as Measurement
     expect(measurement.strings.byOwner.container).toBe(Buffer.byteLength("container-only"))
     expect(measurement.strings.sharedBytes).toBe(Buffer.byteLength("shared"))
   })
 
   it.each([
-    ["без пути", []],
-    ["с относительным путём", ["configuration-index.bin"]],
-    ["с двумя путями", ["/tmp/one.bin", "/tmp/two.bin"]],
-  ])("завершается с кодом 1 %s", (_case, args) => {
-    const result = spawnSync(process.execPath, [scriptPath, ...args], { encoding: "utf8" })
-
-    expect(result.status).toBe(1)
-    expect(result.stdout).toBe("")
-    expect(result.stderr).not.toBe("")
+    ["без пути", [], "Использование:"],
+    ["с относительным путём", ["configuration-index.bin"], "должен быть абсолютным"],
+    ["с двумя путями", ["/tmp/one.bin", "/tmp/two.bin"], "Использование:"],
+  ])("отклоняет аргументы %s", (_case, args, message) => {
+    expect(() => commandSnapshotPath(args)).toThrow(message)
   })
 })
-
-function temporarySnapshot(bytes: Uint8Array): string {
-  const directory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configuration-snapshot-measure-"))
-  tempDirs.push(directory)
-  const path = join(directory, "configuration-index.bin")
-  fs.writeFileSync(path, bytes)
-  return path
-}
 
 interface Measurement {
   fileBytes: number
