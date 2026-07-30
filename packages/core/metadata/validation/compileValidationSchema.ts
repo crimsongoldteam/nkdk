@@ -17,15 +17,11 @@ export interface ValidationSchemaError {
   instancePath: string
   params: Record<string, unknown>
   message: string
-  schema?: TSchema
-  value?: unknown
 }
 
-export interface ValidationSchemaValidator<Type extends TSchema = TSchema> {
+export interface ValidationSchemaValidator {
   Check(value: unknown): boolean
   Errors(value: unknown): [boolean, ValidationSchemaError[]]
-  Schema(): Type
-  Context(): SchemaContext
 }
 
 const ajvOptions: Options = {
@@ -41,12 +37,12 @@ const undefinedKeyword = "x-nkdk-undefined"
 export function compileValidationSchema<const Type extends TSchema>(
   schema: Type,
   options?: CompileValidationSchemaOptions
-): ValidationSchemaValidator<Type>
+): ValidationSchemaValidator
 export function compileValidationSchema<Context extends SchemaContext, const Type extends TSchema>(
   context: Context,
   schema: Type,
   options?: CompileValidationSchemaOptions
-): ValidationSchemaValidator<Type>
+): ValidationSchemaValidator
 export function compileValidationSchema(
   schemaOrContext: TSchema | SchemaContext,
   schemaOrOptions?: TSchema | CompileValidationSchemaOptions,
@@ -93,12 +89,6 @@ export function compileValidationSchema(
 
       return getFallback().Errors(value)
     },
-    Schema() {
-      return schema
-    },
-    Context() {
-      return context
-    },
   }
 }
 
@@ -113,8 +103,6 @@ function normalizeAjvError(error: ErrorObject): ValidationSchemaError {
     instancePath: error.instancePath,
     params: error.params as Record<string, unknown>,
     message: error.message ?? error.keyword,
-    schema: error.schema as TSchema | undefined,
-    value: error.data,
   }
 }
 
@@ -143,53 +131,25 @@ function createTypeboxFallback(
     Errors(value) {
       return compiled.Errors(value) as [boolean, ValidationSchemaError[]]
     },
-    Schema() {
-      return schema
-    },
-    Context() {
-      return context
-    },
   }
 }
 
-class AjvFunctionValidationSchema<Type extends TSchema = TSchema> implements ValidationSchemaValidator<Type> {
-  constructor(
-    private readonly params: {
-      schema: Type
-      context: SchemaContext
-      validate: ValidateFunction
-    }
-  ) {}
+class AjvFunctionValidationSchema implements ValidationSchemaValidator {
+  constructor(private readonly validate: ValidateFunction) {}
 
   Check(value: unknown): boolean {
-    return this.params.validate(value)
+    return this.validate(value)
   }
 
   Errors(value: unknown): [boolean, ValidationSchemaError[]] {
-    const valid = this.params.validate(value)
+    const valid = this.validate(value)
     if (valid) return [true, []]
-    return [false, normalizeAjvErrors(this.params.validate.errors)]
-  }
-
-  Schema(): Type {
-    return this.params.schema
-  }
-
-  Context(): SchemaContext {
-    return this.params.context
+    return [false, normalizeAjvErrors(this.validate.errors)]
   }
 }
 
-export function createValidationSchemaFromAjvFunction<const Type extends TSchema>(params: {
-  schema: Type
-  context?: SchemaContext
-  validate: ValidateFunction
-}): ValidationSchemaValidator<Type> {
-  return new AjvFunctionValidationSchema({
-    schema: params.schema,
-    context: params.context ?? {},
-    validate: params.validate,
-  })
+export function createValidationSchemaFromAjvFunction(validate: ValidateFunction): ValidationSchemaValidator {
+  return new AjvFunctionValidationSchema(validate)
 }
 
 function createAjv(context: SchemaContext, options: Pick<Options, "allErrors" | "inlineRefs">): Ajv2020 {

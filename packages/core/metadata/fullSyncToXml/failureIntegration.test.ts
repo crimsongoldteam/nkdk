@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import {
   configurationIndexPath,
@@ -22,6 +22,9 @@ import {
 } from "./testHelpers"
 import { fullXmlSyncTestOutput } from "./testTopology"
 
+const fullSyncTopology = compileRegisteredMetadataResourceTopology()
+const emptyValidationMetadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
+
 afterEach(async () => {
   await removeFullSyncTempDirs()
 })
@@ -32,6 +35,36 @@ describe("full XML sync failure integration", () => {
     defaultLanguage: "ru",
     exportToYAML: { toTyped: false },
   } as ConfigurationContext
+  let missingAdoptedUuidResult: Awaited<ReturnType<typeof syncComponentToXml>>
+  let workerStartedForMissingAdoptedUuid: boolean
+
+  beforeAll(async () => {
+    const state = await createIndexedProject()
+    workerStartedForMissingAdoptedUuid = false
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...baseDeps,
+      resolveProfile: () => ({
+        kind: "configurationExtension",
+        supports: () => true,
+        baseAddress: () => ({ kind: "configuration" }),
+        confirm() {
+          throw new Error("Не найден UUID заимствованного элемента")
+        },
+      }),
+      createWorkerPool: () => {
+        workerStartedForMissingAdoptedUuid = true
+        throw new Error("worker must not be created")
+      },
+    }
+
+    missingAdoptedUuidResult = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cfe/Дополнение",
+      xmlDir: state.xmlDir,
+    }, deps)
+  })
 
   it("does not touch a non-empty XML target", async () => {
     const root = createTempRoot()
@@ -152,39 +185,13 @@ describe("full XML sync failure integration", () => {
     expect(fs.readFileSync(state.indexPath)).toEqual(before)
   })
 
-  it("does not start workers when cfe confirmation cannot find an adopted UUID", async () => {
-    const state = await createIndexedProject()
-    let workerCreated = false
-    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
-    const deps: FullXmlSyncCoordinatorDependencies = {
-      ...baseDeps,
-      resolveProfile: () => ({
-        kind: "configurationExtension",
-        supports: () => true,
-        baseAddress: () => ({ kind: "configuration" }),
-        confirm() {
-          throw new Error("Не найден UUID заимствованного элемента")
-        },
-      }),
-      createWorkerPool: () => {
-        workerCreated = true
-        throw new Error("worker must not be created")
-      },
-    }
-
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cfe/Дополнение",
-      xmlDir: state.xmlDir,
-    }, deps)
-
-    expect(result.failed).toEqual([
+  it("does not start workers when cfe confirmation cannot find an adopted UUID", () => {
+    expect(missingAdoptedUuidResult.failed).toEqual([
       expect.objectContaining({
         message: "Не найден UUID заимствованного элемента",
       }),
     ])
-    expect(workerCreated).toBe(false)
+    expect(workerStartedForMissingAdoptedUuid).toBe(false)
   })
 })
 
@@ -231,8 +238,6 @@ function failureDeps(
   projectDir: string,
   xmlDir: string
 ): FullXmlSyncCoordinatorDependencies {
-  const topology = compileRegisteredMetadataResourceTopology()
-  const metadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
   const deps: FullXmlSyncCoordinatorDependencies = {
     async exists(path) {
       return path === projectDir || path === xmlDir
@@ -248,7 +253,7 @@ function failureDeps(
         address,
         componentPath,
         componentDir: join(projectDir, componentPath),
-        topology,
+        topology: fullSyncTopology,
         resources: [],
         projectPaths: ["Конфигурация.yaml"],
       }
@@ -270,7 +275,7 @@ function failureDeps(
       return {
         componentPath: structure.componentPath,
         sourceProjectFiles: hashes.projectFiles,
-        metadata,
+        metadata: emptyValidationMetadata,
         dependencies: [],
         logicalAddresses: [],
       }

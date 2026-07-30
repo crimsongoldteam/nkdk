@@ -1,6 +1,5 @@
 import type { ValidateFunction } from "ajv"
 import { describe, expect, it } from "vitest"
-import { Type } from "typebox"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { createValidationSchemaCacheFromStandaloneModule } from "./projectValidationStandaloneLoader"
@@ -14,20 +13,13 @@ const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataI
 
 describe("project validation standalone loader", () => {
   it("creates form and properties validators from a standalone-like module", () => {
-    const formSchema = Type.Object({ Вид: Type.String() })
-    const propertiesSchema = Type.Object({ Имя: Type.String() })
     const formValidate = validWhenHasString("Вид")
     const propertiesValidate = validWhenHasString("Имя")
     const cache = createValidationSchemaCacheFromStandaloneModule({
-      format: "project-validation-ajv-standalone-v2",
-      context: {
-        version: "2.20",
-        defaultLanguage: "ru",
-        exportToYAML: { toTyped: false },
-      },
-      form: { schema: formSchema, validate: formValidate },
+      format: "project-validation-ajv-standalone-v3",
+      form: { validate: formValidate },
       byItemType: {
-        MetadataCatalog: { schema: propertiesSchema, validate: propertiesValidate },
+        MetadataCatalog: { validate: propertiesValidate },
       },
     })
 
@@ -37,40 +29,22 @@ describe("project validation standalone loader", () => {
     expect(cache.properties(catalogRule).Check({})).toBe(false)
   })
 
-  it("rejects unsupported context instead of silently using wrong schemas", () => {
-    const module = {
-      format: "project-validation-ajv-standalone-v2",
-      context: {
-        version: "2.20",
-        defaultLanguage: "ru",
-        exportToYAML: { toTyped: false },
-      },
-      form: { schema: Type.Any(), validate: validWhenHasString("Вид") },
-      byItemType: {},
-    } satisfies ProjectValidationStandaloneModule
-
+  it("rejects obsolete standalone formats", () => {
     expect(() =>
-      createValidationSchemaCacheFromStandaloneModule(module, {
-        version: "2.21",
-        defaultLanguage: "ru",
-        exportToYAML: { toTyped: false },
-      })
-    ).toThrow("Standalone validation schemas were built for context")
+      createValidationSchemaCacheFromStandaloneModule({
+        format: "project-validation-ajv-standalone-v2",
+      } as never)
+    ).toThrow("Unsupported standalone validation module format")
   })
 
   it("compileAll eagerly checks every root rule including configuration extension", () => {
     const module = {
-      format: "project-validation-ajv-standalone-v2",
-      context: {
-        version: "2.20",
-        defaultLanguage: "ru",
-        exportToYAML: { toTyped: false },
-      },
-      form: { schema: Type.Any(), validate: validAny() },
+      format: "project-validation-ajv-standalone-v3",
+      form: { validate: validAny() },
       byItemType: Object.fromEntries(
         [configurationValidationProjectSpec.rule, ...validationProjectSpecs.map((spec) => spec.rule)].map((rule) => [
           rule.itemType,
-          { schema: Type.Any(), validate: validAny() },
+          { validate: validAny() },
         ])
       ),
     } satisfies ProjectValidationStandaloneModule
@@ -81,7 +55,7 @@ describe("project validation standalone loader", () => {
       'Standalone validation schema was not generated for item type "MetadataConfigurationExtension"'
     )
 
-    module.byItemType[MetadataConfigurationExtensionRules.itemType] = { schema: Type.Any(), validate: validAny() }
+    module.byItemType[MetadataConfigurationExtensionRules.itemType] = { validate: validAny() }
 
     expect(cache.compileAll()).toEqual({
       formMs: expect.any(Number),

@@ -1,16 +1,11 @@
 import type { ValidateFunction } from "ajv"
-import type { TSchema } from "typebox"
-import type { ConfigurationContext } from "../context/types"
 
 export interface ProjectValidationStandaloneValidator {
-  schema: TSchema
   validate: ValidateFunction
 }
 
 export interface ProjectValidationStandaloneModule {
-  format: "project-validation-ajv-standalone-v2"
-  context: ConfigurationContext
-  refs?: Record<string, TSchema>
+  format: "project-validation-ajv-standalone-v3"
   form: ProjectValidationStandaloneValidator
   byItemType: Record<string, ProjectValidationStandaloneValidator>
 }

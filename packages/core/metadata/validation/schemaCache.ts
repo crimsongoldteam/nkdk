@@ -14,14 +14,14 @@ import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/to
 import { MetadataKind } from "./types"
 
 export interface SchemaCache {
-  get(kind: MetadataKind): ValidationSchemaValidator<TSchema>
+  get(kind: MetadataKind): ValidationSchemaValidator
 }
 
 export function createSchemaCache(context: ConfigurationContext): SchemaCache {
-  const cache = new Map<MetadataKind, ValidationSchemaValidator<TSchema>>()
+  const cache = new Map<MetadataKind, ValidationSchemaValidator>()
 
   return {
-    get(kind: MetadataKind): ValidationSchemaValidator<TSchema> {
+    get(kind: MetadataKind): ValidationSchemaValidator {
       const cached = cache.get(kind)
       if (cached) return cached
 

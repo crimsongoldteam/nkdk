@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
-import { afterAll, afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
@@ -24,25 +24,9 @@ afterEach(async () => {
 describe("ChildFormNames: единый импорт XML → YAML", () => {
   const sourceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const name = "Контрагенты"
+  let localSettingsYaml: string
 
-  it("записывает Формы/<form>/Форма.yaml для каталога", async () => {
-    const inputDir = preparedInputDirectory(sourceDir)
-    const projectDir = temporaryDirectory("nkdk-child-form-project-")
-    const outputDir = join(projectDir, "cf")
-
-    const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
-      inputDir,
-      projectDir,
-      concurrency: 1,
-      xmlImportWorkerPoolHandle,
-    })
-
-    expect(result.failed).toEqual([])
-    expect(fs.existsSync(join(outputDir, "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml"))).toBe(true)
-  })
-
-  it("экспортирует ссылку на текущую форму в настройках формы локальным именем", async () => {
+  beforeAll(async () => {
     const inputDir = temporaryDirectory("nkdk-child-form-input-")
     const projectDir = temporaryDirectory("nkdk-child-form-project-")
     const outputDir = join(projectDir, "cf")
@@ -67,10 +51,34 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       concurrency: 1,
       xmlImportWorkerPoolHandle,
     })
+    if (result.failed.length > 0) {
+      throw new Error(`Не удалось подготовить импорт формы: ${JSON.stringify(result.failed)}`)
+    }
+    localSettingsYaml = fs.readFileSync(
+      join(outputDir, "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml"),
+      "utf-8"
+    )
+  })
+
+  it("записывает Формы/<form>/Форма.yaml для каталога", async () => {
+    const inputDir = preparedInputDirectory(sourceDir)
+    const projectDir = temporaryDirectory("nkdk-child-form-project-")
+    const outputDir = join(projectDir, "cf")
+
+    const result = await importConfigurationFromXml({
+      context: mockContextFromXML(),
+      inputDir,
+      projectDir,
+      concurrency: 1,
+      xmlImportWorkerPoolHandle,
+    })
 
     expect(result.failed).toEqual([])
-    const yaml = fs.readFileSync(join(outputDir, "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml"), "utf-8")
-    expect(yaml).toContain("ХранилищеНастроек: ФормаЭлемента")
+    expect(fs.existsSync(join(outputDir, "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml"))).toBe(true)
+  })
+
+  it("экспортирует ссылку на текущую форму в настройках формы локальным именем", () => {
+    expect(localSettingsYaml).toContain("ХранилищеНастроек: ФормаЭлемента")
   })
 
   it("импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml", async () => {
