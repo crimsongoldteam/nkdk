@@ -108,7 +108,7 @@ it("filters imported YAML finalization through the optional type predicate", () 
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromXMLToYAML.test.ts
 ```
 
 Expected: FAIL because `"requiresImportedYAMLFinalization"` is not part of `TypeRulesOperations`.
@@ -149,7 +149,7 @@ Do not pass `propertyRule`, YAML key, or XML key to the predicate.
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromXMLToYAML.test.ts
 pnpm --filter @nkdk/core type-check
 ```
 
@@ -217,7 +217,7 @@ Add a cache-refresh test that snapshots the registry, calls the predicate once, 
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/validation/dataPath/finalizationPredicate.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/validation/dataPath/finalizationPredicate.test.ts
 ```
 
 Expected: FAIL because `finalizationPredicate.ts` does not exist.
@@ -278,7 +278,7 @@ In `finalizationPredicate.bench.ts`, use the same name set and paths copied from
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest bench packages/core/metadata/validation/dataPath/finalizationPredicate.bench.ts --run
+pnpm --filter @nkdk/core exec vitest bench metadata/validation/dataPath/finalizationPredicate.bench.ts --run
 ```
 
 Expected: both implementations complete with identical boolean results. Keep the faster implementation behind the public interface; if `split + Set` wins, replace only matcher internals without changing semantics or consumers.
@@ -322,10 +322,10 @@ Run:
 
 ```bash
 pnpm --filter @nkdk/core exec vitest run \
-  packages/core/metadata/validation/dataPath/finalizationPredicate.test.ts \
-  packages/core/metadata/validation/dataPath/formatter.test.ts \
-  packages/core/metadata/commonObjects/metadataPath/toYAML.test.ts \
-  packages/core/metadata/commonObjects/metadataPath/fromYAML.test.ts
+  metadata/validation/dataPath/finalizationPredicate.test.ts \
+  metadata/validation/dataPath/formatter.test.ts \
+  metadata/commonObjects/metadataPath/toYAML.test.ts \
+  metadata/commonObjects/metadataPath/fromYAML.test.ts
 pnpm --filter @nkdk/core type-check
 ```
 
@@ -384,7 +384,7 @@ Also test that `writeMainImportYaml()` serializes one YAML tree, returns its UTF
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/importFromXml/writeOutput.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/importFromXml/writeOutput.test.ts
 ```
 
 Expected: FAIL because `writeOutput.ts` does not exist.
@@ -435,8 +435,8 @@ Run:
 
 ```bash
 pnpm --filter @nkdk/core exec vitest run \
-  packages/core/metadata/importFromXml/writeOutput.test.ts \
-  packages/core/metadata/importFromXml/worker.test.ts
+  metadata/importFromXml/writeOutput.test.ts \
+  metadata/importFromXml/worker.test.ts
 ```
 
 Expected: PASS.
@@ -511,7 +511,7 @@ Add cases for:
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/importFromXml/worker.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/importFromXml/worker.test.ts
 ```
 
 Expected: FAIL because `ImportFirstPassResult` has no `files` and the worker retains every prepared YAML.
@@ -605,11 +605,11 @@ Run:
 
 ```bash
 pnpm --filter @nkdk/core exec vitest run \
-  packages/core/metadata/importFromXml/writeOutput.test.ts \
-  packages/core/metadata/importFromXml/worker.test.ts \
-  packages/core/metadata/importFromXml/workerPool.test.ts \
-  packages/core/metadata/importFromXml/importConfiguration.test.ts \
-  packages/core/metadata/importFromXml/transfer.test.ts
+  metadata/importFromXml/writeOutput.test.ts \
+  metadata/importFromXml/worker.test.ts \
+  metadata/importFromXml/workerPool.test.ts \
+  metadata/importFromXml/importConfiguration.test.ts \
+  metadata/importFromXml/transfer.test.ts
 pnpm --filter @nkdk/core type-check
 ```
 
@@ -656,7 +656,7 @@ Parse or match the exact expected item counts for the test fixture.
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/importFromXml/worker.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/importFromXml/worker.test.ts
 ```
 
 Expected: FAIL on the three missing substeps.
@@ -699,7 +699,7 @@ Place the three labels after `"Первый проход worker"` in `orderedSub
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run packages/core/metadata/importFromXml/worker.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/importFromXml/worker.test.ts
 node .agents/skills/import-profile/import-profile.mjs --help
 ```
 
@@ -777,8 +777,8 @@ Inspect profile counters and run focused import integration tests once more:
 
 ```bash
 pnpm --filter @nkdk/core exec vitest run \
-  packages/core/metadata/importFromXml/importConfiguration.test.ts \
-  packages/core/metadata/importFromXml/importConfigurationExtension.test.ts
+  metadata/importFromXml/importConfiguration.test.ts \
+  metadata/importFromXml/importConfigurationExtension.test.ts
 ```
 
 Expected: Project files, diagnostics, references, and snapshot assertions PASS. The only updated expectations are disabled `~` paths remaining byte-for-byte unchanged.
