@@ -213,11 +213,12 @@ export async function importConfigurationFromXml(
       return failedResult(second.diagnostics, warnings, resolvedComponentPath)
     }
 
+    const allFiles = [...first.files, ...second.files]
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение списка файлов результата импорта",
-      { items: second.files.length },
-      () => deps.mergeFiles(second.files)
+      { items: allFiles.length },
+      () => deps.mergeFiles(allFiles)
     )
     await profiler.measureAsync(
       "Подготовка импорта конфигурации",

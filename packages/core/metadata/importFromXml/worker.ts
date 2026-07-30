@@ -35,8 +35,18 @@ interface InitializedImportWorkerState {
   outputDir: string
 }
 
+interface DeferredImportYaml {
+  diagnosticAssignment: Pick<ImportAssignment, "targetProjectPath" | "xmlFiles">
+  targetProjectPath: string
+  yaml: unknown
+  rule: PreparedImportYaml["rule"]
+  ownerContext: PreparedImportYaml["ownerContext"]
+  formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
+  deferred: PreparedImportYaml["deferred"]
+}
+
 let initializedState: InitializedImportWorkerState | undefined
-const preparedYaml = new Map<string, PreparedImportYaml>()
+const preparedYaml = new Map<string, DeferredImportYaml>()
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
@@ -83,9 +93,8 @@ async function runSecondPass(
   for (const [id, prepared] of preparedYaml) {
     try {
       files.push(...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)))
-      files.push(...xmlExternalImportFiles(prepared.assignment))
     } catch (caught) {
-      diagnostics.push(importAssignmentDiagnostic(prepared.assignment, caught, "xml_import_yaml_failed"))
+      diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
     } finally {
       preparedYaml.delete(id)
     }
@@ -100,7 +109,7 @@ async function runSecondPass(
 }
 
 async function writePreparedYamlToOutput(
-  prepared: PreparedImportYaml,
+  prepared: DeferredImportYaml,
   ownerMetadataCache: OwnerMetadataCache,
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
@@ -130,7 +139,7 @@ async function writePreparedYamlToOutput(
         rootRule: prepared.rule,
         deferred: prepared.deferred,
         context: contextWithOwners,
-        formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+        formDataPathIndex: prepared.formDataPathIndex,
       })
   )
   const main = await writeMainImportYaml({
@@ -139,16 +148,7 @@ async function writePreparedYamlToOutput(
     yaml: prepared.yaml,
     profiler,
   })
-  const files: ImportResultFile[] = [main.file]
-  files.push(
-    ...(await writeGeneratedImportFiles({
-      outputDir: state.outputDir,
-      targetProjectPath: prepared.targetProjectPath,
-      generatedFiles: prepared.generatedFiles,
-      profiler,
-    }))
-  )
-  return files
+  return [main.file]
 }
 
 function secondPassExportContext(params: {
@@ -195,6 +195,7 @@ async function runFirstPass(
     aggregate: true,
   })
   const diagnostics: ImportDiagnostic[] = []
+  const files: ImportResultFile[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationSnapshotFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
@@ -225,7 +226,42 @@ async function runFirstPass(
         { items: 1 },
         () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
       )
-      preparedYaml.set(assignment.id, prepared)
+      try {
+        const assignmentFiles = await writeGeneratedImportFiles({
+          outputDir: state.outputDir,
+          targetProjectPath: prepared.targetProjectPath,
+          generatedFiles: prepared.generatedFiles,
+          profiler,
+        })
+        assignmentFiles.push(...xmlExternalImportFiles(assignment))
+        if (prepared.deferred.length === 0) {
+          const main = await writeMainImportYaml({
+            outputDir: state.outputDir,
+            targetProjectPath: prepared.targetProjectPath,
+            yaml: prepared.yaml,
+            profiler,
+          })
+          assignmentFiles.push(main.file)
+        } else {
+          preparedYaml.set(assignment.id, {
+            diagnosticAssignment: {
+              targetProjectPath: assignment.targetProjectPath,
+              xmlFiles: assignment.xmlFiles,
+            },
+            targetProjectPath: prepared.targetProjectPath,
+            yaml: prepared.yaml,
+            rule: prepared.rule,
+            ownerContext: prepared.ownerContext,
+            formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+            deferred: prepared.deferred,
+          })
+        }
+        files.push(...assignmentFiles)
+      } catch (caught) {
+        preparedYaml.delete(assignment.id)
+        diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
+        continue
+      }
       ownerFacts.push(...preparedOwnerFacts)
       fragments.push(fragment)
       validationContributions.push(validationContribution)
@@ -247,6 +283,7 @@ async function runFirstPass(
       localDependencies: [...validation.validationContribution.localDependencies, ...validation.localDependencies],
     },
     diagnostics,
+    files,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
 }
@@ -267,7 +304,7 @@ function movableFirstPassResult(result: ImportFirstPassResult): ImportFirstPassR
 }
 
 function importAssignmentDiagnostic(
-  assignment: ImportAssignment,
+  assignment: Pick<ImportAssignment, "targetProjectPath" | "xmlFiles">,
   caught: unknown,
   code = "xml_import_assignment_failed"
 ): ImportDiagnostic {
