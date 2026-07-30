@@ -1,5 +1,5 @@
 import { stringRule } from "../string/types"
-import { MetadataTabularSectionAttributeRules } from "../metadataAttribute/rules"
+import { MetadataTabularSectionAttributeWithFillRules } from "../metadataAttribute/rules"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataTaskAddressingAttributeRules = {
   itemType: "MetadataAttribute",
@@ -38,7 +38,7 @@ export const MetadataTaskAddressingAttributeRules = {
     "uuid",
   ],
   properties: {
-    ...MetadataTabularSectionAttributeRules.properties,
+    ...MetadataTabularSectionAttributeWithFillRules.properties,
     addressingDimension: stringRule({
       yaml: "ИзмерениеАдресации",
       xml: "AddressingDimension",

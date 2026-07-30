@@ -110,6 +110,10 @@ const commonTabularSectionProperties = {
     xml: "Attribute",
   },
 } as const satisfies Record<string, PropertyRule>
+const attributesWithFill = {
+  ...commonTabularSectionProperties.attributes,
+  type: "MetadataTabularSectionAttributesWithFill",
+} as const satisfies PropertyRule
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -284,6 +288,7 @@ export const MetadataDataProcessorTabularSectionRules = {
   ],
   properties: {
     ...commonTabularSectionProperties,
+    attributes: attributesWithFill,
     internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
@@ -320,6 +325,7 @@ export const MetadataReportTabularSectionRules = {
   ],
   properties: {
     ...commonTabularSectionProperties,
+    attributes: attributesWithFill,
     internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
