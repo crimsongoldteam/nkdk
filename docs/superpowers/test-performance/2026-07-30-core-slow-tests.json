@@ -255,11 +255,23 @@
       "medianMs": 22.810875000002852,
       "maxMs": 24.885625000000346,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Структурные и простые внешние файлы проверяются по одному общему неизменяемому результату XML-import",
+      "remainingContract": "Корневые XML из Ext преобразуются в соответствующие разделы Конфигурация.yaml",
+      "mutationBefore": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "mutationAfter": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "afterDurationsMs": [
+        3.748291999999765,
+        3.5011670000003505,
+        3.6348330000000715
+      ],
+      "afterMedianMs": 3.6348330000000715
     },
     {
       "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML экспортирует ссылку на текущую форму в настройках формы локальным именем",
@@ -333,11 +345,23 @@
       "medianMs": 20.2432919999992,
       "maxMs": 21.10529200000019,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Структурные и простые внешние файлы проверяются по одному общему неизменяемому результату XML-import",
+      "remainingContract": "Модули, справка, картинки и двоичные файлы конфигурации сохраняются вне Конфигурация.yaml",
+      "mutationBefore": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "mutationAfter": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "afterDurationsMs": [
+        3.7655829999998787,
+        4.43120799999997,
+        3.938709000000017
+      ],
+      "afterMedianMs": 3.938709000000017
     },
     {
       "id": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts::sync external Recalculations syncToXML restores listed recalculation XML from reference when nkdk file is missing",
