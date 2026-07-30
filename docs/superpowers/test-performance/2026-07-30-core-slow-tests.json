@@ -165,11 +165,23 @@
       "medianMs": 25.220374999998967,
       "maxMs": 38.53729200000089,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Начальные снимки подготавливаются прямой записью байтов вместо двух атомарных публикаций",
+      "remainingContract": "Ошибка проверки результата не заменяет прежние байты configuration index",
+      "mutationBefore": {
+        "mutants": 52,
+        "killed": 23
+      },
+      "mutationAfter": {
+        "mutants": 52,
+        "killed": 23
+      },
+      "afterDurationsMs": [
+        3.451208999999835,
+        4.626624999999876,
+        5.598791000000347
+      ],
+      "afterMedianMs": 4.626624999999876
     },
     {
       "id": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts::syncAppliedObjectToXML — MetadataInformationRegister восстанавливает object-level модули регистра сведений при YAML to XML sync",
