@@ -1,5 +1,5 @@
 import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./types"
 
@@ -19,15 +19,17 @@ describe("FilterItem JSON Schema", () => {
     return compileValidationSchema(schema!)
   }
 
-  it("accepts comparison items", () => {
-    const compiled = compileFilterItemSchema()
+  let compiled: ReturnType<typeof compileFilterItemSchema>
 
+  beforeAll(() => {
+    compiled = compileFilterItemSchema()
+  })
+
+  it("accepts comparison items", () => {
     expect(compiled.Check([{ ЛевоеЗначение: ".ХозяйственнаяОперация", Использование: "Ложь" }])).toBe(true)
   })
 
   it("accepts InList comparison items with string array right value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -40,8 +42,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts InList comparison items with enumeration-reference array right value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -57,8 +57,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts InList comparison items with nil object in right value array", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -75,8 +73,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts InList comparison items with only nil objects in right value array", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -89,8 +85,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("keeps accepting scalar comparison right value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -102,8 +96,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts field right value in comparison items", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -116,8 +108,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("does not accept array-shaped left value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -130,8 +120,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("does not accept nil object as scalar right value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -143,8 +131,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("does not accept nil object as left value", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -157,8 +143,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts group items with nested elements", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -170,8 +154,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts AND group items with nested comparisons", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -189,8 +171,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts group presentation as design-time string", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -202,8 +182,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts disabled group with nested elements and design-time presentation", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -228,8 +206,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts group user setting presentation as design-time string", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -241,8 +217,6 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("accepts nested groups with comparison items", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(
       compiled.Check([
         {
@@ -259,14 +233,10 @@ describe("FilterItem JSON Schema", () => {
   })
 
   it("rejects record-shaped values", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(compiled.Check({ item: { ЛевоеЗначение: ".ХозяйственнаяОперация" } })).toBe(false)
   })
 
   it("rejects invalid nested elements", () => {
-    const compiled = compileFilterItemSchema()
-
     expect(compiled.Check([{ ТипГруппы: "ГруппаИли", Элементы: [123] }])).toBe(false)
     expect(compiled.Check([{ ТипГруппы: "ГруппаИли", Элементы: [{ Неизвестно: "x" }] }])).toBe(false)
   })
