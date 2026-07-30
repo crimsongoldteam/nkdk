@@ -75,11 +75,23 @@
       "medianMs": 30.86529199999859,
       "maxMs": 40.295374999999694,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Детальный договор перенесён с полного worker-импорта на прямой вызов обработчика",
+      "remainingContract": "Копируются только HTML-страницы, перечисленные в Help.xml; stale-файлы отбрасываются",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        6.617749999999887,
+        7.650792000000365,
+        6.557084000000032
+      ],
+      "afterMedianMs": 6.617749999999887
     },
     {
       "id": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts::syncAppliedObjectToXML — MetadataInformationRegister читает InformationRegister из YAML и записывает XML в outputDir",
@@ -249,11 +261,23 @@
       "medianMs": 21.983791999999085,
       "maxMs": 22.439249999999447,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Детальный договор перенесён с полного worker-импорта на прямой вызов обработчика",
+      "remainingContract": "Ссылка Catalog.<name>.Form.<form> экспортируется в YAML локальным именем формы",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        6.379875000000084,
+        7.434790999999677,
+        6.9265000000004875
+      ],
+      "afterMedianMs": 6.9265000000004875
     },
     {
       "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML записывает Формы/<form>/Форма.yaml для каталога",
@@ -267,11 +291,23 @@
       "medianMs": 20.905667000000903,
       "maxMs": 22.084708000002138,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "preserved",
+      "reason": "Оставлен один сквозной тест регистрации обработчика и выполнения через XML-import worker",
+      "remainingContract": "Полный импорт конфигурации создаёт Формы/<form>/Форма.yaml для справочника",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        63.85166599999957,
+        72.1882499999997,
+        82.18499999999949
+      ],
+      "afterMedianMs": 72.1882499999997
     },
     {
       "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml сохраняет простые корневые внешние файлы конфигурации",
