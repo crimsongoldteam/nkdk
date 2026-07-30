@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
-import { findSlowTests } from "./assert-test-durations.mjs"
+import { findSlowTests, parseArguments, TEST_DURATION_BUDGET_MS } from "./assert-test-durations.mjs"
 
 describe("findSlowTests", () => {
-  it("accepts the exact limit and returns slower tests in descending order", () => {
+  it("uses the immutable 50 ms limit and returns slower tests in descending order", () => {
     const report = {
       testResults: [{
         name: "/project/slow.test.ts",
@@ -15,7 +15,8 @@ describe("findSlowTests", () => {
       }],
     }
 
-    expect(findSlowTests(report, 50)).toEqual([
+    expect(TEST_DURATION_BUDGET_MS).toBe(50)
+    expect(findSlowTests(report)).toEqual([
       {
         file: "/project/slow.test.ts",
         name: "suite slowest",
@@ -27,5 +28,11 @@ describe("findSlowTests", () => {
         duration: 50.01,
       },
     ])
+  })
+
+  it("rejects attempts to override the duration limit", () => {
+    expect(() =>
+      parseArguments(["--report", "report.json", "--max-ms", "100"])
+    ).toThrow("Неизвестный параметр: --max-ms")
   })
 })

@@ -2,7 +2,9 @@ import fs from "node:fs"
 import { relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
-export function findSlowTests(report, maxMs) {
+export const TEST_DURATION_BUDGET_MS = 50
+
+export function findSlowTests(report) {
   return report.testResults
     .flatMap((suite) =>
       suite.assertionResults.map((test) => ({
@@ -11,11 +13,12 @@ export function findSlowTests(report, maxMs) {
         duration: test.duration ?? 0,
       }))
     )
-    .filter((test) => test.duration > maxMs)
+    .filter((test) => test.duration > TEST_DURATION_BUDGET_MS)
     .sort((left, right) => right.duration - left.duration)
 }
 
-function parseArguments(argv) {
+export function parseArguments(argv) {
+  const allowed = new Set(["--report", "--files-from"])
   const values = new Map()
   for (let index = 0; index < argv.length; index += 2) {
     const name = argv[index]
@@ -23,15 +26,13 @@ function parseArguments(argv) {
     if (!name?.startsWith("--") || value === undefined) {
       throw new Error(`Ожидалась пара --параметр значение: ${name ?? ""}`)
     }
+    if (!allowed.has(name)) throw new Error(`Неизвестный параметр: ${name}`)
     values.set(name, value)
   }
   const report = values.get("--report")
-  const maxMs = Number(values.get("--max-ms"))
   if (report === undefined) throw new Error("Не указан --report")
-  if (!Number.isFinite(maxMs) || maxMs <= 0) throw new Error("--max-ms должен быть положительным числом")
   return {
     report,
-    maxMs,
     filesFrom: values.get("--files-from"),
   }
 }
@@ -52,7 +53,7 @@ function run() {
     const options = parseArguments(process.argv.slice(2))
     const report = JSON.parse(fs.readFileSync(options.report, "utf8"))
     const files = selectedFiles(options.filesFrom)
-    const violations = findSlowTests(report, options.maxMs)
+    const violations = findSlowTests(report)
       .filter((test) => files === undefined || files.has(resolve(test.file)))
 
     for (const violation of violations) {
