@@ -19,6 +19,7 @@ export const methodsFromXML: MetadataHTTPServiceMethods = [
 
 export const methodsYAML: MetadataHTTPServiceMethodsYAML = {
   МетодGET: {
+    Синоним: "",
     HTTPМетод: "GET",
     Обработчик: "МетодGET",
   },
@@ -33,6 +34,7 @@ export const methodsFromYAML: MetadataHTTPServiceMethods = [
   {
     itemType: "MetadataHTTPServiceMethod",
     name: "МетодGET",
+    synonym: { items: {} },
     httpMethod: "GET",
     handler: "МетодGET",
   },

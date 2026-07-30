@@ -361,7 +361,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
   })
 
-  it("не восстанавливает Synonym, исключённый из YAML как равный имени", () => {
+  it("восстанавливает Synonym, исключённый из YAML как равный имени", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -395,7 +395,14 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({
+      Synonym: {
+        "v8:item": [{
+          "v8:lang": "ru",
+          "v8:content": "Регистр бухгалтерии по умолчанию",
+        }],
+      },
+    })
   })
 
   it("uses the rule XML property order without reference XML", () => {
