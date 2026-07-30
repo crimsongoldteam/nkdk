@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
-import {
-  assertStableMutationReport,
-  parseMutationArguments,
-  validateMutationFiles,
-} from "./run-mutation-tests.mjs"
+import * as mutationTestRunner from "./run-mutation-tests.mjs"
+
+const { assertStableMutationReport, parseMutationArguments, validateMutationFiles } = mutationTestRunner
 
 describe("run mutation tests", () => {
   it("требует явное имя отчёта и production-файлы", () => {
