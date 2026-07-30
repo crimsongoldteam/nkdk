@@ -8,15 +8,22 @@ const reportNamePattern = /^[a-z0-9][a-z0-9-]*$/u
 export function parseMutationArguments(argv) {
   const args = argv[0] === "--" ? argv.slice(1) : argv
   if (args[0] !== "--report" || args[1] === undefined) {
-    throw new Error("Использование: pnpm test:mutation -- --report <имя> <production-файл...>")
+    throw new Error(
+      "Использование: pnpm test:mutation -- --report <имя> [--tests <test-файлы через запятую>] <production-файл...>"
+    )
   }
   const reportName = args[1]
   if (!reportNamePattern.test(reportName)) {
     throw new Error(`Некорректное имя отчёта: ${reportName}`)
   }
-  const files = args.slice(2)
+  const hasTestFiles = args[2] === "--tests"
+  const testFiles = hasTestFiles ? args[3]?.split(",").filter(Boolean) : undefined
+  if (hasTestFiles && (testFiles === undefined || testFiles.length === 0)) {
+    throw new Error("Не указаны тестовые файлы после --tests")
+  }
+  const files = args.slice(hasTestFiles ? 4 : 2)
   if (files.length === 0) throw new Error("Не указаны production-файлы")
-  return { reportName, files }
+  return testFiles === undefined ? { reportName, files } : { reportName, testFiles, files }
 }
 
 export function validateMutationFiles(projectRoot, files, fileExists = existsSync) {
@@ -35,6 +42,24 @@ export function validateMutationFiles(projectRoot, files, fileExists = existsSyn
       segments.includes("generated") ||
       !fileExists(absolute)
     if (invalid) throw new Error(`Недопустимая цель mutation testing: ${file}`)
+    return projectPath
+  })
+}
+
+export function validateMutationTestFiles(projectRoot, files, fileExists = existsSync) {
+  return files.map((file) => {
+    const absolute = resolve(projectRoot, file)
+    const projectPath = relative(projectRoot, absolute).replace(/\\/gu, "/")
+    const segments = projectPath.split("/")
+    const invalid =
+      projectPath.startsWith("../") ||
+      isAbsolute(projectPath) ||
+      !projectPath.startsWith("packages/core/") ||
+      !/\.(?:test|spec)\.ts$/u.test(projectPath) ||
+      segments.includes("__fixtures__") ||
+      segments.includes("generated") ||
+      !fileExists(absolute)
+    if (invalid) throw new Error(`Недопустимый тестовый файл mutation testing: ${file}`)
     return projectPath
   })
 }
@@ -61,6 +86,11 @@ export function runMutationTests(projectRoot, options) {
     (file) => existsSync(file) && statSync(file).isFile()
   )
   const reportPath = resolve(projectRoot, "reports/stryker", `${options.reportName}.json`)
+  const testFiles = validateMutationTestFiles(
+    projectRoot,
+    options.testFiles ?? [],
+    (file) => existsSync(file) && statSync(file).isFile()
+  )
   rmSync(reportPath, { force: true })
   rmSync(resolve(projectRoot, "reports/stryker", `${options.reportName}.html`), { force: true })
   const status =
@@ -71,6 +101,9 @@ export function runMutationTests(projectRoot, options) {
         ...process.env,
         NKDK_STRYKER_REPORT_NAME: options.reportName,
         NKDK_MUTATION_SOURCE_ROOT: projectRoot,
+        ...(testFiles.length > 0
+          ? { NKDK_STRYKER_TEST_FILES: testFiles.join(",") }
+          : {}),
       },
     }).status ?? 1
   if (status !== 0) return status

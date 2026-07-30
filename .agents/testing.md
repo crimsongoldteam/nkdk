@@ -29,6 +29,15 @@
    pnpm test:mutation -- --report before <production-файлы>
    ```
 
+   Если автоматический поиск связанных тестов захватывает посторонние файлы или
+   зависает, явно ограничь тестовые файлы списком через запятую:
+
+   ```bash
+   pnpm test:mutation -- --report before \
+     --tests packages/core/path/a.test.ts,packages/core/path/b.test.ts \
+     packages/core/path/production.ts
+   ```
+
 4. Из JSON-отчёта определи тесты без уникально обнаруживаемых мутантов по
    `killedBy` и `coveredBy`. ИИ читает их утверждения, production-код и историю
    изменений и объединяет или удаляет только проверки без самостоятельного
