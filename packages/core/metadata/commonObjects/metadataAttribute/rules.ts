@@ -560,3 +560,22 @@ export const MetadataTabularSectionAttributeRules = {
     },
   },
 } as const satisfies MetadataItemRule
+
+const fillCheckingIndex = MetadataTabularSectionAttributeRules.xmlOrder.indexOf("fillChecking")
+if (fillCheckingIndex < 0) {
+  throw new Error("MetadataTabularSectionAttributeRules.xmlOrder: fillChecking is required")
+}
+
+export const MetadataTabularSectionAttributeWithFillRules = {
+  ...MetadataTabularSectionAttributeRules,
+  xmlOrder: [
+    ...MetadataTabularSectionAttributeRules.xmlOrder.slice(0, fillCheckingIndex),
+    "fillFromFillingValue",
+    "fillValue",
+    ...MetadataTabularSectionAttributeRules.xmlOrder.slice(fillCheckingIndex),
+  ],
+  properties: {
+    ...MetadataTabularSectionAttributeRules.properties,
+    ...fillProperties,
+  },
+} as const satisfies MetadataItemRule
