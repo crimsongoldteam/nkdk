@@ -538,8 +538,6 @@ export const MetadataTabularSectionAttributeRules = {
     "extendedEdit",
     "minValue",
     "maxValue",
-    "fillFromFillingValue",
-    "fillValue",
     "fillChecking",
     "choiceFoldersAndItems",
     "choiceParameterLinks",
@@ -560,6 +558,5 @@ export const MetadataTabularSectionAttributeRules = {
       ...commonAttributeProperties.type,
       allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
-    ...fillProperties,
   },
 } as const satisfies MetadataItemRule

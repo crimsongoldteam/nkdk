@@ -102,6 +102,17 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("should export full (round-trip)", () => expectFixtureRoundTrip("full.xml"))
 
+  it("does not add fill defaults to a tabular section attribute", () => {
+    const result = testPropertyFixtureThroughYAML({
+      propertyType: "MetadataTabularSectionAttributes",
+      xmlRootTag: "Attribute",
+      importMetaUrl: import.meta.url,
+      fixture: "documentTabular.xml",
+    })
+
+    expect(normalize(result.result)).toBe(normalize(result.expected))
+  })
+
   it("exports explicit empty Synonym as empty XML tag", () => {
     const result = convertYAML({ ПравилаОтправкиДокументов: { Тип: "Строка", Синоним: "" } })
     expect(result).toContain("<Synonym/>")
