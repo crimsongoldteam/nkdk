@@ -67,7 +67,11 @@ export function runMutationTests(projectRoot, options) {
     spawnSync("pnpm", ["exec", "stryker", "run", "--mutate", files.join(",")], {
       cwd: projectRoot,
       stdio: "inherit",
-      env: { ...process.env, NKDK_STRYKER_REPORT_NAME: options.reportName },
+      env: {
+        ...process.env,
+        NKDK_STRYKER_REPORT_NAME: options.reportName,
+        NKDK_MUTATION_SOURCE_ROOT: projectRoot,
+      },
     }).status ?? 1
   if (status !== 0) return status
   assertStableMutationReport(JSON.parse(readFileSync(reportPath, "utf8")))
