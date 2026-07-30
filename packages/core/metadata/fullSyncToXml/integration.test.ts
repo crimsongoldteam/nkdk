@@ -51,16 +51,23 @@ describe("full XML sync integration", () => {
     expect(targetModule).toEqual(sourceModule)
 
     const index = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
-    expect(index.projectFiles.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
-    expect(index.projectFiles.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
-    expect(index.identities).toContainEqual({
+    expect(index.indexGeneration).toBe(2n)
+    expect(index.files.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
+    expect(index.files.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
+    expect(index.entities).toContainEqual(expect.objectContaining({
       logicalAddress: "Бот.БотВсеСвойства",
-      kind: "uuid",
-      value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
-    })
-    expect(index.identities.some(({ logicalAddress }) =>
+      identities: expect.objectContaining({
+        uuid: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
+      }),
+    }))
+    expect(index.entities.some(({ logicalAddress }) =>
       logicalAddress.includes("ConfigDumpInfo")
     )).toBe(false)
+    expect(index.entities).toContainEqual({
+      logicalAddress: "ВнешнееСостояние",
+      sourceProjectPath: "Бот/БотВсеСвойства/Модуль.bsl",
+      xml: { explicitEmpty: true },
+    })
   })
 
   it("reads and updates the index at the project root when YAML belongs to a component", async () => {
@@ -83,6 +90,34 @@ describe("full XML sync integration", () => {
     expect(synced.failed).toEqual([])
     expect(synced.configurationIndexPath).toContain(join(projectDir, ".nkdk"))
     expect(fs.existsSync(join(yamlDir, ".nkdk"))).toBe(false)
-    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).projectFiles.length).toBeGreaterThan(0)
+    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).files.length).toBeGreaterThan(0)
+  })
+
+  it("removes snapshot entities of a deleted YAML file", async () => {
+    const root = createTempRoot()
+    const projectDir = join(root, "project")
+    const outDir = join(root, "out")
+    const deletedYaml = join(projectDir, "cf", "Бот", "БотВсеСвойства", "Свойства.yaml")
+    await writeSmallYamlProjectWithIndex(projectDir)
+    await fs.promises.rm(join(projectDir, "cf", "Бот"), { recursive: true })
+
+    const synced = await syncConfigurationToXml(
+      {
+        context: mockContextToXML(),
+        componentPath: "cf",
+        projectDir,
+        xmlDir: outDir,
+        concurrency: 1,
+      },
+      createDirectFullSyncDependencies()
+    )
+
+    expect(synced.failed).toEqual([])
+    expect(fs.existsSync(deletedYaml)).toBe(false)
+    const index = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
+    expect(index.indexGeneration).toBe(2n)
+    expect(index.files.some(({ projectPath }) => projectPath === "Бот/БотВсеСвойства/Свойства.yaml")).toBe(false)
+    expect(index.entities.some(({ logicalAddress }) => logicalAddress === "Бот.БотВсеСвойства")).toBe(false)
+    expect(index.entities.some(({ logicalAddress }) => logicalAddress === "ВнешнееСостояние")).toBe(false)
   })
 })

@@ -6,7 +6,7 @@ import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { childSegmentUid, childUid } from "../configurationIndex/logicalAddress"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
 import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
@@ -88,7 +88,7 @@ describe("full XML sync worker", () => {
   it("releases all state on dispose", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
-    const baseSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))
+    const baseSnapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
     await initialize(projectDir, [assigned], context, baseSnapshot)
 
     expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot).toBe(baseSnapshot)
@@ -157,36 +157,43 @@ describe("full XML sync worker", () => {
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
       const formAddress = logicalAddress
       const elementAddress = childUid(formAddress, "Элемент", "Поле")
-      const baseIndex = sampleIndex()
+      const baseIndex = sampleSnapshot()
       const baseSnapshot = snapshotConfigurationIndex(
         encodeConfigurationIndex({
           ...baseIndex,
-          identities: [
-            ...baseIndex.identities,
+          files: [
+            ...baseIndex.files,
+            {
+              projectPath,
+              contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)),
+            },
+          ],
+          entities: [
+            ...baseIndex.entities,
             {
               logicalAddress: childUid(formAddress, "Элемент", "ФормаКоманднаяПанель"),
-              kind: "xmlId",
-              value: "9",
+              sourceProjectPath: projectPath,
+              identities: { xmlId: "9" },
             },
             {
               logicalAddress: elementAddress,
-              kind: "xmlId",
-              value: "10",
+              sourceProjectPath: projectPath,
+              identities: { xmlId: "10" },
             },
             {
               logicalAddress: childSegmentUid(elementAddress, "КонтекстноеМеню"),
-              kind: "xmlId",
-              value: "11",
+              sourceProjectPath: projectPath,
+              identities: { xmlId: "11" },
             },
             {
               logicalAddress: childSegmentUid(elementAddress, "РасширеннаяПодсказка"),
-              kind: "xmlId",
-              value: "12",
+              sourceProjectPath: projectPath,
+              identities: { xmlId: "12" },
             },
           ],
         })
       )
-      const extensionIndex = sampleIndex()
+      const extensionIndex = sampleSnapshot()
       const assigned: FullXmlSyncAssignment = {
         id: projectPath,
         sourceProjectPath: projectPath,
@@ -228,12 +235,20 @@ describe("full XML sync worker", () => {
         targetIndex: snapshotConfigurationIndex(
           encodeConfigurationIndex({
             ...extensionIndex,
-            identities: [
-              ...extensionIndex.identities,
+            componentPath: "cfe/Продажи",
+            files: [
+              ...extensionIndex.files,
+              {
+                projectPath,
+                contentHash: hashFileBytes(fs.readFileSync(sourcePath)),
+              },
+            ],
+            entities: [
+              ...extensionIndex.entities,
               {
                 logicalAddress: elementAddress,
-                kind: "xmlId",
-                value: "1000010",
+                sourceProjectPath: projectPath,
+                identities: { xmlId: "1000010" },
               },
             ],
           })
@@ -307,7 +322,7 @@ describe("full XML sync worker", () => {
             }),
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
-      targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
+      targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
       localMetadata,
       ...(baseSnapshot === undefined ? {} : { baseMetadata: localMetadata }),
     })

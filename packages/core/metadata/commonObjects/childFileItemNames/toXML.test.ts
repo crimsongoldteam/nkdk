@@ -45,14 +45,21 @@ describe("exportChildFileItemNamesToXML", () => {
       context: contexts.importContext,
       xml: { ChildObjects: { Table: ["Все", "ПоУмолчанию", "Модуль"] } },
     })
+    const exportContext = contexts.exportContext()
     const restored = testPropertyFromYAMLToXML({
       rule: metadataRule,
-      context: contexts.exportContext(),
+      context: exportContext,
       yaml: { Дети: ["Модуль", "Все", "ПоУмолчанию"] },
     })
 
     expect(restored.xml).toEqual({
       ChildObjects: { Table: ["Все", "ПоУмолчанию", "Модуль"] },
+    })
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
+    ).toEqual({
+      kind: "names",
+      names: ["Все", "ПоУмолчанию", "Модуль"],
     })
   })
 })

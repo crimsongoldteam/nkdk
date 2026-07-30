@@ -24,17 +24,11 @@ export const importEventsFromYAML = (
   const yamlObj = value as EventsYAML
   const result: Events = {}
 
-  for (const [ruleKey, yamlKey] of Object.entries(rule.items) as Array<[string, string]>) {
-    const eventValue = yamlObj[yamlKey]
-    if (eventValue === undefined) continue
+  const ruleKeyByYamlKey = new Map(Object.entries(rule.items).map(([ruleKey, yamlKey]) => [yamlKey, ruleKey]))
+  for (const [yamlKey, eventValue] of Object.entries(yamlObj)) {
+    const ruleKey = ruleKeyByYamlKey.get(yamlKey) ?? yamlKey
     const modelValue = eventValueFromYAML(eventValue, yamlKey)
     if (modelValue !== undefined) result[ruleKey] = modelValue
-  }
-  const knownYamlKeys = new Set(Object.values(rule.items))
-  for (const [key, eventValue] of Object.entries(yamlObj)) {
-    if (knownYamlKeys.has(key)) continue
-    const modelValue = eventValueFromYAML(eventValue, key)
-    if (modelValue !== undefined) result[key] = modelValue
   }
 
   return isNonEmptyObject(result) ? result : undefined

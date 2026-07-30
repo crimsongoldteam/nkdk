@@ -3,13 +3,13 @@ import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, it } from "vitest"
-import { NKDK_CORE_VERSION } from "../../version"
 import { mockContextFromXML, mockContextToXML } from "../../tests/mockContext"
 import { importContentFromXML } from "../../xml/import/importer"
 import {
   readConfigurationIndex,
   writeConfigurationIndexAtomically,
 } from "../configurationIndex"
+import type { ConfigurationSnapshotEntity } from "../configurationIndex/types"
 import {
   childSegmentUid,
   childUid,
@@ -17,10 +17,8 @@ import {
 import { importConfigurationFromXml } from "../importFromXml"
 import {
   readComponentHashState,
-  readComponentIndexes,
   readComponentProjectStructure,
 } from "../project/componentState"
-import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { syncComponentToXml } from "./syncConfiguration"
 
 const extensionFixtureDir = join(
@@ -208,25 +206,16 @@ describe("configuration extension full XML sync integration", () => {
         name: "РасширениеКонтроль",
       },
     })
-    expect(snapshot.binding.componentPath)
-      .toBe("cfe/РасширениеКонтроль")
-    expect(snapshot.projectFiles.length).toBeGreaterThan(0)
-    expect(snapshot.localIndexes.logicalAddresses).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          logicalAddress: "Справочник.СправочникПолный",
-        }),
-        expect.objectContaining({
-          logicalAddress: "Справочник.Собственный",
-        }),
-      ])
-    )
-    expect(snapshot.identities.some(({ logicalAddress }) =>
+    expect(snapshot.componentPath).toBe("cfe/РасширениеКонтроль")
+    expect(snapshot.files.length).toBeGreaterThan(0)
+    expect(snapshot).not.toHaveProperty("binding")
+    expect(snapshot).not.toHaveProperty("localIndexes")
+    expect(snapshot.entities.some(({ logicalAddress }) =>
       logicalAddress.includes("ПеремещаемоеПоле")
     )).toBe(false)
   }, 60_000)
 
-  it("reports an assignment failure when the cf form is missing and keeps earlier XML", async () => {
+  it("writes an extension-owned form when the base project has no matching form", async () => {
     const state = await createExtensionProject({
       tempDirs,
       includeBaseForm: false,
@@ -234,7 +223,9 @@ describe("configuration extension full XML sync integration", () => {
 
     const result = await syncExtension(state)
 
-    expectAssignmentFailure(state.xmlDir, result.failed, /содержательным ресурсом основной конфигурации/u)
+    expect(result.failed).toEqual([])
+    const form = parseXml(join(state.xmlDir, adoptedFormXmlPath)).Form
+    expect(form.BaseForm).toBeUndefined()
   }, 60_000)
 
   it("reports an assignment failure when a required cf xmlId is missing and keeps earlier XML", async () => {
@@ -340,62 +331,44 @@ async function writeBaseConfiguration(
     address: { kind: "configuration" },
   })
   const hashes = await readComponentHashState({ structure, concurrency: 1 })
-  const indexes = await readComponentIndexes({
-    structure,
-    hashes,
-    context: mockContextToXML(),
-    concurrency: 1,
-  })
   await writeConfigurationIndexAtomically({
     projectDir,
     address: { kind: "configuration" },
     data: {
-      binding: {
-        indexGeneration: 1n,
-        producerVersion: NKDK_CORE_VERSION,
-        componentPath: "cf",
-        baseFingerprint: new Uint8Array(),
-        configurationVersion: new Uint8Array(),
-      },
-      projectFiles: hashes.projectFiles,
-      identities: [
-        uuid("Конфигурация", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+      specificationVersion: "1.3",
+      indexGeneration: 1n,
+      componentPath: "cf",
+      files: hashes.projectFiles,
+      entities: [
+        uuid("Конфигурация", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "Конфигурация.yaml"),
         uuid(
           "Справочник.СправочникПолный",
-          "33333333-3333-4333-8333-333333333333"
+          "33333333-3333-4333-8333-333333333333",
+          "Справочник/СправочникПолный/Свойства.yaml"
         ),
         uuid(
           "Справочник.СправочникПолный.Реквизит.РеквизитСправочника",
-          "55555555-5555-4555-8555-555555555555"
+          "55555555-5555-4555-8555-555555555555",
+          "Справочник/СправочникПолный/Свойства.yaml"
         ),
-        uuid(
-          "Справочник.СправочникПолный.Форма.ФормаОтчета",
-          "88888888-8888-4888-8888-888888888888"
-        ),
-        uuid(
-          "Catalog.СправочникПолный",
-          "33333333-3333-4333-8333-333333333333"
-        ),
-        uuid(
-          "Catalog.СправочникПолный.Attribute.РеквизитСправочника",
-          "55555555-5555-4555-8555-555555555555"
-        ),
-        uuid(
-          "Catalog.СправочникПолный.Form.ФормаОтчета",
-          "88888888-8888-4888-8888-888888888888"
-        ),
-        ...baseFormXmlIds().filter(
-          ({ logicalAddress }) =>
-            logicalAddress !== options.omittedBaseXmlId
-        ),
+        ...(options.includeBaseForm === false
+          ? []
+          : [
+              uuid(
+                "Справочник.СправочникПолный.Форма.ФормаОтчета",
+                "88888888-8888-4888-8888-888888888888",
+                formProjectPath
+              ),
+            ]),
+        ...(options.includeBaseForm === false
+          ? []
+          : [
+              ...baseFormXmlIds().filter(
+                ({ logicalAddress }) =>
+                  logicalAddress !== options.omittedBaseXmlId
+              ),
+            ]),
       ],
-      xmlNodes: [],
-      xmlValues: [],
-      localIndexes: {
-        metadata: serializeSharedValidationSnapshot(indexes.metadata),
-        dependencies: indexes.dependencies,
-        logicalAddresses: indexes.logicalAddresses,
-      },
     },
   })
 }
@@ -473,16 +446,12 @@ async function writeExtensionFormIdentity(
     address,
     data: {
       ...snapshot,
-      identities: [
-        ...snapshot.identities.filter(
-          ({ logicalAddress, kind }) =>
-            logicalAddress !== adoptedAttributeAddress ||
-            kind !== "xmlId"
-        ),
-        ...(includeAdoptedAttributeXmlId
-          ? [xmlId(adoptedAttributeAddress, "1000020")]
-          : []),
-      ],
+      entities: replaceXmlId(
+        snapshot.entities,
+        adoptedAttributeAddress,
+        formProjectPath,
+        includeAdoptedAttributeXmlId ? "1000020" : undefined
+      ),
     },
   })
 }
@@ -535,12 +504,46 @@ function write(projectDir: string, projectPath: string, content: string): void {
   fs.writeFileSync(path, content)
 }
 
-function uuid(logicalAddress: string, value: string) {
-  return { logicalAddress, kind: "uuid" as const, value }
+function uuid(logicalAddress: string, value: string, sourceProjectPath: string): ConfigurationSnapshotEntity {
+  return { logicalAddress, sourceProjectPath, identities: { uuid: value } }
 }
 
-function xmlId(logicalAddress: string, value: string) {
-  return { logicalAddress, kind: "xmlId" as const, value }
+function xmlId(logicalAddress: string, value: string): ConfigurationSnapshotEntity {
+  return { logicalAddress, sourceProjectPath: formProjectPath, identities: { xmlId: value } }
+}
+
+function replaceXmlId(
+  entities: readonly ConfigurationSnapshotEntity[],
+  logicalAddress: string,
+  sourceProjectPath: string,
+  xmlIdValue: string | undefined
+): ConfigurationSnapshotEntity[] {
+  const current = entities.find((entity) => entity.logicalAddress === logicalAddress)
+  const withoutCurrent = entities.filter((entity) => entity.logicalAddress !== logicalAddress)
+  const identities = {
+    ...(current?.identities?.uuid === undefined ? {} : { uuid: current.identities.uuid }),
+    ...(xmlIdValue === undefined ? {} : { xmlId: xmlIdValue }),
+    ...(current?.identities?.xmlName === undefined ? {} : { xmlName: current.identities.xmlName }),
+  }
+  const currentWithoutIdentities =
+    current === undefined
+      ? { logicalAddress, sourceProjectPath }
+      : (({ identities: _identities, ...entity }) => entity)(current)
+  const updated = current === undefined
+    ? {
+        logicalAddress,
+        sourceProjectPath,
+        identities,
+      }
+    : {
+        ...currentWithoutIdentities,
+        ...(Object.keys(identities).length === 0 ? {} : { identities }),
+      }
+  const hasPayload =
+    Object.keys(identities).length > 0 ||
+    updated.omittedChildren !== undefined ||
+    updated.xml !== undefined
+  return hasPayload ? [...withoutCurrent, updated] : withoutCurrent
 }
 
 function parseXml(path: string): any {

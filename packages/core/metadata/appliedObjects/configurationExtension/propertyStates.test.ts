@@ -68,8 +68,12 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(collector.fragment("Форма.yaml").xmlValues).toEqual([
-      { logicalAddress: `${logicalAddress}.${segment}`, extended: true },
+    expect(collector.fragment("Форма.yaml").entities).toEqual([
+      {
+        logicalAddress: `${logicalAddress}.${segment}`,
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true },
+      },
     ])
     expect(yaml).not.toHaveProperty("Контроль")
   })
@@ -90,38 +94,38 @@ describe("configuration extension PropertyState augmenter", () => {
       yaml,
     })
 
-    expect(collector.fragment("Свойства.yaml").xmlValues).toEqual([])
+    expect(collector.fragment("Свойства.yaml").entities).toEqual([])
     expect(yaml).toEqual({})
   })
 
-  it("сохраняет признак заимствования даже для правила без служебных свойств", () => {
+  it("сохраняет расширяемый объект как xml.extended", () => {
     const collector = createConfigurationIndexCollector()
-    const logicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+    const logicalAddress = "Конфигурация"
 
     configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(collector, logicalAddress),
-      rule: { itemType: "ClientApplicationForm", properties: {} } as MetadataItemRule,
-      source: { Properties: { ObjectBelonging: "Adopted" } },
+      rule: { itemType: "MetadataConfigurationExtension", properties: {} } as MetadataItemRule,
+      source: {
+        Properties: {
+          ObjectBelonging: "Adopted",
+          ExtendedConfigurationObject: "11111111-1111-4111-8111-111111111111",
+        },
+      },
       yaml: {},
     })
 
-    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
+    expect(collector.fragment("Форма.yaml").entities).toEqual([
       {
-        logicalAddress: `${logicalAddress}.extensionPropertyOrder`,
-        present: ["objectBelonging"],
-      },
-      {
-        logicalAddress: `${logicalAddress}.extensionPropertyOrder:ClientApplicationForm`,
-        order: ["objectBelonging"],
-        present: ["objectBelonging"],
+        logicalAddress,
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true },
       },
     ])
   })
 
-  it("вставляет служебные свойства в исходный порядок Properties", () => {
+  it("не сохраняет присутствие и порядок служебных свойств", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Товары"
-    collector.setOrder(logicalAddress, ["name", "type"])
 
     configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(collector, logicalAddress),
@@ -144,33 +148,13 @@ describe("configuration extension PropertyState augmenter", () => {
         Properties: {
           ObjectBelonging: "Adopted",
           Name: "Товары",
-          ExtendedConfigurationObject: "uuid",
           Type: "String",
         },
       },
       yaml: {},
     })
 
-    expect(collector.fragment("Свойства.yaml").xmlNodes).toEqual([
-      {
-        logicalAddress,
-        order: ["name", "type"],
-      },
-      {
-        logicalAddress: `${logicalAddress}.extensionPropertyOrder`,
-        present: ["objectBelonging", "extendedConfigurationObject"],
-      },
-      {
-        logicalAddress: `${logicalAddress}.extensionPropertyOrder:Catalog`,
-        order: [
-          "objectBelonging",
-          "name",
-          "extendedConfigurationObject",
-          "type",
-        ],
-        present: ["objectBelonging", "extendedConfigurationObject"],
-      },
-    ])
+    expect(collector.fragment("Свойства.yaml").entities).toEqual([])
   })
 })
 
@@ -189,9 +173,7 @@ function extensionContext(
 }
 
 function propertyStates(
-  states:
-    | readonly [property: string, state: string]
-    | readonly (readonly [property: string, state: string])[]
+  states: readonly [property: string, state: string] | readonly (readonly [property: string, state: string])[]
 ): Record<string, unknown> {
   const normalized = typeof states[0] === "string" ? [states] : states
   const values = normalized.map(([property, state]) => ({

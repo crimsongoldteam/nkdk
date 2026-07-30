@@ -1,6 +1,5 @@
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import { withConfigurationIndexExportLogicalAddress } from "../../configurationIndex/referenceView"
-import { getConfigurationIndexPropertyOrder } from "../../configurationIndex/referenceView"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import type {
@@ -37,7 +36,6 @@ export function convertMetadataCollectionFromYAMLToXML(
   params: ConvertMetadataCollectionFromYAMLToXMLParams
 ): YAMLToXMLResult {
   const entries = completeCollectionEntries({
-    context: params.context,
     entries: collectionEntries(params.yaml, params.descriptor, params.propertyRule),
     descriptor: params.descriptor,
     itemRule: params.descriptor.itemRule,
@@ -45,18 +43,6 @@ export function convertMetadataCollectionFromYAMLToXML(
     source: params.source,
     outputs: params.outputs,
   })
-  if (
-    params.descriptor.preserveOmittedItemNames === true &&
-    entries.every((entry): entry is { yaml: unknown; name: string } => entry.name !== undefined)
-  ) {
-    const runtime = params.context.exportToXML.configurationIndex
-    if (runtime !== undefined) {
-      runtime.collector.setOrder(
-        runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress,
-        entries.map((entry) => entry.name)
-      )
-    }
-  }
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
@@ -204,7 +190,6 @@ export function convertMetadataCollectionFromYAMLToXML(
 }
 
 function completeCollectionEntries(params: {
-  context: ConfigurationContextWithExportToXML
   entries: { yaml: unknown; name?: string }[]
   descriptor: CollectionDescriptor
   itemRule: MetadataItemRule
@@ -214,24 +199,22 @@ function completeCollectionEntries(params: {
 }): { yaml: unknown; name?: string }[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
-  const indexedNames =
-    params.descriptor.preserveOmittedItemNames === true ? [...getConfigurationIndexPropertyOrder(params.context)] : []
-  if (params.descriptor.preserveReferenceItems !== true && referenceNames.length > 0) {
-    const referenceOrder = new Map(referenceNames.map((name, index) => [name, index]))
-    return params.entries.toSorted(
-      (left, right) =>
-        (referenceOrder.get(left.name ?? "") ?? Number.MAX_SAFE_INTEGER) -
-        (referenceOrder.get(right.name ?? "") ?? Number.MAX_SAFE_INTEGER)
-    )
-  }
+  const ruleNames =
+    params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
+      ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
+      : []
+  const sourceNames = new Set([
+    ...params.entries.flatMap((entry) => entry.name === undefined ? [] : [entry.name]),
+    ...(params.descriptor.preserveReferenceItems === true ? referenceNames : []),
+  ])
+  const completedNames =
+    referenceNames.length === 0
+      ? ruleNames
+      : ruleNames.filter((name) => sourceNames.has(name))
   const requestedNames =
-    referenceNames.length > 0
-      ? referenceNames
-      : indexedNames.length > 0
-        ? indexedNames
-        : params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
-          ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
-          : []
+    params.descriptor.preserveReferenceItems === true
+      ? [...completedNames, ...referenceNames.filter((name) => !completedNames.includes(name))]
+      : completedNames
   if (requestedNames.length === 0) return params.entries
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))

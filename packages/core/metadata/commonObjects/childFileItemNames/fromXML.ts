@@ -5,6 +5,7 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
+import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 
 export const importChildFileItemNamesFromXML = (
   _context: ConfigurationContextFromXML,
@@ -22,5 +23,18 @@ registerTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ co
   if (collection === undefined) return
   const names = Array.isArray(xml) ? xml : [xml]
   if (!names.every((value): value is string => typeof value === "string")) return
-  collection.collector.setOrder(getConfigurationIndexXmlNodeLogicalAddress(collection), names)
+  setChildFileItemNamesOmittedChildren(
+    collection.collector,
+    getConfigurationIndexXmlNodeLogicalAddress(collection),
+    names
+  )
 })
+
+export function setChildFileItemNamesOmittedChildren(
+  collector: ConfigurationIndexCollector,
+  address: string,
+  names: readonly string[]
+): void {
+  if (names.length === 0) return
+  collector.setOmittedChildren(address, { kind: "names", names })
+}

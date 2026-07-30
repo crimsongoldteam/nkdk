@@ -12,7 +12,8 @@ import { createConfigurationIndexCollector } from "./collector/writer"
 import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
-import { sampleIndex } from "./testData"
+import { sampleSnapshot, TEST_UUID } from "./testData"
+import type { ConfigurationSnapshotEntity } from "./types"
 
 import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/metadataValue/fromXML"
@@ -33,11 +34,23 @@ import "../systemEnumerations/fromYAML"
 import "../systemEnumerations/toXML"
 import "../systemEnumerations/toYAML"
 
-function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
+function contextWithIndex(extraEntities: readonly ConfigurationSnapshotEntity[] = []): {
   context: ConfigurationContextWithExportToXML
   collector: ReturnType<typeof createConfigurationIndexCollector>
 } {
-  const data = { ...sampleIndex(), xmlValues }
+  const snapshot = sampleSnapshot()
+  const data = {
+    ...snapshot,
+    entities: [
+      ...snapshot.entities,
+      {
+        logicalAddress: "Справочник.Товары",
+        sourceProjectPath: "Configuration.yaml",
+        identities: { uuid: TEST_UUID },
+      },
+      ...extraEntities,
+    ],
+  }
   const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(data)))
   const collector = createConfigurationIndexCollector()
   const configurationIndex = createConfigurationIndexExportRuntime({
@@ -98,7 +111,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual(source)
   })
 
-  it("восстанавливает явно заданное XML-значение, совпадающее с implicitValueYAML", () => {
+  it("не восстанавливает XML-значение, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары",
       targetProjectPath: "Справочник/Товары/Свойства.yaml",
@@ -126,7 +139,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Mode: "Auto" })
+    expect(exported.xml).toEqual({})
   })
 
   it("не заменяет явно заданный Normal на XML-default QuickAccess", () => {
@@ -168,7 +181,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual(source)
   })
 
-  it("восстанавливает явно заданное логическое XML-значение из implicitValueYAML", () => {
+  it("не восстанавливает логическое XML-значение, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -193,10 +206,10 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Enabled: true })
+    expect(exported.xml).toEqual({})
   })
 
-  it("восстанавливает явно заданные XML defaults по признаку присутствия", () => {
+  it("не восстанавливает XML defaults по удалённому признаку присутствия", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -229,10 +242,10 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Mode: "Default", Enabled: false })
+    expect(exported.xml).toEqual({})
   })
 
-  it("восстанавливает XML-представление системного перечисления из implicitValueYAML", () => {
+  it("не восстанавливает системное перечисление, исключённое из YAML как implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -258,10 +271,10 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Type: "UsualButton" })
+    expect(exported.xml).toEqual({})
   })
 
-  it("восстанавливает локализованное логическое implicitValueYAML", () => {
+  it("не восстанавливает локализованное логическое implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -286,10 +299,10 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Enabled: false })
+    expect(exported.xml).toEqual({})
   })
 
-  it("не экспортирует вычисленное значение по умолчанию отсутствующего XML-свойства", () => {
+  it("экспортирует вычисленное значение по умолчанию без удалённого признака присутствия", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -316,7 +329,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({ Режим: "QuickAccess", Имя: "Тест" })
-    expect(exported.xml).toEqual({ Name: "Тест" })
+    expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
   })
 
   it("сохраняет явно заданное XML-значение, совпадающее с вычисленным значением по умолчанию", () => {
@@ -348,7 +361,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
   })
 
-  it("восстанавливает из имени явно заданный Synonym, исключённый из YAML", () => {
+  it("не восстанавливает Synonym, исключённый из YAML как равный имени", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -382,16 +395,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({
-      Synonym: {
-        "v8:item": [
-          {
-            "v8:lang": "ru",
-            "v8:content": "Регистр бухгалтерии по умолчанию",
-          },
-        ],
-      },
-    })
+    expect(exported.xml).toEqual({})
   })
 
   it("uses the rule XML property order without reference XML", () => {
@@ -453,7 +457,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(Object.keys(exported.xml.Properties as object)).toEqual(["Name"])
   })
 
-  it("восстанавливает порядок свойств и XML aliases без reference XML", () => {
+  it("использует XML-имена rules и не сохраняет aliases или present", () => {
     const { context, collector } = contextWithIndex()
     const rule = {
       itemType: "Catalog",
@@ -470,43 +474,35 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Name: "Товары", Synonym: "Номенклатура" })
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          aliases: { synonym: "Synonym" },
-          present: ["synonym"],
-        }),
-      ])
-    )
+    expect(result.outputs.get("owner")).toEqual({ CanonicalSynonym: "Номенклатура", Name: "Товары" })
+    expect(JSON.stringify(collector.fragment("Справочник/Товары/Свойства.yaml").entities))
+      .not.toMatch(/aliases|present/u)
   })
 
-  it("восстанавливает XML-значения из индекса без reference XML", () => {
+  it("восстанавливает XML-значения из снимка без reference XML", () => {
     const { context } = contextWithIndex([
-      { logicalAddress: "Справочник.Товары.fillValue", xsiNil: true },
       {
-        logicalAddress: "Справочник.Товары.userSettingsId",
-        userSettingsId: "00000000-0000-4000-8000-000000000099",
+        logicalAddress: "Справочник.Товары.fillValue",
+        sourceProjectPath: "Configuration.yaml",
+        xml: { xsiNil: true },
       },
     ])
     const rule = {
       itemType: "Catalog",
       properties: {
         fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
-        userSettingsId: { type: "UserSettingsID", yaml: "ИдентификаторНастройки", xml: "UserSettingsID" },
       },
     } as const satisfies MetadataItemRule
 
     const result = convertPropertiesFromYAMLToXML({
       context,
-      yaml: { ИдентификаторНастройки: "Истина" },
+      yaml: {},
       rule,
       outputs: [{ key: "owner" }],
     })
 
     expect(result.outputs.get("owner")).toEqual({
       FillValue: { "_xsi:nil": true },
-      UserSettingsID: "00000000-0000-4000-8000-000000000099",
     })
   })
 
@@ -549,10 +545,11 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(result.outputs.get("owner")).toEqual({ _uuid: "00000000-0000-4000-8000-000000000001" })
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").identities).toContainEqual({
-      logicalAddress: "Справочник.Товары",
-      kind: "uuid",
-      value: "00000000-0000-4000-8000-000000000001",
-    })
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
+      expect.objectContaining({
+        logicalAddress: "Справочник.Товары",
+        identities: { uuid: TEST_UUID },
+      })
+    )
   })
 })

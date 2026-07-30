@@ -14,27 +14,21 @@ import {
   type ProjectObjectIndexEntry,
 } from "../validation/projectReferenceIndex"
 import { resolveValidationProjectFile, type ValidationProjectFile } from "../validation/projectFiles"
-import type {
-  ValidationIndexContribution,
-  ValidationObjectRecord,
-} from "../validation/projectValidationTypes"
-import type { ImportLocalDependency } from "./types"
+import type { ValidationIndexContribution, ValidationObjectRecord } from "../validation/projectValidationTypes"
+import type { ProjectLocalDependency } from "../project/componentIndexFacts"
 import type { PreparedImportYaml } from "./prepareYaml"
 import { extractImportOwnerFacts } from "./ownerFacts"
 
 export interface ImportValidationContribution {
   validationContribution: ValidationIndexContribution
-  localDependencies: ImportLocalDependency[]
+  localDependencies: ProjectLocalDependency[]
 }
 
 export function extractImportValidationContribution(params: {
   prepared: PreparedImportYaml
   projectDir: string
 }): ImportValidationContribution {
-  const file = resolveValidationProjectFile(
-    params.projectDir,
-    params.prepared.assignment.targetProjectPath
-  )
+  const file = resolveValidationProjectFile(params.projectDir, params.prepared.assignment.targetProjectPath)
   if (file === undefined) return emptyImportValidationContribution()
 
   const references = extractMetadataTargetReferences(params.prepared)
@@ -129,11 +123,9 @@ export function emptyImportValidationContribution(): ImportValidationContributio
   }
 }
 
-function extractMetadataTargetReferences(
-  prepared: PreparedImportYaml
-): Array<{
+function extractMetadataTargetReferences(prepared: PreparedImportYaml): Array<{
   reference: PendingMetadataTargetReference
-  rulePath: ImportLocalDependency["rulePath"]
+  rulePath: ProjectLocalDependency["rulePath"]
 }> {
   return (prepared.localIndexes.metadata.metadataTargets ?? []).flatMap((fact) => {
     const parsed = parseMetadataTargetFromYAML({
@@ -222,11 +214,7 @@ function ownerMemberIndexEntries(params: {
     appendMember(entries, seen, fieldTarget(objectTarget, field, params.facts.filePath))
     if (field.kind !== "tabularSection" || field.tableSource === undefined) continue
     for (const column of field.tableSource.columns.values()) {
-      appendMember(
-        entries,
-        seen,
-        nestedFieldTarget(objectTarget, field.name, column, params.facts.filePath)
-      )
+      appendMember(entries, seen, nestedFieldTarget(objectTarget, field.name, column, params.facts.filePath))
     }
   }
 
@@ -305,11 +293,7 @@ function metadataFieldKind(kind: ObjectFieldKind): MetadataFieldKind {
   }
 }
 
-function appendMember(
-  entries: ProjectMemberIndexEntry[],
-  seen: Set<string>,
-  entry: ProjectMemberIndexEntry
-): void {
+function appendMember(entries: ProjectMemberIndexEntry[], seen: Set<string>, entry: ProjectMemberIndexEntry): void {
   if (seen.has(entry.canonical)) return
   seen.add(entry.canonical)
   entries.push(entry)

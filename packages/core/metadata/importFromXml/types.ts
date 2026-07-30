@@ -1,7 +1,6 @@
 import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import type { ConfigurationLocalDependency } from "../configurationIndex/types"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
@@ -70,12 +69,9 @@ export interface ImportFirstPassResult {
   kind: "firstPassResult"
   ownerFacts: ValidationOwnerFacts[]
   validationContribution: ValidationIndexContribution
-  localDependencies: ImportLocalDependency[]
   diagnostics: ImportDiagnostic[]
   fragmentBuffer: ArrayBuffer
 }
-
-export type ImportLocalDependency = ConfigurationLocalDependency
 
 export interface ImportSecondPassResult {
   kind: "secondPassResult"
@@ -84,7 +80,4 @@ export interface ImportSecondPassResult {
   files: ImportResultFile[]
 }
 
-export type ImportWorkerCommandResult =
-  | ImportFirstPassResult
-  | ImportSecondPassResult
-  | undefined
+export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined

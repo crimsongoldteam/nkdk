@@ -55,13 +55,6 @@ registerMetadataItemCollectionRule({
   configurationIndexAddressing: "yamlPath",
 })
 registerMetadataItemCollectionRule({
-  propertyType: "TestPreservedNamesCollection" as PropertyRuleType,
-  itemRule,
-  xmlElement: "Item",
-  keyField: "name",
-  preserveOmittedItemNames: true,
-})
-registerMetadataItemCollectionRule({
   propertyType: "TestPreservedPresenceCollection" as PropertyRuleType,
   itemRule,
   xmlElement: "Item",
@@ -176,49 +169,34 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), arrayCollector, "Владелец.A")
     )
 
-    expect(recordCollector.fragment("test.yaml").identities).toEqual(
+    expect(recordCollector.fragment("test.yaml").entities).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ logicalAddress: "Владелец.A.Элемент.Первый", kind: "uuid" }),
-        expect.objectContaining({ logicalAddress: "Владелец.A.Элемент.Второй", kind: "uuid" }),
+        expect.objectContaining({
+          logicalAddress: "Владелец.A.Элемент.Первый",
+          identities: { uuid: "11111111-1111-1111-1111-111111111111" },
+        }),
+        expect.objectContaining({
+          logicalAddress: "Владелец.A.Элемент.Второй",
+          identities: { uuid: "22222222-2222-2222-2222-222222222222" },
+        }),
       ])
     )
-    expect(recordCollector.fragment("test.yaml").xmlNodes).toEqual(
+    expect(arrayCollector.fragment("test.yaml").entities).toEqual(
       expect.arrayContaining([
-        { logicalAddress: "Владелец.A.Элемент.Первый", present: ["uuid", "name", "value"] },
-        { logicalAddress: "Владелец.A.Элемент.Второй", present: ["uuid", "name", "value"] },
+        expect.objectContaining({
+          logicalAddress: "Владелец.A.Элементы[0]",
+          identities: { uuid: "11111111-1111-1111-1111-111111111111" },
+        }),
+        expect.objectContaining({
+          logicalAddress: "Владелец.A.Элементы[1]",
+          identities: { uuid: "22222222-2222-2222-2222-222222222222" },
+        }),
       ])
     )
-    expect(arrayCollector.fragment("test.yaml").identities).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ logicalAddress: "Владелец.A.Элементы[0]", kind: "uuid" }),
-        expect.objectContaining({ logicalAddress: "Владелец.A.Элементы[1]", kind: "uuid" }),
-      ])
-    )
-    expect(arrayCollector.fragment("test.yaml").xmlNodes).toEqual(
-      expect.arrayContaining([
-        { logicalAddress: "Владелец.A.Элементы[0]", present: ["uuid", "name", "value"] },
-        { logicalAddress: "Владелец.A.Элементы[1]", present: ["uuid", "name", "value"] },
-      ])
-    )
-  })
-
-  it("keeps special collection item order in the snapshot", () => {
-    const indexCollector = createConfigurationIndexCollector()
-
-    runDirectRule(
-      "TestPreservedNamesCollection",
-      {
-        Items: {
-          Item: [{ Name: "Второй" }, { Name: "Первый" }],
-        },
-      },
-      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
-    )
-
-    expect(indexCollector.fragment("test.yaml").xmlNodes).toContainEqual({
-      logicalAddress: "Владелец.A.Свойство.Элементы",
-      order: ["Второй", "Первый"],
-    })
+    for (const fragment of [recordCollector.fragment("test.yaml"), arrayCollector.fragment("test.yaml")]) {
+      expect(fragment.entities.flatMap((entity) => Object.keys(entity))).not.toContain("present")
+      expect(JSON.stringify(fragment.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order/)
+    }
   })
 
   it("addresses an array item by keyField when YAML-path addressing is disabled", () => {
@@ -235,11 +213,48 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
       withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
     )
 
-    expect(indexCollector.fragment("test.yaml").identities).toContainEqual({
+    expect(indexCollector.fragment("test.yaml").entities).toContainEqual({
       logicalAddress: "Владелец.A.TestItem.a",
-      kind: "uuid",
-      value: "11111111-1111-1111-1111-111111111111",
+      sourceProjectPath: "test.yaml",
+      identities: { uuid: "11111111-1111-1111-1111-111111111111" },
     })
+  })
+
+  it("не сохраняет XML alias и явно заданный default в снимке", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const aliasRule = {
+      itemType: "AliasOwner",
+      properties: {
+        value: {
+          type: "string",
+          xml: "CanonicalValue",
+          xmlAliases: ["LegacyValue"],
+          yaml: "Значение",
+        },
+        explicitDefault: {
+          type: "string",
+          xml: "ExplicitDefault",
+          yaml: "ЯвноеЗначение",
+          defaultValueXML: "default",
+          preserveExplicitDefaultXML: true,
+        },
+      },
+    } as MetadataItemRule
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Владелец.A")
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: aliasRule,
+      sources: [{ context, xml: { LegacyValue: "legacy", ExplicitDefault: "default" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+    const fragment = indexCollector.fragment("test.yaml")
+
+    expect(yaml).toEqual({ Значение: "legacy", ЯвноеЗначение: "default" })
+    expect(fragment.entities.flatMap((entity) => Object.keys(entity))).not.toContain("present")
+    expect(JSON.stringify(fragment.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order/)
   })
 
   it("завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {

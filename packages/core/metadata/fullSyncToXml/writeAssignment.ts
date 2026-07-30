@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
 import { xmlExport } from "../../xml/export/exporter"
-import type { ConfigurationIndexFragment } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import { finalizeExportedXmlValues } from "../orchestration/property/finalizeExportedXML"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
@@ -21,7 +21,7 @@ interface PreparedWriteParams {
 export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
-  readonly fragment?: ConfigurationIndexFragment
+  readonly fragment?: ConfigurationSnapshotFragment
   readonly profile?: YAMLToXMLProfile
 }
 

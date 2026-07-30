@@ -1,9 +1,10 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { ConfigurationIdentity } from "../../configurationIndex/types"
+
+type RequiredConfigurationIdentityKind = "uuid" | "xmlId" | "xmlName"
 
 export function assertRequiredConfigurationIdentity(params: {
   readonly context: ConfigurationContextWithExportToXML
-  readonly kind: ConfigurationIdentity["kind"] | undefined
+  readonly kind: RequiredConfigurationIdentityKind | undefined
 }): void {
   if (
     params.kind === undefined ||

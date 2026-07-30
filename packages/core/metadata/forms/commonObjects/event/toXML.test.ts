@@ -7,22 +7,17 @@ import { createConfigurationIndexCollector } from "../../../configurationIndex/c
 import { encodeConfigurationIndex } from "../../../configurationIndex/encode"
 import { createConfigurationIndexExportRuntime } from "../../../configurationIndex/exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../../configurationIndex/testData"
-import { eventBindingKey } from "./callType"
+import { sampleSnapshot } from "../../../configurationIndex/testData"
 import { importEventsFromXML } from "./fromXML"
 import { exportEventsToXML } from "./toXML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 
 const eventRule = ClientApplicationFormRules.properties.events
 
-function contextWithEventOrder(order: readonly string[]) {
+function contextWithSnapshot() {
   const collector = createConfigurationIndexCollector()
   const source = createConfigurationIndexReader(
-    snapshotConfigurationIndex(
-      encodeConfigurationIndex({
-        ...sampleIndex(),
-        xmlNodes: [...sampleIndex().xmlNodes, { logicalAddress: "Форма.События", order }],
-      })
-    )
+    snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
   )
   const configurationIndex = createConfigurationIndexExportRuntime({
     source,
@@ -41,33 +36,43 @@ function contextWithEventOrder(order: readonly string[]) {
 }
 
 describe("export Events to XML", () => {
-  it("выгружает режимы вызова событий в порядке составных ключей снимка", () => {
-    const { context } = contextWithEventOrder([
-      eventBindingKey("onChange", "Before"),
-      eventBindingKey("onChange", "After"),
-      eventBindingKey("startChoice", "Override"),
-    ])
+  it("выгружает события в порядке ключей YAML, а не reference или снимка", () => {
+    const { context, collector } = contextWithSnapshot()
+    const rule = {
+      type: "Events",
+      items: { a: "A", b: "B" },
+    } as PropertyRule
 
     expect(
-      exportEventsToXML(context, eventRule, {
-        onChange: {
-          Before: "ПередИзменением",
-          After: "ПослеИзменения",
+      exportEventsToXML(
+        context,
+        rule,
+        {
+          a: {
+            Before: "ПередA",
+            After: "ПослеA",
+          },
+          b: "ОбработчикB",
         },
-        startChoice: {
-          Override: "ВместоВыбора",
-        },
-      })
+        {
+          b: "ОбработчикB",
+          a: {
+            After: "ПослеA",
+            Before: "ПередA",
+          },
+        }
+      )
     ).toEqual({
       Event: [
-        { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
-        { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
-        { _name: "StartChoice", _callType: "Override", "#text": "ВместоВыбора" },
+        { _name: "A", _callType: "Before", "#text": "ПередA" },
+        { _name: "A", _callType: "After", "#text": "ПослеA" },
+        { _name: "B", "#text": "ОбработчикB" },
       ],
     })
+    expect(JSON.stringify(collector.fragment("Форма.yaml").entities)).not.toMatch(/aliases|order/)
   })
 
-  it("детерминированно упорядочивает режимы нового события", () => {
+  it("сохраняет порядок callType из YAML-объекта", () => {
     expect(
       exportEventsToXML(mockContextToXML(), eventRule, {
         onChange: {
@@ -78,14 +83,14 @@ describe("export Events to XML", () => {
       })
     ).toEqual({
       Event: [
-        { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
-        { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
         { _name: "OnChange", _callType: "Override", "#text": "ВместоИзменения" },
+        { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
+        { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
       ],
     })
   })
 
-  it("сохраняет порядок reference для обычных событий без снимка", () => {
+  it("сохраняет порядок YAML для обычных событий при другом порядке reference", () => {
     expect(
       exportEventsToXML(
         mockContextToXML(),
@@ -101,10 +106,41 @@ describe("export Events to XML", () => {
       )
     ).toEqual({
       Event: [
-        { _name: "OnChange", "#text": "ПриИзменении" },
         { _name: "AutoComplete", "#text": "АвтоПодбор" },
+        { _name: "OnChange", "#text": "ПриИзменении" },
       ],
     })
+  })
+
+  it.each([
+    [
+      "обычное",
+      { Event: { _name: "VendorEvent", "#text": "ОбработчикVendorEvent" } },
+      { Event: [{ _name: "VendorEvent", "#text": "ОбработчикVendorEvent" }] },
+    ],
+    [
+      "с одним callType",
+      {
+        Event: {
+          _name: "VendorEvent",
+          _callType: "Before" as const,
+          "#text": "ПередVendorEvent",
+        },
+      },
+      {
+        Event: [
+          {
+            _name: "VendorEvent",
+            _callType: "Before",
+            "#text": "ПередVendorEvent",
+          },
+        ],
+      },
+    ],
+  ])("делает no-reference round-trip неизвестного события: %s", (_description, xml, expected) => {
+    const yaml = importEventsFromXML(mockContextFromXML(), InputFieldRules.properties.events, xml)
+
+    expect(exportEventsToXML(mockContextToXML(), InputFieldRules.properties.events, yaml)).toEqual(expected)
   })
 
   it("заменяет неизвестную обычную reference-привязку режимной", () => {
@@ -128,37 +164,6 @@ describe("export Events to XML", () => {
         },
       ],
     })
-  })
-
-  it("восстанавливает смешанный порядок обычных и режимных привязок", () => {
-    const order = [
-      eventBindingKey("onChange", "After"),
-      eventBindingKey("startChoice", "Override"),
-      eventBindingKey("onChange", "Before"),
-      eventBindingKey("autoComplete"),
-    ]
-    const { context, collector } = contextWithEventOrder(order)
-
-    expect(
-      exportEventsToXML(context, eventRule, {
-        autoComplete: "АвтоПодбор",
-        onChange: {
-          Before: "ПередИзменением",
-          After: "ПослеИзменения",
-        },
-        startChoice: { Override: "ВместоВыбора" },
-      })
-    ).toEqual({
-      Event: [
-        { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
-        { _name: "StartChoice", _callType: "Override", "#text": "ВместоВыбора" },
-        { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
-        { _name: "AutoComplete", "#text": "АвтоПодбор" },
-      ],
-    })
-    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
-      { logicalAddress: "Форма.События", order },
-    ])
   })
 
   it("exports form user settings update event with canonical XML case", () => {

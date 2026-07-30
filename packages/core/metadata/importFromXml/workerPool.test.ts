@@ -52,11 +52,12 @@ describe("XML import worker pool", () => {
       "Catalog.three",
       "Catalog.two",
     ])
-    expect(first.localDependencies.map((dependency) => dependency.canonical)).toEqual([
+    expect(first.validationContribution.localDependencies.map((dependency) => dependency.canonical)).toEqual([
       "Catalog.one.Form.Основная",
       "Catalog.three.Form.Основная",
       "Catalog.two.Form.Основная",
     ])
+    expect(first).not.toHaveProperty("localDependencies")
 
     await pool.close()
   })
@@ -181,10 +182,55 @@ describe("XML import worker pool", () => {
 
       expect(result.diagnostics).toEqual([])
       expect(result.fragmentData).toEqual({
-        identities: expected.identities,
-        xmlNodes: expected.xmlNodes,
-        xmlValues: expected.xmlValues,
-        localDependencies: [],
+        sourceProjectPaths: [source.targetProjectPath],
+        entities: expected.entities,
+      })
+    } finally {
+      try {
+        await pool.close()
+      } finally {
+        process.chdir(originalCwd)
+      }
+    }
+  }, 30_000)
+
+  it("passes an empty snapshot fragment through a real Piscina worker", async () => {
+    const sourceDir = createTempDir("empty-fragment-source")
+    const sourcePath = join(sourceDir, "БезФактов.xml")
+    fs.writeFileSync(
+      sourcePath,
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses">
+  <Catalog>
+    <Properties>
+      <Name>БезФактов</Name>
+    </Properties>
+  </Catalog>
+</MetaDataObject>`
+    )
+    const source = assignment("empty-real", {
+      itemName: "БезФактов",
+      logicalAddress: "Справочник.БезФактов",
+      targetProjectPath: "Справочник/БезФактов/Свойства.yaml",
+      xmlFiles: [{ role: "metadata", sourcePath }],
+    })
+    const pool = createXmlImportWorkerPool({ concurrency: 1 })
+    const originalCwd = process.cwd()
+    process.chdir(repoRoot)
+
+    try {
+      await pool.initialize({
+        operationId: "empty-fragment",
+        context: mockXmlImportContext(),
+        outputDir: createTempDir("empty-fragment-output"),
+        componentKind: "configuration",
+      })
+      const result = await pool.runFirstPass([source])
+
+      expect(result.diagnostics).toEqual([])
+      expect(result.fragmentData).toEqual({
+        sourceProjectPaths: [source.targetProjectPath],
+        entities: [],
       })
     } finally {
       try {
@@ -283,13 +329,6 @@ function createFakePools() {
             return {
               kind: "firstPassResult" as const,
               ownerFacts: [],
-              localDependencies: task.assignments.map((item) => ({
-                sourceProjectPath: item.targetProjectPath,
-                yamlPath: ["ОсновнаяФорма"],
-                rulePath: [{ propertyKey: "defaultForm" }],
-                kind: "metadataTarget" as const,
-                canonical: `Catalog.${item.itemName}.Form.Основная`,
-              })),
               validationContribution: {
                 objectRecords: [],
                 objectIndexEntries: task.assignments.map((item) => {
@@ -307,21 +346,24 @@ function createFakePools() {
                 memberIndexEntries: [],
                 valueIndexEntries: [],
                 pendingReferences: [],
+                localDependencies: task.assignments.map((item) => ({
+                  sourceProjectPath: item.targetProjectPath,
+                  yamlPath: ["ОсновнаяФорма"],
+                  rulePath: [{ propertyKey: "defaultForm" }],
+                  kind: "metadataTarget" as const,
+                  canonical: `Catalog.${item.itemName}.Form.Основная`,
+                })),
+                logicalAddresses: [],
               },
               diagnostics: diagnostics.get(workerIndex) ?? [],
               fragmentBuffer: encodeConfigurationIndexFragments(
                 task.assignments.map((item) => ({
                   targetProjectPath: item.targetProjectPath,
-                  identities: [],
-                  xmlNodes: [],
-                  xmlValues: [],
-                  localDependencies: [
+                  entities: [
                     {
+                      logicalAddress: item.logicalAddress,
                       sourceProjectPath: item.targetProjectPath,
-                      yamlPath: ["ОсновнаяФорма"],
-                      rulePath: [{ propertyKey: "defaultForm" }],
-                      kind: "metadataTarget",
-                      canonical: `Catalog.${item.itemName}.Form.Основная`,
+                      identities: { xmlName: item.itemName },
                     },
                   ],
                 }))

@@ -9,9 +9,7 @@ function removeFormattingText(value: unknown): unknown {
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
-      key === "#text" && typeof child === "string" && child.trim() === ""
-        ? []
-        : [[key, removeFormattingText(child)]]
+      key === "#text" && typeof child === "string" && child.trim() === "" ? [] : [[key, removeFormattingText(child)]]
     )
   )
 }

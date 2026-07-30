@@ -3,7 +3,7 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
+import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext } from "../context/types"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
@@ -37,7 +37,7 @@ export interface FullXmlSyncExecutionPoolResult {
   readonly warnings: FullXmlSyncDiagnostic[]
   readonly writtenFiles: FullXmlSyncWrittenFile[]
   readonly expectedOutputs: FullXmlSyncExpectedOutput[]
-  readonly fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
+  readonly fragmentData: MergedConfigurationSnapshotFragments
 }
 
 export interface FullXmlSyncWorkerPool {

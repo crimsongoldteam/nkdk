@@ -12,11 +12,7 @@ import {
   snapshotConfigurationIndex,
   type ConfigurationIndexReader,
 } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
-import type {
-  ConfigurationIdentity,
-  ConfigurationIndexData,
-} from "../../configurationIndex/types"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ClientApplicationFormYAML } from "./types"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
@@ -695,31 +691,37 @@ describe("client application BaseForm", () => {
       .toEqual({
         targetProjectPath:
           "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-        identities: [],
-        xmlNodes: [],
-        xmlValues: [],
+        entities: [],
       })
   })
 })
 
 function reader(params: {
   readonly componentPath: string
-  readonly identities?: readonly ConfigurationIdentity[]
-  readonly xmlNodes?: ConfigurationIndexData["xmlNodes"]
-  readonly xmlValues?: ConfigurationIndexData["xmlValues"]
+  readonly identities?: readonly LegacyIdentity[]
+  readonly xmlNodes?: readonly unknown[]
+  readonly xmlValues?: readonly unknown[]
 }): ConfigurationIndexReader {
-  const sample = sampleIndex()
+  const sample = sampleSnapshot()
+  const identitiesByAddress = new Map<string, Record<string, string>>()
+  for (const identity of params.identities ?? []) {
+    const identities = identitiesByAddress.get(identity.logicalAddress) ?? {}
+    identities[identity.kind] = identity.value
+    identitiesByAddress.set(identity.logicalAddress, identities)
+  }
   const source = createConfigurationIndexReader(
     snapshotConfigurationIndex(
       encodeConfigurationIndex({
         ...sample,
-        binding: {
-          ...sample.binding,
-          componentPath: params.componentPath,
-        },
-        identities: params.identities ?? [],
-        xmlNodes: params.xmlNodes ?? [],
-        xmlValues: params.xmlValues ?? [],
+        componentPath: params.componentPath,
+        entities: [
+          ...sample.entities,
+          ...[...identitiesByAddress].map(([logicalAddress, identities]) => ({
+            logicalAddress,
+            sourceProjectPath: "Configuration.yaml",
+            identities,
+          })),
+        ],
       })
     )
   )
@@ -729,8 +731,14 @@ function reader(params: {
 function xmlId(
   logicalAddress: string,
   value: string
-): ConfigurationIdentity {
+): LegacyIdentity {
   return { logicalAddress, kind: "xmlId", value }
+}
+
+interface LegacyIdentity {
+  readonly logicalAddress: string
+  readonly kind: "uuid" | "xmlId" | "xmlName"
+  readonly value: string
 }
 
 function asChildItemArray(value: unknown): Array<Record<string, any>> {

@@ -296,3 +296,7 @@ const importDcsMetadataValueFromXMLForRule: (
 }
 
 registerTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
+registerTypeRule("MetadataDcsMetadataValue", "configurationIndexValueFromXML", {
+  xsiNilWhenNotRepresentable: true,
+  referenceXMLFromValue: (value) => (value.xsiNil === true ? { "_xsi:nil": true } : undefined),
+})

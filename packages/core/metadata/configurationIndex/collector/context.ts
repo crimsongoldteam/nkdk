@@ -126,7 +126,11 @@ export function runWithConfigurationIndexPropertyContext<T>(
     ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
     ...(options.propertyKey === undefined
       ? {}
-      : { propertyValueLogicalAddress: `${collection.logicalAddress}.${options.propertyKey}` }),
+      : {
+          propertyValueLogicalAddress: useYamlPath
+            ? propertyAddress
+            : `${collection.logicalAddress}.${options.propertyKey}`,
+        }),
   }
   try {
     return run(context)

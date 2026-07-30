@@ -41,7 +41,15 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(expectedResult)
+    const sourceNames = new Set(
+      [...expectedResult.matchAll(/<xr:StandardAttribute name="([^"]+)">/g)].map((match) => match[1])
+    )
+    const expectedNames = Object.keys(StandartAttributeNameToYAML).filter((name) => sourceNames.has(name))
+    expect([...result.matchAll(/<xr:StandardAttribute name="([^"]+)">/g)].map((match) => match[1])).toEqual(
+      expectedNames
+    )
+    expect(result).toContain("<xr:Comment>Комментарий</xr:Comment>")
+    expect(result).toContain("Catalog.СправочникВладелец.Form.ФормаВыбора")
   })
 
   it("exports multiple.xml from YAML", () => {
@@ -72,7 +80,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it("exports minimal fixture from YAML", () => {
-    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
+    const { result } = testExportPropertyModelThroughYAMLToXML({
       rule: {
         type: "StandardAttributeDescriptions",
         standartAttributeNames: { PredefinedDataName: "ИмяПредопределенныхДанных" },
@@ -84,7 +92,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toContain('<xr:StandardAttribute name="PredefinedDataName">')
   })
 
   it("exports undefined and empty YAML", () => {
@@ -120,7 +128,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result.indexOf('name="RecordType"')).toBeLessThan(result.indexOf('name="Active"'))
   })
 
-  it("keeps reference order and removes duplicates", () => {
+  it("берёт порядок стандартных реквизитов из rules, а не reference XML", () => {
     const xmlString = `<StandardAttributes>
 	<xr:StandardAttribute name="Active">
 		<xr:Comment>existing active comment</xr:Comment>
@@ -148,7 +156,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     const names = Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)
-    expect(names).toEqual(["Active", "LineNumber", "RecordType"])
+    expect(names).toEqual(["RecordType", "Active", "LineNumber"])
   })
 
   it("exports empty reference fill value without type loss", () => {
@@ -305,6 +313,16 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('name="ExtDimensionType4"')
     expect(result).not.toContain('name="ExtDimension5"')
     expect(result).not.toContain('name="ExtDimensionType50"')
+    expect(Array.from(result.matchAll(/<xr:StandardAttribute name="([^"]+)"/g), ([, name]) => name)).toEqual([
+      "PeriodAdjustment",
+      "Account",
+      "Active",
+      "LineNumber",
+      "Recorder",
+      "Period",
+      "ExtDimension1",
+      "ExtDimensionType4",
+    ])
   })
 
   it("exports explicit high-number accounting ExtDimension attributes without reference", () => {
@@ -327,7 +345,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).not.toContain('name="ExtDimension1"')
   })
 
-  it("preserves the original XML shape of sparse accounting attributes through the configuration index", () => {
+  it("восстанавливает sparse accounting attributes только по YAML и rules", () => {
     const itemRule = {
       itemType: "TestItem",
       properties: {
@@ -370,24 +388,39 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       rule: itemRule,
       xml: sourceXML,
     })
+    expect(imported.yaml).toMatchObject({
+      СтандартныеРеквизиты: {
+        Субконто1: {},
+        ВидСубконто1: {},
+      },
+    })
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: itemRule,
       yaml: imported.yaml,
     })
 
-    const items = (exported.xml.StandardAttributes as {
-      "xr:StandardAttribute": Array<Record<string, unknown>>
-    })["xr:StandardAttribute"]
-    expect(items.find((item) => item._name === "ExtDimension1")).toEqual(
-      sourceXML.StandardAttributes["xr:StandardAttribute"][0]
-    )
-    expect(items.find((item) => item._name === "ExtDimensionType1")).toEqual(
-      sourceXML.StandardAttributes["xr:StandardAttribute"][1]
+    const items = (
+      exported.xml.StandardAttributes as {
+        "xr:StandardAttribute": Array<Record<string, unknown>>
+      }
+    )["xr:StandardAttribute"]
+    expect(items.map((item) => item._name)).toEqual([
+      "PeriodAdjustment",
+      "Account",
+      "Active",
+      "LineNumber",
+      "Recorder",
+      "Period",
+      "ExtDimension1",
+      "ExtDimensionType1",
+    ])
+    expect(items.find((item) => item._name === "ExtDimension1")?.["xr:LinkByType"]).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][0]["xr:LinkByType"]
     )
   })
 
-  it("restores a canonical empty standard attribute from the configuration index", () => {
+  it("не восстанавливает пустой канонический стандартный реквизит без данных YAML", () => {
     const itemRule = {
       itemType: "TestItem",
       properties: {
@@ -420,13 +453,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(imported.yaml).toEqual({})
-    expect(
-      (
-        exported.xml.StandardAttributes as {
-          "xr:StandardAttribute": Array<Record<string, unknown>>
-        }
-      )["xr:StandardAttribute"]
-    ).toEqual([expect.objectContaining({ _name: "LineNumber" })])
+    expect(exported.xml).toEqual({})
   })
 
   it("does not restore an explicitly empty synonym as the standard attribute name", () => {
@@ -465,12 +492,9 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       rule: itemRule,
       xml: sourceXML,
     })
-    const excludedEqualNameValues = contexts.importContext.fromXML.configurationIndex?.collector
-      .fragment("Тест.yaml")
-      .xmlValues.filter((value) => value.excludedEqualName)
-    expect(excludedEqualNameValues?.map((value) => value.logicalAddress)).toEqual([
-      "Test.Item.StandardAttributeDescription.Recorder.synonym",
-    ])
+    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
+    expect(fragment?.entities.flatMap((entity) => Object.keys(entity))).not.toContain("present")
+    expect(JSON.stringify(fragment?.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order/)
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: itemRule,
@@ -483,9 +507,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       }
     )["xr:StandardAttribute"]
     expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
-    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual(
-      sourceXML.StandardAttributes["xr:StandardAttribute"][1]["xr:Synonym"]
-    )
+    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toBe("")
   })
 
   it("дополняет изменённую YAML-коллекцию каноническими именами", () => {

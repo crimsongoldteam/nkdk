@@ -46,5 +46,9 @@ registerTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ co
   ) {
     return
   }
-  collection.collector.setXsiType(getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey), "xs:string")
+  collection.collector.setXmlValue(
+    getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey),
+    "xsiType",
+    "xs:string"
+  )
 })

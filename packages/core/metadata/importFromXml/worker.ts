@@ -3,11 +3,9 @@ import { dirname, join, posix } from "node:path"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import {
-  createConfigurationIndexCollector,
-} from "../configurationIndex/collector/writer"
+import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
-import type { ConfigurationIndexFragment } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
@@ -226,7 +224,7 @@ async function runFirstPass(
   })
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
-  const fragments: ConfigurationIndexFragment[] = []
+  const fragments: ConfigurationSnapshotFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
@@ -257,12 +255,7 @@ async function runFirstPass(
       )
       preparedYaml.set(assignment.id, prepared)
       ownerFacts.push(...preparedOwnerFacts)
-      fragments.push({
-        ...fragment,
-        ...(validationContribution.localDependencies.length === 0
-          ? {}
-          : { localDependencies: validationContribution.localDependencies }),
-      })
+      fragments.push(fragment)
       validationContributions.push(validationContribution)
     } catch (caught) {
       preparedYaml.delete(assignment.id)
@@ -277,8 +270,10 @@ async function runFirstPass(
   return {
     kind: "firstPassResult",
     ownerFacts,
-    validationContribution: validation.validationContribution,
-    localDependencies: validation.localDependencies,
+    validationContribution: {
+      ...validation.validationContribution,
+      localDependencies: [...validation.validationContribution.localDependencies, ...validation.localDependencies],
+    },
     diagnostics,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }

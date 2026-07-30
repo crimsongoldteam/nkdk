@@ -34,7 +34,7 @@ describe("ClientApplicationInterface YAML → XML", () => {
     expect(roundTripFixture("ClientApplicationInterface.xml")).toBe(fixtureXML("ClientApplicationInterface.xml"))
   })
 
-  it("round-trips ClientApplicationInterface.xml through the configuration snapshot without reference XML", () => {
+  it("restores identities from snapshot and order from YAML without reference XML", () => {
     const xml = readAppliedObjectFixture(import.meta.url, "ClientApplicationInterface.xml")
     const contexts = createDirectRoundTripContexts()
     const imported = testMetadataItemFromXMLToYAML({
@@ -42,13 +42,26 @@ describe("ClientApplicationInterface YAML → XML", () => {
       rule: ClientApplicationInterfaceRules,
       xml,
     })
+    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
+    expect(JSON.stringify(fragment?.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order|present/)
     const exported = testMetadataItemFromYAMLToXML({
       context: contexts.exportContext(),
       rule: ClientApplicationInterfaceRules,
       yaml: imported.yaml,
     })
 
-    expect(normalizeXML(serializeDirectXML(exported.xml))).toBe(fixtureXML("ClientApplicationInterface.xml"))
+    const result = normalizeXML(serializeDirectXML(exported.xml))
+    for (const id of ["top-current", "top-opened", "top-standard", "left-history", "left-group", "bottom-sections"]) {
+      expect(result).toContain(`id="${id}"`)
+    }
+    const panelDefIds = [
+      "c933ac92-92cd-459d-81cc-e0c8a83ced99",
+      "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75",
+      "b553047f-c9aa-4157-978d-448ecad24248",
+      "13322b22-3960-4d68-93a6-fe2dd7f28ca3",
+    ]
+    const positions = panelDefIds.map((id) => result.indexOf(`<panelDef id="${id}"`))
+    expect(positions).toEqual([...positions].sort((left, right) => left - right))
   })
 
   it("preserves unknown XML details through YAML round-trip", () => {

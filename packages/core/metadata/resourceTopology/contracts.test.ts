@@ -7,7 +7,7 @@ import { mockContextToXML } from "../../tests/mockContext"
 import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot } from "../configurationIndex/testData"
 
 registerCoreMetadata()
 
@@ -72,7 +72,7 @@ describe("registered metadata resource topology contracts", () => {
           propertyName: "form",
         },
       ],
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       composition: [],
       profile: createYAMLToXMLProfile(),
     })

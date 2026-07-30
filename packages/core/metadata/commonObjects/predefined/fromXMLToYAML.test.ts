@@ -27,18 +27,20 @@ describe("Predefined XML → YAML", () => {
 
     testMetadataItemFromXMLToYAML({ context, rule: PredefinedRules, xml: parsed })
 
-    expect(collector.fragment("Справочники/Товары/Свойства.yaml").identities).toEqual(
+    expect(collector.fragment("Справочники/Товары/Свойства.yaml").entities).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           logicalAddress: "Справочник.Товары.Предопределенный.Группа",
-          kind: "uuid",
-          value: "79d5668f-62a2-4d95-954b-8d3b03b76b99",
-        },
-        {
+          identities: expect.objectContaining({
+            uuid: "79d5668f-62a2-4d95-954b-8d3b03b76b99",
+          }),
+        }),
+        expect.objectContaining({
           logicalAddress: "Справочник.Товары.Предопределенный.Группа.Предопределенный.Предопределенный1",
-          kind: "uuid",
-          value: "3234ebff-0d7f-4ad7-b6c4-1f86a23725dd",
-        },
+          identities: expect.objectContaining({
+            uuid: "3234ebff-0d7f-4ad7-b6c4-1f86a23725dd",
+          }),
+        }),
       ])
     )
   })

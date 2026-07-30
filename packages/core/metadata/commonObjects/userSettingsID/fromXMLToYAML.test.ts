@@ -56,6 +56,6 @@ describe("UserSettingsID XML → YAML", () => {
     })
 
     expect(result.yaml).toEqual({ ИдентификаторНастройки: "Настройка-1" })
-    expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([])
+    expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").entities).toEqual([])
   })
 })

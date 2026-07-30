@@ -94,11 +94,28 @@ describe("sync configuration from xml", () => {
     )
     expect(result.failed).toEqual([])
     expect(result.warnings).toEqual([])
-    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).binding).toMatchObject({
+    const snapshot = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
+    expect(snapshot).toMatchObject({
+      specificationVersion: "1.3",
       componentPath: "cf",
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
+      indexGeneration: 1n,
     })
+    expect(snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")).toMatchObject({
+      sourceProjectPath: "Справочник/Контрагенты/Свойства.yaml",
+    })
+    expect(
+      snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты.Форма.ФормаЭлемента")
+    ).toMatchObject({
+      sourceProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+    })
+    expect(
+      snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
+    ).toBe(true)
+    expect(
+      snapshot.entities.every(
+        (entity) => entity.identities !== undefined || entity.omittedChildren !== undefined || entity.xml !== undefined
+      )
+    ).toBe(true)
     expect(fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
   })
 
@@ -258,5 +275,4 @@ describe("sync configuration from xml", () => {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
   })
-
 })

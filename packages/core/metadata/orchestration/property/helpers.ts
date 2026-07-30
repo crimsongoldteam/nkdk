@@ -1,10 +1,6 @@
 import { capitalize } from "../../../helpers/capitalize"
-import {
-  getConfigurationIndexPropertyXmlValue,
-  isConfigurationIndexPropertyPresent,
-} from "../../configurationIndex/referenceView"
 import { ConfigurationContext } from "../../context/types"
-import { TypeRulesOperations, type XMLImportPropertyBehavior } from "./fn"
+import { TypeRulesOperations } from "./fn"
 import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 import { getCompiledXMLPropertyOrder } from "./xmlPropertyOrder"
 
@@ -76,9 +72,6 @@ export const shouldProcessProperty = (params: {
           Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
 
         if (metadataHasOwnKey) return true
-        if (isConfigurationIndexPropertyPresent(context, propertyKey)) return true
-        if (getConfigurationIndexPropertyXmlValue(context, propertyKey) !== undefined) return true
-
         if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
           return rule.exportWithoutReferenceXML === true
         }
@@ -110,19 +103,6 @@ export const shouldProcessProperty = (params: {
       return true
   }
 }
-
-/** Присутствие XML-тега меняет последующий экспорт, даже если модельное значение совпадает. */
-export const presenceAffectsExport = (params: {
-  rule: PropertyRule
-  sourceXmlValue: unknown
-  typeBehavior?: XMLImportPropertyBehavior
-}): boolean =>
-  params.rule.preserveFromReferenceXML === true ||
-  params.rule.preserveExplicitDefaultXML === true ||
-  params.typeBehavior?.presenceAffectsExport === true ||
-  params.typeBehavior?.presenceAffectsExportForSourceValues?.some((value) =>
-    Object.is(value, params.sourceXmlValue)
-  ) === true
 
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,

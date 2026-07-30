@@ -5,15 +5,12 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 import type { TypeRulesOperations } from "../../../orchestration/property/fn"
 const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
-  operation === "importFromYAML" ? undefined : "QuickAccess"
+  operation === "importFromXML" || operation === "importFromXMLToYAML" || operation === "importFromYAML"
+    ? undefined
+    : "QuickAccess"
 export const ConditionalAppearanceRules = {
   itemType: "ConditionalAppearance",
-  xmlOrder: [
-    "conditionalAppearanceItems",
-    "viewMode",
-    "userSettingID",
-    "userSettingPresentation",
-  ],
+  xmlOrder: ["conditionalAppearanceItems", "viewMode", "userSettingID", "userSettingPresentation"],
   properties: {
     conditionalAppearanceItems: conditionalAppearanceItemsRule({
       xml: "dcsset:item",
@@ -24,6 +21,7 @@ export const ConditionalAppearanceRules = {
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Normal",
+      omitNonImplicitReferenceXMLWhenYAMLMissing: true,
       defaultValueXML: "QuickAccess",
       defaultValue: conditionalAppearanceViewModeDefaultValue,
     }),

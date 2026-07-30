@@ -1,5 +1,5 @@
 import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
-import type { ConfigurationIndexFragment } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML } from "../context/types"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
@@ -71,7 +71,7 @@ export interface MetadataSnapshotImportCapability {
     readonly context: ConfigurationContextFromXML
     readonly sourcePath: string
     readonly targetProjectPath: string
-  }) => Promise<ConfigurationIndexFragment>
+  }) => Promise<ConfigurationSnapshotFragment>
 }
 
 const snapshotImportCapabilities = new Map<string, MetadataSnapshotImportCapability>()
