@@ -124,6 +124,17 @@ describe("runBatch", () => {
     const concurrency = 3
     let running = 0
     let maxRunning = 0
+    const deferred = () => {
+      let resolve!: () => void
+      const promise = new Promise<void>((done) => {
+        resolve = done
+      })
+      return { promise, resolve }
+    }
+    const barriers = Array.from({ length: 10 }, () => ({
+      started: deferred(),
+      release: deferred(),
+    }))
 
     const tasks = Array.from({ length: 10 }, (_, i) =>
       makeTask({
@@ -131,14 +142,22 @@ describe("runBatch", () => {
         run: async () => {
           running++
           maxRunning = Math.max(maxRunning, running)
-          await new Promise((resolve) => setTimeout(resolve, 5))
+          barriers[i]!.started.resolve()
+          await barriers[i]!.release.promise
           running--
           return i
         },
       })
     )
 
-    await runBatch(tasks, { concurrency })
-    expect(maxRunning).toBeLessThanOrEqual(concurrency)
+    const batch = runBatch(tasks, { concurrency })
+    for (let offset = 0; offset < barriers.length; offset += concurrency) {
+      const wave = barriers.slice(offset, offset + concurrency)
+      await Promise.all(wave.map(({ started }) => started.promise))
+      expect(running).toBe(wave.length)
+      for (const { release } of wave) release.resolve()
+    }
+    await batch
+    expect(maxRunning).toBe(concurrency)
   })
 })

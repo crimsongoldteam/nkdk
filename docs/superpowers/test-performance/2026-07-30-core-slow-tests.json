@@ -141,11 +141,23 @@
       "medianMs": 23.05199999999968,
       "maxMs": 23.074915999997756,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Настоящий таймер заменён управляемыми барьерами",
+      "remainingContract": "Одновременно выполняется не больше concurrency задач",
+      "mutationBefore": {
+        "mutants": 19,
+        "killed": 19
+      },
+      "mutationAfter": {
+        "mutants": 19,
+        "killed": 19
+      },
+      "afterDurationsMs": [
+        0.1944579999999405,
+        0.19700000000011642,
+        0.19945800000004965
+      ],
+      "afterMedianMs": 0.19700000000011642
     },
     {
       "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml импортирует корневые XML из Ext в Конфигурация.yaml",
