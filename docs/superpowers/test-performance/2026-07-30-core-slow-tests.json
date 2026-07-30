@@ -15,11 +15,23 @@
       "medianMs": 50.314916999999696,
       "maxMs": 78.7792500000005,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; полный fixture-тест сохранён",
+      "remainingContract": "Rules ExchangePlan восстанавливают owner XML, внешние XML, модули, формы, справку и макет",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        109.92933399999993,
+        67.10125000000005,
+        81.72912500000007
+      ],
+      "afterMedianMs": 81.72912500000007
     },
     {
       "id": "packages/core/metadata/configurationIndex/fileIO.test.ts::configuration index file IO keeps the previous index and removes its temporary file when rename fails",
@@ -81,11 +93,23 @@
       "medianMs": 27.14795800000138,
       "maxMs": 29.908583999997063,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; полный fixture-тест сохранён",
+      "remainingContract": "Rules InformationRegister восстанавливают owner XML, индексы, справку, команды, формы и макет",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        83.81937499999958,
+        54.28208300000006,
+        62.402124999999614
+      ],
+      "afterMedianMs": 62.402124999999614
     },
     {
       "id": "packages/core/metadata/appliedObjects/__tests__/externalSync.test.ts::единая синхронизация внешних файлов applied objects восстанавливает модули и карту маршрута бизнес-процесса",
@@ -99,11 +123,23 @@
       "medianMs": 26.019791999999143,
       "maxMs": 33.883332999999766,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; отдельный договор бизнес-процесса сохранён",
+      "remainingContract": "ObjectModule, ManagerModule и Flowchart бизнес-процесса восстанавливаются из YAML-проекта",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        74.12691600000016,
+        48.04575,
+        54.88933399999996
+      ],
+      "afterMedianMs": 54.88933399999996
     },
     {
       "id": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts::full XML sync failure integration сохраняет прежние байты снимка при ошибке проверки результата",
@@ -135,11 +171,23 @@
       "medianMs": 25.09675000000425,
       "maxMs": 28.311041999997542,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Подготовка и проверка файлов оставлены отдельными, а чтение общего помощника выполняется параллельно",
+      "remainingContract": "Модули менеджера и набора записей регистра сведений восстанавливаются в object-level Ext",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        47.66920800000025,
+        25.659541999999874,
+        36.72570799999994
+      ],
+      "afterMedianMs": 36.72570799999994
     },
     {
       "id": "packages/core/helpers/runBatch.test.ts::runBatch не превышает лимит concurrency",

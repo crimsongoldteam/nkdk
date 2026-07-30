@@ -46,18 +46,24 @@ export const testSyncAppliedObjectToXML = async (
     externalReferenceDir,
   })
 
-  const comparisons = expectedFiles.map((path) => {
-    return {
-      path,
-      result: fs.readFileSync(join(outputDir, path), "utf-8"),
-      expected: fs.readFileSync(join(referenceDir, path), "utf-8"),
-    }
-  })
-  const binaryComparisons = (params.binaryExpectedFiles ?? []).map((path) => ({
-    path,
-    result: fs.readFileSync(join(outputDir, path)),
-    expected: fs.readFileSync(join(referenceDir, path)),
-  }))
+  const comparisons = await Promise.all(
+    expectedFiles.map(async (path) => {
+      const [result, expected] = await Promise.all([
+        fs.promises.readFile(join(outputDir, path), "utf-8"),
+        fs.promises.readFile(join(referenceDir, path), "utf-8"),
+      ])
+      return { path, result, expected }
+    })
+  )
+  const binaryComparisons = await Promise.all(
+    (params.binaryExpectedFiles ?? []).map(async (path) => {
+      const [result, expected] = await Promise.all([
+        fs.promises.readFile(join(outputDir, path)),
+        fs.promises.readFile(join(referenceDir, path)),
+      ])
+      return { path, result, expected }
+    })
+  )
 
   return { inputDir, outputDir, comparisons, binaryComparisons }
 }
