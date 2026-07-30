@@ -83,6 +83,41 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["value"])
   })
 
+  it("uses registered explicit empty value only for a present XML property", () => {
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "importFromXML", () => undefined)
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "xmlImportPropertyBehavior", {
+      explicitEmptyValue: () => "Явно пусто",
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const rule = {
+      itemType: "TestExplicitEmptyItem",
+      properties: {
+        value: { type: "TestExplicitEmpty", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule
+
+    const present = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: { Value: "" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+    const absent = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(present).toEqual({ Значение: "Явно пусто" })
+    expect(absent).toEqual({})
+  })
+
   it("processes only an absent property with defaultValue", () => {
     const calls: unknown[] = []
     registerTypeRule("TestMissingDefault" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
