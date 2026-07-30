@@ -1,5 +1,5 @@
 import { describeAppliedObjectYAMLToXMLFixtures } from "../../../tests/appliedObject/unifiedFixtureConversion"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
@@ -22,9 +22,13 @@ describeAppliedObjectYAMLToXMLFixtures({
 })
 
 describe("MetadataEnumeration YAML contract", () => {
-  it("accepts enum value names from YAML keys and rejects invalid properties", () => {
-    const schema = compileValidationSchema(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+  let schema: ReturnType<typeof compileValidationSchema>
 
+  beforeAll(() => {
+    schema = compileValidationSchema(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+  })
+
+  it("accepts enum value names from YAML keys and rejects invalid properties", () => {
     expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
     expect(schema.Check({ Значения: { Значение1: { Синоним: "Синоним" } } })).toBe(true)
     expect(schema.Check({ Значения: { Значение1: { Имя: "Значение1" } } })).toBe(true)
