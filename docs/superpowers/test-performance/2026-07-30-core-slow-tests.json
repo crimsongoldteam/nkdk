@@ -597,11 +597,23 @@
       "medianMs": 11.857082999999875,
       "maxMs": 13.84375,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Индекс для проверки чтения подготавливается прямой записью, без отдельной проверки атомарной публикации",
+      "remainingContract": "Файл индекса читается в shared memory без изменения заголовка и байтов",
+      "mutationBefore": {
+        "mutants": 242,
+        "killed": 204
+      },
+      "mutationAfter": {
+        "mutants": 242,
+        "killed": 204
+      },
+      "afterDurationsMs": [
+        7.606041000000005,
+        8.53900000000067,
+        7.918500000000677
+      ],
+      "afterMedianMs": 7.918500000000677
     },
     {
       "id": "packages/core/metadata/importBoundaries.test.ts::metadata import boundaries production-код не импортирует type-rule registry через formElement/factory",
