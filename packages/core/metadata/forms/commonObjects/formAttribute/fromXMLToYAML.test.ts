@@ -1,6 +1,6 @@
 import fs from "fs"
 import { fileURLToPath } from "url"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import {
   createDirectRoundTripContexts,
@@ -49,6 +49,18 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
+  let strictSchema = ""
+
+  beforeAll(() => {
+    strictSchema = JSON.stringify(
+      exportFormAttributesToJSONSchema({
+        context: {} as Parameters<typeof exportFormAttributesToJSONSchema>[0]["context"],
+        rule: { type: "FormAttributes" },
+        value: undefined,
+      })
+    )
+  })
+
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
     const parsed = importContentFromXML<Record<string, unknown>>(expected, {
@@ -153,14 +165,6 @@ describe("FormAttributes XML → YAML → XML", () => {
   })
 
   it("сохраняет строгую схему всех специальных настроек", () => {
-    const json = JSON.stringify(
-      exportFormAttributesToJSONSchema({
-        context: {} as Parameters<typeof exportFormAttributesToJSONSchema>[0]["context"],
-        rule: { type: "FormAttributes" },
-        value: undefined,
-      })
-    )
-
     for (const property of [
       "Колонки",
       "ДополнительныеКолонки",
@@ -170,9 +174,9 @@ describe("FormAttributes XML → YAML → XML", () => {
       "ТабличныйДокумент",
       "Планировщик",
     ]) {
-      expect(json).toContain(`"${property}"`)
+      expect(strictSchema).toContain(`"${property}"`)
     }
-    expect(json).toContain('"additionalProperties":false')
+    expect(strictSchema).toContain('"additionalProperties":false')
   })
 })
 

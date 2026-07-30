@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process"
 import { existsSync } from "node:fs"
 import { promisify } from "node:util"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { compileValidationSchema } from "./compileValidationSchema"
 import { createProjectValidationStandaloneSchemaSet } from "./projectValidationStandaloneSchemas"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
@@ -9,8 +9,24 @@ import { getValidationProjectSpecByDir } from "./projectSpecs"
 const execFileAsync = promisify(execFile)
 
 describe("project validation standalone build output", () => {
+  let schemaSet: ReturnType<typeof createProjectValidationStandaloneSchemaSet>
+  let enumerationSchema: ReturnType<typeof compileValidationSchema>
+  let catalogSchema: ReturnType<typeof compileValidationSchema>
+
+  beforeAll(() => {
+    schemaSet = createProjectValidationStandaloneSchemaSet()
+    const enumeration = getValidationProjectSpecByDir("Перечисление")
+    const catalog = getValidationProjectSpecByDir("Справочник")
+    if (enumeration === undefined || catalog === undefined) {
+      throw new Error("Validation project specs are not registered")
+    }
+    enumerationSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[enumeration.rule.itemType])
+    catalogSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[catalog.rule.itemType])
+    enumerationSchema.Check(undefined)
+    catalogSchema.Check(undefined)
+  })
+
   it("includes refs produced by metadata collection registrations", () => {
-    const schemaSet = createProjectValidationStandaloneSchemaSet()
     const ref = "nkdk://schema/validation/2.20/ru/MetadataCatalogAttribute"
 
     expect(schemaSet.refs[ref]).toMatchObject({
@@ -23,7 +39,6 @@ describe("project validation standalone build output", () => {
   })
 
   it("includes common form body schema in the validation graph", () => {
-    const schemaSet = createProjectValidationStandaloneSchemaSet()
     const ref = "nkdk://schema/validation/2.20/ru/ClientApplicationForm"
 
     expect(schemaSet.refs[ref]).toMatchObject({
@@ -36,21 +51,11 @@ describe("project validation standalone build output", () => {
   })
 
   it("accepts enumeration value names from YAML keys", () => {
-    const schemaSet = createProjectValidationStandaloneSchemaSet()
-    const enumeration = getValidationProjectSpecByDir("Перечисление")
-    if (enumeration === undefined) throw new Error("Enumeration validation spec is not registered")
-    const schema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[enumeration.rule.itemType])
-
-    expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
+    expect(enumerationSchema.Check({ Значения: { Значение1: {} } })).toBe(true)
   })
 
   it("accepts predefined item codes from YAML keys", () => {
-    const schemaSet = createProjectValidationStandaloneSchemaSet()
-    const catalog = getValidationProjectSpecByDir("Справочник")
-    if (catalog === undefined) throw new Error("Catalog validation spec is not registered")
-    const schema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[catalog.rule.itemType])
-
-    expect(schema.Check({ Предопределенные: { ПредопределенноеЗначение: { Наименование: "Предопределенное значение" } } })).toBe(
+    expect(catalogSchema.Check({ Предопределенные: { ПредопределенноеЗначение: { Наименование: "Предопределенное значение" } } })).toBe(
       true
     )
   })

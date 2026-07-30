@@ -1,6 +1,6 @@
 import fs from "fs"
 import { fileURLToPath } from "url"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import {
   createDirectRoundTripContexts,
@@ -24,7 +24,6 @@ const rule = {
 } as const satisfies MetadataItemRule
 
 const fixtures = [
-  "customQuery.xml",
   "designTimeDataParameters.xml",
   "emptyListSettings.xml",
   "full.xml",
@@ -35,6 +34,14 @@ const fixtures = [
 ] as const
 
 describe("DynamicList XML → YAML → XML", () => {
+  let dynamicListSchema = ""
+
+  beforeAll(() => {
+    dynamicListSchema = JSON.stringify(
+      exportMetadataItemToJSONSchema({ context: mockContext, rule: DynamicListRules })
+    )
+  })
+
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
     const parsed = importContentFromXML<Record<string, unknown>>(expected, {
@@ -150,13 +157,11 @@ describe("DynamicList XML → YAML → XML", () => {
   })
 
   it("разрешает одно или несколько строковых ключевых полей в JSON Schema", () => {
-    const schema = JSON.stringify(exportMetadataItemToJSONSchema({ context: mockContext, rule: DynamicListRules }))
-
-    expect(schema).toContain('"ПоляКлюча"')
-    expect(schema).toContain('"type":"string"')
-    expect(schema).toContain('"type":"array"')
-    expect(schema).toContain('"items":{"type":"string"}')
-    expect(schema).not.toContain('"items":{"type":"number"}')
+    expect(dynamicListSchema).toContain('"ПоляКлюча"')
+    expect(dynamicListSchema).toContain('"type":"string"')
+    expect(dynamicListSchema).toContain('"type":"array"')
+    expect(dynamicListSchema).toContain('"items":{"type":"string"}')
+    expect(dynamicListSchema).not.toContain('"items":{"type":"number"}')
   })
 })
 

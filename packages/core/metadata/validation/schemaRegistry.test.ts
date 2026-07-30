@@ -22,6 +22,10 @@ const schemaCache = new Map<string, TSchema>()
 const compiledSchemaCache = new Map<string, ValidationSchemaValidator<TSchema>>()
 const graphCache = new Map<string, ReturnType<typeof exportJSONSchemaGraph>>()
 const compiledGraphCache = new Map<string, ValidationSchemaValidator<TSchema>>()
+let configurationSchema: ValidationSchemaValidator<TSchema>
+let inlineClientApplicationFormJSON = ""
+let inlineClientApplicationFormHasDcsArrays = false
+let inlineUsualGroupJSON = ""
 
 function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema {
   const cacheKey = `${name}:${mode ?? "externalRefs"}`
@@ -70,6 +74,7 @@ function compiledClientApplicationFormGraph(): ValidationSchemaValidator<TSchema
     inlineRefs: false,
     eagerFallback: true,
   })
+  compiled.Check(undefined)
   compiledGraphCache.set(cacheKey, compiled)
   return compiled
 }
@@ -80,6 +85,7 @@ function eagerCompiledSchemaForName(name: string, mode?: "externalRefs" | "inlin
   if (cached !== undefined) return cached
 
   const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
+  compiled.Check(undefined)
   compiledSchemaCache.set(cacheKey, compiled)
   return compiled
 }
@@ -90,8 +96,33 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     compiledSchemaForName("TableInputField", "inline")
     eagerCompiledSchemaForName("LabelDecoration", "inline")
     compiledClientApplicationFormGraph()
-    schemaForName("ClientApplicationForm", "inline")
-    schemaForName("UsualGroup", "inline")
+    commonFormValidationGraph()
+    inlineClientApplicationFormJSON = JSON.stringify(schemaForName("ClientApplicationForm", "inline"))
+    inlineClientApplicationFormHasDcsArrays = [
+      '"Поля"',
+      '"Порядок"',
+      '"Отбор"',
+      '"ПараметрыДанных"',
+    ].every((token) => inlineClientApplicationFormJSON.includes(token))
+    inlineUsualGroupJSON = JSON.stringify(schemaForName("UsualGroup", "inline"))
+    for (const name of [
+      "MetadataCatalog",
+      "MetadataAttribute",
+      "MetadataCatalogAttribute",
+      "MetadataDocumentAttribute",
+      "MetadataTabularSectionAttribute",
+      "FormParameter",
+      "CommandBarButton",
+    ]) {
+      compiledSchemaForName(
+        name,
+        ["MetadataCatalog", "FormParameter", "CommandBarButton"].includes(name) ? "inline" : undefined
+      )
+    }
+    configurationSchema = compileValidationSchema(
+      exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
+    )
+    configurationSchema.Check(undefined)
   }, 240_000)
 
   beforeEach(() => {
@@ -99,7 +130,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports compact named schemas by schema name", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataAttribute" })
+    const schema = schemaForName("MetadataAttribute")
     const json = JSON.stringify(schema)
 
     expect(json).toContain('"Тип"')
@@ -107,7 +138,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("keeps catalog attribute collection refs precise", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog" })
+    const schema = schemaForName("MetadataCatalog")
 
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
@@ -130,11 +161,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts keyed predefined catalog items without explicit code", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
-    const compiled = compileValidationSchema(schema)
-
     expect(
-      compiled.Check({
+      compiledSchemaForName("MetadataCatalog", "inline").Check({
         Предопределенные: {
           ПредопределенноеЗначение: {
             Наименование: "Предопределенное значение",
@@ -153,8 +181,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     ]
 
     for (const name of schemaNames) {
-      const schema = exportJSONSchemaForSchemaName({ context, name })
-      const compiled = compileValidationSchema(schema)
+      const schema = schemaForName(name)
+      const compiled = compiledSchemaForName(name)
 
       expect(compiled.Check("Строка")).toBe(false)
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
@@ -163,11 +191,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts home page work area in configuration schemas", () => {
-    const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
-    const compiled = compileValidationSchema(schema)
-
     expect(
-      compiled.Errors({
+      configurationSchema.Errors({
           Имя: "ТестоваяКонфигурация",
           ОсновнойЯзык: "Русский",
           РабочаяОбластьНачальнойСтраницы: {
@@ -218,7 +243,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports form element schemas with Вид discriminator", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
+    const schema = schemaForName("InputField")
 
     expect(schema).toMatchObject({
       type: "object",
@@ -230,10 +255,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts native YAML boolean in form parameter key flag", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "FormParameter", mode: "inline" })
-    const compiled = compileValidationSchema(schema)
-
-    expect(compiled.Check({ Тип: "Строка", Ключевой: true })).toBe(true)
+    expect(compiledSchemaForName("FormParameter", "inline").Check({ Тип: "Строка", Ключевой: true })).toBe(true)
   })
 
   it("exports named schema graph with stable ids for referenced schemas", () => {
@@ -351,7 +373,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports common form form body as a ClientApplicationForm ref", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCommonForm" }) as {
+    const schema = schemaForName("MetadataCommonForm") as {
       properties?: {
         Форма?: { $ref?: string }
       }
@@ -462,7 +484,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "Button" })
+    const schema = schemaForName("Button")
 
     expect(schema).toMatchObject({
       properties: expect.objectContaining({
@@ -493,8 +515,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports nested child items inline in inline mode", () => {
-    const schema = schemaForName("UsualGroup", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineUsualGroupJSON
 
     expect(json).not.toContain("nkdk://schema/InputField")
     expect(json).toContain('"Элементы"')
@@ -548,8 +569,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports table command bar fields in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"ТаблицаФормы"')
     expect(json).toContain('"КоманднаяПанель"')
@@ -557,8 +577,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports command bar search additions with source fields", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"ОтображениеСтрокиПоиска"')
     expect(json).toContain('"УправлениеПоиском"')
@@ -566,34 +585,32 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts command names in command bar button schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
-    const compiled = compileValidationSchema(schema)
     const value = {
       Вид: "КнопкаКоманднойПанели",
       ИмяКоманды: "Form.Command.ВыбратьСтроки",
       ТипКнопки: "КнопкаКоманднойПанели",
     }
 
-    expect(compiled.Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)).toEqual([])
+    expect(
+      compiledSchemaForName("CommandBarButton", "inline")
+        .Errors(value)[1]
+        .map((error) => `${error.instancePath}: ${error.message}`)
+    ).toEqual([])
   })
 
   it("exports view status source in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"ОтображениеСостоянияПросмотра"')
     expect(json).toContain('"Источник"')
   })
 
   it("exports dynamic list conditional appearance in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-
-    expect(JSON.stringify(schema)).toContain('"УсловноеОформление"')
+    expect(inlineClientApplicationFormJSON).toContain('"УсловноеОформление"')
   })
 
   it("exports appearance SettingsParameterValue fields in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"УсловноеОформлениеРеквизитов"')
     expect(json).toContain('"ЦветТекста"')
@@ -601,18 +618,11 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports dynamic list DCS arrays in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
-
-    expect(json).toContain('"Поля"')
-    expect(json).toContain('"Порядок"')
-    expect(json).toContain('"Отбор"')
-    expect(json).toContain('"ПараметрыДанных"')
+    expect(inlineClientApplicationFormHasDcsArrays).toBe(true)
   })
 
   it("exports DCS conditional appearance values generated from all fixtures", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"ЛевоеЗначение"')
     expect(json).toContain('"ПравоеЗначение"')
@@ -620,8 +630,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports ManualQuery literal in inline client form schemas", () => {
-    const schema = schemaForName("ClientApplicationForm", "inline")
-    const json = JSON.stringify(schema)
+    const json = inlineClientApplicationFormJSON
 
     expect(json).toContain('"ПроизвольныйЗапрос"')
     expect(json).toContain('"Истина"')
@@ -652,6 +661,7 @@ function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): 
   if (cached !== undefined) return cached
 
   const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
+  compiled.Check(undefined)
   compiledSchemaCache.set(cacheKey, compiled)
   return compiled
 }
