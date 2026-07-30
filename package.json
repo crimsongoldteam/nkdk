@@ -15,6 +15,7 @@
     "type-check": "pnpm -r exec tsc --noEmit",
     "test": "pnpm -r run test",
     "test:isolated": "pnpm -r run test:isolated",
+    "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs",
     "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
     "test:mutation:compare": "node packages/core/scripts/compare-mutation-reports.mjs"
   },
