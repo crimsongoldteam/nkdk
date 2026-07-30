@@ -17,6 +17,10 @@ import {
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ImportAssignment } from "./types"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
@@ -43,6 +47,99 @@ describe("prepareImportYaml", () => {
         "externalReport"
       )
     ).toBe(AlternateComponentRootRule)
+  })
+
+  it("resolves a specialized form rule by topology node", () => {
+    const topology = compileRegisteredMetadataResourceTopology()
+    const processorFormNode = topology.assignments.find(
+      ({ projectPattern }) =>
+        projectPattern ===
+        "Обработка/{ownerName}/Формы/{itemName}/Форма.yaml"
+    )
+    if (processorFormNode === undefined) {
+      throw new Error("Не найден узел формы обработки")
+    }
+
+    expect(
+      resolveAssignmentRule(
+        {
+          role: "fileItem",
+          topologyNodeId: processorFormNode.id,
+          itemType: ClientApplicationFormRules.itemType,
+        } as ImportAssignment,
+        "configuration"
+      )
+    ).toBe(ClientApplicationFormWithExtendedPresentationRules)
+  })
+
+  it("prepares a processor form with the rule selected by topology", async () => {
+    const inputDir = fs.mkdtempSync(
+      join(os.tmpdir(), "nkdk-import-processor-form-")
+    )
+    try {
+      const metadataPath = join(inputDir, "Форма.xml")
+      const bodyPath = join(inputDir, "Form.xml")
+      fs.writeFileSync(
+        metadataPath,
+        `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+  <Form uuid="aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb">
+    <Properties>
+      <Name>Форма</Name>
+      <FormType>Managed</FormType>
+      <ExtendedPresentation/>
+    </Properties>
+  </Form>
+</MetaDataObject>`
+      )
+      fs.writeFileSync(
+        bodyPath,
+        `<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" version="2.20"/>`
+      )
+      const topology = compileRegisteredMetadataResourceTopology()
+      const processorFormNode = topology.assignments.find(
+        ({ projectPattern }) =>
+          projectPattern ===
+          "Обработка/{ownerName}/Формы/{itemName}/Форма.yaml"
+      )
+      if (processorFormNode === undefined) {
+        throw new Error("Не найден узел формы обработки")
+      }
+      const prepared = await prepareImportYaml({
+        assignment: {
+          id: "processor-form",
+          topologyNodeId: processorFormNode.id,
+          role: "fileItem",
+          targetProjectPath:
+            "Обработка/Загрузка/Формы/Форма/Форма.yaml",
+          itemType: "ClientApplicationForm",
+          itemName: "Форма",
+          logicalAddress: "Обработка.Загрузка.Форма.Форма",
+          owner: {
+            itemType: "MetadataDataProcessor",
+            name: "Загрузка",
+            logicalAddress: "Обработка.Загрузка",
+          },
+          xmlFiles: [
+            { role: "metadata", sourcePath: metadataPath },
+            { role: "body", sourcePath: bodyPath },
+          ],
+          externalFiles: [],
+        },
+        context: mockXmlImportContext(),
+        collector: createConfigurationIndexCollector(),
+      })
+
+      expect(prepared.rule).toBe(
+        ClientApplicationFormWithExtendedPresentationRules
+      )
+      expect(prepared.yaml).not.toHaveProperty(
+        "РасширенноеПредставление"
+      )
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it("imports a common form through the standard nested rules converter", async () => {

@@ -13,6 +13,7 @@ export interface ImportXmlInput {
 
 export interface ImportAssignment {
   id: string
+  topologyNodeId?: string
   role: ImportAssignmentRole
   targetProjectPath: string
   itemType: string
