@@ -11,7 +11,10 @@ import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from 
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
 import * as propertyImporter from "../../orchestration/property/fromXMLToYAML"
-import { ClientApplicationFormRules } from "./rules"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
@@ -65,6 +68,73 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(result.yaml).toEqual(minimalClientApplicationFormYAML)
     expect(result).not.toHaveProperty("model")
     expect(result).not.toHaveProperty("xml")
+  })
+
+  it("не импортирует пустое расширенное представление ни в одном варианте формы", () => {
+    const metadataXML = {
+      Form: {
+        Properties: {
+          FormType: "Managed",
+          ExtendedPresentation: "",
+        },
+      },
+    } as FormMetadataXML
+
+    const specialized = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаОтчета",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    expect(specialized.yaml).not.toHaveProperty(
+      "РасширенноеПредставление"
+    )
+
+    const base = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаСписка",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormRules,
+    })
+    expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
+  })
+
+  it("импортирует заполненное расширенное представление только специализированной формы", () => {
+    const metadataXML = {
+      Form: {
+        Properties: {
+          FormType: "Managed",
+          ExtendedPresentation: {
+            "v8:item": {
+              "v8:lang": "ru",
+              "v8:content": "Продажи",
+            },
+          },
+        },
+      },
+    } as FormMetadataXML
+
+    const specialized = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаОтчета",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    expect(specialized.yaml).toMatchObject({
+      РасширенноеПредставление: "Продажи",
+    })
+
+    const base = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаСписка",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormRules,
+    })
+    expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
   })
 
   it("восстанавливает пустой контейнер реквизитов без reference XML", () => {
@@ -232,6 +302,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       formName: "ФормаЭлемента",
       formXML: {},
       metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
     })
 
     expect(result.yaml).toMatchObject({
@@ -530,7 +601,6 @@ describe("форма XML → YAML → XML", () => {
       "FormType",
       "IncludeHelpInContents",
       "UsePurposes",
-      "ExtendedPresentation",
     ])
   })
 

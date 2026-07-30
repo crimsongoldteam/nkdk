@@ -22,6 +22,9 @@ import {
   snapshotConfigurationIndex,
 } from "../../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../../configurationIndex/testData"
+import {
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -195,24 +198,48 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     ])
   })
 
-  it("сохраняет пустое расширенное представление из reference metadata XML", () => {
+  it("восстанавливает общие metadata-default без reference XML", () => {
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {} as ClientApplicationFormYAML,
       name: "Минимальная",
-      referenceMetadataXML: {
-        Form: {
-          _uuid: "11111111-1111-4111-8111-111111111111",
-          Properties: {
-            Name: "Минимальная",
-            FormType: "Managed",
-            ExtendedPresentation: "",
-          },
-        },
-      },
+    })
+
+    expect(result.metadataXML.Form.Properties.IncludeHelpInContents).toBe(false)
+    expect(result.metadataXML.Form.Properties).not.toHaveProperty(
+      "ExtendedPresentation"
+    )
+  })
+
+  it("восстанавливает пустое расширенное представление специализированной формы", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "ФормаОтчета",
+      rule: ClientApplicationFormWithExtendedPresentationRules,
     })
 
     expect(result.metadataXML.Form.Properties.ExtendedPresentation).toBe("")
+  })
+
+  it("экспортирует заполненное расширенное представление специализированной формы", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        РасширенноеПредставление: { ru: "Продажи" },
+      } as ClientApplicationFormYAML,
+      name: "ФормаОтчета",
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+
+    expect(result.metadataXML.Form.Properties.ExtendedPresentation).toEqual({
+      "v8:item": [
+        {
+          "v8:lang": "ru",
+          "v8:content": "Продажи",
+        },
+      ],
+    })
   })
 
   it("возвращает стандартный реквизит DataPath по готовым индексам расширения", () => {
