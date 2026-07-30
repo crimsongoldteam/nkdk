@@ -53,15 +53,15 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
     expect(compiled.Check({ Шрифт: { Вид: "ШрифтТекста", Лишнее: "x" } })).toBe(false)
   })
 
-  it("accepts omitted value for color SettingsParameterValue", () => {
+  it("accepts only explicit marker for DCS auto color", () => {
     const compiled = compiledAppearanceFieldsSchema
 
-    expect(compiled.Check({ ЦветТекста: null })).toBe(true)
-    expect(compiled.Check({ ЦветТекста: "" })).toBe(true)
-    expect(compiled.Check({ ЦветТекста: undefined })).toBe(true)
-    expect(compiled.Errors({ ЦветТекста: undefined })).toEqual([true, []])
-    expect(compiled.Check({ ЦветФона: undefined })).toBe(true)
-    expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(true)
+    expect(compiled.Check({ ЦветТекста: "Авто" })).toBe(true)
+    expect(compiled.Check({ ЦветТекста: null })).toBe(false)
+    expect(compiled.Check({ ЦветТекста: "" })).toBe(false)
+    expect(compiled.Check({ ЦветТекста: undefined })).toBe(false)
+    expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(false)
+    expect(compiled.Check({ ЦветФона: { Использовать: "Ложь", Значение: "Авто" } })).toBe(true)
   })
 
   it("accepts explicit text type marker without value", () => {

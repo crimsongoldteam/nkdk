@@ -221,22 +221,31 @@ export const createSettingsParameterValueJSONSchema = (params: {
   rule: SettingsParameterValuePropertyRule
 }): TSchema => {
   const { context, rawValueSchema, rule: settingsRule } = params
-  const compactValueSchema = rejectCompactObjectShapes(rawValueSchema, settingsRule)
-  const wrapperValueSchema = rejectEmptyObject(rawValueSchema)
+  const strictRawValueSchema =
+    settingsRule.valueType === "Color"
+      ? Type.Intersect([rawValueSchema, notSchema(Type.Null())])
+      : rawValueSchema
+  const compactValueSchema = rejectCompactObjectShapes(strictRawValueSchema, settingsRule)
+  const wrapperValueSchema =
+    settingsRule.valueType === "Color"
+      ? unionOf([rejectEmptyObject(strictRawValueSchema), Type.Literal("Авто")])
+      : rejectEmptyObject(strictRawValueSchema)
   const valueOrArraySchema = valueOrArrayJSONSchema(wrapperValueSchema, settingsRule)
   const viewModeSchema = requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
   const optionalExplicitTypeSchema = optionalValueLessExplicitTypeJSONSchema(settingsRule)
   const schemaKey = settingsParameterValueLocalSchemaKey(settingsRule)
   const self = Type.Ref(schemaKey)
+  const wrappedValueProperty =
+    settingsRule.valueType === "Color" ? valueOrArraySchema : Type.Optional(valueOrArraySchema)
 
   const schemas = [
-    ...(settingsRule.valueType === "Color" ? [Type.Undefined(), Type.Literal("")] : []),
+    ...(settingsRule.valueType === "Color" ? [Type.Literal("Авто")] : []),
     compactValueSchema,
     Type.Object(
       {
         Использовать: Type.Optional(Type.Literal("Ложь")),
         ...(optionalExplicitTypeSchema === undefined ? {} : { Тип: optionalExplicitTypeSchema }),
-        Значение: Type.Optional(valueOrArraySchema),
+        Значение: wrappedValueProperty,
         РежимОтображения: Type.Optional(viewModeSchema),
         ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
         ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
