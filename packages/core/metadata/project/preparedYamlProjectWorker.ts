@@ -4,12 +4,7 @@ import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
-import type {
-  ProjectMemberIndexEntry,
-  ProjectObjectIndexEntry,
-  ProjectValueIndexEntry,
-  PendingMetadataTargetReference,
-} from "../validation/projectMetadataReferences"
+import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { validationProjectComponentFromAddress } from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
@@ -117,10 +112,6 @@ export type PreparedYamlProjectWorkerTaskResult =
 
 interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
-  objectIndexEntries: ProjectObjectIndexEntry[]
-  memberIndexEntries: ProjectMemberIndexEntry[]
-  valueIndexEntries: ProjectValueIndexEntry[]
-  pendingReferences: PendingMetadataTargetReference[]
 }
 
 export default async function runPreparedYamlProjectWorkerTask(
@@ -281,10 +272,6 @@ export function getValidationYamlLifetimeForTests(): Readonly<typeof validationY
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
     states: new Map(),
-    objectIndexEntries: [],
-    memberIndexEntries: [],
-    valueIndexEntries: [],
-    pendingReferences: [],
   }
 }
 
@@ -362,10 +349,6 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
     validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
     validationState.states.set(resolve(file.absolutePath), first.state)
-    validationState.objectIndexEntries.push(...first.objectIndexEntries)
-    validationState.memberIndexEntries.push(...first.memberIndexEntries)
-    validationState.valueIndexEntries.push(...first.valueIndexEntries)
-    validationState.pendingReferences.push(...first.pendingReferences)
     component.contribution.objectRecords.push(...first.objectRecords)
     component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
     component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
@@ -431,6 +414,7 @@ function createEmptyFirstPassProfileSummary(): Omit<ProjectValidationFirstPassPr
     schemaMs: 0,
     validatorsMs: 0,
     equalNameMs: 0,
+    localValueValidationProfile: {},
     yamlFactsMs: 0,
     fieldIndexMs: 0,
     objectIndexMs: 0,
@@ -450,6 +434,7 @@ function addFirstPassProfile(
   summary.schemaMs += profile.schemaMs
   summary.validatorsMs += profile.validatorsMs
   summary.equalNameMs += profile.equalNameMs
+  mergeLocalValueValidationProfile(summary.localValueValidationProfile, profile.localValueValidationProfile)
   summary.yamlFactsMs += profile.yamlFactsMs
   summary.fieldIndexMs += profile.fieldIndexMs
   summary.objectIndexMs += profile.objectIndexMs
@@ -467,11 +452,27 @@ function recordFirstPassProfile(
   profiler.record("Первичная проверка YAML", "Проверка JSON Schema", { items, timeMs: profile.schemaMs })
   profiler.record("Первичная проверка YAML", "Дополнительные валидаторы", { items, timeMs: profile.validatorsMs })
   profiler.record("Первичная проверка YAML", "Проверка equal-name", { items, timeMs: profile.equalNameMs })
+  for (const [substep, value] of Object.entries(profile.localValueValidationProfile)) {
+    profiler.record("Первичная проверка YAML", substep, value)
+  }
   profiler.record("Первичная проверка YAML", "Извлечение YAML-фактов", { items, timeMs: profile.yamlFactsMs })
   profiler.record("Первичная проверка YAML", "Построение field index", { items, timeMs: profile.fieldIndexMs })
   profiler.record("Первичная проверка YAML", "Построение object index", { items, timeMs: profile.objectIndexMs })
   profiler.record("Первичная проверка YAML", "Построение member index", { items, timeMs: profile.memberIndexMs })
   profiler.record("Первичная проверка YAML", "Построение value index", { items, timeMs: profile.valueIndexMs })
+}
+
+function mergeLocalValueValidationProfile(
+  target: Record<string, { items: number; timeMs: number }>,
+  source: Readonly<Record<string, { items: number; timeMs: number }>>
+): void {
+  for (const [substep, value] of Object.entries(source)) {
+    const current = target[substep]
+    target[substep] = {
+      items: (current?.items ?? 0) + value.items,
+      timeMs: (current?.timeMs ?? 0) + value.timeMs,
+    }
+  }
 }
 
 function requireValidationSchemaCache(): ValidationSchemaCache {

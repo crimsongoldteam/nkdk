@@ -11,7 +11,10 @@ import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
 import { importSingleFormElementFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
 import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/orchestration/ruleFactory"
-import type { SingletonNameStyle } from "../../../orchestration/formElement/singletonName"
+import {
+  getCanonicalSingletonName,
+  type SingletonNameStyle,
+} from "../../../orchestration/formElement/singletonName"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { ElementXML } from "../../../orchestration/formElement/types"
 import type { ExportToJSONSchemaFn } from "../../../orchestration"
@@ -58,6 +61,14 @@ registerTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml,
   })
 )
 registerTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
+registerTypeRule("GanttChartFieldTable", "nestedItemIdentity", {
+  reserveWhenAbsent: true,
+  resolveName: (ownerName) =>
+    getCanonicalSingletonName({
+      ownerLogicalAddress: ownerName ?? "",
+      nameStyle,
+    }),
+})
 registerTypeRule(
   "GanttChartFieldTable",
   "yamlToXMLNestedRule",

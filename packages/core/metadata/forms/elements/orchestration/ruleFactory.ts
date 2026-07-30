@@ -122,6 +122,16 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
     })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule })
+  if (nameStyle !== undefined) {
+    registerTypeRule(propertyType, "nestedItemIdentity", {
+      reserveWhenAbsent: true,
+      resolveName: (ownerName) =>
+        getCanonicalSingletonName({
+          ownerLogicalAddress: ownerName ?? "",
+          nameStyle,
+        }),
+    })
+  }
   registerTypeRule(
     propertyType,
     "yamlToXMLNestedRule",

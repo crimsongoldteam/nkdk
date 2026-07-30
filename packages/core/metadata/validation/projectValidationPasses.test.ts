@@ -198,6 +198,72 @@ describe("validateProjectFileFirstPass references", () => {
     )
   }, 20_000)
 
+  it("проверяет уникальность имён элементов внутри общей формы", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "ОбщаяФорма/РабочийСтол/Свойства.yaml", [
+      "Форма:",
+      "  Элементы:",
+      "    Поле:",
+      "      Вид: ПолеВвода",
+      "    полерасширеннаяподсказка:",
+      "      Вид: ПолеВвода",
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ОбщаяФорма/РабочийСтол/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          path: "/Форма/Элементы/полерасширеннаяподсказка",
+          message: expect.stringContaining("занято"),
+        }),
+      ])
+    )
+  }, 20_000)
+
+  it("не смешивает одинаковые имена элементов разных общих форм", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPaths = [
+      "ОбщаяФорма/РабочийСтол/Свойства.yaml",
+      "ОбщаяФорма/ПанельНавигации/Свойства.yaml",
+    ]
+    for (const projectPath of projectPaths) {
+      writeProjectFile(projectDir, projectPath, [
+        "Форма:",
+        "  Элементы:",
+        "    Поле:",
+        "      Вид: ПолеВвода",
+      ])
+    }
+
+    const diagnostics = projectPaths.flatMap((projectPath) => {
+      const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+      if (!file) throw new Error("file not resolved")
+      return validateProjectFileFirstPass({
+        projectDir,
+        file,
+        cache: createProjectYamlCache(),
+        context: mockContext,
+        schemaCache: sharedSchemaCache,
+        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      }).diagnostics
+    })
+
+    expect(diagnostics.filter(({ message }) => message.includes("должно быть уникальным"))).toEqual([])
+  }, 20_000)
+
   it("builds member index entries from owner fields", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

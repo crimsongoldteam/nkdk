@@ -6,6 +6,114 @@ import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 describe("extractValidationYamlFacts form", () => {
+  it("находит одинаковые имена элементов в разных ветвях без учёта регистра", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  ЛеваяГруппа:",
+        "    Вид: Группа",
+        "    Элементы:",
+        "      Поле:",
+        "        Вид: ПолеВвода",
+        "  ПраваяГруппа:",
+        "    Вид: Группа",
+        "    Элементы:",
+        "      поле:",
+        "        Вид: ПолеВвода",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ПраваяГруппа/Элементы/поле",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
+  it("резервирует имя отсутствующей расширенной подсказки", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "  ПолеРасширеннаяПодсказка:",
+        "    Вид: ПолеВвода",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ПолеРасширеннаяПодсказка",
+          source: "structure",
+          severity: "error",
+          message: expect.stringContaining('"ПолеРасширеннаяПодсказка"'),
+        }),
+      ])
+    )
+  })
+
+  it("рекурсивно резервирует single-имена отсутствующих single-элементов", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "  ТаблицаСтрокаПоискаРасширеннаяПодсказка:",
+        "    Вид: ПолеВвода",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ТаблицаСтрокаПоискаРасширеннаяПодсказка",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
+  it("не смешивает single-имена поля диаграммы Ганта и его таблицы", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  ДиаграммаГанта:",
+        "    Вид: ПолеДиаграммыГанта",
+        "    Таблица: {}",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual([])
+  })
+
+  it("резервирует single-имена отсутствующей таблицы поля диаграммы Ганта", () => {
+    const facts = extractFormFacts(
+      [
+        "Элементы:",
+        "  ДиаграммаГанта:",
+        "    Вид: ПолеДиаграммыГанта",
+        "  ДиаграммаГантаТаблицаКонтекстноеМеню:",
+        "    Вид: ПолеВвода",
+      ].join("\n")
+    )
+
+    expect(facts.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ДиаграммаГантаТаблицаКонтекстноеМеню",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
   it("строит DataPath checks и equal-name диагностики по YAML формы", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
@@ -111,3 +219,16 @@ describe("extractValidationYamlFacts form", () => {
     expect(facts.diagnostics).toEqual([])
   })
 })
+
+function extractFormFacts(yaml: string): ReturnType<typeof extractValidationYamlFacts> {
+  const projectDir = "/project"
+  const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+  const file = resolveValidationProjectFile(projectDir, filePath)
+  if (file === undefined) throw new Error("file not resolved")
+
+  return extractValidationYamlFacts({
+    file,
+    parsed: parseMetadataYaml(yaml),
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  })
+}

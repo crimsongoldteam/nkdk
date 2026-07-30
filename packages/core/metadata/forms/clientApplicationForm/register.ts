@@ -4,12 +4,28 @@ import {
   registerFormValidator,
   registerFormWarningProvider,
 } from "../../validation/formValidationRegistry"
+import { registerLocalYamlValueValidator } from "../../validation/yamlValueValidationRegistry"
 import {
   collectDynamicListTypeValueWarnings,
   validateClientApplicationForm,
   validateClientApplicationFormFirstPass,
   validateClientApplicationFormSecondPass,
 } from "./validate"
+import { ClientApplicationFormRules } from "./rules"
+import {
+  FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
+  validateFormElementNames,
+} from "./validateElementNames"
+
+registerLocalYamlValueValidator({
+  type: "ClientApplicationForm",
+  profileSubstep: FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
+  validator: (params) =>
+    validateFormElementNames({
+      ...params,
+      rule: ClientApplicationFormRules,
+    }),
+})
 
 registerFormValidator(validateClientApplicationForm)
 registerFormValidationPasses({

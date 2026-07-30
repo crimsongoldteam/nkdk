@@ -34,7 +34,10 @@ import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
 import { validateParsedFile } from "./validateFile"
-import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import {
+  extractValidationYamlFacts,
+  type LocalValueValidationProfile,
+} from "./yamlFactExtractor"
 
 type CompiledSchema = ValidationSchemaValidator<TSchema>
 const formSchemaCache = new Map<string, CompiledSchema>()
@@ -87,6 +90,7 @@ export interface ProjectValidationFirstPassProfile {
   schemaMs: number
   validatorsMs: number
   equalNameMs: number
+  localValueValidationProfile: LocalValueValidationProfile
   yamlFactsMs: number
   fieldIndexMs: number
   objectIndexMs: number
@@ -107,6 +111,7 @@ export interface ProjectValidationFileFacts {
   localDependencies: import("../project/componentIndexFacts").ProjectLocalDependency[]
   profile: {
     yamlFactsMs: number
+    localValueValidationProfile: LocalValueValidationProfile
     fieldIndexMs: number
     memberIndexMs: number
     propertyEvents: number
@@ -287,6 +292,7 @@ export function extractProjectValidationFileFacts(params: {
       localDependencies: [],
       profile: {
         yamlFactsMs: measuredYamlFacts.timeMs,
+        localValueValidationProfile: yamlFacts.localValueValidationProfile,
         fieldIndexMs: 0,
         memberIndexMs: measuredMemberIndex.timeMs,
         propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
@@ -353,6 +359,7 @@ export function extractProjectValidationFileFacts(params: {
     ],
     profile: {
       yamlFactsMs: measuredYamlFacts.timeMs,
+      localValueValidationProfile: yamlFacts.localValueValidationProfile,
       fieldIndexMs: measuredOwner.timeMs,
       memberIndexMs: measuredMemberIndex.timeMs,
       propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
@@ -452,6 +459,7 @@ function validateProjectFormFirstPass(params: {
       schemaMs,
       memberIndexMs: facts.profile.memberIndexMs,
       yamlFactsMs: facts.profile.yamlFactsMs,
+      localValueValidationProfile: facts.profile.localValueValidationProfile,
       diagnostics: diagnostics.length,
       propertyEvents: facts.profile.propertyEvents,
     },
@@ -581,6 +589,7 @@ function validateProjectPropertiesFirstPass(params: {
       schemaMs,
       validatorsMs,
       equalNameMs,
+      localValueValidationProfile: facts.profile.localValueValidationProfile,
       yamlFactsMs: facts.profile.yamlFactsMs,
       fieldIndexMs: facts.profile.fieldIndexMs,
       objectIndexMs: 0,
@@ -620,6 +629,7 @@ function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
     schemaMs: 0,
     validatorsMs: 0,
     equalNameMs: 0,
+    localValueValidationProfile: {},
     yamlFactsMs: 0,
     fieldIndexMs: 0,
     objectIndexMs: 0,

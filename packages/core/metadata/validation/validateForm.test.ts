@@ -293,6 +293,38 @@ describe("validateForm", () => {
     expect(passDiagnostics).toEqual(wrapperDiagnostics)
   })
 
+  it("прямой first pass учитывает зарезервированные single-имена", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "  ПолеРасширеннаяПодсказка:",
+        "    Вид: ПолеВвода",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(first.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ПолеРасширеннаяПодсказка",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
   it("reports intermediate composite type errors", () => {
     const project = createProject({
       form: [

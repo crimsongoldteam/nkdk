@@ -1,9 +1,11 @@
-import { access, readFile, readdir } from "node:fs/promises"
+import { readdir } from "node:fs/promises"
 import { join } from "node:path"
-import ts from "typescript"
+import { TopLevelMetadataItemRules } from "../../metadata/appliedObjects/configuration/topLevelRules"
+import type { MetadataItemRule } from "../../metadata/orchestration/property/types"
 import type { MetadataTarget } from "./types"
 
 const appliedObjectsPath = "packages/core/metadata/appliedObjects"
+type XmlDirRule = Pick<MetadataItemRule, "itemType" | "xmlDir">
 
 export async function listMetadataItems(projectRoot: string): Promise<string[]> {
   const appliedObjectsDir = join(projectRoot, appliedObjectsPath)
@@ -15,35 +17,12 @@ export async function listMetadataItems(projectRoot: string): Promise<string[]> 
     .sort((left, right) => left.localeCompare(right))
 }
 
-export async function readXmlDirFromRules(itemDir: string): Promise<string | undefined> {
-  const rulesPath = join(itemDir, "rules.ts")
-
-  try {
-    await access(rulesPath)
-  } catch {
-    return undefined
-  }
-
-  const sourceText = await readFile(rulesPath, "utf-8")
-  const sourceFile = ts.createSourceFile(rulesPath, sourceText, ts.ScriptTarget.Latest, true)
-  let xmlDir: string | undefined
-
-  const visit = (node: ts.Node) => {
-    if (xmlDir !== undefined) {
-      return
-    }
-
-    if (ts.isPropertyAssignment(node) && isXmlDirProperty(node.name)) {
-      xmlDir = readStringLiteral(node.initializer)
-      return
-    }
-
-    ts.forEachChild(node, visit)
-  }
-
-  visit(sourceFile)
-
-  return xmlDir
+export function resolveXmlDir(
+  metadataItem: string,
+  rules: readonly XmlDirRule[] = TopLevelMetadataItemRules
+): string | undefined {
+  const itemType = `${metadataItem.charAt(0).toUpperCase()}${metadataItem.slice(1)}`
+  return rules.find((rule) => rule.itemType === itemType)?.xmlDir
 }
 
 export async function resolveMetadataTarget(projectRoot: string, metadataItem: string): Promise<MetadataTarget> {
@@ -61,18 +40,6 @@ export async function resolveMetadataTarget(projectRoot: string, metadataItem: s
     itemDir,
     fixturesDir,
     syncXmlDir: join(fixturesDir, "sync/xml"),
-    xmlDir: await readXmlDirFromRules(itemDir),
+    xmlDir: resolveXmlDir(metadataItem),
   }
-}
-
-function isXmlDirProperty(name: ts.PropertyName): boolean {
-  return (ts.isIdentifier(name) && name.text === "xmlDir") || (ts.isStringLiteral(name) && name.text === "xmlDir")
-}
-
-function readStringLiteral(node: ts.Expression): string | undefined {
-  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
-    return node.text
-  }
-
-  return undefined
 }

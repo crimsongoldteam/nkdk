@@ -116,6 +116,11 @@ export type ResolveNestedImportXMLSourcesFunction = (params: {
 
 export type NestedItemRule = { itemRule: MetadataItemRule } | { resolveItemRule(itemType: string): MetadataItemRule }
 
+export interface NestedItemIdentityDescriptor {
+  reserveWhenAbsent: true
+  resolveName(ownerName: string | undefined): string | undefined
+}
+
 export type FinalizeImportedYAMLFunction = (params: {
   context: ConfigurationContext
   rule: PropertyRule
