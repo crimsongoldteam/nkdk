@@ -2,21 +2,23 @@ import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "./collector/writer"
 import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
-import { isConfigurationIndexPropertyPresent } from "./referenceView"
+import { getConfigurationIndexOmittedChildren } from "./referenceView"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
-import { sampleIndex } from "./testData"
+import { sampleSnapshot } from "./testData"
 
-describe("isConfigurationIndexPropertyPresent", () => {
-  it("does not treat order as property presence", () => {
+describe("getConfigurationIndexOmittedChildren", () => {
+  it("reads omitted children through the export runtime", () => {
     const runtime = createConfigurationIndexExportRuntime({
-      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       collector: createConfigurationIndexCollector(),
-      targetProjectPath: "Справочник/Товары/Свойства.yaml",
-      logicalAddress: "Справочник.Товары",
+      targetProjectPath: "Документы/Заказ.yaml",
+      logicalAddress: "Документ.Заказ",
     })
     const context = { exportToXML: { configurationIndex: runtime } } as never
 
-    expect(isConfigurationIndexPropertyPresent(context, "name")).toBe(true)
-    expect(isConfigurationIndexPropertyPresent(context, "synonym")).toBe(false)
+    expect(getConfigurationIndexOmittedChildren(context)).toEqual({
+      kind: "names",
+      names: ["Форма", "Макет"],
+    })
   })
 })

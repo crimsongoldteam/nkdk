@@ -3,9 +3,8 @@ import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
-import { childUid } from "../../configurationIndex/logicalAddress"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule } from "../property/types"
@@ -116,10 +115,10 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     })
   })
 
-  it("адресует элементы массива по keyField в индексе конфигурации", () => {
+  it("не сохраняет общий порядок элементов массива в снимке", () => {
     const collector = createConfigurationIndexCollector()
     const configurationIndex = createConfigurationIndexExportRuntime({
-      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       collector,
       targetProjectPath: "test.yaml",
       logicalAddress: "Тест",
@@ -146,11 +145,6 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(collector.fragment("test.yaml").xmlNodes.map(({ logicalAddress }) => logicalAddress)).toEqual([
-      `${childUid("Тест", "Элемент", "A")}.Свойство.Код`,
-      `${childUid("Тест", "Элемент", "A")}.Свойство.Значение`,
-      `${childUid("Тест", "Элемент", "B")}.Свойство.Код`,
-      `${childUid("Тест", "Элемент", "B")}.Свойство.Значение`,
-    ])
+    expect(JSON.stringify(collector.fragment("test.yaml").entities)).not.toMatch(/order|present|aliases/)
   })
 })

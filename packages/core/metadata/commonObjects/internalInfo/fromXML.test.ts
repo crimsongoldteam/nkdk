@@ -107,27 +107,26 @@ describe("importInternalInfoFromXML", () => {
     })
 
     expect(yaml).toEqual({})
-    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").identities).toEqual([
-      {
-        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.TypeId",
-        kind: "uuid",
-        value: "00000000-0000-0000-0000-000000000001",
-      },
-      {
-        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.ValueId",
-        kind: "uuid",
-        value: "00000000-0000-0000-0000-000000000003",
-      },
-      {
-        logicalAddress: "Справочник.Товары.InternalInfo.ThisNode",
-        kind: "uuid",
-        value: "00000000-0000-0000-0000-000000000002",
-      },
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").entities.map((entity) => ({
+      logicalAddress: entity.logicalAddress,
+      uuid: entity.identities?.uuid,
+    }))).toEqual([
       {
         logicalAddress:
           "Справочник.Товары.InternalInfo.ContainedObject.00000000-0000-0000-0000-000000000101.ObjectId",
-        kind: "uuid",
-        value: "00000000-0000-0000-0000-000000000201",
+        uuid: "00000000-0000-0000-0000-000000000201",
+      },
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.TypeId",
+        uuid: "00000000-0000-0000-0000-000000000001",
+      },
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.ValueId",
+        uuid: "00000000-0000-0000-0000-000000000003",
+      },
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.ThisNode",
+        uuid: "00000000-0000-0000-0000-000000000002",
       },
     ])
   })
@@ -265,7 +264,7 @@ describe("importInternalInfoFromXML", () => {
       ],
     })
     expect(
-      exportContext.exportToXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").identities
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").entities
     ).toHaveLength(4)
   })
 

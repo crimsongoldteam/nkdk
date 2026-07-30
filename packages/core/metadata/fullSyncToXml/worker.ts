@@ -280,7 +280,6 @@ function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationC
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
       xmlDefaultVariantByLogicalAddress: state.profile.xmlDefaultVariantByLogicalAddress,
-      indexedPropertyOrderByLogicalAddress: state.profile.indexedPropertyOrderByLogicalAddress,
     },
   }
 }

@@ -240,7 +240,8 @@ describe("export DCSParameter to XML", () => {
       [parameterXML("СтароеИмя", undefinedTypeReferenceValue)]
     )
 
-    expect(result).not.toContain("<dcssch:value")
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("d6p1:Undefined")
   })
 
   it("does not use reference d6p1 Undefined with extra QName part", () => {

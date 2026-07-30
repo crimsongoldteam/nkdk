@@ -55,11 +55,20 @@ describe("importChildItemsFromXMLToYAML", () => {
         ],
       })
     )
-    expect(configurationIndex.fragment("Форма.yaml").identities).toEqual(
+    expect(configurationIndex.fragment("Форма.yaml").entities).toEqual(
       expect.arrayContaining([
-        { logicalAddress: "Форма.Элемент.Поле", kind: "xmlId", value: "1" },
-        { logicalAddress: "Форма.Элемент.Поле.КонтекстноеМеню", kind: "xmlId", value: "2" },
-        { logicalAddress: "Форма.Элемент.Поле.РасширеннаяПодсказка", kind: "xmlId", value: "3" },
+        expect.objectContaining({
+          logicalAddress: "Форма.Элемент.Поле",
+          identities: expect.objectContaining({ xmlId: "1" }),
+        }),
+        expect.objectContaining({
+          logicalAddress: "Форма.Элемент.Поле.КонтекстноеМеню",
+          identities: expect.objectContaining({ xmlId: "2" }),
+        }),
+        expect.objectContaining({
+          logicalAddress: "Форма.Элемент.Поле.РасширеннаяПодсказка",
+          identities: expect.objectContaining({ xmlId: "3" }),
+        }),
       ])
     )
   })

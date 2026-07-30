@@ -12,10 +12,15 @@ import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
 import { CommandInterfaceXML } from "./types"
+import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 
 describe("importCommandInterfaceFromXML", () => {
+  it("не регистрирует общий сбор порядка в снимок", () => {
+    expect(getTypeRule("CommandInterface", "collectConfigurationIndexFromXML")).toBeUndefined()
+  })
+
   it("should return undefined when data is undefined", () => {
     const result = importCommandInterfaceFromXML(mockContextFromXML(), mockRule, undefined)
 

@@ -217,17 +217,17 @@ registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ conte
   if (collection === undefined) return
   const address = getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey)
   if (rule.preserveEmptyXML === true && isExplicitEmptyTypeDescriptionXML(xml)) {
-    collection.collector.setExplicitEmpty(address)
+    collection.collector.setXmlFlag(address, "explicitEmpty")
     const xsiType = isRecord(xml) ? xml["_xsi:type"] : undefined
-    if (typeof xsiType === "string") collection.collector.setXsiType(address, xsiType)
+    if (typeof xsiType === "string") collection.collector.setXmlValue(address, "xsiType", xsiType)
   }
   const type = isRecord(xml) ? xml["v8:Type"] : undefined
   if (Array.isArray(type) || !isRecord(type) || typeof type["#text"] !== "string") return
   const prefix = getTypePrefix(type["#text"])
   const namespace = prefix === undefined ? undefined : type[`_xmlns:${prefix}`]
   if (prefix === undefined || typeof namespace !== "string") return
-  collection.collector.setXmlPrefix(address, prefix)
-  collection.collector.setXmlText(address, `${namespace}\n${type["#text"]}`)
+  collection.collector.setXmlValue(address, "xmlPrefix", prefix)
+  collection.collector.setXmlValue(address, "xmlText", `${namespace}\n${type["#text"]}`)
 })
 registerTypeRule("TypeDescription", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => {

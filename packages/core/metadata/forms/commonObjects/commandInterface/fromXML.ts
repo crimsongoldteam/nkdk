@@ -5,11 +5,6 @@ import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fro
 import { registerTypeRule } from "../../../orchestration"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
-import {
-  getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
-} from "../../../configurationIndex/collector/context"
-import { indexedUid } from "../../../configurationIndex/logicalAddress"
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContextFromXML,
@@ -61,12 +56,8 @@ const importCommandInterfaceItemFromXML = (
     }
   }
 
-  const orderedKeys: readonly (keyof CommandInterfaceItem)[] = context.fromXML.forReference
-    ? getOrderedCommandInterfaceItemKeysFromXML(item)
-    : nonReferenceCommandInterfaceItemKeys
-
   const result = {} as CommandInterfaceItem
-  for (const key of orderedKeys) {
+  for (const key of commandInterfaceItemKeys) {
     const value = values[key]
     if (value !== undefined) {
       ;(result as unknown as Record<keyof CommandInterfaceItem, unknown>)[key] = value
@@ -77,17 +68,7 @@ const importCommandInterfaceItemFromXML = (
   return result
 }
 
-const commandInterfaceItemXmlToModelKeys = {
-  Command: "command",
-  Type: "type",
-  Attribute: "attribute",
-  Index: "index",
-  CommandGroup: "commandGroup",
-  DefaultVisible: "defaultVisible",
-  Visible: "visible",
-} as const
-
-const nonReferenceCommandInterfaceItemKeys = [
+const commandInterfaceItemKeys = [
   "command",
   "type",
   "attribute",
@@ -96,57 +77,5 @@ const nonReferenceCommandInterfaceItemKeys = [
   "commandGroup",
   "visible",
 ] as const satisfies readonly (keyof CommandInterfaceItem)[]
-
-const fallbackCommandInterfaceItemKeys = [
-  "command",
-  "type",
-  "attribute",
-  "index",
-  "commandGroup",
-  "defaultVisible",
-  "visible",
-] as const satisfies readonly (keyof CommandInterfaceItem)[]
-
-const getOrderedCommandInterfaceItemKeysFromXML = (item: CommandInterfaceItemXML): (keyof CommandInterfaceItem)[] => {
-  const result: (keyof CommandInterfaceItem)[] = []
-  const added = new Set<keyof CommandInterfaceItem>()
-
-  for (const xmlKey of Object.keys(item)) {
-    const key = commandInterfaceItemXmlToModelKeys[xmlKey as keyof typeof commandInterfaceItemXmlToModelKeys]
-    if (key !== undefined && !added.has(key)) {
-      result.push(key)
-      added.add(key)
-    }
-  }
-
-  for (const key of fallbackCommandInterfaceItemKeys) {
-    if (!added.has(key)) {
-      result.push(key)
-      added.add(key)
-    }
-  }
-
-  return result
-}
 
 registerTypeRule("CommandInterface", "importFromXML", importCommandInterfaceFromXML)
-registerTypeRule("CommandInterface", "collectConfigurationIndexFromXML", ({ context, xml }) => {
-  const collection = getConfigurationIndexCollectionContext(context)
-  if (collection === undefined || xml === null || typeof xml !== "object" || Array.isArray(xml)) return
-  const commandInterface = xml as CommandInterfaceXML
-  const base = getConfigurationIndexXmlNodeLogicalAddress(collection)
-  collectItemOrders(collection, base, "NavigationPanel", commandInterface.NavigationPanel?.Item)
-  collectItemOrders(collection, base, "CommandBar", commandInterface.CommandBar?.Item)
-})
-
-function collectItemOrders(
-  collection: NonNullable<ReturnType<typeof getConfigurationIndexCollectionContext>>,
-  base: string,
-  section: "NavigationPanel" | "CommandBar",
-  source: CommandInterfaceItemXML | CommandInterfaceItemXML[] | undefined
-): void {
-  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
-  items.forEach((item, index) => {
-    collection.collector.setOrder(indexedUid(base, section, index), Object.keys(item))
-  })
-}

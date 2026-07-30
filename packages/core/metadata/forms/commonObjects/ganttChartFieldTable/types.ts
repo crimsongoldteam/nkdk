@@ -18,7 +18,6 @@ import {
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { ElementXML } from "../../../orchestration/formElement/types"
 import type { ExportToJSONSchemaFn } from "../../../orchestration"
-import { isConfigurationIndexPropertyPresent } from "../../../configurationIndex/referenceView"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML
@@ -77,7 +76,7 @@ registerTypeRule(
     elementRule: TableRules,
     nameStyle,
     toXML: ({ context }) => ({ name: getGeneratedName(context, undefined) }),
-    transformOutput: ({ context, xml, yaml, referenceXML }) => {
+    transformOutput: ({ xml, yaml, referenceXML }) => {
       const result: Record<string, unknown> = { ...xml }
       const yamlRecord = asRecord(yaml)
       for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
@@ -85,7 +84,6 @@ registerTypeRule(
         if (rule?.yaml === undefined || rule.xml === undefined) continue
         if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
         if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
-        if (isConfigurationIndexPropertyPresent(context, propertyKey)) continue
         delete result[rule.xml]
       }
       return result

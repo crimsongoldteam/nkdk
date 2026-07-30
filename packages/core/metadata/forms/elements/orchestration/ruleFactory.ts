@@ -87,10 +87,9 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
     const indexedName = getConfigurationIndexXmlName(context)
     const indexedId = runtime?.identity("xmlId")
     if (indexedName !== undefined) {
-      if (indexedName.length === 0) runtime?.collector.setAlias(runtime.logicalAddress, "_name", "")
-      else runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
+      runtime?.collector.setIdentity(runtime.logicalAddress, "xmlName", indexedName)
     }
-    if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
+    if (indexedId !== undefined) runtime?.collector.setIdentity(runtime.logicalAddress, "xmlId", indexedId)
     const result = {
       _name:
         typeof _name === "string" &&

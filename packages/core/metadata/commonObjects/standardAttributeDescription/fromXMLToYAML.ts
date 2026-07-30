@@ -16,8 +16,8 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     keyField: "name",
     configurationIndexUidSegment: rule.configurationIndexUidSegment,
     preserveItemPropertyPresence: true,
-    preserveOmittedItemNames: true,
-    recordYamlKeyFromYAML: ({ name }) => names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
+    recordYamlKeyFromYAML: ({ name }) =>
+      names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
     traversal: params.traversal,
   })
   if (yaml === undefined || Array.isArray(yaml) || params.context.fromXML.forReference) return yaml
@@ -28,8 +28,7 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
   for (const name of canonicalNames) {
     if (preservedEmptyNames.has(name)) continue
     const yamlKey = names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name
-    const value = yaml[yamlKey]
-    if (isEmptyRecord(value)) delete yaml[yamlKey]
+    if (isEmptyRecord(yaml[yamlKey])) delete yaml[yamlKey]
   }
 
   return Object.keys(yaml).length === 0 ? undefined : yaml
@@ -43,7 +42,7 @@ function collectPreservedEmptyNames(xml: unknown): Set<string> {
     const record = asRecord(item)
     if (record === undefined || typeof record._name !== "string") continue
     if (!/^ExtDimension(Type)?\d+$/.test(record._name)) continue
-    if (Object.keys(record).every((key) => key.startsWith("_"))) names.add(record._name)
+    names.add(record._name)
   }
   return names
 }

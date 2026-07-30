@@ -23,16 +23,10 @@ export const exportEventsToYAML = (
   const dataEvents = value as Events
   const result: EventsYAML = {}
 
-  for (const [ruleKey, yamlKey] of Object.entries(rule.items) as Array<[string, string]>) {
-    const eventValue = dataEvents[ruleKey]
-    if (eventValue === undefined) continue
+  for (const [ruleKey, eventValue] of Object.entries(dataEvents)) {
+    const yamlKey = rule.items[ruleKey] ?? ruleKey
     const yamlValue = eventValueToYAML(eventValue, yamlKey)
     if (yamlValue !== undefined) result[yamlKey] = yamlValue
-  }
-  for (const [key, eventValue] of Object.entries(dataEvents)) {
-    if (Object.prototype.hasOwnProperty.call(rule.items, key)) continue
-    const yamlValue = eventValueToYAML(eventValue, key)
-    if (yamlValue !== undefined) result[key] = yamlValue
   }
 
   return isNonEmptyObject(result) ? result : undefined

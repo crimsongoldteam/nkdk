@@ -64,17 +64,19 @@ describe("XML import worker first pass", () => {
         filePath: assignment.targetProjectPath,
       }),
     ])
-    expect(decodeConfigurationIndexFragments(result.fragmentBuffer)).toEqual([
+    const fragments = decodeConfigurationIndexFragments(result.fragmentBuffer)
+    expect(fragments).toEqual([
       expect.objectContaining({
         targetProjectPath: assignment.targetProjectPath,
-        localDependencies: expect.arrayContaining([
+        entities: expect.arrayContaining([
           expect.objectContaining({
+            logicalAddress: assignment.logicalAddress,
             sourceProjectPath: assignment.targetProjectPath,
-            canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
           }),
         ]),
       }),
     ])
+    expect(fragments[0]).not.toHaveProperty("localDependencies")
     expect(result.validationContribution.objectIndexEntries).toContainEqual(
       expect.objectContaining({
         canonical: "Catalog.СправочникПолный",
@@ -94,7 +96,7 @@ describe("XML import worker first pass", () => {
         yamlPath: ["ОсновнаяФормаОбъекта"],
       })
     )
-    expect(result.localDependencies).toContainEqual({
+    expect(result.validationContribution.localDependencies).toContainEqual({
       sourceProjectPath: assignment.targetProjectPath,
       yamlPath: ["ОсновнаяФормаОбъекта"],
       rulePath: [{ propertyKey: "defaultObjectForm" }],
@@ -116,7 +118,6 @@ describe("XML import worker first pass", () => {
       "diagnostics",
       "fragmentBuffer",
       "kind",
-      "localDependencies",
       "ownerFacts",
       "validationContribution",
     ])
@@ -178,15 +179,14 @@ describe("XML import worker first pass", () => {
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
       ownerFacts: [],
-      localDependencies: [],
       validationContribution: {
         objectRecords: [],
         objectIndexEntries: [],
         memberIndexEntries: [],
-      valueIndexEntries: [],
-      pendingReferences: [],
-      localDependencies: [],
-      logicalAddresses: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+        localDependencies: [],
+        logicalAddresses: [],
       },
       diagnostics: [],
       fragmentBuffer,
@@ -336,10 +336,7 @@ describe("XML import worker second pass", () => {
 
   it("resolves a DataPath owner from the base snapshot when it is absent locally", async () => {
     const tempDir = createTempDir("worker-layered")
-    const assignments = createCatalogAndFormAssignments(
-      "Объект.БазовыйРеквизит",
-      "Базовый"
-    )
+    const assignments = createCatalogAndFormAssignments("Объект.БазовыйРеквизит", "Базовый")
     await initializeWorker(tempDir)
     const first = expectFirstPass(
       await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })

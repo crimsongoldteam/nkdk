@@ -60,19 +60,19 @@ registerMetadataXmlPrepareCapability({
   run: ({ context, preparedYamlFile, assignment, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
     if (output === undefined) return []
+    const currentChildObjects = buildConfigurationChildObjectsFromProjectEntries({
+      entries: composition
+        .filter((entry) => entry.assignmentRole === "properties")
+        .map((entry) => {
+          const parts = entry.sourceProjectPath.split("/")
+          return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
+        }),
+    })
     const prepared = prepareConfigurationXML({
       context,
       preparedYamlFile,
       rootRule: assignment.itemRule,
-      childObjects: buildConfigurationChildObjectsFromProjectEntries({
-        entries: composition
-          .filter((entry) => entry.assignmentRole === "properties")
-          .map((entry) => {
-            const parts = entry.sourceProjectPath.split("/")
-            return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
-          }),
-        referenceChildObjects: configurationChildObjectsFromIndex(context.exportToXML.configurationIndex),
-      }),
+      childObjects: configurationChildObjectsFromIndex(context.exportToXML.configurationIndex, currentChildObjects),
       profile,
     })
     return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]

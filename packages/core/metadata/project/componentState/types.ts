@@ -1,11 +1,8 @@
 import type { ComponentAddress } from "../../components/address"
 import type { ConfigurationProjectFile } from "../../configurationIndex"
-import type {
-  ConfigurationLocalDependency,
-  SharedConfigurationIndexSnapshot,
-} from "../../configurationIndex"
+import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
 import type { SharedValidationSnapshot } from "../../validation/sharedValidationSnapshot"
-import type { ProjectLogicalAddressEntry } from "../componentIndexFacts"
+import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../componentIndexFacts"
 import type { MetadataProjectResourceMatch } from "../../resourceTopology/projectProjection"
 import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
 
@@ -27,7 +24,7 @@ export interface ComponentIndexes {
   readonly componentPath: string
   readonly sourceProjectFiles: readonly ConfigurationProjectFile[]
   readonly metadata: SharedValidationSnapshot
-  readonly dependencies: readonly ConfigurationLocalDependency[]
+  readonly dependencies: readonly ProjectLocalDependency[]
   readonly logicalAddresses: readonly ProjectLogicalAddressEntry[]
 }
 

@@ -6,19 +6,14 @@ import {
 } from "../../configurationIndex/collector/collectProperty"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexPropertyLogicalAddress,
   getConfigurationIndexXmlNodeLogicalAddress,
   runWithConfigurationIndexPropertyContext,
 } from "../../configurationIndex/collector/context"
-import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/logicalAddress"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
-import { getValueOrDefault, presenceAffectsExport, shouldProcessProperty } from "./helpers"
-import type {
-  DeferredRulePathSegment,
-  DirectImportProfile,
-  DirectImportXMLSource,
-} from "./importYamlTypes"
+import { getValueOrDefault, shouldProcessProperty } from "./helpers"
+import type { DeferredRulePathSegment, DirectImportProfile, DirectImportXMLSource } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
@@ -65,14 +60,6 @@ export function importPropertiesFromXMLToYAML(params: {
   const owner = metadataTargetOwnerFromRule({ itemRule: rule, name: itemName, context })
   const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
-  const configurationPresenceByXmlNode = new Map<
-    string,
-    {
-      collector: ConfigurationIndexCollector
-      present: Set<string>
-    }
-  >()
-
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
   const sourceStates = sources.map((source) => {
     const planningStartedAt = performance.now()
@@ -113,7 +100,7 @@ export function importPropertiesFromXMLToYAML(params: {
     ambiguousXMLKey: boolean
   }): void => {
     if (params.profile !== undefined) params.profile.propertyCount++
-    const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML, ambiguousXMLKey } = match
+    const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
     const { propertyKey: key, rule: propertyRule } = entry
     const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedConfigurationIndexAddressing =
@@ -121,7 +108,7 @@ export function importPropertiesFromXMLToYAML(params: {
       (nestedRule !== undefined && "configurationIndexAddressing" in nestedRule
         ? nestedRule.configurationIndexAddressing
         : undefined)
-    const { source, indexCollection, xmlNodeLogicalAddress, ownerXmlName } = sourceState
+    const { source, indexCollection, ownerXmlName } = sourceState
     const { context: sourceContext } = source
     const identityStartedAt = performance.now()
     collectConfigurationIndexIdentityFromXML({
@@ -137,32 +124,6 @@ export function importPropertiesFromXMLToYAML(params: {
       childCollection?.configurationIndexUidSegment ??
       propertyRule.configurationIndexUidSegment ??
       propertyRule.operationTarget?.migrationSegment
-
-    if (indexCollection !== undefined && presentInXML) {
-      const indexStartedAt = performance.now()
-      const existingObservation = configurationPresenceByXmlNode.get(xmlNodeLogicalAddress!)
-      if (existingObservation !== undefined && existingObservation.collector !== indexCollection.collector) {
-        throw new Error(`Для одного XML-узла ${xmlNodeLogicalAddress} используются разные сборщики снимка`)
-      }
-      const observation = existingObservation ?? {
-        collector: indexCollection.collector,
-        present: new Set<string>(),
-      }
-      configurationPresenceByXmlNode.set(xmlNodeLogicalAddress!, observation)
-      if (sourceXMLKey !== undefined && sourceXMLKey !== entry.canonicalXMLKey)
-        indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
-      if (
-        !ambiguousXMLKey ||
-        presenceAffectsExport({
-          rule: propertyRule,
-          sourceXmlValue: sourceXMLValue,
-          typeBehavior: getTypeRule(propertyRule.type, "xmlImportPropertyBehavior"),
-        })
-      ) {
-        observation.present.add(key)
-      }
-      addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-    }
 
     const collectConfigurationIndex = getTypeRule(propertyRule.type, "collectConfigurationIndexFromXML")
     if (indexCollection !== undefined && sourceXMLKey !== undefined && collectConfigurationIndex !== undefined) {
@@ -193,13 +154,13 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlValue = { "_xsi:nil": true }
     }
     const propertyLogicalAddress =
-      indexCollection === undefined ||
-      (indexCollection.yamlPathAddressing !== true && propertyRule.configurationIndexAddressing !== "yamlPath")
+      indexCollection === undefined
         ? undefined
-        : getConfigurationIndexPropertyLogicalAddress(
-            indexCollection,
-            propertyRule.yaml ?? key,
-            propertyRule.configurationIndexAddressing
+        : configurationIndexPropertyXmlStateUid(
+            indexCollection.logicalAddress,
+            key,
+            propertyRule.yaml,
+            indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath"
           )
     if (sourceXMLKey !== undefined) {
       const indexStartedAt = performance.now()
@@ -208,6 +169,7 @@ export function importPropertiesFromXMLToYAML(params: {
         logicalAddress: propertyLogicalAddress,
         propertyKey: key,
         xmlValue,
+        presentInXML,
         rule: propertyRule,
         descriptor: getTypeRule(propertyRule.type, "configurationIndexValueFromXML"),
       })
@@ -383,42 +345,6 @@ export function importPropertiesFromXMLToYAML(params: {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
       }
-      const wasExcludedAsEqualName =
-        propertyRule.excludeIfEqualNameYAML === true &&
-        yamlValue === undefined &&
-        value !== undefined &&
-        exportPropertyValueToYAML({
-          context: sourceContext,
-          rule: propertyRule,
-          value,
-          owner,
-        }) !== undefined
-      if (indexCollection !== undefined && wasExcludedAsEqualName) {
-        indexCollection.collector.setExcludedEqualName(
-          propertyLogicalAddress ?? `${indexCollection.logicalAddress}.${key}`
-        )
-      }
-      if (
-        indexCollection !== undefined &&
-        presentInXML &&
-        ((Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
-          typeof propertyRule.implicitValueYAML !== "function" &&
-          (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
-            (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))) ||
-          (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
-            Object.is(
-              value,
-              getValueOrDefault({
-                context: sourceContext,
-                rule: propertyRule,
-                value: undefined,
-                name: key,
-                operation: "importFromXML",
-              })
-            )))
-      ) {
-        configurationPresenceByXmlNode.get(xmlNodeLogicalAddress!)?.present.add(key)
-      }
       if (propertyRule.externalFile && propertyRule.toYAML !== false) {
         const outputStartedAt = performance.now()
         const parentName = sourceContext.exportToYAML?.parent?.name
@@ -537,16 +463,6 @@ export function importPropertiesFromXMLToYAML(params: {
       conversionMs += performance.now() - conversionStartedAt
     }
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
-  }
-
-  for (const [xmlNodeLogicalAddress, observation] of configurationPresenceByXmlNode) {
-    const indexStartedAt = performance.now()
-    for (const propertyKey of Object.keys(rule.properties)) {
-      if (observation.present.has(propertyKey)) {
-        observation.collector.setPresent(xmlNodeLogicalAddress, propertyKey)
-      }
-    }
-    addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
   }
 
   return sortYamlRuleProperties(result)

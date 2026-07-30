@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot } from "../configurationIndex/testData"
 import { childUid } from "../configurationIndex/logicalAddress"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
@@ -52,7 +52,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
       assignments: [root, catalogAssignment(projectDir, "Товары"), catalogAssignment(projectDir, "Контрагенты")],
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
     })
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
@@ -88,14 +88,21 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     })
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
-    const baseIndex = sampleIndex()
+    const baseIndex = sampleSnapshot()
     const index = {
       ...baseIndex,
-      xmlNodes: [
-        ...baseIndex.xmlNodes,
+      entities: [
+        ...baseIndex.entities,
         {
           logicalAddress: childUid("Конфигурация", "Свойство", "childObjects"),
-          order: ['["Catalog","Товары"]', '["Catalog","Контрагенты"]'],
+          sourceProjectPath: "Configuration.yaml",
+          omittedChildren: {
+            kind: "typedNames" as const,
+            items: [
+              { xmlName: "Catalog", name: "Товары" },
+              { xmlName: "Catalog", name: "Контрагенты" },
+            ],
+          },
         },
       ],
     }
