@@ -190,10 +190,12 @@ export interface ResolveStandardTableColumnParams {
 }
 
 const membersByOwnerKind = new Map<string, StandardMemberDeclaration[]>()
+let standardMembersRevision = 0
 
 export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
   const existing = membersByOwnerKind.get(ownerKind) ?? []
   membersByOwnerKind.set(ownerKind, [...existing, ...members])
+  standardMembersRevision += 1
 }
 
 export function getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[] {
@@ -202,6 +204,7 @@ export function getStandardMembers(ownerKind: string): readonly StandardMemberDe
 
 export function clearStandardMembersForTests(): void {
   membersByOwnerKind.clear()
+  standardMembersRevision += 1
 }
 
 export function snapshotStandardMembersForTests(): Map<string, StandardMemberDeclaration[]> {
@@ -211,6 +214,24 @@ export function snapshotStandardMembersForTests(): Map<string, StandardMemberDec
 export function restoreStandardMembersForTests(snapshot: Map<string, StandardMemberDeclaration[]>): void {
   membersByOwnerKind.clear()
   for (const [kind, members] of snapshot) membersByOwnerKind.set(kind, [...members])
+  standardMembersRevision += 1
+}
+
+export function standardMemberNamePairs(): readonly StandardMemberNames[] {
+  const pairs = new Map<string, StandardMemberNames>()
+  for (const members of membersByOwnerKind.values()) {
+    for (const member of members) {
+      addStandardMemberNamePair(pairs, member.names)
+      if (member.memberKind === "standardTabularSection") {
+        for (const column of member.columns) addStandardMemberNamePair(pairs, column.names)
+      }
+    }
+  }
+  return [...pairs.values()]
+}
+
+export function standardMembersRegistryRevision(): number {
+  return standardMembersRevision
 }
 
 export function resolveIndexTimeStandardMember(
@@ -515,6 +536,10 @@ function matchesStandardMember(
 
 function matchesSegment(member: { names: StandardMemberNames }, segment: string): boolean {
   return member.names.internal === segment || member.names.yaml === segment
+}
+
+function addStandardMemberNamePair(pairs: Map<string, StandardMemberNames>, names: StandardMemberNames): void {
+  pairs.set(`${names.internal}\u0000${names.yaml}`, names)
 }
 
 function primitiveTypeInfo(kind: PrimitiveKind, sourceText: string): DataPathTypeInfo {

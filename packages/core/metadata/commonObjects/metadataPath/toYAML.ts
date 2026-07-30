@@ -5,6 +5,7 @@ import type { ConfigurationContext } from "../../context/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
+import { requiresDataPathStandardMemberFormatting } from "../../validation/dataPath/finalizationPredicate"
 import {
   exportDataPathStandardMembersToYAML,
   formatDataPathStandardMembersWithIndex,
@@ -105,6 +106,9 @@ const exportDataPathToYAML: ExportToYAMLFunctionNew = ({ context, value }) => {
 }
 
 registerTypeRule("DataPath", "exportToYAML", exportDataPathToYAML)
+registerTypeRule("DataPath", "requiresImportedYAMLFinalization", ({ value }) =>
+  requiresDataPathStandardMemberFormatting(value, "internal-to-yaml")
+)
 registerTypeRule("DataPath", "finalizeImportedYAML", ({ context, value, formDataPathIndex }) => {
   if (typeof value !== "string" || formDataPathIndex === undefined) return value
   const ownerCache = context.exportToYAML?.ownerMetadataCache

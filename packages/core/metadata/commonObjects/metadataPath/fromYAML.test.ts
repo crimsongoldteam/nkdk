@@ -97,7 +97,7 @@ describe("importDataPathStandardMembersFromYAML", () => {
   })
 
   test("preserves disabled data path prefix", () => {
-    expect(importDataPathStandardMembersFromYAML(catalogContext(), "~Список.Владелец")).toBe("~Список.Owner")
+    expect(importDataPathStandardMembersFromYAML(catalogContext(), "~Список.Владелец")).toBe("~Список.Владелец")
   })
 
   test("использует вместе готовый индекс формы и слоёный индекс владельцев", () => {
