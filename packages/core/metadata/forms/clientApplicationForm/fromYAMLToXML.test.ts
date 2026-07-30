@@ -96,7 +96,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(result.formXML.Attributes).toEqual({})
   })
 
-  it("не добавляет служебные узлы таблицы без reference XML", () => {
+  it("добавляет канонические служебные узлы таблицы без reference XML", () => {
     const dynamicList = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {
@@ -114,9 +114,24 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "ФормаЭлемента",
     })
 
-    expect(firstTable(dynamicList.formXML)).not.toHaveProperty("Period")
-    expect(firstTable(dynamicList.formXML)).not.toHaveProperty("TopLevelParent")
-    expect(firstTable(ordinary.formXML)).not.toHaveProperty("RowFilter")
+    expect(firstTable(dynamicList.formXML)).toMatchObject({
+      Period: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      TopLevelParent: { "_xsi:nil": "true" },
+      RowFilter: { "_xsi:nil": "true" },
+    })
+    expect(firstTable(ordinary.formXML)).toMatchObject({
+      Period: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      TopLevelParent: { "_xsi:nil": "true" },
+      RowFilter: { "_xsi:nil": "true" },
+    })
   })
 
   it("сохраняет служебные узлы таблицы из reference XML", () => {

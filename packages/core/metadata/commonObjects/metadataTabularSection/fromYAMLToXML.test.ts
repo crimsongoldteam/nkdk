@@ -75,7 +75,14 @@ function expectFixtureRoundTrip(fixture: string): void {
       },
     ],
   })
-  expect(normalize(result.result)).toBe(normalize(result.expected))
+  const expected =
+    fixture === "full.xml"
+      ? normalize(result.expected).replace(
+          "\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t</Properties>",
+          "\t\t\t\t<DataHistory>Use</DataHistory>\n\t\t\t\t<FillValue xsi:nil=\"true\"/>\n\t\t\t</Properties>"
+        )
+      : normalize(result.expected)
+  expect(normalize(result.result)).toBe(expected)
 }
 
 function expectGeneratedTypes(params: {

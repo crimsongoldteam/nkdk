@@ -720,7 +720,6 @@ describe("importPropertiesFromXMLToYAML", () => {
             type: "string",
             xml: "RowFilter",
             fromXML: false,
-            preserveFromReferenceXML: true,
           },
           title: { type: "string", xml: "Title", xmlAliases: ["Caption"] },
           explicitDefault: {

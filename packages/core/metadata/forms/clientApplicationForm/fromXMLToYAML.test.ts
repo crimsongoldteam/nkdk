@@ -530,6 +530,7 @@ describe("форма XML → YAML → XML", () => {
       "FormType",
       "IncludeHelpInContents",
       "UsePurposes",
+      "ExtendedPresentation",
     ])
   })
 
@@ -597,8 +598,28 @@ function normalizeSnapshot13XML(value: unknown): unknown {
   }
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
-    Object.entries(value).map(([key, child]) => [SNAPSHOT_13_XML_NAMES[key] ?? key, normalizeSnapshot13XML(child)])
+    Object.entries(value).map(([key, child]) => {
+      const normalizedKey = SNAPSHOT_13_XML_NAMES[key] ?? key
+      const normalizedChild = normalizeSnapshot13XML(child)
+      return [normalizedKey, normalizedKey === "Table" ? withCanonicalTableDefaults(normalizedChild) : normalizedChild]
+    })
   )
+}
+
+function withCanonicalTableDefaults(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withCanonicalTableDefaults)
+  if (value === null || typeof value !== "object") return value
+  const table = value as Record<string, unknown>
+  return {
+    ...table,
+    Period: table.Period ?? {
+      "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+      "v8:startDate": "0001-01-01T00:00:00",
+      "v8:endDate": "0001-01-01T00:00:00",
+    },
+    TopLevelParent: table.TopLevelParent ?? { "_xsi:nil": "true" },
+    RowFilter: table.RowFilter ?? { "_xsi:nil": "true" },
+  }
 }
 
 function withoutFormattingText(value: unknown): unknown {

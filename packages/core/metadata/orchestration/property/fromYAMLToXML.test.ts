@@ -119,6 +119,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("восстанавливает XML-default по rules без reference", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Поле",
+          xml: "Field",
+          defaultValueXML: "xml-default",
+          implicitValueYAML: "model-default",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Field: "xml-default" })
+  })
+
   it("does not restore empty synonym from reference when YAML omits synonym", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -813,7 +832,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     ).not.toMatch(/order|present/)
   })
 
-  it("пишет канонический XML-ключ для preserveFromReferenceXML", () => {
+  it("пишет канонический XML-ключ при копировании reference", () => {
     const referenceValue = { "_xsi:nil": true }
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -824,7 +843,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
           yaml: "Значение",
           xml: "CanonicalValue",
           xmlAliases: ["LegacyValue"],
-          preserveFromReferenceXML: true,
         },
       }),
       outputs: [{ key: "owner", referenceXML: { LegacyValue: referenceValue } }],
@@ -843,7 +861,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
           yaml: "Значение",
           xml: "Value",
           exportNilValue: true,
-          preserveFromReferenceXML: true,
         },
       }),
       outputs: [{ key: "owner" }],

@@ -124,7 +124,6 @@ export const DynamicListRules = {
     keyFields: dynamicListKeyFieldsRule({
       xml: "KeyField",
       yaml: "ПоляКлюча",
-      preserveFromReferenceXML: true,
     }),
     itemsViewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",

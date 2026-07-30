@@ -484,7 +484,6 @@ export const ClientApplicationFormRules = {
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: { items: {} },
       defaultValueXMLRaw: "",
-      preserveFromReferenceXML: true,
     }),
     // #endregion
     // #region Catalog

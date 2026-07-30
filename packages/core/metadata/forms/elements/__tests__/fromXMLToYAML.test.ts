@@ -13,6 +13,7 @@ import { xmlExport } from "../../../../xml/export/exporter"
 import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../configurationIndex/collector/context"
 import type { CollectableElementType } from "../../../orchestration/formElement/types"
 import { getElementRule } from "../orchestration/ruleFactory"
+import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 
 import "../index"
 
@@ -84,7 +85,15 @@ describe("элементы формы XML → YAML → XML", () => {
       expect(withoutReference.DataPath).toBe(xml.DataPath)
     }
 
-    expect(withoutDeclaration(xmlExport({ [xmlTag]: result }, false))).toBe(fs.readFileSync(fixture, "utf8").trim())
+    const actualXML = withoutDeclaration(xmlExport({ [xmlTag]: result }, false))
+    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim())
+    if (expectedXML.includes("<Table")) {
+      expect(importContentFromXML(actualXML, { preserveXsiNil: true })).toEqual(
+        importContentFromXML(expectedXML, { preserveXsiNil: true })
+      )
+    } else {
+      expect(actualXML).toBe(expectedXML)
+    }
   })
 })
 

@@ -203,7 +203,6 @@ const commonAttributeProperties = {
     typeSE: "Indexing",
     defaultValueXML: "DontIndex",
     implicitValueYAML: "DontIndex",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   fullTextSearch: {
@@ -213,7 +212,6 @@ const commonAttributeProperties = {
     typeSE: "UseFullTextSearch",
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   dataHistory: {
@@ -223,7 +221,6 @@ const commonAttributeProperties = {
     typeSE: "DataHistoryUse",
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   objectBelonging: {
@@ -244,7 +241,6 @@ const fillProperties = {
     type: "boolean",
     defaultValueXML: false,
     implicitValueYAML: false,
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   fillValue: {
@@ -252,7 +248,6 @@ const fillProperties = {
     xml: "FillValue",
     type: "MetadataValue",
     xmlParents: ["Properties"],
-    preserveFromReferenceXML: true,
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
 } as const satisfies Record<string, PropertyRule>
@@ -350,7 +345,6 @@ export const MetadataAttributeRules = {
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
     }),
     binaryDataStorageLocationUse: systemEnumerationRule({
@@ -458,7 +452,6 @@ export const MetadataCatalogAttributeRules = {
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
     }),
     binaryDataStorageLocationUse: systemEnumerationRule({

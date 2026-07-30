@@ -85,7 +85,7 @@ const getUndefinedTypePrefix = (root: unknown): string | undefined => {
 }
 
 const shouldImportUndefinedTypeAsMissing = (rule: DcsMetadataValuePropertyRule): boolean =>
-  rule.valueType === "Primitive" && rule.exportNilValue === true && rule.preserveFromReferenceXML === true
+  rule.valueType === "Primitive" && rule.exportNilValue === true
 
 const asReferenceUndefinedTypeValueXML = (
   root: unknown,

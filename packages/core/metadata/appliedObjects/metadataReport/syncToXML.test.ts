@@ -6,6 +6,7 @@ import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import { MetadataReportRules } from "./rules"
+import { withKnownXMLDefaults } from "../../../tests/knownXMLDefaults"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
@@ -41,7 +42,7 @@ describe("syncAppliedObjectToXML — MetadataReport", () => {
   it("читает Report из YAML и записывает XML в outputDir", () => {
     const { comparisons } = preparedReport
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(withKnownXMLDefaults(expected)))
     }
   })
 

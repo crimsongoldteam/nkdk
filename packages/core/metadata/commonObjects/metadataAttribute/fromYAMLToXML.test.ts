@@ -46,6 +46,10 @@ describe("MetadataAttributes YAML → XML", () => {
     const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка", Синоним: "" } })
     expect(result).toContain("<Name>ТестовыйРеквизит</Name>")
     expect(result).toContain("<Synonym/>")
+    expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
+    expect(result).toContain("<Indexing>DontIndex</Indexing>")
+    expect(result).toContain("<FullTextSearch>Use</FullTextSearch>")
+    expect(result).toContain("<DataHistory>Use</DataHistory>")
   })
 
   it("should import object format", () => {

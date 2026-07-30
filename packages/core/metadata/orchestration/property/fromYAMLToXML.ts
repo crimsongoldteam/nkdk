@@ -202,7 +202,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
       !references.some((reference) => reference.exists) &&
-      planned.propertyRule.preserveFromReferenceXML !== true &&
       (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
@@ -280,66 +279,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       continue
     }
 
-    if (!shouldConvertYAMLProperty({ source, planned, outputs: matchingOutputs, context: propertyContext })) continue
-
-    if (
-      planned.propertyRule.preserveFromReferenceXML === true &&
-      planned.propertyRule.exportNilValue === true &&
-      !source.has(propertyKey)
-    ) {
-      matchingOutputs.forEach((output, index) => {
-        const reference = references[index]!
-        if (!reference.exists) {
-          if (output.request.referenceXML !== undefined) return
-          const value = callAtomicToXML({
-            handler: exportHandler,
-            context: propertyContext,
-            rule: planned.propertyRule,
-            value: undefined,
-            source,
-            propertyKey,
-          })
-          writeXMLValue({ context: propertyContext, output, planned, value, reference })
-          return
-        }
-        if (reference.value === undefined) {
-          writeXMLValue({
-            context: propertyContext,
-            output,
-            planned,
-            value: { "_xsi:nil": true },
-            reference,
-          })
-          return
-        }
-        const importedReference = callAtomicFromXML({
-          context: propertyContext,
-          rule: planned.propertyRule,
-          value: reference.value,
-          name: params.name,
-        })
-        if (
-          (reference.value !== undefined && importedReference === reference.value) ||
-          isNilXMLValue(reference.value)
-        ) {
-          writeXMLValue({ context: propertyContext, output, planned, value: reference.value, reference })
-        }
-      })
-      continue
-    }
-
-    if (
-      planned.propertyRule.preserveFromReferenceXML === true &&
-      !source.has(propertyKey) &&
-      !requiresYAMLToXMLEvaluation(planned.propertyRule)
-    ) {
-      matchingOutputs.forEach((output, index) => {
-        const reference = references[index]!
-        if (reference.exists)
-          writeXMLValue({ context: propertyContext, output, planned, value: reference.value, reference })
-      })
-      continue
-    }
+    if (!shouldConvertYAMLProperty({ source, planned, context: propertyContext })) continue
 
     if (
       !usesOrdinaryXMLDefaults(propertyContext) &&
@@ -428,14 +368,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         })
         continue
       }
-      if (
-        nestedYAML === undefined &&
-        effectiveNestedRule.kind === "collection" &&
-        !hasNestedDefault &&
-        planned.propertyRule.preserveFromReferenceXML !== true &&
-        references.every((reference) => isEmptyCollectionReference(reference.value, effectiveNestedRule.xmlElement))
-      )
-        continue
       const nestedOutputs = matchingOutputs.map((output, index) => ({
         key: output.request.key,
         referenceXML: references[index]?.value,
@@ -572,14 +504,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     let imported: unknown
     try {
       const atomicReferences = references.map((reference) =>
-        reference.exists
-          ? callAtomicFromXML({
-              context: diagnosticContext,
-              rule: planned.propertyRule,
-              value: reference.value,
-              name: params.name,
-            })
-          : undefined
+        !source.has(propertyKey) && planned.propertyRule.exportNilValue === true
+          ? undefined
+          : reference.exists
+            ? callAtomicFromXML({
+                context: diagnosticContext,
+                rule: planned.propertyRule,
+                value: reference.value,
+                name: params.name,
+              })
+            : undefined
       )
       const importParams: AtomicFromYAMLParams = {
         handler: getTypeRule(planned.propertyRule.type, "importFromYAML"),
@@ -665,20 +599,6 @@ function copyConfigurationIndexPropertyValue(
 
 function formatRulePath(path: readonly (string | number)[]): string {
   return path.map(String).join("/")
-}
-
-function isEmptyCollectionReference(value: unknown, xmlElement: string | undefined): boolean {
-  if (value === undefined) return true
-  if (Array.isArray(value)) return value.length === 0
-  if (!isRecord(value)) return false
-  if (Object.keys(value).length === 0) return true
-  if (xmlElement === undefined || !Object.prototype.hasOwnProperty.call(value, xmlElement)) return false
-  const items = value[xmlElement]
-  return items === undefined || (Array.isArray(items) && items.length === 0)
-}
-
-function isNilXMLValue(value: unknown): boolean {
-  return isRecord(value) && (value["_xsi:nil"] === true || value["_xsi:nil"] === "true")
 }
 
 function callAtomicFromXML(params: {
@@ -776,17 +696,9 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
 function shouldConvertYAMLProperty(params: {
   source: YAMLPropertySource
   planned: YAMLToXMLPlannedProperty
-  outputs: readonly MutableOutput[]
   context: ConfigurationContextWithExportToXML
 }): boolean {
-  const { source, planned, outputs, context } = params
-  if (!isYAMLPropertyExportEnabled({ source, planned, context })) return false
-  const rule = planned.propertyRule
-  if (rule.preserveFromReferenceXML !== true || source.has(planned.propertyKey)) return true
-  if (rule.exportWithoutReferenceXML === true || rule.exportNilValue === true) return true
-  return outputs.some(
-    ({ request }) => readReferenceProperty({ context, referenceXML: request.referenceXML, planned }).exists
-  )
+  return isYAMLPropertyExportEnabled(params)
 }
 
 function isYAMLPropertyExportEnabled(params: {

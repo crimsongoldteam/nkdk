@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../../metadata/orchestration/property/types"
 import { testAppliedObjectFromXMLToYAML, testAppliedObjectFromYAMLToXML } from "../directConversion"
+import { withKnownXMLDefaults } from "../knownXMLDefaults"
 
 interface FixtureCase {
   fixture: string
@@ -50,7 +51,7 @@ export function describeAppliedObjectYAMLToXMLFixtures(params: FixtureConversion
         yaml: sourceYAML,
       })
 
-      expect(normalizeLineEndings(result.result)).toEqual(normalizeLineEndings(result.expected))
+      expect(normalizeLineEndings(result.result)).toEqual(normalizeLineEndings(withKnownXMLDefaults(result.expected)))
     })
   })
 }

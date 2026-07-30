@@ -440,7 +440,6 @@ export const TableRules = {
         "v8:startDate": "0001-01-01T00:00:00",
         "v8:endDate": "0001-01-01T00:00:00",
       },
-      preserveFromReferenceXML: true,
     },
     topLevelParent: {
       yaml: "РодительВерхнегоУровня",
@@ -449,7 +448,6 @@ export const TableRules = {
       toYAML: false,
       fromYAML: false,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
-      preserveFromReferenceXML: true,
     },
     rowFilter: {
       yaml: "ОтборСтрок",
@@ -458,7 +456,6 @@ export const TableRules = {
       toYAML: false,
       fromYAML: false,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
-      preserveFromReferenceXML: true,
     },
     events: {
       type: "Events",

@@ -47,14 +47,12 @@ export const CharacteristicsDescriptionRules = {
       xml: "xr:DataPathField",
       xmlParents: ["xr:CharacteristicTypes"],
       defaultValueXML: "-1",
-      preserveFromReferenceXML: true,
     }),
     multipleValuesUseField: stringRule({
       yaml: "ПолеИспользованияМножественныхЗначений",
       xml: "xr:MultipleValuesUseField",
       xmlParents: ["xr:CharacteristicTypes"],
       defaultValueXML: "-1",
-      preserveFromReferenceXML: true,
     }),
     characteristicValues: stringRule({
       yaml: "ЗначенияХарактеристик",
@@ -84,14 +82,12 @@ export const CharacteristicsDescriptionRules = {
       xml: "xr:MultipleValuesKeyField",
       xmlParents: ["xr:CharacteristicValues"],
       defaultValueXML: "-1",
-      preserveFromReferenceXML: true,
     }),
     multipleValuesOrderField: stringRule({
       yaml: "ПолеПорядкаМножественныхЗначений",
       xml: "xr:MultipleValuesOrderField",
       xmlParents: ["xr:CharacteristicValues"],
       defaultValueXML: "-1",
-      preserveFromReferenceXML: true,
     }),
   },
 } as const satisfies MetadataItemRule
