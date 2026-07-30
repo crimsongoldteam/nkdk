@@ -66,13 +66,20 @@ describe("exportChildFormNamesToXML", () => {
       xml: { Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"] },
     })
     const exportBase = ctxWithForms(["ФормаВыбора", "ФормаЗадачи", "ФормаСписка"])
+    const exportContext = contexts.exportContext(exportBase)
     const exported = testPropertyFromYAMLToXML({
-      context: contexts.exportContext(exportBase),
+      context: exportContext,
       rule: itemRule,
       yaml: imported.yaml,
     })
 
     expect(imported.yaml).toEqual({})
     expect(exported.xml).toEqual({ Form: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"] })
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
+    ).toEqual({
+      kind: "names",
+      names: ["ФормаСписка", "ФормаВыбора", "ФормаЗадачи"],
+    })
   })
 })

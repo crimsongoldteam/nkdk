@@ -3,7 +3,7 @@ import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import { registerTypeRule } from "./typeRuleRegistry"
@@ -86,7 +86,7 @@ function context(): ConfigurationContextWithExportToXML {
       componentKind: "recursive-augmenter-test",
       configurationIndex: createConfigurationIndexExportRuntime({
         source: createConfigurationIndexReader(
-          snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))
+          snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
         ),
         collector: createConfigurationIndexCollector(),
         targetProjectPath: "root.yaml",

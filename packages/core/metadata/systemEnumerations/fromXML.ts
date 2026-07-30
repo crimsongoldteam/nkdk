@@ -34,7 +34,11 @@ registerTypeRule("SystemEnumeration", "collectConfigurationIndexFromXML", ({ con
   const canonicalValue = yamlValue === undefined ? undefined : fromYAML?.[yamlValue]
   if (canonicalValue === value) return
 
-  collection.collector.setXmlText(getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey), value)
+  collection.collector.setXmlValue(
+    getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey),
+    "xmlText",
+    value
+  )
 })
 registerTypeRule("SystemEnumeration", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => value.xmlText,

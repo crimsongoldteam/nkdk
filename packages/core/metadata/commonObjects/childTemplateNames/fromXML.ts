@@ -3,6 +3,7 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
+import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { PropertyRule, registerTypeRule } from "../../orchestration"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
@@ -23,5 +24,18 @@ registerTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ co
   if (collection === undefined) return
   const names = Array.isArray(xml) ? xml : [xml]
   if (!names.every((name): name is string => typeof name === "string")) return
-  collection.collector.setOrder(getConfigurationIndexXmlNodeLogicalAddress(collection), names)
+  setChildTemplateNamesOmittedChildren(
+    collection.collector,
+    getConfigurationIndexXmlNodeLogicalAddress(collection),
+    names
+  )
 })
+
+export function setChildTemplateNamesOmittedChildren(
+  collector: ConfigurationIndexCollector,
+  address: string,
+  names: readonly string[]
+): void {
+  if (names.length === 0) return
+  collector.setOmittedChildren(address, { kind: "names", names })
+}

@@ -1,167 +1,99 @@
 import { describe, expect, it } from "vitest"
-import { NKDK_CORE_VERSION } from "../../version"
 import { ConfigurationIndexCompatibilityError, decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { hashSection, writeHash128 } from "./hash"
-import { sampleIndex } from "./testData"
+import { sampleSnapshot } from "./testData"
+import type { ConfigurationSnapshot } from "./types"
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 12
+const SECTION_COUNT = 4
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 
 describe("decodeConfigurationIndex", () => {
-  it("сохраняет Extended при encode → decode", () => {
-    const data = {
-      ...sampleIndex(),
-      xmlValues: [{ logicalAddress: "Справочник.Товары.form", extended: true as const }],
-    }
-
-    expect(decodeConfigurationIndex(encodeConfigurationIndex(data))).toEqual(data)
-  })
-
-  it("round-trips every logical section", () => {
-    const encoded = encodeConfigurationIndex(sampleIndex())
+  it("полностью декодирует снимок 1.3 и нормализованный порядок", () => {
+    const source = sampleSnapshot()
 
     expect(
-      decodeConfigurationIndex(encoded, {
+      decodeConfigurationIndex(encodeConfigurationIndex(source), {
         expectedComponentPath: "cf",
-        expectedProducerVersion: NKDK_CORE_VERSION,
       })
-    ).toEqual(sampleIndex())
+    ).toEqual(normalized(source))
   })
 
-  it("round-trips an XML alias named __proto__ as data", () => {
-    const data = sampleIndex()
-    const aliases = Object.fromEntries([["__proto__", "SourceName"]])
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      xmlNodes: [{ logicalAddress: "Справочник.Товары", aliases }],
-    })
+  it("сохраняет пустой xmlName через ненулевой stringId", () => {
+    const decoded = decodeConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
 
-    expect(decodeConfigurationIndex(encoded).xmlNodes[0].aliases).toEqual(aliases)
+    expect(decoded.entities[0]!.identities).toMatchObject({ xmlName: "" })
   })
 
-  it("accepts YAML-path logicalAddress in XML_NODES", () => {
-    const data = sampleIndex()
-    const xmlNode = {
-      logicalAddress: "БизнесПроцесс.Задание.Форма.ФормаСписка.Атрибут.Список.Порядок.Элементы[0]",
-      present: ["Items"],
-    }
+  it("сохраняет начальный U+FEFF в строковом значении", () => {
+    const source = sampleSnapshot()
     const encoded = encodeConfigurationIndex({
-      ...data,
-      xmlNodes: [xmlNode],
+      ...source,
+      entities: source.entities.map((entity) =>
+        entity.logicalAddress === "Документ.Заказ"
+          ? { ...entity, xml: { ...entity.xml, xmlText: "\uFEFFтекст" } }
+          : entity
+      ),
     })
 
-    expect(decodeConfigurationIndex(encoded).xmlNodes).toEqual([xmlNode])
-  })
-
-  it("accepts form singleton identity logicalAddress after a named form element", () => {
-    const contextMenuAddress = "Справочник.Товары.Форма.ФормаЭлемента.Элемент.ПолеВвода.КонтекстноеМеню"
-    const nestedContextMenuAddress =
-      "Справочник.Товары.Форма.ФормаЭлемента.Элемент.ДиаграммаГанта.Таблица.КонтекстноеМеню"
-    const encoded = encodeConfigurationIndex({
-      ...sampleIndex(),
-      identities: [
-        {
-          logicalAddress: contextMenuAddress,
-          kind: "xmlId",
-          value: "42",
-        },
-        {
-          logicalAddress: nestedContextMenuAddress,
-          kind: "xmlId",
-          value: "43",
-        },
-      ],
-    })
-
-    expect(decodeConfigurationIndex(encoded).identities).toEqual([
-      {
-        logicalAddress: contextMenuAddress,
-        kind: "xmlId",
-        value: "42",
-      },
-      {
-        logicalAddress: nestedContextMenuAddress,
-        kind: "xmlId",
-        value: "43",
-      },
-    ])
+    expect(decodeConfigurationIndex(encoded).entities[0]!.xml?.xmlText).toBe("\uFEFFтекст")
   })
 
   it.each([
     ["magic", (buffer: Buffer) => writeAscii(buffer, "BROKEN!!", 0)],
-    ["directory checksum", (buffer: Buffer) => flipByte(buffer, 64)],
-    ["section checksum", (buffer: Buffer) => flipByte(buffer, 768)],
-  ] as const)("rejects invalid %s", (_name, mutate) => {
-    const corrupted = mutate(Buffer.from(encodeConfigurationIndex(sampleIndex())))
-
-    expectCorruption(corrupted)
-  })
-
-  it("rejects trailing bytes after accepting the matching fileLength", () => {
-    const corrupted = Buffer.concat([encodeConfigurationIndex(sampleIndex()), Buffer.from([0])])
-    corrupted.writeBigUInt64LE(BigInt(corrupted.length), 40)
-
-    expectCorruptionMessage(corrupted, "байты после последней секции")
-  })
-
-  it.each([
     ["header length", (buffer: Buffer) => writeU32(buffer, 12, 63)],
     ["byte order", (buffer: Buffer) => writeU8(buffer, 16, 2)],
     ["string encoding", (buffer: Buffer) => writeU8(buffer, 17, 2)],
     ["checksum algorithm", (buffer: Buffer) => writeU8(buffer, 18, 2)],
     ["file hash algorithm", (buffer: Buffer) => writeU8(buffer, 19, 2)],
     ["directory entry length", (buffer: Buffer) => writeU32(buffer, 20, 63)],
-    ["section count", (buffer: Buffer) => writeU32(buffer, 24, 10)],
-    ["header flags", (buffer: Buffer) => writeU32(buffer, 28, 1)],
+    ["section count", (buffer: Buffer) => writeU32(buffer, 24, 12)],
+    ["header reserved", (buffer: Buffer) => writeU32(buffer, 28, 1)],
     ["directory offset", (buffer: Buffer) => writeU64(buffer, 32, 63n)],
     ["file length", (buffer: Buffer) => writeU64(buffer, 40, BigInt(buffer.length - 1))],
-  ] as const)("rejects invalid header %s", (_name, mutate) => {
-    expectCorruption(mutate(Buffer.from(encodeConfigurationIndex(sampleIndex()))))
+  ] as const)("отклоняет повреждённый заголовок: %s", (_name, mutate) => {
+    expectCorruption(mutate(Buffer.from(encodeConfigurationIndex(sampleSnapshot()))))
   })
 
-  it("separates incompatible container versions from corruption", () => {
-    const encoded = Buffer.from(encodeConfigurationIndex(sampleIndex()))
-    encoded.writeUInt16LE(1, 8)
+  it("отделяет старую версию 2.0 от повреждения файла", () => {
+    const old20Header = Buffer.alloc(HEADER_LENGTH)
+    old20Header.write("NKDK1CIX", 0, "ascii")
+    old20Header.writeUInt16LE(2, 8)
+    old20Header.writeUInt16LE(0, 10)
 
-    expect(() => decodeConfigurationIndex(encoded)).toThrowError(ConfigurationIndexCompatibilityError)
-    expect(() => decodeConfigurationIndex(encoded)).toThrow("требуется повторный import")
-  })
-
-  it("round-trips only local metadata blocks and serializable dependencies", () => {
-    const source = sampleIndex()
-    const decoded = decodeConfigurationIndex(encodeConfigurationIndex(source))
-
-    expect(decoded.localIndexes).toEqual(source.localIndexes)
-    expect(decoded.localIndexes).not.toHaveProperty("base")
-    expect(decoded.localIndexes).not.toHaveProperty("layered")
+    expect(() => decodeConfigurationIndex(old20Header)).toThrowError(ConfigurationIndexCompatibilityError)
+    expect(() => decodeConfigurationIndex(old20Header)).toThrow("требуется повторный import")
   })
 
   it.each([
-    ["unsorted section types", (buffer: Buffer) => writeU32(buffer, DIRECTORY_ENTRY_LENGTH, 1)],
-    ["section reserved", (buffer: Buffer) => writeU32(buffer, 12, 1)],
-    ["logical length", (buffer: Buffer) => writeU64(buffer, 32, 1n)],
-    ["missing mandatory flag", (buffer: Buffer) => writeU32(buffer, 8, 0)],
-  ] as const)("rejects invalid directory %s", (_name, mutate) => {
-    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleIndex()), mutate)
-
-    expectCorruption(corrupted)
+    ["catalog checksum", (buffer: Buffer) => flipByte(buffer, HEADER_LENGTH)],
+    ["section checksum", (buffer: Buffer) => flipByte(buffer, sectionOffset(buffer, 2) + 4)],
+  ] as const)("отклоняет неверный %s", (_name, mutate) => {
+    expectCorruption(mutate(Buffer.from(encodeConfigurationIndex(sampleSnapshot()))))
   })
 
   it.each([
-    ["section version", (buffer: Buffer) => writeU16(buffer, 4, 2)],
-    ["unknown section flag", (buffer: Buffer) => writeU32(buffer, 8, 3)],
-  ] as const)("separates incompatible directory %s", (_name, mutate) => {
-    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleIndex()), mutate)
+    ["unsorted section types", (directory: Buffer) => writeU32(directory, DIRECTORY_ENTRY_LENGTH, 1)],
+    ["section reserved", (directory: Buffer) => writeU32(directory, 12, 1)],
+    ["logical length", (directory: Buffer) => writeU64(directory, 32, 1n)],
+    ["missing mandatory flag", (directory: Buffer) => writeU32(directory, 8, 0)],
+  ] as const)("отклоняет повреждённый каталог: %s", (_name, mutate) => {
+    expectCorruption(mutateDirectory(encodeConfigurationIndex(sampleSnapshot()), mutate))
+  })
 
+  it.each([
+    ["section version", (directory: Buffer) => writeU16(directory, 4, 2)],
+    ["unknown section flag", (directory: Buffer) => writeU32(directory, 8, 3)],
+  ] as const)("отделяет несовместимый каталог: %s", (_name, mutate) => {
+    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleSnapshot()), mutate)
     expect(() => decodeConfigurationIndex(corrupted)).toThrowError(ConfigurationIndexCompatibilityError)
   })
 
   it.each([
-    ["unaligned section", (directory: Buffer) => writeU64(directory, 16, 513n)],
-    ["overlapping sections", (directory: Buffer) => writeU64(directory, DIRECTORY_ENTRY_LENGTH + 16, 512n)],
+    ["unaligned section offset", (directory: Buffer) => writeU64(directory, 16, 319n)],
+    ["overlapping section offset", (directory: Buffer) => writeU64(directory, DIRECTORY_ENTRY_LENGTH + 16, 320n)],
     [
       "unsafe section length",
       (directory: Buffer) => {
@@ -170,319 +102,165 @@ describe("decodeConfigurationIndex", () => {
         return writeU64(directory, entry + 32, (1n << 64n) - 1n)
       },
     ],
-  ] as const)("rejects invalid placement %s", (_name, mutate) => {
-    expectCorruption(mutateDirectory(encodeConfigurationIndex(sampleIndex()), mutate))
+    ["non-zero placement padding", (directory: Buffer) => writeU64(directory, 16, 328n)],
+  ] as const)("отклоняет повреждённое размещение: %s", (_name, mutate) => {
+    expectCorruption(mutateDirectory(encodeConfigurationIndex(sampleSnapshot()), mutate))
+  })
+
+  it("отклоняет байты после последней секции", () => {
+    const corrupted = Buffer.concat([encodeConfigurationIndex(sampleSnapshot()), Buffer.of(0)])
+    corrupted.writeBigUInt64LE(BigInt(corrupted.length), 40)
+
+    expectCorruptionMessage(corrupted, "байты после последней секции")
   })
 
   it.each([
-    ["BINDING reserved", 1, (section: Buffer) => flipByte(section, 24)],
-    ["STRINGS padding", 2, (section: Buffer) => flipStringPadding(section, "cf")],
-    ["PROJECT_FILES flags", 3, (section: Buffer) => flipByte(section, 4)],
-    ["IDENTITIES flags", 4, (section: Buffer) => flipByte(section, 6)],
-    ["XML_ORDERS reserved", 5, (section: Buffer) => flipByte(section, 4)],
-    ["XML_NODES padding", 6, (section: Buffer) => flipByte(section, section.length - 1)],
-    ["XML_VALUES reserved", 7, (section: Buffer) => flipByte(section, 24)],
-  ] as const)("rejects non-zero %s after checksum verification", (_name, sectionType, mutate) => {
-    const corrupted = mutateSection(encodeConfigurationIndex(sampleIndex()), sectionType, mutate)
+    ["invalid UTF-8", (section: Buffer) => writeU8(section, 4, 0xff)],
+    ["U+0000", (section: Buffer) => writeU8(section, 4, 0)],
+    ["padding STRINGS", (section: Buffer) => writeU8(section, 6, 1)],
+  ] as const)("отклоняет повреждённый STRINGS: %s", (_name, mutate) => {
+    expectCorruption(mutateSection(encodeConfigurationIndex(sampleSnapshot()), 2, mutate))
+  })
 
-    expectCorruption(corrupted)
+  it("отклоняет повторную строку STRINGS", () => {
+    const corrupted = mutateSection(encodeConfigurationIndex(sampleSnapshot()), 2, (section) => {
+      const xsOffset = findStringRecord(section, "xs")
+      section.write("cf", xsOffset + 4, "utf8")
+      return section
+    })
+
+    expectCorruptionMessage(corrupted, "строки STRINGS повторяются")
   })
 
   it.each([
-    ["invalid UTF-8", (section: Buffer) => writeStringByte(section, "cf", 0xff)],
-    ["U+0000", (section: Buffer) => writeStringByte(section, "cf", 0)],
-  ] as const)("rejects invalid STRINGS %s", (_name, mutate) => {
-    expectCorruption(mutateSection(encodeConfigurationIndex(sampleIndex()), 2, mutate))
+    ["SNAPSHOT reserved", 1, (section: Buffer) => writeU32(section, 12, 1)],
+    ["FILES reserved", 3, (section: Buffer) => writeU32(section, 4, 1)],
+    ["ENTITIES omitted reserved", 4, (section: Buffer) => writeU32(section, 44, 1)],
+    ["ENTITIES padding", 4, (section: Buffer) => writeU8(section, 68, 1)],
+  ] as const)("отклоняет ненулевой %s после проверки хэшей", (_name, type, mutate) => {
+    expectCorruption(mutateSection(encodeConfigurationIndex(sampleSnapshot()), type, mutate))
   })
 
   it.each([
     ["zero indexGeneration", 1, (section: Buffer) => writeU64(section, 0, 0n)],
-    ["zero producerVersion stringId", 1, (section: Buffer) => writeU32(section, 8, 0)],
-    ["zero project path stringId", 3, (section: Buffer) => writeU32(section, 0, 0)],
-    ["unknown identity kind", 4, (section: Buffer) => writeU16(section, 4, 4)],
-    ["duplicate order property", 5, duplicateOrderProperty],
-    ["alias equal to canonical name", 6, duplicateAliasName],
-    ["unknown XML value flag", 7, (section: Buffer) => writeU32(section, 4, 1 << 7)],
-    ["missing XML value stringId", 7, (section: Buffer) => writeU32(section, 12, 0)],
-  ] as const)("rejects invalid logical record %s", (_name, sectionType, mutate) => {
-    expectCorruption(mutateSection(encodeConfigurationIndex(sampleIndex()), sectionType, mutate))
-  })
-
-  it("rejects a half-filled confirmed binding", () => {
-    const data = sampleIndex()
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      binding: {
-        ...data.binding,
-        baseFingerprint: Uint8Array.of(1),
-        configurationVersion: Uint8Array.of(2),
-      },
-    })
-    const corrupted = mutateSection(encoded, 1, (section) => writeU32(section, 20, 0))
-
-    expectCorruption(corrupted)
-  })
-
-  it("rejects recordCount that disagrees with section bytes", () => {
-    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleIndex()), (directory) =>
-      writeU64(directory, DIRECTORY_ENTRY_LENGTH + 40, 100n)
-    )
-
-    expectCorruption(corrupted)
-  })
-
-  it("rejects a malformed LOCAL_DEPENDENCIES record", () => {
-    const corrupted = mutateSection(encodeConfigurationIndex(sampleIndex()), 11, (section) =>
-      writeU8(section, 4, 0xff)
-    )
-
-    expectCorruptionMessage(corrupted, "LOCAL_DEPENDENCIES")
-  })
-
-  it("requires exactly one local metadata block in each binary section", () => {
-    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleIndex()), (directory) =>
-      writeU64(directory, 7 * DIRECTORY_ENTRY_LENGTH + 40, 0n)
-    )
-
-    expectCorruptionMessage(corrupted, "LOCAL_REFERENCE_INDEX должен содержать один блок")
-  })
-
-  it("rejects repeated local dependencies", () => {
-    const data = sampleIndex()
-    const first = data.localIndexes.dependencies[0]!
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      localIndexes: {
-        ...data.localIndexes,
-        dependencies: [
-          { ...first, canonical: "Catalog.A" },
-          { ...first, canonical: "Catalog.B" },
-        ],
-      },
-    })
-    const corrupted = mutateSection(encoded, 11, duplicateFirstVariableRecord)
-
-    expectCorruptionMessage(corrupted, "Повторная локальная зависимость")
-  })
-
-  it("rejects a decoded local dependency absent from PROJECT_FILES", () => {
-    const data = sampleIndex()
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      projectFiles: [...data.projectFiles, { projectPath: "A.yaml", contentHash: 2n }],
-      xmlValues: [...data.xmlValues, { logicalAddress: "Конфигурация.marker", xmlText: "B.yaml" }],
-      localIndexes: {
-        ...data.localIndexes,
-        dependencies: [{ ...data.localIndexes.dependencies[0]!, sourceProjectPath: "A.yaml" }],
-      },
-    })
-    const corrupted = mutateSection(encoded, 11, (section) => replaceAscii(section, "A.yaml", "B.yaml"))
-
-    expectCorruptionMessage(corrupted, "sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES")
-  })
-
-  it("finishes stage 7 for all sections before checking section uniqueness", () => {
-    const data = sampleIndex()
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      projectFiles: [...data.projectFiles, { projectPath: "A.yaml", contentHash: 2n }],
-    })
-    const reordered = mutateSection(encoded, 3, swapFirstRecordIds)
-    const corrupted = mutateSection(reordered, 7, (section) => flipByte(section, 24))
-
-    expectCorruptionMessage(corrupted, "ненулевое reserved XML_VALUES")
-  })
-
-  it("finishes stage 8 before checking internal record constraints", () => {
-    const data = sampleIndex()
-    const encoded = encodeConfigurationIndex({
-      ...data,
-      xmlValues: [...data.xmlValues, { logicalAddress: "Документ.Заказ.name", xsiNil: true }],
-    })
-    const invalidBinding = mutateSection(encoded, 1, (section) => writeU64(section, 0, 0n))
-    const corrupted = mutateSection(invalidBinding, 7, duplicateFirstRecordId)
-
-    expectCorruptionMessage(corrupted, "XML_VALUES повторяются")
-  })
-
-  it.each(["Справочник", "Справочник.Товары.Элемент[01]"])("rejects malformed logicalAddress %s", (logicalAddress) => {
-    const data = sampleIndex()
-    const corrupted = encodeConfigurationIndex({
-      ...data,
-      identities: [{ ...data.identities[0], logicalAddress }],
-    })
-
-    expectCorruptionMessage(corrupted, "некорректный logicalAddress IDENTITIES")
+    ["zero componentPath stringId", 1, (section: Buffer) => writeU32(section, 8, 0)],
+    ["zero projectPath stringId", 3, (section: Buffer) => writeU32(section, 0, 0)],
+    ["zero entity logicalAddress stringId", 4, (section: Buffer) => writeU32(section, 4, 0)],
+    ["unknown entity bit", 4, (section: Buffer) => writeU32(section, 12, section.readUInt32LE(12) | (1 << 11))],
+    [
+      "conflicting omitted variants",
+      4,
+      (section: Buffer) => writeU32(section, 12, section.readUInt32LE(12) | (1 << 4)),
+    ],
+    ["empty entity fieldMask", 4, (section: Buffer) => writeU32(section, 12, 0)],
+    ["zero omittedCount", 4, (section: Buffer) => writeU32(section, 40, 0)],
+    ["short entity byteLength", 4, (section: Buffer) => writeU32(section, 0, 8)],
+    ["long entity byteLength", 4, (section: Buffer) => writeU32(section, 0, 72)],
+  ] as const)("отклоняет повреждённую логическую запись: %s", (_name, type, mutate) => {
+    expectCorruption(mutateSection(encodeConfigurationIndex(sampleSnapshot()), type, mutate))
   })
 
   it.each([
-    [
-      "IDENTITIES",
-      (data: ReturnType<typeof sampleIndex>) => ({
-        ...data,
-        identities: [{ ...data.identities[0], logicalAddress: "Справочник..Товары" }],
-      }),
-    ],
-    [
-      "XML_NODES",
-      (data: ReturnType<typeof sampleIndex>) => ({
-        ...data,
-        xmlNodes: [{ ...data.xmlNodes[0], logicalAddress: "Справочник..Товары" }],
-      }),
-    ],
-    [
-      "XML_VALUES",
-      (data: ReturnType<typeof sampleIndex>) => ({
-        ...data,
-        xmlValues: [{ ...data.xmlValues[0], logicalAddress: "Справочник..Товары.synonym" }],
-      }),
-    ],
-  ] as const)("rejects a double dot in %s logicalAddress", (section, corrupt) => {
-    const corrupted = encodeConfigurationIndex(corrupt(sampleIndex()))
+    [1, 0n, "SNAPSHOT"],
+    [2, 100n, "STRINGS"],
+    [3, 1n, "FILES"],
+    [4, 1n, "ENTITIES"],
+  ] as const)("отклоняет recordCount секции %s, не совпадающий с байтами", (type, count, label) => {
+    const corrupted = mutateDirectory(encodeConfigurationIndex(sampleSnapshot()), (directory) =>
+      writeU64(directory, (type - 1) * DIRECTORY_ENTRY_LENGTH + 40, count)
+    )
 
-    expectCorruptionMessage(corrupted, `некорректный logicalAddress ${section}`)
+    expectCorruptionMessage(corrupted, label)
   })
 
-  it.each([
-    ["XML_ID", 2, "xmlId"],
-    ["XML_NAME", 3, "xmlName"],
-  ] as const)("accepts an empty %s value through a non-zero stringId", (_name, kind, expectedKind) => {
-    const encoded = encodeConfigurationIndex(sampleIndex())
-    const emptyStringId = findStringId(encoded, "")
-    const valid = mutateSection(encoded, 4, (section) => {
-      section.writeUInt16LE(kind, 4)
-      section.writeUInt32LE(emptyStringId, 8)
-      section.fill(0, 16, 32)
+  it("отклоняет повторный logicalAddress после разбора всех записей", () => {
+    const corrupted = mutateSection(encodeConfigurationIndex(sampleSnapshot()), 4, (section) => {
+      section.writeUInt32LE(section.readUInt32LE(4), 72 + 4)
       return section
     })
 
-    expect(decodeConfigurationIndex(valid).identities).toEqual([
-      { logicalAddress: "Справочник.Товары", kind: expectedKind, value: "" },
-    ])
+    expectCorruptionMessage(corrupted, "Повторный logicalAddress")
   })
 
-  it("rejects unreferenced strings", () => {
-    const encoded = encodeConfigurationIndex(sampleIndex())
-    const producerVersionStringId = sectionBytes(encoded, 1).readUInt32LE(8)
-    const corrupted = mutateSection(encoded, 1, (section) => writeU32(section, 12, producerVersionStringId))
+  it("отклоняет sourceProjectPath entity, отсутствующий в FILES", () => {
+    const corrupted = mutateSection(encodeConfigurationIndex(sampleSnapshot()), 4, (section) => writeU32(section, 8, 1))
 
-    expectCorruption(corrupted)
+    expectCorruptionMessage(corrupted, "sourceProjectPath ENTITIES отсутствует в FILES")
   })
 
-  it.each([
-    ["componentPath", { expectedComponentPath: "another" }],
-    ["producer version", { expectedProducerVersion: "another" }],
-  ] as const)("reports incompatible %s separately", (_name, options) => {
-    const encoded = encodeConfigurationIndex(sampleIndex())
+  it("отклоняет строки без ссылок", () => {
+    const corrupted = mutateSection(encodeConfigurationIndex(sampleSnapshot()), 4, (section) =>
+      writeU32(section, 64, 9)
+    )
 
-    expect(() => decodeConfigurationIndex(encoded, options)).toThrowError(ConfigurationIndexCompatibilityError)
+    expectCorruptionMessage(corrupted, "STRINGS содержит строки без ссылок")
+  })
+
+  it("проверяет хэш секции до разбора UTF-8", () => {
+    const corrupted = Buffer.from(encodeConfigurationIndex(sampleSnapshot()))
+    writeU8(corrupted, sectionOffset(corrupted, 2) + 4, 0xff)
+
+    expectCorruptionMessage(corrupted, "контрольная сумма секции 2")
+  })
+
+  it("отделяет несовпадающий componentPath от повреждения", () => {
+    expect(() =>
+      decodeConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()), {
+        expectedComponentPath: "cfe",
+      })
+    ).toThrowError(ConfigurationIndexCompatibilityError)
   })
 })
 
-function mutateDirectory(source: Uint8Array, mutate: (directory: Buffer) => Buffer): Buffer {
-  const buffer = Buffer.from(source)
-  const directory = buffer.subarray(HEADER_LENGTH, HEADER_LENGTH + DIRECTORY_LENGTH)
+function normalized(snapshot: ConfigurationSnapshot): ConfigurationSnapshot {
+  return {
+    ...snapshot,
+    files: [...snapshot.files].sort((left, right) => compareUtf8(left.projectPath, right.projectPath)),
+    entities: [...snapshot.entities].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress)),
+  }
+}
+
+function compareUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+}
+
+function mutateDirectory(encoded: Uint8Array, mutate: (directory: Buffer) => Buffer): Buffer {
+  const result = Buffer.from(encoded)
+  const directory = result.subarray(HEADER_LENGTH, HEADER_LENGTH + DIRECTORY_LENGTH)
   mutate(directory)
-  writeHash128(buffer, 48, hashSection(directory))
-  return buffer
+  writeHash128(result, 48, hashSection(directory))
+  return result
 }
 
-function mutateSection(source: Uint8Array, sectionType: number, mutate: (section: Buffer) => Buffer): Buffer {
-  const buffer = Buffer.from(source)
-  const entryOffset = HEADER_LENGTH + (sectionType - 1) * DIRECTORY_ENTRY_LENGTH
-  const offset = Number(buffer.readBigUInt64LE(entryOffset + 16))
-  const length = Number(buffer.readBigUInt64LE(entryOffset + 24))
-  const section = buffer.subarray(offset, offset + length)
+function mutateSection(encoded: Uint8Array, type: number, mutate: (section: Buffer) => Buffer): Buffer {
+  const result = Buffer.from(encoded)
+  const entryOffset = HEADER_LENGTH + (type - 1) * DIRECTORY_ENTRY_LENGTH
+  const offset = Number(result.readBigUInt64LE(entryOffset + 16))
+  const length = Number(result.readBigUInt64LE(entryOffset + 24))
+  const section = result.subarray(offset, offset + length)
   mutate(section)
-  writeHash128(buffer, entryOffset + 48, hashSection(section))
-  const directory = buffer.subarray(HEADER_LENGTH, HEADER_LENGTH + DIRECTORY_LENGTH)
-  writeHash128(buffer, 48, hashSection(directory))
-  return buffer
+  writeHash128(result, entryOffset + 48, hashSection(section))
+  const directory = result.subarray(HEADER_LENGTH, HEADER_LENGTH + DIRECTORY_LENGTH)
+  writeHash128(result, 48, hashSection(directory))
+  return result
 }
 
-function sectionBytes(source: Uint8Array, sectionType: number): Buffer {
-  const buffer = Buffer.from(source.buffer, source.byteOffset, source.byteLength)
-  const entryOffset = HEADER_LENGTH + (sectionType - 1) * DIRECTORY_ENTRY_LENGTH
-  const offset = Number(buffer.readBigUInt64LE(entryOffset + 16))
-  const length = Number(buffer.readBigUInt64LE(entryOffset + 24))
-  return buffer.subarray(offset, offset + length)
+function sectionOffset(buffer: Buffer, type: number): number {
+  return Number(buffer.readBigUInt64LE(HEADER_LENGTH + (type - 1) * DIRECTORY_ENTRY_LENGTH + 16))
 }
 
-function stringRecord(section: Buffer, value: string): { start: number; byteLength: number } {
+function findStringRecord(section: Buffer, expected: string): number {
   let offset = 0
   while (offset < section.length) {
     const byteLength = section.readUInt32LE(offset)
-    const valueStart = offset + 4
-    const valueEnd = valueStart + byteLength
-    if (section.subarray(valueStart, valueEnd).toString("utf8") === value) return { start: offset, byteLength }
-    offset = Math.ceil(valueEnd / 8) * 8
+    if (section.subarray(offset + 4, offset + 4 + byteLength).toString("utf8") === expected) return offset
+    offset = align8(offset + 4 + byteLength)
   }
-  throw new Error(`Строка отсутствует в тестовой секции: ${value}`)
+  throw new Error(`Строка не найдена: ${expected}`)
 }
 
-function flipStringPadding(section: Buffer, value: string): Buffer {
-  const record = stringRecord(section, value)
-  const valueEnd = record.start + 4 + record.byteLength
-  const recordEnd = Math.ceil(valueEnd / 8) * 8
-  if (recordEnd === valueEnd) throw new Error(`У строки ${value} нет padding`)
-  return flipByte(section, valueEnd)
-}
-
-function writeStringByte(section: Buffer, value: string, byte: number): Buffer {
-  const record = stringRecord(section, value)
-  return writeU8(section, record.start + 4, byte)
-}
-
-function duplicateOrderProperty(section: Buffer): Buffer {
-  return writeU32(section, 12, section.readUInt32LE(8))
-}
-
-function duplicateAliasName(section: Buffer): Buffer {
-  return writeU32(section, 20, section.readUInt32LE(16))
-}
-
-function swapFirstRecordIds(section: Buffer): Buffer {
-  const first = section.readUInt32LE(0)
-  const second = section.readUInt32LE(section.length / 2)
-  section.writeUInt32LE(second, 0)
-  section.writeUInt32LE(first, section.length / 2)
-  return section
-}
-
-function duplicateFirstRecordId(section: Buffer): Buffer {
-  return writeU32(section, 0, section.readUInt32LE(section.length / 2))
-}
-
-function duplicateFirstVariableRecord(section: Buffer): Buffer {
-  const firstLength = section.readUInt32LE(0)
-  const firstEnd = Math.ceil((4 + firstLength) / 8) * 8
-  const secondLength = section.readUInt32LE(firstEnd)
-  if (firstLength !== secondLength) throw new Error("Тестовые записи должны иметь одинаковую длину")
-  section.copy(section, firstEnd, 0, firstEnd)
-  return section
-}
-
-function replaceAscii(section: Buffer, from: string, to: string): Buffer {
-  if (from.length !== to.length) throw new Error("Тестовая замена должна сохранять длину")
-  const offset = section.indexOf(from, 0, "utf8")
-  if (offset < 0) throw new Error(`Строка ${from} отсутствует в секции`)
-  section.write(to, offset, to.length, "utf8")
-  return section
-}
-
-function findStringId(source: Uint8Array, value: string): number {
-  const strings = sectionBytes(source, 2)
-  let offset = 0
-  let id = 1
-  while (offset < strings.length) {
-    const byteLength = strings.readUInt32LE(offset)
-    const valueStart = offset + 4
-    const valueEnd = valueStart + byteLength
-    if (strings.subarray(valueStart, valueEnd).toString("utf8") === value) return id
-    offset = Math.ceil(valueEnd / 8) * 8
-    id += 1
-  }
-  throw new Error(`Строка отсутствует в тестовой секции: ${value}`)
+function align8(value: number): number {
+  return Math.ceil(value / 8) * 8
 }
 
 function expectCorruption(buffer: Uint8Array): void {
@@ -494,12 +272,12 @@ function expectCorruptionMessage(buffer: Uint8Array, message: string): void {
 }
 
 function flipByte(buffer: Buffer, offset: number): Buffer {
-  buffer.writeUInt8(buffer.readUInt8(offset) ^ 1, offset)
+  buffer[offset] = buffer[offset]! ^ 1
   return buffer
 }
 
 function writeAscii(buffer: Buffer, value: string, offset: number): Buffer {
-  buffer.write(value, offset, value.length, "ascii")
+  buffer.write(value, offset, "ascii")
   return buffer
 }
 

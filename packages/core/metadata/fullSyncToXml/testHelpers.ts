@@ -1,24 +1,21 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
+import type { ComponentAddress } from "../components/address"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import type { ComponentAddress } from "../components/address"
-import type {
-  ComponentHashState,
-  ComponentIndexes,
-  ComponentProjectStructure,
-} from "../project/componentState"
+import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 const tempDirs: string[] = []
 
 export async function removeFullSyncTempDirs(): Promise<void> {
-  await Promise.all(tempDirs.splice(0).map((dir) => fs.promises.rm(dir, { recursive: true, force: true })))
+  for (const dir of tempDirs.splice(0)) {
+    await fs.promises.rm(dir, { recursive: true, force: true })
+  }
 }
 
 export function createTempRoot(): string {
@@ -61,7 +58,7 @@ export function createMockFullSyncDependencies(
       return {
         kind: address.kind,
         supports: () => true,
-        baseAddress: () => address.kind === "configurationExtension" ? { kind: "configuration" } : undefined,
+        baseAddress: () => (address.kind === "configurationExtension" ? { kind: "configuration" } : undefined),
         confirm({ target, base }) {
           return {
             kind: address.kind,
@@ -87,19 +84,22 @@ export function createMockFullSyncDependencies(
     },
     buildPlan({ structure: value }) {
       return {
-        assignments: [{
-          id: "Конфигурация.yaml",
-          sourceProjectPath: "Конфигурация.yaml",
-          sourcePath: `${value.componentDir}/Конфигурация.yaml`,
-          expectedContentHash: 10n,
-          role: "configuration",
-          itemType: value.address.kind === "configuration"
-            ? "MetadataConfiguration"
-            : "MetadataConfigurationExtension",
-          itemName: "Конфигурация",
-          logicalAddress: "Конфигурация",
-          ...fullXmlSyncTestTopologyFields("Конфигурация.yaml"),
-        }],
+        assignments: [
+          {
+            id: "Конфигурация.yaml",
+            sourceProjectPath: "Конфигурация.yaml",
+            sourcePath: `${value.componentDir}/Конфигурация.yaml`,
+            expectedContentHash: 10n,
+            role: "configuration",
+            itemType:
+              value.address.kind === "configuration"
+                ? "MetadataConfiguration"
+                : "MetadataConfigurationExtension",
+            itemName: "Конфигурация",
+            logicalAddress: "Конфигурация",
+            ...fullXmlSyncTestTopologyFields("Конфигурация.yaml"),
+          },
+        ],
         externalFiles: [],
       }
     },
@@ -110,18 +110,21 @@ export function createMockFullSyncDependencies(
           return {
             diagnostics: [],
             warnings: [],
-            writtenFiles: [{
-              assignmentId: "Конфигурация.yaml",
-              targetXmlPath: "Configuration.xml",
-            }],
-            expectedOutputs: [{
-              assignmentId: "Конфигурация.yaml",
-              targetXmlPath: "Configuration.xml",
-            }],
+            writtenFiles: [
+              {
+                assignmentId: "Конфигурация.yaml",
+                targetXmlPath: "Configuration.xml",
+              },
+            ],
+            expectedOutputs: [
+              {
+                assignmentId: "Конфигурация.yaml",
+                targetXmlPath: "Configuration.xml",
+              },
+            ],
             fragmentData: {
-              identities: [],
-              xmlNodes: [],
-              xmlValues: [],
+              sourceProjectPaths: ["Конфигурация.yaml"],
+              entities: [],
             },
           }
         },
@@ -162,40 +165,30 @@ function hashes(structure: ComponentProjectStructure): ComponentHashState {
   }
 }
 
-function indexes(
-  structure: ComponentProjectStructure,
-  hashState: ComponentHashState
-): ComponentIndexes {
+function indexes(structure: ComponentProjectStructure, hashState: ComponentHashState): ComponentIndexes {
   return {
     componentPath: structure.componentPath,
     sourceProjectFiles: hashState.projectFiles,
     metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
     dependencies: [],
-    logicalAddresses: [{
-      logicalAddress: "Конфигурация",
-      sourceProjectPath: "Конфигурация.yaml",
-    }],
+    logicalAddresses: [
+      {
+        logicalAddress: "Конфигурация",
+        sourceProjectPath: "Конфигурация.yaml",
+      },
+    ],
   }
 }
 
 function snapshot(address: ComponentAddress) {
   const componentPath = address.kind === "configuration" ? "cf" : `cfe/${address.name}`
-  return snapshotConfigurationIndex(encodeConfigurationIndex({
-    binding: {
+  return snapshotConfigurationIndex(
+    encodeConfigurationIndex({
+      specificationVersion: "1.3",
       indexGeneration: 1n,
-      producerVersion: "test",
       componentPath,
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
-    },
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
-    identities: [],
-    xmlNodes: [],
-    xmlValues: [],
-    localIndexes: {
-      metadata: createEmptyPersistedSharedValidationSnapshot(),
-      dependencies: [],
-      logicalAddresses: [],
-    },
-  }))
+      files: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+      entities: [],
+    })
+  )
 }

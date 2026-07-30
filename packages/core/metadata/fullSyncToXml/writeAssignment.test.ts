@@ -4,9 +4,11 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
+import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot } from "../configurationIndex/testData"
+import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
@@ -53,7 +55,7 @@ describe("writeFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
     })
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
@@ -66,11 +68,13 @@ describe("writeFullXmlSyncAssignment", () => {
       { assignmentId: assignment.id, targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" },
     ])
     expect(result.fragment).toMatchObject({ targetProjectPath: sourceProjectPath })
-    expect(result.fragment?.identities).toEqual(
+    expect(result.fragment?.entities).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Обработка.ОбработкаВсеСвойства",
-          kind: "uuid",
+          identities: expect.objectContaining({
+            uuid: expect.any(String),
+          }),
         }),
       ])
     )
@@ -97,7 +101,7 @@ describe("writeFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
     })).toThrow("Не найден узел топологии: test-assignment")
   })
 
@@ -150,7 +154,7 @@ describe("writeFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
     })
     const result = await writeFullXmlSyncAssignment({ prepared: preparedAssignment, context, outputDir })
 
@@ -166,6 +170,30 @@ describe("writeFullXmlSyncAssignment", () => {
     )
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
+  })
+
+  it("возвращает пустой фрагмент с путём успешно обработанного задания", async () => {
+    const projectDir = tempDir()
+    const assignment = dataProcessorAssignment(projectDir)
+
+    const result = await writeFullXmlSyncAssignment({
+      prepared: {
+        assignment,
+        documents: [],
+        indexCollector: createConfigurationIndexCollector(),
+        profile: createYAMLToXMLProfile(),
+      },
+      context: mockContextToXML(),
+      outputDir: join(projectDir, "xml"),
+    })
+
+    expect(result).toMatchObject({
+      diagnostics: [],
+      fragment: {
+        targetProjectPath: assignment.sourceProjectPath,
+        entities: [],
+      },
+    })
   })
 })
 

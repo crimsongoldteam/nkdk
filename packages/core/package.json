@@ -18,6 +18,7 @@
     "test:isolated": "vitest run --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-core-isolated.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core-isolated.json",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
+    "measure:configuration-snapshot": "node scripts/measure-configuration-snapshot.mjs",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs"
   },

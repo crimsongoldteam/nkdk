@@ -57,7 +57,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     const itemContext =
       logicalAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, logicalAddress)
     if (logicalAddress !== undefined && typeof xmlValue._id === "string") {
-      collection?.collector.setXmlId(logicalAddress, xmlValue._id)
+      collection?.collector.setIdentity(logicalAddress, "xmlId", xmlValue._id)
     }
 
     const properties = importFormElementPropertiesFromXMLToYAML({

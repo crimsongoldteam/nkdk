@@ -1,78 +1,63 @@
-import { NKDK_CORE_VERSION } from "../../version"
-import type { ConfigurationIndexData, ConfigurationIndexFragment } from "./types"
+import type { ConfigurationSnapshot, ConfigurationSnapshotEntity, ConfigurationSnapshotFragment } from "./types"
 
-export function sampleIndex(): ConfigurationIndexData {
+export const TEST_UUID = "00000000-0000-4000-8000-000000000001"
+
+export function entity(logicalAddress: string, sourceProjectPath: string): ConfigurationSnapshotEntity {
   return {
-    binding: {
-      indexGeneration: 1n,
-      producerVersion: NKDK_CORE_VERSION,
-      componentPath: "cf",
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
-    },
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 1n }],
-    identities: [
-      {
-        logicalAddress: "Справочник.Товары",
-        kind: "uuid",
-        value: "00000000-0000-4000-8000-000000000001",
-      },
-    ],
-    xmlNodes: [
-      {
-        logicalAddress: "Справочник.Товары",
-        order: ["name", "synonym"],
-        aliases: { synonym: "Synonym" },
-        present: ["name"],
-      },
-    ],
-    xmlValues: [{ logicalAddress: "Справочник.Товары.synonym", explicitEmpty: true, xmlText: "" }],
-    localIndexes: {
-      metadata: {
-        reference: Uint8Array.of(0x52, 0x45, 0x46),
-        ownerStrings: Uint8Array.of(0x53, 0x54, 0x52),
-        ownerTable: Uint8Array.of(0x4f, 0x57, 0x4e),
-      },
-      dependencies: [
-        {
-          sourceProjectPath: "Конфигурация.yaml",
-          yamlPath: ["Реквизиты", 0, "Тип"],
-          rulePath: [
-            { propertyKey: "attributes", nestedItemType: "Attribute" },
-            { propertyKey: "type" },
-          ],
-          kind: "metadataTarget",
-          canonical: "Catalog.Товары.Attribute.Артикул",
-        },
-      ],
-      logicalAddresses: [
-        {
-          logicalAddress: "Справочник.Товары",
-          sourceProjectPath: "Конфигурация.yaml",
-        },
-      ],
-    },
+    logicalAddress,
+    sourceProjectPath,
+    identities: { xmlName: logicalAddress },
   }
 }
 
-export function sampleFragments(): ConfigurationIndexFragment[] {
-  const data = sampleIndex()
-  return [
-    {
-      targetProjectPath: "Справочник/Товары/Свойства.yaml",
-      identities: data.identities,
-      xmlNodes: data.xmlNodes,
-      xmlValues: data.xmlValues,
-      localDependencies: data.localIndexes.dependencies.map((dependency) => ({
-        ...dependency,
-        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      })),
-    },
-    {
-      targetProjectPath: "Конфигурация.yaml",
-      identities: [],
-      xmlNodes: [{ logicalAddress: "Конфигурация", present: ["name"] }],
-      xmlValues: [],
-    },
-  ]
+export function fragment(
+  targetProjectPath: string,
+  ...entities: readonly ConfigurationSnapshotEntity[]
+): ConfigurationSnapshotFragment {
+  return { targetProjectPath, entities }
+}
+
+export function sampleSnapshot(): ConfigurationSnapshot {
+  return {
+    specificationVersion: "1.3",
+    indexGeneration: 7n,
+    componentPath: "cf",
+    files: [
+      { projectPath: "Документы/Заказ.yaml", contentHash: 2n },
+      { projectPath: "Configuration.yaml", contentHash: 1n },
+    ],
+    entities: [
+      {
+        logicalAddress: "Конфигурация",
+        sourceProjectPath: "Configuration.yaml",
+        identities: { xmlName: "Configuration" },
+        omittedChildren: {
+          kind: "typedNames",
+          items: [{ xmlName: "Attribute", name: "Код" }],
+        },
+      },
+      {
+        logicalAddress: "Документ.Заказ",
+        sourceProjectPath: "Документы/Заказ.yaml",
+        identities: { uuid: TEST_UUID, xmlId: "Order", xmlName: "" },
+        omittedChildren: { kind: "names", names: ["Форма", "Макет"] },
+        xml: {
+          extended: true,
+          xsiNil: true,
+          explicitEmpty: true,
+          xsiType: "xs:string",
+          xmlText: "текст",
+          xmlPrefix: "xs",
+        },
+      },
+    ],
+  }
+}
+
+export function reverseInputOrder(snapshot: ConfigurationSnapshot): ConfigurationSnapshot {
+  return {
+    ...snapshot,
+    files: [...snapshot.files].reverse(),
+    entities: [...snapshot.entities].reverse(),
+  }
 }

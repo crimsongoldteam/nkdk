@@ -1,7 +1,6 @@
 import fs from "node:fs"
 import { availableParallelism } from "node:os"
 import { join } from "node:path"
-import { NKDK_CORE_VERSION } from "../../version"
 import {
   componentPath,
   configurationIndexPath,
@@ -10,31 +9,21 @@ import {
   mergeConfigurationIndexFragments,
   writeConfigurationIndexAtomically,
   type ComponentAddress,
-  type ConfigurationIndexData,
-  type ConfigurationProjectFile,
-  type ConfigurationIndexFragment,
+  type ConfigurationSnapshot,
+  type ConfigurationSnapshotFile,
+  type ConfigurationSnapshotFragment,
+  type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
 import type { PreparedWorkerPool } from "../project/preparedYamlProjectWorkerPool"
-import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { createOperationProfiler } from "../validation/profile"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
-import type { ConfigurationLocalDependency } from "../configurationIndex/types"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import {
-  buildComponentReferenceSnapshot,
-  createLayeredImportReferenceSnapshot,
-} from "./componentReferenceIndex"
-import {
-  resolveXmlImportComponent,
-  type XmlImportComponentDescriptor,
-} from "./componentDescriptor"
-import {
-  discoverXmlImport,
-  readXmlImportComponentRoot,
-} from "./discovery"
+import { buildComponentReferenceSnapshot, createLayeredImportReferenceSnapshot } from "./componentReferenceIndex"
+import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
+import { discoverXmlImport, readXmlImportComponentRoot } from "./discovery"
 import { createImportSharedValidationSnapshot } from "./metadataSnapshot"
 import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"
 import type {
@@ -44,11 +33,7 @@ import type {
   ImportResultFile,
   ImportSnapshotFile,
 } from "./types"
-import {
-  createXmlImportWorkerPool,
-  type XmlImportWorkerPool,
-  type XmlImportWorkerPoolHandle,
-} from "./workerPool"
+import { createXmlImportWorkerPool, type XmlImportWorkerPool, type XmlImportWorkerPoolHandle } from "./workerPool"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -80,7 +65,7 @@ export interface ImportCoordinatorDependencies {
   collectSnapshotFragments?(params: {
     context: ConfigurationContextFromXML
     files: readonly ImportSnapshotFile[]
-  }): Promise<ConfigurationIndexFragment[]>
+  }): Promise<ConfigurationSnapshotFragment[]>
   createSharedMetadata(contribution: ValidationIndexContribution): SharedValidationSnapshot
   buildComponentReferenceSnapshot(params: {
     componentDir: string
@@ -98,12 +83,8 @@ export interface ImportCoordinatorDependencies {
     projectDir: string,
     projectPaths: readonly string[],
     options: { concurrency?: number }
-  ): Promise<ConfigurationProjectFile[]>
-  writeIndex(params: {
-    projectDir: string
-    address: ComponentAddress
-    data: ConfigurationIndexData
-  }): Promise<void>
+  ): Promise<ConfigurationSnapshotFile[]>
+  writeIndex(params: { projectDir: string; address: ComponentAddress; data: ConfigurationSnapshot }): Promise<void>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -156,9 +137,7 @@ export async function importConfigurationFromXml(
       createReferenceWorkerPool: params.createReferenceWorkerPool,
       profiler,
     })
-    pool =
-      params.xmlImportWorkerPoolHandle?.createOperationPool() ??
-      deps.createWorkerPool({ concurrency })
+    pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
 
     const discovered = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
@@ -200,7 +179,7 @@ export async function importConfigurationFromXml(
     })
     const fragmentData = mergeConfigurationIndexFragments([
       encodeConfigurationIndexFragments([
-        { targetProjectPath: "worker", ...first.fragmentData },
+        ...splitMergedConfigurationSnapshotFragments(first.fragmentData),
         ...snapshotFragments,
       ]),
     ])
@@ -249,9 +228,7 @@ export async function importConfigurationFromXml(
           projectDir: componentDir,
           files,
           transfer: params.externalFileTransfer ?? "copy",
-          ...(params.copyExternalConcurrency === undefined
-            ? {}
-            : { concurrency: params.copyExternalConcurrency }),
+          ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
         })
     )
     const projectFiles = await profiler.measureAsync(
@@ -263,9 +240,7 @@ export async function importConfigurationFromXml(
           componentDir,
           files.map((file) => file.targetProjectPath),
           {
-            ...(params.hashConcurrency === undefined
-              ? {}
-              : { concurrency: params.hashConcurrency }),
+            ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
           }
         )
     )
@@ -274,13 +249,10 @@ export async function importConfigurationFromXml(
       "Формирование данных файла индекса конфигурации",
       { items: projectFiles.length },
       () =>
-        buildImportedConfigurationIndex({
-          producerVersion: NKDK_CORE_VERSION,
+        buildImportedConfigurationSnapshot({
           componentPath: selectedComponentPath,
           projectFiles,
           fragmentData,
-          localSnapshot,
-          localDependencies: fragmentData.localDependencies,
         })
     )
     await profiler.measureAsync(
@@ -289,18 +261,9 @@ export async function importConfigurationFromXml(
       { items: projectFiles.length },
       () => deps.writeIndex({ projectDir: params.projectDir, address, data: indexData })
     )
-    return successResult(
-      discovered.assignments.length,
-      warnings,
-      params.projectDir,
-      address
-    )
+    return successResult(discovered.assignments.length, warnings, params.projectDir, address)
   } catch (caught) {
-    return failedResult(
-      [operationDiagnostic(caught)],
-      warnings,
-      resolvedComponentPath
-    )
+    return failedResult([operationDiagnostic(caught)], warnings, resolvedComponentPath)
   } finally {
     profiler.flush()
     await pool?.close()
@@ -310,7 +273,7 @@ export async function importConfigurationFromXml(
 async function collectSnapshotFragments(params: {
   context: ConfigurationContextFromXML
   files: readonly ImportSnapshotFile[]
-}): Promise<ConfigurationIndexFragment[]> {
+}): Promise<ConfigurationSnapshotFragment[]> {
   return Promise.all(
     params.files.map(async (file) => {
       const capability = getMetadataSnapshotImportCapability(file.capabilityId)
@@ -398,61 +361,35 @@ function isNodeError(caught: unknown): caught is NodeJS.ErrnoException {
   return caught instanceof Error && "code" in caught
 }
 
-function assertRequestedComponentPath(
-  requestedComponentPath: string | undefined,
-  detectedComponentPath: string
-): void {
-  if (
-    requestedComponentPath !== undefined &&
-    requestedComponentPath !== detectedComponentPath
-  ) {
+function assertRequestedComponentPath(requestedComponentPath: string | undefined, detectedComponentPath: string): void {
+  if (requestedComponentPath !== undefined && requestedComponentPath !== detectedComponentPath) {
     throw new Error(
       `Запрошенный путь компонента ${requestedComponentPath} не совпадает с обнаруженным ${detectedComponentPath}`
     )
   }
 }
 
-function buildImportedConfigurationIndex(params: {
-  producerVersion: string
+function buildImportedConfigurationSnapshot(params: {
   componentPath: string
-  projectFiles: readonly ConfigurationProjectFile[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
-    localDependencies: readonly ConfigurationLocalDependency[]
-  }
-  localSnapshot: SharedValidationSnapshot
-  localDependencies: readonly ConfigurationLocalDependency[]
-}): ConfigurationIndexData {
+  projectFiles: readonly ConfigurationSnapshotFile[]
+  fragmentData: MergedConfigurationSnapshotFragments
+}): ConfigurationSnapshot {
   return {
-    binding: {
-      indexGeneration: 1n,
-      producerVersion: params.producerVersion,
-      componentPath: params.componentPath,
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
-    },
-    projectFiles: params.projectFiles,
-    identities: params.fragmentData.identities,
-    xmlNodes: params.fragmentData.xmlNodes,
-    xmlValues: params.fragmentData.xmlValues,
-    localIndexes: {
-      metadata: serializeSharedValidationSnapshot(params.localSnapshot),
-      dependencies: params.localDependencies,
-      logicalAddresses: uniqueLogicalAddresses(
-        params.fragmentData.identities,
-        params.projectFiles[0]?.projectPath
-      ),
-    },
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath: params.componentPath,
+    files: params.projectFiles,
+    entities: params.fragmentData.entities,
   }
 }
 
-function uniqueLogicalAddresses(
-  identities: ConfigurationIndexData["identities"],
-  sourceProjectPath: string | undefined
-): ConfigurationIndexData["localIndexes"]["logicalAddresses"] {
-  if (sourceProjectPath === undefined) return []
-  return [...new Set(identities.map(({ logicalAddress }) => logicalAddress))].map(
-    (logicalAddress) => ({ logicalAddress, sourceProjectPath })
-  )
+function splitMergedConfigurationSnapshotFragments(
+  merged: MergedConfigurationSnapshotFragments
+): ConfigurationSnapshotFragment[] {
+  return merged.sourceProjectPaths.map((targetProjectPath) => ({
+    targetProjectPath,
+    entities: merged.entities.filter((entity) => entity.sourceProjectPath === targetProjectPath),
+  }))
 }
 
 function successResult(
@@ -476,9 +413,7 @@ function failedResult(
   resolvedComponentPath?: string
 ): ConfigurationImportResult {
   return {
-    ...(resolvedComponentPath === undefined
-      ? {}
-      : { componentPath: resolvedComponentPath }),
+    ...(resolvedComponentPath === undefined ? {} : { componentPath: resolvedComponentPath }),
     succeeded: 0,
     failed,
     warnings,

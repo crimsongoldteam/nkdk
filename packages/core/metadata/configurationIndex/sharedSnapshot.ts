@@ -1,34 +1,29 @@
 import fs from "fs"
-import { NKDK_CORE_VERSION } from "../../version"
-import { decodeConfigurationIndex, type DecodeConfigurationIndexOptions } from "./decode"
 import { componentPath, type ComponentAddress } from "../components/address"
+import { decodeConfigurationIndex, type DecodeConfigurationIndexOptions } from "./decode"
 import { configurationIndexPath } from "./fileIO"
 import type {
-  ConfigurationIdentity,
-  ConfigurationIndexBinding,
-  ConfigurationProjectFile,
-  ConfigurationXmlNode,
-  ConfigurationXmlValue,
+  ConfigurationSnapshot,
+  ConfigurationSnapshotEntity,
+  ConfigurationSnapshotFile,
+  ConfigurationSnapshotXml,
 } from "./types"
 
 export interface SharedConfigurationIndexSnapshot {
   readonly bytes: SharedArrayBuffer
   readonly byteLength: number
   readonly stringOffsets: SharedArrayBuffer
-  readonly orderOffsets: SharedArrayBuffer
-  readonly xmlNodeOffsets: SharedArrayBuffer
+  readonly entityOffsets: SharedArrayBuffer
 }
 
 export interface ConfigurationIndexReader {
   readonly snapshot: SharedConfigurationIndexSnapshot
-  binding(): ConfigurationIndexBinding
-  projectFile(projectPath: string): ConfigurationProjectFile | undefined
-  projectFiles(): readonly ConfigurationProjectFile[]
-  identity(logicalAddress: string, kind: ConfigurationIdentity["kind"]): string | undefined
-  identities(): readonly ConfigurationIdentity[]
-  xmlNodes(): readonly ConfigurationXmlNode[]
-  xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined
-  xmlValue(logicalAddress: string): ConfigurationXmlValue | undefined
+  header(): Pick<ConfigurationSnapshot, "specificationVersion" | "indexGeneration" | "componentPath">
+  file(projectPath: string): ConfigurationSnapshotFile | undefined
+  files(): Iterable<ConfigurationSnapshotFile>
+  entity(logicalAddress: string): ConfigurationSnapshotEntity | undefined
+  entities(): Iterable<ConfigurationSnapshotEntity>
+  entitiesBySourceProjectPath(projectPath: string): Iterable<ConfigurationSnapshotEntity>
 }
 
 interface DirectoryEntry {
@@ -37,10 +32,25 @@ interface DirectoryEntry {
   readonly recordCount: number
 }
 
+type SectionType = 1 | 2 | 3 | 4
+
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 12
-const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
+const SECTION_COUNT = 4
+const ENTITY_FLAGS = {
+  uuid: 1 << 0,
+  xmlId: 1 << 1,
+  xmlName: 1 << 2,
+  omittedNames: 1 << 3,
+  omittedTypedNames: 1 << 4,
+  extended: 1 << 5,
+  xsiNil: 1 << 6,
+  explicitEmpty: 1 << 7,
+  xsiType: 1 << 8,
+  xmlText: 1 << 9,
+  xmlPrefix: 1 << 10,
+} as const
+const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 
 export async function readConfigurationIndexSnapshot(params: {
   projectDir: string
@@ -48,10 +58,7 @@ export async function readConfigurationIndexSnapshot(params: {
 }): Promise<SharedConfigurationIndexSnapshot> {
   const expectedComponentPath = componentPath(params.address)
   const encoded = await fs.promises.readFile(configurationIndexPath(params.projectDir, params.address))
-  return snapshotConfigurationIndex(encoded, {
-    expectedComponentPath,
-    expectedProducerVersion: NKDK_CORE_VERSION,
-  })
+  return snapshotConfigurationIndex(encoded, { expectedComponentPath })
 }
 
 export function snapshotConfigurationIndex(
@@ -65,9 +72,8 @@ export function snapshotConfigurationIndex(
   return {
     bytes,
     byteLength: input.byteLength,
-    stringOffsets: buildVariableRecordOffsets(section(buffer, directory, 2), directory[1]!.recordCount, 4),
-    orderOffsets: buildVariableRecordOffsets(section(buffer, directory, 5), directory[4]!.recordCount, 8),
-    xmlNodeOffsets: buildVariableRecordOffsets(section(buffer, directory, 6), directory[5]!.recordCount, 16),
+    stringOffsets: buildVariableRecordOffsets(section(buffer, directory, 2), directory[1]!.recordCount),
+    entityOffsets: buildVariableRecordOffsets(section(buffer, directory, 4), directory[3]!.recordCount),
   }
 }
 
@@ -80,168 +86,159 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   private readonly buffer: Buffer
   private readonly directory: readonly DirectoryEntry[]
   private readonly stringOffsets: Uint32Array
-  private readonly orderOffsets: Uint32Array
-  private readonly xmlNodeOffsets: Uint32Array
+  private readonly entityOffsets: Uint32Array
   private readonly stringCache = new Map<number, string>()
-  private stringIds: Map<string, number> | undefined
-  private projectFileOffsets: Map<number, number> | undefined
-  private identityOffsets: Map<string, number> | undefined
-  private xmlNodeOffsetsByAddress: Map<number, number> | undefined
-  private xmlValueOffsets: Map<number, number> | undefined
-  private decoded: ReturnType<typeof decodeConfigurationIndex> | undefined
+  private stringIds?: Map<string, number>
+  private fileOffsetByPathId?: Map<number, number>
+  private entityOffsetByAddressId?: Map<number, number>
+  private entityOffsetsBySourcePathId?: Map<number, readonly number[]>
 
   constructor(snapshot: SharedConfigurationIndexSnapshot) {
     this.snapshot = snapshot
     this.buffer = Buffer.from(snapshot.bytes, 0, snapshot.byteLength)
     this.directory = readDirectory(this.buffer)
     this.stringOffsets = new Uint32Array(snapshot.stringOffsets)
-    this.orderOffsets = new Uint32Array(snapshot.orderOffsets)
-    this.xmlNodeOffsets = new Uint32Array(snapshot.xmlNodeOffsets)
+    this.entityOffsets = new Uint32Array(snapshot.entityOffsets)
   }
 
-  binding(): ConfigurationIndexBinding {
-    const binding = section(this.buffer, this.directory, 1)
-    const baseFingerprintLength = binding.readUInt32LE(16)
-    const configurationVersionLength = binding.readUInt32LE(20)
-    const baseFingerprintOffset = HEADER_LENGTH
-    const configurationVersionOffset = baseFingerprintOffset + baseFingerprintLength
+  header(): Pick<ConfigurationSnapshot, "specificationVersion" | "indexGeneration" | "componentPath"> {
+    const snapshot = section(this.buffer, this.directory, 1)
     return {
-      indexGeneration: binding.readBigUInt64LE(0),
-      producerVersion: this.stringById(binding.readUInt32LE(8)),
-      componentPath: this.stringById(binding.readUInt32LE(12)),
-      baseFingerprint: Uint8Array.from(
-        binding.subarray(baseFingerprintOffset, baseFingerprintOffset + baseFingerprintLength)
-      ),
-      configurationVersion: Uint8Array.from(
-        binding.subarray(configurationVersionOffset, configurationVersionOffset + configurationVersionLength)
-      ),
+      specificationVersion: "1.3",
+      indexGeneration: snapshot.readBigUInt64LE(0),
+      componentPath: this.stringById(snapshot.readUInt32LE(8)),
     }
   }
 
-  projectFile(projectPath: string): ConfigurationProjectFile | undefined {
+  file(projectPath: string): ConfigurationSnapshotFile | undefined {
     const projectPathId = this.findStringId(projectPath)
     if (projectPathId === undefined) return undefined
-    const projectFiles = section(this.buffer, this.directory, 3)
-    const offset = this.projectFileOffset(projectPathId)
+    const offset = this.fileOffset(projectPathId)
     if (offset === undefined) return undefined
+    return this.decodeFile(offset)
+  }
+
+  *files(): Iterable<ConfigurationSnapshotFile> {
+    const files = section(this.buffer, this.directory, 3)
+    for (let index = 0; index < this.directory[2]!.recordCount; index += 1) {
+      yield this.decodeFile(index * 16, files)
+    }
+  }
+
+  entity(logicalAddress: string): ConfigurationSnapshotEntity | undefined {
+    const logicalAddressId = this.findStringId(logicalAddress)
+    if (logicalAddressId === undefined) return undefined
+    const offset = this.entityOffset(logicalAddressId)
+    if (offset === undefined) return undefined
+    return this.decodeEntity(offset)
+  }
+
+  *entities(): Iterable<ConfigurationSnapshotEntity> {
+    for (const offset of this.entityOffsets) yield this.decodeEntity(offset)
+  }
+
+  *entitiesBySourceProjectPath(projectPath: string): Iterable<ConfigurationSnapshotEntity> {
+    const projectPathId = this.findStringId(projectPath)
+    if (projectPathId === undefined) return
+    for (const offset of this.entityOffsetsForSourcePath(projectPathId)) yield this.decodeEntity(offset)
+  }
+
+  private decodeFile(offset: number, files = section(this.buffer, this.directory, 3)): ConfigurationSnapshotFile {
     return {
-      projectPath,
-      contentHash: projectFiles.readBigUInt64LE(offset + 8),
+      projectPath: this.stringById(files.readUInt32LE(offset)),
+      contentHash: files.readBigUInt64LE(offset + 8),
     }
   }
 
-  projectFiles(): readonly ConfigurationProjectFile[] {
-    return this.decodedIndex().projectFiles.map((file) => ({ ...file }))
-  }
-
-  identity(logicalAddress: string, kind: ConfigurationIdentity["kind"]): string | undefined {
-    const logicalAddressId = this.findStringId(logicalAddress)
-    if (logicalAddressId === undefined) return undefined
-    const kindId = identityKindId(kind)
-    const identities = section(this.buffer, this.directory, 4)
-    const offset = this.identityOffset(logicalAddressId, kindId)
-    if (offset === undefined) return undefined
-    return kind === "uuid" ? formatUuid(identities.subarray(offset + 16, offset + 32)) : this.stringById(identities.readUInt32LE(offset + 8))
-  }
-
-  identities(): readonly ConfigurationIdentity[] {
-    return this.decodedIndex().identities.map((identity) => ({ ...identity }))
-  }
-
-  xmlNodes(): readonly ConfigurationXmlNode[] {
-    return this.decodedIndex().xmlNodes.map((node) => ({
-      ...node,
-      ...(node.order === undefined ? {} : { order: [...node.order] }),
-      ...(node.present === undefined ? {} : { present: [...node.present] }),
-      ...(node.aliases === undefined ? {} : { aliases: { ...node.aliases } }),
-    }))
-  }
-
-  xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined {
-    const logicalAddressId = this.findStringId(logicalAddress)
-    if (logicalAddressId === undefined) return undefined
-    const nodes = section(this.buffer, this.directory, 6)
-    const offset = this.xmlNodeOffset(logicalAddressId)
-    if (offset === undefined) return undefined
-    const orderId = nodes.readUInt32LE(offset + 4)
-    const aliasCount = nodes.readUInt32LE(offset + 8)
-    const presentCount = nodes.readUInt32LE(offset + 12)
+  private decodeEntity(offset: number): ConfigurationSnapshotEntity {
+    const entities = section(this.buffer, this.directory, 4)
+    const logicalAddress = this.stringById(entities.readUInt32LE(offset + 4))
+    const sourceProjectPath = this.stringById(entities.readUInt32LE(offset + 8))
+    const fieldMask = entities.readUInt32LE(offset + 12)
     let cursor = offset + 16
-    const aliases: Record<string, string> = {}
-    for (let aliasIndex = 0; aliasIndex < aliasCount; aliasIndex += 1) {
-      aliases[this.stringById(nodes.readUInt32LE(cursor))] = this.stringById(nodes.readUInt32LE(cursor + 4))
-      cursor += 8
+
+    let uuid: string | undefined
+    let xmlId: string | undefined
+    let xmlName: string | undefined
+    if (hasFlag(fieldMask, ENTITY_FLAGS.uuid)) {
+      uuid = formatUuid(entities.subarray(cursor, cursor + 16))
+      cursor += 16
     }
-    const present: string[] = []
-    for (let presentIndex = 0; presentIndex < presentCount; presentIndex += 1) {
-      present.push(this.stringById(nodes.readUInt32LE(cursor)))
+    if (hasFlag(fieldMask, ENTITY_FLAGS.xmlId)) {
+      xmlId = this.stringById(entities.readUInt32LE(cursor))
       cursor += 4
     }
+    if (hasFlag(fieldMask, ENTITY_FLAGS.xmlName)) {
+      xmlName = this.stringById(entities.readUInt32LE(cursor))
+      cursor += 4
+    }
+
+    let omittedChildren: ConfigurationSnapshotEntity["omittedChildren"]
+    if (hasFlag(fieldMask, ENTITY_FLAGS.omittedNames)) {
+      const count = entities.readUInt32LE(cursor)
+      cursor += 8
+      const names: string[] = []
+      for (let index = 0; index < count; index += 1) {
+        names.push(this.stringById(entities.readUInt32LE(cursor)))
+        cursor += 4
+      }
+      omittedChildren = { kind: "names", names }
+    } else if (hasFlag(fieldMask, ENTITY_FLAGS.omittedTypedNames)) {
+      const count = entities.readUInt32LE(cursor)
+      cursor += 8
+      const items: Array<{ xmlName: string; name: string }> = []
+      for (let index = 0; index < count; index += 1) {
+        items.push({
+          xmlName: this.stringById(entities.readUInt32LE(cursor)),
+          name: this.stringById(entities.readUInt32LE(cursor + 4)),
+        })
+        cursor += 8
+      }
+      omittedChildren = { kind: "typedNames", items }
+    }
+
+    const xml: ConfigurationSnapshotXml = {
+      ...(hasFlag(fieldMask, ENTITY_FLAGS.extended) ? { extended: true } : {}),
+      ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiNil) ? { xsiNil: true } : {}),
+      ...(hasFlag(fieldMask, ENTITY_FLAGS.explicitEmpty) ? { explicitEmpty: true } : {}),
+    }
+    if (hasFlag(fieldMask, ENTITY_FLAGS.xsiType)) {
+      Object.assign(xml, { xsiType: this.stringById(entities.readUInt32LE(cursor)) })
+      cursor += 4
+    }
+    if (hasFlag(fieldMask, ENTITY_FLAGS.xmlText)) {
+      Object.assign(xml, { xmlText: this.stringById(entities.readUInt32LE(cursor)) })
+      cursor += 4
+    }
+    if (hasFlag(fieldMask, ENTITY_FLAGS.xmlPrefix)) {
+      Object.assign(xml, { xmlPrefix: this.stringById(entities.readUInt32LE(cursor)) })
+    }
+
+    const hasIdentities = uuid !== undefined || xmlId !== undefined || xmlName !== undefined
+    const hasXml = Object.keys(xml).length > 0
     return {
       logicalAddress,
-      ...(orderId === 0 ? {} : { order: this.orderById(orderId) }),
-      ...(aliasCount === 0 ? {} : { aliases }),
-      ...(presentCount === 0 ? {} : { present }),
+      sourceProjectPath,
+      ...(hasIdentities
+        ? {
+            identities: {
+              ...(uuid === undefined ? {} : { uuid }),
+              ...(xmlId === undefined ? {} : { xmlId }),
+              ...(xmlName === undefined ? {} : { xmlName }),
+            },
+          }
+        : {}),
+      ...(omittedChildren === undefined ? {} : { omittedChildren }),
+      ...(hasXml ? { xml } : {}),
     }
-  }
-
-  xmlValue(logicalAddress: string): ConfigurationXmlValue | undefined {
-    const logicalAddressId = this.findStringId(logicalAddress)
-    if (logicalAddressId === undefined) return undefined
-    const values = section(this.buffer, this.directory, 7)
-    const offset = this.xmlValueOffset(logicalAddressId)
-    if (offset === undefined) return undefined
-    const flags = values.readUInt32LE(offset + 4)
-    return {
-      logicalAddress,
-      ...((flags & (1 << 7)) === 0 ? {} : { extended: true as const }),
-      ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
-      ...((flags & (1 << 1)) === 0 ? {} : { explicitEmpty: true as const }),
-      ...((flags & (1 << 6)) === 0 ? {} : { excludedEqualName: true as const }),
-      ...this.optionalValue(values, offset + 8, flags, 2, "xsiType"),
-      ...this.optionalValue(values, offset + 12, flags, 3, "xmlText"),
-      ...this.optionalValue(values, offset + 16, flags, 4, "xmlPrefix"),
-      ...this.optionalValue(values, offset + 20, flags, 5, "userSettingsId"),
-    }
-  }
-
-  private optionalValue(
-    values: Buffer,
-    offset: number,
-    flags: number,
-    bit: number,
-    key: "xsiType" | "xmlText" | "xmlPrefix" | "userSettingsId"
-  ): Partial<ConfigurationXmlValue> {
-    if ((flags & (1 << bit)) === 0) return {}
-    return { [key]: this.stringById(values.readUInt32LE(offset)) }
-  }
-
-  private decodedIndex(): ReturnType<typeof decodeConfigurationIndex> {
-    this.decoded ??= decodeConfigurationIndex(
-      new Uint8Array(this.snapshot.bytes, 0, this.snapshot.byteLength)
-    )
-    return this.decoded
-  }
-
-  private orderById(orderId: number): string[] {
-    const orders = section(this.buffer, this.directory, 5)
-    const offset = this.orderOffsets[orderId - 1]
-    if (offset === undefined) throw new Error(`Некорректный orderId XML_NODES: ${orderId}`)
-    const count = orders.readUInt32LE(offset)
-    return Array.from({ length: count }, (_, index) => this.stringById(orders.readUInt32LE(offset + 8 + index * 4)))
   }
 
   private findStringId(value: string): number | undefined {
     if (this.stringIds !== undefined) return this.stringIds.get(value)
-    const strings = section(this.buffer, this.directory, 2)
     const ids = new Map<string, number>()
     for (let index = 0; index < this.stringOffsets.length; index += 1) {
-      const offset = this.stringOffsets[index]!
-      const length = strings.readUInt32LE(offset)
       const id = index + 1
-      const string = fatalUtf8Decoder.decode(strings.subarray(offset + 4, offset + 4 + length))
-      ids.set(string, id)
-      this.stringCache.set(id, string)
+      ids.set(this.stringById(id), id)
     }
     this.stringIds = ids
     return ids.get(value)
@@ -253,59 +250,48 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     if (id === 0 || id > this.stringOffsets.length) throw new Error(`Некорректный stringId: ${id}`)
     const strings = section(this.buffer, this.directory, 2)
     const offset = this.stringOffsets[id - 1]!
-    const length = strings.readUInt32LE(offset)
-    const value = fatalUtf8Decoder.decode(strings.subarray(offset + 4, offset + 4 + length))
+    const byteLength = strings.readUInt32LE(offset)
+    const value = fatalUtf8Decoder.decode(strings.subarray(offset + 4, offset + 4 + byteLength))
     this.stringCache.set(id, value)
     return value
   }
 
-  private projectFileOffset(projectPathId: number): number | undefined {
-    if (this.projectFileOffsets === undefined) {
-      const projectFiles = section(this.buffer, this.directory, 3)
+  private fileOffset(projectPathId: number): number | undefined {
+    if (this.fileOffsetByPathId === undefined) {
+      const files = section(this.buffer, this.directory, 3)
       const offsets = new Map<number, number>()
       for (let index = 0; index < this.directory[2]!.recordCount; index += 1) {
         const offset = index * 16
-        offsets.set(projectFiles.readUInt32LE(offset), offset)
+        offsets.set(files.readUInt32LE(offset), offset)
       }
-      this.projectFileOffsets = offsets
+      this.fileOffsetByPathId = offsets
     }
-    return this.projectFileOffsets.get(projectPathId)
+    return this.fileOffsetByPathId.get(projectPathId)
   }
 
-  private identityOffset(logicalAddressId: number, kindId: number): number | undefined {
-    if (this.identityOffsets === undefined) {
-      const identities = section(this.buffer, this.directory, 4)
-      const offsets = new Map<string, number>()
-      for (let index = 0; index < this.directory[3]!.recordCount; index += 1) {
-        const offset = index * 32
-        offsets.set(identityKey(identities.readUInt32LE(offset), identities.readUInt16LE(offset + 4)), offset)
-      }
-      this.identityOffsets = offsets
-    }
-    return this.identityOffsets.get(identityKey(logicalAddressId, kindId))
-  }
-
-  private xmlNodeOffset(logicalAddressId: number): number | undefined {
-    if (this.xmlNodeOffsetsByAddress === undefined) {
-      const nodes = section(this.buffer, this.directory, 6)
+  private entityOffset(logicalAddressId: number): number | undefined {
+    if (this.entityOffsetByAddressId === undefined) {
+      const entities = section(this.buffer, this.directory, 4)
       const offsets = new Map<number, number>()
-      for (const offset of this.xmlNodeOffsets) offsets.set(nodes.readUInt32LE(offset), offset)
-      this.xmlNodeOffsetsByAddress = offsets
+      for (const offset of this.entityOffsets) offsets.set(entities.readUInt32LE(offset + 4), offset)
+      this.entityOffsetByAddressId = offsets
     }
-    return this.xmlNodeOffsetsByAddress.get(logicalAddressId)
+    return this.entityOffsetByAddressId.get(logicalAddressId)
   }
 
-  private xmlValueOffset(logicalAddressId: number): number | undefined {
-    if (this.xmlValueOffsets === undefined) {
-      const values = section(this.buffer, this.directory, 7)
-      const offsets = new Map<number, number>()
-      for (let index = 0; index < this.directory[6]!.recordCount; index += 1) {
-        const offset = index * 32
-        offsets.set(values.readUInt32LE(offset), offset)
+  private entityOffsetsForSourcePath(sourceProjectPathId: number): readonly number[] {
+    if (this.entityOffsetsBySourcePathId === undefined) {
+      const entities = section(this.buffer, this.directory, 4)
+      const mutableOffsets = new Map<number, number[]>()
+      for (const offset of this.entityOffsets) {
+        const sourcePathId = entities.readUInt32LE(offset + 8)
+        const offsets = mutableOffsets.get(sourcePathId)
+        if (offsets === undefined) mutableOffsets.set(sourcePathId, [offset])
+        else offsets.push(offset)
       }
-      this.xmlValueOffsets = offsets
+      this.entityOffsetsBySourcePathId = mutableOffsets
     }
-    return this.xmlValueOffsets.get(logicalAddressId)
+    return this.entityOffsetsBySourcePathId.get(sourceProjectPathId) ?? []
   }
 }
 
@@ -326,49 +312,24 @@ function readDirectory(buffer: Buffer): readonly DirectoryEntry[] {
   })
 }
 
-function section(buffer: Buffer, directory: readonly DirectoryEntry[], type: 1 | 2 | 3 | 4 | 5 | 6 | 7): Buffer {
+function section(buffer: Buffer, directory: readonly DirectoryEntry[], type: SectionType): Buffer {
   const entry = directory[type - 1]
   if (entry === undefined) throw new Error(`Отсутствует секция индекса ${type}`)
   return buffer.subarray(entry.offset, entry.offset + entry.length)
 }
 
-function buildVariableRecordOffsets(sectionBytes: Buffer, recordCount: number, headerLength: number): SharedArrayBuffer {
+function buildVariableRecordOffsets(sectionBytes: Buffer, recordCount: number): SharedArrayBuffer {
   const offsets = new Uint32Array(new SharedArrayBuffer(recordCount * Uint32Array.BYTES_PER_ELEMENT))
   let offset = 0
   for (let index = 0; index < recordCount; index += 1) {
     offsets[index] = offset
-    const variableLength = variableRecordDataLength(sectionBytes, offset, headerLength)
-    offset = align8(offset + headerLength + variableLength)
+    offset = align8(offset + 4 + sectionBytes.readUInt32LE(offset))
   }
   return offsets.buffer as SharedArrayBuffer
 }
 
-function variableRecordDataLength(sectionBytes: Buffer, offset: number, headerLength: number): number {
-  switch (headerLength) {
-    case 4:
-      return sectionBytes.readUInt32LE(offset)
-    case 8:
-      return sectionBytes.readUInt32LE(offset) * 4
-    case 16:
-      return sectionBytes.readUInt32LE(offset + 8) * 8 + sectionBytes.readUInt32LE(offset + 12) * 4
-    default:
-      throw new Error(`Неподдерживаемая длина заголовка переменной записи: ${headerLength}`)
-  }
-}
-
-function identityKindId(kind: ConfigurationIdentity["kind"]): 1 | 2 | 3 {
-  switch (kind) {
-    case "uuid":
-      return 1
-    case "xmlId":
-      return 2
-    case "xmlName":
-      return 3
-  }
-}
-
-function identityKey(logicalAddressId: number, kindId: number): string {
-  return `${logicalAddressId}\0${kindId}`
+function hasFlag(mask: number, flag: number): boolean {
+  return (mask & flag) !== 0
 }
 
 function formatUuid(bytes: Buffer): string {

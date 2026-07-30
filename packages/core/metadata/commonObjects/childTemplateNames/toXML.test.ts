@@ -43,7 +43,7 @@ describe("exportChildTemplateNamesToXML", () => {
     expect(exportChildTemplateNamesToXML({ context: mockContextToXML(), rule, value: [] })).toBeUndefined()
   })
 
-  it("восстанавливает из снимка заимствованный макет без локального файла", () => {
+  it("не восстанавливает из снимка макет без актуального локального файла", () => {
     const contexts = createDirectRoundTripContexts()
     const itemRule = {
       itemType: "TestChildTemplateNames",
@@ -54,13 +54,43 @@ describe("exportChildTemplateNamesToXML", () => {
       rule: itemRule,
       xml: { Template: "Макет" },
     })
+    const exportContext = contexts.exportContext()
     const exported = testPropertyFromYAMLToXML({
-      context: contexts.exportContext(),
+      context: exportContext,
       rule: itemRule,
       yaml: imported.yaml,
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({ Template: ["Макет"] })
+    expect(exported.xml).toEqual({})
+    expect(exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities).toEqual([])
+  })
+
+  it("сохраняет порядок актуальных макетов и обновляет omittedChildren", () => {
+    const contexts = createDirectRoundTripContexts()
+    const itemRule = {
+      itemType: "TestChildTemplateNames",
+      properties: { templates: rule },
+    } as const satisfies MetadataItemRule
+    testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: { Template: ["МакетБ", "МакетА", "Удалён"] },
+    })
+    const exportContext = contexts.exportContext(ctxWithTemplates(["Новый", "МакетА", "МакетБ"]))
+
+    const exported = testPropertyFromYAMLToXML({
+      context: exportContext,
+      rule: itemRule,
+      yaml: {},
+    })
+
+    expect(exported.xml).toEqual({ Template: ["МакетБ", "МакетА", "Новый"] })
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Тест.yaml").entities[0]?.omittedChildren
+    ).toEqual({
+      kind: "names",
+      names: ["МакетБ", "МакетА", "Новый"],
+    })
   })
 })

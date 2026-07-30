@@ -1,161 +1,101 @@
 import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector, createDiscardingConfigurationIndexCollector } from "./writer"
 
-describe("configuration index collector", () => {
-  it("сохраняет Extended как особое XML-значение по адресу свойства", () => {
+const UUID = "00000000-0000-4000-8000-000000000001"
+
+describe("configuration snapshot collector", () => {
+  it("собирает одну содержательную entity и назначает путь задания", () => {
     const collector = createConfigurationIndexCollector()
+    collector.setIdentity("Справочник.Товары", "uuid", UUID)
+    collector.setIdentity("Справочник.Товары", "xmlName", "")
+    collector.setXmlFlag("Справочник.Товары.Свойство.Тип", "xsiNil")
 
-    collector.setExtended("Справочник.Товары.Форма.ФормаЭлемента.form")
-
-    expect(collector.fragment("Формы/ФормаЭлемента/Форма.yaml").xmlValues).toEqual([
-      {
-        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.form",
-        extended: true,
-      },
-    ])
-  })
-
-  it("can discard index facts without validating conflicting identities", () => {
-    const collector = createDiscardingConfigurationIndexCollector()
-    collector.setXmlId("Объект.Элемент", "1")
-    collector.setXmlId("Объект.Элемент", "2")
-
-    expect(collector.fragment("ignored.yaml")).toEqual({
-      targetProjectPath: "ignored.yaml",
-      identities: [],
-      xmlNodes: [],
-      xmlValues: [],
+    expect(collector.fragment("Справочники/Товары.yaml")).toEqual({
+      targetProjectPath: "Справочники/Товары.yaml",
+      entities: [
+        {
+          logicalAddress: "Справочник.Товары",
+          sourceProjectPath: "Справочники/Товары.yaml",
+          identities: { uuid: UUID, xmlName: "" },
+        },
+        {
+          logicalAddress: "Справочник.Товары.Свойство.Тип",
+          sourceProjectPath: "Справочники/Товары.yaml",
+          xml: { xsiNil: true },
+        },
+      ],
     })
   })
 
-  it("collects identity, order, aliases and explicit values by uid", () => {
-    const collector = createConfigurationIndexCollector()
-    collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
-    collector.setOrder("Справочник.Товары", ["name", "synonym"])
-    collector.setAlias("Справочник.Товары", "synonym", "Synonym")
-    collector.setPresent("Справочник.Товары", "name")
-    collector.setExplicitEmpty("Справочник.Товары.synonym")
-
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml")).toEqual({
-      targetProjectPath: "Справочник/Товары/Свойства.yaml",
-      identities: [
-        {
-          logicalAddress: "Справочник.Товары",
-          kind: "uuid",
-          value: "00000000-0000-4000-8000-000000000001",
-        },
-      ],
-      xmlNodes: [
-        {
-          logicalAddress: "Справочник.Товары",
-          order: ["name", "synonym"],
-          aliases: { synonym: "Synonym" },
-          present: ["name"],
-        },
-      ],
-      xmlValues: [{ logicalAddress: "Справочник.Товары.synonym", explicitEmpty: true }],
-    })
+  it("не создаёт entity только из logicalAddress и пути", () => {
+    expect(createConfigurationIndexCollector().fragment("Конфигурация.yaml").entities).toEqual([])
   })
 
-  it("does not expose source XML, XML_REFERENCE_RAW, or collection order", () => {
-    expect(Object.keys(createConfigurationIndexCollector())).not.toEqual(
-      expect.arrayContaining(["setRawXml", "setXmlReferenceRaw", "setItemOrder"])
+  it("отклоняет разные значения одного поля", () => {
+    const collector = createConfigurationIndexCollector()
+    collector.setIdentity("Справочник.Товары", "xmlId", "one")
+
+    expect(() => collector.setIdentity("Справочник.Товары", "xmlId", "two")).toThrow(
+      "Конфликт logicalAddress Справочник.Товары"
     )
   })
 
-  it("collects all compact identity and XML value kinds in insertion order", () => {
+  it("объединяет одинаковые наблюдения и отклоняет конфликт каждого поля", () => {
     const collector = createConfigurationIndexCollector()
-    collector.setXmlName("Форма[0]", "ФормаЭлемента")
-    collector.setXmlId("Форма[0]", "2")
-    collector.setXsiNil("Форма[0].value")
-    collector.setXsiType("Форма[0].value", "xs:string")
-    collector.setXmlText("Форма[0].value", "Текст")
-    collector.setXmlPrefix("Форма[0].value", "xs")
-    collector.setUserSettingsId("Форма[0].value", "Настройка-1")
+    const address = "Справочник.Товары"
 
-    expect(collector.fragment("Формы/ФормаЭлемента/Форма.yaml")).toEqual({
-      targetProjectPath: "Формы/ФормаЭлемента/Форма.yaml",
-      identities: [
-        { logicalAddress: "Форма[0]", kind: "xmlName", value: "ФормаЭлемента" },
-        { logicalAddress: "Форма[0]", kind: "xmlId", value: "2" },
-      ],
-      xmlNodes: [],
-      xmlValues: [
-        {
-          logicalAddress: "Форма[0].value",
-          xsiNil: true,
-          xsiType: "xs:string",
-          xmlText: "Текст",
-          xmlPrefix: "xs",
-          userSettingsId: "Настройка-1",
-        },
-      ],
-    })
-  })
-
-  it("does not collect empty identity values", () => {
-    const collector = createConfigurationIndexCollector()
-    collector.setXmlName("Форма.Основная.КоманднаяПанель", "")
-    collector.setXmlId("Форма.Основная.КоманднаяПанель", "")
-    collector.setUuid("Форма.Основная.КоманднаяПанель", "")
-
-    expect(collector.fragment("Форма.yaml").identities).toEqual([])
-  })
-
-  it("deduplicates equal logical-address values and rejects conflicting identities", () => {
-    const collector = createConfigurationIndexCollector()
-    collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
-    collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
-
-    expect(() => collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000002")).toThrow(
+    collector.setIdentity(address, "uuid", UUID)
+    collector.setIdentity(address, "uuid", UUID)
+    expect(() => collector.setIdentity(address, "uuid", "00000000-0000-4000-8000-000000000002")).toThrow(
       "Конфликт logicalAddress"
     )
 
-    for (const [setIdentity, address] of [
-      [(value: string) => collector.setXmlId("Форма[0]", value), "Форма[0]"],
-      [(value: string) => collector.setXmlName("Форма[1]", value), "Форма[1]"],
-    ] as const) {
-      setIdentity("same")
-      setIdentity("same")
-      expect(() => setIdentity("other")).toThrow(`Конфликт logicalAddress ${address}`)
+    collector.setIdentity(address, "xmlId", "same")
+    collector.setIdentity(address, "xmlId", "same")
+    expect(() => collector.setIdentity(address, "xmlId", "other")).toThrow("Конфликт logicalAddress")
+
+    collector.setIdentity(address, "xmlName", "")
+    collector.setIdentity(address, "xmlName", "")
+    expect(() => collector.setIdentity(address, "xmlName", "other")).toThrow("Конфликт logicalAddress")
+
+    for (const field of ["extended", "xsiNil", "explicitEmpty"] as const) {
+      collector.setXmlFlag(address, field)
+      collector.setXmlFlag(address, field)
     }
+    for (const field of ["xsiType", "xmlText", "xmlPrefix"] as const) {
+      collector.setXmlValue(address, field, "same")
+      collector.setXmlValue(address, field, "same")
+      expect(() => collector.setXmlValue(address, field, "other")).toThrow("Конфликт logicalAddress")
+    }
+
+    collector.setOmittedChildren(address, { kind: "names", names: ["Форма"] })
+    collector.setOmittedChildren(address, { kind: "names", names: ["Форма"] })
+    expect(() => collector.setOmittedChildren(address, { kind: "names", names: ["Макет"] })).toThrow(
+      "Конфликт logicalAddress"
+    )
   })
 
-  it("can keep the first conflicting xmlId without weakening other identities", () => {
-    const collector = createConfigurationIndexCollector({ conflictingXmlId: "keepFirst" })
-    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1823")
-    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1314")
-
-    expect(collector.fragment("Форма.yaml").identities).toEqual([
-      {
-        logicalAddress: "Форма.Элемент.ЕстьКЭП",
-        kind: "xmlId",
-        value: "1823",
-      },
-    ])
-    collector.setUuid("Объект", "first")
-    expect(() => collector.setUuid("Объект", "second")).toThrow("Конфликт logicalAddress")
-  })
-
-  it("deduplicates equal node and XML values and rejects conflicting replacements", () => {
+  it("проверяет обязательные идентификаторы и копирует omittedChildren", () => {
     const collector = createConfigurationIndexCollector()
-    collector.setOrder("Справочник.Товары", ["name", "synonym"])
-    collector.setOrder("Справочник.Товары", ["name", "synonym"])
-    expect(() => collector.setOrder("Справочник.Товары", ["synonym", "name"])).toThrow("Конфликт logicalAddress")
+    expect(() => collector.setIdentity("Объект", "uuid", "not-a-uuid")).toThrow("Некорректный UUID")
+    expect(() => collector.setIdentity("Объект", "uuid", "00000000-0000-0000-0000-000000000001")).not.toThrow()
+    expect(() => collector.setIdentity("Объект", "xmlId", "")).toThrow("Пустой xmlId")
+    expect(() => collector.setOmittedChildren("Объект", { kind: "names", names: [] })).toThrow("Пустой список")
 
-    collector.setAlias("Справочник.Товары", "synonym", "Synonym")
-    collector.setAlias("Справочник.Товары", "synonym", "Synonym")
-    expect(() => collector.setAlias("Справочник.Товары", "synonym", "Alias")).toThrow("Конфликт logicalAddress")
+    const omittedChildren = { kind: "typedNames" as const, items: [{ xmlName: "Attribute", name: "Код" }] }
+    collector.setOmittedChildren("Объект", omittedChildren)
+    omittedChildren.items[0]!.name = "Изменён"
 
-    for (const setValue of [
-      (value: string) => collector.setXsiType("Справочник.Товары.value", value),
-      (value: string) => collector.setXmlText("Справочник.Товары.value", value),
-      (value: string) => collector.setXmlPrefix("Справочник.Товары.value", value),
-      (value: string) => collector.setUserSettingsId("Справочник.Товары.value", value),
-    ]) {
-      setValue("same")
-      setValue("same")
-      expect(() => setValue("other")).toThrow("Конфликт logicalAddress")
-    }
+    expect(collector.fragment("Объект.yaml").entities[0]).toMatchObject({
+      omittedChildren: { kind: "typedNames", items: [{ xmlName: "Attribute", name: "Код" }] },
+    })
+  })
+
+  it("discarding collector не валидирует и не сохраняет наблюдения", () => {
+    const collector = createDiscardingConfigurationIndexCollector()
+    collector.setIdentity("Объект", "xmlId", "one")
+    collector.setIdentity("Объект", "xmlId", "two")
+
+    expect(collector.fragment("ignored.yaml")).toEqual({ targetProjectPath: "ignored.yaml", entities: [] })
   })
 })

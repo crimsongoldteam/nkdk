@@ -3,10 +3,13 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
-import { configurationIndexPath, type ConfigurationIndexData } from "../configurationIndex"
+import {
+  configurationIndexPath,
+  type ConfigurationSnapshot,
+  type MergedConfigurationSnapshotFragments,
+} from "../configurationIndex"
 import type { ComponentAddress } from "../components/address"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
@@ -30,22 +33,51 @@ const failurePhases = [
 
 type FailurePhase = (typeof failurePhases)[number]
 
-const assignments: ImportAssignment[] = [assignment("Контрагенты"), assignment("Номенклатура")]
+const catalogProjectPath = "Справочник/Контрагенты/Свойства.yaml"
+const formProjectPath = "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml"
+const emptyProjectPath = "БезФактов.yaml"
+const assignments: ImportAssignment[] = [assignment("Контрагенты"), formAssignment(), assignmentWithoutSnapshotFacts()]
 const resultFiles: ImportResultFile[] = [
   {
     sourceKind: "worker",
+    sourcePath: "/temp/Конфигурация.yaml",
+    targetProjectPath: "Конфигурация.yaml",
+  },
+  {
+    sourceKind: "worker",
     sourcePath: "/temp/Свойства.yaml",
-    targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
+    targetProjectPath: catalogProjectPath,
+  },
+  {
+    sourceKind: "worker",
+    sourcePath: "/temp/Форма.yaml",
+    targetProjectPath: formProjectPath,
+  },
+  {
+    sourceKind: "worker",
+    sourcePath: "/temp/БезФактов.yaml",
+    targetProjectPath: emptyProjectPath,
   },
 ]
-const fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
-  localDependencies: []
-} = {
-  identities: [{ logicalAddress: "Справочник.Контрагенты", kind: "uuid", value: "new-uuid" }],
-  xmlNodes: [{ logicalAddress: "Справочник.Контрагенты", present: ["Name"] }],
-  xmlValues: [{ logicalAddress: "Справочник.Контрагенты.Name", xmlText: "Контрагенты" }],
-  localDependencies: [],
+const fragmentData: MergedConfigurationSnapshotFragments = {
+  sourceProjectPaths: [catalogProjectPath, emptyProjectPath, formProjectPath],
+  entities: [
+    {
+      logicalAddress: "Справочник.Контрагенты",
+      sourceProjectPath: catalogProjectPath,
+      identities: { uuid: "00000000-0000-4000-8000-000000000001" },
+    },
+    {
+      logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
+      sourceProjectPath: formProjectPath,
+      xml: { explicitEmpty: true },
+    },
+  ],
 }
+const projectFiles = resultFiles.map((file, index) => ({
+  projectPath: file.targetProjectPath,
+  contentHash: BigInt(index + 1),
+}))
 
 const tempDirs: string[] = []
 
@@ -57,7 +89,7 @@ describe("configuration XML import coordinator", () => {
   it("detects the main configuration and writes it to cf", async () => {
     const calls: string[] = []
     const params = createParams("configuration")
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
 
     const result = await importConfigurationFromXml(params, fakeDependencies({ calls, writtenIndexes, initialized }))
@@ -81,13 +113,26 @@ describe("configuration XML import coordinator", () => {
         data: configurationIndex("cf"),
       },
     ])
+    const snapshot = writtenIndexes[0]?.data
+    expect(snapshot?.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")).toMatchObject({
+      sourceProjectPath: catalogProjectPath,
+    })
+    expect(
+      snapshot?.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты.Форма.ФормаЭлемента")
+    ).toMatchObject({ sourceProjectPath: formProjectPath })
+    expect(
+      snapshot?.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
+    ).toBe(true)
+    expect(snapshot?.entities.every(hasMeaningfulPayload)).toBe(true)
+    expect(snapshot?.files).toContainEqual(expect.objectContaining({ projectPath: emptyProjectPath }))
+    expect(snapshot?.entities).not.toContainEqual(expect.objectContaining({ sourceProjectPath: emptyProjectPath }))
   })
 
   it("detects Расширение_All and writes it to cfe/Расширение_All", async () => {
     const calls: string[] = []
     const params = createParams("configurationExtension")
     createBaseConfiguration(params.projectDir)
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
     let secondPassSnapshots: LayeredImportReferenceSnapshot | undefined
     const base = createImportSharedMetadata([
@@ -130,7 +175,11 @@ describe("configuration XML import coordinator", () => {
     expect(secondPassSnapshots?.base).toBe(base)
     expect(writtenIndexes[0]).toMatchObject({
       address: { kind: "configurationExtension", name: "Расширение_All" },
-      data: { binding: { componentPath: "cfe/Расширение_All", indexGeneration: 1n } },
+      data: {
+        specificationVersion: "1.3",
+        componentPath: "cfe/Расширение_All",
+        indexGeneration: 1n,
+      },
     })
     expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
   })
@@ -230,7 +279,7 @@ describe("configuration XML import coordinator", () => {
     const componentDir = join(params.projectDir, "cf")
     const yamlPath = join(componentDir, "Конфигурация.yaml")
     const calls: string[] = []
-    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const diagnostic = importError("broken second pass")
     const dependencies = fakeDependencies({ calls, writtenIndexes })
     const pool = dependencies.createWorkerPool({ concurrency: 1 })
@@ -430,7 +479,7 @@ function createParams(kind: "configuration" | "configurationExtension" | "unknow
 function fakeDependencies(params: {
   calls: string[]
   failurePhase?: FailurePhase
-  writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationIndexData }>
+  writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }>
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
   transfers?: string[]
 }): ImportCoordinatorDependencies {
@@ -460,7 +509,6 @@ function fakeDependencies(params: {
             diagnostics: [],
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
-            localDependencies: [],
             fragmentData,
           }
         },
@@ -498,7 +546,7 @@ function fakeDependencies(params: {
     async hashProject(_projectDir, projectPaths) {
       call("hashProject")
       expect(projectPaths).toEqual(resultFiles.map((file) => file.targetProjectPath))
-      return [{ projectPath: "Конфигурация.yaml", contentHash: 42n }]
+      return projectFiles
     },
     async writeIndex({ address, data }) {
       call("writeIndex")
@@ -556,6 +604,38 @@ function assignment(name: string): ImportAssignment {
   }
 }
 
+function formAssignment(): ImportAssignment {
+  return {
+    id: formProjectPath,
+    role: "fileItem",
+    targetProjectPath: formProjectPath,
+    itemType: "ClientApplicationForm",
+    itemName: "ФормаЭлемента",
+    logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента",
+    owner: {
+      itemType: "MetadataCatalog",
+      name: "Контрагенты",
+      logicalAddress: "Справочник.Контрагенты",
+    },
+    xmlFiles: [{ role: "body", sourcePath: "/xml/Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml" }],
+    externalFiles: [],
+  }
+}
+
+function assignmentWithoutSnapshotFacts(): ImportAssignment {
+  return {
+    id: emptyProjectPath,
+    role: "properties",
+    targetProjectPath: emptyProjectPath,
+    itemType: "TestWithoutSnapshotFacts",
+    itemName: "БезФактов",
+    logicalAddress: "Тест.БезФактов",
+    owner: undefined,
+    xmlFiles: [],
+    externalFiles: [],
+  }
+}
+
 function importError(message: string): ImportDiagnostic {
   return {
     severity: "error",
@@ -565,28 +645,18 @@ function importError(message: string): ImportDiagnostic {
   }
 }
 
-function configurationIndex(component: string): ConfigurationIndexData {
+function configurationIndex(component: string): ConfigurationSnapshot {
   return {
-    binding: {
-      indexGeneration: 1n,
-      producerVersion: "0.0.0-dev",
-      componentPath: component,
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
-    },
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 42n }],
-    identities: fragmentData.identities,
-    xmlNodes: fragmentData.xmlNodes,
-    xmlValues: fragmentData.xmlValues,
-    localIndexes: {
-      metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
-      dependencies: [],
-      logicalAddresses: fragmentData.identities.map(({ logicalAddress }) => ({
-        logicalAddress,
-        sourceProjectPath: "Конфигурация.yaml",
-      })),
-    },
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath: component,
+    files: projectFiles,
+    entities: fragmentData.entities,
   }
+}
+
+function hasMeaningfulPayload(entity: ConfigurationSnapshot["entities"][number]): boolean {
+  return entity.identities !== undefined || entity.omittedChildren !== undefined || entity.xml !== undefined
 }
 
 function emptyValidationContribution(): ValidationIndexContribution {

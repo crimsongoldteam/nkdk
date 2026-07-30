@@ -1,18 +1,13 @@
 import { hashSection, type Hash128 } from "./hash"
 import type {
-  ConfigurationIdentity,
-  ConfigurationIndexBinding,
-  ConfigurationIndexData,
-  ConfigurationLocalDependency,
-  ComponentLogicalAddress,
-  ConfigurationProjectFile,
-  ConfigurationXmlNode,
-  ConfigurationXmlValue,
+  ConfigurationSnapshot,
+  ConfigurationSnapshotEntity,
+  ConfigurationSnapshotFile,
+  ConfigurationSnapshotXml,
 } from "./types"
 
 export interface DecodeConfigurationIndexOptions {
   expectedComponentPath?: string
-  expectedProducerVersion?: string
 }
 
 export class ConfigurationIndexCompatibilityError extends Error {
@@ -25,66 +20,81 @@ export class ConfigurationIndexCompatibilityError extends Error {
 }
 
 interface ConfigurationIndexHeader {
-  directoryOffset: number
-  fileLength: number
-  directoryChecksum: Hash128
+  readonly directoryOffset: number
+  readonly fileLength: number
+  readonly directoryChecksum: Hash128
 }
 
 interface ConfigurationIndexDirectoryEntry {
-  type: SectionType
-  offset: bigint
-  storedLength: bigint
-  recordCount: bigint
-  checksum: Hash128
+  readonly type: SectionType
+  readonly offset: bigint
+  readonly storedLength: bigint
+  readonly recordCount: bigint
+  readonly checksum: Hash128
 }
 
 interface ConfigurationIndexDirectory {
-  entries: readonly ConfigurationIndexDirectoryEntry[]
+  readonly entries: readonly ConfigurationIndexDirectoryEntry[]
 }
 
 interface DecodedStrings {
-  values: readonly string[]
-  referencedIds: Set<number>
+  readonly values: readonly string[]
+  readonly referencedIds: Set<number>
 }
 
-type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
-type LogicalValidationStage = 7 | 8 | 9
+interface DecodedSnapshotRecord {
+  readonly indexGeneration: bigint
+  readonly componentPath: string
+}
+
+type SectionType = 1 | 2 | 3 | 4
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 12
+const SECTION_COUNT = 4
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
-const XML_VALUE_FLAGS = (1 << 8) - 1
-const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
-const FORM_SINGLETON_LOGICAL_ADDRESS_SEGMENTS = new Set([
-  "АвтоКоманднаяПанель",
-  "КоманднаяПанель",
-  "КонтекстноеМеню",
-  "РасширеннаяПодсказка",
-  "СостояниеПросмотра",
-  "СтрокаПоиска",
-  "Таблица",
-  "УправлениеПоиском",
-])
+const ENTITY_FLAGS = {
+  uuid: 1 << 0,
+  xmlId: 1 << 1,
+  xmlName: 1 << 2,
+  omittedNames: 1 << 3,
+  omittedTypedNames: 1 << 4,
+  extended: 1 << 5,
+  xsiNil: 1 << 6,
+  explicitEmpty: 1 << 7,
+  xsiType: 1 << 8,
+  xmlText: 1 << 9,
+  xmlPrefix: 1 << 10,
+} as const
+const KNOWN_ENTITY_FLAGS = (1 << 11) - 1
+const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 
 export function decodeConfigurationIndex(
   input: Uint8Array,
   options: DecodeConfigurationIndexOptions = {}
-): ConfigurationIndexData {
+): ConfigurationSnapshot {
   try {
     const buffer = Buffer.from(input.buffer, input.byteOffset, input.byteLength)
     const header = readAndValidateHeader(buffer)
     const directory = readAndValidateDirectory(buffer, header)
     validateSectionPlacement(buffer, directory)
     validateSectionChecksums(buffer, directory)
-    const stringsEntry = directoryEntry(directory, 2)
-    const strings = decodeStrings(sectionBytes(buffer, stringsEntry), stringsEntry.recordCount)
-    validateLogicalSectionRecords(buffer, directory, strings)
-    validateLogicalSectionUniqueness(buffer, directory, strings)
-    const data = decodeLogicalSections(buffer, directory, strings)
-    validateCrossReferences(data, strings)
-    validateExpectations(data.binding, options)
-    return data
+
+    const strings = decodeStrings(sectionFor(buffer, directory, 2), directoryEntry(directory, 2).recordCount)
+    const snapshot = decodeSnapshot(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings)
+    const files = decodeFiles(sectionFor(buffer, directory, 3), directoryEntry(directory, 3).recordCount, strings)
+    const entities = decodeEntities(sectionFor(buffer, directory, 4), directoryEntry(directory, 4).recordCount, strings)
+
+    validateUniqueness(files, entities)
+    validateCrossReferences(files, entities, strings)
+    validateExpectedComponentPath(snapshot.componentPath, options)
+    return {
+      specificationVersion: "1.3",
+      indexGeneration: snapshot.indexGeneration,
+      componentPath: snapshot.componentPath,
+      files,
+      entities,
+    }
   } catch (caught) {
     if (caught instanceof ConfigurationIndexCompatibilityError) throw caught
     throw new Error(`Некорректный файл индекса конфигурации: ${errorMessage(caught)}`)
@@ -99,7 +109,7 @@ function readAndValidateHeader(buffer: Buffer): ConfigurationIndexHeader {
 
   const majorVersion = buffer.readUInt16LE(8)
   const minorVersion = buffer.readUInt16LE(10)
-  if (majorVersion !== 2 || minorVersion !== 0) {
+  if (majorVersion !== 1 || minorVersion !== 3) {
     throw new ConfigurationIndexCompatibilityError(
       `Неподдерживаемая версия файла индекса конфигурации ${majorVersion}.${minorVersion}; требуется повторный import`
     )
@@ -109,15 +119,16 @@ function readAndValidateHeader(buffer: Buffer): ConfigurationIndexHeader {
   if (buffer.readUInt8(17) !== 1) throw new Error("неподдерживаемая кодировка строк")
   if (buffer.readUInt8(18) !== 1) throw new Error("неподдерживаемый алгоритм контрольной суммы")
   if (buffer.readUInt8(19) !== 1) throw new Error("неподдерживаемый алгоритм хэша файла")
-  if (buffer.readUInt32LE(20) !== DIRECTORY_ENTRY_LENGTH) throw new Error("неверный размер записи каталога")
+  if (buffer.readUInt32LE(20) !== DIRECTORY_ENTRY_LENGTH) {
+    throw new Error("неверный размер записи каталога")
+  }
   if (buffer.readUInt32LE(24) !== SECTION_COUNT) throw new Error("неверное число секций")
-  if (buffer.readUInt32LE(28) !== 0) throw new Error("ненулевые флаги заголовка")
+  if (buffer.readUInt32LE(28) !== 0) throw new Error("ненулевые reserved заголовка")
 
   const directoryOffset = safeNumber(buffer.readBigUInt64LE(32), "смещение каталога")
   if (directoryOffset !== HEADER_LENGTH) throw new Error("неверное смещение каталога")
   const fileLength = safeNumber(buffer.readBigUInt64LE(40), "длина файла")
   if (fileLength !== buffer.length) throw new Error("длина файла не совпадает с заголовком")
-
   return {
     directoryOffset,
     fileLength,
@@ -158,7 +169,9 @@ function readAndValidateDirectory(buffer: Buffer, header: ConfigurationIndexHead
       throw new ConfigurationIndexCompatibilityError(`Неизвестные флаги секции ${typeValue}`)
     }
     if ((sectionFlags & 1) === 0) throw new Error(`секция ${typeValue} не отмечена обязательной`)
-    if (bytes.readUInt32LE(offset + 12) !== 0) throw new Error(`ненулевое reserved секции ${typeValue}`)
+    if (bytes.readUInt32LE(offset + 12) !== 0) {
+      throw new Error(`ненулевое reserved секции ${typeValue}`)
+    }
 
     const storedLength = bytes.readBigUInt64LE(offset + 24)
     if (bytes.readBigUInt64LE(offset + 32) !== storedLength) {
@@ -172,7 +185,6 @@ function readAndValidateDirectory(buffer: Buffer, header: ConfigurationIndexHead
       checksum: readHash128(bytes, offset + 48),
     })
   }
-
   for (let index = 0; index < SECTION_COUNT; index += 1) {
     if (entries[index]?.type !== index + 1) throw new Error("отсутствует обязательная секция")
   }
@@ -206,13 +218,12 @@ function decodeStrings(section: Buffer, recordCountValue: bigint): DecodedString
   const seen = new Set<string>()
   let offset = 0
   for (let index = 0; index < recordCount; index += 1) {
-    const headerEnd = checkedEnd(section, offset, 4, "заголовок записи STRINGS")
+    const contentOffset = checkedEnd(section, offset, 4, "заголовок записи STRINGS")
     const byteLength = section.readUInt32LE(offset)
-    const valueEnd = checkedEnd(section, headerEnd, byteLength, "строка STRINGS")
-    const recordEnd = alignedEnd(section, valueEnd, "запись STRINGS")
-    const valueBytes = section.subarray(headerEnd, valueEnd)
-    assertZero(section.subarray(valueEnd, recordEnd), "padding STRINGS")
-    const value = fatalUtf8Decoder.decode(valueBytes)
+    const contentEnd = checkedEnd(section, contentOffset, byteLength, "строка STRINGS")
+    const recordEnd = alignedEnd(section, contentEnd, "запись STRINGS")
+    assertZero(section.subarray(contentEnd, recordEnd), "padding STRINGS")
+    const value = fatalUtf8Decoder.decode(section.subarray(contentOffset, contentEnd))
     if (value.includes("\0")) throw new Error("строка STRINGS содержит U+0000")
     if (seen.has(value)) throw new Error("строки STRINGS повторяются")
     seen.add(value)
@@ -223,522 +234,220 @@ function decodeStrings(section: Buffer, recordCountValue: bigint): DecodedString
   return { values, referencedIds: new Set() }
 }
 
-function decodeLogicalSections(
-  buffer: Buffer,
-  directory: ConfigurationIndexDirectory,
-  strings: DecodedStrings
-): ConfigurationIndexData {
-  const binding = decodeBinding(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings, 9)
-  if (binding === undefined) throw new Error("BINDING не разобран")
-  const projectFiles = decodeProjectFiles(
-    sectionFor(buffer, directory, 3),
-    directoryEntry(directory, 3).recordCount,
-    strings,
-    9
-  )
-  const identities = decodeIdentities(
-    sectionFor(buffer, directory, 4),
-    directoryEntry(directory, 4).recordCount,
-    strings,
-    9
-  )
-  const orders = decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 9)
-  const xmlNodes = decodeXmlNodes(
-    sectionFor(buffer, directory, 6),
-    directoryEntry(directory, 6).recordCount,
-    strings,
-    orders,
-    9
-  )
-  const xmlValues = decodeXmlValues(
-    sectionFor(buffer, directory, 7),
-    directoryEntry(directory, 7).recordCount,
-    strings,
-    9
-  )
-  const localIndexes = {
-    metadata: {
-      reference: decodeLocalMetadataBlock(
-        sectionFor(buffer, directory, 8),
-        directoryEntry(directory, 8).recordCount,
-        "LOCAL_REFERENCE_INDEX"
-      ),
-      ownerStrings: decodeLocalMetadataBlock(
-        sectionFor(buffer, directory, 9),
-        directoryEntry(directory, 9).recordCount,
-        "LOCAL_OWNER_STRINGS"
-      ),
-      ownerTable: decodeLocalMetadataBlock(
-        sectionFor(buffer, directory, 10),
-        directoryEntry(directory, 10).recordCount,
-        "LOCAL_OWNER_TABLE"
-      ),
-    },
-    dependencies: decodeLocalDependencies(
-      sectionFor(buffer, directory, 11),
-      directoryEntry(directory, 11).recordCount
-    ),
-    logicalAddresses: decodeLogicalAddresses(
-      sectionFor(buffer, directory, 12),
-      directoryEntry(directory, 12).recordCount
-    ),
-  }
-  return { binding, projectFiles, identities, xmlNodes, xmlValues, localIndexes }
-}
-
-function validateLogicalSectionRecords(
-  buffer: Buffer,
-  directory: ConfigurationIndexDirectory,
-  strings: DecodedStrings
-): void {
-  decodeBinding(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings, 7)
-  decodeProjectFiles(sectionFor(buffer, directory, 3), directoryEntry(directory, 3).recordCount, strings, 7)
-  decodeIdentities(sectionFor(buffer, directory, 4), directoryEntry(directory, 4).recordCount, strings, 7)
-  decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 7)
-  decodeXmlNodes(sectionFor(buffer, directory, 6), directoryEntry(directory, 6).recordCount, strings, [], 7)
-  decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings, 7)
-  decodeLocalMetadataBlock(
-    sectionFor(buffer, directory, 8),
-    directoryEntry(directory, 8).recordCount,
-    "LOCAL_REFERENCE_INDEX"
-  )
-  decodeLocalMetadataBlock(
-    sectionFor(buffer, directory, 9),
-    directoryEntry(directory, 9).recordCount,
-    "LOCAL_OWNER_STRINGS"
-  )
-  decodeLocalMetadataBlock(
-    sectionFor(buffer, directory, 10),
-    directoryEntry(directory, 10).recordCount,
-    "LOCAL_OWNER_TABLE"
-  )
-  decodeLocalDependencies(sectionFor(buffer, directory, 11), directoryEntry(directory, 11).recordCount)
-  decodeLogicalAddresses(sectionFor(buffer, directory, 12), directoryEntry(directory, 12).recordCount)
-}
-
-function validateLogicalSectionUniqueness(
-  buffer: Buffer,
-  directory: ConfigurationIndexDirectory,
-  strings: DecodedStrings
-): void {
-  decodeProjectFiles(sectionFor(buffer, directory, 3), directoryEntry(directory, 3).recordCount, strings, 8)
-  decodeIdentities(sectionFor(buffer, directory, 4), directoryEntry(directory, 4).recordCount, strings, 8)
-  decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 8)
-  decodeXmlNodes(sectionFor(buffer, directory, 6), directoryEntry(directory, 6).recordCount, strings, [], 8)
-  decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings, 8)
-}
-
-function decodeBinding(
-  section: Buffer,
-  recordCount: bigint,
-  strings: DecodedStrings,
-  stage: LogicalValidationStage
-): ConfigurationIndexBinding | undefined {
-  if (recordCount !== 1n) throw new Error("BINDING должен содержать одну запись")
-  checkedEnd(section, 0, HEADER_LENGTH, "заголовок BINDING")
+function decodeSnapshot(section: Buffer, recordCount: bigint, strings: DecodedStrings): DecodedSnapshotRecord {
+  if (recordCount !== 1n) throw new Error("SNAPSHOT должен содержать одну запись")
+  if (section.length !== 16) throw new Error("неверная длина SNAPSHOT")
   const indexGeneration = section.readBigUInt64LE(0)
-  const producerVersion = requiredString(strings, section.readUInt32LE(8), "producerVersion BINDING")
-  const componentPath = requiredString(strings, section.readUInt32LE(12), "componentPath BINDING")
-  const baseFingerprintLength = section.readUInt32LE(16)
-  const configurationVersionLength = section.readUInt32LE(20)
-  assertZero(section.subarray(24, HEADER_LENGTH), "reserved BINDING")
-
-  const baseFingerprintEnd = checkedEnd(section, HEADER_LENGTH, baseFingerprintLength, "baseFingerprint BINDING")
-  const configurationVersionEnd = checkedEnd(
-    section,
-    baseFingerprintEnd,
-    configurationVersionLength,
-    "configurationVersion BINDING"
-  )
-  const recordEnd = alignedEnd(section, configurationVersionEnd, "BINDING")
-  if (recordEnd !== section.length) throw new Error("длина BINDING не совпадает с данными")
-  assertZero(section.subarray(configurationVersionEnd, recordEnd), "padding BINDING")
-  if (stage !== 9) return undefined
-
-  if (indexGeneration === 0n) throw new Error("indexGeneration BINDING должен начинаться с 1")
-  if (producerVersion.length === 0) throw new Error("producerVersion BINDING не должен быть пустым")
-  const componentPathLength = Buffer.byteLength(componentPath)
+  if (indexGeneration === 0n) throw new Error("indexGeneration SNAPSHOT должен начинаться с 1")
+  const componentPath = requiredString(strings, section.readUInt32LE(8), "componentPath SNAPSHOT")
+  const componentPathLength = Buffer.byteLength(componentPath, "utf8")
   if (componentPathLength < 1 || componentPathLength > 128) {
-    throw new Error("недопустимый componentPath BINDING")
+    throw new Error("недопустимый componentPath SNAPSHOT")
   }
-  if ((baseFingerprintLength === 0) !== (configurationVersionLength === 0)) {
-    throw new Error("baseFingerprint и configurationVersion BINDING должны быть заполнены вместе")
-  }
-
-  return {
-    indexGeneration,
-    producerVersion,
-    componentPath,
-    baseFingerprint: Uint8Array.from(section.subarray(HEADER_LENGTH, baseFingerprintEnd)),
-    configurationVersion: Uint8Array.from(section.subarray(baseFingerprintEnd, configurationVersionEnd)),
-  }
+  assertZero(section.subarray(12), "reserved SNAPSHOT")
+  return { indexGeneration, componentPath }
 }
 
-function decodeProjectFiles(
-  section: Buffer,
-  recordCountValue: bigint,
-  strings: DecodedStrings,
-  stage: LogicalValidationStage
-): ConfigurationProjectFile[] {
-  const recordCount = fixedRecordCount(section, recordCountValue, 16, "PROJECT_FILES")
-  const result: ConfigurationProjectFile[] = []
-  const seenPathIds = new Set<number>()
+function decodeFiles(section: Buffer, recordCountValue: bigint, strings: DecodedStrings): ConfigurationSnapshotFile[] {
+  const recordCount = fixedRecordCount(section, recordCountValue, 16, "FILES")
+  const result: ConfigurationSnapshotFile[] = []
   for (let index = 0; index < recordCount; index += 1) {
     const offset = index * 16
-    const projectPathId = section.readUInt32LE(offset)
-    const projectPath = requiredString(strings, projectPathId, "projectPath PROJECT_FILES")
-    if (stage === 8 && seenPathIds.has(projectPathId)) throw new Error("PROJECT_FILES повторяются")
-    seenPathIds.add(projectPathId)
-    if (section.readUInt32LE(offset + 4) !== 0) throw new Error("ненулевые флаги PROJECT_FILES")
-    if (stage === 9) {
-      validateProjectPath(projectPath)
-      result.push({ projectPath, contentHash: section.readBigUInt64LE(offset + 8) })
-    }
+    const projectPath = requiredString(strings, section.readUInt32LE(offset), "projectPath FILES")
+    validateProjectPath(projectPath)
+    if (section.readUInt32LE(offset + 4) !== 0) throw new Error("ненулевое reserved FILES")
+    result.push({ projectPath, contentHash: section.readBigUInt64LE(offset + 8) })
   }
   return result
 }
 
-function decodeIdentities(
+function decodeEntities(
   section: Buffer,
   recordCountValue: bigint,
-  strings: DecodedStrings,
-  stage: LogicalValidationStage
-): ConfigurationIdentity[] {
-  const recordCount = fixedRecordCount(section, recordCountValue, 32, "IDENTITIES")
-  const result: ConfigurationIdentity[] = []
-  const seenIdentityKeys = new Set<string>()
+  strings: DecodedStrings
+): ConfigurationSnapshotEntity[] {
+  const recordCount = variableRecordCount(section, recordCountValue, 16, "ENTITIES")
+  const result: ConfigurationSnapshotEntity[] = []
+  let recordOffset = 0
   for (let index = 0; index < recordCount; index += 1) {
-    const offset = index * 32
-    const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress IDENTITIES")
-    const kind = section.readUInt16LE(offset + 4)
-    if (section.readUInt16LE(offset + 6) !== 0) throw new Error("ненулевые флаги IDENTITIES")
-    if (section.readUInt32LE(offset + 12) !== 0) throw new Error("ненулевое reserved IDENTITIES")
-    const identityKey = `${logicalAddressId}\0${kind}`
-    if (stage === 8 && seenIdentityKeys.has(identityKey)) throw new Error("IDENTITIES повторяются")
-    seenIdentityKeys.add(identityKey)
+    const fieldsOffset = checkedEnd(section, recordOffset, 4, "заголовок записи ENTITIES")
+    const byteLength = section.readUInt32LE(recordOffset)
+    if (byteLength < 12) throw new Error("byteLength ENTITIES меньше обязательных полей")
+    const fieldsEnd = checkedEnd(section, fieldsOffset, byteLength, "поля записи ENTITIES")
+    const recordEnd = alignedEnd(section, fieldsEnd, "запись ENTITIES")
+    const entity = decodeEntity(section.subarray(fieldsOffset, fieldsEnd), strings)
+    assertZero(section.subarray(fieldsEnd, recordEnd), "padding ENTITIES")
+    result.push(entity)
+    recordOffset = recordEnd
+  }
+  if (recordOffset !== section.length) throw new Error("recordCount ENTITIES не совпадает с длиной секции")
+  return result
+}
 
-    const valueStringId = section.readUInt32LE(offset + 8)
-    if (valueStringId !== 0) requiredString(strings, valueStringId, "value IDENTITIES")
-    const uuidBytes = section.subarray(offset + 16, offset + 32)
-    if (stage !== 9) continue
+function decodeEntity(fields: Buffer, strings: DecodedStrings): ConfigurationSnapshotEntity {
+  checkedEnd(fields, 0, 12, "обязательные поля ENTITIES")
+  const logicalAddress = requiredString(strings, fields.readUInt32LE(0), "logicalAddress ENTITIES")
+  const sourceProjectPath = requiredString(strings, fields.readUInt32LE(4), "sourceProjectPath ENTITIES")
+  const fieldMask = fields.readUInt32LE(8)
+  if ((fieldMask & ~KNOWN_ENTITY_FLAGS) !== 0) throw new Error("неизвестный бит fieldMask ENTITIES")
+  if ((fieldMask & ENTITY_FLAGS.omittedNames) !== 0 && (fieldMask & ENTITY_FLAGS.omittedTypedNames) !== 0) {
+    throw new Error("одновременно заданы omittedNames и omittedTypedNames ENTITIES")
+  }
+  if (fieldMask === 0) throw new Error("Пустая entity ENTITIES")
+  if (logicalAddress.length === 0) throw new Error("Пустой logicalAddress в ENTITIES")
+  validateProjectPath(sourceProjectPath)
 
-    validateLogicalAddress(logicalAddress, "IDENTITIES")
-    if (kind < 1 || kind > 3) throw new Error(`неизвестный identityKind ${kind}`)
-    if (kind === 1) {
-      if (valueStringId !== 0) throw new Error("UUID IDENTITIES содержит valueStringId")
-      result.push({ logicalAddress, kind: "uuid", value: formatUuid(uuidBytes) })
+  let offset = 12
+  let uuid: string | undefined
+  let xmlId: string | undefined
+  let xmlName: string | undefined
+  if (hasFlag(fieldMask, ENTITY_FLAGS.uuid)) {
+    const end = checkedEnd(fields, offset, 16, "uuid ENTITIES")
+    uuid = formatUuid(fields.subarray(offset, end))
+    offset = end
+  }
+  if (hasFlag(fieldMask, ENTITY_FLAGS.xmlId)) {
+    const end = checkedEnd(fields, offset, 4, "xmlId ENTITIES")
+    xmlId = requiredString(strings, fields.readUInt32LE(offset), "xmlId ENTITIES")
+    if (xmlId.length === 0) throw new Error("Пустой xmlId в ENTITIES")
+    offset = end
+  }
+  if (hasFlag(fieldMask, ENTITY_FLAGS.xmlName)) {
+    const end = checkedEnd(fields, offset, 4, "xmlName ENTITIES")
+    xmlName = requiredString(strings, fields.readUInt32LE(offset), "xmlName ENTITIES")
+    offset = end
+  }
+
+  const omittedNames = hasFlag(fieldMask, ENTITY_FLAGS.omittedNames)
+  const omittedTypedNames = hasFlag(fieldMask, ENTITY_FLAGS.omittedTypedNames)
+  let omittedChildren: ConfigurationSnapshotEntity["omittedChildren"]
+  if (omittedNames || omittedTypedNames) {
+    const headerEnd = checkedEnd(fields, offset, 8, "заголовок omittedChildren ENTITIES")
+    const count = fields.readUInt32LE(offset)
+    if (count === 0) throw new Error("Пустой список omittedChildren в ENTITIES")
+    if (fields.readUInt32LE(offset + 4) !== 0) {
+      throw new Error("ненулевое reserved omittedChildren ENTITIES")
+    }
+    offset = headerEnd
+    if (omittedNames) {
+      const names: string[] = []
+      for (let index = 0; index < count; index += 1) {
+        const end = checkedEnd(fields, offset, 4, "имя omittedChildren ENTITIES")
+        names.push(requiredString(strings, fields.readUInt32LE(offset), "omitted name ENTITIES"))
+        offset = end
+      }
+      omittedChildren = { kind: "names", names }
     } else {
-      if (!uuidBytes.every((byte) => byte === 0)) throw new Error("строковый IDENTITIES содержит UUID")
-      const value = requiredString(strings, valueStringId, "value IDENTITIES")
-      result.push({ logicalAddress, kind: kind === 2 ? "xmlId" : "xmlName", value })
-    }
-  }
-  return result
-}
-
-function decodeXmlOrders(
-  section: Buffer,
-  recordCountValue: bigint,
-  strings: DecodedStrings,
-  stage: LogicalValidationStage
-): string[][] {
-  const recordCount = variableRecordCount(section, recordCountValue, 8, "XML_ORDERS")
-  const result: string[][] = []
-  const seenOrders = new Set<string>()
-  let offset = 0
-  for (let index = 0; index < recordCount; index += 1) {
-    const headerEnd = checkedEnd(section, offset, 8, "заголовок XML_ORDERS")
-    const propertyCount = section.readUInt32LE(offset)
-    if (section.readUInt32LE(offset + 4) !== 0) throw new Error("ненулевое reserved XML_ORDERS")
-    const propertiesEnd = checkedEnd(section, headerEnd, BigInt(propertyCount) * 4n, "свойства XML_ORDERS")
-    const recordEnd = alignedEnd(section, propertiesEnd, "запись XML_ORDERS")
-    assertZero(section.subarray(propertiesEnd, recordEnd), "padding XML_ORDERS")
-    const ids: number[] = []
-    const seen = new Set<number>()
-    for (let propertyIndex = 0; propertyIndex < propertyCount; propertyIndex += 1) {
-      const id = section.readUInt32LE(headerEnd + propertyIndex * 4)
-      requiredString(strings, id, "propertyKey XML_ORDERS")
-      if (stage === 8 && seen.has(id)) throw new Error("повторный ключ в XML_ORDERS")
-      seen.add(id)
-      ids.push(id)
-    }
-    const orderKey = numberArrayKey(ids)
-    if (stage === 8 && seenOrders.has(orderKey)) throw new Error("XML_ORDERS повторяются")
-    seenOrders.add(orderKey)
-    if (stage === 9) {
-      if (propertyCount === 0) throw new Error("пустой порядок XML_ORDERS")
-      result.push(ids.map((id) => strings.values[id - 1]))
-    }
-    offset = recordEnd
-  }
-  if (offset !== section.length) throw new Error("recordCount XML_ORDERS не совпадает с длиной секции")
-  return result
-}
-
-function decodeXmlNodes(
-  section: Buffer,
-  recordCountValue: bigint,
-  strings: DecodedStrings,
-  orders: readonly (readonly string[])[],
-  stage: LogicalValidationStage
-): ConfigurationXmlNode[] {
-  const recordCount = variableRecordCount(section, recordCountValue, 16, "XML_NODES")
-  const result: ConfigurationXmlNode[] = []
-  const seenAddressIds = new Set<number>()
-  let offset = 0
-  for (let index = 0; index < recordCount; index += 1) {
-    const headerEnd = checkedEnd(section, offset, 16, "заголовок XML_NODES")
-    const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress XML_NODES")
-    if (stage === 8 && seenAddressIds.has(logicalAddressId)) throw new Error("XML_NODES повторяются")
-    seenAddressIds.add(logicalAddressId)
-
-    const orderId = section.readUInt32LE(offset + 4)
-    const aliasCount = section.readUInt32LE(offset + 8)
-    const presentCount = section.readUInt32LE(offset + 12)
-    const dataLength = BigInt(aliasCount) * 8n + BigInt(presentCount) * 4n
-    const dataEnd = checkedEnd(section, headerEnd, dataLength, "данные XML_NODES")
-    const recordEnd = alignedEnd(section, dataEnd, "запись XML_NODES")
-    assertZero(section.subarray(dataEnd, recordEnd), "padding XML_NODES")
-
-    const aliasEntries: [string, string][] = []
-    const seenAliasPropertyKeyIds = new Set<number>()
-    let cursor = headerEnd
-    for (let aliasIndex = 0; aliasIndex < aliasCount; aliasIndex += 1) {
-      const propertyKeyId = section.readUInt32LE(cursor)
-      const sourceXmlKeyId = section.readUInt32LE(cursor + 4)
-      const propertyKey = requiredString(strings, propertyKeyId, "propertyKey XML_NODES")
-      const sourceXmlKey = requiredString(strings, sourceXmlKeyId, "sourceXmlKey XML_NODES")
-      if (stage === 8 && seenAliasPropertyKeyIds.has(propertyKeyId)) throw new Error("псевдонимы XML_NODES повторяются")
-      seenAliasPropertyKeyIds.add(propertyKeyId)
-      if (stage === 9 && propertyKeyId === sourceXmlKeyId) {
-        throw new Error("псевдоним XML_NODES совпадает с каноническим именем")
+      const items: Array<{ xmlName: string; name: string }> = []
+      for (let index = 0; index < count; index += 1) {
+        const end = checkedEnd(fields, offset, 8, "typed name omittedChildren ENTITIES")
+        items.push({
+          xmlName: requiredString(strings, fields.readUInt32LE(offset), "omitted xmlName ENTITIES"),
+          name: requiredString(strings, fields.readUInt32LE(offset + 4), "omitted name ENTITIES"),
+        })
+        offset = end
       }
-      aliasEntries.push([propertyKey, sourceXmlKey])
-      cursor += 8
+      omittedChildren = { kind: "typedNames", items }
     }
-
-    const present: string[] = []
-    const seenPresentPropertyKeyIds = new Set<number>()
-    for (let presentIndex = 0; presentIndex < presentCount; presentIndex += 1) {
-      const propertyKeyId = section.readUInt32LE(cursor)
-      const propertyKey = requiredString(strings, propertyKeyId, "present XML_NODES")
-      if (stage === 8 && seenPresentPropertyKeyIds.has(propertyKeyId)) throw new Error("present XML_NODES повторяется")
-      seenPresentPropertyKeyIds.add(propertyKeyId)
-      present.push(propertyKey)
-      cursor += 4
-    }
-
-    if (stage === 9) {
-      validateLogicalAddress(logicalAddress, "XML_NODES")
-      if (orderId > orders.length) throw new Error("orderId XML_NODES не существует")
-      if (orderId === 0 && aliasCount === 0 && presentCount === 0) throw new Error("пустая запись XML_NODES")
-      result.push({
-        logicalAddress,
-        ...(orderId === 0 ? {} : { order: orders[orderId - 1] }),
-        ...(aliasCount === 0 ? {} : { aliases: Object.fromEntries(aliasEntries) }),
-        ...(presentCount === 0 ? {} : { present }),
-      })
-    }
-    offset = recordEnd
   }
-  if (offset !== section.length) throw new Error("recordCount XML_NODES не совпадает с длиной секции")
-  return result
-}
 
-function decodeXmlValues(
-  section: Buffer,
-  recordCountValue: bigint,
-  strings: DecodedStrings,
-  stage: LogicalValidationStage
-): ConfigurationXmlValue[] {
-  const recordCount = fixedRecordCount(section, recordCountValue, 32, "XML_VALUES")
-  const result: ConfigurationXmlValue[] = []
-  const seenAddressIds = new Set<number>()
-  for (let index = 0; index < recordCount; index += 1) {
-    const offset = index * 32
-    const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress XML_VALUES")
-    if (stage === 8 && seenAddressIds.has(logicalAddressId)) throw new Error("XML_VALUES повторяются")
-    seenAddressIds.add(logicalAddressId)
-    const flags = section.readUInt32LE(offset + 4)
-    if (section.readBigUInt64LE(offset + 24) !== 0n) throw new Error("ненулевое reserved XML_VALUES")
+  const xml: ConfigurationSnapshotXml = {
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.extended) ? { extended: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiNil) ? { xsiNil: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.explicitEmpty) ? { explicitEmpty: true } : {}),
+    ...(hasFlag(fieldMask, ENTITY_FLAGS.xsiType)
+      ? { xsiType: readEntityString(fields, strings, offset, "xsiType ENTITIES") }
+      : {}),
+  }
+  if (hasFlag(fieldMask, ENTITY_FLAGS.xsiType)) offset = checkedEnd(fields, offset, 4, "xsiType ENTITIES")
+  if (hasFlag(fieldMask, ENTITY_FLAGS.xmlText)) {
+    Object.assign(xml, { xmlText: readEntityString(fields, strings, offset, "xmlText ENTITIES") })
+    offset = checkedEnd(fields, offset, 4, "xmlText ENTITIES")
+  }
+  if (hasFlag(fieldMask, ENTITY_FLAGS.xmlPrefix)) {
+    Object.assign(xml, { xmlPrefix: readEntityString(fields, strings, offset, "xmlPrefix ENTITIES") })
+    offset = checkedEnd(fields, offset, 4, "xmlPrefix ENTITIES")
+  }
+  if (offset !== fields.length) throw new Error("byteLength ENTITIES не совпадает со структурой записи")
 
-    const xsiTypeId = section.readUInt32LE(offset + 8)
-    const xmlTextId = section.readUInt32LE(offset + 12)
-    const xmlPrefixId = section.readUInt32LE(offset + 16)
-    const userSettingsIdId = section.readUInt32LE(offset + 20)
-    referenceStringIfPresent(strings, xsiTypeId, "xsiType XML_VALUES")
-    referenceStringIfPresent(strings, xmlTextId, "xmlText XML_VALUES")
-    referenceStringIfPresent(strings, xmlPrefixId, "xmlPrefix XML_VALUES")
-    referenceStringIfPresent(strings, userSettingsIdId, "userSettingsId XML_VALUES")
-    if (stage !== 9) continue
-
-    validateLogicalAddress(logicalAddress, "XML_VALUES")
-    if (flags === 0 || (flags & ~XML_VALUE_FLAGS) !== 0) throw new Error("недопустимые флаги XML_VALUES")
-    const xsiType = optionalFlaggedString(strings, xsiTypeId, flags, 2, "xsiType")
-    const xmlText = optionalFlaggedString(strings, xmlTextId, flags, 3, "xmlText")
-    const xmlPrefix = optionalFlaggedString(strings, xmlPrefixId, flags, 4, "xmlPrefix")
-    const userSettingsId = optionalFlaggedString(strings, userSettingsIdId, flags, 5, "userSettingsId")
-    result.push({
-      logicalAddress,
-      ...((flags & (1 << 7)) === 0 ? {} : { extended: true as const }),
-      ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
-      ...((flags & (1 << 1)) === 0 ? {} : { explicitEmpty: true as const }),
-      ...((flags & (1 << 6)) === 0 ? {} : { excludedEqualName: true as const }),
-      ...(xsiType === undefined ? {} : { xsiType }),
-      ...(xmlText === undefined ? {} : { xmlText }),
-      ...(xmlPrefix === undefined ? {} : { xmlPrefix }),
-      ...(userSettingsId === undefined ? {} : { userSettingsId }),
-    })
-  }
-  return result
-}
-
-function decodeLocalMetadataBlock(section: Buffer, recordCount: bigint, label: string): Uint8Array {
-  if (recordCount !== 1n) throw new Error(`${label} должен содержать один блок`)
-  return Uint8Array.from(section)
-}
-
-function decodeLocalDependencies(section: Buffer, recordCountValue: bigint): ConfigurationLocalDependency[] {
-  const recordCount = variableRecordCount(section, recordCountValue, 8, "LOCAL_DEPENDENCIES")
-  const result: ConfigurationLocalDependency[] = []
-  const keys = new Set<string>()
-  let previousKey: string | undefined
-  let offset = 0
-  for (let index = 0; index < recordCount; index += 1) {
-    const contentStart = checkedEnd(section, offset, 4, "заголовок записи LOCAL_DEPENDENCIES")
-    const byteLength = section.readUInt32LE(offset)
-    const contentEnd = checkedEnd(section, contentStart, byteLength, "данные записи LOCAL_DEPENDENCIES")
-    const recordEnd = alignedEnd(section, contentEnd, "запись LOCAL_DEPENDENCIES")
-    assertZero(section.subarray(contentEnd, recordEnd), "padding LOCAL_DEPENDENCIES")
-    let dependency: ConfigurationLocalDependency
-    try {
-      const parsed: unknown = JSON.parse(fatalUtf8Decoder.decode(section.subarray(contentStart, contentEnd)))
-      dependency = decodeLocalDependency(parsed)
-    } catch (caught) {
-      throw new Error(`Некорректная запись LOCAL_DEPENDENCIES: ${errorMessage(caught)}`)
-    }
-    const key = localDependencyKey(dependency)
-    if (keys.has(key)) throw new Error(`Повторная локальная зависимость: ${dependency.canonical}`)
-    if (previousKey !== undefined && compareUtf8(key, previousKey) < 0) {
-      throw new Error("LOCAL_DEPENDENCIES не отсортированы")
-    }
-    keys.add(key)
-    previousKey = key
-    result.push(dependency)
-    offset = recordEnd
-  }
-  if (offset !== section.length) {
-    throw new Error("recordCount LOCAL_DEPENDENCIES не совпадает с длиной секции")
-  }
-  return result
-}
-
-function decodeLocalDependency(value: unknown): ConfigurationLocalDependency {
-  if (!isRecord(value)) throw new Error("запись LOCAL_DEPENDENCIES должна быть объектом")
-  assertExactKeys(
-    value,
-    ["sourceProjectPath", "yamlPath", "rulePath", "kind", "canonical"],
-    "запись LOCAL_DEPENDENCIES"
-  )
-  if (typeof value.sourceProjectPath !== "string") {
-    throw new Error("Некорректный sourceProjectPath LOCAL_DEPENDENCIES")
-  }
-  validateLocalDependencyProjectPath(value.sourceProjectPath)
-  if (!Array.isArray(value.yamlPath) || !value.yamlPath.every(isYamlPathSegment)) {
-    throw new Error("Некорректный yamlPath LOCAL_DEPENDENCIES")
-  }
-  if (!Array.isArray(value.rulePath)) throw new Error("Некорректный rulePath LOCAL_DEPENDENCIES")
-  const rulePath = value.rulePath.map(decodeLocalDependencyRulePathSegment)
-  if (value.kind !== "metadataTarget") throw new Error("Некорректный kind LOCAL_DEPENDENCIES")
-  if (typeof value.canonical !== "string" || value.canonical.length === 0) {
-    throw new Error("Пустой canonical LOCAL_DEPENDENCIES")
-  }
+  const hasIdentities = uuid !== undefined || xmlId !== undefined || xmlName !== undefined
+  const hasXml = Object.keys(xml).length > 0
   return {
-    sourceProjectPath: value.sourceProjectPath,
-    yamlPath: [...value.yamlPath],
-    rulePath,
-    kind: "metadataTarget",
-    canonical: value.canonical,
+    logicalAddress,
+    sourceProjectPath,
+    ...(hasIdentities
+      ? {
+          identities: {
+            ...(uuid === undefined ? {} : { uuid }),
+            ...(xmlId === undefined ? {} : { xmlId }),
+            ...(xmlName === undefined ? {} : { xmlName }),
+          },
+        }
+      : {}),
+    ...(omittedChildren === undefined ? {} : { omittedChildren }),
+    ...(hasXml ? { xml } : {}),
   }
 }
 
-function decodeLogicalAddresses(
-  section: Buffer,
-  recordCountValue: bigint
-): ComponentLogicalAddress[] {
-  const recordCount = safeNumber(recordCountValue, "recordCount LOGICAL_ADDRESSES")
-  const result: ComponentLogicalAddress[] = []
-  const seen = new Set<string>()
-  let previous: string | undefined
-  let offset = 0
-  for (let index = 0; index < recordCount; index += 1) {
-    const contentStart = checkedEnd(section, offset, 4, "заголовок записи LOGICAL_ADDRESSES")
-    const byteLength = section.readUInt32LE(offset)
-    const contentEnd = checkedEnd(section, contentStart, byteLength, "данные записи LOGICAL_ADDRESSES")
-    const recordEnd = alignedEnd(section, contentEnd, "запись LOGICAL_ADDRESSES")
-    assertZero(section.subarray(contentEnd, recordEnd), "padding LOGICAL_ADDRESSES")
-    let entry: ComponentLogicalAddress
-    try {
-      const value: unknown = JSON.parse(
-        fatalUtf8Decoder.decode(section.subarray(contentStart, contentEnd))
-      )
-      if (!isRecord(value)) throw new Error("запись должна быть объектом")
-      assertExactKeys(value, ["logicalAddress", "sourceProjectPath"], "запись LOGICAL_ADDRESSES")
-      if (typeof value.logicalAddress !== "string" || value.logicalAddress.length === 0) {
-        throw new Error("пустой logicalAddress")
-      }
-      if (typeof value.sourceProjectPath !== "string") {
-        throw new Error("некорректный sourceProjectPath")
-      }
-      validateLocalDependencyProjectPath(value.sourceProjectPath)
-      entry = {
-        logicalAddress: value.logicalAddress,
-        sourceProjectPath: value.sourceProjectPath,
-      }
-    } catch (caught) {
-      throw new Error(`Некорректная запись LOGICAL_ADDRESSES: ${errorMessage(caught)}`)
-    }
-    if (seen.has(entry.logicalAddress)) {
-      throw new Error(`Повторный logicalAddress в LOGICAL_ADDRESSES: ${entry.logicalAddress}`)
-    }
-    if (previous !== undefined && compareUtf8(entry.logicalAddress, previous) < 0) {
-      throw new Error("LOGICAL_ADDRESSES не отсортированы")
-    }
-    seen.add(entry.logicalAddress)
-    previous = entry.logicalAddress
-    result.push(entry)
-    offset = recordEnd
-  }
-  if (offset !== section.length) {
-    throw new Error("recordCount LOGICAL_ADDRESSES не совпадает с длиной секции")
-  }
-  return result
+function readEntityString(fields: Buffer, strings: DecodedStrings, offset: number, label: string): string {
+  checkedEnd(fields, offset, 4, label)
+  return requiredString(strings, fields.readUInt32LE(offset), label)
 }
 
-function decodeLocalDependencyRulePathSegment(
-  value: unknown
-): ConfigurationLocalDependency["rulePath"][number] {
-  if (!isRecord(value)) throw new Error("Сегмент rulePath LOCAL_DEPENDENCIES должен быть объектом")
-  assertExactKeys(value, ["propertyKey", "nestedItemType"], "сегмент rulePath LOCAL_DEPENDENCIES")
-  if (typeof value.propertyKey !== "string" || value.propertyKey.length === 0) {
-    throw new Error("Некорректный propertyKey rulePath LOCAL_DEPENDENCIES")
+function validateUniqueness(
+  files: readonly ConfigurationSnapshotFile[],
+  entities: readonly ConfigurationSnapshotEntity[]
+): void {
+  const projectPaths = new Set<string>()
+  let previousProjectPath: string | undefined
+  for (const file of files) {
+    if (projectPaths.has(file.projectPath)) throw new Error(`Повторный projectPath в FILES: ${file.projectPath}`)
+    if (previousProjectPath !== undefined && compareUtf8(file.projectPath, previousProjectPath) < 0) {
+      throw new Error("FILES не отсортирован по projectPath")
+    }
+    projectPaths.add(file.projectPath)
+    previousProjectPath = file.projectPath
   }
-  if (
-    value.nestedItemType !== undefined &&
-    (typeof value.nestedItemType !== "string" || value.nestedItemType.length === 0)
-  ) {
-    throw new Error("Некорректный nestedItemType rulePath LOCAL_DEPENDENCIES")
-  }
-  return {
-    propertyKey: value.propertyKey,
-    ...(value.nestedItemType === undefined ? {} : { nestedItemType: value.nestedItemType }),
+
+  const logicalAddresses = new Set<string>()
+  let previousLogicalAddress: string | undefined
+  for (const entity of entities) {
+    if (logicalAddresses.has(entity.logicalAddress)) {
+      throw new Error(`Повторный logicalAddress в ENTITIES: ${entity.logicalAddress}`)
+    }
+    if (previousLogicalAddress !== undefined && compareUtf8(entity.logicalAddress, previousLogicalAddress) < 0) {
+      throw new Error("ENTITIES не отсортирован по logicalAddress")
+    }
+    logicalAddresses.add(entity.logicalAddress)
+    previousLogicalAddress = entity.logicalAddress
   }
 }
 
-function validateLocalDependencyProjectPath(projectPath: string): void {
+function validateCrossReferences(
+  files: readonly ConfigurationSnapshotFile[],
+  entities: readonly ConfigurationSnapshotEntity[],
+  strings: DecodedStrings
+): void {
+  const projectPaths = new Set(files.map((file) => file.projectPath))
+  for (const entity of entities) {
+    if (!projectPaths.has(entity.sourceProjectPath)) {
+      throw new Error(`sourceProjectPath ENTITIES отсутствует в FILES: ${entity.sourceProjectPath}`)
+    }
+  }
+  if (strings.referencedIds.size !== strings.values.length) {
+    throw new Error("STRINGS содержит строки без ссылок")
+  }
+}
+
+function validateExpectedComponentPath(componentPath: string, options: DecodeConfigurationIndexOptions): void {
+  if (options.expectedComponentPath !== undefined && componentPath !== options.expectedComponentPath) {
+    throw new ConfigurationIndexCompatibilityError(
+      `Ожидалась привязка ${options.expectedComponentPath}, получена ${componentPath}`
+    )
+  }
+}
+
+function validateProjectPath(projectPath: string): void {
   const segments = projectPath.split("/")
   if (
     projectPath.length === 0 ||
@@ -749,77 +458,7 @@ function validateLocalDependencyProjectPath(projectPath: string): void {
     segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
     segments[0] === ".nkdk"
   ) {
-    throw new Error(`Недопустимый sourceProjectPath LOCAL_DEPENDENCIES: ${projectPath}`)
-  }
-}
-
-function isYamlPathSegment(value: unknown): value is string | number {
-  return (
-    (typeof value === "string" && value.length > 0) ||
-    (typeof value === "number" && Number.isSafeInteger(value) && value >= 0)
-  )
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function assertExactKeys(value: Record<string, unknown>, allowed: readonly string[], label: string): void {
-  const allowedKeys = new Set(allowed)
-  for (const key of Object.keys(value)) {
-    if (!allowedKeys.has(key)) throw new Error(`неизвестное поле ${key} в ${label}`)
-  }
-  for (const key of allowed) {
-    if (key === "nestedItemType") continue
-    if (!(key in value)) throw new Error(`отсутствует поле ${key} в ${label}`)
-  }
-}
-
-function localDependencyKey(dependency: ConfigurationLocalDependency): string {
-  return JSON.stringify({
-    sourceProjectPath: dependency.sourceProjectPath,
-    yamlPath: dependency.yamlPath,
-    rulePath: dependency.rulePath,
-    kind: dependency.kind,
-    canonical: dependency.canonical,
-  })
-}
-
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
-}
-
-function validateCrossReferences(data: ConfigurationIndexData, strings: DecodedStrings): void {
-  if (strings.referencedIds.size !== strings.values.length) {
-    throw new Error("STRINGS содержит строки без ссылок")
-  }
-  const projectFilePaths = new Set(data.projectFiles.map((file) => file.projectPath))
-  for (const dependency of data.localIndexes.dependencies) {
-    if (!projectFilePaths.has(dependency.sourceProjectPath)) {
-      throw new Error(
-        `sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES: ${dependency.sourceProjectPath}`
-      )
-    }
-  }
-  for (const entry of data.localIndexes.logicalAddresses) {
-    if (!projectFilePaths.has(entry.sourceProjectPath)) {
-      throw new Error(
-        `sourceProjectPath LOGICAL_ADDRESSES отсутствует в PROJECT_FILES: ${entry.sourceProjectPath}`
-      )
-    }
-  }
-}
-
-function validateExpectations(binding: ConfigurationIndexBinding, options: DecodeConfigurationIndexOptions): void {
-  if (options.expectedComponentPath !== undefined && binding.componentPath !== options.expectedComponentPath) {
-    throw new ConfigurationIndexCompatibilityError(
-      `Ожидалась привязка ${options.expectedComponentPath}, получена ${binding.componentPath}`
-    )
-  }
-  if (options.expectedProducerVersion !== undefined && binding.producerVersion !== options.expectedProducerVersion) {
-    throw new ConfigurationIndexCompatibilityError(
-      "Файл индекса создан другой версией NKDK; требуется повторный import"
-    )
+    throw new Error(`Недопустимый projectPath: ${projectPath}`)
   }
 }
 
@@ -842,108 +481,15 @@ function sectionBytes(buffer: Buffer, entry: ConfigurationIndexDirectoryEntry): 
 function requiredString(strings: DecodedStrings, id: number, label: string): string {
   if (id === 0 || id > strings.values.length) throw new Error(`неверный stringId ${label}`)
   strings.referencedIds.add(id)
-  return strings.values[id - 1]
-}
-
-function referenceStringIfPresent(strings: DecodedStrings, id: number, label: string): void {
-  if (id !== 0) requiredString(strings, id, label)
-}
-
-function optionalFlaggedString(
-  strings: DecodedStrings,
-  id: number,
-  flags: number,
-  bit: number,
-  label: string
-): string | undefined {
-  const present = (flags & (1 << bit)) !== 0
-  if (present !== (id !== 0)) throw new Error(`флаг и stringId ${label} XML_VALUES не совпадают`)
-  return present ? requiredString(strings, id, `${label} XML_VALUES`) : undefined
-}
-
-function validateProjectPath(projectPath: string): void {
-  const segments = projectPath.split("/")
-  if (
-    projectPath.length === 0 ||
-    projectPath.startsWith("/") ||
-    projectPath.endsWith("/") ||
-    projectPath.includes("\\") ||
-    /^[A-Za-z]:\//.test(projectPath) ||
-    segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
-    segments[0] === ".nkdk"
-  ) {
-    throw new Error(`недопустимый путь PROJECT_FILES: ${projectPath}`)
-  }
-}
-
-function validateLogicalAddress(value: string, section: "IDENTITIES" | "XML_NODES" | "XML_VALUES"): void {
-  const segments = value.split(".")
-  let offset: number
-  if (segments[0] === "Конфигурация") {
-    offset = 1
-  } else {
-    if (
-      segments.length < 2 ||
-      !isPlainLogicalAddressSegment(segments[0]) ||
-      !isPlainLogicalAddressSegment(segments[1])
-    ) {
-      throw new Error(`некорректный logicalAddress ${section}: ${value}`)
-    }
-    offset = 2
-  }
-
-  if (section !== "IDENTITIES") {
-    while (offset < segments.length) {
-      if (!isPlainLogicalAddressSegment(segments[offset]) && !isIndexedLogicalAddressSegment(segments[offset])) {
-        throw new Error(`некорректный logicalAddress ${section}: ${value}`)
-      }
-      offset += 1
-    }
-    return
-  }
-
-  while (offset < segments.length) {
-    if (isIndexedLogicalAddressSegment(segments[offset])) {
-      offset += 1
-      continue
-    }
-    if (
-      offset > 0 &&
-      (segments[offset - 2] === "Элемент" || isFormSingletonLogicalAddressSegment(segments[offset - 1])) &&
-      isFormSingletonLogicalAddressSegment(segments[offset])
-    ) {
-      offset += 1
-      continue
-    }
-    if (
-      offset + 1 >= segments.length ||
-      !isPlainLogicalAddressSegment(segments[offset]) ||
-      !isPlainLogicalAddressSegment(segments[offset + 1])
-    ) {
-      throw new Error(`некорректный logicalAddress ${section}: ${value}`)
-    }
-    offset += 2
-  }
-}
-
-function isPlainLogicalAddressSegment(value: string | undefined): value is string {
-  return value !== undefined && value.length > 0 && !value.includes("[") && !value.includes("]")
-}
-
-function isFormSingletonLogicalAddressSegment(value: string | undefined): value is string {
-  return value !== undefined && FORM_SINGLETON_LOGICAL_ADDRESS_SEGMENTS.has(value)
-}
-
-function isIndexedLogicalAddressSegment(value: string | undefined): boolean {
-  if (value === undefined) return false
-  const match = /^([^\[\]]+)\[(0|[1-9][0-9]*)\]$/.exec(value)
-  return match !== null && BigInt(match[2]) <= BigInt(Number.MAX_SAFE_INTEGER)
+  return strings.values[id - 1]!
 }
 
 function fixedRecordCount(section: Buffer, count: bigint, recordLength: number, label: string): number {
   const expectedLength = BigInt(recordLength) * count
   checkedEnd(section, 0, expectedLength, label)
-  if (expectedLength !== BigInt(section.length)) throw new Error(`recordCount ${label} не совпадает с длиной секции`)
+  if (expectedLength !== BigInt(section.length)) {
+    throw new Error(`recordCount ${label} не совпадает с длиной секции`)
+  }
   return safeNumber(count, `recordCount ${label}`)
 }
 
@@ -972,10 +518,14 @@ function checkedEnd(
 
 function safeNumber(value: number | bigint, label: string): number {
   if (typeof value === "bigint") {
-    if (value < 0n || value > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(`${label} вне безопасного диапазона`)
+    if (value < 0n || value > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error(`${label} вне безопасного диапазона`)
+    }
     return Number(value)
   }
-  if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${label} вне безопасного диапазона`)
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`${label} вне безопасного диапазона`)
+  }
   return value
 }
 
@@ -987,7 +537,10 @@ function alignedEnd(buffer: Uint8Array, value: number, label: string): number {
 
 function readHash128(buffer: Buffer, offset: number): Hash128 {
   checkedEnd(buffer, offset, 16, "контрольная сумма")
-  return { low: buffer.readBigUInt64LE(offset), high: buffer.readBigUInt64LE(offset + 8) }
+  return {
+    low: buffer.readBigUInt64LE(offset),
+    high: buffer.readBigUInt64LE(offset + 8),
+  }
 }
 
 function hashEquals(left: Hash128, right: Hash128): boolean {
@@ -998,13 +551,17 @@ function assertZero(bytes: Uint8Array, label: string): void {
   if (!bytes.every((byte) => byte === 0)) throw new Error(`${label} содержит ненулевые байты`)
 }
 
-function numberArrayKey(values: readonly number[]): string {
-  return values.join(",")
+function hasFlag(mask: number, flag: number): boolean {
+  return (mask & flag) !== 0
 }
 
 function formatUuid(bytes: Uint8Array): string {
   const hex = Buffer.from(bytes).toString("hex")
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+}
+
+function compareUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
 }
 
 function errorMessage(caught: unknown): string {

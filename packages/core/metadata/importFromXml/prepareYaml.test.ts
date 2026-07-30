@@ -86,10 +86,10 @@ describe("prepareImportYaml", () => {
     expect(substeps).toContain("XML в YAML: обход XML")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
-    expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").identities).toContainEqual({
+    expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").entities).toContainEqual({
       logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
-      kind: "xmlId",
-      value: "1",
+      sourceProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
+      identities: { xmlId: "1" },
     })
   })
 
@@ -111,10 +111,9 @@ describe("prepareImportYaml", () => {
     expect(prepared.deferred).toEqual(expect.any(Array))
     for (const deferred of prepared.deferred) {
       expect(deferred.target.object).toBe(
-        deferred.valuePath.slice(0, -1).reduce<unknown>(
-          (value, segment) => (value as Record<string | number, unknown>)[segment],
-          prepared.yaml
-        )
+        deferred.valuePath
+          .slice(0, -1)
+          .reduce<unknown>((value, segment) => (value as Record<string | number, unknown>)[segment], prepared.yaml)
       )
     }
     expect(prepared.localIndexes).not.toHaveProperty("dependencies")
@@ -122,10 +121,10 @@ describe("prepareImportYaml", () => {
     expect(prepared).not.toHaveProperty("xml")
     expect(prepared.generatedFiles).toEqual([])
     expect(JSON.stringify(prepared.yaml)).not.toContain("ФормаЭлемента")
-    expect(collector.fragment(assignment.targetProjectPath).identities).toContainEqual({
+    expect(collector.fragment(assignment.targetProjectPath).entities).toContainEqual({
       logicalAddress: "Справочник.Контрагенты",
-      kind: "uuid",
-      value: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f",
+      sourceProjectPath: assignment.targetProjectPath,
+      identities: { uuid: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f" },
     })
     expect(writeFile).not.toHaveBeenCalled()
   })
@@ -205,10 +204,10 @@ describe("prepareImportYaml", () => {
         collector,
       })
 
-      expect(collector.fragment(targetProjectPath).identities).toContainEqual({
+      expect(collector.fragment(targetProjectPath).entities).toContainEqual({
         logicalAddress: "Справочник.ТестСправочник.Команда.Обновить",
-        kind: "uuid",
-        value: "00000000-0000-0000-0000-000000000002",
+        sourceProjectPath: targetProjectPath,
+        identities: { uuid: "00000000-0000-0000-0000-000000000002" },
       })
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
@@ -247,9 +246,10 @@ describe("prepareImportYaml", () => {
         collector,
       })
 
-      expect(collector.fragment(targetProjectPath).xmlValues).toContainEqual({
+      expect(collector.fragment(targetProjectPath).entities).toContainEqual({
         logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию.fillValue",
-        xsiNil: true,
+        sourceProjectPath: targetProjectPath,
+        xml: { xsiNil: true },
       })
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })

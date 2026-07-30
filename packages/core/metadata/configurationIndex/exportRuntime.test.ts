@@ -1,42 +1,59 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { createConfigurationIndexCollector } from "./collector/writer"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
-import { sampleIndex } from "./testData"
 import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
+import type { CreateConfigurationIndexExportRuntimeOptions } from "./exportRuntime"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
+import type { ConfigurationIndexReader } from "./sharedSnapshot"
+import type { ConfigurationSnapshot } from "./types"
+import { sampleSnapshot, TEST_UUID } from "./testData"
 
 describe("configuration index export runtime", () => {
-  function createRuntime(logicalAddress = "Справочник.Товары") {
+  it("does not expose generation overrides in the public factory options", () => {
+    type HasTargetGeneration = "targetGeneration" extends keyof CreateConfigurationIndexExportRuntimeOptions
+      ? true
+      : false
+
+    expectTypeOf<HasTargetGeneration>().toEqualTypeOf<false>()
+  })
+
+  function createRuntime(
+    logicalAddress = "Документ.Заказ",
+    source: ConfigurationIndexReader = createReader(sampleSnapshot())
+  ) {
     const collector = createConfigurationIndexCollector()
-    const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())))
     const runtime = createConfigurationIndexExportRuntime({
       source,
       collector,
-      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+      targetProjectPath: "Документы/Заказ.yaml",
       logicalAddress,
     })
     return { collector, runtime }
   }
 
-  it("uses existing identity from source index and records it in the target collector", () => {
+  it("uses existing identity from source entity and records it in the target collector", () => {
     const { collector, runtime } = createRuntime()
 
     const value = runtime.identityOrCreate("uuid")
 
-    expect(value).toBe("00000000-0000-4000-8000-000000000001")
-    expect(collector.fragment("Справочник/Товары/Свойства.yaml").identities).toEqual([
-      { logicalAddress: "Справочник.Товары", kind: "uuid", value },
+    expect(value).toBe(TEST_UUID)
+    expect(collector.fragment("Документы/Заказ.yaml").entities).toEqual([
+      {
+        logicalAddress: "Документ.Заказ",
+        sourceProjectPath: "Документы/Заказ.yaml",
+        identities: { uuid: value },
+      },
     ])
   })
 
   it("creates deterministic identities and config versions independent of call order", () => {
-    const first = createRuntime("Справочник.Новый")
+    const first = createRuntime("Документ.Новый")
     const firstXmlId = first.runtime.identityOrCreate("xmlId")
     const firstUuid = first.runtime.identityOrCreate("uuid")
-    const firstVersion = first.runtime.configVersion("Справочник.Новый")
+    const firstVersion = first.runtime.configVersion("Документ.Новый")
 
-    const second = createRuntime("Справочник.Новый")
-    const secondVersion = second.runtime.configVersion("Справочник.Новый")
+    const second = createRuntime("Документ.Новый")
+    const secondVersion = second.runtime.configVersion("Документ.Новый")
     const secondUuid = second.runtime.identityOrCreate("uuid")
     const secondXmlId = second.runtime.identityOrCreate("xmlId")
 
@@ -48,45 +65,81 @@ describe("configuration index export runtime", () => {
     expect(firstVersion).toMatch(/^[0-9a-f]{40}$/)
   })
 
-  it("uses logical address and identity kind in deterministic derivation", () => {
-    const first = createRuntime("Справочник.Новый")
-    const second = createRuntime("Справочник.Другой")
+  it("uses address and kind in deterministic derivation", () => {
+    const first = createRuntime("Документ.Новый")
+    const second = createRuntime("Документ.Другой")
 
     expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
     expect(first.runtime.identityOrCreate("uuid")).not.toBe(first.runtime.identityOrCreate("xmlId"))
-    expect(first.runtime.configVersion("Справочник.Новый")).not.toBe(first.runtime.configVersion("Справочник.Другой"))
+    expect(first.runtime.configVersion("Документ.Новый")).not.toBe(first.runtime.configVersion("Документ.Другой"))
   })
 
-  it("reads XML node and value from source index", () => {
+  it("uses snapshot bytes in deterministic derivation at the same generation", () => {
+    const firstSnapshot = sampleSnapshot()
+    const secondSnapshot: ConfigurationSnapshot = {
+      ...firstSnapshot,
+      files: firstSnapshot.files.map((file, index) =>
+        index === 0 ? { ...file, contentHash: file.contentHash + 1n } : file
+      ),
+    }
+    const first = createRuntime("Документ.Новый", createReader(firstSnapshot))
+    const second = createRuntime("Документ.Новый", createReader(secondSnapshot))
+
+    expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
+  })
+
+  it("uses the next indexGeneration separately from identical snapshot bytes", () => {
+    const source = createReader(sampleSnapshot())
+    const first = createRuntime("Документ.Новый", withIndexGeneration(source, 7n))
+    const second = createRuntime("Документ.Новый", withIndexGeneration(source, 8n))
+
+    expect(first.runtime.source.snapshot).toBe(second.runtime.source.snapshot)
+    expect(first.runtime.identityOrCreate("uuid")).not.toBe(second.runtime.identityOrCreate("uuid"))
+  })
+
+  it("reads identities, XML and omitted children from one source entity", () => {
     const { runtime } = createRuntime()
 
-    expect(runtime.xmlNode()).toEqual({
-      logicalAddress: "Справочник.Товары",
-      order: ["name", "synonym"],
-      aliases: { synonym: "Synonym" },
-      present: ["name"],
-    })
-    expect(runtime.xmlValue("Справочник.Товары.synonym")).toEqual({
-      logicalAddress: "Справочник.Товары.synonym",
+    expect(runtime.identity("xmlId")).toBe("Order")
+    expect(runtime.xml()).toEqual({
+      extended: true,
+      xsiNil: true,
       explicitEmpty: true,
-      xmlText: "",
+      xsiType: "xs:string",
+      xmlText: "текст",
+      xmlPrefix: "xs",
     })
+    expect(runtime.omittedChildren()).toEqual({ kind: "names", names: ["Форма", "Макет"] })
   })
 
-  it("uses a separate XML-node address without changing the item address", () => {
-    const { runtime } = createRuntime("Справочник.Другой")
-    const separated = runtime.withXmlNodeLogicalAddress("Справочник.Товары")
+  it("uses a separate omitted-children address without changing the item address", () => {
+    const { runtime } = createRuntime("Документ.Другой")
+    const separated = runtime.withXmlNodeLogicalAddress("Документ.Заказ")
 
-    expect(separated.logicalAddress).toBe("Справочник.Другой")
-    expect(separated.xmlNode()).toEqual(
-      expect.objectContaining({ logicalAddress: "Справочник.Товары", order: ["name", "synonym"] })
-    )
+    expect(separated.logicalAddress).toBe("Документ.Другой")
+    expect(separated.omittedChildren()).toEqual({ kind: "names", names: ["Форма", "Макет"] })
   })
 
   it("keeps collector conflicts visible", () => {
-    const { collector, runtime } = createRuntime("Справочник.Новый")
-    collector.setUuid("Справочник.Новый", "00000000-0000-4000-8000-000000000099")
+    const { collector, runtime } = createRuntime("Документ.Новый")
+    collector.setIdentity("Документ.Новый", "uuid", "00000000-0000-4000-8000-000000000099")
 
     expect(() => runtime.identityOrCreate("uuid")).toThrow("Конфликт logicalAddress")
   })
 })
+
+function createReader(snapshot: ConfigurationSnapshot): ConfigurationIndexReader {
+  return createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)))
+}
+
+function withIndexGeneration(source: ConfigurationIndexReader, indexGeneration: bigint): ConfigurationIndexReader {
+  return {
+    snapshot: source.snapshot,
+    header: () => ({ ...source.header(), indexGeneration }),
+    file: source.file.bind(source),
+    files: source.files.bind(source),
+    entity: source.entity.bind(source),
+    entities: source.entities.bind(source),
+    entitiesBySourceProjectPath: source.entitiesBySourceProjectPath.bind(source),
+  }
+}

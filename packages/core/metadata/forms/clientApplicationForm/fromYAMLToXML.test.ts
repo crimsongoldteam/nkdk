@@ -21,7 +21,7 @@ import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
 } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -235,7 +235,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       baseYAML: { Ширина: 80 },
       baseConfigurationIndex: createConfigurationIndexReader(
         snapshotConfigurationIndex(
-          encodeConfigurationIndex(sampleIndex())
+          encodeConfigurationIndex(sampleSnapshot())
         )
       ),
       name: "ОбщаяФорма",

@@ -2,7 +2,7 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { ConfigurationIndexData, ConfigurationLocalDependency } from "../configurationIndex/types"
+import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -13,7 +13,6 @@ import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportFirstPassResult,
-  ImportLocalDependency,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -43,10 +42,7 @@ export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
   ownerFacts: ValidationOwnerFacts[]
   validationContribution: ValidationIndexContribution
-  localDependencies: ImportLocalDependency[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
-    localDependencies: ConfigurationLocalDependency[]
-  }
+  fragmentData: MergedConfigurationSnapshotFragments
 }
 
 export interface XmlImportSecondPassPoolResult {
@@ -244,7 +240,6 @@ function createXmlImportOperationPool(params: {
           localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
           logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
         },
-        localDependencies: fragmentData.localDependencies,
         fragmentData,
       }
     },

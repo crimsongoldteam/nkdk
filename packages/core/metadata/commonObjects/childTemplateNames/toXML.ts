@@ -1,17 +1,31 @@
 import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
-import { getConfigurationIndexPropertyOrder } from "../../configurationIndex/referenceView"
+import { mergeOmittedNames, readOmittedNames } from "../omittedChildren"
+import { setChildTemplateNamesOmittedChildren } from "./fromXML"
 
-/** Экспортирует список имён макетов.
- * Приоритет: сначала referenceData (round-trip), затем context.templates (IO-путь).
- */
+const PROPERTY_TYPE = "ChildTemplateNames"
+
+/** Экспортирует список имён макетов с сохранённым порядком актуальных элементов. */
 export const exportChildTemplateNamesToXML: ExportToXMLFunctionNew = (params): string[] | undefined => {
   const { context, value } = params
-  if (Array.isArray(value) && value.length > 0) return value as string[]
-  const contextTemplates = context.exportToXML.context?.templates
-  if (contextTemplates && contextTemplates.length > 0) return contextTemplates
-  const indexedTemplates = getConfigurationIndexPropertyOrder(context)
-    .filter((name): name is string => typeof name === "string")
-  return indexedTemplates.length > 0 ? [...indexedTemplates] : undefined
+  const runtime = context.exportToXML.configurationIndex
+  const saved = runtime?.omittedChildren()
+  readOmittedNames(saved, PROPERTY_TYPE)
+
+  const names =
+    Array.isArray(value) && value.length > 0
+      ? value.filter((name): name is string => typeof name === "string")
+      : context.exportToXML.context?.templates
+  if (names === undefined || names.length === 0) return undefined
+
+  const ordered = mergeOmittedNames(names, saved)
+  if (runtime !== undefined) {
+    setChildTemplateNamesOmittedChildren(
+      runtime.collector,
+      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress,
+      ordered
+    )
+  }
+  return ordered
 }
 
 registerTypeRule("ChildTemplateNames", "exportToXML", exportChildTemplateNamesToXML)

@@ -18,7 +18,7 @@ import { compileRegisteredMetadataResourceTopology } from "../../resourceTopolog
 import { prepareFullXmlSyncAssignment } from "../../fullSyncToXml/prepareAssignment"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
-import { sampleIndex } from "../../configurationIndex/testData"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { FullXmlSyncAssignment } from "../../fullSyncToXml/types"
 
 const normalizeText = (value: string) => value.replace(/\r\n/g, "\n")
@@ -78,7 +78,7 @@ describe("единая синхронизация внешних файлов ap
           data: yaml,
           syntaxDiagnostics: [],
         },
-        index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+        index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       })
 
       expect(JSON.stringify(prepared.documents)).toContain("ВЫБРАТЬ 1 КАК Значение")

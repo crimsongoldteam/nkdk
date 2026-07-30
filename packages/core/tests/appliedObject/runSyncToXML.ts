@@ -19,6 +19,7 @@ type Params = {
 export const testSyncAppliedObjectToXML = async (
   params: Params
 ): Promise<{
+  inputDir: string
   outputDir: string
   comparisons: Array<{ path: string; result: string; expected: string }>
   binaryComparisons: Array<{ path: string; result: Buffer; expected: Buffer }>
@@ -58,5 +59,5 @@ export const testSyncAppliedObjectToXML = async (
     expected: fs.readFileSync(join(referenceDir, path)),
   }))
 
-  return { outputDir, comparisons, binaryComparisons }
+  return { inputDir, outputDir, comparisons, binaryComparisons }
 }

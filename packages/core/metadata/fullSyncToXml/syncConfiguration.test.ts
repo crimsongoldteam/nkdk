@@ -2,8 +2,12 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
-import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import type {
+  ConfigurationSnapshot,
+  ConfigurationSnapshotEntity,
+  MergedConfigurationSnapshotFragments,
+} from "../configurationIndex/types"
+import { entity } from "../configurationIndex/testData"
 import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ComponentAddress } from "../components/address"
 import type {
@@ -15,7 +19,7 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
-  assembleFullXmlSyncConfigurationIndex,
+  replaceSnapshotEntities,
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
@@ -56,13 +60,15 @@ describe("shared full XML sync coordinator", () => {
       "writeTargetSnapshot",
       "close",
     ])
-    expect(harness.writtenIndex?.binding).toMatchObject({
+    expect(harness.writtenIndex).toMatchObject({
+      specificationVersion: "1.3",
       componentPath: "cf",
       indexGeneration: 2n,
     })
-    expect(harness.writtenIndex?.projectFiles).toEqual([
+    expect(harness.writtenIndex?.files).toEqual([
       { projectPath: "Конфигурация.yaml", contentHash: 10n },
     ])
+    expect(harness.writtenIndex?.entities).toEqual([])
   })
 
   it("confirms cf separately before executing one selected cfe", async () => {
@@ -172,67 +178,79 @@ describe("shared full XML sync coordinator", () => {
     expect(partial.events).not.toContain("execute")
   })
 
-  it("sorts worker index fragments deterministically", () => {
-    const address: ComponentAddress = { kind: "configuration" }
-    const targetStructure = structure(address, compileRegisteredMetadataResourceTopology())
-    const targetHashes = hashes(targetStructure)
-    const target = {
-      structure: targetStructure,
-      snapshot: snapshot(address),
-      hashes: targetHashes,
-      indexes: indexes(targetStructure, targetHashes),
-    }
-    const previous = {
-      binding: {
-        indexGeneration: 1n,
-        producerVersion: "test",
-        componentPath: "cf",
-        baseFingerprint: new Uint8Array(),
-        configurationVersion: new Uint8Array(),
-      },
-      projectFiles: [],
-      identities: [],
-      xmlNodes: [],
-      xmlValues: [],
-      localIndexes: {
-        metadata: createEmptyPersistedSharedValidationSnapshot(),
-        dependencies: [],
-        logicalAddresses: [],
-      },
-    }
-
-    const result = assembleFullXmlSyncConfigurationIndex({
-      previous,
-      target,
+  it("не публикует снимок при конфликте logicalAddress с неизменённым файлом", async () => {
+    const harness = createHarness({
+      previousFiles: [
+        { projectPath: "Конфигурация.yaml", contentHash: 10n },
+        { projectPath: "Неизменённый.yaml", contentHash: 20n },
+      ],
+      previousEntities: [entity("Конфликт", "Неизменённый.yaml")],
       fragmentData: {
-        identities: [
-          { logicalAddress: "Б", kind: "uuid", value: "2" },
-          { logicalAddress: "А", kind: "uuid", value: "1" },
-        ],
-        xmlNodes: [
-          { logicalAddress: "Б", order: ["2"] },
-          { logicalAddress: "А", order: ["1"] },
-        ],
-        xmlValues: [
-          { logicalAddress: "Б", xmlText: "2" },
-          { logicalAddress: "А", xmlText: "1" },
-        ],
+        sourceProjectPaths: ["Конфигурация.yaml"],
+        entities: [entity("Конфликт", "Конфигурация.yaml")],
       },
     })
 
-    expect(result.identities.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
-    expect(result.xmlNodes.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
-    expect(result.xmlValues.map(({ logicalAddress }) => logicalAddress)).toEqual(["А", "Б"])
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+    }, harness.deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("Повторный logicalAddress") }),
+    ])
+    expect(harness.writtenIndex).toBeUndefined()
+    expect(harness.events).not.toContain("writeTargetSnapshot")
+  })
+})
+
+describe("replaceSnapshotEntities", () => {
+  it("целиком заменяет entity изменённого файла и сохраняет неизменённый", () => {
+    expect(replaceSnapshotEntities({
+      previous: [
+        entity("Старый", "А.yaml"),
+        entity("Остаётся", "Б.yaml"),
+      ],
+      replacements: {
+        sourceProjectPaths: ["А.yaml"],
+        entities: [entity("Новый", "А.yaml")],
+      },
+    })).toEqual([
+      entity("Новый", "А.yaml"),
+      entity("Остаётся", "Б.yaml"),
+    ])
+  })
+
+  it("удаляет все entity файла при пустом фрагменте", () => {
+    expect(replaceSnapshotEntities({
+      previous: [entity("Старый", "А.yaml")],
+      replacements: { sourceProjectPaths: ["А.yaml"], entities: [] },
+    })).toEqual([])
+  })
+
+  it("отклоняет глобальный конфликт logicalAddress", () => {
+    expect(() => replaceSnapshotEntities({
+      previous: [entity("Объект", "Б.yaml")],
+      replacements: {
+        sourceProjectPaths: ["А.yaml"],
+        entities: [entity("Объект", "А.yaml")],
+      },
+    })).toThrow("Повторный logicalAddress")
   })
 })
 
 interface HarnessOptions {
   readonly executionDiagnostics?: readonly FullXmlSyncDiagnostic[]
+  readonly fragmentData?: MergedConfigurationSnapshotFragments
+  readonly previousFiles?: ConfigurationSnapshot["files"]
+  readonly previousEntities?: readonly ConfigurationSnapshotEntity[]
 }
 
 function createHarness(options: HarnessOptions = {}) {
   const events: string[] = []
-  let writtenIndex: ConfigurationIndexData | undefined
+  let writtenIndex: ConfigurationSnapshot | undefined
   let writtenAddress: ComponentAddress | undefined
   let initializedWithBase = false
   let targetKind: ComponentAddress["kind"] = "configuration"
@@ -259,11 +277,11 @@ function createHarness(options: HarnessOptions = {}) {
     },
     async readSnapshot({ address }) {
       events.push(readingBase ? "baseSnapshot" : "targetSnapshot")
-      return snapshot(address)
+      return snapshot(address, options)
     },
     async readHashes({ structure: value }) {
       events.push(readingBase ? "baseHashes" : "targetHashes")
-      return hashes(value)
+      return hashes(value, options.previousFiles)
     },
     async readIndexes({ structure: value, hashes: valueHashes }) {
       events.push(readingBase ? "baseIndexes" : "targetIndexes")
@@ -347,10 +365,9 @@ function createHarness(options: HarnessOptions = {}) {
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "Configuration.xml",
             }],
-            fragmentData: {
-              identities: [],
-              xmlNodes: [],
-              xmlValues: [],
+            fragmentData: options.fragmentData ?? {
+              sourceProjectPaths: ["Конфигурация.yaml"],
+              entities: [],
             },
           }
         },
@@ -405,10 +422,13 @@ function structure(
   }
 }
 
-function hashes(structure: ComponentProjectStructure): ComponentHashState {
+function hashes(
+  structure: ComponentProjectStructure,
+  projectFiles: ConfigurationSnapshot["files"] = [{ projectPath: "Конфигурация.yaml", contentHash: 10n }]
+): ComponentHashState {
   return {
     componentPath: structure.componentPath,
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+    projectFiles,
   }
 }
 
@@ -428,25 +448,14 @@ function indexes(
   }
 }
 
-function snapshot(address: ComponentAddress) {
+function snapshot(address: ComponentAddress, options: HarnessOptions) {
   const componentPath =
     address.kind === "configuration" ? "cf" : `cfe/${address.name}`
   return snapshotConfigurationIndex(encodeConfigurationIndex({
-    binding: {
-      indexGeneration: 1n,
-      producerVersion: "test",
-      componentPath,
-      baseFingerprint: new Uint8Array(),
-      configurationVersion: new Uint8Array(),
-    },
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
-    identities: [],
-    xmlNodes: [],
-    xmlValues: [],
-    localIndexes: {
-      metadata: createEmptyPersistedSharedValidationSnapshot(),
-      dependencies: [],
-      logicalAddresses: [],
-    },
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath,
+    files: options.previousFiles ?? [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+    entities: options.previousEntities ?? [entity("СтароеСостояние", "Конфигурация.yaml")],
   }))
 }

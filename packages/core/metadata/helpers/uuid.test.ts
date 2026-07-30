@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot, TEST_UUID } from "../configurationIndex/testData"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import type { ConfigurationContext } from "../context/types"
 import { getUUID, UUID_TEST } from "./uuid"
@@ -14,7 +14,18 @@ describe("getUUID", () => {
 
   it("uses configuration index export runtime when it is present", () => {
     const collector = createConfigurationIndexCollector()
-    const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())))
+    const snapshot = sampleSnapshot()
+    const source = createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex({
+      ...snapshot,
+      entities: [
+        ...snapshot.entities,
+        {
+          logicalAddress: "Справочник.Товары",
+          sourceProjectPath: "Configuration.yaml",
+          identities: { uuid: TEST_UUID },
+        },
+      ],
+    })))
     const configurationIndex = createConfigurationIndexExportRuntime({
       source,
       collector,
@@ -33,6 +44,6 @@ describe("getUUID", () => {
       },
     }
 
-    expect(getUUID(context)).toBe("00000000-0000-4000-8000-000000000001")
+    expect(getUUID(context)).toBe(TEST_UUID)
   })
 })

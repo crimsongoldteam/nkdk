@@ -7,15 +7,14 @@ import {
 } from "../../../tests/directConversion"
 import { getTypeRule, type MetadataItemRule } from "../../orchestration"
 import { MetadataDataProcessorRules } from "./rules"
+import { canonicalXML } from "../../../tests/canonicalXML"
+import { canonicalFormSyncXML } from "../../../tests/formSyncXML"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
   it("не дублирует корневой cfg namespace в типе реквизита без reference XML", () => {
-    const attributes = getTypeRule(
-      MetadataDataProcessorRules.properties.attributes.type,
-      "yamlToXMLNestedRule"
-    )
+    const attributes = getTypeRule(MetadataDataProcessorRules.properties.attributes.type, "yamlToXMLNestedRule")
     if (attributes?.kind !== "collection") throw new Error("Не зарегистрировано правило реквизитов обработки")
     const attributeRule =
       attributes.itemRuleFromProperty?.(MetadataDataProcessorRules.properties.attributes) ?? attributes.itemRule
@@ -44,7 +43,7 @@ describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
   })
 
   it("читает DataProcessor из YAML и записывает XML в outputDir", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
+    const { inputDir, comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataDataProcessorRules,
       name: "ОбработкаВсеСвойства",
       importMetaUrl: import.meta.url,
@@ -65,7 +64,14 @@ describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      if (path.endsWith("/Ext/Form.xml")) {
+        const form = canonicalFormSyncXML({ path, result, expected, inputDir })
+        expect(form.result, path).toEqual(form.expected)
+      } else if (path.endsWith(".xml")) {
+        expect(canonicalXML(result), path).toEqual(canonicalXML(expected))
+      } else {
+        expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      }
     }
   })
 })

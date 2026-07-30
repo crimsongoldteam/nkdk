@@ -89,7 +89,15 @@ describe("единый XML → YAML-обход: configuration index", () => {
         xml: parsed.MetaDataObject,
       })
 
-      expect(collector.fragment(projectPath).identities).toEqual(expect.arrayContaining(expected))
+      const entities = collector.fragment(projectPath).entities
+      for (const identity of expected) {
+        expect(entities).toContainEqual(expect.objectContaining({
+          logicalAddress: identity.logicalAddress,
+          identities: expect.objectContaining({
+            [identity.kind]: identity.value,
+          }),
+        }))
+      }
     }
   )
 })

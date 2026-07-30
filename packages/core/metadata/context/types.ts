@@ -79,7 +79,6 @@ export type ToXMLConfigurationContext = {
   readonly componentKind?: string
   readonly adoptedUuids?: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
-  readonly indexedPropertyOrderByLogicalAddress?: Readonly<Record<string, readonly string[]>>
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]

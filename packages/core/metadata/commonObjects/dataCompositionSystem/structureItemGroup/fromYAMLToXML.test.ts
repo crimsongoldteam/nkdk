@@ -37,7 +37,7 @@ describe("StructureItemGroup YAML → XML", () => {
     expect(normalize(result.result)).toBe(normalize(result.expected))
   })
 
-  it("восстанавливает ветвление группировок из снимка", () => {
+  it("строит структуру по линейному YAML без порядка из снимка", () => {
     const rule = {
       itemType: "StructureItemGroupProbe",
       properties: {
@@ -69,6 +69,8 @@ describe("StructureItemGroup YAML → XML", () => {
       xml: { "dcsset:item": source },
     })
     expect(imported.yaml).toEqual({ Группировка: ["Корень", "Левый", "Правый"] })
+    const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
+    expect(JSON.stringify(fragment?.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order|present/)
     const restored = testPropertyFromYAMLToXML({
       rule,
       yaml: imported.yaml,
@@ -76,10 +78,12 @@ describe("StructureItemGroup YAML → XML", () => {
     })
 
     expect(restored.xml["dcsset:item"]).toMatchObject({
-      "dcsset:item": [
-        { "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Левый" }] } },
-        { "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Правый" }] } },
-      ],
+      "dcsset:item": {
+        "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Левый" }] },
+        "dcsset:item": {
+          "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Правый" }] },
+        },
+      },
     })
   })
 })

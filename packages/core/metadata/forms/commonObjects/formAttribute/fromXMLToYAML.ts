@@ -85,7 +85,9 @@ function importAdditionalColumnsFromXMLToYAML(params: {
           ? childUid(collection.logicalAddress, "ДополнительныеКолонки", table)
           : indexedUid(collection.logicalAddress, "ДополнительныеКолонки", index)
     const context =
-      logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
+      logicalAddress === undefined
+        ? params.context
+        : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
     const columns = importColumnsFromXMLToYAML({
       context,
       xml: item.Column,
@@ -118,9 +120,11 @@ function importColumnsFromXMLToYAML(params: {
           ? childUid(collection.logicalAddress, "Колонка", name)
           : indexedUid(collection.logicalAddress, "Колонка", index)
     const context =
-      logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
+      logicalAddress === undefined
+        ? params.context
+        : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
     if (logicalAddress !== undefined && typeof item._id === "string") {
-      collection?.collector.setXmlId(logicalAddress, item._id)
+      collection?.collector.setIdentity(logicalAddress, "xmlId", item._id)
     }
     const yaml = importMetadataItemFromXMLToYAML({
       context,

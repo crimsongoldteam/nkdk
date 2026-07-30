@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
+import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ComponentIndexes, ComponentProjectStructure } from "./types"
 import { confirmComponentState } from "./confirm"
 
@@ -15,7 +15,13 @@ describe("confirmed component state", () => {
     resources: [],
     projectPaths: ["Конфигурация.yaml"],
   } satisfies ComponentProjectStructure
-  const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))
+  const snapshot = snapshotConfigurationIndex(
+    encodeConfigurationIndex({
+      ...sampleSnapshot(),
+      files: [],
+      entities: [],
+    })
+  )
   const indexes = {
     componentPath: "cf",
     sourceProjectFiles: projectFiles,
@@ -25,38 +31,68 @@ describe("confirmed component state", () => {
   } satisfies ComponentIndexes
 
   it("rejects hashes for a different structure", () => {
-    expect(() => confirmComponentState({
-      structure,
-      hashes: { componentPath: "cf", projectFiles: [] },
-      indexes,
-      snapshot,
-    })).toThrow("структура и хэши относятся к разному составу файлов")
+    expect(() =>
+      confirmComponentState({
+        structure,
+        hashes: { componentPath: "cf", projectFiles: [] },
+        indexes,
+        snapshot,
+      })
+    ).toThrow("структура и хэши относятся к разному составу файлов")
   })
 
   it("rejects indexes for another file state", () => {
-    expect(() => confirmComponentState({
-      structure,
-      hashes: { componentPath: "cf", projectFiles },
-      indexes: {
-        ...indexes,
-        sourceProjectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 2n }],
-      },
-      snapshot,
-    })).toThrow("индексы относятся к другому состоянию файлов")
+    expect(() =>
+      confirmComponentState({
+        structure,
+        hashes: { componentPath: "cf", projectFiles },
+        indexes: {
+          ...indexes,
+          sourceProjectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 2n }],
+        },
+        snapshot,
+      })
+    ).toThrow("индексы относятся к другому состоянию файлов")
   })
 
   it("rejects a snapshot bound to another component", () => {
-    const data = sampleIndex()
-    const other = snapshotConfigurationIndex(encodeConfigurationIndex({
-      ...data,
-      binding: { ...data.binding, componentPath: "cfe/Другое" },
-    }))
+    const data = sampleSnapshot()
+    const other = snapshotConfigurationIndex(
+      encodeConfigurationIndex({
+        ...data,
+        componentPath: "cfe/Другое",
+      })
+    )
 
-    expect(() => confirmComponentState({
+    expect(() =>
+      confirmComponentState({
+        structure,
+        hashes: { componentPath: "cf", projectFiles },
+        indexes,
+        snapshot: other,
+      })
+    ).toThrow("снимок относится к другому компоненту")
+  })
+
+  it("keeps the snapshot separate from current logical addresses", () => {
+    const currentIndexes = {
+      ...indexes,
+      logicalAddresses: [
+        {
+          logicalAddress: "Справочник.Товары",
+          sourceProjectPath: "Конфигурация.yaml",
+        },
+      ],
+    }
+
+    const confirmed = confirmComponentState({
       structure,
       hashes: { componentPath: "cf", projectFiles },
-      indexes,
-      snapshot: other,
-    })).toThrow("снимок относится к другому компоненту")
+      indexes: currentIndexes,
+      snapshot,
+    })
+
+    expect(confirmed.indexes).toBe(currentIndexes)
+    expect(confirmed.snapshot).toBe(snapshot)
   })
 })
