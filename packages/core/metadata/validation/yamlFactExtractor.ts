@@ -90,7 +90,7 @@ export function extractValidationYamlFacts(params: {
       profile: localValueValidationProfile,
     })
   }
-  const localIndexesCollector = createLocalIndexesCollector()
+  const localIndexesCollector = createLocalIndexesCollector({ recordEvents: false })
   const pendingReferences =
     spec === undefined
       ? []
