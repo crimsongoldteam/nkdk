@@ -61,7 +61,7 @@ describe("project validation standalone build output", () => {
   })
 
   it("loads generated validators from dist when build has produced them", async () => {
-    const modulePath = new URL("../../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
+    const modulePath = new URL("../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
     if (!existsSync(modulePath)) return
 
     const script = [
@@ -69,24 +69,26 @@ describe("project validation standalone build output", () => {
       `const module = (await import(pathToFileURL(${JSON.stringify(modulePath)}).href)).default`,
       "console.log(JSON.stringify({",
       "  format: module.format,",
-      "  context: module.context,",
+      "  moduleKeys: Object.keys(module).sort(),",
+      "  formKeys: Object.keys(module.form).sort(),",
+      "  configurationKeys: Object.keys(module.byItemType.MetadataConfiguration).sort(),",
       "  formValidateType: typeof module.form.validate,",
-      "  formValidateResultType: typeof module.form.validate({}),",
+      "  formValidateResultType: typeof module.form.validate(42),",
+      "  formErrorKeys: Object.keys(module.form.validate.errors?.[0] ?? {}).sort(),",
       "  hasConfiguration: module.byItemType.MetadataConfiguration !== undefined,",
       "  hasConfigurationExtension: module.byItemType.MetadataConfigurationExtension !== undefined,",
       "}))",
-    ].join(";")
+    ].join("\n")
     const { stdout } = await execFileAsync(process.execPath, ["-e", script])
 
     expect(JSON.parse(stdout)).toEqual({
-      format: "project-validation-ajv-standalone-v2",
-      context: {
-        version: "2.20",
-        defaultLanguage: "ru",
-        exportToYAML: { toTyped: false },
-      },
+      format: "project-validation-ajv-standalone-v3",
+      moduleKeys: ["byItemType", "form", "format"],
+      formKeys: ["validate"],
+      configurationKeys: ["validate"],
       formValidateType: "function",
       formValidateResultType: "boolean",
+      formErrorKeys: ["instancePath", "keyword", "message", "params", "schemaPath"],
       hasConfiguration: true,
       hasConfigurationExtension: true,
     })
