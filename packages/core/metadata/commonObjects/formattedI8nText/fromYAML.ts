@@ -10,51 +10,27 @@ export const importFormattedI8nTextFromYAML: ImportFromYAMLFunctionNew = (params
   value: FormattedI8nTextValueYAML | undefined
   yaml?: Record<string, any> | undefined
   source?: I8nText | undefined
+  name?: string
+  restoreExcludedEqualName?: boolean
 }): FormattedI8nText | undefined => {
-  const { context, rule, value, source } = params
-
-  if (source === undefined && value === undefined) return undefined
-
-  const result: FormattedI8nText = {
-    items: {},
-    formatted: false,
-  }
-
-  if (source !== undefined) {
-    result.items = { ...result.items, ...source.items }
-    const formattedSource = source as FormattedI8nText
-    if (formattedSource.formatted !== undefined) {
-      result.formatted = formattedSource.formatted
-    }
-  }
-
-  if (value !== undefined) {
-    const otherLanguages = importFromYAML(context, rule, value)!
-    result.items = { ...result.items, ...otherLanguages.items }
-    result.formatted = otherLanguages.formatted
-  }
-
-  if (Object.keys(result.items).length === 0) return undefined
-
-  return result
-}
-
-const importFromYAML = (
-  context: ConfigurationContext,
-  rule: PropertyRule,
-  value: FormattedI8nTextValueYAML | undefined
-): FormattedI8nText | undefined => {
-  if (value === undefined) return undefined
-
-  const textResult = importI8nTextFromYAML({ context, rule, value: value.Текст })
+  const { context, rule, value, source, name, restoreExcludedEqualName } = params
+  const textResult = importI8nTextFromYAML({
+    context,
+    rule,
+    value: value?.Текст,
+    source,
+    name,
+    restoreExcludedEqualName,
+  })
   if (textResult === undefined) return undefined
-
-  const result: FormattedI8nText = {
-    formatted: value.Форматированный === "Истина",
+  const formattedSource = source as FormattedI8nText | undefined
+  return {
+    formatted:
+      value === undefined
+        ? (formattedSource?.formatted ?? false)
+        : value.Форматированный === "Истина",
     items: textResult.items,
   }
-
-  return result
 }
 
 registerTypeRule("FormattedI8nText", "importFromYAML", importFormattedI8nTextFromYAML)

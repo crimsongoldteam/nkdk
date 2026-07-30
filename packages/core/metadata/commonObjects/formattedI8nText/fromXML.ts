@@ -30,3 +30,9 @@ export const importFormattedI8nTextFromXML = (
 }
 
 registerTypeRule("FormattedI8nText", "importFromXML", importFormattedI8nTextFromXML)
+registerTypeRule("FormattedI8nText", "xmlImportPropertyBehavior", {
+  explicitEmptyValue: ({ rule }) =>
+    rule.excludeIfEqualNameYAML === true
+      ? { formatted: false, items: {} }
+      : undefined,
+})
