@@ -9,6 +9,7 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import { xmlExport } from "../../../xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 
 /**
  * Сканирует папку форм объекта (`<nkdkDir>/<folderName>`) и для каждой подпапки
@@ -56,6 +57,7 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       referenceDir: formReferenceDir,
       currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, currentXMLDir: params.currentXMLDir, name, formName }),
       xmlManifest,
+      rule: rule.itemRule ?? ClientApplicationFormRules,
     })
     await copyFormModuleToXML({ nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })
     await copyFormHelpToXML({ context, nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })

@@ -28,8 +28,15 @@ interface IndexedFormElement {
 export function projectClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
+  readonly rule?: MetadataItemRule
 }): ProjectedBaseForm {
-  const rootElementCollectionRule = ClientApplicationFormRules.properties.childItems
+  const rule = params.rule ?? ClientApplicationFormRules
+  const rootElementCollectionRule = rule.properties.childItems
+  if (rootElementCollectionRule === undefined) {
+    throw new Error(
+      `Правило формы ${rule.itemType} не содержит коллекцию childItems`
+    )
+  }
   const extensionElementsByName = indexElementsByName(params.extensionYaml.Элементы, rootElementCollectionRule)
   const attributeNames = intersectNamedComponentNames(params.baseYaml.Реквизиты, params.extensionYaml.Реквизиты)
   const commandNames = intersectNamedComponentNames(params.baseYaml.Команды, params.extensionYaml.Команды)
@@ -42,8 +49,8 @@ export function projectClientApplicationBaseForm(params: {
   const properties = projectMetadataItemProperties({
     baseYaml: params.baseYaml,
     extensionYaml: params.extensionYaml,
-    baseRule: ClientApplicationFormRules,
-    extensionRule: ClientApplicationFormRules,
+    baseRule: rule,
+    extensionRule: rule,
     context: projectionContext,
     skippedYamlKeys: new Set(["Элементы"]),
   })

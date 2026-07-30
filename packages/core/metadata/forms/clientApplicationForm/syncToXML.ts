@@ -25,6 +25,7 @@ export const syncFormToXML = async (params: {
   referenceDir?: string
   currentXMLPath?: string
   xmlManifest?: XmlWriteManifest
+  rule?: MetadataItemRule
 }): Promise<void> => {
   const { context, inputDir, formName, outputDir } = params
   const referenceDir = params.referenceDir
@@ -50,6 +51,7 @@ export const syncFormToXML = async (params: {
     name: formName,
     referenceFormXML: reference?.formXML,
     referenceMetadataXML: reference?.metadataXML,
+    rule: params.rule ?? ClientApplicationFormRules,
   })
   const isOrdinaryForm = converted.metadataXML.Form?.Properties?.FormType === "Ordinary"
   const referenceHasFormXML = effectiveReferenceDir
@@ -95,12 +97,14 @@ export const prepareFormXML = (params: {
   profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   basePreparedYamlFile?: PreparedYamlFile
   baseConfigurationIndex?: ConfigurationIndexReader
+  rule?: MetadataItemRule
 }): readonly {
   targetKind: "metadata" | "body"
   xml: Record<string, unknown>
   deferred: readonly DeferredObjectValue[]
   rootRule: MetadataItemRule
 }[] => {
+  const rule = params.rule ?? ClientApplicationFormRules
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
   if (yamlObj === undefined)
     throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
@@ -130,9 +134,11 @@ export const prepareFormXML = (params: {
             baseYaml: params.basePreparedYamlFile.data as ClientApplicationFormYAML,
             extensionYaml: yamlObj,
             formName: params.formName,
+            rule,
           }),
         }),
     profile: params.profile,
+    rule,
   })
   const metadataDocument = { MetaDataObject: converted.metadataXML }
   const formDocument = { Form: converted.formXML }
@@ -147,7 +153,7 @@ export const prepareFormXML = (params: {
           valuePath: ["MetaDataObject", ...entry.valuePath],
         }))
       ),
-      rootRule: ClientApplicationFormRules,
+      rootRule: rule,
     },
     {
       targetKind: "body",
@@ -159,7 +165,7 @@ export const prepareFormXML = (params: {
           valuePath: ["Form", ...entry.valuePath],
         }))
       ),
-      rootRule: ClientApplicationFormRules,
+      rootRule: rule,
     },
   ]
 }
@@ -186,6 +192,7 @@ export const writePreparedFormToXML = async (params: {
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+  rule?: MetadataItemRule
 }): Promise<void> => {
   const prepared = prepareFormXML(params)
   const metadataDocument = prepared.find((document) => document.targetKind === "metadata")?.xml

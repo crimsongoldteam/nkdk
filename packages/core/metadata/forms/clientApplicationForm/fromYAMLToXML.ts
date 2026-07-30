@@ -210,6 +210,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
     name,
     referenceXML,
   }) => {
+    const rule = ClientApplicationFormRules
     const extensionYaml = yaml as ClientApplicationFormYAML
     const baseFormXML =
       baseYAML === undefined
@@ -222,6 +223,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
             baseYaml: baseYAML as ClientApplicationFormYAML,
             extensionYaml,
             formName: name,
+            rule,
           })
     return {
       Form: convertClientApplicationFormFromYAMLToXML({
@@ -232,6 +234,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
           | ClientApplicationFormXML
           | undefined,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
+        rule,
       }).formXML,
     }
   },

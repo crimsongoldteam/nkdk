@@ -10,6 +10,8 @@ import type {
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { ClientApplicationFormRules } from "./rules"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
@@ -17,10 +19,13 @@ export function buildClientApplicationBaseForm(params: {
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
   readonly formName: string
+  readonly rule?: MetadataItemRule
 }): ClientApplicationFormXML {
+  const rule = params.rule ?? ClientApplicationFormRules
   const projected = projectClientApplicationBaseForm({
     baseYaml: params.baseYaml,
     extensionYaml: params.extensionYaml,
+    rule,
   })
   const runtime = params.context.exportToXML.configurationIndex
   const projectedSource =
@@ -43,6 +48,7 @@ export function buildClientApplicationBaseForm(params: {
     yaml: projected.yaml,
     dataPathYaml: projected.yaml,
     name: params.formName,
+    rule,
   }).formXML
   return Object.fromEntries(
     Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))
