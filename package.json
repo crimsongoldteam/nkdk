@@ -15,7 +15,8 @@
     "type-check": "pnpm -r exec tsc --noEmit",
     "test": "pnpm -r run test",
     "test:isolated": "pnpm -r run test:isolated",
-    "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs"
+    "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
+    "test:mutation:compare": "node packages/core/scripts/compare-mutation-reports.mjs"
   },
   "devDependencies": {
     "@stryker-mutator/core": "^9.6.1",
