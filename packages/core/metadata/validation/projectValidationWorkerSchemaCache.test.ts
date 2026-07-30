@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
-import { configurationValidationProjectSpec } from "./projectSpecs"
 
 const context = {
   version: "2.20",
@@ -9,12 +8,12 @@ const context = {
 } as const
 
 describe("projectValidationWorkerSchemaCache", () => {
-  it("uses runtime schema cache for source TypeScript workers", async () => {
-    const cache = await createProjectValidationWorkerSchemaCache({
-      context,
-      workerUrl: "file:///project/metadata/validation/projectValidationWorker.ts",
-    })
-
-    expect(cache.properties(configurationValidationProjectSpec.rule).Check({ Имя: "Конфигурация" })).toBe(false)
+  it("requires a standalone schema module next to a compiled worker", async () => {
+    await expect(
+      createProjectValidationWorkerSchemaCache({
+        context,
+        workerUrl: "file:///missing/projectValidationWorker.js",
+      })
+    ).rejects.toThrow("Standalone validation schema module was not found next to worker")
   })
 })

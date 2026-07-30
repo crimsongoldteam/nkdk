@@ -765,11 +765,27 @@
       "medianMs": 35.14012500000172,
       "maxMs": 40.49462500000027,
       "exceedances": 2,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "replaced",
+      "reason": "Холодная runtime-сборка заменена быстрой проверкой противоположной standalone-ветви",
+      "remainingContract": "Compiled worker требует standalone schema module; runtime cache проверяет prepareYamlProject",
+      "mutationBefore": {
+        "mutants": 14,
+        "killed": 6,
+        "survived": 1,
+        "noCoverage": 7
+      },
+      "mutationAfter": {
+        "mutants": 14,
+        "killed": 11,
+        "survived": 2,
+        "noCoverage": 1
+      },
+      "afterDurationsMs": [
+        1.683249999999589,
+        1.3313750000002074,
+        1.2044590000000426
+      ],
+      "afterMedianMs": 1.3313750000002074
     },
     {
       "id": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts::элементы формы XML → YAML → XML /Users/nikita/git/nkdk/.worktrees/stryker-pilot/packages/core/metadata/forms/elements/table/__fixtures__/full.xml",
