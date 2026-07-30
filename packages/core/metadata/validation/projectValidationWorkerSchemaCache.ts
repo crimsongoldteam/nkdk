@@ -22,8 +22,5 @@ export async function createProjectValidationWorkerSchemaCache(params: {
     throw new Error(`Standalone validation schema module was not found next to worker: ${modulePath}`)
   }
 
-  return loadProjectValidationStandaloneCache({
-    modulePath,
-    context: params.context,
-  })
+  return loadProjectValidationStandaloneCache({ modulePath })
 }

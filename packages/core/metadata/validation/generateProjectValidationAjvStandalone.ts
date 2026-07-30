@@ -21,7 +21,7 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
     validateForm: { schema: formSchema, schemaId: formSchema.$id },
   }
 
-  const entries: Array<{ itemType: string; exportName: string; schema: unknown }> = []
+  const entries: Array<{ itemType: string; exportName: string }> = []
   let index = 0
   for (const [itemType, sourceSchema] of Object.entries(schemaSet.byItemType)) {
     const exportName = `validateProperties${index}`
@@ -30,7 +30,7 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
       `nkdk://validation/properties/${encodeURIComponent(itemType)}`
     )
     validators[exportName] = { schema, schemaId: schema.$id }
-    entries.push({ itemType, exportName, schema })
+    entries.push({ itemType, exportName })
     index += 1
   }
 
@@ -39,16 +39,11 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
     validatorsCode,
     "",
     "const module = {",
-    '  format: "project-validation-ajv-standalone-v2",',
-    `  context: ${JSON.stringify(schemaSet.context)},`,
-    `  refs: ${JSON.stringify(refs)},`,
-    `  form: { schema: ${JSON.stringify(formSchema)}, validate: validateForm },`,
+    '  format: "project-validation-ajv-standalone-v3",',
+    "  form: { validate: validateForm },",
     "  byItemType: {",
     ...entries.map(
-      (entry) =>
-        `    ${JSON.stringify(entry.itemType)}: { schema: ${JSON.stringify(entry.schema)}, validate: ${
-          entry.exportName
-        } },`
+      (entry) => `    ${JSON.stringify(entry.itemType)}: { validate: ${entry.exportName} },`
     ),
     "  },",
     "}",
@@ -76,7 +71,7 @@ function createStandaloneValidatorsCode(params: {
     discriminator: true,
     inlineRefs: false,
     strict: false,
-    verbose: true,
+    verbose: false,
   })
   addFormats(ajv)
   ajv.addKeyword({

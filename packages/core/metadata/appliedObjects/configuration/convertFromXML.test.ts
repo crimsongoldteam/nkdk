@@ -1,7 +1,7 @@
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { afterAll, beforeEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
@@ -47,6 +47,131 @@ describe("sync configuration from xml", () => {
 \t</RightColumn>
 \t<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>
 </HomePageWorkArea>`
+  let rootExternalFiles: {
+    managedApplicationModule: string
+    sessionModule: string
+    externalConnectionModule: string
+    ordinaryApplicationModule: string
+    mobileClientSignature: number[]
+    helpPage: string
+    helpPicture: number[]
+    mainSectionPictureXml: string
+    mainSectionPicture: string
+    logoXml: string
+    logoPicture: number[]
+    splashXml: string
+    splashPicture: number[]
+    standaloneConfigurationContent: number[]
+    configurationYaml: string
+  }
+  let primaryImport: {
+    result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+    formYaml: string
+    catalogYaml: string
+    hasDocument: boolean
+    hasNumerator: boolean
+    hasSequence: boolean
+    snapshot: Awaited<ReturnType<typeof readConfigurationIndex>>
+    operationTempExists: boolean
+  }
+
+  beforeAll(async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootProject = join(tmp, "project")
+    const rootOutput = join(rootProject, "cf")
+    const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
+    const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
+    const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
+    const helpPage = "<html><body>Справка</body></html>"
+
+    try {
+      fs.mkdirSync(join(rootInput, "Ext", "Help", "_files"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Logo"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
+      fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
+      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
+      fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
+      fs.writeFileSync(
+        join(rootInput, "Ext", "Help.xml"),
+        `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
+        "utf-8"
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "ru.html"), helpPage, "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Help", "_files", "logo.png"), Buffer.from([137, 80]))
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo.xml"), "<Logo/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Logo", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(join(rootInput, "Ext", "Splash.xml"), "<Splash/>", "utf-8")
+      fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
+      fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
+
+      await syncConfigurationFromXMLForTest({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        projectDir: rootProject,
+      })
+
+      rootExternalFiles = {
+        managedApplicationModule: fs.readFileSync(join(rootOutput, "МодульПриложения.bsl"), "utf-8"),
+        sessionModule: fs.readFileSync(join(rootOutput, "МодульСеанса.bsl"), "utf-8"),
+        externalConnectionModule: fs.readFileSync(join(rootOutput, "МодульВнешнегоСоединения.bsl"), "utf-8"),
+        ordinaryApplicationModule: fs.readFileSync(join(rootOutput, "МодульОбычногоПриложения.bsl"), "utf-8"),
+        mobileClientSignature: [...fs.readFileSync(join(rootOutput, "ПодписьМобильногоКлиента.bin"))],
+        helpPage: fs.readFileSync(join(rootOutput, "Справка", "ru.html"), "utf-8"),
+        helpPicture: [...fs.readFileSync(join(rootOutput, "Справка", "_files", "logo.png"))],
+        mainSectionPictureXml: fs.readFileSync(
+          join(rootOutput, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"),
+          "utf-8"
+        ),
+        mainSectionPicture: fs.readFileSync(
+          join(rootOutput, "КартинкаОсновногоРаздела", "Picture.svg"),
+          "utf-8"
+        ),
+        logoXml: fs.readFileSync(join(rootOutput, "Логотип", "Logo.xml"), "utf-8"),
+        logoPicture: [...fs.readFileSync(join(rootOutput, "Логотип", "Picture.png"))],
+        splashXml: fs.readFileSync(join(rootOutput, "Заставка", "Splash.xml"), "utf-8"),
+        splashPicture: [...fs.readFileSync(join(rootOutput, "Заставка", "Picture.png"))],
+        standaloneConfigurationContent: [
+          ...fs.readFileSync(join(rootOutput, "СодержимоеАвтономнойКонфигурации.bin")),
+        ],
+        configurationYaml: fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8"),
+      }
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+
+    fs.rmSync(inputDir, { recursive: true, force: true })
+    fs.rmSync(projectDir, { recursive: true, force: true })
+    fs.cpSync(sourceInputDir, inputDir, { recursive: true })
+    fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(inputDir, CONFIGURATION_XML_FILE))
+    const operationId = "fixture-import"
+    const result = await syncConfigurationFromXMLForTest({
+      context: mockContextFromXML(),
+      inputDir,
+      projectDir,
+      operationId,
+    })
+    primaryImport = {
+      result,
+      formYaml: fs.readFileSync(
+        join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
+        "utf-8"
+      ),
+      catalogYaml: fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8"),
+      hasDocument: fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml")),
+      hasNumerator: fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml")),
+      hasSequence: fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml")),
+      snapshot: await readConfigurationIndex({ projectDir, address: { kind: "configuration" } }),
+      operationTempExists: fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId)),
+    }
+  })
 
   afterAll(async () => {
     await xmlImportWorkerPoolHandle.close()
@@ -61,16 +186,7 @@ describe("sync configuration from xml", () => {
     fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(inputDir, CONFIGURATION_XML_FILE))
   })
 
-  it("should produce catalog and form YAML in output dir", async () => {
-    const operationId = "fixture-import"
-
-    const result = await syncConfigurationFromXMLForTest({
-      context: mockContextFromXML(),
-      inputDir,
-      projectDir,
-      operationId,
-    })
-
+  it("should produce catalog and form YAML in output dir", () => {
     const expectedFormYaml = readXMLFileAsString(
       join("sync/syncConfiguration/yaml/Справочник/Контрагенты/Формы/ФормаЭлемента", "Форма.yaml")
     )
@@ -79,44 +195,41 @@ describe("sync configuration from xml", () => {
       join("sync/syncConfiguration/yaml/Справочник/Контрагенты", "Свойства.yaml")
     )
 
-    const resultFormYaml = fs.readFileSync(
-      join(outputDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml"),
-      "utf-8"
-    )
-    const resultCatalogYaml = fs.readFileSync(join(outputDir, "Справочник", "Контрагенты", "Свойства.yaml"), "utf-8")
-
-    expect(resultCatalogYaml).toBe(expectedCatalogYaml)
-    expect(resultFormYaml).toBe(expectedFormYaml)
-    expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
-    expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
-    expect(fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml"))).toBe(
-      true
-    )
-    expect(result.failed).toEqual([])
-    expect(result.warnings).toEqual([])
-    const snapshot = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
-    expect(snapshot).toMatchObject({
+    expect(primaryImport.catalogYaml).toBe(expectedCatalogYaml)
+    expect(primaryImport.formYaml).toBe(expectedFormYaml)
+    expect(primaryImport.hasDocument).toBe(true)
+    expect(primaryImport.hasNumerator).toBe(true)
+    expect(primaryImport.hasSequence).toBe(true)
+    expect(primaryImport.result.failed).toEqual([])
+    expect(primaryImport.result.warnings).toEqual([])
+    expect(primaryImport.snapshot).toMatchObject({
       specificationVersion: "1.3",
       componentPath: "cf",
       indexGeneration: 1n,
     })
-    expect(snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")).toMatchObject({
+    expect(
+      primaryImport.snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты")
+    ).toMatchObject({
       sourceProjectPath: "Справочник/Контрагенты/Свойства.yaml",
     })
     expect(
-      snapshot.entities.find(({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты.Форма.ФормаЭлемента")
+      primaryImport.snapshot.entities.find(
+        ({ logicalAddress }) => logicalAddress === "Справочник.Контрагенты.Форма.ФормаЭлемента"
+      )
     ).toMatchObject({
       sourceProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
     })
     expect(
-      snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
+      primaryImport.snapshot.entities.every((entity) =>
+        primaryImport.snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath)
+      )
     ).toBe(true)
     expect(
-      snapshot.entities.every(
+      primaryImport.snapshot.entities.every(
         (entity) => entity.identities !== undefined || entity.omittedChildren !== undefined || entity.xml !== undefined
       )
     ).toBe(true)
-    expect(fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
+    expect(primaryImport.operationTempExists).toBe(false)
   })
 
   it("не падает на дампе без некоторых корневых разделов", async () => {
@@ -211,68 +324,27 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("сохраняет простые корневые внешние файлы конфигурации", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
-    const rootInput = join(tmp, "xml")
-    const rootProject = join(tmp, "project")
-    const rootOutput = join(rootProject, "cf")
+  it("сохраняет простые корневые внешние файлы конфигурации", () => {
     const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
     const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const ordinaryApplicationModule = "Процедура ПередНачаломРаботыСистемы()\nКонецПроцедуры\n"
     const helpPage = "<html><body>Справка</body></html>"
 
-    try {
-      fs.mkdirSync(join(rootInput, "Ext", "Help", "_files"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "Ext", "Logo"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
-      fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
-      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
-      fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "OrdinaryApplicationModule.bsl"), ordinaryApplicationModule, "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "MobileClientSignature.bin"), Buffer.from([0, 1, 2, 255]))
-      fs.writeFileSync(
-        join(rootInput, "Ext", "Help.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
-        "utf-8"
-      )
-      fs.writeFileSync(join(rootInput, "Ext", "Help", "ru.html"), helpPage, "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "Help", "_files", "logo.png"), Buffer.from([137, 80]))
-      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "MainSectionPicture", "Picture.svg"), "<svg/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "Logo.xml"), "<Logo/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "Logo", "Picture.png"), Buffer.from([1, 2, 3]))
-      fs.writeFileSync(join(rootInput, "Ext", "Splash.xml"), "<Splash/>", "utf-8")
-      fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
-      fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
-
-      await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        projectDir: rootProject,
-      })
-
-      expect(fs.readFileSync(join(rootOutput, "МодульПриложения.bsl"), "utf-8")).toBe(managedApplicationModule)
-      expect(fs.readFileSync(join(rootOutput, "МодульСеанса.bsl"), "utf-8")).toBe(sessionModule)
-      expect(fs.readFileSync(join(rootOutput, "МодульВнешнегоСоединения.bsl"), "utf-8")).toBe(externalConnectionModule)
-      expect(fs.readFileSync(join(rootOutput, "МодульОбычногоПриложения.bsl"), "utf-8")).toBe(ordinaryApplicationModule)
-      expect([...fs.readFileSync(join(rootOutput, "ПодписьМобильногоКлиента.bin"))]).toEqual([0, 1, 2, 255])
-      expect(fs.readFileSync(join(rootOutput, "Справка", "ru.html"), "utf-8")).toBe(helpPage)
-      expect([...fs.readFileSync(join(rootOutput, "Справка", "_files", "logo.png"))]).toEqual([137, 80])
-      expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "utf-8")).toBe(
-        "<MainSectionPicture/>"
-      )
-      expect(fs.readFileSync(join(rootOutput, "КартинкаОсновногоРаздела", "Picture.svg"), "utf-8")).toBe("<svg/>")
-      expect(fs.readFileSync(join(rootOutput, "Логотип", "Logo.xml"), "utf-8")).toBe("<Logo/>")
-      expect([...fs.readFileSync(join(rootOutput, "Логотип", "Picture.png"))]).toEqual([1, 2, 3])
-      expect(fs.readFileSync(join(rootOutput, "Заставка", "Splash.xml"), "utf-8")).toBe("<Splash/>")
-      expect([...fs.readFileSync(join(rootOutput, "Заставка", "Picture.png"))]).toEqual([137, 80, 78, 71])
-      expect([...fs.readFileSync(join(rootOutput, "СодержимоеАвтономнойКонфигурации.bin"))]).toEqual([4, 5, 6])
-      expect(fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")).not.toContain("МодульПриложения")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
+    expect(rootExternalFiles.managedApplicationModule).toBe(managedApplicationModule)
+    expect(rootExternalFiles.sessionModule).toBe(sessionModule)
+    expect(rootExternalFiles.externalConnectionModule).toBe(externalConnectionModule)
+    expect(rootExternalFiles.ordinaryApplicationModule).toBe(ordinaryApplicationModule)
+    expect(rootExternalFiles.mobileClientSignature).toEqual([0, 1, 2, 255])
+    expect(rootExternalFiles.helpPage).toBe(helpPage)
+    expect(rootExternalFiles.helpPicture).toEqual([137, 80])
+    expect(rootExternalFiles.mainSectionPictureXml).toBe("<MainSectionPicture/>")
+    expect(rootExternalFiles.mainSectionPicture).toBe("<svg/>")
+    expect(rootExternalFiles.logoXml).toBe("<Logo/>")
+    expect(rootExternalFiles.logoPicture).toEqual([1, 2, 3])
+    expect(rootExternalFiles.splashXml).toBe("<Splash/>")
+    expect(rootExternalFiles.splashPicture).toEqual([137, 80, 78, 71])
+    expect(rootExternalFiles.standaloneConfigurationContent).toEqual([4, 5, 6])
+    expect(rootExternalFiles.configurationYaml).not.toContain("МодульПриложения")
   })
 })

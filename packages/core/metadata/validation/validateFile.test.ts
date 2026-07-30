@@ -188,7 +188,7 @@ describe("validateFile", () => {
     const parsed = parseMetadataYaml(`НесуществующееПоле: значение\n`)
     let checkCalls = 0
     let errorsCalls = 0
-    const countedSchema: ValidationSchemaValidator<TSchema> = {
+    const countedSchema: ValidationSchemaValidator = {
       Check(value) {
         checkCalls += 1
         return simpleSchema.Check(value)
@@ -196,12 +196,6 @@ describe("validateFile", () => {
       Errors(value) {
         errorsCalls += 1
         return simpleSchema.Errors(value)
-      },
-      Schema() {
-        return simpleSchema.Schema()
-      },
-      Context() {
-        return simpleSchema.Context()
       },
     }
 

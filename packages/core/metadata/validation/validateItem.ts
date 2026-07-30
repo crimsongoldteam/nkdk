@@ -1,5 +1,4 @@
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
-import type { TSchema } from "typebox"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { basename, dirname, join, resolve } from "path"
 import { Diagnostic } from "./types"
@@ -10,7 +9,7 @@ import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 
 export interface ValidateItemParams {
   itemDir: string
-  schema: ValidationSchemaValidator<TSchema>
+  schema: ValidationSchemaValidator
 }
 
 export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnostic[] {

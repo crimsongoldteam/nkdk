@@ -1,6 +1,5 @@
 import { performance } from "node:perf_hooks"
 import { pathToFileURL } from "node:url"
-import type { ConfigurationContext } from "../context/types"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import {
@@ -15,21 +14,17 @@ import type {
   ValidationSchemaCache,
   ValidationSchemaCacheCompileProfile,
 } from "./projectValidationPasses"
-import { assertStandaloneValidationContext } from "./projectValidationStandaloneSchemas"
 import type {
   ProjectValidationStandaloneModule,
   ProjectValidationStandaloneValidator,
 } from "./projectValidationStandaloneTypes"
 
 export function createValidationSchemaCacheFromStandaloneModule(
-  module: ProjectValidationStandaloneModule,
-  context: ConfigurationContext = module.context
+  module: ProjectValidationStandaloneModule
 ): ValidationSchemaCache {
   assertProjectValidationStandaloneModule(module)
-  assertStandaloneValidationContext(module.context, context)
 
-  const schemaContext = module.refs ?? {}
-  const form = createCompiledStandaloneValidator(module.form, schemaContext)
+  const form = createCompiledStandaloneValidator(module.form)
   const properties = new Map<string, ValidationSchemaValidator>()
 
   return {
@@ -45,7 +40,7 @@ export function createValidationSchemaCacheFromStandaloneModule(
         throw new Error(`Standalone validation schema was not generated for item type "${rule.itemType}"`)
       }
 
-      const compiled = createCompiledStandaloneValidator(validator, schemaContext)
+      const compiled = createCompiledStandaloneValidator(validator)
       properties.set(rule.itemType, compiled)
       return compiled
     },
@@ -72,29 +67,23 @@ export function createValidationSchemaCacheFromStandaloneModule(
 
 export async function loadProjectValidationStandaloneCache(params: {
   modulePath: string
-  context: ConfigurationContext
 }): Promise<ValidationSchemaCache> {
   const loaded = (await import(pathToFileURL(params.modulePath).href)) as {
     default?: ProjectValidationStandaloneModule
   } & Partial<ProjectValidationStandaloneModule>
   const module = loaded.default ?? loaded
 
-  return createValidationSchemaCacheFromStandaloneModule(module as ProjectValidationStandaloneModule, params.context)
+  return createValidationSchemaCacheFromStandaloneModule(module as ProjectValidationStandaloneModule)
 }
 
 function createCompiledStandaloneValidator(
-  validator: ProjectValidationStandaloneValidator,
-  context: NonNullable<ProjectValidationStandaloneModule["refs"]>
+  validator: ProjectValidationStandaloneValidator
 ): ValidationSchemaValidator {
-  return createValidationSchemaFromAjvFunction({
-    schema: validator.schema,
-    context,
-    validate: validator.validate,
-  })
+  return createValidationSchemaFromAjvFunction(validator.validate)
 }
 
 function assertProjectValidationStandaloneModule(module: ProjectValidationStandaloneModule): void {
-  if (module.format !== "project-validation-ajv-standalone-v2") {
+  if (module.format !== "project-validation-ajv-standalone-v3") {
     throw new Error(`Unsupported standalone validation module format: ${String(module.format)}`)
   }
 }
