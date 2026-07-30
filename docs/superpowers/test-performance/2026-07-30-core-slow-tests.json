@@ -33,11 +33,23 @@
       "medianMs": 31.26300000000265,
       "maxMs": 31.419334000000163,
       "exceedances": 3,
-      "decision": "unreviewed",
-      "reason": "",
-      "remainingContract": "",
-      "mutationBefore": null,
-      "mutationAfter": null
+      "decision": "accelerated",
+      "reason": "Предыдущее состояние индекса подготавливается прямой записью, без повторной проверки атомарной публикации",
+      "remainingContract": "При ошибке rename прежний индекс сохраняется, временный файл удаляется, а ошибка возвращается вызывающему коду",
+      "mutationBefore": {
+        "mutants": 56,
+        "killed": 36
+      },
+      "mutationAfter": {
+        "mutants": 56,
+        "killed": 36
+      },
+      "afterDurationsMs": [
+        9.308292,
+        15.646167,
+        6.801208
+      ],
+      "afterMedianMs": 9.308292
     },
     {
       "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml",
