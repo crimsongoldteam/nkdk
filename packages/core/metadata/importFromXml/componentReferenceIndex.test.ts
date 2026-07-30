@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
 import type { PreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
@@ -44,6 +45,7 @@ describe("buildComponentReferenceSnapshot", () => {
       componentDir,
       context: mockContext,
       concurrency: 2,
+      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
     })
     const cache = createLayeredOwnerMetadataCache({
       projectDir: componentDir,
@@ -70,6 +72,7 @@ describe("buildComponentReferenceSnapshot", () => {
         componentDir: join(projectDir, "cf"),
         context: mockContext,
         concurrency: 1,
+        createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
       })
     ).rejects.toThrow()
   })
@@ -83,6 +86,7 @@ describe("buildComponentReferenceSnapshot", () => {
         componentDir,
         context: mockContext,
         concurrency: 1,
+        createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
       })
     ).rejects.toThrow("Не удалось разобрать YAML-файл")
   })
