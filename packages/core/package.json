@@ -13,9 +13,9 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "vitest run --no-isolate --sequence.shuffle",
-    "test:profile": "vitest run --no-isolate --sequence.shuffle --reporter=json --outputFile=/private/tmp/nkdk-vitest-core.json",
-    "test:isolated": "vitest run",
+    "test": "vitest run --no-isolate --sequence.shuffle --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-core.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core.json",
+    "test:profile": "vitest run --no-isolate --sequence.shuffle --reporter=json --outputFile=/private/tmp/nkdk-vitest-core-profile.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core-profile.json",
+    "test:isolated": "vitest run --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-core-isolated.json && node scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-core-isolated.json",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { ExportConfigurationParams, ListConfigurationExtensionsParams, PlatformSession } from "./types"
 import { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./manager"
@@ -41,7 +41,8 @@ describe("platform session manager", () => {
     const manager = createPlatformSessionManager(fixture.dependencies)
 
     const exporting = manager.exportConfiguration(exportParams())
-    await vi.waitFor(() => expect(fixture.exportStarts).toEqual(["/project:1"]))
+    await fixture.waitForExportStart("/project:1")
+    expect(fixture.exportStarts).toEqual(["/project:1"])
     const listing = manager.listExtensions(listParams())
     expect(fixture.listStarts).toEqual([])
 
@@ -170,10 +171,11 @@ describe("platform session manager", () => {
 
     const sameFirst = manager.exportConfiguration(exportParams())
     const sameSecond = manager.exportConfiguration(exportParams())
-    await vi.waitFor(() => expect(fixture.exportStarts).toEqual(["/project:1"]))
+    await fixture.waitForExportStart("/project:1")
+    expect(fixture.exportStarts).toEqual(["/project:1"])
 
     const other = manager.exportConfiguration(exportParams({}, "/other"))
-    await vi.waitFor(() => expect(fixture.exportStarts).toContain("/other:1"))
+    await fixture.waitForExportStart("/other:1")
     expect(fixture.exportStarts).not.toContain("/project:2")
 
     first.resolve()
@@ -190,7 +192,7 @@ describe("platform session manager", () => {
     })
     const manager = createPlatformSessionManager(fixture.dependencies)
     const first = manager.exportConfiguration(exportParams({ sessionIdleTimeout: 12 }))
-    await vi.waitFor(() => expect(fixture.exportStarts).toHaveLength(1))
+    await fixture.waitForExportStart("/project:1")
     expect(fixture.activeTimers()).toEqual([])
 
     pending.resolve()
@@ -200,7 +202,8 @@ describe("platform session manager", () => {
     expect(fixture.activeTimers()).toEqual([30_000])
 
     fixture.expireLatestTimer()
-    await vi.waitFor(() => expect(fixture.sessions[0]?.closeCalls).toBe(1))
+    await fixture.waitForClose("/project")
+    expect(fixture.sessions[0]?.closeCalls).toBe(1)
   })
 
   it("idle timeout closes by canonical key even if the project path disappears", async () => {
@@ -213,7 +216,8 @@ describe("platform session manager", () => {
 
     fixture.expireLatestTimer()
 
-    await vi.waitFor(() => expect(fixture.sessions[0]?.closeCalls).toBe(1))
+    await fixture.waitForClose("/project")
+    expect(fixture.sessions[0]?.closeCalls).toBe(1)
   })
 
   it("recovers a project queue after an export rejection", async () => {
@@ -309,7 +313,8 @@ describe("platform session manager", () => {
     const firstResult = expect(first).rejects.toMatchObject({
       code: "operation_cancelled",
     })
-    await vi.waitFor(() => expect(fixture.exportStarts).toEqual(["/project:1"]))
+    await fixture.waitForExportStart("/project:1")
+    expect(fixture.exportStarts).toEqual(["/project:1"])
     controller.abort()
 
     await firstResult
@@ -373,6 +378,8 @@ function createFixture(
   }
   activeTimers(): number[]
   expireLatestTimer(): void
+  waitForExportStart(start: string): Promise<void>
+  waitForClose(projectDir: string): Promise<void>
 } {
   const created: string[] = []
   const sessions: FakeSession[] = []
@@ -382,6 +389,12 @@ function createFixture(
   let cancelFailures = options.cancelFailures ?? 0
   let timerId = 0
   const timers = new Map<number, { callback: () => void; timeoutMs: number }>()
+  const exportStartWaiters = new Map<string, Array<() => void>>()
+  const closeWaiters = new Map<string, Array<() => void>>()
+  const notify = (waiters: Map<string, Array<() => void>>, key: string) => {
+    for (const resolve of waiters.get(key) ?? []) resolve()
+    waiters.delete(key)
+  }
   const createSession = async (params: { projectDir: string }, mode: PlatformSession["mode"]) => {
     created.push(`${params.projectDir}:${mode}`)
     let alive = true
@@ -396,6 +409,7 @@ function createFixture(
       async exportConfiguration(outputDir, _operationLogPath, signal) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
+        notify(exportStartWaiters, `${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
@@ -408,6 +422,7 @@ function createFixture(
       isAlive: () => alive,
       async close() {
         session.closeCalls += 1
+        notify(closeWaiters, params.projectDir)
         alive = false
         if (params.projectDir === options.closeFailureProject && session.closeCalls === 1) {
           alive = true
@@ -438,6 +453,20 @@ function createFixture(
     listStarts,
     exportedOutputDirs,
     options,
+    waitForExportStart(start) {
+      if (exportStarts.includes(start)) return Promise.resolve()
+      return new Promise((resolve) => {
+        exportStartWaiters.set(start, [...(exportStartWaiters.get(start) ?? []), resolve])
+      })
+    },
+    waitForClose(projectDir) {
+      if (sessions.some((session) => session.projectDir === projectDir && session.closeCalls > 0)) {
+        return Promise.resolve()
+      }
+      return new Promise((resolve) => {
+        closeWaiters.set(projectDir, [...(closeWaiters.get(projectDir) ?? []), resolve])
+      })
+    },
     dependencies: {
       canonicalizeProjectDir: async (projectDir) => projectDir.replace(/\/+$/, ""),
       findPlatform: async () => ({

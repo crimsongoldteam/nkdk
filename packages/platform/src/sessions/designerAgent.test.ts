@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { CreatePlatformSessionParams } from "./types"
 import {
@@ -297,7 +297,8 @@ describe("Designer agent session", () => {
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     const closing = session.close()
-    await vi.waitFor(() => expect(fixture.calls).toContain("sleep 5000"))
+    await fixture.cleanupStarted
+    expect(fixture.calls).toContain("sleep 5000")
     await expect(closing).resolves.toEqual({ stoppedOwnedProcess: true })
 
     expect(fixture.calls).toContain("shell.close")
@@ -320,10 +321,9 @@ describe("Designer agent session", () => {
     const exportResult = expect(exporting).rejects.toMatchObject({
       code: "operation_cancelled",
     })
-    await vi.waitFor(() =>
-      expect(fixture.calls).toContain(
-        'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
-      )
+    await fixture.dumpStarted
+    expect(fixture.calls).toContain(
+      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
     )
     controller.abort()
 
@@ -359,10 +359,9 @@ describe("Designer agent session", () => {
     const exportResult = expect(exporting).rejects.toMatchObject({
       code: "operation_cancelled",
     })
-    await vi.waitFor(() =>
-      expect(fixture.calls).toContain(
-        'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
-      )
+    await fixture.dumpStarted
+    expect(fixture.calls).toContain(
+      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
     )
     controller.abort()
 
@@ -428,6 +427,8 @@ function createFixture(
 ): {
   calls: string[]
   writes: Map<string, string>
+  cleanupStarted: Promise<void>
+  dumpStarted: Promise<void>
   dependencies: DesignerAgentDependencies
 } {
   const calls: string[] = []
@@ -437,6 +438,8 @@ function createFixture(
   let connectFailures = options.connectFailures ?? 0
   let killFailures = options.killFailures ?? 0
   let signalFailures = options.signalFailures ?? 0
+  const { promise: cleanupStarted, resolve: resolveCleanupStarted } = Promise.withResolvers<void>()
+  const { promise: dumpStarted, resolve: resolveDumpStarted } = Promise.withResolvers<void>()
   const processHandle = {
     owned: options.processOwned ?? true,
     isAlive: () => alive,
@@ -468,6 +471,8 @@ function createFixture(
       runOptions?: { signal?: AbortSignal; timeoutMs?: number }
     ) {
       calls.push(`shell.run ${command}`)
+      if (command.startsWith("common ")) resolveCleanupStarted()
+      if (command.startsWith("config dump-config-to-files")) resolveDumpStarted()
       if (runOptions?.timeoutMs !== undefined) {
         calls.push(`shell.run-options timeout=${runOptions.timeoutMs}`)
       }
@@ -515,6 +520,8 @@ function createFixture(
   return {
     calls,
     writes,
+    cleanupStarted,
+    dumpStarted,
     dependencies: {
       portRuntime: {
         async reservePort(host) {
