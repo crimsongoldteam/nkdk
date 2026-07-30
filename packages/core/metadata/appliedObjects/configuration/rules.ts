@@ -106,8 +106,11 @@ export const MetadataConfigurationRules = {
     "defaultConstantsForm",
     "childObjects",
     "uuid",
+    "commandInterface",
     "mainSectionCommandInterface",
     "clientApplicationInterface",
+    "homePageWorkArea",
+    "help",
   ],
   properties: {
     xmlRoot: xmlRootRule({

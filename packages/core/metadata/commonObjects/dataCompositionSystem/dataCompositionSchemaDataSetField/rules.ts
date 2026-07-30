@@ -41,8 +41,13 @@ export const DataCompositionSchemaDataSetFieldRules = {
   xmlOrder: [
     "dataPath",
     "field",
-    "useRestriction",
     "title",
+    "useRestriction",
+    "attributeUseRestriction",
+    "availableValues",
+    "presentationExpression",
+    "valueType",
+    "appearance",
     "kind",
   ],
   properties: {

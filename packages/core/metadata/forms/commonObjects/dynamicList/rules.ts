@@ -28,6 +28,8 @@ export const DynamicListRules = {
     "calculatedFields",
     "parameters",
     "mainTable",
+    "keyType",
+    "keyFields",
     "autoSaveUserSettings",
     "getInvisibleFieldPresentations",
     "filter",

@@ -70,6 +70,7 @@ export const ChartOfAccountsPredefinedItemRules = {
     "order",
     "accountingFlags",
     "extDimensionTypes",
+    "childItems",
     "id",
   ],
   properties: {
