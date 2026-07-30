@@ -909,9 +909,9 @@
       "medianMs": 35.14012500000172,
       "maxMs": 40.49462500000027,
       "exceedances": 2,
-      "decision": "replaced",
-      "reason": "Холодная runtime-сборка заменена быстрой проверкой противоположной standalone-ветви",
-      "remainingContract": "Compiled worker требует standalone schema module; runtime cache проверяет prepareYamlProject",
+      "decision": "accelerated",
+      "reason": "Холодная сборка runtime schema cache перенесена в beforeAll и не входит в длительность отдельного утверждения",
+      "remainingContract": "Исходный TypeScript worker использует runtime schema cache и отклоняет объект только с именем конфигурации",
       "mutationBefore": {
         "mutants": 14,
         "killed": 6,

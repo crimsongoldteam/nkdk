@@ -8,6 +8,7 @@ import {
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
+import { createDeferredValuePathCollector } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
@@ -261,6 +262,37 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(yaml).toEqual({ Значение: "ABC" })
     expect(yaml).not.toHaveProperty("value")
     expect(collector.finish()).toEqual({ metadata: expect.anything() })
+  })
+
+  it("filters imported YAML finalization through the optional type predicate", () => {
+    const alwaysType = "TestFinalizeAlways" as PropertyRuleType
+    const filteredType = "TestFinalizeFiltered" as PropertyRuleType
+    const predicateOnlyType = "TestPredicateWithoutFinalizer" as PropertyRuleType
+    registerTypeRule(alwaysType, "finalizeImportedYAML", ({ value }) => value)
+    registerTypeRule(filteredType, "finalizeImportedYAML", ({ value }) => value)
+    registerTypeRule(filteredType, "requiresImportedYAMLFinalization", ({ value }) => value === "defer")
+    registerTypeRule(predicateOnlyType, "requiresImportedYAMLFinalization", () => true)
+
+    const deferred = createDeferredValuePathCollector()
+    importPropertiesFromXMLToYAML({
+      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      rule: {
+        itemType: "TestFinalizationFilter",
+        properties: {
+          always: { type: alwaysType, xml: "Always", yaml: "Всегда" },
+          skipped: { type: filteredType, xml: "Skipped", yaml: "Пропущено" },
+          selected: { type: filteredType, xml: "Selected", yaml: "Отложено" },
+          predicateOnly: { type: predicateOnlyType, xml: "PredicateOnly", yaml: "БезФинализатора" },
+        },
+      } as MetadataItemRule,
+      xml: { Always: "value", Skipped: "ready", Selected: "defer", PredicateOnly: "value" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+      deferred,
+    })
+
+    expect(deferred.finish().map(({ valuePath }) => valuePath)).toEqual([["Всегда"], ["Отложено"]])
   })
 
   it("uses a direct handler instead of rebuilding a legacy value", () => {

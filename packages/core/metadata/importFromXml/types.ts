@@ -70,6 +70,7 @@ export interface ImportFirstPassResult {
   ownerFacts: ValidationOwnerFacts[]
   validationContribution: ValidationIndexContribution
   diagnostics: ImportDiagnostic[]
+  files: ImportResultFile[]
   fragmentBuffer: ArrayBuffer
 }
 

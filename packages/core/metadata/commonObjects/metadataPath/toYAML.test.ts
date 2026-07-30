@@ -73,7 +73,7 @@ describe("exportDataPathStandardMembersToYAML", () => {
   })
 
   test("preserves disabled data path prefix", () => {
-    expect(exportDataPathStandardMembersToYAML(catalogContext(), "~Список.Owner")).toBe("~Список.Владелец")
+    expect(exportDataPathStandardMembersToYAML(catalogContext(), "~Список.Owner")).toBe("~Список.Owner")
   })
 
   test("уточняет импортированный DataPath по готовому индексу формы", () => {

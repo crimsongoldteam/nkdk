@@ -1,5 +1,4 @@
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
-import type { TSchema } from "typebox"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { Diagnostic } from "./types"
@@ -7,13 +6,13 @@ import { Diagnostic } from "./types"
 export interface ValidateFileParams {
   filePath: string
   text: string
-  schema: ValidationSchemaValidator<TSchema>
+  schema: ValidationSchemaValidator
 }
 
 export interface ValidateParsedFileParams {
   filePath: string
   parsed: ParsedYaml
-  schema: ValidationSchemaValidator<TSchema>
+  schema: ValidationSchemaValidator
 }
 
 export function validateFile({ filePath, text, schema }: ValidateFileParams): Diagnostic[] {
@@ -37,14 +36,7 @@ export function validateParsedFile({ filePath, parsed, schema }: ValidateParsedF
 
   // Структурная валидация
   const [valid, errors] = schema.Errors(parsed.data)
-  if (!valid) {
-    return typeboxErrorsToDiagnostics(
-      errors.map((error) => ({ ...error, value: parsed.data })),
-      parsed,
-      filePath,
-      schema
-    )
-  }
+  if (!valid) return typeboxErrorsToDiagnostics(errors, parsed, filePath)
 
   return []
 }

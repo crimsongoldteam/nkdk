@@ -52,6 +52,28 @@ describe("formatDataPathStandardMembers", () => {
     ).toBe("Список.Код")
   })
 
+  it.each([
+    ["~Объект.Owner", "internal-to-yaml"],
+    ["Объект.ПользовательскоеПоле", "internal-to-yaml"],
+    ["Объект.UserField", "yaml-to-internal"],
+  ] as const)("keeps %s without entering the resolver", (value, direction) => {
+    const diagnostics: unknown[] = []
+
+    expect(
+      formatDataPathStandardMembers({
+        value,
+        direction,
+        index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
+        ownerCache: throwingOwnerCache(),
+        diagnosticSink: {
+          targetProjectPath: "Форма.yaml",
+          append: (diagnostic) => diagnostics.push(diagnostic),
+        },
+      })
+    ).toBe(value)
+    expect(diagnostics).toEqual([])
+  })
+
   it("formats object standard members in both directions", () => {
     const index = indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })])
     const owners = ownerCache([
@@ -180,6 +202,17 @@ function ownerCache(owners: OwnerMetadata[]): OwnerMetadataCache {
           },
         ],
       }
+    },
+  }
+}
+
+function throwingOwnerCache(): OwnerMetadataCache {
+  return {
+    listRefs() {
+      throw new Error("resolver must not list owners")
+    },
+    get() {
+      throw new Error("resolver must not read owners")
     },
   }
 }

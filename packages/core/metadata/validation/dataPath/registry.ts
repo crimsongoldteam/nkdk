@@ -312,8 +312,10 @@ export {
   resolveTraversalTimeStandardMember,
   standardMemberInternalToYaml,
   standardMemberInternalToYamlForOwnerKind,
+  standardMemberNamePairs,
   standardMemberYamlToInternal,
   standardMemberYamlToInternalForOwnerKind,
+  standardMembersRegistryRevision,
 } from "./standardMembers"
 export type {
   PrimitiveKind,

@@ -128,6 +128,8 @@ export type FinalizeImportedYAMLFunction = (params: {
   formDataPathIndex?: FormDataPathIndex
 }) => unknown
 
+export type RequiresImportedYAMLFinalizationFunction = (params: { value: unknown }) => boolean
+
 export interface YamlRuleCursor {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]

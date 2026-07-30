@@ -42,6 +42,7 @@ export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
   ownerFacts: ValidationOwnerFacts[]
   validationContribution: ValidationIndexContribution
+  files: ImportResultFile[]
   fragmentData: MergedConfigurationSnapshotFragments
 }
 
@@ -231,6 +232,7 @@ function createXmlImportOperationPool(params: {
       return {
         diagnostics,
         ownerFacts: results.flatMap((result) => result.ownerFacts),
+        files: results.flatMap((result) => result.files),
         validationContribution: {
           objectRecords: results.flatMap((result) => result.validationContribution.objectRecords),
           objectIndexEntries: results.flatMap((result) => result.validationContribution.objectIndexEntries),

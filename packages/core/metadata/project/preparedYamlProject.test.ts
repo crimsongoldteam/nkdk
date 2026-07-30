@@ -386,7 +386,7 @@ describe("prepareYamlProject", () => {
       expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
       expect(first.components.flatMap(({ contribution }) => contribution.objectRecords)).toHaveLength(2)
       expect(first.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 2 })
-      expect(first.yamlLifetime.propertyEvents).toBeGreaterThan(0)
+      expect(first.yamlLifetime.propertyEvents).toBe(0)
     },
     testTimeout
   )

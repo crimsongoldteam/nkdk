@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { XmlSyncManifest } from "../configuration/migrations/xmlManifest"
@@ -24,6 +24,23 @@ import type { FullXmlSyncAssignment } from "../../fullSyncToXml/types"
 const normalizeText = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("единая синхронизация внешних файлов applied objects", () => {
+  let businessProcessComparisons: Awaited<ReturnType<typeof testSyncAppliedObjectToXML>>["comparisons"]
+
+  beforeAll(async () => {
+    const prepared = await testSyncAppliedObjectToXML({
+      rule: MetadataBusinessProcessRules,
+      name: "БизнесПроцессВсеСвойства",
+      importMetaUrl: import.meta.resolve("../metadataBusinessProcess/rules.ts"),
+      externalObjectDir: true,
+      expectedFiles: [
+        "БизнесПроцессВсеСвойства/Ext/ObjectModule.bsl",
+        "БизнесПроцессВсеСвойства/Ext/ManagerModule.bsl",
+        "БизнесПроцессВсеСвойства/Ext/Flowchart.xml",
+      ],
+    })
+    businessProcessComparisons = prepared.comparisons
+  })
+
   it("читает запрос динамического списка встроенной общей формы из каталога объекта", () => {
     const root = fs.mkdtempSync(join(os.tmpdir(), "common-form-query-"))
     try {
@@ -87,20 +104,8 @@ describe("единая синхронизация внешних файлов ap
     }
   })
 
-  it("восстанавливает модули и карту маршрута бизнес-процесса", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
-      rule: MetadataBusinessProcessRules,
-      name: "БизнесПроцессВсеСвойства",
-      importMetaUrl: import.meta.resolve("../metadataBusinessProcess/rules.ts"),
-      externalObjectDir: true,
-      expectedFiles: [
-        "БизнесПроцессВсеСвойства/Ext/ObjectModule.bsl",
-        "БизнесПроцессВсеСвойства/Ext/ManagerModule.bsl",
-        "БизнесПроцессВсеСвойства/Ext/Flowchart.xml",
-      ],
-    })
-
-    for (const { path, result, expected } of comparisons) {
+  it("восстанавливает модули и карту маршрута бизнес-процесса", () => {
+    for (const { path, result, expected } of businessProcessComparisons) {
       expect(normalizeText(result), path).toBe(normalizeText(expected))
     }
   })

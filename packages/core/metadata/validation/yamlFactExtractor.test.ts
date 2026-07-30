@@ -283,6 +283,24 @@ describe("extractValidationYamlFacts", () => {
     expect(facts.localIndexes?.metadata.ownerFacts?.["chartOfAccounts"]).toBe("ChartOfAccounts.Хозрасчетный")
   })
 
+  it("не сохраняет журнал обхода при сборе validation-фактов", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Документ/Операция/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Движения:\n  - РегистрБухгалтерии.Хозрасчетный\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.localIndexes?.metadata.events).toEqual([])
+    expect(facts.localIndexes?.metadata.ownerFacts?.["registerRecords"]).toEqual([
+      "AccountingRegister.Хозрасчетный",
+    ])
+  })
+
   it("can collect index facts without forming validation diagnostics", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Свойства.yaml"
