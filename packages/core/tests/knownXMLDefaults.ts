@@ -1,18 +1,18 @@
 export function withKnownXMLDefaults(xml: string): string {
-  return withExtendedPresentation(withAttributeFillValue(withTableDefaults(xml)))
+  return withIncludeHelpInContents(withAttributeFillValue(withTableDefaults(xml)))
+}
+
+function withIncludeHelpInContents(xml: string): string {
+  return xml.replace(/<Form\b[\s\S]*?<\/Form>/g, (form) => {
+    if (!/<Form\b[^>]*\buuid=/.test(form) || /<IncludeHelpInContents(?:[ />])/.test(form)) return form
+    return insertBeforeClosingProperties(form, "<IncludeHelpInContents>false</IncludeHelpInContents>")
+  })
 }
 
 function withAttributeFillValue(xml: string): string {
   return xml.replace(/<Attribute\b[\s\S]*?<\/Attribute>/g, (attribute) => {
     if (/<FillValue(?:[ />])/.test(attribute)) return attribute
     return insertBeforeClosingProperties(attribute, '<FillValue xsi:nil="true"/>')
-  })
-}
-
-function withExtendedPresentation(xml: string): string {
-  return xml.replace(/<Form\b[\s\S]*?<\/Form>/g, (form) => {
-    if (!/<Form\b[^>]*\buuid=/.test(form) || /<ExtendedPresentation(?:[ />])/.test(form)) return form
-    return insertBeforeClosingProperties(form, "<ExtendedPresentation/>")
   })
 }
 
