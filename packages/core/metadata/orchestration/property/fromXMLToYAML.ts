@@ -389,7 +389,12 @@ export function importPropertiesFromXMLToYAML(params: {
         value: yamlValue,
         ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
       })
-      if (getTypeRule(propertyRule.type, "finalizeImportedYAML") !== undefined) {
+      const finalize = getTypeRule(propertyRule.type, "finalizeImportedYAML")
+      const requiresFinalization = getTypeRule(propertyRule.type, "requiresImportedYAMLFinalization")
+      if (
+        finalize !== undefined &&
+        (requiresFinalization === undefined || requiresFinalization({ value: yamlValue }))
+      ) {
         deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
       }
       addProfileTime(params.profile, "collectorMs", collectorStartedAt)

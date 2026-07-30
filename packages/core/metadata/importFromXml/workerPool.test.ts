@@ -52,6 +52,11 @@ describe("XML import worker pool", () => {
       "Catalog.three.Form.Основная",
       "Catalog.two.Form.Основная",
     ])
+    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toEqual([
+      "Справочник/one/Свойства.yaml",
+      "Справочник/three/Свойства.yaml",
+      "Справочник/two/Свойства.yaml",
+    ])
     expect(first).not.toHaveProperty("localDependencies")
 
     await pool.close()
@@ -260,6 +265,11 @@ function createFakePools() {
             logicalAddresses: [],
           },
           diagnostics: diagnostics.get(workerIndex) ?? [],
+          files: task.assignments.map((item) => ({
+            sourceKind: "worker" as const,
+            sourcePath: join("/tmp/output", item.targetProjectPath),
+            targetProjectPath: item.targetProjectPath,
+          })),
           fragmentBuffer: encodeConfigurationIndexFragments(
             task.assignments.map((item) => ({
               targetProjectPath: item.targetProjectPath,

@@ -7,9 +7,24 @@ const priority = (key: string): number => {
   return 3
 }
 
-export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<string, unknown> =>
-  Object.fromEntries(
-    Object.entries(value).sort(
-      ([left], [right]) => priority(left) - priority(right) || collator.compare(left, right)
-    )
+export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<string, unknown> => {
+  const keys = Object.keys(value).sort(
+    (left, right) => priority(left) - priority(right) || collator.compare(left, right)
   )
+  const result: Record<string, unknown> = {}
+
+  for (const key of keys) {
+    if (key === "__proto__") {
+      Object.defineProperty(result, key, {
+        value: value[key],
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      })
+    } else {
+      result[key] = value[key]
+    }
+  }
+
+  return result
+}

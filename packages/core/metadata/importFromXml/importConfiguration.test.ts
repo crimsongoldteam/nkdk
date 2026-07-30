@@ -59,6 +59,8 @@ const resultFiles: ImportResultFile[] = [
     targetProjectPath: emptyProjectPath,
   },
 ]
+const firstPassFiles = resultFiles.slice(0, 2)
+const secondPassFiles = resultFiles.slice(2)
 const fragmentData: MergedConfigurationSnapshotFragments = {
   sourceProjectPaths: [catalogProjectPath, emptyProjectPath, formProjectPath],
   entities: [
@@ -150,7 +152,7 @@ describe("configuration XML import coordinator", () => {
       async runSecondPass(snapshots) {
         calls.push("secondPass")
         secondPassSnapshots = snapshots
-        return { diagnostics: [], warnings: [], files: resultFiles }
+        return { diagnostics: [], warnings: [], files: secondPassFiles }
       },
     })
 
@@ -509,6 +511,7 @@ function fakeDependencies(params: {
             diagnostics: [],
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
+            files: firstPassFiles,
             fragmentData,
           }
         },
@@ -517,7 +520,7 @@ function fakeDependencies(params: {
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
-          return { diagnostics: [], warnings: [], files: resultFiles }
+          return { diagnostics: [], warnings: [], files: secondPassFiles }
         },
         async close() {
           params.calls.push("closeWorkers")
