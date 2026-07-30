@@ -1,7 +1,7 @@
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
@@ -12,8 +12,10 @@ import { canonicalFormSyncXML } from "../../../tests/formSyncXML"
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataExchangePlan", () => {
-  it("читает ExchangePlan из YAML и записывает XML в outputDir", async () => {
-    const { inputDir, comparisons } = await testSyncAppliedObjectToXML({
+  let preparedExchangePlan: Awaited<ReturnType<typeof testSyncAppliedObjectToXML>>
+
+  beforeAll(async () => {
+    preparedExchangePlan = await testSyncAppliedObjectToXML({
       rule: MetadataExchangePlanRules,
       name: "ПланОбменаВсеСвойства",
       importMetaUrl: import.meta.url,
@@ -40,6 +42,10 @@ describe("syncAppliedObjectToXML — MetadataExchangePlan", () => {
         "ПланОбменаВсеСвойства/Templates/Макет/Ext/Template.txt",
       ],
     })
+  })
+
+  it("читает ExchangePlan из YAML и записывает XML в outputDir", () => {
+    const { inputDir, comparisons } = preparedExchangePlan
     for (const { path, result, expected } of comparisons) {
       if (path.endsWith("/Ext/Form.xml")) {
         const form = canonicalFormSyncXML({ path, result, expected, inputDir })

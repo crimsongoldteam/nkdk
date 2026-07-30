@@ -34,12 +34,13 @@ export interface LocalIndexesCollector {
   finish(): LocalIndexes
 }
 
-export function createLocalIndexesCollector(): LocalIndexesCollector {
+export function createLocalIndexesCollector(options?: { recordEvents?: boolean }): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []
   const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
 
   const recordEvent = (kind: LocalMetadataEvent["kind"], fact: LocalYamlFact): void => {
+    if (options?.recordEvents === false) return
     events.push({
       kind,
       yamlPath: [...fact.yamlPath],

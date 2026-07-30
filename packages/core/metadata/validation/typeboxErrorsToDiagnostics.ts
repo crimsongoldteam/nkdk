@@ -1,5 +1,3 @@
-import type { ValidationSchemaValidator } from "./compileValidationSchema"
-import type { TSchema } from "typebox"
 import { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { Diagnostic } from "./types"
 import { diagnosticAtYamlPath } from "./yamlLocations"
@@ -10,8 +8,6 @@ export type ValidationError = {
   instancePath: string
   params: Record<string, unknown>
   message: string
-  schema?: TSchema
-  value?: unknown
   diagnosticLocation?: "key"
 }
 
@@ -113,8 +109,7 @@ function normalizedErrors(errors: ValidationError[]): ValidationError[] {
 export function typeboxErrorsToDiagnostics(
   errors: ValidationError[],
   parsed: ParsedYaml,
-  filePath: string,
-  _schema?: ValidationSchemaValidator<TSchema>
+  filePath: string
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
   const expandedErrors = normalizedErrors(errors)
