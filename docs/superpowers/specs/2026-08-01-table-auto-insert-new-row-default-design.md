@@ -94,8 +94,7 @@ horizontalStretch: booleanRule({
 
 Без `implicitValueYAML` значения `true` и `false` всегда записываются в YAML,
 а отсутствие ключа передаёт в XML `undefined`. Существующий преобразователь
-boolean уже импортирует XML `auto` как `undefined`; тип `StringboolXML`
-дополняется значением `"auto"`, и это поведение закрепляется тестом.
+boolean уже импортирует XML `auto` как `undefined`.
 
 Full sync и MCP не принимают `referenceDir` и не читают исходный XML-каталог.
 Индекс конфигурации хранит только невосстановимые XML-состояния и не хранит
@@ -123,14 +122,13 @@ MCP использует ту же схему без специальной ло
 
 ### Проверки
 
-1. Преобразование XML boolean покрывает `auto` → `undefined`.
-2. XML → YAML покрывает отсутствующий узел, `auto`, `false` и `true`.
-3. YAML → XML покрывает отсутствующий ключ, `Ложь` и `Истина`.
-4. Оба свойства всех семи видов групп используют `booleanRule` без
+1. XML → YAML покрывает отсутствующий узел, `auto`, `false` и `true`.
+2. YAML → XML покрывает отсутствующий ключ, `Ложь` и `Истина`.
+3. Оба свойства всех семи видов групп используют `booleanRule` без
    `implicitValueYAML`, `noImplicitValueYAML` и локальных defaults.
-5. JSON Schema разрешает отсутствующий ключ, `Истина` и `Ложь`, но отклоняет
+4. JSON Schema разрешает отсутствующий ключ, `Истина` и `Ложь`, но отклоняет
    `Авто` и третье значение; MCP применяет эту же схему.
-6. Выполняются целевые тесты, `pnpm type-check`, `pnpm test`, mutation testing
+5. Выполняются целевые тесты, `pnpm type-check`, `pnpm test`, mutation testing
    изменённых production-диапазонов и повторный round-trip `cf/doc`.
 
 ## Критерии готовности
