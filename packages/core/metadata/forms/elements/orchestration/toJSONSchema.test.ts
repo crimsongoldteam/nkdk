@@ -6,6 +6,7 @@ import {
   getChildItemTypesByPropertyType,
   getTreeNodeJSONSchemaPropertyAliases,
 } from "../../commonObjects/childItems/treeYAML"
+import { compileValidationSchema } from "../../../validation/compileValidationSchema"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
 
@@ -55,5 +56,26 @@ describe("form element JSON Schema", () => {
     expect(getChildItemTypesByPropertyType("GroupChildItems")).toContain("InputField")
     expect(getChildItemTypesByPropertyType("TableChildItems")).toContain("TableInputField")
     expect(getChildItemTypesByPropertyType("PagesChildItems")).toEqual(["Page"])
+  })
+
+  it("разрешает только явное Ложь для АвтоВводНовойСтроки", () => {
+    const schema = exportElementRuleToJSONSchema({
+      context: {
+        ...context,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs: new Set<string>(),
+          excludeImplicitValueYAML: true,
+        },
+      },
+      rule: getElementRule("Table"),
+      yamlKind: "ТаблицаФормы",
+    })
+    const check = compileValidationSchema(schema)
+
+    expect(check.Check({ Вид: "ТаблицаФормы" })).toBe(true)
+    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Ложь" })).toBe(true)
+    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Истина" })).toBe(false)
+    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Авто" })).toBe(false)
   })
 })

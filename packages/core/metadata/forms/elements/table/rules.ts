@@ -127,7 +127,12 @@ export const TableRules = {
       type: "boolean",
       noImplicitValueYAML: true,
     },
-    autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean", implicitValueYAML: true },
+    autoInsertNewRow: {
+      yaml: "АвтоВводНовойСтроки",
+      type: "boolean",
+      implicitValueYAML: true,
+      implicitValueXML: false,
+    },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean", noImplicitValueYAML: true },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
     autoMaxHeightInTableRows: {

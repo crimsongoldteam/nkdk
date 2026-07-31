@@ -101,6 +101,7 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([
+    ["AutoInsertNewRow", "АвтоВводНовойСтроки"],
     ["EnableStartDrag", "РазрешитьНачалоПеретаскивания"],
     ["EnableDrag", "РазрешитьПеретаскивание"],
   ])("сохраняет XML-семантику %s без reference", (xmlKey, yamlKey) => {
