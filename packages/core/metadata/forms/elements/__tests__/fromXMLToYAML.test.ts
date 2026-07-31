@@ -14,6 +14,7 @@ import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../co
 import type { CollectableElementType } from "../../../orchestration/formElement/types"
 import { getElementRule } from "../orchestration/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
+import { TableRules } from "../table/rules"
 
 import "../index"
 
@@ -94,6 +95,32 @@ describe("элементы формы XML → YAML → XML", () => {
     } else {
       expect(actualXML).toBe(expectedXML)
     }
+  })
+
+  it.each([
+    ["EnableStartDrag", "РазрешитьНачалоПеретаскивания"],
+    ["EnableDrag", "РазрешитьПеретаскивание"],
+  ])("сохраняет XML-семантику %s без reference", (xmlKey, yamlKey) => {
+    const explicit = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Таблица", [xmlKey]: true },
+      name: "Таблица",
+    }).yaml as Record<string, unknown>
+    expect(explicit).not.toHaveProperty(yamlKey)
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml: explicit, name: "Таблица" }).xml).toHaveProperty(
+      xmlKey,
+      true
+    )
+
+    const implicit = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Табица" },
+      name: "Таблица",
+    }).yaml as Record<string, unknown>
+    expect(implicit).toHaveProperty(yamlKey, "Ложь")
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml: implicit, name: "Таблица" }).xml).not.toHaveProperty(
+      xmlKey
+    )
   })
 })
 

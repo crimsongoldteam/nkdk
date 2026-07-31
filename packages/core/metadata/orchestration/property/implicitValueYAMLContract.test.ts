@@ -1396,6 +1396,8 @@ describe("implicitValueYAML contract", () => {
       .map((propertyKey) => `TableRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+    expect(TableRules.properties.enableDrag.implicitValueXML).toBe(false)
+    expect(TableRules.properties.enableStartDrag.implicitValueXML).toBe(false)
   })
 
   it("uses configurator defaults as implicit YAML values for client application forms", () => {
