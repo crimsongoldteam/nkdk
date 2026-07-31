@@ -27,6 +27,7 @@ export type ImportContentFromXMLOptions = {
 export const importContentFromXML = <T>(data: string, importOptions: ImportContentFromXMLOptions = {}): T => {
   const parser = new XMLParser({
     preserveOrder: true,
+    jPath: false,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
     ignoreAttributes: false,
