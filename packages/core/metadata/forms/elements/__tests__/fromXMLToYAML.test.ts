@@ -122,6 +122,30 @@ describe("элементы формы XML → YAML → XML", () => {
       xmlKey
     )
   })
+
+  it.each([
+    ["явный List", { _name: "Таблица", Representation: "List", DataPath: "Дерево" }, "Список", "List"],
+    ["явный Tree", { _name: "Таблица", Representation: "Tree", DataPath: "Таблица" }, "Дерево", "Tree"],
+  ])("сохраняет Representation: %s", (_case, xml, yamlValue, xmlValue) => {
+    const yaml = testMetadataItemFromXMLToYAML({ rule: TableRules, xml, name: "Таблица" }).yaml
+    expect(yaml).toHaveProperty("Отображение", yamlValue)
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).toHaveProperty(
+      "Representation",
+      xmlValue
+    )
+  })
+
+  it("не создаёт Representation, если его нет в XML", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Таблица" },
+      name: "Таблица",
+    }).yaml
+    expect(yaml).not.toHaveProperty("Отображение")
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).not.toHaveProperty(
+      "Representation"
+    )
+  })
 })
 
 function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string, unknown>): CollectableElementType {

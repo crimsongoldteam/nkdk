@@ -281,7 +281,7 @@ export const TableRules = {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "TableRepresentation",
-      implicitValueYAML: "List",
+      noImplicitValueYAML: true,
     },
     rowInputMode: {
       yaml: "РежимВводаСтрок",

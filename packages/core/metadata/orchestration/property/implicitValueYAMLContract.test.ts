@@ -1355,7 +1355,6 @@ describe("implicitValueYAML contract", () => {
       output: "Auto",
       readOnly: false,
       refreshRequest: "None",
-      representation: "List",
       allowGettingCurrentRowURL: true,
       allowRootChoice: false,
       restoreCurrentRow: false,
@@ -1380,6 +1379,7 @@ describe("implicitValueYAML contract", () => {
     const expectedNoImplicitValueYAML = [
       "autoAddIncomplete",
       "autoMarkIncomplete",
+      "representation",
       "settingsNamedItemDetailedRepresentation",
       "skipOnInput",
       "viewMode",
