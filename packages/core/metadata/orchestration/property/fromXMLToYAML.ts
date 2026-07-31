@@ -147,6 +147,9 @@ export function importPropertiesFromXMLToYAML(params: {
     if (!forReference && propertyRule.forReferenceOnly === true) return
 
     let xmlValue = sourceXMLValue
+    if (!presentInXML && Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")) {
+      xmlValue = propertyRule.implicitValueXML
+    }
     if (xmlValue === undefined && propertyRule.type === "MetadataDcsMetadataValue" && presentInXML) {
       xmlValue = null
     }

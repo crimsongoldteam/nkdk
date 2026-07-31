@@ -111,6 +111,9 @@ export interface BasePropertyRule {
   /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
   implicitValueYAML?: any | DefaultValueFunction
 
+  /** Значение, подразумеваемое отсутствием XML-тега; при выгрузке не пишется явно. */
+  implicitValueXML?: unknown
+
   /** При отсутствии YAML-ключа не переносить из reference XML значение, отличное от implicitValueYAML. */
   omitNonImplicitReferenceXMLWhenYAMLMissing?: true
 

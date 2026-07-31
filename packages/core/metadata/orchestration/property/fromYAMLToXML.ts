@@ -202,6 +202,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       propertyKey !== namePropertyKey &&
       !source.has(propertyKey) &&
       !references.some((reference) => reference.exists) &&
+      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
@@ -489,7 +490,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const yamlKey = planned.yamlKey
     const hasYAMLValue =
       yamlKey !== undefined && yaml !== undefined && Object.prototype.hasOwnProperty.call(yaml, yamlKey)
-    const sourceValue =
+    const rawSourceValue =
       planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
         ? params.name
         : params.propertyValues?.has(propertyKey)
@@ -497,6 +498,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           : hasYAMLValue
             ? restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
             : source.raw(propertyKey)
+    const sourceValue =
+      !source.has(propertyKey) && Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueXML")
+        ? resolveImplicitValueYAML({
+            context: propertyContext,
+            rule: planned.propertyRule,
+            yaml,
+            name: params.name,
+          })
+        : rawSourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],
       ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),
@@ -659,6 +669,9 @@ function normalizeReferenceFallback(rule: PropertyRule, value: unknown): unknown
 
 export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   const { context, rule, value, referenceValue, source, propertyKey } = params
+  if (Object.prototype.hasOwnProperty.call(rule, "implicitValueXML") && value === rule.implicitValueXML) {
+    return undefined
+  }
   const handler = params.handler ?? getTypeRule(rule.type, "exportToXML")
   const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
   const xmlDefault = resolveXMLDefault(context, rule, propertyKey)
@@ -713,7 +726,11 @@ function isYAMLPropertyExportEnabled(params: {
 }
 
 function requiresYAMLToXMLEvaluation(rule: PropertyRule): boolean {
-  return rule.exportWithoutReferenceXML === true || rule.exportNilValue === true
+  return (
+    rule.exportWithoutReferenceXML === true ||
+    rule.exportNilValue === true ||
+    Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
+  )
 }
 
 function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): boolean {
@@ -909,6 +926,16 @@ function defaultValue(params: {
   operation: "importFromYAML"
 }): unknown {
   return typeof params.rule.defaultValue === "function" ? params.rule.defaultValue(params) : params.rule.defaultValue
+}
+
+function resolveImplicitValueYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  yaml?: unknown
+  name?: string
+}): unknown {
+  const value = params.rule.implicitValueYAML
+  return typeof value === "function" ? value({ ...params, operation: "importFromYAML" }) : value
 }
 
 function isDefaultValue(value: unknown, expected: unknown): boolean {

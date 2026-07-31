@@ -527,6 +527,24 @@ describe("importPropertiesFromXMLToYAML", () => {
   })
 
   it.each([
+    ["явное YAML-default", { Value: "yaml-default" }, {}],
+    ["отсутствующий XML", {}, { Значение: "xml-implicit" }],
+    ["явное отличающееся значение", { Value: "explicit" }, { Значение: "explicit" }],
+  ])("импортирует implicitValueXML: %s", (_name, xml, expected) => {
+    expect(
+      runSingleProperty(
+        {
+          xml: "Value",
+          yaml: "Значение",
+          implicitValueYAML: "yaml-default",
+          implicitValueXML: "xml-implicit",
+        },
+        xml
+      )
+    ).toEqual(expected)
+  })
+
+  it.each([
     ["fromXML", { fromXML: false }],
     ["toYAML", { toYAML: false }],
     ["implicit YAML", { type: "boolean", implicitValueYAML: true }],
