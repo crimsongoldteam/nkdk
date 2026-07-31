@@ -62,6 +62,19 @@ describe("run mutation tests", () => {
     ])
   })
 
+  it.each([
+    "packages/core/a.ts:120-170",
+    "packages/core/a.ts:120:4-170:8",
+  ])("сохраняет диапазон Stryker и проверяет существование production-файла %s", (target) => {
+    expect(
+      validateMutationFiles(
+        "/project",
+        [target],
+        (file: string) => file === "/project/packages/core/a.ts"
+      )
+    ).toEqual([target])
+  })
+
   it("проверяет и преобразует тестовые файлы в пути Vitest пакета core", () => {
     expect(
       validateMutationTestFiles(

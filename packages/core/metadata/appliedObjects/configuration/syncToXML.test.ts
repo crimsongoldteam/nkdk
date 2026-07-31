@@ -7,6 +7,7 @@ import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndPa
 import { createPreparedYamlWorkerTestPool } from "../../../tests/preparedYamlWorkerTestPool"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
 import { canonicalXML } from "../../../tests/canonicalXML"
+import { withKnownXMLDefaults } from "../../../tests/knownXMLDefaults"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
@@ -72,7 +73,7 @@ describe("sync configuration to XML", () => {
     const resultFormMetadataXML = readXMLFileAsString(
       join("sync/syncConfiguration/out-to-xml", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
-    expect(canonicalXML(resultFormMetadataXML)).toEqual(canonicalXML(expectedFormMetadataXML))
+    expect(canonicalXML(resultFormMetadataXML)).toEqual(canonicalXML(withKnownXMLDefaults(expectedFormMetadataXML)))
   })
 
   it("без referenceDir не читает reference из outputDir и не создаёт ConfigDumpInfo.xml", async () => {

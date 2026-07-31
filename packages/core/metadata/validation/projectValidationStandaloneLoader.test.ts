@@ -8,10 +8,55 @@ import {
   validationProjectSpecs,
 } from "./projectSpecs"
 import type { ProjectValidationStandaloneModule } from "./projectValidationStandaloneTypes"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataItemRule
 
 describe("project validation standalone loader", () => {
+  it("selects standalone form validators by topology rule", () => {
+    const topology = compileRegisteredMetadataResourceTopology()
+    const baseNode = topology.assignments.find(
+      ({ role, itemRule }) =>
+        role === "fileItem" && itemRule === ClientApplicationFormRules
+    )
+    const specializedNode = topology.assignments.find(
+      ({ role, itemRule }) =>
+        role === "fileItem" &&
+        itemRule ===
+          ClientApplicationFormWithExtendedPresentationRules
+    )
+    if (baseNode === undefined || specializedNode === undefined) {
+      throw new Error("Не найдены варианты правил форм")
+    }
+    const cache = createValidationSchemaCacheFromStandaloneModule({
+      format: "project-validation-ajv-standalone-v4",
+      forms: {
+        [baseNode.id]: {
+          validate: validWhenHasString("БазовоеПоле"),
+        },
+        [specializedNode.id]: {
+          validate: validWhenHasString("РасширенноеПредставление"),
+        },
+      },
+      byItemType: {},
+    })
+
+    expect(
+      cache
+        .form(ClientApplicationFormWithExtendedPresentationRules)
+        .Check({ РасширенноеПредставление: "Продажи" })
+    ).toBe(true)
+    expect(
+      cache
+        .form(ClientApplicationFormRules)
+        .Check({ РасширенноеПредставление: "Продажи" })
+    ).toBe(false)
+  })
+
   it("creates form and properties validators from a standalone-like module", () => {
     const formValidate = validWhenHasString("Вид")
     const propertiesValidate = validWhenHasString("Имя")
@@ -23,8 +68,8 @@ describe("project validation standalone loader", () => {
       },
     })
 
-    expect(cache.form().Check({ Вид: "Форма" })).toBe(true)
-    expect(cache.form().Check({})).toBe(false)
+    expect(cache.form(ClientApplicationFormRules).Check({ Вид: "Форма" })).toBe(true)
+    expect(cache.form(ClientApplicationFormRules).Check({})).toBe(false)
     expect(cache.properties(catalogRule).Check({ Имя: "Номенклатура" })).toBe(true)
     expect(cache.properties(catalogRule).Check({})).toBe(false)
   })

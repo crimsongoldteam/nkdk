@@ -14,6 +14,8 @@ import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../co
 import type { CollectableElementType } from "../../../orchestration/formElement/types"
 import { getElementRule } from "../orchestration/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
+import { TableRules } from "../table/rules"
+import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
 
 import "../index"
 
@@ -86,7 +88,9 @@ describe("элементы формы XML → YAML → XML", () => {
     }
 
     const actualXML = withoutDeclaration(xmlExport({ [xmlTag]: result }, false))
-    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim())
+    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim(), {
+      includeCheckBoxType: false,
+    })
     if (expectedXML.includes("<Table")) {
       expect(importContentFromXML(actualXML, { preserveXsiNil: true })).toEqual(
         importContentFromXML(expectedXML, { preserveXsiNil: true })
@@ -95,6 +99,90 @@ describe("элементы формы XML → YAML → XML", () => {
       expect(actualXML).toBe(expectedXML)
     }
   })
+
+  it.each([
+    ["EnableStartDrag", "РазрешитьНачалоПеретаскивания"],
+    ["EnableDrag", "РазрешитьПеретаскивание"],
+  ])("сохраняет XML-семантику %s без reference", (xmlKey, yamlKey) => {
+    const explicit = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Таблица", [xmlKey]: true },
+      name: "Таблица",
+    }).yaml as Record<string, unknown>
+    expect(explicit).not.toHaveProperty(yamlKey)
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml: explicit, name: "Таблица" }).xml).toHaveProperty(
+      xmlKey,
+      true
+    )
+
+    const implicit = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Табица" },
+      name: "Таблица",
+    }).yaml as Record<string, unknown>
+    expect(implicit).toHaveProperty(yamlKey, "Ложь")
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml: implicit, name: "Таблица" }).xml).not.toHaveProperty(
+      xmlKey
+    )
+  })
+
+  it.each([
+    ["явный List", { _name: "Таблица", Representation: "List", DataPath: "Дерево" }, "Список", "List"],
+    ["явный Tree", { _name: "Таблица", Representation: "Tree", DataPath: "Таблица" }, "Дерево", "Tree"],
+  ])("сохраняет Representation: %s", (_case, xml, yamlValue, xmlValue) => {
+    const yaml = testMetadataItemFromXMLToYAML({ rule: TableRules, xml, name: "Таблица" }).yaml
+    expect(yaml).toHaveProperty("Отображение", yamlValue)
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).toHaveProperty(
+      "Representation",
+      xmlValue
+    )
+  })
+
+  it("не создаёт Representation, если его нет в XML", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: TableRules,
+      xml: { _name: "Таблица" },
+      name: "Таблица",
+    }).yaml
+    expect(yaml).not.toHaveProperty("Отображение")
+    expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).not.toHaveProperty(
+      "Representation"
+    )
+  })
+
+  it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(
+    "$itemType восстанавливает CheckBoxType по ThreeState",
+    (rule) => {
+      expect(testMetadataItemFromYAMLToXML({ rule, yaml: {}, name: "Флажок" }).xml).toHaveProperty(
+        "CheckBoxType",
+        "Auto"
+      )
+
+      const threeState = testMetadataItemFromYAMLToXML({
+        rule,
+        yaml: { ТриСостояния: "Истина" },
+        name: "Флажок",
+      }).xml
+      expect(threeState).toHaveProperty("ThreeState", true)
+      expect(threeState).not.toHaveProperty("CheckBoxType")
+
+      expect(
+        testMetadataItemFromYAMLToXML({
+          rule,
+          yaml: { ВидФлажка: "Выключатель" },
+          name: "Флажок",
+        }).xml
+      ).toHaveProperty("CheckBoxType", "Switch")
+
+      expect(
+        testMetadataItemFromYAMLToXML({
+          rule,
+          yaml: { ТриСостояния: "Истина", ВидФлажка: "Выключатель" },
+          name: "Флажок",
+        }).xml
+      ).toMatchObject({ ThreeState: true, CheckBoxType: "Switch" })
+    }
+  )
 })
 
 function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string, unknown>): CollectableElementType {

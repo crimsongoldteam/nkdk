@@ -3,6 +3,7 @@ const reportName = process.env.NKDK_STRYKER_REPORT_NAME ?? "mutation"
 /** @type {import("@stryker-mutator/api/core").PartialStrykerOptions} */
 export default {
   mutate: [],
+  ignorePatterns: [".pnpm-store"],
   // Не даём Stryker 9.6.1 обрабатывать tsconfig через удалённый в TypeScript 7 API.
   tsconfigFile: "tsconfig.stryker-unused.json",
   // Vitest преобразует TypeScript без отдельной проверки типов.

@@ -119,6 +119,48 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it.each([
+    ["отсутствующий YAML", {}, { Value: "yaml-default" }],
+    ["явный XML-implicit", { Значение: "xml-implicit" }, {}],
+    ["явное отличающееся значение", { Значение: "explicit" }, { Value: "explicit" }],
+  ])("экспортирует implicitValueXML: %s", (_name, yaml, expected) => {
+    const property = {
+      type: "string",
+      xml: "Value",
+      yaml: "Значение",
+      implicitValueYAML: "yaml-default",
+      implicitValueXML: "xml-implicit",
+    } as PropertyRule
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml,
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual(expected)
+  })
+
+  it("вычисляет implicitValueYAML для отсутствующего YAML при implicitValueXML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      name: "Товары",
+      rule: testRule({
+        value: {
+          type: "string",
+          xml: "Value",
+          yaml: "Значение",
+          implicitValueYAML: ({ name }: { name?: string }) => `yaml-${name}`,
+          implicitValueXML: "xml-implicit",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "yaml-Товары" })
+  })
+
   it("восстанавливает XML-default по rules без reference", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

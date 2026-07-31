@@ -24,6 +24,7 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       required: true,
       repeatable: true,
       compositionImpact: "none",
+      projectRole: "form",
       itemRule: childFormRule,
       logicalAddressSegment: "Форма",
       dumpInfoNamePatterns: [

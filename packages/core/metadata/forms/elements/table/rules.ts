@@ -1,6 +1,7 @@
 import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {
@@ -186,8 +187,16 @@ export const TableRules = {
       implicitValueYAML: "Auto",
     },
     enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean", implicitValueYAML: true },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean", implicitValueYAML: true },
+    enableDrag: booleanRule({
+      yaml: "РазрешитьПеретаскивание",
+      implicitValueYAML: true,
+      implicitValueXML: false,
+    }),
+    enableStartDrag: booleanRule({
+      yaml: "РазрешитьНачалоПеретаскивания",
+      implicitValueYAML: true,
+      implicitValueXML: false,
+    }),
     extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip", toEnterprise: false },
     fileDragMode: {
       yaml: "СпособПеретаскиванияФайлов",
@@ -272,7 +281,7 @@ export const TableRules = {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "TableRepresentation",
-      implicitValueYAML: "List",
+      noImplicitValueYAML: true,
     },
     rowInputMode: {
       yaml: "РежимВводаСтрок",

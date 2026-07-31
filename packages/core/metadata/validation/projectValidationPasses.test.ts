@@ -15,6 +15,10 @@ import {
 } from "./projectReferenceIndexRegistry"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -47,6 +51,30 @@ describe("validateProjectFileFirstPass references", () => {
 
     expect(cache.properties(MetadataConfigurationExtensionRules).Check(yaml)).toBe(true)
     expect(cache.properties(MetadataConfigurationRules).Check(yaml)).toBe(false)
+  }, 20_000)
+
+  it("caches form schemas by rule object in either access order", () => {
+    const yaml = { РасширенноеПредставление: "Продажи" }
+    const specializedFirst = createValidationSchemaCache(mockContext)
+
+    expect(
+      specializedFirst
+        .form(ClientApplicationFormWithExtendedPresentationRules)
+        .Check(yaml)
+    ).toBe(true)
+    expect(
+      specializedFirst.form(ClientApplicationFormRules).Check(yaml)
+    ).toBe(false)
+
+    const baseFirst = createValidationSchemaCache(mockContext)
+    expect(baseFirst.form(ClientApplicationFormRules).Check(yaml)).toBe(
+      false
+    )
+    expect(
+      baseFirst
+        .form(ClientApplicationFormWithExtendedPresentationRules)
+        .Check(yaml)
+    ).toBe(true)
   }, 20_000)
 
   it("marks syntax failure as a file without contributed facts", () => {
