@@ -93,4 +93,47 @@ describe("importContentFromXML", () => {
   it("объединяет text и CDATA без обрезки пробелов", () => {
     expect(importContentFromXML("<Root> A<![CDATA[B]]> C</Root>")).toEqual({ Root: " AB C" })
   })
+
+  it.each([
+    ["entity", "<Root>A&amp;B</Root>", { Root: "A&B" }],
+    ["comment", "<Root>A<!--ignored-->B</Root>", { Root: "AB" }],
+    ["attribute and text", '<Root id="1">x</Root>', { Root: { _id: "1", "#text": "x" } }],
+    ["namespace prefixes", '<xr:Root xr:id="1"/>', { "xr:Root": { "_xr:id": "1" } }],
+  ])("сохраняет %s", (_case, xml, expected) => {
+    expect(importContentFromXML(xml)).toEqual(expected)
+  })
+
+  it("преобразует processing instruction в элемент", () => {
+    expect(importContentFromXML('<Root><?foo bar="baz"?></Root>', { preserveEmptyElements: true })).toEqual({
+      Root: { "?foo": { _bar: "baz" } },
+    })
+  })
+
+  it("отклоняет имена, небезопасные для объекта", () => {
+    expect(() => importContentFromXML("<Root><__proto__>x</__proto__></Root>")).toThrow()
+  })
+
+  it("сохраняет BOM перед XML declaration как документный текст", () => {
+    expect(importContentFromXML('\uFEFF<?xml version="1.0"?><Root/>')).toEqual({
+      "?xml": { _version: "1.0" },
+      Root: undefined,
+      "#text": "\uFEFF",
+    })
+  })
+
+  it("разбирает XML-фрагмент с несколькими корнями", () => {
+    const result = importContentFromXML<{ Command: Array<{ _id: string }> }>(
+      '<Command id="1"/><Command id="2"/>'
+    )
+
+    expect(result).toEqual({ Command: [{ _id: "1" }, { _id: "2" }] })
+    expect(childOrderOf(result)).toEqual([
+      { key: "Command", index: 0 },
+      { key: "Command", index: 1 },
+    ])
+  })
+
+  it("отклоняет некорректный XML", () => {
+    expect(() => importContentFromXML("<Root><Child></Root>")).toThrow()
+  })
 })
