@@ -4,6 +4,7 @@ import { isAbsolute, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const reportNamePattern = /^[a-z0-9][a-z0-9-]*$/u
+const mutationRangePattern = /(:[1-9]\d*(?::\d+)?-[1-9]\d*(?::\d+)?)$/u
 
 export function parseMutationArguments(argv) {
   const args = argv[0] === "--" ? argv.slice(1) : argv
@@ -28,7 +29,9 @@ export function parseMutationArguments(argv) {
 
 export function validateMutationFiles(projectRoot, files, fileExists = existsSync) {
   return files.map((file) => {
-    const absolute = resolve(projectRoot, file)
+    const range = file.match(mutationRangePattern)?.[1] ?? ""
+    const sourceFile = range === "" ? file : file.slice(0, -range.length)
+    const absolute = resolve(projectRoot, sourceFile)
     const projectPath = relative(projectRoot, absolute).replace(/\\/gu, "/")
     const segments = projectPath.split("/")
     const invalid =
@@ -42,7 +45,7 @@ export function validateMutationFiles(projectRoot, files, fileExists = existsSyn
       segments.includes("generated") ||
       !fileExists(absolute)
     if (invalid) throw new Error(`Недопустимая цель mutation testing: ${file}`)
-    return projectPath
+    return `${projectPath}${range}`
   })
 }
 
