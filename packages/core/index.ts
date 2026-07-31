@@ -16,7 +16,6 @@ export {
 } from "./metadata/importFromXml"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
-export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"
 export {
   planSyncConfigurationToXml as planSyncToXml,
   syncComponentToXml,
@@ -38,7 +37,6 @@ export {
   type XmlSyncState,
   type XmlSyncStateDiff,
 } from "./metadata/appliedObjects/configuration/syncState"
-export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
   ADD_ACTION,
   DELETE_ACTION,

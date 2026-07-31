@@ -3,12 +3,9 @@ import type {
   FullXmlSyncPlanResult,
   FullXmlSyncResult,
   ImportConfigurationFromXmlParams,
-  MetadataOperationChangedXmlFile,
   MetadataOperationResult,
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
-  MigrationChainInvalidResult,
-  MigrationPlanItem,
 } from "@nkdk/core"
 import * as coreApi from "@nkdk/core"
 
@@ -28,21 +25,6 @@ export interface Diagnostic {
   severity: "error" | "warning"
   message: string
   path?: string
-}
-
-export interface ConfigurationSyncFailure {
-  kind: string
-  name: string
-  parent?: string
-  error: unknown
-}
-
-export interface ConfigurationSyncResult {
-  succeeded: number
-  changedXmlFiles?: MetadataOperationChangedXmlFile[]
-  migrationsApplied?: MigrationPlanItem[]
-  migrationChain?: MigrationChainInvalidResult
-  failed: ConfigurationSyncFailure[]
 }
 
 export interface XmlSyncState {
@@ -136,26 +118,6 @@ export interface CoreApi {
     xmlDir: string
     concurrency?: number
   }): Promise<FullXmlSyncResult>
-  syncConfigurationIncrementallyToXML(params: {
-    context: {
-      defaultLanguage: "ru"
-      version: "2.20"
-      exportToYAML: { toTyped: false }
-      exportToXML: {
-        itemsTree: []
-        version: "2.20"
-        context: {
-          forms: []
-          templates: []
-          parentName: ""
-          metadataForNumbering: []
-        }
-      }
-    }
-    inputDir: string
-    outputDir: string
-    referenceDir?: string
-  }): Promise<ConfigurationSyncResult>
   readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
   initializeXmlSyncState(params: {
     yamlDir: string
