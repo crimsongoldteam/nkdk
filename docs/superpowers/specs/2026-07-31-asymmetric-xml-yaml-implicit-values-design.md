@@ -140,6 +140,7 @@ representation: {
   yaml: "Отображение",
   type: "SystemEnumeration",
   typeSE: "TableRepresentation",
+  noImplicitValueYAML: true,
 }
 ```
 
@@ -203,7 +204,7 @@ YAML-ключ не создаёт `Representation`, оставляя выбор 
 `TableRules.enableStartDrag` и `TableRules.enableDrag`. Контекстный default
 добавляется только к общему правилу `CheckBoxField.checkBoxType`. Для
 `TableRules.representation` новый механизм не нужен: отсутствие безусловного
-default уже выражается отсутствием `implicitValueYAML`. Остальные свойства
+default явно отмечается `noImplicitValueYAML: true`. Остальные свойства
 переводятся на эти механизмы лишь после отдельного подтверждения их
 XML-семантики.
 
@@ -251,6 +252,10 @@ XML-фикстуры. Полный YAML round-trip каталога `doc` дол
 - отсутствующий XML-тег → отсутствующий YAML-ключ;
 - явный YAML `Отображение: Список` → XML `List`;
 - отсутствующий YAML-ключ → отсутствующий XML-тег.
+
+Архитектурная проверка defaults таблицы требует для `representation`
+`noImplicitValueYAML: true` и не допускает возврата безусловного
+`implicitValueYAML`.
 
 Дополнительная проверка с источником `ValueTree` подтверждает, что явный `List`
 не исключается как default. Полный YAML round-trip каталога `doc` должен убрать
