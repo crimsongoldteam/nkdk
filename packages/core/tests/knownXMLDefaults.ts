@@ -13,8 +13,11 @@ function withIncludeHelpInContents(xml: string): string {
 }
 
 function withAttributeFillValue(xml: string): string {
-  return xml.replace(/<Attribute\b[\s\S]*?<\/Attribute>/g, (attribute) => {
-    if (/<FillValue(?:[ />])/.test(attribute)) return attribute
+  return xml.replace(/<Attribute\b[\s\S]*?<\/Attribute>/g, (attribute, offset: number) => {
+    const precedingXML = xml.slice(0, offset)
+    const insideTabularSection =
+      precedingXML.lastIndexOf("<TabularSection") > precedingXML.lastIndexOf("</TabularSection>")
+    if (insideTabularSection || /<FillValue(?:[ />])/.test(attribute)) return attribute
     return insertBeforeClosingProperties(attribute, '<FillValue xsi:nil="true"/>')
   })
 }

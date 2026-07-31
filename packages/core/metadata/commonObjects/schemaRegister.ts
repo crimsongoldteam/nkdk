@@ -6,6 +6,7 @@ import {
   MetadataCatalogAttributeRules,
   MetadataDocumentAttributeRules,
   MetadataTabularSectionAttributeRules,
+  MetadataTabularSectionAttributeWithFillRules,
 } from "./metadataAttribute/rules"
 import { MetadataRegisterAttributeRules } from "./metadataRegisterAttribute/rules"
 import { MetadataTabularSectionRules } from "./metadataTabularSection/rules"
@@ -22,6 +23,9 @@ registerProjectJSONSchema("MetadataDocumentAttribute", ({ context }) =>
 )
 registerProjectJSONSchema("MetadataTabularSectionAttribute", ({ context }) =>
   exportMetadataItemToJSONSchema({ context, rule: MetadataTabularSectionAttributeRules })
+)
+registerProjectJSONSchema("MetadataTabularSectionAttributeWithFill", ({ context }) =>
+  exportMetadataItemToJSONSchema({ context, rule: MetadataTabularSectionAttributeWithFillRules })
 )
 registerProjectJSONSchema("MetadataRegisterAttribute", ({ context }) =>
   exportMetadataItemToJSONSchema({ context, rule: MetadataRegisterAttributeRules })
