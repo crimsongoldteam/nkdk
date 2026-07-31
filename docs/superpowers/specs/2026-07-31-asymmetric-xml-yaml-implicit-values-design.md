@@ -11,17 +11,24 @@ Round-trip форм содержит три разных класса XML-defaul
 
 ### Разные неявные значения
 
-`Table.EnableStartDrag` имеет разные компактные представления в XML и YAML:
+`Table.EnableStartDrag` и `Table.EnableDrag` имеют разные компактные
+представления в XML и YAML:
 
 | Конфигуратор | XML | YAML |
 |---|---|---|
-| `Истина` — default | `<EnableStartDrag>true</EnableStartDrag>` | ключ отсутствует |
-| `Ложь` | тег отсутствует | `РазрешитьНачалоПеретаскивания: false` |
+| `Истина` — default | явный тег со значением `true` | ключ отсутствует |
+| `Ложь` | тег отсутствует | явный ключ со значением `false` |
 
 Каталог `all` содержит обе формы в одном `Form.xml` версии 2.20. Таблица
 `ПоУмолчанию` содержит явное `true`, а таблица со свойством, переключённым в
 `false`, не содержит XML-тег. Следовательно, отсутствие XML-тега означает
 `false`, а отсутствие YAML-ключа — `true`.
+
+Для `EnableDrag` вывод подтверждён всеми конфигурациями в
+`/Users/nikita/git/round-trip-compact/cf`. Среди 28 192 таблиц 16 067 содержат
+`<EnableDrag>true</EnableDrag>`, 12 125 не содержат тег, явный `false` не
+встречается. В каталоге `doc` все 1 041 расхождение этой группы соответствуют
+удалению явного `true`.
 
 Существующие поля не выражают этот договор:
 
@@ -95,6 +102,16 @@ enableStartDrag: booleanRule({
 })
 ```
 
+`TableRules.enableDrag` использует тот же договор:
+
+```ts
+enableDrag: booleanRule({
+  yaml: "РазрешитьПеретаскивание",
+  implicitValueYAML: true,
+  implicitValueXML: false,
+})
+```
+
 `implicitValueXML` и `defaultValueXML` нельзя задавать одновременно: первое
 описывает отсутствие XML-узла, второе — создаваемое XML-значение. Такое
 сочетание считается ошибкой договора rules.ts.
@@ -139,7 +156,7 @@ representation: {
 отсутствует, используется `implicitValueXML`. Полученное значение исключается
 из YAML только при совпадении с `implicitValueYAML`.
 
-Для `EnableStartDrag`:
+Для `EnableStartDrag` и `EnableDrag`:
 
 - явное XML `true` совпадает с YAML-default и не записывается в YAML;
 - отсутствующий XML-тег становится явным YAML `false`.
@@ -150,7 +167,7 @@ representation: {
 используется `implicitValueYAML`. Полученное значение не записывается в XML
 только при совпадении с `implicitValueXML`.
 
-Для `EnableStartDrag`:
+Для `EnableStartDrag` и `EnableDrag`:
 
 - отсутствующий YAML-ключ создаёт XML `true`;
 - явный YAML `false` не создаёт XML-тег.
@@ -179,20 +196,21 @@ YAML-ключ не создаёт `Representation`, оставляя выбор 
 ## Границы архитектуры
 
 Общая orchestration знает только два неявных значения представлений и не знает
-про `Table`, `EnableStartDrag` или формы. Частное соответствие объявляется в
-`TableRules`.
+про `Table`, `EnableStartDrag`, `EnableDrag` или формы. Частное соответствие
+объявляется в `TableRules`.
 
 На первом этапе новый договор `implicitValueXML` применяется только к
-`TableRules.enableStartDrag`. Контекстный default добавляется только к общему
-правилу `CheckBoxField.checkBoxType`. Для `TableRules.representation` новый
-механизм не нужен: отсутствие безусловного default уже выражается отсутствием
-`implicitValueYAML`. Остальные свойства переводятся на эти механизмы лишь после
-отдельного подтверждения их XML-семантики.
+`TableRules.enableStartDrag` и `TableRules.enableDrag`. Контекстный default
+добавляется только к общему правилу `CheckBoxField.checkBoxType`. Для
+`TableRules.representation` новый механизм не нужен: отсутствие безусловного
+default уже выражается отсутствием `implicitValueYAML`. Остальные свойства
+переводятся на эти механизмы лишь после отдельного подтверждения их
+XML-семантики.
 
 ## Отклонённые варианты
 
-- Локальные `fromXML/toXML` для `EnableStartDrag` дублируют нейтральную
-  симметрию представлений переходным кодом формы.
+- Локальные `fromXML/toXML` для `EnableStartDrag` и `EnableDrag` дублируют
+  нейтральную симметрию представлений переходным кодом формы.
 - Отдельный property-тип булевого XML-флага избыточен: договор применим не
   только к boolean и выражается парой неявных значений.
 - Безусловный `defaultValueXML: "Auto"` для `CheckBoxType` неверен: он добавит
@@ -215,9 +233,11 @@ YAML-ключ не создаёт `Representation`, оставляя выбор 
 - отсутствующий YAML-ключ → XML `true`;
 - YAML `false` → отсутствующий XML-тег.
 
-Проверка правила таблицы подтверждает ту же матрицу на
-`TableRules.enableStartDrag`, не изменяя исходные XML-фикстуры. Отдельная
-архитектурная проверка запрещает совместное использование `implicitValueXML` и
+Проверка правила таблицы подтверждает ту же матрицу отдельно на
+`TableRules.enableStartDrag` и `TableRules.enableDrag`, не изменяя исходные
+XML-фикстуры. Полный YAML round-trip каталога `doc` должен убрать 1 041
+расхождение, вызванное удалением `EnableDrag=true`. Отдельная архитектурная
+проверка запрещает совместное использование `implicitValueXML` и
 `defaultValueXML`.
 
 Существующая проверка флажков расширяется двумя границами:
