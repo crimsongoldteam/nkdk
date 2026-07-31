@@ -16,6 +16,7 @@ import { getElementRule } from "../orchestration/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 import { TableRules } from "../table/rules"
 import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
+import { UsualGroupRules } from "../usualGroup/rules"
 
 import "../index"
 
@@ -149,6 +150,31 @@ describe("элементы формы XML → YAML → XML", () => {
     expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).not.toHaveProperty(
       "Representation"
     )
+  })
+
+  it.each([
+    ["HorizontalStretch", "РастягиватьПоГоризонтали"],
+    ["VerticalStretch", "РастягиватьПоВертикали"],
+  ])("сохраняет трёхзначное растяжение группы %s", (xmlKey, yamlKey) => {
+    const cases = [
+      [{ _name: "Группа" }, undefined, undefined],
+      [{ _name: "Группа", [xmlKey]: "auto" }, undefined, undefined],
+      [{ _name: "Группа", [xmlKey]: false }, "Ложь", false],
+      [{ _name: "Группа", [xmlKey]: true }, "Истина", true],
+    ] as const
+
+    for (const [xml, yamlValue, expectedXML] of cases) {
+      const yaml = testMetadataItemFromXMLToYAML({ rule: UsualGroupRules, xml, name: "Группа" }).yaml as Record<
+        string,
+        unknown
+      >
+      if (yamlValue === undefined) expect(yaml).not.toHaveProperty(yamlKey)
+      else expect(yaml).toHaveProperty(yamlKey, yamlValue)
+
+      const restored = testMetadataItemFromYAMLToXML({ rule: UsualGroupRules, yaml, name: "Группа" }).xml
+      if (expectedXML === undefined) expect(restored).not.toHaveProperty(xmlKey)
+      else expect(restored).toHaveProperty(xmlKey, expectedXML)
+    }
   })
 
   it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(

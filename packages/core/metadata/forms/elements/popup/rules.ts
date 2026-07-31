@@ -84,10 +84,6 @@ export const PopupRules = {
       ...formGroupCommonProperties.height,
       implicitValueYAML: 0,
     },
-    horizontalStretch: {
-      ...formGroupCommonProperties.horizontalStretch,
-      noImplicitValueYAML: true,
-    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,

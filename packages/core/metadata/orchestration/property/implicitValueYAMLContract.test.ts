@@ -170,12 +170,7 @@ describe("implicitValueYAML contract", () => {
       })
       .map(([propertyKey]) => `PageRules.${propertyKey}`)
 
-    const expectedNoImplicitValueYAML = [
-      "horizontalStretch",
-      "scrollOnCompress",
-      "slaveItemsWidth",
-      "verticalAlign",
-    ] as const
+    const expectedNoImplicitValueYAML = ["scrollOnCompress", "slaveItemsWidth", "verticalAlign"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
       .filter((propertyKey) => getRuleProperty(PageRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PageRules.${propertyKey}`)
@@ -196,12 +191,7 @@ describe("implicitValueYAML contract", () => {
       })
       .map(([propertyKey]) => `PagesRules.${propertyKey}`)
 
-    const expectedNoImplicitValueYAML = ["horizontalStretch"] as const
-    const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(PagesRules.properties, propertyKey).noImplicitValueYAML !== true)
-      .map((propertyKey) => `PagesRules.${propertyKey}`)
-
-    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+    expect(unexpectedImplicitValues).toEqual([])
   })
 
   it("uses configurator defaults as implicit YAML values for PDF document fields", () => {
@@ -306,12 +296,7 @@ describe("implicitValueYAML contract", () => {
       })
       .map(([propertyKey]) => `PopupRules.${propertyKey}`)
 
-    const expectedNoImplicitValueYAML = ["horizontalStretch"] as const
-    const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(PopupRules.properties, propertyKey).noImplicitValueYAML !== true)
-      .map((propertyKey) => `PopupRules.${propertyKey}`)
-
-    expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+    expect(unexpectedImplicitValues).toEqual([])
   })
 
   it("uses configurator defaults as implicit YAML values for progress bar fields", () => {
@@ -699,7 +684,6 @@ describe("implicitValueYAML contract", () => {
     const expectedImplicitValues = {
       collapsed: false,
       height: 0,
-      horizontalStretch: false,
       showLeftMargin: true,
       united: true,
       visible: true,
@@ -1004,7 +988,6 @@ describe("implicitValueYAML contract", () => {
   it("uses configurator defaults as implicit YAML values for button groups", () => {
     const expected = {
       height: 0,
-      horizontalStretch: false,
       representation: "Auto",
       visible: true,
       width: 0,
@@ -1041,7 +1024,6 @@ describe("implicitValueYAML contract", () => {
       displayImportance: "Auto",
       height: 0,
       horizontalAlign: "Left",
-      horizontalStretch: false,
       visible: true,
       width: 0,
     } as const
@@ -1296,7 +1278,6 @@ describe("implicitValueYAML contract", () => {
   it("uses configurator defaults as implicit YAML values for column groups", () => {
     const expectedImplicitValues = {
       height: 0,
-      horizontalStretch: false,
       showInHeader: false,
       visible: true,
       width: 0,
@@ -1314,6 +1295,22 @@ describe("implicitValueYAML contract", () => {
       .map((propertyKey) => `ColumnGroupRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+  })
+
+  it.each([
+    ["UsualGroupRules", UsualGroupRules],
+    ["CommandBarRules", CommandBarRules],
+    ["ColumnGroupRules", ColumnGroupRules],
+    ["ButtonGroupRules", ButtonGroupRules],
+    ["PageRules", PageRules],
+    ["PagesRules", PagesRules],
+    ["PopupRules", PopupRules],
+  ])("keeps BWA stretch values explicit for %s", (_ruleName, rule) => {
+    for (const propertyKey of ["horizontalStretch", "verticalStretch"] as const) {
+      const property = getRuleProperty(rule.properties, propertyKey)
+      expect(property).not.toHaveProperty("implicitValueYAML")
+      expect(property).not.toHaveProperty("noImplicitValueYAML")
+    }
   })
 
   it("uses configurator defaults as implicit YAML values for tables", () => {

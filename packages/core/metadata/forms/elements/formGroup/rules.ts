@@ -31,7 +31,6 @@ export const formGroupCommonProperties = {
   horizontalStretch: {
     yaml: "РастягиватьПоГоризонтали",
     type: "boolean",
-    implicitValueYAML: false,
   },
   parent: {
     type: "string",
@@ -86,7 +85,6 @@ export const formGroupCommonProperties = {
   verticalStretch: {
     yaml: "РастягиватьПоВертикали",
     type: "boolean",
-    implicitValueYAML: true,
   },
   visible: {
     yaml: "Видимость",

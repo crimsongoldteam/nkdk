@@ -60,7 +60,6 @@ export const ButtonGroupRules = {
     }),
     ...formGroupCommonProperties,
     height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
-    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: false }),
     visible: booleanRule({ yaml: "Видимость", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
     type: systemEnumerationRule({
