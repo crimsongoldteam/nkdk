@@ -36,11 +36,9 @@ describe("configuration index file IO", () => {
   it("keeps the previous index and removes its temporary file when rename fails", async () => {
     const projectDir = await createProjectDir()
     const previous = sampleSnapshot()
-    await writeConfigurationIndexAtomically({
-      projectDir,
-      address: { kind: "configuration" },
-      data: previous,
-    })
+    const target = configurationIndexPath(projectDir, { kind: "configuration" })
+    await fs.promises.mkdir(dirname(target), { recursive: true })
+    await fs.promises.writeFile(target, encodeConfigurationIndex(previous))
     const rename = vi.spyOn(fs.promises, "rename").mockRejectedValueOnce(new Error("rename failed"))
 
     await expect(

@@ -1,0 +1,1331 @@
+{
+  "version": 1,
+  "runs": 3,
+  "thresholdMs": 10,
+  "tests": [
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataExchangePlan/syncToXML.test.ts::syncAppliedObjectToXML — MetadataExchangePlan читает ExchangePlan из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataExchangePlan/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataExchangePlan читает ExchangePlan из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        50.314916999999696,
+        78.7792500000005,
+        43.74645900000178
+      ],
+      "medianMs": 50.314916999999696,
+      "maxMs": 78.7792500000005,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; полный fixture-тест сохранён",
+      "remainingContract": "Rules ExchangePlan восстанавливают owner XML, внешние XML, модули, формы, справку и макет",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        109.92933399999993,
+        67.10125000000005,
+        81.72912500000007
+      ],
+      "afterMedianMs": 81.72912500000007
+    },
+    {
+      "id": "packages/core/metadata/configurationIndex/fileIO.test.ts::configuration index file IO keeps the previous index and removes its temporary file when rename fails",
+      "file": "packages/core/metadata/configurationIndex/fileIO.test.ts",
+      "name": "configuration index file IO keeps the previous index and removes its temporary file when rename fails",
+      "durationsMs": [
+        22.675375000000713,
+        31.419334000000163,
+        31.26300000000265
+      ],
+      "medianMs": 31.26300000000265,
+      "maxMs": 31.419334000000163,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Предыдущее состояние индекса подготавливается прямой записью, без повторной проверки атомарной публикации",
+      "remainingContract": "При ошибке rename прежний индекс сохраняется, временный файл удаляется, а ошибка возвращается вызывающему коду",
+      "mutationBefore": {
+        "mutants": 56,
+        "killed": 36
+      },
+      "mutationAfter": {
+        "mutants": 56,
+        "killed": 36
+      },
+      "afterDurationsMs": [
+        9.308292,
+        15.646167,
+        6.801208
+      ],
+      "afterMedianMs": 9.308292
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml",
+      "file": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
+      "name": "ChildFormNames: единый импорт XML → YAML импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml",
+      "durationsMs": [
+        30.062541999999667,
+        40.295374999999694,
+        30.86529199999859
+      ],
+      "medianMs": 30.86529199999859,
+      "maxMs": 40.295374999999694,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Детальный договор перенесён с полного worker-импорта на прямой вызов обработчика",
+      "remainingContract": "Копируются только HTML-страницы, перечисленные в Help.xml; stale-файлы отбрасываются",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        6.617749999999887,
+        7.650792000000365,
+        6.557084000000032
+      ],
+      "afterMedianMs": 6.617749999999887
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts::syncAppliedObjectToXML — MetadataInformationRegister читает InformationRegister из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataInformationRegister читает InformationRegister из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        29.908583999997063,
+        27.14795800000138,
+        24.21179200000188
+      ],
+      "medianMs": 27.14795800000138,
+      "maxMs": 29.908583999997063,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; полный fixture-тест сохранён",
+      "remainingContract": "Rules InformationRegister восстанавливают owner XML, индексы, справку, команды, формы и макет",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        83.81937499999958,
+        54.28208300000006,
+        62.402124999999614
+      ],
+      "afterMedianMs": 62.402124999999614
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/__tests__/externalSync.test.ts::единая синхронизация внешних файлов applied objects восстанавливает модули и карту маршрута бизнес-процесса",
+      "file": "packages/core/metadata/appliedObjects/__tests__/externalSync.test.ts",
+      "name": "единая синхронизация внешних файлов applied objects восстанавливает модули и карту маршрута бизнес-процесса",
+      "durationsMs": [
+        23.787500000000364,
+        26.019791999999143,
+        33.883332999999766
+      ],
+      "medianMs": 26.019791999999143,
+      "maxMs": 33.883332999999766,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Ожидаемые и полученные файлы читаются параллельно; отдельный договор бизнес-процесса сохранён",
+      "remainingContract": "ObjectModule, ManagerModule и Flowchart бизнес-процесса восстанавливаются из YAML-проекта",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        74.12691600000016,
+        48.04575,
+        54.88933399999996
+      ],
+      "afterMedianMs": 54.88933399999996
+    },
+    {
+      "id": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts::full XML sync failure integration сохраняет прежние байты снимка при ошибке проверки результата",
+      "file": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts",
+      "name": "full XML sync failure integration сохраняет прежние байты снимка при ошибке проверки результата",
+      "durationsMs": [
+        38.53729200000089,
+        25.220374999998967,
+        18.372292000000016
+      ],
+      "medianMs": 25.220374999998967,
+      "maxMs": 38.53729200000089,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Начальные снимки подготавливаются прямой записью байтов вместо двух атомарных публикаций",
+      "remainingContract": "Ошибка проверки результата не заменяет прежние байты configuration index",
+      "mutationBefore": {
+        "mutants": 52,
+        "killed": 23
+      },
+      "mutationAfter": {
+        "mutants": 52,
+        "killed": 23
+      },
+      "afterDurationsMs": [
+        3.451208999999835,
+        4.626624999999876,
+        5.598791000000347
+      ],
+      "afterMedianMs": 4.626624999999876
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts::syncAppliedObjectToXML — MetadataInformationRegister восстанавливает object-level модули регистра сведений при YAML to XML sync",
+      "file": "packages/core/metadata/appliedObjects/metadataInformationRegister/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataInformationRegister восстанавливает object-level модули регистра сведений при YAML to XML sync",
+      "durationsMs": [
+        25.09675000000425,
+        24.45604099999946,
+        28.311041999997542
+      ],
+      "medianMs": 25.09675000000425,
+      "maxMs": 28.311041999997542,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Подготовка и проверка файлов оставлены отдельными, а чтение общего помощника выполняется параллельно",
+      "remainingContract": "Модули менеджера и набора записей регистра сведений восстанавливаются в object-level Ext",
+      "mutationBefore": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "mutationAfter": {
+        "mutants": 205,
+        "killed": 117
+      },
+      "afterDurationsMs": [
+        47.66920800000025,
+        25.659541999999874,
+        36.72570799999994
+      ],
+      "afterMedianMs": 36.72570799999994
+    },
+    {
+      "id": "packages/core/helpers/runBatch.test.ts::runBatch не превышает лимит concurrency",
+      "file": "packages/core/helpers/runBatch.test.ts",
+      "name": "runBatch не превышает лимит concurrency",
+      "durationsMs": [
+        23.074915999997756,
+        23.028916999999637,
+        23.05199999999968
+      ],
+      "medianMs": 23.05199999999968,
+      "maxMs": 23.074915999997756,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Настоящий таймер заменён управляемыми барьерами",
+      "remainingContract": "Одновременно выполняется не больше concurrency задач",
+      "mutationBefore": {
+        "mutants": 19,
+        "killed": 19
+      },
+      "mutationAfter": {
+        "mutants": 19,
+        "killed": 19
+      },
+      "afterDurationsMs": [
+        0.1944579999999405,
+        0.19700000000011642,
+        0.19945800000004965
+      ],
+      "afterMedianMs": 0.19700000000011642
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml импортирует корневые XML из Ext в Конфигурация.yaml",
+      "file": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts",
+      "name": "sync configuration from xml импортирует корневые XML из Ext в Конфигурация.yaml",
+      "durationsMs": [
+        24.885625000000346,
+        22.810875000002852,
+        16.277541999999812
+      ],
+      "medianMs": 22.810875000002852,
+      "maxMs": 24.885625000000346,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Структурные и простые внешние файлы проверяются по одному общему неизменяемому результату XML-import",
+      "remainingContract": "Корневые XML из Ext преобразуются в соответствующие разделы Конфигурация.yaml",
+      "mutationBefore": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "mutationAfter": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "afterDurationsMs": [
+        3.748291999999765,
+        3.5011670000003505,
+        3.6348330000000715
+      ],
+      "afterMedianMs": 3.6348330000000715
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML экспортирует ссылку на текущую форму в настройках формы локальным именем",
+      "file": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
+      "name": "ChildFormNames: единый импорт XML → YAML экспортирует ссылку на текущую форму в настройках формы локальным именем",
+      "durationsMs": [
+        18.664208000001963,
+        22.439249999999447,
+        21.983791999999085
+      ],
+      "medianMs": 21.983791999999085,
+      "maxMs": 22.439249999999447,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Детальный договор перенесён с полного worker-импорта на прямой вызов обработчика",
+      "remainingContract": "Ссылка Catalog.<name>.Form.<form> экспортируется в YAML локальным именем формы",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        6.379875000000084,
+        7.434790999999677,
+        6.9265000000004875
+      ],
+      "afterMedianMs": 6.9265000000004875
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts::ChildFormNames: единый импорт XML → YAML записывает Формы/<form>/Форма.yaml для каталога",
+      "file": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
+      "name": "ChildFormNames: единый импорт XML → YAML записывает Формы/<form>/Форма.yaml для каталога",
+      "durationsMs": [
+        22.084708000002138,
+        20.905667000000903,
+        19.404665999998542
+      ],
+      "medianMs": 20.905667000000903,
+      "maxMs": 22.084708000002138,
+      "exceedances": 3,
+      "decision": "preserved",
+      "reason": "Оставлен один сквозной тест регистрации обработчика и выполнения через XML-import worker",
+      "remainingContract": "Полный импорт конфигурации создаёт Формы/<form>/Форма.yaml для справочника",
+      "mutationBefore": {
+        "mutants": 66,
+        "killed": 0
+      },
+      "mutationAfter": {
+        "mutants": 66,
+        "killed": 49
+      },
+      "afterDurationsMs": [
+        63.85166599999957,
+        72.1882499999997,
+        82.18499999999949
+      ],
+      "afterMedianMs": 72.1882499999997
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml сохраняет простые корневые внешние файлы конфигурации",
+      "file": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts",
+      "name": "sync configuration from xml сохраняет простые корневые внешние файлы конфигурации",
+      "durationsMs": [
+        21.10529200000019,
+        20.2432919999992,
+        19.458958000002895
+      ],
+      "medianMs": 20.2432919999992,
+      "maxMs": 21.10529200000019,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Структурные и простые внешние файлы проверяются по одному общему неизменяемому результату XML-import",
+      "remainingContract": "Модули, справка, картинки и двоичные файлы конфигурации сохраняются вне Конфигурация.yaml",
+      "mutationBefore": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "mutationAfter": {
+        "mutants": 1,
+        "killed": 1
+      },
+      "afterDurationsMs": [
+        3.7655829999998787,
+        4.43120799999997,
+        3.938709000000017
+      ],
+      "afterMedianMs": 3.938709000000017
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts::sync external Recalculations syncToXML restores listed recalculation XML from reference when nkdk file is missing",
+      "file": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
+      "name": "sync external Recalculations syncToXML restores listed recalculation XML from reference when nkdk file is missing",
+      "durationsMs": [
+        19.83337500000016,
+        22.505416999998488,
+        18.29387499999939
+      ],
+      "medianMs": 19.83337500000016,
+      "maxMs": 22.505416999998488,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml should produce catalog and form YAML in output dir",
+      "file": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts",
+      "name": "sync configuration from xml should produce catalog and form YAML in output dir",
+      "durationsMs": [
+        22.749291999999514,
+        19.223500000000058,
+        19.552292000000307
+      ],
+      "medianMs": 19.552292000000307,
+      "maxMs": 22.749291999999514,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts::full XML sync failure integration does not transfer files or update the snapshot after a worker error",
+      "file": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts",
+      "name": "full XML sync failure integration does not transfer files or update the snapshot after a worker error",
+      "durationsMs": [
+        18.919834000000264,
+        19.12750000000051,
+        17.531458000001294
+      ],
+      "medianMs": 18.919834000000264,
+      "maxMs": 19.12750000000051,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts::full XML sync failure integration keeps written XML but preserves the previous snapshot when transfer fails",
+      "file": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts",
+      "name": "full XML sync failure integration keeps written XML but preserves the previous snapshot when transfer fails",
+      "durationsMs": [
+        18.725625000002765,
+        17.967000000000553,
+        35.33062500000233
+      ],
+      "medianMs": 18.725625000002765,
+      "maxMs": 35.33062500000233,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataDocumentJournal/syncToXML.test.ts::syncAppliedObjectToXML — MetadataDocumentJournal читает DocumentJournal из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataDocumentJournal/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataDocumentJournal читает DocumentJournal из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        17.30020800000011,
+        20.56812500000524,
+        18.565542000000278
+      ],
+      "medianMs": 18.565542000000278,
+      "maxMs": 20.56812500000524,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/project/resources.test.ts::metadata project resources discovers properties for every top-level metadata item with YAML directory",
+      "file": "packages/core/metadata/project/resources.test.ts",
+      "name": "metadata project resources discovers properties for every top-level metadata item with YAML directory",
+      "durationsMs": [
+        18.377999999996973,
+        20.34808300000077,
+        17.890917000000627
+      ],
+      "medianMs": 18.377999999996973,
+      "maxMs": 20.34808300000077,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts::sync external Recalculations syncToXML writes full recalculation XML from nkdk",
+      "file": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
+      "name": "sync external Recalculations syncToXML writes full recalculation XML from nkdk",
+      "durationsMs": [
+        19.2329579999996,
+        17.634541999999783,
+        18.274249999998574
+      ],
+      "medianMs": 18.274249999998574,
+      "maxMs": 19.2329579999996,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts::full XML sync failure integration does not start workers when cfe confirmation cannot find an adopted UUID",
+      "file": "packages/core/metadata/fullSyncToXml/failureIntegration.test.ts",
+      "name": "full XML sync failure integration does not start workers when cfe confirmation cannot find an adopted UUID",
+      "durationsMs": [
+        16.757042000001093,
+        18.295333000000028,
+        18.015166999997746
+      ],
+      "medianMs": 18.015166999997746,
+      "maxMs": 18.295333000000028,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectFiles.test.ts::validation project files discovers properties for every top-level metadata object with YAML directory",
+      "file": "packages/core/metadata/validation/projectFiles.test.ts",
+      "name": "validation project files discovers properties for every top-level metadata object with YAML directory",
+      "durationsMs": [
+        18.186416000000463,
+        17.489958999998635,
+        17.420458000000508
+      ],
+      "medianMs": 17.489958999998635,
+      "maxMs": 18.186416000000463,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/syncToXML.test.ts::sync configuration to XML не удаляет поддержанные внешние файлы после manifest prune",
+      "file": "packages/core/metadata/appliedObjects/configuration/syncToXML.test.ts",
+      "name": "sync configuration to XML не удаляет поддержанные внешние файлы после manifest prune",
+      "durationsMs": [
+        17.08770899999945,
+        17.453041000000667,
+        17.665874999998778
+      ],
+      "medianMs": 17.453041000000667,
+      "maxMs": 17.665874999998778,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts::sync external Recalculations syncToXML ignores recalculation folders that are absent from the model list",
+      "file": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
+      "name": "sync external Recalculations syncToXML ignores recalculation folders that are absent from the model list",
+      "durationsMs": [
+        20.342208000000028,
+        17.326875000000655,
+        17.06604199999856
+      ],
+      "medianMs": 17.326875000000655,
+      "maxMs": 20.342208000000028,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataDataProcessor/syncToXML.test.ts::syncAppliedObjectToXML — MetadataDataProcessor читает DataProcessor из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataDataProcessor/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataDataProcessor читает DataProcessor из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        16.914749999996275,
+        20.737499999995634,
+        15.591874999998254
+      ],
+      "medianMs": 16.914749999996275,
+      "maxMs": 20.737499999995634,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml пишет корневой файл Конфигурация.yaml из Configuration.xml",
+      "file": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts",
+      "name": "sync configuration from xml пишет корневой файл Конфигурация.yaml из Configuration.xml",
+      "durationsMs": [
+        15.384167000000161,
+        15.476582999996026,
+        14.118957999999111
+      ],
+      "medianMs": 15.384167000000161,
+      "maxMs": 15.476582999996026,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/fullSyncToXml/worker.test.ts::full XML sync worker строит BaseForm заимствованной общей формы и не строит его собственной",
+      "file": "packages/core/metadata/fullSyncToXml/worker.test.ts",
+      "name": "full XML sync worker строит BaseForm заимствованной общей формы и не строит его собственной",
+      "durationsMs": [
+        14.445916000000125,
+        12.797333000000435,
+        14.061500000003434
+      ],
+      "medianMs": 14.061500000003434,
+      "maxMs": 14.445916000000125,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataEnumeration/fromYAMLToXML.test.ts::MetadataEnumeration YAML contract accepts enum value names from YAML keys and rejects invalid properties",
+      "file": "packages/core/metadata/appliedObjects/metadataEnumeration/fromYAMLToXML.test.ts",
+      "name": "MetadataEnumeration YAML contract accepts enum value names from YAML keys and rejects invalid properties",
+      "durationsMs": [
+        13.448084000003291,
+        19.811791000000085,
+        10.106874999997672
+      ],
+      "medianMs": 13.448084000003291,
+      "maxMs": 19.811791000000085,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/configurationIndex/fileIO.test.ts::configuration index file IO does not report a save failure after rename committed the new index",
+      "file": "packages/core/metadata/configurationIndex/fileIO.test.ts",
+      "name": "configuration index file IO does not report a save failure after rename committed the new index",
+      "durationsMs": [
+        12.638082999999824,
+        13.295250000001033,
+        13.94024999999965
+      ],
+      "medianMs": 13.295250000001033,
+      "maxMs": 13.94024999999965,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts::sync configuration from xml не падает на дампе без некоторых корневых разделов",
+      "file": "packages/core/metadata/appliedObjects/configuration/convertFromXML.test.ts",
+      "name": "sync configuration from xml не падает на дампе без некоторых корневых разделов",
+      "durationsMs": [
+        14.442082999999911,
+        12.702709000004688,
+        12.973333999998431
+      ],
+      "medianMs": 12.973333999998431,
+      "maxMs": 14.442082999999911,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/metadataValue/toJSONSchema.test.ts::exportMetadataValueToJSONSchema accepts compact formChoiceList object in common MetadataValue schema",
+      "file": "packages/core/metadata/commonObjects/metadataValue/toJSONSchema.test.ts",
+      "name": "exportMetadataValueToJSONSchema accepts compact formChoiceList object in common MetadataValue schema",
+      "durationsMs": [
+        11.432667000000947,
+        13.153000000000247,
+        12.622207999997045
+      ],
+      "medianMs": 12.622207999997045,
+      "maxMs": 13.153000000000247,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/metadataValue/toJSONSchema.test.ts::exportMetadataValueToJSONSchema rejects empty and unknown objects in common MetadataValue schema",
+      "file": "packages/core/metadata/commonObjects/metadataValue/toJSONSchema.test.ts",
+      "name": "exportMetadataValueToJSONSchema rejects empty and unknown objects in common MetadataValue schema",
+      "durationsMs": [
+        11.730625000000146,
+        16.460000000000036,
+        12.26787499999773
+      ],
+      "medianMs": 12.26787499999773,
+      "maxMs": 16.460000000000036,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/configurationIndex/sharedSnapshot.test.ts::shared configuration index snapshot reads the configuration component index into shared memory",
+      "file": "packages/core/metadata/configurationIndex/sharedSnapshot.test.ts",
+      "name": "shared configuration index snapshot reads the configuration component index into shared memory",
+      "durationsMs": [
+        11.857082999999875,
+        11.00512499999968,
+        13.84375
+      ],
+      "medianMs": 11.857082999999875,
+      "maxMs": 13.84375,
+      "exceedances": 3,
+      "decision": "accelerated",
+      "reason": "Индекс для проверки чтения подготавливается прямой записью, без отдельной проверки атомарной публикации",
+      "remainingContract": "Файл индекса читается в shared memory без изменения заголовка и байтов",
+      "mutationBefore": {
+        "mutants": 242,
+        "killed": 204
+      },
+      "mutationAfter": {
+        "mutants": 242,
+        "killed": 204
+      },
+      "afterDurationsMs": [
+        7.606041000000005,
+        8.53900000000067,
+        7.918500000000677
+      ],
+      "afterMedianMs": 7.918500000000677
+    },
+    {
+      "id": "packages/core/metadata/importBoundaries.test.ts::metadata import boundaries production-код не импортирует type-rule registry через formElement/factory",
+      "file": "packages/core/metadata/importBoundaries.test.ts",
+      "name": "metadata import boundaries production-код не импортирует type-rule registry через formElement/factory",
+      "durationsMs": [
+        11.760416999997688,
+        12.132792000000336,
+        11.115915999998833
+      ],
+      "medianMs": 11.760416999997688,
+      "maxMs": 12.132792000000336,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataFilterCriterion/syncToXML.test.ts::syncAppliedObjectToXML — MetadataFilterCriterion читает FilterCriterion из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataFilterCriterion/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataFilterCriterion читает FilterCriterion из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        11.63287500000024,
+        27.681290999999874,
+        10.794167000000016
+      ],
+      "medianMs": 11.63287500000024,
+      "maxMs": 27.681290999999874,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/rulesSnapshot.test.ts::ValidationRulesSnapshot is JSON-compatible",
+      "file": "packages/core/metadata/validation/rulesSnapshot.test.ts",
+      "name": "ValidationRulesSnapshot is JSON-compatible",
+      "durationsMs": [
+        11.295125000000098,
+        10.005541999999878,
+        11.574208999998518
+      ],
+      "medianMs": 11.295125000000098,
+      "maxMs": 11.574208999998518,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/schemaRegistry.test.ts::JSON Schema registry exports value-based UserVisible in form element schemas",
+      "file": "packages/core/metadata/validation/schemaRegistry.test.ts",
+      "name": "JSON Schema registry exports value-based UserVisible in form element schemas",
+      "durationsMs": [
+        11.359416999999667,
+        11.060249999994994,
+        11.184124999999767
+      ],
+      "medianMs": 11.184124999999767,
+      "maxMs": 11.359416999999667,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/syncToXML.test.ts::sync configuration to XML сохраняет простые корневые внешние файлы конфигурации в XML",
+      "file": "packages/core/metadata/appliedObjects/configuration/syncToXML.test.ts",
+      "name": "sync configuration to XML сохраняет простые корневые внешние файлы конфигурации в XML",
+      "durationsMs": [
+        11.204750000000786,
+        11.14862500000163,
+        10.246999999999389
+      ],
+      "medianMs": 11.14862500000163,
+      "maxMs": 11.204750000000786,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/configurationIndex/fileIO.test.ts::configuration index file IO publishes the index atomically without leaving temporary files",
+      "file": "packages/core/metadata/configurationIndex/fileIO.test.ts",
+      "name": "configuration index file IO publishes the index atomically without leaving temporary files",
+      "durationsMs": [
+        10.589834000000337,
+        10.01483399999961,
+        10.667083000000275
+      ],
+      "medianMs": 10.589834000000337,
+      "maxMs": 10.667083000000275,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/childTemplateNames/syncExternal.test.ts::syncChildTemplateNames external files сохраняет Template.txt и вложенный Ext/Template.xml",
+      "file": "packages/core/metadata/commonObjects/childTemplateNames/syncExternal.test.ts",
+      "name": "syncChildTemplateNames external files сохраняет Template.txt и вложенный Ext/Template.xml",
+      "durationsMs": [
+        10.253582999999708,
+        10.518833000000086,
+        10.588250000000698
+      ],
+      "medianMs": 10.518833000000086,
+      "maxMs": 10.588250000000698,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/schemaRegistry.test.ts::JSON Schema registry exports nested child items in inline form element schemas",
+      "file": "packages/core/metadata/validation/schemaRegistry.test.ts",
+      "name": "JSON Schema registry exports nested child items in inline form element schemas",
+      "durationsMs": [
+        10.485541999998532,
+        10.040832999999111,
+        10.577875000002678
+      ],
+      "medianMs": 10.485541999998532,
+      "maxMs": 10.577875000002678,
+      "exceedances": 3,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/project/preparedYamlProjectWorker.test.ts::validation second-pass worker profile attributes eager active views to context construction and excludes blocked states from items",
+      "file": "packages/core/metadata/project/preparedYamlProjectWorker.test.ts",
+      "name": "validation second-pass worker profile attributes eager active views to context construction and excludes blocked states from items",
+      "durationsMs": [
+        4.128375000000233,
+        77.50620899999967,
+        78.41995799999995
+      ],
+      "medianMs": 77.50620899999967,
+      "maxMs": 78.41995799999995,
+      "exceedances": 2,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectValidationWorkerSchemaCache.test.ts::projectValidationWorkerSchemaCache uses runtime schema cache for source TypeScript workers",
+      "file": "packages/core/metadata/validation/projectValidationWorkerSchemaCache.test.ts",
+      "name": "projectValidationWorkerSchemaCache uses runtime schema cache for source TypeScript workers",
+      "durationsMs": [
+        40.49462500000027,
+        0.07150000000001455,
+        35.14012500000172
+      ],
+      "medianMs": 35.14012500000172,
+      "maxMs": 40.49462500000027,
+      "exceedances": 2,
+      "decision": "accelerated",
+      "reason": "Холодная сборка runtime schema cache перенесена в beforeAll и не входит в длительность отдельного утверждения",
+      "remainingContract": "Исходный TypeScript worker использует runtime schema cache и отклоняет объект только с именем конфигурации",
+      "mutationBefore": {
+        "mutants": 14,
+        "killed": 6,
+        "survived": 1,
+        "noCoverage": 7
+      },
+      "mutationAfter": {
+        "mutants": 14,
+        "killed": 11,
+        "survived": 2,
+        "noCoverage": 1
+      },
+      "afterDurationsMs": [
+        1.683249999999589,
+        1.3313750000002074,
+        1.2044590000000426
+      ],
+      "afterMedianMs": 1.3313750000002074
+    },
+    {
+      "id": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts::элементы формы XML → YAML → XML /Users/nikita/git/nkdk/.worktrees/stryker-pilot/packages/core/metadata/forms/elements/table/__fixtures__/full.xml",
+      "file": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+      "name": "элементы формы XML → YAML → XML /Users/nikita/git/nkdk/.worktrees/stryker-pilot/packages/core/metadata/forms/elements/table/__fixtures__/full.xml",
+      "durationsMs": [
+        8.738082999999733,
+        11.39075000000048,
+        10.495582999999897
+      ],
+      "medianMs": 10.495582999999897,
+      "maxMs": 11.39075000000048,
+      "exceedances": 2,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/dataCompositionSystem/availableValues/fromYAML.test.ts::import DcsAvailableValues from YAML accepts absent values in JSON Schema",
+      "file": "packages/core/metadata/commonObjects/dataCompositionSystem/availableValues/fromYAML.test.ts",
+      "name": "import DcsAvailableValues from YAML accepts absent values in JSON Schema",
+      "durationsMs": [
+        10.467750000000706,
+        10.738250000000335,
+        0.039082999999664025
+      ],
+      "medianMs": 10.467750000000706,
+      "maxMs": 10.738250000000335,
+      "exceedances": 2,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/importFromXml/worker.test.ts::XML import worker second pass preserves an unresolved DataPath, returns one warning and releases the YAML",
+      "file": "packages/core/metadata/importFromXml/worker.test.ts",
+      "name": "XML import worker second pass preserves an unresolved DataPath, returns one warning and releases the YAML",
+      "durationsMs": [
+        9.72308399999747,
+        11.74237499999981,
+        10.442542000000685
+      ],
+      "medianMs": 10.442542000000685,
+      "maxMs": 11.74237499999981,
+      "exceedances": 2,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataDocument/syncToXML.test.ts::syncAppliedObjectToXML — MetadataDocument читает Document из YAML и записывает XML + связанные модули",
+      "file": "packages/core/metadata/appliedObjects/metadataDocument/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataDocument читает Document из YAML и записывает XML + связанные модули",
+      "durationsMs": [
+        10.143208999994386,
+        10.327041999997164,
+        7.883999999998196
+      ],
+      "medianMs": 10.143208999994386,
+      "maxMs": 10.327041999997164,
+      "exceedances": 2,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/configuration/incrementalSyncToXML.test.ts::syncConfigurationIncrementallyToXML writes changed form file item and reports changed XML files",
+      "file": "packages/core/metadata/appliedObjects/configuration/incrementalSyncToXML.test.ts",
+      "name": "syncConfigurationIncrementallyToXML writes changed form file item and reports changed XML files",
+      "durationsMs": [
+        9.968165999998746,
+        11.34245799999917,
+        8.648000000001048
+      ],
+      "medianMs": 9.968165999998746,
+      "maxMs": 11.34245799999917,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataExternalDataSource/syncToXML.test.ts::syncAppliedObjectToXML — MetadataExternalDataSource сохраняет reference-порядок форм таблиц из XML дочерних объектов",
+      "file": "packages/core/metadata/appliedObjects/metadataExternalDataSource/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataExternalDataSource сохраняет reference-порядок форм таблиц из XML дочерних объектов",
+      "durationsMs": [
+        9.485000000000582,
+        9.304166999994777,
+        10.155500000000757
+      ],
+      "medianMs": 9.485000000000582,
+      "maxMs": 10.155500000000757,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/configurationIndex/fileIO.test.ts::configuration index file IO keeps a colliding temporary file owned by another writer and retries with a new name",
+      "file": "packages/core/metadata/configurationIndex/fileIO.test.ts",
+      "name": "configuration index file IO keeps a colliding temporary file owned by another writer and retries with a new name",
+      "durationsMs": [
+        7.9299590000000535,
+        10.017374999999447,
+        9.329000000001543
+      ],
+      "medianMs": 9.329000000001543,
+      "maxMs": 10.017374999999447,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts::PredefinedItem YAML → XML принимает keyed-запись без Кода и Наименования",
+      "file": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
+      "name": "PredefinedItem YAML → XML принимает keyed-запись без Кода и Наименования",
+      "durationsMs": [
+        9.317000000000007,
+        12.745374999999967,
+        5.463999999999942
+      ],
+      "medianMs": 9.317000000000007,
+      "maxMs": 12.745374999999967,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts::FilterItem JSON Schema rejects record-shaped values",
+      "file": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts",
+      "name": "FilterItem JSON Schema rejects record-shaped values",
+      "durationsMs": [
+        10.388167000004614,
+        8.710416000001715,
+        0.019292000000859844
+      ],
+      "medianMs": 8.710416000001715,
+      "maxMs": 10.388167000004614,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataExternalDataSource/syncToXML.test.ts::syncAppliedObjectToXML — MetadataExternalDataSource без reference собирает таблицы, кубы и таблицы измерений из отдельных YAML-папок",
+      "file": "packages/core/metadata/appliedObjects/metadataExternalDataSource/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataExternalDataSource без reference собирает таблицы, кубы и таблицы измерений из отдельных YAML-папок",
+      "durationsMs": [
+        8.603665999995428,
+        10.345666000001074,
+        7.291207999998733
+      ],
+      "medianMs": 8.603665999995428,
+      "maxMs": 10.345666000001074,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectValidationPasses.test.ts::validateProjectFileFirstPass references не смешивает одинаковые имена элементов разных общих форм",
+      "file": "packages/core/metadata/validation/projectValidationPasses.test.ts",
+      "name": "validateProjectFileFirstPass references не смешивает одинаковые имена элементов разных общих форм",
+      "durationsMs": [
+        19.863165999995545,
+        7.586208999999144,
+        8.139540999996825
+      ],
+      "medianMs": 8.139540999996825,
+      "maxMs": 19.863165999995545,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectValidationPasses.test.ts::validateProjectFileFirstPass references collects pending metadata target references during first pass",
+      "file": "packages/core/metadata/validation/projectValidationPasses.test.ts",
+      "name": "validateProjectFileFirstPass references collects pending metadata target references during first pass",
+      "durationsMs": [
+        12.022582999998122,
+        8.085041999998793,
+        7.931957999993756
+      ],
+      "medianMs": 8.085041999998793,
+      "maxMs": 12.022582999998122,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/appliedObjects/metadataCatalog/syncToXML.test.ts::syncAppliedObjectToXML — MetadataCatalog читает Catalog из YAML и записывает XML в outputDir",
+      "file": "packages/core/metadata/appliedObjects/metadataCatalog/syncToXML.test.ts",
+      "name": "syncAppliedObjectToXML — MetadataCatalog читает Catalog из YAML и записывает XML в outputDir",
+      "durationsMs": [
+        6.547624999999243,
+        7.492374999999811,
+        12.279625000000124
+      ],
+      "medianMs": 7.492374999999811,
+      "maxMs": 12.279625000000124,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectValidationPasses.test.ts::validateProjectFileFirstPass references builds chart of accounts accounting flag member index entries from YAML",
+      "file": "packages/core/metadata/validation/projectValidationPasses.test.ts",
+      "name": "validateProjectFileFirstPass references builds chart of accounts accounting flag member index entries from YAML",
+      "durationsMs": [
+        13.601915999999619,
+        7.283708000000843,
+        4.194208000000799
+      ],
+      "medianMs": 7.283708000000843,
+      "maxMs": 13.601915999999619,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/project/componentState/indexes.test.ts::component indexes rebuilds canonical addresses of child metadata from current YAML",
+      "file": "packages/core/metadata/project/componentState/indexes.test.ts",
+      "name": "component indexes rebuilds canonical addresses of child metadata from current YAML",
+      "durationsMs": [
+        10.976666000000023,
+        7.152374999999665,
+        6.3628329999992275
+      ],
+      "medianMs": 7.152374999999665,
+      "maxMs": 10.976666000000023,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/validation/projectValidationPasses.test.ts::validateProjectFileFirstPass references keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution",
+      "file": "packages/core/metadata/validation/projectValidationPasses.test.ts",
+      "name": "validateProjectFileFirstPass references keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution",
+      "durationsMs": [
+        10.526124999996682,
+        6.700999999999112,
+        2.9819170000046142
+      ],
+      "medianMs": 6.700999999999112,
+      "maxMs": 10.526124999996682,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/importFromXml/prepareYaml.test.ts::prepareImportYaml discovers a fixture child template as an owner external file and prepares only the owner model",
+      "file": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+      "name": "prepareImportYaml discovers a fixture child template as an owner external file and prepares only the owner model",
+      "durationsMs": [
+        6.325333000000228,
+        14.660125000000335,
+        3.061416000000463
+      ],
+      "medianMs": 6.325333000000228,
+      "maxMs": 14.660125000000335,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/exchangePlanContent/toJSONSchema.test.ts::ExchangePlanContent JSON Schema accepts compact content items without implicit Авторегистрация",
+      "file": "packages/core/metadata/commonObjects/exchangePlanContent/toJSONSchema.test.ts",
+      "name": "ExchangePlanContent JSON Schema accepts compact content items without implicit Авторегистрация",
+      "durationsMs": [
+        13.762833000000228,
+        5.352042000000438,
+        6.0943329999972775
+      ],
+      "medianMs": 6.0943329999972775,
+      "maxMs": 13.762833000000228,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts::registerMetadataItemCollectionRule default toJSONSchema exports record schema for record YAML collections",
+      "file": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
+      "name": "registerMetadataItemCollectionRule default toJSONSchema exports record schema for record YAML collections",
+      "durationsMs": [
+        3.601749999994354,
+        12.562124999999924,
+        4.926290999999765
+      ],
+      "medianMs": 4.926290999999765,
+      "maxMs": 12.562124999999924,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts::registerMetadataItemCollectionRule default toJSONSchema exports array schema inside recursive yamlAsArray collections",
+      "file": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
+      "name": "registerMetadataItemCollectionRule default toJSONSchema exports array schema inside recursive yamlAsArray collections",
+      "durationsMs": [
+        4.66874999999709,
+        21.674290999999812,
+        3.817291999999725
+      ],
+      "medianMs": 4.66874999999709,
+      "maxMs": 21.674290999999812,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/operations/renameItem.test.ts::renameMetadataItem applies attribute rename through model export and writes a migration file",
+      "file": "packages/core/metadata/operations/renameItem.test.ts",
+      "name": "renameMetadataItem applies attribute rename through model export and writes a migration file",
+      "durationsMs": [
+        1.559000000001106,
+        1.3736250000001746,
+        13.4050000000002
+      ],
+      "medianMs": 1.559000000001106,
+      "maxMs": 13.4050000000002,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    },
+    {
+      "id": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts::FilterItem JSON Schema keeps accepting scalar comparison right value",
+      "file": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/toJSONSchema.test.ts",
+      "name": "FilterItem JSON Schema keeps accepting scalar comparison right value",
+      "durationsMs": [
+        0.032874999997147825,
+        0.03229200000350829,
+        10.09966699999859
+      ],
+      "medianMs": 0.032874999997147825,
+      "maxMs": 10.09966699999859,
+      "exceedances": 1,
+      "decision": "unreviewed",
+      "reason": "",
+      "remainingContract": "",
+      "mutationBefore": null,
+      "mutationAfter": null
+    }
+  ]
+}
