@@ -1,5 +1,8 @@
-export function withKnownXMLDefaults(xml: string): string {
-  return withIncludeHelpInContents(withAttributeFillValue(withTableDefaults(xml)))
+export function withKnownXMLDefaults(xml: string, options: { includeCheckBoxType?: boolean } = {}): string {
+  const withFormDefaults = withTableDefaults(xml)
+  const withConditionalDefaults =
+    options.includeCheckBoxType === false ? withFormDefaults : withCheckBoxType(withFormDefaults)
+  return withIncludeHelpInContents(withAttributeFillValue(withConditionalDefaults))
 }
 
 function withIncludeHelpInContents(xml: string): string {
@@ -18,6 +21,25 @@ function withAttributeFillValue(xml: string): string {
 
 function insertBeforeClosingProperties(block: string, element: string): string {
   return block.replace(/\n([\t ]*)<\/Properties>/, `\n$1\t${element}\n$1</Properties>`)
+}
+
+function withCheckBoxType(xml: string): string {
+  return xml.replace(/<CheckBoxField\b[\s\S]*?<\/CheckBoxField>/g, (field) => {
+    if (/<CheckBoxType(?:[ />])/.test(field) || /<ThreeState>true<\/ThreeState>/.test(field)) return field
+
+    const closing = field.match(/\n([\t ]*)<\/CheckBoxField>$/)
+    if (closing === null) return field
+    const fieldIndent = closing[1] ?? ""
+    const childIndent = `${fieldIndent}\t`
+    const laterElement = new RegExp(
+      `\n${escapeRegExp(childIndent)}<(?:ContextMenu|ExtendedTooltip|Events)(?:[ />])`
+    )
+    const insertion = `\n${childIndent}<CheckBoxType>Auto</CheckBoxType>`
+    const laterIndex = field.search(laterElement)
+
+    if (laterIndex >= 0) return `${field.slice(0, laterIndex)}${insertion}${field.slice(laterIndex)}`
+    return field.replace(`\n${fieldIndent}</CheckBoxField>`, `${insertion}\n${fieldIndent}</CheckBoxField>`)
+  })
 }
 
 function withTableDefaults(xml: string): string {

@@ -15,6 +15,7 @@ import type { CollectableElementType } from "../../../orchestration/formElement/
 import { getElementRule } from "../orchestration/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 import { TableRules } from "../table/rules"
+import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
 
 import "../index"
 
@@ -87,7 +88,9 @@ describe("элементы формы XML → YAML → XML", () => {
     }
 
     const actualXML = withoutDeclaration(xmlExport({ [xmlTag]: result }, false))
-    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim())
+    const expectedXML = withKnownXMLDefaults(fs.readFileSync(fixture, "utf8").trim(), {
+      includeCheckBoxType: false,
+    })
     if (expectedXML.includes("<Table")) {
       expect(importContentFromXML(actualXML, { preserveXsiNil: true })).toEqual(
         importContentFromXML(expectedXML, { preserveXsiNil: true })
@@ -146,6 +149,40 @@ describe("элементы формы XML → YAML → XML", () => {
       "Representation"
     )
   })
+
+  it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(
+    "$itemType восстанавливает CheckBoxType по ThreeState",
+    (rule) => {
+      expect(testMetadataItemFromYAMLToXML({ rule, yaml: {}, name: "Флажок" }).xml).toHaveProperty(
+        "CheckBoxType",
+        "Auto"
+      )
+
+      const threeState = testMetadataItemFromYAMLToXML({
+        rule,
+        yaml: { ТриСостояния: "Истина" },
+        name: "Флажок",
+      }).xml
+      expect(threeState).toHaveProperty("ThreeState", true)
+      expect(threeState).not.toHaveProperty("CheckBoxType")
+
+      expect(
+        testMetadataItemFromYAMLToXML({
+          rule,
+          yaml: { ВидФлажка: "Выключатель" },
+          name: "Флажок",
+        }).xml
+      ).toHaveProperty("CheckBoxType", "Switch")
+
+      expect(
+        testMetadataItemFromYAMLToXML({
+          rule,
+          yaml: { ТриСостояния: "Истина", ВидФлажка: "Выключатель" },
+          name: "Флажок",
+        }).xml
+      ).toMatchObject({ ThreeState: true, CheckBoxType: "Switch" })
+    }
+  )
 })
 
 function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string, unknown>): CollectableElementType {

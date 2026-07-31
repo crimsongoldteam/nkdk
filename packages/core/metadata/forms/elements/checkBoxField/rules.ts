@@ -20,6 +20,8 @@ const CheckBoxFieldCommonRulesProperties = {
     type: "SystemEnumeration",
     typeSE: "CheckBoxType",
     implicitValueYAML: "Auto",
+    defaultValueXML: "Auto",
+    toXML: (source) => source.has("checkBoxType") || !source.has("threeState"),
   },
   editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
   equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean", implicitValueYAML: false },
