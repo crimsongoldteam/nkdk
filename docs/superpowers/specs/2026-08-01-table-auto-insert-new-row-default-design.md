@@ -1,4 +1,4 @@
-# Неявные значения AutoInsertNewRow таблицы формы
+# Неявные значения AutoInsertNewRow и растяжения элементов формы
 
 ## Цель
 
@@ -131,4 +131,143 @@ YAML-default `Истина`.
 - Схема формы и MCP-валидация запрещают явное YAML `Истина`.
 - Синхронизация не строит и не читает индекс ради `AutoInsertNewRow`.
 - Ограничение для источников с фактическим default `Ложь` документировано.
+- Все тесты проходят.
+
+## Трёхзначное растяжение групп формы
+
+### Проблема
+
+В XDTO-схеме свойства `GroupBase.HorizontalStretch` и
+`GroupBase.VerticalStretch` имеют тип `BWAValue`. Он допускает три значения:
+`true`, `false` и `auto`; XML-default равен `auto`. Поэтому отсутствие XML-узла
+означает автоматическое значение, а не конкретное булево значение.
+
+Это отличается от `Table.HorizontalStretch` и большинства полей формы: у них
+свойство имеет тип `xs:boolean` с XML-default `true`. Источник договора —
+[`model.xdtomngbase_root.res`](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtomngbase_root.res#L530-L548).
+
+Текущие `formGroupCommonProperties` ошибочно считают YAML-default
+`HorizontalStretch` равным `false`, а `VerticalStretch` — `true`. В результате
+round-trip `cf/doc` удаляет 583 явных `<HorizontalStretch>false</HorizontalStretch>`
+и 212 явных `<VerticalStretch>true</VerticalStretch>`. Явное булево состояние
+заменяется состоянием `auto`.
+
+В `v0.0.3` те же defaults уже были записаны в rules.ts, но старая синхронизация
+восстанавливала отсутствующие YAML-свойства из `sourceValue` и reference XML.
+Поэтому расхождение обычно не проявлялось, хотя YAML не содержал достаточно
+данных для самостоятельного восстановления XML.
+
+### Принятый договор
+
+Автоматическое состояние представляется отсутствием модельного значения и
+отсутствием YAML-ключа. Явное YAML-значение `Авто` не добавляется.
+
+| Состояние | Модель | YAML | XML |
+|---|---|---|---|
+| Автоматическое | `undefined` | ключ отсутствует | узел отсутствует |
+| Ложь | `false` | `Ложь` | `<HorizontalStretch>false</HorizontalStretch>` |
+| Истина | `true` | `Истина` | `<HorizontalStretch>true</HorizontalStretch>` |
+
+Та же матрица применяется к `VerticalStretch` с соответствующим именем XML-узла.
+Явный XML `auto` импортируется как `undefined` и при экспорте без reference
+канонизируется в отсутствующий узел.
+
+### Расширение booleanRule
+
+Новый property-тип не добавляется. Только `BooleanRuleParams` получает явный
+признак `implicitAuto: true`:
+
+```ts
+horizontalStretch: booleanRule({
+  yaml: "РастягиватьПоГоризонтали",
+  implicitAuto: true,
+})
+```
+
+`implicitAuto` означает:
+
+- отсутствие YAML-ключа задаёт автоматическое состояние `undefined`;
+- XML `auto` и отсутствующий XML-узел импортируются как `undefined`;
+- `true` и `false` не считаются YAML-default и всегда записываются явно;
+- отсутствующий YAML-ключ не восстанавливает `true` или `false` из reference XML;
+- при экспорте `undefined` XML-узел не создаётся;
+- JSON Schema остаётся обычной булевой схемой и не разрешает явное `Авто`.
+
+Внутри `booleanRule` этот признак создаёт нейтральный договор с явно
+присутствующим `implicitValueYAML: undefined`. Общая оркестрация различает
+отсутствующее поле правила и собственное поле со значением `undefined` через
+`hasOwnProperty`. Во втором случае `undefined` считается намеренным результатом
+и не заменяется значением из reference XML.
+
+В параметрах вызова `booleanRule` признак `implicitAuto` несовместим с
+`implicitValueYAML` и `noImplicitValueYAML`: для одного boolean-свойства
+выбирается ровно один договор отсутствующего YAML-ключа.
+`StringboolXML` расширяется значением `"auto"`; существующее преобразование
+boolean закрепляется тестом как `"auto"` → `undefined`.
+
+### Область применения
+
+Оба свойства `formGroupCommonProperties` переводятся на `booleanRule` с
+`implicitAuto: true`. Договор наследуют:
+
+- `UsualGroup`;
+- `CommandBar`;
+- `ColumnGroup`;
+- `ButtonGroup`;
+- `Page`;
+- `Pages`;
+- `Popup`.
+
+Локальные переопределения `horizontalStretch`, которые задают
+`implicitValueYAML` или одновременно наследуют его с `noImplicitValueYAML`,
+удаляются. `Table` и поля формы не изменяются: их XML-схема содержит обычный
+`xs:boolean`, поэтому для них сохраняются существующие правила.
+
+Общая orchestration не получает условий по `itemType` или именам элементов
+формы. Знание о трёхзначном XML-значении находится в `booleanRule`, а решение о
+его использовании — в rules.ts семейства `formGroup`.
+
+### JSON Schema и MCP-валидация
+
+Для свойства с `implicitAuto: true` YAML-ключ остаётся необязательным. Если ключ
+присутствует, JSON Schema разрешает только `Истина` и `Ложь`. `Авто` и любое
+третье значение отклоняются одной обычной схемной ошибкой.
+
+`nkdk.get_schema` возвращает этот договор как часть схемы формы, а
+`nkdk.validate_project` применяет ту же схему через общий core-валидатор.
+Специальная проверка в `packages/mcp` не добавляется.
+
+### Проверки
+
+1. Тест `booleanRule` подтверждает, что `implicitAuto` создаёт собственное
+   `implicitValueYAML: undefined` и несовместим с другими YAML-default режимами.
+2. Существующий тест XML → модель для boolean расширяется случаем `auto` →
+   `undefined`.
+3. Проверка XML → YAML покрывает отсутствующий узел, явный `auto`, `false` и
+   `true`.
+4. Проверка YAML → XML покрывает отсутствующий ключ, `Ложь` и `Истина` без
+   reference XML.
+5. Проверка синхронизации с reference XML подтверждает, что отсутствующий
+   YAML-ключ не восстанавливает явный XML `true` или `false`.
+6. Контрактный тест правил подтверждает `implicitAuto: true` для обоих свойств
+   всех семи элементов и отсутствие локальных противоречивых defaults.
+7. Проверка JSON Schema формы разрешает отсутствие ключа, `Истина` и `Ложь`,
+   но отклоняет `Авто` и третье значение. MCP использует тот же договор без
+   повторения проверки в отдельной логике.
+8. Существующие XML-фикстуры не изменяются.
+9. После целевых тестов выполняются `pnpm type-check`, `pnpm test` и mutation
+   testing изменённых production-диапазонов.
+10. Повторный round-trip `/Users/nikita/git/round-trip-compact/cf/doc`
+    подтверждает отсутствие удалений 583 `HorizontalStretch=false` и 212
+    `VerticalStretch=true`.
+
+### Критерии готовности
+
+- YAML самостоятельно различает автоматическое, ложное и истинное состояния
+  без чтения исходного XML.
+- Явные XML `true` и `false` сохраняются в YAML и восстанавливаются обратно.
+- Удаление ключа из YAML переводит свойство в автоматическое состояние и не
+  восстанавливает прежнее значение из reference XML.
+- JSON Schema и MCP-валидация не разрешают явное YAML `Авто`.
+- `Table` и обычные поля формы сохраняют прежние boolean-defaults.
 - Все тесты проходят.
