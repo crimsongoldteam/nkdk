@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import "../../commonObjects/childFormNames/syncExternalToXML"
-import "../../commonObjects/childTemplateNames/syncExternalToXML"
+import "../../commonObjects/childFormNames/resourceTopology"
+import "../../commonObjects/childTemplateNames/resourceTopology"
 import { getTypeRule } from "../property/typeRuleRegistry"
 
 describe("fileChildNamesDescriptor", () => {

@@ -1,12 +1,8 @@
 import { dirname, join } from "path"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type {
-  SyncExternalFromXMLFunction,
-  SyncExternalToXMLFunction,
-} from "../../orchestration/property/fn"
+import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
 import {
   copyFormItemExternalFilesFromXML,
-  copyFormItemExternalFilesToXML,
   describeFormExternalResourceDeclarations,
 } from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"
@@ -36,29 +32,12 @@ const syncClientApplicationFormExternalFromXML: SyncExternalFromXMLFunction = as
   })
 }
 
-const syncClientApplicationFormExternalToXML: SyncExternalToXMLFunction = async (params) => {
-  if (params.rule.filePath === undefined) return
-
-  const formXmlDir = getDirectFormXmlDir({ baseDir: params.xmlDir, rule: params.rule })
-  await copyFormItemExternalFilesToXML({
-    formNkdkDir: params.nkdkDir,
-    formXmlDir,
-    xmlManifest: params.xmlManifest,
-  })
-  await copyExistingRawFile({
-    sourcePath: join(params.nkdkDir, "Form.bin"),
-    targetPath: join(formXmlDir, "Form.bin"),
-    xmlManifest: params.xmlManifest,
-  })
-}
-
 registerTypeRule("ClientApplicationForm", "nestedItemRule", { itemRule: ClientApplicationFormRules })
 registerTypeRule("ClientApplicationForm", "resolveNestedImportXMLSources", ({ context, xml }) => [
   createClientApplicationFormBodyImportSource({ context, xml }),
 ])
 registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientApplicationFormToJSONSchema)
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
-registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
 registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule }) => {
   const filePath = propertyRule?.filePath
   if (filePath === undefined) return []
