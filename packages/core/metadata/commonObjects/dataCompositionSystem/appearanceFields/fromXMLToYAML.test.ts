@@ -93,7 +93,7 @@ describe("AppearanceFields XML → YAML", () => {
     })
   })
 
-  it("exports enabled DCS auto color as empty YAML value", () => {
+  it("exports enabled DCS auto color as explicit YAML marker", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: {
@@ -102,17 +102,17 @@ describe("AppearanceFields XML → YAML", () => {
           parameter: "ЦветТекста",
         },
       },
-      yaml: { ЦветТекста: null },
+      yaml: { ЦветТекста: "Авто" },
     })
 
     expect(result).toEqual({
       Оформление: {
-        ЦветТекста: null,
+        ЦветТекста: "Авто",
       },
     })
   })
 
-  it("exports disabled DCS auto color without YAML value", () => {
+  it("exports disabled DCS auto color with explicit YAML marker", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: {
@@ -122,13 +122,14 @@ describe("AppearanceFields XML → YAML", () => {
           use: false,
         },
       },
-      yaml: { ЦветФона: { Использовать: "Ложь" } },
+      yaml: { ЦветФона: { Использовать: "Ложь", Значение: "Авто" } },
     })
 
     expect(result).toEqual({
       Оформление: {
         ЦветФона: {
           Использовать: "Ложь",
+          Значение: "Авто",
         },
       },
     })

@@ -5,6 +5,13 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { compileValidationSchema } from "./compileValidationSchema"
 import { createProjectValidationStandaloneSchemaSet } from "./projectValidationStandaloneSchemas"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
+import {
+  projectValidationFormRuleKey,
+} from "./projectValidationFormRules"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 const execFileAsync = promisify(execFile)
 
@@ -12,6 +19,8 @@ describe("project validation standalone build output", () => {
   let schemaSet: ReturnType<typeof createProjectValidationStandaloneSchemaSet>
   let enumerationSchema: ReturnType<typeof compileValidationSchema>
   let catalogSchema: ReturnType<typeof compileValidationSchema>
+  let baseFormSchema: ReturnType<typeof compileValidationSchema>
+  let specializedFormSchema: ReturnType<typeof compileValidationSchema>
   let generatedValidatorsSummary: unknown
 
   beforeAll(async () => {
@@ -23,6 +32,20 @@ describe("project validation standalone build output", () => {
     }
     enumerationSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[enumeration.rule.itemType])
     catalogSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[catalog.rule.itemType])
+    baseFormSchema = compileValidationSchema(
+      schemaSet.refs,
+      schemaSet.forms[
+        projectValidationFormRuleKey(ClientApplicationFormRules)
+      ]
+    )
+    specializedFormSchema = compileValidationSchema(
+      schemaSet.refs,
+      schemaSet.forms[
+        projectValidationFormRuleKey(
+          ClientApplicationFormWithExtendedPresentationRules
+        )
+      ]
+    )
     enumerationSchema.Check(undefined)
     catalogSchema.Check(undefined)
 
@@ -32,14 +55,16 @@ describe("project validation standalone build output", () => {
     const script = [
       "const { pathToFileURL } = await import('node:url')",
       `const module = (await import(pathToFileURL(${JSON.stringify(modulePath)}).href)).default`,
+      "const form = Object.values(module.forms)[0]",
       "console.log(JSON.stringify({",
       "  format: module.format,",
       "  moduleKeys: Object.keys(module).sort(),",
-      "  formKeys: Object.keys(module.form).sort(),",
+      "  formCount: Object.keys(module.forms).length,",
+      "  formKeys: Object.keys(form).sort(),",
       "  configurationKeys: Object.keys(module.byItemType.MetadataConfiguration).sort(),",
-      "  formValidateType: typeof module.form.validate,",
-      "  formValidateResultType: typeof module.form.validate(42),",
-      "  formErrorKeys: Object.keys(module.form.validate.errors?.[0] ?? {}).sort(),",
+      "  formValidateType: typeof form.validate,",
+      "  formValidateResultType: typeof form.validate(42),",
+      "  formErrorKeys: Object.keys(form.validate.errors?.[0] ?? {}).sort(),",
       "  hasConfiguration: module.byItemType.MetadataConfiguration !== undefined,",
       "  hasConfigurationExtension: module.byItemType.MetadataConfigurationExtension !== undefined,",
       "}))",
@@ -72,6 +97,13 @@ describe("project validation standalone build output", () => {
     expect(JSON.stringify(schemaSet.byItemType[commonForm.rule.itemType])).toContain(ref)
   })
 
+  it("keeps standalone form variants separate", () => {
+    const yaml = { РасширенноеПредставление: "Продажи" }
+
+    expect(baseFormSchema.Check(yaml)).toBe(false)
+    expect(specializedFormSchema.Check(yaml)).toBe(true)
+  })
+
   it("accepts enumeration value names from YAML keys", () => {
     expect(enumerationSchema.Check({ Значения: { Значение1: {} } })).toBe(true)
   })
@@ -86,8 +118,9 @@ describe("project validation standalone build output", () => {
     if (generatedValidatorsSummary === undefined) return
 
     expect(generatedValidatorsSummary).toEqual({
-      format: "project-validation-ajv-standalone-v3",
-      moduleKeys: ["byItemType", "form", "format"],
+      format: "project-validation-ajv-standalone-v4",
+      moduleKeys: ["byItemType", "format", "forms"],
+      formCount: 2,
       formKeys: ["validate"],
       configurationKeys: ["validate"],
       formValidateType: "function",

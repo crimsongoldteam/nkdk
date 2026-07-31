@@ -6,13 +6,15 @@ function group(
   targetProjectPath: string,
   role: ImportAssignmentGroup["definition"]["role"],
   itemType: string,
-  logicalAddressSegment?: string
+  logicalAddressSegment?: string,
+  topologyNodeId?: string
 ): ImportAssignmentGroup {
   return {
     definition: {
       role,
       itemType,
       ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
+      ...(topologyNodeId === undefined ? {} : { topologyNodeId }),
     },
     values: {},
     targetProjectPath,
@@ -69,5 +71,19 @@ describe("XML import assignment builder", () => {
         logicalAddress: "Подсистема.Родитель",
       },
     })
+  })
+
+  it("copies the topology node identifier into an assignment", () => {
+    const [assignment] = createImportAssignments([
+      group(
+        "Обработка/Загрузка/Формы/Основная/Форма.yaml",
+        "fileItem",
+        "ClientApplicationForm",
+        "Форма",
+        "processor-form-node"
+      ),
+    ])
+
+    expect(assignment?.topologyNodeId).toBe("processor-form-node")
   })
 })

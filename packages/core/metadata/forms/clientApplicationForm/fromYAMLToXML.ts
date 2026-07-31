@@ -17,6 +17,7 @@ import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formY
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import { buildClientApplicationBaseForm } from "./baseForm"
+import type { MetadataItemRule } from "../../orchestration"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -27,6 +28,7 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly baseFormXML?: ClientApplicationFormXML
   readonly dataPathYaml?: ClientApplicationFormYAML
   readonly profile?: YAMLToXMLProfile
+  readonly rule?: MetadataItemRule
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -39,6 +41,7 @@ export interface DirectClientApplicationFormXMLResult {
 export function convertClientApplicationFormFromYAMLToXML(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
+  const rule = params.rule ?? ClientApplicationFormRules
   const metadataContext = {
     ...params.context,
     importFromYAML: {
@@ -52,14 +55,14 @@ export function convertClientApplicationFormFromYAMLToXML(
   const converted = convertPropertiesFromYAMLToXML({
     context: metadataContext,
     yaml: params.yaml,
-    rule: ClientApplicationFormRules,
+    rule,
     name: params.name,
     outputs: [
       { key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML },
       { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML, context: formContext },
     ],
     profile: params.profile,
-    rulePath: [ClientApplicationFormRules.itemType],
+    rulePath: [rule.itemType],
   })
 
   const formProperties = converted.outputs.get("form") ?? {}
@@ -207,6 +210,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
     name,
     referenceXML,
   }) => {
+    const rule = ClientApplicationFormRules
     const extensionYaml = yaml as ClientApplicationFormYAML
     const baseFormXML =
       baseYAML === undefined
@@ -219,6 +223,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
             baseYaml: baseYAML as ClientApplicationFormYAML,
             extensionYaml,
             formName: name,
+            rule,
           })
     return {
       Form: convertClientApplicationFormFromYAMLToXML({
@@ -229,6 +234,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
           | ClientApplicationFormXML
           | undefined,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
+        rule,
       }).formXML,
     }
   },

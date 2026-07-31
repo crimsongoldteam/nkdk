@@ -86,7 +86,6 @@ const commonTabularSectionProperties = {
     xmlParents: propertiesParents,
     defaultValueXML: 5,
     implicitValueYAML: 5,
-    preserveFromReferenceXML: true,
   },
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",

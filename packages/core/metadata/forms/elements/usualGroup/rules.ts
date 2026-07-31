@@ -47,6 +47,7 @@ export const UsualGroupRules = {
     "showLeftMargin",
     "united",
     "format",
+    "slaveItemsWidth",
     "showTitle",
     "titleDataPath",
     "backColor",

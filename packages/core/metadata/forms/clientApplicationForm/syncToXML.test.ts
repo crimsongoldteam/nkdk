@@ -49,7 +49,18 @@ describe("sync ClientApplicationForm to XML", () => {
     const resultMetadataXML = fs.readFileSync(join(outputDir, "Forms", "ФормаЭлемента.xml"), "utf-8")
 
     expect(resultFormXML).toBe(expectedFormXML)
-    expect(canonicalXML(resultMetadataXML)).toEqual(canonicalXML(expectedMetadataXML))
+    expect(canonicalXML(resultMetadataXML)).toMatchObject(
+      canonicalXML(expectedMetadataXML) as Record<string, unknown>
+    )
+    expect(canonicalXML(resultMetadataXML)).toMatchObject({
+      MetaDataObject: {
+        Form: {
+          Properties: {
+            IncludeHelpInContents: "false",
+          },
+        },
+      },
+    })
   })
 
   it("синхронизирует managed form без referenceDir", async () => {

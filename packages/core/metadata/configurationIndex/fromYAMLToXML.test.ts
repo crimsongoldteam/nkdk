@@ -209,7 +209,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({})
   })
 
-  it("не восстанавливает XML defaults по удалённому признаку присутствия", () => {
+  it("восстанавливает XML defaults по rules без признака присутствия", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -219,14 +219,12 @@ describe("configuration index в едином YAML → XML-обходе", () => 
           xml: "Mode",
           yaml: "Режим",
           defaultValueXML: "Default",
-          preserveFromReferenceXML: true,
         },
         enabled: {
           type: "boolean",
           xml: "Enabled",
           yaml: "Включено",
           defaultValueXML: false,
-          preserveFromReferenceXML: true,
         },
       },
     } as const satisfies MetadataItemRule
@@ -242,7 +240,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({ Mode: "Default", Enabled: false })
   })
 
   it("не восстанавливает системное перечисление, исключённое из YAML как implicitValueYAML", () => {
@@ -361,7 +359,7 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
   })
 
-  it("не восстанавливает Synonym, исключённый из YAML как равный имени", () => {
+  it("восстанавливает Synonym, исключённый из YAML как равный имени", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
       itemType: "TestDirectItem",
@@ -395,7 +393,14 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(exported.xml).toEqual({
+      Synonym: {
+        "v8:item": [{
+          "v8:lang": "ru",
+          "v8:content": "Регистр бухгалтерии по умолчанию",
+        }],
+      },
+    })
   })
 
   it("uses the rule XML property order without reference XML", () => {

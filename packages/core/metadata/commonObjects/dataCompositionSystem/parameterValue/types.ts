@@ -45,7 +45,9 @@ export type ParameterValueYAMLObject = {
   Элементы?: ParameterValueYAML[]
 }
 
-export type ParameterValueYAML = ParameterValueYAMLObject | null
+export type DcsAutoColorYAML = "Авто"
+
+export type ParameterValueYAML = ParameterValueYAMLObject | DcsAutoColorYAML
 export type LegacyParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "Элементы"> & {
@@ -55,7 +57,7 @@ export type SettingsParameterValueYAMLObject = Omit<ParameterValueYAMLObject, "�
   Элементы?: SettingsParameterValueYAML[]
 }
 
-export type SettingsParameterValueYAML = SettingsParameterValueYAMLObject | null
+export type SettingsParameterValueYAML = SettingsParameterValueYAMLObject | DcsAutoColorYAML
 export type LegacySettingsParameterValueYAML = MetadataDcsMetadataValueYAML
 
 export type ParameterValueDcsValueFragment = NonNullable<MetadataDcsMetadataValueDcsRootXML["dcscor:value"]>

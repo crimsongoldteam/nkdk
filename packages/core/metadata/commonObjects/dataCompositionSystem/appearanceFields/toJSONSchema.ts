@@ -29,6 +29,7 @@ const unionOf = (schemas: TSchema[]): TSchema => {
 }
 
 const Nullable = (schema: TSchema): TSchema => Type.Union([Type.Null(), schema])
+const notSchema = (schema: TSchema): TSchema => ({ not: schema }) as TSchema
 
 const StrictMetadataExplicitAccountTypeYAMLJSONSchema = Type.Object(
   {
@@ -201,35 +202,43 @@ const encodeAppearanceSchemaKeySegment = (value: string | undefined): string | u
 export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
   const properties = AppearanceFieldsRules.properties
 
-  return Type.Object(
-    {
-      ЦветФона: propertySchema(context, properties.ЦветФона, () => Nullable(ColorJSONSchema)),
-      ЦветТекста: propertySchema(context, properties.ЦветТекста, () => Nullable(ColorJSONSchema)),
-      Шрифт: propertySchema(context, properties.Шрифт, () => Nullable(StrictFontJSONSchema)),
-      ГоризонтальноеПоложение: propertySchema(
-        context,
-        properties.ГоризонтальноеПоложение,
-        (context) => Nullable(requiredSystemEnumerationJSONSchema(context, "HorizontalAlign"))
-      ),
-      Формат: propertySchema(context, properties.Формат, () => AppearanceDesignTimeValueJSONSchema),
-      ВыделятьОтрицательные: propertySchema(
-        context,
-        properties.ВыделятьОтрицательные,
-        () => AppearancePrimitiveValueJSONSchema
-      ),
-      ОтметкаНезаполненного: propertySchema(
-        context,
-        properties.ОтметкаНезаполненного,
-        () => AppearancePrimitiveValueJSONSchema
-      ),
-      Текст: propertySchema(context, properties.Текст, () => AppearanceDesignTimeValueJSONSchema),
-      Видимость: propertySchema(context, properties.Видимость, () => AppearancePrimitiveValueJSONSchema),
-      Доступность: propertySchema(context, properties.Доступность, () => AppearancePrimitiveValueJSONSchema),
-      ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearancePrimitiveValueJSONSchema),
-      Отображать: propertySchema(context, properties.Отображать, () => AppearancePrimitiveValueJSONSchema),
-    },
-    { additionalProperties: false }
-  )
+  return Type.Intersect([
+    Type.Object(
+      {
+        ЦветФона: propertySchema(context, properties.ЦветФона, () => Nullable(ColorJSONSchema)),
+        ЦветТекста: propertySchema(context, properties.ЦветТекста, () => Nullable(ColorJSONSchema)),
+        Шрифт: propertySchema(context, properties.Шрифт, () => Nullable(StrictFontJSONSchema)),
+        ГоризонтальноеПоложение: propertySchema(
+          context,
+          properties.ГоризонтальноеПоложение,
+          (context) => Nullable(requiredSystemEnumerationJSONSchema(context, "HorizontalAlign"))
+        ),
+        Формат: propertySchema(context, properties.Формат, () => AppearanceDesignTimeValueJSONSchema),
+        ВыделятьОтрицательные: propertySchema(
+          context,
+          properties.ВыделятьОтрицательные,
+          () => AppearancePrimitiveValueJSONSchema
+        ),
+        ОтметкаНезаполненного: propertySchema(
+          context,
+          properties.ОтметкаНезаполненного,
+          () => AppearancePrimitiveValueJSONSchema
+        ),
+        Текст: propertySchema(context, properties.Текст, () => AppearanceDesignTimeValueJSONSchema),
+        Видимость: propertySchema(context, properties.Видимость, () => AppearancePrimitiveValueJSONSchema),
+        Доступность: propertySchema(context, properties.Доступность, () => AppearancePrimitiveValueJSONSchema),
+        ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearancePrimitiveValueJSONSchema),
+        Отображать: propertySchema(context, properties.Отображать, () => AppearancePrimitiveValueJSONSchema),
+      },
+      { additionalProperties: false }
+    ),
+    notSchema(
+      Type.Union([
+        Type.Object({ ЦветФона: Type.Undefined() }),
+        Type.Object({ ЦветТекста: Type.Undefined() }),
+      ])
+    ),
+  ])
 }
 
 registerTypeRule("AppearanceFields", "exportToJSONSchema", exportAppearanceFieldsToJSONSchema)

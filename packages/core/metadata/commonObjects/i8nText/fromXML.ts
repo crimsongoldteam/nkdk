@@ -10,10 +10,14 @@ export const importI8nTextFromXML = (
 ): I8nText | undefined => {
   const narrowRule = _rule as I8nTextPropertyRule
 
-  if (xml === "") return narrowRule.preserveEmptyXML ? { items: {} } : undefined
+  if (xml === "") {
+    return narrowRule.preserveEmptyXML || narrowRule.excludeIfEqualNameYAML ? { items: {} } : undefined
+  }
   if (!xml) return undefined
 
-  if (!xml["v8:item"]) return narrowRule.preserveEmptyXML ? { items: {} } : undefined
+  if (!xml["v8:item"]) {
+    return narrowRule.preserveEmptyXML || narrowRule.excludeIfEqualNameYAML ? { items: {} } : undefined
+  }
 
   const items: I8nTextLanguageXML[] = Array.isArray(xml["v8:item"]) ? xml["v8:item"] : [xml["v8:item"]]
 
@@ -32,3 +36,7 @@ export const importI8nTextFromXML = (
 }
 
 registerTypeRule("I8nText", "importFromXML", importI8nTextFromXML)
+registerTypeRule("I8nText", "xmlImportPropertyBehavior", {
+  explicitEmptyValue: ({ rule }) =>
+    rule.excludeIfEqualNameYAML === true ? { items: {} } : undefined,
+})

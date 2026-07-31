@@ -20,6 +20,7 @@ import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestra
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
@@ -85,7 +86,7 @@ export async function prepareImportYaml(params: {
 
     const importProfile = createDirectImportProfile()
     const result = measureYaml(params.profiler, () => {
-      if (rule === ClientApplicationFormRules) {
+      if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
         const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
@@ -95,6 +96,7 @@ export async function prepareImportYaml(params: {
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
           profile: importProfile,
+          rule,
         })
       }
 
@@ -141,6 +143,18 @@ export async function prepareImportYaml(params: {
 
 export function resolveAssignmentRule(assignment: ImportAssignment, componentKind: string): MetadataItemRule {
   if (assignment.role === "configuration") return getMetadataComponentDescriptor(componentKind).rootRule
+  if (assignment.topologyNodeId !== undefined) {
+    const node =
+      compileRegisteredMetadataResourceTopology().assignments.find(
+        ({ id }) => id === assignment.topologyNodeId
+      )
+    if (node === undefined) {
+      throw new Error(
+        `Не найден узел топологии XML-import: ${assignment.topologyNodeId}`
+      )
+    }
+    return node.itemRule
+  }
   const rule = findRegisteredImportRule(assignment.itemType)
   if (rule !== undefined) return rule
   if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml"))

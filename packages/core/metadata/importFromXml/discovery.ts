@@ -100,6 +100,7 @@ export async function discoverXmlImport(
         definition: {
           role: compatible.assignment.role,
           itemType: compatible.assignment.itemRule.itemType,
+          topologyNodeId: compatible.assignment.id,
           ...(compatible.assignment.logicalAddressSegment === undefined
             ? {}
             : { logicalAddressSegment: compatible.assignment.logicalAddressSegment }),

@@ -28,6 +28,7 @@ export const PDFDocumentFieldRules = {
     "titleBackColor",
     "titleFont",
     "titleLocation",
+    "viewStatusLocation",
     "titleHeight",
     "toolTip",
     "toolTipRepresentation",

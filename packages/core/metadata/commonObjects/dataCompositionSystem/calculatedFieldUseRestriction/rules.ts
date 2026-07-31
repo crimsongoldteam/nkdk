@@ -6,6 +6,7 @@ export const CalculatedFieldUseRestrictionRules = {
     "field",
     "condition",
     "group",
+    "order",
   ],
   properties: {
     field: booleanRule({

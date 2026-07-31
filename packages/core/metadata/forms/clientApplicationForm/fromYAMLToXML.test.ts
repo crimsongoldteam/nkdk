@@ -22,6 +22,9 @@ import {
   snapshotConfigurationIndex,
 } from "../../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../../configurationIndex/testData"
+import {
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -96,7 +99,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(result.formXML.Attributes).toEqual({})
   })
 
-  it("не добавляет служебные узлы таблицы без reference XML", () => {
+  it("добавляет канонические служебные узлы таблицы без reference XML", () => {
     const dynamicList = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {
@@ -114,9 +117,24 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       name: "ФормаЭлемента",
     })
 
-    expect(firstTable(dynamicList.formXML)).not.toHaveProperty("Period")
-    expect(firstTable(dynamicList.formXML)).not.toHaveProperty("TopLevelParent")
-    expect(firstTable(ordinary.formXML)).not.toHaveProperty("RowFilter")
+    expect(firstTable(dynamicList.formXML)).toMatchObject({
+      Period: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      TopLevelParent: { "_xsi:nil": "true" },
+      RowFilter: { "_xsi:nil": "true" },
+    })
+    expect(firstTable(ordinary.formXML)).toMatchObject({
+      Period: {
+        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+        "v8:startDate": "0001-01-01T00:00:00",
+        "v8:endDate": "0001-01-01T00:00:00",
+      },
+      TopLevelParent: { "_xsi:nil": "true" },
+      RowFilter: { "_xsi:nil": "true" },
+    })
   })
 
   it("сохраняет служебные узлы таблицы из reference XML", () => {
@@ -180,24 +198,48 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     ])
   })
 
-  it("сохраняет пустое расширенное представление из reference metadata XML", () => {
+  it("восстанавливает общие metadata-default без reference XML", () => {
     const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {} as ClientApplicationFormYAML,
       name: "Минимальная",
-      referenceMetadataXML: {
-        Form: {
-          _uuid: "11111111-1111-4111-8111-111111111111",
-          Properties: {
-            Name: "Минимальная",
-            FormType: "Managed",
-            ExtendedPresentation: "",
-          },
-        },
-      },
+    })
+
+    expect(result.metadataXML.Form.Properties.IncludeHelpInContents).toBe(false)
+    expect(result.metadataXML.Form.Properties).not.toHaveProperty(
+      "ExtendedPresentation"
+    )
+  })
+
+  it("восстанавливает пустое расширенное представление специализированной формы", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "ФормаОтчета",
+      rule: ClientApplicationFormWithExtendedPresentationRules,
     })
 
     expect(result.metadataXML.Form.Properties.ExtendedPresentation).toBe("")
+  })
+
+  it("экспортирует заполненное расширенное представление специализированной формы", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        РасширенноеПредставление: { ru: "Продажи" },
+      } as ClientApplicationFormYAML,
+      name: "ФормаОтчета",
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+
+    expect(result.metadataXML.Form.Properties.ExtendedPresentation).toEqual({
+      "v8:item": [
+        {
+          "v8:lang": "ru",
+          "v8:content": "Продажи",
+        },
+      ],
+    })
   })
 
   it("возвращает стандартный реквизит DataPath по готовым индексам расширения", () => {

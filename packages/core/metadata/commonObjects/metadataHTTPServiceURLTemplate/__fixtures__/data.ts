@@ -27,6 +27,7 @@ export const urlTemplatesFromXML: MetadataHTTPServiceURLTemplates = [
 
 export const urlTemplatesYAML: MetadataHTTPServiceURLTemplatesYAML = {
   Шаблон: {
+    Синоним: "",
     Шаблон: "/goods/{id}",
     Методы: {
       МетодHEAD: {
@@ -42,6 +43,7 @@ export const urlTemplatesFromYAML: MetadataHTTPServiceURLTemplates = [
   {
     itemType: "MetadataHTTPServiceURLTemplate",
     name: "Шаблон",
+    synonym: { items: {} },
     template: "/goods/{id}",
     methods: [
       {

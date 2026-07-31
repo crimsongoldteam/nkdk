@@ -42,7 +42,6 @@ const configurationInternalInfoContainedObjectClassIds = [
 export const configurationInternalInfoRule: PropertyRule = internalInfoRule({
   xmlParents: [],
   forReferenceOnly: true,
-  preserveFromReferenceXML: true,
   exportWithoutReferenceXML: true,
   containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
 })
@@ -107,8 +106,11 @@ export const MetadataConfigurationRules = {
     "defaultConstantsForm",
     "childObjects",
     "uuid",
+    "commandInterface",
     "mainSectionCommandInterface",
     "clientApplicationInterface",
+    "homePageWorkArea",
+    "help",
   ],
   properties: {
     xmlRoot: xmlRootRule({

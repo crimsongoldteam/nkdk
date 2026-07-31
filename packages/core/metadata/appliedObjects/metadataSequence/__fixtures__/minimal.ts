@@ -8,5 +8,6 @@ export const minimal: MetadataSequence = {
 }
 
 export const minimalYAML: MetadataSequenceYAML = {
+  Синоним: "",
   Документы: ["Документ.ДокументПоУмолчанию"],
 }

@@ -167,7 +167,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       },
       value: fillValueEmptyRefTypeLoss,
       yaml: {
-        Ссылка: { ЗначениеЗаполнения: "." },
+        Ссылка: { Синоним: "", ЗначениеЗаполнения: "." },
       },
       xmlRootTag: "StandardAttributes",
       path: "fillValueEmptyRefTypeLoss.xml",
@@ -506,8 +506,13 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
         "xr:StandardAttribute": Array<Record<string, unknown>>
       }
     )["xr:StandardAttribute"]
-    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
-    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toBe("")
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toEqual({})
+    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual({
+      "v8:item": [{
+        "v8:lang": "ru",
+        "v8:content": "Recorder",
+      }],
+    })
   })
 
   it("дополняет изменённую YAML-коллекцию каноническими именами", () => {

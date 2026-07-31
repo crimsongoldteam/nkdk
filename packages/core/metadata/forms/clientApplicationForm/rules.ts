@@ -25,8 +25,6 @@ export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   metadataTargetOwner: { kind: "inherit" },
   xmlOrder: [
-    "reportResult",
-    "detailsData",
     "title",
     "width",
     "height",
@@ -41,6 +39,7 @@ export const ClientApplicationFormRules = {
     "group",
     "itemsAndTitlesAlign",
     "horizontalSpacing",
+    "slaveItemsWidth",
     "verticalSpacing",
     "childItemsHorizontalAlign",
     "childItemsVerticalAlign",
@@ -54,6 +53,8 @@ export const ClientApplicationFormRules = {
     "conversationsRepresentation",
     "mobileDeviceCommandBarContent",
     "commandSet",
+    "reportResult",
+    "detailsData",
     "showTitle",
     "showCloseButton",
     "collapseItemsByImportance",
@@ -70,7 +71,6 @@ export const ClientApplicationFormRules = {
     "formType",
     "includeHelpInContents",
     "usePurposes",
-    "extendedPresentation",
     "uuid",
     "useForFoldersAndItems",
     "autoTime",
@@ -81,9 +81,9 @@ export const ClientApplicationFormRules = {
     "childItems",
     "attributes",
     "attributesConditionalAppearance",
-    "commandInterface",
     "commands",
     "parameters",
+    "commandInterface",
   ],
   properties: {
     // #region Form
@@ -469,22 +469,13 @@ export const ClientApplicationFormRules = {
       yaml: "ВключатьСправкуВСодержание",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
-      defaultValueXMLEmpty: false,
+      defaultValueXML: false,
       implicitValueYAML: "Ложь",
     }),
     usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
-    }),
-    extendedPresentation: i8nTextRule({
-      yaml: "РасширенноеПредставление",
-      tag: FormRulesTags.Metadata,
-      xml: "ExtendedPresentation",
-      xmlParents: ["Form", "Properties"],
-      defaultValueXMLEmpty: { items: {} },
-      defaultValueXMLRaw: "",
-      preserveFromReferenceXML: true,
     }),
     // #endregion
     // #region Catalog
@@ -583,4 +574,33 @@ export const ClientApplicationFormRules = {
     }),
   },
   eventsTag: FormRulesTags.Form,
+} as const satisfies MetadataItemRule
+
+const extendedPresentationRule = i8nTextRule({
+  yaml: "РасширенноеПредставление",
+  tag: FormRulesTags.Metadata,
+  xml: "ExtendedPresentation",
+  xmlParents: ["Form", "Properties"],
+  defaultValueXMLEmpty: { items: {} },
+  defaultValueXMLRaw: "",
+})
+
+const uuidIndex = ClientApplicationFormRules.xmlOrder.indexOf("uuid")
+if (uuidIndex < 0) {
+  throw new Error(
+    "Невозможно добавить ExtendedPresentation: uuid отсутствует в xmlOrder формы"
+  )
+}
+
+export const ClientApplicationFormWithExtendedPresentationRules = {
+  ...ClientApplicationFormRules,
+  xmlOrder: [
+    ...ClientApplicationFormRules.xmlOrder.slice(0, uuidIndex),
+    "extendedPresentation",
+    ...ClientApplicationFormRules.xmlOrder.slice(uuidIndex),
+  ],
+  properties: {
+    ...ClientApplicationFormRules.properties,
+    extendedPresentation: extendedPresentationRule,
+  },
 } as const satisfies MetadataItemRule

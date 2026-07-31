@@ -6,8 +6,10 @@ export const OrderItemFieldRules = {
   itemType: "OrderItemField",
   xsiType: "dcsset:OrderItemField",
   xmlOrder: [
+    "use",
     "field",
     "orderType",
+    "viewMode",
   ],
   properties: {
     use: booleanRule({

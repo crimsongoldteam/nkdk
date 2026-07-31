@@ -85,10 +85,10 @@ const compileXMLImportPlan = (params: {
 
     if (propertyRule.filePath !== undefined) continue
 
-    if (
-      Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
-      shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })
-    ) {
+    const needsAbsentXMLImport =
+      Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") ||
+      Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")
+    if (needsAbsentXMLImport && shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })) {
       defaults.push(entry)
     }
 

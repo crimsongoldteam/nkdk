@@ -46,7 +46,29 @@ describe("MetadataAttributes YAML → XML", () => {
     const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка", Синоним: "" } })
     expect(result).toContain("<Name>ТестовыйРеквизит</Name>")
     expect(result).toContain("<Synonym/>")
+    expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
+    expect(result).toContain("<Indexing>DontIndex</Indexing>")
+    expect(result).toContain("<FullTextSearch>Use</FullTextSearch>")
+    expect(result).toContain("<DataHistory>Use</DataHistory>")
   })
+
+  it("does not export catalog-only Use for a generic metadata attribute", () => {
+    const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })
+    expect(result).not.toContain("<Use>")
+  })
+
+  it.each(["MetadataCatalogAttributes", "MetadataAttributesWithAllowedTypes"])(
+    "exports Use for %s",
+    (propertyType) => {
+      const result = serializeDirectXML(
+        testPropertyFromYAMLToXML({
+          rule: probeRule(propertyType),
+          yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
+        }).xml
+      )
+      expect(result).toContain("<Use>ForItem</Use>")
+    }
+  )
 
   it("should import object format", () => {
     expect(convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })).toContain("<Name>ТестовыйРеквизит</Name>")

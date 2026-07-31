@@ -9,10 +9,14 @@ import { MetadataItemRule } from "../../../orchestration"
 export const ConditionalAppearanceItemRules = {
   itemType: "ConditionalAppearanceItem",
   xmlOrder: [
+    "use",
     "fields",
     "filter",
     "appearance",
     "presentation",
+    "viewMode",
+    "userSettingID",
+    "userSettingPresentation",
   ],
   properties: {
     use: booleanRule({

@@ -128,7 +128,7 @@ export const importParameterValueFromYAML = (
     return undefined
   }
 
-  if (yaml === null && rule.valueType !== "Color") {
+  if (yaml === null) {
     return undefined
   }
 
@@ -166,7 +166,8 @@ export const importParameterValueFromYAML = (
     unwrapped !== undefined
       ? normalizeExplicitRawValue(rule.valueType, yaml, unwrapped.parameter, rawValueBase)
       : rawValueBase
-  const rawList = normalizeRawValues(dcsRule.valueType, rawValue)
+  const isDcsAutoColorYAML = rule.valueType === "Color" && rawValue === "Авто"
+  const rawList = isDcsAutoColorYAML ? [] : normalizeRawValues(dcsRule.valueType, rawValue)
   const sourceValues = normalizeSourceValues(sourceValue?.value)
   const valueParts: MetadataDcsMetadataValue[] = []
   rawList.forEach((v, index) => {
@@ -176,7 +177,7 @@ export const importParameterValueFromYAML = (
       importDcsMetadataValueFromYAML(context, dcsRule, valueToImport as never, sourceValues[index] ?? undefined)
     )
   })
-  if (rawList.length === 0 && sourceValue?.value !== undefined) {
+  if (!isDcsAutoColorYAML && rawList.length === 0 && sourceValue?.value !== undefined) {
     const sourceOnlyValues = normalizeSourceValues(sourceValue.value)
     sourceOnlyValues.forEach((sourceOnlyValue) => {
       appendImportedValue(

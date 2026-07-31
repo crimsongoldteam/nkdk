@@ -101,6 +101,7 @@ export const MetadataDocumentRules = {
     "commands",
     "uuid",
     "additionalIndexes",
+    "help",
   ],
   properties: {
     xmlRoot: xmlRootRule({

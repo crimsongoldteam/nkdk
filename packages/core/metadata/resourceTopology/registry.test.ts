@@ -4,6 +4,10 @@ import type { MetadataItemRule, PropertyRule } from "../orchestration/property/t
 import { registerCoreMetadata } from "../register"
 import { compileRegisteredMetadataResourceTopology, describePropertyResourceTopology } from "./registry"
 import type { CompiledMetadataResourceTopology } from "./types"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 const itemRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
 const propertyRule = { type: "TestChildFormNames" } as PropertyRule
@@ -52,6 +56,23 @@ describe("property resource topology registry", () => {
         }),
       ])
     )
+  })
+
+  it("uses the item rule declared by ChildFormNames", () => {
+    const declarations = describePropertyResourceTopology(
+      "forms",
+      {
+        type: "ChildFormNames",
+        folderName: "Формы",
+        itemRule,
+      } as PropertyRule
+    )
+
+    expect(
+      declarations.find(
+        (declaration) => declaration.kind === "content"
+      )
+    ).toMatchObject({ itemRule })
   })
 
   it("returns all resource kinds from one property-type contribution", () => {
@@ -177,5 +198,24 @@ describe("property resource topology registry", () => {
         }),
       ])
     )
+  })
+
+  it("selects the form rule in owner declarations", () => {
+    const byPattern = (pattern: string) =>
+      topology.assignments.find(
+        (assignment) => assignment.projectPattern === pattern
+      )
+
+    expect(
+      byPattern("Обработка/{ownerName}/Формы/{itemName}/Форма.yaml")
+        ?.itemRule
+    ).toBe(ClientApplicationFormWithExtendedPresentationRules)
+    expect(
+      byPattern("Отчет/{ownerName}/Формы/{itemName}/Форма.yaml")?.itemRule
+    ).toBe(ClientApplicationFormWithExtendedPresentationRules)
+    expect(
+      byPattern("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
+        ?.itemRule
+    ).toBe(ClientApplicationFormRules)
   })
 })

@@ -5,10 +5,11 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import { exportJSONSchemaGraph, type JSONSchemaGraphRoot } from "./projectFileSchema"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 
 export interface ProjectValidationStandaloneSchemaSet {
   context: ConfigurationContext
-  form: TSchema
+  forms: Record<string, TSchema>
   refs: Record<string, TSchema>
   byItemType: Record<string, TSchema>
 }
@@ -28,8 +29,13 @@ export function createProjectValidationStandaloneSchemaSet(
     ...validationProjectSpecs.map((spec) => spec.rule),
   ])
   const formRootKey = "__form"
+  const formRules = registeredProjectValidationFormRules()
   const roots: JSONSchemaGraphRoot[] = [
-    { key: formRootKey, name: "ClientApplicationForm", includeNestedChildItems: true },
+    ...formRules.map(({ key, rule }) => ({
+      key: `${formRootKey}:${key}`,
+      rule,
+      includeNestedChildItems: true,
+    })),
     ...propertyRules.map((rule) => ({ key: rule.itemType, name: rule.itemType })),
   ]
   const graph = exportJSONSchemaGraph({
@@ -40,11 +46,16 @@ export function createProjectValidationStandaloneSchemaSet(
   })
   const byItemType = Object.fromEntries(
     propertyRules.map((rule) => [rule.itemType, stripCollectedSchemaRefs(graph.roots[rule.itemType]!)]))
-  const form = stripCollectedSchemaRefs(graph.roots[formRootKey]!)
+  const forms = Object.fromEntries(
+    formRules.map(({ key }) => [
+      key,
+      stripCollectedSchemaRefs(graph.roots[`${formRootKey}:${key}`]!),
+    ])
+  )
 
   return {
     context,
-    form,
+    forms,
     refs: graph.schemas,
     byItemType,
   }

@@ -14,6 +14,7 @@ export const PlannerFieldRules = {
   enterpriseFieldType: "FormFieldType.PlannerField",
   xmlOrder: [
     "dataPath",
+    "visible",
     "userVisible",
     "defaultItem",
     "enabled",
@@ -50,6 +51,8 @@ export const PlannerFieldRules = {
     "onMainServerUnavalableBehavior",
     "width",
     "height",
+    "enableStartDrag",
+    "enableDrag",
     "horizontalStretch",
     "verticalStretch",
     "timeScaleItemHyperlink",

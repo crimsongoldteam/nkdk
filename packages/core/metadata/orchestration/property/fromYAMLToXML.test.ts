@@ -119,6 +119,67 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it.each([
+    ["отсутствующий YAML", {}, { Value: "yaml-default" }],
+    ["явный XML-implicit", { Значение: "xml-implicit" }, {}],
+    ["явное отличающееся значение", { Значение: "explicit" }, { Value: "explicit" }],
+  ])("экспортирует implicitValueXML: %s", (_name, yaml, expected) => {
+    const property = {
+      type: "string",
+      xml: "Value",
+      yaml: "Значение",
+      implicitValueYAML: "yaml-default",
+      implicitValueXML: "xml-implicit",
+    } as PropertyRule
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml,
+      rule: testRule({ value: property }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual(expected)
+  })
+
+  it("вычисляет implicitValueYAML для отсутствующего YAML при implicitValueXML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      name: "Товары",
+      rule: testRule({
+        value: {
+          type: "string",
+          xml: "Value",
+          yaml: "Значение",
+          implicitValueYAML: ({ name }: { name?: string }) => `yaml-${name}`,
+          implicitValueXML: "xml-implicit",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "yaml-Товары" })
+  })
+
+  it("восстанавливает XML-default по rules без reference", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Поле",
+          xml: "Field",
+          defaultValueXML: "xml-default",
+          implicitValueYAML: "model-default",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Field: "xml-default" })
+  })
+
   it("does not restore empty synonym from reference when YAML omits synonym", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -551,14 +612,13 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
-  it("не восстанавливает исключённый из YAML синоним из снимка", () => {
+  it("восстанавливает исключённый из YAML синоним по rules без данных снимка", () => {
     const logicalAddress = DEFAULT_TEST_LOGICAL_ADDRESS
     const testContext = contextWithXMLDefaultVariant(
       "indexed",
       ["synonym"],
       false,
-      logicalAddress,
-      [{ logicalAddress: `${logicalAddress}.synonym`, excludedEqualName: true }]
+      logicalAddress
     )
     const result = convertPropertiesFromYAMLToXML({
       context: testContext,
@@ -576,7 +636,14 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({})
+    expect(result.outputs.get("owner")).toEqual({
+      Synonym: {
+        "v8:item": [{
+          "v8:lang": "ru",
+          "v8:content": "Форма элемента",
+        }],
+      },
+    })
     expect(JSON.stringify(
       testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml").entities
     )).not.toContain("excludedEqualName")
@@ -807,7 +874,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     ).not.toMatch(/order|present/)
   })
 
-  it("пишет канонический XML-ключ для preserveFromReferenceXML", () => {
+  it("пишет канонический XML-ключ при копировании reference", () => {
     const referenceValue = { "_xsi:nil": true }
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -818,7 +885,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
           yaml: "Значение",
           xml: "CanonicalValue",
           xmlAliases: ["LegacyValue"],
-          preserveFromReferenceXML: true,
         },
       }),
       outputs: [{ key: "owner", referenceXML: { LegacyValue: referenceValue } }],
@@ -837,7 +903,6 @@ describe("convertPropertiesFromYAMLToXML", () => {
           yaml: "Значение",
           xml: "Value",
           exportNilValue: true,
-          preserveFromReferenceXML: true,
         },
       }),
       outputs: [{ key: "owner" }],

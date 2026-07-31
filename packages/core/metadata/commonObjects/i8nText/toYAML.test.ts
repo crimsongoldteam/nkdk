@@ -44,6 +44,19 @@ describe("exportI8nTextToYAML", () => {
   })
 
   describe("excludeIfEqualNameYAML", () => {
+    it("exports explicit empty text", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
+
+      const result = exportI8nTextToYAML({
+        context: contextWithExportToYAML,
+        rule,
+        name: "ОценкаОтправлена",
+        value: { items: {} },
+      })
+
+      expect(result).toBe("")
+    })
+
     it("does not copy translations when default language differs from the name", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
       const items = { ru: "Пользовательский заголовок", en: "Custom title" }

@@ -28,6 +28,8 @@ export const DynamicListRules = {
     "calculatedFields",
     "parameters",
     "mainTable",
+    "keyType",
+    "keyFields",
     "autoSaveUserSettings",
     "getInvisibleFieldPresentations",
     "filter",
@@ -124,7 +126,6 @@ export const DynamicListRules = {
     keyFields: dynamicListKeyFieldsRule({
       xml: "KeyField",
       yaml: "ПоляКлюча",
-      preserveFromReferenceXML: true,
     }),
     itemsViewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",

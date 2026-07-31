@@ -37,13 +37,17 @@ import {
   extractValidationYamlFacts,
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
+import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 
 type CompiledSchema = ValidationSchemaValidator
-const formSchemaCache = new Map<string, CompiledSchema>()
+const formSchemaCache = new WeakMap<
+  MetadataItemRule,
+  Map<string, CompiledSchema>
+>()
 const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
 export interface ValidationSchemaCache {
-  form: () => CompiledSchema
+  form: (rule: MetadataItemRule) => CompiledSchema
   properties: (rule: MetadataItemRule) => CompiledSchema
   compileAll: () => ValidationSchemaCacheCompileProfile
 }
@@ -164,13 +168,15 @@ export function readProjectYamlDiagnostic(entry: { filePath: string; error: Erro
 
 export function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
   const propertiesSchemas = new Map<string, CompiledSchema>()
-  let formSchema: CompiledSchema | undefined
+  const formSchemas = new WeakMap<MetadataItemRule, CompiledSchema>()
 
   return {
-    form() {
-      formSchema ??= compileRegisteredFormSchema(context)
-
-      return formSchema
+    form(rule) {
+      const existing = formSchemas.get(rule)
+      if (existing !== undefined) return existing
+      const compiled = compileRegisteredFormSchema(context, rule)
+      formSchemas.set(rule, compiled)
+      return compiled
     },
     properties(rule) {
       const key = rule.itemType
@@ -187,7 +193,9 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
     compileAll() {
       const startedAt = performance.now()
       const formStartedAt = performance.now()
-      this.form()
+      for (const rule of validationProjectFormRules()) {
+        this.form(rule)
+      }
       const formMs = performance.now() - formStartedAt
 
       const propertiesStartedAt = performance.now()
@@ -224,25 +232,35 @@ function validationProjectPropertyRules(): MetadataItemRule[] {
   ])
 }
 
+function validationProjectFormRules(): MetadataItemRule[] {
+  return registeredProjectValidationFormRules().map(({ rule }) => rule)
+}
+
 function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItemRule[] {
   return [...new Map(rules.map((rule) => [rule.itemType, rule])).values()]
 }
 
-function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSchema {
+function compileRegisteredFormSchema(
+  context: ConfigurationContext,
+  rule: MetadataItemRule
+): CompiledSchema {
   const cacheKey = `${context.version}:${context.defaultLanguage}`
-  const cached = formSchemaCache.get(cacheKey)
+  let schemasByContext = formSchemaCache.get(rule)
+  const cached = schemasByContext?.get(cacheKey)
   if (cached !== undefined) return cached
 
   const graph = exportJSONSchemaGraph({
     context,
     validationPropertyRefs: true,
-    roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    roots: [{ key: "form", rule, includeNestedChildItems: true }],
   })
   const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!, {
     inlineRefs: false,
     eagerFallback: true,
   })
-  formSchemaCache.set(cacheKey, compiled)
+  schemasByContext ??= new Map()
+  schemasByContext.set(cacheKey, compiled)
+  formSchemaCache.set(rule, schemasByContext)
   return compiled
 }
 
@@ -402,7 +420,7 @@ function validateProjectFormFirstPass(params: {
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.form(),
+    schema: params.schemaCache.form(requireFormRule(params.file)),
   })
   const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
@@ -463,6 +481,15 @@ function validateProjectFormFirstPass(params: {
       propertyEvents: facts.profile.propertyEvents,
     },
   }
+}
+
+function requireFormRule(file: ValidationProjectFile): MetadataItemRule {
+  if (file.kind !== "form" || file.itemRule === undefined) {
+    throw new Error(
+      `Для проверки формы не передано правило: ${file.projectPath}`
+    )
+  }
+  return file.itemRule
 }
 
 function validateProjectPropertiesFirstPass(params: {

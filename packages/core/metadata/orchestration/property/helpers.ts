@@ -19,8 +19,6 @@ interface PathStructure {
   childContainersByPath: Map<string, Set<string>>
 }
 
-export const XML_SOURCE_KEYS = Symbol("xmlSourceKeys")
-
 const AUTO_REQUIRED_XML_PARENT_ROOTS = new Set<string>(["ChildObjects", "ListSettings"])
 
 export const collectAutoRequiredXMLParentRoot = (rule: PropertyRule, roots: Set<string>): void => {
@@ -53,7 +51,7 @@ export const shouldProcessProperty = (params: {
   propertyKey?: string
   referenceMetadata?: unknown
 }): boolean => {
-  const { rule, operation, metadataItem, context, propertyKey, referenceMetadata } = params
+  const { rule, operation, metadataItem, context } = params
 
   if (rule.runtimeOnly) return false
   if (rule.syncExternalOnly) return false
@@ -62,31 +60,6 @@ export const shouldProcessProperty = (params: {
     case "exportToXML":
       if (rule.toXML === false) return false
       if (rule.filePath !== undefined) return false
-      if (rule.preserveFromReferenceXML === true) {
-        if (propertyKey === undefined) return false
-
-        const metadataHasOwnKey =
-          metadataItem !== null &&
-          metadataItem !== undefined &&
-          typeof metadataItem === "object" &&
-          Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
-
-        if (metadataHasOwnKey) return true
-        if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
-          return rule.exportWithoutReferenceXML === true
-        }
-
-        const referenceSourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
-        if (
-          referenceSourceKeys !== undefined &&
-          referenceSourceKeys !== null &&
-          typeof referenceSourceKeys === "object"
-        ) {
-          return Object.prototype.hasOwnProperty.call(referenceSourceKeys, propertyKey)
-        }
-
-        return Object.prototype.hasOwnProperty.call(referenceMetadata, propertyKey)
-      }
       if (typeof rule.toXML === "function") return rule.toXML(metadataItem, context)
       return true
     case "importFromXML":

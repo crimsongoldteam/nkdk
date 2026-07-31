@@ -16,6 +16,7 @@ export const minimal: MetadataDocument = {
 }
 
 export const minimalYAML: MetadataDocumentYAML = {
+  Синоним: "",
   ВводПоСтроке: ["СтандартныйРеквизит.Номер"],
   ДлинаНомера: 9,
   ЗаписьДвиженийПриПроведении: "ЗаписыватьВыбранные",

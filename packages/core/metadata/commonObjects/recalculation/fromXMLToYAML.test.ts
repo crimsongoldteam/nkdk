@@ -21,6 +21,6 @@ describe("Recalculation XML → YAML", () => {
       },
     }).yaml
 
-    expect(result).toEqual({ Комментарий: "" })
+    expect(result).toEqual({ Синоним: "", Комментарий: "" })
   })
 })

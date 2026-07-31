@@ -11,6 +11,12 @@ const preserveEmptyXMLRule: I8nTextPropertyRule = {
   preserveEmptyXML: true,
 }
 
+const excludeEqualNameRule: I8nTextPropertyRule = {
+  yaml: "Синоним",
+  type: "I8nText",
+  excludeIfEqualNameYAML: true,
+}
+
 describe("importI8nTextFromXML", () => {
   it.each(i8nTextFixtures)("should import: $name", (fixture) => {
     const xml = fixture.xml ? importContentFromXML<{ Title: I8nTextXML }>(fixture.xml) : undefined
@@ -20,6 +26,12 @@ describe("importI8nTextFromXML", () => {
 
   it("imports empty XML tag as empty text when rule opts in", () => {
     const result = importI8nTextFromXML(mockContextFromXML(), preserveEmptyXMLRule, {})
+
+    expect(result).toEqual({ items: {} })
+  })
+
+  it("imports empty XML tag as explicit empty text for excludeIfEqualNameYAML", () => {
+    const result = importI8nTextFromXML(mockContextFromXML(), excludeEqualNameRule, {})
 
     expect(result).toEqual({ items: {} })
   })

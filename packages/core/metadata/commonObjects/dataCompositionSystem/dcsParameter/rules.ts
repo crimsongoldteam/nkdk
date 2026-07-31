@@ -15,7 +15,9 @@ export const DCSParameterRules = {
     "valueType",
     "value",
     "useRestriction",
+    "expression",
     "valueListAllowed",
+    "includeInAvailableFields",
     "editParameters",
     "use",
   ],
@@ -38,7 +40,6 @@ export const DCSParameterRules = {
       xml: "dcssch:value",
       yaml: "Значение",
       exportNilValue: true,
-      preserveFromReferenceXML: true,
       preserveUnknownReferenceXML: false,
     }),
     useRestriction: booleanRule({

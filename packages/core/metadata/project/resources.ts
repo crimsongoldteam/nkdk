@@ -7,6 +7,7 @@ import {
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
 export type MetadataProjectResourceInclude = "all" | "yaml"
@@ -63,6 +64,7 @@ export interface MetadataProjectFormYamlRef {
   owner: MetadataProjectResourceOwner
   formName: string
   itemType: string
+  itemRule: MetadataItemRule
 }
 
 export interface MetadataProjectResourceOnlyRef {
@@ -154,6 +156,7 @@ function toLegacyResource(
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
       itemType: match.assignment.itemRule.itemType,
+      itemRule: match.assignment.itemRule,
     }
   }
   return {

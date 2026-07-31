@@ -14,6 +14,7 @@ const rule = {
       xmlParents: ["Attributes"],
     },
     fallback: { type: "string", xml: "Fallback", defaultValue: "value" },
+    implicit: { type: "string", xml: "Implicit", implicitValueXML: "xml-implicit" },
     external: { type: "string", filePath: "Ext/Value.xml" },
   },
 } as MetadataItemRule
@@ -39,12 +40,12 @@ describe("XML import plan", () => {
     ])
   })
 
-  it("caches plans and keeps only explicit defaults", () => {
+  it("caches plans and keeps properties synthesized for absent XML", () => {
     const first = getXMLImportPlan({ rule, includeAllTags: true })
     const second = getXMLImportPlan({ rule, includeAllTags: true })
 
     expect(second).toBe(first)
-    expect(first.defaults.map(({ propertyKey }) => propertyKey)).toEqual(["fallback"])
+    expect(first.defaults.map(({ propertyKey }) => propertyKey)).toEqual(["fallback", "implicit"])
     expect(first.entriesByPropertyKey.get("external")?.propertyKey).toBe("external")
   })
 

@@ -5,4 +5,6 @@ export const minimal: MetadataDocumentNumerator = {
   name: "НумераторПоУмолчанию",
 }
 
-export const minimalYAML: MetadataDocumentNumeratorYAML = {}
+export const minimalYAML: MetadataDocumentNumeratorYAML = {
+  Синоним: "",
+}
