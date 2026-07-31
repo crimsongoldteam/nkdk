@@ -75,4 +75,17 @@ describe("saxes XML contract", () => {
   it("отклоняет имена, небезопасные для объекта", () => {
     expect(() => importContentFromXMLWithSaxes("<Root><__proto__>x</__proto__></Root>")).toThrow()
   })
+
+  it("сохраняет BOM перед XML declaration как документный текст", () => {
+    const xml = '\uFEFF<?xml version="1.0"?><Root/>'
+    expect(importContentFromXMLWithSaxes(xml)).toEqual(importContentFromXML(xml))
+  })
+
+  it("разбирает XML-фрагмент с несколькими корнями", () => {
+    const xml = '<Command id="1"/><Command id="2"/>'
+    const parsed = importContentFromXMLWithSaxes(xml)
+    const expected = importContentFromXML(xml)
+    expect(parsed).toEqual(expected)
+    expect(childOrderOf(parsed)).toEqual(childOrderOf(expected))
+  })
 })

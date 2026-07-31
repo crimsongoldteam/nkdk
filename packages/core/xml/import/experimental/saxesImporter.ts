@@ -44,9 +44,12 @@ export function importContentFromXMLWithSaxes<T>(
 ): T {
   const document = createFrame("")
   const stack = [document]
-  const parser = new SaxesParser({ xmlns: false })
+  const parser = new SaxesParser({ xmlns: false, fragment: !hasXmlDeclaration(data) })
 
-  parser.on("xmldecl", (declaration) => appendDeclaration(document, declaration))
+  parser.on("xmldecl", (declaration) => {
+    if (data.startsWith("\uFEFF")) document.text = "\uFEFF"
+    appendDeclaration(document, declaration)
+  })
   parser.on("opentag", (tag: SaxesTagPlain) => {
     assertSafeName(tag.name)
     stack.push(createFrame(tag.name, tag.attributes))
@@ -143,4 +146,8 @@ const containerProperties = (container: XmlContainer): Record<PropertyKey, unkno
 
 function assertSafeName(name: string): void {
   if (UNSAFE_NAMES.has(name)) throw new Error(`Небезопасное имя XML-элемента: ${name}`)
+}
+
+function hasXmlDeclaration(data: string): boolean {
+  return data.startsWith("<?xml") || data.startsWith("\uFEFF<?xml")
 }
