@@ -82,32 +82,32 @@ MCP получает и применяет ту же схему через core.
 Явный XML `auto` импортируется как `undefined` и при последующем экспорте
 канонизируется в отсутствующий узел. Явное YAML-значение `Авто` не вводится.
 
-### Расширение booleanRule
+### Правило
 
-Только `BooleanRuleParams` получает признак `implicitAuto`:
+Специальный признак для состояния `Авто` не требуется:
 
 ```ts
 horizontalStretch: booleanRule({
   yaml: "РастягиватьПоГоризонтали",
-  implicitAuto: true,
 })
 ```
 
-`implicitAuto` разворачивается внутри `booleanRule` в нейтральный договор с
-собственным `implicitValueYAML: undefined`. Общая оркестрация различает
-отсутствующее поле правила и собственное поле со значением `undefined` через
-`hasOwnProperty`. Намеренное `undefined` не заменяется значением из reference
-XML.
+Без `implicitValueYAML` значения `true` и `false` всегда записываются в YAML,
+а отсутствие ключа передаёт в XML `undefined`. Существующий преобразователь
+boolean уже импортирует XML `auto` как `undefined`; тип `StringboolXML`
+дополняется значением `"auto"`, и это поведение закрепляется тестом.
 
-`implicitAuto` несовместим с переданными вызывающим кодом
-`implicitValueYAML` и `noImplicitValueYAML`. Тип `StringboolXML` включает
-`"auto"`, преобразуемое в `undefined`.
+Full sync и MCP не принимают `referenceDir` и не читают исходный XML-каталог.
+Индекс конфигурации хранит только невосстановимые XML-состояния и не хранит
+обычные значения этих свойств: явные `true` и `false` полностью представлены в
+YAML. Изменения общей оркестрации не требуются.
 
 ### Область применения
 
-`implicitAuto: true` задаётся для `horizontalStretch` и `verticalStretch` в
-`formGroupCommonProperties`. Договор наследуют `UsualGroup`, `CommandBar`,
-`ColumnGroup`, `ButtonGroup`, `Page`, `Pages` и `Popup`.
+Обычный `booleanRule` без неявного YAML-значения задаётся для
+`horizontalStretch` и `verticalStretch` в `formGroupCommonProperties`. Договор
+наследуют `UsualGroup`, `CommandBar`, `ColumnGroup`, `ButtonGroup`, `Page`,
+`Pages` и `Popup`.
 
 Локальные переопределения этих свойств с другими неявными значениями
 удаляются. Правила `Table` и обычных полей формы не изменяются.
@@ -123,19 +123,14 @@ MCP использует ту же схему без специальной ло
 
 ### Проверки
 
-1. `booleanRule` создаёт собственное `implicitValueYAML: undefined` и запрещает
-   конфликтующие параметры.
-2. Преобразование XML boolean покрывает `auto` → `undefined`.
-3. XML → YAML покрывает отсутствующий узел, `auto`, `false` и `true`.
-4. YAML → XML покрывает отсутствующий ключ, `Ложь` и `Истина` без reference
-   XML.
-5. Отсутствующий YAML-ключ при наличии reference XML не восстанавливает явный
-   `true` или `false`.
-6. Оба свойства всех семи видов групп используют `implicitAuto` без локальных
-   противоречивых defaults.
-7. JSON Schema разрешает отсутствующий ключ, `Истина` и `Ложь`, но отклоняет
+1. Преобразование XML boolean покрывает `auto` → `undefined`.
+2. XML → YAML покрывает отсутствующий узел, `auto`, `false` и `true`.
+3. YAML → XML покрывает отсутствующий ключ, `Ложь` и `Истина`.
+4. Оба свойства всех семи видов групп используют `booleanRule` без
+   `implicitValueYAML`, `noImplicitValueYAML` и локальных defaults.
+5. JSON Schema разрешает отсутствующий ключ, `Истина` и `Ложь`, но отклоняет
    `Авто` и третье значение; MCP применяет эту же схему.
-8. Выполняются целевые тесты, `pnpm type-check`, `pnpm test`, mutation testing
+6. Выполняются целевые тесты, `pnpm type-check`, `pnpm test`, mutation testing
    изменённых production-диапазонов и повторный round-trip `cf/doc`.
 
 ## Критерии готовности
