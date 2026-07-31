@@ -126,7 +126,7 @@ checkBoxType: {
   typeSE: "CheckBoxType",
   implicitValueYAML: "Auto",
   defaultValueXML: "Auto",
-  toXML: (source) => source.raw("threeState") !== true,
+  toXML: (source) => !source.has("threeState"),
 }
 ```
 
@@ -176,10 +176,12 @@ representation: {
 ### CheckBoxType
 
 При отсутствии YAML-ключа `ВидФлажка` существующий `defaultValueXML`
-восстанавливает `Auto`. Локальное условие проверяет `ТриСостояния`:
+восстанавливает `Auto`. Локальное условие проверяет наличие `ТриСостояния`.
+Поскольку YAML-default этого свойства равен `false`, ключ присутствует только
+для включённого третьего состояния:
 
-- если `threeState !== true`, создаётся `<CheckBoxType>Auto</CheckBoxType>`;
-- если `threeState === true`, свойство не экспортируется.
+- если ключ отсутствует, создаётся `<CheckBoxType>Auto</CheckBoxType>`;
+- если ключ присутствует, свойство не экспортируется.
 
 Явно заданный вид обычного флажка экспортируется без изменений.
 
