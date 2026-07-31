@@ -1,11 +1,31 @@
 import { SaxesParser, type SaxesTagPlain, type XMLDecl } from "saxes"
 import type { ImportContentFromXMLOptions } from "../importer"
 
+const XML_METADATA = Symbol.for("metadata")
+const PI_ATTRIBUTE = /([^\s=]+)\s*=\s*(["'])([\s\S]*?)\2/gu
+const UNSAFE_NAMES = new Set([
+  "__proto__",
+  "constructor",
+  "prototype",
+  "hasOwnProperty",
+  "toString",
+  "valueOf",
+  "__defineGetter__",
+  "__defineSetter__",
+  "__lookupGetter__",
+  "__lookupSetter__",
+])
+
+type XmlContainer = Record<string, unknown> | Array<Record<string, unknown>>
+
 interface ElementFrame {
   name: string
   attributes: Record<string, string>
   text: string
   children: Record<string, unknown>
+  childCounts: Record<string, number>
+  childOrder: Array<{ key: string; index: number }>
+  orderedChildren: Array<Record<string, unknown>> | undefined
 }
 
 const createFrame = (name: string, attributes: Record<string, string> = {}): ElementFrame => ({
@@ -13,6 +33,9 @@ const createFrame = (name: string, attributes: Record<string, string> = {}): Ele
   attributes,
   text: "",
   children: {},
+  childCounts: {},
+  childOrder: [],
+  orderedChildren: name === "ChildItems" ? [] : undefined,
 })
 
 export function importContentFromXMLWithSaxes<T>(
@@ -24,9 +47,19 @@ export function importContentFromXMLWithSaxes<T>(
   const parser = new SaxesParser({ xmlns: false })
 
   parser.on("xmldecl", (declaration) => appendDeclaration(document, declaration))
-  parser.on("opentag", (tag: SaxesTagPlain) => stack.push(createFrame(tag.name, tag.attributes)))
+  parser.on("opentag", (tag: SaxesTagPlain) => {
+    assertSafeName(tag.name)
+    stack.push(createFrame(tag.name, tag.attributes))
+  })
   parser.on("text", (text) => appendText(stack, text))
   parser.on("cdata", (text) => appendText(stack, text))
+  parser.on("processinginstruction", ({ target, body }) => {
+    const attributes: Record<string, string> = {}
+    for (const match of body.matchAll(PI_ATTRIBUTE)) attributes[`_${match[1]}`] = match[3] ?? ""
+    const parent = stack.at(-1)
+    if (parent === undefined) throw new Error("XML PI вне документа")
+    appendChild(parent, `?${target}`, attributes)
+  })
   parser.on("closetag", () => {
     const frame = stack.pop()
     const parent = stack.at(-1)
@@ -56,6 +89,15 @@ function appendDeclaration(document: ElementFrame, declaration: XMLDecl): void {
 }
 
 function appendChild(parent: ElementFrame, name: string, value: unknown): void {
+  const index = parent.childCounts[name] ?? 0
+  parent.childCounts[name] = index + 1
+
+  if (parent.orderedChildren !== undefined) {
+    parent.orderedChildren.push({ [name]: value })
+    return
+  }
+
+  parent.childOrder.push({ key: name, index })
   if (!Object.prototype.hasOwnProperty.call(parent.children, name)) {
     parent.children[name] = value
     return
@@ -67,13 +109,38 @@ function appendChild(parent: ElementFrame, name: string, value: unknown): void {
 }
 
 function finalizeFrame(frame: ElementFrame, options: ImportContentFromXMLOptions): unknown {
-  const value: Record<string, unknown> = { ...frame.children }
-  const attributeEntries = Object.entries(frame.attributes)
-  for (const [name, attributeValue] of attributeEntries) value[`_${name}`] = attributeValue
-  if (frame.text.length > 0) value["#text"] = frame.text
+  const container: XmlContainer = frame.orderedChildren ?? frame.children
+  const properties = containerProperties(container)
+  let assignedAttributesCount = 0
+  for (const [name, attributeValue] of Object.entries(frame.attributes)) {
+    if (name === "xsi:nil" && options.preserveXsiNil !== true) continue
+    properties[`_${name}`] = attributeValue
+    assignedAttributesCount += 1
+  }
+  if (frame.text.length > 0) properties["#text"] = frame.text
 
-  const keys = Object.keys(value)
-  if (attributeEntries.length === 0 && keys.length === 1 && value["#text"] !== undefined) return value["#text"]
+  const keys = Object.keys(container)
+  if (
+    !Array.isArray(container) &&
+    assignedAttributesCount === 0 &&
+    keys.length === 1 &&
+    properties["#text"] !== undefined
+  ) {
+    return properties["#text"]
+  }
   if (keys.length === 0 && frame.name !== "" && options.preserveEmptyElements !== true) return undefined
-  return value
+  if (frame.orderedChildren === undefined && frame.childOrder.length > 0) {
+    Object.defineProperty(container, XML_METADATA, {
+      value: { childOrder: frame.childOrder },
+      enumerable: false,
+    })
+  }
+  return container
+}
+
+const containerProperties = (container: XmlContainer): Record<PropertyKey, unknown> =>
+  container as unknown as Record<PropertyKey, unknown>
+
+function assertSafeName(name: string): void {
+  if (UNSAFE_NAMES.has(name)) throw new Error(`Небезопасное имя XML-элемента: ${name}`)
 }
