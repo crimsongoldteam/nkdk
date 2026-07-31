@@ -14,9 +14,14 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "pnpm -r exec tsc --noEmit",
     "test": "pnpm -r run test",
-    "test:isolated": "pnpm -r run test:isolated"
+    "test:isolated": "pnpm -r run test:isolated",
+    "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs",
+    "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
+    "test:mutation:compare": "node packages/core/scripts/compare-mutation-reports.mjs"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^26.0.0",
     "prettier": "^3.8.4",
     "tsc-alias": "^1.8.17",

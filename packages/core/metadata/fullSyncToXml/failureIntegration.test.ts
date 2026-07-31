@@ -1,5 +1,5 @@
 import fs from "node:fs"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import {
@@ -212,25 +212,26 @@ async function createIndexedProject() {
       entity("ВнешнееСостояние", "Модуль.bsl"),
     ],
   }
-  await writeConfigurationIndexAtomically({
-    projectDir,
-    address: { kind: "configuration" },
-    data: previous,
+  const configurationPath = configurationIndexPath(projectDir, { kind: "configuration" })
+  const extensionPath = configurationIndexPath(projectDir, {
+    kind: "configurationExtension",
+    name: "Дополнение",
   })
-  await writeConfigurationIndexAtomically({
-    projectDir,
-    address: { kind: "configurationExtension", name: "Дополнение" },
-    data: {
-      ...previous,
-      componentPath: "cfe/Дополнение",
-    },
-  })
+  await Promise.all([
+    writeSnapshot(configurationPath, previous),
+    writeSnapshot(extensionPath, { ...previous, componentPath: "cfe/Дополнение" }),
+  ])
   return {
     projectDir,
     xmlDir,
     previous,
-    indexPath: configurationIndexPath(projectDir, { kind: "configuration" }),
+    indexPath: configurationPath,
   }
+}
+
+async function writeSnapshot(path: string, snapshot: ConfigurationSnapshot): Promise<void> {
+  await fs.promises.mkdir(dirname(path), { recursive: true })
+  await fs.promises.writeFile(path, encodeConfigurationIndex(snapshot))
 }
 
 function failureDeps(
