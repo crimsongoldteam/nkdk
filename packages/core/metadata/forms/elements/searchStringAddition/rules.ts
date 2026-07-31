@@ -78,10 +78,20 @@ export const SingleSearchStringAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   xmlOrder: [
+    "toolTipRepresentation",
+    "visible",
+    "enabled",
     "additionSource",
+    "font",
+    "width",
+    "autoMaxWidth",
+    "maxWidth",
+    "horizontalStretch",
     "title",
+    "toolTip",
     "contextMenu",
     "extendedTooltip",
+    "displayImportance",
   ],
   properties: {
     additionSource: tableAdditionalSourceRule({

@@ -11,6 +11,7 @@ import { createFormDataPathIndexCollector } from "../../validation/dataPath/form
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
+import type { MetadataItemRule } from "../../orchestration"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
@@ -18,7 +19,9 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   formXML?: ClientApplicationFormXML
   metadataXML: FormMetadataXML
   profile?: DirectImportProfile
+  rule?: MetadataItemRule
 }): DirectImportResult {
+  const rule = params.rule ?? ClientApplicationFormRules
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
   }
@@ -53,7 +56,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
         }
   const yaml = importPropertiesFromXMLToYAML({
     context,
-    rule: ClientApplicationFormRules,
+    rule,
     sources: createClientApplicationFormImportSources({
       context,
       formXML: params.formXML,
@@ -69,7 +72,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   if (yaml !== undefined) {
     applyMetadataItemXmlImportAugmenter({
       context,
-      rule: ClientApplicationFormRules,
+      rule,
       source: { ...params.metadataXML.Form },
       yaml,
     })

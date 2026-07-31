@@ -111,6 +111,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       "MetadataCatalogAttribute",
       "MetadataDocumentAttribute",
       "MetadataTabularSectionAttribute",
+      "MetadataTabularSectionAttributeWithFill",
       "FormParameter",
       "CommandBarButton",
     ]) {
@@ -188,6 +189,17 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
       expect(JSON.stringify(schema)).toContain('"Тип"')
     }
+  })
+
+  it("allows Fill fields only in specialized tabular section attributes", () => {
+    const attribute = {
+      Тип: "Строка",
+      ЗаполнятьИзДанныхЗаполнения: "Истина",
+      ЗначениеЗаполнения: "",
+    }
+
+    expect(compiledSchemaForName("MetadataTabularSectionAttribute").Check(attribute)).toBe(false)
+    expect(compiledSchemaForName("MetadataTabularSectionAttributeWithFill").Check(attribute)).toBe(true)
   })
 
   it("accepts home page work area in configuration schemas", () => {

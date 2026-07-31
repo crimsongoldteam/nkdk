@@ -83,6 +83,41 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["value"])
   })
 
+  it("uses registered explicit empty value only for a present XML property", () => {
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "importFromXML", () => undefined)
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    registerTypeRule("TestExplicitEmpty" as PropertyRuleType, "xmlImportPropertyBehavior", {
+      explicitEmptyValue: () => "Явно пусто",
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+    const rule = {
+      itemType: "TestExplicitEmptyItem",
+      properties: {
+        value: { type: "TestExplicitEmpty", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule
+
+    const present = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: { Value: "" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+    const absent = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(present).toEqual({ Значение: "Явно пусто" })
+    expect(absent).toEqual({})
+  })
+
   it("processes only an absent property with defaultValue", () => {
     const calls: unknown[] = []
     registerTypeRule("TestMissingDefault" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
@@ -492,6 +527,24 @@ describe("importPropertiesFromXMLToYAML", () => {
   })
 
   it.each([
+    ["явное YAML-default", { Value: "yaml-default" }, {}],
+    ["отсутствующий XML", {}, { Значение: "xml-implicit" }],
+    ["явное отличающееся значение", { Value: "explicit" }, { Значение: "explicit" }],
+  ])("импортирует implicitValueXML: %s", (_name, xml, expected) => {
+    expect(
+      runSingleProperty(
+        {
+          xml: "Value",
+          yaml: "Значение",
+          implicitValueYAML: "yaml-default",
+          implicitValueXML: "xml-implicit",
+        },
+        xml
+      )
+    ).toEqual(expected)
+  })
+
+  it.each([
     ["fromXML", { fromXML: false }],
     ["toYAML", { toYAML: false }],
     ["implicit YAML", { type: "boolean", implicitValueYAML: true }],
@@ -685,7 +738,6 @@ describe("importPropertiesFromXMLToYAML", () => {
             type: "string",
             xml: "RowFilter",
             fromXML: false,
-            preserveFromReferenceXML: true,
           },
           title: { type: "string", xml: "Title", xmlAliases: ["Caption"] },
           explicitDefault: {

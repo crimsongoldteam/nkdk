@@ -6,6 +6,7 @@ export interface ImportAssignmentGroup {
     role: ImportAssignmentRole
     itemType: string
     logicalAddressSegment?: string
+    topologyNodeId?: string
   }
   values: Record<string, string>
   targetProjectPath: string
@@ -52,6 +53,9 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
         : childUid(owner?.logicalAddress ?? group.definition.itemType, logicalAddressSegment, itemName)
   const assignment = {
     id: group.targetProjectPath,
+    ...(group.definition.topologyNodeId === undefined
+      ? {}
+      : { topologyNodeId: group.definition.topologyNodeId }),
     role: group.definition.role,
     targetProjectPath: group.targetProjectPath,
     itemType: group.definition.itemType,

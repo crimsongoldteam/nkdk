@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { MetadataSettingsStorageRules } from "./rules"
+import { withKnownXMLDefaults } from "../../../tests/knownXMLDefaults"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n").replace(/\n$/, "")
 
@@ -21,7 +22,7 @@ describe("syncAppliedObjectToXML — MetadataSettingsStorage", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(withKnownXMLDefaults(expected)))
     }
   })
 })

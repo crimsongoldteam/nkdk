@@ -17,6 +17,7 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 import "../../commonObjects/metadataAttribute/register"
 import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
+import { ClientApplicationFormWithExtendedPresentationRules } from "../../forms/clientApplicationForm/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 const MetadataReportCommandRules = {
@@ -270,6 +271,7 @@ export const MetadataReportRules = {
     forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
+      itemRule: ClientApplicationFormWithExtendedPresentationRules,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,

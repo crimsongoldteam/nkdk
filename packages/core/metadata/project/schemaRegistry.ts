@@ -15,7 +15,8 @@ import {
   stripCollectedSchemaRefs,
 } from "../orchestration/jsonSchemaRefs"
 import type { PropertyRuleType } from "../orchestration/property/registry"
-import type { PropertyRule } from "../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -27,11 +28,19 @@ export class ProjectFileSchemaError extends Error {
 type SchemaExporter = (params: { context: ConfigurationContext }) => TSchema
 type SchemaRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
 
-export interface JSONSchemaGraphRoot {
-  key: string
-  name: string
-  includeNestedChildItems?: boolean
-}
+export type JSONSchemaGraphRoot =
+  | {
+      key: string
+      name: string
+      rule?: never
+      includeNestedChildItems?: boolean
+    }
+  | {
+      key: string
+      rule: MetadataItemRule
+      name?: never
+      includeNestedChildItems?: boolean
+    }
 
 export interface JSONSchemaGraph {
   roots: Record<string, TSchema>
@@ -90,14 +99,24 @@ export function exportJSONSchemaGraph(params: {
   const mode = params.validationPropertyRefs === true ? "externalRefs" : (params.mode ?? "externalRefs")
 
   for (const root of params.roots) {
-    const schema = exportJSONSchemaForSchemaName({
-      context: params.context,
-      name: root.name,
-      mode,
-      excludeImplicitValueYAML: params.excludeImplicitValueYAML,
-      includeNestedChildItems: root.includeNestedChildItems,
-      validationPropertyRefs: params.validationPropertyRefs,
-    })
+    const schema =
+      root.rule === undefined
+        ? exportJSONSchemaForSchemaName({
+            context: params.context,
+            name: root.name,
+            mode,
+            excludeImplicitValueYAML: params.excludeImplicitValueYAML,
+            includeNestedChildItems: root.includeNestedChildItems,
+            validationPropertyRefs: params.validationPropertyRefs,
+          })
+        : exportJSONSchemaForMetadataItemRule({
+            context: params.context,
+            rule: root.rule,
+            mode,
+            excludeImplicitValueYAML: params.excludeImplicitValueYAML,
+            includeNestedChildItems: root.includeNestedChildItems,
+            validationPropertyRefs: params.validationPropertyRefs,
+          })
     const rewritten = params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, schema) : schema
     roots[root.key] = rewritten
     pendingRefs.push(...collectSchemaRefs(rewritten))
@@ -123,6 +142,37 @@ export function exportJSONSchemaGraph(params: {
   }
 
   return { roots, schemas }
+}
+
+export function exportJSONSchemaForMetadataItemRule(params: {
+  context: ConfigurationContext
+  rule: MetadataItemRule
+  mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+  includeNestedChildItems?: boolean
+  validationPropertyRefs?: true
+}): TSchema {
+  ensureJSONSchemaRegistry()
+  const {
+    context,
+    rule,
+    excludeImplicitValueYAML,
+    includeNestedChildItems,
+    validationPropertyRefs,
+    mode = "externalRefs",
+  } = params
+  const schemaContext = createJSONSchemaExportContext(context, mode, {
+    excludeImplicitValueYAML,
+    includeNestedChildItems,
+    validationPropertyRefs,
+  })
+  const schema = exportMetadataItemToJSONSchema({
+    context: schemaContext,
+    rule,
+  })
+  return mode === "externalRefs"
+    ? attachCollectedSchemaRefs(schemaContext, schema)
+    : schema
 }
 
 function validationSchemaName(context: ConfigurationContext, ref: string): string {

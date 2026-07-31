@@ -203,7 +203,6 @@ const commonAttributeProperties = {
     typeSE: "Indexing",
     defaultValueXML: "DontIndex",
     implicitValueYAML: "DontIndex",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   fullTextSearch: {
@@ -213,7 +212,6 @@ const commonAttributeProperties = {
     typeSE: "UseFullTextSearch",
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   dataHistory: {
@@ -223,7 +221,6 @@ const commonAttributeProperties = {
     typeSE: "DataHistoryUse",
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   objectBelonging: {
@@ -244,7 +241,6 @@ const fillProperties = {
     type: "boolean",
     defaultValueXML: false,
     implicitValueYAML: false,
-    preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
   },
   fillValue: {
@@ -252,7 +248,6 @@ const fillProperties = {
     xml: "FillValue",
     type: "MetadataValue",
     xmlParents: ["Properties"],
-    preserveFromReferenceXML: true,
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
 } as const satisfies Record<string, PropertyRule>
@@ -348,9 +343,7 @@ export const MetadataAttributeRules = {
       yaml: "Использование",
       xml: "Use",
       typeSE: "AttributeUse",
-      defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
     }),
     binaryDataStorageLocationUse: systemEnumerationRule({
@@ -404,6 +397,14 @@ export const MetadataAttributesWithAllowedTypesRules = {
       ...commonAttributeProperties.type,
       allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
+    use: systemEnumerationRule({
+      yaml: "Использование",
+      xml: "Use",
+      typeSE: "AttributeUse",
+      defaultValueXML: "ForItem",
+      implicitValueYAML: "ForItem",
+      xmlParents: ["Properties"],
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataCatalogAttributeRules = {
@@ -458,7 +459,6 @@ export const MetadataCatalogAttributeRules = {
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
     }),
     binaryDataStorageLocationUse: systemEnumerationRule({
@@ -538,8 +538,6 @@ export const MetadataTabularSectionAttributeRules = {
     "extendedEdit",
     "minValue",
     "maxValue",
-    "fillFromFillingValue",
-    "fillValue",
     "fillChecking",
     "choiceFoldersAndItems",
     "choiceParameterLinks",
@@ -560,6 +558,24 @@ export const MetadataTabularSectionAttributeRules = {
       ...commonAttributeProperties.type,
       allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
+  },
+} as const satisfies MetadataItemRule
+
+const fillCheckingIndex = MetadataTabularSectionAttributeRules.xmlOrder.indexOf("fillChecking")
+if (fillCheckingIndex < 0) {
+  throw new Error("MetadataTabularSectionAttributeRules.xmlOrder: fillChecking is required")
+}
+
+export const MetadataTabularSectionAttributeWithFillRules = {
+  ...MetadataTabularSectionAttributeRules,
+  xmlOrder: [
+    ...MetadataTabularSectionAttributeRules.xmlOrder.slice(0, fillCheckingIndex),
+    "fillFromFillingValue",
+    "fillValue",
+    ...MetadataTabularSectionAttributeRules.xmlOrder.slice(fillCheckingIndex),
+  ],
+  properties: {
+    ...MetadataTabularSectionAttributeRules.properties,
     ...fillProperties,
   },
 } as const satisfies MetadataItemRule

@@ -111,6 +111,9 @@ export interface BasePropertyRule {
   /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
   implicitValueYAML?: any | DefaultValueFunction
 
+  /** Значение, подразумеваемое отсутствием XML-тега; при выгрузке не пишется явно. */
+  implicitValueXML?: unknown
+
   /** При отсутствии YAML-ключа не переносить из reference XML значение, отличное от implicitValueYAML. */
   omitNonImplicitReferenceXMLWhenYAMLMissing?: true
 
@@ -154,18 +157,11 @@ export interface BasePropertyRule {
   /** Не импортировать из XML */
   fromXML?: false
 
-  /**
-   * XML-only preservation mode: export this property only when the reference metadata object
-   * owns the same property key. Used for service tags that must be kept during round-trip
-   * but never inferred for newly-created XML.
-   */
-  preserveFromReferenceXML?: true
   /** Не переносить неизвестные вложенные XML-данные из reference внутрь результата атомарного exportToXML. */
   preserveUnknownReferenceXML?: false
 
   /**
-   * Для preserveFromReferenceXML: разрешить экспорт, когда reference-модель отсутствует.
-   * Если reference есть, свойство всё равно экспортируется только при наличии в reference.
+   * Вычислять XML-only свойство при отсутствии значения в YAML.
    */
   exportWithoutReferenceXML?: true
 

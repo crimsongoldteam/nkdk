@@ -16,10 +16,51 @@ import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ClientApplicationFormYAML } from "./types"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { projectClientApplicationBaseForm } from "./baseFormProjection"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
 
 const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
 
 describe("client application BaseForm", () => {
+  it("projects extended presentation only with the specialized form rule", () => {
+    const baseYaml = {
+      РасширенноеПредставление: "Продажи",
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      РасширенноеПредставление: "Продажи",
+    } as ClientApplicationFormYAML
+
+    const specialized = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    const base = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+      rule: ClientApplicationFormRules,
+    })
+
+    expect(specialized.yaml).toMatchObject({
+      РасширенноеПредставление: "Продажи",
+    })
+    expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
+
+    expect(() =>
+      buildClientApplicationBaseForm({
+        context: mockContextToXML(),
+        baseIndex: reader({ componentPath: "cf" }),
+        baseYaml,
+        extensionYaml,
+        formName: "ФормаОтчета",
+        rule: ClientApplicationFormWithExtendedPresentationRules,
+      })
+    ).not.toThrow()
+  })
+
   it("builds only the shared form projection without changing the external form", () => {
     const baseYaml = {
       Ширина: 80,

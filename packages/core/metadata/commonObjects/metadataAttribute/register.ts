@@ -9,6 +9,7 @@ import {
   MetadataCatalogAttributeRules,
   MetadataDocumentAttributeRules,
   MetadataTabularSectionAttributeRules,
+  MetadataTabularSectionAttributeWithFillRules,
 } from "./rules"
 
 type MetadataAttributeItemRule =
@@ -17,6 +18,7 @@ type MetadataAttributeItemRule =
   | typeof MetadataCatalogAttributeRules
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
+  | typeof MetadataTabularSectionAttributeWithFillRules
 
 type ExportMetadataAttributesToJSONSchemaFn = (params: {
   context: ConfigurationContext
@@ -74,6 +76,16 @@ registerMetadataItemCollectionRule({
   xmlElement: "Attribute",
   keyField: "name",
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataTabularSectionAttributeRules),
+  collectionItemRule: true,
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataTabularSectionAttributesWithFill",
+  itemRule: MetadataTabularSectionAttributeWithFillRules,
+  schemaName: "MetadataTabularSectionAttributeWithFill",
+  xmlElement: "Attribute",
+  keyField: "name",
+  toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataTabularSectionAttributeWithFillRules),
   collectionItemRule: true,
 })
 

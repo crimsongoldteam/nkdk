@@ -56,6 +56,35 @@ describe("MetadataTabularSections YAML → XML", () => {
     })
   })
 
+  it.each([
+    ["MetadataDataProcessor", "MetadataDataProcessorTabularSections", true],
+    ["MetadataReport", "MetadataReportTabularSections", true],
+    ["MetadataBusinessProcess", "MetadataBusinessProcessTabularSections", false],
+  ])("selects Fill fields for %s tabular section attributes", (parentType, propertyType, expectedFill) => {
+    const context = mockContextToXML()
+    context.exportToXML.itemsTree.push({
+      itemType: parentType as never,
+      name: "Владелец",
+      path: `${parentType}.Владелец`,
+    })
+    const result = serializeDirectXML(
+      testPropertyFromYAMLToXML({
+        rule: probeRule(propertyType),
+        yaml: {
+          Значение: {
+            ТабличнаяЧасть: {
+              Реквизиты: { Реквизит: { Тип: "Строка" } },
+            },
+          },
+        },
+        context,
+      }).xml
+    )
+
+    expect(result.includes("<FillFromFillingValue>false</FillFromFillingValue>")).toBe(expectedFill)
+    expect(result.includes('<FillValue xsi:nil="true"/>')).toBe(expectedFill)
+  })
+
   it("should return undefined when data is undefined after YAML export", () => {
     expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataTabularSections"), yaml: {} }).xml).toEqual({})
   })

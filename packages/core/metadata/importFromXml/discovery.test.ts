@@ -131,13 +131,20 @@ describe("XML import discovery", () => {
   it("classifies a real child-form Ext/Help.xml as a property XML input", async () => {
     const formRoot = "DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
     const helpXml = `${formRoot}/Ext/Help.xml`
+    const topology = compileRegisteredMetadataResourceTopology()
     const result = await discoverXmlImport({
       xmlDir,
-      topology: compileRegisteredMetadataResourceTopology(),
+      topology,
       fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, helpXml]),
     })
 
     const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))
+    const processorFormNode = topology.assignments.find(
+      ({ projectPattern }) =>
+        projectPattern ===
+        "Обработка/{ownerName}/Формы/{itemName}/Форма.yaml"
+    )
+    expect(form?.topologyNodeId).toBe(processorFormNode?.id)
     expect(form?.xmlFiles).toContainEqual({ role: "property", sourcePath: join(xmlDir, helpXml) })
     expect(form?.externalFiles).not.toContainEqual(expect.objectContaining({ sourcePath: join(xmlDir, helpXml) }))
   })

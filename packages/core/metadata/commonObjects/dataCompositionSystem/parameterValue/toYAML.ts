@@ -8,12 +8,15 @@ import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type {
+  DcsAutoColorYAML,
   ParameterValue,
   ParameterValueYAML,
   SettingsParameterValue,
   SettingsParameterValuePropertyRule,
   SettingsParameterValueYAML,
 } from "./types"
+
+const DCS_AUTO_COLOR_YAML: DcsAutoColorYAML = "Авто"
 
 const isChoiceParameterLinksArray = (v: unknown[]): boolean => {
   if (v.length === 0) return false
@@ -70,13 +73,16 @@ export const exportParameterValueToYAML = (params: {
 
   const values = normalizeValues(data.value)
   const hideAutoColorValue = shouldHideDcsAutoColorValue(rule, values)
+  const isDcsAutoColor = rule.valueType === "Color" && (values.length === 0 || hideAutoColorValue)
   const valuesForYAML = hideAutoColorValue ? [] : values
   const exportedValues = valuesForYAML.map((v) => exportDcsMetadataValueToYAML(context, dcsRule, v))
   const liftedValue = exportedValues.length === 1 ? exportedValues[0] : undefined
   const canLiftValue = isLosslessLiftableDcsValueYAML(liftedValue)
   const liftedType = canLiftValue ? liftedValue.Тип : undefined
   let значение: unknown
-  if (exportedValues.length === 0) {
+  if (isDcsAutoColor) {
+    значение = DCS_AUTO_COLOR_YAML
+  } else if (exportedValues.length === 0) {
     значение = undefined
   } else if (exportedValues.length === 1) {
     значение = canLiftValue ? liftedValue.Значение : liftedValue
@@ -117,8 +123,8 @@ export const exportParameterValueToYAML = (params: {
     } as SettingsParameterValueYAML
   }
 
-  if (rule.valueType === "Color" && !hasUse && !hasValue && !hasElements) {
-    return null
+  if (isDcsAutoColor && !hasUse && !hasElements) {
+    return DCS_AUTO_COLOR_YAML
   }
 
   return base as ParameterValueYAML

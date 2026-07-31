@@ -11,7 +11,10 @@ import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from 
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
 import * as propertyImporter from "../../orchestration/property/fromXMLToYAML"
-import { ClientApplicationFormRules } from "./rules"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
@@ -65,6 +68,73 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(result.yaml).toEqual(minimalClientApplicationFormYAML)
     expect(result).not.toHaveProperty("model")
     expect(result).not.toHaveProperty("xml")
+  })
+
+  it("не импортирует пустое расширенное представление ни в одном варианте формы", () => {
+    const metadataXML = {
+      Form: {
+        Properties: {
+          FormType: "Managed",
+          ExtendedPresentation: "",
+        },
+      },
+    } as FormMetadataXML
+
+    const specialized = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаОтчета",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    expect(specialized.yaml).not.toHaveProperty(
+      "РасширенноеПредставление"
+    )
+
+    const base = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаСписка",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormRules,
+    })
+    expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
+  })
+
+  it("импортирует заполненное расширенное представление только специализированной формы", () => {
+    const metadataXML = {
+      Form: {
+        Properties: {
+          FormType: "Managed",
+          ExtendedPresentation: {
+            "v8:item": {
+              "v8:lang": "ru",
+              "v8:content": "Продажи",
+            },
+          },
+        },
+      },
+    } as FormMetadataXML
+
+    const specialized = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаОтчета",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    expect(specialized.yaml).toMatchObject({
+      РасширенноеПредставление: "Продажи",
+    })
+
+    const base = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "ФормаСписка",
+      formXML: {},
+      metadataXML,
+      rule: ClientApplicationFormRules,
+    })
+    expect(base.yaml).not.toHaveProperty("РасширенноеПредставление")
   })
 
   it("восстанавливает пустой контейнер реквизитов без reference XML", () => {
@@ -232,6 +302,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       formName: "ФормаЭлемента",
       formXML: {},
       metadataXML,
+      rule: ClientApplicationFormWithExtendedPresentationRules,
     })
 
     expect(result.yaml).toMatchObject({
@@ -597,8 +668,28 @@ function normalizeSnapshot13XML(value: unknown): unknown {
   }
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
-    Object.entries(value).map(([key, child]) => [SNAPSHOT_13_XML_NAMES[key] ?? key, normalizeSnapshot13XML(child)])
+    Object.entries(value).map(([key, child]) => {
+      const normalizedKey = SNAPSHOT_13_XML_NAMES[key] ?? key
+      const normalizedChild = normalizeSnapshot13XML(child)
+      return [normalizedKey, normalizedKey === "Table" ? withCanonicalTableDefaults(normalizedChild) : normalizedChild]
+    })
   )
+}
+
+function withCanonicalTableDefaults(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withCanonicalTableDefaults)
+  if (value === null || typeof value !== "object") return value
+  const table = value as Record<string, unknown>
+  return {
+    ...table,
+    Period: table.Period ?? {
+      "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+      "v8:startDate": "0001-01-01T00:00:00",
+      "v8:endDate": "0001-01-01T00:00:00",
+    },
+    TopLevelParent: table.TopLevelParent ?? { "_xsi:nil": "true" },
+    RowFilter: table.RowFilter ?? { "_xsi:nil": "true" },
+  }
 }
 
 function withoutFormattingText(value: unknown): unknown {

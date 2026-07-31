@@ -3,6 +3,7 @@ packages:
 overrides:
   esbuild: ^0.28.1
   picomatch@<2.3.2: 2.3.2
+  qs@<6.15.2: 6.15.3
   vite: ^8.0.16
 allowBuilds:
   esbuild: true

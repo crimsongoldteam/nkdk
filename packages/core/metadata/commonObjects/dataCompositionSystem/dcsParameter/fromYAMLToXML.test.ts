@@ -51,7 +51,7 @@ describe("export DCSParameter to XML", () => {
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withCanonicalNilValues(expectedResult))
   })
 
   it("exports full.xml", () => {
@@ -63,7 +63,7 @@ describe("export DCSParameter to XML", () => {
       path: "full.xml",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withCanonicalNilValues(expectedResult))
   })
 
   it("exports inferred system enumeration to XML", () => {
@@ -95,7 +95,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withCanonicalNilValues(expectedResult))
   })
 
   it("preserves xs:string title in XML", () => {
@@ -117,7 +117,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withCanonicalNilValues(expectedResult))
   })
 
   it("preserves numeric-looking edit parameter mask as xs:string", () => {
@@ -146,7 +146,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withCanonicalNilValues(expectedResult))
   })
 
   it("exports explicit null value as xsi:nil without reference", () => {
@@ -221,16 +221,15 @@ describe("export DCSParameter to XML", () => {
     expect(result).not.toContain("reference")
   })
 
-  it("exports missing value from reference d6p1 Undefined", () => {
+  it("exports canonical xsi:nil instead of reference d6p1 Undefined", () => {
     const result = exportDCSParameters(
       [parameterWithoutValue],
       { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
       [parameterXML("ТипЗначенияКлюча", undefinedTypeReferenceValue)]
     )
 
-    expect(result).toContain(
-      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>'
-    )
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("d6p1:Undefined")
   })
 
   it("does not use reference d6p1 Undefined from item with different name", () => {
@@ -244,7 +243,7 @@ describe("export DCSParameter to XML", () => {
     expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("does not use reference d6p1 Undefined with extra QName part", () => {
+  it("uses canonical xsi:nil for malformed reference Undefined QName", () => {
     const result = exportDCSParameters(
       [parameterWithoutValue],
       { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
@@ -256,7 +255,8 @@ describe("export DCSParameter to XML", () => {
       ]
     )
 
-    expect(result).not.toContain("<dcssch:value")
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("d6p1:Undefined:extra")
   })
 
   it("exports Parameter rule as array without wrapper", () => {
@@ -268,24 +268,22 @@ describe("export DCSParameter to XML", () => {
       xmlRootTag: "Parameter",
     }).result
 
-    expect(result).toContain(
-      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>'
-    )
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("exports explicit undefined value from reference d6p1 Undefined", () => {
+  it("exports explicit undefined value as canonical xsi:nil", () => {
     const result = exportDCSParameters(
       [{ ...parameterWithoutValue, value: undefined }],
       { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
       [parameterXML("ТипЗначенияКлюча", undefinedTypeReferenceValue)]
     )
 
-    expect(result).toContain(
-      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>'
-    )
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("omits missing value when neither model nor reference has value key", () => {
+  it("exports canonical xsi:nil when YAML has no value", () => {
     const value = [
       {
         itemType: "DCSParameter" as const,
@@ -297,6 +295,17 @@ describe("export DCSParameter to XML", () => {
     const result = exportDCSParameters(value, { БезЗначения: { Заголовок: "Без значения" } }, [
       parameterXML("БезЗначения"),
     ])
-    expect(result).not.toContain(`<dcssch:value`)
+    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
   })
 })
+
+function withCanonicalNilValues(xml: string | undefined): string {
+  if (xml === undefined) throw new Error("Expected XML result")
+  return xml.replace(/<Parameter>[\s\S]*?<\/Parameter>/g, (parameter) => {
+    if (/<dcssch:value(?:[ >])/.test(parameter)) return parameter
+    return parameter.replace(
+      /\n([\t ]*)<\/Parameter>$/,
+      '\n$1\t<dcssch:value xsi:nil="true"/>\n$1</Parameter>'
+    )
+  })
+}

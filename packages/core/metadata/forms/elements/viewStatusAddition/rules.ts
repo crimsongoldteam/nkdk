@@ -89,6 +89,7 @@ export const SingleViewStatusAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   xmlOrder: [
+    "visible",
     "enabled",
     "toolTipRepresentation",
     "additionSource",

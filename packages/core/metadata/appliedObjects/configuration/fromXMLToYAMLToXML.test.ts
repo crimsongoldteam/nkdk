@@ -29,6 +29,7 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
 
     expect(imported.yaml).toEqual({
       Имя: "Конфигурация",
+      Синоним: "",
       ОсновнойЯзык: "Русский",
     })
     expect(EXPECTED_CLEAN_CONFIGURATION_YAML).toContain("Имя: Конфигурация")

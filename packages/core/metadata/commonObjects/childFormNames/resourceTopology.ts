@@ -8,7 +8,12 @@ import { dirname, join } from "path"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 
 registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
-  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  const childFormPropertyRule = propertyRule as
+    | ChildFormNamesPropertyRule
+    | undefined
+  const folderName = childFormPropertyRule?.folderName ?? "Формы"
+  const childFormRule =
+    childFormPropertyRule?.itemRule ?? ClientApplicationFormRules
   const assignmentProjectPattern = `${folderName}/{itemName}/Форма.yaml`
   const source = { kind: "property" as const, description: "ChildFormNames" }
   const declarations: MetadataResourceDeclaration[] = [
@@ -19,7 +24,8 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       required: true,
       repeatable: true,
       compositionImpact: "none",
-      itemRule: ClientApplicationFormRules,
+      projectRole: "form",
+      itemRule: childFormRule,
       logicalAddressSegment: "Форма",
       dumpInfoNamePatterns: [
         "{dumpRoot}.{ownerName}.Form.{itemName}",

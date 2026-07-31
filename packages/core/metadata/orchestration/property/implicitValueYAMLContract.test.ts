@@ -1355,7 +1355,6 @@ describe("implicitValueYAML contract", () => {
       output: "Auto",
       readOnly: false,
       refreshRequest: "None",
-      representation: "List",
       allowGettingCurrentRowURL: true,
       allowRootChoice: false,
       restoreCurrentRow: false,
@@ -1380,6 +1379,7 @@ describe("implicitValueYAML contract", () => {
     const expectedNoImplicitValueYAML = [
       "autoAddIncomplete",
       "autoMarkIncomplete",
+      "representation",
       "settingsNamedItemDetailedRepresentation",
       "skipOnInput",
       "viewMode",
@@ -1396,6 +1396,8 @@ describe("implicitValueYAML contract", () => {
       .map((propertyKey) => `TableRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
+    expect(TableRules.properties.enableDrag.implicitValueXML).toBe(false)
+    expect(TableRules.properties.enableStartDrag.implicitValueXML).toBe(false)
   })
 
   it("uses configurator defaults as implicit YAML values for client application forms", () => {
@@ -1509,6 +1511,14 @@ describe("implicitValueYAML contract", () => {
     expect(missing).toEqual([])
   })
 
+  it("does not combine implicitValueXML with defaultValueXML", () => {
+    const conflicts = collectRules().flatMap(({ exportName, rule }) =>
+      collectConflictingXMLDefaults(rule, exportName)
+    )
+
+    expect(conflicts).toEqual([])
+  })
+
   it("uses zero as implicit YAML value for unset max size form properties", () => {
     const missing = collectRules().flatMap(({ exportName, rule }) =>
       collectMissingMaxSizeImplicitValueYAML(rule, exportName)
@@ -1569,6 +1579,23 @@ function collectMissingMaxSizeImplicitValueYAML(rule: MetadataItemRule, path: st
     ) ?? []
 
   return [...propertyMissing, ...childMissing]
+}
+
+function collectConflictingXMLDefaults(rule: MetadataItemRule, path: string): string[] {
+  const propertyConflicts = Object.entries(rule.properties)
+    .filter(
+      ([, propertyRule]) =>
+        Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML") &&
+        Object.prototype.hasOwnProperty.call(propertyRule, "defaultValueXML")
+    )
+    .map(([key]) => `${path}.${key}`)
+
+  const childConflicts =
+    rule.childCollections?.flatMap(({ propertyKey, itemRule }) =>
+      collectConflictingXMLDefaults(itemRule, `${path}.${propertyKey}`)
+    ) ?? []
+
+  return [...propertyConflicts, ...childConflicts]
 }
 
 function getRuleProperty(properties: MetadataItemRule["properties"], key: string): PropertyRule {

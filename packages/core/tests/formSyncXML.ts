@@ -3,6 +3,7 @@ import { strict as assert } from "node:assert"
 import { join } from "node:path"
 import { importFromYAML } from "../yaml/import"
 import { canonicalXML } from "./canonicalXML"
+import { withKnownXMLDefaults } from "./knownXMLDefaults"
 
 export function canonicalFormSyncXML(params: { path: string; result: string; expected: string; inputDir: string }): {
   result: unknown
@@ -11,12 +12,28 @@ export function canonicalFormSyncXML(params: { path: string; result: string; exp
   const yamlPath = formYamlPath(params.inputDir, params.path)
   const yaml = importFromYAML<unknown>(fs.readFileSync(yamlPath, "utf8"))
   const result = canonicalXML(params.result)
-  const expected = canonicalXML(params.expected)
+  const expected = canonicalXML(withKnownXMLDefaults(params.expected))
 
   assertYAMLEventOrder(yaml, result, expected, params.path)
   return {
     result: normalizeEventCollections(result),
-    expected: normalizeEventCollections(expected),
+    expected: normalizeEventCollections(withImplicitTableFlags(expected)),
+  }
+}
+
+function withImplicitTableFlags(value: unknown, key?: string): unknown {
+  if (Array.isArray(value)) return value.map((child) => withImplicitTableFlags(child, key))
+  const record = asRecord(value)
+  if (record === undefined) return value
+
+  const normalized = Object.fromEntries(
+    Object.entries(record).map(([childKey, child]) => [childKey, withImplicitTableFlags(child, childKey)])
+  )
+  if (key !== "Table") return normalized
+  return {
+    ...normalized,
+    EnableStartDrag: normalized.EnableStartDrag ?? "true",
+    EnableDrag: normalized.EnableDrag ?? "true",
   }
 }
 

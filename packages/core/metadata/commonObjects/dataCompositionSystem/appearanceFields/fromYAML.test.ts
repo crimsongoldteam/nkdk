@@ -245,11 +245,11 @@ describe("import Appearance from YAML", () => {
     })
   })
 
-  it("imports empty color parameter as enabled DCS auto color", () => {
+  it("imports explicit DCS auto color marker", () => {
     const result = testAtomicFromYAML({
       rule,
       value: {
-        ЦветТекста: null,
+        ЦветТекста: "Авто",
       },
     })
 

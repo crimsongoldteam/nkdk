@@ -13,6 +13,12 @@ const preserveEmptyXMLRule: I8nTextPropertyRule = {
   preserveEmptyXML: true,
 }
 
+const excludeEqualNameRule: I8nTextPropertyRule = {
+  yaml: "Синоним",
+  type: "I8nText",
+  excludeIfEqualNameYAML: true,
+}
+
 describe("exportI8nTextToXML", () => {
   describe("exportI8nTextToXML", () => {
     i8nTextFixtures.forEach((fixture) => {
@@ -43,6 +49,14 @@ describe("exportI8nTextToXML", () => {
       const result = exportI8nTextToXML(mockContext, preserveEmptyXMLRule, { items: { ru: "" } })
       const xml = result ? xmlExport({ Title: result }, false) : undefined
 
+      expect(xml).toEqual("<Title/>")
+    })
+
+    it("exports explicit empty text as raw XML for excludeIfEqualNameYAML", () => {
+      const result = exportI8nTextToXML(mockContext, excludeEqualNameRule, { items: {} })
+      const xml = result ? xmlExport({ Title: result }, false) : undefined
+
+      expect(result).toEqual({})
       expect(xml).toEqual("<Title/>")
     })
   })

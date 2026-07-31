@@ -7,6 +7,7 @@ import {
 import { fullYAML } from "./__fixtures__/full"
 import { minimalYAML } from "./__fixtures__/minimal"
 import { MetadataCatalogRules } from "./rules"
+import { withKnownXMLDefaults } from "../../../tests/knownXMLDefaults"
 
 describe("MetadataCatalog YAML → XML", () => {
   it.each([
@@ -20,7 +21,7 @@ describe("MetadataCatalog YAML → XML", () => {
       yaml,
     })
 
-    expect(result.result).toEqual(result.expected)
+    expect(result.result).toEqual(withKnownXMLDefaults(result.expected))
   })
 
   it.each([

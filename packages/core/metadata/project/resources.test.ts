@@ -11,6 +11,10 @@ import {
   discoverMetadataProjectResources,
   resolveMetadataProjectResource,
 } from "./resources"
+import {
+  ClientApplicationFormRules,
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 describe("metadata project resources", () => {
   const tempDirs: string[] = []
@@ -53,6 +57,25 @@ describe("metadata project resources", () => {
       role: "form",
       owner: { dir: "Документ", name: "Заказ" },
       formName: "ФормаДокумента",
+    })
+  })
+
+  it("classifies forms with the rule selected by their owner", () => {
+    expect(
+      classifyMetadataProjectPath(
+        "Обработка/Загрузка/Формы/Основная/Форма.yaml"
+      )
+    ).toMatchObject({
+      role: "form",
+      itemRule: ClientApplicationFormWithExtendedPresentationRules,
+    })
+    expect(
+      classifyMetadataProjectPath(
+        "Справочник/Товары/Формы/ФормаСписка/Форма.yaml"
+      )
+    ).toMatchObject({
+      role: "form",
+      itemRule: ClientApplicationFormRules,
     })
   })
 

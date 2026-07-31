@@ -147,6 +147,9 @@ export function importPropertiesFromXMLToYAML(params: {
     if (!forReference && propertyRule.forReferenceOnly === true) return
 
     let xmlValue = sourceXMLValue
+    if (!presentInXML && Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueXML")) {
+      xmlValue = propertyRule.implicitValueXML
+    }
     if (xmlValue === undefined && propertyRule.type === "MetadataDcsMetadataValue" && presentInXML) {
       xmlValue = null
     }
@@ -298,10 +301,16 @@ export function importPropertiesFromXMLToYAML(params: {
           addProfileBucket(profile.directByType, propertyRule.type, elapsedMs)
         }
       }
+      const registeredExplicitEmptyValue =
+        importedValue === undefined && presentInXML && (xmlValue === undefined || xmlValue === "")
+          ? getTypeRule(propertyRule.type, "xmlImportPropertyBehavior")?.explicitEmptyValue?.({
+              rule: propertyRule,
+            })
+          : undefined
       const rawValue =
         importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
           ? propertyRule.defaultValueXMLEmpty
-          : importedValue
+          : (importedValue ?? registeredExplicitEmptyValue)
       const preserveExplicitDefault =
         propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
       const cleanValue =

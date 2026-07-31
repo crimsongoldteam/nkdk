@@ -7,6 +7,7 @@ import {
 } from "../project/resources"
 import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 export interface ComponentFileAddress {
   componentPath: string
@@ -21,6 +22,7 @@ export interface ValidationProjectFile extends ComponentFileAddress {
   itemType: string
   owner: { dir: string; name: string; spec: ValidationProjectSpec }
   formName?: string
+  itemRule?: MetadataItemRule
 }
 
 export async function discoverValidationProjectFiles(
@@ -92,6 +94,7 @@ function toValidationProjectFile(
       itemType: resource.itemType,
       owner: resource.owner,
       formName: resource.formName,
+      itemRule: resource.itemRule,
     }
   }
 

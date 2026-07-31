@@ -270,6 +270,7 @@ export type CollectConfigurationIndexFromXMLFunction = (params: {
 export interface XMLImportPropertyBehavior {
   presenceAffectsExport?: true
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
+  explicitEmptyValue?: (params: { rule: PropertyRule }) => unknown
 }
 
 export interface TypeRule {

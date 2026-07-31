@@ -5,6 +5,7 @@ import {
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import type { BasePropertyRule } from "../../orchestration/property/types"
 import { fileItemCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 
 /** Правило property-типа ChildFormNames — список имён форм в ChildObjects XML.
  *
@@ -18,11 +19,14 @@ export interface ChildFormNamesPropertyRule extends BasePropertyRule {
   xml: string
   /** Имя папки на диске, например "Формы" */
   folderName: string
+  /** Правило содержимого вложенной формы. */
+  itemRule?: MetadataItemRule
   forReferenceOnly: true
 }
 
 export interface ChildFormNamesWidePropertyRule extends WidePropertyRuleBase {
   type: "ChildFormNames"
+  itemRule?: MetadataItemRule
 }
 
 export type ChildFormNamesRuleParams = Omit<ChildFormNamesWidePropertyRule, "type">

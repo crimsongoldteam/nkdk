@@ -23,6 +23,28 @@ describe("exportFormattedI8nTextToYAML", () => {
     })
   })
 
+  it("exports explicit empty text for excludeIfEqualNameYAML", () => {
+    const result = exportFormattedI8nTextToYAML({
+      context: mockContextToYAML,
+      rule: {
+        type: "FormattedI8nText",
+        yaml: "Заголовок",
+        excludeIfEqualNameYAML: true,
+      },
+      name: "ФормаЭлемента",
+      value: {
+        formatted: false,
+        items: {},
+      },
+    })
+
+    expect(result).toEqual({
+      Заголовок: {
+        Текст: "",
+      },
+    })
+  })
+
   it("keeps non-default languages when default language equals the name", () => {
     const result = exportFormattedI8nTextToYAML({
       context: mockContextToYAML,

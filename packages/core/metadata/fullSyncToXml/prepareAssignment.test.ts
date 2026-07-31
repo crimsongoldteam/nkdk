@@ -16,6 +16,9 @@ import { registerMetadataXmlPrepareCapability } from "../resourceTopology/capabi
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import {
+  ClientApplicationFormWithExtendedPresentationRules,
+} from "../forms/clientApplicationForm/rules"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -184,6 +187,68 @@ describe("prepareFullXmlSyncAssignment", () => {
     })
 
     expect(prepared.documents[0]?.rootRule).toBe(MetadataConfigurationExtensionRules)
+  })
+
+  it("prepares a processor form with its selected rule", () => {
+    const sourceProjectPath =
+      "Обработка/Загрузка/Формы/Основная/Форма.yaml"
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath: `/project/${sourceProjectPath}`,
+      expectedContentHash: 0n,
+      role: "form",
+      itemType: "ClientApplicationForm",
+      itemName: "Основная",
+      logicalAddress: "Обработка.Загрузка.Форма.Основная",
+      owner: {
+        itemType: "MetadataDataProcessor",
+        name: "Загрузка",
+        logicalAddress: "Обработка.Загрузка",
+      },
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "form",
+        owner: { dir: "Обработка", name: "Загрузка" },
+        data: {},
+        syntaxDiagnostics: [],
+      },
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(
+        snapshotConfigurationIndex(
+          encodeConfigurationIndex(sampleSnapshot())
+        )
+      ),
+    })
+    const metadataDocument = prepared.documents.find((document) =>
+      Object.hasOwn(document.xml, "MetaDataObject")
+    )
+    const bodyDocument = prepared.documents.find((document) =>
+      Object.hasOwn(document.xml, "Form")
+    )
+
+    expect(metadataDocument?.rootRule).toBe(
+      ClientApplicationFormWithExtendedPresentationRules
+    )
+    expect(metadataDocument?.xml).toMatchObject({
+      MetaDataObject: {
+        Form: {
+          Properties: {
+            IncludeHelpInContents: false,
+            ExtendedPresentation: "",
+          },
+        },
+      },
+    })
+    expect(bodyDocument?.rootRule).toBe(
+      ClientApplicationFormWithExtendedPresentationRules
+    )
   })
 
   it("prepares owner XML without writing files", () => {

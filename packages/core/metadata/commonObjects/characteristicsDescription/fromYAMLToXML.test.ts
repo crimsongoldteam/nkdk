@@ -73,14 +73,14 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     )
   })
 
-  it("does not materialize missing XML default fields without reference tags", () => {
+  it("materializes canonical XML default fields without reference", () => {
     const result = testPropertyFromYAMLToXML({ rule, yaml: { Характеристики: singleCharacteristicYAML } })
     const xml = serializeDirectXML(result.xml)
 
-    expect(xml).not.toContain("<xr:DataPathField>-1</xr:DataPathField>")
-    expect(xml).not.toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
-    expect(xml).not.toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
-    expect(xml).not.toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
+    expect(xml).toContain("<xr:DataPathField>-1</xr:DataPathField>")
+    expect(xml).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
+    expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
+    expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
   })
 
   it("preserves explicit XML default fields from reference", () => {
