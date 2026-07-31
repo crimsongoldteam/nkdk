@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
 import * as mutationTestRunner from "./run-mutation-tests.mjs"
 
@@ -45,6 +45,21 @@ describe("run mutation tests", () => {
       testFiles: ["packages/core/a.test.ts", "packages/core/b.spec.ts"],
       files: ["packages/core/a.ts"],
     })
+  })
+
+  it("отключает автоматический related-фильтр при явном списке тестов", async () => {
+    vi.stubEnv("NKDK_STRYKER_TEST_FILES", "packages/core/a.test.ts")
+    vi.resetModules()
+
+    try {
+      // @ts-expect-error Конфигурация Stryker остаётся исполняемым JavaScript без декларации типов.
+      const { default: config } = await import("../../../stryker.config.mjs")
+
+      expect(config.vitest.related).toBe(false)
+    } finally {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    }
   })
 
   it.each([

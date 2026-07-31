@@ -1,4 +1,5 @@
 const reportName = process.env.NKDK_STRYKER_REPORT_NAME ?? "mutation"
+const hasExplicitTestFiles = process.env.NKDK_STRYKER_TEST_FILES !== undefined
 
 /** @type {import("@stryker-mutator/api/core").PartialStrykerOptions} */
 export default {
@@ -14,7 +15,7 @@ export default {
   timeoutMS: 30_000,
   vitest: {
     configFile: "packages/core/vitest.config.ts",
-    related: true,
+    related: !hasExplicitTestFiles,
   },
   reporters: ["clear-text", "progress", "json", "html"],
   jsonReporter: {

@@ -63,12 +63,14 @@ describe("importContentFromXML", () => {
 
   it("сохраняет XML declaration и порядок разноимённых детей", () => {
     const result = importContentFromXML<{
-      "?xml": { _version: string; _encoding: string }
+      "?xml": { _version: string; _encoding: string; _standalone: string }
       Root: { A: string[]; B: string }
-    }>(`<?xml version="1.0" encoding="UTF-8"?><Root><A>1</A><B>2</B><A>3</A></Root>`)
+    }>(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Root><A>1</A><B>2</B><A>3</A></Root>`
+    )
 
     expect(result).toEqual({
-      "?xml": { _version: "1.0", _encoding: "UTF-8" },
+      "?xml": { _version: "1.0", _encoding: "UTF-8", _standalone: "yes" },
       Root: { A: ["1", "3"], B: "2" },
     })
     expect(childOrderOf(result)).toEqual([
@@ -104,32 +106,58 @@ describe("importContentFromXML", () => {
   })
 
   it("преобразует processing instruction в элемент", () => {
-    expect(importContentFromXML('<Root><?foo bar="baz"?></Root>', { preserveEmptyElements: true })).toEqual({
-      Root: { "?foo": { _bar: "baz" } },
-    })
+    expect(
+      importContentFromXML('<Root><Child><?foo bar = "baz qux" qux=  \'quux\'?></Child></Root>', {
+        preserveEmptyElements: true,
+      })
+    ).toEqual({ Root: { Child: { "?foo": { _bar: "baz qux", _qux: "quux" } } } })
   })
 
   it("отклоняет имена, небезопасные для объекта", () => {
-    expect(() => importContentFromXML("<Root><__proto__>x</__proto__></Root>")).toThrow()
+    const unsafeNames = [
+      "__proto__",
+      "constructor",
+      "prototype",
+      "hasOwnProperty",
+      "toString",
+      "valueOf",
+      "__defineGetter__",
+      "__defineSetter__",
+      "__lookupGetter__",
+      "__lookupSetter__",
+    ]
+
+    for (const name of unsafeNames) {
+      expect(() => importContentFromXML(`<Root><${name}>x</${name}></Root>`)).toThrow()
+    }
   })
 
   it("сохраняет BOM перед XML declaration как документный текст", () => {
-    expect(importContentFromXML('\uFEFF<?xml version="1.0"?><Root/>')).toEqual({
+    const result = importContentFromXML<{
+      "?xml": { _version: string; _encoding?: string; _standalone?: string }
+      Root?: unknown
+      "#text": string
+    }>('\uFEFF<?xml version="1.0"?><Root/>')
+
+    expect(result).toEqual({
       "?xml": { _version: "1.0" },
       Root: undefined,
       "#text": "\uFEFF",
     })
+    expect(Object.hasOwn(result["?xml"], "_encoding")).toBe(false)
+    expect(Object.hasOwn(result["?xml"], "_standalone")).toBe(false)
   })
 
   it("разбирает XML-фрагмент с несколькими корнями", () => {
     const result = importContentFromXML<{ Command: Array<{ _id: string }> }>(
-      '<Command id="1"/><Command id="2"/>'
+      '<Command id="1"/><Command id="2"/><Command id="3"/>'
     )
 
-    expect(result).toEqual({ Command: [{ _id: "1" }, { _id: "2" }] })
+    expect(result).toEqual({ Command: [{ _id: "1" }, { _id: "2" }, { _id: "3" }] })
     expect(childOrderOf(result)).toEqual([
       { key: "Command", index: 0 },
       { key: "Command", index: 1 },
+      { key: "Command", index: 2 },
     ])
   })
 
