@@ -17,6 +17,7 @@ import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 import { TableRules } from "../table/rules"
 import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
 import { UsualGroupRules } from "../usualGroup/rules"
+import { createFormDataPathIndexFromYAML } from "../../../validation/dataPath/formYamlIndex"
 
 import "../index"
 
@@ -54,7 +55,18 @@ describe("элементы формы XML → YAML → XML", () => {
       name,
       context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
     }).yaml
-    const exportContext = contexts.exportContext()
+    const directExportContext = contexts.exportContext()
+    const exportContext = isDynamicListTableFixture(fixture)
+      ? {
+          ...directExportContext,
+          importFromYAML: {
+            ...directExportContext.importFromYAML,
+            formDataPathIndex: createFormDataPathIndexFromYAML({
+              Реквизиты: { ДинамическийСписок: { Тип: "ДинамическийСписок" } },
+            }),
+          },
+        }
+      : directExportContext
     const configurationIndex = exportContext.exportToXML.configurationIndex
     if (configurationIndex === undefined) throw new Error("Не создан runtime индекса конфигурации")
     const result = testMetadataItemFromYAMLToXML({
@@ -230,4 +242,8 @@ function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string
 
 function withoutDeclaration(xml: string): string {
   return xml.replace(/^\uFEFF?<\?xml[^>]+>\s*/, "").trim()
+}
+
+function isDynamicListTableFixture(fixture: string): boolean {
+  return path.basename(fixture) === "dynamicList.xml" && path.basename(path.dirname(path.dirname(fixture))) === "table"
 }
