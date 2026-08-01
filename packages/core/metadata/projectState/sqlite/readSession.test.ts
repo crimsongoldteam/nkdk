@@ -1,22 +1,16 @@
-import { afterEach, expect, it } from "vitest"
+import { expect, it } from "vitest"
 import { Worker } from "node:worker_threads"
 import type { ProjectStateYamlFileUpdate } from "../fileUpdate"
+import { ProjectStateReadSessionClosedError } from "../readSession"
 import { sourceWorkerExecArgv } from "../../sourceWorkerRuntime"
-import { createSqliteProjectStateStore, type SqliteProjectStateStoreFixture } from "./store"
-
-const compatibility = { formatVersion: 1, coreVersion: "test" }
-const fixtures: SqliteProjectStateStoreFixture[] = []
-
-afterEach(() => {
-  for (const fixture of fixtures.splice(0)) fixture.store.close()
-})
+import { openSqliteProjectStateReadSession } from "./readSession"
+import type { SqliteProjectStateStoreFixture } from "./store"
+import { createSqliteProjectStateTestFixture } from "./testFixture"
 
 it("изолирует временные пакеты двух read session одной именованной базы", () => {
-  const fixture = createFixture()
+  const fixture = createSqliteProjectStateTestFixture()
   const update = yaml("cf/Товары.yaml", "Catalog.Товары")
-  fixture.store.beginUpdate()
-  fixture.store.replaceFiles({ updates: [update], hashBytes: new Uint8Array(8) })
-  fixture.store.commitUpdate()
+  storeYaml(fixture, update)
 
   const first = fixture.openReadSession(fixture.store.createReadToken())
   const second = fixture.openReadSession(fixture.store.createReadToken())
@@ -37,15 +31,15 @@ it("изолирует временные пакеты двух read session о�
 })
 
 it("отвергает token другой именованной базы", () => {
-  const first = createFixture()
-  const second = createFixture()
+  const first = createSqliteProjectStateTestFixture()
+  const second = createSqliteProjectStateTestFixture()
   const foreignToken = first.store.createReadToken()
 
   expect(() => second.openReadSession(foreignToken)).toThrow()
 })
 
 it("отвергает повторное открытие token после закрытия соответствующего сеанса", () => {
-  const fixture = createFixture()
+  const fixture = createSqliteProjectStateTestFixture()
   const token = fixture.store.createReadToken()
   const session = fixture.openReadSession(token)
   session.close()
@@ -54,11 +48,9 @@ it("отвергает повторное открытие token после за
 })
 
 it("проверяет и одноразово закрывает token в отдельном worker thread", async () => {
-  const fixture = createFixture()
+  const fixture = createSqliteProjectStateTestFixture()
   const update = yaml("cf/Товары.yaml", "Catalog.Товары")
-  fixture.store.beginUpdate()
-  fixture.store.replaceFiles({ updates: [update], hashBytes: new Uint8Array(8) })
-  fixture.store.commitUpdate()
+  storeYaml(fixture, update)
   const token = fixture.store.createReadToken()
 
   const result = await runReadSessionWorker(token)
@@ -71,11 +63,37 @@ it("проверяет и одноразово закрывает token в от�
   expect(() => fixture.openReadSession(token)).toThrow()
 })
 
-function createFixture(): SqliteProjectStateStoreFixture {
-  const fixture = createSqliteProjectStateStore({ projectDir: "/project", compatibility })
-  fixtures.push(fixture)
-  return fixture
-}
+it("атомарно заявляет tokenNonce при передаче независимой копии token в worker thread", async () => {
+  const fixture = createSqliteProjectStateTestFixture()
+  const token = fixture.store.createReadToken()
+  const tokenCopy = new Uint8Array(new SharedArrayBuffer(token.byteLength))
+  tokenCopy.set(token)
+
+  await runReadSessionWorker(tokenCopy)
+
+  expect(() => fixture.openReadSession(token)).toThrow()
+})
+
+it("координированно закрывает внешний worker-сеанс вместе с хранилищем", async () => {
+  const fixture = createSqliteProjectStateTestFixture()
+  const closed = waitForWorkerSessionClose(fixture.store.createReadToken())
+  const staleToken = fixture.store.createReadToken()
+
+  await closed.opened
+  fixture.store.close()
+
+  expect(() => fixture.openReadSession(staleToken)).toThrow()
+  await expect(closed.result).resolves.toEqual({ event: "closed", queryRejected: true })
+})
+
+it("проверяет общий lifecycle перед каждым вызовом внешнего сеанса", () => {
+  const fixture = createSqliteProjectStateTestFixture()
+  const session = openSqliteProjectStateReadSession(fixture.store.createReadToken())
+
+  fixture.store.close()
+
+  expect(() => session.resolveTargets([])).toThrow(ProjectStateReadSessionClosedError)
+})
 
 function yaml(projectPath: string, canonical: string): ProjectStateYamlFileUpdate {
   return {
@@ -95,6 +113,12 @@ function yaml(projectPath: string, canonical: string): ProjectStateYamlFileUpdat
   }
 }
 
+function storeYaml(fixture: SqliteProjectStateStoreFixture, update: ProjectStateYamlFileUpdate): void {
+  fixture.store.beginUpdate()
+  fixture.store.replaceFiles({ updates: [update], hashBytes: new Uint8Array(8) })
+  fixture.store.commitUpdate()
+}
+
 function runReadSessionWorker(token: Uint8Array): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./readSession.testWorker.ts", import.meta.url), {
@@ -107,4 +131,37 @@ function runReadSessionWorker(token: Uint8Array): Promise<unknown> {
       if (code !== 0) reject(new Error(`SQLite read session worker завершился с кодом ${code}`))
     })
   })
+}
+
+function waitForWorkerSessionClose(token: Uint8Array): {
+  readonly opened: Promise<void>
+  readonly result: Promise<unknown>
+} {
+  let resolveOpened!: () => void
+  const opened = new Promise<void>((resolve) => {
+    resolveOpened = resolve
+  })
+  const result = new Promise<unknown>((resolve, reject) => {
+    const worker = new Worker(new URL("./readSession.testWorker.ts", import.meta.url), {
+      workerData: { token, waitForClose: true },
+      execArgv: sourceWorkerExecArgv(),
+    })
+    const timeout = setTimeout(() => {
+      void worker.terminate()
+      reject(new Error("Worker-сеанс не закрылся вместе с хранилищем"))
+    }, 1_000)
+    worker.on("message", (message) => {
+      if (message === "opened") {
+        resolveOpened()
+        return
+      }
+      clearTimeout(timeout)
+      resolve(message)
+    })
+    worker.once("error", reject)
+    worker.once("exit", (code) => {
+      if (code !== 0) reject(new Error(`SQLite read session worker завершился с кодом ${code}`))
+    })
+  })
+  return { opened, result }
 }

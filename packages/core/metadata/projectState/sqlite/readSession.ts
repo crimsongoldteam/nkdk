@@ -1,4 +1,5 @@
 import { constants, DatabaseSync } from "node:sqlite"
+import { BroadcastChannel } from "node:worker_threads"
 import type { ProjectStateReadToken } from "../contracts"
 import type {
   ProjectDependencyInput,
@@ -16,14 +17,14 @@ import { ProjectStateReadSessionClosedError } from "../readSession"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,
-  ProjectStateOwnerFacts,
 } from "../fileUpdate"
 import { decodeOwnerKey, decodeValue, encodeOwnerKey } from "./codec"
+import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
+import { projectStateOwnerFactsFromRows, type SqliteOwnerFactValueRow } from "./ownerFacts"
 import {
-  abandonSqliteProjectStateReadToken,
   claimSqliteProjectStateReadToken,
-  consumeSqliteProjectStateReadToken,
   decodeSqliteProjectStateReadToken,
+  sqliteProjectStateLifecycleChannel,
 } from "./readToken"
 
 export interface OpenSqliteProjectStateReadSessionOptions {
@@ -40,22 +41,23 @@ export function openSqliteProjectStateReadSession(
     throw new Error("Token относится к другому состоянию проекта")
   }
 
-  const database = new DatabaseSync(payload.databaseName)
-  let claimed = false
+  const database = new DatabaseSync(payload.databaseName, { timeout: 5_000 })
+  const lifecycleChannel = new BroadcastChannel(sqliteProjectStateLifecycleChannel(payload))
+  lifecycleChannel.unref()
   try {
     assertTokenMetadata(database, payload)
-    claimSqliteProjectStateReadToken(payload)
-    claimed = true
     createRequestTables(database)
     makeMainDatabaseReadOnly(database)
+    claimSqliteProjectStateReadToken(database, payload)
   } catch (error) {
-    if (claimed) abandonSqliteProjectStateReadToken(payload)
+    lifecycleChannel.close()
     database.close()
     throw error
   }
 
   let closed = false
-  const session: ProjectStateReadSession = {
+  let session!: ProjectStateReadSession
+  session = {
     resolveTargets(requests) {
       assertOpen()
       return resolveTargets(database, requests)
@@ -73,17 +75,39 @@ export function openSqliteProjectStateReadSession(
       return readDependencyInputs(database, requests)
     },
     close() {
-      if (closed) return
-      closed = true
-      database.close()
-      consumeSqliteProjectStateReadToken(payload)
-      options.onClose?.(session)
+      closeSession()
     },
+  }
+  lifecycleChannel.onmessage = closeSession
+  try {
+    assertCurrentLifecycle()
+  } catch (error) {
+    closeSession()
+    throw error
   }
   return session
 
   function assertOpen(): void {
     if (closed) throw new ProjectStateReadSessionClosedError(token)
+    assertCurrentLifecycle()
+  }
+
+  function assertCurrentLifecycle(): void {
+    const row = database.prepare("SELECT value FROM cache_meta WHERE key = 'lifecycle_nonce'").get() as
+      | { value: string }
+      | undefined
+    if (row?.value !== payload.lifecycleNonce) {
+      closeSession()
+      throw new ProjectStateReadSessionClosedError(token)
+    }
+  }
+
+  function closeSession(): void {
+    if (closed) return
+    closed = true
+    lifecycleChannel.close()
+    database.close()
+    options.onClose?.(session)
   }
 }
 
@@ -119,15 +143,16 @@ export function readDependencyInputs(
     for (const row of ownerRows) if (found.has(row.request_index)) inputs.get(row.request_index)!.ownerRows.push(row)
 
     const fieldRows = database.prepare(`
-      SELECT r.request_index, f.entry_value
+      SELECT r.request_index, f.owner_key, f.field_kind, f.field_name, f.type_key,
+        f.target_name, f.source_collection, f.parent_name, f.table_info, f.table_has_columns
       FROM temp.dependency_requests r
       JOIN components c ON ${visibleComponent("r", "c")}
       JOIN project_files pf ON pf.component_id = c.id
       JOIN field_entries f ON f.source_file_id = pf.id
       ORDER BY r.request_index, f.source_file_id, f.ordinal, f.id
-    `).all() as unknown as { request_index: number; entry_value: Uint8Array }[]
+    `).all() as unknown as (SqliteProjectStateFieldEntryRow & { request_index: number })[]
     for (const row of fieldRows) {
-      if (found.has(row.request_index)) inputs.get(row.request_index)!.fields.push(decodeValue(row.entry_value))
+      if (found.has(row.request_index)) inputs.get(row.request_index)!.fields.push(projectStateFieldEntryFromRow(row))
     }
 
     const formRows = database.prepare(`
@@ -186,8 +211,11 @@ function resolveTargets(
   `).all() as unknown as TargetRow[]
   return requests.map(({ requestId }, index) => {
     const row = rows[index]
-    return row?.candidate_count === 1 && isReferenceKind(row.entry_kind) && row.canonical_key !== null
-      ? { requestId, status: "found" as const, target: { kind: row.entry_kind, canonical: row.canonical_key } }
+    if (row?.candidate_count === 1 && isReferenceKind(row.entry_kind) && row.canonical_key !== null) {
+      return { requestId, status: "found" as const, target: { kind: row.entry_kind, canonical: row.canonical_key } }
+    }
+    return row !== undefined && row.candidate_count > 1
+      ? { requestId, status: "ambiguous" as const }
       : { requestId, status: "missing" as const }
   })
 }
@@ -223,9 +251,10 @@ function readOwners(
   for (const row of rows) (byRequest.get(row.request_index) ?? setArray(byRequest, row.request_index)).push(row)
   return requests.map(({ requestId }, index) => {
     const matches = byRequest.get(index)
-    return matches === undefined || matches[0]?.candidate_count !== 1
-      ? { requestId, status: "missing" as const }
-      : { requestId, status: "found" as const, facts: factsFromRows(matches) }
+    if (matches === undefined) return { requestId, status: "missing" as const }
+    return matches[0]?.candidate_count === 1
+      ? { requestId, status: "found" as const, facts: projectStateOwnerFactsFromRows(matches) }
+      : { requestId, status: "ambiguous" as const }
   })
 }
 
@@ -296,7 +325,10 @@ function createRequestTables(database: DatabaseSync): void {
 }
 
 function makeMainDatabaseReadOnly(database: DatabaseSync): void {
-  database.setAuthorizer((action, _first, _second, databaseName) => {
+  database.setAuthorizer((action, first, _second, databaseName) => {
+    if (databaseName === "main" && action === constants.SQLITE_INSERT && first === "read_token_claims") {
+      return constants.SQLITE_OK
+    }
     if (databaseName !== "main" || action === constants.SQLITE_READ) return constants.SQLITE_OK
     return constants.SQLITE_DENY
   })
@@ -341,7 +373,7 @@ interface TargetRow {
   readonly canonical_key: string | null
 }
 
-interface OwnerFactRow {
+interface OwnerFactRow extends SqliteOwnerFactValueRow {
   readonly request_index: number
   readonly source_file_id: number
   readonly ordinal: number
@@ -363,15 +395,10 @@ function ownerFactsFromRows(rows: readonly OwnerFactRow[]): ProjectDependencyInp
     const key = `${row.source_file_id}:${row.owner_key}`
     ;(groups.get(key) ?? setArray(groups, key)).push(row)
   }
-  return [...groups.values()].map((group) => ({ owner: decodeOwnerKey(group[0]!.owner_key), facts: factsFromRows(group) }))
-}
-
-function factsFromRows(rows: readonly OwnerFactRow[]): ProjectStateOwnerFacts {
-  const facts: Record<string, unknown> = {}
-  for (const row of rows) {
-    if (row.fact_kind === "property" && row.fact_value !== null) facts[row.fact_key] = decodeValue(row.fact_value)
-  }
-  return facts as ProjectStateOwnerFacts
+  return [...groups.values()].map((group) => ({
+    owner: decodeOwnerKey(group[0]!.owner_key),
+    facts: projectStateOwnerFactsFromRows(group),
+  }))
 }
 
 function setArray<K, T>(map: Map<K, T[]>, key: K): T[] {

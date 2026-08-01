@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto"
 import { DatabaseSync, type StatementSync } from "node:sqlite"
+import { BroadcastChannel } from "node:worker_threads"
 import type { Diagnostic } from "../../validation/types"
 import { assertProjectStateFileHashBatch, type ProjectStateReadToken } from "../contracts"
 import {
   assertProjectStateFileUpdateBatch,
   type ProjectStateDiagnostic,
-  type ProjectStateFieldEntry,
   type ProjectStateFileUpdate,
   type ProjectStateFormEntry,
   type ProjectStatePendingDependencyCheck,
@@ -24,8 +24,14 @@ import type {
   ProjectStateStore,
 } from "../store"
 import { decodeJson, decodeOwnerKey, decodeValue, encodeJson, encodeOwnerKey, encodeValue } from "./codec"
+import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
+import { projectStateOwnerFactsFromRows } from "./ownerFacts"
 import { openSqliteProjectStateReadSession, readDependencyInputs } from "./readSession"
-import { createSqliteProjectStateReadToken, type SqliteProjectStateIdentity } from "./readToken"
+import {
+  createSqliteProjectStateReadToken,
+  sqliteProjectStateLifecycleChannel,
+  type SqliteProjectStateIdentity,
+} from "./readToken"
 import { createSqliteProjectStateSchema } from "./schema"
 
 export interface CreateSqliteProjectStateStoreOptions {
@@ -50,22 +56,22 @@ export function createSqliteProjectStateStore(
   createSqliteProjectStateSchema(database, options.compatibility, identity)
   database.prepare("INSERT INTO cache_meta(key, value) VALUES ('project_dir', ?)").run(options.projectDir)
   createStoreRequestTables(database)
+  const lifecycleChannel = new BroadcastChannel(sqliteProjectStateLifecycleChannel(identity))
+  lifecycleChannel.unref()
 
-  const sessions = new Set<ProjectStateReadSession>()
-  const store = createStore(database, identity, () => {
-    for (const session of [...sessions]) session.close()
-  })
+  const store = createStore(
+    database,
+    identity,
+    () => {
+      lifecycleChannel.postMessage("close")
+      lifecycleChannel.close()
+    },
+  )
 
   return {
     store,
     openReadSession(token) {
-      let session!: ProjectStateReadSession
-      session = openSqliteProjectStateReadSession(token, {
-        expectedStateId: identity.stateId,
-        onClose: () => sessions.delete(session),
-      })
-      sessions.add(session)
-      return session
+      return openSqliteProjectStateReadSession(token, { expectedStateId: identity.stateId })
     },
   }
 }
@@ -73,7 +79,7 @@ export function createSqliteProjectStateStore(
 function createStore(
   database: DatabaseSync,
   identity: SqliteProjectStateIdentity,
-  closeSessions: () => void,
+  closeExternalSessions: () => void,
 ): ProjectStateStore {
   const statements = createStatements(database)
   let updateActive = false
@@ -179,12 +185,12 @@ function createStore(
     },
     close() {
       if (closed) return
-      closeSessions()
       if (updateActive) {
         database.exec("ROLLBACK")
         updateActive = false
       }
       database.prepare("UPDATE cache_meta SET value = ? WHERE key = 'lifecycle_nonce'").run(randomUUID())
+      closeExternalSessions()
       database.close()
       closed = true
     },
@@ -278,8 +284,9 @@ function createStatements(database: DatabaseSync): StoreStatements {
     `),
     insertField: database.prepare(`
       INSERT INTO field_entries(
-        source_file_id, ordinal, owner_key, field_kind, field_name, type_key, entry_value
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        source_file_id, ordinal, owner_key, field_kind, field_name, type_key,
+        target_name, source_collection, parent_name, table_info, table_has_columns
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `),
     insertForm: database.prepare(`
       INSERT INTO form_entries(
@@ -377,7 +384,11 @@ function replaceFile(
       entry.kind,
       entry.name,
       encodeValue(entry.typeInfo),
-      encodeValue(entry),
+      entry.targetName ?? null,
+      entry.sourceCollection ?? null,
+      entry.parentName ?? null,
+      entry.table === undefined ? null : encodeValue(entry.table),
+      entry.tableHasColumns === undefined ? null : entry.tableHasColumns ? 1 : 0,
     )
   })
   update.forms.forEach((entry, ordinal) => {
@@ -516,17 +527,13 @@ function readYamlUpdate(
   const ownersByKey = new Map<string, OwnerFactProjectionRow[]>()
   for (const row of ownerRows) (ownersByKey.get(row.owner_key) ?? setArray(ownersByKey, row.owner_key)).push(row)
   const owners = [...ownersByKey.entries()].map(([ownerKey, rows]) => {
-    const facts: Record<string, unknown> = {}
-    for (const row of rows) {
-      if (row.fact_kind === "property" && row.fact_value !== null) facts[row.fact_key] = decodeValue(row.fact_value)
-    }
-    return { owner: decodeOwnerKey(ownerKey), facts }
+    return { owner: decodeOwnerKey(ownerKey), facts: projectStateOwnerFactsFromRows(rows) }
   })
   const fields = (database.prepare(`
-    SELECT entry_value FROM field_entries WHERE source_file_id = ? ORDER BY ordinal, id
-  `).all(fileId) as unknown as { entry_value: Uint8Array }[]).map(({ entry_value }) =>
-    decodeValue<ProjectStateFieldEntry>(entry_value)
-  )
+    SELECT owner_key, field_kind, field_name, type_key, target_name, source_collection,
+      parent_name, table_info, table_has_columns
+    FROM field_entries WHERE source_file_id = ? ORDER BY ordinal, id
+  `).all(fileId) as unknown as SqliteProjectStateFieldEntryRow[]).map(projectStateFieldEntryFromRow)
   const forms = (database.prepare(`
     SELECT source_value FROM form_entries WHERE source_file_id = ? ORDER BY ordinal, id
   `).all(fileId) as unknown as { source_value: Uint8Array }[]).map(({ source_value }) =>
@@ -622,12 +629,7 @@ interface DiagnosticRow {
 function diagnosticFromRow(row: DiagnosticRow): Diagnostic {
   return {
     filePath: row.project_path,
-    line: row.line,
-    col: row.col,
-    severity: row.severity,
-    source: row.source,
-    message: row.message,
-    ...(row.yaml_path === null ? {} : { path: row.yaml_path }),
+    ...projectStateDiagnosticFromRow(row),
   }
 }
 

@@ -255,9 +255,10 @@ function testStoreReadSession(
         const targets = visibleYamlUpdatesForSession(componentPath)
           .flatMap((update) => update.references)
           .filter((reference) => reference.canonical === canonicalTarget)
-        return targets.length !== 1
-          ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, target: targets[0]! }
+        if (targets.length === 1) return { requestId, status: "found" as const, target: targets[0]! }
+        return targets.length > 1
+          ? { requestId, status: "ambiguous" as const }
+          : { requestId, status: "missing" as const }
       })
     },
     readOwners(requests) {
@@ -266,9 +267,10 @@ function testStoreReadSession(
         const matches = visibleYamlUpdatesForSession(componentPath)
           .flatMap((update) => update.owners)
           .filter(({ owner: candidate }) => candidate.kind === owner.kind && candidate.name === owner.name)
-        return matches.length !== 1
-          ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, facts: matches[0]!.facts }
+        if (matches.length === 1) return { requestId, status: "found" as const, facts: matches[0]!.facts }
+        return matches.length > 1
+          ? { requestId, status: "ambiguous" as const }
+          : { requestId, status: "missing" as const }
       })
     },
     findReferences(requests) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
-import type { ProjectStateReadSession } from "./readSession"
+import { ProjectStateReadSessionClosedError, type ProjectStateReadSession } from "./readSession"
 import type { ProjectStateStore } from "./store"
 
 export interface ProjectStateStoreContractFixture {
@@ -71,7 +71,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         "Новая локальная ошибка"
       )
       const hashBytes = new Uint8Array(8)
-      const presentContribution = { owner: "found", reference: 1, dependency: "found", fields: 1, forms: 1 }
+      const presentContribution = { owner: "found", reference: 1, dependency: "found", fields: 3, forms: 1 }
       const missingContribution = { owner: "missing", reference: 0, dependency: "missing", fields: 0, forms: 0 }
 
       expect(diagnostic(replacement)).not.toEqual(diagnostic(update))
@@ -174,10 +174,10 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const session = openReadSession(store.createReadToken())
       expect(session.resolveTargets([
         { requestId: "target", componentPath: "cf", canonicalTarget: "Catalog.Дубликат" },
-      ])).toEqual([{ requestId: "target", status: "missing" }])
+      ])).toEqual([{ requestId: "target", status: "ambiguous" }])
       expect(session.readOwners([
         { requestId: "owner", componentPath: "cf", owner: owner("Catalog.Дубликат") },
-      ])).toEqual([{ requestId: "owner", status: "missing" }])
+      ])).toEqual([{ requestId: "owner", status: "ambiguous" }])
       session.close()
     })
 
@@ -207,10 +207,11 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const session = openReadSession(token)
       expect("replaceFiles" in session).toBe(false)
       session.close()
-      expect(() => session.resolveTargets([])).toThrow()
-      expect(() => session.readOwners([])).toThrow()
-      expect(() => session.findReferences([])).toThrow()
-      expect(() => session.readDependencyInputs([])).toThrow()
+      expect(() => session.close()).not.toThrow()
+      expect(() => session.resolveTargets([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readOwners([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.findReferences([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readDependencyInputs([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => openReadSession(token)).toThrow()
     })
   })
@@ -283,7 +284,21 @@ function richYamlUpdate(
       constraint: { kind: "object" },
     }],
     owners: [{ owner: owner(canonical), facts: { registerType: "InformationRegister" } }],
-    fields: [{ owner: owner(canonical), name: "Код", kind: "attribute", typeInfo }],
+    fields: [
+      {
+        owner: owner(canonical),
+        name: "Код",
+        kind: "attribute",
+        typeInfo,
+        targetName: "КодСсылки",
+        sourceCollection: "Реквизиты",
+        parentName: "Товары",
+        table: { kind: "ValueTable" },
+        tableHasColumns: true,
+      },
+      { owner: owner(canonical), name: "Описание", kind: "attribute", typeInfo, tableHasColumns: false },
+      { owner: owner(canonical), name: "Артикул", kind: "attribute", typeInfo },
+    ],
     forms: [{
       kind: "root",
       owner: owner(canonical),
@@ -343,7 +358,13 @@ function expectStoredFile(
   update: ProjectStateYamlFileUpdate,
   contribution: { readonly owner: string; readonly reference: number; readonly dependency: string; readonly fields: number; readonly forms: number }
 ): void {
-  expect(store.readComponentProjection(update.componentPath).updates).toEqual([update])
+  const [storedUpdate] = store.readComponentProjection(update.componentPath).updates
+  expect(storedUpdate).toEqual(update)
+  expect(storedUpdate?.kind === "yaml" ? storedUpdate.fields.map((field) => Object.keys(field).sort()) : []).toEqual([
+    ["kind", "name", "owner", "parentName", "sourceCollection", "table", "tableHasColumns", "targetName", "typeInfo"],
+    ["kind", "name", "owner", "tableHasColumns", "typeInfo"],
+    ["kind", "name", "owner", "typeInfo"],
+  ])
   expect(store.readLocalDiagnostics()).toEqual(diagnostic(update))
   expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual(contribution)
   expect(readStoredDependency(store, update)).toEqual({ status: "found", input: expectedDependencyInput(update) })

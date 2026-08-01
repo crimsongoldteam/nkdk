@@ -1,23 +1,16 @@
 import { DatabaseSync } from "node:sqlite"
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { runProjectStateStoreContract } from "../storeContract"
 import { createSqliteProjectStateSchema } from "./schema"
-import { createSqliteProjectStateStore, type SqliteProjectStateStoreFixture } from "./store"
+import { createSqliteProjectStateTestFixture, sqliteProjectStateTestCompatibility } from "./testFixture"
 
-const compatibility = { formatVersion: 1, coreVersion: "test" }
-const fixtures: SqliteProjectStateStoreFixture[] = []
-
-afterEach(() => {
-  for (const fixture of fixtures.splice(0)) fixture.store.close()
-})
-
-runProjectStateStoreContract(() => fixture())
+runProjectStateStoreContract(() => createSqliteProjectStateTestFixture())
 
 describe("SQLite ProjectStateStore", () => {
   it("хранит путь и хэш один раз, а дочерние таблицы связывает через source_file_id", () => {
     const database = new DatabaseSync(":memory:")
     try {
-      createSqliteProjectStateSchema(database, compatibility, {
+      createSqliteProjectStateSchema(database, sqliteProjectStateTestCompatibility, {
         stateId: "schema-test",
         databaseName: "schema-test",
         lifecycleNonce: "schema-test",
@@ -27,6 +20,20 @@ describe("SQLite ProjectStateStore", () => {
 
       expect(tables.filter((table) => columns.get(table)!.includes("project_path"))).toEqual(["project_files"])
       expect(tables.filter((table) => columns.get(table)!.includes("hash"))).toEqual(["file_hashes"])
+      expect(columns.get("field_entries")).toEqual([
+        "id",
+        "source_file_id",
+        "ordinal",
+        "owner_key",
+        "field_kind",
+        "field_name",
+        "type_key",
+        "target_name",
+        "source_collection",
+        "parent_name",
+        "table_info",
+        "table_has_columns",
+      ])
 
       for (const table of [
         "local_diagnostics",
@@ -48,12 +55,6 @@ describe("SQLite ProjectStateStore", () => {
     }
   })
 })
-
-function fixture(): SqliteProjectStateStoreFixture {
-  const result = createSqliteProjectStateStore({ projectDir: "/project", compatibility })
-  fixtures.push(result)
-  return result
-}
 
 function tableNames(database: DatabaseSync): string[] {
   return (database.prepare("SELECT name FROM sqlite_schema WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all() as { name: string }[])

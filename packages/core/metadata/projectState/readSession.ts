@@ -16,6 +16,7 @@ export interface ProjectTargetLookup {
 
 export type ProjectTargetLookupResult =
   | { readonly requestId: string; readonly status: "found"; readonly target: ProjectStateReferenceEntry }
+  | { readonly requestId: string; readonly status: "ambiguous" }
   | { readonly requestId: string; readonly status: "missing" }
 
 export interface ProjectOwnerLookup {
@@ -26,6 +27,7 @@ export interface ProjectOwnerLookup {
 
 export type ProjectOwnerLookupResult =
   | { readonly requestId: string; readonly status: "found"; readonly facts: ProjectStateOwnerFacts }
+  | { readonly requestId: string; readonly status: "ambiguous" }
   | { readonly requestId: string; readonly status: "missing" }
 
 export interface ProjectReferenceLookup {

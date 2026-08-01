@@ -18,6 +18,10 @@ export function createSqliteProjectStateSchema(
       value TEXT NOT NULL
     ) STRICT;
 
+    CREATE TABLE read_token_claims (
+      token_nonce TEXT PRIMARY KEY COLLATE BINARY
+    ) STRICT;
+
     CREATE TABLE components (
       id INTEGER PRIMARY KEY,
       path TEXT NOT NULL UNIQUE COLLATE BINARY
@@ -98,7 +102,11 @@ export function createSqliteProjectStateSchema(
       field_kind TEXT NOT NULL,
       field_name TEXT NOT NULL COLLATE BINARY,
       type_key BLOB NOT NULL,
-      entry_value BLOB NOT NULL
+      target_name TEXT,
+      source_collection TEXT,
+      parent_name TEXT,
+      table_info BLOB,
+      table_has_columns INTEGER CHECK(table_has_columns IN (0, 1))
     ) STRICT;
 
     CREATE TABLE form_entries (
