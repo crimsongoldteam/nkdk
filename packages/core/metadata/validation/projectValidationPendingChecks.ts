@@ -3,7 +3,7 @@ import { resolveDataPath } from "./dataPath/resolver"
 import { validateResolvedDataPathPolicy } from "./dataPath/policies"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { OwnerMetadataCache } from "./dataPath/ownerCache"
-import type { DataPathPropertyRule } from "../orchestration/property/types"
+import type { DataPathPolicyInput } from "./dataPath/policies"
 import type { ElementType } from "../orchestration/formElement/types"
 import type { Diagnostic } from "./types"
 import type { YamlDiagnosticLocation } from "./yamlLocations"
@@ -14,7 +14,7 @@ export type ValidationPendingCheck = {
   owner: OwnerTypeRef
   value: string
   index: FormDataPathIndex
-  rule: DataPathPropertyRule
+  policyInput: DataPathPolicyInput
   elementType?: ElementType
   hasValuesPicture?: boolean
   tableContext?: { dataPath: string }
@@ -48,7 +48,7 @@ export function validatePendingChecks(params: {
       ...validateResolvedDataPathPolicy({
         location: check.location,
         value: check.value,
-        rule: check.rule,
+        rule: check.policyInput,
         target: result.target,
         ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
         ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),

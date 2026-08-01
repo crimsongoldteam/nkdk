@@ -1,6 +1,7 @@
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectValidationGraph, ValidationGraphContribution } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
+import type { ProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 
 export interface ValidationFirstPassFileResult {
   componentPath: string
@@ -23,6 +24,7 @@ export interface FirstPassPoolResult {
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
+  fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
 }
 

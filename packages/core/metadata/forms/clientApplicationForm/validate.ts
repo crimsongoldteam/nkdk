@@ -5,7 +5,7 @@ import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
-import { validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
+import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
 import { resolveDataPath } from "../../validation/dataPath/resolver"
 import {
   getFormWarningProviders,
@@ -121,7 +121,7 @@ export function validateClientApplicationFormSecondPass(params: {
         parsed: params.state.parsed,
         yamlPath: occurrence.yamlPath,
         value: occurrence.value,
-        rule: occurrence.rule,
+        rule: toDataPathPolicyInput(occurrence.rule),
         target: result.target,
         ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
         ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),

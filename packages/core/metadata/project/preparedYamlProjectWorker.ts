@@ -1,5 +1,12 @@
 import { join, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
+import { hashFileBytes } from "../configurationIndex/hash"
+import {
+  createProjectStateFileUpdateBatch,
+  toProjectStateFileUpdate,
+  type ProjectStateFileUpdateBatch,
+  type ProjectStateFileUpdateBatchEntry,
+} from "../projectState/fileUpdate"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
@@ -99,6 +106,7 @@ export type PreparedYamlProjectWorkerTaskResult =
       diagnostics: Diagnostic[]
       schemaDiagnostics: Diagnostic[]
       fileResults: ValidationFirstPassFileResult[]
+      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
       yamlLifetime: ValidationYamlLifetime
     }
   | {
@@ -280,6 +288,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
+  fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
@@ -288,6 +297,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   const components = new Map<string, ComponentFirstPassPoolResult>()
   const schemaCache = requireValidationSchemaCache()
   const firstPassProfile = createEmptyFirstPassProfileSummary()
+  const fileUpdateEntries: ProjectStateFileUpdateBatchEntry[] = []
 
   for (const descriptor of message.files) {
     const component = componentFirstPassResult(components, descriptor.componentPath)
@@ -363,6 +373,15 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
       contributedFacts: first.contributedFacts,
       schemaDiagnostics: first.schemaDiagnostics,
     })
+    fileUpdateEntries.push({
+      update: toProjectStateFileUpdate(first, {
+        projectPath: descriptor.rootProjectPath,
+        componentPath: descriptor.componentPath,
+        resourceKind: "yaml",
+        yamlRole: descriptor.role,
+      }),
+      hash: hashFileBytes(Buffer.from(entry.text, "utf8")),
+    })
   }
   recordFirstPassProfile(profiler, message.files.length, firstPassProfile)
   profiler.flush()
@@ -375,6 +394,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     diagnostics: componentResults.flatMap(({ diagnostics }) => diagnostics),
     schemaDiagnostics: componentResults.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
     fileResults: componentResults.flatMap(({ fileResults }) => fileResults),
+    fileUpdateBatches: [createProjectStateFileUpdateBatch(fileUpdateEntries)],
     yamlLifetime: getValidationYamlLifetimeForTests(),
   }
 }

@@ -28,7 +28,7 @@ import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
-import type { ValidationObjectRecord } from "./projectValidationTypes"
+import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
@@ -82,6 +82,8 @@ export interface ProjectValidationFirstPassResult {
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
+  dependencies: string[]
+  form?: ValidationFormIndexContribution
   diagnostics: Diagnostic[]
   profile?: ProjectValidationFirstPassProfile
 }
@@ -112,6 +114,7 @@ export interface ProjectValidationFileFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localDependencies: import("../project/componentIndexFacts").ProjectLocalDependency[]
+  form?: ValidationFormIndexContribution
   profile: {
     yamlFactsMs: number
     localValueValidationProfile: LocalValueValidationProfile
@@ -307,6 +310,14 @@ export function extractProjectValidationFileFacts(params: {
       pendingChecks: yamlFacts.pendingChecks,
       diagnostics: yamlFacts.diagnostics,
       localDependencies: [],
+      ...(yamlFacts.formDataPathIndex === undefined
+        ? {}
+        : {
+            form: {
+              owner: { kind: params.file.owner.dir, name: params.file.owner.name },
+              index: yamlFacts.formDataPathIndex,
+            },
+          }),
       profile: {
         yamlFactsMs: measuredYamlFacts.timeMs,
         localValueValidationProfile: yamlFacts.localValueValidationProfile,
@@ -470,6 +481,8 @@ function validateProjectFormFirstPass(params: {
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
+    dependencies: facts.localDependencies.map(({ canonical }) => canonical),
+    ...(facts.form === undefined ? {} : { form: facts.form }),
     profile: {
       ...emptyFirstPassProfile("form"),
       totalMs: performance.now() - totalStartedAt,
@@ -607,6 +620,7 @@ function validateProjectPropertiesFirstPass(params: {
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
+    dependencies: facts.localDependencies.map(({ canonical }) => canonical),
     objectRecords: facts.objectRecords,
     profile: {
       key: validationFirstPassProfileKey(params.file),
@@ -643,6 +657,7 @@ function failedFirstPass(
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences: [],
+    dependencies: [],
     ...(profile === undefined ? {} : { profile }),
   }
 }

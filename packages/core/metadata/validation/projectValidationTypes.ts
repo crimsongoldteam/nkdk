@@ -10,6 +10,12 @@ import type {
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
 import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
+import type { FormDataPathIndex } from "./dataPath/formIndex"
+
+export interface ValidationFormIndexContribution {
+  readonly owner: OwnerTypeRef
+  readonly index: FormDataPathIndex
+}
 
 export interface ValidationObjectRecord {
   filePath: string

@@ -8,6 +8,8 @@ import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadines
 import { createProjectValidationGraph } from "../validation/projectValidationGraph"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
+import { hashFileBytes } from "../configurationIndex/hash"
+import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
@@ -256,6 +258,75 @@ describe("validation first-pass worker boundary", () => {
       "cfe/Склад/Справочник/Склад/Свойства.yaml",
     ])
     expect(result.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 3 })
+    expect(result.fileUpdateBatches).toHaveLength(1)
+    const fileUpdateBatch = result.fileUpdateBatches[0]!
+    expect(fileUpdateBatch.updates).toHaveLength(3)
+    expect(fileUpdateBatch.updates.map(({ projectPath }) => projectPath)).toEqual([
+      "cf/Справочник/Основная/Свойства.yaml",
+      "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
+      "cfe/Склад/Справочник/Склад/Свойства.yaml",
+    ])
+    expect(fileUpdateBatch.hashBytes).toEqual(
+      Uint8Array.from(
+        [hashFileBytes(Buffer.from("{}\n")), hashFileBytes(Buffer.from("{}\n")), hashFileBytes(Buffer.from("{}\n"))]
+          .flatMap((hash) => [...Buffer.from(hash.toString(16).padStart(16, "0"), "hex")])
+      )
+    )
+    expect(() => assertProjectStateFileUpdateBatch(fileUpdateBatch)).not.toThrow()
+    expect(structuredClone(fileUpdateBatch)).toEqual(fileUpdateBatch)
+  }, 120_000)
+
+  it("returns portable form checks without rule objects or index functions", async () => {
+    const projectDir = createTempDir()
+    const componentDir = join(projectDir, "cf")
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const filePath = join(componentDir, ...projectPath.split("/"))
+    mkdirSync(dirname(filePath), { recursive: true })
+    writeFileSync(
+      filePath,
+      [
+        "Реквизиты:",
+        "  Значение:",
+        "    Тип: Строка",
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Значение",
+        "",
+      ].join("\n")
+    )
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [
+        {
+          componentPath: "cf",
+          componentDir,
+          rootProjectPath: `cf/${projectPath}`,
+          projectPath,
+          filePath,
+          role: "form",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "ClientApplicationForm",
+        },
+      ],
+    })
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    const batch = result.fileUpdateBatches[0]!
+    const update = batch.updates[0]
+    if (update?.kind !== "yaml") throw new Error("unexpected project state update")
+
+    expect(update.pendingChecks).toEqual([
+      expect.objectContaining({
+        policyInput: expect.objectContaining({ yaml: "ПутьКДанным" }),
+      }),
+    ])
+    expect(update.pendingChecks[0]).not.toHaveProperty("rule")
+    expect(update.pendingChecks[0]).not.toHaveProperty("index")
+    expect(() => assertProjectStateFileUpdateBatch(batch)).not.toThrow()
+    expect(structuredClone(batch)).toEqual(batch)
   }, 120_000)
 
   it("returns a failed file result when a descriptor cannot be classified", async () => {

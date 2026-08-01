@@ -1,4 +1,4 @@
-import type { DataPathPropertyRule } from "../../orchestration/property/types"
+import type { DataPathAllowedKind, DataPathPropertyRule } from "../../orchestration/property/types"
 import type { ElementType } from "../../orchestration"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
@@ -10,49 +10,74 @@ import {
 } from "../yamlLocations"
 import type { ResolvedDataPathTarget } from "./resolver"
 
+export type DataPathTargetKind = DataPathAllowedKind
+
+export interface DataPathPolicyInput {
+  readonly yaml: string
+  readonly allowedKinds?: readonly DataPathTargetKind[]
+  readonly allowComposite?: boolean
+}
+
+export function toDataPathPolicyInput(rule: DataPathPropertyRule): DataPathPolicyInput {
+  if (typeof rule.yaml !== "string") throw new Error("DataPath policy requires a YAML property name")
+  return {
+    yaml: rule.yaml,
+    allowedKinds: rule.allowedKinds,
+    allowComposite: rule.allowComposite,
+  }
+}
+
 type DataPathPolicyParams = {
   value: string
-  rule: DataPathPropertyRule
+  rule: DataPathPolicyInput
   target: ResolvedDataPathTarget | undefined
   elementType?: ElementType
   hasValuesPicture?: boolean
 } & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
 
 export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Diagnostic[] {
-  const allowedKinds = params.rule.allowedKinds
-  if (allowedKinds === undefined) return []
+  const message = evaluateDataPathPolicy(params.rule, params.target, {
+    value: params.value,
+    elementType: params.elementType,
+    hasValuesPicture: params.hasValuesPicture,
+  })
+  return message === undefined ? [] : [policyDiagnostic(params, message)]
+}
 
-  const target = params.target
-  if (target === undefined || target.typeInfo.kinds.length === 0 || hasUnknownTerminalType(target)) {
-    return [policyDiagnostic(params, `ПутьКДанным "${params.value}": не удалось определить конечный тип`)]
+export function evaluateDataPathPolicy(
+  input: DataPathPolicyInput,
+  value: ResolvedDataPathTarget | undefined,
+  context: { value?: string; elementType?: ElementType; hasValuesPicture?: boolean } = {}
+): string | undefined {
+  const allowedKinds = input.allowedKinds
+  if (allowedKinds === undefined) return undefined
+
+  const displayedValue = context.value ?? value?.value ?? ""
+  if (value === undefined || value.typeInfo.kinds.length === 0 || hasUnknownTerminalType(value)) {
+    return `ПутьКДанным "${displayedValue}": не удалось определить конечный тип`
   }
 
-  if (params.rule.allowComposite !== true && isCompositeTerminal(target)) {
-    return [policyDiagnostic(params, `ПутьКДанным "${params.value}": конечный реквизит имеет составной тип`)]
+  if (input.allowComposite !== true && isCompositeTerminal(value)) {
+    return `ПутьКДанным "${displayedValue}": конечный реквизит имеет составной тип`
   }
 
   if (
     isPictureFieldValuesPictureTableSource({
-      rule: params.rule,
-      target,
-      elementType: params.elementType,
-      hasValuesPicture: params.hasValuesPicture,
+      rule: input,
+      target: value,
+      elementType: context.elementType,
+      hasValuesPicture: context.hasValuesPicture,
     })
   )
-    return []
+    return undefined
 
-  if (target.typeInfo.kinds.some((kind) => allowedKinds.some((allowedKind) => allowedKind === kind))) return []
+  if (value.typeInfo.kinds.some((kind) => allowedKinds.some((allowedKind) => allowedKind === kind))) return undefined
 
-  return [
-    policyDiagnostic(
-      params,
-      `ПутьКДанным "${params.value}": конечный тип не подходит, ожидается ${allowedKinds.join(" или ")}`
-    ),
-  ]
+  return `ПутьКДанным "${displayedValue}": конечный тип не подходит, ожидается ${allowedKinds.join(" или ")}`
 }
 
 function isPictureFieldValuesPictureTableSource(params: {
-  rule: DataPathPropertyRule
+  rule: DataPathPolicyInput
   target: ResolvedDataPathTarget
   elementType?: ElementType
   hasValuesPicture?: boolean

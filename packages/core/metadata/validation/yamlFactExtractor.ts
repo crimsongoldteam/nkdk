@@ -29,6 +29,7 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
   type ValidationRulesSnapshot,
@@ -52,6 +53,7 @@ export interface ValidationYamlFacts {
   diagnostics: Diagnostic[]
   localValueValidationProfile: LocalValueValidationProfile
   fieldIndex?: ObjectFieldIndex
+  formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
 }
 
@@ -579,6 +581,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
 
   return {
     ...emptyFacts(),
+    formDataPathIndex: index,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {
       [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
@@ -855,7 +858,7 @@ function collectRuleDataPathChecks(params: {
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
       index: params.index,
-      rule,
+      policyInput: toDataPathPolicyInput(rule),
       elementType: params.elementType,
       ...(params.owner["КартинкаЗначений"] === undefined ? {} : { hasValuesPicture: true }),
       ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным"
@@ -873,9 +876,9 @@ function tableContextForChildren(
   currentContext: { dataPath: string } | undefined
 ): { dataPath: string } | undefined {
   if (elementType !== "Table") return currentContext
-  return checks.find((check) => check.rule.yaml === "ПутьКДанным")?.value === undefined
+  return checks.find((check) => check.policyInput.yaml === "ПутьКДанным")?.value === undefined
     ? currentContext
-    : { dataPath: checks.find((check) => check.rule.yaml === "ПутьКДанным")!.value }
+    : { dataPath: checks.find((check) => check.policyInput.yaml === "ПутьКДанным")!.value }
 }
 
 function elementTypeFromYaml(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined {

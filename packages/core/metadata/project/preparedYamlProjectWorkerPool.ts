@@ -207,6 +207,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
               diagnostics: [],
               schemaDiagnostics: [],
               fileResults: [],
+              fileUpdateBatches: [],
               yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
             }
           }
@@ -234,6 +235,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
         diagnostics: components.flatMap(({ diagnostics }) => diagnostics),
         schemaDiagnostics: components.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
         fileResults: components.flatMap(({ fileResults }) => fileResults),
+        fileUpdateBatches: results.flatMap(({ fileUpdateBatches }) => fileUpdateBatches),
         yamlLifetime: {
           current: results.reduce((sum, result) => sum + result.yamlLifetime.current, 0),
           max: Math.max(0, ...results.map((result) => result.yamlLifetime.max)),

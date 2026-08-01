@@ -19,6 +19,7 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -219,6 +220,44 @@ describe("validateProjectFileFirstPass references", () => {
     )
   }, 20_000)
 
+  it("keeps a form index contribution without pending DataPath checks", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Реквизиты:",
+      "  Значение:",
+      "    Тип: Строка",
+      "Элементы: {}",
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, ...projectPath.split("/")))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const update = toProjectStateFileUpdate(first, {
+      projectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "form",
+    })
+
+    expect(update.pendingChecks).toEqual([])
+    expect(update.forms).toEqual([
+      expect.objectContaining({
+        kind: "root",
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Значение",
+      }),
+    ])
+  })
+
   it("проверяет уникальность имён элементов внутри общей формы", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -321,6 +360,36 @@ describe("validateProjectFileFirstPass references", () => {
         }),
       })
     )
+
+    const update = toProjectStateFileUpdate(first, {
+      projectPath: "Справочник/Номенклатура/Свойства.yaml",
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    })
+    expect(update.references).toEqual(
+      expect.arrayContaining([
+        { kind: "object", canonical: "Catalog.Номенклатура" },
+        { kind: "member", canonical: "Catalog.Номенклатура.Attribute.Артикул" },
+      ])
+    )
+    expect(update.owners).toEqual([
+      expect.objectContaining({ owner: { kind: "Справочник", name: "Номенклатура" } }),
+    ])
+    expect(update.fields).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        owner: { kind: "Справочник", name: "Номенклатура" },
+        kind: "attribute",
+        name: "Артикул",
+      }),
+    ]))
+    expect(new Set(update.fields.map(({ parentName, kind, name }) => `${parentName ?? ""}:${kind}:${name}`)).size).toBe(
+      update.fields.length
+    )
+    expect(update.dependencies).toEqual([])
+    expect(() =>
+      assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })
+    ).not.toThrow()
   })
 
   it("builds command member index entries from owner commands", () => {
