@@ -91,10 +91,6 @@ export const ColumnGroupRules = {
       ...formGroupCommonProperties.height,
       implicitValueYAML: 0,
     },
-    horizontalStretch: {
-      ...formGroupCommonProperties.horizontalStretch,
-      implicitValueYAML: false,
-    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,

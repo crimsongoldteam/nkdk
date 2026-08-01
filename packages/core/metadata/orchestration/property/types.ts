@@ -69,6 +69,9 @@ export interface BasePropertyRule {
   /** Тип свойства */
   type: PropertyRuleType
 
+  /** Описание YAML-свойства для JSON Schema и подсказок MCP. */
+  description?: string
+
   /** Роль окончательного YAML-значения в компактных фактах владельца. */
   ownerFactRole?: OwnerFactRole
 

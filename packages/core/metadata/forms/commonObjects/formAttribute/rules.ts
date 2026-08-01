@@ -251,6 +251,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormAttributeAdditionalColumnRules,
   xmlElement: "AdditionalColumns",
   keyField: "table",
+  configurationIndexUidSegment: "ДополнительныеКолонки",
   mapItemOutput: ({ xml, context }) => {
     const table = typeof xml._table === "string" ? xml._table : ""
     const columns = Array.isArray(xml.Column) ? xml.Column : xml.Column === undefined ? [] : [xml.Column]

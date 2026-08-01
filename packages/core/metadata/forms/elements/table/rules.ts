@@ -2,6 +2,7 @@ import { registerElementRule } from "../../../orchestration/formElement/ruleFact
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
+import { dynamicListTableProperties } from "./dynamicListProperties"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {
@@ -127,7 +128,12 @@ export const TableRules = {
       type: "boolean",
       noImplicitValueYAML: true,
     },
-    autoInsertNewRow: { yaml: "АвтоВводНовойСтроки", type: "boolean", implicitValueYAML: true },
+    autoInsertNewRow: {
+      yaml: "АвтоВводНовойСтроки",
+      type: "boolean",
+      implicitValueYAML: true,
+      implicitValueXML: false,
+    },
     autoMarkIncomplete: { yaml: "АвтоОтметкаНезаполненного", type: "boolean", noImplicitValueYAML: true },
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
     autoMaxHeightInTableRows: {
@@ -413,29 +419,8 @@ export const TableRules = {
     },
     visible: { yaml: "Видимость", type: "boolean", implicitValueYAML: true },
     width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
-    autoRefresh: { yaml: "АвтоОбновление", type: "boolean", implicitValueYAML: false },
-    restoreCurrentRow: { yaml: "ВосстанавливатьТекущуюСтроку", type: "boolean", implicitValueYAML: false },
-    choiceFoldersAndItems: {
-      yaml: "ВыборГруппИЭлементов",
-      type: "SystemEnumeration",
-      typeSE: "FoldersAndItemsUse",
-      implicitValueYAML: "Items",
-    },
+    ...dynamicListTableProperties,
     // additionalCreateParameters: { yaml: "ДополнительныеПараметрыСоздания", type: "boolean" },
-    updateOnDataChange: {
-      yaml: "ОбновлениеПриИзмененииДанных",
-      type: "SystemEnumeration",
-      typeSE: "UpdateOnDataChange",
-      implicitValueYAML: "Auto",
-    },
-    showRoot: { yaml: "ОтображатьКорень", type: "boolean", implicitValueYAML: true },
-    autoRefreshPeriod: { yaml: "ПериодАвтоОбновления", type: "number", implicitValueYAML: 60 },
-    allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean", implicitValueYAML: false },
-    allowGettingCurrentRowURL: {
-      yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки",
-      type: "boolean",
-      implicitValueYAML: true,
-    },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
     // XML-only service fields are preserved only when present in the reference XML.
     period: {

@@ -3,12 +3,22 @@ import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
+import type { YamlPath } from "../yamlLocations"
+
+export interface FormYAMLItemVisit {
+  yaml: Record<string, unknown>
+  rule: MetadataItemRule
+  yamlPath: YamlPath
+}
+
+export type FormYAMLItemVisitor = (visit: FormYAMLItemVisit) => void
 
 export function collectFormDataPathOccurrencesFromYAML(params: {
   yaml: unknown
   rule: MetadataItemRule
+  visitItem?: FormYAMLItemVisitor
 }): FormDataPathOccurrence[] {
-  return collectItem({ yaml: params.yaml, rule: params.rule, yamlPath: [] })
+  return collectItem({ yaml: params.yaml, rule: params.rule, yamlPath: [], visitItem: params.visitItem })
 }
 
 function collectItem(params: {
@@ -16,9 +26,11 @@ function collectItem(params: {
   rule: MetadataItemRule
   yamlPath: Array<string | number>
   tableContext?: TableContext
+  visitItem?: FormYAMLItemVisitor
 }): FormDataPathOccurrence[] {
   const record = asRecord(params.yaml)
   if (record === undefined) return []
+  params.visitItem?.({ yaml: record, rule: params.rule, yamlPath: params.yamlPath })
   const occurrences: FormDataPathOccurrence[] = []
 
   for (const propertyRule of Object.values(params.rule.properties)) {
@@ -60,6 +72,7 @@ function collectItem(params: {
       propertyRule,
       yamlPath: [...params.yamlPath, propertyRule.yaml],
       tableContext: childTableContext,
+      visitItem: params.visitItem,
     })
     occurrences.push(...nested)
   }
@@ -76,6 +89,7 @@ function collectNested(params: {
   propertyRule: PropertyRule
   yamlPath: Array<string | number>
   tableContext?: TableContext
+  visitItem?: FormYAMLItemVisitor
 }): FormDataPathOccurrence[] {
   const descriptor = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
   if (descriptor === undefined || descriptor.kind === "externalFile") return []
@@ -104,6 +118,7 @@ function collectNested(params: {
       rule: itemRule,
       yamlPath: [...params.yamlPath, name],
       tableContext: params.tableContext,
+      visitItem: params.visitItem,
     })
   })
 }

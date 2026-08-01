@@ -17,6 +17,16 @@ function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
 }
 
+function withPropertyDescription(schema: TSchema, description: string | undefined): TSchema {
+  if (description === undefined) return schema
+  const rawDescription = (schema as { description?: unknown }).description
+  const current = typeof rawDescription === "string" ? rawDescription : undefined
+  return {
+    ...schema,
+    description: current === undefined ? description : `${current}\n\n${description}`,
+  } as TSchema
+}
+
 /**
  * Возвращает YAML-представление implicitValueYAML.
  * Только для литеральных значений: функции зависят от контекста объекта.
@@ -98,18 +108,18 @@ export const exportPropertyToJSONSchema = (params: {
     context,
     rule,
   })
-  if (overrideSchema !== undefined) return overrideSchema
+  if (overrideSchema !== undefined) return withPropertyDescription(overrideSchema, rule.description)
 
   const externalRefSchema = exportPropertyExternalRefSchema({
     context,
     rule,
   })
-  if (externalRefSchema !== undefined) return externalRefSchema
+  if (externalRefSchema !== undefined) return withPropertyDescription(externalRefSchema, rule.description)
 
   const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToJSONSchema") : undefined
 
   if (!typeExportFn) {
-    return value
+    return value === undefined ? undefined : withPropertyDescription(value, rule.description)
   }
 
   const exportedValue = typeExportFn({
@@ -133,11 +143,12 @@ export const exportPropertyToJSONSchema = (params: {
     schema: schemaWithDefaults,
   })
 
-  return (
+  const completed =
     exportValidationPropertyRefSchema({
       context,
       rule,
       schema: completedSchema,
     }) ?? completedSchema
-  )
+
+  return withPropertyDescription(completed, rule.description)
 }

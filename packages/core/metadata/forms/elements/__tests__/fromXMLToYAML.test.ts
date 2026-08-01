@@ -16,6 +16,8 @@ import { getElementRule } from "../orchestration/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
 import { TableRules } from "../table/rules"
 import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
+import { UsualGroupRules } from "../usualGroup/rules"
+import { createFormDataPathIndexFromYAML } from "../../../validation/dataPath/formYamlIndex"
 
 import "../index"
 
@@ -53,7 +55,18 @@ describe("элементы формы XML → YAML → XML", () => {
       name,
       context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
     }).yaml
-    const exportContext = contexts.exportContext()
+    const directExportContext = contexts.exportContext()
+    const exportContext = isDynamicListTableFixture(fixture)
+      ? {
+          ...directExportContext,
+          importFromYAML: {
+            ...directExportContext.importFromYAML,
+            formDataPathIndex: createFormDataPathIndexFromYAML({
+              Реквизиты: { ДинамическийСписок: { Тип: "ДинамическийСписок" } },
+            }),
+          },
+        }
+      : directExportContext
     const configurationIndex = exportContext.exportToXML.configurationIndex
     if (configurationIndex === undefined) throw new Error("Не создан runtime индекса конфигурации")
     const result = testMetadataItemFromYAMLToXML({
@@ -101,6 +114,7 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([
+    ["AutoInsertNewRow", "АвтоВводНовойСтроки"],
     ["EnableStartDrag", "РазрешитьНачалоПеретаскивания"],
     ["EnableDrag", "РазрешитьПеретаскивание"],
   ])("сохраняет XML-семантику %s без reference", (xmlKey, yamlKey) => {
@@ -148,6 +162,31 @@ describe("элементы формы XML → YAML → XML", () => {
     expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml, name: "Таблица" }).xml).not.toHaveProperty(
       "Representation"
     )
+  })
+
+  it.each([
+    ["HorizontalStretch", "РастягиватьПоГоризонтали"],
+    ["VerticalStretch", "РастягиватьПоВертикали"],
+  ])("сохраняет трёхзначное растяжение группы %s", (xmlKey, yamlKey) => {
+    const cases = [
+      [{ _name: "Группа" }, undefined, undefined],
+      [{ _name: "Группа", [xmlKey]: "auto" }, undefined, undefined],
+      [{ _name: "Группа", [xmlKey]: false }, "Ложь", false],
+      [{ _name: "Группа", [xmlKey]: true }, "Истина", true],
+    ] as const
+
+    for (const [xml, yamlValue, expectedXML] of cases) {
+      const yaml = testMetadataItemFromXMLToYAML({ rule: UsualGroupRules, xml, name: "Группа" }).yaml as Record<
+        string,
+        unknown
+      >
+      if (yamlValue === undefined) expect(yaml).not.toHaveProperty(yamlKey)
+      else expect(yaml).toHaveProperty(yamlKey, yamlValue)
+
+      const restored = testMetadataItemFromYAMLToXML({ rule: UsualGroupRules, yaml, name: "Группа" }).xml
+      if (expectedXML === undefined) expect(restored).not.toHaveProperty(xmlKey)
+      else expect(restored).toHaveProperty(xmlKey, expectedXML)
+    }
   })
 
   it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(
@@ -203,4 +242,8 @@ function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string
 
 function withoutDeclaration(xml: string): string {
   return xml.replace(/^\uFEFF?<\?xml[^>]+>\s*/, "").trim()
+}
+
+function isDynamicListTableFixture(fixture: string): boolean {
+  return path.basename(fixture) === "dynamicList.xml" && path.basename(path.dirname(path.dirname(fixture))) === "table"
 }

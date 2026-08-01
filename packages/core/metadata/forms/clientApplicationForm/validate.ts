@@ -18,6 +18,7 @@ import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocati
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
+import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
 
 interface ClientApplicationFormValidationState {
   filePath: string
@@ -43,6 +44,21 @@ export function validateClientApplicationFormFirstPass(
 
   const context = params.context ?? defaultValidationContext()
   const index = createFormDataPathIndexFromYAML(entry.parsed.data)
+  const localDiagnostics: Diagnostic[] = []
+  const occurrences = collectFormDataPathOccurrencesFromYAML({
+    yaml: entry.parsed.data,
+    rule: ClientApplicationFormRules,
+    visitItem: (visit) => {
+      localDiagnostics.push(
+        ...validateDynamicListTableProperties({
+          filePath: entry.filePath,
+          parsed: entry.parsed,
+          index,
+          visit,
+        })
+      )
+    },
+  })
   const diagnostics = [
     ...validateExcludedEqualNameYAML({
       filePath: entry.filePath,
@@ -59,6 +75,7 @@ export function validateClientApplicationFormFirstPass(
       rule: ClientApplicationFormRules,
     }),
     ...index.duplicateDiagnostics,
+    ...localDiagnostics,
   ]
   for (const provider of getFormWarningProviders()) {
     diagnostics.push(...provider({ filePath: entry.filePath, parsed: entry.parsed }))
@@ -71,10 +88,7 @@ export function validateClientApplicationFormFirstPass(
       filePath: entry.filePath,
       parsed: entry.parsed,
       index,
-      occurrences: collectFormDataPathOccurrencesFromYAML({
-        yaml: entry.parsed.data,
-        rule: ClientApplicationFormRules,
-      }),
+      occurrences,
     },
   }
 }

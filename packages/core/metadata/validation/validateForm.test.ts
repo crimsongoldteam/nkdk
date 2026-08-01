@@ -381,6 +381,156 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("отклоняет свойства динамического списка у обычной таблицы на первом этапе", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Таблица:",
+        "    Тип: ТаблицаЗначений",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Таблица",
+        "    АвтоОбновление: Истина",
+        "    ПериодАвтоОбновления: 30",
+        "    ВыборГруппИЭлементов: Группы",
+        "    ВосстанавливатьТекущуюСтроку: Истина",
+        "    ОтображатьКорень: Ложь",
+        "    РазрешитьВыборКорня: Истина",
+        "    ОбновлениеПриИзмененииДанных: НеОбновлять",
+        "    РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки: Ложь",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(messages(first.diagnostics)).toEqual([
+      "АвтоОбновление допустимо только для таблицы динамического списка.",
+      "ВосстанавливатьТекущуюСтроку допустимо только для таблицы динамического списка.",
+      "ВыборГруппИЭлементов допустимо только для таблицы динамического списка.",
+      "ОбновлениеПриИзмененииДанных допустимо только для таблицы динамического списка.",
+      "ОтображатьКорень допустимо только для таблицы динамического списка.",
+      "ПериодАвтоОбновления допустимо только для таблицы динамического списка.",
+      "РазрешитьВыборКорня допустимо только для таблицы динамического списка.",
+      "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки допустимо только для таблицы динамического списка.",
+    ])
+  })
+
+  it.each([
+    ["принимает прямой DynamicList", ["Реквизиты:", "  Список:", "    Тип: ДинамическийСписок"], "Список", []],
+    [
+      "отклоняет вложенный путь",
+      ["Реквизиты:", "  Список:", "    Тип: ДинамическийСписок"],
+      "Список.Filter",
+      ["АвтоОбновление допустимо только для таблицы динамического списка."],
+    ],
+    [
+      "не дублирует неизвестный корень",
+      ["Реквизиты:", "  Список:", "    Тип: ДинамическийСписок"],
+      "НетТакого",
+      ['ПутьКДанным "НетТакого": неизвестный корень "НетТакого"'],
+    ],
+    [
+      "отклоняет пустой путь",
+      ["Реквизиты:", "  Список:", "    Тип: ДинамическийСписок"],
+      '""',
+      ["АвтоОбновление допустимо только для таблицы динамического списка."],
+    ],
+  ] as const)("%s", (_name, requisites, dataPath, expected) => {
+    const project = createProject({
+      form: [
+        ...requisites,
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        `    ПутьКДанным: ${dataPath}`,
+        "    АвтоОбновление: Истина",
+      ],
+    })
+
+    expect(messages(runValidateForm(project))).toEqual(expected)
+  })
+
+  it("отклоняет свойства динамического списка у таблицы без пути", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    АвтоОбновление: Истина",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        path: "/Элементы/Таблица/АвтоОбновление",
+        source: "structure",
+        severity: "error",
+        message: "АвтоОбновление допустимо только для таблицы динамического списка.",
+      }),
+    ])
+  })
+
+  it("отклоняет свойства динамического списка у скалярного источника", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Флаг:",
+        "    Тип: Булево",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Флаг",
+        "    АвтоОбновление: Истина",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(messages(first.diagnostics)).toEqual([
+      "АвтоОбновление допустимо только для таблицы динамического списка.",
+    ])
+  })
+
+  it("не применяет проверку свойств динамического списка к другим элементам", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    АвтоОбновление: Истина",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(first.diagnostics).toEqual([])
+  })
+
   it("does not restrict InputField, LabelField, table fields, ColumnGroup header, or multiple-value DataPath terminals", () => {
     const project = createProject({
       form: [

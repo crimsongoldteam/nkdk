@@ -137,6 +137,64 @@ describe("FormAttributes XML → YAML → XML", () => {
     })
   })
 
+  it("восстанавливает id дополнительных колонок из индекса без reference XML", () => {
+    const source = {
+      Attribute: {
+        _name: "Таблица",
+        _id: "7",
+        Type: { "v8:Type": "v8:ValueTable" },
+        Columns: {
+          AdditionalColumns: [
+            {
+              _table: "Таблица.Первая",
+              Column: [
+                { _name: "Код", _id: "1", Type: { "v8:Type": "xs:string" } },
+                { _name: "Сумма", _id: "2", Type: { "v8:Type": "xs:decimal" } },
+              ],
+            },
+            {
+              _table: "Таблица.Вторая",
+              Column: [
+                { _name: "Код", _id: "1", Type: { "v8:Type": "xs:string" } },
+                { _name: "Признак", _id: "2", Type: { "v8:Type": "xs:boolean" } },
+              ],
+            },
+          ],
+        },
+      },
+    }
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const yaml = testPropertyFromXMLToYAML({ rule, xml: source, context: contexts.importContext }).yaml
+    const { xml } = testPropertyFromYAMLToXML({ rule, yaml, context: contexts.exportContext() })
+
+    expect(xml).toMatchObject({
+      Attribute: [
+        {
+          Columns: {
+            AdditionalColumns: [
+              {
+                _table: "Таблица.Первая",
+                Column: [
+                  { _name: "Код", _id: "1" },
+                  { _name: "Сумма", _id: "2" },
+                ],
+              },
+              {
+                _table: "Таблица.Вторая",
+                Column: [
+                  { _name: "Код", _id: "1" },
+                  { _name: "Признак", _id: "2" },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    })
+  })
+
   it("не создаёт настройки динамического списка у обычного реквизита без reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",

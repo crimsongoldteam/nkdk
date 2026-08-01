@@ -87,10 +87,6 @@ export const PagesRules = {
       ...formGroupCommonProperties.height,
       implicitValueYAML: 0,
     },
-    horizontalStretch: {
-      ...formGroupCommonProperties.horizontalStretch,
-      noImplicitValueYAML: true,
-    },
     visible: {
       ...formGroupCommonProperties.visible,
       implicitValueYAML: true,
