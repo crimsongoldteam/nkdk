@@ -98,7 +98,7 @@ describe("importChildItemsFromXMLToYAML", () => {
     })
   })
 
-  it("не записывает тип обычной кнопки как вид элемента", () => {
+  it("записывает обязательный тип обычной кнопки отдельно от вида элемента", () => {
     const yaml = importChildItemsFromXMLToYAML({
       context: mockContextFromXML(),
       rule: { type: "GroupChildItems", yaml: "Элементы" },
@@ -110,6 +110,6 @@ describe("importChildItemsFromXMLToYAML", () => {
       },
     })
 
-    expect(yaml).toEqual({ ОК: { Вид: "Кнопка" } })
+    expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
   })
 })

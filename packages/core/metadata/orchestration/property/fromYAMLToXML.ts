@@ -345,7 +345,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
       const nestedYAML =
         sourceNestedYAML === undefined
-          ? effectiveNestedRule.kind === "collection" && hasNestedDefault
+          ? effectiveNestedRule.kind === "collection" &&
+            hasNestedDefault &&
+            matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? []
             : effectiveNestedRule.kind === "item" &&
             (references.some((reference) => reference.exists && reference.value === undefined) ||
