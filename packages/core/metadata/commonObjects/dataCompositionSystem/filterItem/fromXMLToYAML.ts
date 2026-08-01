@@ -4,7 +4,8 @@ import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/propert
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 
 export const importFilterItemFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
-  const source = asRecord(xml)?.["dcsset:item"] ?? xml
+  const xmlRecord = asRecord(xml)
+  const source = xmlRecord?.["_xsi:type"] === undefined ? (xmlRecord?.["dcsset:item"] ?? xml) : xml
   const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
   const result = items.flatMap((value, index) => {
     const item = asRecord(value)
