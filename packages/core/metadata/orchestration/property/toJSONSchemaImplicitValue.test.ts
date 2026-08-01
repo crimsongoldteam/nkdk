@@ -169,4 +169,23 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     expect(check.Check("")).toBe(true)
     expect(check.Check("Документ")).toBe(true)
   })
+
+  it.each([false, true])("adds a property description with validation refs=%s", (validationPropertyRefs) => {
+    const description = "Доступно только для таблицы динамического списка."
+    const schema = exportPropertyToJSONSchema({
+      context: {
+        ...validationContext,
+        exportToJSONSchema: {
+          ...validationContext.exportToJSONSchema,
+          ...(validationPropertyRefs ? { validationPropertyRefs: true as const } : {}),
+        },
+      },
+      rule: { type: "number", description },
+      value: undefined,
+    })
+
+    expect(schema).toMatchObject({ description })
+    if (validationPropertyRefs) expect(schema).toHaveProperty("$ref")
+    else expect(schema).toHaveProperty("type", "number")
+  })
 })
