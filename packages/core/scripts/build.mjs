@@ -50,12 +50,6 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: ["metadata/validation/sqliteFirstPassExperimentWorker.ts"],
-  outfile: new URL("sqliteFirstPassExperimentWorker.js", outdir).pathname,
-})
-
-await esbuild.build({
-  ...commonOptions,
   entryPoints: ["metadata/importFromXml/worker.ts"],
   outfile: new URL("importFromXmlWorker.js", outdir).pathname,
 })

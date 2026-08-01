@@ -13,22 +13,30 @@ export type ProjectStateStoreContractFactory = () => ProjectStateStoreContractFi
 
 export function runProjectStateStoreContract(factory: ProjectStateStoreContractFactory): void {
   describe("ProjectStateStore contract", () => {
-    it("заменяет файлы и сопоставляет все восемь big-endian байтов хэша", () => {
+    it("позиционно сопоставляет несколько разных восьмибайтовых big-endian хэшей", () => {
       const { store } = factory()
-      const update = yamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
-      const hashBytes = Uint8Array.from([0x80, 2, 3, 4, 5, 6, 7, 8])
+      const updates = [
+        yamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары"),
+        resourceUpdate("cf/Модуль.bsl", "cf"),
+        resourceUpdate("cf/Картинка.bin", "cf"),
+      ]
+      const hashBytes = Uint8Array.from([
+        0x80, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 0xff,
+      ])
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [update], hashBytes })
+      store.replaceFiles({ updates, hashBytes })
       store.commitUpdate()
 
-      expect(store.compareFiles({ files: [identity(update)], hashBytes })).toEqual({ changed: [], deleted: [] })
-      expect(
-        store.compareFiles({
-          files: [identity(update)],
-          hashBytes: Uint8Array.from([8, 7, 6, 5, 4, 3, 2, 0x80]),
-        })
-      ).toEqual({ changed: [{ index: 0, file: identity(update) }], deleted: [] })
+      expect(store.compareFiles({ files: updates.map(identity), hashBytes })).toEqual({ changed: [], deleted: [] })
+      const changedBytes = hashBytes.slice()
+      changedBytes[8] = 0xff
+      expect(store.compareFiles({ files: updates.map(identity), hashBytes: changedBytes })).toEqual({
+        changed: [{ index: 1, file: identity(updates[1]!) }],
+        deleted: [],
+      })
     })
 
     it.each([
@@ -42,6 +50,15 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => store.replaceFiles({ updates: [resourceUpdate("cf/a.bin", "cf")], hashBytes })).toThrow()
       store.rollbackUpdate()
       expect(() => store.compareFiles({ files: [identity(resourceUpdate("cf/a.bin", "cf"))], hashBytes })).toThrow()
+    })
+
+    it("отвергает вложенную внешнюю транзакцию", () => {
+      const { store } = factory()
+      store.beginUpdate()
+
+      expect(() => store.beginUpdate()).toThrow()
+
+      store.rollbackUpdate()
     })
 
     it("сохраняет замену, откатывает удаление и каскадно удаляет все вклады файла", () => {
@@ -92,7 +109,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
     it("ограничивает видимость cf и своего компонента, сохраняя порядок пакетных ответов", () => {
       const { store, openReadSession } = factory()
       const cf = yamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
-      const cfe = yamlUpdate("cfe/Цены/Цены.yaml", "cfe/Цены", "Catalog.Цены")
+      const cfe = richYamlUpdate("cfe/Цены/Цены.yaml", "cfe/Цены", "Catalog.Цены", "Локальная ошибка цен")
       const foreignCfe = yamlUpdate("cfe/Скидки/Скидки.yaml", "cfe/Скидки", "Catalog.Скидки")
 
       store.beginUpdate()
@@ -111,6 +128,11 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "cf", status: "found" },
         { requestId: "foreign", status: "missing" },
       ])
+      expect(result[0]).toEqual({
+        requestId: "cfe",
+        status: "found",
+        target: { kind: "object", canonical: "Catalog.Цены" },
+      })
 
       expect(session.readOwners([
         { requestId: "own-owner", componentPath: "cfe/Цены", owner: owner("Catalog.Цены") },
@@ -139,6 +161,42 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "cf-dependency", status: "found" },
         { requestId: "foreign-dependency", status: "missing" },
       ])
+    })
+
+    it("не выбирает произвольный результат при неоднозначном target или owner", () => {
+      const { store, openReadSession } = factory()
+      const first = yamlUpdate("cf/Первый.yaml", "cf", "Catalog.Дубликат")
+      const second = yamlUpdate("cf/Второй.yaml", "cf", "Catalog.Дубликат")
+      store.beginUpdate()
+      store.replaceFiles({ updates: [first, second], hashBytes: new Uint8Array(16) })
+      store.commitUpdate()
+
+      const session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([
+        { requestId: "target", componentPath: "cf", canonicalTarget: "Catalog.Дубликат" },
+      ])).toEqual([{ requestId: "target", status: "missing" }])
+      expect(session.readOwners([
+        { requestId: "owner", componentPath: "cf", owner: owner("Catalog.Дубликат") },
+      ])).toEqual([{ requestId: "owner", status: "missing" }])
+      session.close()
+    })
+
+    it("сохраняет dependency-вклад source-файла при удалении target-файла", () => {
+      const { store } = factory()
+      const source = {
+        ...richYamlUpdate("cf/Источник.yaml", "cf", "Catalog.Источник", "Ошибка источника"),
+        dependencies: ["Catalog.Цель"],
+      }
+      const target = yamlUpdate("cf/Цель.yaml", "cf", "Catalog.Цель")
+      store.beginUpdate()
+      store.replaceFiles({ updates: [source, target], hashBytes: new Uint8Array(16) })
+      store.commitUpdate()
+
+      store.beginUpdate()
+      store.deleteFiles([target.projectPath])
+      store.commitUpdate()
+
+      expect(store.readComponentProjection("cf").updates).toEqual([source])
     })
 
     it("отвергает чужой и уже использованный закрытый token, не давая сеансу писать", () => {
@@ -212,15 +270,33 @@ function richYamlUpdate(
     ...update,
     localValidation: {
       contributedFacts: true,
-      diagnostics: [{ line: 1, col: 1, severity: "error", source: "cross-file", message: diagnosticMessage }],
+      diagnostics: [
+        { line: 1, col: 1, severity: "error", source: "cross-file", message: diagnosticMessage },
+        { line: 2, col: 3, severity: "warning", source: "external-file", message: `${diagnosticMessage}: вторая` },
+      ],
       schemaDiagnostics: [],
     },
+    pendingReferences: [{
+      yamlPath: ["Ссылка"],
+      canonical: "Catalog.Товары",
+      target: { kind: "object", root: "Catalog", objectName: "Товары" },
+      constraint: { kind: "object" },
+    }],
+    owners: [{ owner: owner(canonical), facts: { registerType: "InformationRegister" } }],
     fields: [{ owner: owner(canonical), name: "Код", kind: "attribute", typeInfo }],
     forms: [{
       kind: "root",
       owner: owner(canonical),
       name: "Объект",
       source: { kind: "formAttribute", name: "Объект", typeInfo },
+    }],
+    pendingChecks: [{
+      kind: "dataPath",
+      location: { line: 4, col: 5, path: "/ПутьКДанным" },
+      owner: owner(canonical),
+      value: "Объект.Код",
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
     }],
     dependencies: ["Catalog.Товары"],
   }

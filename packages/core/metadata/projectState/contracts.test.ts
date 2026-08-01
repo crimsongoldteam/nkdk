@@ -176,6 +176,7 @@ function createTestStoreContractFixture() {
       return { changed, deleted }
     },
     beginUpdate() {
+      if (staged !== undefined) throw new Error("Обновление уже начато")
       staged = new Map(committed)
     },
     replaceFiles(batch) {
@@ -251,23 +252,23 @@ function testStoreReadSession(
     resolveTargets(requests) {
       assertOpen()
       return requests.map(({ requestId, componentPath, canonicalTarget }) => {
-        const target = visibleYamlUpdatesForSession(componentPath)
+        const targets = visibleYamlUpdatesForSession(componentPath)
           .flatMap((update) => update.references)
-          .find((reference) => reference.canonical === canonicalTarget)
-        return target === undefined
+          .filter((reference) => reference.canonical === canonicalTarget)
+        return targets.length !== 1
           ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, target }
+          : { requestId, status: "found" as const, target: targets[0]! }
       })
     },
     readOwners(requests) {
       assertOpen()
       return requests.map(({ requestId, componentPath, owner }) => {
-        const match = visibleYamlUpdatesForSession(componentPath)
+        const matches = visibleYamlUpdatesForSession(componentPath)
           .flatMap((update) => update.owners)
-          .find(({ owner: candidate }) => candidate.kind === owner.kind && candidate.name === owner.name)
-        return match === undefined
+          .filter(({ owner: candidate }) => candidate.kind === owner.kind && candidate.name === owner.name)
+        return matches.length !== 1
           ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, facts: match.facts }
+          : { requestId, status: "found" as const, facts: matches[0]!.facts }
       })
     },
     findReferences(requests) {
