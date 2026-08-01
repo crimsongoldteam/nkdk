@@ -46,9 +46,9 @@ const exportCommandInterfaceItemToXML = (
     Command: item.command,
     Type: item.type ?? "Auto",
     Attribute: item.attribute,
+    CommandGroup: item.commandGroup,
     Index: item.index,
     DefaultVisible: item.defaultVisible,
-    CommandGroup: item.commandGroup,
   }
 
   if (item.visible) {
@@ -58,9 +58,8 @@ const exportCommandInterfaceItemToXML = (
     }
   }
 
-  const orderedKeys = getOrderedCommandInterfaceItemXMLKeys(item)
   const result = {} as CommandInterfaceItemXML
-  for (const key of orderedKeys) {
+  for (const key of commandInterfaceItemXMLKeys) {
     const value = values[key]
     if (value !== undefined) {
       ;(result as unknown as Record<keyof CommandInterfaceItemXML, unknown>)[key] = value
@@ -69,48 +68,14 @@ const exportCommandInterfaceItemToXML = (
   return result
 }
 
-const commandInterfaceItemModelToXmlKeys = {
-  command: "Command",
-  type: "Type",
-  attribute: "Attribute",
-  index: "Index",
-  commandGroup: "CommandGroup",
-  defaultVisible: "DefaultVisible",
-  visible: "Visible",
-} as const
-
-const fallbackCommandInterfaceItemXMLKeys = [
+const commandInterfaceItemXMLKeys = [
   "Command",
   "Type",
   "Attribute",
+  "CommandGroup",
   "Index",
   "DefaultVisible",
-  "CommandGroup",
   "Visible",
 ] as const satisfies readonly (keyof CommandInterfaceItemXML)[]
-
-const getOrderedCommandInterfaceItemXMLKeys = (
-  item: CommandInterfaceItem
-): (keyof CommandInterfaceItemXML)[] => {
-  const result: (keyof CommandInterfaceItemXML)[] = []
-  const added = new Set<keyof CommandInterfaceItemXML>()
-
-  for (const sourceKey of Object.keys(item)) {
-    const xmlKey = commandInterfaceItemModelToXmlKeys[sourceKey as keyof typeof commandInterfaceItemModelToXmlKeys]
-    if (xmlKey !== undefined && !added.has(xmlKey)) {
-      result.push(xmlKey)
-      added.add(xmlKey)
-    }
-  }
-
-  for (const xmlKey of fallbackCommandInterfaceItemXMLKeys) {
-    if (!added.has(xmlKey)) {
-      result.push(xmlKey)
-      added.add(xmlKey)
-    }
-  }
-
-  return result
-}
 
 registerTypeRule("CommandInterface", "exportToXML", exportCommandInterfaceToXML)
