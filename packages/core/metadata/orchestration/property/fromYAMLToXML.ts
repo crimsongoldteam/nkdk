@@ -837,7 +837,10 @@ function writeXMLValue(params: {
   const { output, planned, reference } = params
   const rule = planned.propertyRule
   const usesEmptyReferenceFallback =
-    params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+    params.value === undefined &&
+    reference.exists &&
+    planned.propertyRule.preserveEmptyXML !== true &&
+    !Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
   const rawValue =
     params.value === undefined &&
     reference.exists &&
@@ -845,7 +848,7 @@ function writeXMLValue(params: {
     reference.indexedExplicitEmpty === true &&
     isExplicitEmptyXMLReference(reference.value)
       ? reference.value
-      : params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+      : usesEmptyReferenceFallback
         ? {}
         : params.value
   const value = wrapWithNamespace(rule, rawValue)

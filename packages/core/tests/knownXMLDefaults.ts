@@ -1,8 +1,12 @@
 export function withKnownXMLDefaults(xml: string, options: { includeCheckBoxType?: boolean } = {}): string {
-  const withFormDefaults = withTableDefaults(xml)
+  const withFormDefaults = withTableDefaults(withoutImplicitFalseFormDefaults(xml))
   const withConditionalDefaults =
     options.includeCheckBoxType === false ? withFormDefaults : withCheckBoxType(withFormDefaults)
   return withIncludeHelpInContents(withAttributeFillValue(withConditionalDefaults))
+}
+
+function withoutImplicitFalseFormDefaults(xml: string): string {
+  return xml.replace(/\n[\t ]*<AutoCellHeight>false<\/AutoCellHeight>/g, "")
 }
 
 function withIncludeHelpInContents(xml: string): string {

@@ -8,7 +8,7 @@ export const commonButtonProperties = {
     yaml: "Вид",
     type: "SystemEnumeration",
     typeSE: "FormButtonType",
-    implicitValueYAML: "UsualButton",
+    required: true,
   },
   visible: { yaml: "Видимость", type: "boolean", implicitValueYAML: true },
   userVisible: {

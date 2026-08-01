@@ -18,6 +18,9 @@ import { TableRules } from "../table/rules"
 import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/rules"
 import { UsualGroupRules } from "../usualGroup/rules"
 import { createFormDataPathIndexFromYAML } from "../../../validation/dataPath/formYamlIndex"
+import { ButtonRules } from "../button/rules"
+import { InputFieldRules } from "../inputField/rules"
+import { RadioButtonFieldRules } from "../radioButtonField/rules"
 
 import "../index"
 
@@ -138,6 +141,74 @@ describe("элементы формы XML → YAML → XML", () => {
     expect(testMetadataItemFromYAMLToXML({ rule: TableRules, yaml: implicit, name: "Таблица" }).xml).not.toHaveProperty(
       xmlKey
     )
+  })
+
+  it("сохраняет обязательный Button.Type в YAML", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ButtonRules,
+      xml: { _name: "Кнопка", Type: "UsualButton" },
+      name: "Кнопка",
+    }).yaml
+
+    expect(yaml).toHaveProperty("Вид", "ОбычнаяКнопка")
+  })
+
+  it("различает XML- и YAML-default EnableContentChange", () => {
+    const explicit = testMetadataItemFromXMLToYAML({
+      rule: UsualGroupRules,
+      xml: { _name: "Группа", EnableContentChange: true },
+      name: "Группа",
+    }).yaml
+    expect(explicit).not.toHaveProperty("РазрешитьИзменениеСостава")
+    expect(testMetadataItemFromYAMLToXML({ rule: UsualGroupRules, yaml: explicit, name: "Группа" }).xml).toHaveProperty(
+      "EnableContentChange",
+      true
+    )
+
+    const absent = testMetadataItemFromXMLToYAML({
+      rule: UsualGroupRules,
+      xml: { _name: "Группа" },
+      name: "Группа",
+    }).yaml
+    expect(absent).toHaveProperty("РазрешитьИзменениеСостава", "Ложь")
+    expect(testMetadataItemFromYAMLToXML({ rule: UsualGroupRules, yaml: absent, name: "Группа" }).xml).not.toHaveProperty(
+      "EnableContentChange"
+    )
+  })
+
+  it("не записывает отсутствующий AutoCellHeight в YAML и XML", () => {
+    const absent = testMetadataItemFromXMLToYAML({
+      rule: InputFieldRules,
+      xml: { _name: "Поле" },
+      name: "Поле",
+    }).yaml
+    expect(absent).not.toHaveProperty("АвтоВысотаЯчейки")
+    expect(testMetadataItemFromYAMLToXML({ rule: InputFieldRules, yaml: absent, name: "Поле" }).xml).not.toHaveProperty(
+      "AutoCellHeight"
+    )
+
+    const explicit = testMetadataItemFromXMLToYAML({
+      rule: InputFieldRules,
+      xml: { _name: "Поле", AutoCellHeight: true },
+      name: "Поле",
+    }).yaml
+    expect(explicit).toHaveProperty("АвтоВысотаЯчейки", "Истина")
+    expect(testMetadataItemFromYAMLToXML({ rule: InputFieldRules, yaml: explicit, name: "Поле" }).xml).toHaveProperty(
+      "AutoCellHeight",
+      true
+    )
+  })
+
+  it("восстанавливает обязательный RadioButtonType=Auto без reference", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: RadioButtonFieldRules,
+      xml: { _name: "Переключатель", RadioButtonType: "Auto" },
+      name: "Переключатель",
+    }).yaml
+    expect(yaml).not.toHaveProperty("ВидПереключателя")
+    expect(
+      testMetadataItemFromYAMLToXML({ rule: RadioButtonFieldRules, yaml, name: "Переключатель" }).xml
+    ).toHaveProperty("RadioButtonType", "Auto")
   })
 
   it.each([
