@@ -4,7 +4,11 @@ import {
   type ProjectStateFileHashBatch,
   type ProjectStateReadToken,
 } from "./contracts"
-import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdate } from "./fileUpdate"
+import {
+  assertProjectStateFileUpdateBatch,
+  type ProjectStateFileUpdate,
+  type ProjectStateYamlFileUpdate,
+} from "./fileUpdate"
 import {
   ProjectStateReadSessionClosedError,
   type ProjectStateReadSession,
@@ -183,9 +187,18 @@ function createTestStoreContractFixture() {
       if (staged === undefined) throw new Error("Нет активного обновления")
       projectPaths.forEach((projectPath) => staged!.delete(projectPath))
     },
-    readLocalDiagnostics: () => [],
+    readLocalDiagnostics: () => [...committed.values()]
+      .map(({ update }) => update)
+      .flatMap((update) => update.kind === "yaml"
+        ? update.localValidation.diagnostics.map((diagnostic) => ({ ...diagnostic, filePath: update.projectPath }))
+        : []),
     readDependencyCheckBatch: ({ requests }) => ({
-      results: requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+      results: requests.map(({ requestId, componentPath, projectPath }) => {
+        const visible = visibleYamlUpdates(current(), componentPath)
+        return visible.some((update) => update.projectPath === projectPath)
+          ? { requestId, status: "found" as const, input: dependencyInput(visible) }
+          : { requestId, status: "missing" as const }
+      }),
     }),
     validateDependencies: () => [],
     readComponentProjection(componentPath) {
@@ -218,25 +231,28 @@ function createTestStoreContractFixture() {
     store,
     openReadSession(token: ProjectStateReadToken): ProjectStateReadSession {
       if (!tokens.has(tokenKey(token))) throw new Error("Неизвестный token чтения")
-      return testStoreReadSession(token, committed)
+      return testStoreReadSession(token, committed, () => tokens.delete(tokenKey(token)))
     },
   }
 }
 
-function testStoreReadSession(token: ProjectStateReadToken, updates: Map<string, StoredUpdate>): ProjectStateReadSession {
+function testStoreReadSession(
+  token: ProjectStateReadToken,
+  updates: Map<string, StoredUpdate>,
+  onClose?: () => void
+): ProjectStateReadSession {
   let closed = false
   const assertOpen = (): void => {
     if (closed) throw new ProjectStateReadSessionClosedError(token)
   }
+  const visibleYamlUpdatesForSession = (componentPath: string) => visibleYamlUpdates(updates, componentPath)
 
   return {
     resolveTargets(requests) {
       assertOpen()
       return requests.map(({ requestId, componentPath, canonicalTarget }) => {
-        const target = [...updates.values()]
-          .map(({ update }) => update)
-          .filter((update) => update.componentPath === "cf" || update.componentPath === componentPath)
-          .flatMap((update) => update.kind === "yaml" ? update.references : [])
+        const target = visibleYamlUpdatesForSession(componentPath)
+          .flatMap((update) => update.references)
           .find((reference) => reference.canonical === canonicalTarget)
         return target === undefined
           ? { requestId, status: "missing" as const }
@@ -245,19 +261,62 @@ function testStoreReadSession(token: ProjectStateReadToken, updates: Map<string,
     },
     readOwners(requests) {
       assertOpen()
-      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+      return requests.map(({ requestId, componentPath, owner }) => {
+        const match = visibleYamlUpdatesForSession(componentPath)
+          .flatMap((update) => update.owners)
+          .find(({ owner: candidate }) => candidate.kind === owner.kind && candidate.name === owner.name)
+        return match === undefined
+          ? { requestId, status: "missing" as const }
+          : { requestId, status: "found" as const, facts: match.facts }
+      })
     },
     findReferences(requests) {
       assertOpen()
-      return requests.map(({ requestId }) => ({ requestId, references: [] }))
+      return requests.map(({ requestId, componentPath, canonical }) => ({
+        requestId,
+        references: visibleYamlUpdatesForSession(componentPath)
+          .filter((update) => update.references.some((reference) => reference.canonical === canonical))
+          .map(({ projectPath, componentPath }) => ({ projectPath, componentPath })),
+      }))
     },
     readDependencyInputs(requests) {
       assertOpen()
-      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+      return requests.map(({ requestId, componentPath, projectPath }) => {
+        const visible = visibleYamlUpdatesForSession(componentPath)
+        if (!visible.some((update) => update.projectPath === projectPath)) {
+          return { requestId, status: "missing" as const }
+        }
+        return {
+          requestId,
+          status: "found" as const,
+          input: dependencyInput(visible),
+        }
+      })
     },
     close() {
+      if (closed) return
       closed = true
+      onClose?.()
     },
+  }
+}
+
+function visibleYamlUpdates(
+  updates: ReadonlyMap<string, StoredUpdate>,
+  componentPath: string
+): ProjectStateYamlFileUpdate[] {
+  return [...updates.values()]
+    .map(({ update }) => update)
+    .filter((update): update is ProjectStateYamlFileUpdate =>
+      update.kind === "yaml" && (update.componentPath === "cf" || update.componentPath === componentPath)
+    )
+}
+
+function dependencyInput(updates: readonly ProjectStateYamlFileUpdate[]) {
+  return {
+    owners: updates.flatMap((update) => update.owners),
+    fields: updates.flatMap((update) => update.fields),
+    forms: updates.flatMap((update) => update.forms),
   }
 }
 
