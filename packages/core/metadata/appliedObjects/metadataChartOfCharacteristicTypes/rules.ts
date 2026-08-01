@@ -227,7 +227,7 @@ export const MetadataChartOfCharacteristicTypesRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     predefinedDataUpdate: systemEnumerationRule({
       yaml: "ОбновлениеПредопределенныхДанных",

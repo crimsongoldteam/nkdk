@@ -174,7 +174,7 @@ export const MetadataCatalogRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: ["Properties"],
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",

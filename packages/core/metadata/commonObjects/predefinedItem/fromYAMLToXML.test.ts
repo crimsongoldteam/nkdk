@@ -22,6 +22,13 @@ describe("PredefinedItem YAML → XML", () => {
     expect(testPropertyFromYAMLToXML({ rule: collectionRule, yaml: {} }).xml).toEqual({})
   })
 
+  it("восстанавливает пустые Code и Description без reference", () => {
+    const result = convertItem("ПредопределенноеЗначение", {})
+
+    expect(result).toContain("<Code/>")
+    expect(result).toContain("<Description/>")
+  })
+
   it.each(cases)("imports $name fixture", ({ yaml }) => {
     expect(convertCollection(yaml)).toContain("<Item")
   })

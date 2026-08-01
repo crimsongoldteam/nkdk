@@ -144,7 +144,7 @@ const tableProperties = {
     yaml: "Характеристики",
     xml: "Characteristics",
     xmlParents: properties,
-    defaultValueXMLRaw: {},
+    defaultValueXMLRaw: "",
   }),
   useStandardCommands: {
     yaml: "ИспользоватьСтандартныеКоманды",

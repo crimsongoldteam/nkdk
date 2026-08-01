@@ -54,6 +54,7 @@ export const MetadataStyleItemRules = {
       typeSE: "StyleElementType",
       xmlParents: properties,
       implicitValueYAML: "Font",
+      defaultValueXML: "Font",
     }),
     value: styleItemValueRule({
       yaml: "Значение",

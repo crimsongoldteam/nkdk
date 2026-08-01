@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataBusinessProcessRules } from "../../appliedObjects/metadataBusinessProcess/rules"
+import { MetadataChartOfAccountsRules } from "../../appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "../../appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataConfigurationRules } from "../../appliedObjects/configuration/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "../../appliedObjects/metadataEnumeration/rules"
 import { MetadataStyleItemRules } from "../../appliedObjects/metadataStyleItem/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { AccumulationRegisterAggregateRules } from "../../commonObjects/accumulationRegisterAggregates/rules"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../../commonObjects/accountingFlag/rules"
 import { MetadataExternalDataSourceCubeResourceRules } from "../../commonObjects/metadataExternalDataSourceCubeResource/rules"
+import { MetadataExternalDataSourceCubeRules } from "../../commonObjects/metadataExternalDataSourceCube/rules"
+import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { MetadataIntegrationServiceChannelRules } from "../../commonObjects/metadataIntegrationServiceChannel/rules"
 import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataRegisterAttributeRules } from "../../commonObjects/metadataRegisterAttribute/rules"
@@ -145,7 +152,25 @@ describe("implicitValueYAML contract", () => {
   })
 
   it("uses configurator defaults as implicit YAML values for style items", () => {
-    expect(MetadataStyleItemRules.properties.type.implicitValueYAML).toBe("Font")
+    expect(MetadataStyleItemRules.properties.type).toMatchObject({
+      implicitValueYAML: "Font",
+      defaultValueXML: "Font",
+    })
+  })
+
+  it.each([
+    ["business process", MetadataBusinessProcessRules],
+    ["catalog", MetadataCatalogRules],
+    ["chart of accounts", MetadataChartOfAccountsRules],
+    ["chart of calculation types", MetadataChartOfCalculationTypesRules],
+    ["chart of characteristic types", MetadataChartOfCharacteristicTypesRules],
+    ["document", MetadataDocumentRules],
+    ["enumeration", MetadataEnumerationRules],
+    ["task", MetadataTaskRules],
+    ["external data source cube", MetadataExternalDataSourceCubeRules],
+    ["external data source table", MetadataExternalDataSourceTableRules],
+  ])("uses an empty XML element for required %s Characteristics", (_name, rule) => {
+    expect(rule.properties.characteristics.defaultValueXMLRaw).toBe("")
   })
 
   it("documents implicit YAML decisions for page form elements", () => {

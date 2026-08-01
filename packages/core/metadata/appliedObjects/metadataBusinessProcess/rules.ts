@@ -261,7 +261,7 @@ export const MetadataBusinessProcessRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     autonumbering: booleanRule({
       yaml: "Автонумерация",

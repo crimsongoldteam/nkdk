@@ -215,7 +215,7 @@ export const MetadataChartOfAccountsRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     standardTabularSections: standardTabularSectionDescriptionsRule({
       yaml: "СтандартныеТабличныеЧасти",

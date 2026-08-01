@@ -342,9 +342,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
           ? params.name
           : source.raw(propertyKey)
+      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
       const nestedYAML =
         sourceNestedYAML === undefined
-          ? effectiveNestedRule.kind === "item" &&
+          ? effectiveNestedRule.kind === "collection" && hasNestedDefault
+            ? []
+            : effectiveNestedRule.kind === "item" &&
             (references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",
@@ -357,7 +360,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             ? {}
             : undefined
           : sourceNestedYAML
-      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
       if (nestedYAML === undefined && !references.some((reference) => reference.exists)) {
         continue
       }

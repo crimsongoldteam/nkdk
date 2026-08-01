@@ -217,7 +217,7 @@ export const MetadataTaskRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",
