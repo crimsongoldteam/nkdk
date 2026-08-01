@@ -137,6 +137,73 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
+  it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
+    const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath: string) =>
+      convertClientApplicationFormFromYAMLToXML({
+        context: mockContextToXML(),
+        yaml: {
+          Реквизиты: requisites,
+          Элементы: { Таблица: { Вид: "ТаблицаФормы", ПутьКДанным: dataPath } },
+        } as ClientApplicationFormYAML,
+        name: "Форма",
+      })
+
+    const direct = firstTable(convert({ Список: { Тип: "ДинамическийСписок" } }, "Список").formXML)
+    const ordinary = firstTable(convert({ Таблица: { Тип: "ТаблицаЗначений" } }, "Таблица").formXML)
+    const nested = firstTable(convert({ Список: { Тип: "ДинамическийСписок" } }, "Список.Filter").formXML)
+
+    const defaults = {
+      AutoRefresh: false,
+      AutoRefreshPeriod: 60,
+      ChoiceFoldersAndItems: "Items",
+      RestoreCurrentRow: false,
+      ShowRoot: true,
+      AllowRootChoice: false,
+      UpdateOnDataChange: "Auto",
+      AllowGettingCurrentRowURL: true,
+    }
+    expect(direct).toMatchObject(defaults)
+    for (const xmlName of Object.keys(defaults)) {
+      expect(ordinary).not.toHaveProperty(xmlName)
+      expect(nested).not.toHaveProperty(xmlName)
+    }
+  })
+
+  it("выгружает явные свойства прямой таблицы динамического списка", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
+        Элементы: {
+          Список: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Список",
+            АвтоОбновление: "Истина",
+            ПериодАвтоОбновления: 30,
+            ВыборГруппИЭлементов: "Группы",
+            ВосстанавливатьТекущуюСтроку: "Истина",
+            ОтображатьКорень: "Ложь",
+            РазрешитьВыборКорня: "Истина",
+            ОбновлениеПриИзмененииДанных: "НеОбновлять",
+            РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки: "Ложь",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаСписка",
+    })
+
+    expect(firstTable(result.formXML)).toMatchObject({
+      AutoRefresh: true,
+      AutoRefreshPeriod: 30,
+      ChoiceFoldersAndItems: "Folders",
+      RestoreCurrentRow: true,
+      ShowRoot: false,
+      AllowRootChoice: true,
+      UpdateOnDataChange: "DontUpdate",
+      AllowGettingCurrentRowURL: false,
+    })
+  })
+
   it("сохраняет служебные узлы таблицы из reference XML", () => {
     const period = {
       "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
