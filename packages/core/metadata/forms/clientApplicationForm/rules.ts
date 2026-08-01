@@ -19,8 +19,41 @@ import { stringRule } from "../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../../orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
+import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
+
+const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
+  "СправочникОбъект",
+  "ПланВидовХарактеристикОбъект",
+])
+
+const hasFoldersAndItemsMainAttribute = (
+  source: YAMLPropertySource,
+  context?: ConfigurationContextWithExportToXML
+): boolean => {
+  const attributes = asRecord(source.raw("attributes"))
+  const index = context?.importFromYAML?.formDataPathIndex
+  if (attributes === undefined || index === undefined) return false
+
+  return Object.entries(attributes).some(([name, rawAttribute]) => {
+    const attribute = asRecord(rawAttribute)
+    return (
+      attribute?.["ОсновнойРеквизит"] === "Истина" &&
+      index
+        .getRoot(name)
+        ?.typeInfo.nextTypes.some(({ kind }) => FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS.has(kind)) === true
+    )
+  })
+}
+
+const asRecord = (value: unknown): Record<string, unknown> | undefined => {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
+}
+
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   metadataTargetOwner: { kind: "inherit" },
@@ -489,6 +522,9 @@ export const ClientApplicationFormRules = {
       typeSE: "FoldersAndItemsUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
+      defaultValueXML: "Items",
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("useForFoldersAndItems") || hasFoldersAndItemsMainAttribute(source, context),
     }),
     choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",

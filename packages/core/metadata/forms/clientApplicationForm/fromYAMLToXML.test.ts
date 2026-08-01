@@ -27,6 +27,78 @@ import {
 } from "./rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
+  it.each([
+    ["основной реквизит справочника", "СправочникОбъект.Товары", "Истина", "Items"],
+    [
+      "основной реквизит ПВХ",
+      "ПланВидовХарактеристикОбъект.ВидыСубконто",
+      "Истина",
+      "Items",
+    ],
+    ["основной реквизит документа", "ДокументОбъект.Заказ", "Истина", undefined],
+    ["неосновной реквизит справочника", "СправочникОбъект.Товары", "Ложь", undefined],
+    ["составной тип со справочником", ["Строка", "СправочникОбъект.Товары"], "Истина", "Items"],
+    [
+      "составной объектный тип со справочником",
+      ["ДокументОбъект.Заказ", "СправочникОбъект.Товары"],
+      "Истина",
+      "Items",
+    ],
+  ] as const)("восстанавливает UseForFoldersAndItems: %s", (_case, type, mainAttribute, expected) => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: {
+          Объект: { Тип: type, ОсновнойРеквизит: mainAttribute },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    if (expected === undefined) expect(result.formXML).not.toHaveProperty("UseForFoldersAndItems")
+    else expect(result.formXML).toHaveProperty("UseForFoldersAndItems", expected)
+  })
+
+  it("не создаёт UseForFoldersAndItems у формы без реквизитов", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML).not.toHaveProperty("UseForFoldersAndItems")
+  })
+
+  it("находит подходящий основной реквизит среди реквизитов разных типов", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: {
+          Документ: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+          Объект: { Тип: "СправочникОбъект.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML).toHaveProperty("UseForFoldersAndItems", "Items")
+  })
+
+  it("сохраняет явное Folders независимо от неявного Items", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        ИспользованиеДляГруппИЭлементов: "Группы",
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    expect(result.formXML).toHaveProperty("UseForFoldersAndItems", "Folders")
+  })
+
   it("формирует описание и содержимое формы прямо из YAML", () => {
     const yamlPath = fileURLToPath(new URL("__fixtures__/sync/yaml/Формы/ФормаЭлемента/Форма.yaml", import.meta.url))
     const yaml = importFromYAML<ClientApplicationFormYAML>(fs.readFileSync(yamlPath, "utf8"))
