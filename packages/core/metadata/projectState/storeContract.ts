@@ -44,64 +44,42 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => store.compareFiles({ files: [identity(resourceUpdate("cf/a.bin", "cf"))], hashBytes })).toThrow()
     })
 
-    it("откатывает перезапись и удаление, затем каскадно удаляет все вклады файла", () => {
+    it("сохраняет замену, откатывает удаление и каскадно удаляет все вклады файла", () => {
       const { store, openReadSession } = factory()
       const update = richYamlUpdate("cfe/Цены/Товары.yaml", "cfe/Цены", "Catalog.Цены")
-      const replacement = yamlUpdate(update.projectPath, update.componentPath, "Catalog.ИзменённыеЦены")
+      const replacement = richYamlUpdate(update.projectPath, update.componentPath, "Catalog.ИзменённыеЦены")
       const hashBytes = new Uint8Array(8)
+      const presentContribution = { owner: "found", reference: 1, dependency: "found", fields: 1, forms: 1 }
+      const missingContribution = { owner: "missing", reference: 0, dependency: "missing", fields: 0, forms: 0 }
 
       store.beginUpdate()
       store.replaceFiles({ updates: [update], hashBytes })
       store.commitUpdate()
-      expect(store.readComponentProjection(update.componentPath).updates).toEqual([update])
-      expect(store.readLocalDiagnostics()).toEqual(diagnostic(update))
-      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual({
-        owner: "found",
-        reference: 1,
-        dependency: "found",
-        fields: 1,
-        forms: 1,
-      })
-      expect(store.readDependencyCheckBatch({
-        requests: [dependencyQuery("stored-dependency", update.componentPath, update.projectPath)],
-      }).results.map(({ requestId, status }) => ({ requestId, status }))).toEqual([
-        { requestId: "stored-dependency", status: "found" },
-      ])
+      expectStoredFile(store, openReadSession, update, presentContribution)
 
       store.beginUpdate()
       store.replaceFiles({ updates: [replacement], hashBytes })
       store.rollbackUpdate()
-      expect(store.readComponentProjection(update.componentPath).updates).toEqual([update])
-      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual({
-        owner: "found",
-        reference: 1,
-        dependency: "found",
-        fields: 1,
-        forms: 1,
-      })
+      expectStoredFile(store, openReadSession, update, presentContribution)
 
       store.beginUpdate()
-      store.deleteFiles([update.projectPath])
-      store.rollbackUpdate()
-      expect(store.readComponentProjection(update.componentPath).updates).toEqual([update])
-
-      store.beginUpdate()
-      store.deleteFiles([update.projectPath])
+      store.replaceFiles({ updates: [replacement], hashBytes })
       store.commitUpdate()
-      expect(store.readComponentProjection(update.componentPath).updates).toEqual([])
+      expectStoredFile(store, openReadSession, replacement, presentContribution)
+      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual(missingContribution)
+
+      store.beginUpdate()
+      store.deleteFiles([replacement.projectPath])
+      store.rollbackUpdate()
+      expectStoredFile(store, openReadSession, replacement, presentContribution)
+
+      store.beginUpdate()
+      store.deleteFiles([replacement.projectPath])
+      store.commitUpdate()
+      expect(store.readComponentProjection(replacement.componentPath).updates).toEqual([])
       expect(store.readLocalDiagnostics()).toEqual([])
-      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual({
-        owner: "missing",
-        reference: 0,
-        dependency: "missing",
-        fields: 0,
-        forms: 0,
-      })
-      expect(store.readDependencyCheckBatch({
-        requests: [dependencyQuery("deleted-dependency", update.componentPath, update.projectPath)],
-      }).results.map(({ requestId, status }) => ({ requestId, status }))).toEqual([
-        { requestId: "deleted-dependency", status: "missing" },
-      ])
+      expect(readFileContributions(openReadSession(store.createReadToken()), replacement)).toEqual(missingContribution)
+      expect(readStoredDependency(store, replacement)).toEqual({ status: "missing" })
     })
 
     it("ограничивает видимость cf и своего компонента, сохраняя порядок пакетных ответов", () => {
@@ -146,9 +124,9 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "foreign-reference", found: false },
       ])
       expect(session.readDependencyInputs([
-        dependencyQuery("own-dependency", "cfe/Цены", cfe.projectPath),
-        dependencyQuery("cf-dependency", "cfe/Цены", cf.projectPath),
-        dependencyQuery("foreign-dependency", "cfe/Цены", foreignCfe.projectPath),
+        dependencyQuery("own-dependency", "cfe/Цены", cfe.projectPath, "Catalog.Цены"),
+        dependencyQuery("cf-dependency", "cfe/Цены", cf.projectPath, "Catalog.Товары"),
+        dependencyQuery("foreign-dependency", "cfe/Цены", foreignCfe.projectPath, "Catalog.Скидки"),
       ]).map(({ requestId, status }) => ({ requestId, status }))).toEqual([
         { requestId: "own-dependency", status: "found" },
         { requestId: "cf-dependency", status: "found" },
@@ -199,7 +177,7 @@ function owner(canonical: string) {
   return { kind: "Справочник", name: canonical }
 }
 
-function dependencyQuery(requestId: string, componentPath: string, projectPath: string) {
+function dependencyQuery(requestId: string, componentPath: string, projectPath: string, ownerName = "Catalog.Товары") {
   return {
     requestId,
     componentPath,
@@ -207,7 +185,7 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
     check: {
       kind: "dataPath" as const,
       location: { line: 1, col: 1 },
-      owner: owner("Catalog.Товары"),
+      owner: owner(ownerName),
       value: "Объект",
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath" as const,
@@ -215,7 +193,7 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
   }
 }
 
-function richYamlUpdate(projectPath: string, componentPath: string, canonical: string): ProjectStateFileUpdate {
+function richYamlUpdate(projectPath: string, componentPath: string, canonical: string): ProjectStateYamlFileUpdate {
   const update = yamlUpdate(projectPath, componentPath, canonical)
   const typeInfo = { kinds: ["scalar"] as const, nextTypes: [] }
   return {
@@ -250,7 +228,7 @@ function readFileContributions(session: ProjectStateReadSession, update: Project
     { requestId: "reference", componentPath: update.componentPath, canonical: update.references[0]!.canonical },
   ])
   const dependencyResult = session.readDependencyInputs([
-    dependencyQuery("dependency", update.componentPath, update.projectPath),
+    dependencyQuery("dependency", update.componentPath, update.projectPath, update.owners[0]!.owner.name ?? ""),
   ])
   session.close()
   return {
@@ -259,6 +237,35 @@ function readFileContributions(session: ProjectStateReadSession, update: Project
     dependency: dependencyResult[0]!.status,
     fields: dependencyResult[0]!.status === "found" ? dependencyResult[0]!.input.fields.length : 0,
     forms: dependencyResult[0]!.status === "found" ? dependencyResult[0]!.input.forms.length : 0,
+  }
+}
+
+function readStoredDependency(store: ProjectStateStore, update: ProjectStateFileUpdate) {
+  const [result] = store.readDependencyCheckBatch({
+    requests: [dependencyQuery("stored-dependency", update.componentPath, update.projectPath, update.kind === "yaml" ? update.owners[0]!.owner.name ?? "" : "")],
+  }).results
+  return result?.status === "found"
+    ? { status: result.status, input: result.input }
+    : { status: "missing" as const }
+}
+
+function expectStoredFile(
+  store: ProjectStateStore,
+  openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession,
+  update: ProjectStateYamlFileUpdate,
+  contribution: { readonly owner: string; readonly reference: number; readonly dependency: string; readonly fields: number; readonly forms: number }
+): void {
+  expect(store.readComponentProjection(update.componentPath).updates).toEqual([update])
+  expect(store.readLocalDiagnostics()).toEqual(diagnostic(update))
+  expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual(contribution)
+  expect(readStoredDependency(store, update)).toEqual({ status: "found", input: expectedDependencyInput(update) })
+}
+
+function expectedDependencyInput(update: ProjectStateYamlFileUpdate) {
+  return {
+    owners: update.owners,
+    fields: update.fields,
+    forms: update.forms,
   }
 }
 

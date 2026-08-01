@@ -193,9 +193,9 @@ function createTestStoreContractFixture() {
         ? update.localValidation.diagnostics.map((diagnostic) => ({ ...diagnostic, filePath: update.projectPath }))
         : []),
     readDependencyCheckBatch: ({ requests }) => ({
-      results: requests.map(({ requestId, componentPath, projectPath }) => {
+      results: requests.map(({ requestId, componentPath, projectPath, check }) => {
         const visible = visibleYamlUpdates(current(), componentPath)
-        return visible.some((update) => update.projectPath === projectPath)
+        return visible.some((update) => update.projectPath === projectPath && hasOwner(update, check.owner))
           ? { requestId, status: "found" as const, input: dependencyInput(visible) }
           : { requestId, status: "missing" as const }
       }),
@@ -281,9 +281,9 @@ function testStoreReadSession(
     },
     readDependencyInputs(requests) {
       assertOpen()
-      return requests.map(({ requestId, componentPath, projectPath }) => {
+      return requests.map(({ requestId, componentPath, projectPath, check }) => {
         const visible = visibleYamlUpdatesForSession(componentPath)
-        if (!visible.some((update) => update.projectPath === projectPath)) {
+        if (!visible.some((update) => update.projectPath === projectPath && hasOwner(update, check.owner))) {
           return { requestId, status: "missing" as const }
         }
         return {
@@ -318,6 +318,10 @@ function dependencyInput(updates: readonly ProjectStateYamlFileUpdate[]) {
     fields: updates.flatMap((update) => update.fields),
     forms: updates.flatMap((update) => update.forms),
   }
+}
+
+function hasOwner(update: ProjectStateYamlFileUpdate, expected: { readonly kind: string; readonly name?: string }): boolean {
+  return update.owners.some(({ owner }) => owner.kind === expected.kind && owner.name === expected.name)
 }
 
 interface StoredUpdate {
