@@ -66,13 +66,13 @@ export type SqliteFirstPassExperimentStats =
 export function encodeSqliteFirstPassExperimentFile(
   input: SqliteFirstPassExperimentFileInput,
 ): SqliteFirstPassExperimentFileRecord {
-  const diagnostics = serialize(input.diagnostics)
-  const objectRecords = serialize(input.objectRecords)
-  const objectIndexEntries = serialize(input.objectIndexEntries)
-  const memberIndexEntries = serialize(input.memberIndexEntries)
-  const valueIndexEntries = serialize(input.valueIndexEntries)
-  const pendingReferences = serialize(input.pendingReferences)
-  const pendingChecks = serialize(input.pendingChecks)
+  const diagnostics = serializeStandalone(input.diagnostics)
+  const objectRecords = serializeStandalone(input.objectRecords)
+  const objectIndexEntries = serializeStandalone(input.objectIndexEntries)
+  const memberIndexEntries = serializeStandalone(input.memberIndexEntries)
+  const valueIndexEntries = serializeStandalone(input.valueIndexEntries)
+  const pendingReferences = serializeStandalone(input.pendingReferences)
+  const pendingChecks = serializeStandalone(input.pendingChecks)
   const payloads = [
     diagnostics,
     objectRecords,
@@ -106,4 +106,8 @@ export function encodeSqliteFirstPassExperimentFile(
     },
     bytes: payloads.reduce((total, payload) => total + payload.byteLength, 0),
   }
+}
+
+function serializeStandalone(value: unknown): Uint8Array {
+  return Uint8Array.from(serialize(value))
 }
