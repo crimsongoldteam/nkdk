@@ -16,7 +16,8 @@
 - Не изменять существующие XML-фикстуры и не добавлять новые `fromXML`/`toXML`/`fromYAML`/`toYAML` без отдельного запроса.
 - `metadata/projectState`, `metadata/validation`, `metadata/project` и `metadata/orchestration` не получают условий по конкретным `itemType`, именам XML-корней или папкам прикладных объектов.
 - Только `packages/core/metadata/projectState/sqlite/**` импортирует `node:sqlite`, содержит SQL и знает имена таблиц.
-- Путь проекта хранится относительно корня и ровно один раз в `project_files`; хэш хранится только в `file_hashes`; индексные строки ссылаются на `source_file_id`.
+- Путь проекта хранится относительно корня и ровно один раз в `project_files`; хэш хранится только в `file_hashes` как BLOB ровно из 8 big-endian байт; индексные строки ссылаются на `source_file_id`.
+- Долгоживущие DTO и worker/store-протоколы не хранят xxHash64 как `bigint` или строку. Пакет файлов владеет одним переносимым `Uint8Array`/`ArrayBuffer`, где хэш позиции `i` занимает `[i * 8, i * 8 + 8)`; отдельные буферы и `hashOffset` на файл запрещены.
 - Итоговые межфайловые диагностики не кэшируются: полная проверка зависимостей выполняется при каждой актуализации.
 - Техническая ошибка всегда останавливает вызывающую операцию. `ignoreValidationErrors` разрешает продолжить только при обычных error-диагностиках проекта и никогда не пропускает саму проверку.
 - После каждого слоя запускать `pnpm check:duplicates -- --base e768ba6321fc99b2623e04f1fe72a06c77f07b38`, целевые тесты, `pnpm type-check` и `pnpm test`. Для изменённых диапазонов дополнительно выполнять mutation testing по правилам `.agents/testing.md`.
@@ -158,7 +159,7 @@
 - Create: `packages/core/metadata/projectState/fileUpdate.ts`
 - Create: `packages/core/metadata/projectState/fileUpdate.test.ts`
 
-**Contract:** Worker возвращает для каждого YAML один структурно клонируемый `ProjectStateFileUpdate`: идентичность файла, хэш, локальные диагностики, нормализованные reference/owner/field/form-вклады и минимальные отложенные проверки. Полные rule-объекты, функции, разобранный YAML и общий граф в пакет не входят.
+**Contract:** Worker возвращает ограниченные структурно клонируемые `ProjectStateFileUpdateBatch`: DTO файлов, один общий буфер восьмибайтовых big-endian xxHash64, локальные диагностики, нормализованные reference/owner/field/form-вклады и минимальные отложенные проверки. Сами `ProjectStateFileUpdate` не содержат хэш или `hashOffset`; полные rule-объекты, функции, разобранный YAML и общий граф в пакет не входят.
 
 - [ ] **Step 1: Тестом описать минимальную DataPath-политику**
 
@@ -168,11 +169,11 @@
     allowedKinds: rule.allowedKinds,
     allowComposite: rule.allowComposite,
   })
-  expect(structuredClone(update)).toEqual(update)
-  expect(JSON.stringify(update)).not.toContain("fromYAML")
+  expect(structuredClone(batch)).toEqual(batch)
+  expect(() => assertProjectStateFileUpdateBatch(batch)).not.toThrow()
   ```
 
-  Добавить проверку, что восстановленная политика даёт тот же результат `validatePendingChecks`, что текущий `DataPathPropertyRule`.
+  Явная проверка DTO должна проверять разрешённые поля и типы и отклонять функции, rule-объекты, разобранный YAML, общий граф, `hash`/`hashOffset` в update, ненулевой `hashBytes.byteOffset` и длину представления или его `ArrayBuffer`, не равную `updates.length * 8`. Добавить проверку, что восстановленная политика даёт тот же результат `validatePendingChecks`, что текущий `DataPathPropertyRule`. Не использовать `JSON.stringify` как доказательство переносимости: `bigint` он не поддерживает, а функции молча отбрасывает.
 
 - [ ] **Step 2: Запустить тесты и увидеть падение нового договора**
 
@@ -192,14 +193,12 @@
     readonly yamlRole?: MetadataProjectYamlRole
   }
 
-  export interface ProjectStateResourceHashUpdate extends ProjectStateFileIdentity {
+  export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
     readonly kind: "resource"
-    readonly hash: bigint
   }
 
   export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
     readonly kind: "yaml"
-    readonly hash: bigint
     readonly localValidation: ProjectStateLocalValidationResult
     readonly references: readonly ProjectStateReferenceEntry[]
     readonly pendingReferences: readonly ProjectStatePendingReference[]
@@ -211,11 +210,16 @@
   }
 
   export type ProjectStateFileUpdate =
-    | ProjectStateResourceHashUpdate
+    | ProjectStateResourceUpdate
     | ProjectStateYamlFileUpdate
+
+  export interface ProjectStateFileUpdateBatch {
+    readonly updates: readonly ProjectStateFileUpdate[]
+    readonly hashBytes: Uint8Array
+  }
   ```
 
-  Каждая строка хранит только данные, которые нельзя вывести через связь с исходным файлом. Не добавлять `componentPath`, `projectPath` или `hash` во вложенные строки.
+  `hashBytes` владеет одним переносимым `ArrayBuffer`: `byteOffset === 0`, а `hashBytes.byteLength === hashBytes.buffer.byteLength === updates.length * 8`; для update с индексом `i` хэш занимает `[i * 8, i * 8 + 8)`. Не создавать отдельный `Uint8Array`/`ArrayBuffer` и не хранить `hashOffset` на файл. Каждая строка хранит только данные, которые нельзя вывести через связь с исходным файлом. Не добавлять `componentPath`, `projectPath` или хэш во вложенные строки.
 
 - [ ] **Step 4: Заменить полный rule минимальным входом политики**
 
@@ -233,9 +237,9 @@
 
   `ValidationPendingCheck` должен ссылаться на `DataPathPolicyInput`, а не на `DataPathPropertyRule`.
 
-- [ ] **Step 5: Формировать пакет на границе первого прохода**
+- [ ] **Step 5: Формировать общий буфер на границе первого прохода**
 
-  Добавить `toProjectStateFileUpdate(firstPassResult, identity, hash)`. Prepared worker после локальной validation создаёт пакет, возвращает его и освобождает разобранный YAML, если файл не нужен текущей второй фазе.
+  Добавить построитель ограниченной пачки, который собирает `ProjectStateFileUpdate[]`, заполняет общий `hashBytes` big-endian байтами соответствующих файлов и возвращает `ProjectStateFileUpdateBatch`. Кодирование кратковременного локального `bigint` выполняется только на исходной границе хэширования; если байты уже находятся в общем буфере сканирования, построитель копирует нужные диапазоны без обратного декодирования и повторного кодирования. Prepared worker после локальной validation добавляет update в пачку и освобождает разобранный YAML после подтверждения приёма, если файл не нужен текущей второй фазе. При transfer передавать только общий `batch.hashBytes.buffer`; пачка обязана владеть всем буфером без отдельного view на файл.
 
 - [ ] **Step 6: Проверить структурное клонирование и семантическое равенство**
 
@@ -247,7 +251,7 @@
   pnpm type-check
   ```
 
-  Expected: PASS; старые диагностики совпадают полностью.
+  Expected: PASS; старые диагностики совпадают полностью, `structuredClone(batch)` успешен, transfer общего `ArrayBuffer` работает, длины `updates.length * 8 - 1` и `updates.length * 8 + 1` отклоняются.
 
 - [ ] **Step 7: Commit**
 
@@ -280,7 +284,9 @@
   - ответы можно сопоставить по `requestId`;
   - разрешение на чтение непрозрачно;
   - после `close()` любой метод завершается контролируемой ошибкой;
-  - нейтральные договоры не импортируют `node:sqlite` и не содержат имён обязательных таблиц.
+  - нейтральные договоры не импортируют `node:sqlite` и не содержат имён обязательных таблиц;
+  - `structuredClone` сохраняет `ProjectStateFileUpdateBatch`, а явная проверка DTO отклоняет функции/rule-объекты и общий буфер неправильной длины;
+  - xxHash64 отсутствует как `bigint` или строка во всех долгоживущих DTO и протоколах.
 
   ```ts
   const result = session.resolveTargets([
@@ -315,11 +321,16 @@
 - [ ] **Step 4: Определить `ProjectStateStore`**
 
   ```ts
+  export interface ProjectStateFileHashBatch {
+    readonly files: readonly ProjectStateFileIdentity[]
+    readonly hashBytes: Uint8Array
+  }
+
   export interface ProjectStateStore {
     readCompatibility(): ProjectStateCompatibility | undefined
-    compareFiles(current: readonly ProjectStateFileHash[]): ProjectStateFileChanges
+    compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
     beginUpdate(): void
-    replaceFiles(updates: readonly ProjectStateFileUpdate[]): void
+    replaceFiles(batch: ProjectStateFileUpdateBatch): void
     deleteFiles(projectPaths: readonly string[]): void
     readLocalDiagnostics(): readonly Diagnostic[]
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch
@@ -333,11 +344,11 @@
   }
   ```
 
-  `ProjectStateReadToken` сделать номинальным `Uint8Array`; декодирование разрешено только SQLite-адаптеру.
+  `ProjectStateFileHashBatch` использует ту же позиционную схему: хэш `files[i]` лежит в `[i * 8, i * 8 + 8)`. Store требует нулевой `byteOffset` и точное равенство `hashBytes.byteLength === hashBytes.buffer.byteLength === files.length * 8`; `replaceFiles` аналогично проверяет длину по `batch.updates`. `ProjectStateFileChanges` возвращает только идентичности/позиции изменений и не дублирует хэши. `ProjectStateReadToken` сделать номинальным `Uint8Array`; декодирование разрешено только SQLite-адаптеру.
 
 - [ ] **Step 5: Создать повторно используемый набор проверок хранилища**
 
-  `runProjectStateStoreContract(factory)` должен принимать фабрику реализации и проверять наблюдаемый договор: замена файла, каскадное удаление, откат, видимость компонентов, одинаковый порядок результатов, закрытый/чужой token, отсутствие записи из read session.
+  `runProjectStateStoreContract(factory)` должен принимать фабрику реализации и проверять наблюдаемый договор: замена файла, big-endian round-trip всех восьми байт (включая значения с установленным старшим битом), отказ при коротком/длинном общем буфере, каскадное удаление, откат, видимость компонентов, одинаковый порядок результатов, закрытый/чужой token, отсутствие записи из read session.
 
 - [ ] **Step 6: Экспортировать только нейтральный внешний API**
 
@@ -397,7 +408,7 @@
   }))
   ```
 
-  Добавить SQLite-специфичные тесты: два read-only соединения, параллельная запись неиндексных таблиц, чужой token, повторное использование закрытого token. Через `PRAGMA table_info/foreign_key_list` проверить, что `project_path` есть только в `project_files`, `hash` — только в `file_hashes`, а все индексные таблицы ссылаются на `source_file_id` и не повторяют `component_id`.
+  Добавить SQLite-специфичные тесты: два read-only соединения, параллельная запись неиндексных таблиц, чужой token, повторное использование закрытого token. Проверить общий буфер с несколькими разными хэшами, точное позиционное соответствие и отказ при длине, отличной от количества файлов, умноженного на 8. Через `PRAGMA table_info/foreign_key_list` проверить, что `project_path` есть только в `project_files`, `hash` — только в `file_hashes`, а все индексные таблицы ссылаются на `source_file_id` и не повторяют `component_id`.
 
   Нормализованные reference-запросы сверить с read-only копией успешного эксперимента в исходном worktree: `/Users/nikita/.codex/worktrees/1c87/nkdk/packages/core/metadata/validation/sqliteReferenceExperimentStore.ts`. Не копировать экспериментальный модуль и не изменять исходный worktree.
 
@@ -427,18 +438,18 @@
   file_dependencies(source_file_id FK, target_file_id FK, dependency_kind, PRIMARY KEY(...))
   ```
 
-  `component_id` не повторять в дочерних таблицах. Пути и канонические ключи сравнивать с `COLLATE BINARY`. Unsigned xxHash64 кодировать ровно восемью байтами, а не SQLite `INTEGER`, чтобы значения выше `2^63 - 1` не теряли знак. JSON допускается только для небольшого типизированного payload отложенной проверки и YAML path, но не для целого графа или списка индексных строк.
+  `component_id` не повторять в дочерних таблицах. Пути и канонические ключи сравнивать с `COLLATE BINARY`. xxHash64 хранить теми же восемью big-endian байтами из пакетного буфера, а не SQLite `INTEGER`, строкой или JSON, чтобы значения с установленным старшим битом не меняли представление. JSON допускается только для небольшого типизированного payload отложенной проверки и YAML path, но не для целого графа или списка индексных строк.
 
 - [ ] **Step 4: Реализовать транзакционную замену файлов**
 
-  `replaceFiles` должен пакетно:
+  `replaceFiles(batch)` сначала проверяет нулевой `byteOffset` и равенство `batch.hashBytes.byteLength === batch.hashBytes.buffer.byteLength === batch.updates.length * 8`, и должен пакетно:
 
   1. upsert компонента и файла;
   2. удалить старые дочерние строки данного `file_id`;
-  3. для `kind: "resource"` записать только хэш, а для `kind: "yaml"` — хэш, локальный результат, diagnostics и нормализованные вклады;
+  3. для `kind: "resource"` записать только соответствующие 8 байт общего буфера, а для `kind: "yaml"` — те же байты, локальный результат, diagnostics и нормализованные вклады;
   4. сохранить порядок диагностик через `ordinal`.
 
-  Использовать подготовленные выражения и одну внешнюю транзакцию на операцию, а не транзакцию на строку.
+  Использовать подготовленные выражения и одну внешнюю транзакцию на операцию, а не транзакцию на строку. Не создавать отдельный `Uint8Array`/`ArrayBuffer` для каждого файла: SQLite-адаптер привязывает общий BLOB пачки и выделяет восьмибайтовый диапазон по позиции средствами SQL/адаптера без объектного массива хэшей.
 
 - [ ] **Step 5: Реализовать пакетные предметные запросы**
 
@@ -510,12 +521,12 @@
 
   ```ts
   await handle.beginUpdate(projectDir)
-  await Promise.all(updates.map((batch) => handle.writeBatch(batch)))
+  await Promise.all(batches.map((batch) => handle.writeBatch(batch)))
   const result = await handle.commitAndCheckpoint()
   expect(result.snapshotPath).toBe(join(projectDir, ".nkdk/cache/project-state.sqlite"))
   ```
 
-  После `AbortController.abort()` незавершённые `writeBatch` должны отклониться одной технической ошибкой отмены, а повторное открытие store — видеть только предыдущее согласованное состояние.
+  `writeBatch` принимает `ProjectStateFileUpdateBatch`, переносит его единственный `hashBytes.buffer` и до отправки worker отклоняет ненулевой `byteOffset` либо длину представления/буфера, не равную `updates.length * 8`. Проверить, что после transfer исходный буфер отсоединён, а worker видит все восьмибайтовые диапазоны без отдельных буферов. После `AbortController.abort()` незавершённые `writeBatch` должны отклониться одной технической ошибкой отмены, а повторное открытие store — видеть только предыдущее согласованное состояние.
 
 - [ ] **Step 2: Убедиться в исходном падении**
 
@@ -530,7 +541,7 @@
     readonly schemaVersion: 1
     readonly producerVersion: string
     readonly rulesFingerprint: string
-    readonly hashAlgorithm: "xxh3-64-v1"
+    readonly hashAlgorithm: "xxhash64-be-v1"
   }
   ```
 
@@ -552,7 +563,7 @@
   type ProjectStateWriterCommand =
     | { kind: "openProject"; requestId: string; projectDir: string; compatibility: ProjectStateCompatibility }
     | { kind: "beginUpdate"; requestId: string; operationId: string }
-    | { kind: "writeBatch"; requestId: string; operationId: string; updates: readonly ProjectStateFileUpdate[] }
+    | { kind: "writeBatch"; requestId: string; operationId: string; batch: ProjectStateFileUpdateBatch }
     | { kind: "deleteFiles"; requestId: string; operationId: string; projectPaths: readonly string[] }
     | { kind: "commitUpdate"; requestId: string; operationId: string }
     | { kind: "rollbackUpdate"; requestId: string; operationId: string }
@@ -561,6 +572,8 @@
     | { kind: "reset"; requestId: string; projectDir: string }
     | { kind: "close"; requestId: string }
   ```
+
+  До `postMessage` handle выполняет явную проверку DTO и точной длины общего буфера, затем передаёт `batch.hashBytes.buffer` в transfer list. Worker повторяет проверку как недоверенная граница протокола; ни одна сторона не принимает `bigint`, строковый хэш, массив буферов или `hashOffset`.
 
   Перенести ограниченную batch/ack-механику из `sqliteFirstPassExperimentProducer`, не сохраняя экспериментальные имена.
 
@@ -624,7 +637,8 @@
   - изменение одного YAML: разбирается только он;
   - изменение внешнего управляемого файла: меняется хэш, но YAML не разбирается;
   - удаление YAML удаляет старые diagnostics и вклады;
-  - изменение файла во время операции вызывает ограниченный повтор, затем техническую ошибку.
+  - изменение файла во время операции вызывает ограниченный повтор, затем техническую ошибку;
+  - локальный результат хэширования кодируется в big-endian один раз, а все границы получают общий буфер правильной длины без `bigint` в DTO.
 
 - [ ] **Step 2: Запустить тесты до реализации**
 
@@ -640,12 +654,12 @@
   export interface HashedProjectResource {
     readonly ref: MetadataProjectResourceRef
     readonly bytes: Uint8Array
-    readonly hash: bigint
+    readonly localHash: bigint
     readonly stability: { readonly dev: bigint; readonly ino: bigint; readonly size: bigint; readonly mtimeNs: bigint }
   }
   ```
 
-  Bytes неизменённых ресурсов освобождаются сразу после сравнения. Bytes изменённых YAML передаются worker как transferable buffer, чтобы worker не перечитывал файл. `mtime` участвует только в защите от параллельного изменения, но никогда не заменяет чтение и хэширование содержимого.
+  `localHash` и поля `stability` — кратковременные локальные значения одного процесса, не DTO и не часть worker/store-протокола. Сразу после хэширования `localHash` кодируется в позицию общего `ProjectStateFileHashBatch.hashBytes` в big-endian; при подготовке writer-пачки нужные восемь байт копируются между общими пакетными буферами без обратного декодирования в `bigint`. Bytes неизменённых ресурсов освобождаются сразу после сравнения. Bytes изменённых YAML передаются worker как transferable buffer, чтобы worker не перечитывал файл. `mtime` участвует только в защите от параллельного изменения, но никогда не заменяет чтение и хэширование содержимого.
 
 - [ ] **Step 4: Добавить режим обработки только выбранных YAML**
 
@@ -653,7 +667,7 @@
 
   - принимает уже прочитанные bytes и идентичность;
   - парсит и локально проверяет только входной список;
-  - отправляет `ProjectStateFileUpdate` ограниченными пачками writer handle;
+  - отправляет `ProjectStateFileUpdateBatch` ограниченными пачками writer handle;
   - не создаёт общий `ProjectValidationGraph` и не удерживает YAML после подтверждения writer.
 
 - [ ] **Step 5: Реализовать транзакцию актуализации**
@@ -663,10 +677,10 @@
   ```text
   открыть/лениво загрузить состояние
   -> прочитать и захэшировать все ресурсы
-  -> сравнить с file_hashes
+  -> один раз закодировать локальные xxHash64 в общий ProjectStateFileHashBatch и сравнить с file_hashes
   -> beginUpdate
   -> удалить исчезнувшие
-  -> записать изменённые не-YAML как ProjectStateResourceHashUpdate
+  -> записать изменённые не-YAML как ProjectStateResourceUpdate внутри ProjectStateFileUpdateBatch
   -> локально обработать и записать изменённые YAML
   -> передать открытую транзакцию и stability stamps полной проверке Task 7
   ```
@@ -704,14 +718,12 @@
 
   export interface ProjectStateComponentProjection {
     readonly componentPath: string
-    readonly projectFiles: readonly {
-      readonly projectPath: string
-      readonly contentHash: bigint
-    }[]
+    readonly projectFiles: readonly { readonly projectPath: string }[]
+    readonly hashBytes: Uint8Array
   }
   ```
 
-  Два параллельных `refreshAndValidate` одного проекта в тесте должны выполняться последовательно. `rebuild` строит отдельную память и меняет активное состояние только после успешного checkpoint.
+  В проекции хэш `projectFiles[i]` находится в `[i * 8, i * 8 + 8)`; `hashBytes` владеет всем буфером с нулевым смещением, а его длина обязана равняться `projectFiles.length * 8`. Два параллельных `refreshAndValidate` одного проекта в тесте должны выполняться последовательно. `rebuild` строит отдельную память и меняет активное состояние только после успешного checkpoint.
 
 - [ ] **Step 7: Проверить слой**
 
@@ -1018,7 +1030,7 @@
 
 - [ ] **Step 4: Проецировать component state из project state**
 
-  `readComponentProjection(componentPath)` возвращает список project paths и хэши нужного компонента из `project_files`/`file_hashes`. `componentState/indexes.ts` продолжает читать отдельный `ConfigurationSnapshot`, нужный sync, но больше не вызывает `runValidationFactPass` и не строит metadata `SharedValidationSnapshot`. Индекс validation доступен workers только через read token.
+  `readComponentProjection(componentPath)` возвращает список project paths и один общий `hashBytes` нужного компонента из `project_files`/`file_hashes`; хэш позиции `i` занимает `[i * 8, i * 8 + 8)`, представление владеет всем буфером с нулевым смещением, а длина равна числу файлов, умноженному на 8. Если sync кратковременно нуждается в числовом значении, оно декодируется локально и не попадает в DTO. `componentState/indexes.ts` продолжает читать отдельный `ConfigurationSnapshot`, нужный sync, но больше не вызывает `runValidationFactPass` и не строит metadata `SharedValidationSnapshot`. Индекс validation доступен workers только через read token.
 
 - [ ] **Step 5: Перевести sync workers на read token**
 
@@ -1099,7 +1111,8 @@
   - сгенерированные файлы пишутся сразу;
   - `serialize`, `write`, `hash`, local validation вызываются по одним bytes;
   - ни один окончательный YAML не перечитывается с диска;
-  - после подтверждения writer пакет и YAML освобождаются.
+  - после подтверждения writer пакет и YAML освобождаются;
+  - хэши нескольких файлов кодируются в один общий big-endian буфер пачки без `bigint`, строки, отдельного буфера или `hashOffset` в передаваемых DTO.
 
 - [ ] **Step 2: Добавить тест двухфазного import session**
 
@@ -1114,6 +1127,8 @@
 
   Два workers должны видеть одинаковый индекс через отдельные sessions. Параллельная запись хэшей/локальных diagnostics после фиксации индекса не меняет ответы lookup.
 
+  Для пачек окончательного состояния из обоих проходов проверить успешный `structuredClone`, transfer единственного общего `ArrayBuffer`, big-endian порядок нескольких разных хэшей и отказ при ненулевом смещении либо длине на один байт меньше/больше требуемой.
+
   Расширение `ProjectStateService` и договор session зафиксировать явно:
 
   ```ts
@@ -1125,13 +1140,13 @@
   export interface ProjectStateImportSession {
     writeFirstPassBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
     commitWorkingIndex(): Promise<ProjectStateReadToken>
-    writeFinalFileState(batch: readonly ProjectStateImportFinalFileState[]): Promise<void>
+    writeFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
     finalize(): Promise<ProjectStateRefreshResult>
     abort(cause: unknown): Promise<void>
   }
   ```
 
-  `ProjectStateImportFinalFileState` намеренно не содержит reference/owner/field/form-вкладов, поэтому второй проход не может переписать уже зафиксированный индекс.
+  `ProjectStateImportFinalFileStateBatch` имеет поля `{ updates; hashBytes }` с тем же договором: update не содержит хэш/`hashOffset`, `byteOffset` равен нулю, а длина общего представления и его буфера равна `updates.length * 8`; big-endian xxHash64 определяется позицией. `ProjectStateImportFinalFileState` намеренно не содержит reference/owner/field/form-вкладов, поэтому второй проход не может переписать уже зафиксированный индекс.
 
 - [ ] **Step 3: Запустить тесты до интеграции**
 
@@ -1145,16 +1160,17 @@
   export interface SerializedImportYaml {
     readonly file: ImportOutputFile
     readonly bytes: Uint8Array
-    readonly hash: bigint
+    readonly localHash: bigint
   }
 
   export function serializeImportYaml(file: PreparedImportYaml): SerializedImportYaml {
     const bytes = textEncoder.encode(exportToYAML(file.yaml))
-    return { file: file.output, bytes, hash: hashFileBytes(bytes) }
+    const localHash = hashFileBytes(bytes)
+    return { file: file.output, bytes, localHash }
   }
   ```
 
-  `writeOutput` принимает bytes, а не сериализует повторно. Локальная validation получает уже разобранный объект и location index, не читает записанный файл.
+  `localHash` — кратковременное локальное значение внутри import worker, а не переносимый DTO. Сборщик ограниченной пачки ровно один раз кодирует его в общий `ProjectStateImportFinalFileStateBatch.hashBytes` в big-endian до передачи writer; после этого `bigint` освобождается. `writeOutput` принимает bytes, а не сериализует повторно. Локальная validation получает уже разобранный объект и location index, не читает записанный файл.
 
 - [ ] **Step 5: Записывать первый проход в основные индексные таблицы**
 
@@ -1166,7 +1182,7 @@
 
 - [ ] **Step 7: Перевести второй проход workers на `ProjectStateReadSession`**
 
-  Каждый worker открывает собственную session из token. Уточнение deferred DataPath и прочих полей делает пакетные lookup. Результат второго прохода содержит окончательные bytes/hash/local diagnostics/pending checks, но не повторяет уже записанный индекс. После перевода удалить `LayeredImportReferenceSnapshot`, `componentReferenceIndex` и `metadataSnapshot`: их сведения уже находятся в основных таблицах project state.
+  Каждый worker открывает собственную session из token. Уточнение deferred DataPath и прочих полей делает пакетные lookup. Результат второго прохода содержит окончательные bytes, DTO local diagnostics/pending checks и общий буфер big-endian хэшей пачки, но не повторяет уже записанный индекс. После перевода удалить `LayeredImportReferenceSnapshot`, `componentReferenceIndex` и `metadataSnapshot`: их сведения уже находятся в основных таблицах project state.
 
 - [ ] **Step 8: Завершить import полной проверкой и одним checkpoint**
 
@@ -1509,5 +1525,6 @@
 - [ ] Reset и rebuild соблюдают `allowWrite` и не затрагивают configuration sync snapshot.
 - [ ] В production нет полного дубликата project-state индекса в shared buffer, BLOB, `Map` или объектном графе.
 - [ ] SQL и `node:sqlite` находятся только в `metadata/projectState/sqlite`.
+- [ ] Все долгоживущие DTO и протоколы представляют xxHash64 одним общим 8-byte-per-file big-endian буфером пачки; store и writer отклоняют неверную длину.
 - [ ] Все contract, integration, mutation, jscpd, type-check и workspace tests проходят.
 - [ ] Профиль `/Users/nikita/git/nkdk-yaml` удовлетворяет критериям спецификации.
