@@ -4,7 +4,10 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
-import { DataCompositionComparisonTypeFromYAML } from "../../../systemEnumerations/types"
+import {
+  DataCompositionComparisonTypeFromYAML,
+  DataCompositionFilterItemsGroupTypeFromYAML,
+} from "../../../systemEnumerations/types"
 import "./typedValues"
 
 export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRules>
@@ -21,7 +24,9 @@ const referenceIdentity = {
     if (!isRecord(yaml)) return undefined
     if (typeof yaml.ТипГруппы === "string") {
       const groupType =
-        yaml.ТипГруппы === "ГруппаИ" ? "AndGroup" : yaml.ТипГруппы === "ГруппаИли" ? "OrGroup" : undefined
+        DataCompositionFilterItemsGroupTypeFromYAML[
+          yaml.ТипГруппы as keyof typeof DataCompositionFilterItemsGroupTypeFromYAML
+        ]
       return groupType === undefined ? undefined : `group:${groupType}`
     }
     const left = typeof yaml.ЛевоеЗначение === "string" ? yaml.ЛевоеЗначение.replace(/^\./, "") : undefined
