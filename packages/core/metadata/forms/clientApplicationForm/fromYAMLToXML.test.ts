@@ -150,7 +150,15 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     const direct = firstTable(convert({ Список: { Тип: "ДинамическийСписок" } }, "Список").formXML)
     const ordinary = firstTable(convert({ Таблица: { Тип: "ТаблицаЗначений" } }, "Таблица").formXML)
+    const scalar = firstTable(convert({ Флаг: { Тип: "Булево" } }, "Флаг").formXML)
     const nested = firstTable(convert({ Список: { Тип: "ДинамическийСписок" } }, "Список.Filter").formXML)
+    const missing = firstTable(
+      convertClientApplicationFormFromYAMLToXML({
+        context: mockContextToXML(),
+        yaml: { Элементы: { Таблица: { Вид: "ТаблицаФормы" } } } as ClientApplicationFormYAML,
+        name: "Форма",
+      }).formXML
+    )
 
     const defaults = {
       AutoRefresh: false,
@@ -165,7 +173,9 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(direct).toMatchObject(defaults)
     for (const xmlName of Object.keys(defaults)) {
       expect(ordinary).not.toHaveProperty(xmlName)
+      expect(scalar).not.toHaveProperty(xmlName)
       expect(nested).not.toHaveProperty(xmlName)
+      expect(missing).not.toHaveProperty(xmlName)
     }
   })
 

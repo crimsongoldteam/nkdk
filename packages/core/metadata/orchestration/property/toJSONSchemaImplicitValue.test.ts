@@ -7,6 +7,11 @@ import "../../systemEnumerations/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToJSONSchema } from "./toJSONSchema"
 import { getValidationSchemaRef } from "../jsonSchemaRefs"
+import {
+  createJSONSchemaExportContext,
+  registerJSONSchemaPropertyRef,
+} from "../jsonSchemaRefs"
+import type { PropertyRuleType } from "./registry"
 
 const validationContext = {
   ...mockContext,
@@ -187,5 +192,66 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     expect(schema).toMatchObject({ description })
     if (validationPropertyRefs) expect(schema).toHaveProperty("$ref")
     else expect(schema).toHaveProperty("type", "number")
+  })
+
+  it("combines a property description with an override description", () => {
+    const schema = exportPropertyToJSONSchema({
+      context: {
+        ...validationContext,
+        exportToJSONSchema: {
+          ...validationContext.exportToJSONSchema,
+          propertySchemaOverrides: { number: { type: "integer", description: "Описание типа." } },
+        },
+      },
+      rule: { type: "number", description: "Описание свойства." },
+      value: undefined,
+    })
+
+    expect(schema).toMatchObject({
+      type: "integer",
+      description: "Описание типа.\n\nОписание свойства.",
+    })
+  })
+
+  it("adds a property description to an external property ref", () => {
+    const type = "DescriptionExternalRefProbe" as PropertyRuleType
+    registerJSONSchemaPropertyRef(type, () => ({ $ref: "nkdk://schema/DescriptionExternalRefProbe" }))
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(validationContext, "externalRefs"),
+      rule: { type, description: "Описание свойства." },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({
+      $ref: "nkdk://schema/DescriptionExternalRefProbe",
+      description: "Описание свойства.",
+    })
+  })
+
+  it("adds a property description when a type handler is absent", () => {
+    const schema = exportPropertyToJSONSchema({
+      context: validationContext,
+      rule: {
+        type: "DescriptionWithoutHandlerProbe" as PropertyRuleType,
+        description: "Описание свойства.",
+      },
+      value: { type: "string" },
+    })
+
+    expect(schema).toEqual({ type: "string", description: "Описание свойства." })
+  })
+
+  it("does not create a schema for an absent value when a type handler is absent", () => {
+    expect(
+      exportPropertyToJSONSchema({
+        context: validationContext,
+        rule: {
+          type: "DescriptionWithoutHandlerAbsentProbe" as PropertyRuleType,
+          description: "Описание свойства.",
+        },
+        value: undefined,
+      })
+    ).toBeUndefined()
   })
 })

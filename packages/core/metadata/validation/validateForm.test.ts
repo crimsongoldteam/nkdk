@@ -438,6 +438,12 @@ describe("validateForm", () => {
       "НетТакого",
       ['ПутьКДанным "НетТакого": неизвестный корень "НетТакого"'],
     ],
+    [
+      "отклоняет пустой путь",
+      ["Реквизиты:", "  Список:", "    Тип: ДинамическийСписок"],
+      '""',
+      ["АвтоОбновление допустимо только для таблицы динамического списка."],
+    ],
   ] as const)("%s", (_name, requisites, dataPath, expected) => {
     const project = createProject({
       form: [
@@ -466,9 +472,63 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([
       expect.objectContaining({
         path: "/Элементы/Таблица/АвтоОбновление",
+        source: "structure",
+        severity: "error",
         message: "АвтоОбновление допустимо только для таблицы динамического списка.",
       }),
     ])
+  })
+
+  it("отклоняет свойства динамического списка у скалярного источника", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  Флаг:",
+        "    Тип: Булево",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: Флаг",
+        "    АвтоОбновление: Истина",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(messages(first.diagnostics)).toEqual([
+      "АвтоОбновление допустимо только для таблицы динамического списка.",
+    ])
+  })
+
+  it("не применяет проверку свойств динамического списка к другим элементам", () => {
+    const project = createProject({
+      form: [
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    АвтоОбновление: Истина",
+      ],
+    })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache: createProjectYamlCache(),
+      context: mockContext,
+    })
+
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+    expect(first.diagnostics).toEqual([])
   })
 
   it("does not restrict InputField, LabelField, table fields, ColumnGroup header, or multiple-value DataPath terminals", () => {
