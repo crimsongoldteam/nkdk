@@ -10,7 +10,7 @@ import { GanttChartFieldRules } from "../../elements/ganttChartField/rules"
 import "../../elements/index"
 
 describe("таблица поля диаграммы Ганта", () => {
-  it("восстанавливает id вложенного элемента, явно заданного в YAML", () => {
+  it("восстанавливает канонические дополнения без явных YAML-ключей", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "ОбщаяФорма.GanttChartField.Элемент.ПоУмолчанию",
       targetProjectPath: "ОбщаяФорма/GanttChartField/Свойства.yaml",
@@ -44,6 +44,38 @@ describe("таблица поля диаграммы Ганта", () => {
             _id: "15",
           },
         },
+        ViewStatusAddition: {
+          _name: "ПоУмолчаниюТаблицаСостояниеПросмотра",
+          _id: "16",
+          AdditionSource: {
+            Item: "ПоУмолчаниюТаблица",
+            Type: "ViewStatusRepresentation",
+          },
+          ContextMenu: {
+            _name: "ПоУмолчаниюТаблицаСостояниеПросмотраКонтекстноеМеню",
+            _id: "17",
+          },
+          ExtendedTooltip: {
+            _name: "ПоУмолчаниюТаблицаСостояниеПросмотраРасширеннаяПодсказка",
+            _id: "18",
+          },
+        },
+        SearchControlAddition: {
+          _name: "ПоУмолчаниюТаблицаУправлениеПоиском",
+          _id: "19",
+          AdditionSource: {
+            Item: "ПоУмолчаниюТаблица",
+            Type: "SearchControl",
+          },
+          ContextMenu: {
+            _name: "ПоУмолчаниюТаблицаУправлениеПоискомКонтекстноеМеню",
+            _id: "20",
+          },
+          ExtendedTooltip: {
+            _name: "ПоУмолчаниюТаблицаУправлениеПоискомРасширеннаяПодсказка",
+            _id: "21",
+          },
+        },
       },
     }
 
@@ -57,16 +89,17 @@ describe("таблица поля диаграммы Ганта", () => {
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: GanttChartFieldRules,
-      yaml: {
-        ...importedYAML,
-        Таблица: {
-          ...importedYAML.Таблица,
-          ОтображениеСтрокиПоиска: {},
-        },
-      },
+      yaml: importedYAML,
       name: "ПоУмолчанию",
     })
 
-    expect(exported.xml.Table).toMatchObject(source.Table)
+    expect(importedYAML.Таблица).not.toHaveProperty("ОтображениеСтрокиПоиска")
+    expect(importedYAML.Таблица).not.toHaveProperty("ОтображениеСостоянияПросмотра")
+    expect(importedYAML.Таблица).not.toHaveProperty("УправлениеПоиском")
+    expect(exported.xml.Table).toMatchObject({
+      SearchStringAddition: source.Table.SearchStringAddition,
+      ViewStatusAddition: source.Table.ViewStatusAddition,
+      SearchControlAddition: source.Table.SearchControlAddition,
+    })
   })
 })
