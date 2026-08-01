@@ -123,7 +123,7 @@ function normalizePath(path, projectRoot) {
 function isCloneSide(side) {
   return side !== null &&
     typeof side === "object" &&
-    typeof side.name === "string" &&
+    typeof side.name === "string" && side.name !== "" &&
     Number.isInteger(side.start) && side.start > 0 &&
     Number.isInteger(side.end) && side.end >= side.start
 }

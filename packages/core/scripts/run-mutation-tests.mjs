@@ -38,7 +38,7 @@ export function validateMutationFiles(projectRoot, files, fileExists = existsSyn
       projectPath.startsWith("../") ||
       isAbsolute(projectPath) ||
       !projectPath.startsWith("packages/") ||
-      !projectPath.endsWith(".ts") ||
+      !/\.(?:ts|mjs)$/u.test(projectPath) ||
       projectPath.endsWith(".d.ts") ||
       /\.(?:test|spec)\.ts$/u.test(projectPath) ||
       segments.includes("__fixtures__") ||

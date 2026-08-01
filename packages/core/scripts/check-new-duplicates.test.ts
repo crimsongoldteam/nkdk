@@ -64,6 +64,11 @@ describe("check new duplicates", () => {
       [{ path: "b.ts", start: 20, end: 24 }],
       ["a.ts:10-14 <-> b.ts:20-24"],
     ],
+    ["фрагменты из разных файлов", [{ path: "c.ts", start: 10, end: 14 }], []],
+    ["соседние непересекающиеся строки", [{ path: "a.ts", start: 1, end: 9 }], []],
+    ["следующие непересекающиеся строки", [{ path: "a.ts", start: 15, end: 20 }], []],
+    ["пересечение по первой строке", [{ path: "a.ts", start: 1, end: 10 }], ["a.ts:10-14 <-> b.ts:20-24"]],
+    ["пересечение по последней строке", [{ path: "a.ts", start: 14, end: 14 }], ["a.ts:10-14 <-> b.ts:20-24"]],
   ])("%s", (_name, added, expected) => {
     expect(findNewClones(reportWithOneClone(), added)).toEqual(expected)
   })
@@ -91,6 +96,20 @@ index 1111111..2222222 100644
 similarity index 100%
 rename from packages/core/a.ts
 rename to packages/core/b.ts
+`)).toEqual([])
+  })
+
+  it("сохраняет все строки hunk с двузначным размером", () => {
+    expect(parseAddedLineRanges(`diff --git a/packages/core/a.ts b/packages/core/a.ts
++++ b/packages/core/a.ts
+@@ -0,0 +20,10 @@
+`)).toEqual([{ path: "packages/core/a.ts", start: 20, end: 29 }])
+  })
+
+  it("игнорирует hunk без добавленных строк", () => {
+    expect(parseAddedLineRanges(`diff --git a/packages/core/a.ts b/packages/core/a.ts
++++ b/packages/core/a.ts
+@@ -20,1 +20,0 @@
 `)).toEqual([])
   })
 
@@ -123,12 +142,22 @@ rename to packages/core/b.ts
 
   it("принимает обязательный базовый коммит", () => {
     expect(parseArguments(["--", "--base", "e768ba6"])).toEqual({ base: "e768ba6" })
+    expect(parseArguments(["--base", "e768ba6"])).toEqual({ base: "e768ba6" })
   })
 
   it.each([
+    [null, "Отчёт jscpd не содержит массив duplicates"],
     [{}, "Отчёт jscpd не содержит массив duplicates"],
+    ["not json", "Отчёт jscpd не содержит массив duplicates"],
+    [{ duplicates: [null] }, "Клон jscpd не содержит firstFile"],
     [{ duplicates: [{}] }, "Клон jscpd не содержит firstFile"],
+    [{ duplicates: [{ firstFile: null, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
     [{ duplicates: [{ firstFile: { name: "a.ts", start: 1, end: 2 }, secondFile: {} }] }, "Клон jscpd не содержит корректный secondFile"],
+    [{ duplicates: [{ firstFile: { name: "", start: 1, end: 2 }, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
+    [{ duplicates: [{ firstFile: { name: 1, start: 1, end: 2 }, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
+    [{ duplicates: [{ firstFile: { name: "a.ts", start: 0, end: 2 }, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
+    [{ duplicates: [{ firstFile: { name: "a.ts", start: 1.5, end: 2 }, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
+    [{ duplicates: [{ firstFile: { name: "a.ts", start: 2, end: 1 }, secondFile: { name: "b.ts", start: 1, end: 2 } }] }, "Клон jscpd не содержит firstFile"],
   ])("отклоняет повреждённый или неполный JSON: %j", (report, message) => {
     expect(() => parseJscpdReport(report)).toThrow(message)
   })

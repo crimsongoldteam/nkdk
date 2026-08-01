@@ -77,6 +77,16 @@ describe("run mutation tests", () => {
     ])
   })
 
+  it("принимает production-сценарий .mjs с диапазоном Stryker", () => {
+    expect(
+      validateMutationFiles(
+        "/project",
+        ["packages/core/scripts/check-new-duplicates.mjs:1-142"],
+        (file: string) => file === "/project/packages/core/scripts/check-new-duplicates.mjs"
+      )
+    ).toEqual(["packages/core/scripts/check-new-duplicates.mjs:1-142"])
+  })
+
   it.each([
     "packages/core/a.ts:120-170",
     "packages/core/a.ts:120:4-170:8",
