@@ -773,19 +773,9 @@ describe("implicitValueYAML contract", () => {
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
   })
 
-  it("uses configurator defaults as implicit YAML values for dynamic lists", () => {
-    const expected = {
-      autoFillAvailableFields: true,
-      itemsViewMode: "Normal",
-    } as const
-
-    const unexpected = Object.entries(expected)
-      .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(DynamicListRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
-      })
-      .map(([propertyKey]) => `DynamicListRules.${propertyKey}`)
-
-    expect(unexpected).toEqual([])
+  it("uses only real compact YAML defaults for dynamic lists", () => {
+    expect(DynamicListRules.properties.autoFillAvailableFields.implicitValueYAML).toBe(true)
+    expect(DynamicListRules.properties.itemsViewMode).not.toHaveProperty("implicitValueYAML")
   })
 
   it("uses enabled size flags as implicit YAML values for chart-like form fields", () => {

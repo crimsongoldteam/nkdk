@@ -82,6 +82,7 @@ export const DynamicListRules = {
     dynamicDataRead: booleanRule({
       yaml: "ДинамическоеСчитываниеДанных",
       implicitValueYAML: true,
+      defaultValueXML: true,
     }),
     fields: dataSetFieldFieldsRule({
       xml: "Field",
@@ -132,7 +133,6 @@ export const DynamicListRules = {
       xml: "dcsset:itemsViewMode",
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
-      implicitValueYAML: "Normal",
     }),
     settingsComposer: stringRule({
       yaml: "КомпоновщикНастроек",
