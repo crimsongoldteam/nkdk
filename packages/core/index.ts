@@ -3,6 +3,13 @@ import { registerCoreMetadata } from "./metadata/register"
 registerCoreMetadata()
 
 export { registerCoreMetadata } from "./metadata/register"
+export {
+  ProjectStateReadSessionClosedError,
+  type ProjectStateReadSession,
+  type ProjectStateReadSessionFactory,
+  type ProjectStateReadToken,
+  type ProjectStateStore,
+} from "./metadata/projectState"
 export * from "./metadata/configurationIndex"
 export { componentPath, type ComponentAddress } from "./metadata/components/address"
 export { NKDK_CORE_VERSION } from "./version"

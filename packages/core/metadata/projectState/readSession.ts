@@ -1,0 +1,84 @@
+import type { OwnerTypeRef } from "../validation/dataPath/types"
+import type {
+  ProjectStateFieldEntry,
+  ProjectStateFormEntry,
+  ProjectStateOwnerFacts,
+  ProjectStatePendingDependencyCheck,
+  ProjectStateReferenceEntry,
+} from "./fileUpdate"
+import type { ProjectStateReadToken } from "./contracts"
+
+export interface ProjectTargetLookup {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly canonicalTarget: string
+}
+
+export type ProjectTargetLookupResult =
+  | { readonly requestId: string; readonly status: "found"; readonly target: ProjectStateReferenceEntry }
+  | { readonly requestId: string; readonly status: "missing" }
+
+export interface ProjectOwnerLookup {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly owner: OwnerTypeRef
+}
+
+export type ProjectOwnerLookupResult =
+  | { readonly requestId: string; readonly status: "found"; readonly facts: ProjectStateOwnerFacts }
+  | { readonly requestId: string; readonly status: "missing" }
+
+export interface ProjectReferenceLookup {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly canonical: string
+}
+
+export interface ProjectReferenceLocation {
+  readonly projectPath: string
+  readonly componentPath: string
+}
+
+export interface ProjectReferenceLookupResult {
+  readonly requestId: string
+  readonly references: readonly ProjectReferenceLocation[]
+}
+
+export interface ProjectDependencyInputQuery {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly check: ProjectStatePendingDependencyCheck
+}
+
+export interface ProjectDependencyInput {
+  readonly owners: readonly { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts }[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+}
+
+export type ProjectDependencyInputResult =
+  | { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput }
+  | { readonly requestId: string; readonly status: "missing" }
+
+export interface ProjectStateQueryPort {
+  resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
+  readOwners(requests: readonly ProjectOwnerLookup[]): readonly ProjectOwnerLookupResult[]
+  findReferences(requests: readonly ProjectReferenceLookup[]): readonly ProjectReferenceLookupResult[]
+  readDependencyInputs(requests: readonly ProjectDependencyInputQuery[]): readonly ProjectDependencyInputResult[]
+}
+
+export interface ProjectStateReadSession extends ProjectStateQueryPort {
+  close(): void
+}
+
+export interface ProjectStateReadSessionFactory {
+  openReadSession(token: ProjectStateReadToken): ProjectStateReadSession
+}
+
+export class ProjectStateReadSessionClosedError extends Error {
+  constructor(_token: ProjectStateReadToken) {
+    super("Сеанс чтения состояния проекта уже закрыт")
+    this.name = "ProjectStateReadSessionClosedError"
+  }
+}
