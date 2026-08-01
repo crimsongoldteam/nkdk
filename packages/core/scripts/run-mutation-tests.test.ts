@@ -71,6 +71,13 @@ describe("run mutation tests", () => {
     expect(() => validateMutationFiles("/project", [file], () => true)).toThrow()
   })
 
+  it.each(["packages/core/a.test.mjs", "packages/core/a.spec.mjs"])(
+    "отклоняет тестовый mjs-файл как mutation-цель %s",
+    (file) => {
+      expect(() => validateMutationFiles("/project", [file], () => true)).toThrow()
+    }
+  )
+
   it("нормализует допустимые production-файлы", () => {
     expect(validateMutationFiles("/project", ["packages/core/a.ts"], () => true)).toEqual([
       "packages/core/a.ts",

@@ -40,7 +40,7 @@ export function validateMutationFiles(projectRoot, files, fileExists = existsSyn
       !projectPath.startsWith("packages/") ||
       !/\.(?:ts|mjs)$/u.test(projectPath) ||
       projectPath.endsWith(".d.ts") ||
-      /\.(?:test|spec)\.ts$/u.test(projectPath) ||
+      /\.(?:test|spec)\.(?:ts|mjs)$/u.test(projectPath) ||
       segments.includes("__fixtures__") ||
       segments.includes("generated") ||
       !fileExists(absolute)
