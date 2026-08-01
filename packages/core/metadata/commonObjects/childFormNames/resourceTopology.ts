@@ -6,6 +6,7 @@ import { describeFormExternalResourceDeclarations } from "../../forms/clientAppl
 import fs from "fs"
 import { dirname, join } from "path"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 
 registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
   const childFormPropertyRule = propertyRule as
@@ -116,6 +117,48 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
   ]
   return declarations
 })
+
+registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildFormNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Forms",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ rule: ownerRule, yaml, propertyValue }) => [
+      ...normalizeFormNames(propertyValue),
+      ...collectMetadataTargetFormNames({ rule: ownerRule, yaml }),
+    ],
+  }
+})
+
+function normalizeFormNames(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === "string" && item.length > 0)
+}
+
+function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; yaml: Record<string, unknown> }): string[] {
+  const result = new Set<string>()
+  for (const propertyRule of Object.values(params.rule.properties)) {
+    if (propertyRule.type === "ChildFormNames") continue
+
+    const target =
+      propertyRule.metadataTarget ??
+      (propertyRule.referenceScope?.target === "this" && propertyRule.referenceScope.kind === "Form"
+        ? { kind: "member" as const, memberKinds: ["Form" as const] }
+        : undefined)
+    if (target === undefined) continue
+
+    const value = typeof propertyRule.yaml === "string" ? params.yaml[propertyRule.yaml] : undefined
+    if (typeof value !== "string") continue
+
+    const parts = value.split(".")
+    const formIndex = parts.lastIndexOf("Form")
+    if (formIndex >= 0 && parts[formIndex + 1]) result.add(parts[formIndex + 1])
+  }
+  return [...result]
+}
 
 registerMetadataXmlPrepareCapability({
   id: "ClientApplicationFormHelp",

@@ -42,3 +42,16 @@ registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) =>
   ]
   return declarations
 })
+
+registerTypeRule("ChildTemplateNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildTemplateNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Templates",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ propertyValue }) =>
+      Array.isArray(propertyValue) ? propertyValue.filter((item): item is string => typeof item === "string") : [],
+  }
+})
