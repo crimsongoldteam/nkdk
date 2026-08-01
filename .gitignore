@@ -43,5 +43,8 @@ data/dump.rdb
 # Локальные отчёты mutation testing
 reports/stryker/
 
+# Локальные отчёты проверки дублей
+reports/jscpd/
+
 # Локальные отчёты длительности тестов
 reports/test-profile/

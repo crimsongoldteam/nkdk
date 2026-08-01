@@ -1,0 +1,23 @@
+{
+  "path": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.js",
+    "packages/**/*.mjs"
+  ],
+  "format": ["typescript", "tsx", "javascript"],
+  "absolute": true,
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/reports/**",
+    "**/generated/**",
+    "**/*.generated.*",
+    "**/*.gen.*",
+    "**/__fixtures__/**"
+  ],
+  "reporters": ["json"],
+  "output": "reports/jscpd"
+}
