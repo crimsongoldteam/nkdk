@@ -46,11 +46,18 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
 
     it("сохраняет замену, откатывает удаление и каскадно удаляет все вклады файла", () => {
       const { store, openReadSession } = factory()
-      const update = richYamlUpdate("cfe/Цены/Товары.yaml", "cfe/Цены", "Catalog.Цены")
-      const replacement = richYamlUpdate(update.projectPath, update.componentPath, "Catalog.ИзменённыеЦены")
+      const update = richYamlUpdate("cfe/Цены/Товары.yaml", "cfe/Цены", "Catalog.Цены", "Исходная локальная ошибка")
+      const replacement = richYamlUpdate(
+        update.projectPath,
+        update.componentPath,
+        "Catalog.ИзменённыеЦены",
+        "Новая локальная ошибка"
+      )
       const hashBytes = new Uint8Array(8)
       const presentContribution = { owner: "found", reference: 1, dependency: "found", fields: 1, forms: 1 }
       const missingContribution = { owner: "missing", reference: 0, dependency: "missing", fields: 0, forms: 0 }
+
+      expect(diagnostic(replacement)).not.toEqual(diagnostic(update))
 
       store.beginUpdate()
       store.replaceFiles({ updates: [update], hashBytes })
@@ -193,14 +200,19 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
   }
 }
 
-function richYamlUpdate(projectPath: string, componentPath: string, canonical: string): ProjectStateYamlFileUpdate {
+function richYamlUpdate(
+  projectPath: string,
+  componentPath: string,
+  canonical: string,
+  diagnosticMessage: string
+): ProjectStateYamlFileUpdate {
   const update = yamlUpdate(projectPath, componentPath, canonical)
   const typeInfo = { kinds: ["scalar"] as const, nextTypes: [] }
   return {
     ...update,
     localValidation: {
       contributedFacts: true,
-      diagnostics: [{ line: 1, col: 1, severity: "error", source: "cross-file", message: "Локальная ошибка" }],
+      diagnostics: [{ line: 1, col: 1, severity: "error", source: "cross-file", message: diagnosticMessage }],
       schemaDiagnostics: [],
     },
     fields: [{ owner: owner(canonical), name: "Код", kind: "attribute", typeInfo }],
