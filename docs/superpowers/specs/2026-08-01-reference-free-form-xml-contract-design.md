@@ -180,6 +180,223 @@ XML-тегов становятся явными значениями `Ложь`
 неканонического XML-псевдонима переключателя остаётся отдельной обязанностью
 существующего configuration index.
 
+### `PredefinedItem.Code` и `PredefinedItem.Description`
+
+У каждого предопределённого элемента XML-поля `Code` и `Description`
+структурно обязательны. В модели XDTO они объявлены в `PredefinedItemBase`
+без `lowerBound="0"`. Это относится ко всем наследникам: элементам
+справочников, планов видов характеристик, планов счетов и планов видов расчёта.
+
+Полные XML исследованных конфигураций подтверждают схему: у каждого
+предопределённого элемента присутствуют оба тега — либо с текстом, либо как
+пустые элементы. Отсутствующих тегов в исходных XML не найдено. В round-trip
+`doc` потеряно 975 пустых `<Code/>` и 208 пустых `<Description/>`.
+
+Пустая строка не несёт полезной информации в YAML, поэтому оба значения
+остаются компактными:
+
+| Исходное представление | Результат |
+|---|---|
+| XML `<Code/>` / `<Description/>` | YAML-ключ отсутствует |
+| XML с непустым текстом | явное значение YAML |
+| YAML-ключ отсутствует | обязательный пустой XML-тег |
+| явное значение YAML | XML-тег с этим значением |
+
+Для обоих правил используется существующий декларативный механизм
+`defaultValueXMLRaw: ""`. Специальное знание о предопределённых элементах в
+общие metadata-слои не добавляется. `PredefinedCode` продолжает отдельно
+обрабатывать числовой код с `xsi:type`; пустой код преобразуется в отсутствие
+YAML-значения и восстанавливается правилом как пустой XML-тег.
+
+### Контейнер `Characteristics`
+
+`Characteristics` является обязательным XML-контейнером у всех типов, в
+которых он объявлен моделью XDTO. Свойство не имеет `lowerBound="0"` у
+справочника, документа, перечисления, плана обмена, бизнес-процесса, задачи,
+планов счетов, видов расчёта и видов характеристик, а также таблицы и куба
+внешнего источника данных.
+
+В round-trip `doc` потеряно 748 пустых `<Characteristics/>`:
+
+- перечисления — 469;
+- справочники — 249;
+- документы — 27;
+- планы видов характеристик — 3.
+
+Непустой контейнер представлен в YAML массивом `Характеристики`. Пустой массив
+полезной информации не несёт и в YAML не записывается:
+
+| Исходное представление | Результат |
+|---|---|
+| XML `<Characteristics/>` | YAML-ключ отсутствует |
+| XML с характеристиками | явный массив YAML |
+| YAML-ключ отсутствует | обязательный `<Characteristics/>` |
+| непустой массив YAML | XML-контейнер с характеристиками |
+
+Текущий `defaultValueXMLRaw: {}` при `xmlParents` создаёт только родительский
+путь и не создаёт сам элемент `Characteristics`. Ранее пустой контейнер
+восстанавливался из configuration index, поэтому узкие тесты со снимком
+импорта проходили, но преобразование без reference и без снимка теряет его.
+
+Договор выражается существующим параметром правил:
+`defaultValueXMLRaw: ""`. Такое правило уже используется для
+`MetadataExchangePlan`; оно должно быть одинаковым у всех владельцев
+`Characteristics`. Изменять общий metadata-слой или добавлять новый параметр
+правила не требуется.
+
+### `StyleItem.Type`
+
+`StyleItem.Type` является обязательным XML-полем: в модели XDTO оно объявлено
+без `lowerBound="0"` и без default. Допустимы три значения: `Font`, `Color` и
+`Border`. Во всех исследованных конфигурациях каждый элемент стиля содержит
+явный `<Type>`; отсутствующих значений не найдено.
+
+В `doc` все 357 элементов стиля имеют XML-тип: 90 `Font` и 267 `Color`.
+Round-trip теряет только 90 `<Type>Font</Type>`, потому что правило исключает
+`Font` из YAML как default, но не задаёт обязательное значение для XML.
+
+В YAML внешний `Тип: Шрифт` остаётся неявным: это default Конфигуратора, а
+тип дополнительно однозначно выражен дискриминатором `Значение.Вид: Шрифт`.
+`Цвет` и `Рамка` продолжают записываться явно:
+
+| Исходное представление | Результат |
+|---|---|
+| XML `Font` | YAML-ключ отсутствует |
+| XML `Color` / `Border` | явный YAML `Цвет` / `Рамка` |
+| YAML-ключ отсутствует | обязательный XML `Font` |
+| явный YAML `Цвет` / `Рамка` | XML `Color` / `Border` |
+
+Правило сочетает существующие `implicitValueYAML: "Font"` и
+`defaultValueXML: "Font"`. Это не меняет договор `Button.Type`, где YAML-поле
+обязательно и не имеет значения по умолчанию: одинаковое XML-имя относится к
+разным объектам и разным системным перечислениям.
+
+### Дополнения таблицы `GanttChartField`
+
+Вложенная `Table` поля диаграммы Ганта в XML Конфигуратора содержит три
+структурных одиночных дополнения:
+
+- `SearchStringAddition`;
+- `ViewStatusAddition`;
+- `SearchControlAddition`.
+
+Проверены все 18 таблиц диаграмм Ганта в конфигурациях `all`, `erp` и `doc`.
+Каждая содержит полную тройку. Это верно и для трёх таблиц, у которых
+`SearchStringLocation`, `ViewStatusLocation` и `SearchControlLocation` равны
+`None`, поэтому наличие дополнений не выводится из значений свойств положения.
+В остальных 15 таблицах свойства положения отсутствуют, а дополнения всё равно
+присутствуют.
+
+Схема XDTO формально допускает отсутствие этих элементов у `Table`, но полный
+XML Конфигуратора показывает более узкий структурный default именно для
+вложенной таблицы `GanttChartField`. В YAML пустые автоматически именуемые
+дополнения не записываются; пользовательские свойства дополнения записываются
+в соответствующем YAML-объекте.
+
+| Исходное представление | Результат |
+|---|---|
+| каноническое пустое XML-дополнение | YAML-ключ отсутствует |
+| XML-дополнение с пользовательскими свойствами | явный YAML-объект |
+| YAML-ключ отсутствует у таблицы диаграммы Ганта | каноническое XML-дополнение |
+| явный YAML-объект | XML-дополнение с заданными свойствами |
+
+Текущий `GanttChartFieldTable` содержит защитный `transformOutput`, который
+удаляет автоматически построенные дополнения, когда они отсутствуют в YAML и
+reference XML. После отказа от reference это условие удаляет всю тройку. В
+round-trip `doc` поэтому одновременно потеряны три дополнения формы
+`Catalogs/ПроектныеЗадачи/Forms/ФормаПланаПроекта`.
+
+Специальный фильтр должен быть удалён. Существующий переходник
+`createSingletonElementYAMLToXMLNestedRule` и `TableRules` уже строят
+канонические имена, `AdditionSource`, `ContextMenu`, `ExtendedTooltip` и
+идентификаторы одиночных элементов. Отдельные правила fromXML/toXML и знания о
+диаграмме Ганта в общем metadata-слое не требуются.
+
+### Порядок полей `CommandInterface.Item`
+
+Статистика собрана по исходному состоянию всех конфигураций каталога
+`/Users/nikita/git/round-trip-compact/cf` после `git reset --hard HEAD`.
+Обработано 4 697 форм с `CommandInterface`, 23 014 элементов, ошибок разбора
+XML нет.
+
+| Конфигурация | Форм с интерфейсом | `NavigationPanel.Item` | `CommandBar.Item` | Всего элементов |
+|---|---:|---:|---:|---:|
+| `acc` | 916 | 2 221 | 1 746 | 3 967 |
+| `all` | 1 | 4 | 2 | 6 |
+| `doc` | 213 | 416 | 702 | 1 118 |
+| `erp` | 1 911 | 2 408 | 6 824 | 9 232 |
+| `small` | 802 | 1 180 | 2 451 | 3 631 |
+| `trade` | 854 | 835 | 4 225 | 5 060 |
+| **Всего** | **4 697** | **7 064** | **15 950** | **23 014** |
+
+Частота присутствия каждого поля:
+
+| Поле | Элементов |
+|---|---:|
+| `Command` | 23 014 |
+| `Type` | 23 014 |
+| `Attribute` | 119 |
+| `CommandGroup` | 5 617 |
+| `Index` | 4 809 |
+| `DefaultVisible` | 20 793 |
+| `Visible` | 19 786 |
+
+В XML найдено 18 полных последовательностей. Все они являются подпоследовательностями
+одного порядка:
+
+`Command → Type → Attribute → CommandGroup → Index → DefaultVisible → Visible`.
+
+| Количество | Последовательность XML-полей |
+|---:|---|
+| 16 159 | `Command → Type → DefaultVisible → Visible` |
+| 1 905 | `Command → Type → CommandGroup → Index → DefaultVisible → Visible` |
+| 1 513 | `Command → Type → CommandGroup → Index` |
+| 1 202 | `Command → Type → CommandGroup → DefaultVisible → Visible` |
+| 471 | `Command → Type → Index → DefaultVisible → Visible` |
+| 439 | `Command → Type → CommandGroup → Index → DefaultVisible` |
+| 368 | `Command → Type → Index` |
+| 264 | `Command → Type → CommandGroup` |
+| 228 | `Command → Type → DefaultVisible` |
+| 201 | `Command → Type → CommandGroup → DefaultVisible` |
+| 76 | `Command → Type` |
+| 69 | `Command → Type → Index → DefaultVisible` |
+| 34 | `Command → Type → Attribute → CommandGroup → DefaultVisible` |
+| 30 | `Command → Type → Attribute → CommandGroup → Index → DefaultVisible` |
+| 20 | `Command → Type → Attribute → DefaultVisible → Visible` |
+| 15 | `Command → Type → Attribute → CommandGroup → DefaultVisible → Visible` |
+| 14 | `Command → Type → Attribute → CommandGroup → Index → DefaultVisible → Visible` |
+| 6 | `Command → Type → Attribute → DefaultVisible` |
+
+Проверка спорных пар также не обнаружила вариантов порядка:
+
+- `CommandGroup` и `Index` одновременно присутствуют у 3 901 элемента; во
+  всех случаях `CommandGroup` расположен раньше `Index`;
+- `CommandGroup` и `DefaultVisible` одновременно присутствуют у 3 840
+  элементов; во всех случаях `CommandGroup` расположен раньше
+  `DefaultVisible`;
+- `Index` и `DefaultVisible` одновременно присутствуют у 2 928 элементов; во
+  всех случаях `Index` расположен раньше `DefaultVisible`;
+- `DefaultVisible` и `Visible` одновременно присутствуют у 19 786 элементов;
+  во всех случаях `DefaultVisible` расположен раньше `Visible`;
+- `Attribute` всегда расположен после `Type` и до всех встречающихся
+  `CommandGroup`, `Index`, `DefaultVisible` и `Visible`.
+
+Распределение элементов, одновременно содержащих `CommandGroup` и `Index`,
+также подтверждает единый порядок во всех конфигурациях: `acc` — 719, `doc` —
+229, `erp` — 679, `small` — 1 933, `trade` — 341; в `all` таких элементов нет.
+
+Текущий импорт создаёт ключи модели в порядке
+`Command, Type, Attribute, DefaultVisible, Index, CommandGroup, Visible`, а
+экспорт в первую очередь следует порядку этих ключей. Поэтому round-trip
+перемещает `CommandGroup` и `Index` после `DefaultVisible`: в `doc` это даёт
+333 перестановки `CommandGroup` и 226 перестановок `Index`.
+
+Reference для выбора порядка не нужен. Импорт и fallback экспорта должны
+использовать подтверждённый единый порядок
+`Command, Type, Attribute, CommandGroup, Index, DefaultVisible, Visible`.
+Отсутствующие поля просто пропускаются; порядок оставшихся полей остаётся
+каноническим.
+
 ## Источники документации платформы
 
 XML/XDTO-default и состав перечислений сверены с ревизией
@@ -194,6 +411,10 @@ XML/XDTO-default и состав перечислений сверены с ре
 - [`Button.Type` без default](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtomngbase_root.res#L58-L60);
 - [`UseForFoldersAndItems` без default](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtomngbase_root.res#L344);
 - [значения `ManagedFormButtonType` и `RadioButtonType`](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/logform.xsdmngcore_root.res#L492-L522).
+- [обязательные `Code` и `Description` в `PredefinedItemBase`](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtobackend_root.res#L872-L878).
+- [обязательный `Characteristics` в свойствах прикладных объектов](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtobackend_root.res#L1118-L1126).
+- [обязательный `StyleItem.Type`](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtobackend_root.res#L2797-L2809).
+- [элементы дополнений `Table` в модели XDTO](https://github.com/nikitazherebtsov/1c_res/blob/79cde5b70a15bb54c674ed56e76aa4471772d035/model.xdtomngbase_root.res#L780-L790).
 
 ## Проверка результата
 
