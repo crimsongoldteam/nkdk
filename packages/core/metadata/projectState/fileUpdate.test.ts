@@ -173,6 +173,123 @@ describe("ProjectStateFileUpdateBatch", () => {
     expect(() => assertProjectStateFileUpdateBatch(batch)).toThrow()
   })
 
+  it("rejects every binary value nested inside an update", () => {
+    const targetWithBuffer = {
+      kind: "object",
+      root: "Catalog",
+      objectName: "Товары",
+      bytes: new ArrayBuffer(1),
+    }
+    const constraintWithTypedArray = {
+      kind: "object",
+      words: new Uint16Array(1),
+    }
+    const factsWithDataView = {
+      owners: ["Catalog.Товары"],
+      bytes: new DataView(new ArrayBuffer(1)),
+    }
+    const updates = [
+      {
+        ...yamlUpdate("a.yaml"),
+        pendingReferences: [{
+          yamlPath: [],
+          canonical: "Catalog.Товары",
+          target: targetWithBuffer,
+          constraint: { kind: "object" },
+        }],
+      },
+      {
+        ...yamlUpdate("a.yaml"),
+        pendingReferences: [{
+          yamlPath: [],
+          canonical: "Catalog.Товары",
+          target: { kind: "object", root: "Catalog", objectName: "Товары" },
+          constraint: constraintWithTypedArray,
+        }],
+      },
+      {
+        ...yamlUpdate("a.yaml"),
+        owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: factsWithDataView }],
+      },
+    ]
+
+    for (const update of updates) {
+      expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
+    }
+  })
+
+  it("rejects unknown and mistyped fields in nested reference and owner DTOs", () => {
+    const pendingReference = {
+      yamlPath: [],
+      canonical: "Catalog.Товары",
+      target: { kind: "object", root: "Catalog", objectName: "Товары" },
+      constraint: { kind: "object" },
+    }
+    const updates = [
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, target: { ...pendingReference.target, extra: true } }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, target: { ...pendingReference.target, root: 1 } }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", extra: true } }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", allowNested: "yes" } }] },
+      {
+        ...yamlUpdate("a.yaml"),
+        owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: { owners: ["Catalog.Товары"], extra: true } }],
+      },
+      {
+        ...yamlUpdate("a.yaml"),
+        owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: { owners: [1] } }],
+      },
+    ]
+
+    for (const update of updates) {
+      expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
+    }
+  })
+
+  it("rejects unknown and mistyped fields in data-path and pending-check DTOs", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const typeInfo = { kinds: ["scalar"], nextTypes: [] }
+    const field = { owner, name: "Код", kind: "attribute", typeInfo }
+    const pendingCheck = {
+      kind: "dataPath",
+      location: { line: 1, col: 1 },
+      owner,
+      value: "Объект.Код",
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
+    }
+    const updates = [
+      { ...yamlUpdate("a.yaml"), fields: [{ ...field, typeInfo: { ...typeInfo, extra: true } }] },
+      { ...yamlUpdate("a.yaml"), fields: [{ ...field, typeInfo: { ...typeInfo, isComposite: "yes" } }] },
+      { ...yamlUpdate("a.yaml"), fields: [{ ...field, table: { kind: "ValueTable", extra: true } }] },
+      {
+        ...yamlUpdate("a.yaml"),
+        forms: [{
+          kind: "root",
+          owner,
+          name: "Объект",
+          source: { kind: "formAttribute", name: "Объект", typeInfo, tableHasColumns: "yes" },
+        }],
+      },
+      {
+        ...yamlUpdate("a.yaml"),
+        forms: [{
+          kind: "additionalColumn",
+          owner,
+          tablePath: "Объект.Товары",
+          name: "Количество",
+          source: { name: "Количество", typeInfo, extra: true },
+        }],
+      },
+      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, elementType: "unknown" }] },
+      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, hasValuesPicture: "yes" }] },
+      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, tableContext: { dataPath: 1 } }] },
+    ]
+
+    for (const update of updates) {
+      expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
+    }
+  })
+
   it.each([
     ["unknown YAML role", { yamlRole: "unknown" }],
     ["unknown reference kind", { references: [{ kind: "unknown", canonical: "Catalog.Товары" }] }],

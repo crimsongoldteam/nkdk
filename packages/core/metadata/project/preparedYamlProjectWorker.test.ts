@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
+import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createProjectValidationGraph } from "../validation/projectValidationGraph"
@@ -10,7 +11,10 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
+import preparedYamlProjectWorkerEntryPoint, {
+  collectValidationFacts,
+  runPreparedYamlProjectWorkerTask,
+} from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
 
@@ -328,6 +332,52 @@ describe("validation first-pass worker boundary", () => {
     expect(() => assertProjectStateFileUpdateBatch(batch)).not.toThrow()
     expect(structuredClone(batch)).toEqual(batch)
   }, 120_000)
+
+  it("declares only shared hash buffers at the Piscina worker boundary", async () => {
+    const projectDir = createTempDir()
+    const file = componentProperties(projectDir, "cf", "Товары")
+    mkdirSync(dirname(file.filePath), { recursive: true })
+    writeFileSync(file.filePath, "{}\n")
+
+    const boundaryResult = await preparedYamlProjectWorkerEntryPoint({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [file],
+    })
+    const movable = boundaryResult as unknown as {
+      readonly [transferableSymbol]: readonly ArrayBuffer[]
+      readonly [valueSymbol]: typeof boundaryResult
+    }
+
+    expect(movable[transferableSymbol]).toBeDefined()
+    const result = movable[valueSymbol]
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    expect(movable[transferableSymbol]).toEqual(
+      result.fileUpdateBatches.map(({ hashBytes }) => hashBytes.buffer)
+    )
+  }, 120_000)
+
+  it("leaves non-first-pass worker results outside the Piscina transfer wrapper", async () => {
+    const result = await preparedYamlProjectWorkerEntryPoint({
+      kind: "prepare",
+      workerIndex: 0,
+      projectDir: createTempDir(),
+      itemTypeByYamlDir: {},
+      files: [],
+      includeYamlData: false,
+    })
+
+    expect(result).toEqual({
+      kind: "prepareResult",
+      yamlFiles: [],
+      declarations: [],
+      dependencies: [],
+      diagnostics: [],
+    })
+    expect((result as unknown as { [transferableSymbol]?: unknown })[transferableSymbol]).toBeUndefined()
+  })
 
   it("returns a failed file result when a descriptor cannot be classified", async () => {
     const projectDir = createTempDir()

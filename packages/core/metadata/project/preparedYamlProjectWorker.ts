@@ -1,5 +1,6 @@
 import { join, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
+import { move, transferableSymbol, valueSymbol } from "piscina"
 import { hashFileBytes } from "../configurationIndex/hash"
 import {
   createProjectStateFileUpdateBatch,
@@ -122,7 +123,7 @@ interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
 }
 
-export default async function runPreparedYamlProjectWorkerTask(
+export async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
@@ -177,6 +178,33 @@ export default async function runPreparedYamlProjectWorkerTask(
   })
   profiler.flush()
   return response
+}
+
+export default async function preparedYamlProjectWorkerEntryPoint(
+  message: PreparedYamlProjectWorkerTask
+): Promise<PreparedYamlProjectWorkerTaskResult> {
+  const result = await runPreparedYamlProjectWorkerTask(message)
+  return result.kind === "validateFirstPassResult" ? movableValidationFirstPassResult(result) : result
+}
+
+type ValidationFirstPassWorkerResult = Extract<
+  PreparedYamlProjectWorkerTaskResult,
+  { kind: "validateFirstPassResult" }
+>
+
+export function createValidationFirstPassTransferable(result: ValidationFirstPassWorkerResult) {
+  return {
+    get [transferableSymbol]() {
+      return result.fileUpdateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer)
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
+}
+
+function movableValidationFirstPassResult(result: ValidationFirstPassWorkerResult): ValidationFirstPassWorkerResult {
+  return move(createValidationFirstPassTransferable(result)) as unknown as ValidationFirstPassWorkerResult
 }
 
 interface CollectValidationFactsDependencies {
