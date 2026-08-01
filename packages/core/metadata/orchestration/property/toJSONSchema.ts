@@ -19,7 +19,8 @@ function notSchema(schema: TSchema): TSchema {
 
 function withPropertyDescription(schema: TSchema, description: string | undefined): TSchema {
   if (description === undefined) return schema
-  const current = typeof schema.description === "string" ? schema.description : undefined
+  const rawDescription = (schema as { description?: unknown }).description
+  const current = typeof rawDescription === "string" ? rawDescription : undefined
   return {
     ...schema,
     description: current === undefined ? description : `${current}\n\n${description}`,
