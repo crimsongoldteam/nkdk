@@ -140,7 +140,6 @@ import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
-import "./childFormNames/syncExternalToXML"
 import "./childFormNames/syncExternalFromXML"
 import "./childFormNames/resourceTopology"
 
@@ -149,7 +148,6 @@ import "./childFileItemNames/toXML"
 
 import "./childTemplateNames/fromXML"
 import "./childTemplateNames/toXML"
-import "./childTemplateNames/syncExternalToXML"
 import "./childTemplateNames/syncExternalFromXML"
 import "./childTemplateNames/resourceTopology"
 import "./childSubsystemNames/fromXML"
@@ -159,11 +157,8 @@ import "./childSubsystemNames/toJSONSchema"
 import "./childSubsystemNames/toYAML"
 
 import "./externalPicture/fromXML"
-import "./externalPicture/toXML"
 import "./externalFile/fromXML"
-import "./externalFile/toXML"
 import "./wsDefinitionSchemas/fromXML"
-import "./wsDefinitionSchemas/toXML"
 
 import "./metadataAttribute/register"
 import "./metadataTaskAddressingAttribute/register"
@@ -326,7 +321,6 @@ import "./help/fromXML"
 import "./help/toXML"
 
 import "./module/fromXML"
-import "./module/toXML"
 
 let commonObjectsRegistered = false
 
