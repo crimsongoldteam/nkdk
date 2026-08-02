@@ -52,6 +52,19 @@
    ```bash
    pnpm type-check
    pnpm test
+   pnpm test:architecture
+   ```
+
+   `pnpm test:architecture` обязателен после изменения импортов, структуры
+   каталогов, `package.json`, архитектурных правил или baseline. Команда
+   остаётся отдельной от `pnpm test` и предназначена для pre-push/CI: при
+   изменённых исходниках она отключает кэш, чтобы не пропустить новый файл.
+
+   После изменения `.dependency-cruiser.mjs` или файлов
+   `tools/dependency-cruiser` дополнительно запусти самопроверку правил:
+
+   ```bash
+   pnpm test:architecture:rules
    ```
 
 ## Реорганизация тестов
