@@ -17,7 +17,7 @@
     "dev": "tsx src/server.ts",
     "prepack": "pnpm run build",
     "smoke:packed": "node scripts/smoke-packed.mjs",
-    "test": "vitest run --passWithNoTests --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-mcp.json",
+    "test": "vitest run --passWithNoTests --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-mcp.json && node ../core/scripts/assert-test-durations.mjs --report /private/tmp/nkdk-vitest-mcp.json",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
