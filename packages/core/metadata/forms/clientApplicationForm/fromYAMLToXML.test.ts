@@ -27,6 +27,17 @@ import {
 } from "./rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
+  const formWithMainAttribute = (
+    type: string,
+    properties: Partial<ClientApplicationFormYAML> = {}
+  ): ClientApplicationFormYAML =>
+    ({
+      ...properties,
+      Реквизиты: {
+        Объект: { Тип: type, ОсновнойРеквизит: "Истина" },
+      },
+    }) as ClientApplicationFormYAML
+
   it.each([
     ["основной реквизит справочника", "СправочникОбъект.Товары", "Истина", "Items"],
     [
@@ -97,6 +108,72 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(result.formXML).toHaveProperty("UseForFoldersAndItems", "Folders")
+  })
+
+  it("восстанавливает XML-defaults формы документа только по основному реквизиту", () => {
+    const implicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ДокументОбъект.Заказ"),
+      name: "ФормаДокумента",
+    })
+    expect(implicit.formXML).toMatchObject({
+      AutoTime: "CurrentOrLast",
+      UsePostingMode: "Auto",
+      RepostOnWrite: true,
+    })
+
+    const explicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ДокументОбъект.Заказ", {
+        АвтоВремя: "Последним",
+        РежимПроведения: "Неоперативный",
+        ПерепроводитьПриЗаписи: "Ложь",
+      }),
+      name: "ФормаДокумента",
+    })
+    expect(explicit.formXML).toMatchObject({
+      AutoTime: "Last",
+      UsePostingMode: "Regular",
+      RepostOnWrite: false,
+    })
+
+    const other = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("СправочникОбъект.Товары"),
+      name: "ФормаСправочника",
+    })
+    expect(other.formXML).not.toHaveProperty("AutoTime")
+    expect(other.formXML).not.toHaveProperty("UsePostingMode")
+    expect(other.formXML).not.toHaveProperty("RepostOnWrite")
+  })
+
+  it("восстанавливает XML-defaults формы отчёта и сохраняет явные значения", () => {
+    const implicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ОтчетОбъект.Продажи"),
+      name: "ФормаОтчета",
+    })
+    expect(implicit.formXML).toMatchObject({
+      ReportFormType: "Main",
+      AutoShowState: "Auto",
+      ReportResultViewMode: "Auto",
+      ViewModeApplicationOnSetReportResult: "Auto",
+    })
+
+    const explicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ОтчетОбъект.Продажи", {
+        ТипФормыОтчета: "Настройка",
+        АвтоОтображениеСостояния: "НеОтображать",
+        РежимОтображенияРезультатаОтчета: "Обычный",
+      }),
+      name: "ФормаНастроек",
+    })
+    expect(explicit.formXML).toMatchObject({
+      ReportFormType: "Settings",
+      AutoShowState: "DontShow",
+      ReportResultViewMode: "Default",
+    })
   })
 
   it("формирует описание и содержимое формы прямо из YAML", () => {

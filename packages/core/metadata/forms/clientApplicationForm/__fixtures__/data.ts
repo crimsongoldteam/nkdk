@@ -24,7 +24,6 @@ type ReportFormClientApplicationForm = ClientApplicationForm & {
 type ReportFormClientApplicationFormYAML = ClientApplicationFormYAML & {
   РезультатОтчета: string
   ДанныеРасшифровки: string
-  ТипФормыОтчета: "Основная"
   ПредставлениеВарианта: string
   ГруппаПользовательскихНастроек: string
 }
@@ -700,7 +699,6 @@ export const reportFormClientApplicationFormYAML: ReportFormClientApplicationFor
   },
   РезультатОтчета: "Результат",
   ДанныеРасшифровки: "ДанныеРасшифровки",
-  ТипФормыОтчета: "Основная",
   ПредставлениеВарианта: "ДанныеРасшифровки",
   ГруппаПользовательскихНастроек: "КомпоновщикНастроекПользовательскиеНастройки",
   Элементы: {

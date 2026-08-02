@@ -1083,6 +1083,25 @@ describe("implicitValueYAML contract", () => {
     expect(unexpected).toEqual([])
   })
 
+  it("uses configurator defaults as implicit YAML values for report forms", () => {
+    const expected = {
+      reportFormType: "Main",
+      autoShowState: "Auto",
+      reportResultViewMode: "Auto",
+      viewModeApplicationOnSetReportResult: "Auto",
+    } as const
+
+    const unexpected = Object.entries(expected)
+      .filter(([propertyKey, implicitValueYAML]) => {
+        return (
+          getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
+      })
+      .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
+
+    expect(unexpected).toEqual([])
+  })
+
   it("keeps hidden or specialized client form state properties explicit in YAML", () => {
     const explicitFields = [
       "choiceAvailable",
@@ -1092,7 +1111,6 @@ describe("implicitValueYAML contract", () => {
       "modalMode",
       "modified",
       "readOnly",
-      "reportFormType",
       "savedInSettingsDataModified",
     ] as const
 

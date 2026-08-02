@@ -22,37 +22,21 @@ import { ElementRule } from "../../orchestration/formElement/types"
 import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { FormRulesTags } from "./types"
+import { hasMainAttributeKind } from "./mainAttributeKinds"
 export type { ElementRule, PropertyRule }
 
 const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
   "СправочникОбъект",
   "ПланВидовХарактеристикОбъект",
 ])
+const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
+const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
 
-const hasFoldersAndItemsMainAttribute = (
+const hasMainAttributeFromSource = (
   source: YAMLPropertySource,
-  context?: ConfigurationContextWithExportToXML
-): boolean => {
-  const attributes = asRecord(source.raw("attributes"))
-  const index = context?.importFromYAML?.formDataPathIndex
-  if (attributes === undefined || index === undefined) return false
-
-  return Object.entries(attributes).some(([name, rawAttribute]) => {
-    const attribute = asRecord(rawAttribute)
-    return (
-      attribute?.["ОсновнойРеквизит"] === "Истина" &&
-      index
-        .getRoot(name)
-        ?.typeInfo.nextTypes.some(({ kind }) => FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS.has(kind)) === true
-    )
-  })
-}
-
-const asRecord = (value: unknown): Record<string, unknown> | undefined => {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
-}
+  context: ConfigurationContextWithExportToXML | undefined,
+  kinds: ReadonlySet<string>
+): boolean => hasMainAttributeKind(source.raw("attributes"), context?.importFromYAML?.formDataPathIndex, kinds)
 
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
@@ -246,7 +230,11 @@ export const ClientApplicationFormRules = {
       xml: "ReportFormType",
       typeSE: "ReportFormType",
       tag: FormRulesTags.Form,
-      noImplicitValueYAML: true,
+      implicitValueYAML: "Main",
+      defaultValueXML: "Main",
+      omitImplicitValueYAMLBySource: true,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("reportFormType") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     variantAppearance: stringRule({
       yaml: "ПредставлениеВарианта",
@@ -259,7 +247,10 @@ export const ClientApplicationFormRules = {
       typeSE: "AutoShowStateMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("autoShowState") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     customSettingsFolder: stringRule({
       yaml: "ГруппаПользовательскихНастроек",
@@ -272,7 +263,11 @@ export const ClientApplicationFormRules = {
       typeSE: "ReportResultViewMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("reportResultViewMode") ||
+        hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     viewModeApplicationOnSetReportResult: systemEnumerationRule({
       yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
@@ -280,7 +275,11 @@ export const ClientApplicationFormRules = {
       typeSE: "ViewModeApplicationOnSetReportResult",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("viewModeApplicationOnSetReportResult") ||
+        hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     mobileDeviceCommandBarContent: mobileDeviceCommandBarContentRule({
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
@@ -524,7 +523,8 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Items",
       defaultValueXML: "Items",
       toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
-        source.has("useForFoldersAndItems") || hasFoldersAndItemsMainAttribute(source, context),
+        source.has("useForFoldersAndItems") ||
+        hasMainAttributeFromSource(source, context, FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS),
     }),
     choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
@@ -543,6 +543,9 @@ export const ClientApplicationFormRules = {
       typeSE: "AutoTimeMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "CurrentOrLast",
+      defaultValueXML: "CurrentOrLast",
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("autoTime") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     usePostingMode: systemEnumerationRule({
       yaml: "РежимПроведения",
@@ -550,11 +553,17 @@ export const ClientApplicationFormRules = {
       typeSE: "PostingModeUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("usePostingMode") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     repostOnWrite: booleanRule({
       yaml: "ПерепроводитьПриЗаписи",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
+      defaultValueXML: true,
+      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+        source.has("repostOnWrite") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     // #endregion
     events: eventsRule({
