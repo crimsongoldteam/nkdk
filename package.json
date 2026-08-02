@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "pnpm -r exec tsc --noEmit",
-    "test": "pnpm -r run test",
+    "test": "pnpm --workspace-concurrency=1 -r run test",
     "test:isolated": "pnpm -r run test:isolated",
     "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs",
     "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
