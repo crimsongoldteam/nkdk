@@ -1,5 +1,11 @@
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataDocumentAttributeRules,
+  MetadataDocumentTabularSectionRules,
+} from "./childRules"
 import { MetadataCommands, MetadataCommandsXML, MetadataCommandsYAML } from "../metadataCommand/types"
 import {
   AdditionalIndexes,
@@ -195,7 +201,11 @@ export interface MetadataDocumentYAML {
   Характеристики?: CharacteristicsDescriptionsYAML
 }
 
-export const metadataDocumentAttributesRule = createOwnerAttributeCollectionRuleBuilder("MetadataDocumentAttributes")
+export const metadataDocumentAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataDocumentAttributes",
+  MetadataDocumentAttributeRules
+)
 export const metadataDocumentTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataDocumentTabularSections"
+  "MetadataDocumentTabularSections",
+  MetadataDocumentTabularSectionRules
 )

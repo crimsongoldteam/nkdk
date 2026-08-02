@@ -161,6 +161,11 @@ import "./externalFile/fromXML"
 import "./wsDefinitionSchemas/fromXML"
 
 import "./metadataTaskAddressingAttribute/register"
+import "./metadataAttribute/register"
+import "./metadataTabularSection/register"
+import "./metadataRegisterAttribute/register"
+import "./metadataRegisterDimension/register"
+import "./metadataRegisterResource/register"
 
 import "./metadataDocumentJournalColumn/register"
 

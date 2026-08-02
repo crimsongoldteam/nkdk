@@ -5,7 +5,6 @@ import {
   metadataAccumulationRegisterDimensionsRule,
   metadataAccumulationRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
-import "./childRules"
 import { accumulationRegisterAggregatesRule } from "./builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"

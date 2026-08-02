@@ -4,22 +4,37 @@ import { serializeDirectXML, testPropertyFixtureThroughYAML, testPropertyFromYAM
 import { mockContextToXML } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 
-import "../../appliedObjects/metadataInformationRegister/childRules"
-import "../../appliedObjects/metadataAccountingRegister/childRules"
+import { MetadataInformationRegisterResourceRules } from "../../appliedObjects/metadataInformationRegister/childRules"
+import { MetadataAccountingRegisterResourceRules } from "../../appliedObjects/metadataAccountingRegister/childRules"
 
 const rule = {
   itemType: "MetadataInformationRegisterResourcesProbe",
-  properties: { value: { type: "MetadataInformationRegisterResources", yaml: "Значение", xml: "Resource" } },
+  properties: {
+    value: {
+      type: "MetadataInformationRegisterResources",
+      yaml: "Значение",
+      xml: "Resource",
+      itemRule: MetadataInformationRegisterResourceRules,
+    },
+  },
 } as MetadataItemRule
 const accountingRule = {
   itemType: "MetadataAccountingRegisterResourcesProbe",
-  properties: { value: { type: "MetadataAccountingRegisterResources", yaml: "Значение", xml: "Resource" } },
+  properties: {
+    value: {
+      type: "MetadataAccountingRegisterResources",
+      yaml: "Значение",
+      xml: "Resource",
+      itemRule: MetadataAccountingRegisterResourceRules,
+    },
+  },
 } as MetadataItemRule
 
 describe("MetadataInformationRegisterResources YAML → XML", () => {
   it("round-trips register resources", () => {
     const result = testPropertyFixtureThroughYAML({
       propertyType: "MetadataInformationRegisterResources",
+      itemRule: MetadataInformationRegisterResourceRules,
       xmlRootTag: "Resource",
       importMetaUrl: import.meta.url,
       fixture: "resources.xml",

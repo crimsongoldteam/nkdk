@@ -33,7 +33,12 @@ describe("register field XML defaults", () => {
       const probeRule = {
         itemType: "RegisterFieldDefaultsProbe",
         properties: {
-          value: { type: collectionType, yaml: "Значение", xml: "Value" },
+          value: {
+            type: collectionType,
+            yaml: "Значение",
+            xml: "Value",
+            itemRule: ownerRule.properties[role].itemRule,
+          },
         },
       } as MetadataItemRule
       const xml = serializeDirectXML(

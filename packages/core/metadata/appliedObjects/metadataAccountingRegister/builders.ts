@@ -4,8 +4,30 @@ import {
 } from "../../commonObjects/ruleBuilder"
 import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerRegisterFieldCollectionRuleBuilder } from "../../commonObjects/metadataRegisterField/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerRegisterFieldCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataAccountingRegisterAttributeRules,
+  MetadataAccountingRegisterDimensionRules,
+  MetadataAccountingRegisterResourceRules,
+} from "./childRules"
+import {
+  MetadataAccumulationRegisterAttributeRules,
+  MetadataAccumulationRegisterDimensionRules,
+  MetadataAccumulationRegisterResourceRules,
+} from "../metadataAccumulationRegister/childRules"
+import {
+  MetadataCalculationRegisterAttributeRules,
+  MetadataCalculationRegisterDimensionRules,
+  MetadataCalculationRegisterResourceRules,
+} from "../metadataCalculationRegister/childRules"
+import {
+  MetadataInformationRegisterAttributeRules,
+  MetadataInformationRegisterDimensionRules,
+  MetadataInformationRegisterResourceRules,
+} from "../metadataInformationRegister/childRules"
 
 export interface MetadataCommandsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataCommands"
@@ -34,46 +56,58 @@ export function additionalIndexRule<const Params extends AdditionalIndexRulePara
   return defineWidePropertyRule("AdditionalIndex", params)
 }
 export const metadataInformationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataInformationRegisterAttributes"
+  "MetadataInformationRegisterAttributes",
+  MetadataInformationRegisterAttributeRules
 )
 export const metadataAccumulationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataAccumulationRegisterAttributes"
+  "MetadataAccumulationRegisterAttributes",
+  MetadataAccumulationRegisterAttributeRules
 )
 export const metadataAccountingRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataAccountingRegisterAttributes"
+  "MetadataAccountingRegisterAttributes",
+  MetadataAccountingRegisterAttributeRules
 )
 export const metadataCalculationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataCalculationRegisterAttributes"
+  "MetadataCalculationRegisterAttributes",
+  MetadataCalculationRegisterAttributeRules
 )
 export const metadataInformationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataInformationRegisterDimensions",
-  "dimensions"
+  "dimensions",
+  MetadataInformationRegisterDimensionRules
 )
 export const metadataAccumulationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataAccumulationRegisterDimensions",
-  "dimensions"
+  "dimensions",
+  MetadataAccumulationRegisterDimensionRules
 )
 export const metadataAccountingRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataAccountingRegisterDimensions",
-  "dimensions"
+  "dimensions",
+  MetadataAccountingRegisterDimensionRules
 )
 export const metadataCalculationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataCalculationRegisterDimensions",
-  "dimensions"
+  "dimensions",
+  MetadataCalculationRegisterDimensionRules
 )
 export const metadataInformationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataInformationRegisterResources",
-  "resources"
+  "resources",
+  MetadataInformationRegisterResourceRules
 )
 export const metadataAccumulationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataAccumulationRegisterResources",
-  "resources"
+  "resources",
+  MetadataAccumulationRegisterResourceRules
 )
 export const metadataAccountingRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataAccountingRegisterResources",
-  "resources"
+  "resources",
+  MetadataAccountingRegisterResourceRules
 )
 export const metadataCalculationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
   "MetadataCalculationRegisterResources",
-  "resources"
+  "resources",
+  MetadataCalculationRegisterResourceRules
 )

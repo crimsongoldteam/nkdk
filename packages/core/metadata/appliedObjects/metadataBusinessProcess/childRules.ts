@@ -1,4 +1,4 @@
-import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext, registerOwnerAttributeCollection, registerOwnerTabularSectionCollection } from "../ownerChildRules"
+import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext } from "../ownerChildRules"
 
 const tabularInternalInfo = Tabular.tabularSectionInternalInfoFragment({
   getName: ({ context, metadata }) => `${getParentFromContext(context, ["MetadataBusinessProcess"]).name}.${metadata.name}`,
@@ -12,9 +12,5 @@ export const MetadataBusinessProcessTabularSectionAttributeRules = composeMetada
   Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeChoiceFragment, Attribute.attributeSearchAndHistoryFragment, Attribute.attributeUuidFragment
 )
 export const MetadataBusinessProcessTabularSectionRules = composeMetadataItemRule(
-  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionLineNumberFragment, Tabular.tabularSectionAttributesFragment("MetadataBusinessProcessTabularSectionAttributes"), Tabular.tabularSectionUuidFragment
+  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionLineNumberFragment, Tabular.tabularSectionAttributesFragment("MetadataBusinessProcessTabularSectionAttributes", MetadataBusinessProcessTabularSectionAttributeRules), Tabular.tabularSectionUuidFragment
 )
-
-registerOwnerAttributeCollection({ propertyType: "MetadataBusinessProcessAttributes", schemaName: "MetadataBusinessProcessAttribute", itemRule: MetadataBusinessProcessAttributeRules })
-registerOwnerAttributeCollection({ propertyType: "MetadataBusinessProcessTabularSectionAttributes", schemaName: "MetadataBusinessProcessTabularSectionAttribute", itemRule: MetadataBusinessProcessTabularSectionAttributeRules })
-registerOwnerTabularSectionCollection({ propertyType: "MetadataBusinessProcessTabularSections", schemaName: "MetadataBusinessProcessTabularSection", itemRule: MetadataBusinessProcessTabularSectionRules })

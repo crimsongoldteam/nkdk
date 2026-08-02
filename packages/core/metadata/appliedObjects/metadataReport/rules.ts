@@ -1,6 +1,5 @@
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataReportAttributesRule, metadataReportTabularSectionsRule } from "./builders"
-import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"

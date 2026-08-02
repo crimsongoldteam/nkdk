@@ -1,6 +1,5 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataBusinessProcessAttributesRule, metadataBusinessProcessTabularSectionsRule } from "./builders"
-import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"

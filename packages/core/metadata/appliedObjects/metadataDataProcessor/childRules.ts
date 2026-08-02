@@ -1,4 +1,4 @@
-import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext, registerOwnerAttributeCollection, registerOwnerTabularSectionCollection } from "../ownerChildRules"
+import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext } from "../ownerChildRules"
 
 const tabularInternalInfo = Tabular.tabularSectionInternalInfoFragment({
   getName: ({ context, metadata }) => `${getParentFromContext(context, ["MetadataDataProcessor"]).name}.${metadata.name}`,
@@ -12,9 +12,5 @@ export const MetadataDataProcessorTabularSectionAttributeRules = composeMetadata
   Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeFillFragment, Attribute.attributeChoiceFragment, Attribute.attributeUuidFragment
 )
 export const MetadataDataProcessorTabularSectionRules = composeMetadataItemRule(
-  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionAttributesFragment("MetadataDataProcessorTabularSectionAttributes"), Tabular.tabularSectionUuidFragment
+  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionAttributesFragment("MetadataDataProcessorTabularSectionAttributes", MetadataDataProcessorTabularSectionAttributeRules), Tabular.tabularSectionUuidFragment
 )
-
-registerOwnerAttributeCollection({ propertyType: "MetadataDataProcessorAttributes", schemaName: "MetadataDataProcessorAttribute", itemRule: MetadataDataProcessorAttributeRules })
-registerOwnerAttributeCollection({ propertyType: "MetadataDataProcessorTabularSectionAttributes", schemaName: "MetadataDataProcessorTabularSectionAttribute", itemRule: MetadataDataProcessorTabularSectionAttributeRules })
-registerOwnerTabularSectionCollection({ propertyType: "MetadataDataProcessorTabularSections", schemaName: "MetadataDataProcessorTabularSection", itemRule: MetadataDataProcessorTabularSectionRules })

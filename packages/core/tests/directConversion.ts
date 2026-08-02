@@ -167,6 +167,7 @@ export function testMetadataItemFromYAMLToXML(params: {
 
 export function testPropertyFixtureThroughYAML(params: {
   propertyType: string
+  itemRule?: MetadataItemRule
   xmlRootTag: string
   importMetaUrl: string
   fixture: string
@@ -180,7 +181,12 @@ export function testPropertyFixtureThroughYAML(params: {
   const rule = {
     itemType: "DirectPropertyFixtureProbe",
     properties: {
-      value: { type: params.propertyType, yaml: "Значение", xml: "Value" } as PropertyRule,
+      value: {
+        type: params.propertyType,
+        yaml: "Значение",
+        xml: "Value",
+        ...(params.itemRule === undefined ? {} : { itemRule: params.itemRule }),
+      } as PropertyRule,
     },
   } as MetadataItemRule
   const contexts = createDirectRoundTripContexts()

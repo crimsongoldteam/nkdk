@@ -126,11 +126,15 @@ export const tabularSectionLineNumberFragment = metadataRuleFragment(["lineNumbe
   },
 } as const satisfies Record<string, MetadataRulePropertyShape>)
 
-export function tabularSectionAttributesFragment<const PropertyType extends string>(propertyType: PropertyType) {
+export function tabularSectionAttributesFragment<
+  const PropertyType extends string,
+  const ItemRule extends Readonly<Record<string, unknown>> | undefined = undefined,
+>(propertyType: PropertyType, itemRule?: ItemRule) {
   return metadataRuleFragment(["attributes"], {
     attributes: {
       yaml: "Реквизиты",
       type: propertyType,
+      ...(itemRule === undefined ? {} : { itemRule }),
       operationTarget: {
         kind: "namedCollectionTarget",
         targetKind: "attribute",

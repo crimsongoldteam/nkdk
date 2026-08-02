@@ -1,10 +1,14 @@
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
+import { createOwnerAttributeCollectionRuleBuilder } from "../ownerChildRules"
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import { createOwnerTabularSectionCollectionRuleBuilder } from "../ownerChildRules"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import {
+  MetadataExchangePlanAttributeRules,
+  MetadataExchangePlanTabularSectionRules,
+} from "./childRules"
 
 export interface ExchangePlanContentWidePropertyRule extends WidePropertyRuleBase {
   type: "ExchangePlanContent"
@@ -19,8 +23,10 @@ export function exchangePlanContentRule<const Params extends ExchangePlanContent
 }
 
 export const metadataExchangePlanAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataExchangePlanAttributes"
+  "MetadataExchangePlanAttributes",
+  MetadataExchangePlanAttributeRules
 )
 export const metadataExchangePlanTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataExchangePlanTabularSections"
+  "MetadataExchangePlanTabularSections",
+  MetadataExchangePlanTabularSectionRules
 )

@@ -19,8 +19,6 @@ import { stringRule } from "../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../../orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
-import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { FormRulesTags } from "./types"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
 export type { ElementRule, PropertyRule }
@@ -32,9 +30,24 @@ const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
 
+interface FormRuleYAMLSource {
+  has(key: string): boolean
+  raw(key: string): unknown
+}
+
+interface FormRuleExportContext {
+  importFromYAML?: {
+    formDataPathIndex?: {
+      getRoot(name: string):
+        | { typeInfo: { nextTypes: readonly { kind: string }[] } }
+        | undefined
+    }
+  }
+}
+
 const hasMainAttributeFromSource = (
-  source: YAMLPropertySource,
-  context: ConfigurationContextWithExportToXML | undefined,
+  source: FormRuleYAMLSource,
+  context: FormRuleExportContext | undefined,
   kinds: ReadonlySet<string>
 ): boolean => hasMainAttributeKind(source.raw("attributes"), context?.importFromYAML?.formDataPathIndex, kinds)
 
@@ -233,7 +246,7 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Main",
       defaultValueXML: "Main",
       omitImplicitValueYAMLBySource: true,
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("reportFormType") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     variantAppearance: stringRule({
@@ -249,7 +262,7 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("autoShowState") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     customSettingsFolder: stringRule({
@@ -265,7 +278,7 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("reportResultViewMode") ||
         hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
@@ -277,7 +290,7 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("viewModeApplicationOnSetReportResult") ||
         hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
@@ -522,7 +535,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
       defaultValueXML: "Items",
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("useForFoldersAndItems") ||
         hasMainAttributeFromSource(source, context, FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS),
     }),
@@ -544,7 +557,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "CurrentOrLast",
       defaultValueXML: "CurrentOrLast",
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("autoTime") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     usePostingMode: systemEnumerationRule({
@@ -554,7 +567,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("usePostingMode") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     repostOnWrite: booleanRule({
@@ -562,7 +575,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
       defaultValueXML: true,
-      toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
         source.has("repostOnWrite") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     // #endregion

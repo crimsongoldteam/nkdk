@@ -16,9 +16,14 @@ import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
 import { MetadataDocumentAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
-import "../../appliedObjects/metadataDataProcessor/childRules"
+import { MetadataChartOfCharacteristicTypesAttributeRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/childRules"
+import {
+  MetadataDataProcessorAttributeRules,
+  MetadataDataProcessorTabularSectionAttributeRules,
+} from "../../appliedObjects/metadataDataProcessor/childRules"
+import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
 
-const rule = probeRule("MetadataCatalogAttributes")
+const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
 describe("MetadataAttributes YAML → XML", () => {
   let attributeSchema: ReturnType<typeof compileValidationSchema>
@@ -54,19 +59,22 @@ describe("MetadataAttributes YAML → XML", () => {
   it("does not export catalog-only Use for a document attribute", () => {
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
-        rule: probeRule("MetadataDocumentAttributes"),
+        rule: probeRule("MetadataDocumentAttributes", MetadataDocumentAttributeRules),
         yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
       }).xml
     )
     expect(result).not.toContain("<Use>")
   })
 
-  it.each(["MetadataCatalogAttributes", "MetadataChartOfCharacteristicTypesAttributes"])(
+  it.each([
+    ["MetadataCatalogAttributes", MetadataCatalogAttributeRules],
+    ["MetadataChartOfCharacteristicTypesAttributes", MetadataChartOfCharacteristicTypesAttributeRules],
+  ] as const)(
     "exports Use for %s",
-    (propertyType) => {
+    (propertyType, itemRule) => {
       const result = serializeDirectXML(
         testPropertyFromYAMLToXML({
-          rule: probeRule(propertyType),
+          rule: probeRule(propertyType, itemRule),
           yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
         }).xml
       )
@@ -85,7 +93,7 @@ describe("MetadataAttributes YAML → XML", () => {
   it("should import TypeDescription typeId object format", () => {
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
-        rule: probeRule("MetadataDataProcessorAttributes"),
+        rule: probeRule("MetadataDataProcessorAttributes", MetadataDataProcessorAttributeRules),
         yaml: {
           Значение: {
             ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
@@ -119,6 +127,7 @@ describe("MetadataAttributes YAML → XML", () => {
   it("does not add fill defaults to a tabular section attribute", () => {
     const result = testPropertyFixtureThroughYAML({
       propertyType: "MetadataDocumentTabularSectionAttributes",
+      itemRule: MetadataDocumentTabularSectionAttributeRules,
       xmlRootTag: "Attribute",
       importMetaUrl: import.meta.url,
       fixture: "documentTabular.xml",
@@ -130,7 +139,10 @@ describe("MetadataAttributes YAML → XML", () => {
   it("adds fill defaults to a tabular section attribute with Fill", () => {
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
-        rule: probeRule("MetadataDataProcessorTabularSectionAttributes"),
+        rule: probeRule(
+          "MetadataDataProcessorTabularSectionAttributes",
+          MetadataDataProcessorTabularSectionAttributeRules
+        ),
         yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
       }).xml
     )
@@ -197,6 +209,7 @@ function convertYAML(value: unknown): string {
 function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataCatalogAttributes"): void {
   const result = testPropertyFixtureThroughYAML({
     propertyType,
+    itemRule: MetadataCatalogAttributeRules,
     xmlRootTag: "Attribute",
     importMetaUrl: import.meta.url,
     fixture,
@@ -207,10 +220,10 @@ function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataCatalog
   expect(normalize(result.result)).toBe(normalize(result.expected))
 }
 
-function probeRule(type: string): MetadataItemRule {
+function probeRule(type: string, itemRule: MetadataItemRule): MetadataItemRule {
   return {
     itemType: `${type}Probe`,
-    properties: { value: { type, yaml: "Значение", xml: "Attribute" } },
+    properties: { value: { type, yaml: "Значение", xml: "Attribute", itemRule } },
   } as MetadataItemRule
 }
 

@@ -12,6 +12,10 @@ import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
+import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"
+import { MetadataDataProcessorTabularSectionRules } from "../../appliedObjects/metadataDataProcessor/childRules"
+import { MetadataExchangePlanTabularSectionRules } from "../../appliedObjects/metadataExchangePlan/childRules"
+import { MetadataReportTabularSectionRules } from "../../appliedObjects/metadataReport/childRules"
 
 const INLINE_XML = `<TabularSection uuid="3cf6b85b-5422-44cc-bb0a-11d41703d9f5"><Properties><Name>Исполнители</Name><Synonym/><Comment/><ToolTip/><FillChecking>DontCheck</FillChecking><Use>ForItem</Use><LineNumberLength>5</LineNumberLength></Properties><ChildObjects/></TabularSection>`
 
@@ -24,7 +28,7 @@ describe("MetadataTabularSections YAML → XML", () => {
   it("should export minimal (round-trip)", () => expectFixtureRoundTrip("minimal.xml"))
 
   it("preserves explicit empty Synonym as empty XML tag", () => {
-    const rule = probeRule("MetadataCatalogTabularSections")
+    const rule = probeRule("MetadataCatalogTabularSections", MetadataCatalogTabularSectionRules)
     const referenceXML = importContentFromXML<Record<string, unknown>>(INLINE_XML)
     const contexts = createDirectRoundTripContexts()
     const yaml = testPropertyFromXMLToYAML({ rule, xml: referenceXML, context: contexts.importContext }).yaml
@@ -36,7 +40,10 @@ describe("MetadataTabularSections YAML → XML", () => {
   })
 
   it("should return undefined when data is undefined", () => {
-    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataCatalogTabularSections"), yaml: {} }).xml).toEqual({})
+    expect(testPropertyFromYAMLToXML({
+      rule: probeRule("MetadataCatalogTabularSections", MetadataCatalogTabularSectionRules),
+      yaml: {},
+    }).xml).toEqual({})
   })
 
   it("should round-trip DataProcessor generated type names", () => {
@@ -44,6 +51,7 @@ describe("MetadataTabularSections YAML → XML", () => {
       parentType: "MetadataDataProcessor",
       parentName: "ОбработкаВладелец",
       propertyType: "MetadataDataProcessorTabularSections",
+      itemRule: MetadataDataProcessorTabularSectionRules,
       expectedType: "DataProcessorTabularSection",
       expectedRowType: "DataProcessorTabularSectionRow",
     })
@@ -54,16 +62,17 @@ describe("MetadataTabularSections YAML → XML", () => {
       parentType: "MetadataExchangePlan",
       parentName: "ПланОбменаВладелец",
       propertyType: "MetadataExchangePlanTabularSections",
+      itemRule: MetadataExchangePlanTabularSectionRules,
       expectedType: "ExchangePlanTabularSection",
       expectedRowType: "ExchangePlanTabularSectionRow",
     })
   })
 
   it.each([
-    ["MetadataDataProcessor", "MetadataDataProcessorTabularSections", true],
-    ["MetadataReport", "MetadataReportTabularSections", true],
-    ["MetadataBusinessProcess", "MetadataBusinessProcessTabularSections", false],
-  ])("selects Fill fields for %s tabular section attributes", (parentType, propertyType, expectedFill) => {
+    ["MetadataDataProcessor", "MetadataDataProcessorTabularSections", MetadataDataProcessorTabularSectionRules, true],
+    ["MetadataReport", "MetadataReportTabularSections", MetadataReportTabularSectionRules, true],
+    ["MetadataBusinessProcess", "MetadataBusinessProcessTabularSections", MetadataBusinessProcessTabularSectionRules, false],
+  ] as const)("selects Fill fields for %s tabular section attributes", (parentType, propertyType, itemRule, expectedFill) => {
     const context = mockContextToXML()
     context.exportToXML.itemsTree.push({
       itemType: parentType as never,
@@ -72,7 +81,7 @@ describe("MetadataTabularSections YAML → XML", () => {
     })
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
-        rule: probeRule(propertyType),
+        rule: probeRule(propertyType, itemRule),
         yaml: {
           Значение: {
             ТабличнаяЧасть: {
@@ -89,13 +98,17 @@ describe("MetadataTabularSections YAML → XML", () => {
   })
 
   it("should return undefined when data is undefined after YAML export", () => {
-    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataCatalogTabularSections"), yaml: {} }).xml).toEqual({})
+    expect(testPropertyFromYAMLToXML({
+      rule: probeRule("MetadataCatalogTabularSections", MetadataCatalogTabularSectionRules),
+      yaml: {},
+    }).xml).toEqual({})
   })
 })
 
 function expectFixtureRoundTrip(fixture: string): void {
   const result = testPropertyFixtureThroughYAML({
     propertyType: "MetadataCatalogTabularSections",
+    itemRule: MetadataCatalogTabularSectionRules,
     xmlRootTag: "TabularSection",
     importMetaUrl: import.meta.url,
     fixture,
@@ -114,6 +127,7 @@ function expectGeneratedTypes(params: {
   parentType: string
   parentName: string
   propertyType: string
+  itemRule: MetadataItemRule
   expectedType: string
   expectedRowType: string
 }): void {
@@ -121,7 +135,7 @@ function expectGeneratedTypes(params: {
   const xml = importContentFromXML<Record<string, unknown>>(
     wrapperXML(`Input${params.expectedType}`, `Input${params.expectedRowType}`, params.parentName, sectionName)
   )
-  const rule = probeRule(params.propertyType)
+  const rule = probeRule(params.propertyType, params.itemRule)
   const contexts = createDirectRoundTripContexts()
   const yaml = testPropertyFromXMLToYAML({ rule, xml, context: contexts.importContext }).yaml
   const base = mockContextToXML()
@@ -139,10 +153,10 @@ function expectGeneratedTypes(params: {
   )
 }
 
-function probeRule(type: string): MetadataItemRule {
+function probeRule(type: string, itemRule: MetadataItemRule): MetadataItemRule {
   return {
     itemType: `${type}Probe`,
-    properties: { value: { type, yaml: "Значение", xml: "TabularSection" } },
+    properties: { value: { type, yaml: "Значение", xml: "TabularSection", itemRule } },
   } as MetadataItemRule
 }
 

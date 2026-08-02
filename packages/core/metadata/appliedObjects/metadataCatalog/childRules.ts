@@ -1,4 +1,4 @@
-import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext, registerOwnerAttributeCollection, registerOwnerTabularSectionCollection } from "../ownerChildRules"
+import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext } from "../ownerChildRules"
 
 const tabularInternalInfo = Tabular.tabularSectionInternalInfoFragment({
   getName: ({ context, metadata }) => `${getParentFromContext(context, ["MetadataCatalog"]).name}.${metadata.name}`,
@@ -12,9 +12,5 @@ export const MetadataCatalogTabularSectionAttributeRules = composeMetadataItemRu
   Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeChoiceFragment, Attribute.attributeSearchAndHistoryFragment, Attribute.attributeUuidFragment
 )
 export const MetadataCatalogTabularSectionRules = composeMetadataItemRule(
-  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionUseFragment, Tabular.tabularSectionLineNumberFragment, Tabular.tabularSectionAttributesFragment("MetadataCatalogTabularSectionAttributes"), Tabular.tabularSectionUuidFragment
+  Tabular.metadataTabularSectionRuleBase, tabularInternalInfo, Tabular.tabularSectionIdentityFragment, Tabular.tabularSectionPresentationFragment, Tabular.tabularSectionFillCheckingFragment, Tabular.tabularSectionStandardAttributesFragment, Tabular.tabularSectionUseFragment, Tabular.tabularSectionLineNumberFragment, Tabular.tabularSectionAttributesFragment("MetadataCatalogTabularSectionAttributes", MetadataCatalogTabularSectionAttributeRules), Tabular.tabularSectionUuidFragment
 )
-
-registerOwnerAttributeCollection({ propertyType: "MetadataCatalogAttributes", schemaName: "MetadataCatalogAttribute", itemRule: MetadataCatalogAttributeRules })
-registerOwnerAttributeCollection({ propertyType: "MetadataCatalogTabularSectionAttributes", schemaName: "MetadataCatalogTabularSectionAttribute", itemRule: MetadataCatalogTabularSectionAttributeRules })
-registerOwnerTabularSectionCollection({ propertyType: "MetadataCatalogTabularSections", schemaName: "MetadataCatalogTabularSection", itemRule: MetadataCatalogTabularSectionRules })

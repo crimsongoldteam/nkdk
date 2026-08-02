@@ -1,9 +1,17 @@
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataDataProcessorAttributeRules,
+  MetadataDataProcessorTabularSectionRules,
+} from "./childRules"
 
 export const metadataDataProcessorAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataDataProcessorAttributes"
+  "MetadataDataProcessorAttributes",
+  MetadataDataProcessorAttributeRules
 )
 export const metadataDataProcessorTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataDataProcessorTabularSections"
+  "MetadataDataProcessorTabularSections",
+  MetadataDataProcessorTabularSectionRules
 )

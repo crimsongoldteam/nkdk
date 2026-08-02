@@ -4,7 +4,6 @@ import {
   metadataExchangePlanAttributesRule,
   metadataExchangePlanTabularSectionsRule,
 } from "./builders"
-import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"

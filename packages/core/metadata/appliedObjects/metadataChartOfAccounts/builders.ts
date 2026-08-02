@@ -3,8 +3,14 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataChartOfAccountsAttributeRules,
+  MetadataChartOfAccountsTabularSectionRules,
+} from "./childRules"
 
 export interface AccountingFlagsWidePropertyRule extends WidePropertyRuleBase {
   type: "AccountingFlags"
@@ -61,8 +67,10 @@ export function chartOfAccountsPredefinedExtDimensionTypesRule<
   return defineWidePropertyRule("ChartOfAccountsPredefinedExtDimensionTypes", params)
 }
 export const metadataChartOfAccountsAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataChartOfAccountsAttributes"
+  "MetadataChartOfAccountsAttributes",
+  MetadataChartOfAccountsAttributeRules
 )
 export const metadataChartOfAccountsTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataChartOfAccountsTabularSections"
+  "MetadataChartOfAccountsTabularSections",
+  MetadataChartOfAccountsTabularSectionRules
 )

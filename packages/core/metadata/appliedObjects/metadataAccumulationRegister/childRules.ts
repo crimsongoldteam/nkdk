@@ -1,8 +1,6 @@
 import { composeMetadataItemRule } from "../../commonObjects/metadataRuleFragment"
-import { registerOwnerAttributeCollection } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
 import * as RegisterAttribute from "../../commonObjects/metadataRegisterAttribute/fragments"
 import * as RegisterField from "../../commonObjects/metadataRegisterField/fragments"
-import { registerOwnerRegisterFieldCollection } from "../../commonObjects/metadataRegisterField/registerOwnerCollection"
 import * as Dimension from "../../commonObjects/metadataRegisterDimension/fragments"
 import * as Resource from "../../commonObjects/metadataRegisterResource/fragments"
 
@@ -10,7 +8,6 @@ export const MetadataAccumulationRegisterAttributeRules = composeMetadataItemRul
   RegisterAttribute.metadataRegisterAttributeRuleBase, RegisterAttribute.registerAttributeIdentityFragment, RegisterAttribute.registerAttributePresentationFragment, RegisterAttribute.registerAttributeChoiceFragment, RegisterAttribute.registerAttributeIndexAndFullTextFragment, RegisterAttribute.registerAttributeBinaryStorageUseFragment, RegisterAttribute.registerAttributeUuidFragment
 )
 
-registerOwnerAttributeCollection({ propertyType: "MetadataAccumulationRegisterAttributes", schemaName: "MetadataAccumulationRegisterAttribute", itemRule: MetadataAccumulationRegisterAttributeRules })
 
 export const MetadataAccumulationRegisterDimensionRules = composeMetadataItemRule(
   Dimension.metadataRegisterDimensionRuleBase,
@@ -25,12 +22,6 @@ export const MetadataAccumulationRegisterDimensionRules = composeMetadataItemRul
   RegisterField.registerFieldUuidFragment
 )
 
-registerOwnerRegisterFieldCollection({
-  propertyType: "MetadataAccumulationRegisterDimensions",
-  schemaName: "MetadataAccumulationRegisterDimension",
-  itemRule: MetadataAccumulationRegisterDimensionRules,
-  xmlElement: "Dimension",
-})
 
 export const MetadataAccumulationRegisterResourceRules = composeMetadataItemRule(
   Resource.metadataRegisterResourceRuleBase,
@@ -42,10 +33,3 @@ export const MetadataAccumulationRegisterResourceRules = composeMetadataItemRule
   RegisterField.registerFieldBinaryStorageUseFieldFragment,
   RegisterField.registerFieldUuidFragment
 )
-
-registerOwnerRegisterFieldCollection({
-  propertyType: "MetadataAccumulationRegisterResources",
-  schemaName: "MetadataAccumulationRegisterResource",
-  itemRule: MetadataAccumulationRegisterResourceRules,
-  xmlElement: "Resource",
-})

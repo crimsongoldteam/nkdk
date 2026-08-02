@@ -1,9 +1,17 @@
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataChartOfCharacteristicTypesAttributeRules,
+  MetadataChartOfCharacteristicTypesTabularSectionRules,
+} from "./childRules"
 
 export const metadataChartOfCharacteristicTypesAttributesRule = createOwnerAttributeCollectionRuleBuilder(
-  "MetadataChartOfCharacteristicTypesAttributes"
+  "MetadataChartOfCharacteristicTypesAttributes",
+  MetadataChartOfCharacteristicTypesAttributeRules
 )
 export const metadataChartOfCharacteristicTypesTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataChartOfCharacteristicTypesTabularSections"
+  "MetadataChartOfCharacteristicTypesTabularSections",
+  MetadataChartOfCharacteristicTypesTabularSectionRules
 )

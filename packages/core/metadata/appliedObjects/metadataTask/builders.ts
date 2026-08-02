@@ -1,5 +1,8 @@
-import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
-import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
+import {
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import { MetadataTaskAttributeRules, MetadataTaskTabularSectionRules } from "./childRules"
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
@@ -27,7 +30,11 @@ export function metadataTaskAddressingAttributesRule<const Params extends Metada
   })
 }
 
-export const metadataTaskAttributesRule = createOwnerAttributeCollectionRuleBuilder("MetadataTaskAttributes")
+export const metadataTaskAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataTaskAttributes",
+  MetadataTaskAttributeRules
+)
 export const metadataTaskTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
-  "MetadataTaskTabularSections"
+  "MetadataTaskTabularSections",
+  MetadataTaskTabularSectionRules
 )
