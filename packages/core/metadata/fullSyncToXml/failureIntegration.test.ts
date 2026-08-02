@@ -153,6 +153,67 @@ describe("full XML sync failure integration", () => {
     expect(fs.readFileSync(state.indexPath)).toEqual(before)
   })
 
+  it("rejects an incomplete selection before creating XML or confirming the snapshot", async () => {
+    const state = await createIndexedProject()
+    const before = fs.readFileSync(state.indexPath)
+    fs.rmdirSync(state.xmlDir)
+    let componentStateConfirmed = false
+    let profileConfirmed = false
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...baseDeps,
+      async exists(path) {
+        return path === state.projectDir
+      },
+      async mkdir(path) {
+        await fs.promises.mkdir(path, { recursive: true })
+      },
+      confirmState(params) {
+        componentStateConfirmed = true
+        return Object.freeze(params)
+      },
+      resolveProfile() {
+        return {
+          kind: "configuration",
+          supports: () => true,
+          baseAddress: () => undefined,
+          confirm({ target }) {
+            profileConfirmed = true
+            return {
+              kind: "configuration",
+              target,
+              workerProfile: {
+                kind: "configuration",
+                componentKind: "configuration",
+                adoptedUuids: {},
+              },
+            }
+          },
+        }
+      },
+      createWorkerPool() {
+        throw new Error("worker pool must not be created")
+      },
+    }
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous),
+      selection: { kind: "selected", projectPaths: [] },
+    }, deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ message: "Публичная частичная синхронизация в XML пока не поддерживается" }),
+    ])
+    expect(fs.existsSync(state.xmlDir)).toBe(false)
+    expect(componentStateConfirmed).toBe(false)
+    expect(profileConfirmed).toBe(false)
+    expect(fs.readFileSync(state.indexPath)).toEqual(before)
+  })
+
   it("сохраняет прежние байты снимка при ошибке проверки результата", async () => {
     const state = await createIndexedProject()
     const before = fs.readFileSync(state.indexPath)
@@ -364,7 +425,11 @@ function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService
       const hashBytes = new Uint8Array(files.length * 8)
       const view = new DataView(hashBytes.buffer)
       files.forEach(({ contentHash }, index) => view.setBigUint64(index * 8, contentHash, false))
-      return { componentPath, projectFiles: files.map(({ projectPath }) => ({ projectPath })), hashBytes }
+      return {
+        componentPath,
+        projectFiles: files.map(({ projectPath }) => ({ projectPath: `${componentPath}/${projectPath}` })),
+        hashBytes,
+      }
     },
     openReadSession() {
       return {

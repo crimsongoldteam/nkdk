@@ -343,7 +343,7 @@ describe("shared full XML sync coordinator", () => {
     expect(selected.writtenIndex).toEqual(all.writtenIndex)
   })
 
-  it("rejects an unsupported component or incomplete selection before XML and snapshot writes", async () => {
+  it("rejects an unsupported component before XML and snapshot writes", async () => {
     const unsupported = createHarness()
     const unsupportedResult = await syncComponentToXml({
       context,
@@ -355,46 +355,42 @@ describe("shared full XML sync coordinator", () => {
     expect(unsupportedResult.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_component_not_supported" }),
     ])
-
-    const partial = createHarness()
-    const partialResult = await syncComponentToXml({
-      context,
-      projectDir: "/project",
-      componentPath: "cf",
-      xmlDir: "/out",
-      projectState: partial.projectState,
-      selection: { kind: "selected", projectPaths: [] },
-    }, partial.deps)
-    expect(partialResult.failed).toEqual([
-      expect.objectContaining({
-        message: "Публичная частичная синхронизация в XML пока не поддерживается",
-      }),
-    ])
-    expect(partial.events).not.toContain("execute")
-    expect(partial.events).not.toContain("transferExternal")
-    expect(partial.events).not.toContain("writeTargetSnapshot")
   })
 
-  it("rejects an incomplete preview selection after refresh but before plan construction", async () => {
-    const harness = createHarness()
+  it.each(["sync", "preview"] as const)(
+    "rejects an incomplete %s selection from the refreshed projection before side effects",
+    async (mode) => {
+      const warning = incompleteSelectionWarning()
+      const harness = createHarness({ refreshDiagnostics: [warning] })
+      const common = {
+        projectDir: "/project",
+        componentPath: "cf",
+        xmlDir: "/out",
+        projectState: harness.projectState,
+        selection: { kind: "selected" as const, projectPaths: [] },
+      }
+      const result = mode === "sync"
+        ? await syncComponentToXml({ ...common, context }, harness.deps)
+        : await planSyncConfigurationToXml(common, harness.deps)
 
-    const result = await planSyncConfigurationToXml({
-      projectDir: "/project",
-      componentPath: "cf",
-      xmlDir: "/out",
-      projectState: harness.projectState,
-      selection: { kind: "selected", projectPaths: [] },
-    }, harness.deps)
-
-    expect(result).toEqual(expect.objectContaining({
-      ok: false,
-      failed: [expect.objectContaining({
-        message: "Публичная частичная синхронизация в XML пока не поддерживается",
-      })],
-    }))
-    expect(harness.events[0]).toBe("refresh")
-    expect(harness.events).not.toContain("buildSelection")
-  })
+      expect(result).toEqual(expect.objectContaining({
+        failed: [expect.objectContaining({
+          message: "Публичная частичная синхронизация в XML пока не поддерживается",
+        })],
+      }))
+      expect(result.diagnostics).toEqual([
+        expect.objectContaining({ code: "project_validation", severity: "warning" }),
+        expect.objectContaining({ message: "Публичная частичная синхронизация в XML пока не поддерживается" }),
+      ])
+      expect(harness.events).toEqual(["refresh"])
+      expect(harness.projectionReads).toEqual(["cf"])
+      expect(harness.ensureXmlDirectoryCalls).toBe(0)
+      expect(harness.confirmStateCalls).toBe(0)
+      expect(harness.profileConfirmCalls).toBe(0)
+      expect(harness.workerPoolCreations).toBe(0)
+      expect(harness.writtenIndex).toBeUndefined()
+    },
+  )
 
   it("не публикует снимок при конфликте logicalAddress с неизменённым файлом", async () => {
     const harness = createHarness({
@@ -477,11 +473,27 @@ interface HarnessOptions {
   readonly closeFailure?: Error
 }
 
+function incompleteSelectionWarning() {
+  return {
+    filePath: "/project/cf/Конфигурация.yaml",
+    line: 1,
+    col: 2,
+    severity: "warning" as const,
+    source: "reference" as const,
+    message: "Предупреждение",
+  }
+}
+
 function createHarness(options: HarnessOptions = {}) {
   const events: string[] = []
+  const projectionReads: string[] = []
   let writtenIndex: ConfigurationSnapshot | undefined
   let writtenAddress: ComponentAddress | undefined
   let initializedWithBase = false
+  let ensureXmlDirectoryCalls = 0
+  let confirmStateCalls = 0
+  let profileConfirmCalls = 0
+  let workerPoolCreations = 0
   let targetKind: ComponentAddress["kind"] = "configuration"
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
@@ -498,6 +510,7 @@ function createHarness(options: HarnessOptions = {}) {
     },
     async createReadToken() { return new Uint8Array([2]) as import("../projectState").ProjectStateReadToken },
     async readComponentProjection({ componentPath }: { componentPath: string }) {
+      projectionReads.push(componentPath)
       const hashBytes = new Uint8Array(8)
       new DataView(hashBytes.buffer).setBigUint64(0, 10n, false)
       return { componentPath, projectFiles: [{ projectPath: `${componentPath}/Конфигурация.yaml` }], hashBytes }
@@ -516,7 +529,9 @@ function createHarness(options: HarnessOptions = {}) {
     async isDirectoryEmpty() {
       return true
     },
-    async mkdir() {},
+    async mkdir() {
+      ensureXmlDirectoryCalls += 1
+    },
     async readStructure({ address }) {
       readingBase =
         address.kind === "configuration" &&
@@ -535,6 +550,7 @@ function createHarness(options: HarnessOptions = {}) {
       return hashes(value, options.previousFiles)
     },
     confirmState(params) {
+      confirmStateCalls += 1
       events.push(readingBase ? "confirmBase" : "confirmTarget")
       return Object.freeze(params)
     },
@@ -553,6 +569,7 @@ function createHarness(options: HarnessOptions = {}) {
             ? { kind: "configuration" }
             : undefined,
         confirm({ target, base }) {
+          profileConfirmCalls += 1
           return {
             kind: address.kind,
             target,
@@ -595,6 +612,7 @@ function createHarness(options: HarnessOptions = {}) {
       }
     },
     createWorkerPool() {
+      workerPoolCreations += 1
       return {
         async initialize(params) {
           initializedWithBase = params.componentPath.startsWith("cfe/")
@@ -641,6 +659,7 @@ function createHarness(options: HarnessOptions = {}) {
 
   return {
     events,
+    projectionReads,
     deps,
     projectState,
     get writtenIndex() {
@@ -651,6 +670,18 @@ function createHarness(options: HarnessOptions = {}) {
     },
     get initializedWithBase() {
       return initializedWithBase
+    },
+    get ensureXmlDirectoryCalls() {
+      return ensureXmlDirectoryCalls
+    },
+    get confirmStateCalls() {
+      return confirmStateCalls
+    },
+    get profileConfirmCalls() {
+      return profileConfirmCalls
+    },
+    get workerPoolCreations() {
+      return workerPoolCreations
     },
   }
 }

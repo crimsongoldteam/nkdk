@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import { resolve } from "node:path"
-import { parseComponentPath, type ComponentAddress } from "../components/address"
+import { componentPath, parseComponentPath, type ComponentAddress } from "../components/address"
 import { configurationIndexPath, writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
 import type {
@@ -18,7 +18,7 @@ import {
 } from "../project/componentState"
 import { createValidationProfiler } from "../validation/profile"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
+import type { ProjectStateComponentProjection, ProjectStateReadToken, ProjectStateService } from "../projectState"
 import { resolveFullXmlSyncComponentProfile, type FullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
@@ -145,12 +145,13 @@ export async function syncComponentToXml(
     if (refreshErrors.length > 0 && params.ignoreValidationErrors !== true) {
       return await complete(failedResult(refreshErrors, warnings, diagnostics))
     }
+    const { address, selection, targetProjection } = await readCheckedSelectionProjection(params, projectDir)
+
     const preflight = await preflightFullXmlSync({ projectDir, xmlDir, deps })
     if ("failed" in preflight) {
       return await complete(failedResult(preflight.failed, warnings, [...diagnostics, ...preflight.failed]))
     }
 
-    const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
     if (!preflight.targetExists) await deps.mkdir(xmlDir)
 
@@ -161,11 +162,10 @@ export async function syncComponentToXml(
       profile,
       projectStateReadToken: refreshed.readToken,
       projectStateIndexReadToken: await params.projectState.createReadToken(projectDir),
+      targetProjection,
       deps,
     })
     const runtime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
-    const selection = params.selection ?? { kind: "all" }
-    assertCompleteSelection(selection, target.structure.projectPaths)
     const plan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
@@ -281,9 +281,10 @@ export async function planSyncConfigurationToXml(
     if (refreshErrors.length > 0 && params.ignoreValidationErrors !== true) {
       return { ok: false, failed: refreshErrors, diagnostics }
     }
+    const { address, selection, targetProjection } = await readCheckedSelectionProjection(params, projectDir)
+
     const preflight = await preflightFullXmlSync({ projectDir, xmlDir, deps })
     if ("failed" in preflight) return { ok: false, failed: preflight.failed, diagnostics: [...diagnostics, ...preflight.failed] }
-    const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
     const { target, base } = await readProfileComponentStates({
       ...params,
@@ -293,11 +294,10 @@ export async function planSyncConfigurationToXml(
       profile,
       projectStateReadToken: refreshed.readToken,
       projectStateIndexReadToken: refreshed.readToken,
+      targetProjection,
       deps,
     })
     profile.confirm({ target, ...(base === undefined ? {} : { base }) })
-    const selection = params.selection ?? { kind: "all" }
-    assertCompleteSelection(selection, target.structure.projectPaths)
     const plan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
@@ -330,6 +330,7 @@ async function readProfileComponentStates(params: {
   readonly projectState: ProjectStateService
   readonly projectStateReadToken: ProjectStateReadToken
   readonly projectStateIndexReadToken: ProjectStateReadToken
+  readonly targetProjection: ProjectStateComponentProjection
   readonly deps: FullXmlSyncCoordinatorDependencies
 }): Promise<{ readonly target: ConfirmedComponentState; readonly base?: ConfirmedComponentState }> {
   const projectStateReadSession = params.projectState.openReadSession(params.projectStateIndexReadToken)
@@ -343,7 +344,11 @@ async function readProfileComponentStates(params: {
     deps: params.deps,
   }
   try {
-    const target = await readConfirmedComponentState({ ...common, address: params.address })
+    const target = await readConfirmedComponentState({
+      ...common,
+      address: params.address,
+      projection: params.targetProjection,
+    })
     const baseAddress = params.profile.baseAddress(params.address)
     const base = baseAddress === undefined
       ? undefined
@@ -376,6 +381,7 @@ async function readConfirmedComponentState(params: {
   readonly projectState: ProjectStateService
   readonly projectStateReadToken: ProjectStateReadToken
   readonly projectStateReadSession: Pick<import("../projectState").ProjectStateReadSession, "readComponentTargetPage">
+  readonly projection?: ProjectStateComponentProjection
   readonly deps: FullXmlSyncCoordinatorDependencies
 }): Promise<ConfirmedComponentState> {
   const structure = await params.deps.readStructure({
@@ -386,7 +392,7 @@ async function readConfirmedComponentState(params: {
     projectDir: params.projectDir,
     address: params.address,
   })
-  const projection = await params.projectState.readComponentProjection({
+  const projection = params.projection ?? await params.projectState.readComponentProjection({
     projectDir: params.projectDir,
     componentPath: structure.componentPath,
   })
@@ -497,6 +503,42 @@ function assertCompleteSelection(selection: XmlSyncSelection, projectPaths: read
   if (selected.size !== projectPaths.length || projectPaths.some((projectPath) => !selected.has(projectPath))) {
     throw new Error("Публичная частичная синхронизация в XML пока не поддерживается")
   }
+}
+
+async function readCheckedSelectionProjection(params: {
+  readonly projectState: ProjectStateService
+  readonly componentPath: string
+  readonly selection?: XmlSyncSelection
+}, projectDir: string): Promise<{
+  readonly address: ComponentAddress
+  readonly selection: XmlSyncSelection
+  readonly targetProjection: ProjectStateComponentProjection
+}> {
+  const address = parseSupportedComponentPath(params.componentPath)
+  const selection = params.selection ?? { kind: "all" }
+  const targetComponentPath = componentPath(address)
+  const targetProjection = await params.projectState.readComponentProjection({
+    projectDir,
+    componentPath: targetComponentPath,
+  })
+  assertCompleteSelection(selection, projectionProjectPaths(targetProjection, targetComponentPath))
+  return { address, selection, targetProjection }
+}
+
+function projectionProjectPaths(
+  projection: ProjectStateComponentProjection,
+  expectedComponentPath: string,
+): readonly string[] {
+  if (projection.componentPath !== expectedComponentPath) {
+    throw new Error("Проекция состояния относится к другому компоненту")
+  }
+  const prefix = `${expectedComponentPath}/`
+  return projection.projectFiles.map(({ projectPath }) => {
+    if (!projectPath.startsWith(prefix)) {
+      throw new Error(`Путь проекции не принадлежит компоненту: ${projectPath}`)
+    }
+    return projectPath.slice(prefix.length)
+  })
 }
 
 function parseSupportedComponentPath(path: string): ComponentAddress {
