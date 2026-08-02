@@ -19,8 +19,11 @@ import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../checkBoxField/ru
 import { UsualGroupRules } from "../usualGroup/rules"
 import { createFormDataPathIndexFromYAML } from "../../../validation/dataPath/formYamlIndex"
 import { ButtonRules } from "../button/rules"
-import { InputFieldRules } from "../inputField/rules"
+import { InputFieldRules, TableInputFieldRules } from "../inputField/rules"
 import { RadioButtonFieldRules } from "../radioButtonField/rules"
+import { ExtendedTooltipRules } from "../extendedTooltip/rules"
+import { TableLabelFieldRules } from "../labelField/rules"
+import { TablePictureFieldRules } from "../pictureField/rules"
 
 import "../index"
 
@@ -291,6 +294,50 @@ describe("элементы формы XML → YAML → XML", () => {
           name: "Флажок",
         }).xml
       ).toMatchObject({ ThreeState: true, CheckBoxType: "Switch" })
+    }
+  )
+
+  it("сохраняет пустой форматированный заголовок ExtendedTooltip без reference", () => {
+    const yaml = testMetadataItemFromXMLToYAML({
+      rule: ExtendedTooltipRules,
+      xml: { _name: "ПолеРасширеннаяПодсказка", Title: { _formatted: true } },
+      name: "ПолеРасширеннаяПодсказка",
+    }).yaml
+
+    expect(yaml).toMatchObject({
+      Заголовок: { Форматированный: "Истина", Текст: "" },
+    })
+    expect(
+      testMetadataItemFromYAMLToXML({
+        rule: ExtendedTooltipRules,
+        yaml,
+        name: "ПолеРасширеннаяПодсказка",
+      }).xml
+    ).toHaveProperty("Title", { _formatted: true })
+  })
+
+  it("не создаёт отсутствующий заголовок ExtendedTooltip", () => {
+    expect(
+      testMetadataItemFromYAMLToXML({
+        rule: ExtendedTooltipRules,
+        yaml: {},
+        name: "ПолеРасширеннаяПодсказка",
+      }).xml
+    ).not.toHaveProperty("Title")
+  })
+
+  it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
+    "canonicalizes explicit table HeaderHorizontalAlign=Auto to an absent XML tag",
+    (rule) => {
+      const yaml = testMetadataItemFromXMLToYAML({
+        rule,
+        xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
+        name: "Колонка",
+      }).yaml
+      expect(yaml).not.toHaveProperty("ГоризонтальноеПоложениеВШапке")
+      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).not.toHaveProperty(
+        "HeaderHorizontalAlign"
+      )
     }
   )
 })
