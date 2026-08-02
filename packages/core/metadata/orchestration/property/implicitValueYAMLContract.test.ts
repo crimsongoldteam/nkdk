@@ -1072,29 +1072,14 @@ describe("implicitValueYAML contract", () => {
     expect(unexpected).toEqual([])
   })
 
-  it("uses configurator defaults as implicit YAML values for document forms", () => {
+  it("uses configurator defaults as implicit YAML values for object forms", () => {
     const expected = {
       autoTime: "CurrentOrLast",
-      repostOnWrite: true,
-      usePostingMode: "Auto",
-    } as const
-
-    const unexpected = Object.entries(expected)
-      .filter(([propertyKey, implicitValueYAML]) => {
-        return (
-          getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
-        )
-      })
-      .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
-
-    expect(unexpected).toEqual([])
-  })
-
-  it("uses configurator defaults as implicit YAML values for report forms", () => {
-    const expected = {
-      reportFormType: "Main",
       autoShowState: "Auto",
+      repostOnWrite: true,
+      reportFormType: "Main",
       reportResultViewMode: "Auto",
+      usePostingMode: "Auto",
       viewModeApplicationOnSetReportResult: "Auto",
     } as const
 
