@@ -2,18 +2,34 @@ import fs from "node:fs"
 
 export function createTestFileLifecycleReporter(outputPath) {
   const testFiles = new Map()
+  let packageSetupDuration = 0
 
   return {
     onTestModuleEnd(testModule) {
       const diagnostic = testModule.diagnostic()
+      assertLifecycleDiagnostic(testModule.moduleId, diagnostic, testFiles)
+      packageSetupDuration += diagnostic.setupDuration
       testFiles.set(testModule.moduleId, {
         file: testModule.moduleId,
-        duration: diagnostic.setupDuration + diagnostic.collectDuration + diagnostic.duration,
+        duration: diagnostic.collectDuration + diagnostic.duration,
       })
     },
     onTestRunEnd() {
-      fs.writeFileSync(outputPath, `${JSON.stringify({ testFiles: [...testFiles.values()] })}\n`)
+      fs.writeFileSync(outputPath, `${JSON.stringify({ packageSetupDuration, testFiles: [...testFiles.values()] })}\n`)
     },
+  }
+}
+
+function assertLifecycleDiagnostic(moduleId, diagnostic, testFiles) {
+  if (typeof moduleId !== "string" || moduleId === "" || testFiles.has(moduleId) ||
+    diagnostic === null || typeof diagnostic !== "object") {
+    throw new Error("Vitest вернул повреждённую lifecycle-диагностику")
+  }
+  for (const field of ["setupDuration", "collectDuration", "duration"]) {
+    const value = diagnostic[field]
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+      throw new Error("Vitest вернул повреждённую lifecycle-диагностику")
+    }
   }
 }
 

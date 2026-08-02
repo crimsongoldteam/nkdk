@@ -5,13 +5,17 @@ import { fileURLToPath } from "node:url"
 export const TEST_DURATION_TARGET_MS = 10
 export const TEST_DURATION_LIMIT_MS = 50
 export const TEST_FILE_LIMIT_MS = 1_000
+export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
 
 export function analyzeTestDurationReport(report, lifecycleReport) {
   assertTestDurationReport(report)
-  const lifecycleByFile = parseLifecycleReport(lifecycleReport, report.testResults)
+  const { lifecycleByFile, packageSetupDuration } = parseLifecycleReport(lifecycleReport, report.testResults)
 
   const warnings = []
   const failures = []
+  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS) {
+    failures.push({ type: "setup", duration: packageSetupDuration })
+  }
   for (const suite of report.testResults) {
     const fileDuration = lifecycleByFile.get(suite.name)
     if (fileDuration > TEST_FILE_LIMIT_MS) {
@@ -78,8 +82,9 @@ function assertTestDurationReport(report) {
 }
 
 function parseLifecycleReport(report, suites) {
-  if (report === null || typeof report !== "object" || !Array.isArray(report.testFiles)) {
-    throw new Error("Отчёт lifecycle не содержит массив testFiles")
+  if (report === null || typeof report !== "object" || !Array.isArray(report.testFiles) ||
+    !isFiniteNumber(report.packageSetupDuration) || report.packageSetupDuration < 0) {
+    throw new Error("Отчёт lifecycle не содержит корректный setup пакета и массив testFiles")
   }
 
   const durations = new Map()
@@ -94,7 +99,7 @@ function parseLifecycleReport(report, suites) {
   if (durations.size !== suites.length || suites.some((suite) => !durations.has(suite.name))) {
     throw new Error("Отчёты Vitest и lifecycle содержат разные test files")
   }
-  return durations
+  return { lifecycleByFile: durations, packageSetupDuration: report.packageSetupDuration }
 }
 
 function readJsonReport(path, label) {
@@ -128,12 +133,13 @@ function isFiniteNumber(value) {
 function sortByDuration(results) {
   return results.sort((left, right) =>
     right.duration - left.duration ||
-    left.file.localeCompare(right.file) ||
+    (left.file ?? "").localeCompare(right.file ?? "") ||
     (left.name ?? "").localeCompare(right.name ?? "")
   )
 }
 
 function formatResult(result) {
+  if (result.type === "setup") return `${result.duration.toFixed(2)}ms setup пакета`
   const file = relative(process.cwd(), result.file)
   const name = result.type === "file" ? "файл теста" : result.name
   return `${result.duration.toFixed(2)}ms ${file} > ${name}`

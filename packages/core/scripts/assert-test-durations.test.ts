@@ -20,7 +20,8 @@ const report = ({ testMs }: { testMs: number }) => ({
   }],
 })
 
-const lifecycleReport = (fileMs: number) => ({
+const lifecycleReport = (fileMs: number, packageSetupMs = 3_000) => ({
+  packageSetupDuration: packageSetupMs,
   testFiles: [{
     file: "/project/packages/core/example.test.ts",
     duration: fileMs,
@@ -36,6 +37,10 @@ describe("assert test durations", () => {
     expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(1_000)).warnings).toHaveLength(1)
     expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000)).failures).toHaveLength(1)
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000.01)).failures).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000, 3_000.01)).failures).toEqual([{
+      type: "setup",
+      duration: 3_000.01,
+    }])
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
@@ -63,6 +68,7 @@ describe("assert test durations", () => {
         },
       ],
     }, {
+      packageSetupDuration: 3_500,
       testFiles: [
         { file: "/project/first.test.ts", duration: 1_100 },
         { file: "/project/second.test.ts", duration: 1_200 },
@@ -70,7 +76,7 @@ describe("assert test durations", () => {
     })
 
     expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([20, 11])
-    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([1_200, 1_100, 80, 60])
+    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([3_500, 1_200, 1_100, 80, 60])
   })
 
   it("отклоняет повреждённый JSON-отчёт", () => {
@@ -87,6 +93,9 @@ describe("assert test durations", () => {
       numTodoTests: 0,
       testResults: [],
     }, { testFiles: [] })).toThrow()
+    expect(() => analyzeTestDurationReport(report({ testMs: 1 }), {
+      testFiles: [{ file: "/project/packages/core/example.test.ts", duration: 1 }],
+    })).toThrow("setup")
     expect(() => readTestDurationReports({
       report: "/definitely/missing/case-report.json",
       lifecycleReport: "/definitely/missing/lifecycle-report.json",

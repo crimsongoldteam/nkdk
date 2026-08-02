@@ -49,6 +49,12 @@ describe("SQLite project state persistence", () => {
     const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
     expect(reopened.store.readComponentProjection("cf").updates).toEqual(updates)
     expect(reopened.store.compareFiles({ files: updates.map(identity), hashBytes })).toEqual({ changed: [], deleted: [] })
+    const readSession = reopened.openReadSession(reopened.store.createReadToken())
+    expect(readSession.readValidationStatus({ offset: 0, batchSize: 10 })).toEqual([{
+      projectPath: "cf/a.bin",
+      componentPath: "cf",
+    }])
+    readSession.close()
     reopened.store.close()
   })
 

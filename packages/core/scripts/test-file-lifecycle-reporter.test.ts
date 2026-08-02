@@ -12,20 +12,43 @@ afterEach(() => {
 })
 
 describe("test file lifecycle reporter", () => {
-  it("складывает import и исполнение файла до завершения hooks", async () => {
+  it("отделяет общий setup от import и исполнения test file", async () => {
     const outputPath = join(os.tmpdir(), `test-file-lifecycle-${crypto.randomUUID()}.json`)
     reportPaths.push(outputPath)
     const reporter = createTestFileLifecycleReporter(outputPath)
-    const testModule = {
+    const firstTestModule = {
       moduleId: "/project/expensive-setup.test.ts",
       diagnostic: () => ({ setupDuration: 400, collectDuration: 300, duration: 500 }),
     }
+    const secondTestModule = {
+      moduleId: "/project/second.test.ts",
+      diagnostic: () => ({ setupDuration: 50, collectDuration: 20, duration: 30 }),
+    }
 
-    await reporter.onTestModuleEnd(testModule)
+    await reporter.onTestModuleEnd(firstTestModule)
+    await reporter.onTestModuleEnd(secondTestModule)
     await reporter.onTestRunEnd()
 
     expect(JSON.parse(fs.readFileSync(outputPath, "utf8"))).toEqual({
-      testFiles: [{ file: "/project/expensive-setup.test.ts", duration: 1_200 }],
+      packageSetupDuration: 450,
+      testFiles: [
+        { file: "/project/expensive-setup.test.ts", duration: 800 },
+        { file: "/project/second.test.ts", duration: 50 },
+      ],
     })
+  })
+
+  it.each([
+    ["отрицательную", { setupDuration: -1, collectDuration: 1, duration: 1 }],
+    ["нечисловую", { setupDuration: 1, collectDuration: Number.NaN, duration: 1 }],
+  ])("отклоняет %s lifecycle-диагностику", async (_name, diagnostic) => {
+    const outputPath = join(os.tmpdir(), `test-file-lifecycle-${crypto.randomUUID()}.json`)
+    reportPaths.push(outputPath)
+    const reporter = createTestFileLifecycleReporter(outputPath)
+
+    expect(() => reporter.onTestModuleEnd({
+      moduleId: "/project/example.test.ts",
+      diagnostic: () => diagnostic,
+    })).toThrow("lifecycle")
   })
 })

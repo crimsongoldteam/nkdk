@@ -34,7 +34,7 @@ export async function openPersistentSqliteProjectStateStore(
   let database = new DatabaseSync(identity.databaseName, { timeout: 5_000 })
   let loaded = options.loadSnapshot === false
     ? false
-    : await loadCompatibleSnapshot(database, options)
+    : await loadCompatibleSnapshot(database, identity, options)
   if (loaded) {
     try {
       initializeLoadedDatabase(database, identity, options.projectDir)
@@ -59,17 +59,53 @@ export async function openPersistentSqliteProjectStateStore(
 
 async function loadCompatibleSnapshot(
   targetDatabase: DatabaseSync,
+  identity: SqliteProjectStateIdentity,
   options: OpenPersistentSqliteProjectStateStoreOptions,
 ): Promise<boolean> {
+  let source: DatabaseSync | undefined
+  let snapshotAttached = false
   try {
-    const bytes = await fs.promises.readFile(projectStateSnapshotPath(options.projectDir))
-    targetDatabase.deserialize(bytes)
-    assertQuickCheck(targetDatabase)
-    assertCompatibility(targetDatabase, options.compatibility)
+    const snapshotPath = projectStateSnapshotPath(options.projectDir)
+    source = new DatabaseSync(snapshotPath, { readOnly: true })
+    assertQuickCheck(source)
+    assertCompatibility(source, options.compatibility)
+    source.close()
+    source = undefined
+
+    createSqliteProjectStateSchema(targetDatabase, options.compatibility, identity)
+    targetDatabase.prepare("ATTACH DATABASE ? AS project_state_snapshot").run(snapshotPath)
+    snapshotAttached = true
+    copyAttachedSnapshot(targetDatabase)
     return true
   } catch {
     return false
+  } finally {
+    source?.close()
+    if (snapshotAttached) targetDatabase.exec("DETACH DATABASE project_state_snapshot")
   }
+}
+
+function copyAttachedSnapshot(database: DatabaseSync): void {
+  const tables = database.prepare(`
+    SELECT name FROM main.sqlite_schema
+    WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+    ORDER BY rowid
+  `).all() as unknown as { name: string }[]
+  database.exec("PRAGMA foreign_keys = OFF; BEGIN IMMEDIATE")
+  try {
+    for (const { name } of tables) {
+      const table = quoteSqliteIdentifier(name)
+      database.exec(`DELETE FROM main.${table}; INSERT INTO main.${table} SELECT * FROM project_state_snapshot.${table}`)
+    }
+    database.exec("COMMIT; PRAGMA foreign_keys = ON")
+  } catch (caught) {
+    database.exec("ROLLBACK; PRAGMA foreign_keys = ON")
+    throw caught
+  }
+}
+
+function quoteSqliteIdentifier(value: string): string {
+  return `"${value.replaceAll('"', '""')}"`
 }
 
 function initializeLoadedDatabase(
