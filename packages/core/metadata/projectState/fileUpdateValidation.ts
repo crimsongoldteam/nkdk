@@ -21,6 +21,35 @@ export function assertProjectStateFileUpdateBatch(value: unknown): asserts value
   batch["updates"].forEach((update, index) => assertProjectStateFileUpdate(update, `updates[${index}]`))
 }
 
+export function assertProjectStateImportFinalFileState(value: unknown, path: string): void {
+  const update = requiredRecord(value, path)
+  if (update["kind"] === "resource") {
+    assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind"], path)
+    assertProjectStateFileUpdate(update, path)
+    assertPortableData(update, path)
+    return
+  }
+  if (update["kind"] !== "yaml") throw new Error(`${path}.kind имеет неизвестное значение`)
+  assertExactKeys(update, [
+    "kind",
+    "projectPath",
+    "componentPath",
+    "resourceKind",
+    "yamlRole",
+    "localValidation",
+    "pendingReferences",
+    "pendingChecks",
+    "dependencies",
+  ], path)
+  assertProjectStateFileUpdate({
+    ...update,
+    references: [],
+    owners: [],
+    fields: [],
+    forms: [],
+  }, path)
+}
+
 function assertProjectStateFileUpdate(value: unknown, path: string): void {
   const update = requiredRecord(value, path)
   assertString(update["kind"], `${path}.kind`)

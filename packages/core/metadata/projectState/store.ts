@@ -55,7 +55,9 @@ export interface ProjectStateStore {
   beginUpdate(): void
   replaceFiles(batch: ProjectStateFileUpdateBatch): void
   replaceImportIndex(batch: readonly ProjectStateImportIndexContribution[]): void
+  registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): void
   replaceImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): void
+  clearImportOutput(componentPaths: readonly string[]): void
   deleteFiles(projectPaths: readonly string[]): void
   readLocalDiagnostics(params?: { readonly mode?: "published" }): readonly Diagnostic[]
   readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch

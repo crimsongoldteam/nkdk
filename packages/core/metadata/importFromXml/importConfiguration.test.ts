@@ -139,12 +139,14 @@ describe("configuration XML import coordinator", () => {
     const pool = dependencies.createWorkerPool({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
-      async runSecondPass(snapshots) {
+      async runSecondPass(snapshots, sink) {
         calls.push("secondPass")
         secondPassTokenCount = snapshots.length
+        await sink?.writeSecondPassState({
+          finalFileStateBatches: [stateBatch(secondPassFiles, 3, "cfe/Расширение_All")],
+        })
         return {
           diagnostics: [], warnings: [], files: secondPassFiles,
-          finalFileStateBatches: [stateBatch(secondPassFiles, 3, "cfe/Расширение_All")],
         }
       },
     })
@@ -338,6 +340,35 @@ describe("configuration XML import coordinator", () => {
     )
   })
 
+  it("не маскирует primary failure ошибками cleanup до публикации", async () => {
+    const params = createParams("configuration")
+    const dependencies = fakeDependencies({
+      calls: [],
+      failurePhase: "firstPass",
+      workerCloseFailure: new Error("worker cleanup failed"),
+      projectStateCloseFailure: new Error("state cleanup failed"),
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      "firstPass failed",
+      "worker cleanup failed",
+      "state cleanup failed",
+    ])
+  })
+
+  it("после публикации cleanup failure не превращает успешный import в failure", async () => {
+    const params = createParams("configuration")
+    const result = await importConfigurationFromXml(params, fakeDependencies({
+      calls: [],
+      workerCloseFailure: new Error("worker cleanup failed"),
+      projectStateCloseFailure: new Error("state cleanup failed"),
+    }))
+
+    expect(result).toMatchObject({ succeeded: assignments.length, failed: [] })
+  })
+
   it("does not read unrelated XML before a preflight failure", async () => {
     const params = createParams("configurationExtension")
     createBaseConfiguration(params.projectDir)
@@ -476,6 +507,8 @@ function fakeDependencies(params: {
   writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }>
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
   transfers?: string[]
+  workerCloseFailure?: Error
+  projectStateCloseFailure?: Error
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
   let selectedComponentPath = "cf"
@@ -499,31 +532,36 @@ function fakeDependencies(params: {
               : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }),
           })
         },
-        async runFirstPass() {
+        async runFirstPass(_assignments, sink) {
           call("firstPass")
+          await sink?.writeFirstPassState({
+            indexContributions: [],
+            finalFileStateBatches: [stateBatch(firstPassFiles, 1, selectedComponentPath)],
+          })
           return {
             diagnostics: [],
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
             files: firstPassFiles,
             fragmentData,
-            indexContributions: [],
-            finalFileStateBatches: [stateBatch(firstPassFiles, 1, selectedComponentPath)],
           }
         },
-        async runSecondPass() {
+        async runSecondPass(_tokens, sink) {
           call("secondPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
+          await sink?.writeSecondPassState({
+            finalFileStateBatches: [stateBatch(secondPassFiles, 3, selectedComponentPath)],
+          })
           return {
             diagnostics: [], warnings: [], files: secondPassFiles,
-            finalFileStateBatches: [stateBatch(secondPassFiles, 3, selectedComponentPath)],
           }
         },
         workerCount() { return 1 },
         async close() {
           params.calls.push("closeWorkers")
+          if (params.workerCloseFailure !== undefined) throw params.workerCloseFailure
         },
       }
     },
@@ -531,7 +569,9 @@ function fakeDependencies(params: {
       call("discover")
       return { assignments }
     },
-    createProjectStateService() { return fakeProjectState(params.calls) },
+    createProjectStateService() {
+      return fakeProjectState(params.calls, params.projectStateCloseFailure)
+    },
     mergeFiles(files) {
       call("mergeFiles")
       return [...files]
@@ -570,13 +610,14 @@ function stateBatch(
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
 }
 
-function fakeProjectState(calls: string[]): ProjectStateService {
+function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
   return {
     async beginImport() {
       return {
         async writeFirstPassBatch() {},
+        async registerFileIdentities() {},
         async commitWorkingIndex() { return readToken() },
         async createReadToken() { return readToken() },
         async writeFinalFileState(batch) {
@@ -607,7 +648,9 @@ function fakeProjectState(calls: string[]): ProjectStateService {
     async readComponentProjection() { throw new Error("not used") },
     async reset() {},
     async rebuild() { throw new Error("not used") },
-    async close() {},
+    async close() {
+      if (closeFailure !== undefined) throw closeFailure
+    },
   }
 }
 

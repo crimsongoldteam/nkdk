@@ -15,6 +15,46 @@ afterEach(async () => {
 })
 
 describe("ProjectStateService", () => {
+  it("успешно публикует import после checkpoint, даже если прежний writer не закрылся", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-import-publish-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const closeOld = old.close.bind(old)
+    old.close = async () => {
+      await closeOld()
+      throw new Error("old runtime close failed")
+    }
+    const writers = [old, candidate]
+    const service = createProjectStateService({ createWriter: () => writers.shift()!, createPool: () => testPool() })
+    await service.createReadToken(projectDir)
+
+    const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
+    await session.commitWorkingIndex()
+    await expect(session.finalize()).resolves.toMatchObject({ diagnostics: [] })
+    await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
+
+    await service.close()
+  })
+
+  it("abort сохраняет primary первым и добавляет ошибку discard как secondary", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-import-abort-"))
+    tempDirs.push(projectDir)
+    const primary = new Error("import failed")
+    const cleanup = new Error("candidate close failed")
+    const candidate = testWriterHandle(1)
+    candidate.close = async () => { throw cleanup }
+    const service = createProjectStateService({ createWriter: () => candidate, createPool: () => testPool() })
+    const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
+
+    const caught = await session.abort(primary).catch((reason: unknown) => reason)
+
+    expect(caught).toBeInstanceOf(AggregateError)
+    expect((caught as AggregateError).errors).toEqual([primary, cleanup])
+    expect((caught as Error).message).toBe(primary.message)
+    await service.close()
+  })
+
   it("нормализует projectDir через realpath и последовательно выполняет параллельные актуализации", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-service-"))
     tempDirs.push(projectDir)
@@ -487,7 +527,9 @@ function testWriterHandle(id: number): TestWriter {
     async beginUpdate() {},
     async writeBatch() {},
     async writeImportIndexBatch() {},
+    async registerImportFileIdentities() {},
     async writeImportFinalFileState() {},
+    async clearImportOutput() {},
     async deleteFiles() {},
     async commitAndCheckpoint() { return { snapshotPath: "snapshot" } },
     async commitUpdate() {},

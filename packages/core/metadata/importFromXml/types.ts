@@ -68,8 +68,10 @@ export type ImportWorkerCommand =
       projectDir?: string
       componentPath?: string
     }
-  | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "secondPass"; readToken: ProjectStateReadToken }
+  | { kind: "firstPass"; assignments: ImportAssignment[]; finalize?: boolean }
+  | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
+  | { kind: "secondPass"; assignmentId: string }
+  | { kind: "endSecondPass" }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import { createProjectStateCompatibility, type ProjectStateCompatibility } from "./compatibility"
-import type { ProjectStateFileUpdateBatch } from "./fileUpdate"
+import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
@@ -66,7 +66,9 @@ export interface ProjectStateWriterHandle {
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
   writeImportIndexBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
+  registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
   writeImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
+  clearImportOutput(componentPaths: readonly string[]): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
   commitUpdate(): Promise<void>
@@ -215,6 +217,11 @@ export function createProjectStateWriterHandle(
       const currentOperationId = assertActiveOperation()
       await request({ kind: "writeImportIndexBatch", requestId: randomUUID(), operationId: currentOperationId, batch })
     },
+    async registerImportFileIdentities(files) {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      await request({ kind: "registerImportFileIdentities", requestId: randomUUID(), operationId: currentOperationId, files })
+    },
     async writeImportFinalFileState(batch) {
       assertUsable()
       const currentOperationId = assertActiveOperation()
@@ -231,6 +238,11 @@ export function createProjectStateWriterHandle(
       const currentOperationId = assertActiveOperation()
       if (cancelledError !== undefined) throw cancelledError
       await request({ kind: "deleteFiles", requestId: randomUUID(), operationId: currentOperationId, projectPaths })
+    },
+    async clearImportOutput(componentPaths) {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      await request({ kind: "clearImportOutput", requestId: randomUUID(), operationId: currentOperationId, componentPaths })
     },
     async commitAndCheckpoint() {
       assertUsable()

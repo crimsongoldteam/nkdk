@@ -33,8 +33,14 @@ export interface XmlImportWorkerPool {
     componentKind: string
     metadataItemAugmenter?: string
   }): Promise<void>
-  runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
-  runSecondPass(readTokens: readonly ProjectStateReadToken[]): Promise<XmlImportSecondPassPoolResult>
+  runFirstPass(
+    assignments: readonly ImportAssignment[],
+    sink?: XmlImportStateSink,
+  ): Promise<XmlImportFirstPassPoolResult>
+  runSecondPass(
+    readTokens: readonly ProjectStateReadToken[],
+    sink?: XmlImportStateSink,
+  ): Promise<XmlImportSecondPassPoolResult>
   workerCount(): number
   close(): Promise<void>
 }
@@ -51,15 +57,22 @@ export interface XmlImportFirstPassPoolResult {
   validationContribution: ValidationIndexContribution
   files: ImportResultFile[]
   fragmentData: MergedConfigurationSnapshotFragments
-  indexContributions: ProjectStateImportIndexContribution[]
-  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }
 
 export interface XmlImportSecondPassPoolResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
-  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
+}
+
+export interface XmlImportStateBatch {
+  readonly indexContributions: readonly ProjectStateImportIndexContribution[]
+  readonly finalFileStateBatches: readonly ProjectStateImportFinalFileStateBatch[]
+}
+
+export interface XmlImportStateSink {
+  writeFirstPassState(batch: XmlImportStateBatch): Promise<void>
+  writeSecondPassState(batch: Omit<XmlImportStateBatch, "indexContributions">): Promise<void>
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -81,6 +94,7 @@ type PoolPhase =
 export function createXmlImportWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => XmlImportWorkerThreadPool
+  maxPendingStateBatches?: number
 }): XmlImportWorkerPool {
   const concurrency = normalizeConcurrency(params.concurrency)
   const pools = new Map<number, XmlImportWorkerThreadPool>()
@@ -99,12 +113,14 @@ export function createXmlImportWorkerPool(params: {
       return [...pools.values()]
     },
     closeMode: "destroy",
+    maxPendingStateBatches: normalizePendingStateBatches(params.maxPendingStateBatches),
   })
 }
 
 export function createXmlImportWorkerPoolHandle(params: {
   concurrency: number
   createWorkerPool?: () => XmlImportWorkerThreadPool
+  maxPendingStateBatches?: number
 }): XmlImportWorkerPoolHandle {
   const concurrency = normalizeConcurrency(params.concurrency)
   const pools = new Map<number, XmlImportWorkerThreadPool>()
@@ -139,6 +155,7 @@ export function createXmlImportWorkerPoolHandle(params: {
           return [...pools.values()]
         },
         closeMode: "dispose",
+        maxPendingStateBatches: normalizePendingStateBatches(params.maxPendingStateBatches),
         async releaseOperation() {
           activeOperation = false
         },
@@ -169,8 +186,10 @@ function createXmlImportOperationPool(params: {
   closeMode: "destroy" | "dispose"
   releaseOperation?: () => Promise<void>
   destroyOnCrash?: () => Promise<void>
+  maxPendingStateBatches: number
 }): XmlImportWorkerPool {
   const activeWorkerIndexes: number[] = []
+  const assignmentIdsByWorker = new Map<number, string[]>()
   let initialization:
     | {
         operationId: string
@@ -186,6 +205,7 @@ function createXmlImportOperationPool(params: {
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
   let closePromise: Promise<void> | undefined
+  const stateQueue = createBoundedStateQueue(params.maxPendingStateBatches)
 
   return {
     async initialize(initializeParams) {
@@ -194,7 +214,7 @@ function createXmlImportOperationPool(params: {
       phase = "initialized"
     },
 
-    async runFirstPass(assignments) {
+    async runFirstPass(assignments, sink = noopStateSink) {
       assertUsable(phase, fatalError)
       assertPhase(phase, "initialized", "Первый проход XML-import уже был запущен")
       if (initialization === undefined) throw new Error("XML-import worker pool не инициализирован")
@@ -203,11 +223,15 @@ function createXmlImportOperationPool(params: {
       phase = "firstPassRunning"
       const partitions = partitionRoundRobin(assignments, params.concurrency)
       for (let index = 0; index < partitions.length; index += 1) {
-        if ((partitions[index]?.length ?? 0) > 0) activeWorkerIndexes.push(index)
+        const partition = partitions[index] ?? []
+        if (partition.length > 0) {
+          activeWorkerIndexes.push(index)
+          assignmentIdsByWorker.set(index, partition.map(({ id }) => id))
+        }
       }
 
-      const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<ImportFirstPassResult> => {
+      const resultsByWorker = await Promise.all(
+        activeWorkerIndexes.map(async (workerIndex): Promise<ImportFirstPassResult[]> => {
           const assignmentsForWorker = partitions[workerIndex] ?? []
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
@@ -222,16 +246,27 @@ function createXmlImportOperationPool(params: {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
           }
 
-          const response = await runCommand(workerIndex, {
-            kind: "firstPass",
-            assignments: [...assignmentsForWorker],
-          })
-          if (response?.kind !== "firstPassResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат firstPass"))
+          const workerResults: ImportFirstPassResult[] = []
+          for (let assignmentIndex = 0; assignmentIndex < assignmentsForWorker.length; assignmentIndex += 1) {
+            const assignment = assignmentsForWorker[assignmentIndex]!
+            const response = await runCommand(workerIndex, {
+              kind: "firstPass",
+              assignments: [assignment],
+              finalize: assignmentIndex === assignmentsForWorker.length - 1,
+            })
+            if (response?.kind !== "firstPassResult") {
+              return failWorker(new Error("Worker вернул неожиданный результат firstPass"))
+            }
+            await stateQueue.run(() => sink.writeFirstPassState({
+              indexContributions: response.indexContributions,
+              finalFileStateBatches: response.finalFileStateBatches,
+            }))
+            workerResults.push(withoutFirstPassState(response))
           }
-          return response
+          return workerResults
         })
       )
+      const results = resultsByWorker.flat()
 
       const diagnostics = results.flatMap((result) => result.diagnostics)
       const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
@@ -257,12 +292,10 @@ function createXmlImportOperationPool(params: {
           logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
         },
         fragmentData,
-        indexContributions: results.flatMap((result) => result.indexContributions),
-        finalFileStateBatches: results.flatMap((result) => result.finalFileStateBatches),
       }
     },
 
-    async runSecondPass(readTokens) {
+    async runSecondPass(readTokens, sink = noopStateSink) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
@@ -273,11 +306,29 @@ function createXmlImportOperationPool(params: {
       }
       const results = await Promise.all(
         activeWorkerIndexes.map(async (workerIndex, activeIndex): Promise<ImportSecondPassResult> => {
-          const response = await runCommand(workerIndex, { kind: "secondPass", readToken: readTokens[activeIndex]! })
-          if (response?.kind !== "secondPassResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
+          const beginResponse = await runCommand(workerIndex, {
+            kind: "beginSecondPass",
+            readToken: readTokens[activeIndex]!,
+          })
+          if (beginResponse !== undefined) {
+            return failWorker(new Error("Worker вернул неожиданный результат beginSecondPass"))
           }
-          return response
+          const workerResults: ImportSecondPassResult[] = []
+          for (const assignmentId of assignmentIdsByWorker.get(workerIndex) ?? []) {
+            const response = await runCommand(workerIndex, { kind: "secondPass", assignmentId })
+            if (response?.kind !== "secondPassResult") {
+              return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
+            }
+            await stateQueue.run(() => sink.writeSecondPassState({
+              finalFileStateBatches: response.finalFileStateBatches,
+            }))
+            workerResults.push(withoutSecondPassState(response))
+          }
+          const endResponse = await runCommand(workerIndex, { kind: "endSecondPass" })
+          if (endResponse !== undefined) {
+            return failWorker(new Error("Worker вернул неожиданный результат endSecondPass"))
+          }
+          return mergeSecondPassResults(workerResults)
         })
       )
       phase = "secondPassDone"
@@ -285,7 +336,6 @@ function createXmlImportOperationPool(params: {
         diagnostics: results.flatMap((result) => result.diagnostics),
         warnings: results.flatMap((result) => result.warnings),
         files: results.flatMap((result) => result.files),
-        finalFileStateBatches: results.flatMap((result) => result.finalFileStateBatches),
       }
     },
     workerCount() {
@@ -357,6 +407,53 @@ function createXmlImportOperationPool(params: {
       })
     )
   }
+}
+
+const noopStateSink: XmlImportStateSink = {
+  async writeFirstPassState() {},
+  async writeSecondPassState() {},
+}
+
+function withoutFirstPassState(result: ImportFirstPassResult): ImportFirstPassResult {
+  return { ...result, indexContributions: [], finalFileStateBatches: [] }
+}
+
+function withoutSecondPassState(result: ImportSecondPassResult): ImportSecondPassResult {
+  return { ...result, finalFileStateBatches: [] }
+}
+
+function mergeSecondPassResults(results: readonly ImportSecondPassResult[]): ImportSecondPassResult {
+  return {
+    kind: "secondPassResult",
+    diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
+    warnings: results.flatMap(({ warnings }) => warnings),
+    files: results.flatMap(({ files }) => files),
+    finalFileStateBatches: [],
+  }
+}
+
+function createBoundedStateQueue(limit: number) {
+  const active = new Set<Promise<void>>()
+  return {
+    async run(task: () => Promise<void>): Promise<void> {
+      while (active.size >= limit) await Promise.race(active)
+      const running = task()
+      active.add(running)
+      try {
+        await running
+      } finally {
+        active.delete(running)
+      }
+    },
+  }
+}
+
+function normalizePendingStateBatches(value: number | undefined): number {
+  const normalized = value ?? 2
+  if (!Number.isSafeInteger(normalized) || normalized < 1) {
+    throw new Error("Лимит неподтверждённых import state batches должен быть положительным целым числом")
+  }
+  return normalized
 }
 
 function normalizeConcurrency(concurrency: number): number {

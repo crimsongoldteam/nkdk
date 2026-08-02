@@ -105,7 +105,9 @@ function acknowledgement(command: ProjectStateWriterCommand): ProjectStateWriter
     case "beginUpdate": return { kind: "updateBegun", operationId: command.operationId }
     case "writeBatch": return { kind: "batchWritten", operationId: command.operationId }
     case "writeImportIndexBatch": return { kind: "importIndexBatchWritten", operationId: command.operationId }
+    case "registerImportFileIdentities": return { kind: "importFileIdentitiesRegistered", operationId: command.operationId }
     case "writeImportFinalFileState": return { kind: "importFinalFileStateWritten", operationId: command.operationId }
+    case "clearImportOutput": return { kind: "importOutputCleared", operationId: command.operationId }
     case "deleteFiles": return { kind: "filesDeleted", operationId: command.operationId }
     case "commitUpdate": return { kind: "updateCommitted", operationId: command.operationId }
     case "rollbackUpdate": return { kind: "updateRolledBack", operationId: command.operationId }

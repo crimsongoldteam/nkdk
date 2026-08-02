@@ -96,10 +96,20 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       current.store.replaceImportIndex(command.batch)
       return { kind: "importIndexBatchWritten", operationId: command.operationId }
     }
+    case "registerImportFileIdentities": {
+      const current = requireActiveOperation(command.operationId)
+      current.store.registerImportFileIdentities(command.files)
+      return { kind: "importFileIdentitiesRegistered", operationId: command.operationId }
+    }
     case "writeImportFinalFileState": {
       const current = requireActiveOperation(command.operationId)
       current.store.replaceImportFinalFileState(command.batch)
       return { kind: "importFinalFileStateWritten", operationId: command.operationId }
+    }
+    case "clearImportOutput": {
+      const current = requireActiveOperation(command.operationId)
+      current.store.clearImportOutput(command.componentPaths)
+      return { kind: "importOutputCleared", operationId: command.operationId }
     }
     case "deleteFiles":
       requireActiveOperation(command.operationId).store.deleteFiles(command.projectPaths)

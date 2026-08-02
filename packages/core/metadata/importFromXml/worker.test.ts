@@ -537,7 +537,20 @@ async function runCatalogAndFormSecondPass(
     assignments: [assignments.catalog, assignments.form],
   }))
   onFirstPass?.({ assignments, first })
-  const second = await runImportWorkerCommand({ kind: "secondPass", readToken: createReadToken(first) })
+  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  const secondResults = []
+  for (const assignmentId of [assignments.catalog.id, assignments.form.id]) {
+    const result = await runImportWorkerCommand({ kind: "secondPass", assignmentId })
+    if (result?.kind === "secondPassResult") secondResults.push(result)
+  }
+  await runImportWorkerCommand({ kind: "endSecondPass" })
+  const second = {
+    kind: "secondPassResult" as const,
+    diagnostics: secondResults.flatMap(({ diagnostics }) => diagnostics),
+    warnings: secondResults.flatMap(({ warnings }) => warnings),
+    files: secondResults.flatMap(({ files }) => files),
+    finalFileStateBatches: secondResults.flatMap(({ finalFileStateBatches }) => finalFileStateBatches),
+  }
   return { assignments, first, second }
 }
 

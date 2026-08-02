@@ -74,13 +74,22 @@ interface DeferredImportYaml {
   deferred: PreparedImportYaml["deferred"]
 }
 
+interface ActiveSecondPass {
+  readonly readSession: ReturnType<typeof openProjectStateReadSession>
+  readonly ownerMetadataCache: OwnerMetadataCache
+}
+
 let initializedState: InitializedImportWorkerState | undefined
 let schemaCacheForTests: ValidationSchemaCache | undefined
 const preparedYaml = new Map<string, DeferredImportYaml>()
+const firstPassFragments: ConfigurationSnapshotFragment[] = []
+let activeSecondPass: ActiveSecondPass | undefined
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
+    endSecondPass()
     preparedYaml.clear()
+    firstPassFragments.length = 0
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
@@ -98,15 +107,25 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
     return undefined
   }
 
-  if (command.kind === "secondPass") {
-    return runSecondPass(command.readToken, requireInitializedState())
+  if (command.kind === "beginSecondPass") {
+    beginSecondPass(command.readToken, requireInitializedState())
+    return undefined
   }
 
-  return runFirstPass(command.assignments, requireInitializedState())
+  if (command.kind === "endSecondPass") {
+    endSecondPass()
+    return undefined
+  }
+
+  if (command.kind === "secondPass") {
+    return runSecondPass(command.assignmentId, requireInitializedState())
+  }
+
+  return runFirstPass(command.assignments, requireInitializedState(), command.finalize ?? true)
 }
 
 async function runSecondPass(
-  readToken: import("../projectState/contracts").ProjectStateReadToken,
+  assignmentId: string,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
   const profiler = createOperationProfiler({
@@ -118,27 +137,25 @@ async function runSecondPass(
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
   const finalFileStateBatches: ProjectStateImportFinalFileStateBatch[] = []
-  const readSession = openProjectStateReadSession(readToken)
-  const ownerMetadataCache = createProjectStateOwnerMetadataCache({
-    projectDir: state.projectDir,
-    componentPath: state.componentPath,
-    queryPort: readSession,
-  })
-
-  try {
-    for (const [id, prepared] of preparedYaml) {
-      try {
-        const written = await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)
-        files.push(written.file)
-        finalFileStateBatches.push(written.finalState)
-      } catch (caught) {
-        diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
-      } finally {
-        preparedYaml.delete(id)
-      }
+  const secondPass = activeSecondPass
+  if (secondPass === undefined) throw new Error("Второй проход XML-import worker не начат")
+  const prepared = preparedYaml.get(assignmentId)
+  if (prepared !== undefined) {
+    try {
+      const written = await writePreparedYamlToOutput(
+        prepared,
+        secondPass.ownerMetadataCache,
+        state,
+        warnings,
+        profiler,
+      )
+      files.push(written.file)
+      finalFileStateBatches.push(written.finalState)
+    } catch (caught) {
+      diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
+    } finally {
+      preparedYaml.delete(assignmentId)
     }
-  } finally {
-    readSession.close()
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
@@ -147,6 +164,27 @@ async function runSecondPass(
   })
   profiler.flush()
   return { kind: "secondPassResult", diagnostics, warnings, files, finalFileStateBatches }
+}
+
+function beginSecondPass(
+  readToken: import("../projectState/contracts").ProjectStateReadToken,
+  state: InitializedImportWorkerState,
+): void {
+  if (activeSecondPass !== undefined) throw new Error("Второй проход XML-import worker уже начат")
+  const readSession = openProjectStateReadSession(readToken)
+  activeSecondPass = {
+    readSession,
+    ownerMetadataCache: createProjectStateOwnerMetadataCache({
+      projectDir: state.projectDir,
+      componentPath: state.componentPath,
+      queryPort: readSession,
+    }),
+  }
+}
+
+function endSecondPass(): void {
+  activeSecondPass?.readSession.close()
+  activeSecondPass = undefined
 }
 
 async function writePreparedYamlToOutput(
@@ -227,9 +265,9 @@ export default async function importWorkerEntryPoint(command: ImportWorkerComman
 
 async function runFirstPass(
   assignments: readonly ImportAssignment[],
-  state: InitializedImportWorkerState
+  state: InitializedImportWorkerState,
+  finalize: boolean,
 ): Promise<ImportFirstPassResult> {
-  preparedYaml.clear()
   const profiler = createOperationProfiler({
     operation: "import-from-xml",
     scope: { scope: "worker", workerIndex: state.workerIndex },
@@ -355,6 +393,9 @@ async function runFirstPass(
   })
   profiler.flush()
   const validation = mergeImportValidationContributions(validationContributions)
+  firstPassFragments.push(...fragments)
+  const fragmentBuffer = encodeConfigurationIndexFragments(finalize ? firstPassFragments : [])
+  if (finalize) firstPassFragments.length = 0
   return {
     kind: "firstPassResult",
     ownerFacts,
@@ -364,7 +405,7 @@ async function runFirstPass(
     },
     diagnostics,
     files,
-    fragmentBuffer: encodeConfigurationIndexFragments(fragments),
+    fragmentBuffer,
     indexContributions,
     finalFileStateBatches,
   }
@@ -544,7 +585,9 @@ function requireInitializedState(): InitializedImportWorkerState {
 }
 
 function disposeWorkerState(): void {
+  endSecondPass()
   preparedYaml.clear()
+  firstPassFragments.length = 0
   initializedState = undefined
 }
 

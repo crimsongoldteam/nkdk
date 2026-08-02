@@ -21,6 +21,7 @@ import {
   type PreparedWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
 import {
   createProjectStateService,
   type ProjectStateImportFinalFileStateBatch,
@@ -39,7 +40,12 @@ import type {
   ImportResultFile,
   ImportSnapshotFile,
 } from "./types"
-import { createXmlImportWorkerPool, type XmlImportWorkerPool, type XmlImportWorkerPoolHandle } from "./workerPool"
+import {
+  createXmlImportWorkerPool,
+  type XmlImportStateSink,
+  type XmlImportWorkerPool,
+  type XmlImportWorkerPoolHandle,
+} from "./workerPool"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -123,6 +129,7 @@ export async function importConfigurationFromXml(
   const ownsProjectState = params.projectState === undefined
   let importSession: ProjectStateImportSession | undefined
   let finalized = false
+  let outcome: ConfigurationImportResult | undefined
   const importFileHashes = new Map<string, bigint>()
 
   try {
@@ -146,7 +153,12 @@ export async function importConfigurationFromXml(
     if (descriptor.baseAddress !== undefined) {
       await projectState.refreshAndValidate({ projectDir: params.projectDir, context: params.context, concurrency })
     }
-    importSession = await projectState.beginImport({ projectDir: params.projectDir, workerCount: concurrency })
+    importSession = await projectState.beginImport({
+      projectDir: params.projectDir,
+      workerCount: concurrency,
+      output: { componentPaths: [selectedComponentPath] },
+    })
+    const stateSink = createImportStateSink(importSession, importFileHashes, selectedComponentPath)
     pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
 
     const discovered = await profiler.measureAsync(
@@ -180,14 +192,11 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Первый проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runFirstPass(discovered.assignments)
+      () => pool!.runFirstPass(discovered.assignments, stateSink)
     )
     if (hasErrors(first.diagnostics)) {
-      await importSession.abort(first.diagnostics)
-      return failedResult(first.diagnostics, [], resolvedComponentPath)
-    }
-    for (const contribution of first.indexContributions) {
-      await importSession.writeFirstPassBatch([contribution])
+      const cleanup = await abortCleanupDiagnostics(importSession, first.diagnostics)
+      return outcome = failedResult([...first.diagnostics, ...cleanup], [], resolvedComponentPath)
     }
     const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
       context: params.context,
@@ -205,10 +214,6 @@ export async function importConfigurationFromXml(
       timeMs: 0,
     })
     const firstReadToken = await importSession.commitWorkingIndex()
-    for (const batch of first.finalFileStateBatches) {
-      rememberImportFileHashes(importFileHashes, selectedComponentPath, batch)
-      await importSession.writeFinalFileState(batch)
-    }
     const readTokens = [firstReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
     profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
@@ -219,16 +224,12 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runSecondPass(readTokens)
+      () => pool!.runSecondPass(readTokens, stateSink)
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) {
-      await importSession.abort(second.diagnostics)
-      return failedResult(second.diagnostics, warnings, resolvedComponentPath)
-    }
-    for (const batch of second.finalFileStateBatches) {
-      rememberImportFileHashes(importFileHashes, selectedComponentPath, batch)
-      await importSession.writeFinalFileState(batch)
+      const cleanup = await abortCleanupDiagnostics(importSession, second.diagnostics)
+      return outcome = failedResult([...second.diagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
 
     const allFiles = [...first.files, ...second.files]
@@ -267,6 +268,7 @@ export async function importConfigurationFromXml(
     const externalFinalState = externalFileStateBatch(selectedComponentPath, externalProjectFiles)
     if (externalFinalState.updates.length > 0) {
       rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
+      await importSession.registerFileIdentities(externalFinalState.updates.map(fileIdentity))
       await importSession.writeFinalFileState(externalFinalState)
     }
     const projectFiles = snapshotFilesFromState(files, importFileHashes)
@@ -296,18 +298,100 @@ export async function importConfigurationFromXml(
       message: diagnostic.message,
       targetProjectPath: diagnostic.filePath,
     } satisfies ImportDiagnostic))
-    return {
+    return outcome = {
       ...successResult(discovered.assignments.length, warnings, params.projectDir, address),
       failed: validationFailures.filter(({ severity }) => severity === "error"),
       warnings: [...warnings, ...validationFailures.filter(({ severity }) => severity === "warning")],
     }
   } catch (caught) {
-    if (importSession !== undefined && !finalized) await importSession.abort(caught).catch(() => undefined)
-    return failedResult([operationDiagnostic(caught)], warnings, resolvedComponentPath)
+    const cleanup = importSession === undefined || finalized
+      ? []
+      : await abortCleanupDiagnostics(importSession, caught)
+    return outcome = failedResult([operationDiagnostic(caught), ...cleanup], warnings, resolvedComponentPath)
   } finally {
     profiler.flush()
-    await pool?.close()
-    if (ownsProjectState) await projectState.close()
+    const cleanupFailures: unknown[] = []
+    try {
+      await pool?.close()
+    } catch (caught) {
+      cleanupFailures.push(...flattenFailures(caught))
+    }
+    if (ownsProjectState) {
+      try {
+        await projectState.close()
+      } catch (caught) {
+        cleanupFailures.push(...flattenFailures(caught))
+      }
+    }
+    if (!finalized && outcome !== undefined) {
+      outcome.failed.push(...cleanupFailures.map(operationDiagnostic))
+    }
+  }
+}
+
+async function abortCleanupDiagnostics(
+  session: ProjectStateImportSession,
+  primary: unknown,
+): Promise<ImportDiagnostic[]> {
+  try {
+    await session.abort(primary)
+    return []
+  } catch (caught) {
+    const failures = flattenFailures(caught)
+    const primaryIndex = failures.findIndex((failure) => failure === primary)
+    if (primaryIndex >= 0) failures.splice(primaryIndex, 1)
+    return failures.map(operationDiagnostic)
+  }
+}
+
+function flattenFailures(caught: unknown): unknown[] {
+  return caught instanceof AggregateError
+    ? caught.errors.flatMap((failure) => flattenFailures(failure))
+    : [caught]
+}
+
+function createImportStateSink(
+  session: ProjectStateImportSession,
+  hashes: Map<string, bigint>,
+  selectedComponentPath: string,
+): XmlImportStateSink {
+  return {
+    async writeFirstPassState(batch) {
+      await writeStreamedImportState(session, hashes, selectedComponentPath, batch)
+    },
+    async writeSecondPassState(batch) {
+      await writeStreamedImportState(session, hashes, selectedComponentPath, {
+        indexContributions: [],
+        finalFileStateBatches: batch.finalFileStateBatches,
+      })
+    },
+  }
+}
+
+async function writeStreamedImportState(
+  session: ProjectStateImportSession,
+  hashes: Map<string, bigint>,
+  selectedComponentPath: string,
+  batch: {
+    readonly indexContributions: readonly import("../projectState").ProjectStateImportIndexContribution[]
+    readonly finalFileStateBatches: readonly ProjectStateImportFinalFileStateBatch[]
+  },
+): Promise<void> {
+  const identities = batch.finalFileStateBatches.flatMap(({ updates }) => updates.map(fileIdentity))
+  if (identities.length > 0) await session.registerFileIdentities(identities)
+  if (batch.indexContributions.length > 0) await session.writeFirstPassBatch(batch.indexContributions)
+  for (const finalState of batch.finalFileStateBatches) {
+    rememberImportFileHashes(hashes, selectedComponentPath, finalState)
+    await session.writeFinalFileState(finalState)
+  }
+}
+
+function fileIdentity(update: ProjectStateFileIdentity): ProjectStateFileIdentity {
+  return {
+    projectPath: update.projectPath,
+    componentPath: update.componentPath,
+    resourceKind: update.resourceKind,
+    ...(update.yamlRole === undefined ? {} : { yamlRole: update.yamlRole }),
   }
 }
 

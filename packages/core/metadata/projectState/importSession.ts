@@ -11,10 +11,12 @@ import type {
 } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
+import { assertProjectStateImportFinalFileState } from "./fileUpdateValidation"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string
   readonly workerCount: number
+  readonly output: { readonly componentPaths: readonly string[] }
   readonly signal?: AbortSignal
 }
 
@@ -46,6 +48,7 @@ export interface ProjectStateImportFinalFileStateBatch {
 
 export interface ProjectStateImportSession {
   writeFirstPassBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
+  registerFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
@@ -66,6 +69,7 @@ export async function createProjectStateImportSession(
   assertWorkerCount(params.workerCount)
   await params.writer.openProject(params.projectDir)
   await params.writer.beginUpdate(params.projectDir, params.signal)
+  await params.writer.clearImportOutput(params.output.componentPaths)
   let phase: "index" | "final" | "done" = "index"
   let changedFiles = 0
   let finalWrites = Promise.resolve()
@@ -74,6 +78,20 @@ export async function createProjectStateImportSession(
     writeFirstPassBatch(batch) {
       if (phase !== "index") return Promise.reject(new Error("Рабочий индекс import уже неизменяем"))
       return params.writer.writeImportIndexBatch(batch)
+    },
+    async registerFileIdentities(files) {
+      if (phase === "done") throw new Error("Import session уже завершена")
+      if (phase === "index") {
+        await params.writer.registerImportFileIdentities(files)
+        return
+      }
+      const write = finalWrites.then(async () => {
+        await params.writer.beginUpdate(params.projectDir, params.signal)
+        await params.writer.registerImportFileIdentities(files)
+        await params.writer.commitUpdate()
+      })
+      finalWrites = write.then(() => undefined, () => undefined)
+      await write
     },
     async commitWorkingIndex() {
       if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")
@@ -86,9 +104,13 @@ export async function createProjectStateImportSession(
       return params.writer.createReadToken()
     },
     async writeFinalFileState(batch) {
-      if (phase !== "final") return Promise.reject(new Error("Final file state допустим только после фиксации индекса"))
+      if (phase === "done") throw new Error("Import session уже завершена")
       assertProjectStateImportFinalFileStateBatch(batch)
       changedFiles += batch.updates.length
+      if (phase === "index") {
+        await params.writer.writeImportFinalFileState(batch)
+        return
+      }
       const write = finalWrites.then(async () => {
         await params.writer.beginUpdate(params.projectDir, params.signal)
         await params.writer.writeImportFinalFileState(batch)
@@ -118,11 +140,35 @@ export async function createProjectStateImportSession(
     async abort(cause) {
       if (phase === "done") return
       phase = "done"
-      await finalWrites
-      await params.writer.rollbackUpdate().catch(() => undefined)
-      await params.discard(cause)
+      const failures: unknown[] = [cause]
+      try {
+        await finalWrites
+      } catch (caught) {
+        failures.push(...flattenFailures(caught))
+      }
+      try {
+        await params.writer.rollbackUpdate()
+      } catch (caught) {
+        failures.push(...flattenFailures(caught))
+      }
+      try {
+        await params.discard(cause)
+      } catch (caught) {
+        failures.push(...flattenFailures(caught))
+      }
+      if (failures.length > 1) throw new AggregateError(failures, errorMessage(cause))
     },
   }
+}
+
+function flattenFailures(caught: unknown): unknown[] {
+  return caught instanceof AggregateError
+    ? caught.errors.flatMap((failure) => flattenFailures(failure))
+    : [caught]
+}
+
+function errorMessage(caught: unknown): string {
+  return caught instanceof Error ? caught.message : String(caught)
 }
 
 export function assertProjectStateImportFinalFileStateBatch(
@@ -145,20 +191,8 @@ export function assertProjectStateImportFinalFileStateBatch(
     || hashBytes.buffer.byteLength !== expected) {
     throw new Error(`hashBytes должен быть zero-offset ArrayBuffer длиной ${expected} байт`)
   }
-  for (const [index, update] of batch["updates"].entries()) assertFinalUpdate(update, index)
-}
-
-function assertFinalUpdate(value: unknown, index: number): void {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new Error(`updates[${index}] должен быть объектом`)
-  }
-  const update = value as Record<string, unknown>
-  if ("hash" in update || "hashOffset" in update || "references" in update || "owners" in update
-    || "fields" in update || "forms" in update) {
-    throw new Error(`updates[${index}] содержит запрещённое поле индекса или хэша`)
-  }
-  for (const key of ["projectPath", "componentPath", "resourceKind", "kind"] as const) {
-    if (typeof update[key] !== "string") throw new Error(`updates[${index}].${key} должен быть строкой`)
+  for (const [index, update] of batch["updates"].entries()) {
+    assertProjectStateImportFinalFileState(update, `updates[${index}]`)
   }
 }
 

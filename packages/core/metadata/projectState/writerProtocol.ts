@@ -1,7 +1,11 @@
 import type { ProjectStateCompatibility } from "./compatibility"
 import type { Diagnostic } from "../validation/types"
 import { assertProjectStateFileHashBatch, type ProjectStateFileHashBatch, type ProjectStateReadToken } from "./contracts"
-import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdateBatch } from "./fileUpdate"
+import {
+  assertProjectStateFileUpdateBatch,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdateBatch,
+} from "./fileUpdate"
 import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
 import {
   assertProjectStateImportFinalFileStateBatch,
@@ -19,7 +23,9 @@ export type ProjectStateWriterCommand =
   | { readonly kind: "beginUpdate"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "writeBatch"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateFileUpdateBatch }
   | { readonly kind: "writeImportIndexBatch"; readonly requestId: string; readonly operationId: string; readonly batch: readonly ProjectStateImportIndexContribution[] }
+  | { readonly kind: "registerImportFileIdentities"; readonly requestId: string; readonly operationId: string; readonly files: readonly ProjectStateFileIdentity[] }
   | { readonly kind: "writeImportFinalFileState"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateImportFinalFileStateBatch }
+  | { readonly kind: "clearImportOutput"; readonly requestId: string; readonly operationId: string; readonly componentPaths: readonly string[] }
   | { readonly kind: "deleteFiles"; readonly requestId: string; readonly operationId: string; readonly projectPaths: readonly string[] }
   | { readonly kind: "commitUpdate"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "rollbackUpdate"; readonly requestId: string; readonly operationId: string }
@@ -38,7 +44,9 @@ export type ProjectStateWriterAcknowledgement =
   | { readonly kind: "updateBegun"; readonly operationId: string }
   | { readonly kind: "batchWritten"; readonly operationId: string }
   | { readonly kind: "importIndexBatchWritten"; readonly operationId: string }
+  | { readonly kind: "importFileIdentitiesRegistered"; readonly operationId: string }
   | { readonly kind: "importFinalFileStateWritten"; readonly operationId: string }
+  | { readonly kind: "importOutputCleared"; readonly operationId: string }
   | { readonly kind: "filesDeleted"; readonly operationId: string }
   | { readonly kind: "updateCommitted"; readonly operationId: string }
   | { readonly kind: "updateRolledBack"; readonly operationId: string }
@@ -92,6 +100,11 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
       assertString(command["operationId"], "operationId")
       if (!Array.isArray(command["batch"])) throw new Error("Import index batch должен быть массивом")
       return
+    case "registerImportFileIdentities":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "files"])
+      assertString(command["operationId"], "operationId")
+      if (!Array.isArray(command["files"])) throw new Error("Import identities должен быть массивом")
+      return
     case "writeImportFinalFileState":
       assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
       assertString(command["operationId"], "operationId")
@@ -102,6 +115,14 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
       assertString(command["operationId"], "operationId")
       if (!Array.isArray(command["projectPaths"]) || !command["projectPaths"].every((path) => typeof path === "string")) {
         throw new Error("projectPaths должен быть массивом строк")
+      }
+      return
+    case "clearImportOutput":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "componentPaths"])
+      assertString(command["operationId"], "operationId")
+      if (!Array.isArray(command["componentPaths"])
+        || !command["componentPaths"].every((path) => typeof path === "string" && path.length > 0)) {
+        throw new Error("componentPaths должен быть массивом непустых строк")
       }
       return
     case "reset":

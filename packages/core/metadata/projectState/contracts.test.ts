@@ -6,6 +6,7 @@ import {
 } from "./contracts"
 import {
   assertProjectStateFileUpdateBatch,
+  type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "./fileUpdate"
@@ -187,7 +188,9 @@ function testReadSession(): ProjectStateReadSession {
 
 function createTestStoreContractFixture() {
   const committed = new Map<string, StoredUpdate>()
+  const committedIdentities = new Map<string, ProjectStateFileIdentity>()
   let staged: Map<string, StoredUpdate> | undefined
+  let stagedIdentities: Map<string, ProjectStateFileIdentity> | undefined
   const tokens = new Set<string>()
   let nextToken = 1
 
@@ -217,17 +220,78 @@ function createTestStoreContractFixture() {
     beginUpdate() {
       if (staged !== undefined) throw new Error("Обновление уже начато")
       staged = new Map(committed)
+      stagedIdentities = new Map(committedIdentities)
     },
     replaceFiles(batch) {
       assertProjectStateFileUpdateBatch(batch)
       if (staged === undefined) throw new Error("Нет активного обновления")
-      batch.updates.forEach((update, index) => updateTarget(staged!, update, batch.hashBytes.slice(index * 8, (index + 1) * 8)))
+      batch.updates.forEach((update, index) => {
+        updateTarget(staged!, update, batch.hashBytes.slice(index * 8, (index + 1) * 8))
+        stagedIdentities!.set(update.projectPath, identity(update))
+      })
     },
-    replaceImportIndex() {},
-    replaceImportFinalFileState() {},
+    replaceImportIndex(batch) {
+      const target = requireStaged(staged)
+      for (const contribution of batch) {
+        const previous = target.get(contribution.projectPath)
+        if (previous !== undefined) assertSameIdentity(previous.update, contribution)
+        requireStagedIdentities(stagedIdentities).set(contribution.projectPath, identity(contribution))
+        updateTarget(target, {
+          ...contribution,
+          kind: "yaml",
+          localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
+          pendingReferences: [],
+          pendingChecks: [],
+          dependencies: [],
+        }, previous?.hashBytes ?? new Uint8Array(8))
+      }
+    },
+    registerImportFileIdentities(files) {
+      const identities = requireStagedIdentities(stagedIdentities)
+      for (const file of files) {
+        const previous = identities.get(file.projectPath)
+        if (previous !== undefined) {
+          assertSameIdentity(previous, file)
+          continue
+        }
+        identities.set(file.projectPath, file)
+      }
+    },
+    replaceImportFinalFileState(batch) {
+      const target = requireStaged(staged)
+      const identities = requireStagedIdentities(stagedIdentities)
+      batch.updates.forEach((update, index) => {
+        const registered = identities.get(update.projectPath)
+        if (registered === undefined) throw new Error(`Final import identity не зарегистрирована: ${update.projectPath}`)
+        assertSameIdentity(registered, update)
+        const previous = target.get(update.projectPath)
+        if (update.kind === "yaml" && previous?.update.kind !== "yaml") {
+          throw new Error(`Final import index отсутствует: ${update.projectPath}`)
+        }
+        updateTarget(
+          target,
+          update.kind === "resource" ? update : { ...previous!.update, ...update } as ProjectStateFileUpdate,
+          batch.hashBytes.slice(index * 8, (index + 1) * 8),
+        )
+      })
+    },
+    clearImportOutput(componentPaths) {
+      const target = requireStaged(staged)
+      const identities = requireStagedIdentities(stagedIdentities)
+      const components = new Set(componentPaths)
+      for (const [projectPath, file] of identities) {
+        if (components.has(file.componentPath)) {
+          identities.delete(projectPath)
+          target.delete(projectPath)
+        }
+      }
+    },
     deleteFiles(projectPaths) {
       if (staged === undefined) throw new Error("Нет активного обновления")
-      projectPaths.forEach((projectPath) => staged!.delete(projectPath))
+      projectPaths.forEach((projectPath) => {
+        staged!.delete(projectPath)
+        stagedIdentities!.delete(projectPath)
+      })
     },
     readLocalDiagnostics: () => [...committed.values()]
       .map(({ update }) => update)
@@ -263,10 +327,14 @@ function createTestStoreContractFixture() {
       if (staged === undefined) throw new Error("Нет активного обновления")
       committed.clear()
       staged.forEach((value, key) => committed.set(key, value))
+      committedIdentities.clear()
+      stagedIdentities!.forEach((value, key) => committedIdentities.set(key, value))
       staged = undefined
+      stagedIdentities = undefined
     },
     rollbackUpdate() {
       staged = undefined
+      stagedIdentities = undefined
     },
     async checkpoint() {},
     close() {},
@@ -502,11 +570,31 @@ interface StoredUpdate {
   readonly hashBytes: Uint8Array
 }
 
+function requireStaged(staged: Map<string, StoredUpdate> | undefined): Map<string, StoredUpdate> {
+  if (staged === undefined) throw new Error("Нет активного обновления")
+  return staged
+}
+
+function requireStagedIdentities(
+  identities: Map<string, ProjectStateFileIdentity> | undefined,
+): Map<string, ProjectStateFileIdentity> {
+  if (identities === undefined) throw new Error("Нет активного обновления")
+  return identities
+}
+
+function assertSameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIdentity): void {
+  if (left.componentPath !== right.componentPath
+    || left.resourceKind !== right.resourceKind
+    || left.yamlRole !== right.yamlRole) {
+    throw new Error(`Final import identity не совпадает для ${right.projectPath}`)
+  }
+}
+
 function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
   return left.byteLength === right.byteLength && left.every((byte, index) => byte === right[index])
 }
 
-function identity(update: ProjectStateFileUpdate) {
+function identity(update: ProjectStateFileIdentity) {
   const { projectPath, componentPath, resourceKind, yamlRole } = update
   return yamlRole === undefined
     ? { projectPath, componentPath, resourceKind }

@@ -82,7 +82,7 @@ export function createProjectStateService(
               if (settled) return
               settled = true
               active = { projectDir, writer: candidate }
-              await previous?.writer.close()
+              await previous?.writer.close().catch(() => undefined)
             },
             async discard() {
               if (settled) return

@@ -22,7 +22,7 @@ describe("ProjectState import session", () => {
   beforeAll(async () => {
     projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-state-"))
     state = createProjectStateService()
-    session = await state.beginImport({ projectDir, workerCount: 2 })
+    session = await state.beginImport({ projectDir, workerCount: 2, output: { componentPaths: ["cf"] } })
     await session.writeFirstPassBatch([contribution])
     firstToken = await session.commitWorkingIndex()
     secondToken = await session.createReadToken()
@@ -82,6 +82,33 @@ describe("ProjectState import session", () => {
     expect(cloned.hashBytes.byteOffset).toBe(0)
     expect(cloned.hashBytes.buffer.byteLength).toBe(16)
     expect(cloned.updates.every((update) => !("hash" in update) && !("hashOffset" in update))).toBe(true)
+  })
+
+  it.each([
+    ["лишнее верхнее поле", { ...finalState(contribution.projectPath), unexpected: true }],
+    ["несогласованный resource discriminant", {
+      ...resource("cf/module.bsl"), resourceKind: "yaml", yamlRole: "properties",
+    }],
+    ["yaml без yamlRole", (() => {
+      const { yamlRole: _yamlRole, ...value } = finalState(contribution.projectPath)
+      return value
+    })()],
+    ["bigint внутри diagnostics", {
+      ...finalState(contribution.projectPath),
+      localValidation: { contributedFacts: true, diagnostics: [{ rule: 1n }], schemaDiagnostics: [] },
+    }],
+    ["function внутри pendingChecks", {
+      ...finalState(contribution.projectPath), pendingChecks: [{ policy: () => true }],
+    }],
+    ["rule object внутри local validation", {
+      ...finalState(contribution.projectPath),
+      localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [], rule: {} },
+    }],
+  ])("отклоняет непереносимый или неточный final DTO: %s", (_name, update) => {
+    expect(() => assertProjectStateImportFinalFileStateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).toThrow()
   })
 })
 

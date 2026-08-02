@@ -6,6 +6,7 @@ import { assertProjectStateFileHashBatch, type ProjectStateReadToken } from "../
 import {
   assertProjectStateFileUpdateBatch,
   type ProjectStateDiagnostic,
+  type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
   type ProjectStateFormEntry,
   type ProjectStatePendingDependencyCheck,
@@ -181,6 +182,11 @@ function createStore(
       assertUpdateActive()
       for (const contribution of batch) replaceImportIndex(statements, contribution)
     },
+    registerImportFileIdentities(files) {
+      assertOpen()
+      assertUpdateActive()
+      for (const file of files) registerImportFileIdentity(statements, file)
+    },
     replaceImportFinalFileState(batch) {
       assertOpen()
       assertUpdateActive()
@@ -195,6 +201,11 @@ function createStore(
       assertOpen()
       assertUpdateActive()
       for (const projectPath of projectPaths) statements.deleteFile.run(projectPath)
+    },
+    clearImportOutput(componentPaths) {
+      assertOpen()
+      assertUpdateActive()
+      for (const componentPath of componentPaths) statements.deleteComponentFiles.run(componentPath)
     },
     readLocalDiagnostics(params) {
       assertOpen()
@@ -405,8 +416,11 @@ interface StoreStatements {
   readonly insertComponent: StatementSync
   readonly selectComponent: StatementSync
   readonly upsertFile: StatementSync
+  readonly insertFile: StatementSync
   readonly selectFile: StatementSync
+  readonly selectFileIdentity: StatementSync
   readonly deleteFile: StatementSync
+  readonly deleteComponentFiles: StatementSync
   readonly deleteValidation: StatementSync
   readonly deleteHash: StatementSync
   readonly deleteDiagnostics: StatementSync
@@ -442,8 +456,22 @@ function createStatements(database: DatabaseSync): StoreStatements {
         resource_kind = excluded.resource_kind,
         yaml_role = excluded.yaml_role
     `),
+    insertFile: database.prepare(`
+      INSERT INTO project_files(project_path, component_id, resource_kind, yaml_role)
+      VALUES (?, ?, ?, ?)
+    `),
     selectFile: database.prepare("SELECT id FROM project_files WHERE project_path = ? COLLATE BINARY"),
+    selectFileIdentity: database.prepare(`
+      SELECT pf.id, c.path AS component_path, pf.resource_kind, pf.yaml_role
+      FROM project_files pf
+      JOIN components c ON c.id = pf.component_id
+      WHERE pf.project_path = ? COLLATE BINARY
+    `),
     deleteFile: database.prepare("DELETE FROM project_files WHERE project_path = ? COLLATE BINARY"),
+    deleteComponentFiles: database.prepare(`
+      DELETE FROM project_files
+      WHERE component_id = (SELECT id FROM components WHERE path = ? COLLATE BINARY)
+    `),
     deleteValidation: database.prepare("DELETE FROM file_validation_results WHERE file_id = ?"),
     deleteHash: database.prepare("DELETE FROM file_hashes WHERE file_id = ?"),
     deleteDiagnostics: database.prepare("DELETE FROM local_diagnostics WHERE source_file_id = ?"),
@@ -601,7 +629,7 @@ function replaceImportIndex(
   statements: StoreStatements,
   contribution: ProjectStateImportIndexContribution,
 ): void {
-  const fileId = upsertProjectFile(statements, contribution)
+  const fileId = registerImportFileIdentity(statements, contribution)
   statements.deleteReferences.run(fileId)
   statements.deleteOwnerFacts.run(fileId)
   statements.deleteFields.run(fileId)
@@ -615,7 +643,7 @@ function replaceImportFinalFileState(
   hashBytes: Uint8Array,
   batchIndex: number,
 ): void {
-  const fileId = upsertProjectFile(statements, update)
+  const fileId = requireImportFileIdentity(statements, update)
   statements.deleteHash.run(fileId)
   statements.deleteValidation.run(fileId)
   statements.deleteDiagnostics.run(fileId)
@@ -625,6 +653,47 @@ function replaceImportFinalFileState(
   statements.insertHash.run(fileId, hashBytes, batchIndex * 8 + 1)
   if (update.kind === "resource") return
   insertFinalYamlState(statements, fileId, update)
+}
+
+interface StoredFileIdentityRow {
+  readonly id: number
+  readonly component_path: string
+  readonly resource_kind: "yaml" | "resource"
+  readonly yaml_role: ProjectStateImportIndexContribution["yamlRole"] | null
+}
+
+function registerImportFileIdentity(
+  statements: StoreStatements,
+  file: ProjectStateFileIdentity,
+): number {
+  const existing = statements.selectFileIdentity.get(file.projectPath) as StoredFileIdentityRow | undefined
+  if (existing !== undefined) {
+    assertMatchingImportIdentity(existing, file)
+    return existing.id
+  }
+  statements.insertComponent.run(file.componentPath)
+  const componentId = integerId(statements.selectComponent.get(file.componentPath))
+  statements.insertFile.run(file.projectPath, componentId, file.resourceKind, file.yamlRole ?? null)
+  return integerId(statements.selectFile.get(file.projectPath))
+}
+
+function requireImportFileIdentity(
+  statements: StoreStatements,
+  file: ProjectStateFileIdentity,
+): number {
+  const existing = statements.selectFileIdentity.get(file.projectPath) as StoredFileIdentityRow | undefined
+  if (existing === undefined) throw new Error(`Final import identity не зарегистрирована: ${file.projectPath}`)
+  assertMatchingImportIdentity(existing, file)
+  return existing.id
+}
+
+function assertMatchingImportIdentity(existing: StoredFileIdentityRow, file: ProjectStateFileIdentity): void {
+  const yamlRole = file.yamlRole ?? null
+  if (existing.component_path !== file.componentPath
+    || existing.resource_kind !== file.resourceKind
+    || existing.yaml_role !== yamlRole) {
+    throw new Error(`Final import identity не совпадает для ${file.projectPath}`)
+  }
 }
 
 function replaceImportFinalDependencies(

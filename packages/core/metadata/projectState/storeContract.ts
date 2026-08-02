@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import type { ProjectStateReadToken } from "./contracts"
-import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
+import type { ProjectStateFileIdentity, ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "./importSession"
 import { ProjectStateReadSessionClosedError, type ProjectStateReadSession } from "./readSession"
 import type { ProjectStateStore } from "./store"
 
@@ -59,6 +63,72 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => store.beginUpdate()).toThrow()
 
       store.rollbackUpdate()
+    })
+
+    it.each([
+      ["componentPath", { componentPath: "cfe/Чужой" }],
+      ["resourceKind", { resourceKind: "resource", kind: "resource", yamlRole: undefined }],
+      ["yamlRole", { yamlRole: "form" }],
+    ] as const)("final import не меняет identity индексированного YAML: %s", (_field, override) => {
+      const { store, openReadSession } = factory()
+      const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
+      store.beginUpdate()
+      store.replaceImportIndex([contribution])
+      store.commitUpdate()
+
+      const before = openReadSession(store.createReadToken())
+      expect(before.resolveTargets([{
+        requestId: "before",
+        componentPath: "cf",
+        canonicalTarget: "Catalog.Товары",
+      }])[0]).toMatchObject({ status: "found" })
+      before.close()
+
+      store.beginUpdate()
+      expect(() => store.replaceImportFinalFileState(importFinalBatch({
+        ...importFinal(contribution),
+        ...override,
+      }))).toThrow(/identity|идентич/iu)
+      store.rollbackUpdate()
+
+      const after = openReadSession(store.createReadToken())
+      expect(after.resolveTargets([{
+        requestId: "after",
+        componentPath: "cf",
+        canonicalTarget: "Catalog.Товары",
+      }])[0]).toMatchObject({ status: "found" })
+      after.close()
+    })
+
+    it("final import требует предварительно зарегистрированную identity", () => {
+      const { store } = factory()
+      const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
+
+      store.beginUpdate()
+      expect(() => store.replaceImportFinalFileState(importFinalBatch(importFinal(contribution))))
+        .toThrow(/не зарегистрирована|identity/iu)
+      store.rollbackUpdate()
+    })
+
+    it("очищает stale-файлы только внутри импортируемой component boundary", () => {
+      const { store } = factory()
+      const stale = yamlUpdate("cf/Старый.yaml", "cf", "Catalog.Старый")
+      const neighbor = yamlUpdate("cfe/Цены/Сохранить.yaml", "cfe/Цены", "Catalog.Сохранить")
+      store.beginUpdate()
+      store.replaceFiles({ updates: [stale, neighbor], hashBytes: new Uint8Array(16) })
+      store.commitUpdate()
+
+      store.beginUpdate()
+      ;(store as ProjectStateStore & { clearImportOutput(componentPaths: readonly string[]): void })
+        .clearImportOutput(["cf"])
+      const current = importIndex("cf/Новый.yaml", "cf", "Catalog.Новый")
+      store.replaceImportIndex([current])
+      store.replaceImportFinalFileState(importFinalBatch(importFinal(current)))
+      store.commitUpdate()
+
+      expect(store.readComponentProjection("cf").updates.map(({ projectPath }) => projectPath)).toEqual(["cf/Новый.yaml"])
+      expect(store.readComponentProjection("cfe/Цены").updates.map(({ projectPath }) => projectPath))
+        .toEqual([neighbor.projectPath])
     })
 
     it("сохраняет замену, откатывает удаление и каскадно удаляет все вклады файла", () => {
@@ -329,6 +399,41 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
 
 function resourceUpdate(projectPath: string, componentPath: string): ProjectStateFileUpdate {
   return { kind: "resource", projectPath, componentPath, resourceKind: "resource" }
+}
+
+function importIndex(
+  projectPath: string,
+  componentPath: string,
+  canonical: string,
+): ProjectStateImportIndexContribution {
+  const update = yamlUpdate(projectPath, componentPath, canonical)
+  return {
+    projectPath,
+    componentPath,
+    resourceKind: "yaml",
+    yamlRole: update.yamlRole!,
+    references: update.references,
+    owners: update.owners,
+    fields: update.fields,
+    forms: update.forms,
+  }
+}
+
+function importFinal(identity: ProjectStateFileIdentity) {
+  return {
+    ...identity,
+    kind: "yaml" as const,
+    resourceKind: "yaml" as const,
+    yamlRole: identity.yamlRole!,
+    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+    pendingReferences: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
+}
+
+function importFinalBatch(update: ReturnType<typeof importFinal> | ProjectStateFileUpdate): ProjectStateImportFinalFileStateBatch {
+  return { updates: [update as never], hashBytes: new Uint8Array(8) }
 }
 
 function yamlUpdate(projectPath: string, componentPath: string, canonical: string): ProjectStateYamlFileUpdate {
