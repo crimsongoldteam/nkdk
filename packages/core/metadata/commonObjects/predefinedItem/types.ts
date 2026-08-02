@@ -17,35 +17,45 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     : undefined
 }
 
+function normalizeCurrentConfigQName(value: unknown, prefix: string): unknown {
+  const qname = asRecord(value)
+  const namespaceEntry = Object.entries(qname ?? {}).find(
+    ([key, namespace]) => key.startsWith("_xmlns:") && namespace === CURRENT_CONFIG_NAMESPACE
+  )
+  const text = qname?.["#text"]
+  if (qname === undefined || namespaceEntry === undefined || typeof text !== "string") return value
+
+  const sourcePrefix = namespaceEntry[0].slice("_xmlns:".length)
+  if (!text.startsWith(`${sourcePrefix}:`)) return value
+
+  const result = { ...qname }
+  delete result[namespaceEntry[0]]
+  return {
+    ...result,
+    "#text": `${prefix}:${text.slice(sourcePrefix.length + 1)}`,
+    [`_xmlns:${prefix}`]: CURRENT_CONFIG_NAMESPACE,
+  }
+}
+
 function normalizePredefinedItemTypePrefixes(
   xml: Record<string, unknown>,
   depth = 0
 ): Record<string, unknown> {
   const prefix = `d${4 + depth * 2}p1`
   const type = asRecord(xml.Type)
-  const qname = asRecord(type?.["v8:Type"])
-  const namespaceEntry = Object.entries(qname ?? {}).find(
-    ([key, value]) => key.startsWith("_xmlns:") && value === CURRENT_CONFIG_NAMESPACE
-  )
-  const text = qname?.["#text"]
   let result = xml
 
-  if (type !== undefined && qname !== undefined && namespaceEntry !== undefined && typeof text === "string") {
-    const sourcePrefix = namespaceEntry[0].slice("_xmlns:".length)
-    if (text.startsWith(`${sourcePrefix}:`)) {
-      const qnameRest = { ...qname }
-      delete qnameRest[namespaceEntry[0]]
-      result = {
-        ...result,
-        Type: {
-          ...type,
-          "v8:Type": {
-            ...qnameRest,
-            "#text": `${prefix}:${text.slice(sourcePrefix.length + 1)}`,
-            [`_xmlns:${prefix}`]: CURRENT_CONFIG_NAMESPACE,
-          },
-        },
-      }
+  if (type !== undefined && type["v8:Type"] !== undefined) {
+    const sourceTypes = type["v8:Type"]
+    const normalizedTypes = Array.isArray(sourceTypes)
+      ? sourceTypes.map((value) => normalizeCurrentConfigQName(value, prefix))
+      : normalizeCurrentConfigQName(sourceTypes, prefix)
+    result = {
+      ...result,
+      Type: {
+        ...type,
+        "v8:Type": normalizedTypes,
+      },
     }
   }
 

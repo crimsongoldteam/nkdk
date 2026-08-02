@@ -132,6 +132,24 @@ describe("PredefinedItem YAML → XML", () => {
     ].map((match) => match[1])
     expect(prefixes).toEqual(["d4p1", "d6p1", "d8p1", "d10p1"])
   })
+
+  it("restores current-config prefixes for every type of a composite predefined item", () => {
+    const xml = convertCollection(
+      {
+        Корень: {
+          ТипЗначения: ["Справочник.Контрагенты", "Справочник.Проекты"],
+        },
+      },
+      chartContext()
+    )
+
+    const prefixes = [
+      ...xml.matchAll(
+        /<v8:Type xmlns:(d\d+p1)="http:\/\/v8\.1c\.ru\/8\.1\/data\/enterprise\/current-config">\1:CatalogRef\.(Контрагенты|Проекты)<\/v8:Type>/g
+      ),
+    ].map((match) => match[1])
+    expect(prefixes).toEqual(["d4p1", "d4p1"])
+  })
 })
 
 function convertCollection(yaml: unknown, context = mockContextToXML()): string {
