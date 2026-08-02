@@ -4,6 +4,7 @@ import {
 } from "../../commonObjects/ruleBuilder"
 import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
 
 export interface MetadataCommandsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataCommands"
@@ -50,25 +51,18 @@ export function metadataRegisterDimensionsRule<const Params extends MetadataRegi
     }),
   })
 }
-export interface MetadataRegisterAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataRegisterAttributes"
-}
-
-export type MetadataRegisterAttributesRuleParams = Omit<MetadataRegisterAttributesWidePropertyRule, "type">
-
-export function metadataRegisterAttributesRule<const Params extends MetadataRegisterAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataRegisterAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataRegisterAttributes"; ownerFactRole: "attributes" } & Params> {
-  return defineWidePropertyRule("MetadataRegisterAttributes", {
-    ownerFactRole: "attributes",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataInformationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataInformationRegisterAttributes"
+)
+export const metadataAccumulationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataAccumulationRegisterAttributes"
+)
+export const metadataAccountingRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataAccountingRegisterAttributes"
+)
+export const metadataCalculationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataCalculationRegisterAttributes"
+)
 export interface MetadataRegisterResourcesWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataRegisterResources"
 }

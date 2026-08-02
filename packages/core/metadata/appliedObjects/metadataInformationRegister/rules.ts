@@ -1,10 +1,11 @@
 import {
   additionalIndexRule,
   metadataCommandsRule,
-  metadataRegisterAttributesRule,
+  metadataInformationRegisterAttributesRule,
   metadataRegisterDimensionsRule,
   metadataRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
+import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"
@@ -285,7 +286,7 @@ export const MetadataInformationRegisterRules = {
       xmlParents: childObjects,
       xml: "Dimension",
     }),
-    attributes: metadataRegisterAttributesRule({
+    attributes: metadataInformationRegisterAttributesRule({
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",

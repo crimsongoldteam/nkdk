@@ -1,10 +1,11 @@
 import {
   additionalIndexRule,
   metadataCommandsRule,
-  metadataRegisterAttributesRule,
+  metadataCalculationRegisterAttributesRule,
   metadataRegisterDimensionsRule,
   metadataRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
+import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"
@@ -209,7 +210,11 @@ export const MetadataCalculationRegisterRules = {
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
     resources: metadataRegisterResourcesRule({ yaml: "Ресурсы", xml: "Resource", xmlParents: childObjects }),
     dimensions: metadataRegisterDimensionsRule({ yaml: "Измерения", xml: "Dimension", xmlParents: childObjects }),
-    attributes: metadataRegisterAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    attributes: metadataCalculationRegisterAttributesRule({
+      yaml: "Реквизиты",
+      xml: "Attribute",
+      xmlParents: childObjects,
+    }),
     recalculations: recalculationsRule({ yaml: "Перерасчеты", xml: "Recalculation", xmlParents: childObjects }),
     forms: childFormNamesRule({
       yaml: "Формы",

@@ -54,6 +54,10 @@ import {
   MetadataReportTabularSectionAttributeRules,
   MetadataReportTabularSectionRules,
 } from "../metadataReport/childRules"
+import { MetadataInformationRegisterAttributeRules } from "../metadataInformationRegister/childRules"
+import { MetadataAccumulationRegisterAttributeRules } from "../metadataAccumulationRegister/childRules"
+import { MetadataAccountingRegisterAttributeRules } from "../metadataAccountingRegister/childRules"
+import { MetadataCalculationRegisterAttributeRules } from "../metadataCalculationRegister/childRules"
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
 const identity = ["objectBelonging", "name"]
@@ -312,6 +316,62 @@ describe("owner-specific attribute and tabular section rules", () => {
       expect(tabularSchema.Check({ ДлинаНомераСтроки: 5 })).toBe(false)
       expect(nestedSchema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(false)
     }
+  })
+})
+
+const registerOwners = [
+  {
+    name: "InformationRegister",
+    propertyType: "MetadataInformationRegisterAttributes",
+    rule: MetadataInformationRegisterAttributeRules,
+    order: [...identity, ...presentation, ...fill, ...choice, ...searchAndHistory, "binaryDataStorageLocationUse", "binaryDataStorageLocationUseField", "uuid"],
+    allowFill: true,
+    allowHistory: true,
+    allowBinaryField: true,
+    allowSchedule: false,
+  },
+  {
+    name: "AccumulationRegister",
+    propertyType: "MetadataAccumulationRegisterAttributes",
+    rule: MetadataAccumulationRegisterAttributeRules,
+    order: [...identity, ...presentation, ...choice, "indexing", "fullTextSearch", "binaryDataStorageLocationUse", "uuid"],
+    allowFill: false,
+    allowHistory: false,
+    allowBinaryField: false,
+    allowSchedule: false,
+  },
+  {
+    name: "AccountingRegister",
+    propertyType: "MetadataAccountingRegisterAttributes",
+    rule: MetadataAccountingRegisterAttributeRules,
+    order: [...identity, ...presentation, ...choice, "indexing", "fullTextSearch", "binaryDataStorageLocationUse", "uuid"],
+    allowFill: false,
+    allowHistory: false,
+    allowBinaryField: false,
+    allowSchedule: false,
+  },
+  {
+    name: "CalculationRegister",
+    propertyType: "MetadataCalculationRegisterAttributes",
+    rule: MetadataCalculationRegisterAttributeRules,
+    order: [...identity, ...presentation, ...choice, "scheduleLink", "indexing", "fullTextSearch", "binaryDataStorageLocationUse", "uuid"],
+    allowFill: false,
+    allowHistory: false,
+    allowBinaryField: false,
+    allowSchedule: true,
+  },
+] as const
+
+describe("owner-specific register attribute rules", () => {
+  it.each(registerOwners)("keeps exact attribute contract for $name", (owner) => {
+    expectRuleOrder(owner.rule, owner.order)
+    expect(getTypeRule(owner.propertyType, "collectionItemRule")?.itemRule).toBe(owner.rule)
+
+    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
+    expect(schema.Check({ Тип: "Строка", ЗаполнятьИзДанныхЗаполнения: "Истина" })).toBe(owner.allowFill)
+    expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
+    expect(schema.Check({ Тип: "Строка", ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Поле" })).toBe(owner.allowBinaryField)
+    expect(schema.Check({ Тип: "Строка", СвязьСГрафиком: "График" })).toBe(owner.allowSchedule)
   })
 })
 

@@ -1,47 +1,10 @@
 import { uuidPropertyRule } from "../uuid/rule"
-import { getParentFromContext } from "../../context/helpers"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import type { PropertyRule } from "../../orchestration/property/types"
-import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }
-const registerParentItemTypes = [
-  "MetadataAccumulationRegister",
-  "MetadataInformationRegister",
-  "MetadataAccountingRegister",
-  "MetadataCalculationRegister",
-] as const
-
-const getRegisterParentItemType = (context?: ConfigurationContextWithExportToXML): string | undefined => {
-  if (!context) return undefined
-  const parent = getParentFromContext(context, [...registerParentItemTypes] as never[])
-  return registerParentItemTypes.includes(parent.itemType as (typeof registerParentItemTypes)[number])
-    ? parent.itemType
-    : undefined
-}
-
-const isMetadataRegisterResource = (context?: ConfigurationContextWithExportToXML): boolean =>
-  context ? getParentFromContext(context).itemType === "MetadataRegisterResource" : false
-
-const exportInformationRegisterOrExplicit =
-  (propertyKey: string) =>
-  (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML): boolean => {
-    const parentItemType = getRegisterParentItemType(context)
-    if (parentItemType === undefined) return true
-    if (parentItemType === "MetadataInformationRegister") return true
-    return hasProperty(source, propertyKey)
-  }
-
-const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string): boolean =>
-  source !== null &&
-  source !== undefined &&
-  typeof source === "object" &&
-  ("has" in source && typeof source.has === "function"
-    ? source.has(propertyKey)
-    : Object.prototype.hasOwnProperty.call(source, propertyKey))
-
 export const commonRegisterFieldProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -170,7 +133,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: false,
     implicitValueYAML: false,
     xmlParents: propertiesParents,
-    toXML: exportInformationRegisterOrExplicit("fillFromFillingValue"),
   },
   fillValue: {
     yaml: "ЗначениеЗаполнения",
@@ -178,7 +140,6 @@ export const commonRegisterFieldProperties = {
     type: "MetadataValue",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: { "_xsi:nil": true },
-    toXML: exportInformationRegisterOrExplicit("fillValue"),
   },
   fillChecking: {
     yaml: "ПроверкаЗаполнения",
@@ -261,13 +222,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "DontIndex",
     implicitValueYAML: "DontIndex",
     xmlParents: propertiesParents,
-    toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML): boolean => {
-      const parentItemType = getRegisterParentItemType(context)
-      if (parentItemType === undefined) return true
-      if (parentItemType === "MetadataInformationRegister") return true
-      if (!isMetadataRegisterResource(context)) return true
-      return hasProperty(source, "indexing")
-    },
   },
   fullTextSearch: {
     yaml: "ПолнотекстовыйПоиск",
@@ -286,7 +240,6 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "Use",
     implicitValueYAML: "Use",
     xmlParents: propertiesParents,
-    toXML: exportInformationRegisterOrExplicit("dataHistory"),
   },
   binaryDataStorageLocationUse: {
     yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
