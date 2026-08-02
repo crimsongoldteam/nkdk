@@ -35,7 +35,21 @@ export interface CreateProjectStateWriterHandleOptions {
   readonly compatibility?: ProjectStateCompatibility
   readonly maxInFlightBatches?: number
   readonly signal?: AbortSignal
-  readonly workerData?: { readonly writeDelayMs?: number; readonly crashAfterCommit?: boolean }
+  readonly transportFactory?: () => ProjectStateWriterTransport
+}
+
+export interface ProjectStateWriterTransport {
+  postMessage(command: ProjectStateWriterCommand, transfer?: readonly ArrayBuffer[]): void
+  on(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
+  on(event: "error", listener: (error: Error) => void): this
+  on(event: "exit", listener: (code: number) => void): this
+  once(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
+  once(event: "error", listener: (error: Error) => void): this
+  once(event: "exit", listener: (code: number) => void): this
+  off(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
+  off(event: "error", listener: (error: Error) => void): this
+  off(event: "exit", listener: (code: number) => void): this
+  terminate(): Promise<number>
 }
 
 export interface ProjectStateWriterHandle {
@@ -74,7 +88,7 @@ export function createProjectStateWriterHandle(
   if (!Number.isSafeInteger(maxInFlight) || maxInFlight < 1) {
     throw new Error("Размер очереди ProjectState writer должен быть положительным целым числом")
   }
-  const worker = createWorker(options.workerData)
+  const transport = options.transportFactory?.() ?? createWorkerTransport()
   const pending = new Map<string, PendingRequest>()
   const queuedBatches: QueuedBatch[] = []
   const operationWrites = new Set<Promise<void>>()
@@ -90,9 +104,9 @@ export function createProjectStateWriterHandle(
   let closing = false
   let closePromise: Promise<void> | undefined
 
-  worker.on("message", receive)
-  worker.once("error", failWorker)
-  worker.once("exit", (code) => {
+  transport.on("message", receive)
+  transport.once("error", failWorker)
+  transport.once("exit", (code) => {
     if (!closing) failWorker(new Error(`ProjectState writer worker неожиданно завершился с кодом ${code}`))
     else if (pending.size > 0) rejectOutstanding(new ProjectStateWriterClosedError())
   })
@@ -262,7 +276,7 @@ export function createProjectStateWriterHandle(
       const batch = command.kind === "writeBatch"
       pending.set(command.requestId, { resolve, reject, batch })
       try {
-        worker.postMessage(command, transfer)
+        transport.postMessage(command, transfer)
       } catch (caught) {
         pending.delete(command.requestId)
         if (batch) {
@@ -359,7 +373,7 @@ export function createProjectStateWriterHandle(
         // Worker уже мог завершиться после подтверждённой аварии.
       }
     }
-    await worker.terminate()
+    await transport.terminate()
   }
 
   async function restoreAfterFailedCheckpoint(): Promise<void> {
@@ -404,13 +418,12 @@ function isAbortSignalAborted(signal: AbortSignal | undefined): boolean {
   return signal?.aborted === true
 }
 
-function createWorker(workerData: CreateProjectStateWriterHandleOptions["workerData"]): Worker {
+function createWorkerTransport(): ProjectStateWriterTransport {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "writerWorker.ts")
     : join(dirname(currentFile), "projectStateWriterWorker.js")
   return new Worker(workerFile, {
     execArgv: currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : [],
-    workerData,
   })
 }

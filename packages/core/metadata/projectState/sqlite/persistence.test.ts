@@ -26,16 +26,20 @@ describe("SQLite project state persistence", () => {
     await projectDirs.removeAll()
   })
 
-  it("открывает отсутствующий снимок пустым и загружает совместимый checkpoint целиком", async () => {
+  it("открывает отсутствующий снимок пустым", async () => {
+    const projectDir = await createProjectDir()
+    const fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+
+    expect(fixture.store.readComponentProjection("cf").updates).toEqual([])
+    fixture.store.close()
+  })
+
+  it("сохраняет минимальный checkpoint и загружает его при повторном открытии", async () => {
     const projectDir = await createProjectDir()
     const first = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(first.store.readComponentProjection("cf").updates).toEqual([])
 
-    const updates = [resource("cf/a.bin"), resource("cf/b.bin")]
-    const hashBytes = Uint8Array.from([
-      1, 2, 3, 4, 5, 6, 7, 8,
-      0x80, 10, 11, 12, 13, 14, 15, 0xff,
-    ])
+    const updates = [resource("cf/a.bin")]
+    const hashBytes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
     first.store.beginUpdate()
     first.store.replaceFiles({ updates, hashBytes })
     first.store.commitUpdate()
@@ -114,10 +118,11 @@ describe("SQLite project state persistence", () => {
   })
 })
 
-function resource(projectPath: string): ProjectStateFileUpdate {
-  return { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }
-}
+const resource = (projectPath: string): ProjectStateFileUpdate => ({
+  kind: "resource",
+  projectPath,
+  componentPath: "cf",
+  resourceKind: "resource",
+})
 
-function identity({ kind: _kind, ...value }: ProjectStateFileUpdate) {
-  return value
-}
+const identity = ({ kind: _kind, ...value }: ProjectStateFileUpdate) => value

@@ -1,10 +1,8 @@
-import fs from "node:fs"
-import { parentPort, workerData } from "node:worker_threads"
+import { parentPort } from "node:worker_threads"
 import type { ProjectStateCompatibility } from "./compatibility"
 import {
   projectStateSnapshotPath,
   openPersistentSqliteProjectStateStore,
-  type SqliteProjectStatePersistenceHooks,
 } from "./sqlite/persistence"
 import type { SqliteProjectStateStoreFixture } from "./sqlite/store"
 import {
@@ -14,20 +12,9 @@ import {
   type ProjectStateWriterResponse,
 } from "./writerProtocol"
 
-interface ProjectStateWriterWorkerData {
-  readonly writeDelayMs?: number
-  readonly crashAfterCommit?: boolean
-  readonly exitDuringWrite?: boolean
-  readonly failNextCheckpoint?: boolean
-  readonly serializeCheckpoints?: boolean
-  readonly commitDelayMs?: number
-  readonly failCheckpointAfterLateCancel?: boolean
-}
-
 const port = parentPort
 if (port === null) throw new Error("ProjectState writer должен запускаться в worker thread")
 
-const testOptions = workerData as ProjectStateWriterWorkerData | undefined
 let fixture: SqliteProjectStateStoreFixture | undefined
 let compatibility: ProjectStateCompatibility | undefined
 let projectDir: string | undefined
@@ -35,11 +22,6 @@ let activeOperationId: string | undefined
 let transactionActive = false
 const cancelledOperations = new Set<string>()
 let sequence = Promise.resolve()
-let failNextCheckpoint = testOptions?.failNextCheckpoint === true
-let lateCancelAfterCommit = false
-const persistenceHooks: SqliteProjectStatePersistenceHooks | undefined = testOptions?.serializeCheckpoints === true
-  ? { backup: async (database, target) => fs.promises.writeFile(target, database.serialize()) }
-  : undefined
 
 port.on("message", (value: unknown) => {
   sequence = sequence.then(async () => {
@@ -48,7 +30,6 @@ port.on("message", (value: unknown) => {
       assertProjectStateWriterCommand(value)
       const result = await execute(value)
       port.postMessage({ kind: "ack", requestId, result } satisfies ProjectStateWriterResponse)
-      if (value.kind === "commitUpdate" && testOptions?.crashAfterCommit === true) process.exit(86)
       if (value.kind === "close") port.close()
     } catch (caught) {
       const error = caught instanceof Error ? caught : new Error(String(caught))
@@ -72,7 +53,7 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       closeStore()
       compatibility = command.compatibility
       projectDir = command.projectDir
-      fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility, hooks: persistenceHooks })
+      fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
       return { kind: "opened" }
     case "compareFiles":
       return { kind: "filesCompared", changes: requireStore().store.compareFiles(command.batch) }
@@ -106,9 +87,6 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
     case "writeBatch": {
       const current = requireActiveOperation(command.operationId)
       if (cancelledOperations.has(command.operationId)) throw new Error("Операция состояния проекта отменена")
-      const writeDelayMs = testOptions?.writeDelayMs ?? 0
-      if (writeDelayMs > 0) await delay(writeDelayMs)
-      if (testOptions?.exitDuringWrite === true) process.exit(0)
       assertProjectStateWriterCommand(command)
       current.store.replaceFiles(command.batch)
       return { kind: "batchWritten", operationId: command.operationId }
@@ -117,8 +95,6 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       requireActiveOperation(command.operationId).store.deleteFiles(command.projectPaths)
       return { kind: "filesDeleted", operationId: command.operationId }
     case "commitUpdate": {
-      const commitDelayMs = testOptions?.commitDelayMs ?? 0
-      if (commitDelayMs > 0) await delay(commitDelayMs)
       requireActiveOperation(command.operationId).store.commitUpdate()
       transactionActive = false
       activeOperationId = undefined
@@ -130,13 +106,6 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       activeOperationId = undefined
       return { kind: "updateRolledBack", operationId: command.operationId }
     case "checkpoint":
-      if (lateCancelAfterCommit && testOptions?.failCheckpointAfterLateCancel === true) {
-        throw new Error("late cancel reached checkpoint")
-      }
-      if (failNextCheckpoint) {
-        failNextCheckpoint = false
-        throw new Error("checkpoint failed")
-      }
       await requireStore().store.checkpoint()
       return { kind: "checkpointed", snapshotPath: projectStateSnapshotPath(projectDir!) }
     case "cancelOperation":
@@ -145,8 +114,6 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
         requireStore().store.rollbackUpdate()
         transactionActive = false
         activeOperationId = undefined
-      } else if (testOptions?.failCheckpointAfterLateCancel === true) {
-        lateCancelAfterCommit = true
       }
       return { kind: "operationCancelled", operationId: command.operationId }
     case "reset":
@@ -156,7 +123,6 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       fixture = await openPersistentSqliteProjectStateStore({
         projectDir,
         compatibility,
-        hooks: persistenceHooks,
         loadSnapshot: false,
       })
       return { kind: "reset" }
@@ -183,8 +149,4 @@ function closeStore(): void {
   projectDir = undefined
   activeOperationId = undefined
   transactionActive = false
-}
-
-function delay(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds))
 }

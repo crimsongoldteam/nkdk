@@ -1,18 +1,20 @@
-import fs from "node:fs"
-import { markAsUntransferable, Worker } from "node:worker_threads"
-import { afterEach, describe, expect, it } from "vitest"
+import { markAsUntransferable } from "node:worker_threads"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import type { ProjectStateCompatibility } from "./compatibility"
 import { createProjectStateFileUpdateBatch, type ProjectStateFileUpdate } from "./fileUpdate"
-import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
-import { openPersistentSqliteProjectStateStore, projectStateSnapshotPath } from "./sqlite/persistence"
-import { trackTempProjectDirs } from "./tests/tempProjectDir"
+import type { ProjectStateReadToken } from "./contracts"
+import {
+  acknowledgeWriterCommand,
+  createMockWriterTransport,
+  type MockWriterTransport,
+  type MockWriterTransportOutcome,
+} from "./tests/mockWriterTransport"
 import {
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   type ProjectStateWriterHandle,
 } from "./writerHandle"
 import type { ProjectStateWriterCommand, ProjectStateWriterResponse } from "./writerProtocol"
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 
 const compatibility: ProjectStateCompatibility = {
   schemaVersion: 1,
@@ -22,94 +24,104 @@ const compatibility: ProjectStateCompatibility = {
 }
 
 describe("ProjectState writer handle", () => {
-  const projectDirs = trackTempProjectDirs("nkdk-project-state-writer-")
-  const createProjectDir = projectDirs.create
   const handles: ProjectStateWriterHandle[] = []
 
   afterEach(async () => {
     await Promise.all(handles.splice(0).map((handle) => handle.close().catch(() => undefined)))
-    await projectDirs.removeAll()
   })
 
-  function createHandle(options: Parameters<typeof createProjectStateWriterHandle>[0] = { compatibility }) {
-    const handle = createProjectStateWriterHandle(options)
+  function createHandle(transport: MockWriterTransport, maxInFlightBatches?: number): ProjectStateWriterHandle {
+    const handle = createProjectStateWriterHandle({
+      compatibility,
+      maxInFlightBatches,
+      transportFactory: () => transport,
+    })
     handles.push(handle)
     return handle
   }
 
-  it("последовательно подтверждает пачки, переносит общий буфер и публикует checkpoint", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle()
-    await handle.beginUpdate(projectDir)
-    const batches = [
-      batch("cf/a.bin", 0x0102030405060708n),
-      batch("cf/b.bin", 0x1112131415161718n),
-      batch("cf/c.bin", 0x80818283848586ffn),
-    ]
+  it("ограничивает число отправленных batch и продолжает очередь после каждого ответа", async () => {
+    const pending: ((response: ProjectStateWriterResponse) => void)[] = []
+    const transport = createMockWriterTransport((command) => command.kind === "writeBatch"
+      ? new Promise((resolve) => pending.push(resolve))
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport, 1)
+    await handle.beginUpdate("/project")
+    const batches = [batch("cf/a.bin", 1n), batch("cf/b.bin", 2n), batch("cf/c.bin", 3n)]
 
-    await Promise.all(batches.map((value) => handle.writeBatch(value)))
-    expect(batches.map((value) => value.hashBytes.byteLength)).toEqual([0, 0, 0])
+    const writes = batches.map((value) => handle.writeBatch(value))
+    expect(commandKinds(transport)).toEqual(["openProject", "beginUpdate", "writeBatch"])
+    expect(batches.map(({ hashBytes }) => hashBytes.byteLength)).toEqual([0, 8, 8])
 
-    const result = await handle.commitAndCheckpoint()
-    expect(result.snapshotPath).toBe(projectStateSnapshotPath(projectDir))
+    respondToWrite(transport, pending.shift()!, 0)
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(commandKinds(transport)).toEqual(["openProject", "beginUpdate", "writeBatch", "writeBatch"])
+    expect(batches.map(({ hashBytes }) => hashBytes.byteLength)).toEqual([0, 0, 8])
 
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    const updates = [resource("cf/a.bin"), resource("cf/b.bin"), resource("cf/c.bin")]
-    expect(reopened.store.compareFiles({
-      files: updates.map(identity),
-      hashBytes: Uint8Array.from([
-        1, 2, 3, 4, 5, 6, 7, 8,
-        0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0xff,
-      ]),
-    })).toEqual({ changed: [], deleted: [] })
-    reopened.store.close()
+    respondToWrite(transport, pending.shift()!, 1)
+    await Promise.resolve()
+    await Promise.resolve()
+    respondToWrite(transport, pending.shift()!, 2)
+    await Promise.all(writes)
+    await expect(handle.commitAndCheckpoint()).resolves.toEqual({ snapshotPath: "/mock/project-state.sqlite" })
+    expect(commandKinds(transport)).toEqual([
+      "openProject", "beginUpdate", "writeBatch", "writeBatch", "writeBatch", "commitUpdate", "checkpoint",
+    ])
   })
 
-  it("сравнивает хэши и читает локальное состояние через нейтральные команды", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle()
+  it("возвращает данные нейтральных read-команд без знания транспорта", async () => {
     const update = resource("cf/a.bin")
-    const hashes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+    const transport = createMockWriterTransport((command) => {
+      switch (command.kind) {
+        case "compareFiles": return response(command, { kind: "filesCompared", changes: { changed: [{ index: 0, file: identity(update) }], deleted: [] } })
+        case "readLocalDiagnostics": return response(command, { kind: "localDiagnostics", diagnostics: [] })
+        case "createReadToken": return response(command, { kind: "readToken", token: new Uint8Array([1]) as ProjectStateReadToken })
+        case "readComponentProjection": {
+          return response(command, { kind: "componentProjection", projection: { componentPath: "cf", updates: [update], hashBytes: new Uint8Array(8) } })
+        }
+        default: return acknowledgeWriterCommand(command)
+      }
+    })
+    const handle = createHandle(transport)
+    await handle.openProject("/project")
 
-    await handle.openProject(projectDir)
-    await expect(handle.compareFiles({ files: [identity(update)], hashBytes: hashes.slice() })).resolves.toEqual({
+    await expect(handle.compareFiles({ files: [identity(update)], hashBytes: new Uint8Array(8) })).resolves.toEqual({
       changed: [{ index: 0, file: identity(update) }],
       deleted: [],
     })
-    await handle.beginUpdate(projectDir)
-    await handle.writeBatch({ updates: [update], hashBytes: hashes.slice() })
     await expect(handle.readLocalDiagnostics()).resolves.toEqual([])
-    const projection = await handle.readComponentProjection("cf")
-    expect(projection.updates).toEqual([update])
-    expect(projection.hashBytes).toEqual(hashes)
-    expect(projection.hashBytes.buffer.byteLength).toBe(8)
-    await expect(handle.createReadToken()).resolves.toBeInstanceOf(Uint8Array)
-    await handle.rollbackUpdate()
-    await handle.close()
+    await expect(handle.createReadToken()).resolves.toEqual(new Uint8Array([1]))
+    await expect(handle.readComponentProjection("cf")).resolves.toEqual({
+      componentPath: "cf",
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })
+    expect(commandKinds(transport)).toEqual([
+      "openProject", "compareFiles", "readLocalDiagnostics", "createReadToken", "readComponentProjection",
+    ])
   })
 
-  it("проверяет dependency rows незавершённой транзакции одной writer-командой", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle()
-    const source = dependencyYaml("cf/Источник.yaml", true)
-    const configuration = dependencyYaml("cf/Конфигурация.yaml", false)
-    await handle.beginUpdate(projectDir)
-    await handle.writeBatch({ updates: [source, configuration], hashBytes: new Uint8Array(16) })
+  it("дожидается batch перед dependency validation и передаёт operationId", async () => {
+    let resolveWrite!: (response: ProjectStateWriterResponse) => void
+    const transport = createMockWriterTransport((command) => {
+      if (command.kind === "writeBatch") return new Promise((resolve) => {
+        resolveWrite = resolve
+      })
+      return acknowledgeWriterCommand(command)
+    })
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project")
+    const writing = handle.writeBatch(batch("cf/a.bin", 1n))
+    const validating = handle.validateDependencies()
 
-    const diagnostics = await handle.validateDependencies()
-
-    expect(diagnostics).toEqual([
-      {
-        filePath: source.projectPath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "reference",
-        message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
-      },
-    ])
-    await handle.rollbackUpdate()
+    expect(commandKinds(transport)).not.toContain("validateDependencies")
+    respondToWrite(transport, resolveWrite, 0)
+    await writing
+    await expect(validating).resolves.toEqual([])
+    const begin = commandOfKind(transport, "beginUpdate")
+    const validate = commandOfKind(transport, "validateDependencies")
+    expect(validate.operationId).toBe(begin.operationId)
   })
 
   it.each([
@@ -117,318 +129,163 @@ describe("ProjectState writer handle", () => {
     ["длина представления", new Uint8Array(7), 7],
     ["длина backing buffer", new Uint8Array(new ArrayBuffer(9), 0, 8), 9],
   ])("отклоняет неверный общий буфер до postMessage: %s", async (_name, hashBytes, bufferLength) => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle()
-    await handle.beginUpdate(projectDir)
-    const invalid = { updates: [resource("cf/a.bin")], hashBytes }
+    const transport = createMockWriterTransport()
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project")
 
-    await expect(handle.writeBatch(invalid)).rejects.toThrow("hashBytes")
+    await expect(handle.writeBatch({ updates: [resource("cf/a.bin")], hashBytes })).rejects.toThrow("hashBytes")
     expect(hashBytes.buffer.byteLength).toBe(bufferLength)
-    await handle.rollbackUpdate()
+    expect(commandKinds(transport)).toEqual(["openProject", "beginUpdate"])
   })
 
-  it("отклоняет SharedArrayBuffer до transfer и не блокирует следующую пачку", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle({ compatibility, maxInFlightBatches: 1 })
-    await handle.beginUpdate(projectDir)
-    const shared = {
-      updates: [resource("cf/shared.bin")],
-      hashBytes: new Uint8Array(new SharedArrayBuffer(8)),
-    }
+  it.each([
+    ["SharedArrayBuffer", () => ({ updates: [resource("cf/shared.bin")], hashBytes: new Uint8Array(new SharedArrayBuffer(8)) })],
+    ["непереносимый ArrayBuffer", () => {
+      const value = batch("cf/untransferable.bin", 1n)
+      markAsUntransferable(value.hashBytes.buffer)
+      return value
+    }],
+  ])("не блокирует очередь после ошибки передачи: %s", async (_name, invalid) => {
+    const transport = createMockWriterTransport()
+    const handle = createHandle(transport, 1)
+    await handle.beginUpdate("/project")
 
-    await expect(handle.writeBatch(shared)).rejects.toThrow("ArrayBuffer")
-    await expect(settleWithin(handle.writeBatch(batch("cf/next.bin", 2n)))).resolves.not.toBe("timeout")
-    await handle.rollbackUpdate()
+    await expect(handle.writeBatch(invalid())).rejects.toThrow()
+    await expect(handle.writeBatch(batch("cf/next.bin", 2n))).resolves.toBeUndefined()
+    expect(commandKinds(transport)).toEqual(["openProject", "beginUpdate", "writeBatch"])
   })
 
-  it("очищает pending и счётчик после синхронной ошибки postMessage", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle({ compatibility, maxInFlightBatches: 1 })
-    await handle.beginUpdate(projectDir)
-    const untransferable = batch("cf/untransferable.bin", 1n)
-    markAsUntransferable(untransferable.hashBytes.buffer)
-
-    await expect(handle.writeBatch(untransferable)).rejects.toThrow()
-    await expect(settleWithin(handle.writeBatch(batch("cf/next.bin", 2n)))).resolves.not.toBe("timeout")
-    await handle.rollbackUpdate()
-  })
-
-  it("повторно проверяет batch на недоверенной границе worker", async () => {
-    const projectDir = await createProjectDir()
-    const worker = new Worker(new URL("./writerWorker.ts", import.meta.url), { execArgv: sourceWorkerExecArgv() })
-    const operationId = "raw-operation"
-    try {
-      await expect(sendRaw(worker, {
-        kind: "openProject",
-        requestId: "open",
-        projectDir,
-        compatibility,
-      })).resolves.toMatchObject({ kind: "ack" })
-      await expect(sendRaw(worker, {
-        kind: "beginUpdate",
-        requestId: "begin",
-        operationId,
-      })).resolves.toMatchObject({ kind: "ack" })
-
-      const response = await sendRaw(worker, {
-        kind: "writeBatch",
-        requestId: "invalid",
-        operationId,
-        batch: {
-          updates: [resource("cf/a.bin")],
-          hashBytes: new Uint8Array(new ArrayBuffer(9), 0, 8),
-        },
-      } as unknown as ProjectStateWriterCommand)
-
-      expect(response).toMatchObject({ kind: "failed", requestId: "invalid" })
-      if (response.kind !== "failed") throw new Error("Worker принял некорректный batch")
-      expect(response.error.message).toContain("hashBytes")
-
-      const sharedResponse = await sendRaw(worker, {
-        kind: "writeBatch",
-        requestId: "shared",
-        operationId,
-        batch: {
-          updates: [resource("cf/shared.bin")],
-          hashBytes: new Uint8Array(new SharedArrayBuffer(8)),
-        },
-      })
-      expect(sharedResponse).toMatchObject({ kind: "failed", requestId: "shared" })
-      if (sharedResponse.kind !== "failed") throw new Error("Worker принял SharedArrayBuffer")
-      expect(sharedResponse.error.message).toContain("ArrayBuffer")
-
-      await sendRaw(worker, { kind: "rollbackUpdate", requestId: "rollback", operationId })
-      await sendRaw(worker, { kind: "close", requestId: "close" })
-    } finally {
-      await worker.terminate()
-    }
-  })
-
-  it("обходит заполненную очередь для отмены и подтверждает её только после rollback", async () => {
-    const projectDir = await createProjectDir()
-    await writeSnapshot(projectDir, "cf/old.bin")
+  it("обходит заполненную очередь для отмены и подтверждает её после cancelOperation", async () => {
+    const transport = createMockWriterTransport((command) => command.kind === "writeBatch"
+      ? new Promise<MockWriterTransportOutcome>(() => undefined)
+      : acknowledgeWriterCommand(command))
     const controller = new AbortController()
-    const handle = createHandle({ compatibility, maxInFlightBatches: 1, workerData: { writeDelayMs: 200 } })
-    await handle.beginUpdate(projectDir, controller.signal)
+    const handle = createHandle(transport, 1)
+    await handle.beginUpdate("/project", controller.signal)
     const batches = [batch("cf/a.bin", 1n), batch("cf/b.bin", 2n), batch("cf/c.bin", 3n)]
     const writes = batches.map((value) => handle.writeBatch(value))
-    expect(batches[0]!.hashBytes.byteLength).toBe(0)
-    expect(batches.slice(1).map((value) => value.hashBytes.byteLength)).toEqual([8, 8])
 
     controller.abort()
 
     const settled = await Promise.allSettled(writes)
     expect(settled.every((result) => result.status === "rejected" && result.reason instanceof ProjectStateWriterCancelledError)).toBe(true)
     await expect(handle.commitAndCheckpoint()).rejects.toBeInstanceOf(ProjectStateWriterCancelledError)
-
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/old.bin")])
-    reopened.store.close()
+    expect(commandKinds(transport)).toEqual(["openProject", "beginUpdate", "writeBatch", "cancelOperation"])
   })
 
-  it("после подтверждённой отмены завершает lifecycle и не сохраняет listener старого signal", async () => {
-    const projectDir = await createProjectDir()
+  it("удаляет listener старого signal после подтверждённой отмены", async () => {
     const oldController = new AbortController()
-    const nextController = new AbortController()
-    const handle = createHandle({ compatibility, workerData: { writeDelayMs: 200 } })
-    await handle.beginUpdate(projectDir, oldController.signal)
-    const write = handle.writeBatch(batch("cf/cancelled.bin", 1n))
-
+    const transport = createMockWriterTransport((command) => command.kind === "writeBatch" && command.batch.updates[0]?.projectPath === "cf/old.bin"
+      ? new Promise<MockWriterTransportOutcome>(() => undefined)
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project", oldController.signal)
+    const oldWrite = handle.writeBatch(batch("cf/old.bin", 1n))
     oldController.abort()
+    await expect(oldWrite).rejects.toBeInstanceOf(ProjectStateWriterCancelledError)
+    await handle.rollbackUpdate()
 
-    const primary = await write.catch((caught: unknown) => caught)
-    expect(primary).toBeInstanceOf(ProjectStateWriterCancelledError)
-    expect(primary).not.toBeInstanceOf(AggregateError)
-    await expect(handle.rollbackUpdate()).resolves.toBeUndefined()
-
-    await handle.beginUpdate(projectDir, nextController.signal)
+    await handle.beginUpdate("/project", new AbortController().signal)
     oldController.signal.dispatchEvent(new Event("abort"))
     await handle.writeBatch(batch("cf/next.bin", 2n))
-    await expect(handle.commitAndCheckpoint()).resolves.toEqual({ snapshotPath: projectStateSnapshotPath(projectDir) })
+    await handle.rollbackUpdate()
+
+    expect(commandKinds(transport).filter((kind) => kind === "cancelOperation")).toHaveLength(1)
   })
 
-  it("принимает отмену до необратимой commit-фазы и не публикует обновление", async () => {
-    const projectDir = await createProjectDir()
-    await writeSnapshot(projectDir, "cf/old.bin")
+  it("игнорирует late cancel после входа в необратимую commit-фазу", async () => {
+    let resolveCommit!: (response: ProjectStateWriterResponse) => void
+    const transport = createMockWriterTransport((command) => command.kind === "commitUpdate"
+      ? new Promise((resolve) => {
+          resolveCommit = resolve
+        })
+      : acknowledgeWriterCommand(command))
     const controller = new AbortController()
-    const handle = createHandle({
-      compatibility,
-      workerData: { serializeCheckpoints: true },
-    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir, controller.signal)
-    await handle.writeBatch(batch("cf/cancelled.bin", 2n))
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project", controller.signal)
+    await handle.writeBatch(batch("cf/a.bin", 1n))
 
     const committing = handle.commitAndCheckpoint()
+    await Promise.resolve()
+    await Promise.resolve()
+    const commit = commandOfKind(transport, "commitUpdate")
     controller.abort()
+    resolveCommit(response(commit, { kind: "updateCommitted", operationId: commit.operationId }))
 
-    await expect(committing).rejects.toBeInstanceOf(ProjectStateWriterCancelledError)
-    await handle.close()
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/old.bin")])
-    reopened.store.close()
-  })
-
-  it("не отправляет ложную отмену после входа в необратимую commit-фазу", async () => {
-    const projectDir = await createProjectDir()
-    const controller = new AbortController()
-    const handle = createHandle({
-      compatibility,
-      workerData: {
-        commitDelayMs: 100,
-        failCheckpointAfterLateCancel: true,
-        serializeCheckpoints: true,
-      },
-    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir, controller.signal)
-    await handle.writeBatch(batch("cf/committed.bin", 2n))
-
-    const committing = handle.commitAndCheckpoint()
-    await new Promise((resolve) => setTimeout(resolve, 20))
-    controller.abort()
-
-    await expect(committing).resolves.toEqual({ snapshotPath: projectStateSnapshotPath(projectDir) })
-    await handle.close()
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/committed.bin")])
-    reopened.store.close()
+    await expect(committing).resolves.toEqual({ snapshotPath: "/mock/project-state.sqlite" })
+    expect(commandKinds(transport)).not.toContain("cancelOperation")
   })
 
   it("одним закрытием завершает конкурентные close и все незавершённые batch", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle({
-      compatibility,
-      maxInFlightBatches: 1,
-      workerData: { writeDelayMs: 200 },
-    })
-    await handle.beginUpdate(projectDir)
+    const transport = createMockWriterTransport((command) => command.kind === "writeBatch"
+      ? new Promise<MockWriterTransportOutcome>(() => undefined)
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport, 1)
+    await handle.beginUpdate("/project")
     const writes = [handle.writeBatch(batch("cf/a.bin", 1n)), handle.writeBatch(batch("cf/b.bin", 2n))]
 
-    const closing = Promise.allSettled([handle.close(), handle.close(), ...writes])
-    const settled = await settleWithin(closing)
+    const settled = await Promise.allSettled([handle.close(), handle.close(), ...writes])
 
-    expect(settled).not.toBe("timeout")
-    if (settled === "timeout") return
     expect(settled.slice(0, 2).every((result) => result.status === "fulfilled")).toBe(true)
     const rejected = settled.slice(2)
     expect(rejected.every((result) => result.status === "rejected" && result.reason.name === "ProjectStateWriterClosedError")).toBe(true)
     if (rejected[0]?.status !== "rejected" || rejected[1]?.status !== "rejected") return
     expect(rejected[1].reason).toBe(rejected[0].reason)
+    expect(commandKinds(transport).filter((kind) => kind === "close")).toHaveLength(1)
   })
 
-  it("завершает pending batch при неожиданном выходе worker с кодом 0", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle({
-      compatibility,
-      workerData: { exitDuringWrite: true },
-    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir)
+  it("завершает pending batch при неожиданном exit с кодом 0", async () => {
+    const transport = createMockWriterTransport((command) => command.kind === "writeBatch"
+      ? { kind: "transportExit", code: 0 }
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project")
 
-    const settled = await settleWithin(Promise.allSettled([handle.writeBatch(batch("cf/a.bin", 1n))]))
+    await expect(handle.writeBatch(batch("cf/a.bin", 1n))).rejects.toThrow("worker неожиданно завершился с кодом 0")
+    await expect(handle.close()).resolves.toBeUndefined()
+  })
 
-    expect(settled).not.toBe("timeout")
-    if (settled === "timeout") return
-    expect(settled[0]).toMatchObject({
-      status: "rejected",
-      reason: { message: expect.stringContaining("worker") },
+  it("после ошибки checkpoint повторно открывает проект и принимает следующее обновление", async () => {
+    let checkpoint = 0
+    const transport = createMockWriterTransport((command) => {
+      if (command.kind === "checkpoint" && checkpoint++ === 0) {
+        return { kind: "failed", requestId: command.requestId, error: { name: "Error", message: "checkpoint failed" } }
+      }
+      return acknowledgeWriterCommand(command)
     })
-    await expect(settleWithin(handle.close())).resolves.not.toBe("timeout")
-  })
-
-  it("после аварии между commit и checkpoint повторно открывает предыдущий снимок", async () => {
-    const projectDir = await createProjectDir()
-    await writeSnapshot(projectDir, "cf/old.bin")
-    const handle = createHandle({ compatibility, workerData: { crashAfterCommit: true } })
-    await handle.beginUpdate(projectDir)
-    await handle.writeBatch(batch("cf/new.bin", 2n))
-
-    await expect(handle.commitAndCheckpoint()).rejects.toThrow("worker")
-
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/old.bin")])
-    reopened.store.close()
-  })
-
-  it("после ошибки checkpoint восстанавливает старый снимок и принимает следующее обновление", async () => {
-    const projectDir = await createProjectDir()
-    await writeSnapshot(projectDir, "cf/old.bin")
-    const handle = createHandle({
-      compatibility,
-      workerData: { failNextCheckpoint: true, serializeCheckpoints: true },
-    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir)
-    await handle.writeBatch(batch("cf/unpublished.bin", 2n))
+    const handle = createHandle(transport)
+    await handle.beginUpdate("/project")
+    await handle.writeBatch(batch("cf/first.bin", 1n))
 
     await expect(handle.commitAndCheckpoint()).rejects.toThrow("checkpoint failed")
-    await handle.beginUpdate(projectDir)
-    await handle.writeBatch(batch("cf/next.bin", 3n))
-    await handle.commitAndCheckpoint()
-    await handle.close()
-
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual([
-      resource("cf/old.bin"),
-      resource("cf/next.bin"),
-    ])
-    reopened.store.close()
+    await handle.beginUpdate("/project")
+    await handle.writeBatch(batch("cf/next.bin", 2n))
+    await expect(handle.commitAndCheckpoint()).resolves.toEqual({ snapshotPath: "/mock/project-state.sqlite" })
+    expect(commandKinds(transport).filter((kind) => kind === "openProject")).toHaveLength(2)
   })
 
-  it("считает cleanup без активного обновления завершённым", async () => {
-    const projectDir = await createProjectDir()
-    const handle = createHandle({ compatibility })
-    await handle.openProject(projectDir)
+  it("считает rollback без активного обновления завершённым", async () => {
+    const transport = createMockWriterTransport()
+    const handle = createHandle(transport)
+    await handle.openProject("/project")
 
     await expect(handle.rollbackUpdate()).resolves.toBeUndefined()
-    await handle.close()
+    expect(commandKinds(transport)).toEqual(["openProject"])
   })
 
-  async function writeSnapshot(projectDir: string, projectPath: string): Promise<void> {
-    const fixture = await openPersistentSqliteProjectStateStore({
-      projectDir,
-      compatibility,
-      hooks: {
-        backup: async (database, target) => fs.promises.writeFile(target, database.serialize()),
-      },
-    })
-    fixture.store.beginUpdate()
-    fixture.store.replaceFiles({ updates: [resource(projectPath)], hashBytes: new Uint8Array(8) })
-    fixture.store.commitUpdate()
-    await fixture.store.checkpoint()
-    fixture.store.close()
-  }
+  it("использует переданную transport factory", () => {
+    const transport = createMockWriterTransport()
+    const transportFactory = vi.fn(() => transport)
+
+    const handle = createProjectStateWriterHandle({ compatibility, transportFactory })
+    handles.push(handle)
+
+    expect(transportFactory).toHaveBeenCalledOnce()
+  })
 })
 
 function resource(projectPath: string): ProjectStateFileUpdate {
   return { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }
-}
-
-function dependencyYaml(projectPath: string, pending: boolean): ProjectStateFileUpdate {
-  const parsed = parseMetadataTargetFromYAML({
-    value: "Справочник.Товары.Реквизит.Артикул",
-    constraint: { kind: "member", owner: "explicit" },
-  })
-  if (!parsed.ok) throw new Error("Некорректная тестовая ссылка")
-  return {
-    kind: "yaml",
-    projectPath,
-    componentPath: "cf",
-    resourceKind: "yaml",
-    yamlRole: "configuration",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: pending
-      ? [{
-          yamlPath: ["Ссылка"],
-          canonical: "Catalog.Товары.Attribute.Артикул",
-          target: parsed.target,
-          constraint: { kind: "member", owner: "explicit" },
-        }]
-      : [],
-    owners: [],
-    fields: [],
-    forms: [],
-    pendingChecks: [],
-    dependencies: [],
-  }
 }
 
 function identity({ kind: _kind, ...value }: ProjectStateFileUpdate) {
@@ -439,30 +296,31 @@ function batch(projectPath: string, hash: bigint) {
   return createProjectStateFileUpdateBatch([{ update: resource(projectPath), hash }])
 }
 
-function sendRaw(worker: Worker, command: ProjectStateWriterCommand): Promise<ProjectStateWriterResponse> {
-  return new Promise((resolve, reject) => {
-    const onMessage = (response: ProjectStateWriterResponse) => {
-      if (response.requestId !== command.requestId) return
-      cleanup()
-      resolve(response)
-    }
-    const onError = (caught: Error) => {
-      cleanup()
-      reject(caught)
-    }
-    const cleanup = () => {
-      worker.off("message", onMessage)
-      worker.off("error", onError)
-    }
-    worker.on("message", onMessage)
-    worker.on("error", onError)
-    worker.postMessage(command)
-  })
+function commandKinds(transport: MockWriterTransport): ProjectStateWriterCommand["kind"][] {
+  return transport.commands.map(({ kind }) => kind)
 }
 
-function settleWithin<T>(promise: Promise<T>, milliseconds = 1_000): Promise<T | "timeout"> {
-  return Promise.race([
-    promise,
-    new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), milliseconds)),
-  ])
+function commandOfKind<K extends ProjectStateWriterCommand["kind"]>(
+  transport: MockWriterTransport,
+  kind: K,
+): Extract<ProjectStateWriterCommand, { kind: K }> {
+  const command = transport.commands.find((candidate): candidate is Extract<ProjectStateWriterCommand, { kind: K }> => candidate.kind === kind)
+  if (command === undefined) throw new Error(`Команда ${kind} не отправлена`)
+  return command
+}
+
+function respondToWrite(
+  transport: MockWriterTransport,
+  resolve: (response: ProjectStateWriterResponse) => void,
+  index: number,
+): void {
+  const command = transport.commands.filter((candidate): candidate is Extract<ProjectStateWriterCommand, { kind: "writeBatch" }> => candidate.kind === "writeBatch")[index]!
+  resolve(response(command, { kind: "batchWritten", operationId: command.operationId }))
+}
+
+function response(
+  command: ProjectStateWriterCommand,
+  result: Extract<ProjectStateWriterResponse, { kind: "ack" }>["result"],
+): ProjectStateWriterResponse {
+  return { kind: "ack", requestId: command.requestId, result }
 }

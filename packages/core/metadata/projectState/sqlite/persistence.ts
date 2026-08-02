@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { resolve } from "node:path"
 import { randomUUID } from "node:crypto"
-import { backup as sqliteBackup, DatabaseSync } from "node:sqlite"
+import { DatabaseSync } from "node:sqlite"
 import { publishFileAtomically } from "../../../files/atomicPublication"
 import type { ProjectStateCompatibility } from "../compatibility"
 import { createSqliteProjectStateSchema } from "./schema"
@@ -34,7 +34,7 @@ export async function openPersistentSqliteProjectStateStore(
   let database = new DatabaseSync(identity.databaseName, { timeout: 5_000 })
   let loaded = options.loadSnapshot === false
     ? false
-    : await loadCompatibleSnapshot(database, identity.databaseName, options)
+    : await loadCompatibleSnapshot(database, options)
   if (loaded) {
     try {
       initializeLoadedDatabase(database, identity, options.projectDir)
@@ -58,23 +58,17 @@ export async function openPersistentSqliteProjectStateStore(
 }
 
 async function loadCompatibleSnapshot(
-  _targetDatabase: DatabaseSync,
-  databaseName: string,
+  targetDatabase: DatabaseSync,
   options: OpenPersistentSqliteProjectStateStoreOptions,
 ): Promise<boolean> {
-  let source: DatabaseSync | undefined
   try {
     const bytes = await fs.promises.readFile(projectStateSnapshotPath(options.projectDir))
-    source = new DatabaseSync(":memory:")
-    source.deserialize(bytes)
-    assertQuickCheck(source)
-    assertCompatibility(source, options.compatibility)
-    await sqliteBackup(source, databaseName, { rate: 2_147_483_647 })
+    targetDatabase.deserialize(bytes)
+    assertQuickCheck(targetDatabase)
+    assertCompatibility(targetDatabase, options.compatibility)
     return true
   } catch {
     return false
-  } finally {
-    source?.close()
   }
 }
 
@@ -110,7 +104,7 @@ async function checkpointDatabase(
     target,
     writeTemporary: async (temporary) => {
       if (hooks?.backup !== undefined) await hooks.backup(database, temporary)
-      else await sqliteBackup(database, temporary, { rate: 2_147_483_647 })
+      else await fs.promises.writeFile(temporary, database.serialize())
     },
     verifyTemporary: async (temporary) => {
       if (hooks?.verifySnapshot !== undefined) await hooks.verifySnapshot(temporary, compatibility)
