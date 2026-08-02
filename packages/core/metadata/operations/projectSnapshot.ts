@@ -6,6 +6,7 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import type { PreparedYamlFile, PreparedYamlProject } from "../project/preparedYamlProject"
 import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { createValidationProjectComponent } from "../validation/projectComponents"
 import { validateProject, type ValidationWorkerPoolHandle } from "../validation/validateProject"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { YamlLocationIndex } from "../../yaml/locationIndex"
@@ -103,6 +104,44 @@ export function buildMetadataOperationSnapshotFromPreparedProject(params: {
   }
 
   return { ok: true, projectDir: params.project.projectDir, context: params.context, items }
+}
+
+export function buildMetadataOperationSnapshotFromProjectPaths(params: {
+  projectDir: string
+  projectPaths: readonly string[]
+  context?: ConfigurationContext
+}): MetadataOperationSnapshotResult {
+  const projectDir = resolve(params.projectDir)
+  const context = params.context ?? defaultMetadataOperationsContext()
+  const items: OperationSnapshotItem[] = []
+  for (const rootProjectPath of new Set(params.projectPaths)) {
+    const address = componentAddress(rootProjectPath)
+    if (address === undefined) continue
+    const component = createValidationProjectComponent(projectDir, address.component)
+    const resource = resolveValidationProjectFile(component.componentDir, address.projectPath, component)
+    if (resource === undefined) continue
+    const item = importSnapshotItem({ resource, context, requireValidProject: true })
+    if (!item.ok) return item.failure
+    items.push(item.item)
+  }
+  return { ok: true, projectDir, context, items }
+}
+
+function componentAddress(rootProjectPath: string): {
+  component: { kind: "configuration" } | { kind: "configurationExtension"; name: string }
+  projectPath: string
+} | undefined {
+  const segments = rootProjectPath.split("/")
+  if (segments[0] === "cf" && segments.length > 1) {
+    return { component: { kind: "configuration" }, projectPath: segments.slice(1).join("/") }
+  }
+  if (segments[0] === "cfe" && segments[1] !== undefined && segments.length > 2) {
+    return {
+      component: { kind: "configurationExtension", name: segments[1] },
+      projectPath: segments.slice(2).join("/"),
+    }
+  }
+  return undefined
 }
 
 function importSnapshotItem(params: {

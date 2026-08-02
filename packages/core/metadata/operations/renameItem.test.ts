@@ -1,34 +1,69 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
-import { tmpdir } from "os"
+import { chmodSync, existsSync, mkdirSync, readFileSync } from "fs"
 import { join } from "path"
-import { afterAll, afterEach, describe, expect, it } from "vitest"
-import { createPreparedYamlWorkerTestPool } from "../../tests/preparedYamlWorkerTestPool"
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import type { ProjectStateService } from "../projectState/service"
+import type { Diagnostic } from "../validation/types"
+import {
+  completeOperationProjectState,
+  createOperationTestProjectHarness,
+  emptyOperationRefreshStats,
+  operationDataPathFormYaml,
+  operationDataPathReference,
+  operationLockFieldYaml,
+  operationMetadataReference,
+  operationPictureFormYaml,
+  operationTargetReadSession,
+  operationValidationError,
+} from "./operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
 
+const validationError = operationValidationError
+
 describe("renameMetadataItem", { timeout: 30_000 }, () => {
-  const tempDirs: string[] = []
-  const preparedYamlTestPool = createPreparedYamlWorkerTestPool()
-  const preparedYamlProjectPool = preparedYamlTestPool.pool
+  const harness = createOperationTestProjectHarness("nkdk-rename-item-")
+  const { projectState, createProject, writeProjectFile } = harness
+
+  beforeAll(async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", operationLockFieldYaml)
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["ПоляБлокировкиДанных", 0],
+        "Catalog.Товары.Attribute.Артикул",
+      )],
+    })
+    await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары",
+      newName: "Номенклатура",
+      projectState,
+      ignoreValidationErrors: true,
+    })
+    harness.cleanup()
+  })
 
   afterAll(async () => {
-    await preparedYamlTestPool.close()
+    await harness.close()
   })
 
-  afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
-  })
+  afterEach(() => harness.cleanup())
 
-  function createProject(): string {
-    const dir = mkdtempSync(join(tmpdir(), "nkdk-rename-item-"))
-    tempDirs.push(dir)
-    return dir
-  }
-
-  function writeProjectFile(projectDir: string, projectPath: string, lines: string | string[]): string {
-    const filePath = join(projectDir, ...projectPath.split("/"))
-    mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, Array.isArray(lines) ? lines.join("\n") : lines)
-    return filePath
+  function applyAttributeRename(
+    projectDir: string,
+    state: ProjectStateService,
+    ignoreValidationErrors = false,
+  ) {
+    return renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+      newName: "Код",
+      allowWrite: true,
+      now: new Date("2026-08-01T10:00:00.000Z"),
+      ignoreValidationErrors,
+      projectState: state,
+    })
   }
 
   it("does not run full validation before checking the requested rename", async () => {
@@ -42,7 +77,8 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары",
       newName: "Некорректное имя",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({ ok: false, code: "invalid_name" })
@@ -51,19 +87,21 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
 
   it("plans object rename with migration and descendant reference rewrite", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "ПоляБлокировкиДанных:",
-      "  - Реквизит.Артикул",
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", operationLockFieldYaml)
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["ПоляБлокировкиДанных", 0],
+        "Catalog.Товары.Attribute.Артикул",
+      )],
+    })
 
     const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары",
       newName: "Номенклатура",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({
@@ -77,6 +115,32 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
         },
       ],
     })
+  })
+
+  it("пакетно переписывает много индексированных ссылок одного YAML", async () => {
+    const projectDir = createProject()
+    const referenceCount = 100
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ПоляБлокировкиДанных:",
+      ...Array.from({ length: referenceCount }, (_, index) => `  - Реквизит.Поле${index}`),
+    ])
+    harness.setIndex({
+      references: Array.from({ length: referenceCount }, (_, index) => operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["ПоляБлокировкиДанных", index],
+        `Catalog.Товары.Attribute.Поле${index}`,
+      )),
+    })
+
+    const result = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары",
+      newName: "Номенклатура",
+      projectState,
+      ignoreValidationErrors: true,
+    })
+
+    expect(result.ok && result.rewrittenReferences).toHaveLength(referenceCount)
   })
 
   it("applies attribute rename through model export and writes a migration file", async () => {
@@ -93,7 +157,8 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       newName: "КодПоставщика",
       allowWrite: true,
       now: new Date("2026-06-30T12:00:00.000Z"),
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({
@@ -129,7 +194,8 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       newName: "Цена",
       allowWrite: true,
       now: new Date("2026-07-01T08:00:00.000Z"),
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({
@@ -156,7 +222,8 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "артикул",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
     expect(caseOnly).toMatchObject({ ok: true, mode: "plan" })
 
@@ -164,7 +231,8 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "код",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
     expect(conflict).toMatchObject({ ok: false, code: "name_conflict" })
   })
@@ -175,17 +243,26 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       "ОсновнаяФормаОбъекта: ФормаЭлемента",
     ])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
+    harness.setIndex({
+      targetProjectPath: "cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["ОсновнаяФормаОбъекта"],
+        "Catalog.Товары.Form.ФормаЭлемента",
+      )],
+    })
 
     const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       newName: "ФормаКарточки",
       allowWrite: true,
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
-    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаКарточки", "Форма.yaml"))).toBe(true)
+    expect(existsSync(join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаКарточки", "Форма.yaml"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
     expect(readFileSync(propertiesPath, "utf-8")).toContain("ОсновнаяФормаОбъекта: ФормаКарточки")
   })
@@ -194,23 +271,26 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
-    const formPath = writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  ИндексКартинки:",
-      "    Тип: Число",
-      "Элементы:",
-      "  Картинка:",
-      "    Вид: ПолеРисунка",
-      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
-      "    ПутьКДанным: ИндексКартинки",
-    ])
+    const formPath = writeProjectFile(
+      projectDir,
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      operationPictureFormYaml,
+    )
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        ["Элементы", "Картинка", "КартинкаЗначений"],
+        "CommonPicture.Состояния",
+      )],
+    })
 
     const result = await renameMetadataItem({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
       newName: "Статусы",
       allowWrite: true,
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result.ok).toBe(true)
@@ -220,25 +300,173 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
   it("rewrites resolvable form DataPath when an attribute is renamed", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
-    const formPath = writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект:",
-      "    Тип: Справочник.Товары",
-      "Элементы:",
-      "  Артикул:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.Артикул",
-    ])
+    const formPath = writeProjectFile(
+      projectDir,
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      operationDataPathFormYaml,
+    )
+    harness.setIndex({ references: [operationDataPathReference()] })
 
     const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "Код",
       allowWrite: true,
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result.ok).toBe(true)
     expect(readFileSync(formPath, "utf-8")).toContain("ПутьКДанным: Объект.Код")
   })
+
+  it.each([
+    [false, "validation_failed"],
+    [true, "plan"],
+  ] as const)("блокирует только error diagnostics без ignoreValidationErrors=%s", async (ignoreValidationErrors, outcome) => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
+    const calls: string[] = []
+    const projectState = renameProjectState(calls, [[validationError]])
+
+    const result = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+      newName: "Код",
+      ignoreValidationErrors,
+      projectState,
+    })
+
+    expect(calls).toEqual(ignoreValidationErrors ? ["refresh-before", "read-target-and-references"] : ["refresh-before"])
+    expect(result).toMatchObject(outcome === "validation_failed"
+      ? { ok: false, code: outcome, diagnostics: [validationError] }
+      : { ok: true, mode: outcome, diagnostics: [validationError] })
+  })
+
+  it.each([false, true])("не пропускает техническую ошибку первого refresh при ignoreValidationErrors=%s", async (ignoreValidationErrors) => {
+    const projectDir = createProject()
+    const technical = new Error("writer недоступен")
+    const projectState = completeOperationProjectState({
+      async refreshAndValidate() { throw technical },
+      openReadSession() { throw new Error("read session не должен открываться") },
+    })
+
+    await expect(renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары",
+      newName: "Номенклатура",
+      ignoreValidationErrors,
+      projectState,
+    })).rejects.toBe(technical)
+  })
+
+  it("актуализирует до и после фактического переименования в правильном порядке", async () => {
+    const projectDir = createProject()
+    const propertiesPath = writeProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    const calls: string[] = []
+    const afterWarning = { ...validationError, severity: "warning" as const, message: "После записи" }
+    const projectState = renameProjectState(calls, [[], [afterWarning]], () => {
+      if (readFileSync(propertiesPath, "utf-8").includes("Код:")) calls.push("write-affected-yaml")
+    })
+
+    const result = await applyAttributeRename(projectDir, projectState)
+
+    expect(calls).toEqual([
+      "refresh-before",
+      "read-target-and-references",
+      "write-affected-yaml",
+      "refresh-after",
+    ])
+    expect(result).toMatchObject({ ok: true, mode: "applied", diagnostics: [afterWarning] })
+  })
+
+  it("после первой записи выполняет второй refresh даже при последующей ошибке записи", async () => {
+    const projectDir = createProject()
+    const propertiesPath = writeProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    mkdirSync(join(projectDir, "Миграции"))
+    chmodSync(join(projectDir, "Миграции"), 0o500)
+    const calls: string[] = []
+    const projectState = renameProjectState(calls, [[], [validationError]], () => {
+      if (readFileSync(propertiesPath, "utf-8").includes("Код:")) calls.push("write-affected-yaml")
+    })
+
+    const result = await applyAttributeRename(projectDir, projectState, true)
+
+    expect(calls).toEqual([
+      "refresh-before",
+      "read-target-and-references",
+      "write-affected-yaml",
+      "refresh-after",
+    ])
+    expect(result).toMatchObject({ ok: false, code: "write_failed", diagnostics: [validationError] })
+  })
+
+  it("отдаёт приоритет технической ошибке второго refresh над результатом записи", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    const technical = new Error("refresh после записи не выполнен")
+    let refresh = 0
+    const projectState = completeOperationProjectState({
+      async refreshAndValidate() {
+        refresh += 1
+        if (refresh === 2) throw technical
+        return {
+          diagnostics: [],
+          readToken: new Uint8Array() as ProjectStateReadToken,
+          stats: emptyOperationRefreshStats(),
+        }
+      },
+      openReadSession() {
+        return operationTargetReadSession({
+          canonical: "Catalog.Товары.Attribute.Артикул",
+          projectPath: "cf/Справочник/Товары/Свойства.yaml",
+          onRead() {},
+        })
+      },
+    })
+
+    await expect(applyAttributeRename(projectDir, projectState)).rejects.toBe(technical)
+  })
 })
+
+function renameProjectState(
+  calls: string[],
+  diagnosticsByRefresh: readonly (readonly Diagnostic[])[],
+  beforeAfterRefresh?: () => void,
+): ProjectStateService {
+  let refresh = 0
+  return completeOperationProjectState({
+    async refreshAndValidate() {
+      refresh += 1
+      if (refresh === 1) calls.push("refresh-before")
+      else {
+        beforeAfterRefresh?.()
+        calls.push("refresh-after")
+      }
+      return {
+        diagnostics: diagnosticsByRefresh[refresh - 1] ?? [],
+        readToken: new Uint8Array() as ProjectStateReadToken,
+        stats: emptyOperationRefreshStats(),
+      }
+    },
+    openReadSession() {
+      return operationTargetReadSession({
+        canonical: "Catalog.Товары.Attribute.Артикул",
+        projectPath: "cf/Справочник/Товары/Свойства.yaml",
+        onRead: () => calls.push("read-target-and-references"),
+      })
+    },
+  })
+}

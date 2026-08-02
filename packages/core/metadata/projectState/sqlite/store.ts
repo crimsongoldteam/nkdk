@@ -654,7 +654,7 @@ function insertPendingCheck(
     encodeJson(check),
     check.location.line,
     check.location.col,
-    check.location.path ?? null,
+    encodeJson(check.yamlPath),
   )
 }
 

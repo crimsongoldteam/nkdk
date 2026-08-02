@@ -1,5 +1,9 @@
 import type { Diagnostic } from "../validation/types"
-import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
+import type { ProjectStateService } from "../projectState/service"
+
+export interface MetadataOperationDiagnostic extends Diagnostic {
+  code?: string
+}
 
 export type MetadataNamedChildKind =
   | "attribute"
@@ -44,6 +48,7 @@ export interface MetadataOperationSuccess {
   rewrittenReferences: MetadataOperationReferenceChange[]
   createdMigration?: MetadataOperationMigrationInfo
   blockedReferences: []
+  diagnostics: MetadataOperationDiagnostic[]
 }
 
 export interface MetadataOperationValidationFailed {
@@ -58,15 +63,16 @@ export interface RenameMetadataItemParams {
   path: string
   newName: string
   allowWrite?: boolean
+  ignoreValidationErrors?: boolean
+  projectState: ProjectStateService
   now?: Date
-  preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
 }
 
 export interface FindMetadataReferencesParams {
   projectDir: string
   path: string
-  allowWrite?: boolean
-  preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
+  ignoreValidationErrors?: boolean
+  projectState: ProjectStateService
 }
 
 export interface MetadataOperationFailure {
@@ -87,6 +93,7 @@ export interface MetadataOperationFailure {
   failedStep?: string
   appliedFiles?: string[]
   pendingFiles?: string[]
+  diagnostics: MetadataOperationDiagnostic[]
 }
 
 export type MetadataOperationResult =

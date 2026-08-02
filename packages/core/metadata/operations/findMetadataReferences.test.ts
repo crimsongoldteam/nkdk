@@ -1,34 +1,41 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
-import { tmpdir } from "os"
+import { existsSync, readFileSync } from "fs"
 import { join } from "path"
 import { afterAll, afterEach, describe, expect, it } from "vitest"
-import { createPreparedYamlWorkerTestPool } from "../../tests/preparedYamlWorkerTestPool"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import type { ProjectStateService } from "../projectState/service"
 import { findMetadataReferences } from "./findMetadataReferences"
+import {
+  completeOperationProjectState,
+  createOperationTestProjectHarness,
+  emptyOperationRefreshStats,
+  operationDataPathFormYaml,
+  operationDataPathReference,
+  operationLockFieldYaml,
+  operationMetadataReference,
+  operationPictureFormYaml,
+  operationTargetReadSession,
+  operationValidationError,
+} from "./operationTestSupport"
+
+const validationError = operationValidationError
 
 describe("findMetadataReferences", { timeout: 30_000 }, () => {
-  const tempDirs: string[] = []
-  const preparedYamlTestPool = createPreparedYamlWorkerTestPool()
-  const preparedYamlProjectPool = preparedYamlTestPool.pool
+  const harness = createOperationTestProjectHarness("nkdk-delete-item-")
+  const { projectState, createProject, writeProjectFile } = harness
 
   afterAll(async () => {
-    await preparedYamlTestPool.close()
+    await harness.close()
   })
 
-  afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
-  })
+  afterEach(() => harness.cleanup())
 
-  function createProject(): string {
-    const dir = mkdtempSync(join(tmpdir(), "nkdk-delete-item-"))
-    tempDirs.push(dir)
-    return dir
-  }
-
-  function writeProjectFile(projectDir: string, projectPath: string, lines: string | string[]): string {
-    const filePath = join(projectDir, ...projectPath.split("/"))
-    mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, Array.isArray(lines) ? lines.join("\n") : lines)
-    return filePath
+  function findInValidProject(projectDir: string, path: string) {
+    return findMetadataReferences({
+      projectDir,
+      path,
+      projectState,
+      ignoreValidationErrors: true,
+    })
   }
 
   it("does not run full validation before looking for references", async () => {
@@ -38,11 +45,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       "  - СтандартныйРеквизит.ПометкаУдаления",
     ])
 
-    const result = await findMetadataReferences({
-      projectDir,
-      path: "Справочник.Товары",
-      preparedYamlProjectPool,
-    })
+    const result = await findInValidProject(projectDir, "Справочник.Товары")
 
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
   })
@@ -50,11 +53,12 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
   it("returns validation_failed when YAML preparation fails", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['Имя: "'])
+    harness.setIndex({ diagnostics: [validationError] })
 
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
-      preparedYamlProjectPool,
+      projectState,
     })
 
     expect(result).toMatchObject({ ok: false, code: "validation_failed" })
@@ -64,12 +68,11 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     writeProjectFile(projectDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
-
-    const result = await findMetadataReferences({
-      projectDir,
-      path: "Справочник.Товары",
-      preparedYamlProjectPool,
+    harness.setIndex({
+      references: [operationMetadataReference("cf/Справочник/Заказы/Свойства.yaml", ["Владельцы", 0], "Catalog.Товары")],
     })
+
+    const result = await findInValidProject(projectDir, "Справочник.Товары")
 
     expect(result).toMatchObject({
       ok: false,
@@ -82,19 +85,16 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
 
   it("ignores references inside the deleted object subtree", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "ПоляБлокировкиДанных:",
-      "  - Реквизит.Артикул",
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
-
-    const result = await findMetadataReferences({
-      projectDir,
-      path: "Справочник.Товары",
-      preparedYamlProjectPool,
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", operationLockFieldYaml)
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["ПоляБлокировкиДанных", 0],
+        "Catalog.Товары.Attribute.Артикул",
+      )],
     })
+
+    const result = await findInValidProject(projectDir, "Справочник.Товары")
 
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
   })
@@ -112,8 +112,8 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
-      allowWrite: true,
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
@@ -131,12 +131,12 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
-      allowWrite: true,
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
-    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(true)
+    expect(existsSync(join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
@@ -144,21 +144,20 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  ИндексКартинки:",
-      "    Тип: Число",
-      "Элементы:",
-      "  Картинка:",
-      "    Вид: ПолеРисунка",
-      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
-      "    ПутьКДанным: ИндексКартинки",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", operationPictureFormYaml)
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        ["Элементы", "Картинка", "КартинкаЗначений"],
+        "CommonPicture.Состояния",
+      )],
+    })
 
     const result = await findMetadataReferences({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({
@@ -171,22 +170,81 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
   it("blocks delete when a form DataPath points to the target", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект:",
-      "    Тип: Справочник.Товары",
-      "Элементы:",
-      "  Артикул:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Объект.Артикул",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", operationDataPathFormYaml)
+    harness.setIndex({ references: [operationDataPathReference()] })
 
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
-      preparedYamlProjectPool,
+       projectState,
+      ignoreValidationErrors: true,
     })
 
     expect(result).toMatchObject({ ok: false, code: "references_found" })
   })
+
+  it.each([
+    [false, "validation_failed"],
+    [true, "plan"],
+  ] as const)("refresh обязателен при ignoreValidationErrors=%s", async (ignoreValidationErrors, outcome) => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml", "{}")
+    const calls: string[] = []
+    const projectState = referenceProjectState(calls, [validationError])
+
+    const result = await findMetadataReferences({
+      projectDir,
+      path: "Справочник.Товары",
+      ignoreValidationErrors,
+      projectState,
+    })
+
+    expect(calls).toEqual(ignoreValidationErrors ? ["refresh", "read"] : ["refresh"])
+    if (outcome === "validation_failed") {
+      expect(result).toMatchObject({ ok: false, code: outcome, diagnostics: [validationError] })
+    } else {
+      expect(result).toMatchObject({
+        ok: true,
+        mode: outcome,
+        diagnostics: [
+          validationError,
+          expect.objectContaining({ severity: "warning", code: "search_result_may_be_incomplete" }),
+        ],
+      })
+    }
+  })
+
+  it.each([false, true])("не пропускает техническую ошибку refresh при ignoreValidationErrors=%s", async (ignoreValidationErrors) => {
+    const projectDir = createProject()
+    const technical = new Error("writer недоступен")
+    const projectState = referenceProjectState([], [], technical)
+
+    await expect(findMetadataReferences({
+      projectDir,
+      path: "Справочник.Товары",
+      ignoreValidationErrors,
+      projectState,
+    })).rejects.toBe(technical)
+  })
 })
+
+function referenceProjectState(
+  calls: string[],
+  diagnostics: readonly typeof validationError[],
+  refreshError?: Error,
+): ProjectStateService {
+  return completeOperationProjectState({
+    async refreshAndValidate() {
+      if (refreshError !== undefined) throw refreshError
+      calls.push("refresh")
+      return { diagnostics, readToken: new Uint8Array() as ProjectStateReadToken, stats: emptyOperationRefreshStats() }
+    },
+    openReadSession() {
+      return operationTargetReadSession({
+        canonical: "Catalog.Товары",
+        projectPath: "cf/Справочник/Товары/Свойства.yaml",
+        onRead: () => calls.push("read"),
+      })
+    },
+  })
+}

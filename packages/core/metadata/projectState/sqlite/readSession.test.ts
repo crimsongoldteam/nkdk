@@ -69,6 +69,7 @@ it("проверяет и одноразово закрывает token в от�
     requestId: "worker",
     status: "found",
     target: { kind: "object", canonical: "Catalog.Товары" },
+    source: { projectPath: "cf/Товары.yaml", componentPath: "cf" },
   })
   expect(() => fixture.openReadSession(token)).toThrow()
 })

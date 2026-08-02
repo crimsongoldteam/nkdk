@@ -1,4 +1,5 @@
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
@@ -35,6 +36,7 @@ import {
   type ValidationRulesSnapshot,
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
+import { collectStructuralYamlReferences } from "./structuralReferences"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -578,10 +580,23 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     index,
     yamlPath: [],
   })
+  const root = rootFromYAML[file.owner.dir]
+  const structuralReferences = collectStructuralYamlReferences({
+    filePath: file.absolutePath,
+    parsed,
+    rule: ClientApplicationFormRules,
+    yaml: data,
+    owner: root === undefined ? undefined : { root, objectName: file.owner.name },
+    context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+  })
+  const pendingReferences = structuralReferences.ok
+    ? structuralReferences.references.map(({ setCanonical: _setCanonical, ...reference }) => reference)
+    : []
 
   return {
     ...emptyFacts(),
     formDataPathIndex: index,
+    pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {
       [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
@@ -850,6 +865,7 @@ function collectRuleDataPathChecks(params: {
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",
+      yamlPath,
       location: yamlDiagnosticLocationAtPath({
         filePath: params.file.absolutePath,
         parsed: params.parsed,

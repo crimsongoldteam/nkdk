@@ -481,7 +481,12 @@ function validateProjectFormFirstPass(params: {
     memberIndexEntries: facts.memberIndexEntries,
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
-    dependencies: facts.localDependencies.map(({ canonical }) => canonical),
+    dependencies: [
+      ...new Set([
+        ...facts.localDependencies.map(({ canonical }) => canonical),
+        ...facts.pendingReferences.map(({ canonical }) => canonical),
+      ]),
+    ],
     ...(facts.form === undefined ? {} : { form: facts.form }),
     profile: {
       ...emptyFirstPassProfile("form"),

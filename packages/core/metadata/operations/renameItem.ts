@@ -1,108 +1,109 @@
-import { dirname, join } from "path"
-import { MIGRATIONS_DIR, nextMigrationFileName } from "../appliedObjects/configuration/migrations"
+import { readdirSync } from "node:fs"
+import { dirname, join } from "node:path"
+import {
+  exportMigrationRenameMap,
+  MIGRATIONS_DIR,
+  nextMigrationFileName,
+} from "../appliedObjects/configuration/migrations"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
-import { prepareYamlProject, prepareYamlProjectWithPool } from "../project/preparedYamlProject"
-import {
-  collectFormDataPathReferencesForItem,
-  createOperationDataPathOwnerCache,
-  rewriteDataPathSegments,
-} from "./dataPathReferences"
+import type { ProjectReferenceLocation } from "../projectState/readSession"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
+import { readIndexedOperationReferences } from "./indexReferences"
 import { hasCaseInsensitiveConflict, validateMetadataLocalName } from "./nameRules"
 import { parseMetadataOperationPath } from "./operationPath"
 import {
-  buildMetadataOperationSnapshotFromPreparedProject,
+  buildMetadataOperationSnapshotFromProjectPaths,
   type MetadataOperationSnapshot,
   type OperationSnapshotItem,
 } from "./projectSnapshot"
+import { rewriteDataPathSegments } from "./dataPathReferences"
 import {
   collectStructuralReferencesForItem,
   rewriteCanonicalPrefix,
   type StructuralReferenceCollectionResult,
+  type WritableStructuralReferenceInput,
 } from "./references"
-import { resolveMetadataOperationPath, type ResolvedMetadataOperationPath } from "./targetResolver"
+import {
+  hasMetadataOperationErrors,
+  metadataOperationFailure,
+  metadataOperationValidationFailure,
+} from "./results"
+import {
+  resolveMetadataOperationCanonicalTarget,
+  resolveMetadataOperationPath,
+  type ResolvedMetadataOperationPath,
+} from "./targetResolver"
 import type {
+  MetadataOperationDiagnostic,
   MetadataOperationFailure,
   MetadataOperationMigrationInfo,
-  MetadataOperationMode,
   MetadataOperationReferenceChange,
   MetadataOperationResult,
-  MetadataOperationValidationFailed,
   RenameMetadataItemParams,
 } from "./types"
-import { defaultMetadataOperationsContext } from "./context"
 import { exportOperationItemToYamlText } from "./yamlIO"
 
 interface RenamePlan {
-  steps: MetadataOperationFileStep[]
-  plannedChangedFiles: string[]
-  rewrittenReferences: MetadataOperationReferenceChange[]
-  createdMigration?: MetadataOperationMigrationInfo
+  readonly steps: MetadataOperationFileStep[]
+  readonly plannedChangedFiles: string[]
+  readonly rewrittenReferences: MetadataOperationReferenceChange[]
+  readonly createdMigration?: MetadataOperationMigrationInfo
 }
 
 type RenamePlanResult = { ok: true; plan: RenamePlan } | { ok: false; failure: MetadataOperationFailure }
-type StructuralReferenceRewriteResult =
-  | { ok: true; references: MetadataOperationReferenceChange[] }
-  | { ok: false; code: "rule_contract_violation"; message: string }
 
 export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
-  const context = defaultMetadataOperationsContext()
-  const prepared =
-    params.preparedYamlProjectPool !== undefined
-      ? await prepareYamlProjectWithPool({
-          projectDir: params.projectDir,
-          context,
-          pool: params.preparedYamlProjectPool,
-        })
-      : await prepareYamlProject({ projectDir: params.projectDir, context })
-  if (!prepared.ok) return validationFailure(prepared.message, prepared.diagnostics)
-  const syntaxErrors = prepared.project.workers
-    .flatMap((worker) => worker.yamlFiles)
-    .flatMap((file) => file.syntaxDiagnostics)
-    .filter((diagnostic) => diagnostic.severity === "error")
-  if (syntaxErrors.length > 0) return validationFailure("YAML-проект содержит ошибки подготовки", syntaxErrors)
-
-  const snapshot = buildMetadataOperationSnapshotFromPreparedProject({
-    project: prepared.project,
-    context,
-    requireValidProject: false,
-  })
-  if (!snapshot.ok) return snapshot
+  const before = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
+  const beforeDiagnostics = [...before.diagnostics]
+  if (hasMetadataOperationErrors(beforeDiagnostics) && params.ignoreValidationErrors !== true) {
+    return metadataOperationValidationFailure("YAML-проект содержит ошибки validation", beforeDiagnostics)
+  }
 
   const name = validateMetadataLocalName(params.newName)
-  if (!name.ok) return failure("invalid_name", name.message)
-
+  if (!name.ok) return metadataOperationFailure("invalid_name", name.message, beforeDiagnostics)
   const parsedPath = parseMetadataOperationPath(params.path)
-  if (!parsedPath.ok) return failure(parsedPath.code, parsedPath.message)
+  if (!parsedPath.ok) return metadataOperationFailure(parsedPath.code, parsedPath.message, beforeDiagnostics)
+  const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
+  if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, beforeDiagnostics)
 
+  const indexed = readIndexedOperationReferences({
+    projectState: params.projectState,
+    readToken: before.readToken,
+    path: params.path,
+    target: canonical,
+  })
+  if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, beforeDiagnostics)
+
+  const snapshot = buildMetadataOperationSnapshotFromProjectPaths({
+    projectDir: params.projectDir,
+    projectPaths: [indexed.source.projectPath, ...indexed.references.map(({ projectPath }) => projectPath)],
+  })
+  if (!snapshot.ok) return snapshot
   const resolved = resolveMetadataOperationPath(snapshot, parsedPath)
-  if (!resolved.ok) return failure(resolved.code, resolved.message)
-
-  if (
-    hasCaseInsensitiveConflict({
-      existingNames: resolved.collectionNames,
-      currentName: resolved.currentName,
-      nextName: params.newName,
-    })
-  ) {
-    return failure("name_conflict", `Имя "${params.newName}" уже занято в этой области имен`)
+  if (!resolved.ok) return metadataOperationFailure(resolved.code, resolved.message, beforeDiagnostics)
+  if (hasNameConflict(resolved, params.newName)) {
+    return metadataOperationFailure("name_conflict", `Имя "${params.newName}" уже занято в этой области имен`, beforeDiagnostics)
   }
 
   const planResult = buildRenamePlan({
     projectDir: params.projectDir,
     snapshot,
     resolved,
+    references: indexed.references,
+    fromPrefix: canonical.canonical,
     newName: params.newName,
     allowWrite: params.allowWrite === true,
     now: params.now,
+    diagnostics: beforeDiagnostics,
   })
   if (!planResult.ok) return planResult.failure
   const plan = planResult.plan
-
-  if (params.allowWrite !== true) return success("plan", plan, plan.plannedChangedFiles)
+  if (params.allowWrite !== true) return success("plan", plan, plan.plannedChangedFiles, beforeDiagnostics)
 
   const applied = applyMetadataOperationFilePlan({ steps: plan.steps })
+  const after = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
+  const afterDiagnostics = [...after.diagnostics]
   if (!applied.ok) {
     return {
       ok: false,
@@ -114,74 +115,93 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
       failedStep: applied.failedStep,
       appliedFiles: applied.appliedFiles,
       pendingFiles: applied.pendingFiles,
+      diagnostics: afterDiagnostics,
     }
   }
-
-  return success("applied", plan, applied.changedFiles)
-}
-
-function validationFailure(
-  message: string,
-  diagnostics: MetadataOperationValidationFailed["diagnostics"]
-): MetadataOperationValidationFailed {
-  return {
-    ok: false,
-    code: "validation_failed",
-    message,
-    diagnostics,
-  }
+  return success("applied", plan, applied.changedFiles, afterDiagnostics)
 }
 
 function buildRenamePlan(params: {
   projectDir: string
   snapshot: MetadataOperationSnapshot
   resolved: ResolvedMetadataOperationPath
+  references: readonly ProjectReferenceLocation[]
+  fromPrefix: string
   newName: string
   allowWrite: boolean
   now?: Date
+  diagnostics: MetadataOperationDiagnostic[]
 }): RenamePlanResult {
   const touchedItems = new Set<OperationSnapshotItem>()
+  const itemsByProjectPath = new Map(params.snapshot.items.map((item) => [item.resource.rootProjectPath, item]))
+  const structuralReferencesByItem = new Map<OperationSnapshotItem, StructuralReferenceIndexResult>()
+  const commitStructuralRewrites = new Set<() => void>()
   if (params.resolved.targetKind === "namedCollection") {
     params.resolved.renameYaml(params.newName)
     touchedItems.add(params.resolved.item)
   }
-
-  const rewrittenReferences = rewriteStructuralReferences({
-    snapshot: params.snapshot,
-    fromPrefix: params.resolved.targetPrefix,
-    toPrefix: replaceLastSegment(params.resolved.targetPrefix, params.newName),
-    touchedItems,
-  })
-  if (!rewrittenReferences.ok) {
-    return { ok: false, failure: failure(rewrittenReferences.code, rewrittenReferences.message) }
+  const toPrefix = replaceLastSegment(params.fromPrefix, params.newName)
+  const rewrittenReferences: MetadataOperationReferenceChange[] = []
+  for (const reference of params.references) {
+    const item = itemsByProjectPath.get(reference.projectPath)
+    if (item === undefined) {
+      return { ok: false, failure: metadataOperationFailure("rule_contract_violation", `Файл ссылки не найден: ${reference.projectPath}`, params.diagnostics) }
+    }
+    if (reference.kind === "dataPath") {
+      const current = valueAtYamlPath(item.yaml, reference.yamlPath)
+      if (current !== reference.value) {
+        return { ok: false, failure: metadataOperationFailure("rule_contract_violation", `DataPath изменился после refresh: ${reference.projectPath}`, params.diagnostics) }
+      }
+      const to = rewriteDataPathSegments(reference.value, reference.resolvedSegments, reference.segmentIndex, params.newName)
+      setValueAtYamlPath(item.yaml, reference.yamlPath, to)
+      touchedItems.add(item)
+      rewrittenReferences.push({ filePath: item.filePath, yamlPath: reference.yamlPath, from: reference.value, to })
+      continue
+    }
+    const to = rewriteCanonicalPrefix(reference.canonical, params.fromPrefix, toPrefix)
+    if (to === undefined) continue
+    const indexedReferences = structuralReferencesByItem.get(item)
+      ?? setStructuralReferenceIndex(structuralReferencesByItem, item, buildStructuralReferenceIndex(item, params.snapshot))
+    if (!indexedReferences.ok) {
+      return { ok: false, failure: metadataOperationFailure(indexedReferences.code, indexedReferences.message, params.diagnostics) }
+    }
+    const structuralReference = indexedReferences.references.get(structuralReferenceKey(reference.canonical, reference.yamlPath))
+    if (structuralReference === undefined) {
+      return {
+        ok: false,
+        failure: metadataOperationFailure(
+          "rule_contract_violation",
+          `Индексированная ссылка не найдена по YAML path в ${item.filePath}`,
+          params.diagnostics,
+        ),
+      }
+    }
+    structuralReference.stageCanonical(to)
+    commitStructuralRewrites.add(structuralReference.commitStaged)
+    touchedItems.add(item)
+    rewrittenReferences.push({ filePath: item.filePath, yamlPath: reference.yamlPath, from: reference.canonical, to })
   }
-  const rewrittenDataPaths = rewriteDataPathReferences({
-    snapshot: params.snapshot,
-    targetPrefix: params.resolved.targetPrefix,
-    nextName: params.newName,
-    touchedItems,
-  })
+
+  for (const commit of commitStructuralRewrites) commit()
 
   const steps: MetadataOperationFileStep[] = [...touchedItems].map((item) => ({
-    kind: "writeFile" as const,
+    kind: "writeFile",
     path: item.filePath,
     content: exportOperationItemToYamlText(item),
   }))
-
   if (params.resolved.targetKind === "object") {
     steps.push({
       kind: "renamePath",
       from: params.resolved.item.ownerDirPath,
       to: join(dirname(params.resolved.item.ownerDirPath), params.newName),
     })
-  }
-  if (params.resolved.targetKind === "fileItem") {
+  } else if (params.resolved.targetKind === "fileItem") {
     const from = dirname(params.resolved.absolutePath)
     steps.push({ kind: "renamePath", from, to: join(dirname(from), params.newName) })
   }
 
   const createdMigration = buildMigrationInfo(params.resolved, params.newName)
-  if (params.allowWrite && createdMigration) {
+  if (params.allowWrite && createdMigration !== undefined) {
     const fileName = nextMigrationFileName(params.projectDir, params.now)
     createdMigration.fileName = fileName
     steps.push({
@@ -190,90 +210,61 @@ function buildRenamePlan(params: {
       content: exportMigrationRenameMap({ [createdMigration.from]: params.newName }),
     })
   }
-
   return {
     ok: true,
     plan: {
       steps,
       plannedChangedFiles: steps.flatMap(filesForStep),
-      rewrittenReferences: [...rewrittenReferences.references, ...rewrittenDataPaths],
+      rewrittenReferences,
       createdMigration,
     },
   }
 }
 
-function exportMigrationRenameMap(value: Record<string, string>): string {
-  return Object.entries(value)
-    .map(([key, item]) => `${JSON.stringify(key)}: ${item}\n`)
-    .join("")
-}
+type StructuralReferenceIndexResult =
+  | { readonly ok: true; readonly references: ReadonlyMap<string, WritableStructuralReferenceInput> }
+  | Extract<StructuralReferenceCollectionResult, { ok: false }>
 
-function rewriteStructuralReferences(params: {
-  snapshot: MetadataOperationSnapshot
-  fromPrefix: string
-  toPrefix: string
-  touchedItems: Set<OperationSnapshotItem>
-}): StructuralReferenceRewriteResult {
-  const changes: MetadataOperationReferenceChange[] = []
-  for (const item of params.snapshot.items) {
-    const collected = collectItemReferences(item, params.snapshot.context)
-    if (!collected.ok) return collected
-    for (const reference of collected.references) {
-      const to = rewriteCanonicalPrefix(reference.canonical, params.fromPrefix, params.toPrefix)
-      if (to === undefined) continue
-      reference.setCanonical(to)
-      params.touchedItems.add(item)
-      changes.push({ filePath: reference.filePath, yamlPath: reference.yamlPath, from: reference.canonical, to })
-    }
-  }
-  return { ok: true, references: changes }
-}
-
-function rewriteDataPathReferences(params: {
-  snapshot: MetadataOperationSnapshot
-  targetPrefix: string
-  nextName: string
-  touchedItems: Set<OperationSnapshotItem>
-}): MetadataOperationReferenceChange[] {
-  const ownerCache = createOperationDataPathOwnerCache({
-    projectDir: params.snapshot.projectDir,
-    context: params.snapshot.context,
-  })
-  const changes: MetadataOperationReferenceChange[] = []
-
-  for (const item of params.snapshot.items) {
-    for (const reference of collectFormDataPathReferencesForItem({
-      item,
-      ownerCache,
-      targetPrefix: params.targetPrefix,
-    })) {
-      const to = rewriteDataPathSegments(
-        reference.value,
-        reference.target.segments,
-        reference.segmentIndex,
-        params.nextName
-      )
-      if (to === reference.value) continue
-
-      reference.setValue(to)
-      params.touchedItems.add(reference.item)
-      changes.push({ filePath: reference.filePath, yamlPath: reference.yamlPath, from: reference.value, to })
-    }
-  }
-
-  return changes
-}
-
-function collectItemReferences(
+function buildStructuralReferenceIndex(
   item: OperationSnapshotItem,
-  context: MetadataOperationSnapshot["context"]
-): StructuralReferenceCollectionResult {
-  return collectStructuralReferencesForItem({
+  snapshot: MetadataOperationSnapshot,
+): StructuralReferenceIndexResult {
+  const collected = collectStructuralReferencesForItem({
     item,
     parsed: item.parsed,
     owner: ownerForItem(item),
-    context,
+    context: snapshot.context,
   })
+  if (!collected.ok) return collected
+  return {
+    ok: true,
+    references: new Map(collected.references.map((reference) => [
+      structuralReferenceKey(reference.canonical, reference.yamlPath),
+      reference,
+    ])),
+  }
+}
+
+function setStructuralReferenceIndex(
+  indexes: Map<OperationSnapshotItem, StructuralReferenceIndexResult>,
+  item: OperationSnapshotItem,
+  index: StructuralReferenceIndexResult,
+): StructuralReferenceIndexResult {
+  indexes.set(item, index)
+  return index
+}
+
+function structuralReferenceKey(canonical: string, yamlPath: readonly (string | number)[]): string {
+  return JSON.stringify([canonical, yamlPath])
+}
+
+function hasNameConflict(resolved: ResolvedMetadataOperationPath, newName: string): boolean {
+  const existingNames = resolved.targetKind === "object"
+    ? readdirSync(dirname(resolved.item.ownerDirPath), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map(({ name }) => name)
+    : resolved.collectionNames
+  return hasCaseInsensitiveConflict({ existingNames, currentName: resolved.currentName, nextName: newName })
 }
 
 function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefined {
@@ -281,15 +272,33 @@ function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefi
   return root ? { root, objectName: item.resource.owner.name } : undefined
 }
 
-function buildMigrationInfo(
-  resolved: ResolvedMetadataOperationPath,
-  newName: string
-): MetadataOperationMigrationInfo | undefined {
+function valueAtYamlPath(root: unknown, path: readonly (string | number)[]): unknown {
+  let value = root
+  for (const segment of path) {
+    if (typeof value !== "object" || value === null) return undefined
+    value = (value as Record<string | number, unknown>)[segment]
+  }
+  return value
+}
+
+function setValueAtYamlPath(root: unknown, path: readonly (string | number)[], value: unknown): void {
+  if (path.length === 0) throw new Error("Нельзя заменить корень YAML через indexed reference")
+  const owner = valueAtYamlPath(root, path.slice(0, -1))
+  if (typeof owner !== "object" || owner === null) throw new Error("Владелец indexed YAML path не найден")
+  ;(owner as Record<string | number, unknown>)[path[path.length - 1]!] = value
+}
+
+function buildMigrationInfo(resolved: ResolvedMetadataOperationPath, newName: string): MetadataOperationMigrationInfo | undefined {
   if (!resolved.requiresMigration || !resolved.migrationPath) return undefined
   return { from: resolved.migrationPath, to: replaceLastSegment(resolved.migrationPath, newName) }
 }
 
-function success(mode: MetadataOperationMode, plan: RenamePlan, changedFiles: string[]): MetadataOperationResult {
+function success(
+  mode: "plan" | "applied",
+  plan: RenamePlan,
+  changedFiles: string[],
+  diagnostics: MetadataOperationDiagnostic[],
+): MetadataOperationResult {
   return {
     ok: true,
     mode,
@@ -297,17 +306,7 @@ function success(mode: MetadataOperationMode, plan: RenamePlan, changedFiles: st
     rewrittenReferences: plan.rewrittenReferences,
     createdMigration: plan.createdMigration,
     blockedReferences: [],
-  }
-}
-
-function failure(code: MetadataOperationFailure["code"], message: string): MetadataOperationFailure {
-  return {
-    ok: false,
-    code,
-    message,
-    changedFiles: [],
-    rewrittenReferences: [],
-    blockedReferences: [],
+    diagnostics,
   }
 }
 

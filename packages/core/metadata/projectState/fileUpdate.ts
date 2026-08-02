@@ -98,6 +98,7 @@ export interface ProjectStateFormSource {
 
 export interface ProjectStatePendingDependencyCheck {
   readonly kind: "dataPath"
+  readonly yamlPath: YamlPath
   readonly location: Omit<YamlDiagnosticLocation, "filePath">
   readonly owner: OwnerTypeRef
   readonly value: string
@@ -295,6 +296,7 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
   const { filePath: _filePath, ...location } = check.location
   return {
     kind: "dataPath",
+    yamlPath: check.yamlPath,
     location,
     owner: check.owner,
     value: check.value,

@@ -12,6 +12,8 @@ import {
   type OwnerMetadataCache,
 } from "../validation/dataPath/ownerCache"
 import type { FormDataPathSource, OwnerTypeRef } from "../validation/dataPath/types"
+import type { ResolvedDataPathTarget } from "../validation/dataPath/resolver"
+import { resolveDataPath } from "../validation/dataPath/resolver"
 import type { ObjectField, ObjectFieldIndex } from "../validation/dataPath/objectFields"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
@@ -21,8 +23,74 @@ import type {
   ProjectDependencyInput,
   ProjectDependencyInputQuery,
   ProjectDependencyOwnerInput,
+  ProjectDependencyInputResult,
+  ProjectDataPathReferenceLocation,
   ProjectStateQueryPort,
 } from "./readSession"
+import type { ProjectStatePendingDependencyCheck } from "./fileUpdate"
+
+export interface ProjectStateDataPathReferenceCheck {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly check: ProjectStatePendingDependencyCheck
+}
+
+export interface ProjectStateResolvedDataPathReference {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly check: ProjectStatePendingDependencyCheck
+  readonly target: ResolvedDataPathTarget
+}
+
+export function projectStateDataPathReferenceLocation(
+  reference: ProjectStateResolvedDataPathReference,
+): ProjectDataPathReferenceLocation {
+  return {
+    kind: "dataPath",
+    projectPath: reference.projectPath,
+    componentPath: reference.componentPath,
+    yamlPath: reference.check.yamlPath,
+    value: reference.check.value,
+    resolvedSegments: reference.target.segments,
+    segmentIndex: reference.target.segments.length - 1,
+  }
+}
+
+export function resolveProjectStateDataPathReferenceBatch(params: {
+  readonly checks: readonly ProjectStateDataPathReferenceCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs">
+}): readonly ProjectStateResolvedDataPathReference[] {
+  if (params.checks.length === 0) return []
+  const inputs = params.queryPort.readDependencyInputs(params.checks.map(({ requestId, componentPath, projectPath, check }) => ({
+    requestId,
+    componentPath,
+    projectPath,
+    check,
+  })))
+  const owners = preloadDataPathOwners(params.queryPort, params.checks, inputs)
+  const resolved: ProjectStateResolvedDataPathReference[] = []
+  forEachDependencyResult(params.checks, inputs, (check, result) => {
+    if (result.status !== "found") return
+    const resolution = resolveDataPath({
+      location: { ...check.check.location, filePath: check.projectPath },
+      value: check.check.value,
+      index: dependencyFormIndex(result.input.forms),
+      ownerCache: preloadedOwnerCache({
+        projectDir: `${params.projectDir}/${check.componentPath}`,
+        componentPath: check.componentPath,
+        owners,
+      }),
+      ...(check.check.tableContext === undefined ? {} : { tableContext: check.check.tableContext }),
+    })
+    if (resolution.status !== "error" && resolution.target !== undefined) {
+      resolved.push({ ...check, target: resolution.target })
+    }
+  })
+  return resolved
+}
 
 export interface ProjectStatePendingReferenceCheck {
   readonly requestId: string
@@ -338,4 +406,108 @@ function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDat
 
 function ownerKey(ref: OwnerTypeRef): string {
   return `${ref.kind}:${ref.name ?? ""}`
+}
+
+function preloadDataPathOwners(
+  queryPort: Pick<ProjectStateQueryPort, "readDependencyOwnerInputs">,
+  checks: readonly ProjectStateDataPathReferenceCheck[],
+  inputs: readonly ProjectDependencyInputResult[],
+): ReadonlyMap<string, ProjectDependencyOwnerInput> {
+  const owners = new Map<string, ProjectDependencyOwnerInput>()
+  const pending = new Map<string, { readonly componentPath: string; readonly owner: OwnerTypeRef }>()
+  forEachDependencyResult(checks, inputs, (check, result) => {
+    if (result.status !== "found") return
+    for (const stored of result.input.owners) {
+      const input = {
+        owner: stored.owner,
+        facts: stored.facts,
+        fields: projectStateFields(stored.owner, result.input.fields),
+      }
+      owners.set(componentOwnerKey(check.componentPath, stored.owner), input)
+      enqueueReferencedOwners(pending, check.componentPath, input.fields)
+    }
+    enqueueFormOwners(pending, check.componentPath, result.input.forms)
+  })
+
+  while (pending.size > 0) {
+    const batch = [...pending.values()].filter(({ componentPath, owner }) =>
+      !owners.has(componentOwnerKey(componentPath, owner)))
+    pending.clear()
+    if (batch.length === 0) break
+    const requests = batch.map(({ componentPath, owner }, index) => ({
+      requestId: `data-path-owner:${index}`,
+      componentPath,
+      owner,
+    }))
+    const results = queryPort.readDependencyOwnerInputs(requests)
+    forEachDependencyResult(requests, results, (request, result) => {
+      if (result.status !== "found") return
+      owners.set(componentOwnerKey(request.componentPath, result.input.owner), result.input)
+      enqueueReferencedOwners(pending, request.componentPath, result.input.fields)
+    })
+  }
+  return owners
+}
+
+function enqueueFormOwners(
+  pending: Map<string, { readonly componentPath: string; readonly owner: OwnerTypeRef }>,
+  componentPath: string,
+  forms: readonly ProjectStateFormEntry[],
+): void {
+  for (const form of forms) {
+    enqueueTypeOwners(pending, componentPath, form.source.typeInfo.nextTypes)
+    if ("table" in form.source && (form.source.table?.kind === "RegisterRecordSet" || form.source.table?.kind === "TabularSection")) {
+      enqueueTypeOwners(pending, componentPath, [form.source.table.owner])
+    }
+  }
+}
+
+function enqueueReferencedOwners(
+  pending: Map<string, { readonly componentPath: string; readonly owner: OwnerTypeRef }>,
+  componentPath: string,
+  fields: readonly ProjectStateFieldEntry[],
+): void {
+  for (const field of fields) {
+    enqueueTypeOwners(pending, componentPath, field.typeInfo.nextTypes)
+    if (field.table?.kind === "RegisterRecordSet" || field.table?.kind === "TabularSection") {
+      enqueueTypeOwners(pending, componentPath, [field.table.owner])
+    }
+  }
+}
+
+function enqueueTypeOwners(
+  pending: Map<string, { readonly componentPath: string; readonly owner: OwnerTypeRef }>,
+  componentPath: string,
+  refs: readonly OwnerTypeRef[],
+): void {
+  for (const owner of refs) pending.set(componentOwnerKey(componentPath, owner), { componentPath, owner })
+}
+
+function preloadedOwnerCache(params: {
+  readonly projectDir: string
+  readonly componentPath: string
+  readonly owners: ReadonlyMap<string, ProjectDependencyOwnerInput>
+}): OwnerMetadataCache {
+  return {
+    get(ref) {
+      const stored = params.owners.get(componentOwnerKey(params.componentPath, ref))
+      return stored === undefined
+        ? ownerMetadataNotFound({ projectDir: params.projectDir, ref })
+        : ownerMetadataFromFacts({
+            projectDir: params.projectDir,
+            ref,
+            facts: stored.facts,
+            fieldIndex: projectStateFieldIndex(ref, stored.fields),
+          })
+    },
+    listRefs(kind) {
+      return [...params.owners.values()]
+        .map(({ owner }) => owner)
+        .filter((owner) => owner.kind === kind)
+    },
+  }
+}
+
+function componentOwnerKey(componentPath: string, owner: OwnerTypeRef): string {
+  return `${componentPath}\u0000${ownerKey(owner)}`
 }

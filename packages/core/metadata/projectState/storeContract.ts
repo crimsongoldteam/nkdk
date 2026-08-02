@@ -90,7 +90,10 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       store.replaceFiles({ updates: [replacement], hashBytes })
       store.commitUpdate()
       expectStoredFile(store, openReadSession, replacement, presentContribution)
-      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual(missingContribution)
+      expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual({
+        ...missingContribution,
+        reference: 1,
+      })
 
       store.beginUpdate()
       store.deleteFiles([replacement.projectPath])
@@ -104,6 +107,61 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(store.readLocalDiagnostics()).toEqual([])
       expect(readFileContributions(openReadSession(store.createReadToken()), replacement)).toEqual(missingContribution)
       expect(readStoredDependency(store, replacement)).toEqual({ status: "missing" })
+    })
+
+    it("возвращает точные YAML-пути metadata- и DataPath-обращений", () => {
+      const { store, openReadSession } = factory()
+      const targetBase = richYamlUpdate("cf/Справочник/Товары/Свойства.yaml", "cf", "Catalog.Товары", "Ошибка")
+      const target: ProjectStateYamlFileUpdate = { ...targetBase, pendingReferences: [], pendingChecks: [] }
+      const sourceBase = richYamlUpdate("cf/Справочник/Заказы/Формы/Форма/Форма.yaml", "cf", "Catalog.Заказы", "Ошибка")
+      const source: ProjectStateYamlFileUpdate = {
+        ...sourceBase,
+        pendingChecks: sourceBase.pendingChecks.map((check) => ({ ...check, value: "Объект.Артикул" })),
+        forms: [{
+          kind: "root",
+          owner: owner("Catalog.Заказы"),
+          name: "Объект",
+          source: {
+            kind: "formAttribute",
+            name: "Объект",
+            typeInfo: { kinds: ["object"], nextTypes: [owner("Catalog.Товары")] },
+          },
+        }],
+      }
+
+      store.beginUpdate()
+      store.replaceFiles({ updates: [target, source], hashBytes: new Uint8Array(16) })
+      store.commitUpdate()
+
+      const session = openReadSession(store.createReadToken())
+      expect(session.findReferences([{
+        requestId: "target",
+        componentPath: "cf",
+        canonical: "Catalog.Товары",
+        match: "prefix",
+        dataPathTarget: { owner: owner("Catalog.Товары"), fieldName: "Артикул" },
+      }])).toEqual([{
+        requestId: "target",
+        references: [
+          {
+            kind: "metadataTarget",
+            projectPath: "cf/Справочник/Заказы/Формы/Форма/Форма.yaml",
+            componentPath: "cf",
+            yamlPath: ["Ссылка"],
+            canonical: "Catalog.Товары",
+          },
+          {
+            kind: "dataPath",
+            projectPath: "cf/Справочник/Заказы/Формы/Форма/Форма.yaml",
+            componentPath: "cf",
+            yamlPath: ["ПутьКДанным"],
+            value: "Объект.Артикул",
+            resolvedSegments: ["Объект", "Артикул"],
+            segmentIndex: 1,
+          },
+        ],
+      }])
+      session.close()
     })
 
     it("ограничивает видимость cf и своего компонента, сохраняя порядок пакетных ответов", () => {
@@ -132,6 +190,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         requestId: "cfe",
         status: "found",
         target: { kind: "object", canonical: "Catalog.Цены" },
+        source: { projectPath: "cfe/Цены/Цены.yaml", componentPath: "cfe/Цены" },
       })
 
       expect(session.readOwners([
@@ -148,10 +207,18 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "cf-reference", componentPath: "cfe/Цены", canonical: "Catalog.Товары" },
         { requestId: "foreign-reference", componentPath: "cfe/Цены", canonical: "Catalog.Скидки" },
       ]).map(({ requestId, references }) => ({ requestId, found: references.length > 0 }))).toEqual([
-        { requestId: "own-reference", found: true },
+        { requestId: "own-reference", found: false },
         { requestId: "cf-reference", found: true },
         { requestId: "foreign-reference", found: false },
       ])
+      expect(session.findReferences([{
+        requestId: "cf-cannot-see-extension-reference",
+        componentPath: "cf",
+        canonical: "Catalog.Товары",
+      }])).toEqual([{
+        requestId: "cf-cannot-see-extension-reference",
+        references: [],
+      }])
       expect(session.readDependencyInputs([
         dependencyQuery("own-dependency", "cfe/Цены", cfe.projectPath, "Catalog.Цены"),
         dependencyQuery("cf-dependency", "cfe/Цены", cf.projectPath, "Catalog.Товары"),
@@ -265,6 +332,7 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
     projectPath,
     check: {
       kind: "dataPath" as const,
+      yamlPath: ["ПутьКДанным"],
       location: { line: 1, col: 1 },
       owner: owner(ownerName),
       value: "Объект",
@@ -323,6 +391,7 @@ function richYamlUpdate(
     pendingChecks: [{
       kind: "dataPath",
       location: { line: 4, col: 5, path: "/ПутьКДанным" },
+      yamlPath: ["ПутьКДанным"],
       owner: owner(canonical),
       value: "Объект.Код",
       policyInput: { yaml: "ПутьКДанным" },
@@ -342,9 +411,11 @@ function readFileContributions(session: ProjectStateReadSession, update: Project
   const ownerResult = session.readOwners([
     { requestId: "owner", componentPath: update.componentPath, owner: update.owners[0]!.owner },
   ])
-  const referenceResult = session.findReferences([
-    { requestId: "reference", componentPath: update.componentPath, canonical: update.references[0]!.canonical },
-  ])
+  const referenceResult = session.findReferences([{
+    requestId: "reference",
+    componentPath: update.componentPath,
+    canonical: update.pendingReferences[0]?.canonical ?? update.references[0]!.canonical,
+  }])
   const dependencyResult = session.readDependencyInputs([
     dependencyQuery("dependency", update.componentPath, update.projectPath, update.owners[0]!.owner.name ?? ""),
   ])

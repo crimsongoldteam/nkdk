@@ -1,6 +1,9 @@
 import { availableParallelism } from "node:os"
 import { realpath } from "node:fs/promises"
 import type { ConfigurationContext } from "../context/types"
+import type { ProjectStateReadToken } from "./contracts"
+import type { ProjectStateReadSession } from "./readSession"
+import { openSqliteProjectStateReadSession } from "./sqlite/readSession"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
@@ -22,6 +25,7 @@ export interface ProjectStateComponentProjection {
 
 export interface ProjectStateService {
   refreshAndValidate(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
+  openReadSession(token: ProjectStateReadToken): ProjectStateReadSession
   readComponentProjection(params: {
     readonly projectDir: string
     readonly componentPath: string
@@ -38,6 +42,7 @@ export interface CreateProjectStateServiceOptions {
     params: ProjectStateRefreshParams,
     dependencies: ProjectStateRefreshDependencies,
   ) => Promise<ProjectStateRefreshResult>
+  readonly openReadSession?: (token: ProjectStateReadToken) => ProjectStateReadSession
 }
 
 export function createProjectStateService(
@@ -46,6 +51,7 @@ export function createProjectStateService(
   const createWriter = options.createWriter ?? (() => createProjectStateWriterHandle())
   const createPool = options.createPool ?? ((concurrency) => createPreparedYamlProjectWorkerPool({ concurrency }))
   const refresh = options.refresh ?? refreshProjectState
+  const openReadSession = options.openReadSession ?? openSqliteProjectStateReadSession
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
   let sequence = Promise.resolve()
   let closing = false
@@ -58,6 +64,10 @@ export function createProjectStateService(
         const writer = await activate(projectDir)
         return runRefresh(writer, { ...params, projectDir })
       })
+    },
+    openReadSession(token) {
+      if (closing) throw new Error("ProjectStateService закрыт")
+      return openReadSession(token)
     },
     readComponentProjection(params) {
       return runExclusive(async () => {

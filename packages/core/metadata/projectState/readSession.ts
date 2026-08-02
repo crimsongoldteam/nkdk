@@ -15,7 +15,12 @@ export interface ProjectTargetLookup {
 }
 
 export type ProjectTargetLookupResult =
-  | { readonly requestId: string; readonly status: "found"; readonly target: ProjectStateReferenceEntry }
+  | {
+      readonly requestId: string
+      readonly status: "found"
+      readonly target: ProjectStateReferenceEntry
+      readonly source: { readonly projectPath: string; readonly componentPath: string }
+    }
   | { readonly requestId: string; readonly status: "ambiguous" }
   | { readonly requestId: string; readonly status: "missing" }
 
@@ -34,11 +39,31 @@ export interface ProjectReferenceLookup {
   readonly requestId: string
   readonly componentPath: string
   readonly canonical: string
+  readonly match?: "exact" | "prefix"
+  readonly dataPathTarget?: {
+    readonly owner: OwnerTypeRef
+    readonly fieldName?: string
+  }
 }
 
-export interface ProjectReferenceLocation {
+export type ProjectReferenceLocation = ProjectMetadataTargetReferenceLocation | ProjectDataPathReferenceLocation
+
+export interface ProjectMetadataTargetReferenceLocation {
+  readonly kind: "metadataTarget"
   readonly projectPath: string
   readonly componentPath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly canonical: string
+}
+
+export interface ProjectDataPathReferenceLocation {
+  readonly kind: "dataPath"
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly value: string
+  readonly resolvedSegments: readonly string[]
+  readonly segmentIndex: number
 }
 
 export interface ProjectReferenceLookupResult {

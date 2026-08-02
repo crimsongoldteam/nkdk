@@ -12,6 +12,7 @@ import type {
   ProjectOwnerRefPageQuery,
   ProjectOwnerLookupResult,
   ProjectReferenceLookup,
+  ProjectReferenceLocation,
   ProjectReferenceLookupResult,
   ProjectStateQueryPort,
   ProjectStateReadSession,
@@ -19,8 +20,12 @@ import type {
   ProjectTargetLookupResult,
 } from "../readSession"
 import { ProjectStateReadSessionClosedError } from "../readSession"
-import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "../fileUpdate"
-import { decodeOwnerKey, decodeValue, encodeOwnerKey } from "./codec"
+import type { ProjectStateFieldEntry, ProjectStateFormEntry, ProjectStatePendingDependencyCheck } from "../fileUpdate"
+import {
+  projectStateDataPathReferenceLocation,
+  resolveProjectStateDataPathReferenceBatch,
+} from "../dependencyValidation"
+import { decodeJson, decodeOwnerKey, decodeValue, encodeOwnerKey } from "./codec"
 import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
 import { projectStateOwnerFactsFromRows, type SqliteOwnerFactValueRow } from "./ownerFacts"
 import {
@@ -128,15 +133,16 @@ export function openSqliteProjectStateReadSession(
 
 export function createSqliteProjectStateQueryPort(database: DatabaseSync): ProjectStateQueryPort {
   createRequestTables(database)
-  return {
+  const queryPort: ProjectStateQueryPort = {
     resolveTargets: (requests) => resolveTargets(database, requests),
     readOwners: (requests) => readOwners(database, requests),
-    findReferences: (requests) => findReferences(database, requests),
+    findReferences: (requests) => findReferences(database, queryPort, requests),
     readDependencyInputs: (requests) => readDependencyInputs(database, requests),
     readDependencyOwnerInputs: (requests) => readDependencyOwnerInputs(database, requests),
     readOwnerRefPage: (query) => readOwnerRefPage(database, query),
     readValidationStatus: (query) => readValidationStatus(database, query),
   }
+  return queryPort
 }
 
 const OWNER_REF_PAGE_SIZE = 2_000
@@ -331,6 +337,7 @@ export function resolveTargets(
   const rows = database.prepare(`
     WITH candidates AS (
       SELECT r.request_index, e.entry_kind, e.canonical_key, e.details_value,
+        pf.project_path, c.path AS component_path,
         CASE WHEN c.path = r.component_path COLLATE BINARY THEN 0 ELSE 1 END AS priority
       FROM temp.target_requests r
       JOIN reference_entries e ON e.canonical_key = r.lookup_key COLLATE BINARY
@@ -341,8 +348,9 @@ export function resolveTargets(
       SELECT request_index, MIN(priority) AS priority FROM candidates GROUP BY request_index
     )
     SELECT r.request_index, COUNT(c.canonical_key) AS candidate_count,
-      MIN(c.entry_kind) AS entry_kind, MIN(c.canonical_key) AS canonical_key
-      , MIN(c.details_value) AS details_value
+      MIN(c.entry_kind) AS entry_kind, MIN(c.canonical_key) AS canonical_key,
+      MIN(c.details_value) AS details_value, MIN(c.project_path) AS project_path,
+      MIN(c.component_path) AS component_path
     FROM temp.target_requests r
     LEFT JOIN best b ON b.request_index = r.request_index
     LEFT JOIN candidates c ON c.request_index = r.request_index AND c.priority = b.priority
@@ -360,6 +368,7 @@ export function resolveTargets(
           canonical: row.canonical_key,
           ...(row.details_value === null ? {} : { details: decodeValue(row.details_value) }),
         },
+        source: { projectPath: row.project_path!, componentPath: row.component_path! },
       }
     }
     return row !== undefined && row.candidate_count > 1
@@ -408,30 +417,108 @@ function readOwners(
 
 function findReferences(
   database: DatabaseSync,
+  queryPort: ProjectStateQueryPort,
   requests: readonly ProjectReferenceLookup[],
 ): readonly ProjectReferenceLookupResult[] {
-  loadSimpleRequests(database, "reference_requests", requests.map(({ requestId, componentPath, canonical }) => [requestId, componentPath, canonical]))
-  const rows = database.prepare(`
-    SELECT r.request_index, pf.project_path, c.path AS component_path
+  loadReferenceRequests(database, requests)
+  const metadataRows = database.prepare(`
+    SELECT r.request_index, pf.project_path, c.path AS component_path,
+      p.yaml_path, p.canonical_target
     FROM temp.reference_requests r
-    JOIN reference_entries e ON e.canonical_key = r.lookup_key COLLATE BINARY
-    JOIN project_files pf ON pf.id = e.source_file_id
+    JOIN pending_references p ON (
+      p.canonical_target = r.lookup_key COLLATE BINARY
+      OR (r.match_prefix = 1 AND substr(p.canonical_target, 1, length(r.lookup_key) + 1) = r.lookup_key || '.' COLLATE BINARY)
+    )
+    JOIN project_files pf ON pf.id = p.source_file_id
     JOIN components c ON c.id = pf.component_id
     WHERE ${visibleComponent("r", "c")}
-    GROUP BY r.request_index, pf.id
-    ORDER BY r.request_index, pf.id
-  `).all() as unknown as { request_index: number; project_path: string; component_path: string }[]
-  const byRequest = new Map<number, { projectPath: string; componentPath: string }[]>()
-  for (const row of rows) {
+    ORDER BY r.request_index, pf.id, p.ordinal, p.id
+  `).all() as unknown as {
+    request_index: number
+    project_path: string
+    component_path: string
+    yaml_path: string
+    canonical_target: string
+  }[]
+  const byRequest = new Map<number, ProjectReferenceLocation[]>()
+  for (const row of metadataRows) {
     const references = byRequest.get(row.request_index) ?? setArray(byRequest, row.request_index)
-    references.push({ projectPath: row.project_path, componentPath: row.component_path })
+    references.push({
+      kind: "metadataTarget",
+      projectPath: row.project_path,
+      componentPath: row.component_path,
+      yamlPath: decodeJson(row.yaml_path),
+      canonical: row.canonical_target,
+    })
+  }
+
+  const dataRows = database.prepare(`
+    SELECT DISTINCT r.request_index, p.id, pf.project_path, c.path AS component_path, p.payload_json
+    FROM temp.reference_requests r
+    JOIN pending_dependency_checks p ON p.check_kind = 'dataPath'
+    JOIN project_files pf ON pf.id = p.source_file_id
+    JOIN components c ON c.id = pf.component_id
+    WHERE r.data_path_owner_key IS NOT NULL AND ${visibleComponent("r", "c")}
+    ORDER BY r.request_index, pf.id, p.ordinal, p.id
+  `).all() as unknown as {
+    request_index: number
+    id: number
+    project_path: string
+    component_path: string
+    payload_json: string
+  }[]
+  const resolvedDataPaths = resolveProjectStateDataPathReferenceBatch({
+    checks: dataRows.map((row) => ({
+      requestId: `data-path:${row.request_index}:${row.id}`,
+      componentPath: row.component_path,
+      projectPath: row.project_path,
+      check: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json),
+    })),
+    projectDir: projectDirFromDatabase(database),
+    queryPort,
+  })
+  const requestIndexById = new Map(dataRows.map((row) => [`data-path:${row.request_index}:${row.id}`, row.request_index]))
+  for (const reference of resolvedDataPaths) {
+    const requestIndex = requestIndexById.get(reference.requestId)
+    if (requestIndex === undefined) continue
+    const request = requests[requestIndex]
+    if (request?.dataPathTarget === undefined || reference.target.source.kind !== "objectField") continue
+    if (encodeOwnerKey(reference.target.source.owner) !== encodeOwnerKey(request.dataPathTarget.owner)) continue
+    if (request.dataPathTarget.fieldName !== undefined && reference.target.source.name !== request.dataPathTarget.fieldName) continue
+    const references = byRequest.get(requestIndex) ?? setArray(byRequest, requestIndex)
+    references.push(projectStateDataPathReferenceLocation(reference))
   }
   return requests.map(({ requestId }, index) => ({ requestId, references: byRequest.get(index) ?? [] }))
 }
 
+function loadReferenceRequests(database: DatabaseSync, requests: readonly ProjectReferenceLookup[]): void {
+  database.exec("DELETE FROM temp.reference_requests")
+  const insert = database.prepare(`
+    INSERT INTO temp.reference_requests(
+      request_index, request_id, component_path, lookup_key, match_prefix,
+      dependency_key, data_path_owner_key
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `)
+  requests.forEach((request, index) => insert.run(
+    index,
+    request.requestId,
+    request.componentPath,
+    request.canonical,
+    request.match === "prefix" ? 1 : 0,
+    request.canonical.split(".").slice(0, 2).join("."),
+    request.dataPathTarget === undefined ? null : encodeOwnerKey(request.dataPathTarget.owner),
+  ))
+}
+
+function projectDirFromDatabase(database: DatabaseSync): string {
+  const row = database.prepare("SELECT value FROM cache_meta WHERE key = 'project_dir'").get() as { value: string } | undefined
+  if (row === undefined) throw new Error("ProjectState не содержит project_dir")
+  return row.value
+}
+
 function loadSimpleRequests(
   database: DatabaseSync,
-  table: "target_requests" | "owner_requests" | "reference_requests",
+  table: "target_requests" | "owner_requests",
   requests: readonly (readonly [requestId: string, componentPath: string, lookupKey: string])[],
 ): void {
   database.exec(`DELETE FROM temp.${table}`)
@@ -490,7 +577,10 @@ function createRequestTables(database: DatabaseSync): void {
     ) STRICT;
     CREATE TEMP TABLE IF NOT EXISTS reference_requests (
       request_index INTEGER PRIMARY KEY, request_id TEXT NOT NULL,
-      component_path TEXT NOT NULL COLLATE BINARY, lookup_key TEXT NOT NULL COLLATE BINARY
+      component_path TEXT NOT NULL COLLATE BINARY, lookup_key TEXT NOT NULL COLLATE BINARY,
+      match_prefix INTEGER NOT NULL CHECK(match_prefix IN (0, 1)),
+      dependency_key TEXT NOT NULL COLLATE BINARY,
+      data_path_owner_key TEXT COLLATE BINARY
     ) STRICT;
     CREATE TEMP TABLE IF NOT EXISTS dependency_requests (
       request_index INTEGER PRIMARY KEY, request_id TEXT NOT NULL,
@@ -552,6 +642,8 @@ interface TargetRow {
   readonly entry_kind: string | null
   readonly canonical_key: string | null
   readonly details_value: Uint8Array | null
+  readonly project_path: string | null
+  readonly component_path: string | null
 }
 
 interface OwnerFactRow extends SqliteOwnerFactValueRow {

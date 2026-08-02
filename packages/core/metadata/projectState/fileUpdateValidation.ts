@@ -98,6 +98,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertFormRows(update["forms"], `${path}.forms`)
   assertRows(update["pendingChecks"], `${path}.pendingChecks`, [
     "kind",
+    "yamlPath",
     "location",
     "owner",
     "value",
@@ -507,6 +508,7 @@ function assertRows(
 
 function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
+  assertYamlPath(row["yamlPath"], `${path}.yamlPath`)
   const location = requiredRecord(row["location"], `${path}.location`)
   assertExactKeys(location, ["line", "col", "path"], `${path}.location`)
   assertNumber(location["line"], `${path}.location.line`)

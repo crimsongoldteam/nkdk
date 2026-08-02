@@ -13,6 +13,10 @@ import {
   ProjectStateReadSessionClosedError,
   type ProjectStateReadSession,
 } from "./readSession"
+import {
+  projectStateDataPathReferenceLocation,
+  resolveProjectStateDataPathReferenceBatch,
+} from "./dependencyValidation"
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
@@ -91,7 +95,12 @@ describe("ProjectStateReadSession", () => {
         { requestId: "r1", componentPath: "cf", canonicalTarget: "Catalog.Товары" },
       ])
     ).toEqual([
-      { requestId: "r1", status: "found", target: { kind: "object", canonical: "Catalog.Товары" } },
+      {
+        requestId: "r1",
+        status: "found",
+        target: { kind: "object", canonical: "Catalog.Товары" },
+        source: { projectPath: "cf/Справочник/Товары/Свойства.yaml", componentPath: "cf" },
+      },
     ])
 
     session.close()
@@ -119,13 +128,15 @@ function testReadSession(): ProjectStateReadSession {
     if (closed) throw new ProjectStateReadSessionClosedError(token)
   }
 
-  return {
+  let session!: ProjectStateReadSession
+  session = {
     resolveTargets(requests) {
       assertOpen()
       return requests.map(({ requestId, canonicalTarget }) => ({
         requestId,
         status: "found" as const,
         target: { kind: "object" as const, canonical: canonicalTarget },
+        source: { projectPath: "cf/Справочник/Товары/Свойства.yaml", componentPath: "cf" },
       }))
     },
     readOwners(requests) {
@@ -156,6 +167,7 @@ function testReadSession(): ProjectStateReadSession {
       closed = true
     },
   }
+  return session
 }
 
 function createTestStoreContractFixture() {
@@ -263,14 +275,19 @@ function testStoreReadSession(
   }
   const visibleYamlUpdatesForSession = (componentPath: string) => visibleYamlUpdates(updates, componentPath)
 
-  return {
+  let session!: ProjectStateReadSession
+  session = {
     resolveTargets(requests) {
       assertOpen()
       return requests.map(({ requestId, componentPath, canonicalTarget }) => {
         const targets = visibleYamlUpdatesForSession(componentPath)
-          .flatMap((update) => update.references)
-          .filter((reference) => reference.canonical === canonicalTarget)
-        if (targets.length === 1) return { requestId, status: "found" as const, target: targets[0]! }
+          .flatMap((update) => update.references
+            .filter((reference) => reference.canonical === canonicalTarget)
+            .map((target) => ({
+              target,
+              source: { projectPath: update.projectPath, componentPath: update.componentPath },
+            })))
+        if (targets.length === 1) return { requestId, status: "found" as const, ...targets[0]! }
         return targets.length > 1
           ? { requestId, status: "ambiguous" as const }
           : { requestId, status: "missing" as const }
@@ -290,12 +307,38 @@ function testStoreReadSession(
     },
     findReferences(requests) {
       assertOpen()
-      return requests.map(({ requestId, componentPath, canonical }) => ({
-        requestId,
-        references: visibleYamlUpdatesForSession(componentPath)
-          .filter((update) => update.references.some((reference) => reference.canonical === canonical))
-          .map(({ projectPath, componentPath }) => ({ projectPath, componentPath })),
-      }))
+      return requests.map(({ requestId, componentPath, canonical, match, dataPathTarget }, requestIndex) => {
+        const visible = visibleYamlUpdatesForSession(componentPath)
+        const metadataReferences = visible
+          .flatMap((update) => update.pendingReferences
+            .filter((reference) => reference.canonical === canonical
+              || (match === "prefix" && reference.canonical.startsWith(`${canonical}.`)))
+            .map((reference) => ({
+              kind: "metadataTarget" as const,
+              projectPath: update.projectPath,
+              componentPath: update.componentPath,
+              yamlPath: reference.yamlPath,
+              canonical: reference.canonical,
+            })))
+        if (dataPathTarget === undefined) return { requestId, references: metadataReferences }
+        const checks = visible.flatMap((update, checkIndex) => update.pendingChecks.map((check) => ({
+          requestId: `data-path:${requestIndex}:${checkIndex}:${update.projectPath}`,
+          componentPath: update.componentPath,
+          projectPath: update.projectPath,
+          check,
+        })))
+        const dataPathReferences = resolveProjectStateDataPathReferenceBatch({
+          checks,
+          projectDir: "",
+          queryPort: session,
+        }).flatMap((reference) => {
+          if (reference.target.source.kind !== "objectField") return []
+          if (!sameOwner(reference.target.source.owner, dataPathTarget.owner)) return []
+          if (dataPathTarget.fieldName !== undefined && reference.target.source.name !== dataPathTarget.fieldName) return []
+          return [projectStateDataPathReferenceLocation(reference)]
+        })
+        return { requestId, references: [...metadataReferences, ...dataPathReferences] }
+      })
     },
     readDependencyInputs(requests) {
       assertOpen()
@@ -345,6 +388,7 @@ function testStoreReadSession(
       onClose?.()
     },
   }
+  return session
 }
 
 function visibleYamlUpdates(

@@ -89,6 +89,9 @@ function testProjectState(diagnostics: readonly Diagnostic[]): ProjectStateServi
       refreshes.push(params)
       return refreshResult(diagnostics)
     },
+    openReadSession() {
+      throw new Error("unexpected openReadSession")
+    },
     async readComponentProjection() {
       throw new Error("unexpected readComponentProjection")
     },

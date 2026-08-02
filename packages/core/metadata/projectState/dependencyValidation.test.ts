@@ -797,6 +797,7 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
     pendingChecks: [
       {
         kind: "dataPath",
+        yamlPath: ["Элементы", "Календарь", "ПутьКДанным"],
         location: { line: 8, col: 13, path: "/Элементы/Календарь/ПутьКДанным" },
         owner,
         value: "Таблица.Значение",
@@ -870,6 +871,7 @@ function ownerDependencySource(
     pendingChecks: [
       {
         kind: "dataPath",
+        yamlPath: ["ПутьКДанным"],
         location: { line: 3, col: 15, path: "/ПутьКДанным" },
         owner,
         value,

@@ -6,10 +6,11 @@ import type { OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { DataPathPolicyInput } from "./dataPath/policies"
 import type { ElementType } from "../orchestration/formElement/types"
 import type { Diagnostic } from "./types"
-import type { YamlDiagnosticLocation } from "./yamlLocations"
+import type { YamlDiagnosticLocation, YamlPath } from "./yamlLocations"
 
 export type ValidationPendingCheck = {
   kind: "dataPath"
+  yamlPath: YamlPath
   location: YamlDiagnosticLocation
   owner: OwnerTypeRef
   value: string
