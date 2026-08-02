@@ -4,6 +4,3 @@ export { registerOwnerAttributeCollection } from "../commonObjects/metadataAttri
 export { composeMetadataItemRule } from "../commonObjects/metadataRuleFragment"
 export * as Tabular from "../commonObjects/metadataTabularSection/fragments"
 export { registerOwnerTabularSectionCollection } from "../commonObjects/metadataTabularSection/registerOwnerCollection"
-
-import "../commonObjects/metadataAttribute/register"
-import "../commonObjects/metadataTabularSection/register"

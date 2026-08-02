@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
 import { attributesYAML } from "./__fixtures__/data"
 
-import "./register"
+import "../../appliedObjects/metadataInformationRegister/childRules"
 
 describe("MetadataRegisterAttributes XML → YAML", () => {
   it("imports register attributes with shared field properties", () => {
@@ -20,7 +20,7 @@ describe("MetadataRegisterAttributes XML → YAML", () => {
 
 const convert = () =>
   testPropertyFixtureThroughYAML({
-    propertyType: "MetadataRegisterAttributes",
+    propertyType: "MetadataInformationRegisterAttributes",
     xmlRootTag: "Attribute",
     importMetaUrl: import.meta.url,
     fixture: "attributes.xml",

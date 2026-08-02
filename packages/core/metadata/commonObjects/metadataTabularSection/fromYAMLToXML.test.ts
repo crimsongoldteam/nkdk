@@ -11,22 +11,20 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
-import { MetadataTabularSectionRules } from "./rules"
-
-import "./register"
+import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 
 const INLINE_XML = `<TabularSection uuid="3cf6b85b-5422-44cc-bb0a-11d41703d9f5"><Properties><Name>Исполнители</Name><Synonym/><Comment/><ToolTip/><FillChecking>DontCheck</FillChecking><Use>ForItem</Use><LineNumberLength>5</LineNumberLength></Properties><ChildObjects/></TabularSection>`
 
 describe("MetadataTabularSections YAML → XML", () => {
   it("should export full (round-trip)", () => {
-    expectFinishedRuleOrder(MetadataTabularSectionRules)
+    expectFinishedRuleOrder(MetadataCatalogTabularSectionRules)
     expectFixtureRoundTrip("full.xml")
   })
 
   it("should export minimal (round-trip)", () => expectFixtureRoundTrip("minimal.xml"))
 
   it("preserves explicit empty Synonym as empty XML tag", () => {
-    const rule = probeRule("MetadataTabularSections")
+    const rule = probeRule("MetadataCatalogTabularSections")
     const referenceXML = importContentFromXML<Record<string, unknown>>(INLINE_XML)
     const contexts = createDirectRoundTripContexts()
     const yaml = testPropertyFromXMLToYAML({ rule, xml: referenceXML, context: contexts.importContext }).yaml
@@ -38,7 +36,7 @@ describe("MetadataTabularSections YAML → XML", () => {
   })
 
   it("should return undefined when data is undefined", () => {
-    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataTabularSections"), yaml: {} }).xml).toEqual({})
+    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataCatalogTabularSections"), yaml: {} }).xml).toEqual({})
   })
 
   it("should round-trip DataProcessor generated type names", () => {
@@ -91,13 +89,13 @@ describe("MetadataTabularSections YAML → XML", () => {
   })
 
   it("should return undefined when data is undefined after YAML export", () => {
-    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataTabularSections"), yaml: {} }).xml).toEqual({})
+    expect(testPropertyFromYAMLToXML({ rule: probeRule("MetadataCatalogTabularSections"), yaml: {} }).xml).toEqual({})
   })
 })
 
 function expectFixtureRoundTrip(fixture: string): void {
   const result = testPropertyFixtureThroughYAML({
-    propertyType: "MetadataTabularSections",
+    propertyType: "MetadataCatalogTabularSections",
     xmlRootTag: "TabularSection",
     importMetaUrl: import.meta.url,
     fixture,

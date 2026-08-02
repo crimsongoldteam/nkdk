@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
 
-import "./register"
+import "../../appliedObjects/metadataInformationRegister/childRules"
 
 describe("MetadataRegisterAttributes YAML → XML", () => {
   it("round-trips register attributes", () => {
     const result = testPropertyFixtureThroughYAML({
-      propertyType: "MetadataRegisterAttributes",
+      propertyType: "MetadataInformationRegisterAttributes",
       xmlRootTag: "Attribute",
       importMetaUrl: import.meta.url,
       fixture: "attributes.xml",

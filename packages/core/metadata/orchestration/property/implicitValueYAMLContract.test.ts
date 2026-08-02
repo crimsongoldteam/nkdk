@@ -15,22 +15,22 @@ import { MetadataExternalDataSourceCubeResourceRules } from "../../commonObjects
 import { MetadataExternalDataSourceCubeRules } from "../../commonObjects/metadataExternalDataSourceCube/rules"
 import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { MetadataIntegrationServiceChannelRules } from "../../commonObjects/metadataIntegrationServiceChannel/rules"
-import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "../../commonObjects/metadataAttribute/rules"
-import { MetadataRegisterAttributeRules } from "../../commonObjects/metadataRegisterAttribute/rules"
+import { MetadataCatalogAttributeRules, MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
+import { MetadataInformationRegisterAttributeRules } from "../../appliedObjects/metadataInformationRegister/childRules"
+import { MetadataAccumulationRegisterAttributeRules } from "../../appliedObjects/metadataAccumulationRegister/childRules"
+import { MetadataAccountingRegisterAttributeRules } from "../../appliedObjects/metadataAccountingRegister/childRules"
+import { MetadataCalculationRegisterAttributeRules } from "../../appliedObjects/metadataCalculationRegister/childRules"
 import { MetadataRegisterDimensionRules } from "../../commonObjects/metadataRegisterDimension/rules"
 import { MetadataRegisterResourceRules } from "../../commonObjects/metadataRegisterResource/rules"
-import {
-  MetadataBusinessProcessTabularSectionRules,
-  MetadataChartOfAccountsTabularSectionRules,
-  MetadataChartOfCalculationTypesTabularSectionRules,
-  MetadataChartOfCharacteristicTypesTabularSectionRules,
-  MetadataDataProcessorTabularSectionRules,
-  MetadataDocumentTabularSectionRules,
-  MetadataExchangePlanTabularSectionRules,
-  MetadataReportTabularSectionRules,
-  MetadataTabularSectionRules,
-  MetadataTaskTabularSectionRules,
-} from "../../commonObjects/metadataTabularSection/rules"
+import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"
+import { MetadataChartOfAccountsTabularSectionRules } from "../../appliedObjects/metadataChartOfAccounts/childRules"
+import { MetadataChartOfCalculationTypesTabularSectionRules } from "../../appliedObjects/metadataChartOfCalculationTypes/childRules"
+import { MetadataChartOfCharacteristicTypesTabularSectionRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/childRules"
+import { MetadataDataProcessorTabularSectionRules } from "../../appliedObjects/metadataDataProcessor/childRules"
+import { MetadataDocumentTabularSectionRules } from "../../appliedObjects/metadataDocument/childRules"
+import { MetadataExchangePlanTabularSectionRules } from "../../appliedObjects/metadataExchangePlan/childRules"
+import { MetadataReportTabularSectionRules } from "../../appliedObjects/metadataReport/childRules"
+import { MetadataTaskTabularSectionRules } from "../../appliedObjects/metadataTask/childRules"
 import { CalculatedFieldOrderExpressionRules } from "../../commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules"
 import { DCSParameterRules } from "../../commonObjects/dataCompositionSystem/dcsParameter/rules"
 import {
@@ -482,7 +482,10 @@ describe("implicitValueYAML contract", () => {
       ["AccountingFlagRules", AccountingFlagRules],
       ["ExtDimensionAccountingFlagRules", ExtDimensionAccountingFlagRules],
       ["MetadataExternalDataSourceCubeResourceRules", MetadataExternalDataSourceCubeResourceRules],
-      ["MetadataRegisterAttributeRules", MetadataRegisterAttributeRules],
+      ["MetadataInformationRegisterAttributeRules", MetadataInformationRegisterAttributeRules],
+      ["MetadataAccumulationRegisterAttributeRules", MetadataAccumulationRegisterAttributeRules],
+      ["MetadataAccountingRegisterAttributeRules", MetadataAccountingRegisterAttributeRules],
+      ["MetadataCalculationRegisterAttributeRules", MetadataCalculationRegisterAttributeRules],
       ["MetadataRegisterDimensionRules", MetadataRegisterDimensionRules],
       ["MetadataRegisterResourceRules", MetadataRegisterResourceRules],
     ] as const
@@ -496,7 +499,6 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for metadata attribute binary data storage", () => {
     const rules = [
-      ["MetadataAttributeRules", MetadataAttributeRules],
       ["MetadataCatalogAttributeRules", MetadataCatalogAttributeRules],
     ] as const
 
@@ -535,12 +537,13 @@ describe("implicitValueYAML contract", () => {
       ["MetadataDocumentTabularSectionRules", MetadataDocumentTabularSectionRules],
       ["MetadataExchangePlanTabularSectionRules", MetadataExchangePlanTabularSectionRules],
       ["MetadataReportTabularSectionRules", MetadataReportTabularSectionRules],
-      ["MetadataTabularSectionRules", MetadataTabularSectionRules],
+      ["MetadataCatalogTabularSectionRules", MetadataCatalogTabularSectionRules],
       ["MetadataTaskTabularSectionRules", MetadataTaskTabularSectionRules],
     ] as const
 
     const unexpectedLineNumberLength = rules
-      .filter(([, rule]) => rule.properties.lineNumberLength.implicitValueYAML !== 5)
+      .filter(([, rule]) => "lineNumberLength" in rule.properties)
+      .filter(([, rule]) => getRuleProperty(rule.properties, "lineNumberLength").implicitValueYAML !== 5)
       .map(([ruleName]) => `${ruleName}.lineNumberLength`)
 
     const unexpectedObjectBelonging = rules

@@ -4,9 +4,9 @@ import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../..
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
-import "./register"
+import "../../appliedObjects/metadataCatalog/childRules"
 
-const rule = probeRule("MetadataTabularSections")
+const rule = probeRule("MetadataCatalogTabularSections")
 
 describe("MetadataTabularSections XML → YAML", () => {
   it("should import full", () => {
@@ -45,7 +45,7 @@ describe("MetadataTabularSections XML → YAML", () => {
 
 const convert = (fixture: string) =>
   testPropertyFixtureThroughYAML({
-    propertyType: "MetadataTabularSections",
+    propertyType: "MetadataCatalogTabularSections",
     xmlRootTag: "TabularSection",
     importMetaUrl: import.meta.url,
     fixture,

@@ -13,21 +13,19 @@ import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
-import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "./rules"
-import { exportMetadataAttributesToJSONSchema } from "./register"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
+import { MetadataDocumentAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
+import "../../appliedObjects/metadataDataProcessor/childRules"
 
-const rule = probeRule("MetadataAttributes")
+const rule = probeRule("MetadataCatalogAttributes")
 
 describe("MetadataAttributes YAML → XML", () => {
   let attributeSchema: ReturnType<typeof compileValidationSchema>
 
   beforeAll(() => {
     attributeSchema = compileValidationSchema(
-      exportMetadataAttributesToJSONSchema({
-        context: mockContext,
-        rule: { type: "MetadataAttributes" },
-        value: undefined,
-      })
+      exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCatalogAttributeRules })
     )
     attributeSchema.Check(undefined)
   })
@@ -53,12 +51,17 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(result).toContain("<DataHistory>Use</DataHistory>")
   })
 
-  it("does not export catalog-only Use for a generic metadata attribute", () => {
-    const result = convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })
+  it("does not export catalog-only Use for a document attribute", () => {
+    const result = serializeDirectXML(
+      testPropertyFromYAMLToXML({
+        rule: probeRule("MetadataDocumentAttributes"),
+        yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
+      }).xml
+    )
     expect(result).not.toContain("<Use>")
   })
 
-  it.each(["MetadataCatalogAttributes", "MetadataAttributesWithAllowedTypes"])(
+  it.each(["MetadataCatalogAttributes", "MetadataChartOfCharacteristicTypesAttributes"])(
     "exports Use for %s",
     (propertyType) => {
       const result = serializeDirectXML(
@@ -80,9 +83,16 @@ describe("MetadataAttributes YAML → XML", () => {
   })
 
   it("should import TypeDescription typeId object format", () => {
-    const result = convertYAML({
-      ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
-    })
+    const result = serializeDirectXML(
+      testPropertyFromYAMLToXML({
+        rule: probeRule("MetadataDataProcessorAttributes"),
+        yaml: {
+          Значение: {
+            ТестовыйРеквизит: { Тип: { ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] } },
+          },
+        },
+      }).xml
+    )
     expect(result).toContain("8c1e3694-da12-44d5-8b1f-d134b89a1282")
   })
 
@@ -93,8 +103,8 @@ describe("MetadataAttributes YAML → XML", () => {
   })
 
   it("should reject scalar values in JSON Schema", () => {
-    expect(attributeSchema.Check({ Организация: "Справочник.Организации" })).toBe(false)
-    expect(attributeSchema.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)
+    expect(attributeSchema.Check("Справочник.Организации")).toBe(false)
+    expect(attributeSchema.Check({ Тип: "Справочник.Организации" })).toBe(true)
   })
 
   it("should export minimal (round-trip)", () => expectFixtureRoundTrip("minimal.xml"))
@@ -108,7 +118,7 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("does not add fill defaults to a tabular section attribute", () => {
     const result = testPropertyFixtureThroughYAML({
-      propertyType: "MetadataTabularSectionAttributes",
+      propertyType: "MetadataDocumentTabularSectionAttributes",
       xmlRootTag: "Attribute",
       importMetaUrl: import.meta.url,
       fixture: "documentTabular.xml",
@@ -120,7 +130,7 @@ describe("MetadataAttributes YAML → XML", () => {
   it("adds fill defaults to a tabular section attribute with Fill", () => {
     const result = serializeDirectXML(
       testPropertyFromYAMLToXML({
-        rule: probeRule("MetadataTabularSectionAttributesWithFill"),
+        rule: probeRule("MetadataDataProcessorTabularSectionAttributes"),
         yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
       }).xml
     )
@@ -152,7 +162,7 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("preserves minValue xsi type from reference", () => {
     const { result } = testAtomicToXML({
-      rule: MetadataAttributeRules.properties.minValue,
+      rule: MetadataCatalogAttributeRules.properties.minValue,
       value: 1,
       referenceMetadata: 1,
       xmlRootTag: "MinValue",
@@ -162,7 +172,7 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("fresh export MinValue uses rule typedXML", () => {
     const { result } = testAtomicToXML({
-      rule: MetadataAttributeRules.properties.minValue,
+      rule: MetadataCatalogAttributeRules.properties.minValue,
       value: 1,
       referenceMetadata: undefined,
       xmlRootTag: "MinValue",
@@ -172,7 +182,7 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("exports empty Type tag when attribute type is missing", () => {
     const { result } = testAtomicToXML({
-      rule: MetadataAttributeRules.properties.type,
+      rule: MetadataDocumentAttributeRules.properties.type,
       value: undefined,
       xmlRootTag: "Type",
     })
@@ -184,7 +194,7 @@ function convertYAML(value: unknown): string {
   return serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml: { Значение: value } }).xml)
 }
 
-function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataAttributes"): void {
+function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataCatalogAttributes"): void {
   const result = testPropertyFixtureThroughYAML({
     propertyType,
     xmlRootTag: "Attribute",

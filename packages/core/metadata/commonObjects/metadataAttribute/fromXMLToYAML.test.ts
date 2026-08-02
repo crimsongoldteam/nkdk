@@ -5,9 +5,10 @@ import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataTargetOwnerContext } from "../../context/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 
-import "./register"
+import "../../appliedObjects/metadataCatalog/childRules"
+import "../../appliedObjects/metadataDocument/childRules"
 
-const rule = probeRule("MetadataAttributes")
+const rule = probeRule("MetadataCatalogAttributes")
 
 describe("MetadataAttributes XML → YAML", () => {
   it("should import minimal", () => {
@@ -60,7 +61,7 @@ describe("MetadataAttributes XML → YAML", () => {
   })
 
   it("should import documentTabular", () => {
-    const yaml = convertType("documentTabular.xml", "MetadataTabularSectionAttributes").yaml
+    const yaml = convertType("documentTabular.xml", "MetadataDocumentTabularSectionAttributes").yaml
     expect(yaml).toHaveProperty("Значение.РеквизитТабличнойЧасти.Тип", "Число(10, 0)")
     expect(yaml).toHaveProperty("Значение.РеквизитТабличнойЧасти.МаксимальноеЗначение", 99)
   })
@@ -96,7 +97,7 @@ const catalogOwner: readonly MetadataTargetOwnerContext[] = [
 
 function convert(fixture: string, metadataTargetOwners?: readonly MetadataTargetOwnerContext[]) {
   return testPropertyFixtureThroughYAML({
-    propertyType: "MetadataAttributes",
+    propertyType: "MetadataCatalogAttributes",
     xmlRootTag: "Attribute",
     importMetaUrl: import.meta.url,
     fixture,

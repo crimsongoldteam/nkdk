@@ -160,7 +160,6 @@ import "./externalPicture/fromXML"
 import "./externalFile/fromXML"
 import "./wsDefinitionSchemas/fromXML"
 
-import "./metadataAttribute/register"
 import "./metadataTaskAddressingAttribute/register"
 
 import "./metadataDocumentJournalColumn/register"
@@ -182,7 +181,6 @@ import "./webSocketClientHeaders/toYAML"
 
 import "./metadataValue/associatedTableToJSONSchema"
 
-import "./metadataRegisterAttribute/register"
 import "./metadataRegisterDimension/register"
 import "./metadataRegisterResource/register"
 import "./recalculation/register"
@@ -228,8 +226,6 @@ import "./metadataRef/fromYAML"
 import "./metadataRef/toJSONSchema"
 import "./metadataRef/toXML"
 import "./metadataRef/toYAML"
-
-import "./metadataTabularSection/register"
 
 import "./metadataValue/fromXML"
 import "./metadataValue/fromYAML"

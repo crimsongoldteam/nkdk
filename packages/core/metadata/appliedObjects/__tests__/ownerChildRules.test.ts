@@ -4,6 +4,7 @@ import { compileValidationSchema } from "../../validation/compileValidationSchem
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
 import {
   MetadataCatalogAttributeRules,
   MetadataCatalogTabularSectionAttributeRules,
@@ -375,7 +376,17 @@ describe("owner-specific register attribute rules", () => {
   })
 })
 
+it.each(["MetadataAttributes", "MetadataAttributesWithAllowedTypes", "MetadataTabularSections", "MetadataTabularSectionAttributes", "MetadataTabularSectionAttributesWithFill", "MetadataRegisterAttributes"])(
+  "does not register universal child profile %s",
+  (propertyType) => {
+    expect(getTypeRule(propertyType, "collectionItemRule")).toBeUndefined()
+  }
+)
+
 function expectRuleOrder(rule: MetadataItemRule, expected: readonly string[]): void {
+  if (rule.xmlOrder === undefined) throw new Error(`У ${rule.itemType} отсутствует xmlOrder`)
   expect(rule.xmlOrder).toEqual(expected)
   expect(Object.keys(rule.properties)).toEqual(expected)
+  expect(getCompiledXMLPropertyOrder(rule)).toEqual(rule.xmlOrder)
+  expect(new Set(rule.xmlOrder).size).toBe(rule.xmlOrder.length)
 }

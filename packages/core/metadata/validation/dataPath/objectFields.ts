@@ -1,4 +1,7 @@
-import { MetadataTabularSectionRules } from "../../commonObjects/metadataTabularSection/rules"
+import {
+  metadataTabularSectionModelProperties,
+  tabularSectionStandardAttributesFragment,
+} from "../../commonObjects/metadataTabularSection/fragments"
 import { StandartAttributeNameToYAML } from "../../commonObjects/standardAttributeDescription/standartAttributeNames"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type {
@@ -161,7 +164,7 @@ function buildTabularSectionField(
       attributes: compactNamedItems(tabularSection.attributes),
       standardAttributes: compactNamedItems(tabularSection.standardAttributes),
     },
-    rule: MetadataTabularSectionRules,
+    rule: metadataTabularSectionStructuralRule,
   }
   const table: DataPathTableInfo = {
     kind: "TabularSection",
@@ -185,7 +188,7 @@ function buildTabularSectionField(
     owner: tabularSectionOwner,
     fields: columns,
     standardAttributeAliases: new Map(),
-    propertyRule: MetadataTabularSectionRules.properties.standardAttributes,
+    propertyRule: tabularSectionStandardAttributesFragment.properties.standardAttributes,
     sourceCollection: "standardAttributes",
   })
 
@@ -205,6 +208,11 @@ function buildTabularSectionField(
     },
   }
 }
+
+const metadataTabularSectionStructuralRule = {
+  itemType: "MetadataTabularSection",
+  properties: metadataTabularSectionModelProperties,
+} as const
 
 function compactNamedItems(items: NamedTypedItem[] | undefined): Array<{ name: string; type?: TypeDescription }> {
   return (items ?? []).flatMap((item) =>
