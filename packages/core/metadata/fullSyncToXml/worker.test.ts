@@ -12,6 +12,7 @@ import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectS
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
+import { emptyProjectStateReadSession } from "./testHelpers"
 import {
   fullXmlSyncWorkerStateForTests,
   resetFullXmlSyncWorkerStateForTests,
@@ -117,6 +118,66 @@ describe("full XML sync worker", () => {
 
     expect(batches).toEqual([["Справочник.Первый", "Справочник.Второй"]])
     expect(closed).toBe(true)
+  })
+
+  it("closes the session when initialize fails after opening it", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    let closeCalls = 0
+
+    await expect(runFullXmlSyncWorkerCommand({
+      kind: "initialize",
+      workerIndex: 0,
+      componentPath: "cf",
+      componentDir: projectDir,
+      outputDir: join(projectDir, ".out"),
+      context,
+      profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
+      composition: createFullXmlSyncCompositionSnapshot([assigned]),
+      targetIndex: {} as never,
+      projectStateReadToken: readToken,
+    }, {
+      openReadSession: () => emptyReadSession({ close() { closeCalls += 1 } }),
+    })).rejects.toBeInstanceOf(Error)
+
+    expect(closeCalls).toBe(1)
+    expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
+  })
+
+  it("closes the session once after a preload failure", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    let closeCalls = 0
+    await initialize(projectDir, [assigned], context, undefined, () => emptyReadSession({
+      readDependencyOwnerInputs() { throw new Error("ошибка preload") },
+      close() { closeCalls += 1 },
+    }))
+
+    await expect(runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] }))
+      .rejects.toThrow("ошибка preload")
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+
+    expect(closeCalls).toBe(1)
+    expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
+  })
+
+  it("releases state once even when session close fails", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    let closeCalls = 0
+    await initialize(projectDir, [assigned], context, undefined, () => emptyReadSession({
+      close() {
+        closeCalls += 1
+        throw new Error("ошибка close")
+      },
+    }))
+
+    await expect(runFullXmlSyncWorkerCommand({ kind: "dispose" })).rejects.toThrow("ошибка close")
+    await expect(runFullXmlSyncWorkerCommand({ kind: "dispose" })).resolves.toBeUndefined()
+
+    expect(closeCalls).toBe(1)
+    expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
   })
 
   it("does not let caller context override the confirmed component profile", async () => {
@@ -349,19 +410,7 @@ describe("full XML sync worker", () => {
   }
 })
 
-function emptyReadSession(overrides: Partial<ProjectStateReadSession> = {}): ProjectStateReadSession {
-  return {
-    resolveTargets: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
-    readOwners: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
-    findReferences: (requests) => requests.map(({ requestId }) => ({ requestId, references: [] })),
-    readDependencyInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
-    readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
-    readOwnerRefPage: () => ({ refs: [] }),
-    readValidationStatus: () => [],
-    close() {},
-    ...overrides,
-  }
-}
+const emptyReadSession = emptyProjectStateReadSession
 
 function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
   const sourcePath = join(projectDir, "Справочник", name, "Свойства.yaml")

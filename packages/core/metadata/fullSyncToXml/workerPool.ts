@@ -19,6 +19,7 @@ import type {
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
 } from "./types"
+import { aggregateCleanupFailures, failureMessage, flattenFailures } from "./cleanupFailure"
 
 export interface FullXmlSyncWorkerInitialization {
   readonly componentPath: string
@@ -143,12 +144,16 @@ export function createFullXmlSyncWorkerPool(params: {
   }
 
   async function failWorker(caught: unknown): Promise<never> {
-    fatalError ??= caught
-    phase = "crashed"
-    try {
-      await destroyAllWorkers()
-    } catch {
-      // При аварии сохраняем исходную причину, остановка остальных worker — best effort.
+    if (fatalError === undefined) {
+      fatalError = caught
+      phase = "crashed"
+      try {
+        await destroyAllWorkers()
+      } catch (cleanupFailure) {
+        fatalError = aggregateCleanupFailures(caught, cleanupFailure)
+      }
+    } else {
+      await destroyPromise?.catch(() => undefined)
     }
     throw fatalError
   }
@@ -163,11 +168,27 @@ export function createFullXmlSyncWorkerPool(params: {
   }
 
   function destroyAllWorkers(): Promise<void> {
-    destroyPromise ??= Promise.all([...pools.values()].map(async (pool) => {
-      if (phase !== "crashed") await pool.run({ kind: "dispose" })
-      await pool.destroy()
-    })).then(() => undefined)
+    destroyPromise ??= Promise.all([...pools.values()].map(cleanupWorker)).then((failures) => {
+      const flattened = failures.flatMap((failure) => failure)
+      if (flattened.length === 1) throw flattened[0]
+      if (flattened.length > 1) throw new AggregateError(flattened, failureMessage(flattened[0]))
+    })
     return destroyPromise
+  }
+
+  async function cleanupWorker(pool: FullXmlSyncWorkerThreadPool): Promise<unknown[]> {
+    const failures: unknown[] = []
+    try {
+      await pool.run({ kind: "dispose" })
+    } catch (caught) {
+      failures.push(...flattenFailures(caught))
+    }
+    try {
+      await pool.destroy()
+    } catch (caught) {
+      failures.push(...flattenFailures(caught))
+    }
+    return failures
   }
 }
 

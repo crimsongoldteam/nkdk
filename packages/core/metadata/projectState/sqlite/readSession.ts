@@ -7,6 +7,8 @@ import type {
   ProjectDependencyInputResult,
   ProjectDependencyOwnerInputQuery,
   ProjectDependencyOwnerInputResult,
+  ProjectComponentTargetPage,
+  ProjectComponentTargetPageQuery,
   ProjectOwnerLookup,
   ProjectOwnerRefPage,
   ProjectOwnerRefPageQuery,
@@ -90,6 +92,10 @@ export function openSqliteProjectStateReadSession(
       assertOpen()
       return queryPort.readOwnerRefPage(query)
     },
+    readComponentTargetPage(query) {
+      assertOpen()
+      return queryPort.readComponentTargetPage(query)
+    },
     readValidationStatus(query) {
       assertOpen()
       return queryPort.readValidationStatus(query)
@@ -140,12 +146,46 @@ export function createSqliteProjectStateQueryPort(database: DatabaseSync): Proje
     readDependencyInputs: (requests) => readDependencyInputs(database, requests),
     readDependencyOwnerInputs: (requests) => readDependencyOwnerInputs(database, requests),
     readOwnerRefPage: (query) => readOwnerRefPage(database, query),
+    readComponentTargetPage: (query) => readComponentTargetPage(database, query),
     readValidationStatus: (query) => readValidationStatus(database, query),
   }
   return queryPort
 }
 
 const OWNER_REF_PAGE_SIZE = 2_000
+const COMPONENT_TARGET_PAGE_SIZE = 2_000
+
+function readComponentTargetPage(
+  database: DatabaseSync,
+  query: ProjectComponentTargetPageQuery,
+): ProjectComponentTargetPage {
+  const rows = database.prepare(`
+    SELECT e.canonical_key, MIN(pf.project_path) AS project_path
+    FROM reference_entries e
+    JOIN project_files pf ON pf.id = e.source_file_id
+    JOIN components c ON c.id = pf.component_id
+    WHERE c.path = ? COLLATE BINARY
+      AND e.canonical_key > ? COLLATE BINARY
+    GROUP BY e.canonical_key
+    HAVING COUNT(DISTINCT e.source_file_id) = 1
+    ORDER BY e.canonical_key COLLATE BINARY
+    LIMIT ?
+  `).all(
+    query.componentPath,
+    query.cursor ?? "",
+    COMPONENT_TARGET_PAGE_SIZE + 1,
+  ) as unknown as { canonical_key: string; project_path: string }[]
+  const pageRows = rows.slice(0, COMPONENT_TARGET_PAGE_SIZE)
+  return {
+    entries: pageRows.map(({ canonical_key, project_path }) => ({
+      logicalAddress: canonical_key,
+      sourceProjectPath: project_path,
+    })),
+    ...(rows.length <= COMPONENT_TARGET_PAGE_SIZE
+      ? {}
+      : { nextCursor: pageRows[pageRows.length - 1]!.canonical_key }),
+  }
+}
 
 function readValidationStatus(
   database: DatabaseSync,

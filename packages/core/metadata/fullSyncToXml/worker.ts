@@ -29,6 +29,7 @@ import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
+import { aggregateCleanupFailures } from "./cleanupFailure"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -54,41 +55,51 @@ export async function runFullXmlSyncWorkerCommand(
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
     const projectStateReadSession = dependencies.openReadSession(command.projectStateReadToken)
-    const baseFormSource = createBaseFormSource(command.profile)
-    const baseIndex =
-      command.profile.baseForms === undefined
-        ? undefined
-        : createConfigurationIndexReader(command.profile.baseForms.snapshot)
-    initializedState = {
-      workerIndex: command.workerIndex,
-      componentPath: command.componentPath,
-      componentDir: command.componentDir,
-      outputDir: command.outputDir,
-      context: {
-        ...command.context,
-        importFromYAML: {
-          ...command.context.importFromYAML,
-          projectDir: command.componentDir,
-        },
-      },
-      index: createConfigurationIndexReader(command.targetIndex),
-      ...(baseIndex === undefined ? {} : { baseIndex }),
-      composition: createFullXmlSyncCompositionReader(command.composition),
-      ownerMetadataCache: createProjectStateOwnerMetadataCache({
-        projectDir: command.componentDir,
+    try {
+      const baseFormSource = createBaseFormSource(command.profile)
+      const baseIndex =
+        command.profile.baseForms === undefined
+          ? undefined
+          : createConfigurationIndexReader(command.profile.baseForms.snapshot)
+      initializedState = {
+        workerIndex: command.workerIndex,
         componentPath: command.componentPath,
-        queryPort: projectStateReadSession,
-      }),
-      projectStateReadSession,
-      profile: command.profile,
-      ...(baseFormSource === undefined ? {} : { baseFormSource }),
-      activeAssignmentId: undefined,
+        componentDir: command.componentDir,
+        outputDir: command.outputDir,
+        context: {
+          ...command.context,
+          importFromYAML: {
+            ...command.context.importFromYAML,
+            projectDir: command.componentDir,
+          },
+        },
+        index: createConfigurationIndexReader(command.targetIndex),
+        ...(baseIndex === undefined ? {} : { baseIndex }),
+        composition: createFullXmlSyncCompositionReader(command.composition),
+        ownerMetadataCache: createProjectStateOwnerMetadataCache({
+          projectDir: command.componentDir,
+          componentPath: command.componentPath,
+          queryPort: projectStateReadSession,
+        }),
+        projectStateReadSession,
+        profile: command.profile,
+        ...(baseFormSource === undefined ? {} : { baseFormSource }),
+        activeAssignmentId: undefined,
+      }
+      return undefined
+    } catch (caught) {
+      try {
+        projectStateReadSession.close()
+      } catch (cleanupFailure) {
+        throw aggregateCleanupFailures(caught, cleanupFailure)
+      }
+      throw caught
     }
-    return undefined
   }
   if (command.kind === "dispose") {
-    initializedState?.projectStateReadSession.close()
+    const state = initializedState
     initializedState = undefined
+    state?.projectStateReadSession.close()
     return undefined
   }
   return executeAssignments(command.assignments, requireInitializedState())

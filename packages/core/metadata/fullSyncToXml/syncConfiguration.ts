@@ -143,17 +143,25 @@ export async function syncComponentToXml(
     const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")
     warnings = diagnostics.filter(({ severity }) => severity === "warning")
     if (refreshErrors.length > 0 && params.ignoreValidationErrors !== true) {
-      return failedResult(refreshErrors, warnings, diagnostics)
+      return await complete(failedResult(refreshErrors, warnings, diagnostics))
     }
     const preflight = await preflightFullXmlSync({ projectDir, xmlDir, deps })
-    if ("failed" in preflight) return failedResult(preflight.failed, warnings, [...diagnostics, ...preflight.failed])
+    if ("failed" in preflight) {
+      return await complete(failedResult(preflight.failed, warnings, [...diagnostics, ...preflight.failed]))
+    }
 
     const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
     if (!preflight.targetExists) await deps.mkdir(xmlDir)
 
     const { target, base } = await readProfileComponentStates({
-      ...params, projectDir, address, profile, projectStateReadToken: refreshed.readToken, deps,
+      ...params,
+      projectDir,
+      address,
+      profile,
+      projectStateReadToken: refreshed.readToken,
+      projectStateIndexReadToken: await params.projectState.createReadToken(projectDir),
+      deps,
     })
     const runtime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     const selection = params.selection ?? { kind: "all" }
@@ -186,7 +194,7 @@ export async function syncComponentToXml(
     warnings = [...warnings, ...execution.warnings]
     diagnostics = [...diagnostics, ...execution.diagnostics, ...execution.warnings]
     if (hasErrors(execution.diagnostics)) {
-      return failedResult(execution.diagnostics, warnings, diagnostics)
+      return await complete(failedResult(execution.diagnostics, warnings, diagnostics))
     }
 
     const external = await deps.transferExternalFiles({
@@ -201,7 +209,7 @@ export async function syncComponentToXml(
     })
     warnings = [...warnings, ...outputDiagnostics.filter(({ severity }) => severity === "warning")]
     diagnostics = [...diagnostics, ...outputDiagnostics]
-    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings, diagnostics)
+    if (hasErrors(outputDiagnostics)) return await complete(failedResult(outputDiagnostics, warnings, diagnostics))
 
     const previous = decodeSnapshot(target.snapshot)
     const indexData = buildFullXmlSyncConfigurationSnapshot({
@@ -211,19 +219,35 @@ export async function syncComponentToXml(
     })
     await deps.writeIndex({ projectDir, address, data: indexData })
 
-    return {
+    return await complete({
       succeeded: plan.assignments.length + plan.externalFiles.length,
       failed: [],
       warnings,
       diagnostics,
       configurationIndexPath: configurationIndexPath(projectDir, address),
-    }
+    })
   } catch (caught) {
     const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
-    return failedResult([failure], warnings, [...diagnostics, failure])
+    return await complete(failedResult([failure], warnings, [...diagnostics, failure]))
   } finally {
     profiler.flush()
-    await pool?.close()
+  }
+
+  async function complete(result: FullXmlSyncResult): Promise<FullXmlSyncResult> {
+    const activePool = pool
+    pool = undefined
+    if (activePool === undefined) return result
+    try {
+      await activePool.close()
+      return result
+    } catch (caught) {
+      const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
+      return {
+        ...result,
+        failed: [...result.failed, failure],
+        diagnostics: [...result.diagnostics, failure],
+      }
+    }
   }
 }
 
@@ -262,7 +286,14 @@ export async function planSyncConfigurationToXml(
     const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
     const { target, base } = await readProfileComponentStates({
-      ...params, projectDir, context, address, profile, projectStateReadToken: refreshed.readToken, deps,
+      ...params,
+      projectDir,
+      context,
+      address,
+      profile,
+      projectStateReadToken: refreshed.readToken,
+      projectStateIndexReadToken: refreshed.readToken,
+      deps,
     })
     profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     const selection = params.selection ?? { kind: "all" }
@@ -298,22 +329,29 @@ async function readProfileComponentStates(params: {
   readonly concurrency?: number
   readonly projectState: ProjectStateService
   readonly projectStateReadToken: ProjectStateReadToken
+  readonly projectStateIndexReadToken: ProjectStateReadToken
   readonly deps: FullXmlSyncCoordinatorDependencies
 }): Promise<{ readonly target: ConfirmedComponentState; readonly base?: ConfirmedComponentState }> {
+  const projectStateReadSession = params.projectState.openReadSession(params.projectStateIndexReadToken)
   const common = {
     projectDir: params.projectDir,
     context: params.context,
     concurrency: params.concurrency,
     projectState: params.projectState,
     projectStateReadToken: params.projectStateReadToken,
+    projectStateReadSession,
     deps: params.deps,
   }
-  const target = await readConfirmedComponentState({ ...common, address: params.address })
-  const baseAddress = params.profile.baseAddress(params.address)
-  const base = baseAddress === undefined
-    ? undefined
-    : await readConfirmedComponentState({ ...common, address: baseAddress })
-  return { target, ...(base === undefined ? {} : { base }) }
+  try {
+    const target = await readConfirmedComponentState({ ...common, address: params.address })
+    const baseAddress = params.profile.baseAddress(params.address)
+    const base = baseAddress === undefined
+      ? undefined
+      : await readConfirmedComponentState({ ...common, address: baseAddress })
+    return { target, ...(base === undefined ? {} : { base }) }
+  } finally {
+    projectStateReadSession.close()
+  }
 }
 
 async function refreshSyncProject(params: {
@@ -337,6 +375,7 @@ async function readConfirmedComponentState(params: {
   readonly concurrency?: number
   readonly projectState: ProjectStateService
   readonly projectStateReadToken: ProjectStateReadToken
+  readonly projectStateReadSession: Pick<import("../projectState").ProjectStateReadSession, "readComponentTargetPage">
   readonly deps: FullXmlSyncCoordinatorDependencies
 }): Promise<ConfirmedComponentState> {
   const structure = await params.deps.readStructure({
@@ -352,7 +391,7 @@ async function readConfirmedComponentState(params: {
     componentPath: structure.componentPath,
   })
   const hashes = await params.deps.readHashes({ structure, projection })
-  const indexes = await params.deps.readIndexes({ structure, hashes })
+  const indexes = await params.deps.readIndexes({ structure, hashes, projectStateReadSession: params.projectStateReadSession })
   return params.deps.confirmState({
     structure,
     snapshot,

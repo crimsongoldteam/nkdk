@@ -22,7 +22,7 @@ import {
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
-import { createMockFullSyncDependencies } from "./testHelpers"
+import { createMockFullSyncDependencies, emptyProjectStateReadSession } from "./testHelpers"
 import type { FullXmlSyncExecutionPoolResult } from "./workerPool"
 
 describe("shared full XML sync coordinator", () => {
@@ -165,6 +165,45 @@ describe("shared full XML sync coordinator", () => {
     expect(result.diagnostics).toEqual(result.warnings)
   })
 
+  it("returns refresh and sync diagnostics when worker cleanup fails", async () => {
+    const warning = {
+      filePath: "/project/cf/Конфигурация.yaml",
+      line: 1,
+      col: 2,
+      severity: "warning" as const,
+      source: "reference" as const,
+      message: "Предупреждение",
+    }
+    const executionFailure: FullXmlSyncDiagnostic = {
+      severity: "error",
+      code: "assignment_failed",
+      message: "Ошибка assignment",
+    }
+    const harness = createHarness({
+      refreshDiagnostics: [warning],
+      executionDiagnostics: [executionFailure],
+      closeFailure: new Error("Ошибка dispose"),
+    })
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, harness.deps)
+
+    expect(result.failed).toEqual([
+      executionFailure,
+      expect.objectContaining({ code: "full_xml_sync_operation_failed", message: "Ошибка dispose" }),
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ code: "project_validation", severity: "warning" }),
+      executionFailure,
+      expect.objectContaining({ code: "full_xml_sync_operation_failed", message: "Ошибка dispose" }),
+    ])
+  })
+
   it.each([false, true])("preview plan blocks validation errors only without ignoreValidationErrors=%s", async (ignoreValidationErrors) => {
     const validationError = {
       filePath: "/project/cf/Конфигурация.yaml",
@@ -304,7 +343,7 @@ describe("shared full XML sync coordinator", () => {
     expect(selected.writtenIndex).toEqual(all.writtenIndex)
   })
 
-  it("rejects an unsupported or partial public selection before worker creation", async () => {
+  it("rejects an unsupported component or incomplete selection before XML and snapshot writes", async () => {
     const unsupported = createHarness()
     const unsupportedResult = await syncComponentToXml({
       context,
@@ -332,6 +371,29 @@ describe("shared full XML sync coordinator", () => {
       }),
     ])
     expect(partial.events).not.toContain("execute")
+    expect(partial.events).not.toContain("transferExternal")
+    expect(partial.events).not.toContain("writeTargetSnapshot")
+  })
+
+  it("rejects an incomplete preview selection after refresh but before plan construction", async () => {
+    const harness = createHarness()
+
+    const result = await planSyncConfigurationToXml({
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+      selection: { kind: "selected", projectPaths: [] },
+    }, harness.deps)
+
+    expect(result).toEqual(expect.objectContaining({
+      ok: false,
+      failed: [expect.objectContaining({
+        message: "Публичная частичная синхронизация в XML пока не поддерживается",
+      })],
+    }))
+    expect(harness.events[0]).toBe("refresh")
+    expect(harness.events).not.toContain("buildSelection")
   })
 
   it("не публикует снимок при конфликте logicalAddress с неизменённым файлом", async () => {
@@ -412,6 +474,7 @@ interface HarnessOptions {
     readonly message: string
   }[]
   readonly refreshFailure?: Error
+  readonly closeFailure?: Error
 }
 
 function createHarness(options: HarnessOptions = {}) {
@@ -439,7 +502,7 @@ function createHarness(options: HarnessOptions = {}) {
       new DataView(hashBytes.buffer).setBigUint64(0, 10n, false)
       return { componentPath, projectFiles: [{ projectPath: `${componentPath}/Конфигурация.yaml` }], hashBytes }
     },
-    openReadSession() { throw new Error("coordinator must not open a worker read session") },
+    openReadSession() { return emptyProjectStateReadSession() },
     async reset() {},
     async rebuild() { throw new Error("not used") },
     async close() {},
@@ -557,6 +620,7 @@ function createHarness(options: HarnessOptions = {}) {
         },
         async close() {
           events.push("close")
+          if (options.closeFailure !== undefined) throw options.closeFailure
         },
       }
     },

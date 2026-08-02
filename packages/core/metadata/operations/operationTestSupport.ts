@@ -130,6 +130,7 @@ export function completeOperationReadSession(
     readDependencyInputs: () => [],
     readDependencyOwnerInputs: () => [],
     readOwnerRefPage: () => ({ refs: [] }),
+    readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
     close() {},
   }

@@ -22,10 +22,7 @@ describe("component indexes", () => {
       "Реквизиты: {}\n",
     )
 
-    const indexes = await readComponentIndexes({
-      structure,
-      hashes,
-    })
+    const indexes = await readIndexes(structure, hashes)
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
     expect(indexes.logicalAddresses).toEqual([
@@ -39,10 +36,7 @@ describe("component indexes", () => {
   it("builds indexes from the current root YAML", async () => {
     const { structure, hashes } = await indexedProject("Конфигурация.yaml", "Имя: Конфигурация\n")
 
-    const indexes = await readComponentIndexes({
-      structure,
-      hashes,
-    })
+    const indexes = await readIndexes(structure, hashes)
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
     expect(indexes.logicalAddresses).toEqual([
@@ -56,12 +50,44 @@ describe("component indexes", () => {
       ["Реквизиты:", "  Артикул:", "    Тип: Строка", ""].join("\n"),
     )
 
-    const indexes = await readComponentIndexes({
-      structure,
-      hashes,
-    })
+    const indexes = await readIndexes(structure, hashes)
 
     expect(indexes.logicalAddresses).toEqual([{ logicalAddress: "Справочник.Товары", sourceProjectPath: "Справочник/Товары/Свойства.yaml" }])
+  })
+
+  it("adds nested logical addresses from paged project state without reading YAML", async () => {
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const { structure, hashes } = await indexedProject(projectPath, "Имя: Товары\n")
+    const cursors: Array<string | undefined> = []
+    const params = {
+      structure,
+      hashes,
+      projectStateReadSession: {
+        readComponentTargetPage(query: { componentPath: string; cursor?: string }) {
+          cursors.push(query.cursor)
+          return query.cursor === undefined
+            ? {
+                entries: [{ logicalAddress: "Catalog.Товары", sourceProjectPath: `cf/${projectPath}` }],
+                nextCursor: "Catalog.Товары",
+              }
+            : {
+                entries: [{
+                  logicalAddress: "Catalog.Товары.Attribute.Артикул",
+                  sourceProjectPath: `cf/${projectPath}`,
+                }],
+              }
+        },
+      },
+    }
+
+    const indexes = await readComponentIndexes(params)
+
+    expect(cursors).toEqual([undefined, "Catalog.Товары"])
+    expect(indexes.logicalAddresses).toEqual([
+      { logicalAddress: "Справочник.Товары", sourceProjectPath: projectPath },
+      { logicalAddress: "Catalog.Товары", sourceProjectPath: projectPath },
+      { logicalAddress: "Catalog.Товары.Attribute.Артикул", sourceProjectPath: projectPath },
+    ])
   })
 
   async function indexedProject(projectPath: string, content: string) {
@@ -80,4 +106,15 @@ async function hashState(structure: Awaited<ReturnType<typeof readComponentProje
     componentPath: structure.componentPath,
     projectFiles: await hashConfigurationProjectFileList(structure.componentDir, structure.projectPaths),
   }
+}
+
+function readIndexes(
+  structure: Awaited<ReturnType<typeof readComponentProjectStructure>>,
+  hashes: Awaited<ReturnType<typeof hashState>>,
+) {
+  return readComponentIndexes({
+    structure,
+    hashes,
+    projectStateReadSession: { readComponentTargetPage: () => ({ entries: [] }) },
+  })
 }

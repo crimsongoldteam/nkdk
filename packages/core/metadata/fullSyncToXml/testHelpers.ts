@@ -8,6 +8,7 @@ import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } 
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
+import type { ProjectStateReadSession } from "../projectState"
 
 const tempDirs: string[] = []
 
@@ -21,6 +22,23 @@ export function createTempRoot(): string {
   const root = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-"))
   tempDirs.push(root)
   return root
+}
+
+export function emptyProjectStateReadSession(
+  overrides: Partial<ProjectStateReadSession> = {},
+): ProjectStateReadSession {
+  return {
+    resolveTargets: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwners: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    findReferences: (requests) => requests.map(({ requestId }) => ({ requestId, references: [] })),
+    readDependencyInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwnerRefPage: () => ({ refs: [] }),
+    readComponentTargetPage: () => ({ entries: [] }),
+    readValidationStatus: () => [],
+    close() {},
+    ...overrides,
+  }
 }
 
 export function createMockFullSyncDependencies(

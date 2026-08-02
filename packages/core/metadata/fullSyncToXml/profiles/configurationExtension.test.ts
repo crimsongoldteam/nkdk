@@ -46,7 +46,7 @@ describe("configuration extension full XML sync profile", () => {
     })
   })
 
-  it("exposes only the current extension, base and runtime identities", () => {
+  it("adopts a nested object present in current ProjectState component indexes", () => {
     const adopted = ["Catalog.Товары", "Catalog.Товары.Attribute.Артикул"]
     const base = state({
       componentPath: "cf",

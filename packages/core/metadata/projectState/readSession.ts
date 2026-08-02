@@ -115,6 +115,19 @@ export interface ProjectOwnerRefPage {
   readonly nextCursor?: string
 }
 
+export interface ProjectComponentTargetPageQuery {
+  readonly componentPath: string
+  readonly cursor?: string
+}
+
+export interface ProjectComponentTargetPage {
+  readonly entries: readonly {
+    readonly logicalAddress: string
+    readonly sourceProjectPath: string
+  }[]
+  readonly nextCursor?: string
+}
+
 export interface ProjectValidationStatusQuery {
   readonly offset: number
   readonly batchSize: number
@@ -136,6 +149,7 @@ export interface ProjectStateQueryPort {
     requests: readonly ProjectDependencyOwnerInputQuery[]
   ): readonly ProjectDependencyOwnerInputResult[]
   readOwnerRefPage(query: ProjectOwnerRefPageQuery): ProjectOwnerRefPage
+  readComponentTargetPage(query: ProjectComponentTargetPageQuery): ProjectComponentTargetPage
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
 }
 

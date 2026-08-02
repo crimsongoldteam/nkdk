@@ -10,7 +10,7 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
+import type { ProjectStateReadSession, ProjectStateReadToken, ProjectStateService } from "../projectState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   syncComponentToXml,
@@ -366,7 +366,12 @@ function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService
       files.forEach(({ contentHash }, index) => view.setBigUint64(index * 8, contentHash, false))
       return { componentPath, projectFiles: files.map(({ projectPath }) => ({ projectPath })), hashBytes }
     },
-    openReadSession() { throw new Error("not used") },
+    openReadSession() {
+      return {
+        readComponentTargetPage: () => ({ entries: [] }),
+        close() {},
+      } as unknown as ProjectStateReadSession
+    },
     async reset() {},
     async rebuild() { throw new Error("not used") },
     async close() {},

@@ -102,6 +102,12 @@ describe("ProjectStateReadSession", () => {
         source: { projectPath: "cf/Справочник/Товары/Свойства.yaml", componentPath: "cf" },
       },
     ])
+    expect(session.readComponentTargetPage({ componentPath: "cf" })).toEqual({
+      entries: [{
+        logicalAddress: "Catalog.Товары",
+        sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+      }],
+    })
 
     session.close()
     expect(() => session.readOwners([])).toThrow(ProjectStateReadSessionClosedError)
@@ -158,6 +164,15 @@ function testReadSession(): ProjectStateReadSession {
     readOwnerRefPage() {
       assertOpen()
       return { refs: [] }
+    },
+    readComponentTargetPage() {
+      assertOpen()
+      return {
+        entries: [{
+          logicalAddress: "Catalog.Товары",
+          sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+        }],
+      }
     },
     readValidationStatus() {
       assertOpen()
@@ -367,6 +382,24 @@ function testStoreReadSession(
       return {
         refs: page.slice(0, 2_000),
         ...(page.length <= 2_000 ? {} : { nextCursor: ownerRefKey(page[1_999]!) }),
+      }
+    },
+    readComponentTargetPage({ componentPath, cursor }) {
+      assertOpen()
+      const entries = new Map<string, Array<{ logicalAddress: string; sourceProjectPath: string }>>()
+      for (const { update } of updates.values()) {
+        if (update.kind !== "yaml" || update.componentPath !== componentPath) continue
+        for (const reference of update.references) {
+          const values = entries.get(reference.canonical) ?? []
+          values.push({ logicalAddress: reference.canonical, sourceProjectPath: update.projectPath })
+          entries.set(reference.canonical, values)
+        }
+      }
+      return {
+        entries: [...entries.entries()]
+          .filter(([logicalAddress, values]) => logicalAddress > (cursor ?? "") && values.length === 1)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(([, values]) => values[0]!),
       }
     },
     readValidationStatus({ offset, batchSize }) {

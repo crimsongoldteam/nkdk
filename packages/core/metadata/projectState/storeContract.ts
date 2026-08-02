@@ -259,6 +259,32 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       session.close()
     })
 
+    it("читает локальные вложенные targets компонента без fallback на cf", () => {
+      const { store, openReadSession } = factory()
+      const extension = yamlUpdate("cfe/Цены/Товары.yaml", "cfe/Цены", "Catalog.Товары")
+      const nested = "Catalog.Товары.Attribute.Артикул"
+      const base = yamlUpdate("cf/База.yaml", "cf", "Catalog.Базовый")
+      store.beginUpdate()
+      store.replaceFiles({
+        updates: [
+          { ...extension, references: [...extension.references, { kind: "member", canonical: nested }] },
+          base,
+        ],
+        hashBytes: new Uint8Array(16),
+      })
+      store.commitUpdate()
+
+      const session = openReadSession(store.createReadToken())
+
+      expect(session.readComponentTargetPage({ componentPath: "cfe/Цены" })).toEqual({
+        entries: [
+          { logicalAddress: "Catalog.Товары", sourceProjectPath: extension.projectPath },
+          { logicalAddress: nested, sourceProjectPath: extension.projectPath },
+        ],
+      })
+      session.close()
+    })
+
     it("сохраняет dependency-вклад source-файла при удалении target-файла", () => {
       const { store } = factory()
       const source = {
@@ -292,6 +318,8 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => session.readDependencyInputs([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readDependencyOwnerInputs([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readOwnerRefPage({ componentPath: "cf", kind: "Справочник" }))
+        .toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readComponentTargetPage({ componentPath: "cf" }))
         .toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readValidationStatus({ offset: 0, batchSize: 1 })).toThrow(ProjectStateReadSessionClosedError)
       expect(() => openReadSession(token)).toThrow()

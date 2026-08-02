@@ -108,8 +108,68 @@ describe("full XML sync worker pool", () => {
     await expect(pool.execute([assignment("one"), assignment("two")])).rejects.toThrow("worker crashed")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
+    expect(pools.runs(0).map(({ kind }) => kind)).toContain("dispose")
+    expect(pools.runs(1).map(({ kind }) => kind)).toContain("dispose")
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1, 1])
+  })
+
+  it("preserves a crash as primary and aggregates dispose and destroy failures", async () => {
+    const primary = new Error("execute failed")
+    const disposeFailure = new Error("dispose failed")
+    const destroyFailure = new Error("destroy failed")
+    const commands: string[] = []
+    let destroyCalls = 0
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      createWorkerPool: () => ({
+        async run(command) {
+          commands.push(command.kind)
+          if (command.kind === "execute") throw primary
+          if (command.kind === "dispose") throw disposeFailure
+          return undefined
+        },
+        async destroy() {
+          destroyCalls += 1
+          throw destroyFailure
+        },
+      }),
+    })
+    await pool.initialize(initialization)
+
+    let failure: unknown
+    try {
+      await pool.execute([assignment("one")])
+    } catch (caught) {
+      failure = caught
+    }
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, disposeFailure, destroyFailure])
+    expect((failure as Error).message).toBe(primary.message)
+    expect(commands).toEqual(["initialize", "execute", "dispose"])
+    expect(destroyCalls).toBe(1)
+  })
+
+  it("destroys a worker even when normal dispose fails", async () => {
+    const disposeFailure = new Error("dispose failed")
+    let destroyCalls = 0
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      createWorkerPool: () => ({
+        async run(command) {
+          if (command.kind === "dispose") throw disposeFailure
+          if (command.kind !== "execute") return undefined
+          return executionResult()
+        },
+        async destroy() { destroyCalls += 1 },
+      }),
+    })
+    await pool.initialize(initialization)
+    await pool.execute([assignment("one")])
+
+    await expect(pool.close()).rejects.toBe(disposeFailure)
+    expect(destroyCalls).toBe(1)
   })
 
   it("normalizes default concurrency and rejects invalid explicit values", () => {
@@ -131,6 +191,17 @@ function assignment(id: string): FullXmlSyncAssignment {
     itemName: id,
     logicalAddress: `Справочник.${id}`,
     ...fullXmlSyncTestOutput(`${id}.xml`),
+  }
+}
+
+function executionResult() {
+  return {
+    kind: "executionResult" as const,
+    diagnostics: [],
+    warnings: [],
+    writtenFiles: [],
+    expectedOutputs: [],
+    fragmentBuffer: encodeConfigurationIndexFragments([]),
   }
 }
 
