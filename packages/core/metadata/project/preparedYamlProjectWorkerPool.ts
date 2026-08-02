@@ -50,7 +50,7 @@ export interface PreparedYamlProjectWorkerPool {
     params: {
       projectDir: string
       context: ConfigurationContext
-      files: readonly PreparedYamlLocalValidationSource[]
+      files: PreparedYamlLocalValidationSource
       operation?: PreparedYamlValidationOperation
     },
     producer: { writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void> },
@@ -72,7 +72,8 @@ export interface PreparedYamlLocalValidationFile {
 }
 
 export interface PreparedYamlLocalValidationSource {
-  createFile(): PreparedYamlLocalValidationFile
+  readonly length: number
+  createFile(index: number): PreparedYamlLocalValidationFile
 }
 
 export interface PreparedYamlValidationOperation {
@@ -304,9 +305,8 @@ export function createPreparedYamlProjectWorkerPool(params: {
             const batchFiles: PreparedYamlLocalValidationFile[] = []
             for (let offset = 0; offset < LOCAL_VALIDATION_BATCH_SIZE; offset += 1) {
               const sourceIndex = start + offset * params.concurrency
-              const source = localParams.files[sourceIndex]
-              if (source === undefined) break
-              batchFiles.push(source.createFile())
+              if (sourceIndex >= localParams.files.length) break
+              batchFiles.push(localParams.files.createFile(sourceIndex))
             }
             const hashBytes = new Uint8Array(batchFiles.length * 8)
             batchFiles.forEach((file, fileIndex) => {

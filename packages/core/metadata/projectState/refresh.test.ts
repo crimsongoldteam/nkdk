@@ -30,11 +30,25 @@ afterEach(async () => {
 })
 
 describe("refreshProjectState", () => {
-  it("не строит local validation DTO до запроса текущей pool-пачки", async () => {
+  it("не перебирает YAML inputs и не строит DTO до индексного запроса pool", async () => {
     const yaml = identity("cf/Конфигурация.yaml", "yaml")
+    let inputReads = 0
     let valueReads = 0
+    const inputs = new Proxy([{
+      identity: yaml,
+      get value() {
+        valueReads += 1
+        return {}
+      },
+    }] satisfies ProjectStateYamlInput[], {
+      get(target, property, receiver) {
+        if (typeof property === "string" && /^\d+$/u.test(property)) inputReads += 1
+        return Reflect.get(target, property, receiver)
+      },
+    })
     const pool = {
       async runLocalValidation() {
+        expect(inputReads).toBe(0)
         expect(valueReads).toBe(0)
         return { diagnostics: [], parsedYamlFiles: 0 }
       },
@@ -46,18 +60,11 @@ describe("refreshProjectState", () => {
     })
     const controller = new AbortController()
 
-    await expect(dependencies.runLocalValidation([{
-      identity: yaml,
-      projectDir: "/project",
-      get value() {
-        valueReads += 1
-        return {}
-      },
-    }], dependencies.handle, {
+    await expect(dependencies.runLocalValidation(inputs, dependencies.handle, {
       signal: controller.signal,
       abort: (reason) => controller.abort(reason),
-    })).resolves.toBe(0)
-    expect(valueReads).toBe(0)
+    }, "/project")).resolves.toBe(0)
+    expect({ inputReads, valueReads }).toEqual({ inputReads: 0, valueReads: 0 })
   })
 
   it("на холодном и прогретом проходах хэширует все ресурсы, но повторно не разбирает YAML", async () => {
@@ -80,7 +87,7 @@ describe("refreshProjectState", () => {
         resources: [],
         discover: async () => [],
         hashBatch: { files: [yaml, resource], hashBytes: hashBytes.slice() },
-        yamlInputs: [{ identity: yaml, projectDir: "/project", value: {} }],
+        yamlInputs: [{ identity: yaml, value: {} }],
         releaseBytesExcept: (paths) => retainedBytes.push([...paths]),
       }
     }
@@ -669,7 +676,7 @@ function collected(
     discover: async () => [],
     hashBatch: { files, hashBytes },
     yamlInputs: files.flatMap((identity) => identity.resourceKind === "yaml"
-      ? [{ identity, projectDir: "/project", value: {} }]
+      ? [{ identity, value: {} }]
       : []),
     releaseBytesExcept: () => undefined,
   }

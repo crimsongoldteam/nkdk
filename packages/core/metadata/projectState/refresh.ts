@@ -60,7 +60,6 @@ export interface CollectedProjectStateFiles extends ProjectStateFileCollection {
 
 export interface ProjectStateYamlInput {
   readonly identity: ProjectStateFileIdentity
-  readonly projectDir: string
   readonly value: unknown
 }
 
@@ -73,6 +72,7 @@ export interface ProjectStateRefreshDependencies {
     files: readonly ProjectStateYamlInput[],
     producer: Pick<ProjectStateRefreshHandle, "writeBatch">,
     operation: ProjectStateRefreshOperation,
+    projectDir: string,
   ) => Promise<number>
   readonly writeChangedResources: (
     changes: ProjectStateFileChanges,
@@ -98,7 +98,6 @@ export function createProjectStateRefreshDependencies(params: {
       const yamlInputs = resources.flatMap((resource, index) => resource.ref.kind === "yaml"
         ? [{
             identity: resource.identity,
-            projectDir: refreshParams.projectDir,
             value: {
               resource,
               projectDir: refreshParams.projectDir,
@@ -119,19 +118,21 @@ export function createProjectStateRefreshDependencies(params: {
         },
       }
     },
-    async runLocalValidation(files, producer, operation) {
-      const firstFile = files[0]
-      if (firstFile === undefined) return 0
-      const sources: PreparedYamlLocalValidationSource[] = files.map((file) => ({
-        createFile() {
+    async runLocalValidation(files, producer, operation, projectDir) {
+      if (files.length === 0) return 0
+      const source: PreparedYamlLocalValidationSource = {
+        length: files.length,
+        createFile(index) {
+          const file = files[index]
+          if (file === undefined) throw new Error(`Локальная validation запросила отсутствующий YAML index ${index}`)
           const { projectDir: _projectDir, ...localFile } = localValidationFile(file.value)
           return localFile
         },
-      }))
+      }
       const result = await params.pool.runLocalValidation({
-        projectDir: firstFile.projectDir,
+        projectDir,
         context: params.context,
-        files: sources,
+        files: source,
         operation,
       }, producer)
       return result.parsedYamlFiles
@@ -171,7 +172,12 @@ export async function refreshProjectState(
       updateActive = true
       await dependencies.handle.deleteFiles(changes.deleted.map(({ projectPath }) => projectPath))
       await dependencies.writeChangedResources(changes, files, dependencies.handle)
-      const parsedYamlFiles = await dependencies.runLocalValidation(changedYamlInputs, dependencies.handle, operation)
+      const parsedYamlFiles = await dependencies.runLocalValidation(
+        changedYamlInputs,
+        dependencies.handle,
+        operation,
+        params.projectDir,
+      )
       const diagnostics = await dependencies.handle.readLocalDiagnostics()
       if (!(await dependencies.isStable(files, operation.signal))) {
         await dependencies.handle.rollbackUpdate()

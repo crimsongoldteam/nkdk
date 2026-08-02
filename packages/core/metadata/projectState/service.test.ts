@@ -96,6 +96,71 @@ describe("ProjectStateService", () => {
     await service.close()
   })
 
+  it("нормализует primary AggregateError обычного refresh при успешном pool cleanup", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-primary-refresh-"))
+    tempDirs.push(projectDir)
+    const { failure, leaves } = nestedPrimaryFailure()
+    const service = createProjectStateService({
+      createWriter: () => testWriterHandle(1),
+      createPool: () => testPool(),
+      async refresh() { throw failure },
+    })
+
+    const caught = await service.refreshAndValidate({ projectDir }).catch((reason: unknown) => reason)
+
+    expectNormalizedFailure(caught, leaves)
+    await service.close()
+  })
+
+  it("нормализует primary AggregateError rebuild при успешном candidate cleanup", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-primary-rebuild-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const { failure, leaves } = nestedPrimaryFailure()
+    let refreshCalls = 0
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => testPool(),
+      async refresh() {
+        refreshCalls += 1
+        if (refreshCalls === 2) throw failure
+        return refreshResult(refreshCalls)
+      },
+    })
+
+    await expectNormalizedRebuildFailure(service, projectDir, leaves)
+    expect(old.closed).toBe(0)
+    expect(candidate.closed).toBe(1)
+    await service.close()
+  })
+
+  it("нормализует primary AggregateError после публикации при успешном writer cleanup", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-primary-published-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const { failure, leaves } = nestedPrimaryFailure()
+    let poolCalls = 0
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => {
+        poolCalls += 1
+        return {
+          close: async () => { if (poolCalls === 2) throw failure },
+        } as PreparedYamlProjectWorkerPool
+      },
+      async refresh() { return refreshResult(poolCalls) },
+    })
+
+    await expectNormalizedRebuildFailure(service, projectDir, leaves)
+    expect(old.closed).toBe(1)
+    expect(candidate.closed).toBe(0)
+    await service.close()
+  })
+
   it("рекурсивно распрямляет primary, rollback, pool и candidate cleanup до публикации", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-nested-cleanup-"))
     tempDirs.push(projectDir)
@@ -426,4 +491,32 @@ function refreshResult(value: number): ProjectStateRefreshResult {
     readToken: new Uint8Array([value]) as never,
     stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
   }
+}
+
+function nestedPrimaryFailure() {
+  const primary = new Error("primary failed")
+  const secondary = new Error("secondary failed")
+  return {
+    failure: new AggregateError([
+      primary,
+      new AggregateError([secondary], "nested secondary"),
+    ], "outer failure"),
+    leaves: [primary, secondary],
+  }
+}
+
+function expectNormalizedFailure(caught: unknown, leaves: readonly Error[]): void {
+  expect(caught).toBeInstanceOf(AggregateError)
+  expect((caught as AggregateError).errors).toEqual(leaves)
+  expect((caught as Error).message).toBe(leaves[0]?.message)
+}
+
+async function expectNormalizedRebuildFailure(
+  service: ReturnType<typeof createProjectStateService>,
+  projectDir: string,
+  leaves: readonly Error[],
+): Promise<void> {
+  await service.refreshAndValidate({ projectDir })
+  const caught = await service.rebuild({ projectDir }).catch((reason: unknown) => reason)
+  expectNormalizedFailure(caught, leaves)
 }

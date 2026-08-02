@@ -118,8 +118,8 @@ export function createProjectStateService(
         if (refreshFailure !== undefined && previousCloseFailure !== undefined) {
           throw aggregateCleanupFailure(refreshFailure.reason, previousCloseFailure.reason)
         }
-        if (refreshFailure !== undefined) throw refreshFailure.reason
-        if (previousCloseFailure !== undefined) throw previousCloseFailure.reason
+        if (refreshFailure !== undefined) throw normalizeFailure(refreshFailure.reason)
+        if (previousCloseFailure !== undefined) throw normalizeFailure(previousCloseFailure.reason)
         return result!
       })
     },
@@ -178,7 +178,7 @@ export function createProjectStateService(
       } catch (cleanupFailure) {
         throw aggregateCleanupFailure(caught, cleanupFailure)
       }
-      throw caught
+      throw normalizeFailure(caught)
     }
     onPublished?.()
     await pool.close()
@@ -188,7 +188,7 @@ export function createProjectStateService(
   async function closePreservingPrimary(writer: ProjectStateWriterHandle, primary: unknown): Promise<unknown> {
     try {
       await writer.close()
-      return primary
+      return normalizeFailure(primary)
     } catch (cleanupFailure) {
       return aggregateCleanupFailure(primary, cleanupFailure)
     }
@@ -207,6 +207,12 @@ function flattenFailures(caught: unknown): unknown[] {
   return caught instanceof AggregateError
     ? caught.errors.flatMap((failure) => flattenFailures(failure))
     : [caught]
+}
+
+function normalizeFailure(caught: unknown): unknown {
+  if (!(caught instanceof AggregateError)) return caught
+  const errors = flattenFailures(caught)
+  return new AggregateError(errors, errorMessage(errors[0] ?? caught))
 }
 
 function errorMessage(caught: unknown): string {

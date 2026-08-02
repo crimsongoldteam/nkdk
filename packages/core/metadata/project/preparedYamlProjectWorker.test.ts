@@ -517,7 +517,12 @@ describe("local validation pool", () => {
     }
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 2, createWorkerPool: () => fake })
     try {
-      const running = pool.runLocalValidation({ projectDir, context: mockContext, files: [], operation }, {
+      const running = pool.runLocalValidation({
+        projectDir,
+        context: mockContext,
+        files: localValidationFiles(projectDir, "Init", 0),
+        operation,
+      }, {
         async writeBatch() {},
       })
       await oneFailed
@@ -563,7 +568,10 @@ describe("local validation pool", () => {
       const result = await pool.runLocalValidation({
         projectDir,
         context: mockContext,
-        files: [{ createFile: () => ({ descriptor: selected, bytes, hashBytes }) }],
+        files: {
+          length: 1,
+          createFile: () => ({ descriptor: selected, bytes, hashBytes }),
+        },
       }, {
         async writeBatch(batch) { written.push(batch) },
       })
@@ -606,7 +614,11 @@ describe("local validation pool", () => {
 
       taskSizes.length = 0
       writtenSizes.length = 0
-      await expect(pool.runLocalValidation({ projectDir, context: mockContext, files: files.slice(0, 64) }, {
+      await expect(pool.runLocalValidation({
+        projectDir,
+        context: mockContext,
+        files: localValidationFiles(projectDir, "Файл", 64),
+      }, {
         async writeBatch(batch) { writtenSizes.push(batch.updates.length) },
       })).resolves.toMatchObject({ parsedYamlFiles: 64 })
       expect(taskSizes).toEqual([32, 32])
@@ -619,25 +631,28 @@ describe("local validation pool", () => {
   it("лениво создаёт не более одной DTO-пачки на lane до producer acknowledgement", async () => {
     const projectDir = createTempDir()
     let constructed = 0
+    const constructedIndexes: number[] = []
     let writes = 0
     let notifyFirstWrites!: () => void
     let releaseWrites!: () => void
     const firstWrites = new Promise<void>((resolve) => { notifyFirstWrites = resolve })
     const writeGate = new Promise<void>((resolve) => { releaseWrites = resolve })
-    const sources: PreparedYamlLocalValidationSource[] = Array.from({ length: 130 }, (_, index) => ({
-      createFile() {
+    const source: PreparedYamlLocalValidationSource = {
+      length: 130,
+      createFile(index) {
         constructed += 1
+        constructedIndexes.push(index)
         return {
           descriptor: componentProperties(projectDir, "cf", `Lazy${index}`),
           bytes: new TextEncoder().encode("{}\n"),
           hashBytes: new Uint8Array(8),
         }
       },
-    }))
+    }
     const fake = successfulLocalValidationWorker()
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 2, createWorkerPool: () => fake })
     try {
-      const running = pool.runLocalValidation({ projectDir, context: mockContext, files: sources }, {
+      const running = pool.runLocalValidation({ projectDir, context: mockContext, files: source }, {
         async writeBatch() {
           writes += 1
           if (writes === 2) notifyFirstWrites()
@@ -654,6 +669,9 @@ describe("local validation pool", () => {
       releaseWrites()
       await expect(running).resolves.toMatchObject({ parsedYamlFiles: 130 })
       expect(constructed).toBe(130)
+      expect(constructedIndexes.toSorted((left, right) => left - right)).toEqual(
+        Array.from({ length: 130 }, (_unused, index) => index),
+      )
     } finally {
       releaseWrites()
       await pool.close()
@@ -770,13 +788,14 @@ describe("local validation pool", () => {
       const running = pool.runLocalValidation({
         projectDir,
         context: mockContext,
-        files: [{
+        files: {
+          length: 1,
           createFile: () => ({
             descriptor: componentProperties(projectDir, "cf", "Отмена"),
             bytes: new TextEncoder().encode("{}\n"),
             hashBytes: new Uint8Array(8),
           }),
-        }],
+        },
         operation,
       }, {
         async writeBatch() { writes += 1 },
@@ -910,14 +929,18 @@ function localValidationFiles(
   projectDir: string,
   prefix: string,
   count: number,
-): PreparedYamlLocalValidationSource[] {
-  return Array.from({ length: count }, (_, index) => ({
-    createFile: () => ({
-      descriptor: componentProperties(projectDir, "cf", `${prefix}${index}`),
-      bytes: new TextEncoder().encode("{}\n"),
-      hashBytes: new Uint8Array(8),
-    }),
-  }))
+): PreparedYamlLocalValidationSource {
+  return {
+    length: count,
+    createFile(index) {
+      if (index < 0 || index >= count) throw new Error(`unexpected local validation index: ${index}`)
+      return {
+        descriptor: componentProperties(projectDir, "cf", `${prefix}${index}`),
+        bytes: new TextEncoder().encode("{}\n"),
+        hashBytes: new Uint8Array(8),
+      }
+    },
+  }
 }
 
 function localValidationResult(task: Extract<PreparedYamlProjectWorkerTask, { kind: "validateLocal" }>) {
