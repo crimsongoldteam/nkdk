@@ -53,7 +53,9 @@ describe("ProjectStateService", () => {
   it("при технической ошибке rebuild сохраняет прежнее активное состояние", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-"))
     tempDirs.push(projectDir)
-    const handles = [testWriterHandle(1), testWriterHandle(2)]
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
     let refreshCalls = 0
     const service = createProjectStateService({
       createWriter: () => handles.shift()!,
@@ -67,9 +69,114 @@ describe("ProjectStateService", () => {
 
     await service.refreshAndValidate({ projectDir })
     await expect(service.rebuild({ projectDir })).rejects.toThrow("checkpoint failed")
-    const projection = await service.readComponentProjection({ projectDir, componentPath: "cf" })
+    const projectFiles = await readProjectFiles(service, projectDir)
 
-    expect(projection.projectFiles).toEqual([{ projectPath: "old-1" }])
+    expect(projectFiles).toEqual([{ projectPath: "old-1" }])
+    expect(old.closed).toBe(0)
+    expect(candidate.closed).toBe(1)
+    await service.close()
+  })
+
+  it("не маскирует ошибку refresh ошибкой закрытия pool", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-refresh-cleanup-"))
+    tempDirs.push(projectDir)
+    const primary = new Error("refresh failed")
+    const cleanup = new Error("pool close failed")
+    const service = createProjectStateService({
+      createWriter: () => testWriterHandle(1),
+      createPool: () => ({ close: async () => { throw cleanup } }) as unknown as PreparedYamlProjectWorkerPool,
+      async refresh() { throw primary },
+    })
+
+    const failure = await service.refreshAndValidate({ projectDir }).catch((caught: unknown) => caught)
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, cleanup])
+    expect((failure as Error).message).toBe("refresh failed")
+    await service.close()
+  })
+
+  it("после checkpoint сохраняет candidate активным при ошибке закрытия rebuild pool", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-pool-cleanup-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const cleanup = new Error("rebuild pool close failed")
+    let poolCalls = 0
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => {
+        poolCalls += 1
+        return {
+          close: async () => { if (poolCalls === 2) throw cleanup },
+        } as PreparedYamlProjectWorkerPool
+      },
+      async refresh() { return refreshResult(poolCalls) },
+    })
+
+    await expectPublishedCandidateAfterFailedRebuild(service, projectDir, cleanup)
+    expect(old.closed).toBe(1)
+    expect(candidate.closed).toBe(0)
+    await service.close()
+  })
+
+  it("после checkpoint сохраняет candidate активным при ошибке закрытия прежнего writer", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-writer-cleanup-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const cleanup = new Error("old writer close failed")
+    const closeOld = old.close.bind(old)
+    old.close = async () => {
+      await closeOld()
+      if (old.closed === 1) throw cleanup
+    }
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => testPool(),
+      async refresh() { return refreshResult(2) },
+    })
+
+    await expectPublishedCandidateAfterFailedRebuild(service, projectDir, cleanup)
+    expect(candidate.closed).toBe(0)
+    await service.close()
+  })
+
+  it("агрегирует ошибки закрытия rebuild pool и прежнего writer после публикации candidate", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-cleanup-errors-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const poolCleanup = new Error("rebuild pool close failed")
+    const writerCleanup = new Error("old writer close failed")
+    let poolCalls = 0
+    const closeOld = old.close.bind(old)
+    old.close = async () => {
+      await closeOld()
+      if (old.closed === 1) throw writerCleanup
+    }
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => {
+        poolCalls += 1
+        return {
+          close: async () => { if (poolCalls === 2) throw poolCleanup },
+        } as PreparedYamlProjectWorkerPool
+      },
+      async refresh() { return refreshResult(poolCalls) },
+    })
+
+    await service.refreshAndValidate({ projectDir })
+    const failure = await service.rebuild({ projectDir }).catch((caught: unknown) => caught)
+    const projectFiles = await readProjectFiles(service, projectDir)
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([poolCleanup, writerCleanup])
+    expect(projectFiles).toEqual([{ projectPath: "old-2" }])
+    expect(candidate.closed).toBe(0)
     await service.close()
   })
 
@@ -100,12 +207,12 @@ describe("ProjectStateService", () => {
     expect(old.closed).toBe(0)
     finishCheckpoint()
     await rebuilding
-    const projection = await service.readComponentProjection({ projectDir, componentPath: "cf" })
+    const projectFiles = await readProjectFiles(service, projectDir)
 
     expect(old.closed).toBe(1)
     expect(candidate.opened).toEqual([await realpath(projectDir)])
     expect(refreshedProjectDirs).toEqual([await realpath(projectDir), await realpath(projectDir)])
-    expect(projection.projectFiles).toEqual([{ projectPath: "old-2" }])
+    expect(projectFiles).toEqual([{ projectPath: "old-2" }])
     await service.close()
   })
 
@@ -245,6 +352,23 @@ function testWriterHandle(id: number): TestWriter {
 
 function testPool(): PreparedYamlProjectWorkerPool {
   return { close: async () => undefined } as PreparedYamlProjectWorkerPool
+}
+
+async function readProjectFiles(
+  service: ReturnType<typeof createProjectStateService>,
+  projectDir: string,
+): Promise<readonly { readonly projectPath: string }[]> {
+  return (await service.readComponentProjection({ projectDir, componentPath: "cf" })).projectFiles
+}
+
+async function expectPublishedCandidateAfterFailedRebuild(
+  service: ReturnType<typeof createProjectStateService>,
+  projectDir: string,
+  expectedFailure: Error,
+): Promise<void> {
+  await service.refreshAndValidate({ projectDir })
+  await expect(service.rebuild({ projectDir })).rejects.toBe(expectedFailure)
+  await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
 }
 
 function refreshResult(value: number): ProjectStateRefreshResult {

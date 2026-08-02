@@ -31,7 +31,7 @@ export interface ProjectStateRefreshResult {
 
 export interface ProjectStateRefreshHandle {
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
-  beginUpdate(projectDir: string): Promise<void>
+  beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
@@ -64,13 +64,14 @@ export interface ProjectStateRefreshDependencies {
   readonly runLocalValidation: (
     files: readonly ProjectStateYamlInput[],
     producer: Pick<ProjectStateRefreshHandle, "writeBatch">,
+    signal?: AbortSignal,
   ) => Promise<number>
   readonly writeChangedResources: (
     changes: ProjectStateFileChanges,
     files: CollectedProjectStateFiles,
     producer: Pick<ProjectStateRefreshHandle, "writeBatch">,
   ) => Promise<void>
-  readonly isStable: (files: CollectedProjectStateFiles) => Promise<boolean>
+  readonly isStable: (files: CollectedProjectStateFiles, signal?: AbortSignal) => Promise<boolean>
 }
 
 export function createProjectStateRefreshDependencies(params: {
@@ -81,7 +82,10 @@ export function createProjectStateRefreshDependencies(params: {
   return {
     handle: params.handle,
     async collectFiles(refreshParams) {
-      const collection = await collectProjectStateFiles({ projectDir: refreshParams.projectDir })
+      const collection = await collectProjectStateFiles({
+        projectDir: refreshParams.projectDir,
+        signal: refreshParams.signal,
+      })
       const resources = [...collection.resources]
       const yamlInputs = resources.flatMap((resource, index) => resource.ref.kind === "yaml"
         ? [{
@@ -105,13 +109,14 @@ export function createProjectStateRefreshDependencies(params: {
         },
       }
     },
-    async runLocalValidation(files, producer) {
+    async runLocalValidation(files, producer, signal) {
       if (files.length === 0) return 0
       const localFiles = files.map(({ value }) => localValidationFile(value))
       const result = await params.pool.runLocalValidation({
         projectDir: localFiles[0]?.projectDir ?? "",
         context: params.context,
         files: localFiles.map(({ projectDir: _projectDir, ...file }) => file),
+        signal,
       }, producer)
       return result.parsedYamlFiles
     },
@@ -138,17 +143,19 @@ export async function refreshProjectState(
     try {
       params.signal?.throwIfAborted()
       const files = await dependencies.collectFiles(params)
+      params.signal?.throwIfAborted()
       const changes = await dependencies.handle.compareFiles(files.hashBatch)
+      params.signal?.throwIfAborted()
       const changedPaths = new Set(changes.changed.map(({ file }) => file.projectPath))
       const changedYamlInputs = files.yamlInputs.filter(({ identity }) => changedPaths.has(identity.projectPath))
       files.releaseBytesExcept(new Set(changedYamlInputs.map(({ identity }) => identity.projectPath)))
-      await dependencies.handle.beginUpdate(params.projectDir)
+      await dependencies.handle.beginUpdate(params.projectDir, params.signal)
       updateActive = true
       await dependencies.handle.deleteFiles(changes.deleted.map(({ projectPath }) => projectPath))
       await dependencies.writeChangedResources(changes, files, dependencies.handle)
-      const parsedYamlFiles = await dependencies.runLocalValidation(changedYamlInputs, dependencies.handle)
+      const parsedYamlFiles = await dependencies.runLocalValidation(changedYamlInputs, dependencies.handle, params.signal)
       const diagnostics = await dependencies.handle.readLocalDiagnostics()
-      if (!(await dependencies.isStable(files))) {
+      if (!(await dependencies.isStable(files, params.signal))) {
         await dependencies.handle.rollbackUpdate()
         continue
       }

@@ -52,6 +52,7 @@ export interface CollectProjectStateFilesParams {
   readonly projectDir: string
   readonly discover?: () => Promise<readonly ProjectResourceAddress[]>
   readonly hashBytes?: (bytes: Uint8Array) => bigint
+  readonly signal?: AbortSignal
 }
 
 export class ProjectStateFilesChangedError extends Error {
@@ -65,10 +66,13 @@ export async function collectProjectStateFiles(
   params: CollectProjectStateFilesParams,
 ): Promise<ProjectStateFileCollection> {
   const discover = params.discover ?? (() => discoverProjectResourceAddresses(params.projectDir))
+  params.signal?.throwIfAborted()
   const addresses = [...await discover()].sort((left, right) =>
     rootProjectPath(left).localeCompare(rootProjectPath(right), "ru")
   )
-  const resources = await Promise.all(addresses.map((address) => readAndHashResource(address, params.hashBytes ?? hashFileBytes)))
+  params.signal?.throwIfAborted()
+  const resources = await Promise.all(addresses.map((address) =>
+    readAndHashResource(address, params.hashBytes ?? hashFileBytes, params.signal)))
   const hashBytes = new Uint8Array(resources.length * HASH_BYTE_LENGTH)
   const view = new DataView(hashBytes.buffer)
   resources.forEach(({ localHash }, index) => view.setBigUint64(index * HASH_BYTE_LENGTH, localHash, false))
@@ -82,17 +86,21 @@ export async function collectProjectStateFiles(
 
 export async function isProjectStateFileCollectionStable(
   collection: ProjectStateFileCollection,
+  signal?: AbortSignal,
 ): Promise<boolean> {
+  signal?.throwIfAborted()
   const current = [...await collection.discover()].sort((left, right) =>
     rootProjectPath(left).localeCompare(rootProjectPath(right), "ru")
   )
   if (current.length !== collection.resources.length) return false
   for (let index = 0; index < current.length; index += 1) {
+    signal?.throwIfAborted()
     const address = current[index]!
     const resource = collection.resources[index]!
     if (rootProjectPath(address) !== resource.identity.projectPath || address.ref.absolutePath === undefined) return false
     try {
       const currentStat = await stat(address.ref.absolutePath, { bigint: true })
+      signal?.throwIfAborted()
       if (!sameStability(resource.stability, stabilityFromStat(currentStat))) return false
     } catch (caught) {
       if (isMissingPath(caught)) return false
@@ -115,13 +123,18 @@ export async function discoverProjectResourceAddresses(
 async function readAndHashResource(
   address: ProjectResourceAddress,
   hashBytes: (bytes: Uint8Array) => bigint,
+  signal?: AbortSignal,
 ): Promise<HashedProjectResource> {
   const absolutePath = address.ref.absolutePath
   if (absolutePath === undefined) throw new Error(`У ресурса отсутствует абсолютный путь: ${address.ref.projectPath}`)
-  const handle = await open(absolutePath, "r")
+  let handle: Awaited<ReturnType<typeof open>> | undefined
   try {
+    signal?.throwIfAborted()
+    handle = await open(absolutePath, "r")
+    signal?.throwIfAborted()
     const before = stabilityFromStat(await handle.stat({ bigint: true }))
-    const bytes = new Uint8Array(await handle.readFile())
+    const bytes = new Uint8Array(await handle.readFile({ signal }))
+    signal?.throwIfAborted()
     const after = stabilityFromStat(await handle.stat({ bigint: true }))
     if (!sameStability(before, after)) throw new ProjectStateFilesChangedError()
     return {
@@ -131,8 +144,11 @@ async function readAndHashResource(
       localHash: hashBytes(bytes),
       stability: after,
     }
+  } catch (caught) {
+    if (isMissingPath(caught)) throw new ProjectStateFilesChangedError()
+    throw caught
   } finally {
-    await handle.close()
+    await handle?.close()
   }
 }
 

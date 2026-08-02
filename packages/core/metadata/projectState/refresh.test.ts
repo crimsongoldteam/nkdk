@@ -16,13 +16,14 @@ import {
 import {
   collectProjectStateFiles,
   isProjectStateFileCollectionStable,
+  ProjectStateFilesChangedError,
   releaseProjectResourceBytesExcept,
 } from "./projectFiles"
 
 const tempDirs: string[] = []
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })))
+  for (const dir of tempDirs.splice(0)) await rm(dir, { recursive: true, force: true })
 })
 
 describe("refreshProjectState", () => {
@@ -114,15 +115,7 @@ describe("refreshProjectState", () => {
         }
         return inputs.length
       },
-      async writeChangedResources(changes: ProjectStateFileChanges, files: CollectedProjectStateFiles, producer: Pick<ProjectStateRefreshHandle, "writeBatch">) {
-        const indexes = changes.changed.filter(({ file }) => file.resourceKind === "resource").map(({ index }) => index)
-        if (indexes.length > 0) {
-          await producer.writeBatch({
-            updates: indexes.map((index) => ({ ...files.hashBatch.files[index]!, kind: "resource" as const })),
-            hashBytes: hashesAt(files.hashBatch, indexes),
-          })
-        }
-      },
+      writeChangedResources,
       isStable: async () => true,
     }
 
@@ -153,13 +146,7 @@ describe("refreshProjectState", () => {
         if (files.length > 0) await producer.writeBatch({ updates: [yamlUpdate(yaml)], hashBytes: current.hashBatch.hashBytes.slice(0, 8) })
         return files.length
       },
-      async writeChangedResources(changes: ProjectStateFileChanges, files: CollectedProjectStateFiles, producer: Pick<ProjectStateRefreshHandle, "writeBatch">) {
-        const indexes = changes.changed.filter(({ file }) => file.resourceKind === "resource").map(({ index }) => index)
-        if (indexes.length > 0) await producer.writeBatch({
-          updates: indexes.map((index) => ({ ...files.hashBatch.files[index]!, kind: "resource" as const })),
-          hashBytes: hashesAt(files.hashBatch, indexes),
-        })
-      },
+      writeChangedResources,
       isStable: async () => true,
     }
 
@@ -252,9 +239,140 @@ describe("refreshProjectState", () => {
     })).rejects.toThrow("compare failed")
     expect(cleanupCalls).toBe(0)
   })
+
+  it("останавливается после отмены во время collect до начала транзакции", async () => {
+    const controller = new AbortController()
+    let releaseCollect!: () => void
+    let notifyCollectStarted!: () => void
+    const collectGate = new Promise<void>((resolve) => { releaseCollect = resolve })
+    const collectStarted = new Promise<void>((resolve) => { notifyCollectStarted = resolve })
+    let compareCalls = 0
+    let beginCalls = 0
+    let commitCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges> {
+        compareCalls += 1
+        return super.compareFiles(batch)
+      }
+
+      override async beginUpdate(): Promise<void> {
+        beginCalls += 1
+        await super.beginUpdate()
+      }
+
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        commitCalls += 1
+        return super.commitAndCheckpoint()
+      }
+    }()
+    const running = refreshProjectState({ projectDir: "/project", signal: controller.signal }, {
+      handle,
+      async collectFiles() {
+        notifyCollectStarted()
+        await collectGate
+        return collected([], [])
+      },
+      runLocalValidation: async () => 0,
+      writeChangedResources: async () => undefined,
+      isStable: async () => true,
+    })
+    await collectStarted
+    controller.abort()
+    releaseCollect()
+
+    await expect(running).rejects.toMatchObject({ name: "AbortError" })
+    expect({ compareCalls, beginCalls, commitCalls }).toEqual({ compareCalls: 0, beginCalls: 0, commitCalls: 0 })
+  })
+
+  it("передаёт отмену во время worker writer-операции и дожидается cleanup", async () => {
+    const controller = new AbortController()
+    const yaml = identity("cf/Конфигурация.yaml", "yaml")
+    const current = collected([yaml], [1])
+    let operationAborted = false
+    let cleanupCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async beginUpdate(_projectDir?: string, signal?: AbortSignal): Promise<void> {
+        signal?.addEventListener("abort", () => { operationAborted = true }, { once: true })
+        await super.beginUpdate()
+      }
+
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        if (operationAborted) throw controller.signal.reason
+        return super.commitAndCheckpoint()
+      }
+
+      override async rollbackUpdate(): Promise<void> {
+        cleanupCalls += 1
+        await super.rollbackUpdate()
+      }
+    }()
+
+    await expect(refreshProjectState({ projectDir: "/project", signal: controller.signal }, {
+      handle,
+      collectFiles: async () => current,
+      async runLocalValidation(files, producer) {
+        controller.abort()
+        const cancelledBatch = { updates: [yamlUpdate(yaml)], hashBytes: current.hashBatch.hashBytes.slice() }
+        await producer.writeBatch(cancelledBatch)
+        return files.length
+      },
+      writeChangedResources: async () => undefined,
+      isStable: async () => true,
+    })).rejects.toMatchObject({ name: "AbortError" })
+    expect({ operationAborted, cleanupCalls }).toEqual({ operationAborted: true, cleanupCalls: 1 })
+  })
 })
 
 describe("project-state files", () => {
+  it("классифицирует исчезновение между discovery и open как конфликт и ограничивает его двумя попытками", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-missing-"))
+    tempDirs.push(projectDir)
+    const missingPath = join(projectDir, "Исчез.yaml")
+    const ref = {
+      componentPath: "cf",
+      ref: {
+        kind: "yaml" as const,
+        role: "configuration" as const,
+        projectPath: "Исчез.yaml",
+        absolutePath: missingPath,
+        owner: { dir: "", name: "Конфигурация", spec: configurationMetadataProjectSpec },
+      },
+    }
+    let attempts = 0
+
+    await expect(refreshProjectState({ projectDir }, {
+      handle: new MemoryRefreshHandle(),
+      async collectFiles() {
+        attempts += 1
+        const collection = await collectProjectStateFiles({ projectDir, discover: async () => [ref] })
+        return { ...collection, yamlInputs: [], releaseBytesExcept: () => undefined }
+      },
+      runLocalValidation: async () => 0,
+      writeChangedResources: async () => undefined,
+      isStable: async () => true,
+    })).rejects.toThrow("после двух попыток")
+    expect(attempts).toBe(2)
+  })
+
+  it("не классифицирует прочую ошибку чтения как stability conflict", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-io-"))
+    tempDirs.push(projectDir)
+    const ref = {
+      componentPath: "cf",
+      ref: {
+        kind: "yaml" as const,
+        role: "configuration" as const,
+        projectPath: "Каталог.yaml",
+        absolutePath: projectDir,
+        owner: { dir: "", name: "Конфигурация", spec: configurationMetadataProjectSpec },
+      },
+    }
+
+    await expect(collectProjectStateFiles({ projectDir, discover: async () => [ref] })).rejects.not.toBeInstanceOf(
+      ProjectStateFilesChangedError,
+    )
+  })
+
   it("читает каждый ресурс, кодирует локальный xxHash64 один раз в общий big-endian буфер и проверяет stability", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-files-"))
     tempDirs.push(projectDir)
@@ -396,6 +514,19 @@ function yamlUpdate(file: ProjectStateFileIdentity, message?: string): ProjectSt
     pendingChecks: [],
     dependencies: [],
   }
+}
+
+async function writeChangedResources(
+  changes: ProjectStateFileChanges,
+  files: CollectedProjectStateFiles,
+  producer: Pick<ProjectStateRefreshHandle, "writeBatch">,
+): Promise<void> {
+  const indexes = changes.changed.filter(({ file }) => file.resourceKind === "resource").map(({ index }) => index)
+  if (indexes.length === 0) return
+  await producer.writeBatch({
+    updates: indexes.map((index) => ({ ...files.hashBatch.files[index]!, kind: "resource" as const })),
+    hashBytes: hashesAt(files.hashBatch, indexes),
+  })
 }
 
 function collected(

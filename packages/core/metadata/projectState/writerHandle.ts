@@ -44,7 +44,7 @@ export interface ProjectStateWriterHandle {
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   createReadToken(): Promise<ProjectStateReadToken>
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
-  beginUpdate(projectDir: string): Promise<void>
+  beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
@@ -84,6 +84,7 @@ export function createProjectStateWriterHandle(
   let cancellation: Promise<void> | undefined
   let operationFailure: unknown
   let irreversibleCommit = false
+  let operationSignal: AbortSignal | undefined
   let fatalError: Error | undefined
   let closing = false
   let closePromise: Promise<void> | undefined
@@ -94,7 +95,6 @@ export function createProjectStateWriterHandle(
     if (!closing) failWorker(new Error(`ProjectState writer worker неожиданно завершился с кодом ${code}`))
     else if (pending.size > 0) rejectOutstanding(new ProjectStateWriterClosedError())
   })
-  options.signal?.addEventListener("abort", cancelOperation, { once: true })
 
   const handle: ProjectStateWriterHandle = {
     async openProject(projectDir) {
@@ -128,10 +128,12 @@ export function createProjectStateWriterHandle(
       if (result.kind !== "componentProjection") throw new Error("ProjectState writer не вернул проекцию компонента")
       return result.projection
     },
-    async beginUpdate(projectDir) {
+    async beginUpdate(projectDir, signal) {
       assertUsable()
-      if (isAborted()) throw cancellationError()
+      const nextSignal = signal ?? options.signal
+      if (nextSignal?.aborted === true) throw cancellationError()
       await handle.openProject(projectDir)
+      if (isAbortSignalAborted(nextSignal)) throw cancellationError()
       if (operationId !== undefined) throw new Error("Обновление состояния проекта уже начато")
       const nextOperationId = randomUUID()
       await request({ kind: "beginUpdate", requestId: randomUUID(), operationId: nextOperationId })
@@ -139,7 +141,9 @@ export function createProjectStateWriterHandle(
       operationFailure = undefined
       cancelledError = undefined
       cancellation = undefined
-      if (isAborted()) cancelOperation()
+      operationSignal = nextSignal
+      operationSignal?.addEventListener("abort", cancelOperation, { once: true })
+      if (operationSignal?.aborted === true) cancelOperation()
     },
     writeBatch(batch) {
       try {
@@ -179,6 +183,7 @@ export function createProjectStateWriterHandle(
       if (cancelledError !== undefined) {
         await cancellation
         operationId = undefined
+        clearOperationSignal()
         throw cancelledError
       }
       const currentOperationId = assertActiveOperation()
@@ -187,6 +192,7 @@ export function createProjectStateWriterHandle(
       if (cancelledError !== undefined) {
         await cancellation
         operationId = undefined
+        clearOperationSignal()
         throw cancelledError
       }
       irreversibleCommit = true
@@ -203,6 +209,7 @@ export function createProjectStateWriterHandle(
         throw caught
       } finally {
         irreversibleCommit = false
+        clearOperationSignal()
       }
     },
     async rollbackUpdate() {
@@ -212,6 +219,7 @@ export function createProjectStateWriterHandle(
       await Promise.allSettled([...operationWrites])
       await request({ kind: "rollbackUpdate", requestId: randomUUID(), operationId: currentOperationId })
       operationId = undefined
+      clearOperationSignal()
     },
     async reset(projectDir) {
       assertUsable()
@@ -222,7 +230,7 @@ export function createProjectStateWriterHandle(
     close() {
       if (closePromise !== undefined) return closePromise
       closing = true
-      options.signal?.removeEventListener("abort", cancelOperation)
+      clearOperationSignal()
       rejectOutstanding(new ProjectStateWriterClosedError())
       closePromise = closeWorker()
       return closePromise
@@ -284,7 +292,13 @@ export function createProjectStateWriterHandle(
   }
 
   function cancelOperation(): void {
-    if (operationId === undefined || cancelledError !== undefined || fatalError !== undefined || irreversibleCommit) return
+    if (
+      operationId === undefined ||
+      cancelledError !== undefined ||
+      fatalError !== undefined ||
+      irreversibleCommit
+    )
+      return
     const currentOperationId = operationId
     cancelledError = cancellationError()
     for (const queued of queuedBatches.splice(0)) queued.reject(cancelledError)
@@ -358,9 +372,14 @@ export function createProjectStateWriterHandle(
     return cancelledError ?? new ProjectStateWriterCancelledError()
   }
 
-  function isAborted(): boolean {
-    return options.signal?.aborted === true
+  function clearOperationSignal(): void {
+    operationSignal?.removeEventListener("abort", cancelOperation)
+    operationSignal = undefined
   }
+}
+
+function isAbortSignalAborted(signal: AbortSignal | undefined): boolean {
+  return signal?.aborted === true
 }
 
 function createWorker(workerData: CreateProjectStateWriterHandleOptions["workerData"]): Worker {

@@ -88,17 +88,39 @@ export function createProjectStateService(
       return runExclusive(async () => {
         const projectDir = await realpath(params.projectDir)
         const candidate = createWriter()
+        const previous = active
+        let published = false
         try {
           await candidate.openProject(projectDir)
           await candidate.reset(projectDir)
-          const result = await runRefresh(candidate, { ...params, projectDir })
-          await active?.writer.close()
-          active = { projectDir, writer: candidate }
-          return result
         } catch (caught) {
-          await candidate.close().catch(() => undefined)
-          throw caught
+          throw await closePreservingPrimary(candidate, caught)
         }
+
+        let result: ProjectStateRefreshResult | undefined
+        let refreshFailure: { readonly reason: unknown } | undefined
+        try {
+          result = await runRefresh(candidate, { ...params, projectDir }, () => {
+            active = { projectDir, writer: candidate }
+            published = true
+          })
+        } catch (caught) {
+          if (!published) throw await closePreservingPrimary(candidate, caught)
+          refreshFailure = { reason: caught }
+        }
+
+        let previousCloseFailure: { readonly reason: unknown } | undefined
+        try {
+          await previous?.writer.close()
+        } catch (caught) {
+          previousCloseFailure = { reason: caught }
+        }
+        if (refreshFailure !== undefined && previousCloseFailure !== undefined) {
+          throw aggregateCleanupFailure(refreshFailure.reason, previousCloseFailure.reason)
+        }
+        if (refreshFailure !== undefined) throw refreshFailure.reason
+        if (previousCloseFailure !== undefined) throw previousCloseFailure.reason
+        return result!
       })
     },
     close() {
@@ -143,14 +165,40 @@ export function createProjectStateService(
   async function runRefresh(
     writer: ProjectStateWriterHandle,
     params: ProjectStateRefreshParams,
+    onPublished?: () => void,
   ): Promise<ProjectStateRefreshResult> {
     const pool = createPool(normalizeConcurrency(params.concurrency))
     const context = params.context ?? defaultContext()
+    let result: ProjectStateRefreshResult
     try {
-      return await refresh(params, createProjectStateRefreshDependencies({ handle: writer, pool, context }))
-    } finally {
-      await pool.close()
+      result = await refresh(params, createProjectStateRefreshDependencies({ handle: writer, pool, context }))
+    } catch (caught) {
+      try {
+        await pool.close()
+      } catch (cleanupFailure) {
+        throw aggregateCleanupFailure(caught, cleanupFailure)
+      }
+      throw caught
     }
+    onPublished?.()
+    await pool.close()
+    return result
+  }
+
+  async function closePreservingPrimary(writer: ProjectStateWriterHandle, primary: unknown): Promise<unknown> {
+    try {
+      await writer.close()
+      return primary
+    } catch (cleanupFailure) {
+      return aggregateCleanupFailure(primary, cleanupFailure)
+    }
+  }
+
+  function aggregateCleanupFailure(primary: unknown, cleanupFailure: unknown): AggregateError {
+    return new AggregateError(
+      [primary, cleanupFailure],
+      primary instanceof Error ? primary.message : String(primary),
+    )
   }
 }
 

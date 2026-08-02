@@ -49,6 +49,8 @@ import type {
   PreparedYamlProjectFileDescriptor,
 } from "./preparedYamlProject"
 
+export const LOCAL_VALIDATION_BATCH_SIZE = 32
+
 registerValidationMetadata()
 
 export type PreparedYamlProjectWorkerTask =
@@ -153,6 +155,9 @@ export async function runPreparedYamlProjectWorkerTask(
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
   if (message.kind === "validateLocal") {
+    if (message.files.length > LOCAL_VALIDATION_BATCH_SIZE) {
+      throw new Error(`Локальная worker-задача должна содержать не более ${LOCAL_VALIDATION_BATCH_SIZE} YAML`)
+    }
     const result = runValidationFirstPass(message)
     return {
       kind: "validateLocalResult",

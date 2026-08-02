@@ -184,8 +184,8 @@ describe("ProjectState writer handle", () => {
     const projectDir = await createProjectDir()
     await writeSnapshot(projectDir, "cf/old.bin")
     const controller = new AbortController()
-    const handle = createHandle({ compatibility, maxInFlightBatches: 1, signal: controller.signal, workerData: { writeDelayMs: 200 } })
-    await handle.beginUpdate(projectDir)
+    const handle = createHandle({ compatibility, maxInFlightBatches: 1, workerData: { writeDelayMs: 200 } })
+    await handle.beginUpdate(projectDir, controller.signal)
     const batches = [batch("cf/a.bin", 1n), batch("cf/b.bin", 2n), batch("cf/c.bin", 3n)]
     const writes = batches.map((value) => handle.writeBatch(value))
     expect(batches[0]!.hashBytes.byteLength).toBe(0)
@@ -208,10 +208,9 @@ describe("ProjectState writer handle", () => {
     const controller = new AbortController()
     const handle = createHandle({
       compatibility,
-      signal: controller.signal,
       workerData: { serializeCheckpoints: true },
     } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir)
+    await handle.beginUpdate(projectDir, controller.signal)
     await handle.writeBatch(batch("cf/cancelled.bin", 2n))
 
     const committing = handle.commitAndCheckpoint()
@@ -229,14 +228,13 @@ describe("ProjectState writer handle", () => {
     const controller = new AbortController()
     const handle = createHandle({
       compatibility,
-      signal: controller.signal,
       workerData: {
         commitDelayMs: 100,
         failCheckpointAfterLateCancel: true,
         serializeCheckpoints: true,
       },
     } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
-    await handle.beginUpdate(projectDir)
+    await handle.beginUpdate(projectDir, controller.signal)
     await handle.writeBatch(batch("cf/committed.bin", 2n))
 
     const committing = handle.commitAndCheckpoint()
