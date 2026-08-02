@@ -25,5 +25,6 @@ export {
 export {
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
+  ProjectStateWriterClosedError,
   type ProjectStateWriterHandle,
 } from "./writerHandle"

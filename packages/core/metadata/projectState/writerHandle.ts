@@ -4,11 +4,12 @@ import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import { createProjectStateCompatibility, type ProjectStateCompatibility } from "./compatibility"
-import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdateBatch } from "./fileUpdate"
-import type {
-  ProjectStateWriterAcknowledgement,
-  ProjectStateWriterCommand,
-  ProjectStateWriterResponse,
+import type { ProjectStateFileUpdateBatch } from "./fileUpdate"
+import {
+  assertProjectStateWriterBatch,
+  type ProjectStateWriterAcknowledgement,
+  type ProjectStateWriterCommand,
+  type ProjectStateWriterResponse,
 } from "./writerProtocol"
 
 const DEFAULT_MAX_IN_FLIGHT_BATCHES = 2
@@ -17,6 +18,13 @@ export class ProjectStateWriterCancelledError extends Error {
   constructor() {
     super("Обновление состояния проекта отменено")
     this.name = "ProjectStateWriterCancelledError"
+  }
+}
+
+export class ProjectStateWriterClosedError extends Error {
+  constructor() {
+    super("ProjectState writer закрыт")
+    this.name = "ProjectStateWriterClosedError"
   }
 }
 
@@ -68,13 +76,16 @@ export function createProjectStateWriterHandle(
   let cancelledError: ProjectStateWriterCancelledError | undefined
   let cancellation: Promise<void> | undefined
   let operationFailure: unknown
+  let irreversibleCommit = false
   let fatalError: Error | undefined
   let closing = false
+  let closePromise: Promise<void> | undefined
 
   worker.on("message", receive)
   worker.once("error", failWorker)
   worker.once("exit", (code) => {
-    if (!closing && code !== 0) failWorker(new Error(`ProjectState writer worker завершился с кодом ${code}`))
+    if (!closing) failWorker(new Error(`ProjectState writer worker неожиданно завершился с кодом ${code}`))
+    else if (pending.size > 0) rejectOutstanding(new ProjectStateWriterClosedError())
   })
   options.signal?.addEventListener("abort", cancelOperation, { once: true })
 
@@ -103,7 +114,7 @@ export function createProjectStateWriterHandle(
       try {
         assertUsable()
         assertActiveOperation()
-        assertProjectStateFileUpdateBatch(batch)
+        assertProjectStateWriterBatch(batch)
         if (cancelledError !== undefined) return Promise.reject(cancelledError)
       } catch (caught) {
         return Promise.reject(caught)
@@ -134,18 +145,34 @@ export function createProjectStateWriterHandle(
     },
     async commitAndCheckpoint() {
       assertUsable()
-      const currentOperationId = assertActiveOperation()
       if (cancelledError !== undefined) {
         await cancellation
+        operationId = undefined
         throw cancelledError
       }
+      const currentOperationId = assertActiveOperation()
       await Promise.all([...operationWrites])
       if (operationFailure !== undefined) throw operationFailure
-      await request({ kind: "commitUpdate", requestId: randomUUID(), operationId: currentOperationId })
-      const result = await request({ kind: "checkpoint", requestId: randomUUID() })
-      operationId = undefined
-      if (result.kind !== "checkpointed") throw new Error("ProjectState writer не подтвердил checkpoint")
-      return { snapshotPath: result.snapshotPath }
+      if (cancelledError !== undefined) {
+        await cancellation
+        operationId = undefined
+        throw cancelledError
+      }
+      irreversibleCommit = true
+      let committed = false
+      try {
+        await request({ kind: "commitUpdate", requestId: randomUUID(), operationId: currentOperationId })
+        committed = true
+        const result = await request({ kind: "checkpoint", requestId: randomUUID() })
+        operationId = undefined
+        if (result.kind !== "checkpointed") throw new Error("ProjectState writer не подтвердил checkpoint")
+        return { snapshotPath: result.snapshotPath }
+      } catch (caught) {
+        if (committed) await restoreAfterFailedCheckpoint()
+        throw caught
+      } finally {
+        irreversibleCommit = false
+      }
     },
     async rollbackUpdate() {
       assertUsable()
@@ -160,18 +187,13 @@ export function createProjectStateWriterHandle(
       await request({ kind: "reset", requestId: randomUUID(), projectDir })
       openedProjectDir = projectDir
     },
-    async close() {
-      if (closing) return
+    close() {
+      if (closePromise !== undefined) return closePromise
       closing = true
       options.signal?.removeEventListener("abort", cancelOperation)
-      if (fatalError === undefined) {
-        try {
-          await request({ kind: "close", requestId: randomUUID() })
-        } catch {
-          // Worker уже мог завершиться после подтверждённой аварии.
-        }
-      }
-      await worker.terminate()
+      rejectOutstanding(new ProjectStateWriterClosedError())
+      closePromise = closeWorker()
+      return closePromise
     },
   }
   return handle
@@ -179,8 +201,18 @@ export function createProjectStateWriterHandle(
   function request(command: ProjectStateWriterCommand, transfer: readonly ArrayBuffer[] = []): Promise<ProjectStateWriterAcknowledgement> {
     assertUsableForRequest(command.kind)
     return new Promise((resolve, reject) => {
-      pending.set(command.requestId, { resolve, reject, batch: command.kind === "writeBatch" })
-      worker.postMessage(command, transfer)
+      const batch = command.kind === "writeBatch"
+      pending.set(command.requestId, { resolve, reject, batch })
+      try {
+        worker.postMessage(command, transfer)
+      } catch (caught) {
+        pending.delete(command.requestId)
+        if (batch) {
+          inFlightBatches -= 1
+          drainBatches()
+        }
+        reject(caught)
+      }
     })
   }
 
@@ -206,7 +238,7 @@ export function createProjectStateWriterHandle(
     while (inFlightBatches < maxInFlight && queuedBatches.length > 0) {
       const queued = queuedBatches.shift()!
       try {
-        assertProjectStateFileUpdateBatch(queued.batch)
+        assertProjectStateWriterBatch(queued.batch)
         const currentOperationId = assertActiveOperation()
         inFlightBatches += 1
         void request(
@@ -220,7 +252,7 @@ export function createProjectStateWriterHandle(
   }
 
   function cancelOperation(): void {
-    if (operationId === undefined || cancelledError !== undefined || fatalError !== undefined) return
+    if (operationId === undefined || cancelledError !== undefined || fatalError !== undefined || irreversibleCommit) return
     const currentOperationId = operationId
     cancelledError = cancellationError()
     for (const queued of queuedBatches.splice(0)) queued.reject(cancelledError)
@@ -241,10 +273,38 @@ export function createProjectStateWriterHandle(
   function failWorker(caught: Error): void {
     if (fatalError !== undefined) return
     fatalError = caught
+    rejectOutstanding(caught)
+  }
+
+  function rejectOutstanding(caught: Error): void {
     for (const queued of queuedBatches.splice(0)) queued.reject(caught)
     for (const waiter of pending.values()) waiter.reject(caught)
     pending.clear()
     inFlightBatches = 0
+  }
+
+  async function closeWorker(): Promise<void> {
+    if (fatalError === undefined) {
+      try {
+        await request({ kind: "close", requestId: randomUUID() })
+      } catch {
+        // Worker уже мог завершиться после подтверждённой аварии.
+      }
+    }
+    await worker.terminate()
+  }
+
+  async function restoreAfterFailedCheckpoint(): Promise<void> {
+    const currentProjectDir = openedProjectDir
+    operationId = undefined
+    operationFailure = undefined
+    if (currentProjectDir === undefined) throw new Error("ProjectState writer потерял открытый проект")
+    await request({
+      kind: "openProject",
+      requestId: randomUUID(),
+      projectDir: currentProjectDir,
+      compatibility,
+    })
   }
 
   function assertActiveOperation(): string {

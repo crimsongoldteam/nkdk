@@ -1,12 +1,11 @@
 import fs from "node:fs"
-import { tmpdir } from "node:os"
-import { join } from "node:path"
-import { Worker } from "node:worker_threads"
+import { markAsUntransferable, Worker } from "node:worker_threads"
 import { afterEach, describe, expect, it } from "vitest"
 import type { ProjectStateCompatibility } from "./compatibility"
 import { createProjectStateFileUpdateBatch, type ProjectStateFileUpdate } from "./fileUpdate"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import { openPersistentSqliteProjectStateStore, projectStateSnapshotPath } from "./sqlite/persistence"
+import { trackTempProjectDirs } from "./tests/tempProjectDir"
 import {
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
@@ -22,19 +21,14 @@ const compatibility: ProjectStateCompatibility = {
 }
 
 describe("ProjectState writer handle", () => {
-  const projectDirs: string[] = []
+  const projectDirs = trackTempProjectDirs("nkdk-project-state-writer-")
+  const createProjectDir = projectDirs.create
   const handles: ProjectStateWriterHandle[] = []
 
   afterEach(async () => {
     await Promise.all(handles.splice(0).map((handle) => handle.close().catch(() => undefined)))
-    await Promise.all(projectDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true })))
+    await projectDirs.removeAll()
   })
-
-  async function createProjectDir(): Promise<string> {
-    const directory = await fs.promises.mkdtemp(join(tmpdir(), "nkdk-project-state-writer-"))
-    projectDirs.push(directory)
-    return directory
-  }
 
   function createHandle(options: Parameters<typeof createProjectStateWriterHandle>[0] = { compatibility }) {
     const handle = createProjectStateWriterHandle(options)
@@ -86,6 +80,32 @@ describe("ProjectState writer handle", () => {
     await handle.rollbackUpdate()
   })
 
+  it("отклоняет SharedArrayBuffer до transfer и не блокирует следующую пачку", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle({ compatibility, maxInFlightBatches: 1 })
+    await handle.beginUpdate(projectDir)
+    const shared = {
+      updates: [resource("cf/shared.bin")],
+      hashBytes: new Uint8Array(new SharedArrayBuffer(8)),
+    }
+
+    await expect(handle.writeBatch(shared)).rejects.toThrow("ArrayBuffer")
+    await expect(settleWithin(handle.writeBatch(batch("cf/next.bin", 2n)))).resolves.not.toBe("timeout")
+    await handle.rollbackUpdate()
+  })
+
+  it("очищает pending и счётчик после синхронной ошибки postMessage", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle({ compatibility, maxInFlightBatches: 1 })
+    await handle.beginUpdate(projectDir)
+    const untransferable = batch("cf/untransferable.bin", 1n)
+    markAsUntransferable(untransferable.hashBytes.buffer)
+
+    await expect(handle.writeBatch(untransferable)).rejects.toThrow()
+    await expect(settleWithin(handle.writeBatch(batch("cf/next.bin", 2n)))).resolves.not.toBe("timeout")
+    await handle.rollbackUpdate()
+  })
+
   it("повторно проверяет batch на недоверенной границе worker", async () => {
     const projectDir = await createProjectDir()
     const worker = new Worker(new URL("./writerWorker.ts", import.meta.url), { execArgv: sourceWorkerExecArgv() })
@@ -116,6 +136,20 @@ describe("ProjectState writer handle", () => {
       expect(response).toMatchObject({ kind: "failed", requestId: "invalid" })
       if (response.kind !== "failed") throw new Error("Worker принял некорректный batch")
       expect(response.error.message).toContain("hashBytes")
+
+      const sharedResponse = await sendRaw(worker, {
+        kind: "writeBatch",
+        requestId: "shared",
+        operationId,
+        batch: {
+          updates: [resource("cf/shared.bin")],
+          hashBytes: new Uint8Array(new SharedArrayBuffer(8)),
+        },
+      })
+      expect(sharedResponse).toMatchObject({ kind: "failed", requestId: "shared" })
+      if (sharedResponse.kind !== "failed") throw new Error("Worker принял SharedArrayBuffer")
+      expect(sharedResponse.error.message).toContain("ArrayBuffer")
+
       await sendRaw(worker, { kind: "rollbackUpdate", requestId: "rollback", operationId })
       await sendRaw(worker, { kind: "close", requestId: "close" })
     } finally {
@@ -145,6 +179,95 @@ describe("ProjectState writer handle", () => {
     reopened.store.close()
   })
 
+  it("принимает отмену до необратимой commit-фазы и не публикует обновление", async () => {
+    const projectDir = await createProjectDir()
+    await writeSnapshot(projectDir, "cf/old.bin")
+    const controller = new AbortController()
+    const handle = createHandle({
+      compatibility,
+      signal: controller.signal,
+      workerData: { serializeCheckpoints: true },
+    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch(batch("cf/cancelled.bin", 2n))
+
+    const committing = handle.commitAndCheckpoint()
+    controller.abort()
+
+    await expect(committing).rejects.toBeInstanceOf(ProjectStateWriterCancelledError)
+    await handle.close()
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/old.bin")])
+    reopened.store.close()
+  })
+
+  it("не отправляет ложную отмену после входа в необратимую commit-фазу", async () => {
+    const projectDir = await createProjectDir()
+    const controller = new AbortController()
+    const handle = createHandle({
+      compatibility,
+      signal: controller.signal,
+      workerData: {
+        commitDelayMs: 100,
+        failCheckpointAfterLateCancel: true,
+        serializeCheckpoints: true,
+      },
+    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch(batch("cf/committed.bin", 2n))
+
+    const committing = handle.commitAndCheckpoint()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    controller.abort()
+
+    await expect(committing).resolves.toEqual({ snapshotPath: projectStateSnapshotPath(projectDir) })
+    await handle.close()
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/committed.bin")])
+    reopened.store.close()
+  })
+
+  it("одним закрытием завершает конкурентные close и все незавершённые batch", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle({
+      compatibility,
+      maxInFlightBatches: 1,
+      workerData: { writeDelayMs: 200 },
+    })
+    await handle.beginUpdate(projectDir)
+    const writes = [handle.writeBatch(batch("cf/a.bin", 1n)), handle.writeBatch(batch("cf/b.bin", 2n))]
+
+    const closing = Promise.allSettled([handle.close(), handle.close(), ...writes])
+    const settled = await settleWithin(closing)
+
+    expect(settled).not.toBe("timeout")
+    if (settled === "timeout") return
+    expect(settled.slice(0, 2).every((result) => result.status === "fulfilled")).toBe(true)
+    const rejected = settled.slice(2)
+    expect(rejected.every((result) => result.status === "rejected" && result.reason.name === "ProjectStateWriterClosedError")).toBe(true)
+    if (rejected[0]?.status !== "rejected" || rejected[1]?.status !== "rejected") return
+    expect(rejected[1].reason).toBe(rejected[0].reason)
+  })
+
+  it("завершает pending batch при неожиданном выходе worker с кодом 0", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle({
+      compatibility,
+      workerData: { exitDuringWrite: true },
+    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
+    await handle.beginUpdate(projectDir)
+
+    const settled = await settleWithin(Promise.allSettled([handle.writeBatch(batch("cf/a.bin", 1n))]))
+
+    expect(settled).not.toBe("timeout")
+    if (settled === "timeout") return
+    expect(settled[0]).toMatchObject({
+      status: "rejected",
+      reason: { message: expect.stringContaining("worker") },
+    })
+    await expect(settleWithin(handle.close())).resolves.not.toBe("timeout")
+  })
+
   it("после аварии между commit и checkpoint повторно открывает предыдущий снимок", async () => {
     const projectDir = await createProjectDir()
     await writeSnapshot(projectDir, "cf/old.bin")
@@ -159,8 +282,38 @@ describe("ProjectState writer handle", () => {
     reopened.store.close()
   })
 
+  it("после ошибки checkpoint восстанавливает старый снимок и принимает следующее обновление", async () => {
+    const projectDir = await createProjectDir()
+    await writeSnapshot(projectDir, "cf/old.bin")
+    const handle = createHandle({
+      compatibility,
+      workerData: { failNextCheckpoint: true, serializeCheckpoints: true },
+    } as unknown as Parameters<typeof createProjectStateWriterHandle>[0])
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch(batch("cf/unpublished.bin", 2n))
+
+    await expect(handle.commitAndCheckpoint()).rejects.toThrow("checkpoint failed")
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch(batch("cf/next.bin", 3n))
+    await handle.commitAndCheckpoint()
+    await handle.close()
+
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(reopened.store.readComponentProjection("cf").updates).toEqual([
+      resource("cf/old.bin"),
+      resource("cf/next.bin"),
+    ])
+    reopened.store.close()
+  })
+
   async function writeSnapshot(projectDir: string, projectPath: string): Promise<void> {
-    const fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    const fixture = await openPersistentSqliteProjectStateStore({
+      projectDir,
+      compatibility,
+      hooks: {
+        backup: async (database, target) => fs.promises.writeFile(target, database.serialize()),
+      },
+    })
     fixture.store.beginUpdate()
     fixture.store.replaceFiles({ updates: [resource(projectPath)], hashBytes: new Uint8Array(8) })
     fixture.store.commitUpdate()
@@ -200,4 +353,11 @@ function sendRaw(worker: Worker, command: ProjectStateWriterCommand): Promise<Pr
     worker.on("error", onError)
     worker.postMessage(command)
   })
+}
+
+function settleWithin<T>(promise: Promise<T>, milliseconds = 1_000): Promise<T | "timeout"> {
+  return Promise.race([
+    promise,
+    new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), milliseconds)),
+  ])
 }

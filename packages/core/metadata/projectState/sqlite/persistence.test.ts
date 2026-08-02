@@ -1,9 +1,9 @@
 import fs from "node:fs"
-import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { ProjectStateCompatibility } from "../compatibility"
 import type { ProjectStateFileUpdate } from "../fileUpdate"
+import { trackTempProjectDirs } from "../tests/tempProjectDir"
 import {
   openPersistentSqliteProjectStateStore,
   projectStateSnapshotPath,
@@ -18,18 +18,13 @@ const compatibility: ProjectStateCompatibility = {
 }
 
 describe("SQLite project state persistence", () => {
-  const projectDirs: string[] = []
+  const projectDirs = trackTempProjectDirs("nkdk-project-state-")
+  const createProjectDir = projectDirs.create
 
   afterEach(async () => {
     vi.restoreAllMocks()
-    await Promise.all(projectDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true })))
+    await projectDirs.removeAll()
   })
-
-  async function createProjectDir(): Promise<string> {
-    const directory = await fs.promises.mkdtemp(join(tmpdir(), "nkdk-project-state-"))
-    projectDirs.push(directory)
-    return directory
-  }
 
   it("открывает отсутствующий снимок пустым и загружает совместимый checkpoint целиком", async () => {
     const projectDir = await createProjectDir()

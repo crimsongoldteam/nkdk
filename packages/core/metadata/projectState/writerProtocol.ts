@@ -29,6 +29,19 @@ export type ProjectStateWriterResponse =
   | { readonly kind: "ack"; readonly requestId: string; readonly result: ProjectStateWriterAcknowledgement }
   | { readonly kind: "failed"; readonly requestId: string; readonly error: { readonly name: string; readonly message: string } }
 
+type TransferableProjectStateFileUpdateBatch = ProjectStateFileUpdateBatch & {
+  readonly hashBytes: Uint8Array<ArrayBuffer>
+}
+
+export function assertProjectStateWriterBatch(
+  value: unknown,
+): asserts value is TransferableProjectStateFileUpdateBatch {
+  assertProjectStateFileUpdateBatch(value)
+  if (!(value.hashBytes.buffer instanceof ArrayBuffer)) {
+    throw new Error("hashBytes должен владеть обычным ArrayBuffer")
+  }
+}
+
 export function assertProjectStateWriterCommand(value: unknown): asserts value is ProjectStateWriterCommand {
   const command = requiredRecord(value, "ProjectStateWriterCommand")
   assertString(command["kind"], "kind")
@@ -49,7 +62,7 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
     case "writeBatch":
       assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
       assertString(command["operationId"], "operationId")
-      assertProjectStateFileUpdateBatch(command["batch"])
+      assertProjectStateWriterBatch(command["batch"])
       return
     case "deleteFiles":
       assertExactKeys(command, ["kind", "requestId", "operationId", "projectPaths"])

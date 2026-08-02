@@ -1,6 +1,11 @@
+import fs from "node:fs"
 import { parentPort, workerData } from "node:worker_threads"
 import type { ProjectStateCompatibility } from "./compatibility"
-import { projectStateSnapshotPath, openPersistentSqliteProjectStateStore } from "./sqlite/persistence"
+import {
+  projectStateSnapshotPath,
+  openPersistentSqliteProjectStateStore,
+  type SqliteProjectStatePersistenceHooks,
+} from "./sqlite/persistence"
 import type { SqliteProjectStateStoreFixture } from "./sqlite/store"
 import {
   assertProjectStateWriterCommand,
@@ -12,6 +17,11 @@ import {
 interface ProjectStateWriterWorkerData {
   readonly writeDelayMs?: number
   readonly crashAfterCommit?: boolean
+  readonly exitDuringWrite?: boolean
+  readonly failNextCheckpoint?: boolean
+  readonly serializeCheckpoints?: boolean
+  readonly commitDelayMs?: number
+  readonly failCheckpointAfterLateCancel?: boolean
 }
 
 const port = parentPort
@@ -25,6 +35,11 @@ let activeOperationId: string | undefined
 let transactionActive = false
 const cancelledOperations = new Set<string>()
 let sequence = Promise.resolve()
+let failNextCheckpoint = testOptions?.failNextCheckpoint === true
+let lateCancelAfterCommit = false
+const persistenceHooks: SqliteProjectStatePersistenceHooks | undefined = testOptions?.serializeCheckpoints === true
+  ? { backup: async (database, target) => fs.promises.writeFile(target, database.serialize()) }
+  : undefined
 
 port.on("message", (value: unknown) => {
   sequence = sequence.then(async () => {
@@ -57,7 +72,7 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       closeStore()
       compatibility = command.compatibility
       projectDir = command.projectDir
-      fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+      fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility, hooks: persistenceHooks })
       return { kind: "opened" }
     case "beginUpdate": {
       const current = requireStore()
@@ -73,6 +88,7 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       if (cancelledOperations.has(command.operationId)) throw new Error("Операция состояния проекта отменена")
       const writeDelayMs = testOptions?.writeDelayMs ?? 0
       if (writeDelayMs > 0) await delay(writeDelayMs)
+      if (testOptions?.exitDuringWrite === true) process.exit(0)
       assertProjectStateWriterCommand(command)
       current.store.replaceFiles(command.batch)
       return { kind: "batchWritten", operationId: command.operationId }
@@ -80,17 +96,27 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
     case "deleteFiles":
       requireActiveOperation(command.operationId).store.deleteFiles(command.projectPaths)
       return { kind: "filesDeleted", operationId: command.operationId }
-    case "commitUpdate":
+    case "commitUpdate": {
+      const commitDelayMs = testOptions?.commitDelayMs ?? 0
+      if (commitDelayMs > 0) await delay(commitDelayMs)
       requireActiveOperation(command.operationId).store.commitUpdate()
       transactionActive = false
       activeOperationId = undefined
       return { kind: "updateCommitted", operationId: command.operationId }
+    }
     case "rollbackUpdate":
       requireActiveOperation(command.operationId).store.rollbackUpdate()
       transactionActive = false
       activeOperationId = undefined
       return { kind: "updateRolledBack", operationId: command.operationId }
     case "checkpoint":
+      if (lateCancelAfterCommit && testOptions?.failCheckpointAfterLateCancel === true) {
+        throw new Error("late cancel reached checkpoint")
+      }
+      if (failNextCheckpoint) {
+        failNextCheckpoint = false
+        throw new Error("checkpoint failed")
+      }
       await requireStore().store.checkpoint()
       return { kind: "checkpointed", snapshotPath: projectStateSnapshotPath(projectDir!) }
     case "cancelOperation":
@@ -99,6 +125,8 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
         requireStore().store.rollbackUpdate()
         transactionActive = false
         activeOperationId = undefined
+      } else if (testOptions?.failCheckpointAfterLateCancel === true) {
+        lateCancelAfterCommit = true
       }
       return { kind: "operationCancelled", operationId: command.operationId }
     case "reset":
@@ -108,6 +136,7 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       fixture = await openPersistentSqliteProjectStateStore({
         projectDir,
         compatibility,
+        hooks: persistenceHooks,
         loadSnapshot: false,
       })
       return { kind: "reset" }

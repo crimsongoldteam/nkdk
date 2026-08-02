@@ -9,6 +9,7 @@ export {
   createProjectStateFileUpdateBatch,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
+  ProjectStateWriterClosedError,
   type ProjectStateCompatibility,
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,

@@ -68,7 +68,14 @@ const typeRulesRegistry = new Map<
   | NestedItemIdentityDescriptor
   | YAMLToXMLNestedRule
 >()
+const typeRuleRegistrations = new Map<string, RegisteredTypeRule>()
 let registryRevision = 0
+
+export interface RegisteredTypeRule {
+  readonly type: PropertyRuleType
+  readonly operation: TypeRulesOperations
+  readonly handler: unknown
+}
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
@@ -77,8 +84,11 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
 ) => {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
+  typeRuleRegistrations.set(key, { type, operation, handler: ruleFunction })
   registryRevision += 1
 }
+
+export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => [...typeRuleRegistrations.values()]
 
 export const getTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
@@ -143,6 +153,7 @@ export const getTypeRule = <O extends TypeRulesOperations>(
 
 export const clearTypeRulesRegistry = (): void => {
   typeRulesRegistry.clear()
+  typeRuleRegistrations.clear()
   registryRevision += 1
 }
 

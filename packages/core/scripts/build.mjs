@@ -1,5 +1,6 @@
 import esbuild from "esbuild"
 import { rm } from "node:fs/promises"
+import { fingerprintRulesSourceTree } from "./rulesSourceFingerprint.mjs"
 
 const outdir = new URL("../dist/", import.meta.url)
 const rootDir = new URL("../", import.meta.url)
@@ -8,6 +9,7 @@ const corePackageJson = (
     with: { type: "json" },
   })
 ).default
+const rulesSourceFingerprint = fingerprintRulesSourceTree(new URL("../metadata/", import.meta.url))
 
 await rm(outdir, { force: true, recursive: true })
 
@@ -33,6 +35,7 @@ const commonOptions = {
   target: "node26",
   define: {
     __NKDK_CORE_VERSION__: JSON.stringify(corePackageJson.version),
+    __NKDK_RULES_SOURCE_FINGERPRINT__: JSON.stringify(rulesSourceFingerprint),
   },
 }
 
