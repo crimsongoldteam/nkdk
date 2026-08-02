@@ -448,6 +448,49 @@ describe("ProjectStateService", () => {
     await service.close()
   })
 
+  it("отмена во время выдачи rebuild token сохраняет прежние runtime, disk и token", async () => {
+    const { projectDir, snapshotPath } = await snapshotProject("nkdk-project-state-rebuild-token-abort-")
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const writers = [old, candidate]
+    const controller = new AbortController()
+    let releaseToken!: () => void
+    let notifyTokenStarted!: () => void
+    const tokenGate = new Promise<void>((resolve) => { releaseToken = resolve })
+    const tokenStarted = new Promise<void>((resolve) => { notifyTokenStarted = resolve })
+    let checkpointCalls = 0
+    let rollbackCalls = 0
+    const createCandidateToken = candidate.createReadToken.bind(candidate)
+    candidate.createReadToken = async () => {
+      notifyTokenStarted()
+      await tokenGate
+      return createCandidateToken()
+    }
+    candidate.commitAndCheckpoint = async () => {
+      checkpointCalls += 1
+      await writeFile(snapshotPath, "candidate")
+      return { snapshotPath }
+    }
+    candidate.rollbackUpdate = async () => { rollbackCalls += 1 }
+    const service = createProjectStateService({
+      createWriter: () => writers.shift()!,
+      createPool: () => testPool(),
+    })
+    const oldToken = await service.createReadToken(projectDir)
+    const rebuilding = service.rebuild({ projectDir, signal: controller.signal })
+    await tokenStarted
+
+    controller.abort()
+    releaseToken()
+
+    await expect(rebuilding).rejects.toMatchObject({ name: "AbortError" })
+    await expectPreservedProjectState(service, projectDir, snapshotPath, oldToken)
+    expect({ checkpointCalls, rollbackCalls }).toEqual({ checkpointCalls: 0, rollbackCalls: 1 })
+    expect(old.closed).toBe(0)
+    expect(candidate.closed).toBe(1)
+    await service.close()
+  })
+
   it("рекурсивно распрямляет primary, rollback, pool и candidate cleanup до публикации", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-nested-cleanup-"))
     tempDirs.push(projectDir)

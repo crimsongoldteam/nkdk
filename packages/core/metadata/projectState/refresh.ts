@@ -199,6 +199,7 @@ export async function refreshProjectState(
       await dependencies.beforeCheckpoint?.()
       operation.signal.throwIfAborted()
       const readToken = await dependencies.handle.createReadToken()
+      operation.signal.throwIfAborted()
       await dependencies.handle.commitAndCheckpoint()
       updateActive = false
       return {
