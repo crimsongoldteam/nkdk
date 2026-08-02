@@ -27,4 +27,33 @@ describe("findNewDuplicates", () => {
       [clone("copy")]
     )
   })
+
+  it("не считает дубль новым при изменении только его границ", () => {
+    const shared = "one\ntwo\nthree\nfour\nfive"
+    const base = [
+      {
+        fingerprint: "base",
+        fragments: [`before\n${shared}`, `other-before\n${shared}`],
+      },
+    ]
+    const current = [
+      {
+        fingerprint: "current",
+        fragments: [`${shared}\nafter`, `${shared}\nother-after`],
+      },
+    ]
+
+    assert.deepEqual(findNewDuplicates(base, current), [])
+  })
+
+  it("считает дополнительную копию новым дублем после сопоставления старой", () => {
+    const shared = "one\ntwo\nthree\nfour\nfive"
+    const base = [{ fingerprint: "base", fragments: [shared, shared] }]
+    const current = [
+      { fingerprint: "current-1", fragments: [shared, shared] },
+      { fingerprint: "current-2", fragments: [shared, shared] },
+    ]
+
+    assert.deepEqual(findNewDuplicates(base, current), [current[1]])
+  })
 })

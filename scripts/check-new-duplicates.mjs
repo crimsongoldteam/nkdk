@@ -29,27 +29,81 @@ async function readCloneFragment(clone, side, sourceRoot) {
   return normalizeFragment(source.split(/\r?\n/u).slice(start - 1, end).join("\n"))
 }
 
-export async function duplicateFingerprint(reportClone, sourceRoot) {
-  const fragments = await Promise.all([
+async function readCloneFragments(reportClone, sourceRoot) {
+  return Promise.all([
     readCloneFragment(reportClone, "first", sourceRoot),
     readCloneFragment(reportClone, "second", sourceRoot),
   ])
+}
+
+export async function duplicateFingerprint(reportClone, sourceRoot) {
+  const fragments = await readCloneFragments(reportClone, sourceRoot)
   fragments.sort()
   return createHash("sha256").update(fragments.join("\0")).digest("hex")
 }
 
+function fragmentWindows(fragment, size = 5) {
+  const lines = normalizeFragment(fragment).split("\n")
+  if (lines.length < size) return new Set([lines.join("\n")])
+
+  return new Set(
+    Array.from({ length: lines.length - size + 1 }, (_, index) =>
+      lines.slice(index, index + size).join("\n")
+    )
+  )
+}
+
+function intersects(first, second) {
+  for (const value of first) {
+    if (second.has(value)) return true
+  }
+  return false
+}
+
+function representsSameDuplication(baseClone, currentClone) {
+  if (!baseClone.fragments || !currentClone.fragments) return false
+
+  const base = baseClone.windowSets ?? baseClone.fragments.map((fragment) => fragmentWindows(fragment))
+  const current = currentClone.windowSets ?? currentClone.fragments.map((fragment) => fragmentWindows(fragment))
+  return (
+    (intersects(base[0], current[0]) && intersects(base[1], current[1])) ||
+    (intersects(base[0], current[1]) && intersects(base[1], current[0]))
+  )
+}
+
 export function findNewDuplicates(baseClones, currentClones) {
-  const remaining = new Map()
-  for (const clone of baseClones) {
-    remaining.set(clone.fingerprint, (remaining.get(clone.fingerprint) ?? 0) + 1)
+  const candidates = currentClones.map((clone) =>
+    baseClones
+      .map((candidate, index) => ({
+        index,
+        exact: candidate.fingerprint === clone.fingerprint,
+        same: representsSameDuplication(candidate, clone),
+      }))
+      .filter(({ exact, same }) => exact || same)
+      .sort((first, second) => Number(second.exact) - Number(first.exact))
+      .map(({ index }) => index)
+  )
+  const currentByBase = new Map()
+
+  function match(currentIndex, visitedBase) {
+    for (const baseIndex of candidates[currentIndex]) {
+      if (visitedBase.has(baseIndex)) continue
+      visitedBase.add(baseIndex)
+      const previousCurrent = currentByBase.get(baseIndex)
+      if (previousCurrent === undefined || match(previousCurrent, visitedBase)) {
+        currentByBase.set(baseIndex, currentIndex)
+        return true
+      }
+    }
+    return false
   }
 
-  return currentClones.filter((clone) => {
-    const count = remaining.get(clone.fingerprint) ?? 0
-    if (count === 0) return true
-    remaining.set(clone.fingerprint, count - 1)
-    return false
-  })
+  const matchedCurrent = new Set()
+  for (const currentIndex of currentClones.keys()) {
+    if (match(currentIndex, new Set())) matchedCurrent.add(currentIndex)
+  }
+
+  return currentClones.filter((_, index) => !matchedCurrent.has(index))
 }
 
 function run(command, args, options = {}) {
@@ -110,10 +164,16 @@ async function readClones(reportDir, sourceRoot) {
   const reportPath = join(reportDir, "jscpd-report.json")
   const report = JSON.parse(await readFile(reportPath, "utf8"))
   return Promise.all(
-    report.duplicates.map(async (clone) => ({
-      ...clone,
-      fingerprint: await duplicateFingerprint(clone, sourceRoot),
-    }))
+    report.duplicates.map(async (clone) => {
+      const fragments = await readCloneFragments(clone, sourceRoot)
+      const sortedFragments = [...fragments].sort()
+      return {
+        ...clone,
+        fragments,
+        windowSets: fragments.map((fragment) => fragmentWindows(fragment)),
+        fingerprint: createHash("sha256").update(sortedFragments.join("\0")).digest("hex"),
+      }
+    })
   )
 }
 
@@ -147,7 +207,20 @@ export async function main(args = process.argv.slice(2)) {
       readClones(baseReportDir, baseRoot),
       readClones(currentReportDir, repoRoot),
     ])
-    const newClones = findNewDuplicates(baseClones, currentClones)
+    const changedPaths = [
+      run("git", ["diff", "--name-only", baseRef, "--", ...SOURCE_PATHS], { cwd: repoRoot }),
+      run("git", ["ls-files", "--others", "--exclude-standard", "--", ...SOURCE_PATHS], {
+        cwd: repoRoot,
+      }),
+    ]
+      .flatMap((output) => output.split("\n"))
+      .filter(Boolean)
+      .map((path) => resolve(repoRoot, path))
+    const changedFiles = new Set(changedPaths)
+    const newClones = findNewDuplicates(baseClones, currentClones).filter(
+      (clone) =>
+        changedFiles.has(resolve(clone.firstFile.name)) || changedFiles.has(resolve(clone.secondFile.name))
+    )
 
     if (newClones.length === 0) {
       console.log(`Новых дублей относительно ${baseRef} нет`)

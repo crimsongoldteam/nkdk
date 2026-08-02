@@ -1,18 +1,23 @@
-import { uuidPropertyRule } from "../uuid/rule"
-import { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "../../context/types"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import type { PropertyRule } from "../../orchestration/property/types"
+import {
+  attributeChoiceFragment,
+  attributeFillFragment,
+  attributeIdentityFragment,
+  attributePresentationFragment,
+  attributeSearchAndHistoryFragment,
+} from "../metadataAttribute/fragments"
+import { uuidPropertyRule } from "../uuid/rule"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }
+const presentation = attributePresentationFragment({}).properties
+
 export const commonRegisterFieldProperties = {
   uuid: uuidPropertyRule,
-  name: {
-    xml: "Name",
-    type: "string",
-    required: true,
-    xmlParents: propertiesParents,
-  },
+  ...attributeIdentityFragment.properties,
+  ...presentation,
   synonym: {
     yaml: "Синоним",
     xml: "Synonym",
@@ -29,7 +34,11 @@ export const commonRegisterFieldProperties = {
       name?: string
       operation?: string
     }) =>
-      operation === "importFromYAML" && name && yaml !== null && typeof yaml === "object" && !Array.isArray(yaml)
+      operation === "importFromYAML" &&
+      name &&
+      yaml !== null &&
+      typeof yaml === "object" &&
+      !Array.isArray(yaml)
         ? addDefaultLanguageNameToSynonym(context, undefined, name)
         : emptySynonym,
     defaultValueXMLEmpty: emptySynonym,
@@ -37,210 +46,15 @@ export const commonRegisterFieldProperties = {
     defaultValueXMLRaw: "",
     preserveEmptyXML: true,
   },
-  comment: {
-    yaml: "Комментарий",
-    xml: "Comment",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
   type: {
     yaml: "Тип",
     type: "TypeDescription",
     xml: "Type",
     xmlParents: propertiesParents,
   },
-  passwordMode: {
-    yaml: "РежимПароля",
-    xml: "PasswordMode",
-    type: "boolean",
-    defaultValueXML: false,
-    implicitValueYAML: false,
-    xmlParents: propertiesParents,
-  },
-  format: {
-    yaml: "Формат",
-    xml: "Format",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  editFormat: {
-    yaml: "ФорматРедактирования",
-    xml: "EditFormat",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  toolTip: {
-    yaml: "Подсказка",
-    xml: "ToolTip",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  markNegatives: {
-    yaml: "ВыделятьОтрицательные",
-    xml: "MarkNegatives",
-    type: "boolean",
-    defaultValueXML: false,
-    implicitValueYAML: false,
-    xmlParents: propertiesParents,
-  },
-  mask: {
-    yaml: "Маска",
-    xml: "Mask",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  multiLine: {
-    yaml: "МногострочныйРежим",
-    xml: "MultiLine",
-    type: "boolean",
-    defaultValueXML: false,
-    implicitValueYAML: false,
-    xmlParents: propertiesParents,
-  },
-  extendedEdit: {
-    yaml: "РасширенноеРедактирование",
-    xml: "ExtendedEdit",
-    type: "boolean",
-    defaultValueXML: false,
-    implicitValueYAML: false,
-    xmlParents: propertiesParents,
-  },
-  minValue: {
-    yaml: "МинимальноеЗначение",
-    xml: "MinValue",
-    type: "MinMaxValue",
-    xmlParents: propertiesParents,
-    typedXML: "xs:string",
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  maxValue: {
-    yaml: "МаксимальноеЗначение",
-    xml: "MaxValue",
-    type: "MinMaxValue",
-    xmlParents: propertiesParents,
-    typedXML: "xs:string",
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  fillFromFillingValue: {
-    yaml: "ЗаполнятьИзДанныхЗаполнения",
-    xml: "FillFromFillingValue",
-    type: "boolean",
-    defaultValueXML: false,
-    implicitValueYAML: false,
-    xmlParents: propertiesParents,
-  },
-  fillValue: {
-    yaml: "ЗначениеЗаполнения",
-    xml: "FillValue",
-    type: "MetadataValue",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  fillChecking: {
-    yaml: "ПроверкаЗаполнения",
-    xml: "FillChecking",
-    type: "SystemEnumeration",
-    typeSE: "FillChecking",
-    defaultValueXML: "DontCheck",
-    implicitValueYAML: "DontCheck",
-    xmlParents: propertiesParents,
-  },
-  choiceFoldersAndItems: {
-    yaml: "ВыборГруппИЭлементов",
-    xml: "ChoiceFoldersAndItems",
-    type: "SystemEnumeration",
-    typeSE: "FoldersAndItemsUse",
-    defaultValueXML: "Items",
-    implicitValueYAML: "Items",
-    xmlParents: propertiesParents,
-  },
-  choiceParameterLinks: {
-    yaml: "СвязиПараметровВыбора",
-    xml: "ChoiceParameterLinks",
-    type: "ChoiceParameterLinks",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  choiceParameters: {
-    yaml: "ПараметрыВыбора",
-    xml: "ChoiceParameters",
-    type: "ChoiceParameters",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  quickChoice: {
-    yaml: "БыстрыйВыбор",
-    xml: "QuickChoice",
-    type: "SystemEnumeration",
-    typeSE: "UseQuickChoice",
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-    xmlParents: propertiesParents,
-  },
-  createOnInput: {
-    yaml: "СозданиеПриВводе",
-    xml: "CreateOnInput",
-    type: "SystemEnumeration",
-    typeSE: "CreateOnInput",
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-    xmlParents: propertiesParents,
-  },
-  choiceForm: {
-    yaml: "ФормаВыбора",
-    xml: "ChoiceForm",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  linkByType: {
-    yaml: "СвязьПоТипу",
-    xml: "LinkByType",
-    type: "TypeLink",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  choiceHistoryOnInput: {
-    yaml: "ИсторияВыбораПриВводе",
-    xml: "ChoiceHistoryOnInput",
-    type: "SystemEnumeration",
-    typeSE: "ChoiceHistoryOnInput",
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-    xmlParents: propertiesParents,
-  },
-  indexing: {
-    yaml: "Индексирование",
-    xml: "Indexing",
-    type: "SystemEnumeration",
-    typeSE: "Indexing",
-    defaultValueXML: "DontIndex",
-    implicitValueYAML: "DontIndex",
-    xmlParents: propertiesParents,
-  },
-  fullTextSearch: {
-    yaml: "ПолнотекстовыйПоиск",
-    xml: "FullTextSearch",
-    type: "SystemEnumeration",
-    typeSE: "UseFullTextSearch",
-    defaultValueXML: "Use",
-    implicitValueYAML: "Use",
-    xmlParents: propertiesParents,
-  },
-  dataHistory: {
-    yaml: "ИсторияДанных",
-    xml: "DataHistory",
-    type: "SystemEnumeration",
-    typeSE: "DataHistoryUse",
-    defaultValueXML: "Use",
-    implicitValueYAML: "Use",
-    xmlParents: propertiesParents,
-  },
+  ...attributeFillFragment.properties,
+  ...attributeChoiceFragment.properties,
+  ...attributeSearchAndHistoryFragment.properties,
   binaryDataStorageLocationUse: {
     yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
     xml: "BinaryDataStorageLocationUse",
@@ -253,16 +67,6 @@ export const commonRegisterFieldProperties = {
     yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
     xml: "BinaryDataStorageLocationUseField",
     type: "string",
-    xmlParents: propertiesParents,
-  },
-  objectBelonging: {
-    yaml: "ПринадлежностьОбъекта",
-    xml: "ObjectBelonging",
-    type: "SystemEnumeration",
-    typeSE: "ObjectBelonging",
-    implicitValueYAML: "Native",
-    toYAML: false,
-    fromYAML: false,
     xmlParents: propertiesParents,
   },
   extendedConfigurationObject: {

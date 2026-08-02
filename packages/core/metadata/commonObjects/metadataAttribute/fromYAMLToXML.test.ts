@@ -12,7 +12,7 @@ import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
+import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
 import { MetadataDocumentAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
@@ -205,11 +205,6 @@ function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataCatalog
     ],
   })
   expect(normalize(result.result)).toBe(normalize(result.expected))
-}
-
-function expectFinishedRuleOrder(rule: MetadataItemRule): void {
-  expect(getCompiledXMLPropertyOrder(rule)).toEqual(rule.xmlOrder)
-  expect(new Set(rule.xmlOrder).size).toBe(Object.keys(rule.properties).length)
 }
 
 function probeRule(type: string): MetadataItemRule {

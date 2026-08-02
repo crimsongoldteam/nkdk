@@ -100,6 +100,9 @@ const tabularBase = [
   "fillChecking",
   "standardAttributes",
 ]
+const processingAttributeOrder = [...identity, ...presentation, ...choice, "uuid"]
+const processingTabularOrder = [...tabularBase, "attributes", "uuid"]
+const processingNestedOrder = [...identity, ...presentation, ...fill, ...choice, "uuid"]
 const nestedAttribute = [...identity, ...presentation, ...choice, ...searchAndHistory, "uuid"]
 
 const owners: readonly {
@@ -250,9 +253,9 @@ const owners: readonly {
     attributeRule: MetadataDataProcessorAttributeRules,
     tabularRule: MetadataDataProcessorTabularSectionRules,
     nestedRule: MetadataDataProcessorTabularSectionAttributeRules,
-    attributeOrder: [...identity, ...presentation, ...choice, "uuid"],
-    tabularOrder: [...tabularBase, "attributes", "uuid"],
-    nestedOrder: [...identity, ...presentation, ...fill, ...choice, "uuid"],
+    attributeOrder: processingAttributeOrder,
+    tabularOrder: processingTabularOrder,
+    nestedOrder: processingNestedOrder,
     topAllowedTypes: false,
     processingContract: true,
   },
@@ -264,9 +267,9 @@ const owners: readonly {
     attributeRule: MetadataReportAttributeRules,
     tabularRule: MetadataReportTabularSectionRules,
     nestedRule: MetadataReportTabularSectionAttributeRules,
-    attributeOrder: [...identity, ...presentation, ...choice, "uuid"],
-    tabularOrder: [...tabularBase, "attributes", "uuid"],
-    nestedOrder: [...identity, ...presentation, ...fill, ...choice, "uuid"],
+    attributeOrder: processingAttributeOrder,
+    tabularOrder: processingTabularOrder,
+    nestedOrder: processingNestedOrder,
     topAllowedTypes: false,
     processingContract: true,
   },
@@ -279,6 +282,11 @@ describe("owner-specific attribute and tabular section rules", () => {
     expectRuleOrder(owner.nestedRule, owner.nestedOrder ?? nestedAttribute)
     expect(owner.attributeRule.properties.type.allowedTypes !== undefined).toBe(owner.topAllowedTypes)
     expect(owner.nestedRule.properties.type.allowedTypes).toBeDefined()
+    expect(owner.tabularRule.properties.attributes.operationTarget).toMatchObject({
+      kind: "namedCollectionTarget",
+      migrationSegment: "Реквизит",
+      requiresMigration: true,
+    })
 
     if (owner.allowUse !== undefined) {
       const attributeSchema = compileValidationSchema(

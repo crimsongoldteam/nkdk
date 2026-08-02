@@ -1,10 +1,12 @@
-import type { ConfigurationContext } from "../../context/types"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { internalInfoRule, type InternalInfoParam } from "../internalInfo/types"
+import {
+  metadataChildNameProperty,
+  metadataChildSynonymProperty,
+} from "../metadataAttribute/fragments"
 import { metadataRuleFragment } from "../metadataRuleFragment"
 import { uuidPropertyRule } from "../uuid/rule"
 
@@ -44,40 +46,14 @@ export const tabularSectionIdentityFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
       noImplicitValueYAML: true,
     },
-    name: {
-      xml: "Name",
-      type: "string",
-      required: true,
-      xmlParents: propertiesParents,
-    },
+    name: metadataChildNameProperty,
   } as const satisfies Record<string, PropertyRule>
 )
 
 export const tabularSectionPresentationFragment = metadataRuleFragment(
   ["synonym", "comment", "toolTip"],
   {
-    synonym: {
-      yaml: "Синоним",
-      xml: "Synonym",
-      type: "I8nText",
-      excludeIfEqualNameYAML: true,
-      xmlParents: propertiesParents,
-      defaultValueXMLRaw: "",
-      defaultValue: ({
-        context,
-        name,
-        operation,
-      }: {
-        context: ConfigurationContext
-        name?: string
-        operation?: string
-      }) =>
-        operation === "importFromYAML" && name
-          ? addDefaultLanguageNameToSynonym(context, undefined, name)
-          : { items: { [context.defaultLanguage]: "" } },
-      defaultValueXMLEmpty: { items: {} },
-      preserveEmptyXML: true,
-    },
+    synonym: metadataChildSynonymProperty,
     comment: {
       yaml: "Комментарий",
       xml: "Comment",

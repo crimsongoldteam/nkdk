@@ -8,6 +8,36 @@ import { uuidPropertyRule } from "../uuid/rule"
 
 const propertiesParents = ["Properties"]
 
+export const metadataChildNameProperty = {
+  xml: "Name",
+  type: "string",
+  required: true,
+  xmlParents: propertiesParents,
+} as const satisfies PropertyRule
+
+export const metadataChildSynonymProperty = {
+  yaml: "Синоним",
+  xml: "Synonym",
+  type: "I8nText",
+  excludeIfEqualNameYAML: true,
+  defaultValue: ({
+    context,
+    name,
+    operation,
+  }: {
+    context: ConfigurationContext
+    name?: string
+    operation?: string
+  }) =>
+    operation === "importFromYAML" && name
+      ? addDefaultLanguageNameToSynonym(context, undefined, name)
+      : { items: { [context.defaultLanguage]: "" } },
+  xmlParents: propertiesParents,
+  defaultValueXMLEmpty: { items: {} },
+  defaultValueXMLRaw: "",
+  preserveEmptyXML: true,
+} as const satisfies PropertyRule
+
 export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
   "decimal",
@@ -61,12 +91,7 @@ export const attributeIdentityFragment = metadataRuleFragment(
       fromYAML: false,
       xmlParents: propertiesParents,
     },
-    name: {
-      xml: "Name",
-      type: "string",
-      required: true,
-      xmlParents: propertiesParents,
-    },
+    name: metadataChildNameProperty,
   } as const satisfies Record<string, PropertyRule>
 )
 
@@ -90,28 +115,7 @@ export function attributePresentationFragment(params: {
       "maxValue",
     ],
     {
-      synonym: {
-        yaml: "Синоним",
-        xml: "Synonym",
-        type: "I8nText",
-        excludeIfEqualNameYAML: true,
-        defaultValue: ({
-          context,
-          name,
-          operation,
-        }: {
-          context: ConfigurationContext
-          name?: string
-          operation?: string
-        }) =>
-          operation === "importFromYAML" && name
-            ? addDefaultLanguageNameToSynonym(context, undefined, name)
-            : { items: { [context.defaultLanguage]: "" } },
-        xmlParents: propertiesParents,
-        defaultValueXMLEmpty: { items: {} },
-        defaultValueXMLRaw: "",
-        preserveEmptyXML: true,
-      },
+      synonym: metadataChildSynonymProperty,
       comment: {
         yaml: "Комментарий",
         xml: "Comment",
