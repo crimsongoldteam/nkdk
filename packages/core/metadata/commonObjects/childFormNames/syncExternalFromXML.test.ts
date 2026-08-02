@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
@@ -15,9 +15,6 @@ const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
 
 afterAll(async () => {
   await xmlImportWorkerPoolHandle.close()
-})
-
-afterEach(async () => {
   await Promise.all(
     temporaryDirectories.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true }))
   )
