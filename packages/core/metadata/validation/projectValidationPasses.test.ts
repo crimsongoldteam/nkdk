@@ -27,6 +27,29 @@ describe("validateProjectFileFirstPass references", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
+  function formFirstPassUpdate(lines: string[]) {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, lines)
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, ...projectPath.split("/")))
+    if (!file) throw new Error("file not resolved")
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    return toProjectStateFileUpdate(first, {
+      projectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "form",
+    })
+  }
+
   it("marks syntax failure as a file without contributed facts", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -161,32 +184,12 @@ describe("validateProjectFileFirstPass references", () => {
   }, 20_000)
 
   it("keeps a form index contribution without pending DataPath checks", () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
-    tempDirs.push(projectDir)
-    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
-    writeProjectFile(projectDir, projectPath, [
+    const update = formFirstPassUpdate([
       "Реквизиты:",
       "  Значение:",
       "    Тип: Строка",
       "Элементы: {}",
     ])
-    const file = resolveValidationProjectFile(projectDir, join(projectDir, ...projectPath.split("/")))
-    if (!file) throw new Error("file not resolved")
-
-    const first = validateProjectFileFirstPass({
-      projectDir,
-      file,
-      cache: createProjectYamlCache(),
-      context: mockContext,
-      schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
-    const update = toProjectStateFileUpdate(first, {
-      projectPath,
-      componentPath: "cf",
-      resourceKind: "yaml",
-      yamlRole: "form",
-    })
 
     expect(update.pendingChecks).toEqual([])
     expect(update.forms).toEqual([
@@ -196,6 +199,25 @@ describe("validateProjectFileFirstPass references", () => {
         name: "Значение",
       }),
     ])
+  })
+
+  it("передаёт structural reference формы через строгий ProjectState DTO без callbacks", () => {
+    const update = formFirstPassUpdate([
+      "Элементы:",
+      "  Картинка:",
+      "    Вид: ПолеРисунка",
+      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+    ])
+
+    expect(update.pendingReferences).toHaveLength(1)
+    expect(Object.keys(update.pendingReferences[0]!).sort()).toEqual([
+      "canonical",
+      "constraint",
+      "target",
+      "yamlPath",
+    ])
+    expect(() => structuredClone(update)).not.toThrow()
+    expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).not.toThrow()
   })
 
   it("проверяет уникальность имён элементов внутри общей формы", () => {

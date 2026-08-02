@@ -5,6 +5,7 @@ import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateService } from "../projectState/service"
 import { findMetadataReferences } from "./findMetadataReferences"
 import {
+  completeOperationReadSession,
   completeOperationProjectState,
   createOperationTestProjectHarness,
   emptyOperationRefreshStats,
@@ -226,12 +227,45 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       projectState,
     })).rejects.toBe(technical)
   })
+
+  it.each([
+    ["invalid_path", "Справочник", true],
+    ["unsupported_target", "Неизвестный.Товары", true],
+    ["target_not_found", "Справочник.Товары", false],
+  ] as const)("добавляет warning к раннему результату %s только при продолжении с ошибками", async (code, path, targetFound) => {
+    const projectDir = createProject()
+    const projectState = referenceProjectState([], [validationError], undefined, targetFound)
+
+    const continued = await findMetadataReferences({
+      projectDir,
+      path,
+      ignoreValidationErrors: true,
+      projectState,
+    })
+    const blocked = await findMetadataReferences({
+      projectDir,
+      path,
+      ignoreValidationErrors: false,
+      projectState,
+    })
+
+    expect(continued).toMatchObject({
+      ok: false,
+      code,
+      diagnostics: [
+        validationError,
+        expect.objectContaining({ severity: "warning", code: "search_result_may_be_incomplete" }),
+      ],
+    })
+    expect(blocked).toMatchObject({ ok: false, code: "validation_failed", diagnostics: [validationError] })
+  })
 })
 
 function referenceProjectState(
   calls: string[],
   diagnostics: readonly typeof validationError[],
   refreshError?: Error,
+  targetFound = true,
 ): ProjectStateService {
   return completeOperationProjectState({
     async refreshAndValidate() {
@@ -240,6 +274,15 @@ function referenceProjectState(
       return { diagnostics, readToken: new Uint8Array() as ProjectStateReadToken, stats: emptyOperationRefreshStats() }
     },
     openReadSession() {
+      if (!targetFound) {
+        return completeOperationReadSession({
+          resolveTargets() {
+            calls.push("read")
+            return [{ requestId: "target", status: "missing" }]
+          },
+          findReferences() { throw new Error("findReferences не должен вызываться") },
+        })
+      }
       return operationTargetReadSession({
         canonical: "Catalog.Товары",
         projectPath: "cf/Справочник/Товары/Свойства.yaml",

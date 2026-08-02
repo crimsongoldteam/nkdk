@@ -20,11 +20,14 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
   if (hasMetadataOperationErrors(diagnostics) && params.ignoreValidationErrors !== true) {
     return metadataOperationValidationFailure("YAML-проект содержит ошибки validation", diagnostics)
   }
+  const resultDiagnostics = hasMetadataOperationErrors(diagnostics)
+    ? [...diagnostics, incompleteSearchWarning(params.projectDir)]
+    : diagnostics
 
   const parsedPath = parseMetadataOperationPath(params.path)
-  if (!parsedPath.ok) return metadataOperationFailure(parsedPath.code, parsedPath.message, diagnostics)
+  if (!parsedPath.ok) return metadataOperationFailure(parsedPath.code, parsedPath.message, resultDiagnostics)
   const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
-  if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, diagnostics)
+  if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, resultDiagnostics)
 
   const indexed = readIndexedOperationReferences({
     projectState: params.projectState,
@@ -32,7 +35,7 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
     path: params.path,
     target: canonical,
   })
-  if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, diagnostics)
+  if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, resultDiagnostics)
   const blockedReferences = indexed.references.flatMap((reference): MetadataOperationBlockedReference[] => {
     if (isInsideTargetTree(reference.projectPath, indexed.source.projectPath, canonical.targetKind)) return []
     return [{
@@ -41,9 +44,6 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
       value: reference.kind === "metadataTarget" ? reference.canonical : reference.value,
     }]
   })
-  const resultDiagnostics = hasMetadataOperationErrors(diagnostics)
-    ? [...diagnostics, incompleteSearchWarning(params.projectDir)]
-    : diagnostics
   if (blockedReferences.length > 0) {
     return {
       ok: false,

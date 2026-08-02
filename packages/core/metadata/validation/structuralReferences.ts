@@ -104,12 +104,12 @@ function collectObjectReferences(params: {
       for (const candidate of candidates) {
         const runtimeCandidate = candidate as StructuralReferenceCandidate & { setCanonical?: unknown }
         if (typeof runtimeCandidate.setCanonical !== "function") {
-          return { ok: false, message: `Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}` }
+          throw new Error(`Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}`)
         }
         const indexed = indexedCandidates.find((reference) =>
           reference.canonical === candidate.canonical && sameYamlPath(reference.yamlPath, candidate.yamlPath))
         if (indexed === undefined) {
-          return { ok: false, message: `Правило ${propertyRule.type} не материализовало индекс ссылки в ${params.filePath}` }
+          throw new Error(`Правило ${propertyRule.type} не материализовало индекс ссылки в ${params.filePath}`)
         }
         references.push({
           ...candidate,

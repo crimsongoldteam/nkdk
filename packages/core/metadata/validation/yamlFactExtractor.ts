@@ -589,9 +589,13 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
     context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
   })
-  const pendingReferences = structuralReferences.ok
-    ? structuralReferences.references.map(({ setCanonical: _setCanonical, ...reference }) => reference)
-    : []
+  if (!structuralReferences.ok) throw new Error(structuralReferences.message)
+  const pendingReferences = structuralReferences.references.map(({
+    setCanonical: _setCanonical,
+    stageCanonical: _stageCanonical,
+    commitStaged: _commitStaged,
+    ...reference
+  }) => reference)
 
   return {
     ...emptyFacts(),

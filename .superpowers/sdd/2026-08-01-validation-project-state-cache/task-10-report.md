@@ -24,3 +24,25 @@
 - Полная команда 3: `pnpm --workspace-concurrency=1 -r run test --maxWorkers=1` — 5085/5085 functional PASS, затем повторный массовый duration-gate failure; `maxWorkers: 1` также уже задан в `vitest.config.ts`, тесты и пороги не менялись.
 - После полных прогонов независимая проверка выявила квадратичную обработку ссылок; исправление пакетной материализации и отдельная проверка границы cf→cfe подтверждены итоговыми targeted 122/122, `type-check`, jscpd и `git diff --check`. По указанию контроллера четвёртый полный прогон не запускался.
 - Mutation testing не запускался согласно заданию.
+
+## Fix round 1
+
+### Изменения
+
+- Form first-pass удаляет `setCanonical`, `stageCanonical` и `commitStaged` до границы ProjectState; реальная structural reference проходит строгую DTO-проверку и `structuredClone`.
+- Нарушение договора structural reference — отсутствие setter или индексного представления — теперь бросает техническую ошибку вместо пустого списка ссылок.
+- `search_result_may_be_incomplete` формируется до ранних результатов `invalid_path`, `unsupported_target` и `target_not_found`, но только при продолжении с error diagnostics.
+
+### RED / GREEN
+
+- RED: `pnpm --filter @nkdk/core exec vitest run metadata/validation/structuralReferences.test.ts metadata/validation/projectValidationPasses.test.ts metadata/operations/findMetadataReferences.test.ts --no-isolate --maxWorkers=1` — 6 ожидаемых падений, 26 успешных тестов; 3 файла, 2,58 с.
+- GREEN той же командой — 3 файла, 32/32 теста, 2,43 с.
+- Итоговый связанный targeted-прогон operations/validation/ProjectState/SQLite — 12 файлов, 197/197 тестов, 2,96 с.
+- Итоговый verbose-прогон операций — 31/31 тест, 45 мс test time; отдельные проверки 0–3 мс.
+
+### Проверки
+
+- `pnpm type-check` — успешно.
+- `pnpm check:duplicates -- --base e768ba6321fc99b2623e04f1fe72a06c77f07b38` — успешно, новых дубликатов нет.
+- `git diff --check` — успешно.
+- Полный `pnpm test` не запускался по условиям fix round 1.
