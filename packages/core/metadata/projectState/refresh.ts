@@ -69,6 +69,7 @@ export interface ProjectStateRefreshOperation extends PreparedYamlValidationOper
 
 export interface ProjectStateRefreshDependencies {
   readonly handle: ProjectStateRefreshHandle
+  readonly beforeCheckpoint?: () => Promise<void>
   readonly collectFiles: (params: ProjectStateRefreshParams) => Promise<CollectedProjectStateFiles>
   readonly runLocalValidation: (
     files: readonly ProjectStateYamlInput[],
@@ -88,9 +89,11 @@ export function createProjectStateRefreshDependencies(params: {
   readonly handle: ProjectStateRefreshHandle
   readonly pool: PreparedYamlProjectWorkerPool
   readonly context: ConfigurationContext
+  readonly beforeCheckpoint?: () => Promise<void>
 }): ProjectStateRefreshDependencies {
   return {
     handle: params.handle,
+    ...(params.beforeCheckpoint === undefined ? {} : { beforeCheckpoint: params.beforeCheckpoint }),
     async collectFiles(refreshParams) {
       const collection = await collectProjectStateFiles({
         projectDir: refreshParams.projectDir,
@@ -193,6 +196,7 @@ export async function refreshProjectState(
         await dependencies.handle.rollbackUpdate()
         continue
       }
+      await dependencies.beforeCheckpoint?.()
       const readToken = await dependencies.handle.createReadToken()
       await dependencies.handle.commitAndCheckpoint()
       updateActive = false

@@ -63,39 +63,14 @@ export function createProjectStateService(
   const refresh = options.refresh ?? refreshProjectState
   const openReadSession = options.openReadSession ?? openSqliteProjectStateReadSession
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
+  const retiredWriters = new Set<ProjectStateWriterHandle>()
   let sequence = Promise.resolve()
   let closing = false
   let closePromise: Promise<void> | undefined
 
   const service: ProjectStateService = {
     beginImport(params) {
-      return runExclusive(async () => {
-        const projectDir = await realpath(params.projectDir)
-        const candidate = createWriter()
-        const previous = active
-        let settled = false
-        try {
-          return await createProjectStateImportSession({
-            ...params,
-            projectDir,
-            writer: candidate,
-            async publish() {
-              if (settled) return
-              settled = true
-              active = { projectDir, writer: candidate }
-              await previous?.writer.close().catch(() => undefined)
-            },
-            async discard() {
-              if (settled) return
-              settled = true
-              await candidate.close()
-            },
-          })
-        } catch (caught) {
-          await candidate.close().catch(() => undefined)
-          throw caught
-        }
-      })
+      return beginImportWithLease(params)
     },
     refreshAndValidate(params) {
       return runExclusive(async () => {
@@ -146,7 +121,6 @@ export function createProjectStateService(
         const projectDir = await realpath(params.projectDir)
         const candidate = createWriter()
         const previous = active
-        let published = false
         try {
           await candidate.openProject(projectDir)
           await candidate.reset(projectDir)
@@ -154,38 +128,37 @@ export function createProjectStateService(
           throw await closePreservingPrimary(candidate, caught)
         }
 
-        let result: ProjectStateRefreshResult | undefined
-        let refreshFailure: { readonly reason: unknown } | undefined
+        let result: ProjectStateRefreshResult
         try {
-          result = await runRefresh(candidate, { ...params, projectDir }, () => {
-            active = { projectDir, writer: candidate }
-            published = true
-          })
+          result = await runRefresh(candidate, { ...params, projectDir }, { closePoolBeforeCheckpoint: true })
         } catch (caught) {
-          if (!published) throw await closePreservingPrimary(candidate, caught)
-          refreshFailure = { reason: caught }
+          throw await closePreservingPrimary(candidate, caught)
         }
 
-        let previousCloseFailure: { readonly reason: unknown } | undefined
-        try {
-          await previous?.writer.close()
-        } catch (caught) {
-          previousCloseFailure = { reason: caught }
-        }
-        if (refreshFailure !== undefined && previousCloseFailure !== undefined) {
-          throw aggregateCleanupFailure(refreshFailure.reason, previousCloseFailure.reason)
-        }
-        if (refreshFailure !== undefined) throw normalizeFailure(refreshFailure.reason)
-        if (previousCloseFailure !== undefined) throw normalizeFailure(previousCloseFailure.reason)
-        return result!
+        active = { projectDir, writer: candidate }
+        await closeOrRetire(previous?.writer)
+        return result
       })
     },
     close() {
       if (closePromise !== undefined) return closePromise
       closing = true
       closePromise = sequence.then(async () => {
-        await active?.writer.close()
+        const writers = [
+          ...(active === undefined ? [] : [active.writer]),
+          ...retiredWriters,
+        ]
         active = undefined
+        retiredWriters.clear()
+        const failures: unknown[] = []
+        for (const writer of writers) {
+          try {
+            await writer.close()
+          } catch (caught) {
+            failures.push(...flattenFailures(caught))
+          }
+        }
+        if (failures.length > 0) throw new AggregateError(failures, errorMessage(failures[0]))
       })
       sequence = closePromise.then(() => undefined, () => undefined)
       return closePromise
@@ -193,11 +166,98 @@ export function createProjectStateService(
   }
   return service
 
-  function runExclusive<T>(task: () => Promise<T>): Promise<T> {
-    if (closing) return Promise.reject(new Error("ProjectStateService закрыт"))
-    const result = sequence.then(task, task)
-    sequence = result.then(() => undefined, () => undefined)
-    return result
+  async function beginImportWithLease(params: ProjectStateImportParams): Promise<ProjectStateImportSession> {
+    const release = await acquireExclusive()
+    let candidate: ProjectStateWriterHandle | undefined
+    try {
+      const projectDir = await realpath(params.projectDir)
+      candidate = createWriter()
+      const importWriter = candidate
+      const previous = active
+      let settled = false
+      const session = await createProjectStateImportSession({
+        ...params,
+        projectDir,
+        writer: importWriter,
+        async publish() {
+          if (settled) return
+          settled = true
+          active = { projectDir, writer: importWriter }
+          await closeOrRetire(previous?.writer)
+        },
+        async discard() {
+          if (settled) return
+          settled = true
+          await importWriter.close()
+        },
+      })
+      return importSessionWithLease(session, release)
+    } catch (caught) {
+      try {
+        if (candidate === undefined) throw normalizeFailure(caught)
+        throw await closePreservingPrimary(candidate, caught)
+      } finally {
+        release()
+      }
+    }
+  }
+
+  function importSessionWithLease(
+    session: ProjectStateImportSession,
+    release: () => void,
+  ): ProjectStateImportSession {
+    return {
+      writeFirstPassBatch: (batch) => session.writeFirstPassBatch(batch),
+      registerFileIdentities: (files) => session.registerFileIdentities(files),
+      commitWorkingIndex: () => session.commitWorkingIndex(),
+      createReadToken: () => session.createReadToken(),
+      writeFinalFileState: (batch) => session.writeFinalFileState(batch),
+      async finalize(beforeCheckpoint) {
+        try {
+          const result = await session.finalize(beforeCheckpoint)
+          release()
+          return result
+        } catch (caught) {
+          try {
+            await session.abort(caught)
+          } finally {
+            release()
+          }
+          throw caught
+        }
+      },
+      async abort(cause) {
+        try {
+          await session.abort(cause)
+        } finally {
+          release()
+        }
+      },
+    }
+  }
+
+  async function acquireExclusive(): Promise<() => void> {
+    if (closing) throw new Error("ProjectStateService закрыт")
+    const previous = sequence
+    let releaseLease!: () => void
+    const lease = new Promise<void>((resolve) => { releaseLease = resolve })
+    sequence = previous.then(() => lease)
+    await previous
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      releaseLease()
+    }
+  }
+
+  async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const release = await acquireExclusive()
+    try {
+      return await task()
+    } finally {
+      release()
+    }
   }
 
   async function activate(projectDir: string): Promise<ProjectStateWriterHandle> {
@@ -222,24 +282,45 @@ export function createProjectStateService(
   async function runRefresh(
     writer: ProjectStateWriterHandle,
     params: ProjectStateRefreshParams,
-    onPublished?: () => void,
+    options: { readonly closePoolBeforeCheckpoint?: boolean } = {},
   ): Promise<ProjectStateRefreshResult> {
     const pool = createPool(normalizeConcurrency(params.concurrency))
     const context = params.context ?? defaultContext()
+    let poolCloseStarted = false
+    let poolClosePromise: Promise<void> | undefined
+    const closePool = () => {
+      poolCloseStarted = true
+      poolClosePromise ??= pool.close()
+      return poolClosePromise
+    }
     let result: ProjectStateRefreshResult
     try {
-      result = await refresh(params, createProjectStateRefreshDependencies({ handle: writer, pool, context }))
+      result = await refresh(params, createProjectStateRefreshDependencies({
+        handle: writer,
+        pool,
+        context,
+        ...(options.closePoolBeforeCheckpoint === true ? { beforeCheckpoint: closePool } : {}),
+      }))
     } catch (caught) {
+      if (poolCloseStarted) throw normalizeFailure(caught)
       try {
-        await pool.close()
+        await closePool()
       } catch (cleanupFailure) {
         throw aggregateCleanupFailure(caught, cleanupFailure)
       }
       throw normalizeFailure(caught)
     }
-    onPublished?.()
-    await pool.close()
+    await closePool()
     return result
+  }
+
+  async function closeOrRetire(writer: ProjectStateWriterHandle | undefined): Promise<void> {
+    if (writer === undefined) return
+    try {
+      await writer.close()
+    } catch {
+      retiredWriters.add(writer)
+    }
   }
 
   async function closePreservingPrimary(writer: ProjectStateWriterHandle, primary: unknown): Promise<unknown> {

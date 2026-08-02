@@ -3,8 +3,8 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
-import type { ProjectStateRefreshResult } from "./refresh"
-import { createProjectStateService } from "./service"
+import type { ProjectStateRefreshDependencies, ProjectStateRefreshResult } from "./refresh"
+import { createProjectStateService, type CreateProjectStateServiceOptions } from "./service"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import type { ProjectStateReadToken } from "./contracts"
 
@@ -21,9 +21,11 @@ describe("ProjectStateService", () => {
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const closeOld = old.close.bind(old)
+    let closeAttempts = 0
     old.close = async () => {
+      closeAttempts += 1
+      if (closeAttempts === 1) throw new Error("old runtime close failed")
       await closeOld()
-      throw new Error("old runtime close failed")
     }
     const writers = [old, candidate]
     const service = createProjectStateService({ createWriter: () => writers.shift()!, createPool: () => testPool() })
@@ -35,6 +37,7 @@ describe("ProjectStateService", () => {
     await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
 
     await service.close()
+    expect(closeAttempts).toBe(2)
   })
 
   it("abort сохраняет primary первым и добавляет ошибку discard как secondary", async () => {
@@ -52,6 +55,152 @@ describe("ProjectStateService", () => {
     expect(caught).toBeInstanceOf(AggregateError)
     expect((caught as AggregateError).errors).toEqual([primary, cleanup])
     expect((caught as Error).message).toBe(primary.message)
+    await service.close()
+  })
+
+  it.each(["reset", "refresh", "rebuild"] as const)(
+    "удерживает %s до успешного finalize активной import session",
+    async (operation) => {
+      let refreshCalls = 0
+      const { projectDir, candidate, writers, service, session } = await beginImportLeaseTest(
+        `nkdk-project-state-import-${operation}-`,
+        undefined,
+        {
+          async refresh() { refreshCalls += 1; return refreshResult(refreshCalls) },
+        },
+      )
+      await session.commitWorkingIndex()
+
+      const queued = operation === "reset"
+        ? service.reset(projectDir)
+        : operation === "refresh"
+          ? service.refreshAndValidate({ projectDir }).then(() => undefined)
+          : service.rebuild({ projectDir }).then(() => undefined)
+      let settled = false
+      void queued.then(() => { settled = true }, () => { settled = true })
+      await nextTurn()
+
+      expect(settled).toBe(false)
+      expect(writers).toHaveLength(1)
+      expect(refreshCalls).toBe(0)
+
+      await session.finalize()
+      await queued
+
+      expect(operation === "reset" ? candidate.resets.length : refreshCalls).toBe(1)
+      await service.close()
+    },
+  )
+
+  it("abort освобождает import lease перед следующей операцией", async () => {
+    const { projectDir, candidate, next, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-abort-lease-",
+    )
+    const resetting = service.reset(projectDir)
+    await nextTurn()
+
+    await session.abort(new Error("import cancelled"))
+    await resetting
+
+    expect(candidate.closed).toBe(1)
+    expect(next.resets).toEqual([await realpath(projectDir)])
+    await service.close()
+  })
+
+  it("close ждёт завершения активной import session без взаимной блокировки", async () => {
+    const { candidate, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-close-lease-",
+    )
+    let closeSettled = false
+
+    const closing = service.close().then(() => { closeSettled = true })
+    await nextTurn()
+
+    expect(closeSettled).toBe(false)
+    await session.abort(new Error("server shutdown"))
+    await closing
+    expect(candidate.closed).toBe(1)
+  })
+
+  it("ошибка finalize сначала завершает candidate и только затем освобождает lease", async () => {
+    const events: string[] = []
+    const { projectDir, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-finalize-failure-",
+      ({ candidate, next }) => {
+        candidate.commitAndCheckpoint = async () => { throw new Error("checkpoint failed") }
+        candidate.rollbackUpdate = async () => { events.push("rollback") }
+        candidate.close = async () => { candidate.closed += 1; events.push("discard") }
+        const openNext = next.openProject.bind(next)
+        next.openProject = async (path) => { events.push("next-open"); await openNext(path) }
+      },
+    )
+    await session.commitWorkingIndex()
+    const resetting = service.reset(projectDir)
+    await nextTurn()
+
+    await expect(session.finalize()).rejects.toThrow("checkpoint failed")
+    await resetting
+
+    expect(events).toEqual(["rollback", "discard", "next-open"])
+    await service.close()
+  })
+
+  it("ошибка abort освобождает lease после завершённой попытки discard", async () => {
+    const events: string[] = []
+    const discardFailure = new Error("discard failed")
+    const { projectDir, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-abort-failure-",
+      ({ candidate, next }) => {
+        candidate.close = async () => { candidate.closed += 1; events.push("discard"); throw discardFailure }
+        const openNext = next.openProject.bind(next)
+        next.openProject = async (path) => { events.push("next-open"); await openNext(path) }
+      },
+    )
+    const resetting = service.reset(projectDir)
+    await nextTurn()
+
+    await expect(session.abort(new Error("import failed"))).rejects.toThrow("import failed")
+    await resetting
+
+    expect(events).toEqual(["discard", "next-open"])
+    await service.close()
+  })
+
+  it("повторный abort после finalize не освобождает очередь второй раз", async () => {
+    const { projectDir, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-release-once-",
+    )
+    await session.commitWorkingIndex()
+
+    await session.finalize()
+    await session.abort(new Error("late abort"))
+    await expect(service.createReadToken(projectDir)).resolves.toEqual(new Uint8Array([1]))
+    await service.close()
+  })
+
+  it("reset после finalize удаляет опубликованный import snapshot без последующего воскрешения", async () => {
+    let snapshotPath = ""
+    const { projectDir, service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-reset-snapshot-",
+      async ({ projectDir: dir, candidate }) => {
+        snapshotPath = join(dir, ".nkdk", "cache", "project-state.sqlite")
+        await mkdir(join(dir, ".nkdk", "cache"), { recursive: true })
+        candidate.commitAndCheckpoint = async () => {
+          await writeFile(snapshotPath, "import snapshot")
+          return { snapshotPath }
+        }
+      },
+    )
+    await session.commitWorkingIndex()
+    const resetting = service.reset(projectDir)
+    await nextTurn()
+
+    await session.finalize()
+    await resetting
+
+    await expect(access(snapshotPath)).rejects.toMatchObject({ code: "ENOENT" })
+    await Promise.resolve()
+    await expect(access(snapshotPath)).rejects.toMatchObject({ code: "ENOENT" })
     await service.close()
   })
 
@@ -96,11 +245,7 @@ describe("ProjectStateService", () => {
   })
 
   it("при технической ошибке rebuild сохраняет прежнее активное состояние", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-"))
-    tempDirs.push(projectDir)
-    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
-    await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
-    await writeFile(snapshotPath, "previous")
+    const { projectDir, snapshotPath } = await snapshotProject("nkdk-project-state-rebuild-")
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
@@ -185,28 +330,42 @@ describe("ProjectStateService", () => {
     await service.close()
   })
 
-  it("нормализует primary AggregateError после публикации при успешном writer cleanup", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-primary-published-"))
-    tempDirs.push(projectDir)
+  it("ошибка закрытия rebuild pool до checkpoint сохраняет прежние runtime, disk и token", async () => {
+    const { projectDir, snapshotPath } = await snapshotProject("nkdk-project-state-rebuild-pool-cleanup-")
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
-    const { failure, leaves } = nestedPrimaryFailure()
+    const cleanup = new Error("rebuild pool close failed")
     let poolCalls = 0
     const service = createProjectStateService({
       createWriter: () => handles.shift()!,
       createPool: () => {
         poolCalls += 1
         return {
-          close: async () => { if (poolCalls === 2) throw failure },
+          close: async () => { if (poolCalls === 2) throw cleanup },
         } as PreparedYamlProjectWorkerPool
       },
-      async refresh() { return refreshResult(poolCalls) },
+      async refresh(_params, dependencies) {
+        if (poolCalls === 2) {
+          await (dependencies as ProjectStateRefreshDependencies & {
+            beforeCheckpoint?: () => Promise<void>
+          }).beforeCheckpoint?.()
+          await writeFile(snapshotPath, "candidate")
+        }
+        return refreshResult(poolCalls)
+      },
     })
 
-    await expectNormalizedRebuildFailure(service, projectDir, leaves)
-    expect(old.closed).toBe(1)
-    expect(candidate.closed).toBe(0)
+    await service.refreshAndValidate({ projectDir })
+    const oldToken = await service.createReadToken(projectDir)
+
+    await expect(service.rebuild({ projectDir })).rejects.toBe(cleanup)
+
+    await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-1" }])
+    await expect(readFile(snapshotPath, "utf8")).resolves.toBe("previous")
+    await expect(service.createReadToken(projectDir)).resolves.toEqual(oldToken)
+    expect(old.closed).toBe(0)
+    expect(candidate.closed).toBe(1)
     await service.close()
   })
 
@@ -257,98 +416,57 @@ describe("ProjectStateService", () => {
     await service.close()
   })
 
-  it("после checkpoint сохраняет candidate активным при ошибке закрытия rebuild pool", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-pool-cleanup-"))
-    tempDirs.push(projectDir)
-    const old = testWriterHandle(1)
-    const candidate = testWriterHandle(2)
-    const handles = [old, candidate]
-    const cleanup = new Error("rebuild pool close failed")
-    let poolCalls = 0
-    const service = createProjectStateService({
-      createWriter: () => handles.shift()!,
-      createPool: () => {
-        poolCalls += 1
-        return {
-          close: async () => { if (poolCalls === 2) throw cleanup },
-        } as PreparedYamlProjectWorkerPool
-      },
-      async refresh() { return refreshResult(poolCalls) },
-    })
-
-    await expectPublishedCandidateAfterFailedRebuild(service, projectDir, cleanup)
-    expect(old.closed).toBe(1)
-    expect(candidate.closed).toBe(0)
-    await service.close()
-  })
-
-  it("после checkpoint сохраняет candidate активным при ошибке закрытия прежнего writer", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-writer-cleanup-"))
-    tempDirs.push(projectDir)
-    const old = testWriterHandle(1)
-    const candidate = testWriterHandle(2)
-    const handles = [old, candidate]
+  it("после публикации возвращает rebuild success и повторяет закрытие прежнего writer при service.close", async () => {
     const cleanup = new Error("old writer close failed")
-    const closeOld = old.close.bind(old)
-    old.close = async () => {
-      await closeOld()
-      if (old.closed === 1) throw cleanup
-    }
-    const service = createProjectStateService({
-      createWriter: () => handles.shift()!,
-      createPool: () => testPool(),
-      async refresh() { return refreshResult(2) },
-    })
-
-    await expectPublishedCandidateAfterFailedRebuild(service, projectDir, cleanup)
-    expect(candidate.closed).toBe(0)
-    await service.close()
-  })
-
-  it("агрегирует ошибки закрытия rebuild pool и прежнего writer после публикации candidate", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-cleanup-errors-"))
-    tempDirs.push(projectDir)
-    const old = testWriterHandle(1)
-    const candidate = testWriterHandle(2)
-    const handles = [old, candidate]
-    const poolCleanup = [new Error("rebuild pool close failed"), new Error("pool secondary failed")]
-    const writerCleanup = [new Error("old writer close failed"), new Error("writer secondary failed")]
-    let poolCalls = 0
-    const closeOld = old.close.bind(old)
-    old.close = async () => {
-      await closeOld()
-      if (old.closed === 1) throw new AggregateError(writerCleanup, "old writer cleanup")
-    }
-    const service = createProjectStateService({
-      createWriter: () => handles.shift()!,
-      createPool: () => {
-        poolCalls += 1
-        return {
-          close: async () => {
-            if (poolCalls === 2) throw new AggregateError(poolCleanup, "rebuild pool cleanup")
-          },
-        } as PreparedYamlProjectWorkerPool
+    let closeAttempts = 0
+    const { projectDir, candidate, service } = await rebuildRetirementTest(
+      "nkdk-project-state-rebuild-writer-cleanup-",
+      (old) => {
+        const closeOld = old.close.bind(old)
+        old.close = async () => {
+          closeAttempts += 1
+          if (closeAttempts === 1) throw cleanup
+          await closeOld()
+        }
       },
-      async refresh() { return refreshResult(poolCalls) },
-    })
+    )
 
     await service.refreshAndValidate({ projectDir })
-    const failure = await service.rebuild({ projectDir }).catch((caught: unknown) => caught)
-    const projectFiles = await readProjectFiles(service, projectDir)
-
-    expect(failure).toBeInstanceOf(AggregateError)
-    expect((failure as AggregateError).errors).toEqual([...poolCleanup, ...writerCleanup])
-    expect(projectFiles).toEqual([{ projectPath: "old-2" }])
+    await expect(service.rebuild({ projectDir })).resolves.toEqual(refreshResult(2))
+    await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
     expect(candidate.closed).toBe(0)
     await service.close()
+    expect(closeAttempts).toBe(2)
+  })
+
+  it("возвращает стабильную aggregate-ошибку service.close для незакрывшегося retired writer", async () => {
+    const cleanup = new Error("old writer close failed")
+    let closeAttempts = 0
+    const { projectDir, candidate, service } = await rebuildRetirementTest(
+      "nkdk-project-state-retired-writer-cleanup-",
+      (old) => {
+        old.close = async () => {
+          closeAttempts += 1
+          throw cleanup
+        }
+      },
+    )
+
+    await service.refreshAndValidate({ projectDir })
+    await expect(service.rebuild({ projectDir })).resolves.toEqual(refreshResult(2))
+    const firstClose = service.close()
+    const secondClose = service.close()
+    const failure = await firstClose.catch((caught: unknown) => caught)
+
+    expect(secondClose).toBe(firstClose)
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([cleanup])
+    expect(candidate.closed).toBe(1)
+    expect(closeAttempts).toBe(2)
   })
 
   it("rebuild меняет активное состояние только после успешного завершения refresh checkpoint", async () => {
-    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-success-"))
-    tempDirs.push(projectDir)
-    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
-    await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
-    await writeFile(snapshotPath, "previous")
+    const { projectDir, snapshotPath } = await snapshotProject("nkdk-project-state-rebuild-success-")
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
@@ -375,6 +493,7 @@ describe("ProjectStateService", () => {
               line: 1,
               col: 1,
               severity: "error",
+              source: "structure",
               message: "Ошибка validation",
             }],
           }
@@ -587,21 +706,70 @@ function testPool(): PreparedYamlProjectWorkerPool {
   return { close: async () => undefined } as PreparedYamlProjectWorkerPool
 }
 
+async function beginImportLeaseTest(
+  prefix: string,
+  configure?: (params: {
+    readonly projectDir: string
+    readonly candidate: TestWriter
+    readonly next: TestWriter
+  }) => void | Promise<void>,
+  options: Pick<CreateProjectStateServiceOptions, "refresh"> = {},
+) {
+  const projectDir = await mkdtemp(join(tmpdir(), prefix))
+  tempDirs.push(projectDir)
+  const candidate = testWriterHandle(1)
+  const next = testWriterHandle(2)
+  await configure?.({ projectDir, candidate, next })
+  const writers = [candidate, next]
+  const service = createProjectStateService({
+    ...options,
+    createWriter: () => writers.shift()!,
+    createPool: () => testPool(),
+  })
+  const session = await service.beginImport({
+    projectDir,
+    workerCount: 1,
+    output: { componentPaths: ["cf"] },
+  })
+  return { projectDir, candidate, next, writers, service, session }
+}
+
+async function snapshotProject(prefix: string): Promise<{ projectDir: string; snapshotPath: string }> {
+  const projectDir = await mkdtemp(join(tmpdir(), prefix))
+  tempDirs.push(projectDir)
+  const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+  await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+  await writeFile(snapshotPath, "previous")
+  return { projectDir, snapshotPath }
+}
+
+async function rebuildRetirementTest(
+  prefix: string,
+  configureOld: (writer: TestWriter) => void,
+) {
+  const projectDir = await mkdtemp(join(tmpdir(), prefix))
+  tempDirs.push(projectDir)
+  const old = testWriterHandle(1)
+  const candidate = testWriterHandle(2)
+  configureOld(old)
+  const writers = [old, candidate]
+  const service = createProjectStateService({
+    createWriter: () => writers.shift()!,
+    createPool: () => testPool(),
+    async refresh() { return refreshResult(2) },
+  })
+  return { projectDir, candidate, service }
+}
+
+function nextTurn(): Promise<void> {
+  return new Promise((resolve) => setImmediate(resolve))
+}
+
 async function readProjectFiles(
   service: ReturnType<typeof createProjectStateService>,
   projectDir: string,
 ): Promise<readonly { readonly projectPath: string }[]> {
   return (await service.readComponentProjection({ projectDir, componentPath: "cf" })).projectFiles
-}
-
-async function expectPublishedCandidateAfterFailedRebuild(
-  service: ReturnType<typeof createProjectStateService>,
-  projectDir: string,
-  expectedFailure: Error,
-): Promise<void> {
-  await service.refreshAndValidate({ projectDir })
-  await expect(service.rebuild({ projectDir })).rejects.toBe(expectedFailure)
-  await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
 }
 
 function refreshResult(value: number): ProjectStateRefreshResult {

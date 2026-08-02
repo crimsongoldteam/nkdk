@@ -257,6 +257,33 @@ describe("refreshProjectState", () => {
     })
   })
 
+  it("выполняет обязательную подготовку до выдачи token и checkpoint", async () => {
+    const events: string[] = []
+    const handle = new class extends MemoryRefreshHandle {
+      override async createReadToken(): Promise<ProjectStateReadToken> {
+        events.push("token")
+        return super.createReadToken()
+      }
+
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        events.push("checkpoint")
+        return super.commitAndCheckpoint()
+      }
+    }()
+    const dependencies = {
+      handle,
+      collectFiles: async () => collected([], []),
+      runLocalValidation: async () => 0,
+      writeChangedResources: async () => undefined,
+      isStable: async () => true,
+      beforeCheckpoint: async () => { events.push("prepare") },
+    }
+
+    await refreshProjectState({ projectDir: "/project" }, dependencies)
+
+    expect(events).toEqual(["prepare", "token", "checkpoint"])
+  })
+
   it("не вызывает cleanup до начала транзакции", async () => {
     const current = collected([], [])
     let cleanupCalls = 0

@@ -10,7 +10,7 @@ describe("project cache service", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    tempDirs.splice(0).forEach(removeProject)
   })
 
   it("сбрасывает runtime и disk state через нейтральный service без validation", async () => {
@@ -56,6 +56,10 @@ describe("project cache service", () => {
     mkdirSync(join(projectDir, "cf"))
     tempDirs.push(projectDir)
     return projectDir
+  }
+
+  function removeProject(projectDir: string): void {
+    rmSync(projectDir, { recursive: true, force: true })
   }
 })
 
