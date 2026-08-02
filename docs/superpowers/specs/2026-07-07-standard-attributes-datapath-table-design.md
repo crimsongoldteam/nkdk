@@ -20,7 +20,7 @@
 | Общие объектные | DeletionMark | ПометкаУдаления | `dataPathCommon` | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Общие объектные | Predefined | Предопределенный | `dataPathCommon` | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Общие объектные | PredefinedDataName | ИмяПредопределенныхДанных | имена в rules | строка | `dataPath: { family: "primitive", kind: "string" }` | - [x] |
-| Общие объектные | Description | Наименование / Описание | имена в rules | строка | `dataPath: { family: "primitive", kind: "string" }` | - [x] |
+| Общие объектные | Description | Наименование | имена в rules | строка | `dataPath: { family: "primitive", kind: "string" }` | - [x] |
 | Общие объектные | Code | Код | имена в rules | зависит от свойства владельца (`codeType` и аналоги) | `dataPath: { family: "codeByProperty", property: "codeType" }` | - [x] |
 | Общие объектные | IsFolder | ЭтоГруппа | имена в rules | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Общие объектные | Date | Дата | имена в rules | дата | `dataPath: { family: "primitive", kind: "dateTime" }` | - [x] |
@@ -95,7 +95,7 @@
 | Задача | Executed | Выполнена | `dataPathCommon` | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Задача | BusinessProcess | БизнесПроцесс | `metadataTask/register.ts` | бизнес-процессы, у которых в свойствах задач установлена эта задача; при нескольких значениях вложенные свойства недоступны | `dataPath: { family: "reverseLookup", target: "BusinessProcess", property: "tasks", empty: "error", allowNestedPropertiesWhenMultiple: false }` | - [x] |
 | Задача | RoutePoint | ТочкаМаршрута | `metadataTask/register.ts` | `ТочкаМаршрутаБизнесПроцесса` бизнес-процессов, у которых указана эта задача; дальше не раскрывается | `dataPath: { family: "closedReverseLookup", result: "BusinessProcessRoutePoint", source: "businessProcessesByTask", empty: "error", allowNestedProperties: false }` | - [x] |
-| Задача | Description | Описание | `MetadataTaskStandardAttributeNames` | строка | `dataPath: { family: "primitive", kind: "string" }` | - [x] |
+| Задача | Description | Наименование | `MetadataTaskStandardAttributeNames` | строка | `dataPath: { family: "primitive", kind: "string" }` | - [x] |
 | Задача | DeletionMark | ПометкаУдаления | `MetadataTaskStandardAttributeNames` | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Регистр сведений | Active | Активность | `MetadataInformationRegisterStandardAttributeNames` | булево | `dataPath: { family: "primitive", kind: "boolean" }` | - [x] |
 | Регистр сведений | LineNumber | НомерСтроки | `MetadataInformationRegisterStandardAttributeNames` | число | `dataPath: { family: "primitive", kind: "number" }` | - [x] |

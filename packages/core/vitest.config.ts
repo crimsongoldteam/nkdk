@@ -3,7 +3,6 @@ import { fileURLToPath } from "url"
 import { defineConfig } from "vitest/config"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const mutationTestFiles = process.env["NKDK_STRYKER_TEST_FILES"]?.split(",").filter(Boolean)
 
 export default defineConfig({
   plugins: [],
@@ -13,7 +12,6 @@ export default defineConfig({
     postcss: { plugins: [] },
   },
   test: {
-    ...(mutationTestFiles === undefined ? {} : { include: mutationTestFiles }),
     environment: "node",
     globals: true,
     watch: false,

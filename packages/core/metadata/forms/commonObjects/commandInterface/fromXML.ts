@@ -72,9 +72,9 @@ const commandInterfaceItemKeys = [
   "command",
   "type",
   "attribute",
-  "defaultVisible",
-  "index",
   "commandGroup",
+  "index",
+  "defaultVisible",
   "visible",
 ] as const satisfies readonly (keyof CommandInterfaceItem)[]
 

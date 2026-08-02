@@ -85,7 +85,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПриАктивизации: "ПроцедураАктивации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "Использование">
+}
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   itemType: "GraphicalSchemaField",

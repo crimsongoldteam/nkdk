@@ -9,9 +9,12 @@ import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
-import { MetadataAttributeRules } from "./rules"
+import { metadataAttributeModelProperties } from "./fragments"
 
-export type MetadataAttribute = MetadataTypeByRule<typeof MetadataAttributeRules>
+export type MetadataAttribute = MetadataTypeByRule<{
+  itemType: "MetadataAttribute"
+  properties: typeof metadataAttributeModelProperties
+}>
 
 export interface MetadataAttributeXML {
   _uuid: string

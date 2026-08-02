@@ -531,6 +531,35 @@ describe("validateForm", () => {
     expect(first.diagnostics).toEqual([])
   })
 
+  it.each([
+    ["АвтоВремя: Последним", "/АвтоВремя", "ДокументОбъект"],
+    ["ТипФормыОтчета: Настройка", "/ТипФормыОтчета", "ОтчетОбъект"],
+  ] as const)(
+    "отклоняет контекстное поле %s без подходящего основного реквизита",
+    (field, path, kind) => {
+      const project = createProject({
+        form: [
+          "Реквизиты:",
+          "  Объект:",
+          "    Тип: Строка",
+          "    ОсновнойРеквизит: Истина",
+          field,
+        ],
+      })
+
+      expect(runValidateForm(project)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path,
+            severity: "error",
+            source: "structure",
+            message: expect.stringContaining(kind),
+          }),
+        ])
+      )
+    }
+  )
+
   it("does not restrict InputField, LabelField, table fields, ColumnGroup header, or multiple-value DataPath terminals", () => {
     const project = createProject({
       form: [

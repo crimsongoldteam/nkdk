@@ -1,7 +1,10 @@
 import { existsSync, readdirSync } from "fs"
 import { join } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import {
+  getTypeRule,
+  resolvePropertyItemRule,
+} from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"
@@ -291,15 +294,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string] | undefined): MetadataItemRule | undefined {
   if (!propRule) return undefined
-
-  const collectionItemRule = getTypeRule(propRule.type, "collectionItemRule")
-  if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
-
-  if ("itemRule" in propRule && propRule.itemRule !== undefined) {
-    return propRule.itemRule as MetadataItemRule
-  }
-
-  return undefined
+  return resolvePropertyItemRule(propRule)
 }
 
 function fileItemNames(folderPath: string, yamlFileName: string): string[] {

@@ -131,7 +131,9 @@ When exporting XML:
 
 1. Use `xs` for `http://www.w3.org/2001/XMLSchema`.
 2. Use `v8` for `http://v8.1c.ru/8.1/data/core`.
-3. Use `d6p1` for other namespaces in `XDTOTypeName` fields.
+3. Use the contextual 1C prefix for other namespaces:
+   - `d6p1` for `XDTOReturningValueType`;
+   - `d8p1` for parameter `XDTOValueType`.
 
 Examples:
 
@@ -147,8 +149,13 @@ Examples:
 <XDTOReturningValueType xmlns:d6p1="http://www.1c.ru/dmil">d6p1:DMILResponse</XDTOReturningValueType>
 ```
 
-The original prefix does not need to be restored. XML consumers, including 1C, care about the expanded
-name: namespace plus local name.
+```xml
+<XDTOValueType xmlns:d8p1="http://www.1c.ru/dmil">d8p1:DMILRequest</XDTOValueType>
+```
+
+The prefix is reconstructed from the property role rather than preserved from the original XML.
+The complete reference-free decision and repository-wide statistics are recorded in
+`2026-08-02-contextual-namespace-prefixes-design.md`.
 
 ## Scope
 
@@ -169,8 +176,7 @@ Add focused tests for `XDTOTypeName` and web service operations:
   use the XML Schema namespace.
 - Built-in `v8:Structure`, `v8:Array`, `v8:Map`, `v8:ValueStorage` use the v8 data/core namespace.
 - Unknown prefix without an `xmlns` declaration fails with a useful message.
-- Existing reference-based XML round-trip tests are updated to assert semantic equality rather than preserving
-  a specific local prefix.
+- Reference-free XML export uses `d6p1` for a custom returning type and `d8p1` for a custom parameter type.
 
 After implementation, run targeted tests first, then run `round-trip-yaml-1c` on `/home/nikita/git/round-trip/trade`.
 Because this is a YAML contract change, run full `pnpm test` before closing the work.

@@ -113,7 +113,7 @@ it("восстанавливает обязательный RadioButtonType=Auto
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts \
   packages/core/metadata/forms/elements/orchestration/toJSONSchema.test.ts \
   packages/core/metadata/systemEnumerations/roundTrip.test.ts
@@ -196,7 +196,7 @@ git commit -m "fix: :bug: восстановить XML-default элементо�
 - Test: `packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts`
 
 **Interfaces:**
-- Consumes: `YAMLPropertySource.raw("attributes")`, `FormAttributes`, `TypeDescription.type` и существующий callback `toXML`.
+- Consumes: `YAMLPropertySource.raw("attributes")`, `ConfigurationContextWithExportToXML.importFromYAML.formDataPathIndex` и существующий callback `toXML`.
 - Produces: XML `Items` только для формы с основным реквизитом `CatalogObject.*` или `ChartOfCharacteristicTypesObject.*`, либо при явном YAML-значении.
 
 - [ ] **Step 1: Добавить параметризованный падающий тест**
@@ -241,7 +241,7 @@ it("сохраняет явное Folders независимо от неявно
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
 ```
 
@@ -249,22 +249,32 @@ Expected: случай документа получает лишний `Items` 
 
 - [ ] **Step 3: Добавить локальный предикат и условие правила**
 
-В `clientApplicationForm/rules.ts` импортировать `YAMLPropertySource` и `FormAttributes`, затем добавить рядом с правилами формы:
+В `clientApplicationForm/rules.ts` импортировать `YAMLPropertySource` и
+`ConfigurationContextWithExportToXML`, затем добавить рядом с правилами формы
+локальную проверку: имя основного реквизита брать из сырого YAML, а его
+нормализованный owner kind — из уже построенного `formDataPathIndex`.
 
 ```ts
-const OBJECT_TYPES_WITH_FOLDERS_AND_ITEMS = [
-  "CatalogObject.",
-  "ChartOfCharacteristicTypesObject.",
-] as const
+const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
+  "СправочникОбъект",
+  "ПланВидовХарактеристикОбъект",
+])
 
-const hasFoldersAndItemsMainAttribute = (source: YAMLPropertySource): boolean => {
-  const attributes = source.raw("attributes") as FormAttributes | undefined
-  return Array.isArray(attributes) && attributes.some((attribute) =>
-    attribute.mainAttribute === true &&
-    attribute.type?.type.some((type) =>
-      OBJECT_TYPES_WITH_FOLDERS_AND_ITEMS.some((prefix) => type.startsWith(prefix))
-    ) === true
-  )
+const hasFoldersAndItemsMainAttribute = (
+  source: YAMLPropertySource,
+  context?: ConfigurationContextWithExportToXML
+): boolean => {
+  const attributes = asRecord(source.raw("attributes"))
+  const index = context?.importFromYAML?.formDataPathIndex
+  if (attributes === undefined || index === undefined) return false
+
+  return Object.entries(attributes).some(([name, rawAttribute]) => {
+    const attribute = asRecord(rawAttribute)
+    return attribute?.["ОсновнойРеквизит"] === "Истина" &&
+      index.getRoot(name)?.typeInfo.nextTypes.some(({ kind }) =>
+        FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS.has(kind)
+      ) === true
+  })
 }
 ```
 
@@ -277,8 +287,8 @@ useForFoldersAndItems: systemEnumerationRule({
   tag: FormRulesTags.Form,
   implicitValueYAML: "Items",
   defaultValueXML: "Items",
-  toXML: (source: YAMLPropertySource) =>
-    source.has("useForFoldersAndItems") || hasFoldersAndItemsMainAttribute(source),
+  toXML: (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) =>
+    source.has("useForFoldersAndItems") || hasFoldersAndItemsMainAttribute(source, context),
 }),
 ```
 
@@ -366,7 +376,7 @@ expect(MetadataStyleItemRules.properties.type).toMatchObject({
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts \
   packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts \
   packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts
@@ -427,7 +437,7 @@ pnpm test:mutation -- --report mandatory-xml-defaults \
 Затем отдельно запустить целевые тесты владельцев внешнего источника:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromYAMLToXML.test.ts \
   packages/core/metadata/commonObjects/metadataExternalDataSourceTable/fromYAMLToXML.test.ts
 ```
@@ -472,7 +482,7 @@ expect(exported.xml.Table).toMatchObject({
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/commonObjects/ganttChartFieldTable/types.test.ts
 ```
 
@@ -503,7 +513,7 @@ Run ту же команду Vitest. Expected: PASS и полная тройка
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts \
   packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
 ```
@@ -557,7 +567,7 @@ expect(result).toContain(
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/commonObjects/commandInterface/toXML.test.ts
 ```
 
@@ -602,7 +612,7 @@ const commandInterfaceItemXMLKeys = [
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run --no-isolate \
+pnpm --filter @nkdk/core exec vitest run --no-isolate \
   packages/core/metadata/forms/commonObjects/commandInterface/fromXML.test.ts \
   packages/core/metadata/forms/commonObjects/commandInterface/fromYAML.test.ts \
   packages/core/metadata/forms/commonObjects/commandInterface/toXML.test.ts \

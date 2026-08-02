@@ -5,7 +5,7 @@ const indexTimeMembers = [
   { memberKind: "standardAttribute", names: { internal: "Date", yaml: "Дата" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "dateTime" },
   { memberKind: "standardAttribute", names: { internal: "Number", yaml: "Номер" }, family: "numberByProperty", phase: "index-time", sourceScope: "ownerModel", property: "numberType" },
   { memberKind: "standardAttribute", names: { internal: "Executed", yaml: "Выполнена" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
-  { memberKind: "standardAttribute", names: { internal: "Description", yaml: "Описание" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
+  { memberKind: "standardAttribute", names: { internal: "Description", yaml: "Наименование" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
   { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
 ] as const
 

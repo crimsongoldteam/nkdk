@@ -8,9 +8,12 @@ import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataNameYAML } from "../metadataName/types"
-import { MetadataTabularSectionRules } from "./rules"
+import { metadataTabularSectionModelProperties } from "./fragments"
 
-export type MetadataTabularSection = MetadataTypeByRule<typeof MetadataTabularSectionRules>
+export type MetadataTabularSection = MetadataTypeByRule<{
+  itemType: "MetadataTabularSection"
+  properties: typeof metadataTabularSectionModelProperties
+}>
 
 export type TabularSectionInternalInfoParamsXML = [
   { name: string; category: "TabularSection" },

@@ -50,7 +50,12 @@ describe("form element JSON Schema", () => {
         Вид: expect.objectContaining({ const: "Кнопка" }),
         ТипКнопки: expect.any(Object),
       }),
+      required: expect.arrayContaining(["ТипКнопки"]),
     })
+
+    const check = compileValidationSchema(schema)
+    expect(check.Check({ Вид: "Кнопка" })).toBe(false)
+    expect(check.Check({ Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" })).toBe(true)
   })
 
   it("exposes child item type sets used by tree YAML", () => {

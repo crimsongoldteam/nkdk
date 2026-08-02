@@ -141,6 +141,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual(expected)
   })
 
+  it("не сохраняет пустой XML-тег вместо implicitValueXML из reference", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "boolean",
+          xml: "Value",
+          yaml: "Значение",
+          implicitValueYAML: false,
+          implicitValueXML: false,
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: false } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("вычисляет implicitValueYAML для отсутствующего YAML при implicitValueXML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

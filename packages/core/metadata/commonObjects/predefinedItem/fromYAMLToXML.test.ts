@@ -22,6 +22,13 @@ describe("PredefinedItem YAML → XML", () => {
     expect(testPropertyFromYAMLToXML({ rule: collectionRule, yaml: {} }).xml).toEqual({})
   })
 
+  it("восстанавливает пустые Code и Description без reference", () => {
+    const result = convertItem("ПредопределенноеЗначение", {})
+
+    expect(result).toContain("<Code/>")
+    expect(result).toContain("<Description/>")
+  })
+
   it.each(cases)("imports $name fixture", ({ yaml }) => {
     expect(convertCollection(yaml)).toContain("<Item")
   })
@@ -93,6 +100,55 @@ describe("PredefinedItem YAML → XML", () => {
     const result = convertItem("Группа", { Код: "000000002", Наименование: "Группа", ЭтоГруппа: "Истина" }, chartContext())
     expect(result).toContain("<IsFolder>true</IsFolder>")
     expect(result).toContain("<Type/>")
+  })
+
+  it("restores current-config Type prefixes by predefined item depth", () => {
+    const xml = convertCollection(
+      {
+        Корень: {
+          ТипЗначения: "Справочник.ЗначенияХарактеристик",
+          Элементы: {
+            Дочерний: {
+              ТипЗначения: "Справочник.ЗначенияХарактеристик",
+              Элементы: {
+                Третий: {
+                  ТипЗначения: "Справочник.ЗначенияХарактеристик",
+                  Элементы: {
+                    Четвертый: { ТипЗначения: "Справочник.ЗначенияХарактеристик" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      chartContext()
+    )
+
+    const prefixes = [
+      ...xml.matchAll(
+        /<v8:Type xmlns:(d\d+p1)="http:\/\/v8\.1c\.ru\/8\.1\/data\/enterprise\/current-config">\1:CatalogRef\.ЗначенияХарактеристик<\/v8:Type>/g
+      ),
+    ].map((match) => match[1])
+    expect(prefixes).toEqual(["d4p1", "d6p1", "d8p1", "d10p1"])
+  })
+
+  it("restores current-config prefixes for every type of a composite predefined item", () => {
+    const xml = convertCollection(
+      {
+        Корень: {
+          ТипЗначения: ["Справочник.Контрагенты", "Справочник.Проекты"],
+        },
+      },
+      chartContext()
+    )
+
+    const prefixes = [
+      ...xml.matchAll(
+        /<v8:Type xmlns:(d\d+p1)="http:\/\/v8\.1c\.ru\/8\.1\/data\/enterprise\/current-config">\1:CatalogRef\.(Контрагенты|Проекты)<\/v8:Type>/g
+      ),
+    ].map((match) => match[1])
+    expect(prefixes).toEqual(["d4p1", "d4p1"])
   })
 })
 

@@ -107,11 +107,10 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     inlineUsualGroupJSON = JSON.stringify(schemaForName("UsualGroup", "inline"))
     for (const name of [
       "MetadataCatalog",
-      "MetadataAttribute",
       "MetadataCatalogAttribute",
       "MetadataDocumentAttribute",
-      "MetadataTabularSectionAttribute",
-      "MetadataTabularSectionAttributeWithFill",
+      "MetadataCatalogTabularSectionAttribute",
+      "MetadataDataProcessorTabularSectionAttribute",
       "FormParameter",
       "CommandBarButton",
     ]) {
@@ -131,7 +130,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports compact named schemas by schema name", () => {
-    const schema = schemaForName("MetadataAttribute")
+    const schema = schemaForName("MetadataCatalogAttribute")
     const json = JSON.stringify(schema)
 
     expect(json).toContain('"Тип"')
@@ -155,8 +154,26 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       type: "object",
       additionalProperties: { $ref: "nkdk://schema/MetadataCatalogAttribute" },
     })
+    expect(catalog.properties?.ТабличныеЧасти).toMatchObject({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/MetadataCatalogTabularSection" },
+    })
     expect(graph.schemas["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
       $id: "nkdk://schema/MetadataCatalogAttribute",
+      type: "object",
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogTabularSection"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogTabularSection",
+      type: "object",
+      properties: expect.objectContaining({
+        Реквизиты: expect.objectContaining({
+          type: "object",
+          additionalProperties: { $ref: "nkdk://schema/MetadataCatalogTabularSectionAttribute" },
+        }),
+      }),
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogTabularSectionAttribute"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogTabularSectionAttribute",
       type: "object",
     })
   })
@@ -175,10 +192,10 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
 
   it("exports object-only metadata attribute schemas", () => {
     const schemaNames = [
-      "MetadataAttribute",
       "MetadataCatalogAttribute",
       "MetadataDocumentAttribute",
-      "MetadataTabularSectionAttribute",
+      "MetadataCatalogTabularSectionAttribute",
+      "MetadataDataProcessorTabularSectionAttribute",
     ]
 
     for (const name of schemaNames) {
@@ -191,6 +208,17 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     }
   })
 
+  it.each([
+    ["MetadataDataProcessorAttribute", { Тип: "Строка", ЗначениеЗаполнения: "Строка" }, "Fill"],
+    ["MetadataDataProcessorTabularSectionAttribute", { Тип: "Строка", ИсторияДанных: "Использовать" }, "history"],
+    ["MetadataDocumentAttribute", { Тип: "Строка", Использование: "ДляЭлемента" }, "Use"],
+    ["MetadataDataProcessorTabularSection", { ДлинаНомераСтроки: 5 }, "LineNumberLength"],
+    ["MetadataAccountingRegisterAttribute", { Тип: "Строка", ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Поле" }, "binary field"],
+    ["MetadataInformationRegisterAttribute", { Тип: "Строка", СвязьСГрафиком: "График" }, "ScheduleLink"],
+  ])("rejects unsupported %s field class: %s", (schemaName, yaml, _reason) => {
+    expect(compiledSchemaForName(schemaName, "inline").Check(yaml)).toBe(false)
+  })
+
   it("allows Fill fields only in specialized tabular section attributes", () => {
     const attribute = {
       Тип: "Строка",
@@ -198,8 +226,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       ЗначениеЗаполнения: "",
     }
 
-    expect(compiledSchemaForName("MetadataTabularSectionAttribute").Check(attribute)).toBe(false)
-    expect(compiledSchemaForName("MetadataTabularSectionAttributeWithFill").Check(attribute)).toBe(true)
+    expect(compiledSchemaForName("MetadataDocumentTabularSectionAttribute").Check(attribute)).toBe(false)
+    expect(compiledSchemaForName("MetadataDataProcessorTabularSectionAttribute").Check(attribute)).toBe(true)
   })
 
   it("accepts home page work area in configuration schemas", () => {
@@ -662,7 +690,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
 
   it("lists known schema names", () => {
     expect(listJSONSchemaNames()).toEqual(
-      expect.arrayContaining(["MetadataAttribute", "MetadataCatalogAttribute", "InputField", "Table"])
+      expect.arrayContaining(["MetadataCatalogAttribute", "MetadataDocumentAttribute", "InputField", "Table"])
     )
   })
 })

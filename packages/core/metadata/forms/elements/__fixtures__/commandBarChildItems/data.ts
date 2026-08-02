@@ -30,6 +30,7 @@ export const fullCommandBarChildItemsStructure: CommandBarChildItem[] = [
   {
     itemType: "Button",
     name: "Кнопка1",
+    type: "UsualButton",
   },
   {
     itemType: "ButtonGroup",
@@ -47,6 +48,7 @@ export const fullCommandBarChildItemsTyped: CommandBarChildItem[] = [
   {
     itemType: "Button",
     name: "Кнопка1",
+    type: "UsualButton",
     commandName: "ВыполнитьКоманда1",
   },
   {

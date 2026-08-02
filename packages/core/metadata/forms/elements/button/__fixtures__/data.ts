@@ -146,6 +146,7 @@ export const fullUsualButton = {
 
 export const fullUsualButtonPartialYAML = {
   ...commonButtonPartialYAML,
+  Вид: "ОбычнаяКнопка",
 } satisfies ButtonPartialYAML
 
 export const fullUsualButtonTypedYAML: ButtonTypedYAML = {
@@ -259,6 +260,7 @@ export const commandBarButtonWithParameterTypedYAML: CommandBarButtonTypedYAML =
 export const commandButtonWithTypeDescriptionParameter = {
   itemType: "Button",
   name: "СоздатьПриемНаРаботу",
+  type: "UsualButton",
   commandName: "Form.Item.Список.StandardCommand.CreateByParameter",
   parameter: {
     typeDescription: { type: ["DocumentRef.ПриемНаРаботу"] },
@@ -307,6 +309,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     element: {
       name: "Заголовок",
       itemType: "Button",
+      type: "UsualButton",
       title: { items: { ru: "Заголовок" } },
     },
     structured: {
@@ -319,6 +322,7 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
     element: {
       name: "Кнопка",
       itemType: "Button",
+      type: "UsualButton",
       title: undefined,
     },
     structured: {
@@ -359,6 +363,7 @@ export const commandBarButtonStructureFixturesTable: CommandBarButtonStructureFi
     element: {
       name: "Команда",
       itemType: "CommandBarButton",
+      type: "CommandBarButton",
       title: { items: { ru: "Кнопка" } },
     },
     structured: {
@@ -371,6 +376,7 @@ export const commandBarButtonStructureFixturesTable: CommandBarButtonStructureFi
     element: {
       name: "Команда",
       itemType: "CommandBarButton",
+      type: "CommandBarButton",
     },
     structured: {
       strings: ["Команда"],

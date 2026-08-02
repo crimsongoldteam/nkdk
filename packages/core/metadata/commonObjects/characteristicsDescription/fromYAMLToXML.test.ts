@@ -23,18 +23,23 @@ const rule = {
     value: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xml: "Characteristics",
-      defaultValueXMLRaw: {},
+      xmlParents: [],
+      defaultValueXMLRaw: "",
     }),
   },
 } as MetadataItemRule
 
 describe("CharacteristicsDescriptions YAML → XML", () => {
-  it("imports undefined", () => {
-    expect(testPropertyFromYAMLToXML({ rule, yaml: {} }).xml).toEqual({})
+  it("создаёт обязательный пустой контейнер без reference", () => {
+    const result = testPropertyFromYAMLToXML({ rule, yaml: {} })
+
+    expect(serializeDirectXML(result.xml)).toContain("<Characteristics/>")
   })
 
   it("imports empty array", () => {
-    expect(testPropertyFromYAMLToXML({ rule, yaml: { Характеристики: [] } }).xml).toEqual({})
+    const result = testPropertyFromYAMLToXML({ rule, yaml: { Характеристики: [] } })
+
+    expect(serializeDirectXML(result.xml)).toContain("<Characteristics/>")
   })
 
   it("preserves an explicit empty XML container through the configuration snapshot", () => {

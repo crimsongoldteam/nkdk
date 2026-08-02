@@ -1,5 +1,5 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataCatalogAttributesRule, metadataTabularSectionsRule } from "./builders"
+import { metadataCatalogAttributesRule, metadataCatalogTabularSectionsRule } from "./builders"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -174,7 +174,7 @@ export const MetadataCatalogRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: ["Properties"],
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
@@ -214,7 +214,7 @@ export const MetadataCatalogRules = {
       yaml: "ДлинаКода",
       defaultValueXML: 9,
       xmlParents: ["Properties"],
-      implicitValueYAML: 10,
+      implicitValueYAML: 9,
     }),
     codeSeries: systemEnumerationRule({
       yaml: "СерииКодов",
@@ -303,7 +303,7 @@ export const MetadataCatalogRules = {
       yaml: "ДлинаНаименования",
       defaultValueXML: 25,
       xmlParents: ["Properties"],
-      implicitValueYAML: 30,
+      implicitValueYAML: 25,
     }),
     editType: systemEnumerationRule({
       yaml: "СпособРедактирования",
@@ -487,7 +487,7 @@ export const MetadataCatalogRules = {
       defaultValueXMLRaw: {},
       excludeIfEqualNameYAML: true,
     }),
-    tabularSections: metadataTabularSectionsRule({
+    tabularSections: metadataCatalogTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xmlParents: ["ChildObjects"],
       xml: "TabularSection",

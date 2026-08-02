@@ -1,4 +1,7 @@
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import {
+  getTypeRule,
+  resolvePropertyItemRule,
+} from "../orchestration/property/typeRuleRegistry"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
 import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/property/fn"
 import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
@@ -136,14 +139,7 @@ function pendingReferenceFromCandidate(params: {
 }
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string]): MetadataItemRule | undefined {
-  const collectionItemRule = getTypeRule(propRule.type, "collectionItemRule")
-  if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
-
-  if ("itemRule" in propRule && propRule.itemRule !== undefined) {
-    return propRule.itemRule as MetadataItemRule
-  }
-
-  return undefined
+  return resolvePropertyItemRule(propRule)
 }
 
 function nestedItemPathSegment(item: unknown, index: number): string | number {

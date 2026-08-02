@@ -99,27 +99,64 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("prefers an exact owner field over a standard-member YAML alias", () => {
-    const result = resolveDataPathCore({
-      value: "Объект.Описание",
-      nameMode: "yaml",
-      index: indexWithAttributes([attribute("Объект", { type: ["TaskObject.ЗадачаИсполнителя"] })]),
-      ownerCache: ownerCache([
-        owner({
-          ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
-          rule: MetadataTaskRules,
-          model: {
-            itemType: "MetadataTask",
-            attributes: [{ name: "Описание", type: { type: ["string"] } }],
-          },
-        }),
-      ]),
+  it.each([
+    ["Объект", "TaskObject.ЗадачаИсполнителя", "ЗадачаОбъект"],
+    ["Список", "TaskRef.ЗадачаИсполнителя", "Задача"],
+  ] as const)("keeps a task attribute distinct from standard Description through %s", (root, type, ownerKind) => {
+    const model = {
+      itemType: "MetadataTask" as const,
+      attributes: [{ name: "Описание", type: { type: ["string"] } }],
+    }
+    const owners = ownerCache([
+      owner({
+        ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model,
+      }),
+      owner({
+        ref: { kind: "Задача", name: "ЗадачаИсполнителя" },
+        rule: MetadataTaskRules,
+        model,
+      }),
+    ])
+    const index = indexWithAttributes([attribute(root, { type: [type] })])
+
+    expect(
+      resolveDataPathCore({
+        value: `${root}.Наименование`,
+        nameMode: "yaml",
+        index,
+        ownerCache: owners,
+      })
+    ).toMatchObject({
+      status: "ok",
+      replacements: [{ segmentIndex: 1, from: "Наименование", to: "Description", reason: "standardMember" }],
+      target: { source: { kind: "objectField", owner: { kind: ownerKind }, name: "Наименование" } },
     })
 
-    expect(result).toMatchObject({
+    expect(
+      resolveDataPathCore({
+        value: `${root}.Description`,
+        nameMode: "internal",
+        index,
+        ownerCache: owners,
+      })
+    ).toMatchObject({
+      status: "ok",
+      replacements: [{ segmentIndex: 1, from: "Description", to: "Наименование", reason: "standardMember" }],
+    })
+
+    expect(
+      resolveDataPathCore({
+        value: `${root}.Описание`,
+        nameMode: "yaml",
+        index,
+        ownerCache: owners,
+      })
+    ).toMatchObject({
       status: "ok",
       replacements: [],
-      target: { source: { kind: "objectField", name: "Описание" } },
+      target: { source: { kind: "objectField", owner: { kind: ownerKind }, name: "Описание" } },
     })
   })
 
@@ -1846,7 +1883,7 @@ describe("resolveDataPath", () => {
     ])
 
     for (const [path, yamlName] of [
-      ["Объект.Описание", "Описание"],
+      ["Объект.Наименование", "Наименование"],
       ["Объект.Выполнена", "Выполнена"],
       ["Объект.БизнесПроцесс", "БизнесПроцесс"],
       ["Объект.ТочкаМаршрута", "ТочкаМаршрута"],

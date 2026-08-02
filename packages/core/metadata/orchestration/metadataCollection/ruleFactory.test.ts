@@ -2,9 +2,14 @@ import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { createJSONSchemaExportContext, getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import {
+  createJSONSchemaExportContext,
+  createSchemaRef,
+  getJSONSchemaIdentityExporter,
+} from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { PropertyRuleType } from "../property/registry"
+import { declarePropertyItemRule } from "../property/propertyItemRuleDeclarations"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
@@ -75,9 +80,77 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
     expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
     expect(compiled.Check([{ name: "A", children: { B: {} } }])).toBe(false)
   })
+
+  it.each(["inline", "externalRefs"] as const)(
+    "uses explicit itemRule in %s JSON Schema",
+    (mode) => {
+      const propertyType = `TestExplicitItemRule${mode}` as PropertyRuleType
+      const fallbackRule = {
+        itemType: `TestFallbackItem${mode}`,
+        properties: {
+          fallback: { type: "string", yaml: "fallback", required: true },
+        },
+      } as MetadataItemRule
+      const explicitRule = {
+        itemType: `TestExplicitItem${mode}`,
+        properties: {
+          explicit: { type: "string", yaml: "explicit", required: true },
+        },
+      } as MetadataItemRule
+      registerMetadataItemCollectionRule({ propertyType, itemRule: fallbackRule, xmlElement: "Item" })
+      const schemaContext = createJSONSchemaExportContext(context, mode)
+      const schema = exportPropertyToJSONSchema({
+        context: schemaContext,
+        rule: { type: propertyType, itemRule: explicitRule },
+        value: undefined,
+      })!
+      const fallbackSchema = getJSONSchemaIdentityExporter(fallbackRule.itemType)?.({ context: schemaContext })
+      const compiled =
+        fallbackSchema === undefined
+          ? compileValidationSchema(schema)
+          : compileValidationSchema({ [createSchemaRef(fallbackRule.itemType)]: fallbackSchema }, schema)
+
+      expect(compiled.Check({ A: { explicit: "yes" } })).toBe(true)
+      expect(compiled.Check({ A: { fallback: "no" } })).toBe(false)
+    }
+  )
 })
 
 describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
+  it("resolves a named owner schema from a later itemRule declaration", () => {
+    const propertyType = "TestDeclaredOwnerCollection" as PropertyRuleType
+    const fallbackRule = {
+      itemType: "TestDeclaredFallbackItem",
+      properties: { fallback: { type: "string", yaml: "fallback" } },
+    } as MetadataItemRule
+    const ownerRule = {
+      itemType: "TestDeclaredOwnerItem",
+      properties: { owner: { type: "string", yaml: "owner", required: true } },
+    } as MetadataItemRule
+
+    registerMetadataItemCollectionRule({
+      propertyType,
+      schemaName: "TestDeclaredOwnerSchema",
+      itemRule: fallbackRule,
+      xmlElement: "Item",
+    })
+    declarePropertyItemRule(propertyType, ownerRule)
+
+    const schemaContext = createJSONSchemaExportContext(context, "externalRefs")
+    expect(
+      exportPropertyToJSONSchema({
+        context: schemaContext,
+        rule: { type: propertyType, itemRule: ownerRule },
+        value: undefined,
+      })
+    ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/TestDeclaredOwnerSchema" } })
+
+    const namedSchema = getJSONSchemaIdentityExporter("TestDeclaredOwnerSchema")?.({ context: schemaContext })
+    const compiled = compileValidationSchema(namedSchema!)
+    expect(compiled.Check({ owner: "yes" })).toBe(true)
+    expect(compiled.Check({ fallback: "no" })).toBe(false)
+  })
+
   it("registers record ref schema for metadata collections by default", () => {
     const propertyType = "TestRefCollection" as PropertyRuleType
     registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item" })

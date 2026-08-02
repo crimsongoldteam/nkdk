@@ -20,7 +20,37 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../../orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
+import { hasMainAttributeKind } from "./mainAttributeKinds"
 export type { ElementRule, PropertyRule }
+
+const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
+  "СправочникОбъект",
+  "ПланВидовХарактеристикОбъект",
+])
+const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
+const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
+
+interface FormRuleYAMLSource {
+  has(key: string): boolean
+  raw(key: string): unknown
+}
+
+interface FormRuleExportContext {
+  importFromYAML?: {
+    formDataPathIndex?: {
+      getRoot(name: string):
+        | { typeInfo: { nextTypes: readonly { kind: string }[] } }
+        | undefined
+    }
+  }
+}
+
+const hasMainAttributeFromSource = (
+  source: FormRuleYAMLSource,
+  context: FormRuleExportContext | undefined,
+  kinds: ReadonlySet<string>
+): boolean => hasMainAttributeKind(source.raw("attributes"), context?.importFromYAML?.formDataPathIndex, kinds)
+
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   metadataTargetOwner: { kind: "inherit" },
@@ -213,7 +243,11 @@ export const ClientApplicationFormRules = {
       xml: "ReportFormType",
       typeSE: "ReportFormType",
       tag: FormRulesTags.Form,
-      noImplicitValueYAML: true,
+      implicitValueYAML: "Main",
+      defaultValueXML: "Main",
+      omitImplicitValueYAMLBySource: true,
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("reportFormType") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     variantAppearance: stringRule({
       yaml: "ПредставлениеВарианта",
@@ -226,7 +260,10 @@ export const ClientApplicationFormRules = {
       typeSE: "AutoShowStateMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("autoShowState") || hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     customSettingsFolder: stringRule({
       yaml: "ГруппаПользовательскихНастроек",
@@ -239,7 +276,11 @@ export const ClientApplicationFormRules = {
       typeSE: "ReportResultViewMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("reportResultViewMode") ||
+        hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     viewModeApplicationOnSetReportResult: systemEnumerationRule({
       yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
@@ -247,7 +288,11 @@ export const ClientApplicationFormRules = {
       typeSE: "ViewModeApplicationOnSetReportResult",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
       omitImplicitValueYAMLBySource: true,
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("viewModeApplicationOnSetReportResult") ||
+        hasMainAttributeFromSource(source, context, REPORT_MAIN_ATTRIBUTE_KINDS),
     }),
     mobileDeviceCommandBarContent: mobileDeviceCommandBarContentRule({
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
@@ -489,6 +534,10 @@ export const ClientApplicationFormRules = {
       typeSE: "FoldersAndItemsUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
+      defaultValueXML: "Items",
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("useForFoldersAndItems") ||
+        hasMainAttributeFromSource(source, context, FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS),
     }),
     choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
@@ -507,6 +556,9 @@ export const ClientApplicationFormRules = {
       typeSE: "AutoTimeMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "CurrentOrLast",
+      defaultValueXML: "CurrentOrLast",
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("autoTime") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     usePostingMode: systemEnumerationRule({
       yaml: "РежимПроведения",
@@ -514,11 +566,17 @@ export const ClientApplicationFormRules = {
       typeSE: "PostingModeUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("usePostingMode") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     repostOnWrite: booleanRule({
       yaml: "ПерепроводитьПриЗаписи",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
+      defaultValueXML: true,
+      toXML: (source: FormRuleYAMLSource, context?: FormRuleExportContext) =>
+        source.has("repostOnWrite") || hasMainAttributeFromSource(source, context, DOCUMENT_MAIN_ATTRIBUTE_KINDS),
     }),
     // #endregion
     events: eventsRule({

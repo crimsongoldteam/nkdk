@@ -158,7 +158,7 @@ export const MetadataEnumerationRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: enumProperties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     quickChoice: booleanRule({
       yaml: "БыстрыйВыбор",

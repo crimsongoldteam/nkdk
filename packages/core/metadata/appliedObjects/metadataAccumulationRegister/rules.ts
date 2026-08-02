@@ -1,9 +1,9 @@
 import {
   additionalIndexRule,
   metadataCommandsRule,
-  metadataRegisterAttributesRule,
-  metadataRegisterDimensionsRule,
-  metadataRegisterResourcesRule,
+  metadataAccumulationRegisterAttributesRule,
+  metadataAccumulationRegisterDimensionsRule,
+  metadataAccumulationRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
 import { accumulationRegisterAggregatesRule } from "./builders"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -218,17 +218,17 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    resources: metadataRegisterResourcesRule({
+    resources: metadataAccumulationRegisterResourcesRule({
       yaml: "Ресурсы",
       xmlParents: childObjects,
       xml: "Resource",
     }),
-    dimensions: metadataRegisterDimensionsRule({
+    dimensions: metadataAccumulationRegisterDimensionsRule({
       yaml: "Измерения",
       xmlParents: childObjects,
       xml: "Dimension",
     }),
-    attributes: metadataRegisterAttributesRule({
+    attributes: metadataAccumulationRegisterAttributesRule({
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",

@@ -4,17 +4,25 @@ import { serializeDirectXML, testPropertyFixtureThroughYAML, testPropertyFromYAM
 import { mockContextToXML } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 
-import "./register"
+import { MetadataInformationRegisterDimensionRules } from "../../appliedObjects/metadataInformationRegister/childRules"
 
 const rule = {
-  itemType: "MetadataRegisterDimensionsProbe",
-  properties: { value: { type: "MetadataRegisterDimensions", yaml: "Значение", xml: "Dimension" } },
+  itemType: "MetadataInformationRegisterDimensionsProbe",
+  properties: {
+    value: {
+      type: "MetadataInformationRegisterDimensions",
+      yaml: "Значение",
+      xml: "Dimension",
+      itemRule: MetadataInformationRegisterDimensionRules,
+    },
+  },
 } as MetadataItemRule
 
-describe("MetadataRegisterDimensions YAML → XML", () => {
+describe("MetadataInformationRegisterDimensions YAML → XML", () => {
   it("round-trips register dimensions", () => {
     const result = testPropertyFixtureThroughYAML({
-      propertyType: "MetadataRegisterDimensions",
+      propertyType: "MetadataInformationRegisterDimensions",
+      itemRule: MetadataInformationRegisterDimensionRules,
       xmlRootTag: "Dimension",
       importMetaUrl: import.meta.url,
       fixture: "dimensions.xml",

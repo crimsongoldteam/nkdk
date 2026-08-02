@@ -76,7 +76,11 @@ export const GraphicalSchemaFieldRules = {
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
     }),
     commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
-    edit: booleanRule({ yaml: "Редактирование", toYAML: false, fromYAML: false, toEnterprise: false }),
+    edit: booleanRule({
+      yaml: "Редактирование",
+      implicitValueYAML: true,
+      toEnterprise: false,
+    }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),

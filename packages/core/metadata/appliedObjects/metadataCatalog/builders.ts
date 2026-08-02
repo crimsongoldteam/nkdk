@@ -1,45 +1,17 @@
 import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataCatalogAttributeRules,
+  MetadataCatalogTabularSectionRules,
+} from "./childRules"
 
-export interface MetadataCatalogAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataCatalogAttributes"
-}
-
-export type MetadataCatalogAttributesRuleParams = Omit<MetadataCatalogAttributesWidePropertyRule, "type">
-
-export function metadataCatalogAttributesRule<const Params extends MetadataCatalogAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataCatalogAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataCatalogAttributes"; ownerFactRole: "attributes" } & Params> {
-  return defineWidePropertyRule("MetadataCatalogAttributes", {
-    ownerFactRole: "attributes",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    }),
-  })
-}
-export interface MetadataTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataTabularSections"
-}
-
-export type MetadataTabularSectionsRuleParams = Omit<MetadataTabularSectionsWidePropertyRule, "type">
-
-export function metadataTabularSectionsRule<const Params extends MetadataTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataCatalogAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataCatalogAttributes",
+  MetadataCatalogAttributeRules
+)
+export const metadataCatalogTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataCatalogTabularSections",
+  MetadataCatalogTabularSectionRules
+)
