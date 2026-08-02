@@ -212,6 +212,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => session.readOwners([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.findReferences([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readDependencyInputs([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readValidationStatus({ offset: 0, batchSize: 1 })).toThrow(ProjectStateReadSessionClosedError)
       expect(() => openReadSession(token)).toThrow()
     })
   })

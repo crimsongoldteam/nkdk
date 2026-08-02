@@ -42,6 +42,7 @@ export interface ProjectStateWriterHandle {
   openProject(projectDir: string): Promise<void>
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
+  validateDependencies(): Promise<readonly Diagnostic[]>
   createReadToken(): Promise<ProjectStateReadToken>
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
@@ -114,6 +115,22 @@ export function createProjectStateWriterHandle(
       assertUsable()
       const result = await request({ kind: "readLocalDiagnostics", requestId: randomUUID() })
       if (result.kind !== "localDiagnostics") throw new Error("ProjectState writer не вернул локальные diagnostics")
+      return result.diagnostics
+    },
+    async validateDependencies() {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      await Promise.all([...operationWrites])
+      if (operationFailure !== undefined) throw operationFailure
+      if (cancelledError !== undefined) throw cancelledError
+      const result = await request({
+        kind: "validateDependencies",
+        requestId: randomUUID(),
+        operationId: currentOperationId,
+      })
+      if (result.kind !== "dependencyDiagnostics") {
+        throw new Error("ProjectState writer не вернул dependency diagnostics")
+      }
       return result.diagnostics
     },
     async createReadToken() {

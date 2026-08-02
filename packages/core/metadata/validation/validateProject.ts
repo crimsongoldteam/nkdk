@@ -1,6 +1,6 @@
 import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
-import { isAbsolute, join, relative, resolve, sep } from "path"
+import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { discoverPreparedYamlValidationProjectFiles } from "../project/preparedYamlProject"
 import {
@@ -9,10 +9,11 @@ import {
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createValidationProfiler } from "./profile"
-import { evaluateProjectFirstPass } from "./projectFirstPassReadiness"
+import { createProjectDegradationDiagnostics, evaluateProjectFirstPass } from "./projectFirstPassReadiness"
 import { discoverValidationProjectComponents } from "./projectComponents"
 import { createProjectValidationGraph } from "./projectValidationGraph"
 import type { Diagnostic } from "./types"
+import { dedupeDiagnostics, sortDiagnostics } from "./diagnostics"
 
 export interface ValidateProjectParams {
   projectDir: string
@@ -158,7 +159,7 @@ async function validateProjectWithPreparedYaml(
         })
     )
     secondPassMs = profiler.records().find((record) => record.substep === "Ожидание worker second pass")?.timeMs ?? 0
-    const degradationDiagnostics = createDegradationDiagnostics({
+    const degradationDiagnostics = createProjectDegradationDiagnostics({
       projectDir,
       hasConfiguration: componentDiscovery.hasConfiguration,
       blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
@@ -245,42 +246,6 @@ function normalizeValidationConcurrency(value: number | undefined): number {
   return Math.max(1, Math.min(4, availableParallelism() - 1))
 }
 
-function sortDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-  return [...diagnostics].sort((left, right) => {
-    return (
-      left.filePath.localeCompare(right.filePath) ||
-      left.line - right.line ||
-      left.col - right.col ||
-      left.severity.localeCompare(right.severity) ||
-      left.message.localeCompare(right.message)
-    )
-  })
-}
-
-function dedupeDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-  const result: Diagnostic[] = []
-  const seen = new Set<string>()
-  for (const diagnostic of diagnostics) {
-    const key = diagnosticKey(diagnostic)
-    if (seen.has(key)) continue
-    seen.add(key)
-    result.push(diagnostic)
-  }
-  return result
-}
-
-function diagnosticKey(diagnostic: Diagnostic): string {
-  return [
-    diagnostic.filePath,
-    diagnostic.line,
-    diagnostic.col,
-    diagnostic.source,
-    diagnostic.severity,
-    diagnostic.path ?? "",
-    diagnostic.message,
-  ].join("\0")
-}
-
 export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnostic): Diagnostic {
   const relativePath = relative(resolve(projectDir), resolve(diagnostic.filePath))
   if (relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
@@ -292,34 +257,6 @@ export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnost
       ? rootProjectPath
       : `cf/${rootProjectPath}`
   return { ...diagnostic, filePath: componentProjectPath }
-}
-
-function createDegradationDiagnostics(params: {
-  projectDir: string
-  hasConfiguration: boolean
-  blockedComponentPaths: readonly string[]
-}): Diagnostic[] {
-  const diagnostics = params.blockedComponentPaths.map(
-    (componentPath): Diagnostic => ({
-      filePath: join(params.projectDir, componentPath, "Конфигурация.yaml"),
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "cross-file",
-      message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
-    })
-  )
-  if (!params.hasConfiguration) {
-    diagnostics.push({
-      filePath: join(params.projectDir, "cf", "Конфигурация.yaml"),
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      message: "Базовая конфигурация cf не найдена",
-    })
-  }
-  return diagnostics
 }
 
 function defaultValidationContext(): ConfigurationContext {

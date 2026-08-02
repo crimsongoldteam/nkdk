@@ -456,6 +456,143 @@ describe("refreshProjectState", () => {
       .resolves.toMatchObject({ readToken: new Uint8Array([1]) })
     expect(tokenCalls).toBe(1)
   })
+
+  describe("полная dependency validation", () => {
+    it("объединяет local/global diagnostics, дедуплицирует, сортирует и повторяет global на прогретом refresh", async () => {
+      const yaml = identity("cf/Конфигурация.yaml", "yaml")
+      const current = collected([yaml], [1])
+      const duplicate: Diagnostic = {
+        filePath: yaml.projectPath,
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "structure",
+        message: "duplicate",
+      }
+      const later: Diagnostic = { ...duplicate, line: 2, source: "reference", message: "global" }
+      let validationCalls = 0
+      const handle = new class extends MemoryRefreshHandle {
+        override async validateDependencies(): Promise<readonly Diagnostic[]> {
+          validationCalls += 1
+          return [later, duplicate]
+        }
+      }()
+      const dependencies = {
+        handle,
+        collectFiles: async () => current,
+        async runLocalValidation(files: readonly ProjectStateYamlInput[], producer: Pick<ProjectStateRefreshHandle, "writeBatch">) {
+          if (files.length > 0) {
+            await producer.writeBatch({
+              updates: [yamlUpdate(yaml, "duplicate")],
+              hashBytes: current.hashBatch.hashBytes.slice(),
+            })
+          }
+          return files.length
+        },
+        writeChangedResources: async () => undefined,
+        isStable: async () => true,
+      }
+
+      const cold = await refreshProjectState({ projectDir: "/project" }, dependencies)
+      const warm = await refreshProjectState({ projectDir: "/project" }, dependencies)
+
+      expect(cold.diagnostics).toEqual([duplicate, later])
+      expect(warm.diagnostics).toEqual([duplicate, later])
+      expect(validationCalls).toBe(2)
+    })
+
+    it("обычная global diagnostic не мешает commit/checkpoint", async () => {
+      const global: Diagnostic = {
+        filePath: "cf/Источник.yaml",
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "reference",
+        message: "missing",
+      }
+      const handle = new class extends TrackingRefreshHandle {
+        override async validateDependencies(): Promise<readonly Diagnostic[]> {
+          return [global]
+        }
+      }()
+
+      await expect(refreshProjectState({ projectDir: "/project" }, emptyRefreshDependencies(handle)))
+        .resolves.toMatchObject({ diagnostics: [global] })
+      expect(handle.checkpointCalls).toBe(1)
+    })
+
+    it("technical dependency failure откатывает без checkpoint, после чего следующая операция работает", async () => {
+      let fail = true
+      const handle = new class extends TrackingRefreshHandle {
+        override async validateDependencies(): Promise<readonly Diagnostic[]> {
+          if (fail) throw new Error("dependency failed")
+          return []
+        }
+      }()
+      const dependencies = emptyRefreshDependencies(handle)
+
+      await expect(refreshProjectState({ projectDir: "/project" }, dependencies)).rejects.toThrow("dependency failed")
+      expect({ rollbackCalls: handle.rollbackCalls, checkpointCalls: handle.checkpointCalls })
+        .toEqual({ rollbackCalls: 1, checkpointCalls: 0 })
+      fail = false
+      await expect(refreshProjectState({ projectDir: "/project" }, dependencies)).resolves.toBeDefined()
+      expect(handle.checkpointCalls).toBe(1)
+    })
+
+    it("early abort перед dependency validation откатывает без validation/checkpoint", async () => {
+      const controller = new AbortController()
+      let validationCalls = 0
+      const handle = new class extends TrackingRefreshHandle {
+        override async validateDependencies(): Promise<readonly Diagnostic[]> {
+          validationCalls += 1
+          return []
+        }
+      }()
+
+      await expect(refreshProjectState({ projectDir: "/project", signal: controller.signal }, {
+        ...emptyRefreshDependencies(handle),
+        async runLocalValidation() {
+          controller.abort()
+          return 0
+        },
+      })).rejects.toMatchObject({ name: "AbortError" })
+      expect({
+        validationCalls,
+        rollbackCalls: handle.rollbackCalls,
+        checkpointCalls: handle.checkpointCalls,
+      }).toEqual({
+        validationCalls: 0,
+        rollbackCalls: 1,
+        checkpointCalls: 0,
+      })
+      await expect(refreshProjectState({ projectDir: "/project" }, emptyRefreshDependencies(handle)))
+        .resolves.toBeDefined()
+      expect({ validationCalls, checkpointCalls: handle.checkpointCalls })
+        .toEqual({ validationCalls: 1, checkpointCalls: 1 })
+    })
+
+    it("проверяет stability после dependency validation и повторяет validation при retry", async () => {
+      const events: string[] = []
+      let stabilityCalls = 0
+      const handle = new class extends MemoryRefreshHandle {
+        override async validateDependencies(): Promise<readonly Diagnostic[]> {
+          events.push("dependency")
+          return []
+        }
+      }()
+
+      await refreshProjectState({ projectDir: "/project" }, {
+        ...emptyRefreshDependencies(handle),
+        async isStable() {
+          events.push("stability")
+          stabilityCalls += 1
+          return stabilityCalls > 1
+        },
+      })
+
+      expect(events).toEqual(["dependency", "stability", "dependency", "stability"])
+    })
+  })
 })
 
 describe("project-state files", () => {
@@ -608,6 +745,10 @@ class MemoryRefreshHandle implements ProjectStateRefreshHandle {
       : [])
   }
 
+  async validateDependencies(): Promise<readonly Diagnostic[]> {
+    return []
+  }
+
   async createReadToken(): Promise<ProjectStateReadToken> {
     return new Uint8Array([1]) as ProjectStateReadToken
   }
@@ -620,6 +761,21 @@ class MemoryRefreshHandle implements ProjectStateRefreshHandle {
 
   async rollbackUpdate(): Promise<void> {
     this.nextFiles = undefined
+  }
+}
+
+class TrackingRefreshHandle extends MemoryRefreshHandle {
+  rollbackCalls = 0
+  checkpointCalls = 0
+
+  override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+    this.checkpointCalls += 1
+    return super.commitAndCheckpoint()
+  }
+
+  override async rollbackUpdate(): Promise<void> {
+    this.rollbackCalls += 1
+    return super.rollbackUpdate()
   }
 }
 

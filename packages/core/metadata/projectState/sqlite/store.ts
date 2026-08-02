@@ -10,9 +10,10 @@ import {
   type ProjectStateFormEntry,
   type ProjectStatePendingDependencyCheck,
   type ProjectStatePendingReference,
+  type ProjectStateReferenceEntry,
   type ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
-import type { ProjectStateReadSession } from "../readSession"
+import type { ProjectDependencyInputQuery, ProjectStateReadSession } from "../readSession"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type {
   ProjectDependencyBatch,
@@ -26,13 +27,21 @@ import type { ProjectStateCompatibility } from "../compatibility"
 import { decodeJson, decodeOwnerKey, decodeValue, encodeJson, encodeOwnerKey, encodeValue } from "./codec"
 import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
 import { projectStateOwnerFactsFromRows } from "./ownerFacts"
-import { openSqliteProjectStateReadSession, readDependencyInputs } from "./readSession"
+import { createSqliteProjectStateQueryPort, openSqliteProjectStateReadSession } from "./readSession"
 import {
   createSqliteProjectStateReadToken,
   sqliteProjectStateLifecycleChannel,
   type SqliteProjectStateIdentity,
 } from "./readToken"
 import { createSqliteProjectStateSchema } from "./schema"
+import {
+  readProjectStateDependencyReadiness,
+  validateProjectStateDependencyBatch,
+  validateProjectStateOwnerBatch,
+  validateProjectStateReferenceBatch,
+  type ProjectStatePendingOwnerCheck,
+  type ProjectStatePendingReferenceCheck,
+} from "../dependencyValidation"
 
 export interface CreateSqliteProjectStateStoreOptions {
   readonly projectDir: string
@@ -97,6 +106,8 @@ function createStore(
   checkpoint: (() => Promise<void>) | undefined,
 ): ProjectStateStore {
   const statements = createStatements(database)
+  const queryPort = createSqliteProjectStateQueryPort(database)
+  const projectDir = readProjectDir(database)
   let updateActive = false
   let closed = false
 
@@ -178,11 +189,34 @@ function createStore(
     },
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch {
       assertOpen()
-      return { results: readDependencyInputs(database, params.requests) }
+      return { results: queryPort.readDependencyInputs(params.requests) }
     },
     validateDependencies(_params: ProjectDependencyValidationParams): readonly Diagnostic[] {
       assertOpen()
-      return []
+      const diagnostics: Diagnostic[] = []
+      const readiness = readProjectStateDependencyReadiness({ queryPort })
+      for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
+        const batch = readPendingReferenceChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
+        if (batch.length === 0) break
+        const checks = batch
+          .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
+        if (checks.length > 0) diagnostics.push(...validateProjectStateReferenceBatch({ checks, queryPort }))
+      }
+      for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
+        const batch = readPendingOwnerChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
+        if (batch.length === 0) break
+        const checks = batch
+          .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
+        if (checks.length > 0) diagnostics.push(...validateProjectStateOwnerBatch({ checks, projectDir, queryPort }))
+      }
+      for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
+        const batch = readPendingDependencyChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
+        if (batch.length === 0) break
+        const checks = batch
+          .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
+        if (checks.length > 0) diagnostics.push(...validateProjectStateDependencyBatch({ checks, projectDir, queryPort }))
+      }
+      return diagnostics.concat(readiness.diagnostics)
     },
     readComponentProjection(componentPath: string): ProjectStateComponentProjection {
       assertOpen()
@@ -233,6 +267,104 @@ function createStore(
   function assertUpdateActive(): void {
     if (!updateActive) throw new Error("Нет активного обновления состояния проекта")
   }
+}
+
+const PENDING_DEPENDENCY_BATCH_SIZE = 2_000
+
+function readProjectDir(database: DatabaseSync): string {
+  const row = database.prepare("SELECT value FROM cache_meta WHERE key = 'project_dir'").get() as
+    | { value: string }
+    | undefined
+  if (row === undefined) throw new Error("ProjectState не содержит project_dir")
+  return row.value
+}
+
+function readPendingReferenceChecks(
+  database: DatabaseSync,
+  offset: number,
+  batchSize: number,
+): ProjectStatePendingReferenceCheck[] {
+  const rows = database.prepare(`
+    SELECT p.id, pf.project_path, c.path AS component_path,
+      p.canonical_target, p.filter_value, p.yaml_path
+    FROM pending_references p
+    JOIN project_files pf ON pf.id = p.source_file_id
+    JOIN components c ON c.id = pf.component_id
+    ORDER BY pf.id, p.ordinal, p.id
+    LIMIT ? OFFSET ?
+  `).all(batchSize, offset) as unknown as (PendingReferenceRow & {
+    id: number
+    project_path: string
+    component_path: string
+  })[]
+  return rows.map((row) => {
+    const payload = decodeValue<{
+      target: ProjectStatePendingReference["target"]
+      constraint: ProjectStatePendingReference["constraint"]
+    }>(row.filter_value)
+    return {
+      requestId: `reference:${row.id}`,
+      componentPath: row.component_path,
+      reference: {
+        filePath: row.project_path,
+        yamlPath: decodeJson<YamlPath>(row.yaml_path),
+        canonical: row.canonical_target,
+        ...payload,
+      },
+    }
+  })
+}
+
+function readPendingOwnerChecks(
+  database: DatabaseSync,
+  offset: number,
+  batchSize: number,
+): ProjectStatePendingOwnerCheck[] {
+  const rows = database.prepare(`
+    SELECT p.id, c.path AS component_path, p.payload_json
+    FROM pending_dependency_checks p
+    JOIN project_files pf ON pf.id = p.source_file_id
+    JOIN components c ON c.id = pf.component_id
+    WHERE p.check_kind = 'dataPath'
+    ORDER BY pf.id, p.ordinal, p.id
+    LIMIT ? OFFSET ?
+  `).all(batchSize, offset) as unknown as {
+    id: number
+    component_path: string
+    payload_json: string
+  }[]
+  return rows.map((row) => ({
+    requestId: `owner:${row.id}`,
+    componentPath: row.component_path,
+    owner: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json).owner,
+  }))
+}
+
+function readPendingDependencyChecks(
+  database: DatabaseSync,
+  offset: number,
+  batchSize: number,
+): ProjectDependencyInputQuery[] {
+  const rows = database.prepare(`
+    SELECT p.id, pf.project_path, c.path AS component_path, p.payload_json
+    FROM pending_dependency_checks p
+    JOIN project_files pf ON pf.id = p.source_file_id
+    JOIN components c ON c.id = pf.component_id
+    WHERE p.check_kind = 'dataPath'
+    ORDER BY pf.id, p.ordinal, p.id
+    LIMIT ? OFFSET ?
+  `).all(batchSize, offset) as unknown as {
+    id: number
+    project_path: string
+    component_path: string
+    payload_json: string
+  }[]
+  return rows.map((row) => ({
+    requestId: `dependency:${row.id}`,
+    projectPath: row.project_path,
+    componentPath: row.component_path,
+    check: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json),
+  }))
 }
 
 interface StoreStatements {
@@ -300,8 +432,8 @@ function createStatements(database: DatabaseSync): StoreStatements {
     `),
     insertReference: database.prepare(`
       INSERT INTO reference_entries(
-        source_file_id, ordinal, entry_kind, canonical_key, owner_key, member_key, value_key, yaml_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+        source_file_id, ordinal, entry_kind, canonical_key, owner_key, member_key, value_key, details_value, yaml_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)
     `),
     insertPendingReference: database.prepare(`
       INSERT INTO pending_references(
@@ -370,7 +502,7 @@ function replaceFile(
 
   statements.insertValidation.run(
     fileId,
-    update.localValidation.schemaDiagnostics.length === 0 ? 1 : 0,
+    update.localValidation.schemaDiagnostics.some(({ severity }) => severity === "error") ? 0 : 1,
     update.localValidation.contributedFacts ? 1 : 0,
   )
   insertDiagnostics(statements, fileId, "local", update.localValidation.diagnostics)
@@ -385,6 +517,7 @@ function replaceFile(
       entry.kind === "object" ? entry.canonical : null,
       entry.kind === "member" ? entry.canonical : null,
       entry.kind === "value" ? entry.canonical : null,
+      entry.details === undefined ? null : encodeValue(entry.details),
     )
   })
   update.pendingReferences.forEach((entry, ordinal) => insertPendingReference(statements, fileId, ordinal, entry))
@@ -553,10 +686,20 @@ function readYamlUpdate(
     FROM local_diagnostics WHERE source_file_id = ?
     ORDER BY diagnostic_kind, ordinal, id
   `).all(fileId) as unknown as (Omit<DiagnosticRow, "project_path"> & { diagnostic_kind: string })[]
-  const references = database.prepare(`
-    SELECT entry_kind AS kind, canonical_key AS canonical
+  const references = (database.prepare(`
+    SELECT entry_kind AS kind, canonical_key AS canonical, details_value
     FROM reference_entries WHERE source_file_id = ? ORDER BY ordinal, id
-  `).all(fileId) as unknown as ProjectStateYamlFileUpdate["references"]
+  `).all(fileId) as unknown as {
+    kind: ProjectStateReferenceEntry["kind"]
+    canonical: string
+    details_value: Uint8Array | null
+  }[]).map(({ kind, canonical, details_value }) => ({
+    kind,
+    canonical,
+    ...(details_value === null
+      ? {}
+      : { details: decodeValue<NonNullable<ProjectStateReferenceEntry["details"]>>(details_value) }),
+  }))
   const pendingReferences = (database.prepare(`
     SELECT canonical_target, filter_value, yaml_path
     FROM pending_references WHERE source_file_id = ? ORDER BY ordinal, id

@@ -63,11 +63,24 @@ export type ProjectDependencyInputResult =
   | { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput }
   | { readonly requestId: string; readonly status: "missing" }
 
+export interface ProjectValidationStatusQuery {
+  readonly offset: number
+  readonly batchSize: number
+}
+
+export interface ProjectValidationStatusRow {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly schemaReady?: boolean
+  readonly contributedFacts?: boolean
+}
+
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
   readOwners(requests: readonly ProjectOwnerLookup[]): readonly ProjectOwnerLookupResult[]
   findReferences(requests: readonly ProjectReferenceLookup[]): readonly ProjectReferenceLookupResult[]
   readDependencyInputs(requests: readonly ProjectDependencyInputQuery[]): readonly ProjectDependencyInputResult[]
+  readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort {

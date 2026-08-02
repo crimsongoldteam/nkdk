@@ -12,6 +12,7 @@ import {
   type ProjectStateWriterHandle,
 } from "./writerHandle"
 import type { ProjectStateWriterCommand, ProjectStateWriterResponse } from "./writerProtocol"
+import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 
 const compatibility: ProjectStateCompatibility = {
   schemaVersion: 1,
@@ -86,6 +87,29 @@ describe("ProjectState writer handle", () => {
     await expect(handle.createReadToken()).resolves.toBeInstanceOf(Uint8Array)
     await handle.rollbackUpdate()
     await handle.close()
+  })
+
+  it("проверяет dependency rows незавершённой транзакции одной writer-командой", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle()
+    const source = dependencyYaml("cf/Источник.yaml", true)
+    const configuration = dependencyYaml("cf/Конфигурация.yaml", false)
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch({ updates: [source, configuration], hashBytes: new Uint8Array(16) })
+
+    const diagnostics = await handle.validateDependencies()
+
+    expect(diagnostics).toEqual([
+      {
+        filePath: source.projectPath,
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "reference",
+        message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
+      },
+    ])
+    await handle.rollbackUpdate()
   })
 
   it.each([
@@ -375,6 +399,36 @@ describe("ProjectState writer handle", () => {
 
 function resource(projectPath: string): ProjectStateFileUpdate {
   return { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }
+}
+
+function dependencyYaml(projectPath: string, pending: boolean): ProjectStateFileUpdate {
+  const parsed = parseMetadataTargetFromYAML({
+    value: "Справочник.Товары.Реквизит.Артикул",
+    constraint: { kind: "member", owner: "explicit" },
+  })
+  if (!parsed.ok) throw new Error("Некорректная тестовая ссылка")
+  return {
+    kind: "yaml",
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole: "configuration",
+    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+    references: [],
+    pendingReferences: pending
+      ? [{
+          yamlPath: ["Ссылка"],
+          canonical: "Catalog.Товары.Attribute.Артикул",
+          target: parsed.target,
+          constraint: { kind: "member", owner: "explicit" },
+        }]
+      : [],
+    owners: [],
+    fields: [],
+    forms: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
 }
 
 function identity({ kind: _kind, ...value }: ProjectStateFileUpdate) {

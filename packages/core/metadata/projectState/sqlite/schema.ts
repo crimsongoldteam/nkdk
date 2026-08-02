@@ -69,6 +69,7 @@ export function createSqliteProjectStateSchema(
       owner_key TEXT COLLATE BINARY,
       member_key TEXT COLLATE BINARY,
       value_key TEXT COLLATE BINARY,
+      details_value BLOB,
       yaml_path TEXT
     ) STRICT;
 

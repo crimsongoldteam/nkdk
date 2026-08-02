@@ -14,6 +14,7 @@ import {
 } from "../../validation/formValidationRegistry"
 import { validateExcludedEqualNameYAML } from "../../validation/excludeIfEqualNameYAML"
 import type { Diagnostic } from "../../validation/types"
+import { dedupeDiagnostics } from "../../validation/diagnostics"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import { ClientApplicationFormRules } from "./rules"
@@ -293,30 +294,6 @@ function isMetadataObjectTargetYAML(value: unknown): value is string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function diagnosticKey(diagnostic: Diagnostic): string {
-  return [
-    diagnostic.filePath,
-    diagnostic.line,
-    diagnostic.col,
-    diagnostic.source,
-    diagnostic.severity,
-    diagnostic.path ?? "",
-    diagnostic.message,
-  ].join("\0")
-}
-
-function dedupeDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-  const result: Diagnostic[] = []
-  const seen = new Set<string>()
-  for (const diagnostic of diagnostics) {
-    const key = diagnosticKey(diagnostic)
-    if (seen.has(key)) continue
-    seen.add(key)
-    result.push(diagnostic)
-  }
-  return result
 }
 
 function defaultValidationContext(): ConfigurationContext {

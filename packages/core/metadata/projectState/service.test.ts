@@ -442,6 +442,7 @@ function testWriterHandle(id: number): TestWriter {
     async openProject(projectDir) { opened.push(projectDir) },
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
+    async validateDependencies() { return [] },
     async createReadToken() { return new Uint8Array([id]) as never },
     async readComponentProjection(componentPath) {
       return {

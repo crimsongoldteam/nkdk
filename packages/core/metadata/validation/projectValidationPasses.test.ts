@@ -370,7 +370,14 @@ describe("validateProjectFileFirstPass references", () => {
     expect(update.references).toEqual(
       expect.arrayContaining([
         { kind: "object", canonical: "Catalog.Номенклатура" },
-        { kind: "member", canonical: "Catalog.Номенклатура.Attribute.Артикул" },
+        {
+          kind: "member",
+          canonical: "Catalog.Номенклатура.Attribute.Артикул",
+          details: {
+            kind: "attribute",
+            typeInfo: { kinds: ["scalar"], sourceText: "string" },
+          },
+        },
       ])
     )
     expect(update.owners).toEqual([

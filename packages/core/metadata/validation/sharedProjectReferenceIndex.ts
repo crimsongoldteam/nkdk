@@ -1,15 +1,10 @@
-import type {
-  MetadataObjectPathKind,
-  MetadataRootName,
-  MetadataTargetFilter,
-  MetadataTypeFilterValue,
-  ParsedMetadataTarget,
-} from "../commonObjects/metadataTargets"
-import { objectPathKindToYAML, rootToYAML } from "../commonObjects/metadataTargets/roots"
+import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,
   projectValueIndexKey,
+  resolvedProjectReferenceResult,
+  unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
@@ -20,7 +15,6 @@ import {
 } from "./projectReferenceIndex"
 import { validationComponentLayers } from "./componentVisibility"
 import type { ProjectValidationGraph } from "./projectValidationTypes"
-import type { Diagnostic } from "./types"
 
 const MAGIC = 0x4e4b4452
 const VERSION = 1
@@ -296,32 +290,14 @@ function resolveSharedReference(
     entry = lookupSharedEntry(params.view, undefined, reference.target)
   }
   if (entry === undefined) {
-    if (reference.target.kind === "object") {
-      const filePath = params.resolveObjectFilePath?.(reference.target)
-      return {
-        ok: false,
-        reason: "notFound",
-        diagnostics: [
-          referenceDiagnostic(reference, `Не найден объект "${formatObjectTarget(reference.target)}"`, filePath),
-        ],
-      }
-    }
-    return {
-      ok: false,
-      reason: "notFound",
-      diagnostics: [referenceDiagnostic(reference, `Не найдена ссылка "${reference.canonical}"`)],
-    }
+    return unresolvedProjectReferenceResult(
+      reference,
+      "missing",
+      reference.target.kind === "object" ? params.resolveObjectFilePath?.(reference.target) : undefined,
+    )
   }
-  if (entry.conflict) {
-    return {
-      ok: false,
-      reason: "conflict",
-      diagnostics: [referenceDiagnostic(reference, `Неоднозначная ссылка "${reference.canonical}"`)],
-    }
-  }
-  if (reference.target.kind === "object") return matchesObjectFilters({ reference, entry })
-  if (reference.target.kind === "member") return matchesMemberFilters({ reference, entry })
-  return { ok: true }
+  if (entry.conflict) return unresolvedProjectReferenceResult(reference, "ambiguous")
+  return resolvedProjectReferenceResult(reference, sharedEntryDetails(entry))
 }
 
 interface SharedSnapshotView {
@@ -431,117 +407,38 @@ function sectionForTarget(target: ParsedMetadataTarget): number {
   return -1
 }
 
-function matchesObjectFilters(params: {
-  reference: PendingMetadataTargetReference
-  entry: SharedEntryView
-}): ProjectReferenceIndexResult {
-  if (params.reference.constraint.kind !== "object") return { ok: true }
-
-  for (const filter of params.reference.constraint.filters ?? []) {
-    if (filter.kind !== "styleItemType") continue
-    const actualType = styleItemTypeFromCode(params.entry.styleItemType)
-    if (actualType === undefined || filter.values.includes(actualType)) continue
-    return memberFilterError(
-      params.reference,
-      `Объект "${params.reference.canonical}" имеет тип "${actualType}", ожидался: ${filter.values.join(", ")}`
-    )
+function sharedEntryDetails(entry: SharedEntryView): unknown {
+  const kind = (entry.detailKindFlags & DETAIL_KIND_STANDARD_ATTRIBUTE) !== 0
+    ? "standardAttribute"
+    : (entry.detailKindFlags & DETAIL_KIND_ATTRIBUTE) !== 0
+      ? "attribute"
+      : undefined
+  const typeKinds: readonly (readonly [flag: number, value: string])[] = [
+    [TYPE_UNKNOWN, "unknown"],
+    [TYPE_BOOLEAN, "boolean"],
+    [TYPE_STRING, "string"],
+    [TYPE_DECIMAL, "decimal"],
+    [TYPE_DATE_TIME, "dateTime"],
+    [TYPE_UUID, "UUID"],
+  ]
+  const kinds = typeKinds.flatMap(([flag, value]) => (entry.typeFlags & flag) !== 0 ? [value] : [])
+  const hasTypeInfo = kind !== undefined || kinds.length > 0 || entry.sourceText.length > 0
+    || (entry.typeFlags & TYPE_DEFINED) !== 0
+  const styleItemType = styleItemTypeFromCode(entry.styleItemType)
+  if (kind === undefined && !hasTypeInfo && styleItemType === undefined) return undefined
+  return {
+    ...(kind === undefined ? {} : { kind }),
+    ...(hasTypeInfo
+      ? {
+          typeInfo: {
+            kinds,
+            ...(entry.sourceText.length === 0 ? {} : { sourceText: entry.sourceText }),
+            ...((entry.typeFlags & TYPE_DEFINED) === 0 ? {} : { definedTypes: ["defined"] }),
+          },
+        }
+      : {}),
+    ...(styleItemType === undefined ? {} : { styleItemType }),
   }
-
-  return { ok: true }
-}
-
-function matchesMemberFilters(params: {
-  reference: PendingMetadataTargetReference
-  entry: SharedEntryView
-}): ProjectReferenceIndexResult {
-  if (params.reference.constraint.kind !== "member") return { ok: true }
-
-  for (const filter of params.reference.constraint.filters ?? []) {
-    const result = matchesMemberFilter({ ...params, filter })
-    if (!result.ok) return result
-  }
-
-  return { ok: true }
-}
-
-function matchesMemberFilter(params: {
-  reference: PendingMetadataTargetReference
-  entry: SharedEntryView
-  filter: MetadataTargetFilter
-}): ProjectReferenceIndexResult {
-  const displayName = params.reference.canonical
-  switch (params.filter.kind) {
-    case "directMember":
-      if (params.reference.target.kind === "member" && params.reference.target.segments.length === 1)
-        return { ok: true }
-      return memberFilterError(
-        params.reference,
-        `Член "${displayName}" не подходит: ожидаются прямые члены текущего объекта`
-      )
-    case "hasType":
-      if (matchesHasTypeFilter(params.entry, params.filter.type)) return { ok: true }
-      return memberFilterError(
-        params.reference,
-        `Член "${displayName}" не подходит: ожидаются члены, тип которых содержит ${formatTypeFilter(params.filter.type)}`
-      )
-    case "stringIndexedAttribute":
-      if (matchesStringIndexedAttributeFilter(params.entry)) return { ok: true }
-      return memberFilterError(
-        params.reference,
-        `Член "${displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
-      )
-    case "inputByStringField":
-      if (matchesInputByStringFieldFilter({ canonical: params.reference.canonical, entry: params.entry })) {
-        return { ok: true }
-      }
-      return memberFilterError(
-        params.reference,
-        `Член "${displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
-      )
-    case "styleItemType":
-      return { ok: true }
-  }
-}
-
-function matchesHasTypeFilter(entry: SharedEntryView, type: MetadataTypeFilterValue): boolean {
-  if (type === "boolean") return (entry.typeFlags & TYPE_BOOLEAN) !== 0
-  return typeInfoSourceContains(entry, type)
-}
-
-function matchesStringIndexedAttributeFilter(entry: SharedEntryView): boolean {
-  if ((entry.detailKindFlags & (DETAIL_KIND_ATTRIBUTE | DETAIL_KIND_STANDARD_ATTRIBUTE)) === 0) return false
-  if ((entry.typeFlags & TYPE_UNKNOWN) !== 0) return true
-  if ((entry.typeFlags & TYPE_BOOLEAN) !== 0) return true
-  if ((entry.typeFlags & TYPE_DEFINED) !== 0) return true
-  return ["string", "decimal", "dateTime", "UUID"].some((type) => typeInfoSourceContains(entry, type))
-}
-
-function matchesInputByStringFieldFilter(params: { canonical: string; entry: SharedEntryView }): boolean {
-  if ((params.entry.detailKindFlags & DETAIL_KIND_STANDARD_ATTRIBUTE) !== 0) {
-    return isAllowedInputByStringStandardAttribute(params.canonical)
-  }
-  if ((params.entry.detailKindFlags & DETAIL_KIND_ATTRIBUTE) === 0) return false
-  return matchesStringIndexedAttributeFilter(params.entry)
-}
-
-function isAllowedInputByStringStandardAttribute(canonical: string): boolean {
-  return (
-    /^(?:Catalog|ExchangePlan|ChartOfCharacteristicTypes|ChartOfAccounts|ChartOfCalculationTypes)\.[^.]+\.StandardAttribute\.(?:Code|Description)$/.test(
-      canonical
-    ) ||
-    /^(?:Document|BusinessProcess)\.[^.]+\.StandardAttribute\.Number$/.test(canonical) ||
-    /^Task\.[^.]+\.StandardAttribute\.(?:Number|Description)$/.test(canonical)
-  )
-}
-
-function typeInfoSourceContains(entry: SharedEntryView, type: string): boolean {
-  const flag = typeFlag(type)
-  if (flag !== 0 && (entry.typeFlags & flag) !== 0) return true
-  return entry.sourceText.split(" | ").includes(type)
-}
-
-function memberFilterError(reference: PendingMetadataTargetReference, message: string): ProjectReferenceIndexResult {
-  return { ok: false, reason: "filter", diagnostics: [referenceDiagnostic(reference, message)] }
 }
 
 function encodedEntry(section: number, canonical: string, details: unknown): EncodedEntry {
@@ -649,36 +546,4 @@ function compareSectionAndKey(leftSection: number, leftKey: string, rightSection
 
 function objectRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
-}
-
-function referenceDiagnostic(
-  reference: PendingMetadataTargetReference,
-  message: string,
-  filePath = reference.filePath
-): Diagnostic {
-  return {
-    filePath,
-    line: 1,
-    col: 1,
-    severity: "error",
-    source: "reference",
-    message,
-  }
-}
-
-function formatObjectTarget(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
-  return [
-    rootToYAML[target.root],
-    target.objectName,
-    ...(target.segments ?? []).flatMap((segment) => [objectSegmentKindToYAML(segment.kind), segment.objectName]),
-  ].join(".")
-}
-
-function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind): string {
-  return rootToYAML[kind as MetadataRootName] ?? objectPathKindToYAML[kind as MetadataObjectPathKind]
-}
-
-function formatTypeFilter(type: MetadataTypeFilterValue): string {
-  if (type === "boolean") return "Булево"
-  return type
 }

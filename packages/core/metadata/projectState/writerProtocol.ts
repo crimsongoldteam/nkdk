@@ -8,6 +8,7 @@ export type ProjectStateWriterCommand =
   | { readonly kind: "openProject"; readonly requestId: string; readonly projectDir: string; readonly compatibility: ProjectStateCompatibility }
   | { readonly kind: "compareFiles"; readonly requestId: string; readonly batch: ProjectStateFileHashBatch }
   | { readonly kind: "readLocalDiagnostics"; readonly requestId: string }
+  | { readonly kind: "validateDependencies"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "createReadToken"; readonly requestId: string }
   | { readonly kind: "readComponentProjection"; readonly requestId: string; readonly componentPath: string }
   | { readonly kind: "beginUpdate"; readonly requestId: string; readonly operationId: string }
@@ -24,6 +25,7 @@ export type ProjectStateWriterAcknowledgement =
   | { readonly kind: "opened" }
   | { readonly kind: "filesCompared"; readonly changes: ProjectStateFileChanges }
   | { readonly kind: "localDiagnostics"; readonly diagnostics: readonly Diagnostic[] }
+  | { readonly kind: "dependencyDiagnostics"; readonly diagnostics: readonly Diagnostic[]; readonly operationId: string }
   | { readonly kind: "readToken"; readonly token: ProjectStateReadToken }
   | { readonly kind: "componentProjection"; readonly projection: ProjectStateComponentProjection }
   | { readonly kind: "updateBegun"; readonly operationId: string }
@@ -64,6 +66,7 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
       assertCompatibility(command["compatibility"])
       return
     case "beginUpdate":
+    case "validateDependencies":
     case "commitUpdate":
     case "rollbackUpdate":
     case "cancelOperation":

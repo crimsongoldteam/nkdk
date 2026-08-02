@@ -78,6 +78,15 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       return { kind: "filesCompared", changes: requireStore().store.compareFiles(command.batch) }
     case "readLocalDiagnostics":
       return { kind: "localDiagnostics", diagnostics: requireStore().store.readLocalDiagnostics() }
+    case "validateDependencies": {
+      const current = requireActiveOperation(command.operationId)
+      if (cancelledOperations.has(command.operationId)) throw new Error("Операция состояния проекта отменена")
+      return {
+        kind: "dependencyDiagnostics",
+        diagnostics: current.store.validateDependencies({ requests: [] }),
+        operationId: command.operationId,
+      }
+    }
     case "createReadToken":
       return { kind: "readToken", token: requireStore().store.createReadToken() }
     case "readComponentProjection":

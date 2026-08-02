@@ -140,6 +140,10 @@ function testReadSession(): ProjectStateReadSession {
       assertOpen()
       return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
     },
+    readValidationStatus() {
+      assertOpen()
+      return []
+    },
     close() {
       closed = true
     },
@@ -297,6 +301,19 @@ function testStoreReadSession(
           input: dependencyInput(visible),
         }
       })
+    },
+    readValidationStatus({ offset, batchSize }) {
+      assertOpen()
+      return [...updates.values()].slice(offset, offset + batchSize).map(({ update }) => ({
+        projectPath: update.projectPath,
+        componentPath: update.componentPath,
+        ...(update.kind === "resource"
+          ? {}
+          : {
+              schemaReady: update.localValidation.schemaDiagnostics.length === 0,
+              contributedFacts: update.localValidation.contributedFacts,
+            }),
+      }))
     },
     close() {
       if (closed) return

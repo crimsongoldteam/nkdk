@@ -9,6 +9,7 @@ import {
   type PreparedYamlValidationOperation,
 } from "../project/preparedYamlProjectWorkerPool"
 import type { Diagnostic } from "../validation/types"
+import { dedupeDiagnostics, sortDiagnostics } from "../validation/diagnostics"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { ProjectStateFileChanges } from "./store"
 import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
@@ -40,6 +41,7 @@ export interface ProjectStateRefreshHandle {
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
+  validateDependencies(): Promise<readonly Diagnostic[]>
   createReadToken(): Promise<ProjectStateReadToken>
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
   rollbackUpdate(): Promise<void>
@@ -178,7 +180,15 @@ export async function refreshProjectState(
         operation,
         params.projectDir,
       )
-      const diagnostics = await dependencies.handle.readLocalDiagnostics()
+      operation.signal.throwIfAborted()
+      const localDiagnostics = await dependencies.handle.readLocalDiagnostics()
+      operation.signal.throwIfAborted()
+      const dependencyDiagnostics = await dependencies.handle.validateDependencies()
+      operation.signal.throwIfAborted()
+      const diagnostics = sortDiagnostics(dedupeDiagnostics([
+        ...localDiagnostics,
+        ...dependencyDiagnostics,
+      ]))
       if (!(await dependencies.isStable(files, operation.signal))) {
         await dependencies.handle.rollbackUpdate()
         continue

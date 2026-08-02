@@ -17,6 +17,10 @@ import type { ProjectValidationFirstPassResult } from "../validation/projectVali
 import type { ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
+import {
+  projectMetadataReferenceDetails,
+  type ProjectMetadataReferenceDetails,
+} from "../validation/projectMetadataReferences"
 
 export interface ProjectStateFileIdentity {
   readonly projectPath: string
@@ -40,6 +44,7 @@ export interface ProjectStateLocalValidationResult {
 export interface ProjectStateReferenceEntry {
   readonly kind: "object" | "member" | "value"
   readonly canonical: string
+  readonly details?: ProjectMetadataReferenceDetails
 }
 
 export interface ProjectStatePendingReference {
@@ -170,9 +175,9 @@ export function toProjectStateFileUpdate(
       schemaDiagnostics: firstPassResult.schemaDiagnostics.map(withoutDiagnosticFilePath),
     },
     references: [
-      ...firstPassResult.objectIndexEntries.map(({ canonical }) => ({ kind: "object" as const, canonical })),
-      ...firstPassResult.memberIndexEntries.map(({ canonical }) => ({ kind: "member" as const, canonical })),
-      ...firstPassResult.valueIndexEntries.map(({ canonical }) => ({ kind: "value" as const, canonical })),
+      ...firstPassResult.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
+      ...firstPassResult.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
+      ...firstPassResult.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
     ],
     pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
     owners: firstPassResult.objectRecords.flatMap(projectStateOwnerFacts),
@@ -184,6 +189,14 @@ export function toProjectStateFileUpdate(
         : [],
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
   }
+}
+
+function projectStateReferenceEntry(
+  kind: ProjectStateReferenceEntry["kind"],
+  entry: { readonly canonical: string; readonly result: { readonly ok: boolean; readonly details?: unknown } },
+): ProjectStateReferenceEntry {
+  const details = entry.result.ok ? projectMetadataReferenceDetails(entry.result.details) : undefined
+  return { kind, canonical: entry.canonical, ...(details === undefined ? {} : { details }) }
 }
 
 function withoutDiagnosticFilePath({ filePath: _filePath, ...diagnostic }: Diagnostic): ProjectStateDiagnostic {

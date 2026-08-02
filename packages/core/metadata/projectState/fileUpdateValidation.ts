@@ -52,9 +52,10 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   )
   assertIdentity(update, path, "yaml")
   assertLocalValidation(update["localValidation"], `${path}.localValidation`)
-  assertRows(update["references"], `${path}.references`, ["kind", "canonical"], (row, rowPath) => {
+  assertRows(update["references"], `${path}.references`, ["kind", "canonical", "details"], (row, rowPath) => {
     if (!["object", "member", "value"].includes(String(row["kind"]))) throw new Error(`${rowPath}.kind неизвестен`)
     assertString(row["canonical"], `${rowPath}.canonical`)
+    if (row["details"] !== undefined) assertReferenceDetails(row["details"], `${rowPath}.details`)
   })
   assertRows(
     update["pendingReferences"],
@@ -110,6 +111,19 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
   }
   assertPortableData(update, path)
+}
+
+function assertReferenceDetails(value: unknown, path: string): void {
+  const details = requiredRecord(value, path)
+  assertExactKeys(details, ["kind", "typeInfo", "styleItemType"], path)
+  assertOptionalStringIn(details["kind"], ["attribute", "standardAttribute"], `${path}.kind`)
+  assertOptionalStringIn(details["styleItemType"], ["Color", "Font", "Border"], `${path}.styleItemType`)
+  if (details["typeInfo"] === undefined) return
+  const typeInfo = requiredRecord(details["typeInfo"], `${path}.typeInfo`)
+  assertExactKeys(typeInfo, ["kinds", "sourceText", "definedTypes"], `${path}.typeInfo`)
+  assertOptionalStringArray(typeInfo["kinds"], `${path}.typeInfo.kinds`)
+  assertOptionalString(typeInfo["sourceText"], `${path}.typeInfo.sourceText`)
+  assertOptionalStringArray(typeInfo["definedTypes"], `${path}.typeInfo.definedTypes`)
 }
 
 const METADATA_ROOT_NAMES = Object.keys(rootToYAML)
