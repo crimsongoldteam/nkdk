@@ -877,6 +877,7 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for graphical schema field size properties", () => {
     const expected = {
+      edit: true,
       height: 10,
       titleHeight: 0,
       width: 50,
@@ -891,6 +892,12 @@ describe("implicitValueYAML contract", () => {
       .map(([propertyKey]) => `GraphicalSchemaFieldRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
+    expect(GraphicalSchemaFieldRules.properties.edit).toMatchObject({
+      implicitValueYAML: true,
+      toEnterprise: false,
+    })
+    expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("toYAML")
+    expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("fromYAML")
   })
 
   it("uses configurator defaults as implicit YAML values for HTML document field size properties", () => {

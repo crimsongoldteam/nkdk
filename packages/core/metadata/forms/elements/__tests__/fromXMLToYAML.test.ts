@@ -24,6 +24,7 @@ import { RadioButtonFieldRules } from "../radioButtonField/rules"
 import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
+import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
 
 import "../index"
 
@@ -317,6 +318,39 @@ describe("элементы формы XML → YAML → XML", () => {
       }
     }
   )
+
+  it("сохраняет явный GraphicalSchemaField.Edit=false", () => {
+    const absent = testMetadataItemFromXMLToYAML({
+      rule: GraphicalSchemaFieldRules,
+      xml: { _name: "Схема" },
+      name: "Схема",
+    }).yaml
+    expect(absent).not.toHaveProperty("Редактирование")
+    expect(
+      testMetadataItemFromYAMLToXML({ rule: GraphicalSchemaFieldRules, yaml: absent, name: "Схема" }).xml
+    ).not.toHaveProperty("Edit")
+
+    const explicitFalse = testMetadataItemFromXMLToYAML({
+      rule: GraphicalSchemaFieldRules,
+      xml: { _name: "Схема", Edit: false },
+      name: "Схема",
+    }).yaml
+    expect(explicitFalse).toHaveProperty("Редактирование", "Ложь")
+    expect(
+      testMetadataItemFromYAMLToXML({
+        rule: GraphicalSchemaFieldRules,
+        yaml: explicitFalse,
+        name: "Схема",
+      }).xml
+    ).toHaveProperty("Edit", false)
+
+    const explicitTrue = testMetadataItemFromXMLToYAML({
+      rule: GraphicalSchemaFieldRules,
+      xml: { _name: "Схема", Edit: true },
+      name: "Схема",
+    }).yaml
+    expect(explicitTrue).not.toHaveProperty("Редактирование")
+  })
 
   it("сохраняет пустой форматированный заголовок ExtendedTooltip без reference", () => {
     const yaml = testMetadataItemFromXMLToYAML({
