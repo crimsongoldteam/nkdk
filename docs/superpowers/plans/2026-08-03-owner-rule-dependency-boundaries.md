@@ -72,7 +72,7 @@ it("выбирает явный itemRule раньше fallback и регистр
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/orchestration/property/typeRuleRegistry.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/typeRuleRegistry.test.ts
 ```
 
 Expected: FAIL because `resolvePropertyItemRule` is not exported by `typeRuleRegistry.ts`.
@@ -122,7 +122,7 @@ Use `MetadataTabularSectionRules` for both the structural rule and `properties.s
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/orchestration/property/typeRuleRegistry.test.ts metadata/validation/dataPath/objectFields.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/typeRuleRegistry.test.ts metadata/validation/dataPath/objectFields.test.ts metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts
 pnpm type-check
 pnpm test:architecture
 ```
@@ -178,7 +178,7 @@ it("сохраняет порядок и исходные property rules без 
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRuleFragment.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/metadataRuleFragment.test.ts
 ```
 
 Expected: PASS as a characterization test. The RED state for this refactor is the already reproduced `pnpm test:architecture` failure.
@@ -229,7 +229,7 @@ Do not use `as any` or `as unknown`. Concrete composition sites must prove compa
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/metadataRuleFragment.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/metadataRuleFragment.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts
 pnpm type-check
 pnpm test:architecture
 ```
@@ -281,7 +281,7 @@ Keep the existing matrix that rejects unsupported fields for every owner.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts
 ```
 
 Expected: FAIL for properties that currently obtain their item rule only through owner-specific registration.
@@ -330,7 +330,7 @@ Delete both `registerOwnerCollection.ts` modules and their tests. Reduce `ownerC
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts
 pnpm type-check
 pnpm test:architecture
 ```
@@ -386,7 +386,7 @@ Retain the existing 12 defaults cases; changing a default or allowing an unsuppo
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/appliedObjects/__tests__/registerFieldDefaults.test.ts metadata/appliedObjects/__tests__/ownerChildRules.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/registerFieldDefaults.test.ts metadata/appliedObjects/__tests__/ownerChildRules.test.ts
 ```
 
 Expected: FAIL because the current property types resolve owner rules through side-effect registration.
@@ -439,7 +439,7 @@ Expected: no production matches.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/appliedObjects/__tests__/registerFieldDefaults.test.ts metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts metadata/commonObjects/recalculation/fromXMLToYAML.test.ts metadata/commonObjects/recalculation/toJSONSchema.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/registerFieldDefaults.test.ts metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts metadata/commonObjects/recalculation/fromXMLToYAML.test.ts metadata/commonObjects/recalculation/toJSONSchema.test.ts
 pnpm type-check
 pnpm test:architecture
 ```

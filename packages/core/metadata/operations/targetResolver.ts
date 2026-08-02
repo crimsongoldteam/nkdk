@@ -1,8 +1,10 @@
 import { existsSync, readdirSync } from "fs"
 import { join } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
+import {
+  getTypeRule,
+  resolvePropertyItemRule,
+} from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"

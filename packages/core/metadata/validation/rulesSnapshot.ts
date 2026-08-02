@@ -6,8 +6,10 @@ import type {
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
 import type { OwnerFactRole } from "../orchestration/property/types"
-import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import {
+  registerTypeRule,
+  resolvePropertyItemRule,
+} from "../orchestration/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
   configurationValidationProjectSpec,

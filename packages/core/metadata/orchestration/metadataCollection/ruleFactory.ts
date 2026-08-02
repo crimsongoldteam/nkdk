@@ -11,8 +11,10 @@ import type { ImportFromXMLToYAMLFunction } from "../property/importYamlTypes"
 import { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
-import { registerTypeRule } from "../property/typeRuleRegistry"
-import { resolvePropertyItemRule } from "../property/resolvePropertyItemRule"
+import {
+  registerTypeRule,
+  resolvePropertyItemRule,
+} from "../property/typeRuleRegistry"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
 
 type JSONSchemaCollectionShape = "record" | "array" | "schema"

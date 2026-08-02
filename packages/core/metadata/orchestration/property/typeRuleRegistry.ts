@@ -141,6 +141,25 @@ export const getTypeRule = <O extends TypeRulesOperations>(
   return result as any
 }
 
+type ResolvedPropertyItemRule = CollectionItemRule["itemRule"]
+
+interface PropertyWithItemRule {
+  type: PropertyRuleType
+  itemRule?: ResolvedPropertyItemRule
+}
+
+export function resolvePropertyItemRule(
+  propertyRule: PropertyWithItemRule,
+  fallback?: ResolvedPropertyItemRule
+): ResolvedPropertyItemRule | undefined {
+  if ("itemRule" in propertyRule && propertyRule.itemRule !== undefined) {
+    return propertyRule.itemRule
+  }
+  return (
+    fallback ?? getTypeRule(propertyRule.type, "collectionItemRule")?.itemRule
+  )
+}
+
 export const clearTypeRulesRegistry = (): void => {
   typeRulesRegistry.clear()
   registryRevision += 1

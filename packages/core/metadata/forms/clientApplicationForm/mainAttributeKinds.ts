@@ -1,8 +1,14 @@
-import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
+interface MainAttributeKindIndex {
+  getRoot(name: string):
+    | {
+        typeInfo: { nextTypes: readonly { kind: string }[] }
+      }
+    | undefined
+}
 
 export function hasMainAttributeKind(
   attributes: unknown,
-  index: FormDataPathIndex | undefined,
+  index: MainAttributeKindIndex | undefined,
   kinds: ReadonlySet<string>
 ): boolean {
   if (!isRecord(attributes) || index === undefined) return false

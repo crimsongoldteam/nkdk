@@ -1,6 +1,6 @@
 import type { ConfigurationContext } from "../context/types"
 import { findExcludedEqualNameYAMLOccurrence } from "../helpers/excludeIfEqualNameYAML"
-import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
+import { resolvePropertyItemRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"

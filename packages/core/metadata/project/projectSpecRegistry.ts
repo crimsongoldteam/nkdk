@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
-import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
+import { resolvePropertyItemRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { MetadataResourceDeclaration } from "../resourceTopology/types"
 

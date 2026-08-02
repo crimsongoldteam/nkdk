@@ -1,5 +1,7 @@
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
+import {
+  getTypeRule,
+  resolvePropertyItemRule,
+} from "../orchestration/property/typeRuleRegistry"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
 import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/property/fn"
 import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
