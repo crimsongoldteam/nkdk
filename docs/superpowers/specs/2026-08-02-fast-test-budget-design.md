@@ -46,7 +46,7 @@
 Переходник объединяет JSON-отчёт Vitest и lifecycle-отчёт custom runner/reporter:
 
 - `assertionResults[].duration` проверяется против 10 и 50 мс;
-- custom runner отмечает начало импорта test module, reporter складывает import с интервалом от старта test module до завершения hooks и проверяет его против 1 000 мс; ожидание очереди между collection и исполнением не приписывается файлу;
+- custom reporter использует публичный `ModuleDiagnostic`: `setupDuration + collectDuration + duration`, исключая глобальные `prepareDuration` и `environmentSetupDuration`;
 - неизвестный или неполный формат отчёта считается ошибкой;
 - вывод сортируется по длительности и содержит имя файла/test case и фактическое время;
 - код возврата ненулевой, если test case превысил 50 мс или файл превысил 1 000 мс.

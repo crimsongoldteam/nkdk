@@ -15,8 +15,6 @@ export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawn
   const reportDirectory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-duration-"))
   const reportPath = join(reportDirectory, "test-cases.json")
   const lifecycleReportPath = join(reportDirectory, "test-files.json")
-  const lifecycleEventsPath = join(reportDirectory, "test-file-events.ndjson")
-  fs.writeFileSync(lifecycleEventsPath, "")
 
   try {
     const result = spawn("vitest", [
@@ -31,7 +29,6 @@ export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawn
       env: {
         ...process.env,
         NKDK_TEST_FILE_LIFECYCLE_REPORT: lifecycleReportPath,
-        NKDK_TEST_FILE_LIFECYCLE_EVENTS: lifecycleEventsPath,
       },
       stdio: "inherit",
     })

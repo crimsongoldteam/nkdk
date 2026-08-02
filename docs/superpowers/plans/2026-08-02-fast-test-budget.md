@@ -4,7 +4,7 @@
 
 **Goal:** Ограничить каждый test case 50 мс, каждый test file 1 000 мс и устранить многоминутные project-state и JSON Schema тесты без потери наблюдаемых договоров.
 
-**Architecture:** JSON-отчёт Vitest хранит длительности test case; custom runner/reporter создают companion lifecycle-отчёт test file от импорта до hooks без ожидания очереди. Переносимый runner использует уникальный каталог системного tmp и удаляет его после проверки.
+**Architecture:** JSON-отчёт Vitest хранит длительности test case; custom reporter создаёт companion lifecycle-отчёт из публичного `ModuleDiagnostic` (`setupDuration + collectDuration + duration`). Переносимый runner использует уникальный каталог системного tmp и удаляет его после проверки.
 
 **Tech Stack:** TypeScript, Node.js 26, Vitest 4, `node:sqlite`, `worker_threads`, pnpm.
 

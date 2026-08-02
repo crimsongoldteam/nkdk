@@ -14,36 +14,18 @@ afterEach(() => {
 describe("test file lifecycle reporter", () => {
   it("складывает import и исполнение файла до завершения hooks", async () => {
     const outputPath = join(os.tmpdir(), `test-file-lifecycle-${crypto.randomUUID()}.json`)
-    const eventsPath = join(os.tmpdir(), `test-file-lifecycle-${crypto.randomUUID()}.ndjson`)
     reportPaths.push(outputPath)
-    reportPaths.push(eventsPath)
-    fs.writeFileSync(eventsPath, `${JSON.stringify({
-      file: "/project/expensive-setup.test.ts",
-      startTime: 100,
-      collectedAt: 300,
-    })}\n`)
-    const previousEventsPath = process.env["NKDK_TEST_FILE_LIFECYCLE_EVENTS"]
-    process.env["NKDK_TEST_FILE_LIFECYCLE_EVENTS"] = eventsPath
     const reporter = createTestFileLifecycleReporter(outputPath)
     const testModule = {
       moduleId: "/project/expensive-setup.test.ts",
+      diagnostic: () => ({ setupDuration: 400, collectDuration: 300, duration: 500 }),
     }
 
-    const originalDateNow = Date.now
-    const times = [400, 900]
-    Date.now = () => times.shift()!
-    try {
-      await reporter.onTestModuleStart(testModule)
-      await reporter.onTestModuleEnd(testModule)
-      await reporter.onTestRunEnd()
-    } finally {
-      Date.now = originalDateNow
-      if (previousEventsPath === undefined) delete process.env["NKDK_TEST_FILE_LIFECYCLE_EVENTS"]
-      else process.env["NKDK_TEST_FILE_LIFECYCLE_EVENTS"] = previousEventsPath
-    }
+    await reporter.onTestModuleEnd(testModule)
+    await reporter.onTestRunEnd()
 
     expect(JSON.parse(fs.readFileSync(outputPath, "utf8"))).toEqual({
-      testFiles: [{ file: "/project/expensive-setup.test.ts", duration: 700 }],
+      testFiles: [{ file: "/project/expensive-setup.test.ts", duration: 1_200 }],
     })
   })
 })
