@@ -2,10 +2,10 @@ import { registerMetadataItemCollectionRule } from "../../orchestration/metadata
 import { MetadataAttributeRules } from "./rules"
 
 const attributePropertyTypes = [
-  "MetadataAttributes",
-  "MetadataAttributesWithAllowedTypes",
-  "MetadataTabularSectionAttributes",
-  "MetadataTabularSectionAttributesWithFill",
+  ["MetadataAttributes", "MetadataAttribute"],
+  ["MetadataAttributesWithAllowedTypes", "MetadataAttributesWithAllowedTypes"],
+  ["MetadataTabularSectionAttributes", "MetadataTabularSectionAttribute"],
+  ["MetadataTabularSectionAttributesWithFill", "MetadataTabularSectionAttributeWithFill"],
   "MetadataCatalogAttributes",
   "MetadataCatalogTabularSectionAttributes",
   "MetadataDocumentAttributes",
@@ -26,11 +26,14 @@ const attributePropertyTypes = [
   "MetadataDataProcessorTabularSectionAttributes",
   "MetadataReportAttributes",
   "MetadataReportTabularSectionAttributes",
-] as const
+] as const satisfies readonly (readonly [string, string] | string)[]
 
-for (const propertyType of attributePropertyTypes) {
+for (const entry of attributePropertyTypes) {
+  const propertyType = typeof entry === "string" ? entry : entry[0]
+  const schemaName = typeof entry === "string" ? propertyType.replace(/Attributes$/, "Attribute") : entry[1]
   registerMetadataItemCollectionRule({
     propertyType,
+    schemaName,
     itemRule: MetadataAttributeRules,
     xmlElement: "Attribute",
     keyField: "name",

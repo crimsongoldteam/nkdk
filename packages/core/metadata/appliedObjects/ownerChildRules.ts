@@ -1,6 +1,7 @@
 export * as Attribute from "../commonObjects/metadataAttribute/fragments"
 export { composeMetadataItemRule } from "../commonObjects/metadataRuleFragment"
 export * as Tabular from "../commonObjects/metadataTabularSection/fragments"
+import { declarePropertyItemRule } from "../orchestration/property/propertyItemRuleDeclarations"
 
 interface OwnerChildExportContext {
   exportToXML: {
@@ -27,17 +28,9 @@ export function createOwnerAttributeCollectionRuleBuilder<
   propertyType: PropertyType,
   itemRule: ItemRule
 ) {
-  return <const Params extends Readonly<Record<string, unknown>>>(params: Params) => ({
-    type: propertyType,
-    ownerFactRole: "attributes" as const,
-    itemRule,
-    ...params,
-    operationTarget: {
-      kind: "namedCollectionTarget" as const,
-      targetKind: "attribute" as const,
-      migrationSegment: "Реквизит",
-      requiresMigration: true as const,
-    },
+  return createOwnerNamedCollectionRuleBuilder(propertyType, "attributes", itemRule, {
+    targetKind: "attribute",
+    migrationSegment: "Реквизит",
   })
 }
 
@@ -48,17 +41,9 @@ export function createOwnerTabularSectionCollectionRuleBuilder<
   propertyType: PropertyType,
   itemRule: ItemRule
 ) {
-  return <const Params extends Readonly<Record<string, unknown>>>(params: Params) => ({
-    type: propertyType,
-    ownerFactRole: "tabularSections" as const,
-    itemRule,
-    ...params,
-    operationTarget: {
-      kind: "namedCollectionTarget" as const,
-      targetKind: "tabularSection" as const,
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true as const,
-    },
+  return createOwnerNamedCollectionRuleBuilder(propertyType, "tabularSections", itemRule, {
+    targetKind: "tabularSection",
+    migrationSegment: "ТабличнаяЧасть",
   })
 }
 
@@ -72,6 +57,19 @@ export function createOwnerRegisterFieldCollectionRuleBuilder<
       ? { targetKind: "dimension" as const, migrationSegment: "Измерение" as const }
       : { targetKind: "resource" as const, migrationSegment: "Ресурс" as const }
 
+  return createOwnerNamedCollectionRuleBuilder(propertyType, role, itemRule, target)
+}
+
+function createOwnerNamedCollectionRuleBuilder<
+  const PropertyType extends string,
+  const Role extends "attributes" | "tabularSections" | "dimensions" | "resources",
+  const ItemRule extends Readonly<Record<string, unknown>>,
+  const Target extends {
+    targetKind: "attribute" | "tabularSection" | "dimension" | "resource"
+    migrationSegment: "Реквизит" | "ТабличнаяЧасть" | "Измерение" | "Ресурс"
+  },
+>(propertyType: PropertyType, role: Role, itemRule: ItemRule, target: Target) {
+  declarePropertyItemRule(propertyType, itemRule)
   return <const Params extends Readonly<Record<string, unknown>>>(params: Params) => ({
     type: propertyType,
     ownerFactRole: role,

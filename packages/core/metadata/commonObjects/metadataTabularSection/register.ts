@@ -18,6 +18,7 @@ const tabularSectionPropertyTypes = [
 for (const propertyType of tabularSectionPropertyTypes) {
   registerMetadataItemCollectionRule({
     propertyType,
+    schemaName: propertyType.replace(/TabularSections$/, "TabularSection"),
     itemRule: MetadataTabularSectionRules,
     xmlElement: "TabularSection",
     keyField: "name",

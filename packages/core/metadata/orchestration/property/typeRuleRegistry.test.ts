@@ -2,7 +2,6 @@ import { expect, it } from "vitest"
 
 import type { MetadataItemRule } from "./types"
 import {
-  clearTypeRulesRegistry,
   registerTypeRule,
   resolvePropertyItemRule,
 } from "./typeRuleRegistry"
@@ -13,17 +12,23 @@ const itemRule = (itemType: string): MetadataItemRule => ({
 })
 
 it("выбирает явный itemRule раньше fallback и регистрации", () => {
-  clearTypeRulesRegistry()
   const explicit = itemRule("Explicit")
   const fallback = itemRule("Fallback")
   const registered = itemRule("Registered")
-  registerTypeRule("Probe" as never, "collectionItemRule", {
+  registerTypeRule("ResolverPrecedenceProbe", "collectionItemRule", {
     itemRule: registered,
   })
 
   expect(
-    resolvePropertyItemRule({ type: "Probe", itemRule: explicit }, fallback)
+    resolvePropertyItemRule(
+      { type: "ResolverPrecedenceProbe", itemRule: explicit },
+      fallback
+    )
   ).toBe(explicit)
-  expect(resolvePropertyItemRule({ type: "Probe" }, fallback)).toBe(fallback)
-  expect(resolvePropertyItemRule({ type: "Probe" })).toBe(registered)
+  expect(
+    resolvePropertyItemRule({ type: "ResolverPrecedenceProbe" }, fallback)
+  ).toBe(fallback)
+  expect(
+    resolvePropertyItemRule({ type: "ResolverPrecedenceProbe" })
+  ).toBe(registered)
 })

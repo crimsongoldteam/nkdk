@@ -12,6 +12,9 @@ const propertyTypes = [
 for (const propertyType of propertyTypes) {
   registerMetadataItemCollectionRule({
     propertyType,
+    ...(propertyType === "MetadataRegisterDimensions"
+      ? {}
+      : { schemaName: propertyType.replace(/Dimensions$/, "Dimension") }),
     itemRule: MetadataRegisterDimensionRules,
     xmlElement: "Dimension",
     keyField: "name",

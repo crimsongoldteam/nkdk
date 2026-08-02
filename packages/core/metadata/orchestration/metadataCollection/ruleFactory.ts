@@ -15,6 +15,7 @@ import {
   registerTypeRule,
   resolvePropertyItemRule,
 } from "../property/typeRuleRegistry"
+import { getDeclaredPropertyItemRule } from "../property/propertyItemRuleDeclarations"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
 
 type JSONSchemaCollectionShape = "record" | "array" | "schema"
@@ -100,13 +101,17 @@ export const registerMetadataItemCollectionRule = <
         )
       }
 
-      return exportMetadataItemToJSONSchema({ context, rule: itemRule })
+      return exportMetadataItemToJSONSchema({ context, rule: declaredMetadataItemRule(propertyType) ?? itemRule })
     },
   })
 
   registerJSONSchemaPropertyRef(propertyType, ({ context, rule }) => {
     const resolvedItemRule = resolvePropertyItemRule(rule, itemRule)
     if (resolvedItemRule === itemRule) {
+      if (schemaShape === "schema") return schemaRef(schemaName)
+      return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
+    }
+    if (resolvedItemRule === declaredMetadataItemRule(propertyType)) {
       if (schemaShape === "schema") return schemaRef(schemaName)
       return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
@@ -211,4 +216,8 @@ export const registerMetadataItemCollectionRule = <
       itemRule: itemRule as unknown as MetadataItemRule,
     })
   }
+}
+
+function declaredMetadataItemRule(propertyType: PropertyRuleType): MetadataItemRule | undefined {
+  return getDeclaredPropertyItemRule<MetadataItemRule>(propertyType)
 }
