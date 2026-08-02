@@ -12,8 +12,10 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "duplicates": "node scripts/check-new-duplicates.mjs",
     "type-check": "pnpm -r exec tsc --noEmit",
-    "test": "pnpm -r run test",
+    "test": "pnpm test:duplicates-script && pnpm -r run test",
+    "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:isolated": "pnpm -r run test:isolated",
     "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs",
     "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
@@ -23,6 +25,7 @@
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^26.1.2",
+    "jscpd": "5.0.12",
     "tsc-alias": "^1.9.1",
     "typescript": "~7.0.0",
     "vitest": "^4.1.10"
