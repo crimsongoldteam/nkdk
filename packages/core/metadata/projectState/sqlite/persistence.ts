@@ -62,25 +62,19 @@ async function loadCompatibleSnapshot(
   identity: SqliteProjectStateIdentity,
   options: OpenPersistentSqliteProjectStateStoreOptions,
 ): Promise<boolean> {
-  let source: DatabaseSync | undefined
   let snapshotAttached = false
   try {
     const snapshotPath = projectStateSnapshotPath(options.projectDir)
-    source = new DatabaseSync(snapshotPath, { readOnly: true })
-    assertQuickCheck(source)
-    assertCompatibility(source, options.compatibility)
-    source.close()
-    source = undefined
-
-    createSqliteProjectStateSchema(targetDatabase, options.compatibility, identity)
     targetDatabase.prepare("ATTACH DATABASE ? AS project_state_snapshot").run(snapshotPath)
     snapshotAttached = true
+    assertQuickCheck(targetDatabase, "project_state_snapshot")
+    assertCompatibility(targetDatabase, options.compatibility, "project_state_snapshot")
+    createSqliteProjectStateSchema(targetDatabase, options.compatibility, identity)
     copyAttachedSnapshot(targetDatabase)
     return true
   } catch {
     return false
   } finally {
-    source?.close()
     if (snapshotAttached) targetDatabase.exec("DETACH DATABASE project_state_snapshot")
   }
 }
@@ -159,14 +153,20 @@ function verifySnapshot(path: string, compatibility: ProjectStateCompatibility):
   }
 }
 
-function assertQuickCheck(database: DatabaseSync): void {
-  const row = database.prepare("PRAGMA quick_check").get() as Record<string, unknown> | undefined
+type ProjectStateDatabaseSchema = "main" | "project_state_snapshot"
+
+function assertQuickCheck(database: DatabaseSync, schema: ProjectStateDatabaseSchema = "main"): void {
+  const row = database.prepare(`PRAGMA ${schema}.quick_check`).get() as Record<string, unknown> | undefined
   if (row?.["quick_check"] !== "ok") throw new Error("SQLite quick_check завершился ошибкой")
 }
 
-function assertCompatibility(database: DatabaseSync, expected: ProjectStateCompatibility): void {
+function assertCompatibility(
+  database: DatabaseSync,
+  expected: ProjectStateCompatibility,
+  schema: ProjectStateDatabaseSchema = "main",
+): void {
   const rows = database.prepare(`
-    SELECT key, value FROM cache_meta
+    SELECT key, value FROM ${schema}.cache_meta
     WHERE key IN ('schema_version', 'producer_version', 'rules_fingerprint', 'hash_algorithm')
   `).all() as unknown as { key: string; value: string }[]
   const actual = new Map(rows.map(({ key, value }) => [key, value]))

@@ -1,5 +1,6 @@
 import fs from "node:fs"
 import { join } from "node:path"
+import { DatabaseSync } from "node:sqlite"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { ProjectStateCompatibility } from "../compatibility"
 import type { ProjectStateFileUpdate } from "../fileUpdate"
@@ -47,14 +48,31 @@ describe("SQLite project state persistence", () => {
     first.store.close()
 
     const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
-    expect(reopened.store.readComponentProjection("cf").updates).toEqual(updates)
+    expectStoredResource(reopened, "cf/a.bin")
     expect(reopened.store.compareFiles({ files: updates.map(identity), hashBytes })).toEqual({ changed: [], deleted: [] })
-    const readSession = reopened.openReadSession(reopened.store.createReadToken())
-    expect(readSession.readValidationStatus({ offset: 0, batchSize: 10 })).toEqual([{
-      projectPath: "cf/a.bin",
-      componentPath: "cf",
-    }])
-    readSession.close()
+    reopened.store.close()
+  })
+
+  it("проверяет и копирует один attached snapshot при атомарной замене пути", async () => {
+    const projectDir = await createProjectDir()
+    const replacementProjectDir = await createProjectDir()
+    await writeSnapshot(projectDir, "cf/a.bin")
+    await writeSnapshot(replacementProjectDir, "cf/b.bin")
+
+    const snapshotPath = projectStateSnapshotPath(projectDir)
+    const replacementPath = projectStateSnapshotPath(replacementProjectDir)
+    const close = DatabaseSync.prototype.close
+    let replaceOnNextClose = true
+    vi.spyOn(DatabaseSync.prototype, "close").mockImplementation(function (this: DatabaseSync) {
+      close.call(this)
+      if (!replaceOnNextClose) return
+      replaceOnNextClose = false
+      fs.renameSync(replacementPath, snapshotPath)
+    })
+
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+
+    expectStoredResource(reopened, "cf/a.bin")
     reopened.store.close()
   })
 
@@ -132,3 +150,25 @@ const resource = (projectPath: string): ProjectStateFileUpdate => ({
 })
 
 const identity = ({ kind: _kind, ...value }: ProjectStateFileUpdate) => value
+
+async function writeSnapshot(projectDir: string, projectPath: string): Promise<void> {
+  const fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+  fixture.store.beginUpdate()
+  fixture.store.replaceFiles({ updates: [resource(projectPath)], hashBytes: new Uint8Array(8) })
+  fixture.store.commitUpdate()
+  await fixture.store.checkpoint()
+  fixture.store.close()
+}
+
+function expectStoredResource(
+  fixture: Awaited<ReturnType<typeof openPersistentSqliteProjectStateStore>>,
+  projectPath: string,
+): void {
+  expect(fixture.store.readComponentProjection("cf").updates).toEqual([resource(projectPath)])
+  const readSession = fixture.openReadSession(fixture.store.createReadToken())
+  expect(readSession.readValidationStatus({ offset: 0, batchSize: 10 })).toEqual([{
+    projectPath,
+    componentPath: "cf",
+  }])
+  readSession.close()
+}
