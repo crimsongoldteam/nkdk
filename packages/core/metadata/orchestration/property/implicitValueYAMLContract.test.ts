@@ -120,8 +120,8 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for catalog lengths and hierarchy level count", () => {
     const expected = {
-      codeLength: 10,
-      descriptionLength: 30,
+      codeLength: 9,
+      descriptionLength: 25,
       levelCount: 2,
     } as const
 

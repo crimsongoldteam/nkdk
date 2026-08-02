@@ -215,7 +215,7 @@ export const MetadataCatalogRules = {
       yaml: "ДлинаКода",
       defaultValueXML: 9,
       xmlParents: ["Properties"],
-      implicitValueYAML: 10,
+      implicitValueYAML: 9,
     }),
     codeSeries: systemEnumerationRule({
       yaml: "СерииКодов",
@@ -304,7 +304,7 @@ export const MetadataCatalogRules = {
       yaml: "ДлинаНаименования",
       defaultValueXML: 25,
       xmlParents: ["Properties"],
-      implicitValueYAML: 30,
+      implicitValueYAML: 25,
     }),
     editType: systemEnumerationRule({
       yaml: "СпособРедактирования",
