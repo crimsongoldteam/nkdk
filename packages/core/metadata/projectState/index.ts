@@ -1,4 +1,4 @@
-export type { ProjectStateReadToken } from "./contracts"
+export type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 export {
   ProjectStateReadSessionClosedError,
   type ProjectStateReadSession,
@@ -28,3 +28,14 @@ export {
   ProjectStateWriterClosedError,
   type ProjectStateWriterHandle,
 } from "./writerHandle"
+export {
+  createProjectStateService,
+  type CreateProjectStateServiceOptions,
+  type ProjectStateComponentProjection,
+  type ProjectStateService,
+} from "./service"
+export type {
+  ProjectStateRefreshParams,
+  ProjectStateRefreshResult,
+  ProjectStateRefreshStats,
+} from "./refresh"

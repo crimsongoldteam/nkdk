@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import Piscina from "piscina"
+import Piscina, { move, transferableSymbol, valueSymbol } from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
@@ -16,6 +16,7 @@ import type { PendingMetadataTargetReference } from "../validation/projectMetada
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
+import type { ProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -38,6 +39,14 @@ export interface PreparedYamlProjectWorkerPool {
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<FirstPassPoolResult>
+  runLocalValidation(
+    params: {
+      projectDir: string
+      context: ConfigurationContext
+      files: readonly PreparedYamlLocalValidationFile[]
+    },
+    producer: { writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void> },
+  ): Promise<{ readonly diagnostics: readonly Diagnostic[]; readonly parsedYamlFiles: number }>
   runValidationFactPass(params: {
     projectDir: string
     context: ConfigurationContext
@@ -46,6 +55,12 @@ export interface PreparedYamlProjectWorkerPool {
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   close(): Promise<void>
   size(): number
+}
+
+export interface PreparedYamlLocalValidationFile {
+  readonly descriptor: PreparedYamlProjectFileDescriptor
+  readonly bytes: Uint8Array
+  readonly hashBytes: Uint8Array
 }
 
 export interface PreparedYamlProjectWorkerPoolResult {
@@ -244,6 +259,36 @@ export function createPreparedYamlProjectWorkerPool(params: {
         },
       }
     },
+    async runLocalValidation(localParams, producer) {
+      await this.initValidation(localParams.context)
+      const partitions = partitionRoundRobin(localParams.files, params.concurrency)
+      const results = await Promise.all(partitions.map(async (files, index) => {
+        if (files.length === 0) return { diagnostics: [] as Diagnostic[], parsedYamlFiles: 0 }
+        const hashBytes = new Uint8Array(files.length * 8)
+        files.forEach((file, fileIndex) => {
+          if (file.hashBytes.byteLength !== 8) throw new Error("xxHash64 должен занимать ровно 8 байт")
+          hashBytes.set(file.hashBytes, fileIndex * 8)
+        })
+        const task = {
+          kind: "validateLocal" as const,
+          workerIndex: index,
+          projectDir: localParams.projectDir,
+          context: localParams.context,
+          files: files.map(({ descriptor, bytes }) => ({ descriptor, bytes })),
+          hashBytes,
+        }
+        const response = (await getOrCreatePool(pools, index, createPool).run(
+          move(localValidationTransferable(task)),
+        )) as PreparedYamlProjectWorkerTaskResult
+        if (response.kind !== "validateLocalResult") throw new Error("Worker вернул неожиданный результат validateLocal")
+        await Promise.all(response.fileUpdateBatches.map((batch) => producer.writeBatch(batch)))
+        return response
+      }))
+      return {
+        diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
+        parsedYamlFiles: results.reduce((sum, { parsedYamlFiles }) => sum + parsedYamlFiles, 0),
+      }
+    },
     async runValidationFactPass(factPassParams) {
       const rulesSnapshot = createValidationRulesSnapshot(factPassParams.context)
       const partitions = partitionRoundRobin(factPassParams.files, params.concurrency)
@@ -324,6 +369,19 @@ export function createPreparedYamlProjectWorkerPool(params: {
     },
     size() {
       return params.concurrency
+    },
+  }
+}
+
+function localValidationTransferable(
+  task: Extract<PreparedYamlProjectWorkerTask, { kind: "validateLocal" }>,
+) {
+  return {
+    get [transferableSymbol]() {
+      return [...task.files.map(({ bytes }) => bytes.buffer as ArrayBuffer), task.hashBytes.buffer as ArrayBuffer]
+    },
+    get [valueSymbol]() {
+      return task
     },
   }
 }

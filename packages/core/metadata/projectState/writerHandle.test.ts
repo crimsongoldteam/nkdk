@@ -65,6 +65,29 @@ describe("ProjectState writer handle", () => {
     reopened.store.close()
   })
 
+  it("сравнивает хэши и читает локальное состояние через нейтральные команды", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle()
+    const update = resource("cf/a.bin")
+    const hashes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+
+    await handle.openProject(projectDir)
+    await expect(handle.compareFiles({ files: [identity(update)], hashBytes: hashes.slice() })).resolves.toEqual({
+      changed: [{ index: 0, file: identity(update) }],
+      deleted: [],
+    })
+    await handle.beginUpdate(projectDir)
+    await handle.writeBatch({ updates: [update], hashBytes: hashes.slice() })
+    await expect(handle.readLocalDiagnostics()).resolves.toEqual([])
+    const projection = await handle.readComponentProjection("cf")
+    expect(projection.updates).toEqual([update])
+    expect(projection.hashBytes).toEqual(hashes)
+    expect(projection.hashBytes.buffer.byteLength).toBe(8)
+    await expect(handle.createReadToken()).resolves.toBeInstanceOf(Uint8Array)
+    await handle.rollbackUpdate()
+    await handle.close()
+  })
+
   it.each([
     ["смещение", new Uint8Array(new ArrayBuffer(9), 1, 8), 9],
     ["длина представления", new Uint8Array(7), 7],
@@ -304,6 +327,15 @@ describe("ProjectState writer handle", () => {
       resource("cf/next.bin"),
     ])
     reopened.store.close()
+  })
+
+  it("считает cleanup без активного обновления завершённым", async () => {
+    const projectDir = await createProjectDir()
+    const handle = createHandle({ compatibility })
+    await handle.openProject(projectDir)
+
+    await expect(handle.rollbackUpdate()).resolves.toBeUndefined()
+    await handle.close()
   })
 
   async function writeSnapshot(projectDir: string, projectPath: string): Promise<void> {

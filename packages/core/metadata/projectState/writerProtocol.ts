@@ -1,8 +1,15 @@
 import type { ProjectStateCompatibility } from "./compatibility"
+import type { Diagnostic } from "../validation/types"
+import { assertProjectStateFileHashBatch, type ProjectStateFileHashBatch, type ProjectStateReadToken } from "./contracts"
 import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdateBatch } from "./fileUpdate"
+import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
 
 export type ProjectStateWriterCommand =
   | { readonly kind: "openProject"; readonly requestId: string; readonly projectDir: string; readonly compatibility: ProjectStateCompatibility }
+  | { readonly kind: "compareFiles"; readonly requestId: string; readonly batch: ProjectStateFileHashBatch }
+  | { readonly kind: "readLocalDiagnostics"; readonly requestId: string }
+  | { readonly kind: "createReadToken"; readonly requestId: string }
+  | { readonly kind: "readComponentProjection"; readonly requestId: string; readonly componentPath: string }
   | { readonly kind: "beginUpdate"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "writeBatch"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateFileUpdateBatch }
   | { readonly kind: "deleteFiles"; readonly requestId: string; readonly operationId: string; readonly projectPaths: readonly string[] }
@@ -15,6 +22,10 @@ export type ProjectStateWriterCommand =
 
 export type ProjectStateWriterAcknowledgement =
   | { readonly kind: "opened" }
+  | { readonly kind: "filesCompared"; readonly changes: ProjectStateFileChanges }
+  | { readonly kind: "localDiagnostics"; readonly diagnostics: readonly Diagnostic[] }
+  | { readonly kind: "readToken"; readonly token: ProjectStateReadToken }
+  | { readonly kind: "componentProjection"; readonly projection: ProjectStateComponentProjection }
   | { readonly kind: "updateBegun"; readonly operationId: string }
   | { readonly kind: "batchWritten"; readonly operationId: string }
   | { readonly kind: "filesDeleted"; readonly operationId: string }
@@ -75,6 +86,16 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
       assertExactKeys(command, ["kind", "requestId", "projectDir"])
       assertString(command["projectDir"], "projectDir")
       return
+    case "compareFiles":
+      assertExactKeys(command, ["kind", "requestId", "batch"])
+      assertProjectStateFileHashBatch(command["batch"])
+      return
+    case "readComponentProjection":
+      assertExactKeys(command, ["kind", "requestId", "componentPath"])
+      assertString(command["componentPath"], "componentPath")
+      return
+    case "readLocalDiagnostics":
+    case "createReadToken":
     case "checkpoint":
     case "close":
       assertExactKeys(command, ["kind", "requestId"])

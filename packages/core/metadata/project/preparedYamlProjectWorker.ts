@@ -2,6 +2,7 @@ import { join, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { hashFileBytes } from "../configurationIndex/hash"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import {
   createProjectStateFileUpdateBatch,
   toProjectStateFileUpdate,
@@ -73,6 +74,14 @@ export type PreparedYamlProjectWorkerTask =
       files: PreparedYamlProjectFileDescriptor[]
     }
   | {
+      kind: "validateLocal"
+      workerIndex: number
+      projectDir: string
+      context: ConfigurationContext
+      files: Array<{ readonly descriptor: PreparedYamlProjectFileDescriptor; readonly bytes: Uint8Array }>
+      hashBytes: Uint8Array
+    }
+  | {
       kind: "collectValidationFacts"
       workerIndex: number
       projectDir: string
@@ -111,6 +120,12 @@ export type PreparedYamlProjectWorkerTaskResult =
       yamlLifetime: ValidationYamlLifetime
     }
   | {
+      kind: "validateLocalResult"
+      diagnostics: Diagnostic[]
+      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
+      parsedYamlFiles: number
+    }
+  | {
       kind: "collectValidationFactsResult"
       contribution: ValidationIndexContribution
     }
@@ -137,6 +152,15 @@ export async function runPreparedYamlProjectWorkerTask(
     return { kind: "initValidationResult", ...compileProfile }
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+  if (message.kind === "validateLocal") {
+    const result = runValidationFirstPass(message)
+    return {
+      kind: "validateLocalResult",
+      diagnostics: result.diagnostics,
+      fileUpdateBatches: result.fileUpdateBatches,
+      parsedYamlFiles: result.yamlLifetime.parsed,
+    }
+  }
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
@@ -184,15 +208,17 @@ export default async function preparedYamlProjectWorkerEntryPoint(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
-  return result.kind === "validateFirstPassResult" ? movableValidationFirstPassResult(result) : result
+  return result.kind === "validateFirstPassResult" || result.kind === "validateLocalResult"
+    ? movableValidationResult(result)
+    : result
 }
 
-type ValidationFirstPassWorkerResult = Extract<
+type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
-  { kind: "validateFirstPassResult" }
+  { kind: "validateFirstPassResult" | "validateLocalResult" }
 >
 
-export function createValidationFirstPassTransferable(result: ValidationFirstPassWorkerResult) {
+export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
   return {
     get [transferableSymbol]() {
       return result.fileUpdateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer)
@@ -203,8 +229,8 @@ export function createValidationFirstPassTransferable(result: ValidationFirstPas
   }
 }
 
-function movableValidationFirstPassResult(result: ValidationFirstPassWorkerResult): ValidationFirstPassWorkerResult {
-  return move(createValidationFirstPassTransferable(result)) as unknown as ValidationFirstPassWorkerResult
+function movableValidationResult(result: TransferableValidationWorkerResult): TransferableValidationWorkerResult {
+  return move(createValidationFirstPassTransferable(result)) as unknown as TransferableValidationWorkerResult
 }
 
 interface CollectValidationFactsDependencies {
@@ -311,7 +337,7 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
   }
 }
 
-function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" }>): {
+function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" | "validateLocal" }>): {
   components: ComponentFirstPassPoolResult[]
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
@@ -327,7 +353,15 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   const firstPassProfile = createEmptyFirstPassProfileSummary()
   const fileUpdateEntries: ProjectStateFileUpdateBatchEntry[] = []
 
-  for (const descriptor of message.files) {
+  const descriptors = message.kind === "validateLocal"
+    ? message.files.map(({ descriptor }) => descriptor)
+    : message.files
+  if (message.kind === "validateLocal" && message.hashBytes.byteLength !== descriptors.length * 8) {
+    throw new Error("Локальная validation получила неверную длину общего hashBytes")
+  }
+
+  for (let descriptorIndex = 0; descriptorIndex < descriptors.length; descriptorIndex += 1) {
+    const descriptor = descriptors[descriptorIndex]!
     const component = componentFirstPassResult(components, descriptor.componentPath)
     const projectComponent = validationProjectComponentFromAddress(message.projectDir, descriptor)
     const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
@@ -350,7 +384,9 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
       })
       continue
     }
-    const entry = readProjectYamlEntryForValidation(file.absolutePath)
+    const entry = message.kind === "validateLocal"
+      ? projectYamlEntryFromBytes(file.absolutePath, message.files[descriptorIndex]!.bytes)
+      : readProjectYamlEntryForValidation(file.absolutePath)
     if ("error" in entry) {
       const diagnostic = readProjectYamlDiagnostic(entry)
       component.diagnostics.push(diagnostic)
@@ -408,10 +444,12 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
         resourceKind: "yaml",
         yamlRole: descriptor.role,
       }),
-      hash: hashFileBytes(Buffer.from(entry.text, "utf8")),
+      ...(message.kind === "validateLocal"
+        ? { hashBytes: message.hashBytes.slice(descriptorIndex * 8, descriptorIndex * 8 + 8) }
+        : { hash: hashFileBytes(Buffer.from(entry.text, "utf8")) }),
     })
   }
-  recordFirstPassProfile(profiler, message.files.length, firstPassProfile)
+  recordFirstPassProfile(profiler, descriptors.length, firstPassProfile)
   profiler.flush()
 
   const componentResults = [...components.values()].sort((left, right) =>
@@ -425,6 +463,11 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     fileUpdateBatches: [createProjectStateFileUpdateBatch(fileUpdateEntries)],
     yamlLifetime: getValidationYamlLifetimeForTests(),
   }
+}
+
+function projectYamlEntryFromBytes(filePath: string, bytes: Uint8Array) {
+  const text = new TextDecoder().decode(bytes)
+  return { filePath, text, parsed: parseMetadataYaml(text) }
 }
 
 function componentFirstPassResult(

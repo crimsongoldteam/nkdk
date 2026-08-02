@@ -7,6 +7,7 @@ export {
   ProjectStateReadSessionClosedError,
   createProjectStateCompatibility,
   createProjectStateFileUpdateBatch,
+  createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,
@@ -15,10 +16,15 @@ export {
   type ProjectStateFileUpdate,
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
+  type ProjectStateComponentProjection,
+  type ProjectStateRefreshParams,
+  type ProjectStateRefreshResult,
+  type ProjectStateRefreshStats,
   type ProjectStateReadSession,
   type ProjectStateReadSessionFactory,
   type ProjectStateReadToken,
   type ProjectStateStore,
+  type ProjectStateService,
   type ProjectStateWriterHandle,
 } from "./metadata/projectState"
 export * from "./metadata/configurationIndex"

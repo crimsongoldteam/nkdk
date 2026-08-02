@@ -5,6 +5,9 @@ import { Worker } from "node:worker_threads"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import { createProjectStateCompatibility, type ProjectStateCompatibility } from "./compatibility"
 import type { ProjectStateFileUpdateBatch } from "./fileUpdate"
+import type { Diagnostic } from "../validation/types"
+import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
 import {
   assertProjectStateWriterBatch,
   type ProjectStateWriterAcknowledgement,
@@ -37,6 +40,10 @@ export interface CreateProjectStateWriterHandleOptions {
 
 export interface ProjectStateWriterHandle {
   openProject(projectDir: string): Promise<void>
+  compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
+  readLocalDiagnostics(): Promise<readonly Diagnostic[]>
+  createReadToken(): Promise<ProjectStateReadToken>
+  readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string): Promise<void>
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
@@ -96,6 +103,30 @@ export function createProjectStateWriterHandle(
       if (operationId !== undefined) throw new Error("Нельзя сменить проект во время обновления состояния")
       await request({ kind: "openProject", requestId: randomUUID(), projectDir, compatibility })
       openedProjectDir = projectDir
+    },
+    async compareFiles(batch) {
+      assertUsable()
+      const result = await request({ kind: "compareFiles", requestId: randomUUID(), batch })
+      if (result.kind !== "filesCompared") throw new Error("ProjectState writer не вернул сравнение файлов")
+      return result.changes
+    },
+    async readLocalDiagnostics() {
+      assertUsable()
+      const result = await request({ kind: "readLocalDiagnostics", requestId: randomUUID() })
+      if (result.kind !== "localDiagnostics") throw new Error("ProjectState writer не вернул локальные diagnostics")
+      return result.diagnostics
+    },
+    async createReadToken() {
+      assertUsable()
+      const result = await request({ kind: "createReadToken", requestId: randomUUID() })
+      if (result.kind !== "readToken") throw new Error("ProjectState writer не вернул read token")
+      return result.token
+    },
+    async readComponentProjection(componentPath) {
+      assertUsable()
+      const result = await request({ kind: "readComponentProjection", requestId: randomUUID(), componentPath })
+      if (result.kind !== "componentProjection") throw new Error("ProjectState writer не вернул проекцию компонента")
+      return result.projection
     },
     async beginUpdate(projectDir) {
       assertUsable()
@@ -176,6 +207,7 @@ export function createProjectStateWriterHandle(
     },
     async rollbackUpdate() {
       assertUsable()
+      if (operationId === undefined) return
       const currentOperationId = assertActiveOperation()
       await Promise.allSettled([...operationWrites])
       await request({ kind: "rollbackUpdate", requestId: randomUUID(), operationId: currentOperationId })

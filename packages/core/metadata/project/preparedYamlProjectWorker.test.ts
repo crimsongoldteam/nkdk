@@ -11,9 +11,11 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import { createPreparedYamlProjectWorkerPool } from "./preparedYamlProjectWorkerPool"
 import preparedYamlProjectWorkerEntryPoint, {
   collectValidationFacts,
   runPreparedYamlProjectWorkerTask,
+  type PreparedYamlProjectWorkerTask,
 } from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
@@ -280,6 +282,27 @@ describe("validation first-pass worker boundary", () => {
     expect(structuredClone(fileUpdateBatch)).toEqual(fileUpdateBatch)
   }, 120_000)
 
+  it("локально проверяет переданные YAML bytes без повторного чтения и сохраняет переданный хэш", async () => {
+    const projectDir = createTempDir()
+    const file = componentProperties(projectDir, "cf", "ИзBytes")
+    const hashBytes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateLocal",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{ descriptor: file, bytes: new TextEncoder().encode("{}\n") }],
+      hashBytes,
+    })
+
+    expect(result.kind).toBe("validateLocalResult")
+    if (result.kind !== "validateLocalResult") throw new Error("unexpected worker response")
+    expect(result.parsedYamlFiles).toBe(1)
+    expect(result.fileUpdateBatches).toHaveLength(1)
+    expect(result.fileUpdateBatches[0]?.hashBytes).toEqual(hashBytes)
+  })
+
   it("returns portable form checks without rule objects or index functions", async () => {
     const projectDir = createTempDir()
     const componentDir = join(projectDir, "cf")
@@ -434,6 +457,59 @@ describe("validation first-pass worker boundary", () => {
   }, 120_000)
 })
 
+describe("local validation pool", () => {
+  it("передаёт только выбранные YAML bytes и общий hashBytes, затем пишет полученную пачку producer", async () => {
+    const projectDir = createTempDir()
+    const selected = componentProperties(projectDir, "cf", "Выбранный")
+    const bytes = new TextEncoder().encode("{}\n")
+    const hashBytes = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+    const transfers: Array<readonly ArrayBuffer[]> = []
+    const validatedPaths: string[] = []
+    const written: Array<{ updates: readonly { projectPath: string }[]; hashBytes: Uint8Array }> = []
+    const fake = {
+      async run(input: unknown) {
+        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask; [transferableSymbol]?: readonly ArrayBuffer[] }
+        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+        if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        if (task.kind !== "validateLocal") throw new Error(`unexpected task: ${task.kind}`)
+        transfers.push(wrapper[transferableSymbol] ?? [])
+        validatedPaths.push(...task.files.map(({ descriptor }) => descriptor.rootProjectPath))
+        expect(task).not.toHaveProperty("sharedProjectValidationGraph")
+        expect(task.files.map(({ bytes: value }) => [...value])).toEqual([[...bytes]])
+        return {
+          kind: "validateLocalResult",
+          diagnostics: [],
+          parsedYamlFiles: task.files.length,
+          fileUpdateBatches: [{
+            updates: task.files.map(({ descriptor }) => localYamlUpdate(descriptor.rootProjectPath)),
+            hashBytes: task.hashBytes,
+          }],
+        }
+      },
+      async destroy() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    try {
+      const result = await pool.runLocalValidation({
+        projectDir,
+        context: mockContext,
+        files: [{ descriptor: selected, bytes, hashBytes }],
+      }, {
+        async writeBatch(batch) { written.push(batch) },
+      })
+
+      expect(result.parsedYamlFiles).toBe(1)
+      expect(validatedPaths).toEqual([selected.rootProjectPath])
+      expect(transfers).toHaveLength(1)
+      expect(transfers[0]).toHaveLength(2)
+      expect(written).toHaveLength(1)
+      expect(written[0]?.hashBytes).toEqual(hashBytes)
+    } finally {
+      await pool.close()
+    }
+  })
+})
+
 describe("validation second-pass worker profile", () => {
   it("attributes eager active views to context construction and excludes blocked states from items", async () => {
     const projectDir = createTempDir()
@@ -539,6 +615,24 @@ function componentProperties(projectDir: string, componentPath: string, name: st
     role: "properties" as const,
     owner: { dir: "Справочник", name },
     itemType: "Catalog",
+  }
+}
+
+function localYamlUpdate(projectPath: string) {
+  return {
+    kind: "yaml" as const,
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml" as const,
+    yamlRole: "properties" as const,
+    localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
+    references: [],
+    pendingReferences: [],
+    owners: [],
+    fields: [],
+    forms: [],
+    pendingChecks: [],
+    dependencies: [],
   }
 }
 

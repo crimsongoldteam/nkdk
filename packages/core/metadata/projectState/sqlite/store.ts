@@ -186,7 +186,11 @@ function createStore(
     },
     readComponentProjection(componentPath: string): ProjectStateComponentProjection {
       assertOpen()
-      return { componentPath, updates: readComponentUpdates(database, componentPath) }
+      return {
+        componentPath,
+        updates: readComponentUpdates(database, componentPath),
+        hashBytes: readComponentHashBytes(database, componentPath),
+      }
     },
     createReadToken() {
       assertOpen()
@@ -519,6 +523,20 @@ function readComponentUpdates(database: DatabaseSync, componentPath: string): Pr
     if (file.yaml_role === null) throw new Error("У YAML-файла отсутствует yaml_role")
     return readYamlUpdate(database, file.id, identity as ProjectStateYamlFileUpdate)
   })
+}
+
+function readComponentHashBytes(database: DatabaseSync, componentPath: string): Uint8Array {
+  const rows = database.prepare(`
+    SELECT h.hash
+    FROM project_files pf
+    JOIN components c ON c.id = pf.component_id
+    JOIN file_hashes h ON h.file_id = pf.id
+    WHERE c.path = ? COLLATE BINARY
+    ORDER BY pf.id
+  `).all(componentPath) as unknown as { hash: Uint8Array }[]
+  const hashBytes = new Uint8Array(rows.length * 8)
+  rows.forEach(({ hash }, index) => hashBytes.set(hash, index * 8))
+  return hashBytes
 }
 
 function readYamlUpdate(

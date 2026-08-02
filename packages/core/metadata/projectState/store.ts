@@ -42,6 +42,7 @@ export interface ProjectDependencyValidationParams {
 export interface ProjectStateComponentProjection {
   readonly componentPath: string
   readonly updates: readonly ProjectStateFileUpdate[]
+  readonly hashBytes: Uint8Array
 }
 
 export interface ProjectStateStore {

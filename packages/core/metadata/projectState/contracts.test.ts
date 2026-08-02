@@ -203,11 +203,13 @@ function createTestStoreContractFixture() {
     }),
     validateDependencies: () => [],
     readComponentProjection(componentPath) {
+      const entries = [...current().values()].filter(({ update }) => update.componentPath === componentPath)
+      const hashBytes = new Uint8Array(entries.length * 8)
+      entries.forEach((entry, index) => hashBytes.set(entry.hashBytes, index * 8))
       return {
         componentPath,
-        updates: [...current().values()]
-          .map(({ update }) => update)
-          .filter((update) => update.componentPath === componentPath),
+        updates: entries.map(({ update }) => update),
+        hashBytes,
       }
     },
     createReadToken() {

@@ -74,6 +74,17 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       projectDir = command.projectDir
       fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility, hooks: persistenceHooks })
       return { kind: "opened" }
+    case "compareFiles":
+      return { kind: "filesCompared", changes: requireStore().store.compareFiles(command.batch) }
+    case "readLocalDiagnostics":
+      return { kind: "localDiagnostics", diagnostics: requireStore().store.readLocalDiagnostics() }
+    case "createReadToken":
+      return { kind: "readToken", token: requireStore().store.createReadToken() }
+    case "readComponentProjection":
+      return {
+        kind: "componentProjection",
+        projection: requireStore().store.readComponentProjection(command.componentPath),
+      }
     case "beginUpdate": {
       const current = requireStore()
       if (activeOperationId !== undefined) throw new Error("Обновление состояния проекта уже начато")
