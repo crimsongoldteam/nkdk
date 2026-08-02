@@ -161,6 +161,17 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "cf-dependency", status: "found" },
         { requestId: "foreign-dependency", status: "missing" },
       ])
+      expect(session.readDependencyOwnerInputs([
+        { requestId: "own-owner-input", componentPath: "cfe/Цены", owner: owner("Catalog.Цены") },
+        { requestId: "cf-owner-input", componentPath: "cfe/Цены", owner: owner("Catalog.Товары") },
+        { requestId: "foreign-owner-input", componentPath: "cfe/Цены", owner: owner("Catalog.Скидки") },
+      ]).map(({ requestId, status }) => ({ requestId, status }))).toEqual([
+        { requestId: "own-owner-input", status: "found" },
+        { requestId: "cf-owner-input", status: "found" },
+        { requestId: "foreign-owner-input", status: "missing" },
+      ])
+      expect(session.readOwnerRefPage({ componentPath: "cfe/Цены", kind: "Справочник" }).refs
+        .map(({ name }) => name).sort()).toEqual(["Catalog.Товары", "Catalog.Цены"])
     })
 
     it("не выбирает произвольный результат при неоднозначном target или owner", () => {
@@ -212,6 +223,9 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => session.readOwners([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.findReferences([])).toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readDependencyInputs([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readDependencyOwnerInputs([])).toThrow(ProjectStateReadSessionClosedError)
+      expect(() => session.readOwnerRefPage({ componentPath: "cf", kind: "Справочник" }))
+        .toThrow(ProjectStateReadSessionClosedError)
       expect(() => session.readValidationStatus({ offset: 0, batchSize: 1 })).toThrow(ProjectStateReadSessionClosedError)
       expect(() => openReadSession(token)).toThrow()
     })

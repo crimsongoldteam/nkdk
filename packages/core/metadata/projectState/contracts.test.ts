@@ -140,6 +140,14 @@ function testReadSession(): ProjectStateReadSession {
       assertOpen()
       return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
     },
+    readDependencyOwnerInputs(requests) {
+      assertOpen()
+      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+    },
+    readOwnerRefPage() {
+      assertOpen()
+      return { refs: [] }
+    },
     readValidationStatus() {
       assertOpen()
       return []
@@ -200,9 +208,10 @@ function createTestStoreContractFixture() {
     readDependencyCheckBatch: ({ requests }) => ({
       results: requests.map(({ requestId, componentPath, projectPath, check }) => {
         const visible = visibleYamlUpdates(current(), componentPath)
-        return visible.some((update) => update.projectPath === projectPath && hasOwner(update, check.owner))
-          ? { requestId, status: "found" as const, input: dependencyInput(visible) }
-          : { requestId, status: "missing" as const }
+        const input = dependencyInput(visible, componentPath, projectPath, check.owner)
+        return input === undefined
+          ? { requestId, status: "missing" as const }
+          : { requestId, status: "found" as const, input }
       }),
     }),
     validateDependencies: () => [],
@@ -292,15 +301,30 @@ function testStoreReadSession(
       assertOpen()
       return requests.map(({ requestId, componentPath, projectPath, check }) => {
         const visible = visibleYamlUpdatesForSession(componentPath)
-        if (!visible.some((update) => update.projectPath === projectPath && hasOwner(update, check.owner))) {
-          return { requestId, status: "missing" as const }
-        }
-        return {
-          requestId,
-          status: "found" as const,
-          input: dependencyInput(visible),
-        }
+        const input = dependencyInput(visible, componentPath, projectPath, check.owner)
+        return input === undefined
+          ? { requestId, status: "missing" as const }
+          : { requestId, status: "found" as const, input }
       })
+    },
+    readDependencyOwnerInputs(requests) {
+      assertOpen()
+      return requests.map(({ requestId, componentPath, owner }) => {
+        const input = dependencyOwnerInput(visibleYamlUpdatesForSession(componentPath), componentPath, owner)
+        return input === undefined
+          ? { requestId, status: "missing" as const }
+          : { requestId, status: "found" as const, input }
+      })
+    },
+    readOwnerRefPage({ componentPath, kind, cursor }) {
+      assertOpen()
+      const refs = visibleOwnerRefs(visibleYamlUpdatesForSession(componentPath), componentPath, kind)
+      const start = cursor === undefined ? 0 : refs.findIndex((ref) => ownerRefKey(ref) === cursor) + 1
+      const page = refs.slice(start, start + 2_001)
+      return {
+        refs: page.slice(0, 2_000),
+        ...(page.length <= 2_000 ? {} : { nextCursor: ownerRefKey(page[1_999]!) }),
+      }
     },
     readValidationStatus({ offset, batchSize }) {
       assertOpen()
@@ -334,16 +358,64 @@ function visibleYamlUpdates(
     )
 }
 
-function dependencyInput(updates: readonly ProjectStateYamlFileUpdate[]) {
+function dependencyInput(
+  updates: readonly ProjectStateYamlFileUpdate[],
+  componentPath: string,
+  projectPath: string,
+  owner: { readonly kind: string; readonly name?: string },
+) {
+  const ownerInput = dependencyOwnerInput(updates, componentPath, owner)
+  if (ownerInput === undefined) return undefined
   return {
-    owners: updates.flatMap((update) => update.owners),
-    fields: updates.flatMap((update) => update.fields),
-    forms: updates.flatMap((update) => update.forms),
+    owners: [{ owner: ownerInput.owner, facts: ownerInput.facts }],
+    fields: ownerInput.fields,
+    forms: updates.find((update) => update.projectPath === projectPath)?.forms ?? [],
   }
 }
 
-function hasOwner(update: ProjectStateYamlFileUpdate, expected: { readonly kind: string; readonly name?: string }): boolean {
-  return update.owners.some(({ owner }) => owner.kind === expected.kind && owner.name === expected.name)
+function dependencyOwnerInput(
+  updates: readonly ProjectStateYamlFileUpdate[],
+  componentPath: string,
+  owner: { readonly kind: string; readonly name?: string },
+) {
+  const candidates = updates.flatMap((update) => update.owners
+    .filter(({ owner: candidate }) => sameOwner(candidate, owner))
+    .map((entry) => ({ update, entry })))
+  const local = candidates.filter(({ update }) => update.componentPath === componentPath)
+  const preferred = local.length > 0 ? local : candidates.filter(({ update }) => update.componentPath === "cf")
+  if (preferred.length !== 1) return undefined
+  const [{ update, entry }] = preferred
+  return {
+    owner: entry.owner,
+    facts: entry.facts,
+    fields: update.fields.filter((field) => sameOwner(field.owner, owner)),
+  }
+}
+
+function visibleOwnerRefs(
+  updates: readonly ProjectStateYamlFileUpdate[],
+  componentPath: string,
+  kind: string,
+) {
+  const refs = new Map<string, { kind: string; name?: string }>()
+  for (const update of updates) {
+    for (const { owner } of update.owners) {
+      if (owner.kind !== kind || dependencyOwnerInput(updates, componentPath, owner) === undefined) continue
+      refs.set(ownerRefKey(owner), owner)
+    }
+  }
+  return [...refs.values()].sort((left, right) => ownerRefKey(left).localeCompare(ownerRefKey(right)))
+}
+
+function sameOwner(
+  left: { readonly kind: string; readonly name?: string },
+  right: { readonly kind: string; readonly name?: string },
+): boolean {
+  return left.kind === right.kind && left.name === right.name
+}
+
+function ownerRefKey(owner: { readonly kind: string; readonly name?: string }): string {
+  return `${owner.kind}:${owner.name ?? ""}`
 }
 
 interface StoredUpdate {

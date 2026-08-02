@@ -17,7 +17,12 @@ import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
 import { createProjectDegradationDiagnostics } from "../validation/projectFirstPassReadiness"
 import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "./fileUpdate"
-import type { ProjectDependencyInput, ProjectDependencyInputQuery, ProjectStateQueryPort } from "./readSession"
+import type {
+  ProjectDependencyInput,
+  ProjectDependencyInputQuery,
+  ProjectDependencyOwnerInput,
+  ProjectStateQueryPort,
+} from "./readSession"
 
 export interface ProjectStatePendingReferenceCheck {
   readonly requestId: string
@@ -126,7 +131,10 @@ export function validateProjectStateOwnerBatch(params: {
 export function validateProjectStateDependencyBatch(params: {
   readonly checks: readonly ProjectDependencyInputQuery[]
   readonly projectDir: string
-  readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs">
+  readonly queryPort: Pick<
+    ProjectStateQueryPort,
+    "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"
+  >
 }): readonly Diagnostic[] {
   const results = params.queryPort.readDependencyInputs(params.checks)
   const diagnostics: Diagnostic[] = []
@@ -137,6 +145,8 @@ export function validateProjectStateDependencyBatch(params: {
         ownerCache: dependencyOwnerCache({
           input: result.input,
           projectDir: `${params.projectDir}/${check.componentPath}`,
+          componentPath: check.componentPath,
+          queryPort: params.queryPort,
         }),
         checks: [
           {
@@ -169,23 +179,87 @@ function forEachDependencyResult<
   }
 }
 
-function dependencyOwnerCache(params: { input: ProjectDependencyInput; projectDir: string }): OwnerMetadataCache {
-  const owners = new Map(params.input.owners.map(({ owner, facts }) => [ownerKey(owner), { owner, facts }]))
+function dependencyOwnerCache(params: {
+  input: ProjectDependencyInput
+  projectDir: string
+  componentPath: string
+  queryPort: Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">
+}): OwnerMetadataCache {
+  const currentOwners = new Map<string, ProjectDependencyOwnerInput>(
+    params.input.owners.map(({ owner, facts }) => [
+      ownerKey(owner),
+      { owner, facts, fields: projectStateFields(owner, params.input.fields) },
+    ]),
+  )
+  let activePage: ReadonlyMap<string, ProjectDependencyOwnerInput> | undefined
   return {
     get(ref) {
-      const stored = owners.get(ownerKey(ref))
+      const key = ownerKey(ref)
+      const stored = currentOwners.get(key) ?? activePage?.get(key) ?? readOwner(ref)
       if (stored === undefined) return ownerMetadataNotFound({ projectDir: params.projectDir, ref })
       return ownerMetadataFromFacts({
         projectDir: params.projectDir,
         ref,
         facts: stored.facts,
-        fieldIndex: projectStateFieldIndex(ref, params.input.fields),
+        fieldIndex: projectStateFieldIndex(ref, stored.fields),
       })
     },
     listRefs(kind) {
-      return [...owners.values()].flatMap(({ owner }) => owner.kind === kind ? [owner] : [])
+      return visibleOwnerRefs(kind)
     },
   }
+
+  function readOwner(ref: OwnerTypeRef): ProjectDependencyOwnerInput | undefined {
+    const requestId = ownerKey(ref)
+    const result = params.queryPort.readDependencyOwnerInputs([
+      { requestId, componentPath: params.componentPath, owner: ref },
+    ])[0]
+    if (result === undefined || result.requestId !== requestId) {
+      throw new Error(`Ответ dependency owner lookup не соответствует запросу ${requestId}`)
+    }
+    return result.status === "found" ? result.input : undefined
+  }
+
+  function* visibleOwnerRefs(kind: OwnerTypeRef["kind"]): IterableIterator<OwnerTypeRef> {
+    let cursor: string | undefined
+    for (;;) {
+      const page = params.queryPort.readOwnerRefPage({
+        componentPath: params.componentPath,
+        kind,
+        ...(cursor === undefined ? {} : { cursor }),
+      })
+      if (page.refs.length === 0 && page.nextCursor !== undefined) {
+        throw new Error("Пустая страница владельцев не может содержать следующий cursor")
+      }
+      const requests = page.refs.map((owner, index) => ({
+        requestId: `page:${index}`,
+        componentPath: params.componentPath,
+        owner,
+      }))
+      const inputs = params.queryPort.readDependencyOwnerInputs(requests)
+      const pageOwners = new Map<string, ProjectDependencyOwnerInput>()
+      forEachDependencyResult(requests, inputs, (_request, result) => {
+        if (result.status === "found") pageOwners.set(ownerKey(result.input.owner), result.input)
+      })
+      activePage = pageOwners
+      try {
+        for (const ref of page.refs) if (pageOwners.has(ownerKey(ref))) yield ref
+      } finally {
+        activePage = undefined
+      }
+      if (page.nextCursor === undefined) return
+      if (page.nextCursor === cursor) throw new Error("Страница владельцев повторила cursor")
+      cursor = page.nextCursor
+    }
+  }
+}
+
+function projectStateFields(
+  owner: OwnerTypeRef,
+  entries: readonly ProjectStateFieldEntry[],
+): readonly ProjectStateFieldEntry[] {
+  const key = ownerKey(owner)
+  return entries.filter((entry) => ownerKey(entry.owner) === key)
 }
 
 function projectStateFieldIndex(owner: OwnerTypeRef, entries: readonly ProjectStateFieldEntry[]): ObjectFieldIndex {

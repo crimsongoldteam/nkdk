@@ -5,7 +5,11 @@ import type {
   ProjectDependencyInput,
   ProjectDependencyInputQuery,
   ProjectDependencyInputResult,
+  ProjectDependencyOwnerInputQuery,
+  ProjectDependencyOwnerInputResult,
   ProjectOwnerLookup,
+  ProjectOwnerRefPage,
+  ProjectOwnerRefPageQuery,
   ProjectOwnerLookupResult,
   ProjectReferenceLookup,
   ProjectReferenceLookupResult,
@@ -15,7 +19,7 @@ import type {
   ProjectTargetLookupResult,
 } from "../readSession"
 import { ProjectStateReadSessionClosedError } from "../readSession"
-import type { ProjectStateFormEntry } from "../fileUpdate"
+import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "../fileUpdate"
 import { decodeOwnerKey, decodeValue, encodeOwnerKey } from "./codec"
 import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
 import { projectStateOwnerFactsFromRows, type SqliteOwnerFactValueRow } from "./ownerFacts"
@@ -73,6 +77,14 @@ export function openSqliteProjectStateReadSession(
       assertOpen()
       return queryPort.readDependencyInputs(requests)
     },
+    readDependencyOwnerInputs(requests) {
+      assertOpen()
+      return queryPort.readDependencyOwnerInputs(requests)
+    },
+    readOwnerRefPage(query) {
+      assertOpen()
+      return queryPort.readOwnerRefPage(query)
+    },
     readValidationStatus(query) {
       assertOpen()
       return queryPort.readValidationStatus(query)
@@ -121,9 +133,13 @@ export function createSqliteProjectStateQueryPort(database: DatabaseSync): Proje
     readOwners: (requests) => readOwners(database, requests),
     findReferences: (requests) => findReferences(database, requests),
     readDependencyInputs: (requests) => readDependencyInputs(database, requests),
+    readDependencyOwnerInputs: (requests) => readDependencyOwnerInputs(database, requests),
+    readOwnerRefPage: (query) => readOwnerRefPage(database, query),
     readValidationStatus: (query) => readValidationStatus(database, query),
   }
 }
+
+const OWNER_REF_PAGE_SIZE = 2_000
 
 function readValidationStatus(
   database: DatabaseSync,
@@ -162,8 +178,29 @@ export function readDependencyInputs(
   `).all() as unknown as { request_index: number }[]
   const found = new Set(selectedRows.map(({ request_index }) => request_index))
   const inputs = new Map<number, MutableDependencyInput>()
-  for (const index of found) inputs.set(index, { forms: [] })
+  for (const index of found) inputs.set(index, { ownerRows: [], fields: [], forms: [] })
   if (found.size > 0) {
+    const ownerRows = database.prepare(`
+      SELECT r.request_index, o.source_file_id, o.ordinal, o.owner_key, o.fact_kind, o.fact_key, o.fact_value
+      FROM temp.dependency_requests r
+      JOIN temp.dependency_owner_selections s ON s.request_index = r.request_index
+      JOIN owner_facts o ON o.source_file_id = s.source_file_id
+        AND o.owner_key = r.owner_key COLLATE BINARY
+      ORDER BY r.request_index, o.ordinal, o.id
+    `).all() as unknown as OwnerFactRow[]
+    for (const row of ownerRows) inputs.get(row.request_index)!.ownerRows.push(row)
+
+    const fieldRows = database.prepare(`
+      SELECT r.request_index, f.owner_key, f.field_kind, f.field_name, f.type_key,
+        f.target_name, f.source_collection, f.parent_name, f.table_info, f.table_has_columns
+      FROM temp.dependency_requests r
+      JOIN temp.dependency_owner_selections s ON s.request_index = r.request_index
+      JOIN field_entries f ON f.source_file_id = s.source_file_id
+        AND f.owner_key = r.owner_key COLLATE BINARY
+      ORDER BY r.request_index, f.ordinal, f.id
+    `).all() as unknown as (SqliteProjectStateFieldEntryRow & { request_index: number })[]
+    for (const row of fieldRows) inputs.get(row.request_index)!.fields.push(projectStateFieldEntryFromRow(row))
+
     const formRows = database.prepare(`
       SELECT r.request_index, f.source_value
       FROM temp.dependency_requests r
@@ -176,37 +213,74 @@ export function readDependencyInputs(
     }
   }
 
-  const ownersByComponent = new Map<string, Pick<ProjectDependencyInput, "owners" | "fields">>()
-  for (let index = 0; index < requests.length; index += 1) {
-    if (!found.has(index)) continue
-    const componentPath = requests[index]!.componentPath
-    if (!ownersByComponent.has(componentPath)) {
-      ownersByComponent.set(componentPath, readVisibleComponentOwners(database, componentPath))
-    }
-  }
-
-  return requests.map(({ requestId, componentPath }, requestIndex) => {
+  return requests.map(({ requestId }, requestIndex) => {
     const input = inputs.get(requestIndex)
-    const componentOwners = ownersByComponent.get(componentPath)
     return input === undefined
       ? { requestId, status: "missing" as const }
       : {
           requestId,
           status: "found" as const,
           input: {
-            owners: componentOwners?.owners ?? [],
-            fields: componentOwners?.fields ?? [],
+            owners: ownerFactsFromRows(input.ownerRows),
+            fields: input.fields,
             forms: input.forms,
           },
         }
   })
 }
 
-function readVisibleComponentOwners(
+function readDependencyOwnerInputs(
   database: DatabaseSync,
-  componentPath: string,
-): Pick<ProjectDependencyInput, "owners" | "fields"> {
-  const selection = `
+  requests: readonly ProjectDependencyOwnerInputQuery[],
+): readonly ProjectDependencyOwnerInputResult[] {
+  const owners = readOwners(database, requests)
+  const fieldRows = database.prepare(`
+    WITH candidate_files AS (
+      SELECT DISTINCT r.request_index, o.source_file_id,
+        CASE WHEN c.path = r.component_path COLLATE BINARY THEN 0 ELSE 1 END AS priority
+      FROM temp.owner_requests r
+      JOIN owner_facts o ON o.owner_key = r.lookup_key COLLATE BINARY
+      JOIN project_files pf ON pf.id = o.source_file_id
+      JOIN components c ON c.id = pf.component_id
+      WHERE ${visibleComponent("r", "c")}
+    ), best AS (
+      SELECT request_index, MIN(priority) AS priority FROM candidate_files GROUP BY request_index
+    ), selected AS (
+      SELECT f.*, COUNT(*) OVER (PARTITION BY f.request_index) AS candidate_count
+      FROM candidate_files f JOIN best b USING(request_index, priority)
+    )
+    SELECT s.request_index, f.owner_key, f.field_kind, f.field_name, f.type_key,
+      f.target_name, f.source_collection, f.parent_name, f.table_info, f.table_has_columns
+    FROM selected s
+    JOIN field_entries f ON f.source_file_id = s.source_file_id
+    JOIN temp.owner_requests r ON r.request_index = s.request_index
+      AND r.lookup_key = f.owner_key COLLATE BINARY
+    WHERE s.candidate_count = 1
+    ORDER BY s.request_index, f.ordinal, f.id
+  `).all() as unknown as (SqliteProjectStateFieldEntryRow & { request_index: number })[]
+  const fieldsByRequest = new Map<number, ProjectStateFieldEntry[]>()
+  for (const row of fieldRows) {
+    ;(fieldsByRequest.get(row.request_index) ?? setArray(fieldsByRequest, row.request_index))
+      .push(projectStateFieldEntryFromRow(row))
+  }
+  return requests.map(({ requestId, owner }, index) => {
+    const result = owners[index]
+    return result?.status === "found"
+      ? {
+          requestId,
+          status: "found" as const,
+          input: { owner, facts: result.facts, fields: fieldsByRequest.get(index) ?? [] },
+        }
+      : { requestId, status: "missing" as const }
+  })
+}
+
+function readOwnerRefPage(
+  database: DatabaseSync,
+  query: ProjectOwnerRefPageQuery,
+): ProjectOwnerRefPage {
+  const prefix = `${query.kind.length}:${query.kind}`
+  const rows = database.prepare(`
     WITH request(component_path) AS (VALUES (?)), candidate_files AS (
       SELECT DISTINCT o.owner_key, o.source_file_id,
         CASE WHEN c.path = r.component_path COLLATE BINARY THEN 0 ELSE 1 END AS priority
@@ -215,37 +289,37 @@ function readVisibleComponentOwners(
       JOIN project_files pf ON pf.id = o.source_file_id
       JOIN components c ON c.id = pf.component_id
       WHERE ${visibleComponent("r", "c")}
+        AND o.owner_key > ? COLLATE BINARY
+        AND o.owner_key >= ? COLLATE BINARY
+        AND o.owner_key < ? COLLATE BINARY
     ), best AS (
       SELECT owner_key, MIN(priority) AS priority
       FROM candidate_files
       GROUP BY owner_key
     ), selected AS (
-      SELECT f.owner_key, MIN(f.source_file_id) AS source_file_id
+      SELECT f.owner_key
       FROM candidate_files f
       JOIN best b USING(owner_key, priority)
       GROUP BY f.owner_key
       HAVING COUNT(*) = 1
     )
-  `
-  const ownerRows = database.prepare(`${selection}
-    SELECT 0 AS request_index, o.source_file_id, o.ordinal,
-      o.owner_key, o.fact_kind, o.fact_key, o.fact_value
-    FROM selected s
-    JOIN owner_facts o ON o.source_file_id = s.source_file_id
-      AND o.owner_key = s.owner_key COLLATE BINARY
-    ORDER BY s.owner_key COLLATE BINARY, o.ordinal, o.id
-  `).all(componentPath) as unknown as OwnerFactRow[]
-  const fieldRows = database.prepare(`${selection}
-    SELECT f.owner_key, f.field_kind, f.field_name, f.type_key,
-      f.target_name, f.source_collection, f.parent_name, f.table_info, f.table_has_columns
-    FROM selected s
-    JOIN field_entries f ON f.source_file_id = s.source_file_id
-      AND f.owner_key = s.owner_key COLLATE BINARY
-    ORDER BY s.owner_key COLLATE BINARY, f.ordinal, f.id
-  `).all(componentPath) as unknown as SqliteProjectStateFieldEntryRow[]
+    SELECT owner_key
+    FROM selected
+    ORDER BY owner_key COLLATE BINARY
+    LIMIT ?
+  `).all(
+    query.componentPath,
+    query.cursor ?? "",
+    prefix,
+    `${prefix}\uffff`,
+    OWNER_REF_PAGE_SIZE + 1,
+  ) as unknown as { owner_key: string }[]
+  const pageRows = rows.slice(0, OWNER_REF_PAGE_SIZE)
   return {
-    owners: ownerFactsFromRows(ownerRows),
-    fields: fieldRows.map(projectStateFieldEntryFromRow),
+    refs: pageRows.map(({ owner_key }) => decodeOwnerKey(owner_key)),
+    ...(rows.length <= OWNER_REF_PAGE_SIZE
+      ? {}
+      : { nextCursor: pageRows[pageRows.length - 1]!.owner_key }),
   }
 }
 
@@ -491,6 +565,8 @@ interface OwnerFactRow extends SqliteOwnerFactValueRow {
 }
 
 interface MutableDependencyInput {
+  readonly ownerRows: OwnerFactRow[]
+  readonly fields: ProjectStateFieldEntry[]
   readonly forms: ProjectStateFormEntry[]
 }
 

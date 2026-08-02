@@ -8,7 +8,7 @@ import { createProjectValidationGraph } from "../validation/projectValidationGra
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import type { FormDataPathColumnSource } from "../validation/dataPath/types"
+import type { FormDataPathColumnSource, OwnerTypeRef } from "../validation/dataPath/types"
 import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
 import {
@@ -19,7 +19,7 @@ import {
 import type { ComponentValidationLayer, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
 import { createSqliteProjectStateTestFixture } from "./sqlite/testFixture"
-import { validateProjectStateReferenceBatch } from "./dependencyValidation"
+import { validateProjectStateDependencyBatch, validateProjectStateReferenceBatch } from "./dependencyValidation"
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -244,6 +244,124 @@ describe("dependency validation из ProjectState", () => {
 
     expect(store.validateDependencies({ requests: [] })).toEqual([])
     store.rollbackUpdate()
+  })
+
+  it("читает только текущего владельца и страницы требуемого kind для разных cfe", () => {
+    const register = { kind: "РегистрНакопления", name: "Продажи" }
+    const documentRefs = Array.from({ length: 2_001 }, (_, index) => ({
+      kind: "Документ",
+      name: `Документ${index.toString().padStart(4, "0")}`,
+    }))
+    const baseDocuments: ProjectStateYamlFileUpdate = {
+      ...emptyYamlUpdate("cf/Документы.yaml", "cf", "configuration"),
+      owners: documentRefs.map((owner, index) => ({
+        owner,
+        facts: index === 0 ? { registerRecords: ["AccumulationRegister.Base"] } : {},
+      })),
+      fields: documentRefs.map((owner) => ({
+        owner,
+        name: "Номер",
+        kind: "attribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      })),
+    }
+    const localDocument = ownerUpdate("cfe/x", [], documentRefs[0], {
+      registerRecords: ["AccumulationRegister.Local"],
+    })
+    const sourceX = ownerDependencySource("cfe/x", register, "Объект.Регистратор", "cfe/x/Форма.yaml")
+    const sourceY = ownerDependencySource("cfe/y", register, "Объект.Регистратор", "cfe/y/Форма.yaml")
+    const { store, openReadSession } = createSqliteProjectStateTestFixture()
+    const updates = [
+      baseDocuments,
+      localDocument,
+      ownerUpdate("cf", [], register),
+      sourceX,
+      sourceY,
+      configurationUpdate(true),
+    ]
+    store.beginUpdate()
+    store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+    store.commitUpdate()
+    const session = openReadSession(store.createReadToken())
+    const inputs = session.readDependencyInputs([
+      dependencyQuery("input-x", sourceX),
+      dependencyQuery("input-y", sourceY),
+    ])
+
+    expect(inputs).toEqual([
+      currentOwnerInput("input-x", register, sourceX),
+      currentOwnerInput("input-y", register, sourceY),
+    ])
+
+    const pagedSession = session as typeof session & PagedDependencyQueryPort
+    const pageSizes = new Map<string, number[]>()
+    for (const componentPath of ["cfe/x", "cfe/y"]) {
+      let cursor: string | undefined
+      do {
+        const page = pagedSession.readOwnerRefPage({ componentPath, kind: "Документ", cursor })
+        const sizes = pageSizes.get(componentPath) ?? []
+        sizes.push(page.refs.length)
+        pageSizes.set(componentPath, sizes)
+        cursor = page.nextCursor
+      } while (cursor !== undefined)
+    }
+    expect(pageSizes).toEqual(new Map([
+      ["cfe/x", [2_000, 1]],
+      ["cfe/y", [2_000, 1]],
+    ]))
+
+    const layeredOwners = pagedSession.readDependencyOwnerInputs([
+      { requestId: "local", componentPath: "cfe/x", owner: documentRefs[0]! },
+      { requestId: "fallback", componentPath: "cfe/y", owner: documentRefs[0]! },
+    ])
+    expect(layeredOwners).toEqual([
+      dependencyOwnerInput("local", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Local"] }),
+      dependencyOwnerInput("fallback", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Base"] }, "Номер"),
+    ])
+    session.close()
+  })
+
+  it("останавливает closed reverse lookup до следующей страницы", () => {
+    const task = { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" }
+    const businessProcess = { kind: "БизнесПроцесс", name: "Согласование" }
+    const source = ownerDependencySource("cf", task, "Объект.ТочкаМаршрута", "cf/ФормаЗадачи.yaml")
+    const pageCursors: (string | undefined)[] = []
+    const queryPort = pagedDependencyQueryPort({
+      source,
+      ownerFacts: new Map([[ownerRefKey(businessProcess), { task: "Task.ЗадачаИсполнителя" }]]),
+      readPage(query) {
+        pageCursors.push(query.cursor)
+        if (query.cursor !== undefined) throw new Error("closed reverse lookup запросил лишнюю страницу")
+        return { refs: [businessProcess], nextCursor: "unused" }
+      },
+    })
+
+    expect(validateProjectStateDependencyBatch({
+      checks: [dependencyQuery("closed", source)],
+      projectDir: "/project",
+      queryPort,
+    })).toEqual([])
+    expect(pageCursors).toEqual([undefined])
+  })
+
+  it("пробрасывает ошибку следующей страницы reverse lookup", () => {
+    const register = { kind: "РегистрНакопления", name: "Продажи" }
+    const unrelatedDocument = { kind: "Документ", name: "Заказ" }
+    const source = ownerDependencySource("cf", register, "Объект.Регистратор", "cf/ФормаОшибкиСтраницы.yaml")
+    const queryPort = pagedDependencyQueryPort({
+      source,
+      ownerFacts: new Map([[ownerRefKey(unrelatedDocument), {}]]),
+      readPage({ cursor }) {
+        if (cursor !== undefined) throw new Error("Не удалось прочитать следующую страницу владельцев")
+        return { refs: [unrelatedDocument], nextCursor: "second" }
+      },
+    })
+
+    expect(() => validateProjectStateDependencyBatch({
+      checks: [dependencyQuery("page-error", source)],
+      projectDir: "/project",
+      queryPort,
+    })).toThrow("Не удалось прочитать следующую страницу владельцев")
   })
 
   it("сохраняет приоритет штатной колонки формы над дополнительной", () => {
@@ -471,6 +589,95 @@ function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
   store.beginUpdate()
   store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
   return store
+}
+
+interface PagedDependencyQueryPort {
+  readOwnerRefPage(query: {
+    readonly componentPath: string
+    readonly kind: string
+    readonly cursor?: string
+  }): { readonly refs: readonly OwnerTypeRef[]; readonly nextCursor?: string }
+  readDependencyOwnerInputs(requests: readonly {
+    readonly requestId: string
+    readonly componentPath: string
+    readonly owner: OwnerTypeRef
+  }[]): readonly ReturnType<typeof dependencyOwnerInput>[]
+}
+
+function pagedDependencyQueryPort(params: {
+  source: ProjectStateYamlFileUpdate
+  ownerFacts: ReadonlyMap<string, ProjectStateYamlFileUpdate["owners"][number]["facts"]>
+  readPage: PagedDependencyQueryPort["readOwnerRefPage"]
+}) {
+  const currentOwner = params.source.pendingChecks[0]!.owner
+  return {
+    readDependencyInputs: (requests: readonly { readonly requestId: string }[]) =>
+      requests.map(({ requestId }) => currentOwnerInput(requestId, currentOwner, params.source)),
+    readOwnerRefPage: params.readPage,
+    readDependencyOwnerInputs(requests: readonly {
+      readonly requestId: string
+      readonly componentPath: string
+      readonly owner: OwnerTypeRef
+    }[]) {
+      return requests.flatMap(({ requestId, owner }) => {
+        const facts = params.ownerFacts.get(ownerRefKey(owner))
+        return facts === undefined ? [] : [dependencyOwnerInput(requestId, owner, facts)]
+      })
+    },
+  }
+}
+
+function dependencyQuery(requestId: string, source: ProjectStateYamlFileUpdate) {
+  return {
+    requestId,
+    componentPath: source.componentPath,
+    projectPath: source.projectPath,
+    check: source.pendingChecks[0]!,
+  }
+}
+
+function currentOwnerInput(
+  requestId: string,
+  owner: OwnerTypeRef,
+  source: ProjectStateYamlFileUpdate,
+) {
+  return {
+    requestId,
+    status: "found" as const,
+    input: {
+      owners: [{ owner, facts: {} }],
+      fields: [],
+      forms: source.forms,
+    },
+  }
+}
+
+function dependencyOwnerInput(
+  requestId: string,
+  owner: OwnerTypeRef,
+  facts: ProjectStateYamlFileUpdate["owners"][number]["facts"],
+  fieldName?: string,
+) {
+  return {
+    requestId,
+    status: "found" as const,
+    input: {
+      owner,
+      facts,
+      fields: fieldName === undefined
+        ? []
+        : [{
+            owner,
+            name: fieldName,
+            kind: "attribute" as const,
+            typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+          }],
+    },
+  }
+}
+
+function ownerRefKey(owner: OwnerTypeRef): string {
+  return `${owner.kind}:${owner.name ?? ""}`
 }
 
 function emptyYamlUpdate(

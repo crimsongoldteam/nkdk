@@ -15,7 +15,7 @@ import { ownerFactFromYAML } from "./ownerFacts"
 
 export interface OwnerMetadataCache {
   get(ref: OwnerTypeRef): OwnerMetadataResult
-  listRefs(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[]
+  listRefs(kind: OwnerTypeRef["kind"]): Iterable<OwnerTypeRef>
 }
 
 export type OwnerMetadataResult =

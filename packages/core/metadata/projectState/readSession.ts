@@ -63,6 +63,33 @@ export type ProjectDependencyInputResult =
   | { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput }
   | { readonly requestId: string; readonly status: "missing" }
 
+export interface ProjectDependencyOwnerInputQuery {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly owner: OwnerTypeRef
+}
+
+export interface ProjectDependencyOwnerInput {
+  readonly owner: OwnerTypeRef
+  readonly facts: ProjectStateOwnerFacts
+  readonly fields: readonly ProjectStateFieldEntry[]
+}
+
+export type ProjectDependencyOwnerInputResult =
+  | { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyOwnerInput }
+  | { readonly requestId: string; readonly status: "missing" }
+
+export interface ProjectOwnerRefPageQuery {
+  readonly componentPath: string
+  readonly kind: OwnerTypeRef["kind"]
+  readonly cursor?: string
+}
+
+export interface ProjectOwnerRefPage {
+  readonly refs: readonly OwnerTypeRef[]
+  readonly nextCursor?: string
+}
+
 export interface ProjectValidationStatusQuery {
   readonly offset: number
   readonly batchSize: number
@@ -80,6 +107,10 @@ export interface ProjectStateQueryPort {
   readOwners(requests: readonly ProjectOwnerLookup[]): readonly ProjectOwnerLookupResult[]
   findReferences(requests: readonly ProjectReferenceLookup[]): readonly ProjectReferenceLookupResult[]
   readDependencyInputs(requests: readonly ProjectDependencyInputQuery[]): readonly ProjectDependencyInputResult[]
+  readDependencyOwnerInputs(
+    requests: readonly ProjectDependencyOwnerInputQuery[]
+  ): readonly ProjectDependencyOwnerInputResult[]
+  readOwnerRefPage(query: ProjectOwnerRefPageQuery): ProjectOwnerRefPage
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
 }
 

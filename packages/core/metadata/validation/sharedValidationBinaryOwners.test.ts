@@ -66,7 +66,7 @@ describe("SharedValidationBinaryOwners", () => {
     const regular = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
     const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
 
-    expect(sortRefs(binary.listRefs("Справочник"))).toEqual(sortRefs(regular.listRefs("Справочник")))
+    expect(sortRefs([...binary.listRefs("Справочник")])).toEqual(sortRefs([...regular.listRefs("Справочник")]))
   })
 
   it("restores owner model data used by data path resolvers", () => {
@@ -162,7 +162,7 @@ describe("SharedValidationBinaryOwners", () => {
       status: "ok",
       owner: { filePath: "/project/cf/base.yaml" },
     })
-    expect(sortRefs(sales.listRefs("Справочник"))).toEqual([
+    expect(sortRefs([...sales.listRefs("Справочник")])).toEqual([
       { kind: "Справочник", name: "Клиенты" },
       { kind: "Справочник", name: "Контрагенты" },
       { kind: "Справочник", name: "Товары" },
