@@ -12,23 +12,25 @@ import { fingerprintRegisteredProjectStateTypeRules } from "./compatibility"
 
 describe("ProjectState type handler compatibility", () => {
   let initialFingerprint = ""
+  let runtimeFingerprint = ""
 
   beforeAll(() => {
     registerTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
     initialFingerprint = fingerprintRegisteredProjectStateTypeRules()
-  })
-
-  it("учитывает runtime handler в отпечатке зарегистрированных правил", () => {
     const createOverride = (number: boolean) =>
       (_params: Parameters<typeof exportStringToJSONSchema>[0]) => number ? Type.Number() : Type.Boolean()
     const numberOverrideHandler = createOverride(true)
 
     try {
       registerTypeRule("string", "exportToJSONSchema", numberOverrideHandler)
-      expect(fingerprintRegisteredProjectStateTypeRules()).not.toBe(initialFingerprint)
+      runtimeFingerprint = fingerprintRegisteredProjectStateTypeRules()
     } finally {
       registerTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
     }
+  })
+
+  it("учитывает runtime handler в отпечатке зарегистрированных правил", () => {
+    expect(runtimeFingerprint).not.toBe(initialFingerprint)
   })
 
   it("не раскрывает внутренние метки совместимости через orchestration", () => {

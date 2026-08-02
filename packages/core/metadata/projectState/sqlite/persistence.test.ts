@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { join } from "node:path"
 import { DatabaseSync } from "node:sqlite"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import type { ProjectStateCompatibility } from "../compatibility"
 import type { ProjectStateFileUpdate } from "../fileUpdate"
 import { trackTempProjectDirs } from "../tests/tempProjectDir"
@@ -21,6 +21,20 @@ const compatibility: ProjectStateCompatibility = {
 describe("SQLite project state persistence", () => {
   const projectDirs = trackTempProjectDirs("nkdk-project-state-")
   const createProjectDir = projectDirs.create
+  const atomicReplacementDirs = trackTempProjectDirs("nkdk-project-state-atomic-")
+  let atomicProjectDir = ""
+  let atomicReplacementProjectDir = ""
+
+  beforeAll(async () => {
+    atomicProjectDir = await atomicReplacementDirs.create()
+    atomicReplacementProjectDir = await atomicReplacementDirs.create()
+    await writeSnapshot(atomicProjectDir, "cf/a.bin")
+    await writeSnapshot(atomicReplacementProjectDir, "cf/b.bin")
+  })
+
+  afterAll(async () => {
+    await atomicReplacementDirs.removeAll()
+  })
 
   afterEach(async () => {
     vi.restoreAllMocks()
@@ -54,13 +68,8 @@ describe("SQLite project state persistence", () => {
   })
 
   it("проверяет и копирует один attached snapshot при атомарной замене пути", async () => {
-    const projectDir = await createProjectDir()
-    const replacementProjectDir = await createProjectDir()
-    await writeSnapshot(projectDir, "cf/a.bin")
-    await writeSnapshot(replacementProjectDir, "cf/b.bin")
-
-    const snapshotPath = projectStateSnapshotPath(projectDir)
-    const replacementPath = projectStateSnapshotPath(replacementProjectDir)
+    const snapshotPath = projectStateSnapshotPath(atomicProjectDir)
+    const replacementPath = projectStateSnapshotPath(atomicReplacementProjectDir)
     const close = DatabaseSync.prototype.close
     let replaceOnNextClose = true
     vi.spyOn(DatabaseSync.prototype, "close").mockImplementation(function (this: DatabaseSync) {
@@ -70,7 +79,7 @@ describe("SQLite project state persistence", () => {
       fs.renameSync(replacementPath, snapshotPath)
     })
 
-    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir: atomicProjectDir, compatibility })
 
     expectStoredResource(reopened, "cf/a.bin")
     reopened.store.close()
