@@ -62,28 +62,32 @@ export interface CoreApi {
     directoryPath?: string
     depth?: number
   }): MetadataProjectDirectoryStructure
-  createValidationWorkerPoolHandle(params?: { concurrency?: number }): {
-    validateProject(params: { projectDir: string }): Promise<{ diagnostics: Diagnostic[] }>
-    close(): Promise<void>
-    size(): number
-  }
-  validateProject(params: { projectDir: string }): Promise<{ diagnostics: Diagnostic[] }>
+  validateProject(params: {
+    projectDir: string
+    projectState: CoreProjectStateService
+  }): Promise<{ diagnostics: Diagnostic[] }>
   renameMetadataItem(params: {
     projectDir: string
+    componentPath: string
     path: string
     newName: string
     allowWrite?: boolean
+    ignoreValidationErrors?: boolean
+    projectState: CoreProjectStateService
   }): Promise<MetadataOperationResult>
   findMetadataReferences(params: {
     projectDir: string
+    componentPath: string
     path: string
-    allowWrite?: boolean
+    ignoreValidationErrors?: boolean
+    projectState: CoreProjectStateService
   }): Promise<MetadataOperationResult>
   planSyncToXml(params: {
     projectDir: string
     componentPath: string
     xmlDir: string
     projectState: CoreProjectStateService
+    ignoreValidationErrors?: boolean
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -97,7 +101,9 @@ export interface CoreApi {
     outputDir: string
     externalFileTransfer?: "copy" | "move"
   }): Promise<ConfigurationImportResult>
-  importConfigurationFromXml(params: ImportConfigurationFromXmlParams): Promise<ConfigurationImportResult>
+  importConfigurationFromXml(
+    params: Omit<ImportConfigurationFromXmlParams, "projectState"> & { projectState: CoreProjectStateService }
+  ): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -119,6 +125,7 @@ export interface CoreApi {
     xmlDir: string
     concurrency?: number
     projectState: CoreProjectStateService
+    ignoreValidationErrors?: boolean
   }): Promise<FullXmlSyncResult>
   readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
   initializeXmlSyncState(params: {
@@ -134,10 +141,21 @@ export interface CoreProjectStateService {
   openReadSession(token: unknown): unknown
   readComponentProjection(params: unknown): Promise<unknown>
   reset(projectDir: string): Promise<void>
-  rebuild(params: unknown): Promise<unknown>
+  rebuild(params: unknown): Promise<{
+    diagnostics: readonly Diagnostic[]
+    stats: CoreProjectStateStats
+    readToken: unknown
+  }>
   close(): Promise<void>
 }
 
+export interface CoreProjectStateStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+}
+
 export async function loadCoreApi(): Promise<CoreApi> {
-  return await import("@nkdk/core") as CoreApi
+  return await import("@nkdk/core") as unknown as CoreApi
 }

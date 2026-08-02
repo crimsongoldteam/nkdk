@@ -3,7 +3,7 @@ import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
 import { resolveProjectRoot } from "./componentResolver"
-import { getValidationHandle } from "./validationHandle"
+import { projectStateHandle } from "./projectStateHandle"
 
 export type ValidateProjectPayload = ToolPayload<{
   diagnostics: Array<{
@@ -23,9 +23,11 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
   if (!project.ok) return project.error
 
   try {
-    const handle = await getValidationHandle()
-    const diagnostics = (await handle.validateProject({
+    const projectState = await projectStateHandle.get()
+    const core = await loadCoreApi()
+    const diagnostics = (await core.validateProject({
       projectDir: project.projectDir,
+      projectState,
     })).diagnostics
 
     const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({

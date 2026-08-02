@@ -2,18 +2,12 @@ import { loadCoreApi, type CoreApi, type CoreProjectStateService } from "../core
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type SyncToXmlInput } from "../contracts/syncToXml"
 import { resolveComponent } from "./componentResolver"
-
-type OptionalProjectState<T extends { projectState: CoreProjectStateService }> =
-  Omit<T, "projectState"> & { projectState?: CoreProjectStateService }
+import { projectStateHandle } from "./projectStateHandle"
 
 interface SyncToXmlDeps {
-  readonly createProjectStateService?: CoreApi["createProjectStateService"]
-  readonly planSyncToXml?: (
-    params: OptionalProjectState<Parameters<CoreApi["planSyncToXml"]>[0]>,
-  ) => ReturnType<CoreApi["planSyncToXml"]>
-  readonly syncConfigurationToXML: (
-    params: OptionalProjectState<Parameters<CoreApi["syncConfigurationToXML"]>[0]>,
-  ) => ReturnType<CoreApi["syncConfigurationToXML"]>
+  readonly projectState?: CoreProjectStateService
+  readonly planSyncToXml?: CoreApi["planSyncToXml"]
+  readonly syncConfigurationToXML: CoreApi["syncConfigurationToXML"]
 }
 
 export type SyncToXmlPayload = ToolPayload<{
@@ -25,7 +19,6 @@ export type SyncToXmlPayload = ToolPayload<{
 }>
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
-  let ownedProjectState: CoreProjectStateService | undefined
   try {
     if (input.componentPath === "cfe") {
       return toolError("invalid_arguments", "Ожидался путь cfe/<Имя>", {
@@ -40,23 +33,20 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
 
     const loadedCore = deps === undefined ? await loadCoreApi() : undefined
     const core = deps ?? loadedCore!
-    const createProjectState = loadedCore?.createProjectStateService ?? deps?.createProjectStateService
-    ownedProjectState = createProjectState?.()
-    const projectState = ownedProjectState
+    const projectState = deps?.projectState ?? await projectStateHandle.get()
     if (input.allowWrite !== true) {
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
       const planParams = {
         projectDir: component.projectDir,
         componentPath: component.componentPath,
         xmlDir: input.xmlDir,
+        ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
       }
-      const result = loadedCore === undefined
-        ? await deps!.planSyncToXml!({ ...planParams, ...(projectState === undefined ? {} : { projectState }) })
-        : await loadedCore.planSyncToXml({ ...planParams, projectState: projectState! })
+      const result = await core.planSyncToXml({ ...planParams, projectState })
       return toolSuccess({ result })
     }
 
-    const syncParams: Parameters<SyncToXmlDeps["syncConfigurationToXML"]>[0] = {
+    const syncParams: Parameters<CoreApi["syncConfigurationToXML"]>[0] = {
       context: {
         defaultLanguage: "ru",
         version: "2.20",
@@ -76,10 +66,10 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       componentPath: component.componentPath,
       xmlDir: input.xmlDir,
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
+      ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
+      projectState,
     }
-    const result = loadedCore === undefined
-      ? await deps!.syncConfigurationToXML({ ...syncParams, ...(projectState === undefined ? {} : { projectState }) })
-      : await loadedCore.syncConfigurationToXML({ ...syncParams, projectState: projectState! })
+    const result = await core.syncConfigurationToXML(syncParams)
 
     return toolSuccess({
       succeeded: result.succeeded,
@@ -89,8 +79,6 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
     })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
-  } finally {
-    await ownedProjectState?.close().catch(() => undefined)
   }
 }
 

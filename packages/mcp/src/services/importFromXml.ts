@@ -1,7 +1,8 @@
-import { loadCoreApi } from "../coreApi"
+import { loadCoreApi, type CoreProjectStateService } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
 import { resolveComponent } from "./componentResolver"
+import { projectStateHandle } from "./projectStateHandle"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -21,6 +22,7 @@ interface CoreImportResult {
 }
 
 interface ImportFromXmlDeps {
+  projectState?: CoreProjectStateService
   importConfigurationFromXml: (params: {
     context: {
       defaultLanguage: "ru"
@@ -32,6 +34,7 @@ interface ImportFromXmlDeps {
     projectDir: string
     requestedComponentPath?: string
     concurrency?: number
+    projectState: CoreProjectStateService
   }) => Promise<CoreImportResult>
 }
 
@@ -60,6 +63,7 @@ export async function importFromXml(
     if (!project.ok) return project.error
 
     const core = deps ?? (await loadCoreApi())
+    const projectState = deps?.projectState ?? await projectStateHandle.get()
     const result = await core.importConfigurationFromXml({
       context: {
         defaultLanguage: "ru",
@@ -69,6 +73,7 @@ export async function importFromXml(
       },
       inputDir: input.xmlDir,
       projectDir: project.projectDir,
+      projectState,
       ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })

@@ -1,4 +1,4 @@
-import { mkdtemp, realpath, rm, symlink } from "node:fs/promises"
+import { access, mkdir, mkdtemp, readFile, realpath, rm, symlink, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
@@ -98,6 +98,9 @@ describe("ProjectStateService", () => {
   it("при технической ошибке rebuild сохраняет прежнее активное состояние", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-"))
     tempDirs.push(projectDir)
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+    await writeFile(snapshotPath, "previous")
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
@@ -117,6 +120,7 @@ describe("ProjectStateService", () => {
     const projectFiles = await readProjectFiles(service, projectDir)
 
     expect(projectFiles).toEqual([{ projectPath: "old-1" }])
+    await expect(readFile(snapshotPath, "utf8")).resolves.toBe("previous")
     expect(old.closed).toBe(0)
     expect(candidate.closed).toBe(1)
     await service.close()
@@ -342,6 +346,9 @@ describe("ProjectStateService", () => {
   it("rebuild меняет активное состояние только после успешного завершения refresh checkpoint", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-success-"))
     tempDirs.push(projectDir)
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+    await writeFile(snapshotPath, "previous")
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
@@ -360,6 +367,17 @@ describe("ProjectStateService", () => {
         if (calls === 2) {
           notifyCheckpointStarted()
           await checkpoint
+          await writeFile(snapshotPath, "candidate")
+          return {
+            ...refreshResult(calls),
+            diagnostics: [{
+              filePath: "cf/Справочник/Товары/Свойства.yaml",
+              line: 1,
+              col: 1,
+              severity: "error",
+              message: "Ошибка validation",
+            }],
+          }
         }
         return refreshResult(calls)
       },
@@ -371,13 +389,15 @@ describe("ProjectStateService", () => {
     expect(calls).toBe(2)
     expect(old.closed).toBe(0)
     finishCheckpoint()
-    await rebuilding
+    const rebuildResult = await rebuilding
     const projectFiles = await readProjectFiles(service, projectDir)
 
+    expect(rebuildResult.diagnostics).toEqual([expect.objectContaining({ severity: "error" })])
     expect(old.closed).toBe(1)
     expect(candidate.opened).toEqual([await realpath(projectDir)])
     expect(refreshedProjectDirs).toEqual([await realpath(projectDir), await realpath(projectDir)])
     expect(projectFiles).toEqual([{ projectPath: "old-2" }])
+    await expect(readFile(snapshotPath, "utf8")).resolves.toBe("candidate")
     await service.close()
   })
 
@@ -489,17 +509,37 @@ describe("ProjectStateService", () => {
     tempDirs.push(alias)
     await symlink(projectDir, alias)
     const writer = testWriterHandle(1)
+    let tokenValid = true
+    const resetWriter = writer.reset.bind(writer)
+    writer.reset = async (canonicalProjectDir) => {
+      await resetWriter(canonicalProjectDir)
+      tokenValid = false
+    }
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    const configurationIndexPath = join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")
     let refreshCalls = 0
     const service = createProjectStateService({
       createWriter: () => writer,
       createPool: () => testPool(),
       async refresh() { refreshCalls += 1; return refreshResult(refreshCalls) },
+      openReadSession() {
+        if (!tokenValid) throw new Error("Read token устарел")
+        return {} as never
+      },
     })
+    const staleToken = await service.createReadToken(projectDir)
+    await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+    await mkdir(join(projectDir, ".nkdk", "components", "cf"), { recursive: true })
+    await writeFile(snapshotPath, "snapshot")
+    await writeFile(configurationIndexPath, "configuration-index")
 
     await service.reset(alias)
 
     expect(writer.resets).toEqual([await realpath(projectDir)])
     expect(refreshCalls).toBe(0)
+    expect(() => service.openReadSession(staleToken)).toThrow()
+    await expect(access(snapshotPath)).rejects.toMatchObject({ code: "ENOENT" })
+    await expect(access(configurationIndexPath)).resolves.toBeUndefined()
     await service.close()
   })
 })

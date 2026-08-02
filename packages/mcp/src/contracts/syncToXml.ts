@@ -7,6 +7,7 @@ export const syncToXmlInputShape = {
   xmlDir: z.string().min(1),
   concurrency: z.number().int().positive().optional(),
   allowWrite: z.boolean().optional(),
+  ignoreValidationErrors: z.boolean().optional(),
 }
 
 export const syncToXmlSuccessOutputShape = {

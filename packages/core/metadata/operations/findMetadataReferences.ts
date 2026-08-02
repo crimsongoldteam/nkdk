@@ -33,6 +33,7 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
     projectState: params.projectState,
     readToken: refreshed.readToken,
     path: params.path,
+    componentPath: params.componentPath,
     target: canonical,
   })
   if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, resultDiagnostics)

@@ -15,13 +15,14 @@ export function readIndexedOperationReferences(params: {
   readonly projectState: ProjectStateService
   readonly readToken: ProjectStateReadToken
   readonly path: string
+  readonly componentPath?: string
   readonly target: Extract<MetadataOperationCanonicalTargetResult, { ok: true }>
 }): IndexedOperationReferencesResult {
   const session = params.projectState.openReadSession(params.readToken)
   try {
     const [resolved] = session.resolveTargets([{
       requestId: "target",
-      componentPath: "cf",
+      componentPath: params.componentPath ?? "cf",
       canonicalTarget: params.target.canonical,
     }])
     if (resolved?.status !== "found") return { ok: false, message: `Цель не найдена: ${params.path}` }

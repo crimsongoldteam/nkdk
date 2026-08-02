@@ -25,6 +25,8 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.list_infobases",
       "nkdk.list_infobase_extensions",
       "nkdk.validate_project",
+      "nkdk.reset_project_cache",
+      "nkdk.rebuild_project_cache",
       "nkdk.import_from_xml",
       "nkdk.import_from_infobase",
       "nkdk.close_platform_connection",
@@ -89,6 +91,23 @@ describe("registerNkdkCapabilities", () => {
     expect(syncTool?.description).toContain("projectDir/componentPath")
     expect(syncTool?.description).toContain("xmlRootDir/componentPath")
     expect(syncTool?.description).not.toContain("reference")
+    expect(syncTool?.description).toContain("Проверки выполняются всегда")
+
+    for (const name of ["nkdk.rename_item", "nkdk.find_references"]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { description: string }
+        | undefined
+      expect(tool?.description).toContain("Проверки выполняются всегда")
+    }
+
+    for (const name of ["nkdk.reset_project_cache", "nkdk.rebuild_project_cache"]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { inputSchema: z.ZodType }
+        | undefined
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true }).success).toBe(true)
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: false }).success).toBe(false)
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true, extra: 1 }).success).toBe(false)
+    }
 
     const listInfobasesTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.list_infobases")?.[1] as
       | { description: string }

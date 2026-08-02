@@ -21,6 +21,7 @@ describe("renameItem service", () => {
       blockedReferences: [],
     }
     const renameMetadataItem = vi.fn().mockResolvedValue(coreResult)
+    const projectState = { refreshAndValidate: vi.fn() }
 
     const result = await renameItem(
       {
@@ -29,15 +30,19 @@ describe("renameItem service", () => {
         metadataRef: "Справочник.Товары",
         newName: "Номенклатура",
         allowWrite: true,
+        ignoreValidationErrors: true,
       },
-      { renameMetadataItem },
+      { renameMetadataItem, projectState: projectState as never },
     )
 
     expect(renameMetadataItem).toHaveBeenCalledWith({
-      projectDir: join(projectDir, "cfe", "Расширение"),
+      projectDir,
+      componentPath: "cfe/Расширение",
       path: "Справочник.Товары",
       newName: "Номенклатура",
       allowWrite: true,
+      ignoreValidationErrors: true,
+      projectState,
     })
     expect(result).toEqual(coreResult)
   })

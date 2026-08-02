@@ -2,13 +2,16 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { resetValidationHandleForTests } from "./validationHandle"
 import { validateYamlProject } from "./validateProject"
 
 const core = vi.hoisted(() => ({
   ProjectFileSchemaError: class ProjectFileSchemaError extends Error {},
-  createValidationWorkerPoolHandle: vi.fn(),
   validateProject: vi.fn(),
+}))
+const projectState = vi.hoisted(() => ({ close: vi.fn() }))
+
+vi.mock("./projectStateHandle", () => ({
+  projectStateHandle: { get: vi.fn(async () => projectState) },
 }))
 
 vi.mock("../coreApi", () => ({
@@ -21,13 +24,6 @@ describe("validateProject service", () => {
   beforeEach(() => {
     core.validateProject.mockReset()
     core.validateProject.mockResolvedValue({ diagnostics: [] })
-    core.createValidationWorkerPoolHandle.mockReset()
-    core.createValidationWorkerPoolHandle.mockReturnValue({
-      validateProject: core.validateProject,
-      close: vi.fn(),
-      size: vi.fn(() => 1),
-    })
-    resetValidationHandleForTests()
   })
 
   afterEach(() => {
@@ -77,19 +73,18 @@ describe("validateProject service", () => {
     ])
     expect(result.diagnostics[0]).not.toHaveProperty("line")
     expect(result.diagnostics[0]).not.toHaveProperty("col")
-    expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
+    expect(core.validateProject).toHaveBeenCalledWith({ projectDir, projectState })
   })
 
-  it("reuses one validation handle across service calls", async () => {
+  it("передаёт одно общее состояние между вызовами validation", async () => {
     const projectDir = createProject()
 
     await validateYamlProject({ projectDir })
     await validateYamlProject({ projectDir })
 
-    expect(core.createValidationWorkerPoolHandle).toHaveBeenCalledTimes(1)
     expect(core.validateProject).toHaveBeenCalledTimes(2)
-    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir })
-    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir })
+    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir, projectState })
+    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir, projectState })
   })
 
   it("omits warning diagnostics from JSON output", async () => {
@@ -155,7 +150,7 @@ describe("validateProject service", () => {
       ok: true,
       diagnostics: [{ filePath: "cfe/Продажи/Справочник/Товары/Свойства.yaml" }],
     })
-    expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
+    expect(core.validateProject).toHaveBeenCalledWith({ projectDir, projectState })
   })
 
   it.each([

@@ -4,7 +4,6 @@ import type { ProjectStateRefreshParams, ProjectStateRefreshResult } from "../pr
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
 import {
-  createValidationWorkerPoolHandle,
   toRootProjectDiagnostic,
   validateProject,
 } from "./validateProject"
@@ -32,22 +31,6 @@ describe("validateProject", () => {
     expect(projectState.closed).toBe(0)
   })
 
-  it("переиспользует одно состояние в совместимом handle и закрывает его один раз", async () => {
-    const projectState = testProjectState([])
-    const handle = createValidationWorkerPoolHandle({
-      concurrency: 2,
-      createProjectState: () => projectState,
-    })
-
-    await handle.validateProject({ projectDir: "/first" })
-    await handle.validateProject({ projectDir: "/second" })
-    await handle.close()
-    await handle.close()
-
-    expect(projectState.refreshes.map(({ projectDir }) => projectDir)).toEqual(["/first", "/second"])
-    expect(projectState.closed).toBe(1)
-    expect(handle.size()).toBe(2)
-  })
 })
 
 describe("toRootProjectDiagnostic", () => {

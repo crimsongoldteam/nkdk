@@ -21,19 +21,24 @@ describe("findReferences service", () => {
       blockedReferences: [],
     }
     const findMetadataReferences = vi.fn().mockResolvedValue(coreResult)
+    const projectState = { refreshAndValidate: vi.fn() }
 
     const result = await findReferences(
       {
         projectDir,
         componentPath: "cfe/Расширение",
         metadataRef: "Справочник.Товары",
+        ignoreValidationErrors: true,
       },
-      { findMetadataReferences }
+      { findMetadataReferences, projectState: projectState as never }
     )
 
     expect(findMetadataReferences).toHaveBeenCalledWith({
-      projectDir: join(projectDir, "cfe", "Расширение"),
+      projectDir,
+      componentPath: "cfe/Расширение",
       path: "Справочник.Товары",
+      ignoreValidationErrors: true,
+      projectState,
     })
     expect(result).toEqual(coreResult)
   })

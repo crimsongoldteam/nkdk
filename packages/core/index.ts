@@ -110,11 +110,9 @@ export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
-  createValidationWorkerPoolHandle,
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
-  type ValidationWorkerPoolHandle,
 } from "./metadata/validation/validateProject"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
 export {

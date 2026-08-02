@@ -1,10 +1,6 @@
 import { availableParallelism } from "node:os"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
-import {
-  createPreparedYamlProjectWorkerPool,
-  type PreparedWorkerPool,
-} from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
 
@@ -21,8 +17,6 @@ export interface ValidateProjectResult {
 
 export interface ValidationWorkerPoolHandle {
   validateProject(params: Omit<ValidateProjectParams, "concurrency">): Promise<ValidateProjectResult>
-  close(): Promise<void>
-  size(): number
 }
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
@@ -37,42 +31,6 @@ export async function validateProject(params: ValidateProjectParams): Promise<Va
     return { diagnostics: [...result.diagnostics] }
   } finally {
     if (ownsProjectState) await projectState.close()
-  }
-}
-
-export function createValidationWorkerPoolHandle(
-  params: {
-    concurrency?: number
-    createWorkerPool?: () => PreparedWorkerPool
-    createProjectState?: () => ProjectStateService
-  } = {}
-): ValidationWorkerPoolHandle {
-  const concurrency = normalizeValidationConcurrency(params.concurrency)
-  const projectState = params.createProjectState?.() ?? createProjectStateService({
-    createPool: (poolConcurrency) => createPreparedYamlProjectWorkerPool({
-      concurrency: poolConcurrency,
-      createWorkerPool: params.createWorkerPool,
-    }),
-  })
-  let closed = false
-
-  return {
-    validateProject(projectParams) {
-      if (closed) throw new Error("Validation worker pool handle is closed")
-      return validateProject({
-        ...projectParams,
-        concurrency,
-        projectState,
-      })
-    },
-    async close() {
-      if (closed) return
-      closed = true
-      await projectState.close()
-    },
-    size() {
-      return concurrency
-    },
   }
 }
 

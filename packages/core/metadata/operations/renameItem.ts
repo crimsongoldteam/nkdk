@@ -71,6 +71,7 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
     projectState: params.projectState,
     readToken: before.readToken,
     path: params.path,
+    componentPath: params.componentPath,
     target: canonical,
   })
   if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, beforeDiagnostics)

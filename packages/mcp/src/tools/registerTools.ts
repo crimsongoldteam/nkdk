@@ -13,6 +13,7 @@ import {
 import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
+import { projectCacheInputSchema } from "../contracts/projectCache"
 import {
   closeAllPlatformConnectionsInputShape,
   closePlatformConnectionInputShape,
@@ -30,6 +31,7 @@ import { findReferences } from "../services/findReferences"
 import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
 import { validateYamlProject } from "../services/validateProject"
+import { rebuildProjectCache, resetProjectCache } from "../services/projectCache"
 import {
   closeAllPlatformConnections,
   closePlatformConnection,
@@ -94,6 +96,28 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
   )
 
   server.registerTool(
+    "nkdk.reset_project_cache",
+    {
+      title: "Reset NKDK project cache",
+      description:
+        "Закрывает runtime-состояние проекта и удаляет только .nkdk/cache/project-state.sqlite. Не запускает validation и не изменяет configuration-index. Требует allowWrite=true.",
+      inputSchema: projectCacheInputSchema,
+    },
+    async (input) => jsonToolResult(await resetProjectCache(input))
+  )
+
+  server.registerTool(
+    "nkdk.rebuild_project_cache",
+    {
+      title: "Rebuild NKDK project cache",
+      description:
+        "Строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Возвращает diagnostics и статистику. Требует allowWrite=true.",
+      inputSchema: projectCacheInputSchema,
+    },
+    async (input) => jsonToolResult(await rebuildProjectCache(input))
+  )
+
+  server.registerTool(
     "nkdk.import_from_xml",
     {
       title: "Import 1C XML to NKDK YAML",
@@ -142,7 +166,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Sync NKDK YAML to 1C XML",
       description:
-        "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Файлы пишутся только при allowWrite=true.",
+        "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
     },
     async (input) => jsonToolResult(await syncToXml(input))
@@ -164,7 +188,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Rename NKDK metadata item",
       description:
-        "Единственный MCP-способ сохранить XML/reference identity при переименовании metadataRef в выбранном компоненте projectDir/componentPath.",
+        "Единственный MCP-способ сохранить XML/reference identity при переименовании metadataRef в выбранном компоненте projectDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics.",
       inputSchema: renameItemInputShape,
     },
     async (input) => jsonToolResult(await renameItem(input))
@@ -175,7 +199,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Find NKDK metadata references",
       description:
-        "Ищет внешние ссылки на metadataRef в выбранном компоненте projectDir/componentPath. componentPath по умолчанию cf. Файлы не изменяет.",
+        "Ищет внешние ссылки на metadataRef в выбранном компоненте projectDir/componentPath. componentPath по умолчанию cf. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы не изменяет.",
       inputSchema: findReferencesInputShape,
     },
     async (input) => jsonToolResult(await findReferences(input))

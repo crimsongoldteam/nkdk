@@ -60,6 +60,7 @@ export interface MetadataOperationValidationFailed {
 
 export interface RenameMetadataItemParams {
   projectDir: string
+  componentPath?: string
   path: string
   newName: string
   allowWrite?: boolean
@@ -70,6 +71,7 @@ export interface RenameMetadataItemParams {
 
 export interface FindMetadataReferencesParams {
   projectDir: string
+  componentPath?: string
   path: string
   ignoreValidationErrors?: boolean
   projectState: ProjectStateService

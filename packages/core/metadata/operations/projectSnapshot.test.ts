@@ -14,10 +14,6 @@ function validationHandle(diagnostics: Diagnostic[]): ValidationWorkerPoolHandle
     async validateProject() {
       return { diagnostics }
     },
-    async close() {},
-    size() {
-      return 0
-    },
   }
 }
 

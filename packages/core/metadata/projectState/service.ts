@@ -1,5 +1,5 @@
 import { availableParallelism } from "node:os"
-import { realpath } from "node:fs/promises"
+import { realpath, rm } from "node:fs/promises"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateReadSession } from "./readSession"
@@ -14,6 +14,7 @@ import {
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateWriterHandle, type ProjectStateWriterHandle } from "./writerHandle"
+import { projectStateSnapshotPath } from "./sqlite/persistence"
 import {
   createProjectStateRefreshDependencies,
   refreshProjectState,
@@ -137,6 +138,7 @@ export function createProjectStateService(
         const canonical = await realpath(projectDir)
         const writer = await activate(canonical)
         await writer.reset(canonical)
+        await rm(projectStateSnapshotPath(canonical), { force: true })
       })
     },
     rebuild(params) {
