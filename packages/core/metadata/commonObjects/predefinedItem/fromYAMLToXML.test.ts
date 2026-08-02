@@ -101,6 +101,37 @@ describe("PredefinedItem YAML → XML", () => {
     expect(result).toContain("<IsFolder>true</IsFolder>")
     expect(result).toContain("<Type/>")
   })
+
+  it("restores current-config Type prefixes by predefined item depth", () => {
+    const xml = convertCollection(
+      {
+        Корень: {
+          ТипЗначения: "Справочник.ЗначенияХарактеристик",
+          Элементы: {
+            Дочерний: {
+              ТипЗначения: "Справочник.ЗначенияХарактеристик",
+              Элементы: {
+                Третий: {
+                  ТипЗначения: "Справочник.ЗначенияХарактеристик",
+                  Элементы: {
+                    Четвертый: { ТипЗначения: "Справочник.ЗначенияХарактеристик" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      chartContext()
+    )
+
+    const prefixes = [
+      ...xml.matchAll(
+        /<v8:Type xmlns:(d\d+p1)="http:\/\/v8\.1c\.ru\/8\.1\/data\/enterprise\/current-config">\1:CatalogRef\.ЗначенияХарактеристик<\/v8:Type>/g
+      ),
+    ].map((match) => match[1])
+    expect(prefixes).toEqual(["d4p1", "d6p1", "d8p1", "d10p1"])
+  })
 })
 
 function convertCollection(yaml: unknown, context = mockContextToXML()): string {

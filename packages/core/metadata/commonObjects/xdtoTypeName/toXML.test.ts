@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { exportXDTOTypeNameToXML } from "./toXML"
+import {
+  MetadataWebServiceOperationRules,
+  MetadataWebServiceParameterRules,
+} from "../metadataWebServiceOperation/rules"
 
 const context = {} as ConfigurationContextWithExportToXML
 
@@ -23,15 +27,26 @@ describe("export XDTOTypeName to XML", () => {
     ).toBe("v8:Structure")
   })
 
-  it("exports custom namespace with d6p1 declaration", () => {
+  it.each([
+    {
+      rule: MetadataWebServiceOperationRules.properties.xdtoReturningValueType,
+      xml: "XDTOReturningValueType",
+      prefix: "d6p1",
+    },
+    {
+      rule: MetadataWebServiceParameterRules.properties.xdtoValueType,
+      xml: "XDTOValueType",
+      prefix: "d8p1",
+    },
+  ] as const)("exports custom namespace for $xml with $prefix", ({ rule, prefix }) => {
     expect(
-      exportXDTOTypeNameToXML(context, undefined, {
+      exportXDTOTypeNameToXML(context, rule, {
         namespace: "http://www.1c.ru/dmil",
         name: "DMILResponse",
       })
     ).toEqual({
-      "#text": "d6p1:DMILResponse",
-      "_xmlns:d6p1": "http://www.1c.ru/dmil",
+      "#text": `${prefix}:DMILResponse`,
+      [`_xmlns:${prefix}`]: "http://www.1c.ru/dmil",
     })
   })
 })
