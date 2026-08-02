@@ -1,7 +1,13 @@
 import { commonRules } from "./src/common-rules.mjs"
+import {
+  allowedNeutralRules,
+  metadataForbiddenRules,
+} from "./src/metadata-rules.mjs"
 
 export default {
-  forbidden: commonRules,
+  forbidden: [...commonRules, ...metadataForbiddenRules],
+  allowed: allowedNeutralRules,
+  allowedSeverity: "error",
   options: {
     parser: "tsc",
     tsPreCompilationDeps: true,
