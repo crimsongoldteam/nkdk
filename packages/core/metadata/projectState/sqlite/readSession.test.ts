@@ -1,4 +1,4 @@
-import { expect, it } from "vitest"
+import { afterAll, beforeAll, expect, it } from "vitest"
 import { Worker } from "node:worker_threads"
 import type { ProjectStateYamlFileUpdate } from "../fileUpdate"
 import { ProjectStateReadSessionClosedError } from "../readSession"
@@ -6,6 +6,16 @@ import { sourceWorkerExecArgv } from "../../sourceWorkerRuntime"
 import { openSqliteProjectStateReadSession } from "./readSession"
 import type { SqliteProjectStateStoreFixture } from "./store"
 import { createSqliteProjectStateTestFixture } from "./testFixture"
+
+let workerHarness: Awaited<ReturnType<typeof createReadSessionWorkerHarness>>
+
+beforeAll(async () => {
+  workerHarness = await createReadSessionWorkerHarness()
+})
+
+afterAll(async () => {
+  await workerHarness.close()
+})
 
 it("изолирует временные пакеты двух read session одной именованной базы", () => {
   const fixture = createSqliteProjectStateTestFixture()
@@ -53,7 +63,7 @@ it("проверяет и одноразово закрывает token в от�
   storeYaml(fixture, update)
   const token = fixture.store.createReadToken()
 
-  const result = await runReadSessionWorker(token)
+  const result = await workerHarness.run(token)
 
   expect(result).toEqual({
     requestId: "worker",
@@ -69,14 +79,14 @@ it("атомарно заявляет tokenNonce при передаче нез�
   const tokenCopy = new Uint8Array(new SharedArrayBuffer(token.byteLength))
   tokenCopy.set(token)
 
-  await runReadSessionWorker(tokenCopy)
+  await workerHarness.run(tokenCopy)
 
   expect(() => fixture.openReadSession(token)).toThrow()
 })
 
 it("координированно закрывает внешний worker-сеанс вместе с хранилищем", async () => {
   const fixture = createSqliteProjectStateTestFixture()
-  const closed = waitForWorkerSessionClose(fixture.store.createReadToken())
+  const closed = workerHarness.waitForClose(fixture.store.createReadToken())
   const staleToken = fixture.store.createReadToken()
 
   await closed.opened
@@ -119,49 +129,77 @@ function storeYaml(fixture: SqliteProjectStateStoreFixture, update: ProjectState
   fixture.store.commitUpdate()
 }
 
-function runReadSessionWorker(token: Uint8Array): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./readSession.testWorker.ts", import.meta.url), {
-      workerData: { token },
-      execArgv: sourceWorkerExecArgv(),
-    })
-    worker.once("message", resolve)
-    worker.once("error", reject)
-    worker.once("exit", (code) => {
-      if (code !== 0) reject(new Error(`SQLite read session worker завершился с кодом ${code}`))
-    })
+async function createReadSessionWorkerHarness(): Promise<{
+  readonly run: (token: Uint8Array) => Promise<unknown>
+  readonly waitForClose: (token: Uint8Array) => {
+    readonly opened: Promise<void>
+    readonly result: Promise<unknown>
+  }
+  readonly close: () => Promise<void>
+}> {
+  const worker = new Worker(new URL("./readSession.testWorker.ts", import.meta.url), {
+    execArgv: sourceWorkerExecArgv(),
   })
-}
-
-function waitForWorkerSessionClose(token: Uint8Array): {
-  readonly opened: Promise<void>
-  readonly result: Promise<unknown>
-} {
-  let resolveOpened!: () => void
-  const opened = new Promise<void>((resolve) => {
-    resolveOpened = resolve
-  })
-  const result = new Promise<unknown>((resolve, reject) => {
-    const worker = new Worker(new URL("./readSession.testWorker.ts", import.meta.url), {
-      workerData: { token, waitForClose: true },
-      execArgv: sourceWorkerExecArgv(),
-    })
-    const timeout = setTimeout(() => {
-      void worker.terminate()
-      reject(new Error("Worker-сеанс не закрылся вместе с хранилищем"))
-    }, 1_000)
-    worker.on("message", (message) => {
-      if (message === "opened") {
-        resolveOpened()
+  let nextRequestId = 0
+  const pending = new Map<number, {
+    readonly resolveOpened?: () => void
+    readonly resolveResult: (value: unknown) => void
+    readonly reject: (error: Error) => void
+  }>()
+  const ready = new Promise<void>((resolve, reject) => {
+    worker.on("message", (message: {
+      readonly requestId?: number
+      readonly event: "ready" | "opened" | "result"
+      readonly value?: unknown
+    }) => {
+      if (message.event === "ready") {
+        resolve()
         return
       }
-      clearTimeout(timeout)
-      resolve(message)
+      if (message.requestId === undefined) return
+      const request = pending.get(message.requestId)
+      if (request === undefined) return
+      if (message.event === "opened") {
+        request.resolveOpened?.()
+        return
+      }
+      pending.delete(message.requestId)
+      request.resolveResult(message.value)
     })
     worker.once("error", reject)
     worker.once("exit", (code) => {
       if (code !== 0) reject(new Error(`SQLite read session worker завершился с кодом ${code}`))
     })
   })
-  return { opened, result }
+  const rejectPending = (error: Error): void => {
+    for (const request of pending.values()) request.reject(error)
+    pending.clear()
+  }
+  worker.on("error", rejectPending)
+  worker.on("exit", (code) => {
+    if (code !== 0) rejectPending(new Error(`SQLite read session worker завершился с кодом ${code}`))
+  })
+  await ready
+
+  const request = (token: Uint8Array, waitForClose: boolean) => {
+    const requestId = nextRequestId
+    nextRequestId += 1
+    let resolveOpened!: () => void
+    const opened = new Promise<void>((resolve) => {
+      resolveOpened = resolve
+    })
+    const result = new Promise<unknown>((resolveResult, reject) => {
+      pending.set(requestId, { resolveOpened, resolveResult, reject })
+      worker.postMessage({ requestId, token, waitForClose })
+    })
+    return { opened, result }
+  }
+
+  return {
+    run: (token) => request(token, false).result,
+    waitForClose: (token) => request(token, true),
+    close: async () => {
+      await worker.terminate()
+    },
+  }
 }
