@@ -2,15 +2,15 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Устранить все ещё не реализованные, но уже согласованные расхождения round-trip конфигурации `doc`: контекстные XML-defaults форм документа и отчёта, контейнеры TypeDescription и пустые форматированные заголовки ExtendedTooltip; закрепить согласованную канонизацию `HeaderHorizontalAlign=Auto`.
+**Goal:** Устранить все ещё не реализованные, но уже согласованные расхождения round-trip конфигурации `doc`: контекстные XML-defaults форм документа и отчёта, контейнеры TypeDescription, пустые форматированные заголовки ExtendedTooltip, namespace-префиксы, `EqualItemsWidth`, `GraphicalSchemaField.Edit` и неверное YAML-имя стандартного `Task.Description`; закрепить согласованную канонизацию `HeaderHorizontalAlign=Auto`.
 
-**Architecture:** Контекст формы определяется по её основному реквизиту и локальному `formDataPathIndex`; общие metadata-слои не получают знаний о документах и отчётах. Остальные договоры выражаются существующими параметрами `rules.ts` и таблицей `TypeDescriptionRules`; reference XML, новые признаки правил и специальные fromXML/toXML не добавляются.
+**Architecture:** Контекст формы определяется по её основному реквизиту и локальному `formDataPathIndex`; общие metadata-слои не получают знаний о документах и отчётах. Смысловые defaults и имена выражаются существующими параметрами `rules.ts` и регистрациями стандартных членов, а технические namespace-префиксы восстанавливаются локально по XML-свойству и вложенности. Reference XML, configuration index для восстановления лексического XML, новые признаки правил и новые специальные fromXML/toXML не добавляются.
 
 **Tech Stack:** TypeScript 7, Vitest 4, TypeBox, декларативные `rules.ts`, metadata validation, `round-trip-yaml`, jscpd через `pnpm duplicates`.
 
 ## Global Constraints
 
-- План выполняется от коммита `73478dd81`; исправление defaults справочника `9/25` уже реализовано и повторно в план не входит.
+- План выполняется от коммита `af04b6dd7`; исправление defaults справочника `9/25` уже реализовано и повторно в план не входит.
 - Уже реализованы договоры `Button.Type`, `EnableContentChange`, `AutoCellHeight`, `RadioButtonType`, `UseForFoldersAndItems`, обязательные `PredefinedItem.Code/Description`, `Characteristics`, `StyleItem.Type`, дополнения `GanttChartField`, порядок `CommandInterface.Item` и объектно-зависимые правила реквизитов/табличных частей.
 - Существующие XML-фикстуры не изменять: они являются источником истины. Разрешены изменения только TypeScript-ожиданий YAML.
 - Не добавлять `reference`, новые поля `BasePropertyRule`/`PropertyRule`, параметры построителей или частные условия в `orchestration`, `validation` и `project`.
@@ -18,6 +18,10 @@
 - Не запускать Stryker или другие проверки мутантов.
 - `Period`, `TopLevelParent` и `RowFilter` не блокируют итоговый round-trip.
 - Явный XML `HeaderHorizontalAlign=Auto` канонизируется в отсутствие тега и фиксируется в `.agents/restrictions.md`; reference/index для него не добавляется.
+- `EqualItemsWidth` сохраняет три состояния: отсутствует, явная `Истина`, явная `Ложь`; условная валидация по `CheckBoxType` не добавляется.
+- `GraphicalSchemaField.Edit` имеет платформенный default `Истина`; YAML сохраняет явную `Ложь`.
+- Стандартный `Task.Description` называется в YAML `Наименование`; пользовательский реквизит `Описание` остаётся без преобразования.
+- XDTO- и `PredefinedItem.Type`-префиксы не попадают в YAML и восстанавливаются без reference/index.
 - Перед каждым коммитом задачи запускать её целевые тесты. Перед завершением выполнить `pnpm type-check`, `pnpm test`, `pnpm duplicates` и round-trip `cf/doc`.
 
 ---
@@ -35,6 +39,17 @@
 - `packages/core/metadata/commonObjects/typeDescription/toXML.test.ts` — табличный договор `TypeSet` для базового и `Type` для конкретного типа.
 - `packages/core/metadata/forms/elements/extendedTooltip/rules.ts` — `preserveEmptyXML` заголовка.
 - `packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts` — round-trip пустого форматированного заголовка и канонизация четырёх табличных `HeaderHorizontalAlign=Auto`.
+- `packages/core/metadata/commonObjects/xdtoTypeName/toXML.ts` — выбирает пользовательский XDTO-префикс по XML-свойству.
+- `packages/core/metadata/commonObjects/xdtoTypeName/toXML.test.ts` — договор `d6p1` возвращаемого значения и `d8p1` параметра.
+- `packages/core/metadata/commonObjects/predefinedItem/types.ts` — регистрирует нормализацию префикса `PredefinedItem.Type` по вложенности.
+- `packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts` — четыре уровня `d4p1`/`d6p1`/`d8p1`/`d10p1`.
+- `packages/core/metadata/forms/elements/checkBoxField/rules.ts` — сохраняет явные boolean-состояния `EqualItemsWidth`.
+- `packages/core/metadata/forms/elements/graphicalSchemaField/rules.ts` — публикует `Edit` в YAML с неявной `Истиной`.
+- `packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts` — декларативные defaults `EqualItemsWidth` и `Edit`.
+- `packages/core/metadata/appliedObjects/metadataTask/rules.ts` — имя `Наименование` в описаниях стандартных реквизитов задачи.
+- `packages/core/metadata/appliedObjects/metadataTask/standardMembers.ts` — имя `Наименование` в DataPath задачи.
+- `packages/core/metadata/validation/dataPath/objectFields.test.ts` — индекс стандартного `Task.Description`.
+- `packages/core/metadata/validation/dataPath/resolver.test.ts` — различение стандартного `Наименование` и пользовательского `Описание`.
 
 ### Task 1: Контекстные defaults форм документа и отчёта
 
@@ -450,10 +465,517 @@ git add packages/core/metadata/forms/elements/extendedTooltip/rules.ts packages/
 git commit -m "fix: :bug: сохранить пустой заголовок подсказки"
 ```
 
-### Task 4: Полная проверка и round-trip doc
+### Task 4: Контекстные namespace-префиксы
 
 **Files:**
-- Verify only: production/test files Tasks 1-3
+- Modify: `packages/core/metadata/commonObjects/xdtoTypeName/toXML.ts:5-55`
+- Modify: `packages/core/metadata/commonObjects/xdtoTypeName/toXML.test.ts:1-40`
+- Modify: `packages/core/metadata/commonObjects/predefinedItem/types.ts:1-25`
+- Modify: `packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts:1-125`
+
+**Interfaces:**
+- Consumes: `PropertyRule.xml`, `registerMetadataItemCollectionRule.mapItemOutput`, готовый XML одного `PredefinedItem`.
+- Produces: `XDTOReturningValueType` с `d6p1`, `XDTOValueType` с `d8p1`; `normalizePredefinedItemTypePrefixes(xml, depth)` с префиксами `d4p1`, `d6p1`, `d8p1`, `d10p1` по уровню.
+
+- [ ] **Step 1: Добавить падающий тест XDTO-префиксов**
+
+В `xdtoTypeName/toXML.test.ts` импортировать `MetadataWebServiceOperationRules` и
+`MetadataWebServiceParameterRules`, заменить общий тест пользовательского namespace табличным:
+
+```ts
+it.each([
+  {
+    rule: MetadataWebServiceOperationRules.properties.xdtoReturningValueType,
+    xml: "XDTOReturningValueType",
+    prefix: "d6p1",
+  },
+  {
+    rule: MetadataWebServiceParameterRules.properties.xdtoValueType,
+    xml: "XDTOValueType",
+    prefix: "d8p1",
+  },
+] as const)("exports custom namespace for $xml with $prefix", ({ rule, prefix }) => {
+  expect(
+    exportXDTOTypeNameToXML(context, rule, {
+      namespace: "http://www.1c.ru/dmil",
+      name: "DMILResponse",
+    })
+  ).toEqual({
+    "#text": `${prefix}:DMILResponse`,
+    [`_xmlns:${prefix}`]: "http://www.1c.ru/dmil",
+  })
+})
+```
+
+Существующие проверки `xs:string` и `v8:Structure` оставить без изменения.
+
+- [ ] **Step 2: Добавить падающий тест четырёх уровней PredefinedItem**
+
+В `predefinedItem/fromYAMLToXML.test.ts` добавить:
+
+```ts
+it("restores current-config Type prefixes by predefined item depth", () => {
+  const xml = convertCollection(
+    {
+      Корень: {
+        ТипЗначения: "Справочник.ЗначенияХарактеристик",
+        Элементы: {
+          Дочерний: {
+            ТипЗначения: "Справочник.ЗначенияХарактеристик",
+            Элементы: {
+              Третий: {
+                ТипЗначения: "Справочник.ЗначенияХарактеристик",
+                Элементы: {
+                  Четвертый: { ТипЗначения: "Справочник.ЗначенияХарактеристик" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    chartContext()
+  )
+
+  const prefixes = [...xml.matchAll(/<v8:Type xmlns:(d\d+p1)="http:\/\/v8\.1c\.ru\/8\.1\/data\/enterprise\/current-config">\1:CatalogRef\.ЗначенияХарактеристик<\/v8:Type>/g)]
+    .map((match) => match[1])
+  expect(prefixes).toEqual(["d4p1", "d6p1", "d8p1", "d10p1"])
+})
+```
+
+- [ ] **Step 3: Запустить красную стадию**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/core exec vitest run --no-isolate metadata/commonObjects/xdtoTypeName/toXML.test.ts metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts
+```
+
+Expected: параметр получает `d6p1` вместо `d8p1`; предопределённые элементы используют `cfg`.
+
+- [ ] **Step 4: Выбирать XDTO-префикс по правилу свойства**
+
+В `xdtoTypeName/toXML.ts` удалить `matchingReferencePrefix`, переименовать неиспользуемый
+`referenceValue` в `_referenceValue` и заменить выбор prefix:
+
+```ts
+const prefixForNamespace = (namespace: string, rule: PropertyRule | undefined): string => {
+  if (namespace === XML_SCHEMA_NAMESPACE) return "xs"
+  if (namespace === V8_DATA_CORE_NAMESPACE) return "v8"
+  return rule?.xml === "XDTOValueType" ? "d8p1" : "d6p1"
+}
+
+const prefix = prefixForNamespace(value.namespace, rule)
+```
+
+Имя и URI типа не менять. Не добавлять новое поле в `PropertyRule`.
+
+- [ ] **Step 5: Нормализовать PredefinedItem.Type по глубине**
+
+В `predefinedItem/types.ts` добавить локальную функцию и передать её в регистрацию коллекции:
+
+```ts
+const CURRENT_CONFIG_NAMESPACE = "http://v8.1c.ru/8.1/data/enterprise/current-config"
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
+}
+
+function normalizePredefinedItemTypePrefixes(
+  xml: Record<string, unknown>,
+  depth = 0
+): Record<string, unknown> {
+  const prefix = `d${4 + depth * 2}p1`
+  const type = asRecord(xml.Type)
+  const qname = asRecord(type?.["v8:Type"])
+  const namespaceEntry = Object.entries(qname ?? {}).find(
+    ([key, value]) => key.startsWith("_xmlns:") && value === CURRENT_CONFIG_NAMESPACE
+  )
+  const text = qname?.["#text"]
+  let result = xml
+
+  if (type !== undefined && qname !== undefined && namespaceEntry !== undefined && typeof text === "string") {
+    const sourcePrefix = namespaceEntry[0].slice("_xmlns:".length)
+    if (text.startsWith(`${sourcePrefix}:`)) {
+      const qnameRest = { ...qname }
+      delete qnameRest[namespaceEntry[0]]
+      result = {
+        ...result,
+        Type: {
+          ...type,
+          "v8:Type": {
+            ...qnameRest,
+            "#text": `${prefix}:${text.slice(sourcePrefix.length + 1)}`,
+            [`_xmlns:${prefix}`]: CURRENT_CONFIG_NAMESPACE,
+          },
+        },
+      }
+    }
+  }
+
+  const childItems = asRecord(result.ChildItems)
+  if (childItems === undefined || childItems.Item === undefined) return result
+  const sourceItems = Array.isArray(childItems.Item) ? childItems.Item : [childItems.Item]
+  const mappedItems = sourceItems.map((item) => {
+    const record = asRecord(item)
+    return record === undefined ? item : normalizePredefinedItemTypePrefixes(record, depth + 1)
+  })
+  return {
+    ...result,
+    ChildItems: {
+      ...childItems,
+      Item: Array.isArray(childItems.Item) ? mappedItems : mappedItems[0],
+    },
+  }
+}
+```
+
+В `registerMetadataItemCollectionRule({ propertyType: "PredefinedItemCollection", ... })` добавить:
+
+```ts
+mapItemOutput: ({ xml }) => normalizePredefinedItemTypePrefixes(xml),
+```
+
+- [ ] **Step 6: Запустить зелёную стадию**
+
+Run ту же команду Vitest. Expected: PASS; встроенные `xs`/`v8` и пустой `Type` также остаются
+зелёными.
+
+- [ ] **Step 7: Создать коммит задачи**
+
+```bash
+git add packages/core/metadata/commonObjects/xdtoTypeName packages/core/metadata/commonObjects/predefinedItem
+git commit -m "fix: :bug: восстановить контекстные XML-префиксы"
+```
+
+### Task 5: Трёхзначный договор EqualItemsWidth
+
+**Files:**
+- Modify: `packages/core/metadata/forms/elements/checkBoxField/rules.ts:10-31`
+- Modify: `packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts:1-330`
+- Modify: `packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts:1250-1295`
+
+**Interfaces:**
+- Consumes: общий `CheckBoxFieldCommonRulesProperties`, стандартный boolean XML/YAML converter.
+- Produces: отсутствие XML/YAML как `Авто`; явные `true`/`false` как `Истина`/`Ложь` для обычного и табличного `CheckBoxField`.
+
+- [ ] **Step 1: Добавить падающий round-trip трёх состояний**
+
+В `forms/elements/__tests__/fromXMLToYAML.test.ts` добавить:
+
+```ts
+it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(
+  "$itemType сохраняет три состояния EqualItemsWidth",
+  (rule) => {
+    const cases = [
+      [{ _name: "Флажок" }, undefined, undefined],
+      [{ _name: "Флажок", EqualItemsWidth: true }, "Истина", true],
+      [{ _name: "Флажок", EqualItemsWidth: false }, "Ложь", false],
+    ] as const
+
+    for (const [xml, yamlValue, restoredValue] of cases) {
+      const yaml = testMetadataItemFromXMLToYAML({ rule, xml, name: "Флажок" }).yaml
+      if (yamlValue === undefined) expect(yaml).not.toHaveProperty("ОдинаковаяШиринаЭлементов")
+      else expect(yaml).toHaveProperty("ОдинаковаяШиринаЭлементов", yamlValue)
+
+      const restored = testMetadataItemFromYAMLToXML({ rule, yaml, name: "Флажок" }).xml
+      if (restoredValue === undefined) expect(restored).not.toHaveProperty("EqualItemsWidth")
+      else expect(restored).toHaveProperty("EqualItemsWidth", restoredValue)
+    }
+  }
+)
+```
+
+- [ ] **Step 2: Исправить декларативный тест default**
+
+В `implicitValueYAMLContract.test.ts` удалить `equalItemsWidth: false` из `expected` проверки checkbox
+и добавить `"equalItemsWidth"` в `expectedNoImplicitValueYAML` вместе с `skipOnInput`.
+
+- [ ] **Step 3: Запустить красную стадию**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/core exec vitest run --no-isolate metadata/forms/elements/__tests__/fromXMLToYAML.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts
+```
+
+Expected: явная `Ложь` теряется, декларативный тест требует `noImplicitValueYAML`.
+
+- [ ] **Step 4: Заменить ошибочный YAML-default**
+
+В `CheckBoxFieldCommonRulesProperties` изменить только одно правило:
+
+```ts
+equalItemsWidth: {
+  yaml: "ОдинаковаяШиринаЭлементов",
+  type: "boolean",
+  noImplicitValueYAML: true,
+},
+```
+
+Не добавлять условие по `CheckBoxType`, callback или строковое значение `Авто`.
+
+- [ ] **Step 5: Запустить зелёную стадию**
+
+Run ту же команду Vitest. Expected: PASS для обоих правил и всех трёх состояний.
+
+- [ ] **Step 6: Создать коммит задачи**
+
+```bash
+git add packages/core/metadata/forms/elements/checkBoxField/rules.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts
+git commit -m "fix: :bug: сохранить явный EqualItemsWidth"
+```
+
+### Task 6: YAML-договор GraphicalSchemaField.Edit
+
+**Files:**
+- Modify: `packages/core/metadata/forms/elements/graphicalSchemaField/rules.ts:70-85`
+- Modify: `packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts:1-370`
+- Modify: `packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts:870-900`
+
+**Interfaces:**
+- Consumes: `booleanRule`, платформенный default `Edit=true`.
+- Produces: отсутствующий/явный `true` канонизируются в отсутствие YAML/XML; явный `false` сохраняется как `Редактирование: Ложь` и `<Edit>false</Edit>`.
+
+- [ ] **Step 1: Добавить падающий round-trip Edit**
+
+Импортировать `GraphicalSchemaFieldRules` в `forms/elements/__tests__/fromXMLToYAML.test.ts` и
+добавить:
+
+```ts
+it("сохраняет явный GraphicalSchemaField.Edit=false", () => {
+  const absent = testMetadataItemFromXMLToYAML({
+    rule: GraphicalSchemaFieldRules,
+    xml: { _name: "Схема" },
+    name: "Схема",
+  }).yaml
+  expect(absent).not.toHaveProperty("Редактирование")
+  expect(
+    testMetadataItemFromYAMLToXML({ rule: GraphicalSchemaFieldRules, yaml: absent, name: "Схема" }).xml
+  ).not.toHaveProperty("Edit")
+
+  const explicitFalse = testMetadataItemFromXMLToYAML({
+    rule: GraphicalSchemaFieldRules,
+    xml: { _name: "Схема", Edit: false },
+    name: "Схема",
+  }).yaml
+  expect(explicitFalse).toHaveProperty("Редактирование", "Ложь")
+  expect(
+    testMetadataItemFromYAMLToXML({ rule: GraphicalSchemaFieldRules, yaml: explicitFalse, name: "Схема" }).xml
+  ).toHaveProperty("Edit", false)
+
+  const explicitTrue = testMetadataItemFromXMLToYAML({
+    rule: GraphicalSchemaFieldRules,
+    xml: { _name: "Схема", Edit: true },
+    name: "Схема",
+  }).yaml
+  expect(explicitTrue).not.toHaveProperty("Редактирование")
+})
+```
+
+- [ ] **Step 2: Добавить декларативную проверку**
+
+В проверку defaults `GraphicalSchemaFieldRules` добавить `edit: true` и отдельные утверждения:
+
+```ts
+expect(GraphicalSchemaFieldRules.properties.edit).toMatchObject({
+  implicitValueYAML: true,
+  toEnterprise: false,
+})
+expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("toYAML")
+expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("fromYAML")
+```
+
+- [ ] **Step 3: Запустить красную стадию**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/core exec vitest run --no-isolate metadata/forms/elements/__tests__/fromXMLToYAML.test.ts metadata/orchestration/property/implicitValueYAMLContract.test.ts
+```
+
+Expected: `Edit=false` отсутствует в YAML, правило содержит запрещающие флаги.
+
+- [ ] **Step 4: Сделать Edit смысловым YAML-свойством**
+
+В `graphicalSchemaField/rules.ts` заменить правило:
+
+```ts
+edit: booleanRule({
+  yaml: "Редактирование",
+  implicitValueYAML: true,
+  toEnterprise: false,
+}),
+```
+
+Не добавлять defaults по `ReadOnly` или `DataPath`.
+
+- [ ] **Step 5: Запустить зелёную стадию**
+
+Run ту же команду Vitest. Expected: PASS.
+
+- [ ] **Step 6: Создать коммит задачи**
+
+```bash
+git add packages/core/metadata/forms/elements/graphicalSchemaField/rules.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/orchestration/property/implicitValueYAMLContract.test.ts
+git commit -m "fix: :bug: сохранить GraphicalSchemaField.Edit"
+```
+
+### Task 7: Корректное имя стандартного Task.Description
+
+**Files:**
+- Modify: `packages/core/metadata/appliedObjects/metadataTask/rules.ts:30-39`
+- Modify: `packages/core/metadata/appliedObjects/metadataTask/standardMembers.ts:3-10`
+- Modify: `packages/core/metadata/validation/dataPath/objectFields.test.ts:230-255`
+- Modify: `packages/core/metadata/validation/dataPath/resolver.test.ts:95-130,1820-1870`
+
+**Interfaces:**
+- Consumes: существующий индекс полей владельца и декларации `registerStandardMembers`.
+- Produces: `Description ↔ Наименование` для задачи; пользовательский `Описание` остаётся точным полем без replacement.
+
+- [ ] **Step 1: Изменить ожидания индекса стандартных полей задачи**
+
+В `objectFields.test.ts` заменить договор `Description`:
+
+```ts
+expect(resolveObjectFieldSegment({ index, segment: "Description", nameMode: "internal" })).toMatchObject({
+  name: "Наименование",
+  kind: "standardAttribute",
+})
+expect(index.fields.get("Наименование")).toMatchObject({
+  name: "Наименование",
+  kind: "standardAttribute",
+})
+```
+
+- [ ] **Step 2: Зафиксировать оба разных DataPath задачи**
+
+В `resolver.test.ts`:
+
+- в табличной проверке стандартных реквизитов заменить
+  `["Объект.Описание", "Описание"]` на `["Объект.Наименование", "Наименование"]`;
+- заменить проверку `prefers an exact owner field...` полной проверкой обоих имён и обоих корней:
+
+```ts
+it.each([
+  ["Объект", "TaskObject.ЗадачаИсполнителя", "ЗадачаОбъект"],
+  ["Список", "TaskRef.ЗадачаИсполнителя", "Задача"],
+] as const)("keeps a task attribute distinct from standard Description through %s", (root, type, ownerKind) => {
+  const model = {
+    itemType: "MetadataTask" as const,
+    attributes: [{ name: "Описание", type: { type: ["string"] } }],
+  }
+  const owners = ownerCache([
+    owner({
+      ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
+      rule: MetadataTaskRules,
+      model,
+    }),
+    owner({
+      ref: { kind: "Задача", name: "ЗадачаИсполнителя" },
+      rule: MetadataTaskRules,
+      model,
+    }),
+  ])
+  const index = indexWithAttributes([attribute(root, { type: [type] })])
+
+  expect(
+    resolveDataPathCore({
+      value: `${root}.Наименование`,
+      nameMode: "yaml",
+      index,
+      ownerCache: owners,
+    })
+  ).toMatchObject({
+    status: "ok",
+    replacements: [{ segmentIndex: 1, from: "Наименование", to: "Description", reason: "standardMember" }],
+    target: { source: { kind: "objectField", owner: { kind: ownerKind }, name: "Наименование" } },
+  })
+
+  expect(
+    resolveDataPathCore({
+      value: `${root}.Description`,
+      nameMode: "internal",
+      index,
+      ownerCache: owners,
+    })
+  ).toMatchObject({
+    status: "ok",
+    replacements: [{ segmentIndex: 1, from: "Description", to: "Наименование", reason: "standardMember" }],
+  })
+
+  expect(
+    resolveDataPathCore({
+      value: `${root}.Описание`,
+      nameMode: "yaml",
+      index,
+      ownerCache: owners,
+    })
+  ).toMatchObject({
+    status: "ok",
+    replacements: [],
+    target: { source: { kind: "objectField", owner: { kind: ownerKind }, name: "Описание" } },
+  })
+})
+```
+
+- [ ] **Step 3: Запустить красную стадию**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/core exec vitest run --no-isolate metadata/validation/dataPath/objectFields.test.ts metadata/validation/dataPath/resolver.test.ts
+```
+
+Expected: индекс и resolver всё ещё называют стандартный `Description` словом `Описание`.
+
+- [ ] **Step 4: Исправить две регистрации задачи**
+
+В `metadataTask/rules.ts`:
+
+```ts
+Description: "Наименование",
+```
+
+В `metadataTask/standardMembers.ts`:
+
+```ts
+{
+  memberKind: "standardAttribute",
+  names: { internal: "Description", yaml: "Наименование" },
+  family: "primitive",
+  phase: "index-time",
+  sourceScope: "self",
+  kind: "string",
+},
+```
+
+Общий resolver и пользовательский атрибут `Описание` не менять.
+
+- [ ] **Step 5: Запустить зелёную стадию и покрытие регистраций**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/core exec vitest run --no-isolate metadata/validation/dataPath/objectFields.test.ts metadata/validation/dataPath/resolver.test.ts metadata/validation/dataPath/standardMembers.coverage.test.ts
+```
+
+Expected: PASS; `Объект.Наименование` резолвится в `Description`, `Объект.Описание` — в
+пользовательский реквизит.
+
+- [ ] **Step 6: Создать коммит задачи**
+
+```bash
+git add packages/core/metadata/appliedObjects/metadataTask packages/core/metadata/validation/dataPath/objectFields.test.ts packages/core/metadata/validation/dataPath/resolver.test.ts
+git commit -m "fix: :bug: исправить имя Description задачи"
+```
+
+### Task 8: Полная проверка и round-trip doc
+
+**Files:**
+- Verify only: production/test files Tasks 1-7
 - Diagnostic target: `/Users/nikita/git/round-trip-compact/cf/doc`
 
 **Interfaces:**
@@ -499,6 +1021,10 @@ Expected: отсутствуют группы:
 - defaults 29 форм отчётов;
 - 18 потерь `v8:TypeSet`;
 - 24 пустых форматированных `ExtendedTooltip.Title` в шести формах;
+- 15 замен согласованных namespace-префиксов у XDTO и `PredefinedItem.Type`;
+- потеря явного `EqualItemsWidth=false`;
+- потеря явного `GraphicalSchemaField.Edit=false`;
+- замена пользовательского `Объект.Описание` на стандартный `Объект.Description` у задачи;
 - уже исправленные defaults справочника, обязательные узлы, дополнения Gantt, порядок CommandInterface и объектно-зависимые поля.
 
 При оценке не считать ошибками:
@@ -506,7 +1032,8 @@ Expected: отсутствуют группы:
 - `Period`, `TopLevelParent`, `RowFilter`;
 - девять канонизаций явного `HeaderHorizontalAlign=Auto` в отсутствие тега.
 
-Namespace-префиксы TypeDescription, `EqualItemsWidth`, `Edit` и изменения `DataPath` не имеют согласованного решения в текущих спецификациях. Если они остаются, их нужно перечислить отдельным остатком и не объявлять весь round-trip закрытым до отдельного проектирования.
+Любое оставшееся расхождение, кроме перечисленных допустимых канонизаций, записать отдельной причиной и
+не объявлять весь согласованный набор закрытым без анализа.
 
 - [ ] **Step 4: Зафиксировать фактический итог без изменения XML-репозитория**
 
@@ -515,17 +1042,35 @@ Namespace-префиксы TypeDescription, `EqualItemsWidth`, `Edit` и изм�
 - число diff-файлов и XML-узлов после исключения допустимых групп;
 - по одному пути-примеру каждой оставшейся причины;
 - абсолютный путь временного YAML-каталога из вывода skill;
-- хэши трёх implementation-коммитов;
+- хэши семи implementation-коммитов;
 - результаты `pnpm type-check`, `pnpm test`, `pnpm duplicates`.
 
-Не коммитить изменения `/Users/nikita/git/round-trip-compact` и не откатывать его после диагностики: diff является результатом round-trip.
+Не коммитить изменения `/Users/nikita/git/round-trip-compact`.
+
+- [ ] **Step 5: Вернуть внешний XML-репозиторий в исходное состояние**
+
+После сохранения статистики выполнить:
+
+```bash
+git -C /Users/nikita/git/round-trip-compact restore --worktree --staged -- cf/doc
+git -C /Users/nikita/git/round-trip-compact clean -fd -- cf/doc
+git -C /Users/nikita/git/round-trip-compact status --short -- cf/doc
+```
+
+Expected: последняя команда ничего не выводит. Удаление untracked-файлов внутри `cf/doc` заранее
+разрешено пользователем.
 
 ---
 
 ## Self-Review
 
 - Покрыты все ещё не реализованные решения спецификации `2026-08-02-form-contextual-defaults-design.md`: документ, отчёт, восемь TypeDescription, ExtendedTooltip и HeaderHorizontalAlign.
+- Покрыты спецификации `2026-08-02-contextual-namespace-prefixes-design.md`,
+  `2026-08-02-check-box-equal-items-width-design.md`,
+  `2026-08-02-graphical-schema-edit-design.md` и
+  `2026-08-02-task-description-datapath-name-design.md`.
 - Исправление справочника включено как завершённая предпосылка и не дублируется.
 - Уже выполненные планы `reference-free-form-xml-contract` и `owner-specific-attribute-tabular-section-rules` не повторяются.
 - В плане нет изменений XML-фикстур, reference, новых общих признаков правил или Stryker.
-- Неисследованные namespace-префиксы, `EqualItemsWidth`, `Edit` и `DataPath` явно вынесены в остаток: для них нельзя честно писать production-шаги до согласования договора.
+- Все согласованные группы имеют отдельную красную/зелёную стадию и атомарный implementation-коммит.
+- Внешний репозиторий после итоговой диагностики обязательно возвращается к HEAD.
