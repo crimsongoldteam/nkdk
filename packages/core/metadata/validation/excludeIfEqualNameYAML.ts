@@ -1,6 +1,6 @@
 import type { ConfigurationContext } from "../context/types"
 import { findExcludedEqualNameYAMLOccurrence } from "../helpers/excludeIfEqualNameYAML"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
@@ -110,14 +110,7 @@ function validateNestedItems(
 }
 
 function nestedItemRule(propRule: PropertyRule): MetadataItemRule | undefined {
-  const collectionItemRule = getTypeRule(propRule.type, "collectionItemRule")
-  if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
-
-  if ("itemRule" in propRule && propRule.itemRule !== undefined) {
-    return propRule.itemRule as MetadataItemRule
-  }
-
-  return undefined
+  return resolvePropertyItemRule(propRule)
 }
 
 function itemNameFromYAML(rule: MetadataItemRule, value: unknown): string | undefined {

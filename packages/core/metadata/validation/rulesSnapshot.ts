@@ -6,7 +6,8 @@ import type {
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
 import type { OwnerFactRole } from "../orchestration/property/types"
-import { getTypeRule, registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { resolvePropertyItemRule } from "../orchestration/property/resolvePropertyItemRule"
+import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
   configurationValidationProjectSpec,
@@ -49,8 +50,8 @@ export interface ValidationRulesPropertySnapshot {
 }
 
 interface SnapshotSourceProperty {
-  yaml?: string | false
-  type?: string
+  yaml?: string
+  type: string
   metadataTarget?: MetadataTargetConstraint
   ownerFactRole?: OwnerFactRole
   yamlInline?: true
@@ -88,8 +89,8 @@ function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot 
 
 function snapshotProperties(properties: ValidationProjectSpec["rule"]["properties"]): ValidationRulesPropertySnapshot[] {
   return Object.entries(properties as Readonly<Record<string, SnapshotSourceProperty>>).flatMap(([modelKey, property]) => {
-    if (property.yaml === false || property.yaml === undefined) return []
-    if (property.ownerFactRole !== undefined && property.type !== undefined) {
+    if (property.yaml === undefined) return []
+    if (property.ownerFactRole !== undefined) {
       registerTypeRule(property.type as never, "collectLocalFactsFromYAML", collectOwnerFactFromYAML)
     }
 
@@ -97,7 +98,7 @@ function snapshotProperties(properties: ValidationProjectSpec["rule"]["propertie
       {
         modelKey,
         yamlPath: [property.yaml],
-        ...(property.type === undefined ? {} : { type: property.type }),
+        type: property.type,
         ...(property.metadataTarget === undefined ? {} : { metadataTarget: property.metadataTarget }),
         ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
         ...childrenSnapshot(property),
@@ -112,14 +113,5 @@ function childrenSnapshot(property: SnapshotSourceProperty): { children?: readon
 }
 
 function nestedItemRule(property: SnapshotSourceProperty): ValidationProjectSpec["rule"] | undefined {
-  if (property.type !== undefined) {
-    const collectionItemRule = getTypeRule(property.type, "collectionItemRule")
-    if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
-  }
-
-  if ("itemRule" in property && property.itemRule !== undefined) {
-    return property.itemRule as ValidationProjectSpec["rule"]
-  }
-
-  return undefined
+  return resolvePropertyItemRule(property)
 }
