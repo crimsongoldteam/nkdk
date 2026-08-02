@@ -10,42 +10,11 @@ import {
   attributeSearchAndHistoryFragment,
   attributeUseFragment,
   attributeUuidFragment,
+  METADATA_ATTRIBUTE_ALLOWED_TYPES,
   metadataAttributeRuleBase,
 } from "./fragments"
 
-export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
-  "string",
-  "decimal",
-  "date",
-  "boolean",
-  "ValueStorage",
-  "UUID",
-  "CatalogRef",
-  "CatalogRef.*",
-  "DocumentRef",
-  "DocumentRef.*",
-  "EnumRef",
-  "EnumRef.*",
-  "ChartOfCharacteristicTypesRef",
-  "ChartOfCharacteristicTypesRef.*",
-  "ChartOfAccountsRef",
-  "ChartOfAccountsRef.*",
-  "ChartOfCalculationTypesRef",
-  "ChartOfCalculationTypesRef.*",
-  "BusinessProcessRef",
-  "BusinessProcessRef.*",
-  "BusinessProcessRoutePointRef",
-  "BusinessProcessRoutePointRef.*",
-  "TaskRef",
-  "TaskRef.*",
-  "ExchangePlanRef",
-  "ExchangePlanRef.*",
-  "AnyIBRef",
-  "DefinedType.*",
-  "Characteristic.*",
-  "ExternalDataSourceTableRef.*",
-  "ExternalDataSourceCubeDimensionTableRef.*",
-] as const
+export { METADATA_ATTRIBUTE_ALLOWED_TYPES } from "./fragments"
 
 function withoutDefaultValueXML(rule: PropertyRule): PropertyRule {
   const result = { ...rule }

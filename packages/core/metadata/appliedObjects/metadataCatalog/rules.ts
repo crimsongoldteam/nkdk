@@ -1,5 +1,6 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataCatalogAttributesRule, metadataTabularSectionsRule } from "./builders"
+import { metadataCatalogAttributesRule, metadataCatalogTabularSectionsRule } from "./builders"
+import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -487,7 +488,7 @@ export const MetadataCatalogRules = {
       defaultValueXMLRaw: {},
       excludeIfEqualNameYAML: true,
     }),
-    tabularSections: metadataTabularSectionsRule({
+    tabularSections: metadataCatalogTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xmlParents: ["ChildObjects"],
       xml: "TabularSection",

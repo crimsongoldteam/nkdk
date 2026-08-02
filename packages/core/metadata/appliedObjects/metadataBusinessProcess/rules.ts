@@ -1,6 +1,6 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataBusinessProcessTabularSectionsRule } from "./builders"
-import { metadataAttributesRule } from "../metadataDataProcessor/builders"
+import { metadataBusinessProcessAttributesRule, metadataBusinessProcessTabularSectionsRule } from "./builders"
+import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -376,7 +376,7 @@ export const MetadataBusinessProcessRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: metadataAttributesRule({
+    attributes: metadataBusinessProcessAttributesRule({
       yaml: "Реквизиты",
       xml: "Attribute",
       xmlParents: childObjects,

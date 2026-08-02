@@ -1,8 +1,9 @@
+import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 
 export interface ExchangePlanContentWidePropertyRule extends WidePropertyRuleBase {
@@ -16,27 +17,10 @@ export function exchangePlanContentRule<const Params extends ExchangePlanContent
 ): Readonly<{ type: "ExchangePlanContent" } & Params> {
   return defineWidePropertyRule("ExchangePlanContent", params)
 }
-export interface MetadataExchangePlanTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataExchangePlanTabularSections"
-}
 
-export type MetadataExchangePlanTabularSectionsRuleParams = Omit<
-  MetadataExchangePlanTabularSectionsWidePropertyRule,
-  "type"
->
-
-export function metadataExchangePlanTabularSectionsRule<
-  const Params extends MetadataExchangePlanTabularSectionsRuleParams,
->(
-  params: WideExactRuleParams<MetadataExchangePlanTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataExchangePlanTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataExchangePlanTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataExchangePlanAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataExchangePlanAttributes"
+)
+export const metadataExchangePlanTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataExchangePlanTabularSections"
+)

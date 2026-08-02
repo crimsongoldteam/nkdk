@@ -8,6 +8,40 @@ import { uuidPropertyRule } from "../uuid/rule"
 
 const propertiesParents = ["Properties"]
 
+export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
+  "string",
+  "decimal",
+  "date",
+  "boolean",
+  "ValueStorage",
+  "UUID",
+  "CatalogRef",
+  "CatalogRef.*",
+  "DocumentRef",
+  "DocumentRef.*",
+  "EnumRef",
+  "EnumRef.*",
+  "ChartOfCharacteristicTypesRef",
+  "ChartOfCharacteristicTypesRef.*",
+  "ChartOfAccountsRef",
+  "ChartOfAccountsRef.*",
+  "ChartOfCalculationTypesRef",
+  "ChartOfCalculationTypesRef.*",
+  "BusinessProcessRef",
+  "BusinessProcessRef.*",
+  "BusinessProcessRoutePointRef",
+  "BusinessProcessRoutePointRef.*",
+  "TaskRef",
+  "TaskRef.*",
+  "ExchangePlanRef",
+  "ExchangePlanRef.*",
+  "AnyIBRef",
+  "DefinedType.*",
+  "Characteristic.*",
+  "ExternalDataSourceTableRef.*",
+  "ExternalDataSourceCubeDimensionTableRef.*",
+] as const
+
 export const metadataAttributeRuleBase = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },

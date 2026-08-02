@@ -1,6 +1,10 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataAttributesRule } from "../metadataDataProcessor/builders"
-import { exchangePlanContentRule, metadataExchangePlanTabularSectionsRule } from "./builders"
+import {
+  exchangePlanContentRule,
+  metadataExchangePlanAttributesRule,
+  metadataExchangePlanTabularSectionsRule,
+} from "./builders"
+import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -398,7 +402,7 @@ export const MetadataExchangePlanRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: metadataAttributesRule({
+    attributes: metadataExchangePlanAttributesRule({
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",

@@ -155,8 +155,26 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       type: "object",
       additionalProperties: { $ref: "nkdk://schema/MetadataCatalogAttribute" },
     })
+    expect(catalog.properties?.ТабличныеЧасти).toMatchObject({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/MetadataCatalogTabularSection" },
+    })
     expect(graph.schemas["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
       $id: "nkdk://schema/MetadataCatalogAttribute",
+      type: "object",
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogTabularSection"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogTabularSection",
+      type: "object",
+      properties: expect.objectContaining({
+        Реквизиты: expect.objectContaining({
+          type: "object",
+          additionalProperties: { $ref: "nkdk://schema/MetadataCatalogTabularSectionAttribute" },
+        }),
+      }),
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogTabularSectionAttribute"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogTabularSectionAttribute",
       type: "object",
     })
   })

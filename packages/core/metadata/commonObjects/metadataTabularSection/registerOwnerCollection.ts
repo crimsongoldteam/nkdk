@@ -16,12 +16,16 @@ export function registerOwnerTabularSectionCollection(params: {
   })
 }
 
-type OwnerTabularSectionCollectionRuleParams = Omit<PropertyRule, "type">
+interface OwnerTabularSectionCollectionWidePropertyRule extends PropertyRule {
+  type: string
+}
+
+type OwnerTabularSectionCollectionRuleParams = Omit<OwnerTabularSectionCollectionWidePropertyRule, "type">
 
 export function createOwnerTabularSectionCollectionRuleBuilder<const PropertyType extends string>(
   propertyType: PropertyType
 ) {
-  return <const Params extends OwnerTabularSectionCollectionRuleParams>(
+  return <Params extends OwnerTabularSectionCollectionRuleParams>(
     params: ExactRuleParams<OwnerTabularSectionCollectionRuleParams, Params>
   ) =>
     definePropertyRule(propertyType, {

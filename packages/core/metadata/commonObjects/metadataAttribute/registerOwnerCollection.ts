@@ -16,12 +16,16 @@ export function registerOwnerAttributeCollection(params: {
   })
 }
 
-type OwnerAttributeCollectionRuleParams = Omit<PropertyRule, "type">
+interface OwnerAttributeCollectionWidePropertyRule extends PropertyRule {
+  type: string
+}
+
+type OwnerAttributeCollectionRuleParams = Omit<OwnerAttributeCollectionWidePropertyRule, "type">
 
 export function createOwnerAttributeCollectionRuleBuilder<const PropertyType extends string>(
   propertyType: PropertyType
 ) {
-  return <const Params extends OwnerAttributeCollectionRuleParams>(
+  return <Params extends OwnerAttributeCollectionRuleParams>(
     params: ExactRuleParams<OwnerAttributeCollectionRuleParams, Params>
   ) =>
     definePropertyRule(propertyType, {

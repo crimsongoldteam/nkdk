@@ -1,3 +1,5 @@
+import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
+import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
@@ -24,22 +26,8 @@ export function metadataTaskAddressingAttributesRule<const Params extends Metada
     }),
   })
 }
-export interface MetadataTaskTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataTaskTabularSections"
-}
 
-export type MetadataTaskTabularSectionsRuleParams = Omit<MetadataTaskTabularSectionsWidePropertyRule, "type">
-
-export function metadataTaskTabularSectionsRule<const Params extends MetadataTaskTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataTaskTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataTaskTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataTaskTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataTaskAttributesRule = createOwnerAttributeCollectionRuleBuilder("MetadataTaskAttributes")
+export const metadataTaskTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataTaskTabularSections"
+)
