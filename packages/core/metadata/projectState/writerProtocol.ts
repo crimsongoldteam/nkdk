@@ -3,6 +3,11 @@ import type { Diagnostic } from "../validation/types"
 import { assertProjectStateFileHashBatch, type ProjectStateFileHashBatch, type ProjectStateReadToken } from "./contracts"
 import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
+import {
+  assertProjectStateImportFinalFileStateBatch,
+  type ProjectStateImportFinalFileStateBatch,
+  type ProjectStateImportIndexContribution,
+} from "./importSession"
 
 export type ProjectStateWriterCommand =
   | { readonly kind: "openProject"; readonly requestId: string; readonly projectDir: string; readonly compatibility: ProjectStateCompatibility }
@@ -13,6 +18,8 @@ export type ProjectStateWriterCommand =
   | { readonly kind: "readComponentProjection"; readonly requestId: string; readonly componentPath: string }
   | { readonly kind: "beginUpdate"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "writeBatch"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateFileUpdateBatch }
+  | { readonly kind: "writeImportIndexBatch"; readonly requestId: string; readonly operationId: string; readonly batch: readonly ProjectStateImportIndexContribution[] }
+  | { readonly kind: "writeImportFinalFileState"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateImportFinalFileStateBatch }
   | { readonly kind: "deleteFiles"; readonly requestId: string; readonly operationId: string; readonly projectPaths: readonly string[] }
   | { readonly kind: "commitUpdate"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "rollbackUpdate"; readonly requestId: string; readonly operationId: string }
@@ -30,6 +37,8 @@ export type ProjectStateWriterAcknowledgement =
   | { readonly kind: "componentProjection"; readonly projection: ProjectStateComponentProjection }
   | { readonly kind: "updateBegun"; readonly operationId: string }
   | { readonly kind: "batchWritten"; readonly operationId: string }
+  | { readonly kind: "importIndexBatchWritten"; readonly operationId: string }
+  | { readonly kind: "importFinalFileStateWritten"; readonly operationId: string }
   | { readonly kind: "filesDeleted"; readonly operationId: string }
   | { readonly kind: "updateCommitted"; readonly operationId: string }
   | { readonly kind: "updateRolledBack"; readonly operationId: string }
@@ -77,6 +86,16 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
       assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
       assertString(command["operationId"], "operationId")
       assertProjectStateWriterBatch(command["batch"])
+      return
+    case "writeImportIndexBatch":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
+      assertString(command["operationId"], "operationId")
+      if (!Array.isArray(command["batch"])) throw new Error("Import index batch должен быть массивом")
+      return
+    case "writeImportFinalFileState":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
+      assertString(command["operationId"], "operationId")
+      assertProjectStateImportFinalFileStateBatch(command["batch"])
       return
     case "deleteFiles":
       assertExactKeys(command, ["kind", "requestId", "operationId", "projectPaths"])

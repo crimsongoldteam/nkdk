@@ -9,6 +9,7 @@ import {
   type PreparedYamlProjectWorkerPool,
 } from "../metadata/project/preparedYamlProjectWorkerPool"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
+import { valueSymbol } from "piscina"
 
 export function createPreparedYamlWorkerTestPool(
   concurrency = 1
@@ -32,6 +33,11 @@ export function createPreparedYamlWorkerThreadPoolFactory(): () => PreparedWorke
   const threadPools = createMockWorkerThreadPoolFactory<
     PreparedYamlProjectWorkerTask,
     PreparedYamlProjectWorkerTaskResult
-  >((command) => runPreparedYamlProjectWorkerTask(command))
+  >((command) => {
+    const movable = command as PreparedYamlProjectWorkerTask & {
+      readonly [valueSymbol]?: PreparedYamlProjectWorkerTask
+    }
+    return runPreparedYamlProjectWorkerTask(movable[valueSymbol] ?? command)
+  })
   return threadPools.factory
 }

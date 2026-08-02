@@ -486,8 +486,11 @@ function testWriterHandle(id: number): TestWriter {
     },
     async beginUpdate() {},
     async writeBatch() {},
+    async writeImportIndexBatch() {},
+    async writeImportFinalFileState() {},
     async deleteFiles() {},
     async commitAndCheckpoint() { return { snapshotPath: "snapshot" } },
+    async commitUpdate() {},
     async rollbackUpdate() {},
     async reset(projectDir) {
       if (opened.at(-1) !== projectDir) throw new Error("reset before open")

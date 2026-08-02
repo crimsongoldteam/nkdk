@@ -15,16 +15,22 @@ import {
   type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
-import type { PreparedWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { createOperationProfiler } from "../validation/profile"
-import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import {
+  createPreparedYamlProjectWorkerPool,
+  type PreparedWorkerPool,
+} from "../project/preparedYamlProjectWorkerPool"
+import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import {
+  createProjectStateService,
+  type ProjectStateImportFinalFileStateBatch,
+  type ProjectStateImportSession,
+  type ProjectStateService,
+} from "../projectState"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { buildComponentReferenceSnapshot, createLayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
 import { discoverXmlImport, readXmlImportComponentRoot } from "./discovery"
-import { createImportSharedValidationSnapshot } from "./metadataSnapshot"
 import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"
 import type {
   ExternalFileTransfer,
@@ -54,6 +60,7 @@ export interface ImportConfigurationFromXmlParams {
   hashConcurrency?: number
   operationId?: string
   xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
+  projectState?: ProjectStateService
   createReferenceWorkerPool?: () => PreparedWorkerPool
 }
 
@@ -66,12 +73,7 @@ export interface ImportCoordinatorDependencies {
     context: ConfigurationContextFromXML
     files: readonly ImportSnapshotFile[]
   }): Promise<ConfigurationSnapshotFragment[]>
-  createSharedMetadata(contribution: ValidationIndexContribution): SharedValidationSnapshot
-  buildComponentReferenceSnapshot(params: {
-    componentDir: string
-    context: ConfigurationContextFromXML
-    concurrency: number
-  }): Promise<SharedValidationSnapshot>
+  createProjectStateService?(): ProjectStateService
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   transferExternalFiles(params: {
     projectDir: string
@@ -93,8 +95,7 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
     return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
   },
   collectSnapshotFragments,
-  createSharedMetadata: createImportSharedValidationSnapshot,
-  buildComponentReferenceSnapshot,
+  createProjectStateService,
   mergeFiles: mergeImportResultFiles,
   transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
@@ -110,6 +111,19 @@ export async function importConfigurationFromXml(
   let pool: XmlImportWorkerPool | undefined
   let warnings: ImportDiagnostic[] = []
   let resolvedComponentPath: string | undefined
+  const projectState = params.projectState
+    ?? (params.createReferenceWorkerPool === undefined
+      ? deps.createProjectStateService?.() ?? createProjectStateService()
+      : createProjectStateService({
+          createPool: (concurrency) => createPreparedYamlProjectWorkerPool({
+            concurrency,
+            createWorkerPool: params.createReferenceWorkerPool!,
+          }),
+        }))
+  const ownsProjectState = params.projectState === undefined
+  let importSession: ProjectStateImportSession | undefined
+  let finalized = false
+  const importFileHashes = new Map<string, bigint>()
 
   try {
     const root = await readXmlImportComponentRoot(params.inputDir)
@@ -126,17 +140,13 @@ export async function importConfigurationFromXml(
       address,
       descriptor,
     })
+    await fs.promises.mkdir(params.projectDir, { recursive: true })
 
     const concurrency = normalizeConcurrency(params.concurrency)
-    const baseSnapshot = await buildBaseSnapshot({
-      deps,
-      descriptor,
-      projectDir: params.projectDir,
-      context: params.context,
-      concurrency,
-      createReferenceWorkerPool: params.createReferenceWorkerPool,
-      profiler,
-    })
+    if (descriptor.baseAddress !== undefined) {
+      await projectState.refreshAndValidate({ projectDir: params.projectDir, context: params.context, concurrency })
+    }
+    importSession = await projectState.beginImport({ projectDir: params.projectDir, workerCount: concurrency })
     pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
 
     const discovered = await profiler.measureAsync(
@@ -158,6 +168,8 @@ export async function importConfigurationFromXml(
           operationId,
           context: params.context,
           outputDir: componentDir,
+          projectDir: params.projectDir,
+          componentPath: selectedComponentPath,
           componentKind: descriptor.kind,
           ...(descriptor.metadataItemAugmenter === undefined
             ? {}
@@ -171,7 +183,11 @@ export async function importConfigurationFromXml(
       () => pool!.runFirstPass(discovered.assignments)
     )
     if (hasErrors(first.diagnostics)) {
+      await importSession.abort(first.diagnostics)
       return failedResult(first.diagnostics, [], resolvedComponentPath)
+    }
+    for (const contribution of first.indexContributions) {
+      await importSession.writeFirstPassBatch([contribution])
     }
     const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
       context: params.context,
@@ -188,16 +204,13 @@ export async function importConfigurationFromXml(
       items: discovered.assignments.length,
       timeMs: 0,
     })
-    const localSnapshot = profiler.measure(
-      "Подготовка импорта конфигурации",
-      "Обобщение индекса метаданных",
-      { items: first.validationContribution.objectRecords.length },
-      () => deps.createSharedMetadata(first.validationContribution)
-    )
-    const referenceSnapshots = createLayeredImportReferenceSnapshot({
-      local: localSnapshot,
-      ...(baseSnapshot === undefined ? {} : { base: baseSnapshot }),
-    })
+    const firstReadToken = await importSession.commitWorkingIndex()
+    for (const batch of first.finalFileStateBatches) {
+      rememberImportFileHashes(importFileHashes, selectedComponentPath, batch)
+      await importSession.writeFinalFileState(batch)
+    }
+    const readTokens = [firstReadToken]
+    for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
     profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
       items: discovered.assignments.length,
       timeMs: 0,
@@ -206,11 +219,16 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool!.runSecondPass(referenceSnapshots)
+      () => pool!.runSecondPass(readTokens)
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) {
+      await importSession.abort(second.diagnostics)
       return failedResult(second.diagnostics, warnings, resolvedComponentPath)
+    }
+    for (const batch of second.finalFileStateBatches) {
+      rememberImportFileHashes(importFileHashes, selectedComponentPath, batch)
+      await importSession.writeFinalFileState(batch)
     }
 
     const allFiles = [...first.files, ...second.files]
@@ -232,19 +250,26 @@ export async function importConfigurationFromXml(
           ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
         })
     )
-    const projectFiles = await profiler.measureAsync(
+    const xmlFiles = files.filter(({ sourceKind }) => sourceKind === "xml")
+    const externalProjectFiles = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Вычисление хэшей файлов проекта",
       {},
       () =>
         deps.hashProject(
           componentDir,
-          files.map((file) => file.targetProjectPath),
+          xmlFiles.map((file) => file.targetProjectPath),
           {
             ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
           }
         )
     )
+    const externalFinalState = externalFileStateBatch(selectedComponentPath, externalProjectFiles)
+    if (externalFinalState.updates.length > 0) {
+      rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
+      await importSession.writeFinalFileState(externalFinalState)
+    }
+    const projectFiles = snapshotFilesFromState(files, importFileHashes)
     const indexData = profiler.measure(
       "Подготовка импорта конфигурации",
       "Формирование данных файла индекса конфигурации",
@@ -256,18 +281,33 @@ export async function importConfigurationFromXml(
           fragmentData,
         })
     )
-    await profiler.measureAsync(
-      "Подготовка импорта конфигурации",
-      "Запись файла индекса конфигурации",
-      { items: projectFiles.length },
-      () => deps.writeIndex({ projectDir: params.projectDir, address, data: indexData })
+    const stateResult = await importSession.finalize(() =>
+      profiler.measureAsync(
+        "Подготовка импорта конфигурации",
+        "Запись файла индекса конфигурации",
+        { items: projectFiles.length },
+        () => deps.writeIndex({ projectDir: params.projectDir, address, data: indexData })
+      )
     )
-    return successResult(discovered.assignments.length, warnings, params.projectDir, address)
+    finalized = true
+    const validationFailures = stateResult.diagnostics.map((diagnostic) => ({
+      severity: diagnostic.severity,
+      code: "project_validation",
+      message: diagnostic.message,
+      targetProjectPath: diagnostic.filePath,
+    } satisfies ImportDiagnostic))
+    return {
+      ...successResult(discovered.assignments.length, warnings, params.projectDir, address),
+      failed: validationFailures.filter(({ severity }) => severity === "error"),
+      warnings: [...warnings, ...validationFailures.filter(({ severity }) => severity === "warning")],
+    }
   } catch (caught) {
+    if (importSession !== undefined && !finalized) await importSession.abort(caught).catch(() => undefined)
     return failedResult([operationDiagnostic(caught)], warnings, resolvedComponentPath)
   } finally {
     profiler.flush()
     await pool?.close()
+    if (ownsProjectState) await projectState.close()
   }
 }
 
@@ -287,33 +327,6 @@ async function collectSnapshotFragments(params: {
         targetProjectPath: file.targetProjectPath,
       })
     })
-  )
-}
-
-async function buildBaseSnapshot(params: {
-  deps: ImportCoordinatorDependencies
-  descriptor: XmlImportComponentDescriptor
-  projectDir: string
-  context: ConfigurationContextFromXML
-  concurrency: number
-  createReferenceWorkerPool?: () => PreparedWorkerPool
-  profiler: ReturnType<typeof createOperationProfiler>
-}): Promise<SharedValidationSnapshot | undefined> {
-  const baseAddress = params.descriptor.baseAddress
-  if (baseAddress === undefined) return undefined
-  return params.profiler.measureAsync(
-    "Подготовка импорта конфигурации",
-    "Холодное построение индекса базового компонента",
-    {},
-    () =>
-      params.deps.buildComponentReferenceSnapshot({
-        componentDir: join(params.projectDir, componentPath(baseAddress)),
-        context: params.context,
-        concurrency: params.concurrency,
-        ...(params.createReferenceWorkerPool === undefined
-          ? {}
-          : { createWorkerPool: params.createReferenceWorkerPool }),
-      })
   )
 }
 
@@ -382,6 +395,47 @@ function buildImportedConfigurationSnapshot(params: {
     files: params.projectFiles,
     entities: params.fragmentData.entities,
   }
+}
+
+function externalFileStateBatch(
+  selectedComponentPath: string,
+  files: readonly ConfigurationSnapshotFile[],
+): ProjectStateImportFinalFileStateBatch {
+  const entries = files.map((file) => ({
+    update: {
+      kind: "resource" as const,
+      projectPath: `${selectedComponentPath}/${file.projectPath}`,
+      componentPath: selectedComponentPath,
+      resourceKind: "resource" as const,
+    },
+    hash: file.contentHash,
+  }))
+  const batch = createProjectStateFileUpdateBatch(entries)
+  return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
+}
+
+function rememberImportFileHashes(
+  hashes: Map<string, bigint>,
+  selectedComponentPath: string,
+  batch: ProjectStateImportFinalFileStateBatch,
+): void {
+  const view = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
+  batch.updates.forEach((update, index) => {
+    const prefix = `${selectedComponentPath}/`
+    if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
+    hashes.set(update.projectPath.slice(prefix.length), view.getBigUint64(index * 8, false))
+  })
+}
+
+function snapshotFilesFromState(
+  files: readonly ImportResultFile[],
+  hashes: ReadonlyMap<string, bigint>,
+): ConfigurationSnapshotFile[] {
+  return files.map(({ targetProjectPath }) => {
+    const contentHash = hashes.get(targetProjectPath)
+    if (contentHash === undefined) throw new Error(`Import не передал хэш готового файла: ${targetProjectPath}`)
+    return { projectPath: targetProjectPath, contentHash }
+  })
 }
 
 function splitMergedConfigurationSnapshotFragments(

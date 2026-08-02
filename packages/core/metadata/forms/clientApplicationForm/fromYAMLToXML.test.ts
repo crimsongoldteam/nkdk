@@ -7,12 +7,8 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
-import {
-  createLayeredImportReferenceSnapshot,
-  createLayeredOwnerMetadataCache,
-} from "../../importFromXml/componentReferenceIndex"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
@@ -406,13 +402,7 @@ function contextWithLayeredCatalogOwner() {
     ...context,
     exportToYAML: {
       toTyped: false,
-      ownerMetadataCache: createLayeredOwnerMetadataCache({
-        projectDir: "/project/cfe/Расширение",
-        snapshots: createLayeredImportReferenceSnapshot({
-          local: createImportSharedMetadata([]),
-          base: createImportSharedMetadata([{ ...initialFacts, fieldIndex }]),
-        }),
-      }),
+      ownerMetadataCache: createLayeredOwnerMetadataCacheForTests({ base: [{ ...initialFacts, fieldIndex }] }),
     },
   }
 }

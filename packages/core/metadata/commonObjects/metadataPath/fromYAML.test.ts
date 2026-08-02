@@ -10,11 +10,7 @@ import "../../appliedObjects/metadataCatalog/register"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
-import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
-import {
-  createLayeredImportReferenceSnapshot,
-  createLayeredOwnerMetadataCache,
-} from "../../importFromXml/componentReferenceIndex"
+import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
@@ -106,7 +102,6 @@ describe("importDataPathStandardMembersFromYAML", () => {
         Объект: { Тип: "СправочникОбъект.СправочникПолный" },
       },
     })
-    const emptySnapshot = createImportSharedMetadata([])
     const ref = { kind: "Справочник", name: "СправочникПолный" }
     const filePath = "/project/cf/Справочник/СправочникПолный/Свойства.yaml"
     const initialFacts = createValidationOwnerFacts({
@@ -124,12 +119,6 @@ describe("importDataPathStandardMembersFromYAML", () => {
       facts: initialFacts,
       rule: MetadataCatalogRules,
     })
-    const baseSnapshot = createImportSharedMetadata([
-      {
-        ...initialFacts,
-        fieldIndex,
-      },
-    ])
     const context: ConfigurationContext = {
       ...mockContext,
       importFromYAML: {
@@ -138,13 +127,7 @@ describe("importDataPathStandardMembersFromYAML", () => {
       },
       exportToYAML: {
         toTyped: false,
-        ownerMetadataCache: createLayeredOwnerMetadataCache({
-          projectDir: "/project/cfe/Расширение",
-          snapshots: createLayeredImportReferenceSnapshot({
-            local: emptySnapshot,
-            base: baseSnapshot,
-          }),
-        }),
+        ownerMetadataCache: createLayeredOwnerMetadataCacheForTests({ base: [{ ...initialFacts, fieldIndex }] }),
       },
     }
 

@@ -1,5 +1,13 @@
 export type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 export {
+  assertProjectStateImportFinalFileStateBatch,
+  type ProjectStateImportFinalFileState,
+  type ProjectStateImportFinalFileStateBatch,
+  type ProjectStateImportIndexContribution,
+  type ProjectStateImportParams,
+  type ProjectStateImportSession,
+} from "./importSession"
+export {
   ProjectStateReadSessionClosedError,
   type ProjectStateReadSession,
   type ProjectStateReadSessionFactory,

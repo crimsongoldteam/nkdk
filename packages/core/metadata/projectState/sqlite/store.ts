@@ -24,6 +24,10 @@ import type {
   ProjectStateStore,
 } from "../store"
 import type { ProjectStateCompatibility } from "../compatibility"
+import type {
+  ProjectStateImportFinalFileState,
+  ProjectStateImportIndexContribution,
+} from "../importSession"
 import { decodeJson, decodeOwnerKey, decodeValue, encodeJson, encodeOwnerKey, encodeValue } from "./codec"
 import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
 import { projectStateOwnerFactsFromRows } from "./ownerFacts"
@@ -170,6 +174,21 @@ function createStore(
       }
       for (const update of batch.updates) {
         if (update.kind === "yaml") replaceDependencies(statements, update)
+      }
+    },
+    replaceImportIndex(batch) {
+      assertOpen()
+      assertUpdateActive()
+      for (const contribution of batch) replaceImportIndex(statements, contribution)
+    },
+    replaceImportFinalFileState(batch) {
+      assertOpen()
+      assertUpdateActive()
+      for (let index = 0; index < batch.updates.length; index += 1) {
+        replaceImportFinalFileState(statements, batch.updates[index]!, batch.hashBytes, index)
+      }
+      for (const update of batch.updates) {
+        if (update.kind === "yaml") replaceImportFinalDependencies(statements, update)
       }
     },
     deleteFiles(projectPaths) {
@@ -507,23 +526,21 @@ function replaceFile(
   hashBytes: Uint8Array,
   batchIndex: number,
 ): void {
-  statements.insertComponent.run(update.componentPath)
-  const componentId = integerId(statements.selectComponent.get(update.componentPath))
-  statements.upsertFile.run(update.projectPath, componentId, update.resourceKind, update.yamlRole ?? null)
-  const fileId = integerId(statements.selectFile.get(update.projectPath))
+  const fileId = upsertProjectFile(statements, update)
   deleteFileContribution(statements, fileId)
   statements.insertHash.run(fileId, hashBytes, batchIndex * 8 + 1)
   if (update.kind === "resource") return
 
-  statements.insertValidation.run(
-    fileId,
-    update.localValidation.schemaDiagnostics.some(({ severity }) => severity === "error") ? 0 : 1,
-    update.localValidation.contributedFacts ? 1 : 0,
-  )
-  insertDiagnostics(statements, fileId, "local", update.localValidation.diagnostics)
-  insertDiagnostics(statements, fileId, "schema", update.localValidation.schemaDiagnostics)
+  insertIndexContribution(statements, fileId, update)
+  insertFinalYamlState(statements, fileId, update)
+}
 
-  update.references.forEach((entry, ordinal) => {
+function insertIndexContribution(
+  statements: StoreStatements,
+  fileId: number,
+  contribution: Pick<ProjectStateYamlFileUpdate, "references" | "owners" | "fields" | "forms">,
+): void {
+  contribution.references.forEach((entry, ordinal) => {
     statements.insertReference.run(
       fileId,
       ordinal,
@@ -535,9 +552,8 @@ function replaceFile(
       entry.details === undefined ? null : encodeValue(entry.details),
     )
   })
-  update.pendingReferences.forEach((entry, ordinal) => insertPendingReference(statements, fileId, ordinal, entry))
   let ownerOrdinal = 0
-  for (const { owner, facts } of update.owners) {
+  for (const { owner, facts } of contribution.owners) {
     const entries = Object.entries(facts)
     if (entries.length === 0) {
       statements.insertOwnerFact.run(fileId, ownerOrdinal++, encodeOwnerKey(owner), "owner", "", null)
@@ -554,7 +570,7 @@ function replaceFile(
       )
     }
   }
-  update.fields.forEach((entry, ordinal) => {
+  contribution.fields.forEach((entry, ordinal) => {
     statements.insertField.run(
       fileId,
       ordinal,
@@ -569,7 +585,7 @@ function replaceFile(
       entry.tableHasColumns === undefined ? null : entry.tableHasColumns ? 1 : 0,
     )
   })
-  update.forms.forEach((entry, ordinal) => {
+  contribution.forms.forEach((entry, ordinal) => {
     statements.insertForm.run(
       fileId,
       ordinal,
@@ -579,12 +595,96 @@ function replaceFile(
       encodeValue(entry),
     )
   })
+}
+
+function replaceImportIndex(
+  statements: StoreStatements,
+  contribution: ProjectStateImportIndexContribution,
+): void {
+  const fileId = upsertProjectFile(statements, contribution)
+  statements.deleteReferences.run(fileId)
+  statements.deleteOwnerFacts.run(fileId)
+  statements.deleteFields.run(fileId)
+  statements.deleteForms.run(fileId)
+  insertIndexContribution(statements, fileId, contribution)
+}
+
+function replaceImportFinalFileState(
+  statements: StoreStatements,
+  update: ProjectStateImportFinalFileState,
+  hashBytes: Uint8Array,
+  batchIndex: number,
+): void {
+  const fileId = upsertProjectFile(statements, update)
+  statements.deleteHash.run(fileId)
+  statements.deleteValidation.run(fileId)
+  statements.deleteDiagnostics.run(fileId)
+  statements.deletePendingReferences.run(fileId)
+  statements.deletePendingChecks.run(fileId)
+  statements.deleteDependencies.run(fileId)
+  statements.insertHash.run(fileId, hashBytes, batchIndex * 8 + 1)
+  if (update.kind === "resource") return
+  insertFinalYamlState(statements, fileId, update)
+}
+
+function replaceImportFinalDependencies(
+  statements: StoreStatements,
+  update: Extract<ProjectStateImportFinalFileState, { kind: "yaml" }>,
+): void {
+  insertDependencies(statements, update)
+}
+
+function upsertProjectFile(
+  statements: StoreStatements,
+  file: {
+    readonly projectPath: string
+    readonly componentPath: string
+    readonly resourceKind: "yaml" | "resource"
+    readonly yamlRole?: ProjectStateImportIndexContribution["yamlRole"]
+  },
+): number {
+  statements.insertComponent.run(file.componentPath)
+  const componentId = integerId(statements.selectComponent.get(file.componentPath))
+  statements.upsertFile.run(file.projectPath, componentId, file.resourceKind, file.yamlRole ?? null)
+  return integerId(statements.selectFile.get(file.projectPath))
+}
+
+function insertLocalValidation(
+  statements: StoreStatements,
+  fileId: number,
+  update: Pick<ProjectStateYamlFileUpdate, "localValidation">,
+): void {
+  statements.insertValidation.run(
+    fileId,
+    update.localValidation.schemaDiagnostics.some(({ severity }) => severity === "error") ? 0 : 1,
+    update.localValidation.contributedFacts ? 1 : 0,
+  )
+  insertDiagnostics(statements, fileId, "local", update.localValidation.diagnostics)
+  insertDiagnostics(statements, fileId, "schema", update.localValidation.schemaDiagnostics)
+}
+
+function insertFinalYamlState(
+  statements: StoreStatements,
+  fileId: number,
+  update: Pick<ProjectStateYamlFileUpdate, "localValidation" | "pendingReferences" | "pendingChecks">,
+): void {
+  insertLocalValidation(statements, fileId, update)
+  update.pendingReferences.forEach((entry, ordinal) => insertPendingReference(statements, fileId, ordinal, entry))
   update.pendingChecks.forEach((check, ordinal) => insertPendingCheck(statements, fileId, ordinal, check))
 }
 
 function replaceDependencies(statements: StoreStatements, update: ProjectStateYamlFileUpdate): void {
   const sourceFileId = integerId(statements.selectFile.get(update.projectPath))
   statements.deleteDependencies.run(sourceFileId)
+  insertDependencies(statements, update, sourceFileId)
+}
+
+function insertDependencies(
+  statements: StoreStatements,
+  update: Pick<ProjectStateYamlFileUpdate, "projectPath" | "dependencies">,
+  knownSourceFileId?: number,
+): void {
+  const sourceFileId = knownSourceFileId ?? integerId(statements.selectFile.get(update.projectPath))
   update.dependencies.forEach((dependency, ordinal) => {
     const target = statements.selectDependencyTarget.get(sourceFileId, dependency) as { source_file_id: number } | undefined
     statements.insertDependency.run(sourceFileId, target?.source_file_id ?? null, ordinal, dependency)

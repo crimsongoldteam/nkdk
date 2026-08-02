@@ -192,7 +192,7 @@ export function toProjectStateFileUpdate(
   }
 }
 
-function projectStateReferenceEntry(
+export function projectStateReferenceEntry(
   kind: ProjectStateReferenceEntry["kind"],
   entry: { readonly canonical: string; readonly result: { readonly ok: boolean; readonly details?: unknown } },
 ): ProjectStateReferenceEntry {
@@ -204,13 +204,13 @@ function withoutDiagnosticFilePath({ filePath: _filePath, ...diagnostic }: Diagn
   return diagnostic
 }
 
-function projectStateOwnerFacts(record: ValidationObjectRecord): ProjectStateOwnerFact[] {
+export function projectStateOwnerFacts(record: ValidationObjectRecord): ProjectStateOwnerFact[] {
   if (record.ownerFacts === undefined) return []
   const { ref, filePath: _filePath, fieldIndex: _fieldIndex, ...facts } = record.ownerFacts
   return [{ owner: ref, facts }]
 }
 
-function projectStateFieldEntries(record: ValidationObjectRecord): ProjectStateFieldEntry[] {
+export function projectStateFieldEntries(record: ValidationObjectRecord): ProjectStateFieldEntry[] {
   const owner = record.ownerRef ?? record.ownerFacts?.ref
   const index = record.fieldIndex ?? record.ownerFacts?.fieldIndex
   if (owner === undefined || index === undefined) return []

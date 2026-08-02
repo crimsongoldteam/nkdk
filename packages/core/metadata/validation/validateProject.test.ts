@@ -85,6 +85,7 @@ function testProjectState(diagnostics: readonly Diagnostic[]): ProjectStateServi
   return {
     refreshes,
     closed: 0,
+    async beginImport() { throw new Error("unexpected beginImport") },
     async refreshAndValidate(params) {
       refreshes.push(params)
       return refreshResult(diagnostics)

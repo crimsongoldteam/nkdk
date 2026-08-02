@@ -77,6 +77,7 @@ describe("syncToXml service", () => {
     const projectDir = createProject()
     const close = vi.fn(async () => undefined)
     const projectState = {
+      beginImport: vi.fn(),
       refreshAndValidate: vi.fn(),
       createReadToken: vi.fn(),
       openReadSession: vi.fn(),

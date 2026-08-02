@@ -3,6 +3,11 @@ import { realpath } from "node:fs/promises"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateReadSession } from "./readSession"
+import {
+  createProjectStateImportSession,
+  type ProjectStateImportParams,
+  type ProjectStateImportSession,
+} from "./importSession"
 import { openSqliteProjectStateReadSession } from "./sqlite/readSession"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -24,6 +29,7 @@ export interface ProjectStateComponentProjection {
 }
 
 export interface ProjectStateService {
+  beginImport(params: ProjectStateImportParams): Promise<ProjectStateImportSession>
   refreshAndValidate(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
   createReadToken(projectDir: string): Promise<ProjectStateReadToken>
   openReadSession(token: ProjectStateReadToken): ProjectStateReadSession
@@ -61,6 +67,35 @@ export function createProjectStateService(
   let closePromise: Promise<void> | undefined
 
   const service: ProjectStateService = {
+    beginImport(params) {
+      return runExclusive(async () => {
+        const projectDir = await realpath(params.projectDir)
+        const candidate = createWriter()
+        const previous = active
+        let settled = false
+        try {
+          return await createProjectStateImportSession({
+            ...params,
+            projectDir,
+            writer: candidate,
+            async publish() {
+              if (settled) return
+              settled = true
+              active = { projectDir, writer: candidate }
+              await previous?.writer.close()
+            },
+            async discard() {
+              if (settled) return
+              settled = true
+              await candidate.close()
+            },
+          })
+        } catch (caught) {
+          await candidate.close().catch(() => undefined)
+          throw caught
+        }
+      })
+    },
     refreshAndValidate(params) {
       return runExclusive(async () => {
         const projectDir = await realpath(params.projectDir)

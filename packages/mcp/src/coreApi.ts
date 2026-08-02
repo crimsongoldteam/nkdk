@@ -128,6 +128,7 @@ export interface CoreApi {
 }
 
 export interface CoreProjectStateService {
+  beginImport(params: unknown): Promise<unknown>
   refreshAndValidate(params: unknown): Promise<unknown>
   createReadToken(projectDir: string): Promise<unknown>
   openReadSession(token: unknown): unknown

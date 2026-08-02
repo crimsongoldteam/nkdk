@@ -1,5 +1,6 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
@@ -8,8 +9,27 @@ import { finalizeImportedYamlValues } from "../orchestration/property/finalizeIm
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
-import { type LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
-import { createLayeredOwnerMetadataCache } from "./coldComponentIndexes"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { validationProjectComponentFromAddress } from "../validation/projectComponents"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import {
+  createValidationSchemaCache,
+  validateProjectFileFirstPass,
+  type ValidationSchemaCache,
+} from "../validation/projectValidationPasses"
+import {
+  createProjectStateFileUpdateBatch,
+  projectStateFieldEntries,
+  projectStateOwnerFacts,
+  projectStateReferenceEntry,
+  toProjectStateFileUpdate,
+  type ProjectStateYamlFileUpdate,
+} from "../projectState/fileUpdate"
+import { createProjectStateOwnerMetadataCache } from "../projectState/dependencyValidation"
+import { openProjectStateReadSession } from "../projectState/service"
+import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -26,13 +46,22 @@ import type {
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
-import { writeGeneratedImportFiles, writeMainImportYaml, xmlExternalImportFiles } from "./writeOutput"
+import {
+  serializeImportYaml,
+  writeGeneratedImportFiles,
+  writeMainImportYaml,
+  xmlExternalImportFiles,
+  type SerializedImportYaml,
+} from "./writeOutput"
 
 interface InitializedImportWorkerState {
   operationId: string
   workerIndex: number
   context: XmlImportConfigurationContext
   outputDir: string
+  projectDir: string
+  componentPath: string
+  schemaCache: ValidationSchemaCache
 }
 
 interface DeferredImportYaml {
@@ -46,6 +75,7 @@ interface DeferredImportYaml {
 }
 
 let initializedState: InitializedImportWorkerState | undefined
+let schemaCacheForTests: ValidationSchemaCache | undefined
 const preparedYaml = new Map<string, DeferredImportYaml>()
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
@@ -56,6 +86,9 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
       workerIndex: command.workerIndex,
       context: command.context,
       outputDir: command.outputDir,
+      projectDir: command.projectDir ?? command.outputDir,
+      componentPath: command.componentPath ?? "cf",
+      schemaCache: schemaCacheForTests ?? createValidationSchemaCache(command.context),
     }
     return undefined
   }
@@ -66,14 +99,14 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(command.referenceSnapshots, requireInitializedState())
+    return runSecondPass(command.readToken, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
 }
 
 async function runSecondPass(
-  referenceSnapshots: LayeredImportReferenceSnapshot,
+  readToken: import("../projectState/contracts").ProjectStateReadToken,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
   const profiler = createOperationProfiler({
@@ -84,20 +117,28 @@ async function runSecondPass(
   const diagnostics: ImportDiagnostic[] = []
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
-  const ownerMetadataCache = createLayeredOwnerMetadataCache({
-    localProjectDir: state.outputDir,
-    baseProjectDir: state.outputDir,
-    snapshots: referenceSnapshots,
+  const finalFileStateBatches: ProjectStateImportFinalFileStateBatch[] = []
+  const readSession = openProjectStateReadSession(readToken)
+  const ownerMetadataCache = createProjectStateOwnerMetadataCache({
+    projectDir: state.projectDir,
+    componentPath: state.componentPath,
+    queryPort: readSession,
   })
 
-  for (const [id, prepared] of preparedYaml) {
-    try {
-      files.push(...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)))
-    } catch (caught) {
-      diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
-    } finally {
-      preparedYaml.delete(id)
+  try {
+    for (const [id, prepared] of preparedYaml) {
+      try {
+        const written = await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler)
+        files.push(written.file)
+        finalFileStateBatches.push(written.finalState)
+      } catch (caught) {
+        diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
+      } finally {
+        preparedYaml.delete(id)
+      }
     }
+  } finally {
+    readSession.close()
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
@@ -105,7 +146,7 @@ async function runSecondPass(
     timeMs: 0,
   })
   profiler.flush()
-  return { kind: "secondPassResult", diagnostics, warnings, files }
+  return { kind: "secondPassResult", diagnostics, warnings, files, finalFileStateBatches }
 }
 
 async function writePreparedYamlToOutput(
@@ -114,7 +155,7 @@ async function writePreparedYamlToOutput(
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
-): Promise<ImportResultFile[]> {
+): Promise<{ file: ImportResultFile; finalState: ProjectStateImportFinalFileStateBatch }> {
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
     "Подготовка контекста YAML",
@@ -142,13 +183,9 @@ async function writePreparedYamlToOutput(
         formDataPathIndex: prepared.formDataPathIndex,
       })
   )
-  const main = await writeMainImportYaml({
-    outputDir: state.outputDir,
-    targetProjectPath: prepared.targetProjectPath,
-    yaml: prepared.yaml,
-    profiler,
-  })
-  return [main.file]
+  const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
+  const main = await writeMainImportYaml({ serialized, profiler })
+  return { file: main.file, finalState: validateSerializedImportYaml(prepared, serialized, state).final }
 }
 
 function secondPassExportContext(params: {
@@ -181,7 +218,11 @@ function secondPassExportContext(params: {
 
 export default async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   const result = await runImportWorkerCommand(command)
-  return result?.kind === "firstPassResult" ? movableFirstPassResult(result) : result
+  return result?.kind === "firstPassResult"
+    ? movableFirstPassResult(result)
+    : result?.kind === "secondPassResult"
+      ? movableSecondPassResult(result)
+      : result
 }
 
 async function runFirstPass(
@@ -199,6 +240,8 @@ async function runFirstPass(
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationSnapshotFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
+  const indexContributions: ProjectStateImportIndexContribution[] = []
+  const finalFileStateBatches: ProjectStateImportFinalFileStateBatch[] = []
   let earlyYamlCount = 0
   let earlyYamlBytes = 0
   let retainedYamlCount = 0
@@ -237,18 +280,34 @@ async function runFirstPass(
           generatedFiles: prepared.generatedFiles,
           profiler,
         })
+        const generatedStateEntries = assignmentFiles.map((file, index) => ({
+          update: {
+            kind: "resource" as const,
+            projectPath: `${state.componentPath}/${file.targetProjectPath}`,
+            componentPath: state.componentPath,
+            resourceKind: "resource" as const,
+          },
+          hash: hashGeneratedContent(prepared.generatedFiles[index]?.content ?? ""),
+        }))
+        if (generatedStateEntries.length > 0) {
+          const batch = createProjectStateFileUpdateBatch(generatedStateEntries)
+          finalFileStateBatches.push({
+            updates: generatedStateEntries.map(({ update }) => update),
+            hashBytes: batch.hashBytes,
+          })
+        }
         assignmentFiles.push(...xmlExternalImportFiles(assignment))
         if (prepared.deferred.length === 0) {
-          const main = await writeMainImportYaml({
-            outputDir: state.outputDir,
-            targetProjectPath: prepared.targetProjectPath,
-            yaml: prepared.yaml,
-            profiler,
-          })
+          const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
+          const main = await writeMainImportYaml({ serialized, profiler })
+          const validated = validateSerializedImportYaml(prepared, serialized, state)
           assignmentFiles.push(main.file)
+          finalFileStateBatches.push(validated.final)
+          indexContributions.push(importIndexContribution(prepared, validationContribution, state))
           earlyYamlCount += 1
           earlyYamlBytes += main.bytes
         } else {
+          indexContributions.push(importIndexContribution(prepared, validationContribution, state))
           preparedYaml.set(assignment.id, {
             diagnosticAssignment: {
               targetProjectPath: assignment.targetProjectPath,
@@ -306,18 +365,155 @@ async function runFirstPass(
     diagnostics,
     files,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
+    indexContributions,
+    finalFileStateBatches,
   }
 }
 
 export function createFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
-      return [result.fragmentBuffer]
+      return [
+        result.fragmentBuffer,
+        ...result.finalFileStateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer),
+      ]
     },
     get [valueSymbol]() {
       return result
     },
   }
+}
+
+export function createSecondPassTransferable(result: ImportSecondPassResult) {
+  return {
+    get [transferableSymbol]() {
+      return result.finalFileStateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer)
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
+}
+
+function movableSecondPassResult(result: ImportSecondPassResult): ImportSecondPassResult {
+  return move(createSecondPassTransferable(result)) as unknown as ImportSecondPassResult
+}
+
+function serializePreparedYaml(
+  targetProjectPath: string,
+  yaml: unknown,
+  state: InitializedImportWorkerState,
+  profiler: ValidationProfiler,
+): SerializedImportYaml {
+  return profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Сериализация YAML",
+    { items: 1 },
+    () => serializeImportYaml({
+      output: {
+        sourceKind: "worker",
+        sourcePath: `${state.outputDir}/${targetProjectPath}`,
+        targetProjectPath,
+      },
+      yaml,
+    }),
+  )
+}
+
+function validateSerializedImportYaml(
+  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "yaml">,
+  serialized: SerializedImportYaml,
+  state: InitializedImportWorkerState,
+): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
+  const component = validationProjectComponentFromAddress(state.projectDir, {
+    componentPath: state.componentPath,
+    componentDir: state.outputDir,
+  })
+  const file = resolveValidationProjectFile(state.projectDir, prepared.targetProjectPath, component)
+  if (file === undefined) throw new Error(`Не удалось классифицировать YAML import: ${prepared.targetProjectPath}`)
+  const text = new TextDecoder().decode(serialized.bytes)
+  const entry = { filePath: file.absolutePath, text, parsed: parseMetadataYaml(text) }
+  const first = validateProjectFileFirstPass({
+    projectDir: state.projectDir,
+    file,
+    cache: createProjectYamlCacheFromEntries([entry]),
+    context: state.context,
+    schemaCache: state.schemaCache,
+    rulesSnapshot: createValidationRulesSnapshot(state.context),
+  })
+  const full = toProjectStateFileUpdate(first, importFileIdentity(state, prepared.targetProjectPath, file.kind))
+  return splitImportYamlUpdate(full, serialized.localHash)
+}
+
+function splitImportYamlUpdate(
+  update: ProjectStateYamlFileUpdate,
+  hash: bigint,
+): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
+  if (update.resourceKind !== "yaml" || update.yamlRole === undefined) {
+    throw new Error("Import validation вернула не YAML identity")
+  }
+  const identity = {
+    kind: "yaml" as const,
+    projectPath: update.projectPath,
+    componentPath: update.componentPath,
+    resourceKind: "yaml" as const,
+    yamlRole: update.yamlRole,
+  }
+  const { references, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
+  const batch = createProjectStateFileUpdateBatch([{ update, hash }])
+  return {
+    index: { ...identity, references, owners, fields, forms },
+    final: {
+      updates: [{ ...identity, localValidation, pendingReferences, pendingChecks, dependencies }],
+      hashBytes: batch.hashBytes,
+    },
+  }
+}
+
+function importIndexContribution(
+  prepared: PreparedImportYaml,
+  contribution: ImportValidationContribution,
+  state: InitializedImportWorkerState,
+): ProjectStateImportIndexContribution {
+  const identity = importFileIdentity(
+    state,
+    prepared.targetProjectPath,
+    prepared.assignment.role === "fileItem" ? "form" : "properties",
+  )
+  const validation = contribution.validationContribution
+  return {
+    ...identity,
+    references: [
+      ...validation.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
+      ...validation.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
+      ...validation.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
+    ],
+    owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
+    fields: validation.objectRecords.flatMap(projectStateFieldEntries),
+    forms: [],
+  }
+}
+
+function importFileIdentity(
+  state: InitializedImportWorkerState,
+  targetProjectPath: string,
+  kind: "configuration" | "form" | "properties",
+): {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly resourceKind: "yaml"
+  readonly yamlRole: "configuration" | "properties" | "form"
+} {
+  return {
+    projectPath: `${state.componentPath}/${targetProjectPath}`,
+    componentPath: state.componentPath,
+    resourceKind: "yaml",
+    yamlRole: targetProjectPath === "Конфигурация.yaml" ? "configuration" : kind,
+  }
+}
+
+function hashGeneratedContent(content: string): bigint {
+  return hashFileBytes(new TextEncoder().encode(content))
 }
 
 function movableFirstPassResult(result: ImportFirstPassResult): ImportFirstPassResult {
@@ -374,6 +570,10 @@ export function workerStateForTests(): {
 
 export function resetImportWorkerStateForTests(): void {
   disposeWorkerState()
+}
+
+export function setImportWorkerSchemaCacheForTests(schemaCache: ValidationSchemaCache | undefined): void {
+  schemaCacheForTests = schemaCache
 }
 
 function errorMessage(error: unknown): string {

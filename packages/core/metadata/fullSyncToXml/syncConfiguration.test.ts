@@ -499,6 +499,7 @@ function createHarness(options: HarnessOptions = {}) {
   const topology = compileRegisteredMetadataResourceTopology()
   const readToken = new Uint8Array([1]) as import("../projectState").ProjectStateReadToken
   const projectState = {
+    async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       events.push("refresh")
       if (options.refreshFailure !== undefined) throw options.refreshFailure

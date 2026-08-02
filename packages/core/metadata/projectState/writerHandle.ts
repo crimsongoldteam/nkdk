@@ -8,6 +8,10 @@ import type { ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "./importSession"
 import {
   assertProjectStateWriterBatch,
   type ProjectStateWriterAcknowledgement,
@@ -61,8 +65,11 @@ export interface ProjectStateWriterHandle {
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
+  writeImportIndexBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
+  writeImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
+  commitUpdate(): Promise<void>
   rollbackUpdate(): Promise<void>
   reset(projectDir: string): Promise<void>
   close(): Promise<void>
@@ -203,6 +210,22 @@ export function createProjectStateWriterHandle(
       drainBatches()
       return result
     },
+    async writeImportIndexBatch(batch) {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      await request({ kind: "writeImportIndexBatch", requestId: randomUUID(), operationId: currentOperationId, batch })
+    },
+    async writeImportFinalFileState(batch) {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      const result = await request(
+        { kind: "writeImportFinalFileState", requestId: randomUUID(), operationId: currentOperationId, batch },
+        [batch.hashBytes.buffer as ArrayBuffer],
+      )
+      if (result.kind !== "importFinalFileStateWritten") {
+        throw new Error("ProjectState writer не подтвердил final file state")
+      }
+    },
     async deleteFiles(projectPaths) {
       assertUsable()
       const currentOperationId = assertActiveOperation()
@@ -242,6 +265,16 @@ export function createProjectStateWriterHandle(
         irreversibleCommit = false
         clearOperationSignal()
       }
+    },
+    async commitUpdate() {
+      assertUsable()
+      const currentOperationId = assertActiveOperation()
+      await Promise.all([...operationWrites])
+      if (operationFailure !== undefined) throw operationFailure
+      const result = await request({ kind: "commitUpdate", requestId: randomUUID(), operationId: currentOperationId })
+      if (result.kind !== "updateCommitted") throw new Error("ProjectState writer не подтвердил commit")
+      operationId = undefined
+      clearOperationSignal()
     },
     async rollbackUpdate() {
       assertUsable()

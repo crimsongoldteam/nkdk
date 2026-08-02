@@ -16,6 +16,7 @@ import type { ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { resolveDataPath } from "../validation/dataPath/resolver"
 import type { ObjectField, ObjectFieldIndex } from "../validation/dataPath/objectFields"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
+import { getDataPathOwnerKind, getDataPathOwnerKindByItemType } from "../validation/dataPath/registry"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
 import { createProjectDegradationDiagnostics } from "../validation/projectFirstPassReadiness"
 import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "./fileUpdate"
@@ -267,21 +268,28 @@ export function createProjectStateOwnerMetadataCache(params: {
   let activePage: ReadonlyMap<string, ProjectDependencyOwnerInput> | undefined
   return {
     get(ref) {
-      const key = ownerKey(ref)
-      const stored = currentOwners.get(key) ?? activePage?.get(key) ?? (missingOwners.has(key) ? undefined : readOwner(ref))
+      const exactKey = ownerKey(ref)
+      const fallbackRef = canonicalProjectStateOwnerRef(ref)
+      const fallbackKey = ownerKey(fallbackRef)
+      const exact = currentOwners.get(exactKey) ?? activePage?.get(exactKey)
+        ?? (missingOwners.has(exactKey) ? undefined : readOwner(ref))
+      const stored = exact ?? (fallbackKey === exactKey
+        ? undefined
+        : currentOwners.get(fallbackKey) ?? activePage?.get(fallbackKey)
+          ?? (missingOwners.has(fallbackKey) ? undefined : readOwner(fallbackRef)))
       if (stored === undefined) return ownerMetadataNotFound({ projectDir: params.projectDir, ref })
       return ownerMetadataFromFacts({
         projectDir: params.projectDir,
         ref,
         facts: stored.facts,
-        fieldIndex: projectStateFieldIndex(ref, stored.fields),
+        fieldIndex: projectStateFieldIndex(stored.owner, stored.fields),
       })
     },
     listRefs(kind) {
       return visibleOwnerRefs(kind)
     },
     preload(refs) {
-      const unique = [...new Map(refs.map((ref) => [ownerKey(ref), ref])).values()]
+      const unique = [...new Map(refs.map(canonicalProjectStateOwnerRef).map((ref) => [ownerKey(ref), ref])).values()]
         .filter((ref) => !currentOwners.has(ownerKey(ref)))
       if (unique.length === 0) return
       const requests = unique.map((owner, index) => ({
@@ -311,11 +319,12 @@ export function createProjectStateOwnerMetadataCache(params: {
   }
 
   function* visibleOwnerRefs(kind: OwnerTypeRef["kind"]): IterableIterator<OwnerTypeRef> {
+    const storedKind = canonicalProjectStateOwnerRef({ kind }).kind
     let cursor: string | undefined
     for (;;) {
       const page = params.queryPort.readOwnerRefPage({
         componentPath: params.componentPath,
-        kind,
+        kind: storedKind,
         ...(cursor === undefined ? {} : { cursor }),
       })
       if (page.refs.length === 0 && page.nextCursor !== undefined) {
@@ -333,7 +342,9 @@ export function createProjectStateOwnerMetadataCache(params: {
       })
       activePage = pageOwners
       try {
-        for (const ref of page.refs) if (pageOwners.has(ownerKey(ref))) yield ref
+        for (const ref of page.refs) {
+          if (pageOwners.has(ownerKey(ref))) yield { ...ref, kind }
+        }
       } finally {
         activePage = undefined
       }
@@ -342,6 +353,14 @@ export function createProjectStateOwnerMetadataCache(params: {
       cursor = page.nextCursor
     }
   }
+}
+
+function canonicalProjectStateOwnerRef(ref: OwnerTypeRef): OwnerTypeRef {
+  const registration = getDataPathOwnerKind(ref.kind)
+  const kind = registration === undefined
+    ? ref.kind
+    : getDataPathOwnerKindByItemType(registration.rule.itemType)?.kind ?? registration.kind
+  return kind === ref.kind ? ref : { ...ref, kind }
 }
 
 function projectStateFields(

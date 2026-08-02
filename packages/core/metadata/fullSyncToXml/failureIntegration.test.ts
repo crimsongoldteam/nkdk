@@ -416,6 +416,7 @@ function failureDeps(
 function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
   const readToken = new Uint8Array([1]) as ProjectStateReadToken
   return {
+    async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       return { diagnostics: [], readToken, stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 } }
     },

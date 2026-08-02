@@ -1,0 +1,129 @@
+import fs from "node:fs"
+import os from "node:os"
+import { join } from "node:path"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { createProjectStateFileUpdateBatch } from "./fileUpdate"
+import { createProjectStateService } from "./service"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+  ProjectStateImportSession,
+} from "./importSession"
+import { assertProjectStateImportFinalFileStateBatch } from "./importSession"
+
+describe("ProjectState import session", () => {
+  const contribution = indexContribution("cf/Справочник/Товары/Свойства.yaml", "Товары")
+  let projectDir: string
+  let state: ReturnType<typeof createProjectStateService>
+  let session: ProjectStateImportSession
+  let firstToken: Awaited<ReturnType<ProjectStateImportSession["commitWorkingIndex"]>>
+  let secondToken: Awaited<ReturnType<ProjectStateImportSession["createReadToken"]>>
+
+  beforeAll(async () => {
+    projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-state-"))
+    state = createProjectStateService()
+    session = await state.beginImport({ projectDir, workerCount: 2 })
+    await session.writeFirstPassBatch([contribution])
+    firstToken = await session.commitWorkingIndex()
+    secondToken = await session.createReadToken()
+  })
+
+  afterAll(async () => {
+    await state.close()
+    await fs.promises.rm(projectDir, { recursive: true, force: true })
+  })
+
+  it("фиксирует индекс для отдельных read sessions и принимает после этого только final file state", async () => {
+    await expect(session.writeFirstPassBatch([indexContribution("cf/Справочник/Услуги/Свойства.yaml", "Услуги")]))
+      .rejects.toThrow(/индекс.*неизменяем/iu)
+    const first = state.openReadSession(firstToken)
+    const second = state.openReadSession(secondToken)
+    expect(first.readOwners([{ requestId: "one", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
+      .toEqual([expect.objectContaining({ requestId: "one", status: "found" })])
+    expect(second.readOwners([{ requestId: "two", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
+      .toEqual([expect.objectContaining({ requestId: "two", status: "found" })])
+
+    const before = first.readComponentTargetPage({ componentPath: "cf" })
+    await session.writeFinalFileState(finalBatch(contribution.projectPath, 0x0102030405060708n))
+    expect(first.readComponentTargetPage({ componentPath: "cf" })).toEqual(before)
+    first.close()
+    second.close()
+
+    const result = await session.finalize()
+    expect(result.diagnostics).toEqual([])
+    expect(result.stats).toMatchObject({ changedFiles: 1 })
+  })
+
+  it.each([
+    ["ненулевое смещение", new Uint8Array(new ArrayBuffer(9), 1, 8)],
+    ["короче", new Uint8Array(7)],
+    ["длиннее", new Uint8Array(9)],
+    ["увеличенный backing buffer", new Uint8Array(new ArrayBuffer(9), 0, 8)],
+  ])("отклоняет final hashBytes: %s", (_name, hashBytes) => {
+    const contribution = indexContribution("cf/Справочник/Товары/Свойства.yaml", "Товары")
+    expect(() => assertProjectStateImportFinalFileStateBatch({
+      updates: [finalState(contribution.projectPath)],
+      hashBytes,
+    })).toThrow(/hashBytes/iu)
+  })
+
+  it("кодирует несколько xxHash64 в одном zero-offset big-endian буфере и переносит только его", () => {
+    const batch = createProjectStateFileUpdateBatch([
+      { update: resource("cf/one.bin"), hash: 0x0102030405060708n },
+      { update: resource("cf/two.bin"), hash: 0xf1f2f3f4f5f6f7f8n },
+    ])
+    const transfer = [batch.hashBytes.buffer as ArrayBuffer]
+    const cloned = structuredClone(batch, { transfer })
+
+    expect([...cloned.hashBytes]).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8,
+      0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
+    ])
+    expect(cloned.hashBytes.byteOffset).toBe(0)
+    expect(cloned.hashBytes.buffer.byteLength).toBe(16)
+    expect(cloned.updates.every((update) => !("hash" in update) && !("hashOffset" in update))).toBe(true)
+  })
+})
+
+function indexContribution(projectPath: string, name: string): ProjectStateImportIndexContribution {
+  return {
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole: "properties",
+    references: [],
+    owners: [{
+      owner: { kind: "Справочник", name },
+      facts: {},
+    }],
+    fields: [],
+    forms: [],
+  }
+}
+
+function finalBatch(projectPath: string, hash: bigint): ProjectStateImportFinalFileStateBatch {
+  const batch = createProjectStateFileUpdateBatch([{ update: fullUpdate(projectPath), hash }])
+  return { updates: [finalState(projectPath)], hashBytes: batch.hashBytes }
+}
+
+function finalState(projectPath: string) {
+  return {
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml" as const,
+    yamlRole: "properties" as const,
+    kind: "yaml" as const,
+    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+    pendingReferences: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
+}
+
+function fullUpdate(projectPath: string) {
+  return { ...finalState(projectPath), references: [], owners: [], fields: [], forms: [] }
+}
+
+function resource(projectPath: string) {
+  return { projectPath, componentPath: "cf", resourceKind: "resource" as const, kind: "resource" as const }
+}

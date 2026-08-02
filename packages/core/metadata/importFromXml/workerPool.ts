@@ -8,7 +8,11 @@ import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createOperationProfiler } from "../validation/profile"
-import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "../projectState/importSession"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -24,11 +28,14 @@ export interface XmlImportWorkerPool {
     operationId: string
     context: ConfigurationContextFromXML
     outputDir: string
+    projectDir?: string
+    componentPath?: string
     componentKind: string
     metadataItemAugmenter?: string
   }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
-  runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
+  runSecondPass(readTokens: readonly ProjectStateReadToken[]): Promise<XmlImportSecondPassPoolResult>
+  workerCount(): number
   close(): Promise<void>
 }
 
@@ -44,12 +51,15 @@ export interface XmlImportFirstPassPoolResult {
   validationContribution: ValidationIndexContribution
   files: ImportResultFile[]
   fragmentData: MergedConfigurationSnapshotFragments
+  indexContributions: ProjectStateImportIndexContribution[]
+  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }
 
 export interface XmlImportSecondPassPoolResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
+  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -166,6 +176,8 @@ function createXmlImportOperationPool(params: {
         operationId: string
         context: ConfigurationContextFromXML
         outputDir: string
+        projectDir?: string
+        componentPath?: string
         componentKind: string
         metadataItemAugmenter?: string
       }
@@ -203,6 +215,8 @@ function createXmlImportOperationPool(params: {
             workerIndex,
             context: xmlImportContext(initialized),
             outputDir: initialized.outputDir,
+            projectDir: initialized.projectDir,
+            componentPath: initialized.componentPath,
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
@@ -243,18 +257,23 @@ function createXmlImportOperationPool(params: {
           logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
         },
         fragmentData,
+        indexContributions: results.flatMap((result) => result.indexContributions),
+        finalFileStateBatches: results.flatMap((result) => result.finalFileStateBatches),
       }
     },
 
-    async runSecondPass(referenceSnapshots) {
+    async runSecondPass(readTokens) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
 
       phase = "secondPassRunning"
+      if (readTokens.length !== activeWorkerIndexes.length) {
+        throw new Error(`Второму проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
+      }
       const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<ImportSecondPassResult> => {
-          const response = await runCommand(workerIndex, { kind: "secondPass", referenceSnapshots })
+        activeWorkerIndexes.map(async (workerIndex, activeIndex): Promise<ImportSecondPassResult> => {
+          const response = await runCommand(workerIndex, { kind: "secondPass", readToken: readTokens[activeIndex]! })
           if (response?.kind !== "secondPassResult") {
             return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
           }
@@ -266,7 +285,11 @@ function createXmlImportOperationPool(params: {
         diagnostics: results.flatMap((result) => result.diagnostics),
         warnings: results.flatMap((result) => result.warnings),
         files: results.flatMap((result) => result.files),
+        finalFileStateBatches: results.flatMap((result) => result.finalFileStateBatches),
       }
+    },
+    workerCount() {
+      return activeWorkerIndexes.length
     },
 
     async close() {

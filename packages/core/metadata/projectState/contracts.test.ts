@@ -223,6 +223,8 @@ function createTestStoreContractFixture() {
       if (staged === undefined) throw new Error("Нет активного обновления")
       batch.updates.forEach((update, index) => updateTarget(staged!, update, batch.hashBytes.slice(index * 8, (index + 1) * 8)))
     },
+    replaceImportIndex() {},
+    replaceImportFinalFileState() {},
     deleteFiles(projectPaths) {
       if (staged === undefined) throw new Error("Нет активного обновления")
       projectPaths.forEach((projectPath) => staged!.delete(projectPath))

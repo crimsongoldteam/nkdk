@@ -4,7 +4,12 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { createOperationProfiler } from "../validation/profile"
 import type { ImportAssignment } from "./types"
-import { writeGeneratedImportFiles, writeMainImportYaml, xmlExternalImportFiles } from "./writeOutput"
+import {
+  serializeImportYaml,
+  writeGeneratedImportFiles,
+  writeMainImportYaml,
+  xmlExternalImportFiles,
+} from "./writeOutput"
 
 const tempDirs: string[] = []
 const profiler = createOperationProfiler({
@@ -55,6 +60,24 @@ describe("XML import output", () => {
     })
     expect(readFileSync(result.file.sourcePath, "utf-8")).toBe("Имя: Тест")
     expect(result.bytes).toBe(Buffer.byteLength("Имя: Тест", "utf-8"))
+  })
+
+  it("записывает ровно те bytes, по которым уже вычислен xxHash64", async () => {
+    const outputDir = createTempDir()
+    const serialized = serializeImportYaml({
+      output: {
+        sourceKind: "worker",
+        sourcePath: join(outputDir, "Справочник/Товары/Свойства.yaml"),
+        targetProjectPath: "Справочник/Товары/Свойства.yaml",
+      },
+      yaml: { Имя: "Тест" },
+    })
+
+    const result = await writeMainImportYaml({ serialized, profiler })
+
+    expect(readFileSync(result.file.sourcePath)).toEqual(Buffer.from(serialized.bytes))
+    expect(serialized.localHash).toBeTypeOf("bigint")
+    expect(result.bytes).toBe(serialized.bytes.byteLength)
   })
 
   it("describes source XML external files without copying them", () => {

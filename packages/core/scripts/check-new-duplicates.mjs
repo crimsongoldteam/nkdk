@@ -71,6 +71,7 @@ export function runDuplicateCheck(projectRoot, options, spawn = spawnSync) {
   const diff = spawn("git", ["diff", "--unified=0", "--find-renames", options.base, "--"], {
     cwd: projectRoot,
     encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
   })
   if (diff.status !== 0) throw new Error(`Не удалось получить diff относительно ${options.base}`)
 

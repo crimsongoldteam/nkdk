@@ -5,8 +5,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { createImportSharedMetadata } from "./metadataSnapshot"
-import { createLayeredImportReferenceSnapshot } from "./componentReferenceIndex"
+import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import {
   createXmlImportWorkerPool,
@@ -36,7 +35,7 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     const first = await pool.runFirstPass(assignments)
-    await pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+    await pool.runSecondPass(readTokens(2))
 
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
@@ -124,7 +123,7 @@ describe("XML import worker pool", () => {
 
     expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
     await expect(
-      pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+      pool.runSecondPass(readTokens(2))
     ).rejects.toThrow("Первый проход import завершён с ошибками")
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
@@ -169,9 +168,7 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
-      await firstOperation.runSecondPass(
-        createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) })
-      )
+      await firstOperation.runSecondPass(readTokens(2))
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
@@ -182,9 +179,7 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
-      await secondOperation.runSecondPass(
-        createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) })
-      )
+      await secondOperation.runSecondPass(readTokens(2))
       await secondOperation.close()
 
       expect(pools.created()).toBe(2)
@@ -282,6 +277,8 @@ function createFakePools() {
               ],
             }))
           ),
+          indexContributions: [],
+          finalFileStateBatches: [],
         }
       }
       if (task.kind === "secondPass") {
@@ -290,6 +287,7 @@ function createFakePools() {
           diagnostics: [],
           warnings: [],
           files: [],
+          finalFileStateBatches: [],
         }
       }
       return undefined
@@ -319,6 +317,10 @@ function createFakePools() {
       )
     },
   }
+}
+
+function readTokens(count: number): ProjectStateReadToken[] {
+  return Array.from({ length: count }, (_, index) => new Uint8Array([index + 1]) as ProjectStateReadToken)
 }
 
 function createTempDir(name: string): string {

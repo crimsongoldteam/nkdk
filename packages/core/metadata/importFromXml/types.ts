@@ -1,7 +1,11 @@
 import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "../projectState/importSession"
+import type { ProjectStateReadToken } from "../projectState/contracts"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -61,9 +65,11 @@ export type ImportWorkerCommand =
       workerIndex: number
       context: XmlImportConfigurationContext
       outputDir: string
+      projectDir?: string
+      componentPath?: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "secondPass"; referenceSnapshots: LayeredImportReferenceSnapshot }
+  | { kind: "secondPass"; readToken: ProjectStateReadToken }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {
@@ -73,6 +79,8 @@ export interface ImportFirstPassResult {
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
   fragmentBuffer: ArrayBuffer
+  indexContributions: ProjectStateImportIndexContribution[]
+  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }
 
 export interface ImportSecondPassResult {
@@ -80,6 +88,7 @@ export interface ImportSecondPassResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
+  finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }
 
 export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined
