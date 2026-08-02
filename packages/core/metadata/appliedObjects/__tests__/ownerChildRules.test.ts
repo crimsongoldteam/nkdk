@@ -486,7 +486,7 @@ describe("owner-specific register resource rules", () => {
   })
 })
 
-it.each(["MetadataAttributes", "MetadataAttributesWithAllowedTypes", "MetadataTabularSections", "MetadataTabularSectionAttributes", "MetadataTabularSectionAttributesWithFill", "MetadataRegisterAttributes"])(
+it.each(["MetadataAttributes", "MetadataAttributesWithAllowedTypes", "MetadataTabularSections", "MetadataTabularSectionAttributes", "MetadataTabularSectionAttributesWithFill", "MetadataRegisterAttributes", "MetadataRegisterDimensions", "MetadataRegisterResources"])(
   "does not register universal child profile %s",
   (propertyType) => {
     expect(getTypeRule(propertyType, "collectionItemRule")).toBeUndefined()

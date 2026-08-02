@@ -2,8 +2,8 @@ import {
   additionalIndexRule,
   metadataCommandsRule,
   metadataCalculationRegisterAttributesRule,
-  metadataRegisterDimensionsRule,
-  metadataRegisterResourcesRule,
+  metadataCalculationRegisterDimensionsRule,
+  metadataCalculationRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
 import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -208,8 +208,8 @@ export const MetadataCalculationRegisterRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    resources: metadataRegisterResourcesRule({ yaml: "Ресурсы", xml: "Resource", xmlParents: childObjects }),
-    dimensions: metadataRegisterDimensionsRule({ yaml: "Измерения", xml: "Dimension", xmlParents: childObjects }),
+    resources: metadataCalculationRegisterResourcesRule({ yaml: "Ресурсы", xml: "Resource", xmlParents: childObjects }),
+    dimensions: metadataCalculationRegisterDimensionsRule({ yaml: "Измерения", xml: "Dimension", xmlParents: childObjects }),
     attributes: metadataCalculationRegisterAttributesRule({
       yaml: "Реквизиты",
       xml: "Attribute",

@@ -5,11 +5,10 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../accountingFlag/rules"
 
 import "../accountingFlag/register"
-import "../metadataRegisterDimension/register"
-import "../metadataRegisterResource/register"
+import "../../appliedObjects/metadataInformationRegister/childRules"
 
-const dimensionsRule = collectionRule("MetadataRegisterDimensions", "Dimension")
-const resourcesRule = collectionRule("MetadataRegisterResources", "Resource")
+const dimensionsRule = collectionRule("MetadataInformationRegisterDimensions", "Dimension")
+const resourcesRule = collectionRule("MetadataInformationRegisterResources", "Resource")
 
 describe("metadata register field YAML → XML", () => {
   it.each([

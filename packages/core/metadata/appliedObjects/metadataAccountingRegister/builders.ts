@@ -33,25 +33,6 @@ export function additionalIndexRule<const Params extends AdditionalIndexRulePara
 ): Readonly<{ type: "AdditionalIndex" } & Params> {
   return defineWidePropertyRule("AdditionalIndex", params)
 }
-export interface MetadataRegisterDimensionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataRegisterDimensions"
-}
-
-export type MetadataRegisterDimensionsRuleParams = Omit<MetadataRegisterDimensionsWidePropertyRule, "type">
-
-export function metadataRegisterDimensionsRule<const Params extends MetadataRegisterDimensionsRuleParams>(
-  params: WideExactRuleParams<MetadataRegisterDimensionsRuleParams, Params>
-): Readonly<{ type: "MetadataRegisterDimensions"; ownerFactRole: "dimensions" } & Params> {
-  return defineWidePropertyRule("MetadataRegisterDimensions", {
-    ownerFactRole: "dimensions",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "dimension",
-      migrationSegment: "Измерение",
-      requiresMigration: true,
-    }),
-  })
-}
 export const metadataInformationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
   "MetadataInformationRegisterAttributes"
 )
@@ -96,18 +77,3 @@ export const metadataCalculationRegisterResourcesRule = createOwnerRegisterField
   "MetadataCalculationRegisterResources",
   "resources"
 )
-export interface MetadataRegisterResourcesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataRegisterResources"
-}
-
-export type MetadataRegisterResourcesRuleParams = Omit<MetadataRegisterResourcesWidePropertyRule, "type">
-
-export function metadataRegisterResourcesRule<const Params extends MetadataRegisterResourcesRuleParams>(
-  params: WideExactRuleParams<MetadataRegisterResourcesRuleParams, Params>
-): Readonly<{ type: "MetadataRegisterResources"; ownerFactRole: "resources" } & Params> {
-  return defineWidePropertyRule("MetadataRegisterResources", {
-    ownerFactRole: "resources",
-    ...params,
-    operationTarget: namedCollectionTarget({ kind: "resource", migrationSegment: "Ресурс", requiresMigration: true }),
-  })
-}

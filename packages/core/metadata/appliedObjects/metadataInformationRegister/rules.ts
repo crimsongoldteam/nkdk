@@ -2,8 +2,8 @@ import {
   additionalIndexRule,
   metadataCommandsRule,
   metadataInformationRegisterAttributesRule,
-  metadataRegisterDimensionsRule,
-  metadataRegisterResourcesRule,
+  metadataInformationRegisterDimensionsRule,
+  metadataInformationRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
 import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
@@ -276,12 +276,12 @@ export const MetadataInformationRegisterRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    resources: metadataRegisterResourcesRule({
+    resources: metadataInformationRegisterResourcesRule({
       yaml: "Ресурсы",
       xmlParents: childObjects,
       xml: "Resource",
     }),
-    dimensions: metadataRegisterDimensionsRule({
+    dimensions: metadataInformationRegisterDimensionsRule({
       yaml: "Измерения",
       xmlParents: childObjects,
       xml: "Dimension",

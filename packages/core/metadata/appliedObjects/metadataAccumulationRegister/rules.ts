@@ -2,8 +2,8 @@ import {
   additionalIndexRule,
   metadataCommandsRule,
   metadataAccumulationRegisterAttributesRule,
-  metadataRegisterDimensionsRule,
-  metadataRegisterResourcesRule,
+  metadataAccumulationRegisterDimensionsRule,
+  metadataAccumulationRegisterResourcesRule,
 } from "../metadataAccountingRegister/builders"
 import "./childRules"
 import { accumulationRegisterAggregatesRule } from "./builders"
@@ -219,12 +219,12 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    resources: metadataRegisterResourcesRule({
+    resources: metadataAccumulationRegisterResourcesRule({
       yaml: "Ресурсы",
       xmlParents: childObjects,
       xml: "Resource",
     }),
-    dimensions: metadataRegisterDimensionsRule({
+    dimensions: metadataAccumulationRegisterDimensionsRule({
       yaml: "Измерения",
       xmlParents: childObjects,
       xml: "Dimension",

@@ -181,8 +181,6 @@ import "./webSocketClientHeaders/toYAML"
 
 import "./metadataValue/associatedTableToJSONSchema"
 
-import "./metadataRegisterDimension/register"
-import "./metadataRegisterResource/register"
 import "./recalculation/register"
 import "./accountingFlag/register"
 import "./standardAttributeDescription/registerCollectionRule"

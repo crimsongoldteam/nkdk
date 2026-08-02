@@ -1,4 +1,4 @@
-import { metadataRegisterDimensionsRule } from "../../appliedObjects/metadataAccountingRegister/builders"
+import { metadataCalculationRegisterDimensionsRule } from "../../appliedObjects/metadataAccountingRegister/builders"
 import { internalInfoRule } from "../internalInfo/types"
 import { booleanRule } from "../boolean/types"
 import { i8nTextRule } from "../i8nText/types"
@@ -53,7 +53,7 @@ export const RecalculationRules = {
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
     }),
-    dimensions: metadataRegisterDimensionsRule({
+    dimensions: metadataCalculationRegisterDimensionsRule({
       yaml: "Измерения",
       xml: "Dimension",
       xmlParents: childObjects,

@@ -4,16 +4,16 @@ import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../..
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { resourcesYAML } from "./__fixtures__/data"
 
-import "./register"
+import "../../appliedObjects/metadataInformationRegister/childRules"
 
 const rule = {
-  itemType: "MetadataRegisterResourcesProbe",
+  itemType: "MetadataInformationRegisterResourcesProbe",
   properties: {
-    value: { type: "MetadataRegisterResources", yaml: "Значение", xml: "Resource" },
+    value: { type: "MetadataInformationRegisterResources", yaml: "Значение", xml: "Resource" },
   },
 } as MetadataItemRule
 
-describe("MetadataRegisterResources XML → YAML", () => {
+describe("MetadataInformationRegisterResources XML → YAML", () => {
   it("imports register resources with shared field properties", () => {
     expect(convert().yaml).toEqual({ Значение: resourcesYAML })
   })
@@ -55,7 +55,7 @@ describe("MetadataRegisterResources XML → YAML", () => {
 
 const convert = () =>
   testPropertyFixtureThroughYAML({
-    propertyType: "MetadataRegisterResources",
+    propertyType: "MetadataInformationRegisterResources",
     xmlRootTag: "Resource",
     importMetaUrl: import.meta.url,
     fixture: "resources.xml",
