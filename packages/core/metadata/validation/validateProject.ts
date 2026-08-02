@@ -1,24 +1,18 @@
 import { availableParallelism } from "node:os"
-import { performance } from "node:perf_hooks"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { discoverPreparedYamlValidationProjectFiles } from "../project/preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedWorkerPool,
-  type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
-import { createValidationProfiler } from "./profile"
-import { createProjectDegradationDiagnostics, evaluateProjectFirstPass } from "./projectFirstPassReadiness"
-import { discoverValidationProjectComponents } from "./projectComponents"
-import { createProjectValidationGraph } from "./projectValidationGraph"
+import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
-import { dedupeDiagnostics, sortDiagnostics } from "./diagnostics"
 
 export interface ValidateProjectParams {
   projectDir: string
   context?: ConfigurationContext
   concurrency?: number
+  projectState?: ProjectStateService
 }
 
 export interface ValidateProjectResult {
@@ -32,209 +26,54 @@ export interface ValidationWorkerPoolHandle {
 }
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
-  return validateProjectWithPreparedYaml({
-    ...params,
-    concurrency: normalizeValidationConcurrency(params.concurrency),
-  })
+  const projectState = params.projectState ?? createProjectStateService()
+  const ownsProjectState = params.projectState === undefined
+  try {
+    const result = await projectState.refreshAndValidate({
+      projectDir: params.projectDir,
+      context: params.context,
+      concurrency: normalizeValidationConcurrency(params.concurrency),
+    })
+    return { diagnostics: [...result.diagnostics] }
+  } finally {
+    if (ownsProjectState) await projectState.close()
+  }
 }
 
 export function createValidationWorkerPoolHandle(
-  params: { concurrency?: number; createWorkerPool?: () => PreparedWorkerPool } = {}
+  params: {
+    concurrency?: number
+    createWorkerPool?: () => PreparedWorkerPool
+    createProjectState?: () => ProjectStateService
+  } = {}
 ): ValidationWorkerPoolHandle {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
-  const pool = createPreparedYamlProjectWorkerPool({ concurrency, createWorkerPool: params.createWorkerPool })
+  const projectState = params.createProjectState?.() ?? createProjectStateService({
+    createPool: (poolConcurrency) => createPreparedYamlProjectWorkerPool({
+      concurrency: poolConcurrency,
+      createWorkerPool: params.createWorkerPool,
+    }),
+  })
   let closed = false
-  let currentRun: Promise<void> = Promise.resolve()
-
-  async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
-    const previous = currentRun
-    let release: () => void = () => undefined
-    currentRun = new Promise<void>((resolve) => {
-      release = resolve
-    })
-    await previous
-    try {
-      return await task()
-    } finally {
-      release()
-    }
-  }
 
   return {
     validateProject(projectParams) {
       if (closed) throw new Error("Validation worker pool handle is closed")
-      return runExclusive(async () => {
-        return validateProjectWithPreparedYaml({
-          ...projectParams,
-          concurrency,
-          pool,
-          closePool: false,
-        })
+      return validateProject({
+        ...projectParams,
+        concurrency,
+        projectState,
       })
     },
     async close() {
       if (closed) return
       closed = true
-      await currentRun
-      await pool.close()
+      await projectState.close()
     },
     size() {
-      return pool.size()
+      return concurrency
     },
   }
-}
-
-async function validateProjectWithPreparedYaml(
-  params: ValidateProjectParams & {
-    concurrency: number
-    pool?: PreparedYamlProjectWorkerPool
-    closePool?: boolean
-  }
-): Promise<ValidateProjectResult> {
-  const totalStartedAt = performance.now()
-  const initializationProfiler = createValidationProfiler({ scope: "main" })
-  const profiler = createValidationProfiler({ scope: "main" })
-  const projectDir = resolve(params.projectDir)
-  const context = params.context ?? defaultValidationContext()
-  const pool = params.pool ?? createPreparedYamlProjectWorkerPool({ concurrency: params.concurrency })
-  const closePool = params.closePool ?? true
-  let startMs = 0
-  let schemaCompileMs = 0
-  let formSchemaMs = 0
-  let propertiesSchemaMs = 0
-  let firstPassMs = 0
-  let mergeMs = 0
-  let secondPassMs = 0
-  let sortMs = 0
-  let fileCount = 0
-
-  try {
-    const prepareStartedAt = performance.now()
-    const componentDiscovery = await discoverValidationProjectComponents(projectDir)
-    const files = await discoverPreparedYamlValidationProjectFiles(componentDiscovery.components)
-    const prepareMs = performance.now() - prepareStartedAt
-
-    fileCount = files.length
-    const startProfile = await initializationProfiler.measureAsync(
-      "Инициализация",
-      "Инициализация validation worker",
-      { items: params.concurrency },
-      () => pool.initValidation(context)
-    )
-    startMs = startProfile.workerInitMs
-    schemaCompileMs = startProfile.schemaCompileMs
-    formSchemaMs = startProfile.formSchemaMs
-    propertiesSchemaMs = startProfile.propertiesSchemaMs
-    initializationProfiler.record("Инициализация", "Компиляция схем", {
-      items: params.concurrency,
-      timeMs: schemaCompileMs,
-    })
-    initializationProfiler.flush()
-    const firstPassStartedAt = performance.now()
-    const first = await pool.runValidationFirstPass({ projectDir, context, files })
-    firstPassMs = performance.now() - firstPassStartedAt
-    const firstPassReadiness = evaluateProjectFirstPass({
-      hasConfiguration: componentDiscovery.hasConfiguration,
-      componentPaths: componentDiscovery.components.map(({ componentPath }) => componentPath),
-      firstPass: first,
-    })
-    const firstPassRecordCount = first.components.reduce(
-      (count, component) => count + component.contribution.objectRecords.length,
-      0
-    )
-    const graph = profiler.measure("Обобщение индексов", "Слияние first pass", { items: firstPassRecordCount }, () =>
-      createProjectValidationGraph(first.components)
-    )
-    mergeMs = profiler.records().find((record) => record.substep === "Слияние first pass")?.timeMs ?? 0
-    const second = await profiler.measureAsync(
-      "Проверка зависимостей",
-      "Ожидание worker second pass",
-      { items: fileCount },
-      () =>
-        pool.runValidationSecondPass({
-          projectDir,
-          context,
-          graph,
-          blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
-        })
-    )
-    secondPassMs = profiler.records().find((record) => record.substep === "Ожидание worker second pass")?.timeMs ?? 0
-    const degradationDiagnostics = createProjectDegradationDiagnostics({
-      projectDir,
-      hasConfiguration: componentDiscovery.hasConfiguration,
-      blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
-    })
-    const diagnostics = profiler.measure(
-      "Завершение validation",
-      "Сортировка и дедупликация диагностик",
-      {
-        items:
-          firstPassReadiness.publishedDiagnostics.length + second.diagnostics.length + degradationDiagnostics.length,
-      },
-      () =>
-        sortDiagnostics(
-          dedupeDiagnostics(
-            [...firstPassReadiness.publishedDiagnostics, ...second.diagnostics, ...degradationDiagnostics].map(
-              (diagnostic) => toRootProjectDiagnostic(projectDir, diagnostic)
-            )
-          )
-        )
-    )
-    sortMs = profiler.records().find((record) => record.substep === "Сортировка и дедупликация диагностик")?.timeMs ?? 0
-    profiler.flush()
-    logWorkerValidationProfile({
-      files: fileCount,
-      concurrency: params.concurrency,
-      discoverMs: prepareMs,
-      startMs,
-      schemaCompileMs,
-      formSchemaMs,
-      propertiesSchemaMs,
-      firstPassMs,
-      mergeMs,
-      secondPassMs,
-      sortMs,
-      totalMs: performance.now() - totalStartedAt,
-    })
-
-    return { diagnostics }
-  } finally {
-    if (closePool) await pool.close()
-  }
-}
-
-function logWorkerValidationProfile(params: {
-  files: number
-  concurrency: number
-  discoverMs: number
-  startMs: number
-  schemaCompileMs: number
-  formSchemaMs: number
-  propertiesSchemaMs: number
-  firstPassMs: number
-  mergeMs: number
-  secondPassMs: number
-  sortMs: number
-  totalMs: number
-}): void {
-  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
-  console.error(
-    [
-      "[validation-profile] orchestration",
-      `files=${params.files}`,
-      `concurrency=${params.concurrency}`,
-      `discover=${params.discoverMs.toFixed(2)}ms`,
-      `startWorkers=${params.startMs.toFixed(2)}ms`,
-      `schemaCompile=${params.schemaCompileMs.toFixed(2)}ms`,
-      `formSchema=${params.formSchemaMs.toFixed(2)}ms`,
-      `propertiesSchema=${params.propertiesSchemaMs.toFixed(2)}ms`,
-      `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
-      `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
-      `secondPassWall=${params.secondPassMs.toFixed(2)}ms`,
-      `sortDedupe=${params.sortMs.toFixed(2)}ms`,
-      `total=${params.totalMs.toFixed(2)}ms`,
-    ].join(" ")
-  )
 }
 
 function normalizeValidationConcurrency(value: number | undefined): number {
@@ -257,12 +96,4 @@ export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnost
       ? rootProjectPath
       : `cf/${rootProjectPath}`
   return { ...diagnostic, filePath: componentProjectPath }
-}
-
-function defaultValidationContext(): ConfigurationContext {
-  return {
-    version: "2.20",
-    defaultLanguage: "ru",
-    exportToYAML: { toTyped: false },
-  }
 }
