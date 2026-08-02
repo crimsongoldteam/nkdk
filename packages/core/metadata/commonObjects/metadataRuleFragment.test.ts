@@ -3,6 +3,20 @@ import { describe, expect, it } from "vitest"
 import { composeMetadataItemRule, metadataRuleFragment } from "./metadataRuleFragment"
 
 describe("composeMetadataItemRule", () => {
+  it("сохраняет порядок и исходные property rules без преобразования", () => {
+    const firstRule = { type: "string", xml: "First" } as const
+    const secondRule = { type: "boolean", xml: "Second" } as const
+    const result = composeMetadataItemRule(
+      { itemType: "Probe" },
+      metadataRuleFragment(["first"], { first: firstRule }),
+      metadataRuleFragment(["second"], { second: secondRule })
+    )
+
+    expect(result.xmlOrder).toEqual(["first", "second"])
+    expect(result.properties.first).toBe(firstRule)
+    expect(result.properties.second).toBe(secondRule)
+  })
+
   it("сохраняет порядок и свойства фрагментов", () => {
     const rule = composeMetadataItemRule(
       { itemType: "Probe" },

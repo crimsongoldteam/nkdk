@@ -1,18 +1,27 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { internalInfoRule, type InternalInfoParam } from "../internalInfo/types"
 import {
   metadataChildNameProperty,
   metadataChildSynonymProperty,
 } from "../metadataAttribute/fragments"
-import { metadataRuleFragment } from "../metadataRuleFragment"
-import { uuidPropertyRule } from "../uuid/rule"
+import {
+  type MetadataRulePropertyShape,
+  metadataRuleFragment,
+  systemEnumerationProperty,
+} from "../metadataRuleFragment"
 
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
 const emptyAttributes: [] = []
+
+interface TabularSectionInternalInfoParam {
+  name: string
+  category: string
+}
+
+interface TabularSectionExportContext {
+  exportToXML: {
+    itemsTree: readonly { itemType: string; name: string; path: string }[]
+  }
+}
 
 export const metadataTabularSectionRuleBase = {
   itemType: "MetadataTabularSection",
@@ -21,17 +30,19 @@ export const metadataTabularSectionRuleBase = {
 
 export function tabularSectionInternalInfoFragment(params: {
   getName: (params: {
-    context: ConfigurationContextWithExportToXML
+    context: TabularSectionExportContext
     metadata: { name: string }
   }) => string
-  items: InternalInfoParam[]
+  items: TabularSectionInternalInfoParam[]
 }) {
   return metadataRuleFragment(["internalInfo"], {
-    internalInfo: internalInfoRule({
+    internalInfo: {
+      type: "InternalInfo",
+      exportWithoutReferenceXML: true,
       forReferenceOnly: true,
       getName: params.getName,
       items: params.items,
-    }),
+    },
   })
 }
 
@@ -47,7 +58,7 @@ export const tabularSectionIdentityFragment = metadataRuleFragment(
       noImplicitValueYAML: true,
     },
     name: metadataChildNameProperty,
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
 export const tabularSectionPresentationFragment = metadataRuleFragment(
@@ -68,7 +79,7 @@ export const tabularSectionPresentationFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
     },
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
 export const tabularSectionFillCheckingFragment = metadataRuleFragment(["fillChecking"], {
@@ -81,7 +92,7 @@ export const tabularSectionFillCheckingFragment = metadataRuleFragment(["fillChe
     defaultValueXML: "DontCheck",
     implicitValueYAML: "DontCheck",
   },
-} as const satisfies Record<string, PropertyRule>)
+} as const satisfies Record<string, MetadataRulePropertyShape>)
 
 export const tabularSectionStandardAttributesFragment = metadataRuleFragment(["standardAttributes"], {
   standardAttributes: {
@@ -91,10 +102,10 @@ export const tabularSectionStandardAttributesFragment = metadataRuleFragment(["s
     standartAttributeNames: { LineNumber: "НомерСтроки" },
     xmlParents: propertiesParents,
   },
-} as const satisfies Record<string, PropertyRule>)
+} as const satisfies Record<string, MetadataRulePropertyShape>)
 
 export const tabularSectionUseFragment = metadataRuleFragment(["use"], {
-  use: systemEnumerationRule({
+  use: systemEnumerationProperty({
     yaml: "Использование",
     xml: "Use",
     typeSE: "AttributeUse",
@@ -113,18 +124,19 @@ export const tabularSectionLineNumberFragment = metadataRuleFragment(["lineNumbe
     defaultValueXML: 5,
     implicitValueYAML: 5,
   },
-} as const satisfies Record<string, PropertyRule>)
+} as const satisfies Record<string, MetadataRulePropertyShape>)
 
 export function tabularSectionAttributesFragment<const PropertyType extends string>(propertyType: PropertyType) {
   return metadataRuleFragment(["attributes"], {
     attributes: {
       yaml: "Реквизиты",
       type: propertyType,
-      operationTarget: namedCollectionTarget({
-        kind: "attribute",
+      operationTarget: {
+        kind: "namedCollectionTarget",
+        targetKind: "attribute",
         migrationSegment: "Реквизит",
         requiresMigration: true,
-      }),
+      },
       defaultValue: emptyAttributes,
       defaultValueXMLEmpty: emptyAttributes,
       defaultValueXMLRaw: {},
@@ -134,7 +146,15 @@ export function tabularSectionAttributesFragment<const PropertyType extends stri
   })
 }
 
-export const tabularSectionUuidFragment = metadataRuleFragment(["uuid"], { uuid: uuidPropertyRule })
+export const tabularSectionUuidFragment = metadataRuleFragment(["uuid"], {
+  uuid: {
+    type: "UUID",
+    xml: "_uuid",
+    forReferenceOnly: true,
+    toYAML: false,
+    fromYAML: false,
+  },
+})
 
 export const metadataTabularSectionModelProperties = {
   ...tabularSectionInternalInfoFragment({

@@ -1,10 +1,9 @@
-import { getParentFromContext } from "../../context/helpers"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
-import { booleanRule } from "../boolean/types"
-import { metadataRuleFragment } from "../metadataRuleFragment"
-import { stringRule } from "../string/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
+import {
+  booleanProperty,
+  metadataRuleFragment,
+  stringProperty,
+  systemEnumerationProperty,
+} from "../metadataRuleFragment"
 import {
   registerFieldAccountingFlagProperty,
   registerFieldBalanceProperty,
@@ -17,32 +16,38 @@ const registerParentItemTypes = [
   "MetadataCalculationRegister",
 ] as const
 
+interface RegisterDimensionExportContext {
+  exportToXML: {
+    itemsTree: readonly { itemType: string }[]
+  }
+}
+
 export const metadataRegisterDimensionRuleBase = {
   itemType: "MetadataRegisterDimension",
   externalMetadata: { segment: "Dimension", placement: "ownerChild" },
 } as const
 
-const master = booleanRule({
+const master = booleanProperty({
   yaml: "Ведущее",
   xml: "Master",
   xmlParents: ["Properties"],
   defaultValueXML: false,
   implicitValueYAML: false,
-  toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
     exportDimensionDefaultForXML("master", source, context, "MetadataInformationRegister"),
 })
 
-const mainFilter = booleanRule({
+const mainFilter = booleanProperty({
   yaml: "ОсновнойОтбор",
   xml: "MainFilter",
   xmlParents: ["Properties"],
   defaultValueXML: true,
   implicitValueYAML: true,
-  toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
     exportDimensionDefaultForXML("mainFilter", source, context, "MetadataInformationRegister"),
 })
 
-const denyIncompleteValues = booleanRule({
+const denyIncompleteValues = booleanProperty({
   yaml: "ЗапретНезавершенныхЗначений",
   xml: "DenyIncompleteValues",
   xmlParents: ["Properties"],
@@ -50,43 +55,43 @@ const denyIncompleteValues = booleanRule({
   implicitValueYAML: false,
 })
 
-const baseDimension = booleanRule({
+const baseDimension = booleanProperty({
   yaml: "БазовоеИзмерение",
   xml: "BaseDimension",
   xmlParents: ["Properties"],
   defaultValueXML: false,
   implicitValueYAML: false,
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (_source: unknown, context?: RegisterDimensionExportContext) =>
     isCalculationRegisterField(context),
 })
 
-const scheduleLink = stringRule({
+const scheduleLink = stringProperty({
   yaml: "СвязьСГрафиком",
   xml: "ScheduleLink",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (_source: unknown, context?: RegisterDimensionExportContext) =>
     isCalculationRegisterField(context),
 })
 
-const useInTotals = booleanRule({
+const useInTotals = booleanProperty({
   yaml: "ИспользоватьВИтогах",
   xml: "UseInTotals",
   xmlParents: ["Properties"],
   defaultValueXML: true,
   implicitValueYAML: true,
-  toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
     exportDimensionDefaultForXML("useInTotals", source, context, "MetadataAccumulationRegister"),
 })
 
-const typeReductionMode = systemEnumerationRule({
+const typeReductionMode = systemEnumerationProperty({
   yaml: "РежимСокращенияТипа",
   xml: "TypeReductionMode",
   typeSE: "TypeReductionMode",
   xmlParents: ["Properties"],
   defaultValueXML: "TransformValues",
   implicitValueYAML: "TransformValues",
-  toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (source: unknown, context?: RegisterDimensionExportContext) =>
     exportDimensionDefaultForXML("typeReductionMode", source, context, "MetadataInformationRegister"),
 })
 
@@ -110,20 +115,18 @@ export const registerDimensionTotalsFragment = metadataRuleFragment(
 
 const exportDimensionDefaultForXML = (
   propertyKey: string,
-  source: YAMLPropertySource | unknown,
-  context: ConfigurationContextWithExportToXML | undefined,
+  source: unknown,
+  context: RegisterDimensionExportContext | undefined,
   parentItemTypeWithDefault: string
 ): boolean => {
   if (!context) return true
-  const parent = getParentFromContext(context, [...registerParentItemTypes] as never[])
-  if (!registerParentItemTypes.includes(parent.itemType as (typeof registerParentItemTypes)[number])) {
-    return true
-  }
-  if (parent.itemType === parentItemTypeWithDefault) return true
+  const parentItemType = findParentItemType(context, registerParentItemTypes)
+  if (parentItemType === undefined) return true
+  if (parentItemType === parentItemTypeWithDefault) return true
   return hasProperty(source, propertyKey)
 }
 
-const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string): boolean =>
+const hasProperty = (source: unknown, propertyKey: string): boolean =>
   source !== null &&
   source !== undefined &&
   typeof source === "object" &&
@@ -131,8 +134,20 @@ const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string):
     ? source.has(propertyKey)
     : Object.prototype.hasOwnProperty.call(source, propertyKey))
 
-const isCalculationRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
-  context
-    ? getParentFromContext(context, ["MetadataCalculationRegister" as never]).itemType ===
-      "MetadataCalculationRegister"
-    : false
+const isCalculationRegisterField = (
+  context?: RegisterDimensionExportContext
+): boolean =>
+  context !== undefined &&
+  findParentItemType(context, ["MetadataCalculationRegister"]) ===
+    "MetadataCalculationRegister"
+
+function findParentItemType(
+  context: RegisterDimensionExportContext,
+  itemTypes: readonly string[]
+): string | undefined {
+  for (let index = context.exportToXML.itemsTree.length - 1; index >= 0; index--) {
+    const itemType = context.exportToXML.itemsTree[index].itemType
+    if (itemTypes.includes(itemType)) return itemType
+  }
+  return undefined
+}

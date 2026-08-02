@@ -4,7 +4,6 @@ import {
   ConfigurationContext,
   ConfigurationContextWithExportToXML,
   ContextElementToEnterprise,
-  ContextElementToXML,
 } from "./types"
 
 export const getChildContextToXML = (params: {
@@ -34,10 +33,22 @@ export const getChildContextToXML = (params: {
   }
 }
 
+interface ParentContextElement {
+  itemType: string
+  name: string
+  path: string
+}
+
+interface ContextWithItemsTree {
+  exportToXML: {
+    itemsTree: readonly ParentContextElement[]
+  }
+}
+
 export const getParentFromContext = (
-  context: ConfigurationContextWithExportToXML,
-  itemTypes?: MetadataItemType[]
-): ContextElementToXML => {
+  context: ContextWithItemsTree,
+  itemTypes?: readonly string[]
+): ParentContextElement => {
   const elements = context.exportToXML.itemsTree
   if (!elements || elements.length === 0) return { itemType: "MetadataCatalog", name: "", path: "" }
 

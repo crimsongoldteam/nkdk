@@ -1,9 +1,15 @@
-import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+export type MetadataRulePropertyShape = Readonly<Record<string, unknown>> & {
+  readonly type: string
+}
 
-type MetadataItemRuleBase = Omit<MetadataItemRule, "properties" | "xmlOrder">
+interface MetadataItemRuleBase extends Readonly<Record<string, unknown>> {
+  readonly itemType: string
+}
 
 export interface MetadataRuleFragment<
-  Properties extends Readonly<Record<string, PropertyRule>> = Readonly<Record<string, PropertyRule>>,
+  Properties extends Readonly<Record<string, MetadataRulePropertyShape>> = Readonly<
+    Record<string, MetadataRulePropertyShape>
+  >,
 > {
   readonly xmlOrder: readonly (keyof Properties & string)[]
   readonly properties: Properties
@@ -11,7 +17,7 @@ export interface MetadataRuleFragment<
 
 interface MetadataRuleFragmentShape {
   readonly xmlOrder: readonly string[]
-  readonly properties: Readonly<Record<string, PropertyRule>>
+  readonly properties: Readonly<Record<string, MetadataRulePropertyShape>>
 }
 
 type FragmentProperties<Fragment extends MetadataRuleFragmentShape> = Fragment["properties"]
@@ -36,7 +42,7 @@ export type ComposedMetadataItemRule<
 
 function assertExactFragmentKeys(
   xmlOrder: readonly string[],
-  properties: Readonly<Record<string, PropertyRule>>
+  properties: Readonly<Record<string, MetadataRulePropertyShape>>
 ): void {
   const orderedKeys = new Set<string>()
   for (const key of xmlOrder) {
@@ -55,7 +61,7 @@ function assertExactFragmentKeys(
 }
 
 export function metadataRuleFragment<
-  const Properties extends Readonly<Record<string, PropertyRule>>,
+  const Properties extends Readonly<Record<string, MetadataRulePropertyShape>>,
   const Order extends readonly (keyof Properties & string)[],
 >(xmlOrder: Order, properties: Properties): MetadataRuleFragment<Properties> {
   assertExactFragmentKeys(xmlOrder, properties)
@@ -65,19 +71,12 @@ export function metadataRuleFragment<
   })
 }
 
-function asComposedMetadataRule<
-  Base extends MetadataItemRuleBase,
-  Fragments extends readonly MetadataRuleFragmentShape[],
->(rule: MetadataItemRule): ComposedMetadataItemRule<Base, Fragments> {
-  return rule as ComposedMetadataItemRule<Base, Fragments>
-}
-
 export function composeMetadataItemRule<
   const Base extends MetadataItemRuleBase,
   const Fragments extends readonly [MetadataRuleFragmentShape, ...MetadataRuleFragmentShape[]],
 >(base: Base, ...fragments: Fragments): ComposedMetadataItemRule<Base, Fragments> {
   const xmlOrder: string[] = []
-  const properties: Record<string, PropertyRule> = {}
+  const properties: Record<string, MetadataRulePropertyShape> = {}
 
   for (const fragment of fragments) {
     for (const key of fragment.xmlOrder) {
@@ -89,10 +88,27 @@ export function composeMetadataItemRule<
     }
   }
 
-  const rule: MetadataItemRule = Object.freeze({
+  const rule = Object.freeze({
     ...base,
     xmlOrder: Object.freeze(xmlOrder),
     properties: Object.freeze(properties),
   })
-  return asComposedMetadataRule<Base, Fragments>(rule)
+  return rule as ComposedMetadataItemRule<Base, Fragments>
 }
+
+export const propertyRule = <
+  const Type extends string,
+  Params extends Readonly<Record<string, unknown>>,
+>(type: Type, params: Params) => Object.freeze({ type, ...params })
+
+export const booleanProperty = <
+  Params extends Readonly<Record<string, unknown>>,
+>(params: Params) => propertyRule("boolean", params)
+
+export const stringProperty = <
+  Params extends Readonly<Record<string, unknown>>,
+>(params: Params) => propertyRule("string", params)
+
+export const systemEnumerationProperty = <
+  Params extends Readonly<Record<string, unknown>>,
+>(params: Params) => propertyRule("SystemEnumeration", params)

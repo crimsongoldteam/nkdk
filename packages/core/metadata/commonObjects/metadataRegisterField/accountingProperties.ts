@@ -1,31 +1,44 @@
-import { getParentFromContext } from "../../context/helpers"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { booleanRule } from "../boolean/types"
-import { stringRule } from "../string/types"
+import {
+  booleanProperty,
+  stringProperty,
+} from "../metadataRuleFragment"
 
-export const registerFieldBalanceProperty = booleanRule({
+export interface RegisterFieldExportContext {
+  exportToXML: {
+    itemsTree: readonly { itemType: string }[]
+  }
+}
+
+export const registerFieldBalanceProperty = booleanProperty({
   yaml: "Балансовый",
   xml: "Balance",
   xmlParents: ["Properties"],
   defaultValueXML: true,
   implicitValueYAML: true,
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
     isAccountingRegisterField(context),
 })
 
-export const registerFieldAccountingFlagProperty = stringRule({
+export const registerFieldAccountingFlagProperty = stringProperty({
   yaml: "ПризнакУчета",
   xml: "AccountingFlag",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
     isAccountingRegisterField(context),
 })
 
 export const isAccountingRegisterField = (
-  context?: ConfigurationContextWithExportToXML
-): boolean =>
-  context
-    ? getParentFromContext(context, ["MetadataAccountingRegister" as never]).itemType ===
+  context?: RegisterFieldExportContext
+): boolean => {
+  if (context === undefined) return false
+  for (let index = context.exportToXML.itemsTree.length - 1; index >= 0; index--) {
+    if (
+      context.exportToXML.itemsTree[index].itemType ===
       "MetadataAccountingRegister"
-    : false
+    ) {
+      return true
+    }
+  }
+  return false
+}

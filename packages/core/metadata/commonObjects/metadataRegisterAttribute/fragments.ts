@@ -1,4 +1,7 @@
-import { metadataRuleFragment } from "../metadataRuleFragment"
+import {
+  metadataRuleFragment,
+  stringProperty,
+} from "../metadataRuleFragment"
 import {
   registerFieldBinaryStorageUseFieldFragment,
   registerFieldBinaryStorageUseFragment,
@@ -10,7 +13,6 @@ import {
   registerFieldPresentationFragment,
   registerFieldUuidFragment,
 } from "../metadataRegisterField/fragments"
-import { stringRule } from "../string/types"
 
 export const metadataRegisterAttributeRuleBase = {
   itemType: "MetadataRegisterAttribute",
@@ -27,7 +29,7 @@ export const registerAttributeBinaryStorageUseFragment = registerFieldBinaryStor
 export const registerAttributeBinaryStorageUseFieldFragment = registerFieldBinaryStorageUseFieldFragment
 
 export const registerAttributeScheduleLinkFragment = metadataRuleFragment(["scheduleLink"], {
-  scheduleLink: stringRule({
+  scheduleLink: stringProperty({
     yaml: "СвязьСГрафиком",
     xml: "ScheduleLink",
     xmlParents: ["Properties"],

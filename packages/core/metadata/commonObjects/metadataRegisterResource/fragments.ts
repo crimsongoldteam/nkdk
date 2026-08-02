@@ -1,23 +1,25 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { metadataRuleFragment } from "../metadataRuleFragment"
+import {
+  metadataRuleFragment,
+  stringProperty,
+} from "../metadataRuleFragment"
 import {
   isAccountingRegisterField,
   registerFieldAccountingFlagProperty,
   registerFieldBalanceProperty,
+  type RegisterFieldExportContext,
 } from "../metadataRegisterField/accountingProperties"
-import { stringRule } from "../string/types"
 
 export const metadataRegisterResourceRuleBase = {
   itemType: "MetadataRegisterResource",
   externalMetadata: { segment: "Resource", placement: "ownerChild" },
 } as const
 
-const extDimensionAccountingFlag = stringRule({
+const extDimensionAccountingFlag = stringProperty({
   yaml: "ПризнакУчетаСубконто",
   xml: "ExtDimensionAccountingFlag",
   xmlParents: ["Properties"],
   defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
+  toXML: (_source: unknown, context?: RegisterFieldExportContext) =>
     isAccountingRegisterField(context),
 })
 

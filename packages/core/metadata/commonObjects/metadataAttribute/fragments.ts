@@ -1,10 +1,9 @@
-import type { ConfigurationContext } from "../../context/types"
-import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { metadataRuleFragment } from "../metadataRuleFragment"
-import type { TypeDescriptionAllowedTypes } from "../typeDescription/types"
-import { uuidPropertyRule } from "../uuid/rule"
+import { splitPascalCase } from "../../helpers/canConvertToPascalCase"
+import {
+  type MetadataRulePropertyShape,
+  metadataRuleFragment,
+  systemEnumerationProperty,
+} from "../metadataRuleFragment"
 
 const propertiesParents = ["Properties"]
 
@@ -13,7 +12,7 @@ export const metadataChildNameProperty = {
   type: "string",
   required: true,
   xmlParents: propertiesParents,
-} as const satisfies PropertyRule
+} as const satisfies MetadataRulePropertyShape
 
 export const metadataChildSynonymProperty = {
   yaml: "Синоним",
@@ -25,18 +24,18 @@ export const metadataChildSynonymProperty = {
     name,
     operation,
   }: {
-    context: ConfigurationContext
+    context: { defaultLanguage: string }
     name?: string
     operation?: string
   }) =>
     operation === "importFromYAML" && name
-      ? addDefaultLanguageNameToSynonym(context, undefined, name)
+      ? { items: { [context.defaultLanguage]: splitPascalCase(name) } }
       : { items: { [context.defaultLanguage]: "" } },
   xmlParents: propertiesParents,
   defaultValueXMLEmpty: { items: {} },
   defaultValueXMLRaw: "",
   preserveEmptyXML: true,
-} as const satisfies PropertyRule
+} as const satisfies MetadataRulePropertyShape
 
 export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
@@ -92,11 +91,11 @@ export const attributeIdentityFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
     },
     name: metadataChildNameProperty,
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
 export function attributePresentationFragment(params: {
-  allowedTypes?: TypeDescriptionAllowedTypes
+  allowedTypes?: readonly string[]
 }) {
   return metadataRuleFragment(
     [
@@ -207,7 +206,7 @@ export function attributePresentationFragment(params: {
         typedXML: "xs:string",
         defaultValueXMLRaw: { "_xsi:nil": true },
       },
-    } as const satisfies Record<string, PropertyRule>
+    } as const satisfies Record<string, MetadataRulePropertyShape>
   )
 }
 
@@ -229,7 +228,7 @@ export const attributeFillFragment = metadataRuleFragment(
       xmlParents: propertiesParents,
       defaultValueXMLRaw: { "_xsi:nil": true },
     },
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
 export const attributeChoiceFragment = metadataRuleFragment(
@@ -318,11 +317,11 @@ export const attributeChoiceFragment = metadataRuleFragment(
       implicitValueYAML: "Auto",
       xmlParents: propertiesParents,
     },
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
 export const attributeUseFragment = metadataRuleFragment(["use"], {
-  use: systemEnumerationRule({
+  use: systemEnumerationProperty({
     yaml: "Использование",
     xml: "Use",
     typeSE: "AttributeUse",
@@ -340,7 +339,7 @@ const indexing = {
   defaultValueXML: "DontIndex",
   implicitValueYAML: "DontIndex",
   xmlParents: propertiesParents,
-} as const satisfies PropertyRule
+} as const satisfies MetadataRulePropertyShape
 
 const fullTextSearch = {
   yaml: "ПолнотекстовыйПоиск",
@@ -350,7 +349,7 @@ const fullTextSearch = {
   defaultValueXML: "Use",
   implicitValueYAML: "Use",
   xmlParents: propertiesParents,
-} as const satisfies PropertyRule
+} as const satisfies MetadataRulePropertyShape
 
 const dataHistory = {
   yaml: "ИсторияДанных",
@@ -360,7 +359,7 @@ const dataHistory = {
   defaultValueXML: "Use",
   implicitValueYAML: "Use",
   xmlParents: propertiesParents,
-} as const satisfies PropertyRule
+} as const satisfies MetadataRulePropertyShape
 
 export const attributeSearchAndHistoryFragment = metadataRuleFragment(
   ["indexing", "fullTextSearch", "dataHistory"],
@@ -373,7 +372,7 @@ export const attributeIndexAndFullTextFragment = metadataRuleFragment(
 )
 
 export const attributeBinaryStorageUseFragment = metadataRuleFragment(["binaryDataStorageLocationUse"], {
-  binaryDataStorageLocationUse: systemEnumerationRule({
+  binaryDataStorageLocationUse: systemEnumerationProperty({
     yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
     xml: "BinaryDataStorageLocationUse",
     typeSE: "BinaryDataStorageLocationUse",
@@ -397,10 +396,18 @@ export const attributeBinaryStorageUseFieldFragment = metadataRuleFragment(
         filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
       },
     },
-  } as const satisfies Record<string, PropertyRule>
+  } as const satisfies Record<string, MetadataRulePropertyShape>
 )
 
-export const attributeUuidFragment = metadataRuleFragment(["uuid"], { uuid: uuidPropertyRule })
+export const attributeUuidFragment = metadataRuleFragment(["uuid"], {
+  uuid: {
+    type: "UUID",
+    xml: "_uuid",
+    forReferenceOnly: true,
+    toYAML: false,
+    fromYAML: false,
+  },
+})
 
 export const metadataAttributeModelProperties = {
   ...attributeIdentityFragment.properties,
