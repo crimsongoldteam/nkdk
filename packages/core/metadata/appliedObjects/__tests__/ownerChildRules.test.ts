@@ -58,18 +58,22 @@ import {
 import {
   MetadataInformationRegisterAttributeRules,
   MetadataInformationRegisterDimensionRules,
+  MetadataInformationRegisterResourceRules,
 } from "../metadataInformationRegister/childRules"
 import {
   MetadataAccumulationRegisterAttributeRules,
   MetadataAccumulationRegisterDimensionRules,
+  MetadataAccumulationRegisterResourceRules,
 } from "../metadataAccumulationRegister/childRules"
 import {
   MetadataAccountingRegisterAttributeRules,
   MetadataAccountingRegisterDimensionRules,
+  MetadataAccountingRegisterResourceRules,
 } from "../metadataAccountingRegister/childRules"
 import {
   MetadataCalculationRegisterAttributeRules,
   MetadataCalculationRegisterDimensionRules,
+  MetadataCalculationRegisterResourceRules,
 } from "../metadataCalculationRegister/childRules"
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
@@ -436,6 +440,49 @@ describe("owner-specific register dimension rules", () => {
     expect(schema.Check({ Тип: "Строка", ЗаполнятьИзДанныхЗаполнения: "Истина" })).toBe(owner.allowFill)
     expect(schema.Check({ Тип: "Строка", ЗначениеЗаполнения: "Строка" })).toBe(owner.allowFill)
     expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
+  })
+})
+
+const registerResourceOwners = [
+  {
+    name: "InformationRegister",
+    propertyType: "MetadataInformationRegisterResources",
+    rule: MetadataInformationRegisterResourceRules,
+    allowDefaults: true,
+  },
+  {
+    name: "AccumulationRegister",
+    propertyType: "MetadataAccumulationRegisterResources",
+    rule: MetadataAccumulationRegisterResourceRules,
+    allowDefaults: false,
+  },
+  {
+    name: "AccountingRegister",
+    propertyType: "MetadataAccountingRegisterResources",
+    rule: MetadataAccountingRegisterResourceRules,
+    allowDefaults: false,
+  },
+  {
+    name: "CalculationRegister",
+    propertyType: "MetadataCalculationRegisterResources",
+    rule: MetadataCalculationRegisterResourceRules,
+    allowDefaults: false,
+  },
+] as const
+
+describe("owner-specific register resource rules", () => {
+  it.each(registerResourceOwners)("keeps exact resource contract for $name", (owner) => {
+    expect(getTypeRule(owner.propertyType, "collectionItemRule")?.itemRule).toBe(owner.rule)
+    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
+
+    for (const value of [
+      { ЗаполнятьИзДанныхЗаполнения: "Истина" },
+      { ЗначениеЗаполнения: "Строка" },
+      { Индексирование: "НеИндексировать" },
+      { ИсторияДанных: "Использовать" },
+    ]) {
+      expect(schema.Check({ Тип: "Строка", ...value })).toBe(owner.allowDefaults)
+    }
   })
 })
 

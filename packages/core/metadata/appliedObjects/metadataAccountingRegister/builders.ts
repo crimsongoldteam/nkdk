@@ -80,6 +80,22 @@ export const metadataCalculationRegisterDimensionsRule = createOwnerRegisterFiel
   "MetadataCalculationRegisterDimensions",
   "dimensions"
 )
+export const metadataInformationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataInformationRegisterResources",
+  "resources"
+)
+export const metadataAccumulationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataAccumulationRegisterResources",
+  "resources"
+)
+export const metadataAccountingRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataAccountingRegisterResources",
+  "resources"
+)
+export const metadataCalculationRegisterResourcesRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataCalculationRegisterResources",
+  "resources"
+)
 export interface MetadataRegisterResourcesWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataRegisterResources"
 }

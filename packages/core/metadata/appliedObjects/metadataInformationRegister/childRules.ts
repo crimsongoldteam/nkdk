@@ -4,6 +4,7 @@ import * as RegisterAttribute from "../../commonObjects/metadataRegisterAttribut
 import * as RegisterField from "../../commonObjects/metadataRegisterField/fragments"
 import { registerOwnerRegisterFieldCollection } from "../../commonObjects/metadataRegisterField/registerOwnerCollection"
 import * as Dimension from "../../commonObjects/metadataRegisterDimension/fragments"
+import * as Resource from "../../commonObjects/metadataRegisterResource/fragments"
 
 export const MetadataInformationRegisterAttributeRules = composeMetadataItemRule(
   RegisterAttribute.metadataRegisterAttributeRuleBase, RegisterAttribute.registerAttributeIdentityFragment, RegisterAttribute.registerAttributePresentationFragment, RegisterAttribute.registerAttributeFillFragment, RegisterAttribute.registerAttributeChoiceFragment, RegisterAttribute.registerAttributeIndexAndFullTextFragment, RegisterAttribute.registerAttributeDataHistoryFragment, RegisterAttribute.registerAttributeBinaryStorageUseFragment, RegisterAttribute.registerAttributeBinaryStorageUseFieldFragment, RegisterAttribute.registerAttributeUuidFragment
@@ -31,4 +32,24 @@ registerOwnerRegisterFieldCollection({
   schemaName: "MetadataInformationRegisterDimension",
   itemRule: MetadataInformationRegisterDimensionRules,
   xmlElement: "Dimension",
+})
+
+export const MetadataInformationRegisterResourceRules = composeMetadataItemRule(
+  Resource.metadataRegisterResourceRuleBase,
+  RegisterField.registerFieldIdentityFragment,
+  RegisterField.registerFieldPresentationFragment,
+  RegisterField.registerFieldFillFragment,
+  RegisterField.registerFieldChoiceFragment,
+  RegisterField.registerFieldIndexAndFullTextFragment,
+  RegisterField.registerFieldDataHistoryFragment,
+  RegisterField.registerFieldBinaryStorageUseFragment,
+  RegisterField.registerFieldBinaryStorageUseFieldFragment,
+  RegisterField.registerFieldUuidFragment
+)
+
+registerOwnerRegisterFieldCollection({
+  propertyType: "MetadataInformationRegisterResources",
+  schemaName: "MetadataInformationRegisterResource",
+  itemRule: MetadataInformationRegisterResourceRules,
+  xmlElement: "Resource",
 })
