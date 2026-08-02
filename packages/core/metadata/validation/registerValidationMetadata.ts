@@ -1,8 +1,6 @@
 import { registerCoreMetadata } from "../register"
-import {
-  markTypeRuleAsCoreForCompatibility,
-  registerTypeRule,
-} from "../orchestration/property/typeRuleRegistry"
+import { markTypeRuleAsCoreForCompatibility } from "../orchestration/property/typeRuleCompatibilityIdentity"
+import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 

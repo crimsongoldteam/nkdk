@@ -2,6 +2,7 @@ import { createHash } from "node:crypto"
 import { fingerprintRulesSources, fingerprintRulesSourceTree, type RulesSourceEntry } from "../../scripts/rulesSourceFingerprint.mjs"
 import { registerCoreMetadata } from "../register"
 import { getRegisteredPropertyRuleTypes } from "../orchestration/property/propertyTypeKeys"
+import { describeTypeRuleHandlerForCompatibility } from "../orchestration/property/typeRuleCompatibilityIdentity"
 import { getRegisteredTypeRules } from "../orchestration/property/typeRuleRegistry"
 import { getRegisteredProjectSpecs } from "../project/projectSpecRegistry"
 import { registeredProjectValidationFormRules } from "../validation/projectValidationFormRules"
@@ -53,11 +54,16 @@ export function fingerprintProjectStateRuleSources(entries: readonly RulesSource
 
 export function fingerprintRegisteredProjectStateTypeRules(): string {
   registerCoreMetadata()
-  return fingerprintProjectStateRulesSnapshot({ projectSpecs: [], schemas: {}, localRules: currentTypeRulesSnapshot() })
+  return fingerprintProjectStateRulesSnapshot({
+    projectSpecs: [],
+    schemas: {},
+    localRules: currentTypeRulesSnapshot(rulesSourceFingerprint()),
+  })
 }
 
 function currentRulesSnapshot(): ProjectStateRulesSnapshot {
   const schemas = createProjectValidationStandaloneSchemaSet()
+  const sourceFingerprint = rulesSourceFingerprint()
   return {
     projectSpecs: getRegisteredProjectSpecs().map(({ dir, kind, rule, exportSchema, nesting, resources }) => ({
       dir,
@@ -74,22 +80,20 @@ function currentRulesSnapshot(): ProjectStateRulesSnapshot {
       byItemType: schemas.byItemType,
     },
     localRules: [
-      { kind: "sourceTree", fingerprint: rulesSourceFingerprint() },
+      { kind: "sourceTree", fingerprint: sourceFingerprint },
       ...getRegisteredPropertyRuleTypes().map((type) => ({ kind: "property", type })),
-      ...currentTypeRulesSnapshot(),
+      ...currentTypeRulesSnapshot(sourceFingerprint),
       ...registeredProjectValidationFormRules().map(({ key, rule }) => ({ kind: "form", key, rule })),
     ],
   }
 }
 
-function currentTypeRulesSnapshot(): readonly unknown[] {
-  return getRegisteredTypeRules().map(({ type, operation, handler, coreRegistrationKeys }) => ({
+function currentTypeRulesSnapshot(coreSourceFingerprint: string): readonly unknown[] {
+  return getRegisteredTypeRules().map(({ type, operation, handler }) => ({
     kind: "handler",
     type,
     operation,
-    handler: coreRegistrationKeys === undefined
-      ? { kind: "runtime", value: canonicalValue(handler, new WeakMap(), "$handler", "source") }
-      : { kind: "core", registrationKeys: coreRegistrationKeys },
+    handler: describeTypeRuleHandlerForCompatibility(handler, coreSourceFingerprint),
   }))
 }
 
