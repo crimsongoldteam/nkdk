@@ -127,13 +127,14 @@ describe("MCP server", () => {
     }
   })
 
-  it("loads core API without a monorepo-relative runtime import", async () => {
+  it("loads core API lazily without a monorepo-relative runtime import", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8")
     )
 
     expect(source).not.toContain("../../core/index.ts")
     expect(source).toContain('from "@nkdk/core"')
+    expect(source).toContain('import("@nkdk/core")')
   })
 
   it("keeps private core as a build-only dependency", async () => {

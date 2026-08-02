@@ -7,7 +7,6 @@ import type {
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
 } from "@nkdk/core"
-import * as coreApi from "@nkdk/core"
 
 export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/core"
 
@@ -125,6 +124,6 @@ export interface CoreApi {
   }): Promise<XmlSyncState>
 }
 
-export function loadCoreApi(): Promise<CoreApi> {
-  return Promise.resolve(coreApi as CoreApi)
+export async function loadCoreApi(): Promise<CoreApi> {
+  return await import("@nkdk/core") as CoreApi
 }
