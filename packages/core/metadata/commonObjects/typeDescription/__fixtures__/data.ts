@@ -339,7 +339,7 @@ export const typeFixturesTable: TypeFixture[] = [
   {
     internal: { type: ["InformationRegisterRecordSet"] },
     YAML: "РегистрСведенийНаборЗаписей",
-    xml: "<TypeDescription>\n\t<v8:Type>cfg:InformationRegisterRecordSet</v8:Type>\n</TypeDescription>",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:InformationRegisterRecordSet</v8:TypeSet>\n</TypeDescription>",
   },
   {
     internal: { type: ["InformationRegisterRecordManager"] },
@@ -349,7 +349,7 @@ export const typeFixturesTable: TypeFixture[] = [
   {
     internal: { type: ["AccountingRegisterRecordSet"] },
     YAML: "РегистрБухгалтерииНаборЗаписей",
-    xml: "<TypeDescription>\n\t<v8:Type>cfg:AccountingRegisterRecordSet</v8:Type>\n</TypeDescription>",
+    xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:AccountingRegisterRecordSet</v8:TypeSet>\n</TypeDescription>",
   },
   //#endregion
 

@@ -494,7 +494,7 @@ export const TypeDescriptionRules = {
   ChartOfAccountsObject: {
     enterprise: "ChartOfAccountsObject",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   ReportObject: {
@@ -535,7 +535,7 @@ export const TypeDescriptionRules = {
   ConstantValueManager: {
     enterprise: "ConstantValueManager",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   CatalogManager: {
@@ -601,7 +601,7 @@ export const TypeDescriptionRules = {
   InformationRegisterRecordSet: {
     enterprise: "РегистрСведенийНаборЗаписей",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   InformationRegisterRecordManager: {
@@ -613,7 +613,7 @@ export const TypeDescriptionRules = {
   AccountingRegisterRecordSet: {
     enterprise: "РегистрБухгалтерииНаборЗаписей",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   AccountingRegisterRecordManager: {
@@ -631,7 +631,7 @@ export const TypeDescriptionRules = {
   AccumulationRegisterRecordSet: {
     enterprise: "AccumulationRegisterRecordSet",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   AccumulationRegisterManager: {
@@ -643,13 +643,13 @@ export const TypeDescriptionRules = {
   CalculationRegisterRecordSet: {
     enterprise: "CalculationRegisterRecordSet",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   SequenceRecordSet: {
     enterprise: "SequenceRecordSet",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
   CalculationRegisterManager: {
@@ -661,7 +661,7 @@ export const TypeDescriptionRules = {
   RecalculationRecordSet: {
     enterprise: "RecalculationRecordSet",
     prefix: "cfg",
-    modifier: "alwaysType",
+    modifier: "complex",
     ignoreInEnterprise: true,
   },
 } as const satisfies Record<string, TypeDescriptionRule>
