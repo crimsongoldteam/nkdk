@@ -32,6 +32,7 @@ export interface XmlSyncState {
 }
 
 export interface CoreApi {
+  createProjectStateService(): CoreProjectStateService
   ProjectFileSchemaError: {
     new (message: string): Error
     prototype: Error
@@ -82,6 +83,7 @@ export interface CoreApi {
     projectDir: string
     componentPath: string
     xmlDir: string
+    projectState: CoreProjectStateService
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -116,12 +118,23 @@ export interface CoreApi {
     componentPath: string
     xmlDir: string
     concurrency?: number
+    projectState: CoreProjectStateService
   }): Promise<FullXmlSyncResult>
   readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
   initializeXmlSyncState(params: {
     yamlDir: string
     xmlDir: string
   }): Promise<XmlSyncState>
+}
+
+export interface CoreProjectStateService {
+  refreshAndValidate(params: unknown): Promise<unknown>
+  createReadToken(projectDir: string): Promise<unknown>
+  openReadSession(token: unknown): unknown
+  readComponentProjection(params: unknown): Promise<unknown>
+  reset(projectDir: string): Promise<void>
+  rebuild(params: unknown): Promise<unknown>
+  close(): Promise<void>
 }
 
 export async function loadCoreApi(): Promise<CoreApi> {

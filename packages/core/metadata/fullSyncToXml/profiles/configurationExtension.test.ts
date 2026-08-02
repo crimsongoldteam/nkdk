@@ -3,6 +3,7 @@ import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "../../configurationIndex/types"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
+import type { ProjectStateReadToken } from "../../projectState"
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
 
 describe("configuration extension full XML sync profile", () => {
@@ -235,14 +236,13 @@ function state(params: {
     indexes: {
       componentPath: params.componentPath,
       sourceProjectFiles: projectFiles,
-      metadata: {} as ConfirmedComponentState["indexes"]["metadata"],
-      dependencies: [],
       logicalAddresses: (params.logicalAddresses ?? []).map((logicalAddress) => ({
         logicalAddress,
         sourceProjectPath: projectFiles[0]!.projectPath,
       })),
     },
     snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)),
+    projectStateReadToken: new Uint8Array([1]) as ProjectStateReadToken,
   }
 }
 

@@ -25,6 +25,7 @@ export interface ProjectStateComponentProjection {
 
 export interface ProjectStateService {
   refreshAndValidate(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
+  createReadToken(projectDir: string): Promise<ProjectStateReadToken>
   openReadSession(token: ProjectStateReadToken): ProjectStateReadSession
   readComponentProjection(params: {
     readonly projectDir: string
@@ -34,6 +35,8 @@ export interface ProjectStateService {
   rebuild(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
   close(): Promise<void>
 }
+
+export const openProjectStateReadSession = openSqliteProjectStateReadSession
 
 export interface CreateProjectStateServiceOptions {
   readonly createWriter?: () => ProjectStateWriterHandle
@@ -68,6 +71,13 @@ export function createProjectStateService(
     openReadSession(token) {
       if (closing) throw new Error("ProjectStateService закрыт")
       return openReadSession(token)
+    },
+    createReadToken(projectDir) {
+      return runExclusive(async () => {
+        const canonical = await realpath(projectDir)
+        const writer = await activate(canonical)
+        return writer.createReadToken()
+      })
     },
     readComponentProjection(params) {
       return runExclusive(async () => {

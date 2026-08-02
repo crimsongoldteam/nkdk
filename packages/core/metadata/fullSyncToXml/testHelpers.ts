@@ -6,7 +6,6 @@ import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
@@ -169,8 +168,6 @@ function indexes(structure: ComponentProjectStructure, hashState: ComponentHashS
   return {
     componentPath: structure.componentPath,
     sourceProjectFiles: hashState.projectFiles,
-    metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
-    dependencies: [],
     logicalAddresses: [
       {
         logicalAddress: "Конфигурация",

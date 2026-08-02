@@ -10,7 +10,7 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   syncComponentToXml,
@@ -23,7 +23,6 @@ import {
 import { fullXmlSyncTestOutput } from "./testTopology"
 
 const fullSyncTopology = compileRegisteredMetadataResourceTopology()
-const emptyValidationMetadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -37,6 +36,20 @@ describe("full XML sync failure integration", () => {
   } as ConfigurationContext
   let missingAdoptedUuidResult: Awaited<ReturnType<typeof syncComponentToXml>>
   let workerStartedForMissingAdoptedUuid: boolean
+
+  function syncIndexedProject(
+    state: Awaited<ReturnType<typeof createIndexedProject>>,
+    deps: FullXmlSyncCoordinatorDependencies,
+    componentPath = "cf",
+  ) {
+    return syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath,
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous),
+    }, deps)
+  }
 
   beforeAll(async () => {
     const state = await createIndexedProject()
@@ -58,12 +71,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    missingAdoptedUuidResult = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cfe/Дополнение",
-      xmlDir: state.xmlDir,
-    }, deps)
+    missingAdoptedUuidResult = await syncIndexedProject(state, deps, "cfe/Дополнение")
   })
 
   it("does not touch a non-empty XML target", async () => {
@@ -77,6 +85,7 @@ describe("full XML sync failure integration", () => {
       projectDir: root,
       componentPath: "cf",
       xmlDir,
+      projectState: testProjectState(),
     })
 
     expect(result.failed).toEqual([
@@ -90,12 +99,7 @@ describe("full XML sync failure integration", () => {
     const before = fs.readFileSync(state.indexPath)
     const deps = failureDeps(state.previous, state.projectDir, state.xmlDir)
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_operation_failed" }),
@@ -139,12 +143,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_assignment_failed" }),
@@ -172,12 +171,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_output_invalid" }),
@@ -276,8 +270,6 @@ function failureDeps(
       return {
         componentPath: structure.componentPath,
         sourceProjectFiles: hashes.projectFiles,
-        metadata: emptyValidationMetadata,
-        dependencies: [],
         logicalAddresses: [],
       }
     },
@@ -358,4 +350,25 @@ function failureDeps(
     writeIndex: writeConfigurationIndexAtomically,
   }
   return deps
+}
+
+function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
+  const readToken = new Uint8Array([1]) as ProjectStateReadToken
+  return {
+    async refreshAndValidate() {
+      return { diagnostics: [], readToken, stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 } }
+    },
+    async createReadToken() { return new Uint8Array([2]) as ProjectStateReadToken },
+    async readComponentProjection({ componentPath }) {
+      const files = snapshot?.files ?? []
+      const hashBytes = new Uint8Array(files.length * 8)
+      const view = new DataView(hashBytes.buffer)
+      files.forEach(({ contentHash }, index) => view.setBigUint64(index * 8, contentHash, false))
+      return { componentPath, projectFiles: files.map(({ projectPath }) => ({ projectPath })), hashBytes }
+    },
+    openReadSession() { throw new Error("not used") },
+    async reset() {},
+    async rebuild() { throw new Error("not used") },
+    async close() {},
+  }
 }

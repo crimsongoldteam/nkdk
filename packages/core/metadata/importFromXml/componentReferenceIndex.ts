@@ -5,7 +5,7 @@ import type { SharedValidationSnapshot } from "../validation/sharedValidationSna
 import {
   buildColdComponentIndexes,
   createLayeredOwnerMetadataCache as createComponentStateLayeredOwnerMetadataCache,
-} from "../project/componentState/indexes"
+} from "./coldComponentIndexes"
 
 export interface LayeredImportReferenceSnapshot {
   readonly local: SharedValidationSnapshot

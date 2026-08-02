@@ -9,6 +9,7 @@ import {
   type FullXmlSyncWorkerInitialization,
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
+import type { ProjectStateReadToken } from "../projectState"
 
 describe("full XML sync worker pool", () => {
   const initialization = {
@@ -27,7 +28,7 @@ describe("full XML sync worker pool", () => {
     },
     composition: {} as never,
     targetIndex: {} as never,
-    localMetadata: {} as never,
+    projectStateReadTokens: [1, 2, 3, 4].map((value) => new Uint8Array([value]) as ProjectStateReadToken),
   } satisfies FullXmlSyncWorkerInitialization
 
   it("executes each static partition once", async () => {
@@ -47,6 +48,8 @@ describe("full XML sync worker pool", () => {
     expect(pools.executeIds(1)).toEqual(["two"])
     await expect(pool.execute(assignments)).rejects.toThrow("уже было запущено")
     await pool.close()
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute", "dispose"])
+    expect(pools.runs(1).map(({ kind }) => kind)).toEqual(["initialize", "execute", "dispose"])
   })
 
   it("does not start empty workers", async () => {

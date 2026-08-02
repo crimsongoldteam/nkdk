@@ -181,6 +181,7 @@ export function completeOperationProjectState(
 ): ProjectStateService {
   return {
     ...overrides,
+    async createReadToken() { throw new Error("unexpected createReadToken") },
     async readComponentProjection() { throw new Error("unexpected readComponentProjection") },
     async reset() {},
     async rebuild() { throw new Error("unexpected rebuild") },

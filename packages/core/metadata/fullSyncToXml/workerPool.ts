@@ -6,7 +6,7 @@ import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment
 import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext } from "../context/types"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ProjectStateReadToken } from "../projectState"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
@@ -28,8 +28,7 @@ export interface FullXmlSyncWorkerInitialization {
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly composition: FullXmlSyncSharedCompositionSnapshot
   readonly targetIndex: SharedConfigurationIndexSnapshot
-  readonly localMetadata: SharedValidationSnapshot
-  readonly baseMetadata?: SharedValidationSnapshot
+  readonly projectStateReadTokens: readonly ProjectStateReadToken[]
 }
 
 export interface FullXmlSyncExecutionPoolResult {
@@ -81,12 +80,14 @@ export function createFullXmlSyncWorkerPool(params: {
       phase = "executing"
       const partitions = partitionRoundRobin(assignments, concurrency).filter((partition) => partition.length > 0)
       const initialized = initialization
+      const { projectStateReadTokens, ...workerInitialization } = initialized
       const results = await Promise.all(
         partitions.map(async (partition, workerIndex): Promise<FullXmlSyncExecutionResult> => {
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
             workerIndex,
-            ...initialized,
+            ...workerInitialization,
+            projectStateReadToken: requireWorkerReadToken(projectStateReadTokens, workerIndex),
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
@@ -153,17 +154,27 @@ export function createFullXmlSyncWorkerPool(params: {
   }
 
   function getOrCreatePool(workerIndex: number): FullXmlSyncWorkerThreadPool {
-    const existing = pools.get(workerIndex)
-    if (existing !== undefined) return existing
-    const created = createPool()
-    pools.set(workerIndex, created)
-    return created
+    let pool = pools.get(workerIndex)
+    if (pool === undefined) {
+      pool = createPool()
+      pools.set(workerIndex, pool)
+    }
+    return pool
   }
 
   function destroyAllWorkers(): Promise<void> {
-    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy())).then(() => undefined)
+    destroyPromise ??= Promise.all([...pools.values()].map(async (pool) => {
+      if (phase !== "crashed") await pool.run({ kind: "dispose" })
+      await pool.destroy()
+    })).then(() => undefined)
     return destroyPromise
   }
+}
+
+function requireWorkerReadToken(tokens: readonly ProjectStateReadToken[], workerIndex: number): ProjectStateReadToken {
+  const token = tokens[workerIndex]
+  if (token === undefined) throw new Error(`Не подготовлен read token для worker ${workerIndex}`)
+  return token
 }
 
 export function normalizeFullXmlSyncConcurrency(value: number | undefined): number {

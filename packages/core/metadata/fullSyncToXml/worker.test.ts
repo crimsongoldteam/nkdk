@@ -8,7 +8,7 @@ import { childSegmentUid, childUid } from "../configurationIndex/logicalAddress"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
@@ -25,7 +25,7 @@ describe("full XML sync worker", () => {
     defaultLanguage: "ru",
     exportToYAML: { toTyped: false },
   } as const
-  const localMetadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
+  const readToken = new Uint8Array([1]) as ProjectStateReadToken
 
   afterEach(() => {
     resetFullXmlSyncWorkerStateForTests()
@@ -96,6 +96,27 @@ describe("full XML sync worker", () => {
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })
 
     expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
+  })
+
+  it("opens one neutral project-state session, batches assignment owners, and closes it on dispose", async () => {
+    const projectDir = createProject(["Первый", "Второй"])
+    const assignments = [assignment(projectDir, "Первый"), assignment(projectDir, "Второй")]
+    const batches: readonly string[][] = []
+    let closed = false
+    const session = emptyReadSession({
+      readDependencyOwnerInputs(requests) {
+        ;(batches as string[][]).push(requests.map(({ owner }) => `${owner.kind}.${owner.name}`))
+        return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+      },
+      close() { closed = true },
+    })
+
+    await initialize(projectDir, assignments, context, undefined, () => session)
+    await runFullXmlSyncWorkerCommand({ kind: "execute", assignments })
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+
+    expect(batches).toEqual([["Справочник.Первый", "Справочник.Второй"]])
+    expect(closed).toBe(true)
   })
 
   it("does not let caller context override the confirmed component profile", async () => {
@@ -253,9 +274,8 @@ describe("full XML sync worker", () => {
             ],
           })
         ),
-        localMetadata,
-        baseMetadata: localMetadata,
-      })
+        projectStateReadToken: readToken,
+      }, { openReadSession: () => emptyReadSession() })
       expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot).toBe(baseSnapshot)
 
       const result = await runFullXmlSyncWorkerCommand({
@@ -298,7 +318,8 @@ describe("full XML sync worker", () => {
     projectDir: string,
     assignments: readonly FullXmlSyncAssignment[],
     workerContext: ConfigurationContext = context,
-    baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>
+    baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>,
+    openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession = () => emptyReadSession(),
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -323,11 +344,24 @@ describe("full XML sync worker", () => {
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
       targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
-      localMetadata,
-      ...(baseSnapshot === undefined ? {} : { baseMetadata: localMetadata }),
-    })
+      projectStateReadToken: readToken,
+    }, { openReadSession })
   }
 })
+
+function emptyReadSession(overrides: Partial<ProjectStateReadSession> = {}): ProjectStateReadSession {
+  return {
+    resolveTargets: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwners: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    findReferences: (requests) => requests.map(({ requestId }) => ({ requestId, references: [] })),
+    readDependencyInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwnerRefPage: () => ({ refs: [] }),
+    readValidationStatus: () => [],
+    close() {},
+    ...overrides,
+  }
+}
 
 function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
   const sourcePath = join(projectDir, "Справочник", name, "Свойства.yaml")

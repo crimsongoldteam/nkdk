@@ -73,6 +73,29 @@ describe("syncToXml service", () => {
     })
   })
 
+  it("closes the temporary project state after sync", async () => {
+    const projectDir = createProject()
+    const close = vi.fn(async () => undefined)
+    const projectState = {
+      refreshAndValidate: vi.fn(),
+      createReadToken: vi.fn(),
+      openReadSession: vi.fn(),
+      readComponentProjection: vi.fn(),
+      reset: vi.fn(),
+      rebuild: vi.fn(),
+      close,
+    }
+    const syncConfigurationToXML = vi.fn().mockResolvedValue({ succeeded: 0, failed: [], warnings: [] })
+
+    await syncToXml(
+      { projectDir, componentPath: "cf", xmlDir: "/xml", allowWrite: true },
+      { createProjectStateService: () => projectState, syncConfigurationToXML },
+    )
+
+    expect(syncConfigurationToXML).toHaveBeenCalledWith(expect.objectContaining({ projectState }))
+    expect(close).toHaveBeenCalledOnce()
+  })
+
   it.each([false, true])(
     "routes cfe to the common coordinator in %s write mode",
     async (allowWrite) => {

@@ -6,6 +6,7 @@ import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProje
 import type { ProjectStateRefreshResult } from "./refresh"
 import { createProjectStateService } from "./service"
 import type { ProjectStateWriterHandle } from "./writerHandle"
+import type { ProjectStateReadToken } from "./contracts"
 
 const tempDirs: string[] = []
 
@@ -422,6 +423,22 @@ describe("ProjectStateService", () => {
     expect(projection.hashBytes.byteOffset).toBe(0)
     expect(projection.hashBytes.byteLength).toBe(16)
     expect(projection.hashBytes.buffer.byteLength).toBe(16)
+    await service.close()
+  })
+
+  it("выдаёт независимые read token активного состояния для нескольких worker", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-worker-tokens-"))
+    tempDirs.push(projectDir)
+    const writer = testWriterHandle(1)
+    let next = 1
+    writer.createReadToken = async () => new Uint8Array([next++]) as ProjectStateReadToken
+    const service = createProjectStateService({ createWriter: () => writer, createPool: () => testPool() })
+
+    const first = await service.createReadToken(projectDir)
+    const second = await service.createReadToken(projectDir)
+
+    expect([...first]).toEqual([1])
+    expect([...second]).toEqual([2])
     await service.close()
   })
 

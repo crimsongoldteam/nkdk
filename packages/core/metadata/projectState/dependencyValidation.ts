@@ -210,8 +210,8 @@ export function validateProjectStateDependencyBatch(params: {
     if (result.status !== "found") return
     diagnostics.push(
       ...validatePendingChecks({
-        ownerCache: dependencyOwnerCache({
-          input: result.input,
+        ownerCache: createProjectStateOwnerMetadataCache({
+          initialInput: result.input,
           projectDir: `${params.projectDir}/${check.componentPath}`,
           componentPath: check.componentPath,
           queryPort: params.queryPort,
@@ -247,23 +247,28 @@ function forEachDependencyResult<
   }
 }
 
-function dependencyOwnerCache(params: {
-  input: ProjectDependencyInput
+export interface ProjectStateOwnerMetadataCache extends OwnerMetadataCache {
+  preload(refs: readonly OwnerTypeRef[]): void
+}
+
+export function createProjectStateOwnerMetadataCache(params: {
+  initialInput?: ProjectDependencyInput
   projectDir: string
   componentPath: string
   queryPort: Pick<ProjectStateQueryPort, "readDependencyOwnerInputs" | "readOwnerRefPage">
-}): OwnerMetadataCache {
+}): ProjectStateOwnerMetadataCache {
   const currentOwners = new Map<string, ProjectDependencyOwnerInput>(
-    params.input.owners.map(({ owner, facts }) => [
+    (params.initialInput?.owners ?? []).map(({ owner, facts }) => [
       ownerKey(owner),
-      { owner, facts, fields: projectStateFields(owner, params.input.fields) },
+      { owner, facts, fields: projectStateFields(owner, params.initialInput?.fields ?? []) },
     ]),
   )
+  const missingOwners = new Set<string>()
   let activePage: ReadonlyMap<string, ProjectDependencyOwnerInput> | undefined
   return {
     get(ref) {
       const key = ownerKey(ref)
-      const stored = currentOwners.get(key) ?? activePage?.get(key) ?? readOwner(ref)
+      const stored = currentOwners.get(key) ?? activePage?.get(key) ?? (missingOwners.has(key) ? undefined : readOwner(ref))
       if (stored === undefined) return ownerMetadataNotFound({ projectDir: params.projectDir, ref })
       return ownerMetadataFromFacts({
         projectDir: params.projectDir,
@@ -275,6 +280,21 @@ function dependencyOwnerCache(params: {
     listRefs(kind) {
       return visibleOwnerRefs(kind)
     },
+    preload(refs) {
+      const unique = [...new Map(refs.map((ref) => [ownerKey(ref), ref])).values()]
+        .filter((ref) => !currentOwners.has(ownerKey(ref)))
+      if (unique.length === 0) return
+      const requests = unique.map((owner, index) => ({
+        requestId: `sync-owner:${index}`,
+        componentPath: params.componentPath,
+        owner,
+      }))
+      const results = params.queryPort.readDependencyOwnerInputs(requests)
+      forEachDependencyResult(requests, results, (_request, result) => {
+        if (result.status === "found") currentOwners.set(ownerKey(result.input.owner), result.input)
+        else missingOwners.add(ownerKey(_request.owner))
+      })
+    },
   }
 
   function readOwner(ref: OwnerTypeRef): ProjectDependencyOwnerInput | undefined {
@@ -285,7 +305,9 @@ function dependencyOwnerCache(params: {
     if (result === undefined || result.requestId !== requestId) {
       throw new Error(`Ответ dependency owner lookup не соответствует запросу ${requestId}`)
     }
-    return result.status === "found" ? result.input : undefined
+    if (result.status === "found") return result.input
+    missingOwners.add(ownerKey(ref))
+    return undefined
   }
 
   function* visibleOwnerRefs(kind: OwnerTypeRef["kind"]): IterableIterator<OwnerTypeRef> {

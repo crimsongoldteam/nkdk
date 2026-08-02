@@ -8,17 +8,16 @@ import type {
   MergedConfigurationSnapshotFragments,
 } from "../configurationIndex/types"
 import { entity } from "../configurationIndex/testData"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ComponentAddress } from "../components/address"
 import type {
   ComponentHashState,
-  ComponentIndexes,
   ComponentProjectStructure,
 } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
+  planSyncConfigurationToXml,
   replaceSnapshotEntities,
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,
@@ -32,6 +31,18 @@ describe("shared full XML sync coordinator", () => {
     defaultLanguage: "ru",
     exportToYAML: { toTyped: false },
   } as const
+  const runHarnessSync = (harness: ReturnType<typeof createHarness>, options: {
+    readonly ignoreValidationErrors: boolean
+    readonly selected: boolean
+  }) => syncComponentToXml({
+    context,
+    projectDir: "/project",
+    componentPath: "cf",
+    xmlDir: "/out",
+    projectState: harness.projectState,
+    ignoreValidationErrors: options.ignoreValidationErrors,
+    ...(options.selected ? { selection: { kind: "selected" as const, projectPaths: ["Конфигурация.yaml"] } } : {}),
+  }, harness.deps)
 
   it("uses the common provider order for cf", async () => {
     const harness = createHarness()
@@ -42,16 +53,17 @@ describe("shared full XML sync coordinator", () => {
       componentPath: "cf",
       xmlDir: "/out",
       concurrency: 2,
+      projectState: harness.projectState,
     }, harness.deps)
 
     expect(result.failed).toEqual([])
     expect(result.succeeded).toBe(1)
     expect(harness.events).toEqual([
+      "refresh",
       "preflight",
       "targetStructure",
       "targetSnapshot",
       "targetHashes",
-      "targetIndexes",
       "confirmTarget",
       "buildSelection",
       "execute",
@@ -71,6 +83,145 @@ describe("shared full XML sync coordinator", () => {
     expect(harness.writtenIndex?.entities).toEqual([])
   })
 
+  it.each([
+    ["full", false, "blocked"],
+    ["selected", false, "blocked"],
+    ["full", true, "executed"],
+    ["selected", true, "executed"],
+  ] as const)("%s sync blocks validation errors only without ignoreValidationErrors=%s", async (mode, ignoreValidationErrors, outcome) => {
+    const validationError = {
+      filePath: "/project/cf/Конфигурация.yaml",
+      line: 2,
+      col: 3,
+      severity: "error" as const,
+      source: "structure" as const,
+      message: "Некорректный YAML",
+    }
+    const harness = createHarness({ refreshDiagnostics: [validationError] })
+
+    const result = await runHarnessSync(harness, { ignoreValidationErrors, selected: mode === "selected" })
+
+    expect(harness.events).toEqual(outcome === "blocked"
+      ? ["refresh"]
+      : [
+          "refresh", "preflight", "targetStructure", "targetSnapshot", "targetHashes", "confirmTarget",
+          "buildSelection", "execute", "transferExternal", "validateOutput", "writeTargetSnapshot", "close",
+        ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ code: "project_validation", source: "structure", sourcePath: validationError.filePath }),
+    ])
+    expect(result.failed).toHaveLength(outcome === "blocked" ? 1 : 0)
+  })
+
+  it.each([
+    ["full", false],
+    ["selected", true],
+  ] as const)("%s sync blocks a technical refresh failure with ignoreValidationErrors=%s", async (mode, ignoreValidationErrors) => {
+    const harness = createHarness({ refreshFailure: new Error("writer недоступен") })
+
+    const result = await runHarnessSync(harness, { ignoreValidationErrors, selected: mode === "selected" })
+
+    expect(harness.events).toEqual(["refresh"])
+    expect(result.failed).toEqual([expect.objectContaining({ message: "writer недоступен" })])
+  })
+
+  it("refreshes the whole project before building a preview plan", async () => {
+    const harness = createHarness()
+
+    const result = await planSyncConfigurationToXml({
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, harness.deps)
+
+    expect(result).toMatchObject({ ok: true, diagnostics: [] })
+    expect(harness.events.slice(0, 6)).toEqual([
+      "refresh", "preflight", "targetStructure", "targetSnapshot", "targetHashes", "confirmTarget",
+    ])
+    expect(harness.events).not.toContain("targetIndexes")
+  })
+
+  it("returns refresh warnings together with sync diagnostics", async () => {
+    const warning = {
+      filePath: "/project/cf/Конфигурация.yaml",
+      line: 1,
+      col: 2,
+      severity: "warning" as const,
+      source: "reference" as const,
+      message: "Предупреждение",
+    }
+    const harness = createHarness({ refreshDiagnostics: [warning] })
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, harness.deps)
+
+    expect(result.warnings).toEqual([expect.objectContaining({ code: "project_validation", source: "reference" })])
+    expect(result.diagnostics).toEqual(result.warnings)
+  })
+
+  it.each([false, true])("preview plan blocks validation errors only without ignoreValidationErrors=%s", async (ignoreValidationErrors) => {
+    const validationError = {
+      filePath: "/project/cf/Конфигурация.yaml",
+      line: 1,
+      col: 1,
+      severity: "error" as const,
+      source: "syntax" as const,
+      message: "Ошибка YAML",
+    }
+    const harness = createHarness({ refreshDiagnostics: [validationError] })
+
+    const result = await planSyncConfigurationToXml({
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+      ignoreValidationErrors,
+    }, harness.deps)
+
+    expect(result.ok).toBe(ignoreValidationErrors)
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ code: "project_validation", source: "syntax" }),
+    ])
+    expect(harness.events[0]).toBe("refresh")
+    expect(harness.events.includes("buildSelection")).toBe(ignoreValidationErrors)
+  })
+
+  it("preview plan keeps refresh diagnostics when a later technical error occurs", async () => {
+    const warning = {
+      filePath: "/project/cf/Конфигурация.yaml",
+      line: 1,
+      col: 1,
+      severity: "warning" as const,
+      source: "reference" as const,
+      message: "Предупреждение",
+    }
+    const harness = createHarness({ refreshDiagnostics: [warning] })
+
+    const result = await planSyncConfigurationToXml({
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, {
+      ...harness.deps,
+      async readStructure() {
+        throw new Error("структура недоступна")
+      },
+    })
+
+    expect(result).toMatchObject({ ok: false })
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ code: "project_validation", severity: "warning" }),
+      expect.objectContaining({ code: "full_xml_sync_operation_failed", severity: "error" }),
+    ])
+  })
+
   it("confirms cf separately before executing one selected cfe", async () => {
     const harness = createHarness()
 
@@ -80,20 +231,20 @@ describe("shared full XML sync coordinator", () => {
       componentPath: "cfe/Дополнение",
       xmlDir: "/out",
       concurrency: 1,
+      projectState: harness.projectState,
     }, harness.deps)
 
     expect(result.failed).toEqual([])
     expect(harness.events).toEqual([
+      "refresh",
       "preflight",
       "targetStructure",
       "targetSnapshot",
       "targetHashes",
-      "targetIndexes",
       "confirmTarget",
       "baseStructure",
       "baseSnapshot",
       "baseHashes",
-      "baseIndexes",
       "confirmBase",
       "buildSelection",
       "execute",
@@ -122,6 +273,7 @@ describe("shared full XML sync coordinator", () => {
       projectDir: "/project",
       componentPath: "cf",
       xmlDir: "/out",
+      projectState: harness.projectState,
     }, harness.deps)
 
     expect(result.failed).toEqual([error])
@@ -138,12 +290,14 @@ describe("shared full XML sync coordinator", () => {
       projectDir: "/project",
       componentPath: "cf",
       xmlDir: "/out-all",
+      projectState: all.projectState,
     }, all.deps)
     await syncComponentToXml({
       context,
       projectDir: "/project",
       componentPath: "cf",
       xmlDir: "/out-selected",
+      projectState: selected.projectState,
       selection: { kind: "selected", projectPaths: ["Конфигурация.yaml"] },
     }, selected.deps)
 
@@ -157,6 +311,7 @@ describe("shared full XML sync coordinator", () => {
       projectDir: "/project",
       componentPath: "erf/Отчёт",
       xmlDir: "/out",
+      projectState: unsupported.projectState,
     }, unsupported.deps)
     expect(unsupportedResult.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_component_not_supported" }),
@@ -168,6 +323,7 @@ describe("shared full XML sync coordinator", () => {
       projectDir: "/project",
       componentPath: "cf",
       xmlDir: "/out",
+      projectState: partial.projectState,
       selection: { kind: "selected", projectPaths: [] },
     }, partial.deps)
     expect(partialResult.failed).toEqual([
@@ -196,6 +352,7 @@ describe("shared full XML sync coordinator", () => {
       projectDir: "/project",
       componentPath: "cf",
       xmlDir: "/out",
+      projectState: harness.projectState,
     }, harness.deps)
 
     expect(result.failed).toEqual([
@@ -246,6 +403,15 @@ interface HarnessOptions {
   readonly fragmentData?: MergedConfigurationSnapshotFragments
   readonly previousFiles?: ConfigurationSnapshot["files"]
   readonly previousEntities?: readonly ConfigurationSnapshotEntity[]
+  readonly refreshDiagnostics?: readonly {
+    readonly filePath: string
+    readonly line: number
+    readonly col: number
+    readonly severity: "error" | "warning"
+    readonly source: "syntax" | "structure" | "external-file" | "cross-file" | "reference"
+    readonly message: string
+  }[]
+  readonly refreshFailure?: Error
 }
 
 function createHarness(options: HarnessOptions = {}) {
@@ -256,6 +422,28 @@ function createHarness(options: HarnessOptions = {}) {
   let targetKind: ComponentAddress["kind"] = "configuration"
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
+  const readToken = new Uint8Array([1]) as import("../projectState").ProjectStateReadToken
+  const projectState = {
+    async refreshAndValidate() {
+      events.push("refresh")
+      if (options.refreshFailure !== undefined) throw options.refreshFailure
+      return {
+        diagnostics: options.refreshDiagnostics ?? [],
+        readToken,
+        stats: { hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
+      }
+    },
+    async createReadToken() { return new Uint8Array([2]) as import("../projectState").ProjectStateReadToken },
+    async readComponentProjection({ componentPath }: { componentPath: string }) {
+      const hashBytes = new Uint8Array(8)
+      new DataView(hashBytes.buffer).setBigUint64(0, 10n, false)
+      return { componentPath, projectFiles: [{ projectPath: `${componentPath}/Конфигурация.yaml` }], hashBytes }
+    },
+    openReadSession() { throw new Error("coordinator must not open a worker read session") },
+    async reset() {},
+    async rebuild() { throw new Error("not used") },
+    async close() {},
+  } satisfies import("../projectState").ProjectStateService
 
   const deps: FullXmlSyncCoordinatorDependencies = createMockFullSyncDependencies({
     async exists(path) {
@@ -282,10 +470,6 @@ function createHarness(options: HarnessOptions = {}) {
     async readHashes({ structure: value }) {
       events.push(readingBase ? "baseHashes" : "targetHashes")
       return hashes(value, options.previousFiles)
-    },
-    async readIndexes({ structure: value, hashes: valueHashes }) {
-      events.push(readingBase ? "baseIndexes" : "targetIndexes")
-      return indexes(value, valueHashes)
     },
     confirmState(params) {
       events.push(readingBase ? "confirmBase" : "confirmTarget")
@@ -350,7 +534,7 @@ function createHarness(options: HarnessOptions = {}) {
     createWorkerPool() {
       return {
         async initialize(params) {
-          initializedWithBase = params.baseMetadata !== undefined
+          initializedWithBase = params.componentPath.startsWith("cfe/")
         },
         async execute(): Promise<FullXmlSyncExecutionPoolResult> {
           events.push("execute")
@@ -394,6 +578,7 @@ function createHarness(options: HarnessOptions = {}) {
   return {
     events,
     deps,
+    projectState,
     get writtenIndex() {
       return writtenIndex
     },
@@ -429,22 +614,6 @@ function hashes(
   return {
     componentPath: structure.componentPath,
     projectFiles,
-  }
-}
-
-function indexes(
-  structure: ComponentProjectStructure,
-  hashState: ComponentHashState
-): ComponentIndexes {
-  return {
-    componentPath: structure.componentPath,
-    sourceProjectFiles: hashState.projectFiles,
-    metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
-    dependencies: [],
-    logicalAddresses: [{
-      logicalAddress: "Конфигурация",
-      sourceProjectPath: "Конфигурация.yaml",
-    }],
   }
 }
 

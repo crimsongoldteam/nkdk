@@ -9,7 +9,7 @@ import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { type LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
-import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
+import { createLayeredOwnerMetadataCache } from "./coldComponentIndexes"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,

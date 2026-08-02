@@ -89,6 +89,9 @@ function testProjectState(diagnostics: readonly Diagnostic[]): ProjectStateServi
       refreshes.push(params)
       return refreshResult(diagnostics)
     },
+    async createReadToken() {
+      throw new Error("unexpected createReadToken")
+    },
     openReadSession() {
       throw new Error("unexpected openReadSession")
     },

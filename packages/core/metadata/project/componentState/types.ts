@@ -1,8 +1,8 @@
 import type { ComponentAddress } from "../../components/address"
 import type { ConfigurationProjectFile } from "../../configurationIndex"
 import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
-import type { SharedValidationSnapshot } from "../../validation/sharedValidationSnapshot"
-import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../componentIndexFacts"
+import type { ProjectStateReadToken } from "../../projectState"
+import type { ProjectLogicalAddressEntry } from "../componentIndexFacts"
 import type { MetadataProjectResourceMatch } from "../../resourceTopology/projectProjection"
 import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
 
@@ -23,8 +23,6 @@ export interface ComponentHashState {
 export interface ComponentIndexes {
   readonly componentPath: string
   readonly sourceProjectFiles: readonly ConfigurationProjectFile[]
-  readonly metadata: SharedValidationSnapshot
-  readonly dependencies: readonly ProjectLocalDependency[]
   readonly logicalAddresses: readonly ProjectLogicalAddressEntry[]
 }
 
@@ -33,4 +31,5 @@ export interface ConfirmedComponentState {
   readonly hashes: ComponentHashState
   readonly indexes: ComponentIndexes
   readonly snapshot: SharedConfigurationIndexSnapshot
+  readonly projectStateReadToken: ProjectStateReadToken
 }

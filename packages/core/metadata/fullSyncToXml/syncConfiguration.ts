@@ -17,7 +17,9 @@ import {
   type ConfirmedComponentState,
 } from "../project/componentState"
 import { createValidationProfiler } from "../validation/profile"
-import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
+import type { Diagnostic } from "../validation/types"
+import type { ProjectStateReadToken, ProjectStateService } from "../projectState"
+import { resolveFullXmlSyncComponentProfile, type FullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
@@ -33,6 +35,8 @@ export interface SyncComponentToXmlParams {
   readonly selection?: XmlSyncSelection
   readonly concurrency?: number
   readonly transferConcurrency?: number
+  readonly projectState: ProjectStateService
+  readonly ignoreValidationErrors?: boolean
 }
 
 export type SyncConfigurationToXmlParams = SyncComponentToXmlParams
@@ -43,6 +47,8 @@ export interface PlanSyncConfigurationToXmlParams {
   readonly xmlDir: string
   readonly selection?: XmlSyncSelection
   readonly concurrency?: number
+  readonly projectState: ProjectStateService
+  readonly ignoreValidationErrors?: boolean
 }
 
 export interface FullXmlSyncResult {
@@ -50,6 +56,7 @@ export interface FullXmlSyncResult {
   readonly failed: readonly FullXmlSyncDiagnostic[]
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly configurationIndexPath?: string
+  readonly diagnostics: readonly FullXmlSyncDiagnostic[]
 }
 
 export type FullXmlSyncPlanResult =
@@ -59,10 +66,12 @@ export type FullXmlSyncPlanResult =
       readonly assignments: number
       readonly externalFiles: number
       readonly configurationIndexPath: string
+      readonly diagnostics: readonly FullXmlSyncDiagnostic[]
     }
   | {
       readonly ok: false
       readonly failed: readonly FullXmlSyncDiagnostic[]
+      readonly diagnostics: readonly FullXmlSyncDiagnostic[]
     }
 
 type ReadStructure = typeof readComponentProjectStructure
@@ -125,34 +134,27 @@ export async function syncComponentToXml(
   const xmlDir = resolve(params.xmlDir)
   let pool: FullXmlSyncWorkerPool | undefined
   let warnings: FullXmlSyncDiagnostic[] = []
+  let diagnostics: FullXmlSyncDiagnostic[] = []
   const profiler = createValidationProfiler({ scope: "main" })
 
   try {
+    const refreshed = await refreshSyncProject({ ...params, projectDir })
+    diagnostics = refreshed.diagnostics
+    const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")
+    warnings = diagnostics.filter(({ severity }) => severity === "warning")
+    if (refreshErrors.length > 0 && params.ignoreValidationErrors !== true) {
+      return failedResult(refreshErrors, warnings, diagnostics)
+    }
     const preflight = await preflightFullXmlSync({ projectDir, xmlDir, deps })
-    if ("failed" in preflight) return failedResult(preflight.failed)
+    if ("failed" in preflight) return failedResult(preflight.failed, warnings, [...diagnostics, ...preflight.failed])
 
     const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
     if (!preflight.targetExists) await deps.mkdir(xmlDir)
 
-    const target = await readConfirmedComponentState({
-      projectDir,
-      address,
-      context: params.context,
-      concurrency: params.concurrency,
-      deps,
+    const { target, base } = await readProfileComponentStates({
+      ...params, projectDir, address, profile, projectStateReadToken: refreshed.readToken, deps,
     })
-    const baseAddress = profile.baseAddress(address)
-    const base =
-      baseAddress === undefined
-        ? undefined
-        : await readConfirmedComponentState({
-            projectDir,
-            address: baseAddress,
-            context: params.context,
-            concurrency: params.concurrency,
-            deps,
-          })
     const runtime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     const selection = params.selection ?? { kind: "all" }
     assertCompleteSelection(selection, target.structure.projectPaths)
@@ -162,8 +164,13 @@ export async function syncComponentToXml(
       selection,
     })
 
-    pool = deps.createWorkerPool({
-      concurrency: normalizeFullXmlSyncConcurrency(params.concurrency),
+    const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
+    pool = deps.createWorkerPool({ concurrency: workerConcurrency })
+    const projectStateReadTokens = await createWorkerReadTokens({
+      projectState: params.projectState,
+      projectDir,
+      first: target.projectStateReadToken,
+      count: Math.min(workerConcurrency, plan.assignments.length),
     })
     await pool.initialize({
       componentPath: target.structure.componentPath,
@@ -173,13 +180,13 @@ export async function syncComponentToXml(
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
       targetIndex: target.snapshot,
-      localMetadata: target.indexes.metadata,
-      ...(base === undefined ? {} : { baseMetadata: base.indexes.metadata }),
+      projectStateReadTokens,
     })
     const execution = await pool.execute(plan.assignments)
-    warnings = execution.warnings
+    warnings = [...warnings, ...execution.warnings]
+    diagnostics = [...diagnostics, ...execution.diagnostics, ...execution.warnings]
     if (hasErrors(execution.diagnostics)) {
-      return failedResult(execution.diagnostics, warnings)
+      return failedResult(execution.diagnostics, warnings, diagnostics)
     }
 
     const external = await deps.transferExternalFiles({
@@ -192,7 +199,9 @@ export async function syncComponentToXml(
       writtenFiles: execution.writtenFiles,
       copiedFiles: withExternalAssignmentIds(plan, external.copiedFiles),
     })
-    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
+    warnings = [...warnings, ...outputDiagnostics.filter(({ severity }) => severity === "warning")]
+    diagnostics = [...diagnostics, ...outputDiagnostics]
+    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings, diagnostics)
 
     const previous = decodeSnapshot(target.snapshot)
     const indexData = buildFullXmlSyncConfigurationSnapshot({
@@ -206,14 +215,29 @@ export async function syncComponentToXml(
       succeeded: plan.assignments.length + plan.externalFiles.length,
       failed: [],
       warnings,
+      diagnostics,
       configurationIndexPath: configurationIndexPath(projectDir, address),
     }
   } catch (caught) {
-    return failedResult([operationDiagnostic(diagnosticCode(caught), errorMessage(caught))], warnings)
+    const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
+    return failedResult([failure], warnings, [...diagnostics, failure])
   } finally {
     profiler.flush()
     await pool?.close()
   }
+}
+
+async function createWorkerReadTokens(params: {
+  readonly projectState: ProjectStateService
+  readonly projectDir: string
+  readonly first: ProjectStateReadToken
+  readonly count: number
+}): Promise<readonly ProjectStateReadToken[]> {
+  if (params.count === 0) return []
+  return [
+    params.first,
+    ...await Promise.all(Array.from({ length: params.count - 1 }, () => params.projectState.createReadToken(params.projectDir))),
+  ]
 }
 
 export const syncConfigurationToXml = syncComponentToXml
@@ -224,29 +248,22 @@ export async function planSyncConfigurationToXml(
 ): Promise<FullXmlSyncPlanResult> {
   const projectDir = resolve(params.projectDir)
   const xmlDir = resolve(params.xmlDir)
+  let diagnostics: FullXmlSyncDiagnostic[] = []
   try {
+    const context = { version: "2.20", defaultLanguage: "ru" } as const
+    const refreshed = await refreshSyncProject({ ...params, projectDir, context })
+    diagnostics = refreshed.diagnostics
+    const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")
+    if (refreshErrors.length > 0 && params.ignoreValidationErrors !== true) {
+      return { ok: false, failed: refreshErrors, diagnostics }
+    }
     const preflight = await preflightFullXmlSync({ projectDir, xmlDir, deps })
-    if ("failed" in preflight) return { ok: false, failed: preflight.failed }
+    if ("failed" in preflight) return { ok: false, failed: preflight.failed, diagnostics: [...diagnostics, ...preflight.failed] }
     const address = parseSupportedComponentPath(params.componentPath)
     const profile = deps.resolveProfile(address)
-    const target = await readConfirmedComponentState({
-      projectDir,
-      address,
-      context: { version: "2.20", defaultLanguage: "ru" },
-      concurrency: params.concurrency,
-      deps,
+    const { target, base } = await readProfileComponentStates({
+      ...params, projectDir, context, address, profile, projectStateReadToken: refreshed.readToken, deps,
     })
-    const baseAddress = profile.baseAddress(address)
-    const base =
-      baseAddress === undefined
-        ? undefined
-        : await readConfirmedComponentState({
-            projectDir,
-            address: baseAddress,
-            context: { version: "2.20", defaultLanguage: "ru" },
-            concurrency: params.concurrency,
-            deps,
-          })
     profile.confirm({ target, ...(base === undefined ? {} : { base }) })
     const selection = params.selection ?? { kind: "all" }
     assertCompleteSelection(selection, target.structure.projectPaths)
@@ -261,13 +278,56 @@ export async function planSyncConfigurationToXml(
       assignments: plan.assignments.length,
       externalFiles: plan.externalFiles.length,
       configurationIndexPath: configurationIndexPath(projectDir, address),
+      diagnostics,
     }
   } catch (caught) {
+    const failure = operationDiagnostic(diagnosticCode(caught), errorMessage(caught))
     return {
       ok: false,
-      failed: [operationDiagnostic(diagnosticCode(caught), errorMessage(caught))],
+      failed: [failure],
+      diagnostics: [...diagnostics, failure],
     }
   }
+}
+
+async function readProfileComponentStates(params: {
+  readonly projectDir: string
+  readonly address: ComponentAddress
+  readonly profile: FullXmlSyncComponentProfile
+  readonly context: ConfigurationContext
+  readonly concurrency?: number
+  readonly projectState: ProjectStateService
+  readonly projectStateReadToken: ProjectStateReadToken
+  readonly deps: FullXmlSyncCoordinatorDependencies
+}): Promise<{ readonly target: ConfirmedComponentState; readonly base?: ConfirmedComponentState }> {
+  const common = {
+    projectDir: params.projectDir,
+    context: params.context,
+    concurrency: params.concurrency,
+    projectState: params.projectState,
+    projectStateReadToken: params.projectStateReadToken,
+    deps: params.deps,
+  }
+  const target = await readConfirmedComponentState({ ...common, address: params.address })
+  const baseAddress = params.profile.baseAddress(params.address)
+  const base = baseAddress === undefined
+    ? undefined
+    : await readConfirmedComponentState({ ...common, address: baseAddress })
+  return { target, ...(base === undefined ? {} : { base }) }
+}
+
+async function refreshSyncProject(params: {
+  readonly projectState: ProjectStateService
+  readonly projectDir: string
+  readonly context: ConfigurationContext
+  readonly concurrency?: number
+}): Promise<{ readonly diagnostics: FullXmlSyncDiagnostic[]; readonly readToken: ProjectStateReadToken }> {
+  const result = await params.projectState.refreshAndValidate({
+    projectDir: params.projectDir,
+    context: params.context,
+    ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
+  })
+  return { diagnostics: result.diagnostics.map(projectValidationDiagnostic), readToken: result.readToken }
 }
 
 async function readConfirmedComponentState(params: {
@@ -275,6 +335,8 @@ async function readConfirmedComponentState(params: {
   readonly address: ComponentAddress
   readonly context: ConfigurationContext
   readonly concurrency?: number
+  readonly projectState: ProjectStateService
+  readonly projectStateReadToken: ProjectStateReadToken
   readonly deps: FullXmlSyncCoordinatorDependencies
 }): Promise<ConfirmedComponentState> {
   const structure = await params.deps.readStructure({
@@ -285,17 +347,19 @@ async function readConfirmedComponentState(params: {
     projectDir: params.projectDir,
     address: params.address,
   })
-  const hashes = await params.deps.readHashes({
-    structure,
-    ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
+  const projection = await params.projectState.readComponentProjection({
+    projectDir: params.projectDir,
+    componentPath: structure.componentPath,
   })
-  const indexes = await params.deps.readIndexes({
+  const hashes = await params.deps.readHashes({ structure, projection })
+  const indexes = await params.deps.readIndexes({ structure, hashes })
+  return params.deps.confirmState({
     structure,
+    snapshot,
     hashes,
-    context: params.context,
-    ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
+    indexes,
+    projectStateReadToken: params.projectStateReadToken,
   })
-  return params.deps.confirmState({ structure, snapshot, hashes, indexes })
 }
 
 async function preflightFullXmlSync(params: {
@@ -414,9 +478,22 @@ function diagnosticCode(caught: unknown): string {
 
 function failedResult(
   failed: readonly FullXmlSyncDiagnostic[],
-  warnings: readonly FullXmlSyncDiagnostic[] = []
+  warnings: readonly FullXmlSyncDiagnostic[] = [],
+  diagnostics: readonly FullXmlSyncDiagnostic[] = [...failed, ...warnings],
 ): FullXmlSyncResult {
-  return { succeeded: 0, failed, warnings }
+  return { succeeded: 0, failed, warnings, diagnostics }
+}
+
+function projectValidationDiagnostic(diagnostic: Diagnostic): FullXmlSyncDiagnostic {
+  return {
+    severity: diagnostic.severity,
+    code: "project_validation",
+    source: diagnostic.source,
+    message: diagnostic.message,
+    sourcePath: diagnostic.filePath,
+    line: diagnostic.line,
+    col: diagnostic.col,
+  }
 }
 
 function hasErrors(diagnostics: readonly FullXmlSyncDiagnostic[]): boolean {

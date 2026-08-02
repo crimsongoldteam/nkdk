@@ -37,7 +37,7 @@ describe("component hash state", () => {
       address: { kind: "configuration" },
     })
 
-    const state = await readComponentHashState({ structure, concurrency: 2 })
+    const state = await readComponentHashState({ structure, projection: projection(structure.projectPaths, [1n, 2n]) })
 
     expect(state.componentPath).toBe("cf")
     expect(state.projectFiles.map(({ projectPath }) => projectPath)).toEqual(structure.projectPaths)
@@ -57,10 +57,10 @@ describe("component hash state", () => {
       projectDir,
       address: { kind: "configuration" },
     })
-    const before = await readComponentHashState({ structure })
+    const before = await readComponentHashState({ structure, projection: projection(structure.projectPaths, [1n, 2n]) })
 
     writeProjectFile(projectDir, modulePath, "new")
-    const after = await readComponentHashState({ structure })
+    const after = await readComponentHashState({ structure, projection: projection(structure.projectPaths, [1n, 3n]) })
 
     expect(after.projectFiles.map(({ projectPath }) => projectPath)).toEqual(
       before.projectFiles.map(({ projectPath }) => projectPath)
@@ -70,4 +70,44 @@ describe("component hash state", () => {
     expect(after.projectFiles.find(({ projectPath }) => projectPath === "Конфигурация.yaml")?.contentHash)
       .toBe(before.projectFiles.find(({ projectPath }) => projectPath === "Конфигурация.yaml")?.contentHash)
   })
+
+  it("keeps positional hashes attached while normalizing projection order", async () => {
+    const structure = {
+      address: { kind: "configuration" as const },
+      componentPath: "cf",
+      componentDir: "/project/cf",
+      topology: {} as Awaited<ReturnType<typeof readComponentProjectStructure>>["topology"],
+      resources: [],
+      projectPaths: ["А.yaml", "Б.yaml"],
+    }
+    const hashBytes = new Uint8Array(16)
+    const view = new DataView(hashBytes.buffer)
+    view.setBigUint64(0, 2n, false)
+    view.setBigUint64(8, 1n, false)
+
+    const state = await readComponentHashState({
+      structure,
+      projection: {
+        componentPath: "cf",
+        projectFiles: [{ projectPath: "cf/Б.yaml" }, { projectPath: "cf/А.yaml" }],
+        hashBytes,
+      },
+    })
+
+    expect(state.projectFiles).toEqual([
+      { projectPath: "А.yaml", contentHash: 1n },
+      { projectPath: "Б.yaml", contentHash: 2n },
+    ])
+  })
 })
+
+function projection(projectPaths: readonly string[], hashes: readonly bigint[]) {
+  const hashBytes = new Uint8Array(projectPaths.length * 8)
+  const view = new DataView(hashBytes.buffer)
+  hashes.forEach((hash, index) => view.setBigUint64(index * 8, hash, false))
+  return {
+    componentPath: "cf",
+    projectFiles: projectPaths.map((projectPath) => ({ projectPath: `cf/${projectPath}` })),
+    hashBytes,
+  }
+}
