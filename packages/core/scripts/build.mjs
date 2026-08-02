@@ -9,7 +9,10 @@ const corePackageJson = (
     with: { type: "json" },
   })
 ).default
-const rulesSourceFingerprint = fingerprintRulesSourceTree(new URL("../metadata/", import.meta.url))
+const rulesSourceFingerprint = fingerprintRulesSourceTree(new URL("../", import.meta.url), [
+  "metadata/register.ts",
+  "metadata/validation/registerValidationMetadata.ts",
+])
 
 await rm(outdir, { force: true, recursive: true })
 

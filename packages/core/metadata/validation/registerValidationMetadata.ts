@@ -1,5 +1,8 @@
 import { registerCoreMetadata } from "../register"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import {
+  markTypeRuleAsCoreForCompatibility,
+  registerTypeRule,
+} from "../orchestration/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 
@@ -22,6 +25,7 @@ export function registerOwnerFactCollectors(): void {
       if (rule.ownerFactRole === undefined || types.has(rule.type)) continue
       types.add(rule.type)
       registerTypeRule(rule.type, "collectLocalFactsFromYAML", collectOwnerFactFromYAML)
+      markTypeRuleAsCoreForCompatibility(rule.type, "collectLocalFactsFromYAML")
     }
   }
 }

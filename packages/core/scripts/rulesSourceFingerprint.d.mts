@@ -3,5 +3,5 @@ export interface RulesSourceEntry {
   readonly content: string
 }
 
-export function fingerprintRulesSourceTree(root: string | URL): string
+export function fingerprintRulesSourceTree(root: string | URL, entrypoints: readonly string[]): string
 export function fingerprintRulesSources(entries: readonly RulesSourceEntry[]): string

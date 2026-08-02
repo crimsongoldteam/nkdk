@@ -69,12 +69,14 @@ const typeRulesRegistry = new Map<
   | YAMLToXMLNestedRule
 >()
 const typeRuleRegistrations = new Map<string, RegisteredTypeRule>()
+const coreRegistrationKeysByHandler = new WeakMap<object, Set<string>>()
 let registryRevision = 0
 
 export interface RegisteredTypeRule {
   readonly type: PropertyRuleType
   readonly operation: TypeRulesOperations
   readonly handler: unknown
+  readonly coreRegistrationKeys?: readonly string[]
 }
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -88,7 +90,29 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
   registryRevision += 1
 }
 
-export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => [...typeRuleRegistrations.values()]
+export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => [...typeRuleRegistrations].map(([, registration]) => {
+  const handler = asWeakKey(registration.handler)
+  const coreRegistrationKeys = handler === undefined ? undefined : coreRegistrationKeysByHandler.get(handler)
+  return {
+    ...registration,
+    ...(coreRegistrationKeys === undefined
+      ? {}
+      : { coreRegistrationKeys: [...coreRegistrationKeys].sort(compareCodePoints) }),
+  }
+})
+
+export const markRegisteredTypeRulesAsCoreForCompatibility = (): void => {
+  for (const [key, registration] of typeRuleRegistrations) markHandlerRegistrationAsCore(registration.handler, key)
+}
+
+export const markTypeRuleAsCoreForCompatibility = (
+  type: PropertyRuleType,
+  operation: TypeRulesOperations,
+): void => {
+  const key = createRegistryKey(type, operation)
+  const registration = typeRuleRegistrations.get(key)
+  if (registration !== undefined) markHandlerRegistrationAsCore(registration.handler, key)
+}
 
 export const getTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
@@ -155,6 +179,24 @@ export const clearTypeRulesRegistry = (): void => {
   typeRulesRegistry.clear()
   typeRuleRegistrations.clear()
   registryRevision += 1
+}
+
+function markHandlerRegistrationAsCore(handler: unknown, key: string): void {
+  const weakKey = asWeakKey(handler)
+  if (weakKey === undefined) return
+  const keys = coreRegistrationKeysByHandler.get(weakKey) ?? new Set<string>()
+  keys.add(key)
+  coreRegistrationKeysByHandler.set(weakKey, keys)
+}
+
+function asWeakKey(value: unknown): object | undefined {
+  return (typeof value === "object" && value !== null) || typeof value === "function"
+    ? value as object
+    : undefined
+}
+
+function compareCodePoints(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0
 }
 
 export const typeRulesRegistryRevision = (): number => registryRevision

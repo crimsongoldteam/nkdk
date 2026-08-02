@@ -4,6 +4,9 @@ import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
 import "./orchestration/appliedObject/syncToXML"
+import { markRegisteredTypeRulesAsCoreForCompatibility } from "./orchestration/property/typeRuleRegistry"
+
+markRegisteredTypeRulesAsCoreForCompatibility()
 
 let coreMetadataRegistered = false
 

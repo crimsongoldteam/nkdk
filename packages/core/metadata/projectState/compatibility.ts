@@ -51,6 +51,11 @@ export function fingerprintProjectStateRuleSources(entries: readonly RulesSource
   return fingerprintRulesSources(entries)
 }
 
+export function fingerprintRegisteredProjectStateTypeRules(): string {
+  registerCoreMetadata()
+  return fingerprintProjectStateRulesSnapshot({ projectSpecs: [], schemas: {}, localRules: currentTypeRulesSnapshot() })
+}
+
 function currentRulesSnapshot(): ProjectStateRulesSnapshot {
   const schemas = createProjectValidationStandaloneSchemaSet()
   return {
@@ -71,15 +76,21 @@ function currentRulesSnapshot(): ProjectStateRulesSnapshot {
     localRules: [
       { kind: "sourceTree", fingerprint: rulesSourceFingerprint() },
       ...getRegisteredPropertyRuleTypes().map((type) => ({ kind: "property", type })),
-      ...getRegisteredTypeRules().map(({ type, operation, handler }) => ({
-        kind: "handler",
-        type,
-        operation,
-        handler,
-      })),
+      ...currentTypeRulesSnapshot(),
       ...registeredProjectValidationFormRules().map(({ key, rule }) => ({ kind: "form", key, rule })),
     ],
   }
+}
+
+function currentTypeRulesSnapshot(): readonly unknown[] {
+  return getRegisteredTypeRules().map(({ type, operation, handler, coreRegistrationKeys }) => ({
+    kind: "handler",
+    type,
+    operation,
+    handler: coreRegistrationKeys === undefined
+      ? { kind: "runtime", value: canonicalValue(handler, new WeakMap(), "$handler", "source") }
+      : { kind: "core", registrationKeys: coreRegistrationKeys },
+  }))
 }
 
 function sortCanonical(values: readonly unknown[]): readonly unknown[] {
@@ -90,10 +101,16 @@ function canonicalJson(value: unknown): string {
   return JSON.stringify(canonicalValue(value, new WeakMap(), "$"))
 }
 
-function canonicalValue(value: unknown, seen: WeakMap<object, string>, path: string): unknown {
+function canonicalValue(
+  value: unknown,
+  seen: WeakMap<object, string>,
+  path: string,
+  functionMode: "shape" | "source" = "shape",
+): unknown {
   if (value === undefined) return { $undefined: true }
   if (typeof value === "bigint") return { $bigint: value.toString() }
   if (typeof value === "function") {
+    if (functionMode === "source") return { $functionSource: Function.prototype.toString.call(value) }
     const constructorName = Object.getPrototypeOf(value)?.constructor?.name
     return {
       $function: {
@@ -110,28 +127,33 @@ function canonicalValue(value: unknown, seen: WeakMap<object, string>, path: str
   if (previousPath !== undefined) return { $ref: previousPath }
   seen.set(value, path)
   if (Array.isArray(value)) {
-    return value.map((entry, index) => canonicalValue(entry, seen, `${path}[${index}]`))
+    return value.map((entry, index) => canonicalValue(entry, seen, `${path}[${index}]`, functionMode))
   }
   if (value instanceof Date) return { $date: value.toISOString() }
   if (value instanceof RegExp) return { $regexp: value.source, flags: value.flags }
   if (value instanceof Map) {
     return {
       $map: sortCanonical([...value.entries()].map(([key, entry]) => [
-        canonicalValue(key, seen, `${path}.<key>`),
-        canonicalValue(entry, seen, `${path}.<value>`),
+        canonicalValue(key, seen, `${path}.<key>`, functionMode),
+        canonicalValue(entry, seen, `${path}.<value>`, functionMode),
       ])),
     }
   }
   if (value instanceof Set) {
-    return { $set: sortCanonical([...value].map((entry) => canonicalValue(entry, seen, `${path}.<value>`))) }
+    return { $set: sortCanonical([...value].map((entry) => canonicalValue(entry, seen, `${path}.<value>`, functionMode))) }
   }
   return Object.fromEntries(Object.entries(value as Record<string, unknown>)
     .sort(([left], [right]) => left.localeCompare(right, "ru"))
-    .map(([key, entry]) => [key, canonicalValue(entry, seen, `${path}.${key}`)]))
+    .map(([key, entry]) => [key, canonicalValue(entry, seen, `${path}.${key}`, functionMode)]))
 }
 
 function rulesSourceFingerprint(): string {
   return typeof __NKDK_RULES_SOURCE_FINGERPRINT__ === "string"
     ? __NKDK_RULES_SOURCE_FINGERPRINT__
-    : fingerprintRulesSourceTree(new URL("../", import.meta.url))
+    : fingerprintRulesSourceTree(new URL("../../", import.meta.url), RULE_SOURCE_ENTRYPOINTS)
 }
+
+const RULE_SOURCE_ENTRYPOINTS = [
+  "metadata/register.ts",
+  "metadata/validation/registerValidationMetadata.ts",
+] as const
