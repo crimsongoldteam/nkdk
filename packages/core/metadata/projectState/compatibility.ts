@@ -154,8 +154,13 @@ function canonicalValue(
 function rulesSourceFingerprint(): string {
   return typeof __NKDK_RULES_SOURCE_FINGERPRINT__ === "string"
     ? __NKDK_RULES_SOURCE_FINGERPRINT__
-    : fingerprintRulesSourceTree(new URL("../../", import.meta.url), RULE_SOURCE_ENTRYPOINTS)
+    : (cachedRulesSourceFingerprint ??= fingerprintRulesSourceTree(
+        new URL("../../", import.meta.url),
+        RULE_SOURCE_ENTRYPOINTS,
+      ))
 }
+
+let cachedRulesSourceFingerprint: string | undefined
 
 const RULE_SOURCE_ENTRYPOINTS = [
   "metadata/register.ts",

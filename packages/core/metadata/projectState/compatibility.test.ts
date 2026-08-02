@@ -1,7 +1,5 @@
-import { Type } from "typebox"
-import { afterEach, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../orchestration/property/types"
-import { registerProjectSpec, unregisterProjectSpecForTests } from "../project/projectSpecRegistry"
 import type { MetadataResourceDeclaration } from "../resourceTopology/types"
 import {
   createProjectStateCompatibility,
@@ -10,9 +8,11 @@ import {
 } from "./compatibility"
 
 describe("ProjectState compatibility", () => {
-  const testSpecDir = "__project_state_compatibility__"
+  let coreCompatibility: ReturnType<typeof createProjectStateCompatibility>
 
-  afterEach(() => unregisterProjectSpecForTests(testSpecDir))
+  beforeAll(() => {
+    coreCompatibility = createProjectStateCompatibility("producer-test")
+  })
 
   it("стабилизирует отпечаток относительно порядка регистраций", () => {
     const first = fingerprintProjectStateRulesSnapshot({
@@ -36,9 +36,7 @@ describe("ProjectState compatibility", () => {
   })
 
   it("формирует полный набор отпечатков после регистрации core metadata", () => {
-    const actual = createProjectStateCompatibility("producer-test")
-
-    expect(actual).toEqual({
+    expect(coreCompatibility).toEqual({
       schemaVersion: 1,
       producerVersion: "producer-test",
       rulesFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
@@ -47,25 +45,21 @@ describe("ProjectState compatibility", () => {
   })
 
   it("меняет отпечаток при изменении resources и декларативных project/form rules под прежними ключами", () => {
-    registerCompatibilitySpec(testSpecDir, semantics())
-    const initial = createProjectStateCompatibility().rulesFingerprint
+    const initial = fingerprintProjectStateRulesSnapshot(snapshot(semantics()))
 
     const changedResource = semantics()
     const ignoredResource = changedResource.resources[1]
     if (ignoredResource?.kind !== "ignore") throw new Error("Ожидался ignore resource")
     changedResource.resources[1] = { ...ignoredResource, pattern: "Изменённый/**" }
-    registerCompatibilitySpec(testSpecDir, changedResource)
-    const resourceFingerprint = createProjectStateCompatibility().rulesFingerprint
+    const resourceFingerprint = fingerprintProjectStateRulesSnapshot(snapshot(changedResource))
 
     const changedProjectRule = semantics()
     changedProjectRule.projectRule.properties["value"]!.xml = "ChangedValue"
-    registerCompatibilitySpec(testSpecDir, changedProjectRule)
-    const projectRuleFingerprint = createProjectStateCompatibility().rulesFingerprint
+    const projectRuleFingerprint = fingerprintProjectStateRulesSnapshot(snapshot(changedProjectRule))
 
     const changedFormRule = semantics()
     changedFormRule.formRule.properties["value"]!.xml = "ChangedFormValue"
-    registerCompatibilitySpec(testSpecDir, changedFormRule)
-    const formRuleFingerprint = createProjectStateCompatibility().rulesFingerprint
+    const formRuleFingerprint = fingerprintProjectStateRulesSnapshot(snapshot(changedFormRule))
 
     expect([resourceFingerprint, projectRuleFingerprint, formRuleFingerprint]).not.toContain(initial)
     expect(new Set([resourceFingerprint, projectRuleFingerprint, formRuleFingerprint]).size).toBe(3)
@@ -129,15 +123,15 @@ function metadataRule(itemType: string, xml: string): MetadataItemRule {
   }
 }
 
-function registerCompatibilitySpec(
-  dir: string,
-  value: ReturnType<typeof semantics>,
-): void {
-  registerProjectSpec({
-    dir,
-    kind: "compatibility-test",
-    rule: value.projectRule,
-    resources: value.resources,
-    exportSchema: () => Type.Object({ value: Type.String() }),
-  })
+function snapshot(value: ReturnType<typeof semantics>) {
+  return {
+    projectSpecs: [{
+      dir: "__project_state_compatibility__",
+      kind: "compatibility-test",
+      rule: value.projectRule,
+      resources: value.resources,
+    }],
+    schemas: { project: value.projectRule },
+    localRules: [{ kind: "form", key: "compatibility-form", rule: value.formRule }],
+  }
 }
