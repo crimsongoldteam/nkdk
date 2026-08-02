@@ -1,5 +1,5 @@
-import fs from "fs"
-import { fileURLToPath } from "url"
+import { readFileSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 
 import {
@@ -49,49 +49,13 @@ const settingsFixtures = [
 
 describe("FormAttributes XML → YAML → XML", () => {
   it.each(fixtures)("сохраняет %s", (fixture) => {
-    const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
-    const parsed = importContentFromXML<Record<string, unknown>>(expected, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
-    })
-    const yaml = testPropertyFromXMLToYAML({
-      rule,
-      xml: parsed,
-      context: contexts.importContext,
-    }).yaml
-    const { xml } = testPropertyFromYAMLToXML({
-      rule,
-      yaml,
-      referenceXML: parsed,
-      context: contexts.exportContext(),
-    })
-
-    expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+    const { expected, result } = roundTripFixture(fixture, true)
+    expect(result).toBe(expected.trim())
   })
 
   it.each(settingsFixtures)("восстанавливает %s без reference XML", (fixture) => {
-    const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
-    const parsed = importContentFromXML<Record<string, unknown>>(expected, {
-      preserveEmptyElements: true,
-      preserveXsiNil: true,
-    })
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
-    })
-    const yaml = testPropertyFromXMLToYAML({
-      rule,
-      xml: parsed,
-      context: contexts.importContext,
-    }).yaml
-    const { xml } = testPropertyFromYAMLToXML({
-      rule,
-      yaml,
-      context: contexts.exportContext(),
-    })
-    expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+    const { expected, result } = roundTripFixture(fixture, false)
+    expect(result).toBe(expected.trim())
   })
 
   it("различает обычные и дополнительные колонки", () => {
@@ -210,6 +174,34 @@ describe("FormAttributes XML → YAML → XML", () => {
   })
 
 })
+
+function roundTripFixture(fixture: string, withReference: boolean): { expected: string; result: string } {
+  const expected = readFormAttributeFixture(fixture)
+  const parsed = importContentFromXML<Record<string, unknown>>(expected, {
+    preserveEmptyElements: true,
+    preserveXsiNil: true,
+  })
+  const contexts = createDirectRoundTripContexts({
+    logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+  })
+  const imported = testPropertyFromXMLToYAML({
+    context: contexts.importContext,
+    rule,
+    xml: parsed,
+  })
+  const exportContext = contexts.exportContext()
+  const converted = testPropertyFromYAMLToXML({
+    context: exportContext,
+    referenceXML: withReference ? parsed : undefined,
+    rule,
+    yaml: imported.yaml,
+  })
+  return { expected, result: withoutDeclaration(xmlExport(converted.xml, false)) }
+}
+
+function readFormAttributeFixture(fixture: string): string {
+  return readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
+}
 
 function withoutDeclaration(xml: string): string {
   return xml.replace(/^\uFEFF?<\?xml[^>]+>\s*/, "").trim()
