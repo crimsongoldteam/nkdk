@@ -284,6 +284,65 @@ describe("refreshProjectState", () => {
     expect(events).toEqual(["prepare", "token", "checkpoint"])
   })
 
+  it("отменяется после подготовки до выдачи token и checkpoint", async () => {
+    const controller = new AbortController()
+    const preparation = new TestGate()
+    let tokenCalls = 0
+    const handle = new class extends TrackingRefreshHandle {
+      override async createReadToken(): Promise<ProjectStateReadToken> {
+        tokenCalls += 1
+        return super.createReadToken()
+      }
+    }()
+    const running = refreshProjectState({ projectDir: "/project", signal: controller.signal }, {
+      ...emptyRefreshDependencies(handle),
+      async beforeCheckpoint() {
+        preparation.start()
+        await preparation.wait()
+      },
+    })
+    await preparation.started
+
+    controller.abort()
+    preparation.release()
+
+    await expect(running).rejects.toMatchObject({ name: "AbortError" })
+    expect({ tokenCalls, checkpointCalls: handle.checkpointCalls, rollbackCalls: handle.rollbackCalls }).toEqual({
+      tokenCalls: 0,
+      checkpointCalls: 0,
+      rollbackCalls: 1,
+    })
+  })
+
+  it("игнорирует позднюю отмену после начала необратимого checkpoint", async () => {
+    const controller = new AbortController()
+    const checkpoint = new TestGate()
+    let rollbackCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        checkpoint.start()
+        await checkpoint.wait()
+        return super.commitAndCheckpoint()
+      }
+
+      override async rollbackUpdate(): Promise<void> {
+        rollbackCalls += 1
+        return super.rollbackUpdate()
+      }
+    }()
+    const running = refreshProjectState(
+      { projectDir: "/project", signal: controller.signal },
+      emptyRefreshDependencies(handle),
+    )
+    await checkpoint.started
+
+    controller.abort()
+    checkpoint.release()
+
+    await expect(running).resolves.toMatchObject({ readToken: new Uint8Array([1]) })
+    expect(rollbackCalls).toBe(0)
+  })
+
   it("не вызывает cleanup до начала транзакции", async () => {
     const current = collected([], [])
     let cleanupCalls = 0
@@ -873,6 +932,22 @@ function emptyRefreshDependencies(handle: ProjectStateRefreshHandle) {
     writeChangedResources: async () => undefined,
     isStable: async () => true,
   }
+}
+
+class TestGate {
+  readonly started: Promise<void>
+  private readonly waiting: Promise<void>
+  private notifyStarted!: () => void
+  private releaseWaiting!: () => void
+
+  constructor() {
+    this.started = new Promise<void>((resolve) => { this.notifyStarted = resolve })
+    this.waiting = new Promise<void>((resolve) => { this.releaseWaiting = resolve })
+  }
+
+  start(): void { this.notifyStarted() }
+  release(): void { this.releaseWaiting() }
+  wait(): Promise<void> { return this.waiting }
 }
 
 function hashesFor(batch: ProjectStateFileHashBatch, paths: readonly string[]): Uint8Array {

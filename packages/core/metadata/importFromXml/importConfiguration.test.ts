@@ -453,6 +453,26 @@ describe("configuration XML import coordinator", () => {
     ])
   })
 
+  it("не маскирует AggregateError finalize повторным abort coordinator", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("checkpoint failed")
+    const cleanup = new Error("discard failed")
+    params.projectState = projectStateWithImportSession({
+      async commitWorkingIndex() { return new Uint8Array([1]) as never },
+      async finalize(beforeCheckpoint) {
+        await beforeCheckpoint?.()
+        throw new AggregateError([primary, cleanup], primary.message)
+      },
+    })
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls: [] }))
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      primary.message,
+      cleanup.message,
+    ])
+  })
+
   it("после публикации cleanup failure не превращает успешный import в failure", async () => {
     const params = createParams("configuration")
     const result = await importConfigurationFromXml(params, fakeDependencies({

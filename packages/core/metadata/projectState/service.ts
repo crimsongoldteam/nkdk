@@ -188,7 +188,12 @@ export function createProjectStateService(
         async discard() {
           if (settled) return
           settled = true
-          await importWriter.close()
+          try {
+            await importWriter.close()
+          } catch (caught) {
+            retiredWriters.add(importWriter)
+            throw caught
+          }
         },
       })
       return importSessionWithLease(session, release)

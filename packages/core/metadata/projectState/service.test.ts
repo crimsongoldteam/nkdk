@@ -46,7 +46,8 @@ describe("ProjectStateService", () => {
     const primary = new Error("import failed")
     const cleanup = new Error("candidate close failed")
     const candidate = testWriterHandle(1)
-    candidate.close = async () => { throw cleanup }
+    let closeAttempts = 0
+    candidate.close = async () => { closeAttempts += 1; throw cleanup }
     const service = createProjectStateService({ createWriter: () => candidate, createPool: () => testPool() })
     const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
 
@@ -55,7 +56,8 @@ describe("ProjectStateService", () => {
     expect(caught).toBeInstanceOf(AggregateError)
     expect((caught as AggregateError).errors).toEqual([primary, cleanup])
     expect((caught as Error).message).toBe(primary.message)
-    await service.close()
+    await expect(service.close()).rejects.toThrow(cleanup.message)
+    expect(closeAttempts).toBe(2)
   })
 
   it.each(["reset", "refresh", "rebuild"] as const)(
@@ -124,10 +126,11 @@ describe("ProjectStateService", () => {
 
   it("ошибка finalize сначала завершает candidate и только затем освобождает lease", async () => {
     const events: string[] = []
+    const primary = new Error("checkpoint failed")
     const { projectDir, service, session } = await beginImportLeaseTest(
       "nkdk-project-state-import-finalize-failure-",
       ({ candidate, next }) => {
-        candidate.commitAndCheckpoint = async () => { throw new Error("checkpoint failed") }
+        candidate.commitAndCheckpoint = async () => { throw primary }
         candidate.rollbackUpdate = async () => { events.push("rollback") }
         candidate.close = async () => { candidate.closed += 1; events.push("discard") }
         const openNext = next.openProject.bind(next)
@@ -138,11 +141,37 @@ describe("ProjectStateService", () => {
     const resetting = service.reset(projectDir)
     await nextTurn()
 
-    await expect(session.finalize()).rejects.toThrow("checkpoint failed")
+    await expect(session.finalize()).rejects.toBe(primary)
     await resetting
 
     expect(events).toEqual(["rollback", "discard", "next-open"])
     await service.close()
+  })
+
+  it("finalize сохраняет primary первым и повторяет неудачный discard при service.close", async () => {
+    const primary = new Error("checkpoint failed")
+    const cleanup = new Error("discard failed")
+    let closeAttempts = 0
+    const { service, session } = await beginImportLeaseTest(
+      "nkdk-project-state-import-finalize-cleanup-failure-",
+      ({ candidate }) => {
+        candidate.commitAndCheckpoint = async () => { throw primary }
+        candidate.close = async () => {
+          closeAttempts += 1
+          if (closeAttempts === 1) throw cleanup
+          candidate.closed += 1
+        }
+      },
+    )
+    await session.commitWorkingIndex()
+
+    const failure = await session.finalize().catch((caught: unknown) => caught)
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, cleanup])
+    await expect(session.abort(primary)).resolves.toBeUndefined()
+    await service.close()
+    expect(closeAttempts).toBe(2)
   })
 
   it("ошибка abort освобождает lease после завершённой попытки discard", async () => {
@@ -163,7 +192,8 @@ describe("ProjectStateService", () => {
     await resetting
 
     expect(events).toEqual(["discard", "next-open"])
-    await service.close()
+    await expect(service.close()).rejects.toThrow(discardFailure.message)
+    expect(events).toEqual(["discard", "next-open", "discard"])
   })
 
   it("повторный abort после finalize не освобождает очередь второй раз", async () => {
@@ -361,9 +391,58 @@ describe("ProjectStateService", () => {
 
     await expect(service.rebuild({ projectDir })).rejects.toBe(cleanup)
 
-    await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-1" }])
-    await expect(readFile(snapshotPath, "utf8")).resolves.toBe("previous")
-    await expect(service.createReadToken(projectDir)).resolves.toEqual(oldToken)
+    await expectPreservedProjectState(service, projectDir, snapshotPath, oldToken)
+    expect(old.closed).toBe(0)
+    expect(candidate.closed).toBe(1)
+    await service.close()
+  })
+
+  it("отмена во время закрытия rebuild pool сохраняет прежние runtime, disk и token", async () => {
+    const { projectDir, snapshotPath } = await snapshotProject("nkdk-project-state-rebuild-pool-abort-")
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const writers = [old, candidate]
+    const controller = new AbortController()
+    let releasePool!: () => void
+    let notifyPoolStarted!: () => void
+    const poolGate = new Promise<void>((resolve) => { releasePool = resolve })
+    const poolStarted = new Promise<void>((resolve) => { notifyPoolStarted = resolve })
+    let tokenCalls = 0
+    let checkpointCalls = 0
+    let rollbackCalls = 0
+    const createCandidateToken = candidate.createReadToken.bind(candidate)
+    candidate.createReadToken = async () => {
+      tokenCalls += 1
+      return createCandidateToken()
+    }
+    candidate.commitAndCheckpoint = async () => {
+      checkpointCalls += 1
+      return { snapshotPath }
+    }
+    candidate.rollbackUpdate = async () => { rollbackCalls += 1 }
+    const service = createProjectStateService({
+      createWriter: () => writers.shift()!,
+      createPool: () => ({
+        close: async () => {
+          notifyPoolStarted()
+          await poolGate
+        },
+      }) as PreparedYamlProjectWorkerPool,
+    })
+    const oldToken = await service.createReadToken(projectDir)
+    const rebuilding = service.rebuild({ projectDir, signal: controller.signal })
+    await poolStarted
+
+    controller.abort()
+    releasePool()
+
+    await expect(rebuilding).rejects.toMatchObject({ name: "AbortError" })
+    await expectPreservedProjectState(service, projectDir, snapshotPath, oldToken)
+    expect({ tokenCalls, checkpointCalls, rollbackCalls }).toEqual({
+      tokenCalls: 0,
+      checkpointCalls: 0,
+      rollbackCalls: 1,
+    })
     expect(old.closed).toBe(0)
     expect(candidate.closed).toBe(1)
     await service.close()
@@ -770,6 +849,17 @@ async function readProjectFiles(
   projectDir: string,
 ): Promise<readonly { readonly projectPath: string }[]> {
   return (await service.readComponentProjection({ projectDir, componentPath: "cf" })).projectFiles
+}
+
+async function expectPreservedProjectState(
+  service: ReturnType<typeof createProjectStateService>,
+  projectDir: string,
+  snapshotPath: string,
+  readToken: ProjectStateReadToken,
+): Promise<void> {
+  await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-1" }])
+  await expect(readFile(snapshotPath, "utf8")).resolves.toBe("previous")
+  await expect(service.createReadToken(projectDir)).resolves.toEqual(readToken)
 }
 
 function refreshResult(value: number): ProjectStateRefreshResult {
