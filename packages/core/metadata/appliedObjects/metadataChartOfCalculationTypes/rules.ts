@@ -1,6 +1,9 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataChartOfCalculationTypesTabularSectionsRule } from "./builders"
-import { metadataAttributesRule } from "../metadataDataProcessor/builders"
+import {
+  metadataChartOfCalculationTypesAttributesRule,
+  metadataChartOfCalculationTypesTabularSectionsRule,
+} from "./builders"
+import "./childRules"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -389,7 +392,11 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    attributes: metadataChartOfCalculationTypesAttributesRule({
+      yaml: "Реквизиты",
+      xml: "Attribute",
+      xmlParents: childObjects,
+    }),
     tabularSections: metadataChartOfCalculationTypesTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",

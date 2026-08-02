@@ -29,6 +29,21 @@ import {
   MetadataExchangePlanTabularSectionAttributeRules,
   MetadataExchangePlanTabularSectionRules,
 } from "../metadataExchangePlan/childRules"
+import {
+  MetadataChartOfAccountsAttributeRules,
+  MetadataChartOfAccountsTabularSectionAttributeRules,
+  MetadataChartOfAccountsTabularSectionRules,
+} from "../metadataChartOfAccounts/childRules"
+import {
+  MetadataChartOfCalculationTypesAttributeRules,
+  MetadataChartOfCalculationTypesTabularSectionAttributeRules,
+  MetadataChartOfCalculationTypesTabularSectionRules,
+} from "../metadataChartOfCalculationTypes/childRules"
+import {
+  MetadataChartOfCharacteristicTypesAttributeRules,
+  MetadataChartOfCharacteristicTypesTabularSectionAttributeRules,
+  MetadataChartOfCharacteristicTypesTabularSectionRules,
+} from "../metadataChartOfCharacteristicTypes/childRules"
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
 const identity = ["objectBelonging", "name"]
@@ -83,6 +98,7 @@ const owners: readonly {
   attributeOrder: readonly string[]
   tabularOrder: readonly string[]
   topAllowedTypes: boolean
+  allowUse?: boolean
 }[] = [
   {
     name: "Catalog",
@@ -170,6 +186,45 @@ const owners: readonly {
     tabularOrder: [...tabularBase, "lineNumberLength", "attributes", "uuid"],
     topAllowedTypes: true,
   },
+  {
+    name: "ChartOfAccounts",
+    attributeType: "MetadataChartOfAccountsAttributes",
+    tabularType: "MetadataChartOfAccountsTabularSections",
+    nestedType: "MetadataChartOfAccountsTabularSectionAttributes",
+    attributeRule: MetadataChartOfAccountsAttributeRules,
+    tabularRule: MetadataChartOfAccountsTabularSectionRules,
+    nestedRule: MetadataChartOfAccountsTabularSectionAttributeRules,
+    attributeOrder: [...identity, ...presentation, ...fill, ...choice, ...searchAndHistory, "uuid"],
+    tabularOrder: [...tabularBase, "lineNumberLength", "attributes", "uuid"],
+    topAllowedTypes: false,
+    allowUse: false,
+  },
+  {
+    name: "ChartOfCalculationTypes",
+    attributeType: "MetadataChartOfCalculationTypesAttributes",
+    tabularType: "MetadataChartOfCalculationTypesTabularSections",
+    nestedType: "MetadataChartOfCalculationTypesTabularSectionAttributes",
+    attributeRule: MetadataChartOfCalculationTypesAttributeRules,
+    tabularRule: MetadataChartOfCalculationTypesTabularSectionRules,
+    nestedRule: MetadataChartOfCalculationTypesTabularSectionAttributeRules,
+    attributeOrder: [...identity, ...presentation, ...fill, ...choice, ...searchAndHistory, "uuid"],
+    tabularOrder: [...tabularBase, "lineNumberLength", "attributes", "uuid"],
+    topAllowedTypes: false,
+    allowUse: false,
+  },
+  {
+    name: "ChartOfCharacteristicTypes",
+    attributeType: "MetadataChartOfCharacteristicTypesAttributes",
+    tabularType: "MetadataChartOfCharacteristicTypesTabularSections",
+    nestedType: "MetadataChartOfCharacteristicTypesTabularSectionAttributes",
+    attributeRule: MetadataChartOfCharacteristicTypesAttributeRules,
+    tabularRule: MetadataChartOfCharacteristicTypesTabularSectionRules,
+    nestedRule: MetadataChartOfCharacteristicTypesTabularSectionAttributeRules,
+    attributeOrder: [...identity, ...presentation, ...fill, ...choice, "use", ...searchAndHistory, "uuid"],
+    tabularOrder: [...tabularBase, "use", "lineNumberLength", "attributes", "uuid"],
+    topAllowedTypes: true,
+    allowUse: true,
+  },
 ]
 
 describe("owner-specific attribute and tabular section rules", () => {
@@ -179,6 +234,17 @@ describe("owner-specific attribute and tabular section rules", () => {
     expectRuleOrder(owner.nestedRule, nestedAttribute)
     expect(owner.attributeRule.properties.type.allowedTypes !== undefined).toBe(owner.topAllowedTypes)
     expect(owner.nestedRule.properties.type.allowedTypes).toBeDefined()
+
+    if (owner.allowUse !== undefined) {
+      const attributeSchema = compileValidationSchema(
+        exportMetadataItemToJSONSchema({ context, rule: owner.attributeRule })
+      )
+      const tabularSchema = compileValidationSchema(
+        exportMetadataItemToJSONSchema({ context, rule: owner.tabularRule })
+      )
+      expect(attributeSchema.Check({ Тип: "Строка", Использование: "ДляЭлемента" })).toBe(owner.allowUse)
+      expect(tabularSchema.Check({ Использование: "ДляЭлемента" })).toBe(owner.allowUse)
+    }
 
     expect(getTypeRule(owner.attributeType, "collectionItemRule")?.itemRule).toBe(owner.attributeRule)
     expect(getTypeRule(owner.tabularType, "collectionItemRule")?.itemRule).toBe(owner.tabularRule)

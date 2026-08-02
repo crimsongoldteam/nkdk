@@ -2,8 +2,9 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
+import { createOwnerTabularSectionCollectionRuleBuilder } from "../../commonObjects/metadataTabularSection/registerOwnerCollection"
 
 export interface AccountingFlagsWidePropertyRule extends WidePropertyRuleBase {
   type: "AccountingFlags"
@@ -59,27 +60,9 @@ export function chartOfAccountsPredefinedExtDimensionTypesRule<
 ): Readonly<{ type: "ChartOfAccountsPredefinedExtDimensionTypes" } & Params> {
   return defineWidePropertyRule("ChartOfAccountsPredefinedExtDimensionTypes", params)
 }
-export interface MetadataChartOfAccountsTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataChartOfAccountsTabularSections"
-}
-
-export type MetadataChartOfAccountsTabularSectionsRuleParams = Omit<
-  MetadataChartOfAccountsTabularSectionsWidePropertyRule,
-  "type"
->
-
-export function metadataChartOfAccountsTabularSectionsRule<
-  const Params extends MetadataChartOfAccountsTabularSectionsRuleParams,
->(
-  params: WideExactRuleParams<MetadataChartOfAccountsTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataChartOfAccountsTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataChartOfAccountsTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataChartOfAccountsAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataChartOfAccountsAttributes"
+)
+export const metadataChartOfAccountsTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataChartOfAccountsTabularSections"
+)
