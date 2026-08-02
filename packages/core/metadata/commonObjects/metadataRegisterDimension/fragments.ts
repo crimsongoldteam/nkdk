@@ -5,6 +5,10 @@ import { booleanRule } from "../boolean/types"
 import { metadataRuleFragment } from "../metadataRuleFragment"
 import { stringRule } from "../string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
+import {
+  registerFieldAccountingFlagProperty,
+  registerFieldBalanceProperty,
+} from "../metadataRegisterField/accountingProperties"
 
 const registerParentItemTypes = [
   "MetadataAccumulationRegister",
@@ -36,25 +40,6 @@ const mainFilter = booleanRule({
   implicitValueYAML: true,
   toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
     exportDimensionDefaultForXML("mainFilter", source, context, "MetadataInformationRegister"),
-})
-
-const balance = booleanRule({
-  yaml: "Балансовый",
-  xml: "Balance",
-  xmlParents: ["Properties"],
-  defaultValueXML: true,
-  implicitValueYAML: true,
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
-    isAccountingRegisterField(context),
-})
-
-const accountingFlag = stringRule({
-  yaml: "ПризнакУчета",
-  xml: "AccountingFlag",
-  xmlParents: ["Properties"],
-  defaultValueXMLRaw: "",
-  toXML: (_source: unknown, context?: ConfigurationContextWithExportToXML) =>
-    isAccountingRegisterField(context),
 })
 
 const denyIncompleteValues = booleanRule({
@@ -107,7 +92,15 @@ const typeReductionMode = systemEnumerationRule({
 
 export const registerDimensionRoleFragment = metadataRuleFragment(
   ["master", "mainFilter", "balance", "accountingFlag", "denyIncompleteValues", "baseDimension", "scheduleLink"],
-  { master, mainFilter, balance, accountingFlag, denyIncompleteValues, baseDimension, scheduleLink }
+  {
+    master,
+    mainFilter,
+    balance: registerFieldBalanceProperty,
+    accountingFlag: registerFieldAccountingFlagProperty,
+    denyIncompleteValues,
+    baseDimension,
+    scheduleLink,
+  }
 )
 
 export const registerDimensionTotalsFragment = metadataRuleFragment(
@@ -137,12 +130,6 @@ const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string):
   ("has" in source && typeof source.has === "function"
     ? source.has(propertyKey)
     : Object.prototype.hasOwnProperty.call(source, propertyKey))
-
-const isAccountingRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
-  context
-    ? getParentFromContext(context, ["MetadataAccountingRegister" as never]).itemType ===
-      "MetadataAccountingRegister"
-    : false
 
 const isCalculationRegisterField = (context?: ConfigurationContextWithExportToXML): boolean =>
   context
