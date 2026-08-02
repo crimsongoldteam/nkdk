@@ -45,3 +45,6 @@ reports/stryker/
 
 # Локальные отчёты длительности тестов
 reports/test-profile/
+
+# Локальные отчёты dependency-cruiser
+reports/dependency-cruiser/

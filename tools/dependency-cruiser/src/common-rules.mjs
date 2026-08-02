@@ -42,3 +42,7 @@ export const commonRules = [
     to: { dependencyTypes: ["npm-dev"] },
   },
 ]
+
+export const projectCommonRules = commonRules.filter(
+  ({ name }) => name !== "no-circular-production"
+)

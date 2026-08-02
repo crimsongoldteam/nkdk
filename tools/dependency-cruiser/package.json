@@ -2,6 +2,10 @@
   "name": "@nkdk/dependency-cruiser",
   "private": true,
   "type": "module",
+  "scripts": {
+    "check": "node src/check.mjs",
+    "test:rules": "node --test 'test/*.test.mjs'"
+  },
   "devDependencies": {
     "dependency-cruiser": "18.1.0",
     "typescript": "6.0.3"

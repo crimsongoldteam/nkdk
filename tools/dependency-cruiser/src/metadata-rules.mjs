@@ -9,7 +9,7 @@ const allowedInternalTargets = [
   "^packages/core/(?:helpers|yaml|xml)/",
 ]
 
-const implementationTargets = [
+export const implementationTargetPatterns = [
   "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
   "^packages/core/metadata/register\\.ts$",
 ]
@@ -34,6 +34,6 @@ export const metadataForbiddenRules = [
     comment:
       "Нейтральный metadata-слой не знает реализацию даже транзитивно; используйте rules.ts, регистрацию или нейтральный договор.",
     from: { path: neutralProductionPattern, pathNot: testModulePattern },
-    to: { path: implementationTargets, reachable: true },
+    to: { path: implementationTargetPatterns, reachable: true },
   },
 ]
