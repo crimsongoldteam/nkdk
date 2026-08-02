@@ -55,10 +55,22 @@ import {
   MetadataReportTabularSectionAttributeRules,
   MetadataReportTabularSectionRules,
 } from "../metadataReport/childRules"
-import { MetadataInformationRegisterAttributeRules } from "../metadataInformationRegister/childRules"
-import { MetadataAccumulationRegisterAttributeRules } from "../metadataAccumulationRegister/childRules"
-import { MetadataAccountingRegisterAttributeRules } from "../metadataAccountingRegister/childRules"
-import { MetadataCalculationRegisterAttributeRules } from "../metadataCalculationRegister/childRules"
+import {
+  MetadataInformationRegisterAttributeRules,
+  MetadataInformationRegisterDimensionRules,
+} from "../metadataInformationRegister/childRules"
+import {
+  MetadataAccumulationRegisterAttributeRules,
+  MetadataAccumulationRegisterDimensionRules,
+} from "../metadataAccumulationRegister/childRules"
+import {
+  MetadataAccountingRegisterAttributeRules,
+  MetadataAccountingRegisterDimensionRules,
+} from "../metadataAccountingRegister/childRules"
+import {
+  MetadataCalculationRegisterAttributeRules,
+  MetadataCalculationRegisterDimensionRules,
+} from "../metadataCalculationRegister/childRules"
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
 const identity = ["objectBelonging", "name"]
@@ -381,6 +393,49 @@ describe("owner-specific register attribute rules", () => {
     expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
     expect(schema.Check({ Тип: "Строка", ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Поле" })).toBe(owner.allowBinaryField)
     expect(schema.Check({ Тип: "Строка", СвязьСГрафиком: "График" })).toBe(owner.allowSchedule)
+  })
+})
+
+const registerDimensionOwners = [
+  {
+    name: "InformationRegister",
+    propertyType: "MetadataInformationRegisterDimensions",
+    rule: MetadataInformationRegisterDimensionRules,
+    allowFill: true,
+    allowHistory: true,
+  },
+  {
+    name: "AccumulationRegister",
+    propertyType: "MetadataAccumulationRegisterDimensions",
+    rule: MetadataAccumulationRegisterDimensionRules,
+    allowFill: false,
+    allowHistory: false,
+  },
+  {
+    name: "AccountingRegister",
+    propertyType: "MetadataAccountingRegisterDimensions",
+    rule: MetadataAccountingRegisterDimensionRules,
+    allowFill: false,
+    allowHistory: false,
+  },
+  {
+    name: "CalculationRegister",
+    propertyType: "MetadataCalculationRegisterDimensions",
+    rule: MetadataCalculationRegisterDimensionRules,
+    allowFill: false,
+    allowHistory: false,
+  },
+] as const
+
+describe("owner-specific register dimension rules", () => {
+  it.each(registerDimensionOwners)("keeps exact dimension contract for $name", (owner) => {
+    expect(getTypeRule(owner.propertyType, "collectionItemRule")?.itemRule).toBe(owner.rule)
+    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
+
+    expect(schema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(true)
+    expect(schema.Check({ Тип: "Строка", ЗаполнятьИзДанныхЗаполнения: "Истина" })).toBe(owner.allowFill)
+    expect(schema.Check({ Тип: "Строка", ЗначениеЗаполнения: "Строка" })).toBe(owner.allowFill)
+    expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
   })
 })
 

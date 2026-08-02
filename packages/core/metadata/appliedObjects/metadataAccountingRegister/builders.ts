@@ -5,6 +5,7 @@ import {
 import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { createOwnerAttributeCollectionRuleBuilder } from "../../commonObjects/metadataAttribute/registerOwnerCollection"
+import { createOwnerRegisterFieldCollectionRuleBuilder } from "../../commonObjects/metadataRegisterField/registerOwnerCollection"
 
 export interface MetadataCommandsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataCommands"
@@ -62,6 +63,22 @@ export const metadataAccountingRegisterAttributesRule = createOwnerAttributeColl
 )
 export const metadataCalculationRegisterAttributesRule = createOwnerAttributeCollectionRuleBuilder(
   "MetadataCalculationRegisterAttributes"
+)
+export const metadataInformationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataInformationRegisterDimensions",
+  "dimensions"
+)
+export const metadataAccumulationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataAccumulationRegisterDimensions",
+  "dimensions"
+)
+export const metadataAccountingRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataAccountingRegisterDimensions",
+  "dimensions"
+)
+export const metadataCalculationRegisterDimensionsRule = createOwnerRegisterFieldCollectionRuleBuilder(
+  "MetadataCalculationRegisterDimensions",
+  "dimensions"
 )
 export interface MetadataRegisterResourcesWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataRegisterResources"
