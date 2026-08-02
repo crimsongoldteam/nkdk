@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
-import { analyzeTestDurationReport, parseArguments } from "./assert-test-durations.mjs"
+import { analyzeTestDurationReport, parseArguments, readTestDurationReports } from "./assert-test-durations.mjs"
 
-const report = ({ testMs, fileMs }: { testMs: number; fileMs: number }) => ({
+const report = ({ testMs }: { testMs: number }) => ({
+  success: true,
+  numTotalTests: 1,
+  numPassedTests: 1,
+  numFailedTests: 0,
+  numPendingTests: 0,
+  numTodoTests: 0,
   testResults: [{
     name: "/project/packages/core/example.test.ts",
-    startTime: 1_000,
-    endTime: 1_000 + fileMs,
+    startTime: 0,
+    endTime: 99_999,
     assertionResults: [{
       fullName: "example test case",
       duration: testMs,
@@ -14,24 +20,35 @@ const report = ({ testMs, fileMs }: { testMs: number; fileMs: number }) => ({
   }],
 })
 
+const lifecycleReport = (fileMs: number) => ({
+  testFiles: [{
+    file: "/project/packages/core/example.test.ts",
+    duration: fileMs,
+  }],
+})
+
 describe("assert test durations", () => {
   it("разделяет целевые предупреждения и жёсткие превышения на границах", () => {
-    expect(analyzeTestDurationReport(report({ testMs: 10, fileMs: 1_000 }))).toEqual({
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000))).toEqual({
       warnings: [],
       failures: [],
     })
-    expect(analyzeTestDurationReport(report({ testMs: 10.01, fileMs: 1_000 })).warnings).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 50.01, fileMs: 1_000 })).failures).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 10, fileMs: 1_000.01 })).failures).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(1_000)).warnings).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000)).failures).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000.01)).failures).toHaveLength(1)
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
     const result = analyzeTestDurationReport({
+      success: true,
+      numTotalTests: 4,
+      numPassedTests: 4,
+      numFailedTests: 0,
+      numPendingTests: 0,
+      numTodoTests: 0,
       testResults: [
         {
           name: "/project/first.test.ts",
-          startTime: 0,
-          endTime: 1_100,
           assertionResults: [
             { fullName: "first warning", duration: 11 },
             { fullName: "first failure", duration: 60 },
@@ -39,13 +56,16 @@ describe("assert test durations", () => {
         },
         {
           name: "/project/second.test.ts",
-          startTime: 0,
-          endTime: 1_200,
           assertionResults: [
             { fullName: "second warning", duration: 20 },
             { fullName: "second failure", duration: 80 },
           ],
         },
+      ],
+    }, {
+      testFiles: [
+        { file: "/project/first.test.ts", duration: 1_100 },
+        { file: "/project/second.test.ts", duration: 1_200 },
       ],
     })
 
@@ -54,10 +74,33 @@ describe("assert test durations", () => {
   })
 
   it("отклоняет повреждённый JSON-отчёт", () => {
-    expect(() => analyzeTestDurationReport({ testResults: [{ assertionResults: [] }] })).toThrow()
+    expect(() => analyzeTestDurationReport({ testResults: [{ assertionResults: [] }] }, lifecycleReport(1))).toThrow()
+  })
+
+  it("отклоняет неполный отчёт и отсутствие файла", () => {
+    expect(() => analyzeTestDurationReport({
+      success: true,
+      numTotalTests: 1,
+      numPassedTests: 1,
+      numFailedTests: 0,
+      numPendingTests: 0,
+      numTodoTests: 0,
+      testResults: [],
+    }, { testFiles: [] })).toThrow()
+    expect(() => readTestDurationReports({
+      report: "/definitely/missing/case-report.json",
+      lifecycleReport: "/definitely/missing/lifecycle-report.json",
+    })).toThrow()
   })
 
   it("не позволяет изменить лимит параметром командной строки", () => {
     expect(() => parseArguments(["--report", "result.json", "--max-ms", "100"])).toThrow()
+  })
+
+  it("требует отдельный lifecycle-отчёт", () => {
+    expect(parseArguments([
+      "--report", "result.json",
+      "--lifecycle-report", "lifecycle.json",
+    ])).toEqual({ report: "result.json", lifecycleReport: "lifecycle.json" })
   })
 })

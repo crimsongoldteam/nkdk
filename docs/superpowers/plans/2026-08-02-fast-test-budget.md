@@ -4,7 +4,7 @@
 
 **Goal:** Ограничить каждый test case 50 мс, каждый test file 1 000 мс и устранить многоминутные project-state и JSON Schema тесты без потери наблюдаемых договоров.
 
-**Architecture:** JSON-отчёт Vitest проверяется неизменяемым переходником после каждого неинтерактивного запуска. Writer handle тестируется через инъецируемый транспорт, настоящая SQLite остаётся только на минимальной интеграционной границе, а свойства JSON Schema проверяются ближайшими экспортёрами без полной рекурсивной схемы.
+**Architecture:** JSON-отчёт Vitest хранит длительности test case; custom runner/reporter создают companion lifecycle-отчёт test file от импорта до hooks без ожидания очереди. Переносимый runner использует уникальный каталог системного tmp и удаляет его после проверки.
 
 **Tech Stack:** TypeScript, Node.js 26, Vitest 4, `node:sqlite`, `worker_threads`, pnpm.
 
@@ -34,7 +34,7 @@
 
 - Produces: `TEST_DURATION_TARGET_MS = 10`, `TEST_DURATION_LIMIT_MS = 50`, `TEST_FILE_LIMIT_MS = 1_000`.
 - Produces: `analyzeTestDurationReport(report)` с результатом `{ warnings, failures }`.
-- Produces: CLI `node packages/core/scripts/assert-test-durations.mjs --report <path>`.
+- Produces: CLI `node packages/core/scripts/assert-test-durations.mjs --report <path> --lifecycle-report <path>`.
 
 - [ ] **Step 1: Написать grouped RED для test case и test file**
 
@@ -59,7 +59,7 @@
 
 - [ ] **Step 3: Реализовать неизменяемый анализатор**
 
-  Анализатор обязан отклонять повреждённый отчёт, сортировать warnings/failures по убыванию времени и вычислять длительность файла как `endTime - startTime`. Значение ровно на границе проходит.
+  Анализатор обязан fail-closed валидировать оба отчёта, сортировать warnings/failures по убыванию времени и использовать lifecycle custom runner/reporter вместо `endTime - startTime`. Значение ровно на границе проходит.
 
 - [ ] **Step 4: Подключить анализатор ко всем package scripts**
 

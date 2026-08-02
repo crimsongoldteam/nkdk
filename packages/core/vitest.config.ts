@@ -26,5 +26,8 @@ export default defineConfig({
       resolve(__dirname, "./tests/forbidRealPiscina"),
       resolve(__dirname, "./tests/setupTests"),
     ],
+    runner: process.env["NKDK_TEST_FILE_LIFECYCLE_EVENTS"] === undefined
+      ? undefined
+      : resolve(__dirname, "./scripts/test-file-lifecycle-runner.mjs"),
   },
 })
