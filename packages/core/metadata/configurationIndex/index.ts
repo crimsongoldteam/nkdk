@@ -23,9 +23,11 @@ export {
   writeConfigurationIndexAtomically,
 } from "./fileIO"
 export {
+  createConfigurationIndexFragmentBuilder,
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
+  type ConfigurationIndexFragmentBuilder,
 } from "./fragment"
 export { hashConfigurationProjectFiles, hashConfigurationProjectFileList, type HashConfigurationProjectFilesOptions } from "./projectFiles"
 export {

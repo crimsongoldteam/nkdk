@@ -6,6 +6,7 @@ import type {
   ProjectStateImportIndexContribution,
 } from "../projectState/importSession"
 import type { ProjectStateReadToken } from "../projectState/contracts"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -68,7 +69,7 @@ export type ImportWorkerCommand =
       projectDir?: string
       componentPath?: string
     }
-  | { kind: "firstPass"; assignments: ImportAssignment[]; finalize?: boolean }
+  | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "endSecondPass" }
@@ -80,7 +81,7 @@ export interface ImportFirstPassResult {
   validationContribution: ValidationIndexContribution
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
-  fragmentBuffer: ArrayBuffer
+  configurationFragments: ConfigurationSnapshotFragment[]
   indexContributions: ProjectStateImportIndexContribution[]
   finalFileStateBatches: ProjectStateImportFinalFileStateBatch[]
 }

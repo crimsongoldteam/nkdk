@@ -4,11 +4,11 @@ import { join } from "node:path"
 import {
   componentPath,
   configurationIndexPath,
-  encodeConfigurationIndexFragments,
+  createConfigurationIndexFragmentBuilder,
   hashConfigurationProjectFileList,
-  mergeConfigurationIndexFragments,
   writeConfigurationIndexAtomically,
   type ComponentAddress,
+  type ConfigurationIndexFragmentBuilder,
   type ConfigurationSnapshot,
   type ConfigurationSnapshotFile,
   type ConfigurationSnapshotFragment,
@@ -158,7 +158,13 @@ export async function importConfigurationFromXml(
       workerCount: concurrency,
       output: { componentPaths: [selectedComponentPath] },
     })
-    const stateSink = createImportStateSink(importSession, importFileHashes, selectedComponentPath)
+    const fragmentBuilder = createConfigurationIndexFragmentBuilder()
+    const stateSink = createImportStateSink(
+      importSession,
+      importFileHashes,
+      selectedComponentPath,
+      fragmentBuilder,
+    )
     pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
 
     const discovered = await profiler.measureAsync(
@@ -202,12 +208,8 @@ export async function importConfigurationFromXml(
       context: params.context,
       files: discovered.snapshotFiles ?? [],
     })
-    const fragmentData = mergeConfigurationIndexFragments([
-      encodeConfigurationIndexFragments([
-        ...splitMergedConfigurationSnapshotFragments(first.fragmentData),
-        ...snapshotFragments,
-      ]),
-    ])
+    for (const fragment of snapshotFragments) fragmentBuilder.add(fragment)
+    const fragmentData = fragmentBuilder.finish()
 
     profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
       items: discovered.assignments.length,
@@ -354,9 +356,11 @@ function createImportStateSink(
   session: ProjectStateImportSession,
   hashes: Map<string, bigint>,
   selectedComponentPath: string,
+  fragmentBuilder: ConfigurationIndexFragmentBuilder,
 ): XmlImportStateSink {
   return {
     async writeFirstPassState(batch) {
+      if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
       await writeStreamedImportState(session, hashes, selectedComponentPath, batch)
     },
     async writeSecondPassState(batch) {
@@ -520,15 +524,6 @@ function snapshotFilesFromState(
     if (contentHash === undefined) throw new Error(`Import не передал хэш готового файла: ${targetProjectPath}`)
     return { projectPath: targetProjectPath, contentHash }
   })
-}
-
-function splitMergedConfigurationSnapshotFragments(
-  merged: MergedConfigurationSnapshotFragments
-): ConfigurationSnapshotFragment[] {
-  return merged.sourceProjectPaths.map((targetProjectPath) => ({
-    targetProjectPath,
-    entities: merged.entities.filter((entity) => entity.sourceProjectPath === targetProjectPath),
-  }))
 }
 
 function successResult(

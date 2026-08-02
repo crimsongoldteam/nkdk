@@ -534,16 +534,24 @@ function fakeDependencies(params: {
         },
         async runFirstPass(_assignments, sink) {
           call("firstPass")
-          await sink?.writeFirstPassState({
-            indexContributions: [],
-            finalFileStateBatches: [stateBatch(firstPassFiles, 1, selectedComponentPath)],
-          })
+          const fragments = fragmentData.sourceProjectPaths.map((targetProjectPath) => ({
+            targetProjectPath,
+            entities: fragmentData.entities.filter((entity) => entity.sourceProjectPath === targetProjectPath),
+          }))
+          for (let index = 0; index < fragments.length; index += 1) {
+            await sink?.writeFirstPassState({
+              configurationFragment: fragments[index],
+              indexContributions: [],
+              finalFileStateBatches: index === 0
+                ? [stateBatch(firstPassFiles, 1, selectedComponentPath)]
+                : [],
+            })
+          }
           return {
             diagnostics: [],
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
             files: firstPassFiles,
-            fragmentData,
           }
         },
         async runSecondPass(_tokens, sink) {

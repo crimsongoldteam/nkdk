@@ -1,13 +1,11 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import { createOperationProfiler } from "../validation/profile"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type {
   ProjectStateImportFinalFileStateBatch,
@@ -56,7 +54,6 @@ export interface XmlImportFirstPassPoolResult {
   ownerFacts: ValidationOwnerFacts[]
   validationContribution: ValidationIndexContribution
   files: ImportResultFile[]
-  fragmentData: MergedConfigurationSnapshotFragments
 }
 
 export interface XmlImportSecondPassPoolResult {
@@ -66,6 +63,7 @@ export interface XmlImportSecondPassPoolResult {
 }
 
 export interface XmlImportStateBatch {
+  readonly configurationFragment?: ConfigurationSnapshotFragment
   readonly indexContributions: readonly ProjectStateImportIndexContribution[]
   readonly finalFileStateBatches: readonly ProjectStateImportFinalFileStateBatch[]
 }
@@ -247,17 +245,21 @@ function createXmlImportOperationPool(params: {
           }
 
           const workerResults: ImportFirstPassResult[] = []
-          for (let assignmentIndex = 0; assignmentIndex < assignmentsForWorker.length; assignmentIndex += 1) {
-            const assignment = assignmentsForWorker[assignmentIndex]!
+          for (const assignment of assignmentsForWorker) {
             const response = await runCommand(workerIndex, {
               kind: "firstPass",
               assignments: [assignment],
-              finalize: assignmentIndex === assignmentsForWorker.length - 1,
             })
             if (response?.kind !== "firstPassResult") {
               return failWorker(new Error("Worker вернул неожиданный результат firstPass"))
             }
+            if (response.configurationFragments.length > 1) {
+              return failWorker(new Error("Worker вернул больше одного fragment на assignment"))
+            }
             await stateQueue.run(() => sink.writeFirstPassState({
+              ...(response.configurationFragments[0] === undefined
+                ? {}
+                : { configurationFragment: response.configurationFragments[0] }),
               indexContributions: response.indexContributions,
               finalFileStateBatches: response.finalFileStateBatches,
             }))
@@ -269,14 +271,6 @@ function createXmlImportOperationPool(params: {
       const results = resultsByWorker.flat()
 
       const diagnostics = results.flatMap((result) => result.diagnostics)
-      const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
-      const fragmentData = profiler.measure(
-        "Подготовка импорта конфигурации",
-        "Обобщение фрагментов данных файла индекса конфигурации",
-        { items: results.length },
-        () => mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer))
-      )
-      profiler.flush()
       phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
       return {
         diagnostics,
@@ -291,7 +285,6 @@ function createXmlImportOperationPool(params: {
           localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
           logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
         },
-        fragmentData,
       }
     },
 
@@ -415,7 +408,7 @@ const noopStateSink: XmlImportStateSink = {
 }
 
 function withoutFirstPassState(result: ImportFirstPassResult): ImportFirstPassResult {
-  return { ...result, indexContributions: [], finalFileStateBatches: [] }
+  return { ...result, configurationFragments: [], indexContributions: [], finalFileStateBatches: [] }
 }
 
 function withoutSecondPassState(result: ImportSecondPassResult): ImportSecondPassResult {

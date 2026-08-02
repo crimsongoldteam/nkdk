@@ -23,6 +23,7 @@ export function assertProjectStateFileUpdateBatch(value: unknown): asserts value
 
 export function assertProjectStateImportFinalFileState(value: unknown, path: string): void {
   const update = requiredRecord(value, path)
+  assertPortableData(update, path)
   if (update["kind"] === "resource") {
     assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind"], path)
     assertProjectStateFileUpdate(update, path)
@@ -52,6 +53,7 @@ export function assertProjectStateImportFinalFileState(value: unknown, path: str
 
 function assertProjectStateFileUpdate(value: unknown, path: string): void {
   const update = requiredRecord(value, path)
+  assertPortableData(update, path)
   assertString(update["kind"], `${path}.kind`)
   if (update["kind"] === "resource") {
     assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind", "yamlRole"], path)
@@ -657,14 +659,21 @@ function assertStringArray(value: unknown, path: string, allowed?: readonly stri
 
 const FORBIDDEN_PORTABLE_KEYS = new Set(["rule", "parsed", "graph", "hash", "hashOffset", "fromYAML", "toYAML"])
 
+export function assertProjectStatePortableData(value: unknown, path: string): void {
+  assertPortableData(value, path)
+}
+
 function assertPortableData(value: unknown, path: string, seen = new Set<object>()): void {
   if (typeof value === "function") throw new Error(`${path} содержит функцию`)
   if (value === null || value === undefined || ["string", "number", "boolean"].includes(typeof value)) return
   if (typeof value !== "object") throw new Error(`${path} содержит непереносимое значение`)
-  if (seen.has(value)) return
+  if (seen.has(value)) throw new Error(`${path} содержит циклическую ссылку`)
   seen.add(value)
   if (Array.isArray(value)) {
-    value.forEach((item, index) => assertPortableData(item, `${path}[${index}]`, seen))
+    assertPlainDenseArray(value, path)
+    for (let index = 0; index < value.length; index += 1) {
+      assertPortableData(value[index], `${path}[${index}]`, seen)
+    }
     seen.delete(value)
     return
   }
@@ -672,18 +681,46 @@ function assertPortableData(value: unknown, path: string, seen = new Set<object>
     throw new Error(`${path} содержит бинарное значение вне hashBytes`)
   }
   const record = requiredRecord(value, path)
-  for (const [key, item] of Object.entries(record)) {
+  for (const key of Reflect.ownKeys(record)) {
+    if (typeof key === "symbol") throw new Error(`${path} содержит symbol-поле`)
+    const descriptor = Object.getOwnPropertyDescriptor(record, key)!
+    assertPlainDataProperty(descriptor, `${path}.${key}`)
     if (FORBIDDEN_PORTABLE_KEYS.has(key)) throw new Error(`${path}.${key} запрещён в переносимом DTO`)
-    assertPortableData(item, `${path}.${key}`, seen)
+    assertPortableData(descriptor.value, `${path}.${key}`, seen)
   }
   seen.delete(value)
 }
 
 function assertExactKeys(record: Record<string, unknown>, allowed: readonly string[], path: string): void {
   const allowedSet = new Set(allowed)
-  for (const key of Object.keys(record)) {
+  for (const key of Reflect.ownKeys(record)) {
+    if (typeof key === "symbol") throw new Error(`${path} содержит symbol-поле`)
     if (!allowedSet.has(key)) throw new Error(`${path}.${key} не является разрешённым полем`)
+    assertPlainDataProperty(Object.getOwnPropertyDescriptor(record, key)!, `${path}.${key}`)
   }
+}
+
+function assertPlainDenseArray(value: unknown[], path: string): void {
+  if (Object.getPrototypeOf(value) !== Array.prototype) throw new Error(`${path} должен быть обычным массивом`)
+  const keys = Reflect.ownKeys(value)
+  for (const key of keys) {
+    if (typeof key === "symbol") throw new Error(`${path} содержит symbol-поле`)
+    if (key === "length") continue
+    const index = Number(key)
+    if (!Number.isSafeInteger(index) || index < 0 || index >= value.length || String(index) !== key) {
+      throw new Error(`${path}.${key} не является индексом массива`)
+    }
+    assertPlainDataProperty(Object.getOwnPropertyDescriptor(value, key)!, `${path}[${index}]`)
+  }
+  for (let index = 0; index < value.length; index += 1) {
+    if (!Object.hasOwn(value, index)) throw new Error(`${path} не должен быть разреженным массивом`)
+  }
+}
+
+function assertPlainDataProperty(descriptor: PropertyDescriptor, path: string): asserts descriptor is PropertyDescriptor & {
+  readonly value: unknown
+} {
+  if (!("value" in descriptor) || !descriptor.enumerable) throw new Error(`${path} должен быть enumerable data property`)
 }
 
 function requiredRecord(value: unknown, path: string): Record<string, unknown> {

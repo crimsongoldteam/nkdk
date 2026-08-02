@@ -67,6 +67,14 @@ describe("ProjectState import session", () => {
     })).toThrow(/hashBytes/iu)
   })
 
+  it.each([
+    ["extra bigint на updates", arrayWithProperty([finalState(contribution.projectPath)], "extra", 1n), new Uint8Array(8)],
+    ["symbol на updates", arrayWithProperty([finalState(contribution.projectPath)], Symbol("extra"), true), new Uint8Array(8)],
+    ["symbol на hashBytes", [finalState(contribution.projectPath)], arrayWithProperty(new Uint8Array(8), Symbol("extra"), true)],
+  ])("отклоняет нестандартное поле final batch: %s", (_name, updates, hashBytes) => {
+    expect(() => assertProjectStateImportFinalFileStateBatch({ updates, hashBytes })).toThrow()
+  })
+
   it("кодирует несколько xxHash64 в одном zero-offset big-endian буфере и переносит только его", () => {
     const batch = createProjectStateFileUpdateBatch([
       { update: resource("cf/one.bin"), hash: 0x0102030405060708n },
@@ -103,6 +111,23 @@ describe("ProjectState import session", () => {
     ["rule object внутри local validation", {
       ...finalState(contribution.projectPath),
       localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [], rule: {} },
+    }],
+    ["extra bigint на массиве pendingChecks", {
+      ...finalState(contribution.projectPath), pendingChecks: arrayWithProperty([], "extra", 1n),
+    }],
+    ["extra function на массиве pendingChecks", {
+      ...finalState(contribution.projectPath), pendingChecks: arrayWithProperty([], "extra", () => undefined),
+    }],
+    ["symbol на массиве pendingChecks", {
+      ...finalState(contribution.projectPath), pendingChecks: arrayWithProperty([], Symbol("extra"), true),
+    }],
+    ["extra поле на вложенном yamlPath", {
+      ...finalState(contribution.projectPath),
+      pendingChecks: [pendingCheck(arrayWithProperty(["Объект"], "extra", 1n))],
+    }],
+    ["accessor на вложенном yamlPath", {
+      ...finalState(contribution.projectPath),
+      pendingChecks: [pendingCheck(arrayWithAccessor(["Объект"], "extra"))],
     }],
   ])("отклоняет непереносимый или неточный final DTO: %s", (_name, update) => {
     expect(() => assertProjectStateImportFinalFileStateBatch({
@@ -153,4 +178,26 @@ function fullUpdate(projectPath: string) {
 
 function resource(projectPath: string) {
   return { projectPath, componentPath: "cf", resourceKind: "resource" as const, kind: "resource" as const }
+}
+
+function pendingCheck(yamlPath: unknown[]) {
+  return {
+    kind: "dataPath",
+    yamlPath,
+    location: { line: 1, col: 1 },
+    owner: { kind: "Справочник", name: "Товары" },
+    value: "Объект",
+    policyInput: { yaml: "ПутьКДанным" },
+    policy: "formDataPath",
+  }
+}
+
+function arrayWithProperty<T extends object>(values: T, key: PropertyKey, value: unknown): T {
+  Object.defineProperty(values, key, { value, enumerable: true, configurable: true })
+  return values
+}
+
+function arrayWithAccessor<T>(values: T[], key: PropertyKey): T[] {
+  Object.defineProperty(values, key, { get: () => 1, enumerable: true, configurable: true })
+  return values
 }

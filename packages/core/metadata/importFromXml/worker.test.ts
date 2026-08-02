@@ -4,7 +4,6 @@ import { join } from "node:path"
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ImportFirstPassResult } from "./types"
 import { createProjectStateCompatibility } from "../projectState/compatibility"
 import { createSqliteProjectStateStore } from "../projectState/sqlite/store"
@@ -98,7 +97,7 @@ describe("XML import worker first pass", () => {
         filePath: assignment.targetProjectPath,
       }),
     ])
-    const fragments = decodeConfigurationIndexFragments(result.fragmentBuffer)
+    const fragments = result.configurationFragments
     expect(fragments).toEqual([
       expect.objectContaining({
         targetProjectPath: assignment.targetProjectPath,
@@ -149,10 +148,10 @@ describe("XML import worker first pass", () => {
     )
     expect(() => structuredClone(result.validationContribution.pendingReferences)).not.toThrow()
     expect(Object.keys(result).sort()).toEqual([
+      "configurationFragments",
       "diagnostics",
       "files",
       "finalFileStateBatches",
-      "fragmentBuffer",
       "indexContributions",
       "kind",
       "ownerFacts",
@@ -196,7 +195,7 @@ describe("XML import worker first pass", () => {
     expect(result.files).toContainEqual(
       expect.objectContaining({ sourceKind: "worker", targetProjectPath: valid.targetProjectPath })
     )
-    expect(decodeConfigurationIndexFragments(result.fragmentBuffer)).toHaveLength(1)
+    expect(result.configurationFragments).toHaveLength(1)
   })
 
   it("links a model-building error to the assignment metadata XML", async () => {
@@ -220,8 +219,7 @@ describe("XML import worker first pass", () => {
     ])
   })
 
-  it("declares exactly the fragment buffer as the Piscina transfer list", () => {
-    const fragmentBuffer = new ArrayBuffer(16)
+  it("does not add object fragments to the Piscina transfer list", () => {
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
       ownerFacts: [],
@@ -236,14 +234,14 @@ describe("XML import worker first pass", () => {
       },
       diagnostics: [],
       files: [],
-      fragmentBuffer,
+      configurationFragments: [],
       indexContributions: [],
       finalFileStateBatches: [],
     }
 
     const transferable = createFirstPassTransferable(result)
 
-    expect(transferable[transferableSymbol]).toEqual([fragmentBuffer])
+    expect(transferable[transferableSymbol]).toEqual([])
     expect(transferable[valueSymbol]).toBe(result)
   })
 

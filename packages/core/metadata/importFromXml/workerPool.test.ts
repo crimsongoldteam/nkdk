@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import { createOperationProfiler } from "../validation/profile"
@@ -49,10 +49,6 @@ describe("XML import worker pool", () => {
     ])
     expect(pools.firstPassIds(0)).toEqual([assignments[0]?.id, assignments[2]?.id])
     expect(pools.firstPassIds(1)).toEqual([assignments[1]?.id])
-    expect(pools.runs(0).filter((task) => task.kind === "firstPass").map((task) => task.finalize))
-      .toEqual([false, true])
-    expect(pools.runs(1).filter((task) => task.kind === "firstPass").map((task) => task.finalize))
-      .toEqual([true])
     expect(first.validationContribution.objectIndexEntries.map((entry) => entry.canonical)).toEqual([
       "Catalog.one",
       "Catalog.three",
@@ -94,6 +90,7 @@ describe("XML import worker pool", () => {
     const blocked = pools.blockFirstPassWorker(1)
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
     const acknowledged: string[] = []
+    const fragments: Array<string | undefined> = []
     let notifyAcknowledged!: () => void
     const stateAcknowledged = new Promise<void>((resolve) => { notifyAcknowledged = resolve })
     const outputDir = createTempDir("stream-first")
@@ -108,6 +105,9 @@ describe("XML import worker pool", () => {
 
     const running = pool.runFirstPass([assignment("ready"), assignment("blocked")], {
       async writeFirstPassState(batch: XmlImportStateBatch) {
+        fragments.push((batch as XmlImportStateBatch & {
+          configurationFragment?: ConfigurationSnapshotFragment
+        }).configurationFragment?.targetProjectPath)
         acknowledged.push(batch.indexContributions[0]!.projectPath)
         for (const final of batch.finalFileStateBatches) {
           structuredClone(final, { transfer: [final.hashBytes.buffer as ArrayBuffer] })
@@ -120,11 +120,46 @@ describe("XML import worker pool", () => {
     await Promise.all([blocked.started, stateAcknowledged])
 
     expect(acknowledged).toEqual(["cf/Справочник/ready/Свойства.yaml"])
+    expect(fragments).toEqual([readyPath])
     expect(fs.existsSync(join(outputDir, readyPath))).toBe(true)
     blocked.release()
     const result = await running
     expect(result).not.toHaveProperty("indexContributions")
     expect(result).not.toHaveProperty("finalFileStateBatches")
+    expect(result).not.toHaveProperty("fragmentData")
+    await pool.close()
+  })
+
+  it("освобождает подтверждённый fragment до завершения последнего assignment того же worker", async () => {
+    const pools = createFakePools()
+    const blocked = pools.blockFirstPassAssignment("last")
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+    const received: string[] = []
+    let acknowledge!: () => void
+    const acknowledged = new Promise<void>((resolve) => { acknowledge = resolve })
+    await pool.initialize({
+      operationId: "stream-fragments",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("stream-fragments"),
+      componentKind: "configuration",
+    })
+
+    const running = pool.runFirstPass([assignment("first"), assignment("last")], {
+      async writeFirstPassState(batch: XmlImportStateBatch) {
+        const streamed = (batch as XmlImportStateBatch & {
+          configurationFragment?: ConfigurationSnapshotFragment
+        }).configurationFragment
+        if (streamed !== undefined) received.push(streamed.targetProjectPath)
+        acknowledge()
+      },
+      async writeSecondPassState() {},
+    })
+    await Promise.all([blocked.started, acknowledged])
+
+    expect(received).toEqual(["Справочник/first/Свойства.yaml"])
+    blocked.release()
+    const result = await running
+    expect(result).not.toHaveProperty("fragmentData")
     await pool.close()
   })
 
@@ -149,7 +184,8 @@ describe("XML import worker pool", () => {
     const running = pool.runFirstPass(
       [assignment("one"), assignment("two"), assignment("three"), assignment("four")],
       {
-        async writeFirstPassState() {
+        async writeFirstPassState(batch) {
+          expect(batch.configurationFragment).toBeDefined()
           active += 1
           started += 1
           maxActive = Math.max(maxActive, active)
@@ -351,6 +387,7 @@ function createFakePools() {
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, ImportDiagnostic[]>()
   const firstPassBlocks = new Map<number, ReturnType<typeof gate>>()
+  const firstPassAssignmentBlocks = new Map<string, ReturnType<typeof gate>>()
   const secondPassBlocks = new Map<number, ReturnType<typeof gate>>()
   const initializedOutputDirs = new Map<number, string>()
   const realFirstPassFiles = new Map<number, string>()
@@ -378,6 +415,7 @@ function createFakePools() {
           if (producedFirstPass >= waiter.count) waiter.resolve()
           else producedWaiters.push(waiter)
         }
+        await firstPassAssignmentBlocks.get(task.assignments[0]!.id)?.wait()
         await firstPassBlocks.get(workerIndex)?.wait()
         const failure = failures.get(workerIndex)
         if (failure !== undefined) throw failure
@@ -427,8 +465,7 @@ function createFakePools() {
             sourcePath: join("/tmp/output", item.targetProjectPath),
             targetProjectPath: item.targetProjectPath,
           })),
-          fragmentBuffer: encodeConfigurationIndexFragments(
-            task.assignments.map((item) => ({
+          configurationFragments: task.assignments.map((item) => ({
               targetProjectPath: item.targetProjectPath,
               entities: [
                 {
@@ -437,8 +474,7 @@ function createFakePools() {
                   identities: { xmlName: item.itemName },
                 },
               ],
-            }))
-          ),
+            })),
           indexContributions,
           finalFileStateBatches,
         }
@@ -477,6 +513,11 @@ function createFakePools() {
     blockFirstPassWorker(workerIndex: number) {
       const value = gate()
       firstPassBlocks.set(workerIndex, value)
+      return value
+    },
+    blockFirstPassAssignment(assignmentId: string) {
+      const value = gate()
+      firstPassAssignmentBlocks.set(assignmentId, value)
       return value
     },
     blockSecondPassWorker(workerIndex: number) {

@@ -1,5 +1,4 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
@@ -82,14 +81,12 @@ interface ActiveSecondPass {
 let initializedState: InitializedImportWorkerState | undefined
 let schemaCacheForTests: ValidationSchemaCache | undefined
 const preparedYaml = new Map<string, DeferredImportYaml>()
-const firstPassFragments: ConfigurationSnapshotFragment[] = []
 let activeSecondPass: ActiveSecondPass | undefined
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
     endSecondPass()
     preparedYaml.clear()
-    firstPassFragments.length = 0
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
@@ -121,7 +118,7 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
     return runSecondPass(command.assignmentId, requireInitializedState())
   }
 
-  return runFirstPass(command.assignments, requireInitializedState(), command.finalize ?? true)
+  return runFirstPass(command.assignments, requireInitializedState())
 }
 
 async function runSecondPass(
@@ -266,7 +263,6 @@ export default async function importWorkerEntryPoint(command: ImportWorkerComman
 async function runFirstPass(
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState,
-  finalize: boolean,
 ): Promise<ImportFirstPassResult> {
   const profiler = createOperationProfiler({
     operation: "import-from-xml",
@@ -393,9 +389,6 @@ async function runFirstPass(
   })
   profiler.flush()
   const validation = mergeImportValidationContributions(validationContributions)
-  firstPassFragments.push(...fragments)
-  const fragmentBuffer = encodeConfigurationIndexFragments(finalize ? firstPassFragments : [])
-  if (finalize) firstPassFragments.length = 0
   return {
     kind: "firstPassResult",
     ownerFacts,
@@ -405,7 +398,7 @@ async function runFirstPass(
     },
     diagnostics,
     files,
-    fragmentBuffer,
+    configurationFragments: fragments,
     indexContributions,
     finalFileStateBatches,
   }
@@ -415,7 +408,6 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
       return [
-        result.fragmentBuffer,
         ...result.finalFileStateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer),
       ]
     },
@@ -587,7 +579,6 @@ function requireInitializedState(): InitializedImportWorkerState {
 function disposeWorkerState(): void {
   endSecondPass()
   preparedYaml.clear()
-  firstPassFragments.length = 0
   initializedState = undefined
 }
 

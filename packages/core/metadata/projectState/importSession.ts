@@ -11,7 +11,10 @@ import type {
 } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
-import { assertProjectStateImportFinalFileState } from "./fileUpdateValidation"
+import {
+  assertProjectStateImportFinalFileState,
+  assertProjectStatePortableData,
+} from "./fileUpdateValidation"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string
@@ -178,10 +181,14 @@ export function assertProjectStateImportFinalFileStateBatch(
     throw new Error("ProjectStateImportFinalFileStateBatch должен быть объектом")
   }
   const batch = value as Record<string, unknown>
-  if (Object.keys(batch).some((key) => key !== "updates" && key !== "hashBytes")) {
-    throw new Error("ProjectStateImportFinalFileStateBatch содержит неизвестное поле")
+  for (const key of Reflect.ownKeys(batch)) {
+    if (typeof key === "symbol" || (key !== "updates" && key !== "hashBytes")) {
+      throw new Error("ProjectStateImportFinalFileStateBatch содержит неизвестное поле")
+    }
+    assertEnumerableDataProperty(batch, key, "ProjectStateImportFinalFileStateBatch")
   }
   if (!Array.isArray(batch["updates"])) throw new Error("updates должен быть массивом")
+  assertProjectStatePortableData(batch["updates"], "updates")
   const hashBytes = batch["hashBytes"]
   if (!(hashBytes instanceof Uint8Array)) throw new Error("hashBytes должен быть Uint8Array")
   const expected = batch["updates"].length * 8
@@ -191,8 +198,33 @@ export function assertProjectStateImportFinalFileStateBatch(
     || hashBytes.buffer.byteLength !== expected) {
     throw new Error(`hashBytes должен быть zero-offset ArrayBuffer длиной ${expected} байт`)
   }
+  assertExactHashBytes(hashBytes)
   for (const [index, update] of batch["updates"].entries()) {
     assertProjectStateImportFinalFileState(update, `updates[${index}]`)
+  }
+}
+
+function assertExactHashBytes(hashBytes: Uint8Array): void {
+  if (Object.getPrototypeOf(hashBytes) !== Uint8Array.prototype) {
+    throw new Error("hashBytes должен быть обычным Uint8Array")
+  }
+  for (const key of Reflect.ownKeys(hashBytes)) {
+    if (typeof key === "symbol") throw new Error("hashBytes содержит symbol-поле")
+    const index = Number(key)
+    if (!Number.isSafeInteger(index) || index < 0 || index >= hashBytes.length || String(index) !== key) {
+      throw new Error(`hashBytes.${key} не является индексом`)
+    }
+    assertEnumerableDataProperty(hashBytes, key, "hashBytes")
+  }
+  if (Object.getPrototypeOf(hashBytes.buffer) !== ArrayBuffer.prototype || Reflect.ownKeys(hashBytes.buffer).length > 0) {
+    throw new Error("hashBytes должен владеть обычным ArrayBuffer")
+  }
+}
+
+function assertEnumerableDataProperty(value: object, key: PropertyKey, path: string): void {
+  const descriptor = Object.getOwnPropertyDescriptor(value, key)
+  if (descriptor === undefined || !("value" in descriptor) || !descriptor.enumerable) {
+    throw new Error(`${path}.${String(key)} должен быть enumerable data property`)
   }
 }
 
