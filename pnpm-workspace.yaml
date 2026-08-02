@@ -1,9 +1,14 @@
 packages:
   - packages/*
+  - tools/*
 overrides:
   esbuild: ^0.28.1
   picomatch@<2.3.2: 2.3.2
   qs@<6.15.2: 6.15.3
   vite: ^8.0.16
+packageExtensions:
+  dependency-cruiser@18.1.0:
+    peerDependencies:
+      typescript: ">=2.0.0 <7.0.0"
 allowBuilds:
   esbuild: true
