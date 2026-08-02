@@ -37,7 +37,10 @@ export interface PreparedYamlProjectWorkerPool {
     files: PreparedYamlProjectFileDescriptor[]
     includeYamlData?: boolean
   }): Promise<PreparedYamlProjectWorkerPoolResult>
-  initValidation(context: ConfigurationContext, signal?: AbortSignal): Promise<ValidationWorkerPoolStartProfile>
+  initValidation(
+    context: ConfigurationContext,
+    operation?: PreparedYamlValidationOperation,
+  ): Promise<ValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: {
     projectDir: string
     context: ConfigurationContext
@@ -47,8 +50,8 @@ export interface PreparedYamlProjectWorkerPool {
     params: {
       projectDir: string
       context: ConfigurationContext
-      files: readonly PreparedYamlLocalValidationFile[]
-      signal?: AbortSignal
+      files: readonly PreparedYamlLocalValidationSource[]
+      operation?: PreparedYamlValidationOperation
     },
     producer: { writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void> },
   ): Promise<{ readonly diagnostics: readonly Diagnostic[]; readonly parsedYamlFiles: number }>
@@ -66,6 +69,15 @@ export interface PreparedYamlLocalValidationFile {
   readonly descriptor: PreparedYamlProjectFileDescriptor
   readonly bytes: Uint8Array
   readonly hashBytes: Uint8Array
+}
+
+export interface PreparedYamlLocalValidationSource {
+  createFile(): PreparedYamlLocalValidationFile
+}
+
+export interface PreparedYamlValidationOperation {
+  readonly signal: AbortSignal
+  abort(reason: unknown): void
 }
 
 export interface PreparedYamlProjectWorkerPoolResult {
@@ -174,8 +186,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
         workers,
       }
     },
-    async initValidation(context, signal) {
-      signal?.throwIfAborted()
+    async initValidation(context, suppliedOperation) {
+      const operation = suppliedOperation ?? createPreparedYamlValidationOperation()
+      operation.signal.throwIfAborted()
       const indexesToInit = Array.from({ length: params.concurrency }, (_, index) => index).filter(
         (index) => !initializedValidationWorkerIndexes.has(index)
       )
@@ -185,17 +198,26 @@ export function createPreparedYamlProjectWorkerPool(params: {
 
       const rulesSnapshot = createValidationRulesSnapshot(context)
       const startedAt = performance.now()
-      const results = await Promise.all(
+      let firstFailure: { readonly reason: unknown } | undefined
+      const settled = await Promise.allSettled(
         indexesToInit.map(async (index) => {
-          const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
-          const response = (await getOrCreatePool(pools, index, createPool).run(
-            task,
-            signal === undefined ? undefined : { signal },
-          )) as PreparedYamlProjectWorkerTaskResult
-          if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
-          return response
+          try {
+            const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
+            const response = (await getOrCreatePool(pools, index, createPool).run(
+              task,
+              { signal: operation.signal },
+            )) as PreparedYamlProjectWorkerTaskResult
+            if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
+            return response
+          } catch (caught) {
+            firstFailure ??= { reason: caught }
+            operation.abort(caught)
+            throw caught
+          }
         })
       )
+      if (firstFailure !== undefined) throw firstFailure.reason
+      const results = fulfilledValues(settled)
 
       for (const index of indexesToInit) initializedValidationWorkerIndexes.add(index)
       const startProfile = {
@@ -267,21 +289,25 @@ export function createPreparedYamlProjectWorkerPool(params: {
       }
     },
     async runLocalValidation(localParams, producer) {
-      const failureController = new AbortController()
-      const signal = localParams.signal === undefined
-        ? failureController.signal
-        : AbortSignal.any([localParams.signal, failureController.signal])
-      await this.initValidation(localParams.context, signal)
-      const partitions = partitionRoundRobin(localParams.files, params.concurrency)
+      const operation = localParams.operation ?? createPreparedYamlValidationOperation()
+      const { signal } = operation
+      await this.initValidation(localParams.context, operation)
       let firstFailure: { readonly reason: unknown } | undefined
-      const settled = await Promise.allSettled(partitions.map(async (files, index) => {
+      const settled = await Promise.allSettled(Array.from({ length: params.concurrency }, async (_unused, index) => {
         try {
-          if (files.length === 0) return { diagnostics: [] as Diagnostic[], parsedYamlFiles: 0 }
+          if (index >= localParams.files.length) return { diagnostics: [] as Diagnostic[], parsedYamlFiles: 0 }
           const diagnostics: Diagnostic[] = []
           let parsedYamlFiles = 0
-          for (let start = 0; start < files.length; start += LOCAL_VALIDATION_BATCH_SIZE) {
+          const laneBatchStride = params.concurrency * LOCAL_VALIDATION_BATCH_SIZE
+          for (let start = index; start < localParams.files.length; start += laneBatchStride) {
             signal.throwIfAborted()
-            const batchFiles = files.slice(start, start + LOCAL_VALIDATION_BATCH_SIZE)
+            const batchFiles: PreparedYamlLocalValidationFile[] = []
+            for (let offset = 0; offset < LOCAL_VALIDATION_BATCH_SIZE; offset += 1) {
+              const sourceIndex = start + offset * params.concurrency
+              const source = localParams.files[sourceIndex]
+              if (source === undefined) break
+              batchFiles.push(source.createFile())
+            }
             const hashBytes = new Uint8Array(batchFiles.length * 8)
             batchFiles.forEach((file, fileIndex) => {
               if (file.hashBytes.byteLength !== 8) throw new Error("xxHash64 должен занимать ровно 8 байт")
@@ -310,12 +336,12 @@ export function createPreparedYamlProjectWorkerPool(params: {
           return { diagnostics, parsedYamlFiles }
         } catch (caught) {
           firstFailure ??= { reason: caught }
-          if (!failureController.signal.aborted) failureController.abort(caught)
+          operation.abort(caught)
           throw caught
         }
       }))
       if (firstFailure !== undefined) throw firstFailure.reason
-      const results = settled.flatMap((outcome) => outcome.status === "fulfilled" ? [outcome.value] : [])
+      const results = fulfilledValues(settled)
       return {
         diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
         parsedYamlFiles: results.reduce((sum, { parsedYamlFiles }) => sum + parsedYamlFiles, 0),
@@ -576,4 +602,20 @@ function partitionRoundRobin<T>(items: readonly T[], count: number): T[][] {
   const result = Array.from({ length: count }, () => [] as T[])
   items.forEach((item, index) => result[index % count]?.push(item))
   return result
+}
+
+export function createPreparedYamlValidationOperation(parentSignal?: AbortSignal): PreparedYamlValidationOperation {
+  const controller = new AbortController()
+  return {
+    signal: parentSignal === undefined
+      ? controller.signal
+      : AbortSignal.any([parentSignal, controller.signal]),
+    abort(reason) {
+      if (!controller.signal.aborted) controller.abort(reason)
+    },
+  }
+}
+
+function fulfilledValues<T>(results: readonly PromiseSettledResult<T>[]): T[] {
+  return results.flatMap((outcome) => outcome.status === "fulfilled" ? [outcome.value] : [])
 }

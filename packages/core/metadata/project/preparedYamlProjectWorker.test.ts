@@ -11,7 +11,10 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import { createPreparedYamlProjectWorkerPool } from "./preparedYamlProjectWorkerPool"
+import {
+  createPreparedYamlProjectWorkerPool,
+  type PreparedYamlLocalValidationSource,
+} from "./preparedYamlProjectWorkerPool"
 import preparedYamlProjectWorkerEntryPoint, {
   collectValidationFacts,
   runPreparedYamlProjectWorkerTask,
@@ -478,6 +481,61 @@ describe("validation first-pass worker boundary", () => {
 })
 
 describe("local validation pool", () => {
+  it("при ошибке init отменяет sibling tasks и ждёт их settlement с первой причиной", async () => {
+    const projectDir = createTempDir()
+    const primary = new Error("init one failed")
+    const initCalls = [0, 0]
+    let retry = false
+    let initZeroSignal: AbortSignal | undefined
+    let notifyZeroStarted!: () => void
+    let notifyOneFailed!: () => void
+    let releaseZero!: () => void
+    const zeroStarted = new Promise<void>((resolve) => { notifyZeroStarted = resolve })
+    const oneFailed = new Promise<void>((resolve) => { notifyOneFailed = resolve })
+    const zeroGate = new Promise<void>((resolve) => { releaseZero = resolve })
+    const operationController = new AbortController()
+    const operation = {
+      signal: operationController.signal,
+      abort(reason: unknown) { operationController.abort(reason) },
+    }
+    const fake = {
+      async run(input: PreparedYamlProjectWorkerTask, options?: { signal?: AbortSignal }) {
+        if (input.kind !== "initValidation") throw new Error(`unexpected task: ${input.kind}`)
+        initCalls[input.workerIndex] = (initCalls[input.workerIndex] ?? 0) + 1
+        if (retry) return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        if (input.workerIndex === 0) {
+          initZeroSignal = options?.signal
+          notifyZeroStarted()
+          await zeroGate
+          throw new Error("late sibling failure")
+        }
+        await zeroStarted
+        notifyOneFailed()
+        throw primary
+      },
+      async destroy() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 2, createWorkerPool: () => fake })
+    try {
+      const running = pool.runLocalValidation({ projectDir, context: mockContext, files: [], operation }, {
+        async writeBatch() {},
+      })
+      await oneFailed
+      const earlyOutcome = await settlementWithin(running, 20)
+
+      expect(initZeroSignal?.aborted).toBe(true)
+      expect(earlyOutcome).toBe("pending")
+      releaseZero()
+      await expect(running).rejects.toBe(primary)
+      retry = true
+      await expect(pool.initValidation(mockContext)).resolves.toMatchObject({ schemaCompileMs: 0 })
+      expect(initCalls).toEqual([2, 2])
+    } finally {
+      releaseZero()
+      await pool.close()
+    }
+  })
+
   it("передаёт только выбранные YAML bytes и общий hashBytes, затем пишет полученную пачку producer", async () => {
     const projectDir = createTempDir()
     const selected = componentProperties(projectDir, "cf", "Выбранный")
@@ -505,7 +563,7 @@ describe("local validation pool", () => {
       const result = await pool.runLocalValidation({
         projectDir,
         context: mockContext,
-        files: [{ descriptor: selected, bytes, hashBytes }],
+        files: [{ createFile: () => ({ descriptor: selected, bytes, hashBytes }) }],
       }, {
         async writeBatch(batch) { written.push(batch) },
       })
@@ -527,17 +585,9 @@ describe("local validation pool", () => {
     const writtenSizes: number[] = []
     let releaseFirstWrite!: () => void
     const firstWrite = new Promise<void>((resolve) => { releaseFirstWrite = resolve })
-    const fake = {
-      async run(input: unknown) {
-        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
-        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
-        if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
-        if (task.kind !== "validateLocal") throw new Error(`unexpected task: ${task.kind}`)
-        taskSizes.push(task.files.length)
-        return localValidationResult(task)
-      },
-      async destroy() {},
-    }
+    const fake = successfulLocalValidationWorker((task) => {
+      taskSizes.push(task.files.length)
+    })
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
     const files = localValidationFiles(projectDir, "Файл", 65)
     try {
@@ -566,14 +616,68 @@ describe("local validation pool", () => {
     }
   })
 
+  it("лениво создаёт не более одной DTO-пачки на lane до producer acknowledgement", async () => {
+    const projectDir = createTempDir()
+    let constructed = 0
+    let writes = 0
+    let notifyFirstWrites!: () => void
+    let releaseWrites!: () => void
+    const firstWrites = new Promise<void>((resolve) => { notifyFirstWrites = resolve })
+    const writeGate = new Promise<void>((resolve) => { releaseWrites = resolve })
+    const sources: PreparedYamlLocalValidationSource[] = Array.from({ length: 130 }, (_, index) => ({
+      createFile() {
+        constructed += 1
+        return {
+          descriptor: componentProperties(projectDir, "cf", `Lazy${index}`),
+          bytes: new TextEncoder().encode("{}\n"),
+          hashBytes: new Uint8Array(8),
+        }
+      },
+    }))
+    const fake = successfulLocalValidationWorker()
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 2, createWorkerPool: () => fake })
+    try {
+      const running = pool.runLocalValidation({ projectDir, context: mockContext, files: sources }, {
+        async writeBatch() {
+          writes += 1
+          if (writes === 2) notifyFirstWrites()
+          if (writes <= 2) await writeGate
+        },
+      })
+      const earlyOutcome = await Promise.race([
+        running.then(() => "fulfilled", () => "rejected"),
+        firstWrites.then(() => "started" as const),
+      ])
+
+      expect(earlyOutcome).toBe("started")
+      expect(constructed).toBe(64)
+      releaseWrites()
+      await expect(running).resolves.toMatchObject({ parsedYamlFiles: 130 })
+      expect(constructed).toBe(130)
+    } finally {
+      releaseWrites()
+      await pool.close()
+    }
+  })
+
   it("после ошибки partition отменяет новые задачи и ждёт settlement начатого producer write", async () => {
     const projectDir = createTempDir()
     let workerZeroCalls = 0
     let workerOneCalls = 0
     let notifyWriteStarted!: () => void
-    let releaseWrite!: () => void
+    let notifyWriteCancelled!: () => void
+    let releaseWriteSettlement!: () => void
     const writeStarted = new Promise<void>((resolve) => { notifyWriteStarted = resolve })
-    const writeGate = new Promise<void>((resolve) => { releaseWrite = resolve })
+    const writeCancelled = new Promise<void>((resolve) => { notifyWriteCancelled = resolve })
+    const writeSettlementGate = new Promise<void>((resolve) => { releaseWriteSettlement = resolve })
+    const operationController = new AbortController()
+    const operation = {
+      signal: operationController.signal,
+      abort(reason: unknown) {
+        if (!operationController.signal.aborted) operationController.abort(reason)
+      },
+    }
+    let writeSettled = false
     const localSignals: AbortSignal[] = []
     const fake = {
       async run(input: unknown, options?: { signal?: AbortSignal }) {
@@ -595,28 +699,36 @@ describe("local validation pool", () => {
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 2, createWorkerPool: () => fake })
     const files = localValidationFiles(projectDir, "Settlement", 66)
     try {
-      const running = pool.runLocalValidation({ projectDir, context: mockContext, files }, {
+      const running = pool.runLocalValidation({ projectDir, context: mockContext, files, operation }, {
         async writeBatch() {
           notifyWriteStarted()
-          await writeGate
+          await new Promise<void>((_resolve, reject) => {
+            operation.signal.addEventListener("abort", () => {
+              notifyWriteCancelled()
+              void writeSettlementGate.then(() => {
+                writeSettled = true
+                reject(operation.signal.reason)
+              })
+            }, { once: true })
+          })
         },
       })
       await writeStarted
       await vi.waitFor(() => expect(workerOneCalls).toBe(1))
-      const earlyOutcome = await Promise.race([
-        running.then(() => "fulfilled", () => "rejected"),
-        new Promise<"pending">((resolve) => setTimeout(() => resolve("pending"), 20)),
-      ])
+      await writeCancelled
+      const earlyOutcome = await settlementWithin(running, 20)
       expect(earlyOutcome).toBe("pending")
-      releaseWrite()
+      releaseWriteSettlement()
 
       await expect(running).rejects.toThrow("partition failed")
       await new Promise((resolve) => setTimeout(resolve, 20))
       expect(workerZeroCalls).toBe(1)
+      expect(writeSettled).toBe(true)
       expect(localSignals).toHaveLength(2)
+      expect(localSignals.every((signal) => signal === operation.signal)).toBe(true)
       expect(localSignals.every((signal) => signal.aborted)).toBe(true)
     } finally {
-      releaseWrite()
+      releaseWriteSettlement()
       await pool.close()
     }
   })
@@ -624,6 +736,13 @@ describe("local validation pool", () => {
   it("передаёт пользовательскую отмену через объединённый signal на границу Piscina", async () => {
     const projectDir = createTempDir()
     const controller = new AbortController()
+    const failureController = new AbortController()
+    const operation = {
+      signal: AbortSignal.any([controller.signal, failureController.signal]),
+      abort(reason: unknown) {
+        if (!failureController.signal.aborted) failureController.abort(reason)
+      },
+    }
     let workerSignal: AbortSignal | undefined
     const boundarySignals: AbortSignal[] = []
     let notifyStarted!: () => void
@@ -652,11 +771,13 @@ describe("local validation pool", () => {
         projectDir,
         context: mockContext,
         files: [{
-          descriptor: componentProperties(projectDir, "cf", "Отмена"),
-          bytes: new TextEncoder().encode("{}\n"),
-          hashBytes: new Uint8Array(8),
+          createFile: () => ({
+            descriptor: componentProperties(projectDir, "cf", "Отмена"),
+            bytes: new TextEncoder().encode("{}\n"),
+            hashBytes: new Uint8Array(8),
+          }),
         }],
-        signal: controller.signal,
+        operation,
       }, {
         async writeBatch() { writes += 1 },
       })
@@ -666,6 +787,7 @@ describe("local validation pool", () => {
       await expect(running).rejects.toMatchObject({ name: "AbortError" })
       expect(workerSignal).toBeDefined()
       expect(workerSignal).not.toBe(controller.signal)
+      expect(workerSignal).toBe(operation.signal)
       expect(workerSignal?.aborted).toBe(true)
       expect(boundarySignals).toHaveLength(2)
       expect(boundarySignals.every((signal) => signal.aborted)).toBe(true)
@@ -784,11 +906,17 @@ function componentProperties(projectDir: string, componentPath: string, name: st
   }
 }
 
-function localValidationFiles(projectDir: string, prefix: string, count: number) {
+function localValidationFiles(
+  projectDir: string,
+  prefix: string,
+  count: number,
+): PreparedYamlLocalValidationSource[] {
   return Array.from({ length: count }, (_, index) => ({
-    descriptor: componentProperties(projectDir, "cf", `${prefix}${index}`),
-    bytes: new TextEncoder().encode("{}\n"),
-    hashBytes: new Uint8Array(8),
+    createFile: () => ({
+      descriptor: componentProperties(projectDir, "cf", `${prefix}${index}`),
+      bytes: new TextEncoder().encode("{}\n"),
+      hashBytes: new Uint8Array(8),
+    }),
   }))
 }
 
@@ -802,6 +930,29 @@ function localValidationResult(task: Extract<PreparedYamlProjectWorkerTask, { ki
       hashBytes: task.hashBytes,
     }],
   }
+}
+
+function successfulLocalValidationWorker(
+  onTask: (task: Extract<PreparedYamlProjectWorkerTask, { kind: "validateLocal" }>) => void = () => undefined,
+) {
+  return {
+    async run(input: unknown) {
+      const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
+      const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+      if (task.kind === "initValidation") return { kind: "initValidationResult" as const, formMs: 0, propertiesMs: 0, totalMs: 0 }
+      if (task.kind !== "validateLocal") throw new Error(`unexpected task: ${task.kind}`)
+      onTask(task)
+      return localValidationResult(task)
+    },
+    async destroy() {},
+  }
+}
+
+async function settlementWithin(promise: Promise<unknown>, timeoutMs: number) {
+  return Promise.race([
+    promise.then(() => "fulfilled" as const, () => "rejected" as const),
+    new Promise<"pending">((resolve) => setTimeout(() => resolve("pending"), timeoutMs)),
+  ])
 }
 
 function localYamlUpdate(projectPath: string) {

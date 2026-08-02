@@ -2,7 +2,12 @@ import type { ConfigurationContext } from "../context/types"
 import { join } from "node:path"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
 import { toPreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
+import {
+  createPreparedYamlValidationOperation,
+  type PreparedYamlLocalValidationSource,
+  type PreparedYamlProjectWorkerPool,
+  type PreparedYamlValidationOperation,
+} from "../project/preparedYamlProjectWorkerPool"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { ProjectStateFileChanges } from "./store"
@@ -55,8 +60,11 @@ export interface CollectedProjectStateFiles extends ProjectStateFileCollection {
 
 export interface ProjectStateYamlInput {
   readonly identity: ProjectStateFileIdentity
+  readonly projectDir: string
   readonly value: unknown
 }
+
+export interface ProjectStateRefreshOperation extends PreparedYamlValidationOperation {}
 
 export interface ProjectStateRefreshDependencies {
   readonly handle: ProjectStateRefreshHandle
@@ -64,7 +72,7 @@ export interface ProjectStateRefreshDependencies {
   readonly runLocalValidation: (
     files: readonly ProjectStateYamlInput[],
     producer: Pick<ProjectStateRefreshHandle, "writeBatch">,
-    signal?: AbortSignal,
+    operation: ProjectStateRefreshOperation,
   ) => Promise<number>
   readonly writeChangedResources: (
     changes: ProjectStateFileChanges,
@@ -90,10 +98,12 @@ export function createProjectStateRefreshDependencies(params: {
       const yamlInputs = resources.flatMap((resource, index) => resource.ref.kind === "yaml"
         ? [{
             identity: resource.identity,
+            projectDir: refreshParams.projectDir,
             value: {
               resource,
               projectDir: refreshParams.projectDir,
-              hashBytes: collection.hashBatch.hashBytes.slice(index * 8, index * 8 + 8),
+              hashBatch: collection.hashBatch,
+              hashIndex: index,
             },
           }]
         : [])
@@ -109,14 +119,20 @@ export function createProjectStateRefreshDependencies(params: {
         },
       }
     },
-    async runLocalValidation(files, producer, signal) {
-      if (files.length === 0) return 0
-      const localFiles = files.map(({ value }) => localValidationFile(value))
+    async runLocalValidation(files, producer, operation) {
+      const firstFile = files[0]
+      if (firstFile === undefined) return 0
+      const sources: PreparedYamlLocalValidationSource[] = files.map((file) => ({
+        createFile() {
+          const { projectDir: _projectDir, ...localFile } = localValidationFile(file.value)
+          return localFile
+        },
+      }))
       const result = await params.pool.runLocalValidation({
-        projectDir: localFiles[0]?.projectDir ?? "",
+        projectDir: firstFile.projectDir,
         context: params.context,
-        files: localFiles.map(({ projectDir: _projectDir, ...file }) => file),
-        signal,
+        files: sources,
+        operation,
       }, producer)
       return result.parsedYamlFiles
     },
@@ -139,30 +155,34 @@ export async function refreshProjectState(
   dependencies: ProjectStateRefreshDependencies,
 ): Promise<ProjectStateRefreshResult> {
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    const operation = createPreparedYamlValidationOperation(params.signal)
+    const operationParams = { ...params, signal: operation.signal }
     let updateActive = false
     try {
-      params.signal?.throwIfAborted()
-      const files = await dependencies.collectFiles(params)
-      params.signal?.throwIfAborted()
+      operation.signal.throwIfAborted()
+      const files = await dependencies.collectFiles(operationParams)
+      operation.signal.throwIfAborted()
       const changes = await dependencies.handle.compareFiles(files.hashBatch)
-      params.signal?.throwIfAborted()
+      operation.signal.throwIfAborted()
       const changedPaths = new Set(changes.changed.map(({ file }) => file.projectPath))
       const changedYamlInputs = files.yamlInputs.filter(({ identity }) => changedPaths.has(identity.projectPath))
       files.releaseBytesExcept(new Set(changedYamlInputs.map(({ identity }) => identity.projectPath)))
-      await dependencies.handle.beginUpdate(params.projectDir, params.signal)
+      await dependencies.handle.beginUpdate(params.projectDir, operation.signal)
       updateActive = true
       await dependencies.handle.deleteFiles(changes.deleted.map(({ projectPath }) => projectPath))
       await dependencies.writeChangedResources(changes, files, dependencies.handle)
-      const parsedYamlFiles = await dependencies.runLocalValidation(changedYamlInputs, dependencies.handle, params.signal)
+      const parsedYamlFiles = await dependencies.runLocalValidation(changedYamlInputs, dependencies.handle, operation)
       const diagnostics = await dependencies.handle.readLocalDiagnostics()
-      if (!(await dependencies.isStable(files, params.signal))) {
+      if (!(await dependencies.isStable(files, operation.signal))) {
         await dependencies.handle.rollbackUpdate()
         continue
       }
+      const readToken = await dependencies.handle.createReadToken()
       await dependencies.handle.commitAndCheckpoint()
+      updateActive = false
       return {
         diagnostics,
-        readToken: await dependencies.handle.createReadToken(),
+        readToken,
         stats: {
           hashedFiles: files.hashBatch.files.length,
           parsedYamlFiles,
@@ -190,7 +210,12 @@ function errorMessage(caught: unknown): string {
 }
 
 function localValidationFile(value: unknown) {
-  const input = value as { resource: HashedProjectResource; projectDir: string; hashBytes: Uint8Array }
+  const input = value as {
+    resource: HashedProjectResource
+    projectDir: string
+    hashBatch: ProjectStateFileHashBatch
+    hashIndex: number
+  }
   const { resource } = input
   if (resource.ref.kind !== "yaml" || resource.ref.absolutePath === undefined) {
     throw new Error("Локальная validation получила не YAML-ресурс")
@@ -201,5 +226,11 @@ function localValidationFile(value: unknown) {
     componentPath: resource.identity.componentPath,
     componentDir,
   })
-  return { projectDir, descriptor, bytes: resource.bytes, hashBytes: input.hashBytes }
+  const hashStart = input.hashIndex * 8
+  return {
+    projectDir,
+    descriptor,
+    bytes: resource.bytes,
+    hashBytes: input.hashBatch.hashBytes.slice(hashStart, hashStart + 8),
+  }
 }

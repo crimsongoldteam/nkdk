@@ -195,11 +195,22 @@ export function createProjectStateService(
   }
 
   function aggregateCleanupFailure(primary: unknown, cleanupFailure: unknown): AggregateError {
+    const primaryErrors = flattenFailures(primary)
     return new AggregateError(
-      [primary, cleanupFailure],
-      primary instanceof Error ? primary.message : String(primary),
+      [...primaryErrors, ...flattenFailures(cleanupFailure)],
+      errorMessage(primaryErrors[0] ?? primary),
     )
   }
+}
+
+function flattenFailures(caught: unknown): unknown[] {
+  return caught instanceof AggregateError
+    ? caught.errors.flatMap((failure) => flattenFailures(failure))
+    : [caught]
+}
+
+function errorMessage(caught: unknown): string {
+  return caught instanceof Error ? caught.message : String(caught)
 }
 
 function normalizeConcurrency(value: number | undefined): number {

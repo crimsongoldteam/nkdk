@@ -214,6 +214,7 @@ export function createProjectStateWriterHandle(
     },
     async rollbackUpdate() {
       assertUsable()
+      await cancellation?.catch(() => undefined)
       if (operationId === undefined) return
       const currentOperationId = assertActiveOperation()
       await Promise.allSettled([...operationWrites])
@@ -312,7 +313,11 @@ export function createProjectStateWriterHandle(
       kind: "cancelOperation",
       requestId: randomUUID(),
       operationId: currentOperationId,
-    }).then(() => undefined)
+    }).then(() => {
+      if (operationId !== currentOperationId) return
+      operationId = undefined
+      clearOperationSignal()
+    })
     void cancellation.catch(() => undefined)
   }
 

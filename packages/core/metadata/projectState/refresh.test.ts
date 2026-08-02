@@ -3,14 +3,17 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { configurationMetadataProjectSpec } from "../project/specs"
+import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { ProjectStateFileChanges } from "./store"
 import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import {
+  createProjectStateRefreshDependencies,
   refreshProjectState,
   type CollectedProjectStateFiles,
   type ProjectStateRefreshHandle,
+  type ProjectStateRefreshOperation,
   type ProjectStateYamlInput,
 } from "./refresh"
 import {
@@ -27,6 +30,36 @@ afterEach(async () => {
 })
 
 describe("refreshProjectState", () => {
+  it("не строит local validation DTO до запроса текущей pool-пачки", async () => {
+    const yaml = identity("cf/Конфигурация.yaml", "yaml")
+    let valueReads = 0
+    const pool = {
+      async runLocalValidation() {
+        expect(valueReads).toBe(0)
+        return { diagnostics: [], parsedYamlFiles: 0 }
+      },
+    } as unknown as PreparedYamlProjectWorkerPool
+    const dependencies = createProjectStateRefreshDependencies({
+      handle: new MemoryRefreshHandle(),
+      pool,
+      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    })
+    const controller = new AbortController()
+
+    await expect(dependencies.runLocalValidation([{
+      identity: yaml,
+      projectDir: "/project",
+      get value() {
+        valueReads += 1
+        return {}
+      },
+    }], dependencies.handle, {
+      signal: controller.signal,
+      abort: (reason) => controller.abort(reason),
+    })).resolves.toBe(0)
+    expect(valueReads).toBe(0)
+  })
+
   it("на холодном и прогретом проходах хэширует все ресурсы, но повторно не разбирает YAML", async () => {
     const yaml = identity("cf/Конфигурация.yaml", "yaml")
     const resource = identity("cf/Логотип.png", "resource")
@@ -47,7 +80,7 @@ describe("refreshProjectState", () => {
         resources: [],
         discover: async () => [],
         hashBatch: { files: [yaml, resource], hashBytes: hashBytes.slice() },
-        yamlInputs: [{ identity: yaml, value: {} }],
+        yamlInputs: [{ identity: yaml, projectDir: "/project", value: {} }],
         releaseBytesExcept: (paths) => retainedBytes.push([...paths]),
       }
     }
@@ -321,6 +354,101 @@ describe("refreshProjectState", () => {
     })).rejects.toMatchObject({ name: "AbortError" })
     expect({ operationAborted, cleanupCalls }).toEqual({ operationAborted: true, cleanupCalls: 1 })
   })
+
+  it("передаёт один owned operation signal в writer и validation и ждёт отменённую запись", async () => {
+    const yaml = identity("cf/Конфигурация.yaml", "yaml")
+    const current = collected([yaml], [1])
+    const userController = new AbortController()
+    const primary = new Error("validation lane failed")
+    let writerSignal: AbortSignal | undefined
+    let validationSignal: AbortSignal | undefined
+    let writeSettled = false
+    let cleanupCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void> {
+        writerSignal = signal
+        return super.beginUpdate(projectDir)
+      }
+
+      override writeBatch(): Promise<void> {
+        return new Promise((_resolve, reject) => {
+          writerSignal?.addEventListener("abort", () => {
+            writeSettled = true
+            reject(writerSignal?.reason)
+          }, { once: true })
+        })
+      }
+
+      override async rollbackUpdate(): Promise<void> {
+        cleanupCalls += 1
+        return super.rollbackUpdate()
+      }
+    }()
+
+    await expect(refreshProjectState({ projectDir: "/project", signal: userController.signal }, {
+      handle,
+      collectFiles: async () => current,
+      async runLocalValidation(_files, producer, operation: ProjectStateRefreshOperation) {
+        validationSignal = operation.signal
+        const write = producer.writeBatch({ updates: [yamlUpdate(yaml)], hashBytes: current.hashBatch.hashBytes.slice() })
+        operation.abort(primary)
+        await write
+        return 1
+      },
+      writeChangedResources: async () => undefined,
+      isStable: async () => true,
+    })).rejects.toBe(primary)
+    expect(writerSignal).toBeDefined()
+    expect(writerSignal).not.toBe(userController.signal)
+    expect(validationSignal).toBe(writerSignal)
+    expect({ writeSettled, cleanupCalls }).toEqual({ writeSettled: true, cleanupCalls: 1 })
+  })
+
+  it("получает read token до checkpoint и откатывает candidate при ошибке token", async () => {
+    let checkpointCalls = 0
+    let rollbackCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async createReadToken(): Promise<ProjectStateReadToken> {
+        throw new Error("token failed")
+      }
+
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        checkpointCalls += 1
+        return super.commitAndCheckpoint()
+      }
+
+      override async rollbackUpdate(): Promise<void> {
+        rollbackCalls += 1
+        return super.rollbackUpdate()
+      }
+    }()
+
+    await expect(refreshProjectState({ projectDir: "/project" }, emptyRefreshDependencies(handle)))
+      .rejects.toThrow("token failed")
+    expect({ checkpointCalls, rollbackCalls }).toEqual({ checkpointCalls: 0, rollbackCalls: 1 })
+  })
+
+  it("после успешного checkpoint не выполняет fallible запрос read token", async () => {
+    let checkpointed = false
+    let tokenCalls = 0
+    const handle = new class extends MemoryRefreshHandle {
+      override async createReadToken(): Promise<ProjectStateReadToken> {
+        tokenCalls += 1
+        if (checkpointed) throw new Error("late token failed")
+        return super.createReadToken()
+      }
+
+      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+        const result = await super.commitAndCheckpoint()
+        checkpointed = true
+        return result
+      }
+    }()
+
+    await expect(refreshProjectState({ projectDir: "/project" }, emptyRefreshDependencies(handle)))
+      .resolves.toMatchObject({ readToken: new Uint8Array([1]) })
+    expect(tokenCalls).toBe(1)
+  })
 })
 
 describe("project-state files", () => {
@@ -448,7 +576,7 @@ class MemoryRefreshHandle implements ProjectStateRefreshHandle {
     }
   }
 
-  async beginUpdate(): Promise<void> {
+  async beginUpdate(_projectDir?: string, _signal?: AbortSignal): Promise<void> {
     this.nextFiles = new Map(this.files)
   }
 
@@ -540,8 +668,20 @@ function collected(
     resources: [],
     discover: async () => [],
     hashBatch: { files, hashBytes },
-    yamlInputs: files.flatMap((identity) => identity.resourceKind === "yaml" ? [{ identity, value: {} }] : []),
+    yamlInputs: files.flatMap((identity) => identity.resourceKind === "yaml"
+      ? [{ identity, projectDir: "/project", value: {} }]
+      : []),
     releaseBytesExcept: () => undefined,
+  }
+}
+
+function emptyRefreshDependencies(handle: ProjectStateRefreshHandle) {
+  return {
+    handle,
+    collectFiles: async () => collected([], []),
+    runLocalValidation: async () => 0,
+    writeChangedResources: async () => undefined,
+    isStable: async () => true,
   }
 }
 

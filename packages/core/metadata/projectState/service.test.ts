@@ -96,6 +96,53 @@ describe("ProjectStateService", () => {
     await service.close()
   })
 
+  it("рекурсивно распрямляет primary, rollback, pool и candidate cleanup до публикации", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-nested-cleanup-"))
+    tempDirs.push(projectDir)
+    const old = testWriterHandle(1)
+    const candidate = testWriterHandle(2)
+    const handles = [old, candidate]
+    const primary = new Error("refresh failed")
+    const rollbackCleanup = new Error("rollback failed")
+    const poolCleanup = new Error("pool close failed")
+    const candidateCleanup = new Error("candidate close failed")
+    const closeCandidate = candidate.close.bind(candidate)
+    candidate.close = async () => {
+      await closeCandidate()
+      throw candidateCleanup
+    }
+    let poolCalls = 0
+    let refreshCalls = 0
+    const service = createProjectStateService({
+      createWriter: () => handles.shift()!,
+      createPool: () => {
+        poolCalls += 1
+        return {
+          close: async () => { if (poolCalls === 2) throw poolCleanup },
+        } as PreparedYamlProjectWorkerPool
+      },
+      async refresh() {
+        refreshCalls += 1
+        if (refreshCalls === 2) {
+          throw new AggregateError([
+            primary,
+            new AggregateError([rollbackCleanup], "nested rollback"),
+          ], "nested refresh")
+        }
+        return refreshResult(refreshCalls)
+      },
+    })
+
+    await service.refreshAndValidate({ projectDir })
+    const failure = await service.rebuild({ projectDir }).catch((caught: unknown) => caught)
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, rollbackCleanup, poolCleanup, candidateCleanup])
+    expect((failure as Error).message).toBe("refresh failed")
+    expect(old.closed).toBe(0)
+    await service.close()
+  })
+
   it("после checkpoint сохраняет candidate активным при ошибке закрытия rebuild pool", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-rebuild-pool-cleanup-"))
     tempDirs.push(projectDir)
@@ -150,20 +197,22 @@ describe("ProjectStateService", () => {
     const old = testWriterHandle(1)
     const candidate = testWriterHandle(2)
     const handles = [old, candidate]
-    const poolCleanup = new Error("rebuild pool close failed")
-    const writerCleanup = new Error("old writer close failed")
+    const poolCleanup = [new Error("rebuild pool close failed"), new Error("pool secondary failed")]
+    const writerCleanup = [new Error("old writer close failed"), new Error("writer secondary failed")]
     let poolCalls = 0
     const closeOld = old.close.bind(old)
     old.close = async () => {
       await closeOld()
-      if (old.closed === 1) throw writerCleanup
+      if (old.closed === 1) throw new AggregateError(writerCleanup, "old writer cleanup")
     }
     const service = createProjectStateService({
       createWriter: () => handles.shift()!,
       createPool: () => {
         poolCalls += 1
         return {
-          close: async () => { if (poolCalls === 2) throw poolCleanup },
+          close: async () => {
+            if (poolCalls === 2) throw new AggregateError(poolCleanup, "rebuild pool cleanup")
+          },
         } as PreparedYamlProjectWorkerPool
       },
       async refresh() { return refreshResult(poolCalls) },
@@ -174,7 +223,7 @@ describe("ProjectStateService", () => {
     const projectFiles = await readProjectFiles(service, projectDir)
 
     expect(failure).toBeInstanceOf(AggregateError)
-    expect((failure as AggregateError).errors).toEqual([poolCleanup, writerCleanup])
+    expect((failure as AggregateError).errors).toEqual([...poolCleanup, ...writerCleanup])
     expect(projectFiles).toEqual([{ projectPath: "old-2" }])
     expect(candidate.closed).toBe(0)
     await service.close()

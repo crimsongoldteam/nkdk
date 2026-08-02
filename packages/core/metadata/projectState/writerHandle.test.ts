@@ -202,6 +202,27 @@ describe("ProjectState writer handle", () => {
     reopened.store.close()
   })
 
+  it("после подтверждённой отмены завершает lifecycle и не сохраняет listener старого signal", async () => {
+    const projectDir = await createProjectDir()
+    const oldController = new AbortController()
+    const nextController = new AbortController()
+    const handle = createHandle({ compatibility, workerData: { writeDelayMs: 200 } })
+    await handle.beginUpdate(projectDir, oldController.signal)
+    const write = handle.writeBatch(batch("cf/cancelled.bin", 1n))
+
+    oldController.abort()
+
+    const primary = await write.catch((caught: unknown) => caught)
+    expect(primary).toBeInstanceOf(ProjectStateWriterCancelledError)
+    expect(primary).not.toBeInstanceOf(AggregateError)
+    await expect(handle.rollbackUpdate()).resolves.toBeUndefined()
+
+    await handle.beginUpdate(projectDir, nextController.signal)
+    oldController.signal.dispatchEvent(new Event("abort"))
+    await handle.writeBatch(batch("cf/next.bin", 2n))
+    await expect(handle.commitAndCheckpoint()).resolves.toEqual({ snapshotPath: projectStateSnapshotPath(projectDir) })
+  })
+
   it("принимает отмену до необратимой commit-фазы и не публикует обновление", async () => {
     const projectDir = await createProjectDir()
     await writeSnapshot(projectDir, "cf/old.bin")
