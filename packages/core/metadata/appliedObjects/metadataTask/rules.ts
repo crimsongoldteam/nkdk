@@ -29,7 +29,7 @@ const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataTaskStandardAttributeNames: Record<string, string> = {
   Executed: "Выполнена",
-  Description: "Описание",
+  Description: "Наименование",
   RoutePoint: "ТочкаМаршрута",
   BusinessProcess: "БизнесПроцесс",
   Ref: "Ссылка",

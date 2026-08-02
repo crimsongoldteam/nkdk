@@ -239,7 +239,7 @@ describe("buildObjectFieldIndex", () => {
     )
 
     expect(resolveObjectFieldSegment({ index, segment: "Description", nameMode: "internal" })).toMatchObject({
-      name: "Описание",
+      name: "Наименование",
       kind: "standardAttribute",
     })
     expect(resolveObjectFieldSegment({ index, segment: "Executed", nameMode: "internal" })).toMatchObject({
@@ -247,7 +247,10 @@ describe("buildObjectFieldIndex", () => {
       kind: "standardAttribute",
       typeInfo: { kinds: ["boolean"] },
     })
-    expect(index.fields.get("Наименование")).toBeUndefined()
+    expect(index.fields.get("Наименование")).toMatchObject({
+      name: "Наименование",
+      kind: "standardAttribute",
+    })
   })
 
   it("indexes task addressing attributes as DataPath fields", () => {
