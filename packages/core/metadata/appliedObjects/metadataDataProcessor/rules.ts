@@ -1,5 +1,6 @@
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataAttributesRule, metadataDataProcessorTabularSectionsRule } from "./builders"
+import { metadataDataProcessorAttributesRule, metadataDataProcessorTabularSectionsRule } from "./builders"
+import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"
@@ -13,8 +14,6 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import "../../commonObjects/metadataAttribute/register"
-import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { ClientApplicationFormWithExtendedPresentationRules } from "../../forms/clientApplicationForm/rules"
 const properties = ["Properties"]
@@ -29,36 +28,6 @@ const MetadataDataProcessorCommandRules = {
         `${parentName}/Commands/${name}/Ext/CommandModule.bsl`,
     },
   },
-} as const satisfies MetadataItemRule
-const MetadataDataProcessorAttributeRules = {
-  ...MetadataAttributeRules,
-  xmlOrder: [
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "type",
-    "passwordMode",
-    "format",
-    "editFormat",
-    "toolTip",
-    "markNegatives",
-    "mask",
-    "multiLine",
-    "extendedEdit",
-    "minValue",
-    "maxValue",
-    "fillChecking",
-    "choiceFoldersAndItems",
-    "choiceParameterLinks",
-    "choiceParameters",
-    "quickChoice",
-    "createOnInput",
-    "choiceForm",
-    "linkByType",
-    "choiceHistoryOnInput",
-    "uuid",
-  ],
 } as const satisfies MetadataItemRule
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
@@ -170,13 +139,10 @@ export const MetadataDataProcessorRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: metadataAttributesRule({
+    attributes: metadataDataProcessorAttributesRule({
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",
-      ...({ itemRule: MetadataDataProcessorAttributeRules } as {
-        itemRule: MetadataItemRule
-      }),
     }),
     tabularSections: metadataDataProcessorTabularSectionsRule({
       yaml: "ТабличныеЧасти",

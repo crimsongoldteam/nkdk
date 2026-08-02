@@ -44,6 +44,16 @@ import {
   MetadataChartOfCharacteristicTypesTabularSectionAttributeRules,
   MetadataChartOfCharacteristicTypesTabularSectionRules,
 } from "../metadataChartOfCharacteristicTypes/childRules"
+import {
+  MetadataDataProcessorAttributeRules,
+  MetadataDataProcessorTabularSectionAttributeRules,
+  MetadataDataProcessorTabularSectionRules,
+} from "../metadataDataProcessor/childRules"
+import {
+  MetadataReportAttributeRules,
+  MetadataReportTabularSectionAttributeRules,
+  MetadataReportTabularSectionRules,
+} from "../metadataReport/childRules"
 
 const context = { defaultLanguage: "ru", version: "2.20" } as const
 const identity = ["objectBelonging", "name"]
@@ -97,8 +107,10 @@ const owners: readonly {
   nestedRule: MetadataItemRule
   attributeOrder: readonly string[]
   tabularOrder: readonly string[]
+  nestedOrder?: readonly string[]
   topAllowedTypes: boolean
   allowUse?: boolean
+  processingContract?: boolean
 }[] = [
   {
     name: "Catalog",
@@ -225,13 +237,41 @@ const owners: readonly {
     topAllowedTypes: true,
     allowUse: true,
   },
+  {
+    name: "DataProcessor",
+    attributeType: "MetadataDataProcessorAttributes",
+    tabularType: "MetadataDataProcessorTabularSections",
+    nestedType: "MetadataDataProcessorTabularSectionAttributes",
+    attributeRule: MetadataDataProcessorAttributeRules,
+    tabularRule: MetadataDataProcessorTabularSectionRules,
+    nestedRule: MetadataDataProcessorTabularSectionAttributeRules,
+    attributeOrder: [...identity, ...presentation, ...choice, "uuid"],
+    tabularOrder: [...tabularBase, "attributes", "uuid"],
+    nestedOrder: [...identity, ...presentation, ...fill, ...choice, "uuid"],
+    topAllowedTypes: false,
+    processingContract: true,
+  },
+  {
+    name: "Report",
+    attributeType: "MetadataReportAttributes",
+    tabularType: "MetadataReportTabularSections",
+    nestedType: "MetadataReportTabularSectionAttributes",
+    attributeRule: MetadataReportAttributeRules,
+    tabularRule: MetadataReportTabularSectionRules,
+    nestedRule: MetadataReportTabularSectionAttributeRules,
+    attributeOrder: [...identity, ...presentation, ...choice, "uuid"],
+    tabularOrder: [...tabularBase, "attributes", "uuid"],
+    nestedOrder: [...identity, ...presentation, ...fill, ...choice, "uuid"],
+    topAllowedTypes: false,
+    processingContract: true,
+  },
 ]
 
 describe("owner-specific attribute and tabular section rules", () => {
   it.each(owners)("keeps exact child contracts for $name", (owner) => {
     expectRuleOrder(owner.attributeRule, owner.attributeOrder)
     expectRuleOrder(owner.tabularRule, owner.tabularOrder)
-    expectRuleOrder(owner.nestedRule, nestedAttribute)
+    expectRuleOrder(owner.nestedRule, owner.nestedOrder ?? nestedAttribute)
     expect(owner.attributeRule.properties.type.allowedTypes !== undefined).toBe(owner.topAllowedTypes)
     expect(owner.nestedRule.properties.type.allowedTypes).toBeDefined()
 
@@ -258,7 +298,20 @@ describe("owner-specific attribute and tabular section rules", () => {
         Тип: "Строка",
         ЗаполнятьИзДанныхЗаполнения: "Истина",
       })
-    ).toBe(false)
+    ).toBe(owner.processingContract === true)
+
+    if (owner.processingContract === true) {
+      const attributeSchema = compileValidationSchema(
+        exportMetadataItemToJSONSchema({ context, rule: owner.attributeRule })
+      )
+      const tabularSchema = compileValidationSchema(
+        exportMetadataItemToJSONSchema({ context, rule: owner.tabularRule })
+      )
+      expect(attributeSchema.Check({ Тип: "Строка", ЗначениеЗаполнения: "Строка" })).toBe(false)
+      expect(attributeSchema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(false)
+      expect(tabularSchema.Check({ ДлинаНомераСтроки: 5 })).toBe(false)
+      expect(nestedSchema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(false)
+    }
   })
 })
 

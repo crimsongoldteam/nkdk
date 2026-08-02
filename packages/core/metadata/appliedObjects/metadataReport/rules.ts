@@ -1,5 +1,6 @@
 import { metadataCommandsRule } from "../metadataAccountingRegister/builders"
 import { metadataReportAttributesRule, metadataReportTabularSectionsRule } from "./builders"
+import "./childRules"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
 import { helpRule } from "../../commonObjects/help/types"
@@ -12,10 +13,7 @@ import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import "../../commonObjects/metadataAttribute/register"
-import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { ClientApplicationFormWithExtendedPresentationRules } from "../../forms/clientApplicationForm/rules"
 const properties = ["Properties"]
@@ -31,44 +29,6 @@ const MetadataReportCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-export const MetadataReportAttributeRules = {
-  ...MetadataAttributeRules,
-  xmlOrder: [
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "type",
-    "passwordMode",
-    "format",
-    "editFormat",
-    "toolTip",
-    "markNegatives",
-    "mask",
-    "multiLine",
-    "extendedEdit",
-    "minValue",
-    "maxValue",
-    "fillChecking",
-    "choiceFoldersAndItems",
-    "choiceParameterLinks",
-    "choiceParameters",
-    "quickChoice",
-    "createOnInput",
-    "choiceForm",
-    "linkByType",
-    "choiceHistoryOnInput",
-    "uuid",
-  ],
-} as const satisfies MetadataItemRule
-registerMetadataItemCollectionRule({
-  propertyType: "MetadataReportAttributes",
-  itemRule: MetadataReportAttributeRules,
-  schemaName: "MetadataReportAttribute",
-  xmlElement: "Attribute",
-  keyField: "name",
-  collectionItemRule: true,
-})
 export const MetadataReportRules = {
   itemType: "MetadataReport",
   metadataTargetOwner: { kind: "self", root: "Report" },
@@ -261,7 +221,6 @@ export const MetadataReportRules = {
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",
-      itemRule: MetadataReportAttributeRules,
     }),
     tabularSections: metadataReportTabularSectionsRule({
       yaml: "ТабличныеЧасти",

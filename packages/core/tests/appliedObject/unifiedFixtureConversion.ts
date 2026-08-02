@@ -16,6 +16,7 @@ interface FixtureConversionParams {
   importMetaUrl: string
   cases: readonly FixtureCase[]
   testTitle: string
+  knownXMLDefaults?: { includeAttributeFillValue?: boolean }
 }
 
 export function describeAppliedObjectXMLToYAMLFixtures(params: FixtureConversionParams): void {
@@ -51,7 +52,9 @@ export function describeAppliedObjectYAMLToXMLFixtures(params: FixtureConversion
         yaml: sourceYAML,
       })
 
-      expect(normalizeLineEndings(result.result)).toEqual(normalizeLineEndings(withKnownXMLDefaults(result.expected)))
+      expect(normalizeLineEndings(result.result)).toEqual(
+        normalizeLineEndings(withKnownXMLDefaults(result.expected, params.knownXMLDefaults))
+      )
     })
   })
 }
