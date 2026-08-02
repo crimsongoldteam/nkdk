@@ -1,0 +1,102 @@
+import type { ProjectStateCompatibility } from "./compatibility"
+import { assertProjectStateFileUpdateBatch, type ProjectStateFileUpdateBatch } from "./fileUpdate"
+
+export type ProjectStateWriterCommand =
+  | { readonly kind: "openProject"; readonly requestId: string; readonly projectDir: string; readonly compatibility: ProjectStateCompatibility }
+  | { readonly kind: "beginUpdate"; readonly requestId: string; readonly operationId: string }
+  | { readonly kind: "writeBatch"; readonly requestId: string; readonly operationId: string; readonly batch: ProjectStateFileUpdateBatch }
+  | { readonly kind: "deleteFiles"; readonly requestId: string; readonly operationId: string; readonly projectPaths: readonly string[] }
+  | { readonly kind: "commitUpdate"; readonly requestId: string; readonly operationId: string }
+  | { readonly kind: "rollbackUpdate"; readonly requestId: string; readonly operationId: string }
+  | { readonly kind: "checkpoint"; readonly requestId: string }
+  | { readonly kind: "cancelOperation"; readonly requestId: string; readonly operationId: string }
+  | { readonly kind: "reset"; readonly requestId: string; readonly projectDir: string }
+  | { readonly kind: "close"; readonly requestId: string }
+
+export type ProjectStateWriterAcknowledgement =
+  | { readonly kind: "opened" }
+  | { readonly kind: "updateBegun"; readonly operationId: string }
+  | { readonly kind: "batchWritten"; readonly operationId: string }
+  | { readonly kind: "filesDeleted"; readonly operationId: string }
+  | { readonly kind: "updateCommitted"; readonly operationId: string }
+  | { readonly kind: "updateRolledBack"; readonly operationId: string }
+  | { readonly kind: "checkpointed"; readonly snapshotPath: string }
+  | { readonly kind: "operationCancelled"; readonly operationId: string }
+  | { readonly kind: "reset" }
+  | { readonly kind: "closed" }
+
+export type ProjectStateWriterResponse =
+  | { readonly kind: "ack"; readonly requestId: string; readonly result: ProjectStateWriterAcknowledgement }
+  | { readonly kind: "failed"; readonly requestId: string; readonly error: { readonly name: string; readonly message: string } }
+
+export function assertProjectStateWriterCommand(value: unknown): asserts value is ProjectStateWriterCommand {
+  const command = requiredRecord(value, "ProjectStateWriterCommand")
+  assertString(command["kind"], "kind")
+  assertString(command["requestId"], "requestId")
+  switch (command["kind"]) {
+    case "openProject":
+      assertExactKeys(command, ["kind", "requestId", "projectDir", "compatibility"])
+      assertString(command["projectDir"], "projectDir")
+      assertCompatibility(command["compatibility"])
+      return
+    case "beginUpdate":
+    case "commitUpdate":
+    case "rollbackUpdate":
+    case "cancelOperation":
+      assertExactKeys(command, ["kind", "requestId", "operationId"])
+      assertString(command["operationId"], "operationId")
+      return
+    case "writeBatch":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "batch"])
+      assertString(command["operationId"], "operationId")
+      assertProjectStateFileUpdateBatch(command["batch"])
+      return
+    case "deleteFiles":
+      assertExactKeys(command, ["kind", "requestId", "operationId", "projectPaths"])
+      assertString(command["operationId"], "operationId")
+      if (!Array.isArray(command["projectPaths"]) || !command["projectPaths"].every((path) => typeof path === "string")) {
+        throw new Error("projectPaths должен быть массивом строк")
+      }
+      return
+    case "reset":
+      assertExactKeys(command, ["kind", "requestId", "projectDir"])
+      assertString(command["projectDir"], "projectDir")
+      return
+    case "checkpoint":
+    case "close":
+      assertExactKeys(command, ["kind", "requestId"])
+      return
+    default:
+      throw new Error(`Неизвестная команда ProjectState writer: ${command["kind"]}`)
+  }
+}
+
+function assertCompatibility(value: unknown): asserts value is ProjectStateCompatibility {
+  const compatibility = requiredRecord(value, "compatibility")
+  assertExactKeys(compatibility, ["schemaVersion", "producerVersion", "rulesFingerprint", "hashAlgorithm"])
+  if (compatibility["schemaVersion"] !== 1) throw new Error("schemaVersion должен быть равен 1")
+  assertString(compatibility["producerVersion"], "producerVersion")
+  assertString(compatibility["rulesFingerprint"], "rulesFingerprint")
+  if (compatibility["hashAlgorithm"] !== "xxhash64-be-v1") throw new Error("Неизвестный hashAlgorithm")
+}
+
+function requiredRecord(value: unknown, path: string): Record<string, unknown> {
+  if (!isPlainRecord(value)) throw new Error(`${path} должен быть обычным объектом`)
+  return value
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+  const prototype: unknown = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+function assertExactKeys(value: Record<string, unknown>, keys: readonly string[]): void {
+  if (Object.keys(value).some((key) => !keys.includes(key))) throw new Error("Команда содержит неизвестное поле")
+  if (keys.some((key) => !(key in value))) throw new Error("В команде отсутствует обязательное поле")
+}
+
+function assertString(value: unknown, path: string): asserts value is string {
+  const valid = typeof value === "string" && value.length > 0
+  if (!valid) throw new Error(`${path} должен быть непустой строкой`)
+}

@@ -9,11 +9,7 @@ import type {
   ProjectDependencyInputResult,
 } from "./readSession"
 import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
-
-export interface ProjectStateCompatibility {
-  readonly formatVersion: number
-  readonly coreVersion: string
-}
+import type { ProjectStateCompatibility } from "./compatibility"
 
 export interface ProjectStateFileChange {
   readonly index: number

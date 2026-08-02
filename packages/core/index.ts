@@ -5,10 +5,20 @@ registerCoreMetadata()
 export { registerCoreMetadata } from "./metadata/register"
 export {
   ProjectStateReadSessionClosedError,
+  createProjectStateCompatibility,
+  createProjectStateFileUpdateBatch,
+  createProjectStateWriterHandle,
+  ProjectStateWriterCancelledError,
+  type ProjectStateCompatibility,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdate,
+  type ProjectStateFileUpdateBatch,
+  type ProjectStateFileUpdateBatchEntry,
   type ProjectStateReadSession,
   type ProjectStateReadSessionFactory,
   type ProjectStateReadToken,
   type ProjectStateStore,
+  type ProjectStateWriterHandle,
 } from "./metadata/projectState"
 export * from "./metadata/configurationIndex"
 export { componentPath, type ComponentAddress } from "./metadata/components/address"

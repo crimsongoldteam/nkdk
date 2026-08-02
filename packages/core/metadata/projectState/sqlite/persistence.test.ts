@@ -1,0 +1,128 @@
+import fs from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, it, vi } from "vitest"
+import type { ProjectStateCompatibility } from "../compatibility"
+import type { ProjectStateFileUpdate } from "../fileUpdate"
+import {
+  openPersistentSqliteProjectStateStore,
+  projectStateSnapshotPath,
+  type SqliteProjectStatePersistenceHooks,
+} from "./persistence"
+
+const compatibility: ProjectStateCompatibility = {
+  schemaVersion: 1,
+  producerVersion: "test",
+  rulesFingerprint: "rules-a",
+  hashAlgorithm: "xxhash64-be-v1",
+}
+
+describe("SQLite project state persistence", () => {
+  const projectDirs: string[] = []
+
+  afterEach(async () => {
+    vi.restoreAllMocks()
+    await Promise.all(projectDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true })))
+  })
+
+  async function createProjectDir(): Promise<string> {
+    const directory = await fs.promises.mkdtemp(join(tmpdir(), "nkdk-project-state-"))
+    projectDirs.push(directory)
+    return directory
+  }
+
+  it("открывает отсутствующий снимок пустым и загружает совместимый checkpoint целиком", async () => {
+    const projectDir = await createProjectDir()
+    const first = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(first.store.readComponentProjection("cf").updates).toEqual([])
+
+    const updates = [resource("cf/a.bin"), resource("cf/b.bin")]
+    const hashBytes = Uint8Array.from([
+      1, 2, 3, 4, 5, 6, 7, 8,
+      0x80, 10, 11, 12, 13, 14, 15, 0xff,
+    ])
+    first.store.beginUpdate()
+    first.store.replaceFiles({ updates, hashBytes })
+    first.store.commitUpdate()
+    await first.store.checkpoint()
+    first.store.close()
+
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(reopened.store.readComponentProjection("cf").updates).toEqual(updates)
+    expect(reopened.store.compareFiles({ files: updates.map(identity), hashBytes })).toEqual({ changed: [], deleted: [] })
+    reopened.store.close()
+  })
+
+  it("игнорирует повреждённый снимок без диагностики проекта", async () => {
+    const projectDir = await createProjectDir()
+    const target = projectStateSnapshotPath(projectDir)
+    await fs.promises.mkdir(join(target, ".."), { recursive: true })
+    await fs.promises.writeFile(target, "not sqlite")
+
+    const fixture = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+
+    expect(fixture.store.readComponentProjection("cf").updates).toEqual([])
+    expect(fixture.store.readLocalDiagnostics()).toEqual([])
+    fixture.store.close()
+  })
+
+  it.each([
+    ["schemaVersion", { ...compatibility, schemaVersion: 2 } as unknown as ProjectStateCompatibility],
+    ["producerVersion", { ...compatibility, producerVersion: "other" }],
+    ["rulesFingerprint", { ...compatibility, rulesFingerprint: "rules-b" }],
+    ["hashAlgorithm", { ...compatibility, hashAlgorithm: "other" } as unknown as ProjectStateCompatibility],
+  ])("открывает пустое состояние при несовместимости %s", async (_field, actual) => {
+    const projectDir = await createProjectDir()
+    const first = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    first.store.beginUpdate()
+    first.store.replaceFiles({ updates: [resource("cf/old.bin")], hashBytes: new Uint8Array(8) })
+    first.store.commitUpdate()
+    await first.store.checkpoint()
+    first.store.close()
+
+    const incompatible = await openPersistentSqliteProjectStateStore({ projectDir, compatibility: actual })
+
+    expect(incompatible.store.readComponentProjection("cf").updates).toEqual([])
+    incompatible.store.close()
+  })
+
+  it.each(["backup", "quick_check", "rename"] as const)("сохраняет предыдущий снимок при ошибке %s", async (stage) => {
+    const projectDir = await createProjectDir()
+    let injectFailure = false
+    const hooks: SqliteProjectStatePersistenceHooks = {
+      backup: async (database, target) => {
+        if (injectFailure && stage === "backup") throw new Error("backup failed")
+        await fs.promises.writeFile(target, database.serialize())
+      },
+      verifySnapshot: () => {
+        if (injectFailure && stage === "quick_check") throw new Error("quick_check failed")
+      },
+    }
+    const first = await openPersistentSqliteProjectStateStore({ projectDir, compatibility, hooks })
+    first.store.beginUpdate()
+    first.store.replaceFiles({ updates: [resource("cf/old.bin")], hashBytes: new Uint8Array(8) })
+    first.store.commitUpdate()
+    await first.store.checkpoint()
+    injectFailure = true
+    if (stage === "rename") vi.spyOn(fs.promises, "rename").mockRejectedValueOnce(new Error("rename failed"))
+    first.store.beginUpdate()
+    first.store.replaceFiles({ updates: [resource("cf/new.bin")], hashBytes: new Uint8Array(8) })
+    first.store.commitUpdate()
+
+    await expect(first.store.checkpoint()).rejects.toThrow(`${stage} failed`)
+    first.store.close()
+
+    const reopened = await openPersistentSqliteProjectStateStore({ projectDir, compatibility })
+    expect(reopened.store.readComponentProjection("cf").updates).toEqual([resource("cf/old.bin")])
+    expect((await fs.promises.readdir(join(projectDir, ".nkdk", "cache"))).sort()).toEqual(["project-state.sqlite"])
+    reopened.store.close()
+  })
+})
+
+function resource(projectPath: string): ProjectStateFileUpdate {
+  return { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }
+}
+
+function identity({ kind: _kind, ...value }: ProjectStateFileUpdate) {
+  return value
+}

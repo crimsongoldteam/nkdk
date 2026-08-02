@@ -18,11 +18,11 @@ import type {
   ProjectDependencyBatch,
   ProjectDependencyBatchQuery,
   ProjectDependencyValidationParams,
-  ProjectStateCompatibility,
   ProjectStateComponentProjection,
   ProjectStateFileChanges,
   ProjectStateStore,
 } from "../store"
+import type { ProjectStateCompatibility } from "../compatibility"
 import { decodeJson, decodeOwnerKey, decodeValue, encodeJson, encodeOwnerKey, encodeValue } from "./codec"
 import { projectStateFieldEntryFromRow, type SqliteProjectStateFieldEntryRow } from "./fieldEntry"
 import { projectStateOwnerFactsFromRows } from "./ownerFacts"
@@ -44,6 +44,12 @@ export interface SqliteProjectStateStoreFixture {
   openReadSession(token: ProjectStateReadToken): ProjectStateReadSession
 }
 
+export interface CreateSqliteProjectStateStoreFromDatabaseOptions {
+  readonly database: DatabaseSync
+  readonly identity: SqliteProjectStateIdentity
+  readonly checkpoint?: () => Promise<void>
+}
+
 export function createSqliteProjectStateStore(
   options: CreateSqliteProjectStateStoreOptions,
 ): SqliteProjectStateStoreFixture {
@@ -55,6 +61,13 @@ export function createSqliteProjectStateStore(
   const database = new DatabaseSync(identity.databaseName, { timeout: 5_000 })
   createSqliteProjectStateSchema(database, options.compatibility, identity)
   database.prepare("INSERT INTO cache_meta(key, value) VALUES ('project_dir', ?)").run(options.projectDir)
+  return createSqliteProjectStateStoreFromDatabase({ database, identity })
+}
+
+export function createSqliteProjectStateStoreFromDatabase(
+  options: CreateSqliteProjectStateStoreFromDatabaseOptions,
+): SqliteProjectStateStoreFixture {
+  const { database, identity } = options
   createStoreRequestTables(database)
   const lifecycleChannel = new BroadcastChannel(sqliteProjectStateLifecycleChannel(identity))
   lifecycleChannel.unref()
@@ -66,6 +79,7 @@ export function createSqliteProjectStateStore(
       lifecycleChannel.postMessage("close")
       lifecycleChannel.close()
     },
+    options.checkpoint,
   )
 
   return {
@@ -80,6 +94,7 @@ function createStore(
   database: DatabaseSync,
   identity: SqliteProjectStateIdentity,
   closeExternalSessions: () => void,
+  checkpoint: (() => Promise<void>) | undefined,
 ): ProjectStateStore {
   const statements = createStatements(database)
   let updateActive = false
@@ -88,11 +103,21 @@ function createStore(
   return {
     readCompatibility() {
       assertOpen()
-      const rows = database.prepare("SELECT key, value FROM cache_meta WHERE key IN ('format_version', 'core_version')").all() as unknown as { key: string; value: string }[]
+      const rows = database.prepare(`
+        SELECT key, value FROM cache_meta
+        WHERE key IN ('schema_version', 'producer_version', 'rules_fingerprint', 'hash_algorithm')
+      `).all() as unknown as { key: string; value: string }[]
       const values = new Map(rows.map(({ key, value }) => [key, value]))
-      const formatVersion = Number(values.get("format_version"))
-      const coreVersion = values.get("core_version")
-      return Number.isInteger(formatVersion) && coreVersion !== undefined ? { formatVersion, coreVersion } : undefined
+      const schemaVersion = Number(values.get("schema_version"))
+      const producerVersion = values.get("producer_version")
+      const rulesFingerprint = values.get("rules_fingerprint")
+      const hashAlgorithm = values.get("hash_algorithm")
+      return schemaVersion === 1
+        && producerVersion !== undefined
+        && rulesFingerprint !== undefined
+        && hashAlgorithm === "xxhash64-be-v1"
+        ? { schemaVersion, producerVersion, rulesFingerprint, hashAlgorithm }
+        : undefined
     },
     compareFiles(batch) {
       assertOpen()
@@ -182,6 +207,7 @@ function createStore(
     async checkpoint() {
       assertOpen()
       database.exec("PRAGMA optimize")
+      await checkpoint?.()
     },
     close() {
       if (closed) return

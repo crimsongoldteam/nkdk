@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite"
-import type { ProjectStateCompatibility } from "../store"
+import type { ProjectStateCompatibility } from "../compatibility"
 import type { SqliteProjectStateIdentity } from "./readToken"
 
 export function createSqliteProjectStateSchema(
@@ -149,8 +149,10 @@ export function createSqliteProjectStateSchema(
   `)
   const insertMeta = database.prepare("INSERT INTO cache_meta(key, value) VALUES (?, ?)")
   try {
-    insertMeta.run("format_version", String(compatibility.formatVersion))
-    insertMeta.run("core_version", compatibility.coreVersion)
+    insertMeta.run("schema_version", String(compatibility.schemaVersion))
+    insertMeta.run("producer_version", compatibility.producerVersion)
+    insertMeta.run("rules_fingerprint", compatibility.rulesFingerprint)
+    insertMeta.run("hash_algorithm", compatibility.hashAlgorithm)
     insertMeta.run("state_id", identity.stateId)
     insertMeta.run("database_name", identity.databaseName)
     insertMeta.run("lifecycle_nonce", identity.lifecycleNonce)

@@ -1,7 +1,12 @@
 import { afterEach } from "vitest"
 import { createSqliteProjectStateStore, type SqliteProjectStateStoreFixture } from "./store"
 
-export const sqliteProjectStateTestCompatibility = { formatVersion: 1, coreVersion: "test" }
+export const sqliteProjectStateTestCompatibility = {
+  schemaVersion: 1,
+  producerVersion: "test",
+  rulesFingerprint: "test-rules",
+  hashAlgorithm: "xxhash64-be-v1",
+} as const
 
 const fixtures: SqliteProjectStateStoreFixture[] = []
 
