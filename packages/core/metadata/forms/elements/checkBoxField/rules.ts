@@ -24,7 +24,7 @@ const CheckBoxFieldCommonRulesProperties = {
     toXML: (source) => source.has("checkBoxType") || !source.has("threeState"),
   },
   editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
-  equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean", implicitValueYAML: false },
+  equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean", noImplicitValueYAML: true },
   font: {
     yaml: "Шрифт",
     type: "Font",

@@ -1277,7 +1277,6 @@ describe("implicitValueYAML contract", () => {
     const expected = {
       checkBoxType: "Auto",
       enabled: true,
-      equalItemsWidth: false,
       itemHeight: 0,
       itemTitleHeight: 0,
       itemWidth: 0,
@@ -1303,7 +1302,7 @@ describe("implicitValueYAML contract", () => {
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
-      ["skipOnInput"]
+      ["equalItemsWidth", "skipOnInput"]
         .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )

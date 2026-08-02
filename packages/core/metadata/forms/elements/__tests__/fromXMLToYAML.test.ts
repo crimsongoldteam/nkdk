@@ -297,6 +297,27 @@ describe("элементы формы XML → YAML → XML", () => {
     }
   )
 
+  it.each([CheckBoxFieldRules, TableCheckBoxFieldRules])(
+    "$itemType сохраняет три состояния EqualItemsWidth",
+    (rule) => {
+      const cases = [
+        [{ _name: "Флажок" }, undefined, undefined],
+        [{ _name: "Флажок", EqualItemsWidth: true }, "Истина", true],
+        [{ _name: "Флажок", EqualItemsWidth: false }, "Ложь", false],
+      ] as const
+
+      for (const [xml, yamlValue, restoredValue] of cases) {
+        const yaml = testMetadataItemFromXMLToYAML({ rule, xml, name: "Флажок" }).yaml
+        if (yamlValue === undefined) expect(yaml).not.toHaveProperty("ОдинаковаяШиринаЭлементов")
+        else expect(yaml).toHaveProperty("ОдинаковаяШиринаЭлементов", yamlValue)
+
+        const restored = testMetadataItemFromYAMLToXML({ rule, yaml, name: "Флажок" }).xml
+        if (restoredValue === undefined) expect(restored).not.toHaveProperty("EqualItemsWidth")
+        else expect(restored).toHaveProperty("EqualItemsWidth", restoredValue)
+      }
+    }
+  )
+
   it("сохраняет пустой форматированный заголовок ExtendedTooltip без reference", () => {
     const yaml = testMetadataItemFromXMLToYAML({
       rule: ExtendedTooltipRules,
