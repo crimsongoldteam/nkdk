@@ -177,15 +177,30 @@ function createStore(
       assertUpdateActive()
       for (const projectPath of projectPaths) statements.deleteFile.run(projectPath)
     },
-    readLocalDiagnostics() {
+    readLocalDiagnostics(params) {
       assertOpen()
+      if (params?.mode !== "published") {
+        return (database.prepare(`
+          SELECT pf.project_path, d.line, d.col, d.severity, d.source, d.message, d.yaml_path
+          FROM local_diagnostics d
+          JOIN project_files pf ON pf.id = d.source_file_id
+          WHERE d.diagnostic_kind = 'local'
+          ORDER BY pf.id, d.ordinal, d.id
+        `).all() as unknown as DiagnosticRow[]).map(diagnosticFromRow)
+      }
+      const blockedComponentPaths = readProjectStateDependencyReadiness({ queryPort }).blockedComponentPaths
       return (database.prepare(`
-        SELECT pf.project_path, d.line, d.col, d.severity, d.source, d.message, d.yaml_path
+        SELECT pf.project_path, c.path AS component_path, d.diagnostic_kind,
+          d.line, d.col, d.severity, d.source, d.message, d.yaml_path
         FROM local_diagnostics d
         JOIN project_files pf ON pf.id = d.source_file_id
-        WHERE d.diagnostic_kind = 'local'
+        JOIN components c ON c.id = pf.component_id
         ORDER BY pf.id, d.ordinal, d.id
-      `).all() as unknown as DiagnosticRow[]).map(diagnosticFromRow)
+      `).all() as unknown as PublishedDiagnosticRow[])
+        .filter(({ component_path, diagnostic_kind }) =>
+          blockedComponentPaths.has(component_path) ? diagnostic_kind === "schema" : diagnostic_kind === "local"
+        )
+        .map(diagnosticFromRow)
     },
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch {
       assertOpen()
@@ -200,7 +215,7 @@ function createStore(
         if (batch.length === 0) break
         const checks = batch
           .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
-        if (checks.length > 0) diagnostics.push(...validateProjectStateReferenceBatch({ checks, queryPort }))
+        if (checks.length > 0) diagnostics.push(...validateProjectStateReferenceBatch({ checks, projectDir, queryPort }))
       }
       for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
         const batch = readPendingOwnerChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
@@ -811,6 +826,11 @@ interface DiagnosticRow {
   readonly source: Diagnostic["source"]
   readonly message: string
   readonly yaml_path: string | null
+}
+
+interface PublishedDiagnosticRow extends DiagnosticRow {
+  readonly component_path: string
+  readonly diagnostic_kind: "local" | "schema"
 }
 
 function diagnosticFromRow(row: DiagnosticRow): Diagnostic {

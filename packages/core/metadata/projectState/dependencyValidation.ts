@@ -1,8 +1,10 @@
+import { join } from "node:path"
 import {
   resolvedProjectReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "../validation/projectReferenceIndex"
+import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type { Diagnostic } from "../validation/types"
 import {
   ownerMetadataFromFacts,
@@ -72,6 +74,7 @@ export function readProjectStateDependencyReadiness(params: {
 
 export function validateProjectStateReferenceBatch(params: {
   readonly checks: readonly ProjectStatePendingReferenceCheck[]
+  readonly projectDir: string
   readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
 }): readonly Diagnostic[] {
   const results = params.queryPort.resolveTargets(
@@ -82,19 +85,20 @@ export function validateProjectStateReferenceBatch(params: {
     })),
   )
   const diagnostics: Diagnostic[] = []
-  for (let index = 0; index < params.checks.length; index += 1) {
-    const check = params.checks[index]!
-    const result = results[index]
-    if (result === undefined || result.requestId !== check.requestId) {
-      throw new Error(`Ответ dependency lookup не соответствует запросу ${check.requestId}`)
-    }
+  forEachDependencyResult(params.checks, results, (check, result) => {
     if (result.status === "found") {
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {
-      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status).diagnostics)
+      const objectFilePath = check.reference.target.kind === "object"
+        ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
+            projectDir: join(params.projectDir, check.componentPath),
+            target: check.reference.target,
+          })?.filePath
+        : undefined
+      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status, objectFilePath).diagnostics)
     }
-  }
+  })
   return diagnostics
 }
 
@@ -107,20 +111,15 @@ export function validateProjectStateOwnerBatch(params: {
     params.checks.map(({ requestId, componentPath, owner }) => ({ requestId, componentPath, owner })),
   )
   const diagnostics: Diagnostic[] = []
-  for (let index = 0; index < params.checks.length; index += 1) {
-    const check = params.checks[index]!
-    const result = results[index]
-    if (result === undefined || result.requestId !== check.requestId) {
-      throw new Error(`Ответ dependency lookup не соответствует запросу ${check.requestId}`)
-    }
-    if (result.status !== "missing") continue
+  forEachDependencyResult(params.checks, results, (check, result) => {
+    if (result.status !== "missing") return
     diagnostics.push(
       ...ownerMetadataNotFound({
         projectDir: `${params.projectDir}/${check.componentPath}`,
         ref: check.owner,
       }).diagnostics,
     )
-  }
+  })
   return diagnostics
 }
 
@@ -131,13 +130,8 @@ export function validateProjectStateDependencyBatch(params: {
 }): readonly Diagnostic[] {
   const results = params.queryPort.readDependencyInputs(params.checks)
   const diagnostics: Diagnostic[] = []
-  for (let index = 0; index < params.checks.length; index += 1) {
-    const check = params.checks[index]!
-    const result = results[index]
-    if (result === undefined || result.requestId !== check.requestId) {
-      throw new Error(`Ответ dependency lookup не соответствует запросу ${check.requestId}`)
-    }
-    if (result.status !== "found") continue
+  forEachDependencyResult(params.checks, results, (check, result) => {
+    if (result.status !== "found") return
     diagnostics.push(
       ...validatePendingChecks({
         ownerCache: dependencyOwnerCache({
@@ -153,8 +147,26 @@ export function validateProjectStateDependencyBatch(params: {
         ],
       }).diagnostics,
     )
-  }
+  })
   return diagnostics
+}
+
+function forEachDependencyResult<
+  TCheck extends { readonly requestId: string },
+  TResult extends { readonly requestId: string },
+>(
+  checks: readonly TCheck[],
+  results: readonly TResult[],
+  visit: (check: TCheck, result: TResult) => void,
+): void {
+  for (let index = 0; index < checks.length; index += 1) {
+    const check = checks[index]!
+    const result = results[index]
+    if (result === undefined || result.requestId !== check.requestId) {
+      throw new Error(`Ответ dependency lookup не соответствует запросу ${check.requestId}`)
+    }
+    visit(check, result)
+  }
 }
 
 function dependencyOwnerCache(params: { input: ProjectDependencyInput; projectDir: string }): OwnerMetadataCache {

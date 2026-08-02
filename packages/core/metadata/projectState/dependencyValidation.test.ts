@@ -30,6 +30,14 @@ if (!memberTargetResult.ok || memberTargetResult.target.kind !== "member") {
 }
 const memberTarget = memberTargetResult.target
 const canonical = "Catalog.Товары.Attribute.Артикул"
+const objectTargetResult = parseMetadataTargetFromYAML({
+  value: "Справочник.НетТакого",
+  constraint: { kind: "object" },
+})
+if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
+  throw new Error("Некорректная тестовая ссылка на объект")
+}
+const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
   it.each([
@@ -56,15 +64,38 @@ describe("dependency validation из ProjectState", () => {
       references: graph.layers.find(({ componentPath }) => componentPath === sourceComponent)!.contribution
         .pendingReferences!,
     }).diagnostics
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+    const store = storeWithUpdates(updates)
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "reference", componentPath: sourceComponent, projectPath: updates[0]!.projectPath }],
     })
 
     expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    store.rollbackUpdate()
+  })
+
+  it("привязывает отсутствующий объект к ожидаемому Свойства.yaml", () => {
+    const source: ProjectStateYamlFileUpdate = {
+      ...yamlUpdate("cf/ИсточникОбъекта.yaml", "cf", false),
+      references: [],
+      pendingReferences: [{
+        yamlPath: ["Ссылка"],
+        canonical: "Catalog.НетТакого",
+        target: objectTarget,
+        constraint: { kind: "object" },
+      }],
+    }
+    const configuration = configurationUpdate(true)
+    const store = storeWithUpdates([source, configuration])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([{
+      filePath: "/project/cf/Справочник/НетТакого/Свойства.yaml",
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "reference",
+      message: 'Не найден объект "Справочник.НетТакого"',
+    }])
     store.rollbackUpdate()
   })
 
@@ -90,21 +121,8 @@ describe("dependency validation из ProjectState", () => {
         return this.roots.get(name)
       },
     }
-    const sharedDiagnostics = validatePendingChecks({
-      ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-        projectDir: "/project",
-        componentPath: "cf",
-        graph: createSharedProjectValidationGraph(graph),
-      }),
-      checks: source.pendingChecks.map((check) => ({
-        ...check,
-        location: { ...check.location, filePath: source.projectPath },
-        index,
-      })),
-    }).diagnostics
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates: [source], hashBytes: new Uint8Array(8) })
+    const sharedDiagnostics = sharedDependencyDiagnostics({ source, graph, componentPath: "cf", index })
+    const store = storeWithUpdates([source])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "owner", componentPath: "cf", projectPath: source.projectPath }],
@@ -148,21 +166,8 @@ describe("dependency validation из ProjectState", () => {
         return roots.get(name)
       },
     }
-    const sharedDiagnostics = validatePendingChecks({
-      ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-        projectDir: "/project",
-        componentPath: "cf",
-        graph: createSharedProjectValidationGraph(graph),
-      }),
-      checks: source.pendingChecks.map((check) => ({
-        ...check,
-        location: { ...check.location, filePath: source.projectPath },
-        index,
-      })),
-    }).diagnostics
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates: [source, owner], hashBytes: new Uint8Array(16) })
+    const sharedDiagnostics = sharedDependencyDiagnostics({ source, graph, componentPath: "cf", index })
+    const store = storeWithUpdates([source, owner])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "field", componentPath: "cf", projectPath: source.projectPath }],
@@ -204,34 +209,40 @@ describe("dependency validation из ProjectState", () => {
       ownerLayer("cf", fallbackOwner, fallbackFieldIndex),
     ])
     const roots = new Map(source.forms.filter((entry) => entry.kind === "root").map((entry) => [entry.name, entry.source]))
-    const sharedDiagnostics = validatePendingChecks({
-      ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-        projectDir: "/project",
-        componentPath: "cfe/x",
-        graph: createSharedProjectValidationGraph(graph),
-      }),
-      checks: source.pendingChecks.map((check) => ({
-        ...check,
-        location: { ...check.location, filePath: source.projectPath },
-        index: {
-          roots,
-          additionalColumnsByTablePath: new Map(),
-          duplicateDiagnostics: [],
-          getRoot(name: string) {
-            return roots.get(name)
-          },
+    const sharedDiagnostics = sharedDependencyDiagnostics({
+      source,
+      graph,
+      componentPath: "cfe/x",
+      index: {
+        roots,
+        additionalColumnsByTablePath: new Map(),
+        duplicateDiagnostics: [],
+        getRoot(name: string) {
+          return roots.get(name)
         },
-      })),
-    }).diagnostics
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates: [source, directOwner, fallbackOwner, configuration], hashBytes: new Uint8Array(32) })
+      },
+    })
+    const store = storeWithUpdates([source, directOwner, fallbackOwner, configuration])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "data-path", componentPath: "cfe/x", projectPath: source.projectPath }],
     })
 
     expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    store.rollbackUpdate()
+  })
+
+  it("использует связанных владельцев при reverse lookup стандартного реквизита", () => {
+    const register = { kind: "РегистрНакопления", name: "Продажи" }
+    const source = ownerDependencySource("cf", register, "Объект.Регистратор", "cf/ФормаReverseLookup.yaml")
+    const registerOwner = ownerUpdate("cf", [], register)
+    const documentOwner = ownerUpdate("cf", [], { kind: "Документ", name: "Реализация" }, {
+      registerRecords: ["AccumulationRegister.Продажи"],
+    })
+    const configuration = configurationUpdate(true)
+    const store = storeWithUpdates([source, registerOwner, documentOwner, configuration])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
     store.rollbackUpdate()
   })
 
@@ -260,28 +271,20 @@ describe("dependency validation из ProjectState", () => {
         },
       ],
     ])
-    const sharedDiagnostics = validatePendingChecks({
-      ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-        projectDir: "/project",
-        componentPath: "cf",
-        graph: createSharedProjectValidationGraph(graph),
-      }),
-      checks: source.pendingChecks.map((check) => ({
-        ...check,
-        location: { ...check.location, filePath: source.projectPath },
-        index: {
-          roots,
-          additionalColumnsByTablePath: new Map([["Таблица", new Map([["Значение", additionalColumn]])]]),
-          duplicateDiagnostics: [],
-          getRoot(name: string) {
-            return roots.get(name)
-          },
+    const sharedDiagnostics = sharedDependencyDiagnostics({
+      source,
+      graph,
+      componentPath: "cf",
+      index: {
+        roots,
+        additionalColumnsByTablePath: new Map([["Таблица", new Map([["Значение", additionalColumn]])]]),
+        duplicateDiagnostics: [],
+        getRoot(name: string) {
+          return roots.get(name)
         },
-      })),
-    }).diagnostics
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates: [source, owner], hashBytes: new Uint8Array(16) })
+      },
+    })
+    const store = storeWithUpdates([source, owner])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "form", componentPath: "cf", projectPath: source.projectPath }],
@@ -320,15 +323,42 @@ describe("dependency validation из ProjectState", () => {
         message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
       },
     ]
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+    const store = storeWithUpdates(updates)
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "readiness", componentPath: "cfe/x", projectPath: source.projectPath }],
     })
 
     expect(storeDiagnostics).toEqual(expected)
+    store.rollbackUpdate()
+  })
+
+  it("публикует только schema-диагностики заблокированного cfe", () => {
+    const schemaDiagnostic = {
+      line: 2,
+      col: 3,
+      severity: "error" as const,
+      source: "structure" as const,
+      message: "schema cfe",
+    }
+    const extension = {
+      ...yamlUpdate("cfe/x/Форма.yaml", "cfe/x", false),
+      localValidation: {
+        contributedFacts: true,
+        diagnostics: [
+          schemaDiagnostic,
+          { line: 4, col: 5, severity: "error" as const, source: "cross-file" as const, message: "semantic cfe" },
+        ],
+        schemaDiagnostics: [schemaDiagnostic],
+      },
+    }
+    const configuration = configurationUpdate(false)
+    const store = storeWithUpdates([extension, configuration])
+
+    expect(store.readLocalDiagnostics({ mode: "published" })).toEqual([{
+      ...schemaDiagnostic,
+      filePath: extension.projectPath,
+    }])
     store.rollbackUpdate()
   })
 
@@ -348,20 +378,9 @@ describe("dependency validation из ProjectState", () => {
         }],
       },
     }
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates: [source, configuration], hashBytes: new Uint8Array(16) })
+    const store = storeWithUpdates([source, configuration])
 
-    expect(store.validateDependencies({ requests: [] })).toEqual([
-      {
-        filePath: source.projectPath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "reference",
-        message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
-      },
-    ])
+    expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
     store.rollbackUpdate()
   })
 
@@ -374,23 +393,14 @@ describe("dependency validation из ProjectState", () => {
       projectPath: "cf/Другой.yaml",
     })
     const updates = [extensionSource, configurationSource, nonRootConfiguration]
-    const { store } = createSqliteProjectStateTestFixture()
-    store.beginUpdate()
-    store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+    const store = storeWithUpdates(updates)
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "readiness-root", componentPath: "cf", projectPath: configurationSource.projectPath }],
     })
 
     expect(storeDiagnostics).toEqual([
-      {
-        filePath: "cf/Источник.yaml",
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "reference",
-        message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
-      },
+      missingMemberDiagnostic("cf/Источник.yaml"),
       {
         filePath: "cfe/x/Конфигурация.yaml",
         line: 1,
@@ -423,16 +433,7 @@ describe("dependency validation из ProjectState", () => {
         })
       }
 
-      expect(store.validateDependencies({ requests: [] })).toEqual([
-        {
-          filePath: source.projectPath,
-          line: 1,
-          col: 1,
-          severity: "error",
-          source: "reference",
-          message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
-        },
-      ])
+      expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
       store.rollbackUpdate()
     },
   )
@@ -449,6 +450,7 @@ describe("dependency validation из ProjectState", () => {
     const pending = source.pendingReferences[0]!
 
     const sessionDiagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
       checks: [
         {
           requestId: "session-reference",
@@ -463,6 +465,56 @@ describe("dependency validation из ProjectState", () => {
     session.close()
   })
 })
+
+function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
+  const { store } = createSqliteProjectStateTestFixture()
+  store.beginUpdate()
+  store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+  return store
+}
+
+function emptyYamlUpdate(
+  projectPath: string,
+  componentPath: string,
+  yamlRole: ProjectStateYamlFileUpdate["yamlRole"],
+): ProjectStateYamlFileUpdate {
+  return {
+    ...yamlUpdate(projectPath, componentPath, false),
+    yamlRole,
+    references: [],
+  }
+}
+
+function missingMemberDiagnostic(filePath: string) {
+  return {
+    filePath,
+    line: 1,
+    col: 1,
+    severity: "error" as const,
+    source: "reference" as const,
+    message: 'Не найдена ссылка "Catalog.Товары.Attribute.Артикул"',
+  }
+}
+
+function sharedDependencyDiagnostics(params: {
+  source: ProjectStateYamlFileUpdate
+  graph: ReturnType<typeof createProjectValidationGraph>
+  componentPath: string
+  index: FormDataPathIndex
+}) {
+  return validatePendingChecks({
+    ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
+      projectDir: "/project",
+      componentPath: params.componentPath,
+      graph: createSharedProjectValidationGraph(params.graph),
+    }),
+    checks: params.source.pendingChecks.map((check) => ({
+      ...check,
+      location: { ...check.location, filePath: params.source.projectPath },
+      index: params.index,
+    })),
+  }).diagnostics
+}
 
 function configurationUpdate(
   readiness: boolean | {
@@ -500,16 +552,7 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
   const owner = { kind: "Справочник", name: "Товары" }
   const table = { kind: "ValueTable" as const }
   return {
-    kind: "yaml",
-    projectPath: "cf/ФормаПолитики.yaml",
-    componentPath: "cf",
-    resourceKind: "yaml",
-    yamlRole: "form",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: [],
-    owners: [],
-    fields: [],
+    ...emptyYamlUpdate("cf/ФормаПолитики.yaml", "cf", "form"),
     forms: [
       {
         kind: "root",
@@ -554,7 +597,6 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
         policy: "formDataPath",
       },
     ],
-    dependencies: [],
   }
 }
 
@@ -588,37 +630,24 @@ function ownerLayer(
 function ownerUpdate(
   componentPath = "cf",
   fields: ProjectStateYamlFileUpdate["fields"] = [],
+  owner: ProjectStateYamlFileUpdate["owners"][number]["owner"] = { kind: "Справочник", name: "Товары" },
+  facts: ProjectStateYamlFileUpdate["owners"][number]["facts"] = {},
 ): ProjectStateYamlFileUpdate {
   return {
-    kind: "yaml",
-    projectPath: `${componentPath}/Справочник/Товары/Свойства.yaml`,
-    componentPath,
-    resourceKind: "yaml",
-    yamlRole: "configuration",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: [],
-    owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: {} }],
+    ...emptyYamlUpdate(`${componentPath}/${owner.kind}/${owner.name}/Свойства.yaml`, componentPath, "configuration"),
+    owners: [{ owner, facts }],
     fields,
-    forms: [],
-    pendingChecks: [],
-    dependencies: [],
   }
 }
 
-function ownerDependencySource(componentPath = "cf"): ProjectStateYamlFileUpdate {
-  const owner = { kind: "Справочник", name: "Товары" }
+function ownerDependencySource(
+  componentPath = "cf",
+  owner: ProjectStateYamlFileUpdate["pendingChecks"][number]["owner"] = { kind: "Справочник", name: "Товары" },
+  value = "Объект.Артикул",
+  projectPath = `${componentPath}/Форма.yaml`,
+): ProjectStateYamlFileUpdate {
   return {
-    kind: "yaml",
-    projectPath: `${componentPath}/Форма.yaml`,
-    componentPath,
-    resourceKind: "yaml",
-    yamlRole: "form",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: [],
-    owners: [],
-    fields: [],
+    ...emptyYamlUpdate(projectPath, componentPath, "form"),
     forms: [
       {
         kind: "root",
@@ -627,7 +656,7 @@ function ownerDependencySource(componentPath = "cf"): ProjectStateYamlFileUpdate
         source: {
           kind: "formAttribute",
           name: "Объект",
-          typeInfo: { kinds: ["object"], nextTypes: [owner], sourceText: "CatalogObject.Товары" },
+          typeInfo: { kinds: ["object"], nextTypes: [owner] },
         },
       },
     ],
@@ -636,12 +665,11 @@ function ownerDependencySource(componentPath = "cf"): ProjectStateYamlFileUpdate
         kind: "dataPath",
         location: { line: 3, col: 15, path: "/ПутьКДанным" },
         owner,
-        value: "Объект.Артикул",
+        value,
         policyInput: { yaml: "ПутьКДанным" },
         policy: "formDataPath",
       },
     ],
-    dependencies: [],
   }
 }
 

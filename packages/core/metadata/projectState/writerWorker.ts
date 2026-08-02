@@ -77,7 +77,7 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
     case "compareFiles":
       return { kind: "filesCompared", changes: requireStore().store.compareFiles(command.batch) }
     case "readLocalDiagnostics":
-      return { kind: "localDiagnostics", diagnostics: requireStore().store.readLocalDiagnostics() }
+      return { kind: "localDiagnostics", diagnostics: requireStore().store.readLocalDiagnostics({ mode: "published" }) }
     case "validateDependencies": {
       const current = requireActiveOperation(command.operationId)
       if (cancelledOperations.has(command.operationId)) throw new Error("Операция состояния проекта отменена")

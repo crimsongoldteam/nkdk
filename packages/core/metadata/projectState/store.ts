@@ -51,7 +51,7 @@ export interface ProjectStateStore {
   beginUpdate(): void
   replaceFiles(batch: ProjectStateFileUpdateBatch): void
   deleteFiles(projectPaths: readonly string[]): void
-  readLocalDiagnostics(): readonly Diagnostic[]
+  readLocalDiagnostics(params?: { readonly mode?: "published" }): readonly Diagnostic[]
   readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch
   validateDependencies(params: ProjectDependencyValidationParams): readonly Diagnostic[]
   readComponentProjection(componentPath: string): ProjectStateComponentProjection
