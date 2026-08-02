@@ -1,7 +1,7 @@
 import { mkdtemp, realpath, rm, symlink } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import type { ProjectStateRefreshResult } from "./refresh"
 import { createProjectStateService } from "./service"
@@ -24,13 +24,16 @@ describe("ProjectStateService", () => {
     let active = 0
     let maxActive = 0
     let releaseFirst!: () => void
+    let notifyFirstStarted!: () => void
     const firstGate = new Promise<void>((resolve) => { releaseFirst = resolve })
+    const firstStarted = new Promise<void>((resolve) => { notifyFirstStarted = resolve })
     let calls = 0
     const service = createProjectStateService({
       createWriter: () => handle,
       createPool: () => testPool(),
       async refresh(_params, _dependencies) {
         calls += 1
+        if (calls === 1) notifyFirstStarted()
         active += 1
         maxActive = Math.max(maxActive, active)
         if (calls === 1) await firstGate
@@ -41,7 +44,8 @@ describe("ProjectStateService", () => {
 
     const first = service.refreshAndValidate({ projectDir })
     const second = service.refreshAndValidate({ projectDir: alias })
-    await vi.waitFor(() => expect(calls).toBe(1))
+    await firstStarted
+    expect(calls).toBe(1)
     releaseFirst()
     await Promise.all([first, second])
 
@@ -303,21 +307,27 @@ describe("ProjectStateService", () => {
     let calls = 0
     const refreshedProjectDirs: string[] = []
     let finishCheckpoint!: () => void
+    let notifyCheckpointStarted!: () => void
     const checkpoint = new Promise<void>((resolve) => { finishCheckpoint = resolve })
+    const checkpointStarted = new Promise<void>((resolve) => { notifyCheckpointStarted = resolve })
     const service = createProjectStateService({
       createWriter: () => handles.shift()!,
       createPool: () => testPool(),
       async refresh(params) {
         calls += 1
         refreshedProjectDirs.push(params.projectDir)
-        if (calls === 2) await checkpoint
+        if (calls === 2) {
+          notifyCheckpointStarted()
+          await checkpoint
+        }
         return refreshResult(calls)
       },
     })
 
     await service.refreshAndValidate({ projectDir })
     const rebuilding = service.rebuild({ projectDir })
-    await vi.waitFor(() => expect(calls).toBe(2))
+    await checkpointStarted
+    expect(calls).toBe(2)
     expect(old.closed).toBe(0)
     finishCheckpoint()
     await rebuilding
@@ -359,21 +369,27 @@ describe("ProjectStateService", () => {
     secondWriter.openProject = async (dir) => { events.push("open-second"); await secondOpen(dir) }
     const writers = [firstWriter, secondWriter]
     let finishFirst!: () => void
+    let notifyFirstStarted!: () => void
     const firstGate = new Promise<void>((resolve) => { finishFirst = resolve })
+    const firstStarted = new Promise<void>((resolve) => { notifyFirstStarted = resolve })
     let calls = 0
     const service = createProjectStateService({
       createWriter: () => writers.shift()!,
       createPool: () => testPool(),
       async refresh() {
         calls += 1
-        if (calls === 1) await firstGate
+        if (calls === 1) {
+          notifyFirstStarted()
+          await firstGate
+        }
         return refreshResult(calls)
       },
     })
 
     const first = service.refreshAndValidate({ projectDir: firstDir })
     const second = service.refreshAndValidate({ projectDir: secondDir })
-    await vi.waitFor(() => expect(calls).toBe(1))
+    await firstStarted
+    expect(calls).toBe(1)
     expect(secondWriter.opened).toEqual([])
     expect(firstWriter.closed).toBe(0)
     finishFirst()

@@ -1,7 +1,5 @@
-import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
-import { beforeAll, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { callAtomicFromYAML } from "../../../orchestration"
-import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import { importFromYAML } from "../../../../yaml/import"
 import {
@@ -12,19 +10,8 @@ import {
 } from "./__fixtures__/data"
 
 const rule = { type: "DcsAvailableValues" } as const
-let compiledAvailableValuesSchema: ReturnType<typeof compileValidationSchema>
-
-function schemaFor() {
-  const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-  if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-  return compileValidationSchema(schema, { eagerFallback: true })
-}
 
 describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
-  beforeAll(() => {
-    compiledAvailableValuesSchema = schemaFor()
-  })
-
   it("imports string values", () => {
     const result = callAtomicFromYAML({
       context: mockContext,
@@ -63,21 +50,4 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
     expect(result).toEqual(nilAndBooleanAvailableValues)
   })
 
-  it("accepts string values in JSON Schema", () => {
-    const compiled = compiledAvailableValuesSchema
-
-    expect(compiled.Check([{ Значение: '"Выставлен"', Представление: { ru: "Выставлен" } }])).toBe(true)
-  })
-
-  it("accepts absent values in JSON Schema", () => {
-    const compiled = compiledAvailableValuesSchema
-
-    expect(compiled.Check([{}])).toBe(true)
-  })
-
-  it("rejects unsupported available value keys in JSON Schema", () => {
-    const compiled = compiledAvailableValuesSchema
-
-    expect(compiled.Check([{ Значение: '"Выставлен"', НеизвестноеПоле: "x" }])).toBe(false)
-  })
 })

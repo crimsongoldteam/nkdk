@@ -9,6 +9,7 @@ import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadines
 import { createProjectValidationGraph } from "../validation/projectValidationGraph"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
+import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import {
@@ -29,6 +30,8 @@ beforeAll(async () => {
     workerIndex: 0,
     context: mockContext,
     rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  }, {
+    createValidationSchemaCache: async () => createTestValidationSchemaCache(),
   })
 })
 
@@ -309,13 +312,6 @@ describe("validation first-pass worker boundary", () => {
   it("отклоняет локальную worker-задачу больше ограниченной producer-пачки", async () => {
     const projectDir = createTempDir()
     const descriptor = componentProperties(projectDir, "cf", "Ограничение")
-    await runPreparedYamlProjectWorkerTask({
-      kind: "initValidation",
-      workerIndex: 0,
-      context: mockContext,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-    })
-
     await expect(runPreparedYamlProjectWorkerTask({
       kind: "validateLocal",
       workerIndex: 0,
@@ -592,9 +588,12 @@ describe("local validation pool", () => {
     const taskSizes: number[] = []
     const writtenSizes: number[] = []
     let releaseFirstWrite!: () => void
+    let notifyFirstTask!: () => void
     const firstWrite = new Promise<void>((resolve) => { releaseFirstWrite = resolve })
+    const firstTask = new Promise<void>((resolve) => { notifyFirstTask = resolve })
     const fake = successfulLocalValidationWorker((task) => {
       taskSizes.push(task.files.length)
+      if (taskSizes.length === 1) notifyFirstTask()
     })
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
     const files = localValidationFiles(projectDir, "Файл", 65)
@@ -605,7 +604,8 @@ describe("local validation pool", () => {
           if (writtenSizes.length === 1) await firstWrite
         },
       })
-      await vi.waitFor(() => expect(taskSizes).toEqual([32]))
+      await firstTask
+      expect(taskSizes).toEqual([32])
       releaseFirstWrite()
 
       await expect(running).resolves.toMatchObject({ parsedYamlFiles: 65 })

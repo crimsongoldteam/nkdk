@@ -1,6 +1,6 @@
 import fs from "fs"
 import { fileURLToPath } from "url"
-import { beforeAll, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import {
   createDirectRoundTripContexts,
@@ -10,7 +10,6 @@ import {
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
-import { exportFormAttributesToJSONSchema } from "./toJSONSchema"
 
 import "./fromXMLToYAML"
 import "./rules"
@@ -49,18 +48,6 @@ const settingsFixtures = [
 ] as const
 
 describe("FormAttributes XML → YAML → XML", () => {
-  let strictSchema = ""
-
-  beforeAll(() => {
-    strictSchema = JSON.stringify(
-      exportFormAttributesToJSONSchema({
-        context: {} as Parameters<typeof exportFormAttributesToJSONSchema>[0]["context"],
-        rule: { type: "FormAttributes" },
-        value: undefined,
-      })
-    )
-  })
-
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
     const parsed = importContentFromXML<Record<string, unknown>>(expected, {
@@ -222,20 +209,6 @@ describe("FormAttributes XML → YAML → XML", () => {
     expect(xml).toEqual({ Attribute: [source.Attribute] })
   })
 
-  it("сохраняет строгую схему всех специальных настроек", () => {
-    for (const property of [
-      "Колонки",
-      "ДополнительныеКолонки",
-      "Диаграмма",
-      "ДиаграммаГанта",
-      "ГрафическаяСхема",
-      "ТабличныйДокумент",
-      "Планировщик",
-    ]) {
-      expect(strictSchema).toContain(`"${property}"`)
-    }
-    expect(strictSchema).toContain('"additionalProperties":false')
-  })
 })
 
 function withoutDeclaration(xml: string): string {

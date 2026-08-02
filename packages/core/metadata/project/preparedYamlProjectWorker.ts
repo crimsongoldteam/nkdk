@@ -141,12 +141,17 @@ interface WorkerValidationState {
 }
 
 export async function runPreparedYamlProjectWorkerTask(
-  message: PreparedYamlProjectWorkerTask
+  message: PreparedYamlProjectWorkerTask,
+  options: {
+    createValidationSchemaCache?: typeof createProjectValidationWorkerSchemaCache
+  } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
     validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
-      createProjectValidationWorkerSchemaCache({ context: message.context })
+      (options.createValidationSchemaCache ?? createProjectValidationWorkerSchemaCache)({
+        context: message.context,
+      })
     )
     validationRulesSnapshot = message.rulesSnapshot
     const compileProfile = { formMs: 0, propertiesMs: 0, totalMs: 0 }

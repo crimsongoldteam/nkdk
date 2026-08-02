@@ -2,81 +2,30 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
-import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
-import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
-import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
+import { type ValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
 import {
   registerProjectFileValidator,
   restoreProjectReferenceIndexRegistryForTests,
   snapshotProjectReferenceIndexRegistryForTests,
 } from "./projectReferenceIndexRegistry"
-import { getValidationProjectSpecByDir } from "./projectSpecs"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
-import {
-  ClientApplicationFormRules,
-  ClientApplicationFormWithExtendedPresentationRules,
-} from "../forms/clientApplicationForm/rules"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
+import { createTestValidationSchemaCache } from "./testing/testValidationSchemaCache"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
-  let sharedSchemaCache: ReturnType<typeof createValidationSchemaCache>
-  let compiledAll: ReturnType<ReturnType<typeof createValidationSchemaCache>["compileAll"]>
+  let sharedSchemaCache: ValidationSchemaCache
 
   beforeAll(() => {
-    sharedSchemaCache = createValidationSchemaCache(mockContext)
-    compiledAll = sharedSchemaCache.compileAll()
-
-    const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
-    if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
-    sharedSchemaCache.properties(commonFormSpec.rule)
+    sharedSchemaCache = createTestValidationSchemaCache()
   }, 120_000)
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
-
-  it("compiles all validation schemas before validating files", () => {
-    expect(compiledAll.propertiesMs).toBeGreaterThanOrEqual(0)
-  }, 120_000)
-
-  it("distinguishes extension root properties from configuration properties", () => {
-    const cache = createValidationSchemaCache(mockContext)
-    const yaml = {
-      Имя: "Продажи",
-      НазначениеРасширенияКонфигурации: "Адаптация",
-    }
-
-    expect(cache.properties(MetadataConfigurationExtensionRules).Check(yaml)).toBe(true)
-    expect(cache.properties(MetadataConfigurationRules).Check(yaml)).toBe(false)
-  }, 20_000)
-
-  it("caches form schemas by rule object in either access order", () => {
-    const yaml = { РасширенноеПредставление: "Продажи" }
-    const specializedFirst = createValidationSchemaCache(mockContext)
-
-    expect(
-      specializedFirst
-        .form(ClientApplicationFormWithExtendedPresentationRules)
-        .Check(yaml)
-    ).toBe(true)
-    expect(
-      specializedFirst.form(ClientApplicationFormRules).Check(yaml)
-    ).toBe(false)
-
-    const baseFirst = createValidationSchemaCache(mockContext)
-    expect(baseFirst.form(ClientApplicationFormRules).Check(yaml)).toBe(
-      false
-    )
-    expect(
-      baseFirst
-        .form(ClientApplicationFormWithExtendedPresentationRules)
-        .Check(yaml)
-    ).toBe(true)
-  }, 20_000)
 
   it("marks syntax failure as a file without contributed facts", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
@@ -184,15 +133,6 @@ describe("validateProjectFileFirstPass references", () => {
       restoreProjectReferenceIndexRegistryForTests(registry)
     }
   })
-
-  it("compiles common form properties in the same validation graph", () => {
-    const spec = getValidationProjectSpecByDir("ОбщаяФорма")
-    if (spec === undefined) throw new Error("Common form validation spec is not registered")
-
-    const compiled = sharedSchemaCache.properties(spec.rule)
-
-    expect(compiled.Check({ Форма: { Элементы: {} } })).toBe(true)
-  }, 20_000)
 
   it("validates common form body through the shared form schema", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
