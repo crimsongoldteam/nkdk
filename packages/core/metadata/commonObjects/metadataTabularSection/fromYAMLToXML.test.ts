@@ -10,13 +10,18 @@ import {
 import { mockContextToXML } from "../../../tests/mockContext"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
+import { MetadataTabularSectionRules } from "./rules"
 
 import "./register"
 
 const INLINE_XML = `<TabularSection uuid="3cf6b85b-5422-44cc-bb0a-11d41703d9f5"><Properties><Name>Исполнители</Name><Synonym/><Comment/><ToolTip/><FillChecking>DontCheck</FillChecking><Use>ForItem</Use><LineNumberLength>5</LineNumberLength></Properties><ChildObjects/></TabularSection>`
 
 describe("MetadataTabularSections YAML → XML", () => {
-  it("should export full (round-trip)", () => expectFixtureRoundTrip("full.xml"))
+  it("should export full (round-trip)", () => {
+    expectFinishedRuleOrder(MetadataTabularSectionRules)
+    expectFixtureRoundTrip("full.xml")
+  })
 
   it("should export minimal (round-trip)", () => expectFixtureRoundTrip("minimal.xml"))
 
@@ -105,6 +110,11 @@ function expectFixtureRoundTrip(fixture: string): void {
     ],
   })
   expect(normalize(result.result)).toBe(normalize(result.expected))
+}
+
+function expectFinishedRuleOrder(rule: MetadataItemRule): void {
+  expect(getCompiledXMLPropertyOrder(rule)).toEqual(rule.xmlOrder)
+  expect(new Set(rule.xmlOrder).size).toBe(Object.keys(rule.properties).length)
 }
 
 function expectGeneratedTypes(params: {

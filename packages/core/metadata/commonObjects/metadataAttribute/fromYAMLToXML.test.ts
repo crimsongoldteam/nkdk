@@ -12,7 +12,8 @@ import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { MetadataAttributeRules } from "./rules"
+import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
+import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "./rules"
 import { exportMetadataAttributesToJSONSchema } from "./register"
 
 const rule = probeRule("MetadataAttributes")
@@ -100,7 +101,10 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("should export multiple (round-trip)", () => expectFixtureRoundTrip("multiple.xml"))
 
-  it("should export full (round-trip)", () => expectFixtureRoundTrip("full.xml"))
+  it("should export full (round-trip)", () => {
+    expectFinishedRuleOrder(MetadataCatalogAttributeRules)
+    expectFixtureRoundTrip("full.xml", "MetadataCatalogAttributes")
+  })
 
   it("does not add fill defaults to a tabular section attribute", () => {
     const result = testPropertyFixtureThroughYAML({
@@ -180,9 +184,9 @@ function convertYAML(value: unknown): string {
   return serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml: { Значение: value } }).xml)
 }
 
-function expectFixtureRoundTrip(fixture: string): void {
+function expectFixtureRoundTrip(fixture: string, propertyType = "MetadataAttributes"): void {
   const result = testPropertyFixtureThroughYAML({
-    propertyType: "MetadataAttributes",
+    propertyType,
     xmlRootTag: "Attribute",
     importMetaUrl: import.meta.url,
     fixture,
@@ -191,6 +195,11 @@ function expectFixtureRoundTrip(fixture: string): void {
     ],
   })
   expect(normalize(result.result)).toBe(normalize(result.expected))
+}
+
+function expectFinishedRuleOrder(rule: MetadataItemRule): void {
+  expect(getCompiledXMLPropertyOrder(rule)).toEqual(rule.xmlOrder)
+  expect(new Set(rule.xmlOrder).size).toBe(Object.keys(rule.properties).length)
 }
 
 function probeRule(type: string): MetadataItemRule {

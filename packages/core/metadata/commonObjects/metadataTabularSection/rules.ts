@@ -1,501 +1,206 @@
-import { internalInfoRule } from "../internalInfo/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { uuidPropertyRule } from "../uuid/rule"
-import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { getParentFromContext } from "../../context/helpers"
-import { ConfigurationContext } from "../../context/types"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-const propertiesParents = ["Properties"]
-const childObjectsParents = ["ChildObjects"]
-const emptyAttributes: [] = []
-const tabularSectionExternalMetadata = { segment: "TabularSection", placement: "ownerChild" } as const
-const getParentNameByItemType = (context: ConfigurationContextWithExportToXML, parentItemType: string): string => {
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { composeMetadataItemRule } from "../metadataRuleFragment"
+import {
+  metadataTabularSectionRuleBase,
+  tabularSectionAttributesFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionIdentityFragment,
+  tabularSectionInternalInfoFragment,
+  tabularSectionLineNumberFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionUseFragment,
+  tabularSectionUuidFragment,
+} from "./fragments"
+
+function getParentNameByItemType(
+  context: ConfigurationContextWithExportToXML,
+  parentItemType: string
+): string {
   const elements = context.exportToXML.itemsTree
-  for (let i = elements.length - 1; i >= 0; i--) {
-    const element = elements[i]
+  for (let index = elements.length - 1; index >= 0; index -= 1) {
+    const element = elements[index]
     if (String(element.itemType) === parentItemType) return element.name
   }
   return getParentFromContext(context).name
 }
-const commonTabularSectionProperties = {
-  uuid: uuidPropertyRule,
-  name: {
-    xml: "Name",
-    type: "string",
-    required: true,
-    xmlParents: propertiesParents,
-  },
-  synonym: {
-    yaml: "Синоним",
-    xml: "Synonym",
-    type: "I8nText",
-    excludeIfEqualNameYAML: true,
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-    defaultValue: ({
-      context,
-      name,
-      operation,
-    }: {
-      context: ConfigurationContext
-      name?: string
-      operation?: string
-    }) =>
-      operation === "importFromYAML" && name
-        ? addDefaultLanguageNameToSynonym(context, undefined, name)
-        : { items: { [context.defaultLanguage]: "" } },
-    defaultValueXMLEmpty: { items: {} },
-    preserveEmptyXML: true,
-  },
-  comment: {
-    yaml: "Комментарий",
-    xml: "Comment",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  toolTip: {
-    yaml: "Подсказка",
-    xml: "ToolTip",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  fillChecking: {
-    yaml: "ПроверкаЗаполнения",
-    xml: "FillChecking",
-    type: "SystemEnumeration",
-    typeSE: "FillChecking",
-    xmlParents: propertiesParents,
-    defaultValueXML: "DontCheck",
-    implicitValueYAML: "DontCheck",
-  },
-  standardAttributes: {
-    yaml: "СтандартныеРеквизиты",
-    xml: "StandardAttributes",
-    type: "StandardAttributeDescriptions",
-    standartAttributeNames: { LineNumber: "НомерСтроки" },
-    xmlParents: propertiesParents,
-  },
-  lineNumberLength: {
-    yaml: "ДлинаНомераСтроки",
-    xml: "LineNumberLength",
-    type: "number",
-    xmlParents: propertiesParents,
-    defaultValueXML: 5,
-    implicitValueYAML: 5,
-  },
-  objectBelonging: {
-    yaml: "ПринадлежностьОбъекта",
-    xml: "ObjectBelonging",
-    type: "SystemEnumeration",
-    typeSE: "ObjectBelonging",
-    xmlParents: propertiesParents,
-    noImplicitValueYAML: true,
-  },
-  attributes: {
-    yaml: "Реквизиты",
-    type: "MetadataTabularSectionAttributes",
-    operationTarget: namedCollectionTarget({
-      kind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    }),
-    defaultValue: emptyAttributes,
-    defaultValueXMLEmpty: emptyAttributes,
-    defaultValueXMLRaw: {},
-    xmlParents: childObjectsParents,
-    xml: "Attribute",
-  },
-} as const satisfies Record<string, PropertyRule>
-const attributesWithFill = {
-  ...commonTabularSectionProperties.attributes,
-  type: "MetadataTabularSectionAttributesWithFill",
-} as const satisfies PropertyRule
-export const MetadataTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "use",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const { context, metadata } = params
-        const parent = getParentFromContext(context, ["MetadataCatalog"])
-        const parentPath = parent.name
-        return `${parentPath}.${metadata.name}`
-      },
-      items: [
-        { name: `CatalogTabularSection`, category: "TabularSection" },
-        { name: `CatalogTabularSectionRow`, category: "TabularSectionRow" },
-      ],
-    }),
-    use: systemEnumerationRule({
-      yaml: "Использование",
-      xml: "Use",
-      typeSE: "AttributeUse",
-      xmlParents: propertiesParents,
-      defaultValueXML: "ForItem",
-      implicitValueYAML: "ForItem",
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataDocumentTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const { context, metadata } = params
-        const parent = getParentFromContext(context, ["MetadataDocument"])
-        const parentPath = parent.name
-        return `${parentPath}.${metadata.name}`
-      },
-      items: [
-        { name: `DocumentTabularSection`, category: "TabularSection" },
-        { name: `DocumentTabularSectionRow`, category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataTaskTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const parentPath = getParentNameByItemType(params.context, "MetadataTask")
-        return `${parentPath}.${params.metadata.name}`
-      },
-      items: [
-        { name: "TaskTabularSection", category: "TabularSection" },
-        { name: "TaskTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataBusinessProcessTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const parentPath = getParentNameByItemType(params.context, "MetadataBusinessProcess")
-        return `${parentPath}.${params.metadata.name}`
-      },
-      items: [
-        { name: "BusinessProcessTabularSection", category: "TabularSection" },
-        { name: "BusinessProcessTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataDataProcessorTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    attributes: attributesWithFill,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const { context, metadata } = params
-        const parentPath = getParentNameByItemType(context, "MetadataDataProcessor")
-        return `${parentPath}.${metadata.name}`
-      },
-      items: [
-        { name: "DataProcessorTabularSection", category: "TabularSection" },
-        { name: "DataProcessorTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataReportTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    attributes: attributesWithFill,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const { context, metadata } = params
-        const parentPath = getParentNameByItemType(context, "MetadataReport")
-        return `${parentPath}.${metadata.name}`
-      },
-      items: [
-        { name: "ReportTabularSection", category: "TabularSection" },
-        { name: "ReportTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataExchangePlanTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const { context, metadata } = params
-        const parentPath = getParentNameByItemType(context, "MetadataExchangePlan")
-        return `${parentPath}.${metadata.name}`
-      },
-      items: [
-        { name: "ExchangePlanTabularSection", category: "TabularSection" },
-        { name: "ExchangePlanTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataChartOfAccountsTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const parent = getParentFromContext(params.context, ["MetadataChartOfAccounts" as never])
-        return `${parent.name}.${params.metadata.name}`
-      },
-      items: [
-        { name: "ChartOfAccountsTabularSection", category: "TabularSection" },
-        { name: "ChartOfAccountsTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataChartOfCalculationTypesTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const parent = getParentFromContext(params.context, ["MetadataChartOfCalculationTypes" as never])
-        return `${parent.name}.${params.metadata.name}`
-      },
-      items: [
-        { name: "ChartOfCalculationTypesTabularSection", category: "TabularSection" },
-        { name: "ChartOfCalculationTypesTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-  },
-} as const satisfies MetadataItemRule
-export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
-  itemType: "MetadataTabularSection",
-  externalMetadata: tabularSectionExternalMetadata,
-  xmlOrder: [
-    "internalInfo",
-    "objectBelonging",
-    "name",
-    "synonym",
-    "comment",
-    "toolTip",
-    "fillChecking",
-    "standardAttributes",
-    "use",
-    "lineNumberLength",
-    "attributes",
-    "uuid",
-  ],
-  properties: {
-    ...commonTabularSectionProperties,
-    internalInfo: internalInfoRule({
-      forReferenceOnly: true,
-      getName: (params: {
-        context: ConfigurationContextWithExportToXML
-        metadata: {
-          name: string
-        }
-      }) => {
-        const parent = getParentFromContext(params.context, ["MetadataChartOfCharacteristicTypes" as never])
-        return `${parent.name}.${params.metadata.name}`
-      },
-      items: [
-        { name: "ChartOfCharacteristicTypesTabularSection", category: "TabularSection" },
-        { name: "ChartOfCharacteristicTypesTabularSectionRow", category: "TabularSectionRow" },
-      ],
-    }),
-    use: systemEnumerationRule({
-      yaml: "Использование",
-      xml: "Use",
-      typeSE: "AttributeUse",
-      xmlParents: propertiesParents,
-      defaultValueXML: "ForItem",
-      implicitValueYAML: "ForItem",
-    }),
-  },
-} as const satisfies MetadataItemRule
+
+function ownerInternalInfo(params: {
+  parentName: (context: ConfigurationContextWithExportToXML) => string
+  typeName: string
+}) {
+  return tabularSectionInternalInfoFragment({
+    getName: ({ context, metadata }) => `${params.parentName(context)}.${metadata.name}`,
+    items: [
+      { name: `${params.typeName}TabularSection`, category: "TabularSection" },
+      { name: `${params.typeName}TabularSectionRow`, category: "TabularSectionRow" },
+    ],
+  })
+}
+
+const catalogInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentFromContext(context, ["MetadataCatalog"]).name,
+  typeName: "Catalog",
+})
+const documentInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentFromContext(context, ["MetadataDocument"]).name,
+  typeName: "Document",
+})
+const taskInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentNameByItemType(context, "MetadataTask"),
+  typeName: "Task",
+})
+const businessProcessInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentNameByItemType(context, "MetadataBusinessProcess"),
+  typeName: "BusinessProcess",
+})
+const dataProcessorInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentNameByItemType(context, "MetadataDataProcessor"),
+  typeName: "DataProcessor",
+})
+const reportInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentNameByItemType(context, "MetadataReport"),
+  typeName: "Report",
+})
+const exchangePlanInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentNameByItemType(context, "MetadataExchangePlan"),
+  typeName: "ExchangePlan",
+})
+const chartOfAccountsInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentFromContext(context, ["MetadataChartOfAccounts" as never]).name,
+  typeName: "ChartOfAccounts",
+})
+const chartOfCalculationTypesInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentFromContext(context, ["MetadataChartOfCalculationTypes" as never]).name,
+  typeName: "ChartOfCalculationTypes",
+})
+const chartOfCharacteristicTypesInternalInfo = ownerInternalInfo({
+  parentName: (context) => getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).name,
+  typeName: "ChartOfCharacteristicTypes",
+})
+
+const commonAttributes = tabularSectionAttributesFragment("MetadataTabularSectionAttributes")
+const attributesWithFill = tabularSectionAttributesFragment("MetadataTabularSectionAttributesWithFill")
+
+export const MetadataTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  catalogInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionUseFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataDocumentTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  documentInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataTaskTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  taskInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataBusinessProcessTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  businessProcessInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataDataProcessorTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  dataProcessorInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  attributesWithFill,
+  tabularSectionUuidFragment,
+  tabularSectionLineNumberFragment
+)
+
+export const MetadataReportTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  reportInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  attributesWithFill,
+  tabularSectionUuidFragment,
+  tabularSectionLineNumberFragment
+)
+
+export const MetadataExchangePlanTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  exchangePlanInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataChartOfAccountsTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  chartOfAccountsInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataChartOfCalculationTypesTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  chartOfCalculationTypesInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
+
+export const MetadataChartOfCharacteristicTypesTabularSectionRules = composeMetadataItemRule(
+  metadataTabularSectionRuleBase,
+  chartOfCharacteristicTypesInternalInfo,
+  tabularSectionIdentityFragment,
+  tabularSectionPresentationFragment,
+  tabularSectionFillCheckingFragment,
+  tabularSectionStandardAttributesFragment,
+  tabularSectionUseFragment,
+  tabularSectionLineNumberFragment,
+  commonAttributes,
+  tabularSectionUuidFragment
+)
