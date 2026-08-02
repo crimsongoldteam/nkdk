@@ -78,7 +78,9 @@ Round-trip конфигурации `doc` без reference показал, чт�
 - `attributeChoice` — `fillChecking` и свойства выбора;
 - `attributeSearchAndHistory` — `indexing`, `fullTextSearch`, `dataHistory`;
 - `attributeUse` — варианты `use`;
-- `attributeBinaryStorage` — свойства хранения двоичных данных.
+- `attributeBinaryStorageUse` — режим хранения двоичных данных;
+- `attributeBinaryStorageUseField` — поле использования хранения двоичных
+  данных;
 - `attributeUuid` — завершающий XML-атрибут `uuid`.
 
 Каждый владелец экспортирует собственное итоговое правило, даже когда сегодня
@@ -111,7 +113,8 @@ Round-trip конфигурации `doc` без reference показал, чт�
 attributeUuid`.
 
 В этом договоре отсутствуют `attributeFill`,
-`attributeSearchAndHistory`, `attributeUse` и `attributeBinaryStorage`.
+`attributeSearchAndHistory`, `attributeUse`, `attributeBinaryStorageUse` и
+`attributeBinaryStorageUseField`.
 
 ### Табличная часть
 
@@ -132,8 +135,8 @@ tabularSectionAttributes + tabularSectionUuid`.
 `attributeIdentity + attributePresentation + attributeFill +
 attributeChoice + attributeUuid`.
 
-В этом договоре отсутствуют `attributeSearchAndHistory`, `attributeUse` и
-`attributeBinaryStorage`.
+В этом договоре отсутствуют `attributeSearchAndHistory`, `attributeUse`,
+`attributeBinaryStorageUse` и `attributeBinaryStorageUseField`.
 
 Обработка и отчёт имеют отдельные итоговые правила и отдельные типы коллекций.
 Они различаются как минимум `InternalInfo` и именами генерируемых типов.
@@ -146,6 +149,8 @@ attributeChoice + attributeUuid`.
 Для каталога, документа, задачи, бизнес-процесса, плана обмена, плана счетов,
 плана видов расчёта, плана видов характеристик и владельцев регистров
 создаются собственные законченные правила на каждом применимом уровне.
+К владельцам регистров в этой разработке относятся регистр сведений, регистр
+накопления, регистр бухгалтерии и регистр расчёта.
 Исходный набор полей и их порядок берётся из фактических XML в
 `/Users/nikita/git/round-trip-compact/cf`; существующее поведение сохраняется,
 если статистика не доказывает более узкий договор.
