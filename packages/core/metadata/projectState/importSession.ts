@@ -76,25 +76,55 @@ export async function createProjectStateImportSession(
   let phase: "index" | "final" | "done" = "index"
   let changedFiles = 0
   let finalWrites = Promise.resolve()
+  const activeWrites = new Set<Promise<void>>()
+
+  function trackWrite(write: Promise<void>): Promise<void> {
+    activeWrites.add(write)
+    void write.then(
+      () => activeWrites.delete(write),
+      () => activeWrites.delete(write),
+    )
+    return write
+  }
+
+  function startWrite(
+    expectedPhase: "index" | "final",
+    rejectedMessage: string,
+    write: () => Promise<void>,
+  ): Promise<void> {
+    if (phase !== expectedPhase) return Promise.reject(new Error(rejectedMessage))
+    return trackWrite(Promise.resolve().then(async () => {
+      if (phase !== expectedPhase) throw new Error(rejectedMessage)
+      await write()
+    }))
+  }
 
   return {
     writeFirstPassBatch(batch) {
-      if (phase !== "index") return Promise.reject(new Error("Рабочий индекс import уже неизменяем"))
-      return params.writer.writeImportIndexBatch(batch)
+      return startWrite(
+        "index",
+        "Рабочий индекс import уже неизменяем",
+        () => params.writer.writeImportIndexBatch(batch),
+      )
     },
     async registerFileIdentities(files) {
       if (phase === "done") throw new Error("Import session уже завершена")
       if (phase === "index") {
-        await params.writer.registerImportFileIdentities(files)
+        await startWrite(
+          "index",
+          "Import session уже завершена",
+          () => params.writer.registerImportFileIdentities(files),
+        )
         return
       }
       const write = finalWrites.then(async () => {
+        if (phase !== "final") throw new Error("Import session уже завершена")
         await params.writer.beginUpdate(params.projectDir, params.signal)
         await params.writer.registerImportFileIdentities(files)
         await params.writer.commitUpdate()
       })
       finalWrites = write.then(() => undefined, () => undefined)
-      await write
+      await trackWrite(write)
     },
     async commitWorkingIndex() {
       if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")
@@ -111,16 +141,21 @@ export async function createProjectStateImportSession(
       assertProjectStateImportFinalFileStateBatch(batch)
       changedFiles += batch.updates.length
       if (phase === "index") {
-        await params.writer.writeImportFinalFileState(batch)
+        await startWrite(
+          "index",
+          "Import session уже завершена",
+          () => params.writer.writeImportFinalFileState(batch),
+        )
         return
       }
       const write = finalWrites.then(async () => {
+        if (phase !== "final") throw new Error("Import session уже завершена")
         await params.writer.beginUpdate(params.projectDir, params.signal)
         await params.writer.writeImportFinalFileState(batch)
         await params.writer.commitUpdate()
       })
       finalWrites = write.then(() => undefined, () => undefined)
-      await write
+      await trackWrite(write)
     },
     async finalize(beforeCheckpoint) {
       if (phase !== "final") throw new Error("Import session нельзя завершить до фиксации индекса")
@@ -144,10 +179,11 @@ export async function createProjectStateImportSession(
       if (phase === "done") return
       phase = "done"
       const failures: unknown[] = [cause]
-      try {
-        await finalWrites
-      } catch (caught) {
-        failures.push(...flattenFailures(caught))
+      const activeWriteResults = await Promise.allSettled([...activeWrites])
+      for (const result of activeWriteResults) {
+        if (result.status === "rejected" && result.reason !== cause) {
+          failures.push(...flattenFailures(result.reason))
+        }
       }
       try {
         await params.writer.rollbackUpdate()
@@ -177,8 +213,13 @@ function errorMessage(caught: unknown): string {
 export function assertProjectStateImportFinalFileStateBatch(
   value: unknown,
 ): asserts value is ProjectStateImportFinalFileStateBatch & { readonly hashBytes: Uint8Array<ArrayBuffer> } {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new Error("ProjectStateImportFinalFileStateBatch должен быть объектом")
+  if (
+    typeof value !== "object"
+    || value === null
+    || Array.isArray(value)
+    || Object.getPrototypeOf(value) !== Object.prototype
+  ) {
+    throw new Error("ProjectStateImportFinalFileStateBatch должен быть обычным объектом")
   }
   const batch = value as Record<string, unknown>
   for (const key of Reflect.ownKeys(batch)) {

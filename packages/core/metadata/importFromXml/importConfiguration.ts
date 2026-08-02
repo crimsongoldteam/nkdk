@@ -128,9 +128,21 @@ export async function importConfigurationFromXml(
         }))
   const ownsProjectState = params.projectState === undefined
   let importSession: ProjectStateImportSession | undefined
+  let poolCloseAttempted = false
   let finalized = false
   let outcome: ConfigurationImportResult | undefined
   const importFileHashes = new Map<string, bigint>()
+
+  async function closePoolForCleanup(): Promise<unknown[]> {
+    if (pool === undefined || poolCloseAttempted) return []
+    poolCloseAttempted = true
+    try {
+      await pool.close()
+      return []
+    } catch (caught) {
+      return flattenFailures(caught)
+    }
+  }
 
   try {
     const root = await readXmlImportComponentRoot(params.inputDir)
@@ -201,7 +213,7 @@ export async function importConfigurationFromXml(
       () => pool!.runFirstPass(discovered.assignments, stateSink)
     )
     if (hasErrors(first.diagnostics)) {
-      const cleanup = await abortCleanupDiagnostics(importSession, first.diagnostics)
+      const cleanup = await abortCleanupDiagnostics(importSession, first.diagnostics, closePoolForCleanup)
       return outcome = failedResult([...first.diagnostics, ...cleanup], [], resolvedComponentPath)
     }
     const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
@@ -230,7 +242,7 @@ export async function importConfigurationFromXml(
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) {
-      const cleanup = await abortCleanupDiagnostics(importSession, second.diagnostics)
+      const cleanup = await abortCleanupDiagnostics(importSession, second.diagnostics, closePoolForCleanup)
       return outcome = failedResult([...second.diagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
 
@@ -308,16 +320,15 @@ export async function importConfigurationFromXml(
   } catch (caught) {
     const cleanup = importSession === undefined || finalized
       ? []
-      : await abortCleanupDiagnostics(importSession, caught)
-    return outcome = failedResult([operationDiagnostic(caught), ...cleanup], warnings, resolvedComponentPath)
+      : await abortCleanupDiagnostics(importSession, caught, closePoolForCleanup)
+    return outcome = failedResult(
+      [...flattenFailures(caught).map(operationDiagnostic), ...cleanup],
+      warnings,
+      resolvedComponentPath,
+    )
   } finally {
     profiler.flush()
-    const cleanupFailures: unknown[] = []
-    try {
-      await pool?.close()
-    } catch (caught) {
-      cleanupFailures.push(...flattenFailures(caught))
-    }
+    const cleanupFailures = await closePoolForCleanup()
     if (ownsProjectState) {
       try {
         await projectState.close()
@@ -334,16 +345,16 @@ export async function importConfigurationFromXml(
 async function abortCleanupDiagnostics(
   session: ProjectStateImportSession,
   primary: unknown,
+  closePool: () => Promise<unknown[]>,
 ): Promise<ImportDiagnostic[]> {
+  const failures = await closePool()
   try {
     await session.abort(primary)
-    return []
   } catch (caught) {
-    const failures = flattenFailures(caught)
-    const primaryIndex = failures.findIndex((failure) => failure === primary)
-    if (primaryIndex >= 0) failures.splice(primaryIndex, 1)
-    return failures.map(operationDiagnostic)
+    const primaryFailures = flattenFailures(primary)
+    failures.push(...flattenFailures(caught).filter((failure) => !primaryFailures.includes(failure)))
   }
+  return failures.map(operationDiagnostic)
 }
 
 function flattenFailures(caught: unknown): unknown[] {

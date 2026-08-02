@@ -11,7 +11,12 @@ import {
 import type { ComponentAddress } from "../components/address"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import type { ProjectStateImportFinalFileStateBatch, ProjectStateService } from "../projectState"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+  ProjectStateImportSession,
+  ProjectStateService,
+} from "../projectState"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
@@ -358,6 +363,96 @@ describe("configuration XML import coordinator", () => {
     ])
   })
 
+  it("закрывает pool и ждёт оставшийся sink до abort session", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("first sink failed")
+    const secondSink = gate()
+    const events: string[] = []
+    let aborted = false
+    let writesAfterAbort = 0
+    const activeSinks: Promise<void>[] = []
+    params.projectState = projectStateWithImportSession({
+      async writeFirstPassBatch(batch: readonly ProjectStateImportIndexContribution[]) {
+        const projectPath = batch[0]!.projectPath
+        if (projectPath === "cf/first.yaml") {
+          await secondSink.started
+          throw primary
+        }
+        secondSink.start()
+        await secondSink.wait()
+        if (aborted) writesAfterAbort += 1
+        events.push("second-write")
+      },
+      async abort() {
+        aborted = true
+        events.push("abort")
+      },
+    })
+    const dependencies = fakeDependencies({ calls: [] })
+    dependencies.createWorkerPool = () => ({
+      async initialize() {},
+      async runFirstPass(_assignments, sink) {
+        activeSinks.push(
+          sink!.writeFirstPassState({
+            indexContributions: [{ projectPath: "cf/first.yaml" } as never],
+            finalFileStateBatches: [],
+          }),
+          sink!.writeFirstPassState({
+            indexContributions: [{ projectPath: "cf/second.yaml" } as never],
+            finalFileStateBatches: [],
+          }),
+        )
+        await activeSinks[0]
+        throw new Error("unreachable")
+      },
+      async runSecondPass() { throw new Error("unexpected second pass") },
+      workerCount() { return 2 },
+      async close() {
+        events.push("close:start")
+        await Promise.allSettled(activeSinks)
+        events.push("close:end")
+      },
+    })
+
+    const running = importConfigurationFromXml(params, dependencies)
+    await secondSink.started
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(events).not.toContain("abort")
+    secondSink.release()
+    const result = await running
+
+    expect(result.failed.map(({ message }) => message)).toEqual([primary.message])
+    expect(events).toEqual(["close:start", "second-write", "close:end", "abort"])
+    expect(writesAfterAbort).toBe(0)
+  })
+
+  it("сохраняет порядок primary, pool close и session abort failures", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("primary failed")
+    const closeFailure = new Error("pool close failed")
+    const abortFailure = new Error("session abort failed")
+    params.projectState = projectStateWithImportSession({
+      async abort() { throw abortFailure },
+    })
+    const dependencies = fakeDependencies({ calls: [], failurePhase: "firstPass" })
+    dependencies.createWorkerPool = () => ({
+      async initialize() {},
+      async runFirstPass() { throw primary },
+      async runSecondPass() { throw new Error("unexpected second pass") },
+      workerCount() { return 1 },
+      async close() { throw closeFailure },
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      primary.message,
+      closeFailure.message,
+      abortFailure.message,
+    ])
+  })
+
   it("после публикации cleanup failure не превращает успешный import в failure", async () => {
     const params = createParams("configuration")
     const result = await importConfigurationFromXml(params, fakeDependencies({
@@ -666,6 +761,31 @@ function temporaryDirectory(prefix: string): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), prefix))
   tempDirs.push(directory)
   return directory
+}
+
+function gate() {
+  let release!: () => void
+  let start!: () => void
+  const waiting = new Promise<void>((resolve) => { release = resolve })
+  const started = new Promise<void>((resolve) => { start = resolve })
+  return { started, release, start, wait: () => waiting }
+}
+
+function projectStateWithImportSession(
+  overrides: Partial<ProjectStateImportSession>,
+): ProjectStateService {
+  const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
+  const session: ProjectStateImportSession = {
+    async writeFirstPassBatch() {},
+    async registerFileIdentities() {},
+    commitWorkingIndex: unexpected,
+    createReadToken: unexpected,
+    async writeFinalFileState() {},
+    finalize: unexpected,
+    async abort() {},
+    ...overrides,
+  }
+  return { async beginImport() { return session } } as unknown as ProjectStateService
 }
 
 function createBaseConfiguration(projectDir: string): void {

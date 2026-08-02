@@ -184,7 +184,7 @@ describe("XML import worker pool", () => {
     const running = pool.runFirstPass(
       [assignment("one"), assignment("two"), assignment("three"), assignment("four")],
       {
-        async writeFirstPassState(batch) {
+        async writeFirstPassState(batch: XmlImportStateBatch) {
           expect(batch.configurationFragment).toBeDefined()
           active += 1
           started += 1
@@ -204,6 +204,87 @@ describe("XML import worker pool", () => {
     await new Promise<void>((resolve) => setImmediate(resolve))
     while (releases.length > 0) releases.shift()!()
     await running
+    await pool.close()
+  })
+
+  it("ждёт все active first-pass sinks после primary failure и не выдаёт новые assignment", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const primary = new Error("first sink failed")
+    const secondSink = gate()
+    const bothStarted = gate()
+    let started = 0
+    await pool.initialize({
+      operationId: "first-sink-failure",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("first-sink-failure"),
+      componentKind: "configuration",
+    })
+
+    const running = pool.runFirstPass([
+      assignment("one"), assignment("two"), assignment("three"), assignment("four"),
+    ], {
+      async writeFirstPassState(batch) {
+        started += 1
+        if (started === 2) bothStarted.start()
+        await bothStarted.started
+        if (batch.indexContributions[0]!.projectPath.includes("one")) throw primary
+        secondSink.start()
+        await secondSink.wait()
+      },
+      async writeSecondPassState() {},
+    })
+    const outcome = running.then(
+      () => ({ status: "fulfilled" as const }),
+      (error: unknown) => ({ status: "rejected" as const, error }),
+    )
+    await Promise.all([bothStarted.started, secondSink.started])
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(await promiseStatus(outcome)).toBe("pending")
+    secondSink.release()
+    const settled = await outcome
+
+    expect(settled).toEqual({ status: "rejected", error: primary })
+    expect(pools.firstPassIds(0)).toEqual(["one"])
+    expect(pools.firstPassIds(1)).toEqual(["two"])
+    expect(pools.destroyCalls()).toEqual([1, 1])
+    await pool.close()
+  })
+
+  it("сохраняет first-pass primary и добавляет ошибку второго active sink", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const primary = new Error("first sink failed")
+    const secondary = new Error("second sink failed")
+    const bothStarted = gate()
+    const releaseSecondary = gate()
+    let started = 0
+    await pool.initialize({
+      operationId: "first-sink-aggregate",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("first-sink-aggregate"),
+      componentKind: "configuration",
+    })
+
+    const running = pool.runFirstPass([assignment("one"), assignment("two")], {
+      async writeFirstPassState(batch) {
+        started += 1
+        if (started === 2) bothStarted.start()
+        await bothStarted.started
+        if (batch.indexContributions[0]!.projectPath.includes("one")) throw primary
+        releaseSecondary.start()
+        await releaseSecondary.wait()
+        throw secondary
+      },
+      async writeSecondPassState() {},
+    })
+    await expectPendingAggregate(
+      running,
+      Promise.all([bothStarted.started, releaseSecondary.started]),
+      releaseSecondary.release,
+      [primary, secondary],
+    )
     await pool.close()
   })
 
@@ -234,6 +315,45 @@ describe("XML import worker pool", () => {
     blocked.release()
     const result = await running
     expect(result).not.toHaveProperty("finalFileStateBatches")
+    await pool.close()
+  })
+
+  it("ждёт все active second-pass sinks и агрегирует их ошибки", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const primary = new Error("first second-pass sink failed")
+    const secondary = new Error("second second-pass sink failed")
+    const bothStarted = gate()
+    const releaseSecondary = gate()
+    let started = 0
+    await pool.initialize({
+      operationId: "second-sink-failure",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("second-sink-failure"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("one"), assignment("two")])
+
+    const running = pool.runSecondPass(readTokens(2), {
+      async writeFirstPassState() {},
+      async writeSecondPassState(batch) {
+        started += 1
+        if (started === 2) bothStarted.start()
+        await bothStarted.started
+        const projectPath = batch.finalFileStateBatches[0]!.updates[0]!.projectPath
+        if (projectPath.includes("second-0")) throw primary
+        releaseSecondary.start()
+        await releaseSecondary.wait()
+        throw secondary
+      },
+    })
+    await expectPendingAggregate(
+      running,
+      Promise.all([bothStarted.started, releaseSecondary.started]),
+      releaseSecondary.release,
+      [primary, secondary],
+    )
+    expect(pools.destroyCalls()).toEqual([1, 1])
     await pool.close()
   })
 
@@ -313,6 +433,50 @@ describe("XML import worker pool", () => {
     expect(fs.readFileSync(sentinelPath, "utf-8")).toBe("partial")
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1, 1])
+  })
+
+  it("ждёт settlement всех worker destroy и агрегирует cleanup failures", async () => {
+    const primary = new Error("worker failed")
+    const firstCleanup = new Error("first destroy failed")
+    const secondCleanup = new Error("second destroy failed")
+    const secondDestroy = gate()
+    let workerIndex = 0
+    const pool = createXmlImportWorkerPool({
+      concurrency: 2,
+      createWorkerPool: () => {
+        const current = workerIndex++
+        return {
+          async run(command) {
+            if (command.kind === "firstPass") throw primary
+            return undefined
+          },
+          async destroy() {
+            if (current === 0) throw firstCleanup
+            secondDestroy.start()
+            await secondDestroy.wait()
+            throw secondCleanup
+          },
+        }
+      },
+    })
+    await pool.initialize({
+      operationId: "destroy-settlement",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("destroy-settlement"),
+      componentKind: "configuration",
+    })
+
+    const outcome = pool.runFirstPass([assignment("one"), assignment("two")]).catch((error: unknown) => error)
+    await secondDestroy.started
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(await promiseStatus(outcome)).toBe("pending")
+    secondDestroy.release()
+    const failure = await outcome
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, firstCleanup, secondCleanup])
+    await pool.close()
   })
 
   it("reuses physical workers across operation pools created by a handle", async () => {
@@ -565,11 +729,35 @@ function gate() {
   return {
     started,
     release,
+    start: notifyStarted,
     async wait() {
       notifyStarted()
       await promise
     },
   }
+}
+
+async function promiseStatus(value: Promise<unknown>): Promise<"pending" | "settled"> {
+  return Promise.race([
+    value.then(() => "settled" as const),
+    new Promise<"pending">((resolve) => setImmediate(() => resolve("pending"))),
+  ])
+}
+
+async function expectPendingAggregate(
+  running: Promise<unknown>,
+  started: Promise<unknown>,
+  release: () => void,
+  expected: readonly unknown[],
+): Promise<void> {
+  const outcome = running.catch((error: unknown) => error)
+  await started
+  await new Promise<void>((resolve) => setImmediate(resolve))
+  expect(await promiseStatus(outcome)).toBe("pending")
+  release()
+  const failure = await outcome
+  expect(failure).toBeInstanceOf(AggregateError)
+  expect((failure as AggregateError).errors).toEqual(expected)
 }
 
 function readTokens(count: number): ProjectStateReadToken[] {

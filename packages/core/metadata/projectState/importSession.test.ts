@@ -3,13 +3,15 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
+import { assertProjectStateFileUpdateBatch } from "./fileUpdateValidation"
 import { createProjectStateService } from "./service"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
   ProjectStateImportSession,
 } from "./importSession"
-import { assertProjectStateImportFinalFileStateBatch } from "./importSession"
+import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
+import type { ProjectStateWriterHandle } from "./writerHandle"
 
 describe("ProjectState import session", () => {
   const contribution = indexContribution("cf/Справочник/Товары/Свойства.yaml", "Товары")
@@ -135,6 +137,95 @@ describe("ProjectState import session", () => {
       hashBytes: new Uint8Array(8),
     })).toThrow()
   })
+
+  it.each([
+    ["null prototype", null],
+    ["custom prototype", { inherited: true }],
+  ])("отклоняет prototype верхнего final batch: %s", (_name, prototype) => {
+    const batch = recordWithPrototype({
+      updates: [finalState(contribution.projectPath)],
+      hashBytes: new Uint8Array(8),
+    }, prototype)
+
+    expect(() => assertProjectStateImportFinalFileStateBatch(batch)).toThrow(/обычным объектом/iu)
+  })
+
+  it.each([
+    ["update", (update: ReturnType<typeof finalState>) => recordWithPrototype(update, null)],
+    ["nested payload", (update: ReturnType<typeof finalState>) => ({
+      ...update,
+      localValidation: recordWithPrototype(update.localValidation, null),
+    })],
+    ["nested yamlPath", (update: ReturnType<typeof finalState>) => ({
+      ...update,
+      pendingChecks: [pendingCheck(arrayWithPrototype(["Объект"], null))],
+    })],
+  ])("отклоняет нестандартный prototype final DTO: %s", (_name, mutate) => {
+    expect(() => assertProjectStateImportFinalFileStateBatch({
+      updates: [mutate(finalState(contribution.projectPath))],
+      hashBytes: new Uint8Array(8),
+    })).toThrow(/обычн/iu)
+  })
+
+  it("отклоняет null prototype во вложенном reference details", () => {
+    const update = {
+      ...fullUpdate(contribution.projectPath),
+      references: [{
+        kind: "member" as const,
+        canonical: "Catalog.Товары.Attribute.Код",
+        details: recordWithPrototype({ kind: "attribute" }, null),
+      }],
+    }
+    const batch = { updates: [update], hashBytes: new Uint8Array(8) }
+
+    expect(() => assertProjectStateFileUpdateBatch(batch)).toThrow(/обычным объектом/iu)
+  })
+
+  it("не выполняет state write после начала abort и ждёт активную запись до rollback", async () => {
+    const primary = new Error("sink failed")
+    const writing = gate()
+    const events: string[] = []
+    let rolledBack = false
+    let writesAfterRollback = 0
+    const writer = {
+      async openProject() {},
+      async beginUpdate() {},
+      async clearImportOutput() {},
+      async writeImportIndexBatch() {
+        events.push("write:start")
+        writing.start()
+        await writing.wait()
+        if (rolledBack) writesAfterRollback += 1
+        events.push("write:end")
+      },
+      async rollbackUpdate() {
+        rolledBack = true
+        events.push("rollback")
+      },
+    } as unknown as ProjectStateWriterHandle
+    const importSession = await createProjectStateImportSession({
+      projectDir: "/project",
+      workerCount: 1,
+      output: { componentPaths: ["cf"] },
+      writer,
+      async publish() {},
+      async discard() { events.push("discard") },
+    })
+
+    const activeWrite = importSession.writeFirstPassBatch([])
+    await writing.started
+    const aborting = importSession.abort(primary)
+    await Promise.resolve()
+
+    await expect(importSession.writeFirstPassBatch([])).rejects.toThrow(/неизменяем/iu)
+    expect(events).toEqual(["write:start"])
+    writing.release()
+    await activeWrite
+    await aborting
+
+    expect(events).toEqual(["write:start", "write:end", "rollback", "discard"])
+    expect(writesAfterRollback).toBe(0)
+  })
 })
 
 function indexContribution(projectPath: string, name: string): ProjectStateImportIndexContribution {
@@ -200,4 +291,29 @@ function arrayWithProperty<T extends object>(values: T, key: PropertyKey, value:
 function arrayWithAccessor<T>(values: T[], key: PropertyKey): T[] {
   Object.defineProperty(values, key, { get: () => 1, enumerable: true, configurable: true })
   return values
+}
+
+function recordWithPrototype<T extends object>(value: T, prototype: object | null): T {
+  return Object.assign(Object.create(prototype) as T, value)
+}
+
+function arrayWithPrototype<T>(value: T[], prototype: object | null): T[] {
+  Object.setPrototypeOf(value, prototype)
+  return value
+}
+
+function gate() {
+  let unblockWrite!: () => void
+  let announceStart!: () => void
+  const completion = new Promise<void>((resolve) => {
+    unblockWrite = resolve
+  })
+  return {
+    started: new Promise<void>((resolve) => {
+      announceStart = resolve
+    }),
+    release: () => unblockWrite(),
+    start: () => announceStart(),
+    wait: async () => completion,
+  }
 }

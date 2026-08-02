@@ -725,8 +725,7 @@ function assertPlainDataProperty(descriptor: PropertyDescriptor, path: string): 
 
 function requiredRecord(value: unknown, path: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error(`${path} должен быть объектом`)
-  const prototype = Object.getPrototypeOf(value)
-  if (prototype !== Object.prototype && prototype !== null) throw new Error(`${path} должен быть обычным объектом`)
+  if (Object.getPrototypeOf(value) !== Object.prototype) throw new Error(`${path} должен быть обычным объектом`)
   return value as Record<string, unknown>
 }
 
