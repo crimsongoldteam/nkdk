@@ -1,5 +1,6 @@
 import { availableParallelism } from "node:os"
-import { realpath, rm } from "node:fs/promises"
+import { realpath, rm, stat } from "node:fs/promises"
+import { performance } from "node:perf_hooks"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateReadSession } from "./readSession"
@@ -75,8 +76,13 @@ export function createProjectStateService(
     refreshAndValidate(params) {
       return runExclusive(async () => {
         const projectDir = await realpath(params.projectDir)
+        const loadStartedAt = params.profile === undefined ? undefined : performance.now()
         const writer = await activate(projectDir)
-        return runRefresh(writer, { ...params, projectDir })
+        const loadMs = loadStartedAt === undefined ? undefined : performance.now() - loadStartedAt
+        return runRefresh(writer, { ...params, projectDir }, {
+          loadMs,
+          ...(typeof params.profile === "object" ? { onPhase: params.profile.onPhase } : {}),
+        })
       })
     },
     openReadSession(token) {
@@ -287,7 +293,11 @@ export function createProjectStateService(
   async function runRefresh(
     writer: ProjectStateWriterHandle,
     params: ProjectStateRefreshParams,
-    options: { readonly closePoolBeforeCheckpoint?: boolean } = {},
+    options: {
+      readonly closePoolBeforeCheckpoint?: boolean
+      readonly loadMs?: number
+      readonly onPhase?: NonNullable<Exclude<ProjectStateRefreshParams["profile"], true>>["onPhase"]
+    } = {},
   ): Promise<ProjectStateRefreshResult> {
     const pool = createPool(normalizeConcurrency(params.concurrency))
     const context = params.context ?? defaultContext()
@@ -298,14 +308,64 @@ export function createProjectStateService(
       poolClosePromise ??= pool.close()
       return poolClosePromise
     }
+    let checkpointMs = 0
+    let snapshotPath: string | undefined
+    const phaseMs = {
+      discoverFilesMs: 0,
+      readBaselineMs: 0,
+      processFilesMs: 0,
+      readLocalDiagnosticsMs: 0,
+      dependencyValidationMs: 0,
+    }
+    const measurePhase = async <T>(
+      phase: Exclude<import("./refresh").ProjectStateProfilePhase, "checkpoint">,
+      action: () => Promise<T>,
+    ): Promise<T> => {
+      const startedAt = performance.now()
+      try {
+        return await action()
+      } finally {
+        const elapsedMs = performance.now() - startedAt
+        phaseMs[`${phase}Ms`] += elapsedMs
+        options.onPhase?.({ phase, elapsedMs })
+      }
+    }
+    const refreshHandle = options.loadMs === undefined
+      ? writer
+      : {
+          ...writer,
+          readFileBaseline: (files: Parameters<ProjectStateWriterHandle["readFileBaseline"]>[0]) =>
+            measurePhase("readBaseline", () => writer.readFileBaseline(files)),
+          readLocalDiagnostics: () => measurePhase("readLocalDiagnostics", () => writer.readLocalDiagnostics()),
+          validateDependencies: () => measurePhase("dependencyValidation", () => writer.validateDependencies()),
+          async commitAndCheckpoint() {
+            const startedAt = performance.now()
+            const checkpoint = await writer.commitAndCheckpoint()
+            const elapsedMs = performance.now() - startedAt
+            checkpointMs += elapsedMs
+            snapshotPath = checkpoint.snapshotPath
+            options.onPhase?.({ phase: "checkpoint", elapsedMs })
+            return checkpoint
+          },
+        }
     let result: ProjectStateRefreshResult
     try {
-      result = await refresh(params, createProjectStateRefreshDependencies({
-        handle: writer,
+      const dependencies = createProjectStateRefreshDependencies({
+        handle: refreshHandle,
         pool,
         context,
         ...(options.closePoolBeforeCheckpoint === true ? { beforeCheckpoint: closePool } : {}),
-      }))
+      })
+      result = await refresh(params, options.loadMs === undefined
+        ? dependencies
+        : {
+            ...dependencies,
+            discoverFiles: (refreshParams) => measurePhase("discoverFiles", () => dependencies.discoverFiles(refreshParams)),
+            processFiles: (files, baseline, producer, operation, projectDir) => measurePhase(
+              "processFiles",
+              () => dependencies.processFiles(files, baseline, producer, operation, projectDir),
+            ),
+          })
     } catch (caught) {
       if (poolCloseStarted) throw normalizeFailure(caught)
       try {
@@ -316,7 +376,17 @@ export function createProjectStateService(
       throw normalizeFailure(caught)
     }
     await closePool()
-    return result
+    if (options.loadMs === undefined) return result
+    if (snapshotPath === undefined) throw new Error("Профиль состояния проекта не получил путь checkpoint")
+    return {
+      ...result,
+      profile: {
+        snapshotBytes: (await stat(snapshotPath)).size,
+        loadMs: options.loadMs,
+        checkpointMs,
+        ...phaseMs,
+      },
+    }
   }
 
   async function closeOrRetire(writer: ProjectStateWriterHandle | undefined): Promise<void> {

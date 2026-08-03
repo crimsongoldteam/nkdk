@@ -70,14 +70,6 @@ export type PreparedYamlProjectWorkerTask =
       files: PreparedYamlProjectFileDescriptor[]
     }
   | {
-      kind: "validateLocal"
-      workerIndex: number
-      projectDir: string
-      context: ConfigurationContext
-      files: Array<{ readonly descriptor: PreparedYamlProjectFileDescriptor; readonly bytes: Uint8Array }>
-      hashBytes: Uint8Array
-    }
-  | {
       kind: "refreshProjectState"
       workerIndex: number
       projectDir: string
@@ -113,12 +105,6 @@ export type PreparedYamlProjectWorkerTaskResult =
       yamlLifetime: ValidationYamlLifetime
     }
   | {
-      kind: "validateLocalResult"
-      diagnostics: Diagnostic[]
-      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
-      parsedYamlFiles: number
-    }
-  | {
       kind: "refreshProjectStateResult"
       fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
       missingProjectPaths: readonly string[]
@@ -151,20 +137,18 @@ export async function runPreparedYamlProjectWorkerTask(
     profiler.flush()
     return { kind: "initValidationResult", ...compileProfile }
   }
-  if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
-  if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
-  if (message.kind === "validateLocal") {
-    if (message.files.length > LOCAL_VALIDATION_BATCH_SIZE) {
-      throw new Error(`Локальная worker-задача должна содержать не более ${LOCAL_VALIDATION_BATCH_SIZE} YAML`)
-    }
-    const result = runValidationFirstPass(message)
+  if (message.kind === "validateFirstPass") {
     return {
-      kind: "validateLocalResult",
-      diagnostics: result.diagnostics,
-      fileUpdateBatches: result.fileUpdateBatches,
-      parsedYamlFiles: result.yamlLifetime.parsed,
+      kind: "validateFirstPassResult",
+      ...runValidationFirstPass({
+        workerIndex: message.workerIndex,
+        projectDir: message.projectDir,
+        context: message.context,
+        files: message.files.map((descriptor) => ({ descriptor })),
+      }),
     }
   }
+  if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
@@ -245,12 +229,10 @@ async function refreshProjectStateFiles(
       if (file.identity.resourceKind === "yaml") {
         if (file.descriptor === undefined) throw new Error(`У YAML отсутствует descriptor: ${file.identity.projectPath}`)
         const validation = runValidationFirstPass({
-          kind: "validateLocal",
           workerIndex: message.workerIndex,
           projectDir: message.projectDir,
           context: message.context,
-          files: [{ descriptor: file.descriptor, bytes }],
-          hashBytes: encodeHash(currentHash),
+          files: [{ descriptor: file.descriptor, bytes, hash: currentHash }],
         })
         yamlBatches.push(...validation.fileUpdateBatches.filter(({ updates }) => updates.length > 0))
         parsedYamlFiles += validation.yamlLifetime.parsed
@@ -288,12 +270,6 @@ function readExpectedHash(hashBytes: Uint8Array, index: number): bigint {
   return new DataView(hashBytes.buffer, hashBytes.byteOffset, hashBytes.byteLength).getBigUint64(index * 8, false)
 }
 
-function encodeHash(hash: bigint): Uint8Array {
-  const hashBytes = new Uint8Array(8)
-  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
-  return hashBytes
-}
-
 function isMissingFile(caught: unknown): boolean {
   return typeof caught === "object" && caught !== null && "code" in caught && caught.code === "ENOENT"
 }
@@ -303,7 +279,6 @@ export default async function preparedYamlProjectWorkerEntryPoint(
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
   return result.kind === "validateFirstPassResult"
-    || result.kind === "validateLocalResult"
     || result.kind === "refreshProjectStateResult"
     ? movableValidationResult(result)
     : result
@@ -311,7 +286,7 @@ export default async function preparedYamlProjectWorkerEntryPoint(
 
 type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
-  { kind: "validateFirstPassResult" | "validateLocalResult" | "refreshProjectStateResult" }
+  { kind: "validateFirstPassResult" | "refreshProjectStateResult" }
 >
 
 export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
@@ -426,7 +401,18 @@ export function getValidationYamlLifetimeForTests(): Readonly<typeof validationY
   return { ...validationYamlLifetimeForTests }
 }
 
-function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" | "validateLocal" }>): {
+interface ValidationFirstPassInput {
+  readonly workerIndex: number
+  readonly projectDir: string
+  readonly context: ConfigurationContext
+  readonly files: ReadonlyArray<{
+    readonly descriptor: PreparedYamlProjectFileDescriptor
+    readonly bytes?: Uint8Array
+    readonly hash?: bigint
+  }>
+}
+
+function runValidationFirstPass(message: ValidationFirstPassInput): {
   components: ComponentFirstPassPoolResult[]
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
@@ -441,12 +427,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   const firstPassProfile = createEmptyFirstPassProfileSummary()
   const fileUpdateEntries: ProjectStateFileUpdateBatchEntry[] = []
 
-  const descriptors = message.kind === "validateLocal"
-    ? message.files.map(({ descriptor }) => descriptor)
-    : message.files
-  if (message.kind === "validateLocal" && message.hashBytes.byteLength !== descriptors.length * 8) {
-    throw new Error("Локальная validation получила неверную длину общего hashBytes")
-  }
+  const descriptors = message.files.map(({ descriptor }) => descriptor)
 
   for (let descriptorIndex = 0; descriptorIndex < descriptors.length; descriptorIndex += 1) {
     const descriptor = descriptors[descriptorIndex]!
@@ -472,9 +453,10 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
       })
       continue
     }
-    const entry = message.kind === "validateLocal"
-      ? projectYamlEntryFromBytes(file.absolutePath, message.files[descriptorIndex]!.bytes)
-      : readProjectYamlEntryForValidation(file.absolutePath)
+    const input = message.files[descriptorIndex]!
+    const entry = input.bytes === undefined
+      ? readProjectYamlEntryForValidation(file.absolutePath)
+      : projectYamlEntryFromBytes(file.absolutePath, input.bytes)
     if ("error" in entry) {
       const diagnostic = readProjectYamlDiagnostic(entry)
       component.diagnostics.push(diagnostic)
@@ -531,9 +513,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
         resourceKind: "yaml",
         yamlRole: descriptor.role,
       }),
-      ...(message.kind === "validateLocal"
-        ? { hashBytes: message.hashBytes.slice(descriptorIndex * 8, descriptorIndex * 8 + 8) }
-        : { hash: hashFileBytes(Buffer.from(entry.text, "utf8")) }),
+      hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
     })
   }
   recordFirstPassProfile(profiler, descriptors.length, firstPassProfile)

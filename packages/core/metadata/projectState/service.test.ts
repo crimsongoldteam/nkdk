@@ -15,6 +15,69 @@ afterEach(async () => {
 })
 
 describe("ProjectStateService", () => {
+  it("returns load, checkpoint and snapshot measurements only for an explicitly profiled refresh", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-profile-"))
+    tempDirs.push(projectDir)
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    const writer = testWriterHandle(1)
+    writer.commitAndCheckpoint = async () => {
+      await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
+      await writeFile(snapshotPath, "snapshot")
+      return { snapshotPath }
+    }
+    const service = createProjectStateService({
+      createWriter: () => writer,
+      createPool: () => testPool(),
+      async refresh(params, dependencies) {
+        const files = await dependencies.discoverFiles(params)
+        const baseline = await dependencies.handle.readFileBaseline(files.map(({ identity }) => identity))
+        await dependencies.handle.beginUpdate(params.projectDir)
+        await dependencies.processFiles(
+          files,
+          baseline,
+          dependencies.handle,
+          { signal: new AbortController().signal, abort() {} },
+          params.projectDir,
+        )
+        await dependencies.handle.readLocalDiagnostics()
+        await dependencies.handle.validateDependencies()
+        await dependencies.handle.commitAndCheckpoint()
+        return refreshResult(1)
+      },
+    })
+
+    const phases: string[] = []
+    const profiled = await service.refreshAndValidate({
+      projectDir,
+      profile: { onPhase: ({ phase }) => phases.push(phase) },
+    })
+    const ordinary = await service.refreshAndValidate({ projectDir })
+
+    expect(profiled.profile).toEqual({
+      snapshotBytes: 8,
+      loadMs: expect.any(Number),
+      checkpointMs: expect.any(Number),
+      discoverFilesMs: expect.any(Number),
+      readBaselineMs: expect.any(Number),
+      processFilesMs: expect.any(Number),
+      readLocalDiagnosticsMs: expect.any(Number),
+      dependencyValidationMs: expect.any(Number),
+    })
+    expect(profiled.profile?.loadMs).toBeGreaterThanOrEqual(0)
+    expect(profiled.profile?.checkpointMs).toBeGreaterThanOrEqual(0)
+    expect(profiled.profile?.dependencyValidationMs).toBeGreaterThanOrEqual(0)
+    expect(phases).toEqual([
+      "discoverFiles",
+      "readBaseline",
+      "processFiles",
+      "readLocalDiagnostics",
+      "dependencyValidation",
+      "checkpoint",
+    ])
+    expect(ordinary).not.toHaveProperty("profile")
+    await service.close()
+  })
+
   it("успешно публикует import после checkpoint, даже если прежний writer не закрылся", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-import-publish-"))
     tempDirs.push(projectDir)
@@ -423,6 +486,7 @@ describe("ProjectStateService", () => {
     const service = createProjectStateService({
       createWriter: () => writers.shift()!,
       createPool: () => ({
+        ...testPool(),
         close: async () => {
           notifyPoolStarted()
           await poolGate
@@ -832,7 +896,15 @@ function testWriterHandle(id: number): TestWriter {
 }
 
 function testPool(): PreparedYamlProjectWorkerPool {
-  return { close: async () => undefined } as PreparedYamlProjectWorkerPool
+  return {
+    runProjectStateRefresh: async () => ({
+      hashedFiles: 0,
+      parsedYamlFiles: 0,
+      changedFiles: 0,
+      missingFiles: 0,
+    }),
+    close: async () => undefined,
+  } as unknown as PreparedYamlProjectWorkerPool
 }
 
 async function beginImportLeaseTest(

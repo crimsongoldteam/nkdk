@@ -46,6 +46,7 @@ export {
 export { createProjectStateOwnerMetadataCache, type ProjectStateOwnerMetadataCache } from "./dependencyValidation"
 export type {
   ProjectStateRefreshParams,
+  ProjectStateRefreshProfile,
   ProjectStateRefreshResult,
   ProjectStateRefreshStats,
 } from "./refresh"

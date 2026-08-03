@@ -44,15 +44,6 @@ export interface PreparedYamlProjectWorkerPool {
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<FirstPassPoolResult>
-  runLocalValidation(
-    params: {
-      projectDir: string
-      context: ConfigurationContext
-      files: PreparedYamlLocalValidationSource
-      operation?: PreparedYamlValidationOperation
-    },
-    producer: { writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void> },
-  ): Promise<{ readonly diagnostics: readonly Diagnostic[]; readonly parsedYamlFiles: number }>
   runProjectStateRefresh(
     params: {
       projectDir: string
@@ -86,17 +77,6 @@ export interface ProjectStateValidationStats {
   readonly parsedYamlFiles: number
   readonly changedFiles: number
   readonly missingFiles: number
-}
-
-export interface PreparedYamlLocalValidationFile {
-  readonly descriptor: PreparedYamlProjectFileDescriptor
-  readonly bytes: Uint8Array
-  readonly hashBytes: Uint8Array
-}
-
-export interface PreparedYamlLocalValidationSource {
-  readonly length: number
-  createFile(index: number): PreparedYamlLocalValidationFile
 }
 
 export interface PreparedYamlValidationOperation {
@@ -312,64 +292,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
         },
       }
     },
-    async runLocalValidation(localParams, producer) {
-      const operation = localParams.operation ?? createPreparedYamlValidationOperation()
-      const { signal } = operation
-      await this.initValidation(localParams.context, operation)
-      let firstFailure: { readonly reason: unknown } | undefined
-      const settled = await Promise.allSettled(Array.from({ length: params.concurrency }, async (_unused, index) => {
-        try {
-          if (index >= localParams.files.length) return { diagnostics: [] as Diagnostic[], parsedYamlFiles: 0 }
-          const diagnostics: Diagnostic[] = []
-          let parsedYamlFiles = 0
-          const laneBatchStride = params.concurrency * LOCAL_VALIDATION_BATCH_SIZE
-          for (let start = index; start < localParams.files.length; start += laneBatchStride) {
-            signal.throwIfAborted()
-            const batchFiles: PreparedYamlLocalValidationFile[] = []
-            for (let offset = 0; offset < LOCAL_VALIDATION_BATCH_SIZE; offset += 1) {
-              const sourceIndex = start + offset * params.concurrency
-              if (sourceIndex >= localParams.files.length) break
-              batchFiles.push(localParams.files.createFile(sourceIndex))
-            }
-            const hashBytes = new Uint8Array(batchFiles.length * 8)
-            batchFiles.forEach((file, fileIndex) => {
-              if (file.hashBytes.byteLength !== 8) throw new Error("xxHash64 должен занимать ровно 8 байт")
-              hashBytes.set(file.hashBytes, fileIndex * 8)
-            })
-            const task = {
-              kind: "validateLocal" as const,
-              workerIndex: index,
-              projectDir: localParams.projectDir,
-              context: localParams.context,
-              files: batchFiles.map(({ descriptor, bytes }) => ({ descriptor, bytes })),
-              hashBytes,
-            }
-            const response = (await getOrCreatePool(pools, index, createPool).run(
-              move(localValidationTransferable(task)),
-              { signal },
-            )) as PreparedYamlProjectWorkerTaskResult
-            if (response.kind !== "validateLocalResult") throw new Error("Worker вернул неожиданный результат validateLocal")
-            for (const batch of response.fileUpdateBatches) {
-              signal.throwIfAborted()
-              await producer.writeBatch(batch)
-            }
-            diagnostics.push(...response.diagnostics)
-            parsedYamlFiles += response.parsedYamlFiles
-          }
-          return { diagnostics, parsedYamlFiles }
-        } catch (caught) {
-          firstFailure ??= { reason: caught }
-          operation.abort(caught)
-          throw caught
-        }
-      }))
-      if (firstFailure !== undefined) throw firstFailure.reason
-      const results = fulfilledValues(settled)
-      return {
-        diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
-        parsedYamlFiles: results.reduce((sum, { parsedYamlFiles }) => sum + parsedYamlFiles, 0),
-      }
-    },
     async runProjectStateRefresh(refreshParams, producer) {
       const operation = refreshParams.operation ?? createPreparedYamlValidationOperation()
       const { signal } = operation
@@ -471,19 +393,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
     },
     size() {
       return params.concurrency
-    },
-  }
-}
-
-function localValidationTransferable(
-  task: Extract<PreparedYamlProjectWorkerTask, { kind: "validateLocal" }>,
-) {
-  return {
-    get [transferableSymbol]() {
-      return [...task.files.map(({ bytes }) => bytes.buffer as ArrayBuffer), task.hashBytes.buffer as ArrayBuffer]
-    },
-    get [valueSymbol]() {
-      return task
     },
   }
 }
