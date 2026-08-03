@@ -13,6 +13,7 @@ import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "./importSession"
+import type { ProjectStateEncodedFileUpdateBatch } from "./binary/contribution"
 
 export interface ProjectStateFileChange {
   readonly index: number
@@ -52,7 +53,7 @@ export interface ProjectStateStore {
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
-  replaceFiles(batch: ProjectStateFileUpdateBatch): void
+  replaceFiles(batch: ProjectStateFileUpdateBatch | ProjectStateEncodedFileUpdateBatch): void
   replaceImportIndex(batch: readonly ProjectStateImportIndexContribution[]): void
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): void
   replaceImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): void

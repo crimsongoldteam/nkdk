@@ -12,7 +12,7 @@ import type {
 import { createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
 import { assertProjectStateFileBaseline, type ProjectStateFileBaseline } from "../projectState/contracts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
@@ -70,7 +70,7 @@ export interface ProjectStateValidationSource {
 }
 
 export interface ProjectStateValidationProducer {
-  writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
+  writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
 }
 

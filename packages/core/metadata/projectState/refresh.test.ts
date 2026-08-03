@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
+import {
+  createProjectStateFileUpdateBatch,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdate,
+} from "./fileUpdate"
+import {
+  encodeProjectStateFileUpdateBatch,
+  type ProjectStateEncodedFileUpdateBatch,
+} from "./binary/contribution"
 import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
 import {
   refreshProjectState,
@@ -33,7 +41,9 @@ describe("refreshProjectState", () => {
         expect(baseline.deleted).toEqual([deleted])
         expect(operation.signal).toBe(handle.signal)
         expect(projectDir).toBe("/project")
-        await producer.writeBatch({ updates: [yamlUpdate(yaml)], hashBytes: new Uint8Array(8) })
+        await producer.writeBatch(encodeProjectStateFileUpdateBatch(
+          createProjectStateFileUpdateBatch([{ update: yamlUpdate(yaml), hash: 0n }]),
+        ))
         return { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 1 }
       },
       afterProcessFiles: async () => { events.push("workers-closed") },
@@ -222,7 +232,7 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     this.signal = signal
   }
 
-  async writeBatch(_batch: ProjectStateFileUpdateBatch): Promise<void> {
+  async writeBatch(_batch: ProjectStateEncodedFileUpdateBatch): Promise<void> {
     this.events.push("write")
   }
 
@@ -279,7 +289,7 @@ function identity(projectPath: string, resourceKind: "yaml" | "resource"): Proje
   }
 }
 
-function yamlUpdate(file: ProjectStateFileIdentity): ProjectStateFileUpdateBatch["updates"][number] {
+function yamlUpdate(file: ProjectStateFileIdentity): ProjectStateFileUpdate {
   return {
     ...file,
     kind: "yaml",

@@ -11,6 +11,10 @@ import {
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
 } from "../projectState/fileUpdate"
+import {
+  encodeProjectStateFileUpdateBatch,
+  type ProjectStateEncodedFileUpdateBatch,
+} from "../projectState/binary/contribution"
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -101,12 +105,12 @@ export type PreparedYamlProjectWorkerTaskResult =
       diagnostics: Diagnostic[]
       schemaDiagnostics: Diagnostic[]
       fileResults: ValidationFirstPassFileResult[]
-      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
+      fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
       yamlLifetime: ValidationYamlLifetime
     }
   | {
       kind: "refreshProjectStateResult"
-      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
+      fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
       missingProjectPaths: readonly string[]
       hashedFiles: number
       parsedYamlFiles: number
@@ -138,14 +142,16 @@ export async function runPreparedYamlProjectWorkerTask(
     return { kind: "initValidationResult", ...compileProfile }
   }
   if (message.kind === "validateFirstPass") {
+    const result = runValidationFirstPass({
+      workerIndex: message.workerIndex,
+      projectDir: message.projectDir,
+      context: message.context,
+      files: message.files.map((descriptor) => ({ descriptor })),
+    })
     return {
       kind: "validateFirstPassResult",
-      ...runValidationFirstPass({
-        workerIndex: message.workerIndex,
-        projectDir: message.projectDir,
-        context: message.context,
-        files: message.files.map((descriptor) => ({ descriptor })),
-      }),
+      ...result,
+      fileUpdateBatches: result.fileUpdateBatches.map(encodeProjectStateFileUpdateBatch),
     }
   }
   if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
@@ -250,14 +256,15 @@ async function refreshProjectStateFiles(
   }
 
   const yamlResult = yamlValidation === undefined ? undefined : finishValidationFirstPass(yamlValidation)
+  const logicalBatches = [
+    ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
+      ? []
+      : yamlResult.fileUpdateBatches),
+    ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
+  ]
   return {
     kind: "refreshProjectStateResult",
-    fileUpdateBatches: [
-      ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
-        ? []
-        : yamlResult.fileUpdateBatches),
-      ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
-    ],
+    fileUpdateBatches: logicalBatches.map(encodeProjectStateFileUpdateBatch),
     missingProjectPaths,
     hashedFiles,
     parsedYamlFiles,
@@ -295,7 +302,7 @@ type TransferableValidationWorkerResult = Extract<
 export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
   return {
     get [transferableSymbol]() {
-      return result.fileUpdateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer)
+      return result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
     },
     get [valueSymbol]() {
       return result

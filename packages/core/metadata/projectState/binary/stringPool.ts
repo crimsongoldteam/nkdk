@@ -12,9 +12,9 @@ import {
 } from "./layouts"
 
 export interface BinaryStringPool {
-  readonly records: SharedArrayBuffer
+  readonly records: ArrayBufferLike
   readonly recordsByteOffset?: number
-  readonly utf8: SharedArrayBuffer
+  readonly utf8: ArrayBufferLike
   readonly utf8ByteOffset?: number
   readonly utf8ByteLength?: number
   readonly lookup: BinaryHashIndex
@@ -168,7 +168,7 @@ export class BinaryStringPoolBuilder {
   }
 }
 
-function readStringBytes(pool: BinaryStringPool, id: number): Uint8Array<SharedArrayBuffer> {
+function readStringBytes(pool: BinaryStringPool, id: number): Uint8Array<ArrayBufferLike> {
   if (!Number.isSafeInteger(id) || id < 0 || id >= pool.count) {
     throw new Error(`Неизвестный идентификатор строки: ${id}`)
   }
@@ -247,11 +247,15 @@ export function packBinaryStringPool(pool: BinaryStringPool): SharedArrayBuffer 
   return buffer
 }
 
-export function openBinaryStringPool(buffer: SharedArrayBuffer): BinaryStringPool {
-  if (buffer.byteLength < ProjectStateStringSectionHeaderView.viewLength) {
+export function openBinaryStringPool(
+  buffer: ArrayBufferLike,
+  byteOffset = 0,
+  byteLength = buffer.byteLength - byteOffset,
+): BinaryStringPool {
+  if (byteLength < ProjectStateStringSectionHeaderView.viewLength) {
     throw new Error("Раздел строк оборван")
   }
-  const header = ProjectStateStringSectionHeaderView.decode(new DataView(buffer))
+  const header = ProjectStateStringSectionHeaderView.decode(new DataView(buffer, byteOffset, byteLength))
   const recordsByteLength = header.count * ProjectStateStringRecordView.viewLength
   const lookupByteLength =
     header.lookupCapacity * ProjectStateHashSlotRecordView.viewLength
@@ -259,7 +263,7 @@ export function openBinaryStringPool(buffer: SharedArrayBuffer): BinaryStringPoo
     header.recordsOffset !== ProjectStateStringSectionHeaderView.viewLength ||
     header.utf8Offset !== header.recordsOffset + recordsByteLength ||
     header.lookupOffset !== header.utf8Offset + header.utf8ByteLength ||
-    header.lookupOffset + lookupByteLength !== buffer.byteLength ||
+    header.lookupOffset + lookupByteLength !== byteLength ||
     header.lookupSize !== header.count ||
     header.lookupCapacity < 1 ||
     (header.lookupCapacity & (header.lookupCapacity - 1)) !== 0
@@ -269,13 +273,13 @@ export function openBinaryStringPool(buffer: SharedArrayBuffer): BinaryStringPoo
 
   return {
     records: buffer,
-    recordsByteOffset: header.recordsOffset,
+    recordsByteOffset: byteOffset + header.recordsOffset,
     utf8: buffer,
-    utf8ByteOffset: header.utf8Offset,
+    utf8ByteOffset: byteOffset + header.utf8Offset,
     utf8ByteLength: header.utf8ByteLength,
     lookup: {
       slots: buffer,
-      byteOffset: header.lookupOffset,
+      byteOffset: byteOffset + header.lookupOffset,
       size: header.lookupSize,
       capacity: header.lookupCapacity,
     },

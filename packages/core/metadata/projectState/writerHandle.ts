@@ -3,6 +3,10 @@ import type { Diagnostic } from "../validation/types"
 import { createBinaryProjectStateStore } from "./binary/store"
 import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
 import type { ProjectStateSharedBuffers } from "./binary/snapshot"
+import {
+  openProjectStateFileUpdateBatch,
+  type ProjectStateEncodedFileUpdateBatch,
+} from "./binary/contribution"
 import type { ProjectStateCompatibility } from "./compatibility"
 import type {
   ProjectStateFileBaseline,
@@ -10,9 +14,7 @@ import type {
   ProjectStateReadToken,
 } from "./contracts"
 import {
-  assertProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
-  type ProjectStateFileUpdateBatch,
 } from "./fileUpdate"
 import type {
   ProjectStateImportFinalFileStateBatch,
@@ -54,7 +56,7 @@ export interface ProjectStateWriterHandle {
   createReadToken(): Promise<ProjectStateReadToken>
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
-  writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
+  writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
   writeImportIndexBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
   writeImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
@@ -129,7 +131,7 @@ export function createProjectStateWriterHandle(
     async writeBatch(batch) {
       assertOperation()
       assertNotCancelled()
-      assertProjectStateFileUpdateBatch(batch)
+      openProjectStateFileUpdateBatch(batch)
       requireStore().replaceFiles(batch)
     },
     async writeImportIndexBatch(batch) {

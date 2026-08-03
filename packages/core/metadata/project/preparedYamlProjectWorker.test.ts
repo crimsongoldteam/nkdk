@@ -8,7 +8,11 @@ import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadines
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
-import { assertProjectStateFileUpdateBatch, createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import {
+  encodeProjectStateFileUpdateBatch,
+  openProjectStateFileUpdateBatch,
+} from "../projectState/binary/contribution"
 import {
   createPreparedYamlProjectWorkerPool,
 } from "./preparedYamlProjectWorkerPool"
@@ -60,23 +64,23 @@ describe("project-state refresh worker", () => {
     })
 
     expect(readCalls).toEqual([absolutePath])
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       kind: "refreshProjectStateResult",
-      fileUpdateBatches: [{
-        updates: [{
-          kind: "resource",
-          projectPath: "cf/Логотип.bin",
-          componentPath: "cf",
-          resourceKind: "resource",
-        }],
-        hashBytes: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
-      }],
+      fileUpdateBatches: [{ bytes: expect.any(Uint8Array) }],
       missingProjectPaths: [],
       hashedFiles: 1,
       parsedYamlFiles: 0,
       changedFiles: 1,
     })
-    expect(result).not.toHaveProperty("bytes")
+    if (result.kind !== "refreshProjectStateResult") return
+    const batch = openProjectStateFileUpdateBatch(result.fileUpdateBatches[0]!)
+    expect(batch.update(0)).toEqual({
+      kind: "resource",
+      projectPath: "cf/Логотип.bin",
+      componentPath: "cf",
+      resourceKind: "resource",
+    })
+    expect(batch.hash(0)).toBe(0x0102030405060708n)
   })
 
   it("проверяет изменённый YAML из тех же прочитанных байтов", async () => {
@@ -112,9 +116,9 @@ describe("project-state refresh worker", () => {
     expect(result.kind).toBe("refreshProjectStateResult")
     if (result.kind !== "refreshProjectStateResult") return
     expect(result.fileUpdateBatches).toHaveLength(1)
-    expect(result.fileUpdateBatches[0]?.updates).toEqual([
+    expect(openProjectStateFileUpdateBatch(result.fileUpdateBatches[0]!).update(0)).toEqual(
       expect.objectContaining({ kind: "yaml", projectPath: descriptor.rootProjectPath }),
-    ])
+    )
     expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
   })
 
@@ -150,7 +154,8 @@ describe("project-state refresh worker", () => {
     expect(result.kind).toBe("refreshProjectStateResult")
     if (result.kind !== "refreshProjectStateResult") return
     expect(result.fileUpdateBatches).toHaveLength(1)
-    expect(result.fileUpdateBatches[0]?.updates.map(({ projectPath }) => projectPath)).toEqual(
+    const batch = openProjectStateFileUpdateBatch(result.fileUpdateBatches[0]!)
+    expect(Array.from({ length: batch.fileCount }, (_, index) => batch.projectPath(index))).toEqual(
       descriptors.map(({ rootProjectPath }) => rootProjectPath),
     )
   })
@@ -416,21 +421,17 @@ describe("validation first-pass worker boundary", () => {
     ])
     expect(result.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 3 })
     expect(result.fileUpdateBatches).toHaveLength(1)
-    const fileUpdateBatch = result.fileUpdateBatches[0]!
-    expect(fileUpdateBatch.updates).toHaveLength(3)
-    expect(fileUpdateBatch.updates.map(({ projectPath }) => projectPath)).toEqual([
+    const encodedFileUpdateBatch = result.fileUpdateBatches[0]!
+    const fileUpdateBatch = openProjectStateFileUpdateBatch(encodedFileUpdateBatch)
+    expect(fileUpdateBatch.fileCount).toBe(3)
+    expect(Array.from({ length: fileUpdateBatch.fileCount }, (_, index) => fileUpdateBatch.projectPath(index))).toEqual([
       "cf/Справочник/Основная/Свойства.yaml",
       "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
       "cfe/Склад/Справочник/Склад/Свойства.yaml",
     ])
-    expect(fileUpdateBatch.hashBytes).toEqual(
-      Uint8Array.from(
-        [hashFileBytes(Buffer.from("{}\n")), hashFileBytes(Buffer.from("{}\n")), hashFileBytes(Buffer.from("{}\n"))]
-          .flatMap((hash) => [...Buffer.from(hash.toString(16).padStart(16, "0"), "hex")])
-      )
-    )
-    expect(() => assertProjectStateFileUpdateBatch(fileUpdateBatch)).not.toThrow()
-    expect(structuredClone(fileUpdateBatch)).toEqual(fileUpdateBatch)
+    expect(Array.from({ length: fileUpdateBatch.fileCount }, (_, index) => fileUpdateBatch.hash(index)))
+      .toEqual(Array(3).fill(hashFileBytes(Buffer.from("{}\n"))))
+    expect(structuredClone(encodedFileUpdateBatch)).toEqual(encodedFileUpdateBatch)
   }, 120_000)
 
   it("returns portable form checks without rule objects or index functions", async () => {
@@ -472,7 +473,7 @@ describe("validation first-pass worker boundary", () => {
     })
     if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
     const batch = result.fileUpdateBatches[0]!
-    const update = batch.updates[0]
+    const update = openProjectStateFileUpdateBatch(batch).update(0)
     if (update?.kind !== "yaml") throw new Error("unexpected project state update")
 
     expect(update.pendingChecks).toEqual([
@@ -482,7 +483,6 @@ describe("validation first-pass worker boundary", () => {
     ])
     expect(update.pendingChecks[0]).not.toHaveProperty("rule")
     expect(update.pendingChecks[0]).not.toHaveProperty("index")
-    expect(() => assertProjectStateFileUpdateBatch(batch)).not.toThrow()
     expect(structuredClone(batch)).toEqual(batch)
   }, 120_000)
 
@@ -508,8 +508,12 @@ describe("validation first-pass worker boundary", () => {
     const result = movable[valueSymbol]
     if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
     expect(movable[transferableSymbol]).toEqual(
-      result.fileUpdateBatches.map(({ hashBytes }) => hashBytes.buffer)
+      result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
     )
+    const received = structuredClone(result, { transfer: [...movable[transferableSymbol]] })
+    expect(result.fileUpdateBatches[0]!.bytes.byteLength).toBe(0)
+    if (received.kind !== "validateFirstPassResult") throw new Error("unexpected transferred response")
+    expect(openProjectStateFileUpdateBatch(received.fileUpdateBatches[0]!).fileCount).toBe(1)
   }, 120_000)
 
   it("leaves non-first-pass worker results outside the Piscina transfer wrapper", async () => {
@@ -616,7 +620,7 @@ describe("project-state refresh pool", () => {
         })))
         return {
           kind: "refreshProjectStateResult",
-          fileUpdateBatches: [batch],
+          fileUpdateBatches: [encodeProjectStateFileUpdateBatch(batch)],
           missingProjectPaths: [],
           hashedFiles: task.files.length,
           parsedYamlFiles: 0,

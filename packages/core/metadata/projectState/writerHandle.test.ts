@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
+import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
 import { trackTempProjectDirs } from "./tests/tempProjectDir"
 import {
@@ -107,8 +108,8 @@ describe("владелец состояния проекта в главном �
 })
 
 function batch(projectPath: string, hash: bigint) {
-  return createProjectStateFileUpdateBatch([{
+  return encodeProjectStateFileUpdateBatch(createProjectStateFileUpdateBatch([{
     update: { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" },
     hash,
-  }])
+  }]))
 }

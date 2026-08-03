@@ -1,6 +1,6 @@
 import type { ValidationGraphContribution } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
-import type { ProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
 
 export interface ValidationFirstPassFileResult {
   componentPath: string
@@ -23,7 +23,7 @@ export interface FirstPassPoolResult {
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
-  fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
+  fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
 }
 

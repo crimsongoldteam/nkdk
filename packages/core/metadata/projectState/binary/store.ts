@@ -29,6 +29,7 @@ import type {
   ProjectStateStore,
 } from "../store"
 import { buildProjectStateSnapshot, type ProjectStateSnapshotPatch } from "./builder"
+import { openProjectStateFileUpdateBatch } from "./contribution"
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
@@ -103,6 +104,13 @@ export function createBinaryProjectStateStore(
     replaceFiles(batch) {
       assertOpen()
       const update = assertActive()
+      if ("bytes" in batch) {
+        const encoded = openProjectStateFileUpdateBatch(batch)
+        for (let index = 0; index < encoded.fileCount; index += 1) {
+          replace(update, encoded.update(index), encoded.hash(index))
+        }
+        return
+      }
       assertProjectStateFileUpdateBatch(batch)
       const hashes = new DataView(batch.hashBytes.buffer)
       batch.updates.forEach((file, index) => replace(update, file, hashes.getBigUint64(index * 8, false)))

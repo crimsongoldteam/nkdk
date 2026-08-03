@@ -51,6 +51,7 @@ import {
   type ProjectStatePendingOwnerCheck,
   type ProjectStatePendingReferenceCheck,
 } from "../dependencyValidation"
+import { openProjectStateFileUpdateBatch } from "../binary/contribution"
 
 export interface CreateSqliteProjectStateStoreOptions {
   readonly projectDir: string
@@ -189,6 +190,16 @@ function createStore(
     replaceFiles(batch) {
       assertOpen()
       assertUpdateActive()
+      if ("bytes" in batch) {
+        const encoded = openProjectStateFileUpdateBatch(batch)
+        const hashBytes = new Uint8Array(encoded.fileCount * 8)
+        const hashView = new DataView(hashBytes.buffer)
+        const updates = Array.from({ length: encoded.fileCount }, (_, index) => {
+          hashView.setBigUint64(index * 8, encoded.hash(index), false)
+          return encoded.update(index)
+        })
+        batch = { updates, hashBytes }
+      }
       assertProjectStateFileUpdateBatch(batch)
       for (let index = 0; index < batch.updates.length; index += 1) {
         replaceFile(statements, batch.updates[index]!, batch.hashBytes, index)

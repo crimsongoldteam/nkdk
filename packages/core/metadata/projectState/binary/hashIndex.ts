@@ -1,7 +1,7 @@
 import { ProjectStateHashSlotRecordView } from "./layouts"
 
 export interface BinaryHashIndex {
-  readonly slots: SharedArrayBuffer
+  readonly slots: ArrayBufferLike
   readonly byteOffset?: number
   readonly size: number
   readonly capacity: number
