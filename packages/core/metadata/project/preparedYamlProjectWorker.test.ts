@@ -8,7 +8,7 @@ import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadines
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
-import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import { assertProjectStateFileUpdateBatch, createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlLocalValidationSource,
@@ -920,6 +920,84 @@ describe("local validation pool", () => {
       expect(boundarySignals.every((signal) => signal.aborted)).toBe(true)
       expect(writes).toBe(0)
     } finally {
+      await pool.close()
+    }
+  })
+})
+
+describe("project-state refresh pool", () => {
+  it("не запускает следующую пачку lane до записи предыдущего результата", async () => {
+    const projectDir = createTempDir()
+    const files = Array.from({ length: 65 }, (_unused, index) => ({
+      identity: {
+        projectPath: `cf/${index}.bin`,
+        componentPath: "cf",
+        resourceKind: "resource" as const,
+      },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    const taskSizes: number[] = []
+    let releaseFirstWrite!: () => void
+    let notifyFirstTask!: () => void
+    const firstWrite = new Promise<void>((resolve) => { releaseFirstWrite = resolve })
+    const firstTask = new Promise<void>((resolve) => { notifyFirstTask = resolve })
+    const fake = {
+      async run(input: unknown) {
+        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
+        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+        if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
+        taskSizes.push(task.files.length)
+        if (taskSizes.length === 1) notifyFirstTask()
+        const batch = createProjectStateFileUpdateBatch(task.files.map(({ identity }) => ({
+          update: { ...identity, kind: "resource" },
+          hash: 1n,
+        })))
+        return {
+          kind: "refreshProjectStateResult",
+          fileUpdateBatches: [batch],
+          missingProjectPaths: [],
+          hashedFiles: task.files.length,
+          parsedYamlFiles: 0,
+          changedFiles: task.files.length,
+        }
+      },
+      async destroy() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    let writes = 0
+    try {
+      const running = pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: {
+          files,
+          baseline: {
+            knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
+            hashBytes: new Uint8Array(files.length * 8),
+            deleted: [],
+          },
+        },
+      }, {
+        async writeBatch() {
+          writes += 1
+          if (writes === 1) await firstWrite
+        },
+        async deleteFiles() {},
+      })
+
+      await firstTask
+      expect(taskSizes).toEqual([32])
+      releaseFirstWrite()
+      await expect(running).resolves.toEqual({
+        hashedFiles: 65,
+        parsedYamlFiles: 0,
+        changedFiles: 65,
+        missingFiles: 0,
+      })
+      expect(taskSizes).toEqual([32, 32, 1])
+    } finally {
+      releaseFirstWrite()
       await pool.close()
     }
   })

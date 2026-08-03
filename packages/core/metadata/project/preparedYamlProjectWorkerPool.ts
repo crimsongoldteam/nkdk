@@ -13,6 +13,7 @@ import { createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import { assertProjectStateFileBaseline, type ProjectStateFileBaseline } from "../projectState/contracts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -22,6 +23,7 @@ import type {
 } from "./preparedYamlProject"
 import {
   LOCAL_VALIDATION_BATCH_SIZE,
+  type ProjectStateValidationFileTask,
   type PreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTaskResult,
 } from "./preparedYamlProjectWorker"
@@ -51,6 +53,15 @@ export interface PreparedYamlProjectWorkerPool {
     },
     producer: { writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void> },
   ): Promise<{ readonly diagnostics: readonly Diagnostic[]; readonly parsedYamlFiles: number }>
+  runProjectStateRefresh(
+    params: {
+      projectDir: string
+      context: ConfigurationContext
+      source: ProjectStateValidationSource
+      operation?: PreparedYamlValidationOperation
+    },
+    producer: ProjectStateValidationProducer,
+  ): Promise<ProjectStateValidationStats>
   runValidationFactPass(params: {
     projectDir: string
     context: ConfigurationContext
@@ -58,6 +69,23 @@ export interface PreparedYamlProjectWorkerPool {
   }): Promise<ValidationIndexContribution>
   close(): Promise<void>
   size(): number
+}
+
+export interface ProjectStateValidationSource {
+  readonly files: readonly ProjectStateValidationFileTask[]
+  readonly baseline: ProjectStateFileBaseline
+}
+
+export interface ProjectStateValidationProducer {
+  writeBatch(batch: ProjectStateFileUpdateBatch): Promise<void>
+  deleteFiles(projectPaths: readonly string[]): Promise<void>
+}
+
+export interface ProjectStateValidationStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly missingFiles: number
 }
 
 export interface PreparedYamlLocalValidationFile {
@@ -342,6 +370,64 @@ export function createPreparedYamlProjectWorkerPool(params: {
         parsedYamlFiles: results.reduce((sum, { parsedYamlFiles }) => sum + parsedYamlFiles, 0),
       }
     },
+    async runProjectStateRefresh(refreshParams, producer) {
+      const operation = refreshParams.operation ?? createPreparedYamlValidationOperation()
+      const { signal } = operation
+      const { files, baseline } = refreshParams.source
+      assertProjectStateFileBaseline(baseline, files.length)
+      await this.initValidation(refreshParams.context, operation)
+      let firstFailure: { readonly reason: unknown } | undefined
+      const settled = await Promise.allSettled(Array.from({ length: params.concurrency }, async (_unused, index) => {
+        try {
+          let hashedFiles = 0
+          let parsedYamlFiles = 0
+          let changedFiles = 0
+          let missingFiles = 0
+          const laneBatchStride = params.concurrency * LOCAL_VALIDATION_BATCH_SIZE
+          for (let start = index; start < files.length; start += laneBatchStride) {
+            signal.throwIfAborted()
+            const sourceIndexes: number[] = []
+            for (let offset = 0; offset < LOCAL_VALIDATION_BATCH_SIZE; offset += 1) {
+              const sourceIndex = start + offset * params.concurrency
+              if (sourceIndex >= files.length) break
+              sourceIndexes.push(sourceIndex)
+            }
+            const task = createProjectStateRefreshTask(refreshParams, index, sourceIndexes)
+            const response = (await getOrCreatePool(pools, index, createPool).run(
+              move(projectStateRefreshTransferable(task)),
+              { signal },
+            )) as PreparedYamlProjectWorkerTaskResult
+            if (response.kind !== "refreshProjectStateResult") {
+              throw new Error("Worker вернул неожиданный результат refreshProjectState")
+            }
+            for (const batch of response.fileUpdateBatches) {
+              signal.throwIfAborted()
+              await producer.writeBatch(batch)
+            }
+            if (response.missingProjectPaths.length > 0) {
+              signal.throwIfAborted()
+              await producer.deleteFiles(response.missingProjectPaths)
+            }
+            hashedFiles += response.hashedFiles
+            parsedYamlFiles += response.parsedYamlFiles
+            changedFiles += response.changedFiles
+            missingFiles += response.missingProjectPaths.length
+          }
+          return { hashedFiles, parsedYamlFiles, changedFiles, missingFiles }
+        } catch (caught) {
+          firstFailure ??= { reason: caught }
+          operation.abort(caught)
+          throw caught
+        }
+      }))
+      if (firstFailure !== undefined) throw firstFailure.reason
+      return fulfilledValues(settled).reduce<ProjectStateValidationStats>((sum, current) => ({
+        hashedFiles: sum.hashedFiles + current.hashedFiles,
+        parsedYamlFiles: sum.parsedYamlFiles + current.parsedYamlFiles,
+        changedFiles: sum.changedFiles + current.changedFiles,
+        missingFiles: sum.missingFiles + current.missingFiles,
+      }), { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 })
+    },
     async runValidationFactPass(factPassParams) {
       const rulesSnapshot = createValidationRulesSnapshot(factPassParams.context)
       const partitions = partitionRoundRobin(factPassParams.files, params.concurrency)
@@ -395,6 +481,54 @@ function localValidationTransferable(
   return {
     get [transferableSymbol]() {
       return [...task.files.map(({ bytes }) => bytes.buffer as ArrayBuffer), task.hashBytes.buffer as ArrayBuffer]
+    },
+    get [valueSymbol]() {
+      return task
+    },
+  }
+}
+
+function createProjectStateRefreshTask(
+  params: {
+    readonly projectDir: string
+    readonly context: ConfigurationContext
+    readonly source: ProjectStateValidationSource
+  },
+  workerIndex: number,
+  sourceIndexes: readonly number[],
+): Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }> {
+  const knownHashBits = new Uint8Array(Math.ceil(sourceIndexes.length / 8))
+  const expectedHashBytes = new Uint8Array(sourceIndexes.length * 8)
+  sourceIndexes.forEach((sourceIndex, taskIndex) => {
+    if (hasKnownBaselineHash(params.source.baseline.knownHashBits, sourceIndex)) {
+      knownHashBits[Math.floor(taskIndex / 8)]! |= 1 << (taskIndex % 8)
+    }
+    expectedHashBytes.set(
+      params.source.baseline.hashBytes.subarray(sourceIndex * 8, sourceIndex * 8 + 8),
+      taskIndex * 8,
+    )
+  })
+  return {
+    kind: "refreshProjectState",
+    workerIndex,
+    projectDir: params.projectDir,
+    context: params.context,
+    files: sourceIndexes.map((sourceIndex) => params.source.files[sourceIndex]!),
+    knownHashBits,
+    expectedHashBytes,
+  }
+}
+
+function hasKnownBaselineHash(bits: Uint8Array, index: number): boolean {
+  return (bits[Math.floor(index / 8)]! & (1 << (index % 8))) !== 0
+}
+
+function projectStateRefreshTransferable(
+  task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+) {
+  return {
+    get [transferableSymbol]() {
+      return [task.knownHashBits.buffer as ArrayBuffer, task.expectedHashBytes.buffer as ArrayBuffer]
     },
     get [valueSymbol]() {
       return task
