@@ -5,6 +5,7 @@ import { createTestProjectStateReadToken } from "../projectState/tests/readToken
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import type { Diagnostic } from "../validation/types"
 
 export const operationValidationError = {
@@ -182,6 +183,7 @@ export function completeOperationProjectState(
 ): ProjectStateService {
   return {
     ...overrides,
+    workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("unexpected beginImport") },
     async createReadToken() { throw new Error("unexpected createReadToken") },
     async readComponentProjection() { throw new Error("unexpected readComponentProjection") },

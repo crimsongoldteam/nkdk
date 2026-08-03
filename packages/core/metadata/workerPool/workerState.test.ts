@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { createBinaryProjectStateReadToken } from "../projectState/binary/readToken"
+import { claimBinaryProjectStateReadToken } from "../projectState/binary/readToken"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import { createMetadataWorkerLineFactory } from "../../tests/metadataWorkerTestPool"
 import { createMetadataWorkerPoolHandle } from "./handle"
@@ -78,5 +79,21 @@ describe("состояние универсального worker", () => {
 
     expect(closes[0]).toHaveBeenCalledTimes(1)
     expect(closes[1]).not.toHaveBeenCalled()
+  })
+
+  it("не забирает у вызывающего кода право чтения установленного token", async () => {
+    const lines = createMetadataWorkerLineFactory()
+    const handle = createMetadataWorkerPoolHandle({ createLine: lines.factory })
+    const buffers = buildProjectStateSnapshot({ fragments: [], deletions: [] })
+    const published = createBinaryProjectStateReadToken(buffers)
+
+    await handle.installProjectState(published)
+    expect(claimBinaryProjectStateReadToken(published)).toBe(buffers)
+
+    await (await handle.beginOperation({ id: "validation", concurrency: 1, context })).finish("success")
+    expect(lines.commands(0).map(({ kind }) => kind)).toEqual([
+      "initializeLine",
+      "installProjectState",
+    ])
   })
 })

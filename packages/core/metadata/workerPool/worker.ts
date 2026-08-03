@@ -3,6 +3,7 @@ import {
   createMetadataWorkerPersistentState,
   type MetadataWorkerPersistentState,
 } from "./workerState"
+import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
@@ -41,6 +42,13 @@ export function createMetadataWorkerCommandHandler(
     switch (command.command.kind) {
       case "probe":
         return { kind: "probeResult", value: command.command.value }
+      case "validation":
+        return runPreparedYamlProjectWorkerTask(command.command.task, {
+          persistentValidationState: {
+            schemaCache: initialized.schemaCache,
+            rulesSnapshot: initialized.rulesSnapshot,
+          },
+        })
     }
   }
 }

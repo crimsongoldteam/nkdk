@@ -3,6 +3,7 @@ import type {
   MetadataWorkerCommand,
   MetadataWorkerCommandResult,
   MetadataWorkerLine,
+  MetadataWorkerPoolHandle,
 } from "../metadata/workerPool/types"
 
 export function createMetadataWorkerLineFactory(
@@ -22,8 +23,18 @@ export function createMetadataWorkerLineFactory(
 }
 
 function defaultHandler(command: MetadataWorkerCommand): MetadataWorkerCommandResult {
-  if (command.kind === "runOperation") {
+  if (command.kind === "runOperation" && command.command.kind === "probe") {
     return { kind: "probeResult", value: command.command.value }
   }
   return undefined
+}
+
+export function createUnusedMetadataWorkerPool(): MetadataWorkerPoolHandle {
+  return {
+    async beginOperation() { throw new Error("unexpected metadata worker operation") },
+    async installProjectState() {},
+    async clearProjectState() {},
+    size: () => 0,
+    async close() {},
+  }
 }

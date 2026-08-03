@@ -22,6 +22,7 @@ import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
 } from "./preparedYamlProject"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 import type {
   PreparedYamlProjectWorkerTask,
   PreparedYamlProjectWorkerTaskResult,
@@ -97,9 +98,26 @@ export type PreparedWorkerPool = Pick<Piscina, "run" | "destroy">
 export function createPreparedYamlProjectWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => PreparedWorkerPool
+  operation?: MetadataWorkerOperation
 }): PreparedYamlProjectWorkerPool {
   const pools = new Map<number, PreparedWorkerPool>()
-  const createPool = params.createWorkerPool ?? createWorkerPool
+  let operationFailed = false
+  const createPool = params.operation === undefined
+    ? (_workerIndex: number) => (params.createWorkerPool ?? createWorkerPool)()
+    : (workerIndex: number): PreparedWorkerPool => ({
+        async run(task) {
+          try {
+            return await params.operation!.run(workerIndex, {
+              kind: "validation",
+              task: task as PreparedYamlProjectWorkerTask,
+            })
+          } catch (caught) {
+            operationFailed = true
+            throw caught
+          }
+        },
+        async destroy() {},
+      })
   const activeWorkerIndexes = new Set<number>()
   const initializedValidationWorkerIndexes = new Set<number>()
   let validationStartProfile: ValidationWorkerPoolStartProfile | undefined
@@ -455,6 +473,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       activeWorkerIndexes.clear()
       initializedValidationWorkerIndexes.clear()
       validationStartProfile = undefined
+      await params.operation?.finish(operationFailed ? "failure" : "success")
     },
     size() {
       return params.concurrency
@@ -556,12 +575,12 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
 function getOrCreatePool(
   pools: Map<number, PreparedWorkerPool>,
   index: number,
-  createPool: () => PreparedWorkerPool
+  createPool: (workerIndex: number) => PreparedWorkerPool
 ): PreparedWorkerPool {
   const existing = pools.get(index)
   if (existing !== undefined) return existing
 
-  const pool = createPool()
+  const pool = createPool(index)
   pools.set(index, pool)
   return pool
 }

@@ -9,6 +9,8 @@ import type { ProjectStateWriterHandle } from "./writerHandle"
 import type { ProjectStateReadToken } from "./contracts"
 import { buildProjectStateSnapshot } from "./binary/builder"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
+import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
+import { createMetadataWorkerLineFactory } from "../../tests/metadataWorkerTestPool"
 
 const tempDirs: string[] = []
 
@@ -17,6 +19,65 @@ afterEach(async () => {
 })
 
 describe("ProjectStateService", () => {
+  it("переиспользует растущий пул между актуализациями и закрывает его вместе с сервисом", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-worker-lifecycle-"))
+    tempDirs.push(projectDir)
+    const lines = createMetadataWorkerLineFactory()
+    const workers = createMetadataWorkerPoolHandle({ createLine: lines.factory })
+    const service = createProjectStateService({
+      createWriter: () => testWriterHandle(1),
+      workerPool: workers,
+      async refresh() { return refreshResult(1) },
+    })
+
+    await service.refreshAndValidate({ projectDir, concurrency: 1 })
+    await service.refreshAndValidate({ projectDir, concurrency: 3 })
+    await service.refreshAndValidate({ projectDir, concurrency: 1 })
+
+    expect(service.workers).toBe(workers)
+    expect(lines.created()).toBe(3)
+    expect(lines.destroyed()).toEqual([0, 0, 0])
+
+    await service.close()
+    expect(lines.destroyed()).toEqual([1, 1, 1])
+  })
+
+  it("публикует новый снимок в worker после проверки зависимостей и очищает при reset", async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-worker-publication-"))
+    tempDirs.push(projectDir)
+    const events: string[] = []
+    const lines = createMetadataWorkerLineFactory((command) => {
+      if (command.kind === "installProjectState") events.push("install")
+      if (command.kind === "clearProjectState") events.push("clear")
+      if (command.kind === "runOperation") {
+        return { kind: "probeResult", value: command.command.kind }
+      }
+      return undefined
+    })
+    const workers = createMetadataWorkerPoolHandle({ createLine: lines.factory })
+    const writer = testWriterHandle(1)
+    writer.validateDependencies = async () => { events.push("dependencies"); return [] }
+    writer.commitAndScheduleCheckpoint = async () => {
+      events.push("checkpoint")
+      return { snapshotPath: "snapshot" }
+    }
+    const service = createProjectStateService({
+      createWriter: () => writer,
+      workerPool: workers,
+      async refresh(_params, dependencies) {
+        await dependencies.handle.validateDependencies()
+        await dependencies.handle.commitAndScheduleCheckpoint()
+        return { ...refreshResult(1), readToken: await dependencies.handle.createReadToken() }
+      },
+    })
+
+    await service.refreshAndValidate({ projectDir, concurrency: 1 })
+    await service.reset(projectDir)
+
+    expect(events).toEqual(["install", "dependencies", "checkpoint", "install", "clear"])
+    await service.close()
+  })
+
   it("returns load, checkpoint and snapshot measurements only for an explicitly profiled refresh", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-profile-"))
     tempDirs.push(projectDir)

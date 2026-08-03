@@ -25,6 +25,7 @@ import {
 } from "./syncConfiguration"
 import { createMockFullSyncDependencies, emptyProjectStateReadSession } from "./testHelpers"
 import type { FullXmlSyncExecutionPoolResult } from "./workerPool"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 
 describe("shared full XML sync coordinator", () => {
   const context = {
@@ -500,6 +501,7 @@ function createHarness(options: HarnessOptions = {}) {
   const topology = compileRegisteredMetadataResourceTopology()
   const readToken = createTestProjectStateReadToken()
   const projectState = {
+    workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       events.push("refresh")

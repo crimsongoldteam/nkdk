@@ -100,11 +100,10 @@ export function createMetadataWorkerPoolHandle(params: {
     },
     async installProjectState(token) {
       assertHandleOpen(closed)
-      cloneBinaryProjectStateReadToken(token)
-      projectStateSeed = token
+      projectStateSeed = cloneBinaryProjectStateReadToken(token)
       await sendProjectStateCommand(lines, () => ({
         kind: "installProjectState",
-        readToken: cloneBinaryProjectStateReadToken(token),
+        readToken: cloneBinaryProjectStateReadToken(projectStateSeed!),
       }))
     },
     async clearProjectState() {

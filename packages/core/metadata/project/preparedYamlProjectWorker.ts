@@ -142,16 +142,23 @@ export async function runPreparedYamlProjectWorkerTask(
     readFile?: (absolutePath: string) => Promise<Uint8Array>
     hashBytes?: (bytes: Uint8Array) => bigint
     classifyProjectStateFile?: typeof classifyChangedProjectStateFile
+    persistentValidationState?: {
+      readonly schemaCache: ValidationSchemaCache
+      readonly rulesSnapshot: ValidationRulesSnapshot
+    }
   } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
-    validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
-      (options.createValidationSchemaCache ?? createProjectValidationWorkerSchemaCache)({
+    validationSchemaCache = options.persistentValidationState?.schemaCache ?? await profiler.measureAsync(
+      "Инициализация",
+      "Инициализация validation worker",
+      { items: 1 },
+      () => (options.createValidationSchemaCache ?? createProjectValidationWorkerSchemaCache)({
         context: message.context,
       })
     )
-    validationRulesSnapshot = message.rulesSnapshot
+    validationRulesSnapshot = options.persistentValidationState?.rulesSnapshot ?? message.rulesSnapshot
     projectStateComponentTemplates = {
       configuration: createValidationProjectComponent("/", { kind: "configuration" }),
       configurationExtension: createValidationProjectComponent("/", {

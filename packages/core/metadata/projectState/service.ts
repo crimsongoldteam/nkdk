@@ -24,6 +24,10 @@ import {
   type ProjectStateRefreshParams,
   type ProjectStateRefreshResult,
 } from "./refresh"
+import {
+  createMetadataWorkerPoolHandle,
+} from "../workerPool/handle"
+import type { MetadataWorkerPoolHandle } from "../workerPool/types"
 
 export interface ProjectStateComponentProjection {
   readonly componentPath: string
@@ -50,6 +54,7 @@ async function* measureAsyncIterable<T>(
 }
 
 export interface ProjectStateService {
+  readonly workers: MetadataWorkerPoolHandle
   beginImport(params: ProjectStateImportParams): Promise<ProjectStateImportSession>
   refreshAndValidate(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
   createReadToken(projectDir: string): Promise<ProjectStateReadToken>
@@ -68,6 +73,7 @@ export const openProjectStateReadSession = openBinaryProjectStateReadSession
 export interface CreateProjectStateServiceOptions {
   readonly createWriter?: () => ProjectStateWriterHandle
   readonly createPool?: (concurrency: number) => PreparedYamlProjectWorkerPool
+  readonly workerPool?: MetadataWorkerPoolHandle
   readonly refresh?: (
     params: ProjectStateRefreshParams,
     dependencies: ProjectStateRefreshDependencies,
@@ -79,7 +85,8 @@ export function createProjectStateService(
   options: CreateProjectStateServiceOptions = {},
 ): ProjectStateService {
   const createWriter = options.createWriter ?? (() => createProjectStateWriterHandle())
-  const createPool = options.createPool ?? ((concurrency) => createPreparedYamlProjectWorkerPool({ concurrency }))
+  const createPool = options.createPool
+  const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
   const refresh = options.refresh ?? refreshProjectState
   const openReadSession = options.openReadSession ?? openBinaryProjectStateReadSession
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
@@ -89,6 +96,7 @@ export function createProjectStateService(
   let closePromise: Promise<void> | undefined
 
   const service: ProjectStateService = {
+    workers,
     beginImport(params) {
       return beginImportWithLease(params)
     },
@@ -138,6 +146,7 @@ export function createProjectStateService(
         const canonical = await realpath(projectDir)
         const writer = await activate(canonical)
         await writer.reset(canonical)
+        await workers.clearProjectState()
         await removeBinaryProjectStateFiles(canonical)
       })
     },
@@ -182,6 +191,11 @@ export function createProjectStateService(
           } catch (caught) {
             failures.push(...flattenFailures(caught))
           }
+        }
+        try {
+          await workers.close()
+        } catch (caught) {
+          failures.push(...flattenFailures(caught))
         }
         if (failures.length > 0) throw new AggregateError(failures, errorMessage(failures[0]))
       })
@@ -305,6 +319,7 @@ export function createProjectStateService(
       throw caught
     }
     active = { projectDir, writer }
+    await workers.installProjectState(await writer.createReadToken())
     return writer
   }
 
@@ -317,8 +332,20 @@ export function createProjectStateService(
       readonly onPhase?: NonNullable<Exclude<ProjectStateRefreshParams["profile"], true>>["onPhase"]
     } = {},
   ): Promise<ProjectStateRefreshResult> {
-    const pool = createPool(normalizeConcurrency(params.concurrency))
     const context = params.context ?? defaultContext()
+    const concurrency = normalizeConcurrency(params.concurrency)
+    const workerOperation = createPool === undefined
+      ? await workers.beginOperation({
+          id: `project-state-refresh-${Date.now()}-${Math.random()}`,
+          concurrency,
+          context,
+          ...(params.signal === undefined ? {} : { signal: params.signal }),
+        })
+      : undefined
+    const pool = createPool?.(concurrency) ?? createPreparedYamlProjectWorkerPool({
+      concurrency,
+      operation: workerOperation!,
+    })
     let poolCloseStarted = false
     let poolClosePromise: Promise<void> | undefined
     const closePool = () => {
@@ -403,6 +430,7 @@ export function createProjectStateService(
       throw normalizeFailure(caught)
     }
     await closePool()
+    await workers.installProjectState(result.readToken)
     if (options.loadMs === undefined) return result
     await writer.flushCheckpoint()
     const saveBinaryMs = saveStartedAt === undefined ? 0 : performance.now() - saveStartedAt

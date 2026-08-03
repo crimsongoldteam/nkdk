@@ -17,6 +17,7 @@ import type {
   ProjectStateImportSession,
   ProjectStateService,
 } from "../projectState"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
@@ -757,6 +758,7 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
   return {
+    workers: createUnusedMetadataWorkerPool(),
     async beginImport() {
       return {
         async commitWorkingIndex() { return readToken() },

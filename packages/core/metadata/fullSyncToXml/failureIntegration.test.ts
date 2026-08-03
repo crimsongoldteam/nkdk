@@ -11,6 +11,7 @@ import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
@@ -278,6 +279,7 @@ async function createIndexedProject() {
     writeSnapshot(extensionPath, { ...previous, componentPath: "cfe/Дополнение" }),
   ])
   return {
+    workers: createUnusedMetadataWorkerPool(),
     projectDir,
     xmlDir,
     previous,
@@ -417,6 +419,7 @@ function failureDeps(
 function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
   const readToken = createTestProjectStateReadToken()
   return {
+    workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       return { diagnostics: [], readToken, stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 } }

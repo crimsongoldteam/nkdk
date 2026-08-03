@@ -11,7 +11,7 @@ function operation(id: string, concurrency: number) {
 
 function createLines() {
   return createMockWorkerThreadPoolFactory<MetadataWorkerCommand, MetadataWorkerCommandResult>((command) => {
-    if (command.kind === "runOperation") {
+    if (command.kind === "runOperation" && command.command.kind === "probe") {
       return { kind: "probeResult", value: command.command.value }
     }
     return undefined
@@ -77,7 +77,9 @@ describe("createMetadataWorkerPoolHandle", () => {
         failed = true
         throw new Error("worker crashed")
       }
-      if (command.kind === "runOperation") return { kind: "probeResult", value: command.command.value }
+      if (command.kind === "runOperation" && command.command.kind === "probe") {
+        return { kind: "probeResult", value: command.command.value }
+      }
       return undefined
     })
     const handle = createMetadataWorkerPoolHandle({ createLine: lines.factory })

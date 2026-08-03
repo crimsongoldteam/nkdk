@@ -1,5 +1,9 @@
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
+import type {
+  PreparedYamlProjectWorkerTask,
+  PreparedYamlProjectWorkerTaskResult,
+} from "../project/preparedYamlProjectWorker"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -8,14 +12,19 @@ export interface MetadataWorkerProbeCommand {
   readonly value: string
 }
 
-export type MetadataWorkerOperationCommand = MetadataWorkerProbeCommand
+export type MetadataWorkerOperationCommand =
+  | MetadataWorkerProbeCommand
+  | {
+      readonly kind: "validation"
+      readonly task: PreparedYamlProjectWorkerTask
+    }
 
 export interface MetadataWorkerProbeResult {
   readonly kind: "probeResult"
   readonly value: string
 }
 
-export type MetadataWorkerOperationResult = MetadataWorkerProbeResult
+export type MetadataWorkerOperationResult = MetadataWorkerProbeResult | PreparedYamlProjectWorkerTaskResult
 
 export type MetadataWorkerCommand =
   | {
