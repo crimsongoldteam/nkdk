@@ -28,6 +28,7 @@ const commonOptions = {
     "js-yaml",
     "p-limit",
     "piscina",
+    "structurae",
     "typebox",
     "uuid",
   ],

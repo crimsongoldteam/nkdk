@@ -37,6 +37,7 @@ const commonOptions = {
     "p-limit",
     "piscina",
     "ssh2",
+    "structurae",
     "typebox",
     "uuid",
     "yaml",
