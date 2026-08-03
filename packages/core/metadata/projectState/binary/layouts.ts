@@ -20,6 +20,14 @@ interface ProjectStateSectionRecord {
   readonly records: number
 }
 
+interface ProjectStateHashSlotRecord {
+  readonly hash: bigint
+  readonly recordId: number
+  readonly occupied: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
 const projectStateView = new View()
 
 export const ProjectStateHeaderRecordView = projectStateView.create<ProjectStateHeaderRecord>({
@@ -49,3 +57,16 @@ export const ProjectStateSectionRecordView = projectStateView.create<ProjectStat
     records: { type: "integer", btype: "uint32" },
   },
 })
+
+export const ProjectStateHashSlotRecordView =
+  projectStateView.create<ProjectStateHashSlotRecord>({
+    $id: "ProjectStateHashSlotRecord",
+    type: "object",
+    properties: {
+      hash: { type: "number", btype: "biguint64" },
+      recordId: { type: "integer", btype: "uint32" },
+      occupied: { type: "integer", btype: "uint8" },
+      reserved8: { type: "integer", btype: "uint8" },
+      reserved16: { type: "integer", btype: "uint16" },
+    },
+  })
