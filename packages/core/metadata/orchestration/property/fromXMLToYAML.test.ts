@@ -14,7 +14,7 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import { registeredExplicitXMLTestRule } from "./explicitXMLPropertyRegistry.testSupport"
+import { registeredExplicitXMLTestRule } from "../../../tests/property/explicitXMLPropertyRegistry"
 
 describe("importPropertiesFromXMLToYAML", () => {
   it("rejects a conflicting explicit XML property registration", () => {

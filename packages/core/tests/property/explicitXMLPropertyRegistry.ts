@@ -1,5 +1,5 @@
-import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import type { MetadataItemRule } from "./types"
+import { registerExplicitXMLProperty } from "../../metadata/orchestration/property/explicitXMLPropertyRegistry"
+import type { MetadataItemRule } from "../../metadata/orchestration/property/types"
 
 export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRule {
   const rule = {

@@ -22,7 +22,7 @@ import {
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import { registeredExplicitXMLTestRule } from "./explicitXMLPropertyRegistry.testSupport"
+import { registeredExplicitXMLTestRule } from "../../../tests/property/explicitXMLPropertyRegistry"
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
