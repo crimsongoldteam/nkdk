@@ -86,6 +86,8 @@ describe("владелец состояния проекта в главном �
     await handle.beginUpdate("/project")
 
     await handle.writeFragment(writer.finish())
+    await expect(handle.readFileBaselinePathPage(["cf/a.bin", "cf/missing.bin"]))
+      .resolves.toMatchObject({ previousFileIds: Int32Array.of(-1, -1) })
     await expect(handle.readComponentProjection("cf")).resolves.toMatchObject({
       updates: [{ projectPath: "cf/a.bin" }],
     })

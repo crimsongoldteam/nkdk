@@ -883,6 +883,14 @@ function testWriterHandle(id: number): TestWriter {
         storedFileCount: 0,
       }
     },
+    async readFileBaselinePathPage(projectPaths) {
+      return {
+        knownHashBits: new Uint8Array(Math.ceil(projectPaths.length / 8)),
+        hashBytes: new Uint8Array(projectPaths.length * 8),
+        previousFileIds: new Int32Array(projectPaths.length).fill(-1),
+        storedFileCount: 0,
+      }
+    },
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
     async validateDependencies() { return [] },

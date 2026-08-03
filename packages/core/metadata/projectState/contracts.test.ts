@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   assertProjectStateFileBaseline,
+  assertProjectStateFileBaselinePathPage,
   assertProjectStateFileHashBatch,
   type ProjectStateFileHashBatch,
   type ProjectStateReadToken,
@@ -66,6 +67,29 @@ describe("ProjectStateFileHashBatch", () => {
     ["лишнее поле batch", { files: [], hashBytes: new Uint8Array(0), callback: () => undefined }],
   ])("отвергает %s", (_name, batch) => {
     expect(() => assertProjectStateFileHashBatch(batch)).toThrow()
+  })
+})
+
+describe("ProjectStateFileBaselinePathPage", () => {
+  const valid = () => ({
+    knownHashBits: Uint8Array.of(0b0000_0001),
+    hashBytes: new Uint8Array(16),
+    previousFileIds: Int32Array.of(0, -1),
+    storedFileCount: 1,
+  })
+
+  it("принимает позиционную страницу известных путей", () => {
+    expect(() => assertProjectStateFileBaselinePathPage(valid(), 2)).not.toThrow()
+  })
+
+  it.each([
+    ["короткие биты", { knownHashBits: new Uint8Array(0) }],
+    ["короткие хэши", { hashBytes: new Uint8Array(15) }],
+    ["короткие идентификаторы", { previousFileIds: Int32Array.of(0) }],
+    ["неизвестный идентификатор", { previousFileIds: Int32Array.of(1, -1) }],
+    ["лишнее поле", { callback: () => undefined }],
+  ])("отвергает %s", (_name, override) => {
+    expect(() => assertProjectStateFileBaselinePathPage({ ...valid(), ...override }, 2)).toThrow()
   })
 })
 
@@ -236,6 +260,21 @@ function createTestStoreContractFixture() {
       files.forEach((file, index) => {
         const fileId = paths.indexOf(file.projectPath)
         const previous = committed.get(file.projectPath)
+        if (fileId < 0 || previous === undefined) return
+        previousFileIds[index] = fileId
+        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+        hashBytes.set(previous.hashBytes, index * 8)
+      })
+      return { knownHashBits, hashBytes, previousFileIds, storedFileCount: paths.length }
+    },
+    readFileBaselinePathPage(projectPaths) {
+      const paths = [...committed.keys()]
+      const knownHashBits = new Uint8Array(Math.ceil(projectPaths.length / 8))
+      const hashBytes = new Uint8Array(projectPaths.length * 8)
+      const previousFileIds = new Int32Array(projectPaths.length).fill(-1)
+      projectPaths.forEach((projectPath, index) => {
+        const fileId = paths.indexOf(projectPath)
+        const previous = committed.get(projectPath)
         if (fileId < 0 || previous === undefined) return
         previousFileIds[index] = fileId
         knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)

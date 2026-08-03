@@ -7,6 +7,7 @@ import type { ProjectStateFragment } from "./binary/fragment"
 import type {
   ProjectStateFileBaseline,
   ProjectStateFileBaselinePage,
+  ProjectStateFileBaselinePathPage,
   ProjectStateFileHashBatch,
   ProjectStateReadToken,
 } from "./contracts"
@@ -42,6 +43,7 @@ export interface ProjectStateWriterHandle {
   openProject(projectDir: string): Promise<void>
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline>
   readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage>
+  readFileBaselinePathPage(projectPaths: readonly string[]): Promise<ProjectStateFileBaselinePathPage>
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
@@ -93,6 +95,9 @@ export function createProjectStateWriterHandle(
     },
     async readFileBaselinePage(files) {
       return requireStore().readFileBaselinePage(files)
+    },
+    async readFileBaselinePathPage(projectPaths) {
+      return requireStore().readFileBaselinePathPage(projectPaths)
     },
     async compareFiles(batch) {
       return requireStore().compareFiles(batch)

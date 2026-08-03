@@ -22,6 +22,8 @@ export interface ProjectStateFileBaselinePage {
   readonly storedFileCount: number
 }
 
+export type ProjectStateFileBaselinePathPage = ProjectStateFileBaselinePage
+
 /** Непрозрачное разрешение на чтение снимка состояния проекта. */
 export type ProjectStateReadToken = BinaryProjectStateReadToken
 
@@ -95,6 +97,13 @@ export function assertProjectStateFileBaselinePage(
   for (const id of page["previousFileIds"] as Int32Array) {
     if (id < -1 || id >= storedFileCount) throw new Error("previousFileIds содержит неизвестный файл")
   }
+}
+
+export function assertProjectStateFileBaselinePathPage(
+  value: unknown,
+  pathCount: number,
+): asserts value is ProjectStateFileBaselinePathPage {
+  assertProjectStateFileBaselinePage(value, pathCount)
 }
 
 function assertFileIdentity(value: unknown, path: string): void {

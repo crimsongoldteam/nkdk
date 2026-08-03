@@ -7,7 +7,13 @@ import type {
   ProjectDependencyInputQuery,
   ProjectDependencyInputResult,
 } from "./readSession"
-import type { ProjectStateFileBaseline, ProjectStateFileBaselinePage, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+import type {
+  ProjectStateFileBaseline,
+  ProjectStateFileBaselinePage,
+  ProjectStateFileBaselinePathPage,
+  ProjectStateFileHashBatch,
+  ProjectStateReadToken,
+} from "./contracts"
 import type { ProjectStateFragment } from "./binary/fragment"
 
 export interface ProjectStateFileChange {
@@ -47,6 +53,7 @@ export interface ProjectStateComponentProjection {
 export interface ProjectStateStore {
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
   readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaselinePage
+  readFileBaselinePathPage(projectPaths: readonly string[]): ProjectStateFileBaselinePathPage
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
   appendFragment(fragment: ProjectStateFragment): void
