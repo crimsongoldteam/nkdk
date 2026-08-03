@@ -14,6 +14,7 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
+import { registeredExplicitXMLTestRule } from "./explicitXMLPropertyRegistry.testSupport"
 
 describe("importPropertiesFromXMLToYAML", () => {
   it("rejects a conflicting explicit XML property registration", () => {
@@ -35,18 +36,7 @@ describe("importPropertiesFromXMLToYAML", () => {
   })
 
   it("preserves a registered explicit XML default as a tagged YAML scalar", () => {
-    const rule = {
-      itemType: "TestExplicitXMLDefault",
-      properties: {
-        mode: { type: "string", xml: "Mode", yaml: "Режим", implicitValueYAML: "Auto" },
-      },
-    } as MetadataItemRule
-    registerExplicitXMLProperty({
-      itemType: rule.itemType,
-      propertyKey: "mode",
-      xmlValue: "Auto",
-      yamlValue: "Auto",
-    })
+    const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
     const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
 
     const yaml = importPropertiesWithSources({

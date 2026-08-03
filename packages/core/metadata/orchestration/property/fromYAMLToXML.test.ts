@@ -22,6 +22,7 @@ import {
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
+import { registeredExplicitXMLTestRule } from "./explicitXMLPropertyRegistry.testSupport"
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
@@ -79,18 +80,7 @@ const contextWithXMLDefaultVariant = (
 
 describe("convertPropertiesFromYAMLToXML", () => {
   it("exports a registered explicit XML scalar without reference", () => {
-    const rule = {
-      itemType: "TestExplicitXMLDefault",
-      properties: {
-        mode: { type: "string", xml: "Mode", yaml: "Режим", implicitValueYAML: "Auto" },
-      },
-    } as MetadataItemRule
-    registerExplicitXMLProperty({
-      itemType: rule.itemType,
-      propertyKey: "mode",
-      xmlValue: "Auto",
-      yamlValue: "Auto",
-    })
+    const rule = registeredExplicitXMLTestRule("TestExplicitXMLDefault")
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
