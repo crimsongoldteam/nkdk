@@ -94,6 +94,7 @@ export async function discoverMetadataProjectResources(
     topology: context.topology,
     projectDir,
     include: options.include === "yaml" ? "content" : "all",
+    sort: false,
   })
   return matches
     .map((match) => ({

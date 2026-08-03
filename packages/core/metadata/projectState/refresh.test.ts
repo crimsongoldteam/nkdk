@@ -36,6 +36,7 @@ describe("refreshProjectState", () => {
         await producer.writeBatch({ updates: [yamlUpdate(yaml)], hashBytes: new Uint8Array(8) })
         return { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 1 }
       },
+      afterProcessFiles: async () => { events.push("workers-closed") },
       beforeCheckpoint: async () => { events.push("prepare") },
     })
 
@@ -46,6 +47,7 @@ describe("refreshProjectState", () => {
       "delete:cf/Удалённый.yaml",
       "process",
       "write",
+      "workers-closed",
       "local",
       "dependencies",
       "prepare",

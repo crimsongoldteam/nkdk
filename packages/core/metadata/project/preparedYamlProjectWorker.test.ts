@@ -118,6 +118,43 @@ describe("project-state refresh worker", () => {
     expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
   })
 
+  it("собирает изменённые YAML одной worker-пачки в один нормализованный результат", async () => {
+    const projectDir = createTempDir()
+    const descriptors = [
+      componentProperties(projectDir, "cf", "ПервыйWorker"),
+      componentProperties(projectDir, "cf", "ВторойWorker"),
+    ]
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: descriptors.map((descriptor) => ({
+        identity: {
+          projectPath: descriptor.rootProjectPath,
+          componentPath: descriptor.componentPath,
+          resourceKind: "yaml" as const,
+          yamlRole: descriptor.role,
+        },
+        absolutePath: descriptor.filePath,
+        descriptor,
+      })),
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(16),
+    }, {
+      readFile: async () => new TextEncoder().encode("{}\n"),
+      hashBytes: () => 9n,
+    })
+
+    expect(result.kind).toBe("refreshProjectStateResult")
+    if (result.kind !== "refreshProjectStateResult") return
+    expect(result.fileUpdateBatches).toHaveLength(1)
+    expect(result.fileUpdateBatches[0]?.updates.map(({ projectPath }) => projectPath)).toEqual(
+      descriptors.map(({ rootProjectPath }) => rootProjectPath),
+    )
+  })
+
   it("возвращает исчезнувший после discovery путь без повтора чтения", async () => {
     const missing = Object.assign(new Error("missing"), { code: "ENOENT" })
 
@@ -553,7 +590,7 @@ describe("validation first-pass worker boundary", () => {
 describe("project-state refresh pool", () => {
   it("не запускает следующую пачку lane до записи предыдущего результата", async () => {
     const projectDir = createTempDir()
-    const files = Array.from({ length: 65 }, (_unused, index) => ({
+    const files = Array.from({ length: 129 }, (_unused, index) => ({
       identity: {
         projectPath: `cf/${index}.bin`,
         componentPath: "cf",
@@ -563,9 +600,9 @@ describe("project-state refresh pool", () => {
     }))
     const taskSizes: number[] = []
     let releaseFirstWrite!: () => void
-    let notifyFirstTask!: () => void
+    let notifyFirstWrite!: () => void
     const firstWrite = new Promise<void>((resolve) => { releaseFirstWrite = resolve })
-    const firstTask = new Promise<void>((resolve) => { notifyFirstTask = resolve })
+    const firstWriteStarted = new Promise<void>((resolve) => { notifyFirstWrite = resolve })
     const fake = {
       async run(input: unknown) {
         const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
@@ -573,7 +610,6 @@ describe("project-state refresh pool", () => {
         if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
         if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
         taskSizes.push(task.files.length)
-        if (taskSizes.length === 1) notifyFirstTask()
         const batch = createProjectStateFileUpdateBatch(task.files.map(({ identity }) => ({
           update: { ...identity, kind: "resource" },
           hash: 1n,
@@ -606,21 +642,24 @@ describe("project-state refresh pool", () => {
       }, {
         async writeBatch() {
           writes += 1
-          if (writes === 1) await firstWrite
+          if (writes === 1) {
+            notifyFirstWrite()
+            await firstWrite
+          }
         },
         async deleteFiles() {},
       })
 
-      await firstTask
-      expect(taskSizes).toEqual([32])
+      await firstWriteStarted
+      expect(taskSizes).toEqual([128])
       releaseFirstWrite()
       await expect(running).resolves.toEqual({
-        hashedFiles: 65,
+        hashedFiles: 129,
         parsedYamlFiles: 0,
-        changedFiles: 65,
+        changedFiles: 129,
         missingFiles: 0,
       })
-      expect(taskSizes).toEqual([32, 32, 1])
+      expect(taskSizes).toEqual([128, 1])
     } finally {
       releaseFirstWrite()
       await pool.close()

@@ -80,6 +80,7 @@ export interface ProjectStateRefreshOperation extends PreparedYamlValidationOper
 
 export interface ProjectStateRefreshDependencies {
   readonly handle: ProjectStateRefreshHandle
+  readonly afterProcessFiles?: () => Promise<void>
   readonly beforeCheckpoint?: () => Promise<void>
   readonly discoverFiles: (params: ProjectStateRefreshParams) => Promise<readonly ProjectStateValidationFile[]>
   readonly processFiles: (
@@ -95,10 +96,12 @@ export function createProjectStateRefreshDependencies(params: {
   readonly handle: ProjectStateRefreshHandle
   readonly pool: PreparedYamlProjectWorkerPool
   readonly context: ConfigurationContext
+  readonly afterProcessFiles?: () => Promise<void>
   readonly beforeCheckpoint?: () => Promise<void>
 }): ProjectStateRefreshDependencies {
   return {
     handle: params.handle,
+    ...(params.afterProcessFiles === undefined ? {} : { afterProcessFiles: params.afterProcessFiles }),
     ...(params.beforeCheckpoint === undefined ? {} : { beforeCheckpoint: params.beforeCheckpoint }),
     discoverFiles: ({ projectDir }) => discoverProjectStateValidationFiles(projectDir),
     processFiles(files, baseline, producer, operation, projectDir) {
@@ -135,6 +138,7 @@ export async function refreshProjectState(
       operation,
       params.projectDir,
     )
+    await dependencies.afterProcessFiles?.()
     operation.signal.throwIfAborted()
     const localDiagnostics = await dependencies.handle.readLocalDiagnostics()
     operation.signal.throwIfAborted()

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { runProjectStateStoreContract } from "../storeContract"
 import type { ProjectStateYamlFileUpdate } from "../fileUpdate"
 import { createSqliteProjectStateSchema } from "./schema"
-import { createSqliteProjectStateStoreFromDatabase } from "./store"
+import { createSqliteProjectStateStoreFromDatabase, readPendingDependencyCheckPage } from "./store"
 import { createSqliteProjectStateTestFixture, sqliteProjectStateTestCompatibility } from "./testFixture"
 
 runProjectStateStoreContract(() => createSqliteProjectStateTestFixture())
@@ -57,6 +57,32 @@ describe("SQLite ProjectStateStore", () => {
     }
   })
 
+  it("индексирует source_file_id для замены вклада без полного сканирования", () => {
+    const database = new DatabaseSync(":memory:")
+    try {
+      createSqliteProjectStateSchema(database, sqliteProjectStateTestCompatibility, {
+        stateId: "source-index-test",
+        databaseName: "source-index-test",
+        lifecycleNonce: "source-index-test",
+      })
+
+      for (const table of [
+        "local_diagnostics",
+        "reference_entries",
+        "pending_references",
+        "owner_facts",
+        "field_entries",
+        "form_entries",
+        "pending_dependency_checks",
+        "file_dependencies",
+      ]) {
+        expect(indexLeadingColumns(database, table), table).toContain("source_file_id")
+      }
+    } finally {
+      database.close()
+    }
+  })
+
   it("разрешает dependency после заполнения reference-индекса следующей пачкой", () => {
     const database = new DatabaseSync(":memory:")
     const identity = {
@@ -84,7 +110,49 @@ describe("SQLite ProjectStateStore", () => {
       store.close()
     }
   })
+
+  it("не разделяет проверки одного файла между страницами", () => {
+    const database = new DatabaseSync(":memory:")
+    const identity = {
+      stateId: "dependency-page-test",
+      databaseName: "dependency-page-test",
+      lifecycleNonce: "dependency-page-test",
+    }
+    createSqliteProjectStateSchema(database, sqliteProjectStateTestCompatibility, identity)
+    database.prepare("INSERT INTO cache_meta(key, value) VALUES ('project_dir', '/project')").run()
+    const { store } = createSqliteProjectStateStoreFromDatabase({ database, identity })
+    try {
+      store.beginUpdate()
+      const first = { ...yamlUpdate("cf/Первая.yaml"), pendingChecks: [pendingCheck("Первый"), pendingCheck("Второй")] }
+      const second = { ...yamlUpdate("cf/Вторая.yaml"), pendingChecks: [pendingCheck("Третий")] }
+      store.replaceFiles({ updates: [first, second], hashBytes: new Uint8Array(16) })
+
+      const firstPage = readPendingDependencyCheckPage(database, { afterSourceFileId: 0, fileBatchSize: 1 })
+      const secondPage = readPendingDependencyCheckPage(database, {
+        afterSourceFileId: firstPage.nextSourceFileId!,
+        fileBatchSize: 1,
+      })
+
+      expect(firstPage.checks.map(({ check }) => check.value)).toEqual(["Первый", "Второй"])
+      expect(secondPage.checks.map(({ check }) => check.value)).toEqual(["Третий"])
+      store.rollbackUpdate()
+    } finally {
+      store.close()
+    }
+  })
 })
+
+function pendingCheck(value: string): ProjectStateYamlFileUpdate["pendingChecks"][number] {
+  return {
+    kind: "dataPath",
+    yamlPath: ["ПутьКДанным"],
+    location: { line: 1, col: 1, path: "/ПутьКДанным" },
+    owner: { kind: "Справочник", name: "Товары" },
+    value,
+    policyInput: { yaml: "ПутьКДанным" },
+    policy: "formDataPath",
+  }
+}
 
 function yamlUpdate(
   projectPath: string,
@@ -119,4 +187,15 @@ function tableColumns(database: DatabaseSync, table: string): string[] {
 
 function foreignKeyTargets(database: DatabaseSync, table: string): string[] {
   return (database.prepare(`PRAGMA foreign_key_list(${table})`).all() as { table: string }[]).map((row) => row.table)
+}
+
+function indexLeadingColumns(database: DatabaseSync, table: string): string[] {
+  const indexes = database.prepare(`PRAGMA index_list(${JSON.stringify(table)})`).all() as unknown as Array<{ name: string }>
+  return indexes.flatMap(({ name }) => {
+    const columns = database.prepare(`PRAGMA index_info(${JSON.stringify(name)})`).all() as unknown as Array<{
+      seqno: number
+      name: string
+    }>
+    return columns.find(({ seqno }) => seqno === 0)?.name ?? []
+  })
 }

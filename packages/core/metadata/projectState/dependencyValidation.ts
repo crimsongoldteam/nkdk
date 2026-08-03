@@ -181,11 +181,12 @@ export function validateProjectStateOwnerBatch(params: {
   readonly projectDir: string
   readonly queryPort: Pick<ProjectStateQueryPort, "readOwners">
 }): readonly Diagnostic[] {
+  const checks = uniqueOwnerChecks(params.checks)
   const results = params.queryPort.readOwners(
-    params.checks.map(({ requestId, componentPath, owner }) => ({ requestId, componentPath, owner })),
+    checks.map(({ requestId, componentPath, owner }) => ({ requestId, componentPath, owner })),
   )
   const diagnostics: Diagnostic[] = []
-  forEachDependencyResult(params.checks, results, (check, result) => {
+  forEachDependencyResult(checks, results, (check, result) => {
     if (result.status !== "missing") return
     diagnostics.push(
       ...ownerMetadataNotFound({
@@ -197,6 +198,18 @@ export function validateProjectStateOwnerBatch(params: {
   return diagnostics
 }
 
+function uniqueOwnerChecks(
+  checks: readonly ProjectStatePendingOwnerCheck[],
+): readonly ProjectStatePendingOwnerCheck[] {
+  const seen = new Set<string>()
+  return checks.filter((check) => {
+    const key = componentOwnerKey(check.componentPath, check.owner)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export function validateProjectStateDependencyBatch(params: {
   readonly checks: readonly ProjectDependencyInputQuery[]
   readonly projectDir: string
@@ -205,29 +218,49 @@ export function validateProjectStateDependencyBatch(params: {
     "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"
   >
 }): readonly Diagnostic[] {
-  const results = params.queryPort.readDependencyInputs(params.checks)
+  const groups = groupDependencyChecksByFile(params.checks)
+  const requests = groups.map((group) => group[0]!)
+  const results = params.queryPort.readDependencyInputs(requests)
   const diagnostics: Diagnostic[] = []
-  forEachDependencyResult(params.checks, results, (check, result) => {
-    if (result.status !== "found") return
+  for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
+    const group = groups[groupIndex]!
+    const request = requests[groupIndex]!
+    const result = results[groupIndex]
+    if (result === undefined || result.requestId !== request.requestId) {
+      throw new Error(`Ответ dependency lookup не соответствует запросу ${request.requestId}`)
+    }
+    if (result.status !== "found") continue
+    const index = dependencyFormIndex(result.input.forms)
     diagnostics.push(
       ...validatePendingChecks({
         ownerCache: createProjectStateOwnerMetadataCache({
           initialInput: result.input,
-          projectDir: `${params.projectDir}/${check.componentPath}`,
-          componentPath: check.componentPath,
+          projectDir: `${params.projectDir}/${request.componentPath}`,
+          componentPath: request.componentPath,
           queryPort: params.queryPort,
         }),
-        checks: [
-          {
+        checks: group.map((check) => ({
             ...check.check,
             location: { ...check.check.location, filePath: check.projectPath },
-            index: dependencyFormIndex(result.input.forms),
-          },
-        ],
+            index,
+          })),
       }).diagnostics,
     )
-  })
+  }
   return diagnostics
+}
+
+function groupDependencyChecksByFile(
+  checks: readonly ProjectDependencyInputQuery[],
+): readonly (readonly ProjectDependencyInputQuery[])[] {
+  const groups = new Map<string, ProjectDependencyInputQuery[]>()
+  for (const check of checks) {
+    const key = `${check.componentPath}\u0000${check.projectPath}`
+    const group = groups.get(key)
+    if (group === undefined) groups.set(key, [check])
+    else group.push(check)
+  }
+  return [...groups.values()]
 }
 
 function forEachDependencyResult<

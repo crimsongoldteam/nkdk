@@ -25,7 +25,11 @@ import type {
 } from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
 import { createSqliteProjectStateTestFixture } from "./sqlite/testFixture"
-import { validateProjectStateDependencyBatch, validateProjectStateReferenceBatch } from "./dependencyValidation"
+import {
+  validateProjectStateDependencyBatch,
+  validateProjectStateOwnerBatch,
+  validateProjectStateReferenceBatch,
+} from "./dependencyValidation"
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -46,6 +50,56 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("проверяет одинакового владельца компонента один раз", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const requestBatchSizes: number[] = []
+
+    const diagnostics = validateProjectStateOwnerBatch({
+      projectDir: "/project",
+      checks: [
+        { requestId: "first", componentPath: "cf", owner },
+        { requestId: "second", componentPath: "cf", owner },
+      ],
+      queryPort: {
+        readOwners(requests) {
+          requestBatchSizes.push(requests.length)
+          return requests.map(({ requestId }) => ({ requestId, status: "found" as const, facts: {} }))
+        },
+      },
+    })
+
+    expect(diagnostics).toEqual([])
+    expect(requestBatchSizes).toEqual([1])
+  })
+
+  it("загружает общие сведения формы один раз для всех проверок одного файла", () => {
+    const source = ownerDependencySource("cf", { kind: "Справочник", name: "Товары" }, "Объект")
+    const queryPort = pagedDependencyQueryPort({
+      source,
+      ownerFacts: new Map(),
+      readPage: () => ({ refs: [] }),
+    })
+    const requestBatchSizes: number[] = []
+
+    const diagnostics = validateProjectStateDependencyBatch({
+      projectDir: "/project",
+      checks: [
+        dependencyQuery("first", source),
+        { ...dependencyQuery("second", source), check: { ...source.pendingChecks[0]!, yamlPath: ["ДругойПуть"] } },
+      ],
+      queryPort: {
+        ...queryPort,
+        readDependencyInputs(requests) {
+          requestBatchSizes.push(requests.length)
+          return queryPort.readDependencyInputs(requests)
+        },
+      },
+    })
+
+    expect(diagnostics).toEqual([])
+    expect(requestBatchSizes).toEqual([1])
+  })
+
   it.each([
     referenceCase("missing", "cf", []),
     referenceCase("found / cf -> cf", "cf", ["cf"]),

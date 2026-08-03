@@ -28,6 +28,8 @@ import {
   type PreparedYamlProjectWorkerTaskResult,
 } from "./preparedYamlProjectWorker"
 
+const RESOURCE_REFRESH_BATCH_SIZE = 128
+
 export interface PreparedYamlProjectWorkerPool {
   run(params: {
     projectDir: string
@@ -305,13 +307,15 @@ export function createPreparedYamlProjectWorkerPool(params: {
           let parsedYamlFiles = 0
           let changedFiles = 0
           let missingFiles = 0
-          const laneBatchStride = params.concurrency * LOCAL_VALIDATION_BATCH_SIZE
-          for (let start = index; start < files.length; start += laneBatchStride) {
+          for (let start = index; start < files.length;) {
             signal.throwIfAborted()
             const sourceIndexes: number[] = []
-            for (let offset = 0; offset < LOCAL_VALIDATION_BATCH_SIZE; offset += 1) {
+            const resourceOnly = files[start]?.identity.resourceKind === "resource"
+            const batchSize = resourceOnly ? RESOURCE_REFRESH_BATCH_SIZE : LOCAL_VALIDATION_BATCH_SIZE
+            for (let offset = 0; offset < batchSize; offset += 1) {
               const sourceIndex = start + offset * params.concurrency
               if (sourceIndex >= files.length) break
+              if (resourceOnly && files[sourceIndex]?.identity.resourceKind !== "resource") break
               sourceIndexes.push(sourceIndex)
             }
             const task = createProjectStateRefreshTask(refreshParams, index, sourceIndexes)
@@ -334,6 +338,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
             parsedYamlFiles += response.parsedYamlFiles
             changedFiles += response.changedFiles
             missingFiles += response.missingProjectPaths.length
+            start += sourceIndexes.length * params.concurrency
           }
           return { hashedFiles, parsedYamlFiles, changedFiles, missingFiles }
         } catch (caught) {

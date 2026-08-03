@@ -143,9 +143,15 @@ export function createSqliteProjectStateSchema(
     CREATE INDEX project_files_component ON project_files(component_id, id);
     CREATE INDEX diagnostics_file_order ON local_diagnostics(source_file_id, diagnostic_kind, ordinal);
     CREATE INDEX reference_lookup ON reference_entries(canonical_key, source_file_id);
+    CREATE INDEX reference_source ON reference_entries(source_file_id);
+    CREATE INDEX pending_reference_source ON pending_references(source_file_id);
     CREATE INDEX owner_lookup ON owner_facts(owner_key, source_file_id);
+    CREATE INDEX owner_source ON owner_facts(source_file_id);
     CREATE INDEX field_owner_lookup ON field_entries(owner_key, source_file_id);
+    CREATE INDEX field_source ON field_entries(source_file_id);
     CREATE INDEX form_owner_lookup ON form_entries(owner_key, source_file_id);
+    CREATE INDEX form_source ON form_entries(source_file_id);
+    CREATE INDEX pending_check_source ON pending_dependency_checks(source_file_id);
     CREATE INDEX dependency_target_lookup ON file_dependencies(target_file_id, source_file_id);
   `)
   const insertMeta = database.prepare("INSERT INTO cache_meta(key, value) VALUES (?, ?)")

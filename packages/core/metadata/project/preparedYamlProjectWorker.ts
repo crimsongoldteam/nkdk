@@ -211,12 +211,11 @@ async function refreshProjectStateFiles(
   const read = dependencies.readFile ?? (async (absolutePath) => new Uint8Array(await readFile(absolutePath)))
   const hash = dependencies.hashBytes ?? hashFileBytes
   const entries: ProjectStateFileUpdateBatchEntry[] = []
-  const yamlBatches: ProjectStateFileUpdateBatch[] = []
+  let yamlValidation: ValidationFirstPassAccumulator | undefined
   let hashedFiles = 0
   let parsedYamlFiles = 0
   let changedFiles = 0
   const missingProjectPaths: string[] = []
-
   for (let index = 0; index < message.files.length; index += 1) {
     const file = message.files[index]!
     let bytes: Uint8Array | undefined
@@ -228,14 +227,15 @@ async function refreshProjectStateFiles(
         && currentHash === readExpectedHash(message.expectedHashBytes, index)) continue
       if (file.identity.resourceKind === "yaml") {
         if (file.descriptor === undefined) throw new Error(`У YAML отсутствует descriptor: ${file.identity.projectPath}`)
-        const validation = runValidationFirstPass({
-          workerIndex: message.workerIndex,
+        yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
+        const parsed = processValidationFirstPassFile(yamlValidation, {
           projectDir: message.projectDir,
           context: message.context,
-          files: [{ descriptor: file.descriptor, bytes, hash: currentHash }],
+          descriptor: file.descriptor,
+          bytes,
+          hash: currentHash,
         })
-        yamlBatches.push(...validation.fileUpdateBatches.filter(({ updates }) => updates.length > 0))
-        parsedYamlFiles += validation.yamlLifetime.parsed
+        if (parsed) parsedYamlFiles += 1
         changedFiles += 1
         continue
       }
@@ -249,10 +249,13 @@ async function refreshProjectStateFiles(
     }
   }
 
+  const yamlResult = yamlValidation === undefined ? undefined : finishValidationFirstPass(yamlValidation)
   return {
     kind: "refreshProjectStateResult",
     fileUpdateBatches: [
-      ...yamlBatches,
+      ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
+        ? []
+        : yamlResult.fileUpdateBatches),
       ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
     ],
     missingProjectPaths,
@@ -412,114 +415,155 @@ interface ValidationFirstPassInput {
   }>
 }
 
-function runValidationFirstPass(message: ValidationFirstPassInput): {
+interface ValidationFirstPassResult {
   components: ComponentFirstPassPoolResult[]
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
   fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
-} {
-  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+}
+
+interface ValidationFirstPassAccumulator {
+  readonly profiler: ReturnType<typeof createValidationProfiler>
+  readonly components: Map<string, ComponentFirstPassPoolResult>
+  readonly schemaCache: ValidationSchemaCache
+  readonly firstPassProfile: Omit<ProjectValidationFirstPassProfile, "key">
+  readonly fileUpdateEntries: ProjectStateFileUpdateBatchEntry[]
+  processedFiles: number
+}
+
+function runValidationFirstPass(message: ValidationFirstPassInput): ValidationFirstPassResult {
+  const accumulator = createValidationFirstPassAccumulator(message.workerIndex)
+  for (const file of message.files) {
+    processValidationFirstPassFile(accumulator, {
+      projectDir: message.projectDir,
+      context: message.context,
+      ...file,
+    })
+  }
+  return finishValidationFirstPass(accumulator)
+}
+
+function createValidationFirstPassAccumulator(workerIndex: number): ValidationFirstPassAccumulator {
   resetValidationYamlLifetimeForTests()
-  const components = new Map<string, ComponentFirstPassPoolResult>()
-  const schemaCache = requireValidationSchemaCache()
-  const firstPassProfile = createEmptyFirstPassProfileSummary()
-  const fileUpdateEntries: ProjectStateFileUpdateBatchEntry[] = []
+  return {
+    profiler: createValidationProfiler({ scope: "worker", workerIndex }),
+    components: new Map(),
+    schemaCache: requireValidationSchemaCache(),
+    firstPassProfile: createEmptyFirstPassProfileSummary(),
+    fileUpdateEntries: [],
+    processedFiles: 0,
+  }
+}
 
-  const descriptors = message.files.map(({ descriptor }) => descriptor)
-
-  for (let descriptorIndex = 0; descriptorIndex < descriptors.length; descriptorIndex += 1) {
-    const descriptor = descriptors[descriptorIndex]!
-    const component = componentFirstPassResult(components, descriptor.componentPath)
-    const projectComponent = validationProjectComponentFromAddress(message.projectDir, descriptor)
-    const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
-    if (file === undefined) {
-      const filePath = resolve(descriptor.filePath)
-      component.diagnostics.push({
-        filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "structure",
-        message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
-      })
-      component.fileResults.push({
-        componentPath: descriptor.componentPath,
-        filePath,
-        rootProjectPath: descriptor.rootProjectPath,
-        contributedFacts: false,
-        schemaDiagnostics: [],
-      })
-      continue
-    }
-    const input = message.files[descriptorIndex]!
-    const entry = input.bytes === undefined
-      ? readProjectYamlEntryForValidation(file.absolutePath)
-      : projectYamlEntryFromBytes(file.absolutePath, input.bytes)
-    if ("error" in entry) {
-      const diagnostic = readProjectYamlDiagnostic(entry)
-      component.diagnostics.push(diagnostic)
-      component.fileResults.push({
-        componentPath: descriptor.componentPath,
-        filePath: file.absolutePath,
-        rootProjectPath: descriptor.rootProjectPath,
-        contributedFacts: false,
-        schemaDiagnostics: [],
-      })
-      continue
-    }
-
-    validationYamlLifetimeForTests.current += 1
-    validationYamlLifetimeForTests.parsed += 1
-    validationYamlLifetimeForTests.max = Math.max(
-      validationYamlLifetimeForTests.max,
-      validationYamlLifetimeForTests.current
-    )
-    let first
-    try {
-      first = validateProjectFileFirstPass({
-        projectDir: descriptor.componentDir,
-        file,
-        cache: createProjectYamlCacheFromEntries([entry]),
-        context: message.context,
-        schemaCache,
-        rulesSnapshot: requireValidationRulesSnapshot(),
-      })
-    } finally {
-      validationYamlLifetimeForTests.current -= 1
-    }
-
-    if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
-    validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
-    component.contribution.objectRecords.push(...first.objectRecords)
-    component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
-    component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
-    component.contribution.valueIndexEntries?.push(...first.valueIndexEntries)
-    component.contribution.pendingReferences?.push(...first.pendingReferences)
-    component.diagnostics.push(...first.diagnostics)
-    component.schemaDiagnostics.push(...first.schemaDiagnostics)
+function processValidationFirstPassFile(
+  accumulator: ValidationFirstPassAccumulator,
+  input: {
+    readonly projectDir: string
+    readonly context: ConfigurationContext
+    readonly descriptor: PreparedYamlProjectFileDescriptor
+    readonly bytes?: Uint8Array
+    readonly hash?: bigint
+  },
+): boolean {
+  accumulator.processedFiles += 1
+  const { descriptor } = input
+  const component = componentFirstPassResult(accumulator.components, descriptor.componentPath)
+  const projectComponent = validationProjectComponentFromAddress(input.projectDir, descriptor)
+  const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
+  if (file === undefined) {
+    const filePath = resolve(descriptor.filePath)
+    component.diagnostics.push({
+      filePath,
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
+    })
+    component.fileResults.push({
+      componentPath: descriptor.componentPath,
+      filePath,
+      rootProjectPath: descriptor.rootProjectPath,
+      contributedFacts: false,
+      schemaDiagnostics: [],
+    })
+    return false
+  }
+  const entry = input.bytes === undefined
+    ? readProjectYamlEntryForValidation(file.absolutePath)
+    : projectYamlEntryFromBytes(file.absolutePath, input.bytes)
+  if ("error" in entry) {
+    const diagnostic = readProjectYamlDiagnostic(entry)
+    component.diagnostics.push(diagnostic)
     component.fileResults.push({
       componentPath: descriptor.componentPath,
       filePath: file.absolutePath,
       rootProjectPath: descriptor.rootProjectPath,
-      contributedFacts: first.contributedFacts,
-      schemaDiagnostics: first.schemaDiagnostics,
+      contributedFacts: false,
+      schemaDiagnostics: [],
     })
-    fileUpdateEntries.push({
-      update: toProjectStateFileUpdate(first, {
-        projectPath: descriptor.rootProjectPath,
-        componentPath: descriptor.componentPath,
-        resourceKind: "yaml",
-        yamlRole: descriptor.role,
-      }),
-      hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
-    })
+    return false
   }
-  recordFirstPassProfile(profiler, descriptors.length, firstPassProfile)
-  profiler.flush()
 
-  const componentResults = [...components.values()].sort((left, right) =>
+  validationYamlLifetimeForTests.current += 1
+  validationYamlLifetimeForTests.parsed += 1
+  validationYamlLifetimeForTests.max = Math.max(
+    validationYamlLifetimeForTests.max,
+    validationYamlLifetimeForTests.current,
+  )
+  let first
+  try {
+    first = validateProjectFileFirstPass({
+      projectDir: descriptor.componentDir,
+      file,
+      cache: createProjectYamlCacheFromEntries([entry]),
+      context: input.context,
+      schemaCache: accumulator.schemaCache,
+      rulesSnapshot: requireValidationRulesSnapshot(),
+    })
+  } finally {
+    validationYamlLifetimeForTests.current -= 1
+  }
+
+  if (first.profile !== undefined) addFirstPassProfile(accumulator.firstPassProfile, first.profile)
+  validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
+  component.contribution.objectRecords.push(...first.objectRecords)
+  component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
+  component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
+  component.contribution.valueIndexEntries?.push(...first.valueIndexEntries)
+  component.contribution.pendingReferences?.push(...first.pendingReferences)
+  component.diagnostics.push(...first.diagnostics)
+  component.schemaDiagnostics.push(...first.schemaDiagnostics)
+  component.fileResults.push({
+    componentPath: descriptor.componentPath,
+    filePath: file.absolutePath,
+    rootProjectPath: descriptor.rootProjectPath,
+    contributedFacts: first.contributedFacts,
+    schemaDiagnostics: first.schemaDiagnostics,
+  })
+  accumulator.fileUpdateEntries.push({
+    update: toProjectStateFileUpdate(first, {
+      projectPath: descriptor.rootProjectPath,
+      componentPath: descriptor.componentPath,
+      resourceKind: "yaml",
+      yamlRole: descriptor.role,
+    }),
+    hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
+  })
+  return true
+}
+
+function finishValidationFirstPass(accumulator: ValidationFirstPassAccumulator): ValidationFirstPassResult {
+  recordFirstPassProfile(
+    accumulator.profiler,
+    accumulator.processedFiles,
+    accumulator.firstPassProfile,
+  )
+  accumulator.profiler.flush()
+
+  const componentResults = [...accumulator.components.values()].sort((left, right) =>
     left.componentPath.localeCompare(right.componentPath, "ru")
   )
   return {
@@ -527,7 +571,7 @@ function runValidationFirstPass(message: ValidationFirstPassInput): {
     diagnostics: componentResults.flatMap(({ diagnostics }) => diagnostics),
     schemaDiagnostics: componentResults.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
     fileResults: componentResults.flatMap(({ fileResults }) => fileResults),
-    fileUpdateBatches: [createProjectStateFileUpdateBatch(fileUpdateEntries)],
+    fileUpdateBatches: [createProjectStateFileUpdateBatch(accumulator.fileUpdateEntries)],
     yamlLifetime: getValidationYamlLifetimeForTests(),
   }
 }

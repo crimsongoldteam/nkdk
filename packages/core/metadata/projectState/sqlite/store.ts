@@ -286,19 +286,33 @@ function createStore(
           .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
         if (checks.length > 0) diagnostics.push(...validateProjectStateReferenceBatch({ checks, projectDir, queryPort }))
       }
-      for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
-        const batch = readPendingOwnerChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
-        if (batch.length === 0) break
-        const checks = batch
+      const validatedOwners = new Set<string>()
+      for (let afterSourceFileId = 0; ;) {
+        const page = readPendingDependencyCheckPage(database, {
+          afterSourceFileId,
+          fileBatchSize: PENDING_DEPENDENCY_FILE_BATCH_SIZE,
+        })
+        if (page.checks.length === 0 || page.nextSourceFileId === undefined) break
+        const checks = page.checks
           .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
-        if (checks.length > 0) diagnostics.push(...validateProjectStateOwnerBatch({ checks, projectDir, queryPort }))
-      }
-      for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
-        const batch = readPendingDependencyChecks(database, offset, PENDING_DEPENDENCY_BATCH_SIZE)
-        if (batch.length === 0) break
-        const checks = batch
-          .filter(({ componentPath }) => !readiness.blockedComponentPaths.has(componentPath))
-        if (checks.length > 0) diagnostics.push(...validateProjectStateDependencyBatch({ checks, projectDir, queryPort }))
+        const ownerChecks: ProjectStatePendingOwnerCheck[] = []
+        for (const check of checks) {
+          const key = `${check.componentPath}\u0000${encodeOwnerKey(check.check.owner)}`
+          if (validatedOwners.has(key)) continue
+          validatedOwners.add(key)
+          ownerChecks.push({
+            requestId: `owner:${check.requestId}`,
+            componentPath: check.componentPath,
+            owner: check.check.owner,
+          })
+        }
+        if (ownerChecks.length > 0) {
+          diagnostics.push(...validateProjectStateOwnerBatch({ checks: ownerChecks, projectDir, queryPort }))
+        }
+        if (checks.length > 0) {
+          diagnostics.push(...validateProjectStateDependencyBatch({ checks, projectDir, queryPort }))
+        }
+        afterSourceFileId = page.nextSourceFileId
       }
       return diagnostics.concat(readiness.diagnostics)
     },
@@ -354,6 +368,7 @@ function createStore(
 }
 
 const PENDING_DEPENDENCY_BATCH_SIZE = 2_000
+const PENDING_DEPENDENCY_FILE_BATCH_SIZE = 128
 
 function readProjectDir(database: DatabaseSync): string {
   const row = database.prepare("SELECT value FROM cache_meta WHERE key = 'project_dir'").get() as
@@ -399,56 +414,42 @@ function readPendingReferenceChecks(
   })
 }
 
-function readPendingOwnerChecks(
+export function readPendingDependencyCheckPage(
   database: DatabaseSync,
-  offset: number,
-  batchSize: number,
-): ProjectStatePendingOwnerCheck[] {
+  params: { readonly afterSourceFileId: number; readonly fileBatchSize: number },
+): { readonly checks: readonly ProjectDependencyInputQuery[]; readonly nextSourceFileId?: number } {
   const rows = database.prepare(`
-    SELECT p.id, c.path AS component_path, p.payload_json
+    WITH batch_files AS (
+      SELECT source_file_id
+      FROM pending_dependency_checks
+      WHERE check_kind = 'dataPath' AND source_file_id > ?
+      GROUP BY source_file_id
+      ORDER BY source_file_id
+      LIMIT ?
+    )
+    SELECT p.id, p.source_file_id, pf.project_path, c.path AS component_path, p.payload_json
     FROM pending_dependency_checks p
+    JOIN batch_files batch ON batch.source_file_id = p.source_file_id
     JOIN project_files pf ON pf.id = p.source_file_id
     JOIN components c ON c.id = pf.component_id
     WHERE p.check_kind = 'dataPath'
     ORDER BY pf.id, p.ordinal, p.id
-    LIMIT ? OFFSET ?
-  `).all(batchSize, offset) as unknown as {
+  `).all(params.afterSourceFileId, params.fileBatchSize) as unknown as {
     id: number
-    component_path: string
-    payload_json: string
-  }[]
-  return rows.map((row) => ({
-    requestId: `owner:${row.id}`,
-    componentPath: row.component_path,
-    owner: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json).owner,
-  }))
-}
-
-function readPendingDependencyChecks(
-  database: DatabaseSync,
-  offset: number,
-  batchSize: number,
-): ProjectDependencyInputQuery[] {
-  const rows = database.prepare(`
-    SELECT p.id, pf.project_path, c.path AS component_path, p.payload_json
-    FROM pending_dependency_checks p
-    JOIN project_files pf ON pf.id = p.source_file_id
-    JOIN components c ON c.id = pf.component_id
-    WHERE p.check_kind = 'dataPath'
-    ORDER BY pf.id, p.ordinal, p.id
-    LIMIT ? OFFSET ?
-  `).all(batchSize, offset) as unknown as {
-    id: number
+    source_file_id: number
     project_path: string
     component_path: string
     payload_json: string
   }[]
-  return rows.map((row) => ({
-    requestId: `dependency:${row.id}`,
-    projectPath: row.project_path,
-    componentPath: row.component_path,
-    check: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json),
-  }))
+  return {
+    checks: rows.map((row) => ({
+      requestId: `dependency:${row.id}`,
+      projectPath: row.project_path,
+      componentPath: row.component_path,
+      check: decodeJson<ProjectStatePendingDependencyCheck>(row.payload_json),
+    })),
+    ...(rows.length === 0 ? {} : { nextSourceFileId: rows[rows.length - 1]!.source_file_id }),
+  }
 }
 
 interface StoreStatements {
@@ -597,8 +598,8 @@ function replaceFile(
   hashBytes: Uint8Array,
   batchIndex: number,
 ): void {
-  const fileId = upsertProjectFile(statements, update)
-  deleteFileContribution(statements, fileId)
+  const { fileId, existed } = upsertProjectFile(statements, update)
+  if (existed) deleteFileContribution(statements, fileId)
   statements.insertHash.run(fileId, hashBytes, batchIndex * 8 + 1)
   if (update.kind === "resource") return
 
@@ -754,11 +755,14 @@ function upsertProjectFile(
     readonly resourceKind: "yaml" | "resource"
     readonly yamlRole?: ProjectStateImportIndexContribution["yamlRole"]
   },
-): number {
+): { readonly fileId: number; readonly existed: boolean } {
   statements.insertComponent.run(file.componentPath)
   const componentId = integerId(statements.selectComponent.get(file.componentPath))
-  statements.upsertFile.run(file.projectPath, componentId, file.resourceKind, file.yamlRole ?? null)
-  return integerId(statements.selectFile.get(file.projectPath))
+  const existing = statements.selectFile.get(file.projectPath)
+  const result = statements.upsertFile.run(file.projectPath, componentId, file.resourceKind, file.yamlRole ?? null)
+  return existing === undefined
+    ? { fileId: Number(result.lastInsertRowid), existed: false }
+    : { fileId: integerId(existing), existed: true }
 }
 
 function insertLocalValidation(

@@ -354,6 +354,7 @@ export function createProjectStateService(
         handle: refreshHandle,
         pool,
         context,
+        afterProcessFiles: closePool,
         ...(options.closePoolBeforeCheckpoint === true ? { beforeCheckpoint: closePool } : {}),
       })
       result = await refresh(params, options.loadMs === undefined
