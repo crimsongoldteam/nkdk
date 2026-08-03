@@ -10,7 +10,6 @@ import {
   nestedDataCompositionSchemaDataSetField,
   nestedDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
 import "./types"
 
 describe("export DataCompositionSchemaDataSetField to YAML", () => {
@@ -114,11 +113,11 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
     })
   })
 
-  it("exports appearance from XML", () => {
+  it("exports collection appearance from XML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule: { type: "DataCompositionSchemaDataSetField", yaml: "ПолеНабораДанныхСхемыКомпоновкиДанных" },
       value: undefined,
-      path: "appearance.xml",
+      path: "appearance-collection.xml",
       xmlRootTag: "Field",
       importMetaUrl: import.meta.url,
     })
@@ -126,10 +125,11 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
     expect(result).toEqual({
       ПолеНабораДанныхСхемыКомпоновкиДанных: {
         Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
-        ПутьКДанным: "Сумма",
-        Поле: "Сумма",
+        ПутьКДанным: "ВремяВыполнения",
+        Поле: "ВремяВыполнения",
+        ТипЗначения: "Число(15, 3)",
         Оформление: {
-          Формат: { Значение: explicitYAMLString("ЧЦ=15; ЧДЦ=2") },
+          Формат: "ЧЦ=15; ЧДЦ=3; ЧН=0,000",
         },
       },
     })

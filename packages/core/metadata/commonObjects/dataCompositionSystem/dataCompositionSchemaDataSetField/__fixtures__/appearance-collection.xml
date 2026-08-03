@@ -1,0 +1,18 @@
+<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>ВремяВыполнения</dcssch:dataPath>
+	<dcssch:field>ВремяВыполнения</dcssch:field>
+	<dcssch:valueType>
+		<v8:Type>xs:decimal</v8:Type>
+		<v8:NumberQualifiers>
+			<v8:Digits>15</v8:Digits>
+			<v8:FractionDigits>3</v8:FractionDigits>
+			<v8:AllowedSign>Any</v8:AllowedSign>
+		</v8:NumberQualifiers>
+	</dcssch:valueType>
+	<dcssch:appearance>
+		<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+			<dcscor:parameter>Формат</dcscor:parameter>
+			<dcscor:value xsi:type="xs:string">ЧЦ=15; ЧДЦ=3; ЧН=0,000</dcscor:value>
+		</dcscor:item>
+	</dcssch:appearance>
+</Field>
