@@ -28,6 +28,11 @@ interface ProjectStateHashSlotRecord {
   readonly reserved16: number
 }
 
+interface ProjectStateStringRecord {
+  readonly offset: number
+  readonly byteLength: number
+}
+
 const projectStateView = new View()
 
 export const ProjectStateHeaderRecordView = projectStateView.create<ProjectStateHeaderRecord>({
@@ -70,3 +75,12 @@ export const ProjectStateHashSlotRecordView =
       reserved16: { type: "integer", btype: "uint16" },
     },
   })
+
+export const ProjectStateStringRecordView = projectStateView.create<ProjectStateStringRecord>({
+  $id: "ProjectStateStringRecord",
+  type: "object",
+  properties: {
+    offset: { type: "integer", btype: "uint32" },
+    byteLength: { type: "integer", btype: "uint32" },
+  },
+})
