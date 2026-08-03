@@ -156,6 +156,28 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(absent).toEqual({})
   })
 
+  it("preserves an explicit null returned by an XML importer", () => {
+    registerTypeRule("TestExplicitNull" as PropertyRuleType, "importFromXML", () => null)
+    registerTypeRule("TestExplicitNull" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestExplicitNullItem",
+        properties: {
+          value: { type: "TestExplicitNull", xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Value: { "_xsi:nil": true } } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Значение: null })
+  })
+
   it("processes only an absent property with defaultValue", () => {
     const calls: unknown[] = []
     registerTypeRule("TestMissingDefault" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {

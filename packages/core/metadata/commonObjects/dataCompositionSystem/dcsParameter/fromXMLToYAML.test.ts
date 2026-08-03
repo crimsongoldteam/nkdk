@@ -43,7 +43,36 @@ const xmlWithAccumulationRecordTypeValue = `<Settings>
   </Parameter>
 </Settings>`
 
+const importParameterYAML = (parameterXML: string) =>
+  testExportPropertyModelThroughXMLToYAML({
+    rule,
+    value: undefined,
+    xmlRootTag: "Settings",
+    xmlString: `<Settings>${parameterXML}</Settings>`,
+  }) as { Параметры: Record<string, Record<string, unknown>> }
+
 describe("export DCSParameter to YAML", () => {
+  it.each([
+    ["missing", `<Parameter><dcssch:name>P</dcssch:name></Parameter>`, undefined],
+    [
+      "nil",
+      `<Parameter><dcssch:name>P</dcssch:name><dcssch:value xsi:nil="true"/></Parameter>`,
+      null,
+    ],
+    [
+      "Undefined",
+      `<Parameter><dcssch:name>P</dcssch:name><dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value></Parameter>`,
+      null,
+    ],
+  ])("imports %s value", (caseName, xmlString, expected) => {
+    const parameter = importParameterYAML(xmlString).Параметры.P
+
+    expect(parameter.Значение).toBe(expected)
+    if (caseName === "missing") {
+      expect(Object.hasOwn(parameter, "Значение")).toBe(false)
+    }
+  })
+
   it("exports undefined", () => {
     const result = testExportPropertyModelThroughXMLToYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
@@ -129,7 +158,7 @@ describe("export DCSParameter to YAML", () => {
     })
   })
 
-  it("omits v8 Type Undefined value from YAML", () => {
+  it("normalizes v8 Type Undefined value to null", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: undefined,
@@ -142,6 +171,7 @@ describe("export DCSParameter to YAML", () => {
         ТипЗначенияКлюча: {
           Заголовок: "Тип значения ключа",
           ТипЗначения: "Тип",
+          Значение: null,
           ОграничениеИспользования: "Истина",
         },
       },

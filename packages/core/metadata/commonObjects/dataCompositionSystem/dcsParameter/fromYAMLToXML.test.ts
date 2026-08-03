@@ -51,7 +51,7 @@ describe("export DCSParameter to XML", () => {
       path: "minimal.xml",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(withCanonicalNilValues(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports full.xml", () => {
@@ -63,7 +63,7 @@ describe("export DCSParameter to XML", () => {
       path: "full.xml",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual(withCanonicalNilValues(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports inferred system enumeration to XML", () => {
@@ -95,7 +95,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(withCanonicalNilValues(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("preserves xs:string title in XML", () => {
@@ -117,7 +117,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(withCanonicalNilValues(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("preserves numeric-looking edit parameter mask as xs:string", () => {
@@ -146,7 +146,7 @@ describe("export DCSParameter to XML", () => {
       xmlString,
     })
 
-    expect(result).toEqual(withCanonicalNilValues(expectedResult))
+    expect(result).toEqual(expectedResult)
   })
 
   it("exports explicit null value as xsi:nil without reference", () => {
@@ -154,7 +154,7 @@ describe("export DCSParameter to XML", () => {
     expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
   })
 
-  it("exports missing value as xsi:nil when reference item has value key", () => {
+  it("does not export a missing value when reference item has value key", () => {
     const value = [
       {
         itemType: "DCSParameter" as const,
@@ -165,7 +165,7 @@ describe("export DCSParameter to XML", () => {
     const referenceMetadata = [parameterXML("ПустоеЗначение", { "_xsi:nil": true })]
 
     const result = exportDCSParameters(value, { ПустоеЗначение: { Заголовок: "Пустое значение" } }, referenceMetadata)
-    expect(result).toContain(`<dcssch:value xsi:nil="true"/>`)
+    expect(result).not.toContain(`<dcssch:value`)
   })
 
   it("exports multiple values", () => {
@@ -200,7 +200,7 @@ describe("export DCSParameter to XML", () => {
     expect(result).not.toContain('xsi:type="xs:string"')
   })
 
-  it("exports explicit undefined value as xsi:nil instead of reference value", () => {
+  it("exports explicit YAML null as xsi:nil instead of reference value", () => {
     const value = [
       {
         itemType: "DCSParameter" as const,
@@ -223,8 +223,8 @@ describe("export DCSParameter to XML", () => {
 
   it("exports canonical xsi:nil instead of reference d6p1 Undefined", () => {
     const result = exportDCSParameters(
-      [parameterWithoutValue],
-      { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
+      [{ ...parameterWithoutValue, value: null }],
+      { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа", Значение: null } },
       [parameterXML("ТипЗначенияКлюча", undefinedTypeReferenceValue)]
     )
 
@@ -239,11 +239,11 @@ describe("export DCSParameter to XML", () => {
       [parameterXML("СтароеИмя", undefinedTypeReferenceValue)]
     )
 
-    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("<dcssch:value")
     expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("uses canonical xsi:nil for malformed reference Undefined QName", () => {
+  it("does not use malformed reference Undefined QName for a missing YAML value", () => {
     const result = exportDCSParameters(
       [parameterWithoutValue],
       { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
@@ -255,11 +255,11 @@ describe("export DCSParameter to XML", () => {
       ]
     )
 
-    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("<dcssch:value")
     expect(result).not.toContain("d6p1:Undefined:extra")
   })
 
-  it("exports Parameter rule as array without wrapper", () => {
+  it("exports Parameter rule as array without wrapper and without a missing value", () => {
     const result = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DCSParameters", xml: "Parameter" },
       value: [parameterWithoutValue],
@@ -268,22 +268,22 @@ describe("export DCSParameter to XML", () => {
       xmlRootTag: "Parameter",
     }).result
 
-    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("<dcssch:value")
     expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("exports explicit undefined value as canonical xsi:nil", () => {
+  it("does not treat model undefined as explicit nil", () => {
     const result = exportDCSParameters(
       [{ ...parameterWithoutValue, value: undefined }],
       { ТипЗначенияКлюча: { Заголовок: "Тип значения ключа" } },
       [parameterXML("ТипЗначенияКлюча", undefinedTypeReferenceValue)]
     )
 
-    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("<dcssch:value")
     expect(result).not.toContain("d6p1:Undefined")
   })
 
-  it("exports canonical xsi:nil when YAML has no value", () => {
+  it("omits dcssch:value when YAML has no value", () => {
     const value = [
       {
         itemType: "DCSParameter" as const,
@@ -295,17 +295,6 @@ describe("export DCSParameter to XML", () => {
     const result = exportDCSParameters(value, { БезЗначения: { Заголовок: "Без значения" } }, [
       parameterXML("БезЗначения"),
     ])
-    expect(result).toContain('<dcssch:value xsi:nil="true"/>')
+    expect(result).not.toContain("<dcssch:value")
   })
 })
-
-function withCanonicalNilValues(xml: string | undefined): string {
-  if (xml === undefined) throw new Error("Expected XML result")
-  return xml.replace(/<Parameter>[\s\S]*?<\/Parameter>/g, (parameter) => {
-    if (/<dcssch:value(?:[ >])/.test(parameter)) return parameter
-    return parameter.replace(
-      /\n([\t ]*)<\/Parameter>$/,
-      '\n$1\t<dcssch:value xsi:nil="true"/>\n$1</Parameter>'
-    )
-  })
-}

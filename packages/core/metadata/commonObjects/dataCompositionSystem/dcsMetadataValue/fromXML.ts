@@ -60,11 +60,6 @@ const isNilValue = (root: unknown): boolean =>
   root !== null &&
   ((root as Record<string, unknown>)["_xsi:nil"] === true || (root as Record<string, unknown>)["_xsi:nil"] === "true")
 
-type ReferenceUndefinedTypeValueXML = Record<string, unknown> & {
-  "#text": string
-  "_xsi:type": "v8:Type"
-}
-
 const getUndefinedTypePrefix = (root: unknown): string | undefined => {
   if (typeof root !== "object" || root === null || getXsiType(root) !== "v8:Type") {
     return undefined
@@ -82,25 +77,6 @@ const getUndefinedTypePrefix = (root: unknown): string | undefined => {
 
   const [prefix, name] = parts
   return prefix !== "" && name === "Undefined" ? prefix : undefined
-}
-
-const shouldImportUndefinedTypeAsMissing = (rule: DcsMetadataValuePropertyRule): boolean =>
-  rule.valueType === "Primitive" && rule.exportNilValue === true
-
-const asReferenceUndefinedTypeValueXML = (
-  root: unknown,
-  prefix: string
-): ReferenceUndefinedTypeValueXML | undefined => {
-  if (typeof root !== "object" || root === null) {
-    return undefined
-  }
-
-  const namespaceKey = `_xmlns:${prefix}`
-  if (typeof (root as Record<string, unknown>)[namespaceKey] !== "string") {
-    return undefined
-  }
-
-  return root as ReferenceUndefinedTypeValueXML
 }
 
 const hasSystemEnumeration = (
@@ -154,7 +130,7 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   const xsi = getXsiType(root)
 
   if (isNilValue(root)) {
-    return undefined
+    return null
   }
 
   if (xsi === "dcscor:TypeLink") {
@@ -228,14 +204,8 @@ const importDcsMetadataValueFromDcsXMLInternal = (
 
   const metadataPrimitive = xsi !== undefined ? MetadataValueTypeFromXML(xsi as MetadataValueTypeXML) : undefined
   const undefinedTypePrefix = getUndefinedTypePrefix(root)
-  if (undefinedTypePrefix !== undefined && shouldImportUndefinedTypeAsMissing(rule)) {
-    if (context.fromXML.forReference) {
-      return asReferenceUndefinedTypeValueXML(root, undefinedTypePrefix) as unknown as
-        | MetadataDcsMetadataValue
-        | undefined
-    }
-
-    return undefined
+  if (undefinedTypePrefix !== undefined && rule.valueType === "Primitive") {
+    return null
   }
 
   if (metadataPrimitive !== undefined) {
@@ -288,7 +258,7 @@ const importDcsMetadataValueFromXMLForRule: (
   rule: PropertyRule,
   value: unknown
 ) => MetadataDcsMetadataValue | undefined = (context, rule, value) => {
-  if (value === undefined || value === null) return undefined
+  if (value === undefined || value === null) return null
   const xml: MetadataDcsMetadataValueDcsRootXML = isDcsMetadataValueRootXml(value)
     ? value
     : { "dcscor:value": value as MetadataDcsMetadataValueDcsRootXML["dcscor:value"] }

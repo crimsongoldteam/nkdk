@@ -26,11 +26,6 @@ export const fixtureBooleanPrimitive: MetadataTypedPrimitiveValue = {
   value: true,
 }
 
-export const fixtureTypeRefPrimitive: MetadataTypedPrimitiveValue = {
-  type: "typeRef",
-  value: "d6p1:Undefined",
-}
-
 export const fixtureUuidPrimitive: MetadataTypedPrimitiveValue = {
   type: "uuid",
   value: "00000000-0000-0000-0000-000000000000",
@@ -115,10 +110,10 @@ export type DcsMetadataValueYAMLFixture = Omit<DcsMetadataValueFixture, "xml">
 
 const primitiveTypeRefFixture: DcsMetadataValueFixture = {
   id: "primitiveTypeRef",
-  title: "Primitive typeRef",
+  title: "Primitive Undefined typeRef",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
-  value: fixtureTypeRefPrimitive,
-  yaml: "d6p1:Undefined",
+  value: null,
+  yaml: null,
   xml: "primitive-type-ref.xml",
 }
 
@@ -168,8 +163,8 @@ const nilFixture: DcsMetadataValueFixture = {
   id: "nil",
   title: "nil value",
   rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", exportNilValue: true, yaml: "value" },
-  value: undefined,
-  yaml: undefined,
+  value: null,
+  yaml: null,
   xml: "nil.xml",
 }
 
@@ -312,9 +307,11 @@ export const dcsMetadataValueXMLFixtures: DcsMetadataValueFixture[] = [
   colorRawRefFixture,
   emptyLocalStringFixture,
   nilFixture,
-  primitiveTypeRefFixture,
   primitiveUuidFixture,
   inferredAccumulationRecordTypeFixture,
 ]
 
-export const dcsMetadataValueFromXMLFixtures: DcsMetadataValueFixture[] = dcsMetadataValueXMLFixtures
+export const dcsMetadataValueFromXMLFixtures: DcsMetadataValueFixture[] = [
+  ...dcsMetadataValueXMLFixtures,
+  primitiveTypeRefFixture,
+]

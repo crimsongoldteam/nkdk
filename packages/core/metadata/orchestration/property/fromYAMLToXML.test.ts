@@ -1028,6 +1028,24 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: "исходное" })
   })
 
+  it("does not use reference XML when the property disables reference preservation", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          preserveUnknownReferenceXML: false,
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("сохраняет reference XML для отключённого общего экспорта", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

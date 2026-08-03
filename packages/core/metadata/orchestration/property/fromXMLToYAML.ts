@@ -318,7 +318,9 @@ export function importPropertiesFromXMLToYAML(params: {
       const rawValue =
         importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
           ? propertyRule.defaultValueXMLEmpty
-          : (importedValue ?? registeredExplicitEmptyValue)
+          : importedValue === undefined
+            ? registeredExplicitEmptyValue
+            : importedValue
       const preserveExplicitDefault =
         propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
       const cleanValue =
