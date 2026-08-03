@@ -82,6 +82,26 @@ describe("MetadataAttributes YAML → XML", () => {
     }
   )
 
+  it("exports owner-specific order for Indexing and Use", () => {
+    const serialize = (propertyType: string, itemRule: MetadataItemRule) =>
+      serializeDirectXML(
+        testPropertyFromYAMLToXML({
+          rule: probeRule(propertyType, itemRule),
+          yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
+        }).xml
+      )
+
+    const characteristic = serialize(
+      "MetadataChartOfCharacteristicTypesAttributes",
+      MetadataChartOfCharacteristicTypesAttributeRules
+    )
+    const catalog = serialize("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
+
+    expect(characteristic.indexOf("<Indexing>")).toBeLessThan(characteristic.indexOf("<Use>"))
+    expect(characteristic.indexOf("<Use>")).toBeLessThan(characteristic.indexOf("<FullTextSearch>"))
+    expect(catalog.indexOf("<Use>")).toBeLessThan(catalog.indexOf("<Indexing>"))
+  })
+
   it("should import object format", () => {
     expect(convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })).toContain("<Name>ТестовыйРеквизит</Name>")
   })
