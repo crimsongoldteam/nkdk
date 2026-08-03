@@ -207,6 +207,13 @@ async function refreshProjectStateFiles(
     hashBytes?: (bytes: Uint8Array) => bigint
   },
 ): Promise<Extract<PreparedYamlProjectWorkerTaskResult, { kind: "refreshProjectStateResult" }>> {
+  const profileEnabled = process.env["NKDK_PROFILE"] === "1"
+  const profiler = profileEnabled
+    ? createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+    : undefined
+  let readMs = 0
+  let hashMs = 0
+  let compareMs = 0
   const expectedBitLength = Math.ceil(message.files.length / 8)
   if (message.knownHashBits.byteLength !== expectedBitLength) {
     throw new Error(`knownHashBits должен занимать ${expectedBitLength} байт`)
@@ -226,11 +233,20 @@ async function refreshProjectStateFiles(
     const file = message.files[index]!
     let bytes: Uint8Array | undefined
     try {
+      let startedAt = profileEnabled ? performance.now() : 0
       bytes = await read(file.absolutePath)
+      if (profileEnabled) readMs += performance.now() - startedAt
       hashedFiles += 1
+      if (profileEnabled) startedAt = performance.now()
       const currentHash = hash(bytes)
-      if (hasKnownHash(message.knownHashBits, index)
-        && currentHash === readExpectedHash(message.expectedHashBytes, index)) continue
+      if (profileEnabled) {
+        hashMs += performance.now() - startedAt
+        startedAt = performance.now()
+      }
+      const unchanged = hasKnownHash(message.knownHashBits, index)
+        && currentHash === readExpectedHash(message.expectedHashBytes, index)
+      if (profileEnabled) compareMs += performance.now() - startedAt
+      if (unchanged) continue
       if (file.identity.resourceKind === "yaml") {
         if (file.descriptor === undefined) throw new Error(`У YAML отсутствует descriptor: ${file.identity.projectPath}`)
         yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
@@ -262,9 +278,30 @@ async function refreshProjectStateFiles(
       : yamlResult.fileUpdateBatches),
     ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
   ]
+  const encodeStartedAt = profileEnabled ? performance.now() : 0
+  const fileUpdateBatches = logicalBatches.map(encodeProjectStateFileUpdateBatch)
+  const encodeMs = profileEnabled ? performance.now() - encodeStartedAt : 0
+  profiler?.record("Обработка файлов Б1–Б4", "Чтение файлов", {
+    items: message.files.length,
+    timeMs: readMs,
+  })
+  profiler?.record("Обработка файлов Б1–Б4", "Вычисление хэшей", {
+    items: hashedFiles,
+    timeMs: hashMs,
+  })
+  profiler?.record("Обработка файлов Б1–Б4", "Сравнение хэшей", {
+    items: hashedFiles,
+    timeMs: compareMs,
+  })
+  profiler?.record("Обработка файлов Б1–Б4", "Двоичное кодирование результата", {
+    items: changedFiles,
+    bytes: fileUpdateBatches.reduce((sum, batch) => sum + batch.bytes.byteLength, 0),
+    timeMs: encodeMs,
+  })
+  profiler?.flush()
   return {
     kind: "refreshProjectStateResult",
-    fileUpdateBatches: logicalBatches.map(encodeProjectStateFileUpdateBatch),
+    fileUpdateBatches,
     missingProjectPaths,
     hashedFiles,
     parsedYamlFiles,
@@ -437,6 +474,12 @@ interface ValidationFirstPassAccumulator {
   readonly schemaCache: ValidationSchemaCache
   readonly firstPassProfile: Omit<ProjectValidationFirstPassProfile, "key">
   readonly fileUpdateEntries: ProjectStateFileUpdateBatchEntry[]
+  readonly detailedProfile: {
+    enabled: boolean
+    parseMs: number
+    validationMs: number
+    collectMs: number
+  }
   processedFiles: number
 }
 
@@ -460,6 +503,12 @@ function createValidationFirstPassAccumulator(workerIndex: number): ValidationFi
     schemaCache: requireValidationSchemaCache(),
     firstPassProfile: createEmptyFirstPassProfileSummary(),
     fileUpdateEntries: [],
+    detailedProfile: {
+      enabled: process.env["NKDK_PROFILE"] === "1",
+      parseMs: 0,
+      validationMs: 0,
+      collectMs: 0,
+    },
     processedFiles: 0,
   }
 }
@@ -498,9 +547,13 @@ function processValidationFirstPassFile(
     })
     return false
   }
+  let startedAt = accumulator.detailedProfile.enabled ? performance.now() : 0
   const entry = input.bytes === undefined
     ? readProjectYamlEntryForValidation(file.absolutePath)
     : projectYamlEntryFromBytes(file.absolutePath, input.bytes)
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.detailedProfile.parseMs += performance.now() - startedAt
+  }
   if ("error" in entry) {
     const diagnostic = readProjectYamlDiagnostic(entry)
     component.diagnostics.push(diagnostic)
@@ -522,6 +575,7 @@ function processValidationFirstPassFile(
   )
   let first
   try {
+    if (accumulator.detailedProfile.enabled) startedAt = performance.now()
     first = validateProjectFileFirstPass({
       projectDir: descriptor.componentDir,
       file,
@@ -530,10 +584,14 @@ function processValidationFirstPassFile(
       schemaCache: accumulator.schemaCache,
       rulesSnapshot: requireValidationRulesSnapshot(),
     })
+    if (accumulator.detailedProfile.enabled) {
+      accumulator.detailedProfile.validationMs += performance.now() - startedAt
+    }
   } finally {
     validationYamlLifetimeForTests.current -= 1
   }
 
+  if (accumulator.detailedProfile.enabled) startedAt = performance.now()
   if (first.profile !== undefined) addFirstPassProfile(accumulator.firstPassProfile, first.profile)
   validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
   component.contribution.objectRecords.push(...first.objectRecords)
@@ -559,6 +617,9 @@ function processValidationFirstPassFile(
     }),
     hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
   })
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.detailedProfile.collectMs += performance.now() - startedAt
+  }
   return true
 }
 
@@ -568,6 +629,20 @@ function finishValidationFirstPass(accumulator: ValidationFirstPassAccumulator):
     accumulator.processedFiles,
     accumulator.firstPassProfile,
   )
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Разбор YAML", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.parseMs,
+    })
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Локальная проверка YAML", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.validationMs,
+    })
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Сбор сведений файла", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.collectMs,
+    })
+  }
   accumulator.profiler.flush()
 
   const componentResults = [...accumulator.components.values()].sort((left, right) =>

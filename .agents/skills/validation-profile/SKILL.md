@@ -51,11 +51,20 @@ pnpm --filter @nkdk/core build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --runs 1 --timing
 ```
 
+Один холодный подробный прогон:
+
+```bash
+node .agents/skills/validation-profile/validation-profile.mjs /private/tmp/project-copy --timing-only
+```
+
+`--timing-only` удаляет только `.nkdk/cache/project-state.bin` и его незавершённые временные файлы, затем выполняет один профильный проход. Используй его только на временной копии проекта: на пользовательском каталоге удаление кэша запрещено.
+
 ## Параметры runner'а
 
 - `--runs N` — число прогонов, по умолчанию `5`.
 - `--concurrency N` — явно задать число worker'ов. Если не задано, core использует свой default.
 - `--timing` — добавить один прогон с `NKDK_PROFILE=1` и распарсить first/second pass worker memory.
+- `--timing-only` — сбросить двоичный кэш временной копии и выполнить единственный холодный проход с `NKDK_PROFILE=1`; несовместим с `--timing`.
 - `--json` — вывести только JSON.
 
 ## Как отвечать пользователю
@@ -82,8 +91,21 @@ RSS по прогонам: <run list>
 worker | phase | files | processRssPeak | workerHeapPeak
 ```
 
+Для `--timing` и `--timing-only` отдельно показывай таблицу `Обработка файлов Б1–Б4` со строками:
+
+- подготовка заданий;
+- чтение файлов;
+- вычисление и сравнение хэшей;
+- разбор и локальная проверка YAML;
+- сбор сведений файла;
+- двоичное кодирование результата;
+- ожидание worker;
+- применение пачек и удалений в главном процессе.
+
+`Worker sum` — суммарное процессорное время параллельных worker. Его нельзя складывать с реальным временем `processFiles`; для длительности этапа используй `processFiles`, а worker min/avg/max — для поиска дисбаланса.
+
 ## Ограничения
 
-`--timing` использует общий `NKDK_PROFILE=1`, поэтому показывает first pass и second pass целиком. Он не показывает `afterRead`, `afterReferenceValidation` или другие внутренние точки, если core не был специально инструментирован.
+`--timing` использует общий `NKDK_PROFILE=1` и выполняется после обычных прогонов, поэтому является прогретым. Для детализации холодного Б1–Б4 используй `--timing-only` на временной копии.
 
 Если diagnostics выглядят неожиданно, явно укажи, что это результат compiled standalone, и предложи отдельную проверку parity.

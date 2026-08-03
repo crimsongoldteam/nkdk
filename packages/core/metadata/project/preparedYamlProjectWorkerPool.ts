@@ -9,7 +9,7 @@ import type {
   FirstPassPoolResult,
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
-import { createValidationProfiler } from "../validation/profile"
+import { createOperationProfiler, createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
@@ -295,11 +295,27 @@ export function createPreparedYamlProjectWorkerPool(params: {
       }
     },
     async runProjectStateRefresh(refreshParams, producer) {
+      const profileEnabled = process.env["NKDK_PROFILE"] === "1"
+      const profiler = profileEnabled
+        ? createOperationProfiler({
+            operation: "validation",
+            scope: { scope: "main" },
+            aggregate: true,
+          })
+        : undefined
       const operation = refreshParams.operation ?? createPreparedYamlValidationOperation()
       const { signal } = operation
       const { files, baseline } = refreshParams.source
       assertProjectStateFileBaseline(baseline, files.length)
       await this.initValidation(refreshParams.context, operation)
+      let taskCount = 0
+      let taskPreparationMs = 0
+      let workerWaitMs = 0
+      let batchCount = 0
+      let batchBytes = 0
+      let applyBatchMs = 0
+      let deletionCount = 0
+      let applyDeletionsMs = 0
       let firstFailure: { readonly reason: unknown } | undefined
       const settled = await Promise.allSettled(Array.from({ length: params.concurrency }, async (_unused, index) => {
         try {
@@ -318,21 +334,40 @@ export function createPreparedYamlProjectWorkerPool(params: {
               if (resourceOnly && files[sourceIndex]?.identity.resourceKind !== "resource") break
               sourceIndexes.push(sourceIndex)
             }
+            let startedAt = profileEnabled ? performance.now() : 0
             const task = createProjectStateRefreshTask(refreshParams, index, sourceIndexes)
+            const transferable = move(projectStateRefreshTransferable(task))
+            if (profileEnabled) {
+              taskPreparationMs += performance.now() - startedAt
+              taskCount += 1
+              startedAt = performance.now()
+            }
             const response = (await getOrCreatePool(pools, index, createPool).run(
-              move(projectStateRefreshTransferable(task)),
+              transferable,
               { signal },
             )) as PreparedYamlProjectWorkerTaskResult
+            if (profileEnabled) workerWaitMs += performance.now() - startedAt
             if (response.kind !== "refreshProjectStateResult") {
               throw new Error("Worker вернул неожиданный результат refreshProjectState")
             }
             for (const batch of response.fileUpdateBatches) {
               signal.throwIfAborted()
+              if (profileEnabled) startedAt = performance.now()
               await producer.writeBatch(batch)
+              if (profileEnabled) {
+                applyBatchMs += performance.now() - startedAt
+                batchCount += 1
+                batchBytes += batch.bytes.byteLength
+              }
             }
             if (response.missingProjectPaths.length > 0) {
               signal.throwIfAborted()
+              if (profileEnabled) startedAt = performance.now()
               await producer.deleteFiles(response.missingProjectPaths)
+              if (profileEnabled) {
+                applyDeletionsMs += performance.now() - startedAt
+                deletionCount += response.missingProjectPaths.length
+              }
             }
             hashedFiles += response.hashedFiles
             parsedYamlFiles += response.parsedYamlFiles
@@ -348,6 +383,24 @@ export function createPreparedYamlProjectWorkerPool(params: {
         }
       }))
       if (firstFailure !== undefined) throw firstFailure.reason
+      profiler?.record("Обработка файлов Б1–Б4", "Подготовка заданий", {
+        items: taskCount,
+        timeMs: taskPreparationMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Ожидание worker", {
+        items: taskCount,
+        timeMs: workerWaitMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Применение двоичных пачек", {
+        items: batchCount,
+        bytes: batchBytes,
+        timeMs: applyBatchMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Применение удалений", {
+        items: deletionCount,
+        timeMs: applyDeletionsMs,
+      })
+      profiler?.flush()
       return fulfilledValues(settled).reduce<ProjectStateValidationStats>((sum, current) => ({
         hashedFiles: sum.hashedFiles + current.hashedFiles,
         parsedYamlFiles: sum.parsedYamlFiles + current.parsedYamlFiles,

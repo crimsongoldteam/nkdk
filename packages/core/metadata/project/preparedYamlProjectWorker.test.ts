@@ -40,6 +40,46 @@ afterEach(() => {
 })
 
 describe("project-state refresh worker", () => {
+  it("профилирует Б1–Б4 одной записью на подпункт", async () => {
+    const projectDir = createTempDir()
+    const descriptors = [
+      componentProperties(projectDir, "cf", "ПервыйПрофиль"),
+      componentProperties(projectDir, "cf", "ВторойПрофиль"),
+    ]
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previousProfile = process.env["NKDK_PROFILE"]
+    let lines: string[] = []
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      await runPreparedYamlProjectWorkerTask(yamlRefreshTask(projectDir, descriptors), {
+        readFile: async () => new TextEncoder().encode("{}\n"),
+        hashBytes: () => 9n,
+      })
+      lines = error.mock.calls
+        .map(([line]) => String(line))
+        .filter((line) => line.includes('step="Обработка файлов Б1–Б4"'))
+    } finally {
+      if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previousProfile
+      error.mockRestore()
+    }
+
+    const substeps = [
+      "Чтение файлов",
+      "Вычисление хэшей",
+      "Сравнение хэшей",
+      "Разбор YAML",
+      "Локальная проверка YAML",
+      "Сбор сведений файла",
+      "Двоичное кодирование результата",
+    ]
+    for (const substep of substeps) {
+      const matching = lines.filter((line) => line.includes(`substep="${substep}"`))
+      expect(matching).toHaveLength(1)
+      expect(matching[0]).toContain("items=2")
+    }
+  })
+
   it("читает и хэширует изменённый resource внутри worker", async () => {
     const absolutePath = "/project/cf/Логотип.bin"
     const readCalls: string[] = []
@@ -129,24 +169,7 @@ describe("project-state refresh worker", () => {
       componentProperties(projectDir, "cf", "ВторойWorker"),
     ]
 
-    const result = await runPreparedYamlProjectWorkerTask({
-      kind: "refreshProjectState",
-      workerIndex: 0,
-      projectDir,
-      context: mockContext,
-      files: descriptors.map((descriptor) => ({
-        identity: {
-          projectPath: descriptor.rootProjectPath,
-          componentPath: descriptor.componentPath,
-          resourceKind: "yaml" as const,
-          yamlRole: descriptor.role,
-        },
-        absolutePath: descriptor.filePath,
-        descriptor,
-      })),
-      knownHashBits: new Uint8Array(1),
-      expectedHashBytes: new Uint8Array(16),
-    }, {
+    const result = await runPreparedYamlProjectWorkerTask(yamlRefreshTask(projectDir, descriptors), {
       readFile: async () => new TextEncoder().encode("{}\n"),
       hashBytes: () => 9n,
     })
@@ -592,6 +615,72 @@ describe("validation first-pass worker boundary", () => {
 })
 
 describe("project-state refresh pool", () => {
+  it("профилирует применение пачек одной агрегированной записью", async () => {
+    const projectDir = createTempDir()
+    const identity = {
+      projectPath: "cf/resource.bin",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+    }
+    const encoded = [1n, 2n].map((hash) => encodeProjectStateFileUpdateBatch(
+      createProjectStateFileUpdateBatch([{ update: { ...identity, kind: "resource" }, hash }]),
+    ))
+    const fake = {
+      async run(input: unknown) {
+        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
+        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+        if (task.kind === "initValidation") {
+          return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        }
+        if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
+        return {
+          kind: "refreshProjectStateResult",
+          fileUpdateBatches: encoded,
+          missingProjectPaths: [],
+          hashedFiles: 1,
+          parsedYamlFiles: 0,
+          changedFiles: 1,
+        }
+      },
+      async destroy() {},
+    }
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previousProfile = process.env["NKDK_PROFILE"]
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    let profileLines: string[] = []
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      await pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: {
+          files: [{ identity, absolutePath: join(projectDir, identity.projectPath) }],
+          baseline: {
+            knownHashBits: new Uint8Array(1),
+            hashBytes: new Uint8Array(8),
+            deleted: [],
+          },
+        },
+      }, {
+        async writeBatch() {},
+        async deleteFiles() {},
+      })
+      profileLines = error.mock.calls.map(([line]) => String(line))
+    } finally {
+      await pool.close()
+      if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previousProfile
+      error.mockRestore()
+    }
+
+    const matching = profileLines.filter((line) =>
+      line.includes('step="Обработка файлов Б1–Б4"')
+      && line.includes('substep="Применение двоичных пачек"')
+    )
+    expect(matching).toHaveLength(1)
+    expect(matching[0]).toContain("items=2")
+  })
+
   it("не запускает следующую пачку lane до записи предыдущего результата", async () => {
     const projectDir = createTempDir()
     const files = Array.from({ length: 129 }, (_unused, index) => ({
@@ -702,6 +791,30 @@ function componentProperties(projectDir: string, componentPath: string, name: st
     role: "properties" as const,
     owner: { dir: "Справочник", name },
     itemType: "Catalog",
+  }
+}
+
+function yamlRefreshTask(
+  projectDir: string,
+  descriptors: readonly ReturnType<typeof componentProperties>[],
+): PreparedYamlProjectWorkerTask {
+  return {
+    kind: "refreshProjectState",
+    workerIndex: 0,
+    projectDir,
+    context: mockContext,
+    files: descriptors.map((descriptor) => ({
+      identity: {
+        projectPath: descriptor.rootProjectPath,
+        componentPath: descriptor.componentPath,
+        resourceKind: "yaml" as const,
+        yamlRole: descriptor.role,
+      },
+      absolutePath: descriptor.filePath,
+      descriptor,
+    })),
+    knownHashBits: new Uint8Array(Math.ceil(descriptors.length / 8)),
+    expectedHashBytes: new Uint8Array(descriptors.length * 8),
   }
 }
 
