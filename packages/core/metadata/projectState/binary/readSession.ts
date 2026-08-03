@@ -35,18 +35,21 @@ type DecodedYamlFacts = Pick<
   ProjectStateYamlFileUpdate,
   "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"
 >
+type ReadYamlFacts = (fileId: number) => DecodedYamlFacts | undefined
 
 const PAGE_SIZE = 2_000
 
 export function createBinaryProjectStateQueryPort(
   snapshot: ProjectStateSnapshotView,
 ): ProjectStateQueryPort {
+  const readYamlFacts = createYamlFactsReader(snapshot)
   const queryPort: ProjectStateQueryPort = {
-    resolveTargets: (requests) => resolveTargets(snapshot, requests),
-    readOwners: (requests) => requests.map((request) => readOwner(snapshot, request)),
-    findReferences: (requests) => findReferences(snapshot, queryPort, requests),
-    readDependencyInputs: (requests) => readDependencyInputs(snapshot, requests),
-    readDependencyOwnerInputs: (requests) => readDependencyOwnerInputs(snapshot, requests),
+    resolveTargets: (requests) => resolveTargets(snapshot, readYamlFacts, requests),
+    readOwners: (requests) => requests.map((request) => readOwner(snapshot, readYamlFacts, request)),
+    findReferences: (requests) => findReferences(snapshot, readYamlFacts, queryPort, requests),
+    readDependencyInputs: (requests) => readDependencyInputs(snapshot, readYamlFacts, requests),
+    readDependencyOwnerInputs: (requests) =>
+      readDependencyOwnerInputs(snapshot, readYamlFacts, requests),
     readOwnerRefPage: (query) => readOwnerRefPage(snapshot, query),
     readComponentTargetPage: (query) => readComponentTargetPage(snapshot, query),
     readValidationStatus: (query) => readValidationStatus(snapshot, query),
@@ -64,6 +67,7 @@ export function openBinaryProjectStateReadSession(
 
 function resolveTargets(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   requests: readonly ProjectTargetLookup[],
 ): readonly ProjectTargetLookupResult[] {
   return requests.map(({ requestId, componentPath, canonicalTarget }) => {
@@ -75,7 +79,7 @@ function resolveTargets(
     if (candidates.length > 1) return { requestId, status: "ambiguous" as const }
 
     const candidate = candidates[0]
-    const details = yamlFacts(snapshot, candidate.sourceFileId)?.references.find(
+    const details = readYamlFacts(candidate.sourceFileId)?.references.find(
       (reference) => reference.kind === candidate.kind && reference.canonical === candidate.canonical,
     )?.details
     return {
@@ -93,9 +97,10 @@ function resolveTargets(
 
 function readOwner(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   request: ProjectOwnerLookup,
 ): ProjectOwnerLookupResult {
-  const selected = selectOwnerFile(snapshot, request.componentPath, request.owner)
+  const selected = selectOwnerFile(snapshot, readYamlFacts, request.componentPath, request.owner)
   if (selected.status !== "found") return { requestId: request.requestId, status: selected.status }
   return {
     requestId: request.requestId,
@@ -106,6 +111,7 @@ function readOwner(
 
 function selectOwnerFile(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   componentPath: string,
   owner: OwnerTypeRef,
 ):
@@ -119,7 +125,7 @@ function selectOwnerFile(
     seen.add(fileId)
     const candidateComponent = snapshot.componentPath(fileId)
     if (!isVisible(componentPath, candidateComponent)) continue
-    const facts = yamlFacts(snapshot, fileId)
+    const facts = readYamlFacts(fileId)
     if (facts === undefined || !facts.owners.some((entry) => sameOwner(entry.owner, owner))) continue
     ;(candidateComponent === componentPath ? own : base).push({ fileId, facts })
   }
@@ -131,10 +137,11 @@ function selectOwnerFile(
 
 function readDependencyInputs(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   requests: readonly ProjectDependencyInputQuery[],
 ) {
   return requests.map(({ requestId, componentPath, projectPath, check }) => {
-    const selected = selectOwnerFile(snapshot, componentPath, check.owner)
+    const selected = selectOwnerFile(snapshot, readYamlFacts, componentPath, check.owner)
     if (selected.status !== "found") return { requestId, status: "missing" as const }
     const formFileId = snapshot.findFile(projectPath)
     const input: ProjectDependencyInput = {
@@ -142,7 +149,7 @@ function readDependencyInputs(
         .filter(({ owner }) => sameOwner(owner, check.owner))
         .map(({ owner, facts }) => ({ owner, facts })),
       fields: selected.facts.fields.filter(({ owner }) => sameOwner(owner, check.owner)),
-      forms: formFileId === undefined ? [] : yamlFacts(snapshot, formFileId)?.forms ?? [],
+      forms: formFileId === undefined ? [] : readYamlFacts(formFileId)?.forms ?? [],
     }
     return { requestId, status: "found" as const, input }
   })
@@ -150,10 +157,11 @@ function readDependencyInputs(
 
 function readDependencyOwnerInputs(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   requests: readonly ProjectDependencyOwnerInputQuery[],
 ) {
   return requests.map(({ requestId, componentPath, owner }) => {
-    const selected = selectOwnerFile(snapshot, componentPath, owner)
+    const selected = selectOwnerFile(snapshot, readYamlFacts, componentPath, owner)
     if (selected.status !== "found") return { requestId, status: "missing" as const }
     return {
       requestId,
@@ -169,6 +177,7 @@ function readDependencyOwnerInputs(
 
 function findReferences(
   snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
   queryPort: ProjectStateQueryPort,
   requests: readonly ProjectReferenceLookup[],
 ) {
@@ -183,7 +192,7 @@ function findReferences(
     for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
       const componentPath = snapshot.componentPath(fileId)
       if (!isVisible(request.componentPath, componentPath)) continue
-      const facts = yamlFacts(snapshot, fileId)
+      const facts = readYamlFacts(fileId)
       if (facts === undefined) continue
       for (const pending of facts.pendingReferences) {
         if (
@@ -314,8 +323,14 @@ function readValidationStatus(
   return rows
 }
 
-function yamlFacts(snapshot: ProjectStateSnapshotView, fileId: number): DecodedYamlFacts | undefined {
-  return snapshot.decodeFacts(fileId) as DecodedYamlFacts | undefined
+function createYamlFactsReader(snapshot: ProjectStateSnapshotView): ReadYamlFacts {
+  const decodedByFileId = new Map<number, DecodedYamlFacts | undefined>()
+  return (fileId) => {
+    if (!decodedByFileId.has(fileId)) {
+      decodedByFileId.set(fileId, snapshot.decodeFacts(fileId) as DecodedYamlFacts | undefined)
+    }
+    return decodedByFileId.get(fileId)
+  }
 }
 
 function isVisible(requestComponent: string, candidateComponent: string): boolean {

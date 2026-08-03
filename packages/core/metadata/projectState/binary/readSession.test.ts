@@ -1,9 +1,10 @@
-import { expect, it } from "vitest"
+import { expect, it, vi } from "vitest"
 import type { ProjectTargetLookup } from "../readSession"
 import { ProjectStateReadSessionClosedError } from "../readSession"
 import { buildProjectStateSnapshot } from "./builder"
-import { openBinaryProjectStateReadSession } from "./readSession"
+import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
 import { createBinaryProjectStateReadToken } from "./readToken"
+import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
 
 it("соблюдает видимость cf и собственного расширения", () => {
@@ -119,6 +120,26 @@ it("отвергает запросы после закрытия", () => {
   session.close()
 
   expect(() => session.resolveTargets([])).toThrow(ProjectStateReadSessionClosedError)
+})
+
+it("декодирует факты файла один раз за сеанс чтения", () => {
+  const buffers = buildProjectStateSnapshot({
+    replacements: [{
+      update: richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
+      hash: 1n,
+    }],
+    deletions: [],
+  })
+  const snapshot = new ProjectStateSnapshotView(buffers)
+  const decodeFacts = vi.spyOn(snapshot, "decodeFacts")
+  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+
+  queryPort.resolveTargets([
+    lookup("first", "cf", "Catalog.Source"),
+    lookup("second", "cf", "Catalog.Source"),
+  ])
+
+  expect(decodeFacts).toHaveBeenCalledTimes(1)
 })
 
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
