@@ -32,7 +32,7 @@ export interface ProjectStateValidationFileTask {
   readonly descriptor?: PreparedYamlProjectFileDescriptor
 }
 
-export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 512
+export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 256
 
 export async function* discoverProjectStateValidationFileBatches(
   projectDir: string,
