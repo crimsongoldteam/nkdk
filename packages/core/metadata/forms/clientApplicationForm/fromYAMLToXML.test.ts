@@ -39,6 +39,35 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
     }) as ClientApplicationFormYAML
 
+  it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.metadataXML.Form.Properties.UsePurposes).toEqual({
+      "v8:Value": {
+        "_xsi:type": "app:ApplicationUsePurpose",
+        "#text": "PlatformApplication",
+      },
+    })
+  })
+
+  it.each([
+    ["МобильноеПриложение", ["MobilePlatformApplication"]],
+    ["ПлатформаИМобильноеПриложение", ["PlatformApplication", "MobilePlatformApplication"]],
+  ] as const)("экспортирует явное назначение %s", (yamlValue, xmlValues) => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: { НазначенияИспользования: yamlValue } as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+    const value = result.metadataXML.Form.Properties.UsePurposes["v8:Value"]
+
+    expect(Array.isArray(value) ? value.map((item) => item["#text"]) : [value["#text"]]).toEqual(xmlValues)
+  })
+
   it.each([
     ["основной реквизит справочника", "СправочникОбъект.Товары", "Истина", "Items"],
     [
