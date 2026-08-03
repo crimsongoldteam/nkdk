@@ -80,6 +80,24 @@ describe("import Appearance from YAML", () => {
     })
   })
 
+  it("imports explicit null from serialized expanded text appearance", () => {
+    const result = testAtomicFromYAML({
+      rule,
+      value: importFromYAML(`
+Текст:
+  Использовать: Ложь
+  Значение: null
+`),
+    })
+
+    expect(result).toMatchObject({
+      Текст: {
+        use: false,
+        value: null,
+      },
+    })
+  })
+
   it("imports explicit LocalFormattedStringType value for text appearance", () => {
     const result = testAtomicFromYAML({
       rule,

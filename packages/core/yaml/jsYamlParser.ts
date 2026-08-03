@@ -91,7 +91,8 @@ function visitYamlData(
     return value.value
   }
 
-  if (value === null || isSourceEmptyValue(value, path, lines, locations)) return undefined
+  if (value === null) return isExplicitNullValue(path, lines, locations) ? null : undefined
+  if (isSourceEmptyValue(value, path, lines, locations)) return undefined
 
   if (
     parent !== undefined &&
@@ -125,6 +126,20 @@ function isSourceEmptyValue(
   if (value !== "" || path.length === 0) return false
   if (isDoubleQuotedValue(path, lines, locations)) return false
   return locations.valuePosition(path) === undefined && locations.nodePosition(path) !== undefined
+}
+
+function isExplicitNullValue(
+  path: readonly (string | number)[],
+  lines: readonly string[],
+  locations: YamlLocationIndex
+): boolean {
+  const lastSegment = path[path.length - 1]
+  const position =
+    locations.valuePosition(path) ??
+    (path.length === 0 || typeof lastSegment === "number" ? locations.nodePosition(path) : undefined)
+  if (position === undefined) return false
+  const source = lines[position.line - 1]?.slice(position.col - 1).trimStart() ?? ""
+  return /^(?:null|~)(?:\s*(?:#.*)?$|[\],}])/i.test(source)
 }
 
 function isDoubleQuotedValue(
