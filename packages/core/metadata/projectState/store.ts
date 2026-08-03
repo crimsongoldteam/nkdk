@@ -10,10 +10,14 @@ import type {
 } from "./readSession"
 import type { ProjectStateFileBaseline, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import type {
+  ProjectStateEncodedFileUpdateBatch,
+  ProjectStateEncodedImportFinalBatch,
+  ProjectStateEncodedImportIndexBatch,
+} from "./binary/contribution"
+import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "./importSession"
-import type { ProjectStateEncodedFileUpdateBatch } from "./binary/contribution"
 
 export interface ProjectStateFileChange {
   readonly index: number
@@ -54,9 +58,9 @@ export interface ProjectStateStore {
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
   replaceFiles(batch: ProjectStateFileUpdateBatch | ProjectStateEncodedFileUpdateBatch): void
-  replaceImportIndex(batch: readonly ProjectStateImportIndexContribution[]): void
+  replaceImportIndex(batch: readonly ProjectStateImportIndexContribution[] | ProjectStateEncodedImportIndexBatch): void
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): void
-  replaceImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): void
+  replaceImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch | ProjectStateEncodedImportFinalBatch): void
   clearImportOutput(componentPaths: readonly string[]): void
   deleteFiles(projectPaths: readonly string[]): void
   readLocalDiagnostics(params?: { readonly mode?: "published" }): readonly Diagnostic[]

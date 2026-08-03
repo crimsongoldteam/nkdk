@@ -294,12 +294,12 @@ function yamlUpdate(file: ProjectStateFileIdentity): ProjectStateFileUpdate {
     ...file,
     kind: "yaml",
     localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: [],
-    owners: [],
-    fields: [],
-    forms: [],
     pendingChecks: [],
+    forms: [],
+    fields: [],
+    owners: [],
+    pendingReferences: [],
+    references: [],
     dependencies: [],
   }
 }

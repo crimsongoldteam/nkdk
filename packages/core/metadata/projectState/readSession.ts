@@ -167,3 +167,41 @@ export class ProjectStateReadSessionClosedError extends Error {
     this.name = "ProjectStateReadSessionClosedError"
   }
 }
+
+export function createProjectStateReadSession(params: {
+  readonly token: ProjectStateReadToken
+  readonly queryPort: ProjectStateQueryPort
+  readonly beforeRead?: () => void
+  readonly close?: () => void
+  readonly onClose?: (session: ProjectStateReadSession) => void
+}): ProjectStateReadSession {
+  let closed = false
+  const session: ProjectStateReadSession = {
+    resolveTargets: (requests) => read(() => params.queryPort.resolveTargets(requests)),
+    readOwners: (requests) => read(() => params.queryPort.readOwners(requests)),
+    findReferences: (requests) => read(() => params.queryPort.findReferences(requests)),
+    readDependencyInputs: (requests) => read(() => params.queryPort.readDependencyInputs(requests)),
+    readDependencyOwnerInputs: (requests) => read(() => params.queryPort.readDependencyOwnerInputs(requests)),
+    readOwnerRefPage: (query) => read(() => params.queryPort.readOwnerRefPage(query)),
+    readComponentTargetPage: (query) => read(() => params.queryPort.readComponentTargetPage(query)),
+    readValidationStatus: (query) => read(() => params.queryPort.readValidationStatus(query)),
+    close() {
+      if (closed) return
+      closed = true
+      params.close?.()
+      params.onClose?.(session)
+    },
+  }
+  return session
+
+  function read<T>(operation: () => T): T {
+    if (closed) throw new ProjectStateReadSessionClosedError(params.token)
+    try {
+      params.beforeRead?.()
+    } catch (caught) {
+      session.close()
+      throw caught
+    }
+    return operation()
+  }
+}

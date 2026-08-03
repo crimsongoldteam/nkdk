@@ -21,6 +21,11 @@ import {
 } from "./dependencyValidation"
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
+import {
+  isProjectStateEncodedImportIndexBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
+} from "./binary/contribution"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
 
 describe("ProjectStateFileHashBatch", () => {
@@ -252,7 +257,11 @@ function createTestStoreContractFixture() {
     },
     replaceImportIndex(batch) {
       const target = requireStaged(staged)
-      for (const contribution of batch) {
+      const encoded = isProjectStateEncodedImportIndexBatch(batch) ? openProjectStateImportIndexBatch(batch) : undefined
+      const contributions = encoded === undefined
+        ? batch as readonly import("./importSession").ProjectStateImportIndexContribution[]
+        : Array.from({ length: encoded.fileCount }, (_, index) => encoded.contribution(index))
+      for (const contribution of contributions) {
         const previous = target.get(contribution.projectPath)
         if (previous !== undefined) assertSameIdentity(previous.update, contribution)
         requireStagedIdentities(stagedIdentities).set(contribution.projectPath, identity(contribution))
@@ -280,7 +289,11 @@ function createTestStoreContractFixture() {
     replaceImportFinalFileState(batch) {
       const target = requireStaged(staged)
       const identities = requireStagedIdentities(stagedIdentities)
-      batch.updates.forEach((update, index) => {
+      const encoded = "updates" in batch ? undefined : openProjectStateImportFinalBatch(batch)
+      const updates = "updates" in batch
+        ? batch.updates
+        : Array.from({ length: encoded!.fileCount }, (_, index) => encoded!.finalState(index))
+      updates.forEach((update, index) => {
         const registered = identities.get(update.projectPath)
         if (registered === undefined) throw new Error(`Final import identity не зарегистрирована: ${update.projectPath}`)
         assertSameIdentity(registered, update)
@@ -291,7 +304,9 @@ function createTestStoreContractFixture() {
         updateTarget(
           target,
           update.kind === "resource" ? update : { ...previous!.update, ...update } as ProjectStateFileUpdate,
-          batch.hashBytes.slice(index * 8, (index + 1) * 8),
+          "updates" in batch
+            ? batch.hashBytes.slice(index * 8, (index + 1) * 8)
+            : hashBytes(encoded!.hash(index)),
         )
       })
     },
@@ -367,6 +382,12 @@ function createTestStoreContractFixture() {
       return testStoreReadSession(token, committed, () => tokens.delete(tokenKey(token)))
     },
   }
+}
+
+function hashBytes(hash: bigint): Uint8Array {
+  const bytes = new Uint8Array(8)
+  new DataView(bytes.buffer).setBigUint64(0, hash, false)
+  return bytes
 }
 
 function testStoreReadSession(

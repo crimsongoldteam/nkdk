@@ -29,6 +29,10 @@ import {
 import { createProjectStateOwnerMetadataCache } from "../projectState/dependencyValidation"
 import { openProjectStateReadSession } from "../projectState/service"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
+import {
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
+} from "../projectState/binary/contribution"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -160,7 +164,13 @@ async function runSecondPass(
     timeMs: 0,
   })
   profiler.flush()
-  return { kind: "secondPassResult", diagnostics, warnings, files, finalFileStateBatches }
+  return {
+    kind: "secondPassResult",
+    diagnostics,
+    warnings,
+    files,
+    finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
+  }
 }
 
 function beginSecondPass(
@@ -399,8 +409,8 @@ async function runFirstPass(
     diagnostics,
     files,
     configurationFragments: fragments,
-    indexContributions,
-    finalFileStateBatches,
+    indexBatches: indexContributions.length === 0 ? [] : [encodeProjectStateImportIndexBatch(indexContributions)],
+    finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
   }
 }
 
@@ -408,7 +418,8 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
       return [
-        ...result.finalFileStateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer),
+        ...result.indexBatches.map(({ bytes }) => bytes.buffer),
+        ...result.finalStateBatches.map(({ bytes }) => bytes.buffer),
       ]
     },
     get [valueSymbol]() {
@@ -420,7 +431,7 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
 export function createSecondPassTransferable(result: ImportSecondPassResult) {
   return {
     get [transferableSymbol]() {
-      return result.finalFileStateBatches.map(({ hashBytes }) => hashBytes.buffer as ArrayBuffer)
+      return result.finalStateBatches.map(({ bytes }) => bytes.buffer)
     },
     get [valueSymbol]() {
       return result

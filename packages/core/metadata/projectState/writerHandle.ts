@@ -4,8 +4,12 @@ import { createBinaryProjectStateStore } from "./binary/store"
 import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
 import type { ProjectStateSharedBuffers } from "./binary/snapshot"
 import {
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
   openProjectStateFileUpdateBatch,
   type ProjectStateEncodedFileUpdateBatch,
+  type ProjectStateEncodedImportFinalBatch,
+  type ProjectStateEncodedImportIndexBatch,
 } from "./binary/contribution"
 import type { ProjectStateCompatibility } from "./compatibility"
 import type {
@@ -16,10 +20,6 @@ import type {
 import {
   type ProjectStateFileIdentity,
 } from "./fileUpdate"
-import type {
-  ProjectStateImportFinalFileStateBatch,
-  ProjectStateImportIndexContribution,
-} from "./importSession"
 import type {
   ProjectStateComponentProjection,
   ProjectStateFileChanges,
@@ -57,9 +57,9 @@ export interface ProjectStateWriterHandle {
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
-  writeImportIndexBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
+  writeImportIndexBatch(batch: ProjectStateEncodedImportIndexBatch): Promise<void>
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
-  writeImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
+  writeImportFinalFileState(batch: ProjectStateEncodedImportFinalBatch): Promise<void>
   clearImportOutput(componentPaths: readonly string[]): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }>
@@ -137,6 +137,7 @@ export function createProjectStateWriterHandle(
     async writeImportIndexBatch(batch) {
       assertOperation()
       assertNotCancelled()
+      openProjectStateImportIndexBatch(batch)
       requireStore().replaceImportIndex(batch)
     },
     async registerImportFileIdentities(files) {
@@ -147,6 +148,7 @@ export function createProjectStateWriterHandle(
     async writeImportFinalFileState(batch) {
       assertOperation()
       assertNotCancelled()
+      openProjectStateImportFinalBatch(batch)
       requireStore().replaceImportFinalFileState(batch)
     },
     async clearImportOutput(componentPaths) {

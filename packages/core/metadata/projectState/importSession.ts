@@ -11,6 +11,11 @@ import type {
 } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
+import type {
+  ProjectStateEncodedImportFinalBatch,
+  ProjectStateEncodedImportIndexBatch,
+} from "./binary/contribution"
+import { openProjectStateImportFinalBatch } from "./binary/contribution"
 import {
   assertProjectStateImportFinalFileState,
   assertProjectStatePortableData,
@@ -50,12 +55,12 @@ export interface ProjectStateImportFinalFileStateBatch {
 }
 
 export interface ProjectStateImportSession {
-  writeFirstPassBatch(batch: readonly ProjectStateImportIndexContribution[]): Promise<void>
+  writeFirstPassBatch(batch: ProjectStateEncodedImportIndexBatch): Promise<void>
   registerFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
   commitWorkingIndex(): Promise<ProjectStateReadToken>
   /** Выдаёт отдельный одноразовый token следующему worker после фиксации индекса. */
   createReadToken(): Promise<ProjectStateReadToken>
-  writeFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
+  writeFinalFileState(batch: ProjectStateEncodedImportFinalBatch): Promise<void>
   finalize(beforeCheckpoint?: () => Promise<void>): Promise<ProjectStateRefreshResult>
   abort(cause: unknown): Promise<void>
 }
@@ -73,7 +78,7 @@ export async function createProjectStateImportSession(
   await params.writer.openProject(params.projectDir)
   await params.writer.beginUpdate(params.projectDir, params.signal)
   await params.writer.clearImportOutput(params.output.componentPaths)
-  let phase: "index" | "final" | "done" = "index"
+  let phase: "index" | "committing" | "final" | "finalizing" | "done" = "index"
   let changedFiles = 0
   let finalWrites = Promise.resolve()
   const activeWrites = new Set<Promise<void>>()
@@ -99,6 +104,16 @@ export async function createProjectStateImportSession(
     }))
   }
 
+  function startFinalWrite(write: () => Promise<void>): Promise<void> {
+    if (phase !== "final") return Promise.reject(new Error("Import session уже завершена"))
+    const queued = finalWrites.then(async () => {
+      if (phase === "done") throw new Error("Import session уже завершена")
+      await write()
+    })
+    finalWrites = queued.then(() => undefined, () => undefined)
+    return trackWrite(queued)
+  }
+
   return {
     writeFirstPassBatch(batch) {
       return startWrite(
@@ -117,20 +132,17 @@ export async function createProjectStateImportSession(
         )
         return
       }
-      const write = finalWrites.then(async () => {
-        if (phase !== "final") throw new Error("Import session уже завершена")
-        await params.writer.beginUpdate(params.projectDir, params.signal)
-        await params.writer.registerImportFileIdentities(files)
-        await params.writer.commitUpdate()
-      })
-      finalWrites = write.then(() => undefined, () => undefined)
-      await trackWrite(write)
+      await startFinalWrite(() => params.writer.registerImportFileIdentities(files))
     },
     async commitWorkingIndex() {
       if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")
+      phase = "committing"
+      await Promise.all([...activeWrites])
       await params.writer.commitUpdate()
+      const token = await params.writer.createReadToken()
+      await params.writer.beginUpdate(params.projectDir, params.signal)
       phase = "final"
-      return params.writer.createReadToken()
+      return token
     },
     async createReadToken() {
       if (phase !== "final") throw new Error("Рабочий индекс import ещё не зафиксирован")
@@ -138,8 +150,8 @@ export async function createProjectStateImportSession(
     },
     async writeFinalFileState(batch) {
       if (phase === "done") throw new Error("Import session уже завершена")
-      assertProjectStateImportFinalFileStateBatch(batch)
-      changedFiles += batch.updates.length
+      const encoded = openProjectStateImportFinalBatch(batch)
+      changedFiles += encoded.fileCount
       if (phase === "index") {
         await startWrite(
           "index",
@@ -148,19 +160,12 @@ export async function createProjectStateImportSession(
         )
         return
       }
-      const write = finalWrites.then(async () => {
-        if (phase !== "final") throw new Error("Import session уже завершена")
-        await params.writer.beginUpdate(params.projectDir, params.signal)
-        await params.writer.writeImportFinalFileState(batch)
-        await params.writer.commitUpdate()
-      })
-      finalWrites = write.then(() => undefined, () => undefined)
-      await trackWrite(write)
+      await startFinalWrite(() => params.writer.writeImportFinalFileState(batch))
     },
     async finalize(beforeCheckpoint) {
       if (phase !== "final") throw new Error("Import session нельзя завершить до фиксации индекса")
+      phase = "finalizing"
       await finalWrites
-      await params.writer.beginUpdate(params.projectDir, params.signal)
       const localDiagnostics = await params.writer.readLocalDiagnostics()
       const dependencyDiagnostics = await params.writer.validateDependencies()
       await beforeCheckpoint?.()

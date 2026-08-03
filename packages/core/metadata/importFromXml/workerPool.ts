@@ -8,9 +8,9 @@ import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type {
-  ProjectStateImportFinalFileStateBatch,
-  ProjectStateImportIndexContribution,
-} from "../projectState/importSession"
+  ProjectStateEncodedImportFinalBatch,
+  ProjectStateEncodedImportIndexBatch,
+} from "../projectState/binary/contribution"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -64,13 +64,13 @@ export interface XmlImportSecondPassPoolResult {
 
 export interface XmlImportStateBatch {
   readonly configurationFragment?: ConfigurationSnapshotFragment
-  readonly indexContributions: readonly ProjectStateImportIndexContribution[]
-  readonly finalFileStateBatches: readonly ProjectStateImportFinalFileStateBatch[]
+  readonly indexBatches: readonly ProjectStateEncodedImportIndexBatch[]
+  readonly finalStateBatches: readonly ProjectStateEncodedImportFinalBatch[]
 }
 
 export interface XmlImportStateSink {
   writeFirstPassState(batch: XmlImportStateBatch): Promise<void>
-  writeSecondPassState(batch: Omit<XmlImportStateBatch, "indexContributions">): Promise<void>
+  writeSecondPassState(batch: Omit<XmlImportStateBatch, "indexBatches">): Promise<void>
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -265,8 +265,8 @@ function createXmlImportOperationPool(params: {
                 ...(response.configurationFragments[0] === undefined
                   ? {}
                   : { configurationFragment: response.configurationFragments[0] }),
-                indexContributions: response.indexContributions,
-                finalFileStateBatches: response.finalFileStateBatches,
+                indexBatches: response.indexBatches,
+                finalStateBatches: response.finalStateBatches,
               })
             })
             workerResults.push(withoutFirstPassState(response))
@@ -323,7 +323,7 @@ function createXmlImportOperationPool(params: {
             await stateQueue.run(() => {
               assertProducerActive("secondPassRunning")
               return sink.writeSecondPassState({
-                finalFileStateBatches: response.finalFileStateBatches,
+                finalStateBatches: response.finalStateBatches,
               })
             })
             workerResults.push(withoutSecondPassState(response))
@@ -471,11 +471,11 @@ async function destroyWorkerPools(pools: readonly XmlImportWorkerThreadPool[]): 
 }
 
 function withoutFirstPassState(result: ImportFirstPassResult): ImportFirstPassResult {
-  return { ...result, configurationFragments: [], indexContributions: [], finalFileStateBatches: [] }
+  return { ...result, configurationFragments: [], indexBatches: [], finalStateBatches: [] }
 }
 
 function withoutSecondPassState(result: ImportSecondPassResult): ImportSecondPassResult {
-  return { ...result, finalFileStateBatches: [] }
+  return { ...result, finalStateBatches: [] }
 }
 
 function mergeSecondPassResults(results: readonly ImportSecondPassResult[]): ImportSecondPassResult {
@@ -484,7 +484,7 @@ function mergeSecondPassResults(results: readonly ImportSecondPassResult[]): Imp
     diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
     warnings: results.flatMap(({ warnings }) => warnings),
     files: results.flatMap(({ files }) => files),
-    finalFileStateBatches: [],
+    finalStateBatches: [],
   }
 }
 

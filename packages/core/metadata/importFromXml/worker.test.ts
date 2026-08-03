@@ -5,9 +5,12 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ImportFirstPassResult } from "./types"
-import { createProjectStateCompatibility } from "../projectState/compatibility"
-import { createSqliteProjectStateStore } from "../projectState/sqlite/store"
+import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import type { ProjectStateReadToken } from "../projectState/contracts"
+import {
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
+} from "../projectState/binary/contribution"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -33,13 +36,12 @@ const withDynamicListXmlPath = join(
   "../forms/clientApplicationForm/__fixtures__/withDynamicList.xml"
 )
 const tempDirs: string[] = []
-const stateStores: Array<ReturnType<typeof createSqliteProjectStateStore>["store"]> = []
-let sharedStateFixture: ReturnType<typeof createSqliteProjectStateStore> | undefined
+const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
+let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
 
 beforeAll(() => {
-  sharedStateFixture = createSqliteProjectStateStore({
+  sharedStateFixture = createBinaryProjectStateStore({
     projectDir: "/project",
-    compatibility: createProjectStateCompatibility(),
   })
   stateStores.push(sharedStateFixture.store)
 })
@@ -151,8 +153,8 @@ describe("XML import worker first pass", () => {
       "configurationFragments",
       "diagnostics",
       "files",
-      "finalFileStateBatches",
-      "indexContributions",
+      "finalStateBatches",
+      "indexBatches",
       "kind",
       "ownerFacts",
       "validationContribution",
@@ -219,7 +221,9 @@ describe("XML import worker first pass", () => {
     ])
   })
 
-  it("does not add object fragments to the Piscina transfer list", () => {
+  it("передаёт все двоичные порции и не передаёт объектные сведения", () => {
+    const indexBatch = encodeProjectStateImportIndexBatch([])
+    const finalBatch = encodeProjectStateImportFinalBatch({ updates: [], hashBytes: new Uint8Array() })
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
       ownerFacts: [],
@@ -235,13 +239,14 @@ describe("XML import worker first pass", () => {
       diagnostics: [],
       files: [],
       configurationFragments: [],
-      indexContributions: [],
-      finalFileStateBatches: [],
+      indexBatches: [indexBatch],
+      finalStateBatches: [finalBatch],
     }
 
     const transferable = createFirstPassTransferable(result)
 
-    expect(transferable[transferableSymbol]).toEqual([])
+    expect(transferable[transferableSymbol]).toEqual([indexBatch.bytes.buffer, finalBatch.bytes.buffer])
+    expect(transferable[transferableSymbol].every((buffer) => buffer instanceof ArrayBuffer)).toBe(true)
     expect(transferable[valueSymbol]).toBe(result)
   })
 
@@ -514,7 +519,7 @@ function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
   const fixture = sharedStateFixture
   if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
   fixture.store.beginUpdate()
-  fixture.store.replaceImportIndex(first.indexContributions)
+  for (const batch of first.indexBatches) fixture.store.replaceImportIndex(batch)
   fixture.store.commitUpdate()
   return fixture.store.createReadToken()
 }
@@ -547,7 +552,7 @@ async function runCatalogAndFormSecondPass(
     diagnostics: secondResults.flatMap(({ diagnostics }) => diagnostics),
     warnings: secondResults.flatMap(({ warnings }) => warnings),
     files: secondResults.flatMap(({ files }) => files),
-    finalFileStateBatches: secondResults.flatMap(({ finalFileStateBatches }) => finalFileStateBatches),
+    finalStateBatches: secondResults.flatMap(({ finalStateBatches }) => finalStateBatches),
   }
   return { assignments, first, second }
 }

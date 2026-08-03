@@ -180,9 +180,10 @@ export function createProjectStateService(
     let candidate: ProjectStateWriterHandle | undefined
     try {
       const projectDir = await realpath(params.projectDir)
+      const previous = active
+      await previous?.writer.flushCheckpoint()
       candidate = createWriter()
       const importWriter = candidate
-      const previous = active
       let settled = false
       const session = await createProjectStateImportSession({
         ...params,

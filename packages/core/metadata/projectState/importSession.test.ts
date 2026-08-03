@@ -3,6 +3,11 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
+import {
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
+} from "./binary/contribution"
+import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { assertProjectStateFileUpdateBatch } from "./fileUpdateValidation"
 import { createProjectStateService } from "./service"
 import type {
@@ -12,6 +17,7 @@ import type {
 } from "./importSession"
 import { assertProjectStateImportFinalFileStateBatch, createProjectStateImportSession } from "./importSession"
 import type { ProjectStateWriterHandle } from "./writerHandle"
+import { createProjectStateWriterHandle } from "./writerHandle"
 
 describe("ProjectState import session", () => {
   const contribution = indexContribution("cf/Справочник/Товары/Свойства.yaml", "Товары")
@@ -25,7 +31,7 @@ describe("ProjectState import session", () => {
     projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-state-"))
     state = createProjectStateService()
     session = await state.beginImport({ projectDir, workerCount: 2, output: { componentPaths: ["cf"] } })
-    await session.writeFirstPassBatch([contribution])
+    await session.writeFirstPassBatch(encodeProjectStateImportIndexBatch([contribution]))
     firstToken = await session.commitWorkingIndex()
     secondToken = await session.createReadToken()
   })
@@ -36,7 +42,9 @@ describe("ProjectState import session", () => {
   })
 
   it("фиксирует индекс для отдельных read sessions и принимает после этого только final file state", async () => {
-    await expect(session.writeFirstPassBatch([indexContribution("cf/Справочник/Услуги/Свойства.yaml", "Услуги")]))
+    await expect(session.writeFirstPassBatch(encodeProjectStateImportIndexBatch([
+      indexContribution("cf/Справочник/Услуги/Свойства.yaml", "Услуги"),
+    ])))
       .rejects.toThrow(/индекс.*неизменяем/iu)
     const first = state.openReadSession(firstToken)
     const second = state.openReadSession(secondToken)
@@ -46,7 +54,9 @@ describe("ProjectState import session", () => {
       .toEqual([expect.objectContaining({ requestId: "two", status: "found" })])
 
     const before = first.readComponentTargetPage({ componentPath: "cf" })
-    await session.writeFinalFileState(finalBatch(contribution.projectPath, 0x0102030405060708n))
+    await session.writeFinalFileState(encodeProjectStateImportFinalBatch(
+      finalBatch(contribution.projectPath, 0x0102030405060708n),
+    ))
     expect(first.readComponentTargetPage({ componentPath: "cf" })).toEqual(before)
     first.close()
     second.close()
@@ -54,6 +64,39 @@ describe("ProjectState import session", () => {
     const result = await session.finalize()
     expect(result.diagnostics).toEqual([])
     expect(result.stats).toMatchObject({ changedFiles: 1 })
+  })
+
+  it("не сохраняет рабочий индекс и сохраняет всё окончательное состояние один раз", async () => {
+    const saved: unknown[] = []
+    const writer = createProjectStateWriterHandle({
+      openStore: async () => createBinaryProjectStateTestFixture().store,
+      async save(_projectDir, buffers) { saved.push(buffers) },
+    })
+    const indexed = indexContribution("cf/a.yaml", "Товары")
+    const importSession = await createProjectStateImportSession({
+      projectDir: "/project",
+      workerCount: 1,
+      output: { componentPaths: ["cf"] },
+      writer,
+      async publish() {},
+      async discard() {},
+    })
+
+    await importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([indexed]))
+    const firstToken = await importSession.commitWorkingIndex()
+    const secondToken = await importSession.createReadToken()
+    if (firstToken instanceof Uint8Array || secondToken instanceof Uint8Array) {
+      throw new Error("Ожидался двоичный read token")
+    }
+    expect(firstToken.buffers.files).toBe(secondToken.buffers.files)
+    await writer.flushCheckpoint()
+    expect(saved).toHaveLength(0)
+
+    await importSession.writeFinalFileState(encodeProjectStateImportFinalBatch(finalBatch(indexed.projectPath, 4n)))
+    await importSession.finalize()
+    await writer.flushCheckpoint()
+    expect(saved).toHaveLength(1)
+    await writer.close()
   })
 
   it.each([
@@ -212,12 +255,13 @@ describe("ProjectState import session", () => {
       async discard() { events.push("discard") },
     })
 
-    const activeWrite = importSession.writeFirstPassBatch([])
+    const activeWrite = importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([]))
     await writing.started
     const aborting = importSession.abort(primary)
     await Promise.resolve()
 
-    await expect(importSession.writeFirstPassBatch([])).rejects.toThrow(/неизменяем/iu)
+    await expect(importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([])))
+      .rejects.toThrow(/неизменяем/iu)
     expect(events).toEqual(["write:start"])
     writing.release()
     await activeWrite
@@ -225,6 +269,44 @@ describe("ProjectState import session", () => {
 
     expect(events).toEqual(["write:start", "write:end", "rollback", "discard"])
     expect(writesAfterRollback).toBe(0)
+  })
+
+  it("ждёт начатые порции первого прохода перед фиксацией рабочего индекса", async () => {
+    const writing = gate()
+    const events: string[] = []
+    let beginCount = 0
+    const writer = {
+      async openProject() {},
+      async beginUpdate() { beginCount += 1 },
+      async clearImportOutput() {},
+      async writeImportIndexBatch() {
+        events.push("write:start")
+        writing.start()
+        await writing.wait()
+        events.push("write:end")
+      },
+      async commitUpdate() { events.push("commit") },
+      async createReadToken() { return {} as never },
+    } as unknown as ProjectStateWriterHandle
+    const importSession = await createProjectStateImportSession({
+      projectDir: "/project",
+      workerCount: 1,
+      output: { componentPaths: ["cf"] },
+      writer,
+      async publish() {},
+      async discard() {},
+    })
+
+    const activeWrite = importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([]))
+    await writing.started
+    const committing = importSession.commitWorkingIndex()
+    await Promise.resolve()
+    expect(events).toEqual(["write:start"])
+
+    writing.release()
+    await Promise.all([activeWrite, committing])
+    expect(events).toEqual(["write:start", "write:end", "commit"])
+    expect(beginCount).toBe(2)
   })
 })
 

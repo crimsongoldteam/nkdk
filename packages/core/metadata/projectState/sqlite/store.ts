@@ -51,7 +51,12 @@ import {
   type ProjectStatePendingOwnerCheck,
   type ProjectStatePendingReferenceCheck,
 } from "../dependencyValidation"
-import { openProjectStateFileUpdateBatch } from "../binary/contribution"
+import {
+  openProjectStateFileUpdateBatch,
+  isProjectStateEncodedImportIndexBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
+} from "../binary/contribution"
 
 export interface CreateSqliteProjectStateStoreOptions {
   readonly projectDir: string
@@ -211,7 +216,14 @@ function createStore(
     replaceImportIndex(batch) {
       assertOpen()
       assertUpdateActive()
-      for (const contribution of batch) replaceImportIndex(statements, contribution)
+      if (isProjectStateEncodedImportIndexBatch(batch)) {
+        const encoded = openProjectStateImportIndexBatch(batch)
+        for (let index = 0; index < encoded.fileCount; index += 1) {
+          replaceImportIndex(statements, encoded.contribution(index))
+        }
+      } else {
+        for (const contribution of batch) replaceImportIndex(statements, contribution)
+      }
     },
     registerImportFileIdentities(files) {
       assertOpen()
@@ -221,11 +233,23 @@ function createStore(
     replaceImportFinalFileState(batch) {
       assertOpen()
       assertUpdateActive()
-      for (let index = 0; index < batch.updates.length; index += 1) {
-        replaceImportFinalFileState(statements, batch.updates[index]!, batch.hashBytes, index)
-      }
-      for (const update of batch.updates) {
-        if (update.kind === "yaml") replaceImportFinalDependencies(statements, update)
+      if ("updates" in batch) {
+        for (let index = 0; index < batch.updates.length; index += 1) {
+          replaceImportFinalFileState(statements, batch.updates[index]!, batch.hashBytes, index)
+        }
+        for (const update of batch.updates) {
+          if (update.kind === "yaml") replaceImportFinalDependencies(statements, update)
+        }
+      } else {
+        const encoded = openProjectStateImportFinalBatch(batch)
+        const hashBytes = new Uint8Array(encoded.fileCount * 8)
+        const hashes = new DataView(hashBytes.buffer)
+        for (let index = 0; index < encoded.fileCount; index += 1) {
+          const update = encoded.finalState(index)
+          hashes.setBigUint64(index * 8, encoded.hash(index), false)
+          replaceImportFinalFileState(statements, update, hashBytes, index)
+          if (update.kind === "yaml") replaceImportFinalDependencies(statements, update)
+        }
       }
     },
     deleteFiles(projectPaths) {

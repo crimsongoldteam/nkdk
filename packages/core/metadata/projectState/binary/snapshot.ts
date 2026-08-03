@@ -218,6 +218,19 @@ export class ProjectStateSnapshotView {
     return Array.from({ length: this.#fileCount }, (_, fileId) => this.filePath(fileId))
   }
 
+  findFile(projectPath: string): number | undefined {
+    let low = 0
+    let high = this.#fileCount - 1
+    while (low <= high) {
+      const middle = (low + high) >>> 1
+      const candidate = this.filePath(middle)
+      if (candidate === projectPath) return middle
+      if (candidate < projectPath) low = middle + 1
+      else high = middle - 1
+    }
+    return undefined
+  }
+
   factBytes(fileId: number): Uint8Array<SharedArrayBuffer> {
     const record = this.fileRecord(fileId)
     return this.#range(this.buffers.facts, record.factsOffset, record.factsByteLength, "фактов")

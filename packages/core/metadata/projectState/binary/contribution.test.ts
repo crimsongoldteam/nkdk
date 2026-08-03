@@ -1,10 +1,18 @@
 import { expect, it } from "vitest"
 import { createProjectStateFileUpdateBatch } from "../fileUpdate"
 import {
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
   encodeProjectStateFileUpdateBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
   openProjectStateFileUpdateBatch,
 } from "./contribution"
 import { richYamlUpdate } from "./testData"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "../importSession"
 
 it("читает сведения файла прямо из переданного ArrayBuffer", () => {
   const encoded = encodeProjectStateFileUpdateBatch(
@@ -41,4 +49,49 @@ it.each([
   ["смещённое представление", () => ({ bytes: new Uint8Array(new ArrayBuffer(9), 1, 8) })],
 ])("отвергает непереносимую границу: %s", (_name, create) => {
   expect(() => openProjectStateFileUpdateBatch(create() as never)).toThrow()
+})
+
+it("читает временный индекс import из одного переносимого буфера", () => {
+  const contribution: ProjectStateImportIndexContribution = {
+    projectPath: "cf/Товары.yaml",
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole: "properties",
+    references: [{ kind: "object", canonical: "Catalog.Товары" }],
+    owners: [],
+    fields: [],
+    forms: [],
+  }
+  const encoded = encodeProjectStateImportIndexBatch([contribution])
+  const received = structuredClone(encoded, { transfer: [encoded.bytes.buffer] })
+  const view = openProjectStateImportIndexBatch(received)
+
+  expect(encoded.bytes.byteLength).toBe(0)
+  expect(view.fileCount).toBe(1)
+  expect(view.contribution(0)).toEqual(contribution)
+})
+
+it("читает окончательное состояние import и хэш из одного переносимого буфера", () => {
+  const batch: ProjectStateImportFinalFileStateBatch = {
+    updates: [{
+      projectPath: "cf/Товары.yaml",
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+      kind: "yaml",
+      localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
+      pendingReferences: [],
+      pendingChecks: [],
+      dependencies: [],
+    }],
+    hashBytes: Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 9]),
+  }
+  const encoded = encodeProjectStateImportFinalBatch(batch)
+  const received = structuredClone(encoded, { transfer: [encoded.bytes.buffer] })
+  const view = openProjectStateImportFinalBatch(received)
+
+  expect(encoded.bytes.byteLength).toBe(0)
+  expect(view.fileCount).toBe(1)
+  expect(view.hash(0)).toBe(9n)
+  expect(view.finalState(0)).toEqual(batch.updates[0])
 })

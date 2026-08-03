@@ -21,7 +21,7 @@ import type {
   ProjectTargetLookup,
   ProjectTargetLookupResult,
 } from "../readSession"
-import { ProjectStateReadSessionClosedError } from "../readSession"
+import { createProjectStateReadSession, ProjectStateReadSessionClosedError } from "../readSession"
 import type { ProjectStateFieldEntry, ProjectStateFormEntry, ProjectStatePendingDependencyCheck } from "../fileUpdate"
 import {
   projectStateDataPathReferenceLocation,
@@ -65,75 +65,32 @@ export function openSqliteProjectStateReadSession(
   }
 
   const queryPort = createSqliteProjectStateQueryPort(database)
-  let closed = false
-  let session!: ProjectStateReadSession
-  session = {
-    resolveTargets(requests) {
-      assertOpen()
-      return queryPort.resolveTargets(requests)
-    },
-    readOwners(requests) {
-      assertOpen()
-      return queryPort.readOwners(requests)
-    },
-    findReferences(requests) {
-      assertOpen()
-      return queryPort.findReferences(requests)
-    },
-    readDependencyInputs(requests) {
-      assertOpen()
-      return queryPort.readDependencyInputs(requests)
-    },
-    readDependencyOwnerInputs(requests) {
-      assertOpen()
-      return queryPort.readDependencyOwnerInputs(requests)
-    },
-    readOwnerRefPage(query) {
-      assertOpen()
-      return queryPort.readOwnerRefPage(query)
-    },
-    readComponentTargetPage(query) {
-      assertOpen()
-      return queryPort.readComponentTargetPage(query)
-    },
-    readValidationStatus(query) {
-      assertOpen()
-      return queryPort.readValidationStatus(query)
-    },
+  const session = createProjectStateReadSession({
+    token,
+    queryPort,
+    beforeRead: assertCurrentLifecycle,
     close() {
-      closeSession()
+      lifecycleChannel.close()
+      database.close()
     },
-  }
-  lifecycleChannel.onmessage = closeSession
+    onClose: options.onClose,
+  })
+  lifecycleChannel.onmessage = () => session.close()
   try {
     assertCurrentLifecycle()
   } catch (error) {
-    closeSession()
+    session.close()
     throw error
   }
   return session
-
-  function assertOpen(): void {
-    if (closed) throw new ProjectStateReadSessionClosedError(token)
-    assertCurrentLifecycle()
-  }
 
   function assertCurrentLifecycle(): void {
     const row = database.prepare("SELECT value FROM cache_meta WHERE key = 'lifecycle_nonce'").get() as
       | { value: string }
       | undefined
     if (row?.value !== payload.lifecycleNonce) {
-      closeSession()
       throw new ProjectStateReadSessionClosedError(token)
     }
-  }
-
-  function closeSession(): void {
-    if (closed) return
-    closed = true
-    lifecycleChannel.close()
-    database.close()
-    options.onClose?.(session)
   }
 }
 

@@ -4,17 +4,14 @@ import {
   resolveProjectStateDataPathReferenceBatch,
 } from "../dependencyValidation"
 import type {
-  ProjectStateFieldEntry,
-  ProjectStateFormEntry,
   ProjectStateLocalValidationResult,
   ProjectStateOwnerFact,
   ProjectStatePendingDependencyCheck,
-  ProjectStatePendingReference,
-  ProjectStateReferenceEntry,
+  ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import type { ProjectStateReadToken } from "../contracts"
 import {
-  ProjectStateReadSessionClosedError,
+  createProjectStateReadSession,
   type ProjectComponentTargetPage,
   type ProjectDependencyInput,
   type ProjectDependencyInputQuery,
@@ -34,15 +31,10 @@ import { claimBinaryProjectStateReadToken } from "./readToken"
 import { decodeBinaryOwnerKey, encodeBinaryOwnerKey } from "./ownerKey"
 import { ProjectStateSnapshotView } from "./snapshot"
 
-interface DecodedYamlFacts {
-  readonly references: readonly ProjectStateReferenceEntry[]
-  readonly pendingReferences: readonly ProjectStatePendingReference[]
-  readonly owners: readonly ProjectStateOwnerFact[]
-  readonly fields: readonly ProjectStateFieldEntry[]
-  readonly forms: readonly ProjectStateFormEntry[]
-  readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
-  readonly dependencies: readonly string[]
-}
+type DecodedYamlFacts = Pick<
+  ProjectStateYamlFileUpdate,
+  "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"
+>
 
 const PAGE_SIZE = 2_000
 
@@ -68,49 +60,7 @@ export function openBinaryProjectStateReadSession(
   if (token instanceof Uint8Array) throw new Error("Ожидался двоичный token чтения")
   const snapshot = new ProjectStateSnapshotView(claimBinaryProjectStateReadToken(token))
   const queryPort = createBinaryProjectStateQueryPort(snapshot)
-  let closed = false
-
-  function assertOpen(): void {
-    if (closed) throw new ProjectStateReadSessionClosedError(token)
-  }
-
-  return {
-    resolveTargets(requests) {
-      assertOpen()
-      return queryPort.resolveTargets(requests)
-    },
-    readOwners(requests) {
-      assertOpen()
-      return queryPort.readOwners(requests)
-    },
-    findReferences(requests) {
-      assertOpen()
-      return queryPort.findReferences(requests)
-    },
-    readDependencyInputs(requests) {
-      assertOpen()
-      return queryPort.readDependencyInputs(requests)
-    },
-    readDependencyOwnerInputs(requests) {
-      assertOpen()
-      return queryPort.readDependencyOwnerInputs(requests)
-    },
-    readOwnerRefPage(query) {
-      assertOpen()
-      return queryPort.readOwnerRefPage(query)
-    },
-    readComponentTargetPage(query) {
-      assertOpen()
-      return queryPort.readComponentTargetPage(query)
-    },
-    readValidationStatus(query) {
-      assertOpen()
-      return queryPort.readValidationStatus(query)
-    },
-    close() {
-      closed = true
-    },
-  }
+  return createProjectStateReadSession({ token, queryPort })
 }
 
 function resolveTargets(
@@ -187,7 +137,7 @@ function readDependencyInputs(
   return requests.map(({ requestId, componentPath, projectPath, check }) => {
     const selected = selectOwnerFile(snapshot, componentPath, check.owner)
     if (selected.status !== "found") return { requestId, status: "missing" as const }
-    const formFileId = findFile(snapshot, projectPath)
+    const formFileId = snapshot.findFile(projectPath)
     const input: ProjectDependencyInput = {
       owners: selected.facts.owners
         .filter(({ owner }) => sameOwner(owner, check.owner))
@@ -367,19 +317,6 @@ function readValidationStatus(
 
 function yamlFacts(snapshot: ProjectStateSnapshotView, fileId: number): DecodedYamlFacts | undefined {
   return snapshot.decodeFacts(fileId) as DecodedYamlFacts | undefined
-}
-
-function findFile(snapshot: ProjectStateSnapshotView, projectPath: string): number | undefined {
-  let low = 0
-  let high = snapshot.fileCount - 1
-  while (low <= high) {
-    const middle = (low + high) >>> 1
-    const candidate = snapshot.filePath(middle)
-    if (candidate === projectPath) return middle
-    if (candidate < projectPath) low = middle + 1
-    else high = middle - 1
-  }
-  return undefined
 }
 
 function isVisible(requestComponent: string, candidateComponent: string): boolean {

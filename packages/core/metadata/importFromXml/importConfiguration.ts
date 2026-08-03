@@ -21,6 +21,13 @@ import {
   type PreparedWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import {
+  encodeProjectStateImportFinalBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
+  type ProjectStateEncodedImportFinalBatch,
+  type ProjectStateEncodedImportIndexBatch,
+} from "../projectState/binary/contribution"
 import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
 import {
   createProjectStateService,
@@ -283,7 +290,7 @@ export async function importConfigurationFromXml(
     if (externalFinalState.updates.length > 0) {
       rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
       await importSession.registerFileIdentities(externalFinalState.updates.map(fileIdentity))
-      await importSession.writeFinalFileState(externalFinalState)
+      await importSession.writeFinalFileState(encodeProjectStateImportFinalBatch(externalFinalState))
     }
     const projectFiles = snapshotFilesFromState(files, importFileHashes)
     const indexData = profiler.measure(
@@ -376,8 +383,8 @@ function createImportStateSink(
     },
     async writeSecondPassState(batch) {
       await writeStreamedImportState(session, hashes, selectedComponentPath, {
-        indexContributions: [],
-        finalFileStateBatches: batch.finalFileStateBatches,
+        indexBatches: [],
+        finalStateBatches: batch.finalStateBatches,
       })
     },
   }
@@ -388,15 +395,21 @@ async function writeStreamedImportState(
   hashes: Map<string, bigint>,
   selectedComponentPath: string,
   batch: {
-    readonly indexContributions: readonly import("../projectState").ProjectStateImportIndexContribution[]
-    readonly finalFileStateBatches: readonly ProjectStateImportFinalFileStateBatch[]
+    readonly indexBatches: readonly ProjectStateEncodedImportIndexBatch[]
+    readonly finalStateBatches: readonly ProjectStateEncodedImportFinalBatch[]
   },
 ): Promise<void> {
-  const identities = batch.finalFileStateBatches.flatMap(({ updates }) => updates.map(fileIdentity))
+  const identities = batch.finalStateBatches.flatMap((encoded) => {
+    const view = openProjectStateImportFinalBatch(encoded)
+    return Array.from({ length: view.fileCount }, (_, index) => fileIdentity(view.finalState(index)))
+  })
   if (identities.length > 0) await session.registerFileIdentities(identities)
-  if (batch.indexContributions.length > 0) await session.writeFirstPassBatch(batch.indexContributions)
-  for (const finalState of batch.finalFileStateBatches) {
-    rememberImportFileHashes(hashes, selectedComponentPath, finalState)
+  for (const indexBatch of batch.indexBatches) {
+    openProjectStateImportIndexBatch(indexBatch)
+    await session.writeFirstPassBatch(indexBatch)
+  }
+  for (const finalState of batch.finalStateBatches) {
+    rememberEncodedImportFileHashes(hashes, selectedComponentPath, finalState)
     await session.writeFinalFileState(finalState)
   }
 }
@@ -524,6 +537,20 @@ function rememberImportFileHashes(
     if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
     hashes.set(update.projectPath.slice(prefix.length), view.getBigUint64(index * 8, false))
   })
+}
+
+function rememberEncodedImportFileHashes(
+  hashes: Map<string, bigint>,
+  selectedComponentPath: string,
+  batch: ProjectStateEncodedImportFinalBatch,
+): void {
+  const view = openProjectStateImportFinalBatch(batch)
+  for (let index = 0; index < view.fileCount; index += 1) {
+    const update = view.finalState(index)
+    const prefix = `${selectedComponentPath}/`
+    if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
+    hashes.set(update.projectPath.slice(prefix.length), view.hash(index))
+  }
 }
 
 function snapshotFilesFromState(

@@ -29,7 +29,13 @@ import type {
   ProjectStateStore,
 } from "../store"
 import { buildProjectStateSnapshot, type ProjectStateSnapshotPatch } from "./builder"
-import { openProjectStateFileUpdateBatch } from "./contribution"
+import {
+  openProjectStateFileUpdateBatch,
+  isProjectStateEncodedImportFinalBatch,
+  isProjectStateEncodedImportIndexBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
+} from "./contribution"
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
@@ -68,7 +74,7 @@ export function createBinaryProjectStateStore(
       const hashBytes = new Uint8Array(files.length * 8)
       const requestedPaths = new Set(files.map(({ projectPath }) => projectPath))
       files.forEach((file, index) => {
-        const fileId = findFile(snapshot, file.projectPath)
+      const fileId = snapshot.findFile(file.projectPath)
         if (fileId === undefined || !sameIdentity(snapshotIdentity(snapshot, fileId), file)) return
         knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
         new DataView(hashBytes.buffer).setBigUint64(index * 8, snapshot.fileRecord(fileId).hash, false)
@@ -86,7 +92,7 @@ export function createBinaryProjectStateStore(
       const requestedPaths = new Set(batch.files.map(({ projectPath }) => projectPath))
       return {
         changed: batch.files.flatMap((file, index) => {
-          const fileId = findFile(snapshot, file.projectPath)
+          const fileId = snapshot.findFile(file.projectPath)
           return fileId !== undefined
             && sameIdentity(snapshotIdentity(snapshot, fileId), file)
             && snapshot.fileRecord(fileId).hash === hashes.getBigUint64(index * 8, false)
@@ -118,8 +124,15 @@ export function createBinaryProjectStateStore(
     replaceImportIndex(batch) {
       assertOpen()
       const update = assertActive()
-      for (const contribution of batch) {
-        const previous = readUpdate(new ProjectStateSnapshotView(materialize(update)), contribution.projectPath)
+      const encoded = isProjectStateEncodedImportIndexBatch(batch) ? openProjectStateImportIndexBatch(batch) : undefined
+      const logical = encoded === undefined
+        ? batch as readonly import("../importSession").ProjectStateImportIndexContribution[]
+        : undefined
+      const fileCount = encoded?.fileCount ?? logical!.length
+      for (let index = 0; index < fileCount; index += 1) {
+        const contribution = encoded?.contribution(index) ?? logical![index]!
+        const previousPatch = currentPatch(update, contribution.projectPath)
+        const previous = previousPatch?.update
         const localValidation = previous?.kind === "yaml"
           ? previous.localValidation
           : { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] }
@@ -130,15 +143,14 @@ export function createBinaryProjectStateStore(
           pendingReferences: previous?.kind === "yaml" ? previous.pendingReferences : [],
           pendingChecks: previous?.kind === "yaml" ? previous.pendingChecks : [],
           dependencies: previous?.kind === "yaml" ? previous.dependencies : [],
-        }, previous === undefined ? 0n : readHash(new ProjectStateSnapshotView(materialize(update)), contribution.projectPath))
+        }, previousPatch?.hash ?? 0n)
       }
     },
     registerImportFileIdentities(files) {
       assertOpen()
       const update = assertActive()
       for (const identity of files) {
-        const snapshot = new ProjectStateSnapshotView(materialize(update))
-        const previous = readUpdate(snapshot, identity.projectPath)
+        const previous = currentPatch(update, identity.projectPath)?.update
         if (previous !== undefined) {
           if (!sameIdentity(previous, identity)) throw identityError(identity.projectPath)
           continue
@@ -149,17 +161,28 @@ export function createBinaryProjectStateStore(
     replaceImportFinalFileState(batch) {
       assertOpen()
       const update = assertActive()
-      assertHashBytes(batch.hashBytes, batch.updates.length)
-      const hashes = new DataView(batch.hashBytes.buffer)
-      batch.updates.forEach((finalState, index) => {
-        const snapshot = new ProjectStateSnapshotView(materialize(update))
-        const previous = readUpdate(snapshot, finalState.projectPath)
+      const encoded = isProjectStateEncodedImportFinalBatch(batch)
+        ? openProjectStateImportFinalBatch(batch)
+        : undefined
+      const logical = encoded === undefined
+        ? batch as import("../importSession").ProjectStateImportFinalFileStateBatch
+        : undefined
+      const fileCount = encoded?.fileCount ?? logical!.updates.length
+      if (logical !== undefined) assertHashBytes(logical.hashBytes, fileCount)
+      const hashes = logical === undefined ? undefined : new DataView(logical.hashBytes.buffer)
+      for (let index = 0; index < fileCount; index += 1) {
+        const finalState = encoded?.finalState(index) ?? logical!.updates[index]!
+        const previous = currentPatch(update, finalState.projectPath)?.update
         if (previous === undefined) throw new Error(`Identity файла ${finalState.projectPath} не зарегистрирована`)
         if (!sameIdentity(previous, finalState) || previous.kind !== finalState.kind) {
           throw identityError(finalState.projectPath)
         }
-        replace(update, mergeImportFinal(previous, finalState), hashes.getBigUint64(index * 8, false))
-      })
+        replace(
+          update,
+          mergeImportFinal(previous, finalState),
+          encoded?.hash(index) ?? hashes!.getBigUint64(index * 8, false),
+        )
+      }
     },
     clearImportOutput(componentPaths) {
       assertOpen()
@@ -251,12 +274,20 @@ export function createBinaryProjectStateStore(
   }
 
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
+    if (update.replacements.size === 0 && update.deletions.size === 0) return published
     update.candidate ??= buildProjectStateSnapshot({
       base: published,
       replacements: [...update.replacements.values()],
       deletions: [...update.deletions],
     })
     return update.candidate
+  }
+
+  function currentPatch(update: ActiveUpdate, projectPath: string): ProjectStateSnapshotPatch | undefined {
+    const replacement = update.replacements.get(projectPath)
+    if (replacement !== undefined) return replacement
+    if (update.deletions.has(projectPath)) return undefined
+    return readPatch(new ProjectStateSnapshotView(published), projectPath)
   }
 }
 
@@ -305,14 +336,11 @@ function mergeImportFinal(
   }
 }
 
-function readHash(snapshot: ProjectStateSnapshotView, projectPath: string): bigint {
-  const fileId = findFile(snapshot, projectPath)
-  return fileId === undefined ? 0n : snapshot.fileRecord(fileId).hash
-}
-
-function readUpdate(snapshot: ProjectStateSnapshotView, projectPath: string): ProjectStateFileUpdate | undefined {
-  const fileId = findFile(snapshot, projectPath)
-  return fileId === undefined ? undefined : decodeUpdate(snapshot, fileId)
+function readPatch(snapshot: ProjectStateSnapshotView, projectPath: string): ProjectStateSnapshotPatch | undefined {
+  const fileId = snapshot.findFile(projectPath)
+  return fileId === undefined
+    ? undefined
+    : { update: decodeUpdate(snapshot, fileId), hash: snapshot.fileRecord(fileId).hash }
 }
 
 function decodeUpdate(snapshot: ProjectStateSnapshotView, fileId: number): ProjectStateFileUpdate {
@@ -363,19 +391,6 @@ function assertHashBytes(hashBytes: Uint8Array, fileCount: number): void {
   ) {
     throw new Error(`hashBytes должен занимать ${expectedLength} байт`)
   }
-}
-
-function findFile(snapshot: ProjectStateSnapshotView, projectPath: string): number | undefined {
-  let low = 0
-  let high = snapshot.fileCount - 1
-  while (low <= high) {
-    const middle = (low + high) >>> 1
-    const candidate = snapshot.filePath(middle)
-    if (candidate === projectPath) return middle
-    if (candidate < projectPath) low = middle + 1
-    else high = middle - 1
-  }
-  return undefined
 }
 
 function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: boolean): Diagnostic[] {

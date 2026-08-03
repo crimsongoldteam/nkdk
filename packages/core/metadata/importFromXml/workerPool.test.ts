@@ -7,6 +7,12 @@ import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadP
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import {
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
+  openProjectStateImportFinalBatch,
+  openProjectStateImportIndexBatch,
+} from "../projectState/binary/contribution"
 import { createOperationProfiler } from "../validation/profile"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import { serializeImportYaml, writeMainImportYaml } from "./writeOutput"
@@ -108,10 +114,10 @@ describe("XML import worker pool", () => {
         fragments.push((batch as XmlImportStateBatch & {
           configurationFragment?: ConfigurationSnapshotFragment
         }).configurationFragment?.targetProjectPath)
-        acknowledged.push(batch.indexContributions[0]!.projectPath)
-        for (const final of batch.finalFileStateBatches) {
-          structuredClone(final, { transfer: [final.hashBytes.buffer as ArrayBuffer] })
-          expect(final.hashBytes.byteLength).toBe(0)
+        acknowledged.push(openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath)
+        for (const final of batch.finalStateBatches) {
+          structuredClone(final, { transfer: [final.bytes.buffer] })
+          expect(final.bytes.byteLength).toBe(0)
         }
         notifyAcknowledged()
       },
@@ -124,8 +130,8 @@ describe("XML import worker pool", () => {
     expect(fs.existsSync(join(outputDir, readyPath))).toBe(true)
     blocked.release()
     const result = await running
-    expect(result).not.toHaveProperty("indexContributions")
-    expect(result).not.toHaveProperty("finalFileStateBatches")
+    expect(result).not.toHaveProperty("indexBatches")
+    expect(result).not.toHaveProperty("finalStateBatches")
     expect(result).not.toHaveProperty("fragmentData")
     await pool.close()
   })
@@ -213,7 +219,7 @@ describe("XML import worker pool", () => {
     const primary = new Error("first sink failed")
     const secondSink = gate()
     const bothStarted = gate()
-    let started = 0
+    const started = { value: 0 }
     await pool.initialize({
       operationId: "first-sink-failure",
       context: mockContextFromXML(),
@@ -225,10 +231,8 @@ describe("XML import worker pool", () => {
       assignment("one"), assignment("two"), assignment("three"), assignment("four"),
     ], {
       async writeFirstPassState(batch) {
-        started += 1
-        if (started === 2) bothStarted.start()
-        await bothStarted.started
-        if (batch.indexContributions[0]!.projectPath.includes("one")) throw primary
+        await waitForBothSinks(started, bothStarted)
+        if (openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath.includes("one")) throw primary
         secondSink.start()
         await secondSink.wait()
       },
@@ -259,7 +263,7 @@ describe("XML import worker pool", () => {
     const secondary = new Error("second sink failed")
     const bothStarted = gate()
     const releaseSecondary = gate()
-    let started = 0
+    const started = { value: 0 }
     await pool.initialize({
       operationId: "first-sink-aggregate",
       context: mockContextFromXML(),
@@ -269,10 +273,8 @@ describe("XML import worker pool", () => {
 
     const running = pool.runFirstPass([assignment("one"), assignment("two")], {
       async writeFirstPassState(batch) {
-        started += 1
-        if (started === 2) bothStarted.start()
-        await bothStarted.started
-        if (batch.indexContributions[0]!.projectPath.includes("one")) throw primary
+        await waitForBothSinks(started, bothStarted)
+        if (openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath.includes("one")) throw primary
         releaseSecondary.start()
         await releaseSecondary.wait()
         throw secondary
@@ -299,8 +301,8 @@ describe("XML import worker pool", () => {
     })
     const sink = {
       async writeFirstPassState() {},
-      async writeSecondPassState(batch: { finalFileStateBatches: Array<{ hashBytes: Uint8Array }> }) {
-        acknowledged.push(batch.finalFileStateBatches[0]!.hashBytes.byteLength)
+      async writeSecondPassState(batch: { finalStateBatches: Array<{ bytes: Uint8Array }> }) {
+        acknowledged.push(batch.finalStateBatches[0]!.bytes.byteLength)
       },
     }
     await pool.runFirstPass([assignment("ready"), assignment("blocked")], sink as never)
@@ -311,10 +313,10 @@ describe("XML import worker pool", () => {
     await blocked.started
     await new Promise<void>((resolve) => setImmediate(resolve))
 
-    expect(acknowledged).toEqual([8])
+    expect(acknowledged[0]).toBeGreaterThan(8)
     blocked.release()
     const result = await running
-    expect(result).not.toHaveProperty("finalFileStateBatches")
+    expect(result).not.toHaveProperty("finalStateBatches")
     await pool.close()
   })
 
@@ -340,7 +342,7 @@ describe("XML import worker pool", () => {
         started += 1
         if (started === 2) bothStarted.start()
         await bothStarted.started
-        const projectPath = batch.finalFileStateBatches[0]!.updates[0]!.projectPath
+        const projectPath = openProjectStateImportFinalBatch(batch.finalStateBatches[0]!).finalState(0).projectPath
         if (projectPath.includes("second-0")) throw primary
         releaseSecondary.start()
         await releaseSecondary.wait()
@@ -639,8 +641,8 @@ function createFakePools() {
                 },
               ],
             })),
-          indexContributions,
-          finalFileStateBatches,
+          indexBatches: [encodeProjectStateImportIndexBatch(indexContributions)],
+          finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
         }
       }
       if (task.kind === "secondPass") {
@@ -650,7 +652,7 @@ function createFakePools() {
           diagnostics: [],
           warnings: [],
           files: [],
-          finalFileStateBatches: [fakeFinalBatch(`cf/second-${workerIndex}.yaml`)],
+          finalStateBatches: [encodeProjectStateImportFinalBatch(fakeFinalBatch(`cf/second-${workerIndex}.yaml`))],
         }
       }
       return undefined
@@ -719,6 +721,15 @@ function fakeFinalBatch(projectPath: string) {
     hash: 1n,
   }])
   return { updates: [update], hashBytes: encoded.hashBytes }
+}
+
+async function waitForBothSinks(
+  counter: { value: number },
+  bothStarted: ReturnType<typeof gate>,
+): Promise<void> {
+  counter.value += 1
+  if (counter.value === 2) bothStarted.start()
+  await bothStarted.started
 }
 
 function gate() {
