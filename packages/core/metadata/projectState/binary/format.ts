@@ -1,6 +1,6 @@
 import { ProjectStateHeaderRecordView, ProjectStateSectionRecordView } from "./layouts"
 
-export const PROJECT_STATE_FORMAT_VERSION = Object.freeze({ major: 0, minor: 4, patch: 1 })
+export const PROJECT_STATE_FORMAT_VERSION = Object.freeze({ major: 0, minor: 4, patch: 2 })
 
 export type ProjectStateSectionKind =
   | "strings"
@@ -127,7 +127,9 @@ export function decodeProjectStateHeader(bytes: Uint8Array): {
     header.minor !== PROJECT_STATE_FORMAT_VERSION.minor ||
     header.patch !== PROJECT_STATE_FORMAT_VERSION.patch
   ) {
-    throw new Error("Несовместимая версия состояния проекта: ожидается 0.4.1")
+    throw new Error(
+      `Несовместимая версия состояния проекта: ожидается ${PROJECT_STATE_FORMAT_VERSION.major}.${PROJECT_STATE_FORMAT_VERSION.minor}.${PROJECT_STATE_FORMAT_VERSION.patch}`,
+    )
   }
 
   const expectedHeaderByteLength =

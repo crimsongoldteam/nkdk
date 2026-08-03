@@ -107,7 +107,189 @@ export interface ProjectStateOwnerRangeRecord {
   readonly reserved: number
 }
 
+export interface ProjectStateFactSectionHeader {
+  readonly tableCount: number
+  readonly catalogOffset: number
+}
+
+export interface ProjectStateFactTableRecord {
+  readonly kind: number
+  readonly reserved: number
+  readonly offset: number
+  readonly records: number
+  readonly recordByteLength: number
+}
+
+export interface ProjectStateValidationStatusRecord {
+  readonly sourceFileId: number
+  readonly contributedFacts: number
+  readonly reserved8: number
+  readonly reserved16: number
+  readonly diagnosticsStart: number
+  readonly diagnosticsCount: number
+  readonly schemaDiagnosticsStart: number
+  readonly schemaDiagnosticsCount: number
+}
+
+export interface ProjectStateReferenceRecord {
+  readonly sourceFileId: number
+  readonly canonicalId: number
+  readonly detailsId: number
+  readonly kind: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
+export interface ProjectStateReferenceDetailsRecord {
+  readonly typeInfoId: number
+  readonly sourceTextId: number
+  readonly kind: number
+  readonly styleItemType: number
+  readonly reserved: number
+}
+
+export interface ProjectStatePendingReferenceRecord {
+  readonly sourceFileId: number
+  readonly yamlPathId: number
+  readonly canonicalId: number
+  readonly targetKindId: number
+  readonly targetRootId: number
+  readonly targetNameId: number
+  readonly targetMemberId: number
+  readonly constraintKindId: number
+}
+
+export interface ProjectStateOwnerRecord {
+  readonly sourceFileId: number
+  readonly kindId: number
+  readonly nameId: number
+  readonly factsStart: number
+  readonly factsCount: number
+}
+
+export interface ProjectStateOwnerFactRecord {
+  readonly ownerId: number
+  readonly roleId: number
+  readonly valueKind: number
+  readonly reserved: number
+  readonly valueId: number
+  readonly itemsStart: number
+  readonly itemsCount: number
+}
+
+export interface ProjectStateFieldRecord {
+  readonly sourceFileId: number
+  readonly ownerId: number
+  readonly nameId: number
+  readonly targetNameId: number
+  readonly sourceCollectionId: number
+  readonly parentNameId: number
+  readonly typeInfoId: number
+  readonly tableInfoId: number
+  readonly kind: number
+  readonly tableHasColumns: number
+  readonly reserved: number
+}
+
+export interface ProjectStateTypeInfoRecord {
+  readonly kindsStart: number
+  readonly kindsCount: number
+  readonly nextTypesStart: number
+  readonly nextTypesCount: number
+  readonly definedTypesStart: number
+  readonly definedTypesCount: number
+  readonly tableInfoId: number
+  readonly sourceTextId: number
+  readonly isComposite: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
+export interface ProjectStateStringValueRecord {
+  readonly valueId: number
+}
+
+export interface ProjectStateOwnerTypeRecord {
+  readonly kindId: number
+  readonly nameId: number
+}
+
+export interface ProjectStateTableInfoRecord {
+  readonly ownerTypeId: number
+  readonly nameId: number
+  readonly kind: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
+export interface ProjectStateFormRecord {
+  readonly sourceFileId: number
+  readonly ownerTypeId: number
+  readonly nameId: number
+  readonly tablePathId: number
+  readonly typeInfoId: number
+  readonly tableInfoId: number
+  readonly kind: number
+  readonly tableHasColumns: number
+  readonly reserved: number
+}
+
+export interface ProjectStatePendingCheckRecord {
+  readonly sourceFileId: number
+  readonly yamlPathId: number
+  readonly line: number
+  readonly col: number
+  readonly pathId: number
+  readonly ownerTypeId: number
+  readonly valueId: number
+  readonly policyYamlId: number
+  readonly allowedKindsStart: number
+  readonly allowedKindsCount: number
+  readonly elementTypeId: number
+  readonly tableContextId: number
+  readonly allowComposite: number
+  readonly hasValuesPicture: number
+  readonly reserved: number
+}
+
+export interface ProjectStateDependencyRecord {
+  readonly sourceFileId: number
+  readonly projectPathId: number
+}
+
+export interface ProjectStateYamlPathRecord {
+  readonly segmentsStart: number
+  readonly segmentsCount: number
+}
+
+export interface ProjectStateYamlPathSegmentRecord {
+  readonly stringId: number
+  readonly numericValue: number
+  readonly kind: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
+export interface ProjectStateDiagnosticSectionHeader {
+  readonly count: number
+  readonly recordsOffset: number
+}
+
+export interface ProjectStateDiagnosticRecord {
+  readonly sourceFileId: number
+  readonly line: number
+  readonly col: number
+  readonly messageId: number
+  readonly pathId: number
+  readonly severity: number
+  readonly source: number
+  readonly reserved: number
+}
+
 const projectStateView = new View()
+const uint8Field = { type: "integer", btype: "uint8" } as const
+const uint16Field = { type: "integer", btype: "uint16" } as const
+const uint32Field = { type: "integer", btype: "uint32" } as const
 
 export const ProjectStateHeaderRecordView = projectStateView.create<ProjectStateHeaderRecord>({
   $id: "ProjectStateHeaderRecord",
@@ -271,3 +453,241 @@ export const ProjectStateOwnerRangeRecordView =
       reserved: { type: "integer", btype: "uint32" },
     },
   })
+
+export const ProjectStateFactSectionHeaderView =
+  projectStateView.create<ProjectStateFactSectionHeader>({
+    $id: "ProjectStateFactSectionHeader",
+    type: "object",
+    properties: {
+      tableCount: { type: "integer", btype: "uint32" },
+      catalogOffset: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateFactTableRecordView =
+  projectStateView.create<ProjectStateFactTableRecord>({
+    $id: "ProjectStateFactTableRecord",
+    type: "object",
+    properties: {
+      kind: { type: "integer", btype: "uint16" },
+      reserved: { type: "integer", btype: "uint16" },
+      offset: { type: "integer", btype: "uint32" },
+      records: { type: "integer", btype: "uint32" },
+      recordByteLength: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateValidationStatusRecordView =
+  projectStateView.create<ProjectStateValidationStatusRecord>({
+    $id: "ProjectStateValidationStatusRecord",
+    type: "object",
+    properties: {
+      sourceFileId: { type: "integer", btype: "uint32" },
+      contributedFacts: { type: "integer", btype: "uint8" },
+      reserved8: { type: "integer", btype: "uint8" },
+      reserved16: { type: "integer", btype: "uint16" },
+      diagnosticsStart: { type: "integer", btype: "uint32" },
+      diagnosticsCount: { type: "integer", btype: "uint32" },
+      schemaDiagnosticsStart: { type: "integer", btype: "uint32" },
+      schemaDiagnosticsCount: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateReferenceRecordView = projectStateView.create<ProjectStateReferenceRecord>({
+  $id: "ProjectStateReferenceRecord",
+  type: "object",
+  properties: {
+    sourceFileId: uint32Field, canonicalId: uint32Field, detailsId: uint32Field,
+    kind: uint8Field, reserved8: uint8Field, reserved16: uint16Field,
+  },
+})
+
+export const ProjectStateReferenceDetailsRecordView = projectStateView.create<ProjectStateReferenceDetailsRecord>({
+  $id: "ProjectStateReferenceDetailsRecord",
+  type: "object",
+  properties: {
+    typeInfoId: { type: "integer", btype: "uint32" },
+    sourceTextId: { type: "integer", btype: "uint32" },
+    kind: { type: "integer", btype: "uint8" },
+    styleItemType: { type: "integer", btype: "uint8" },
+    reserved: { type: "integer", btype: "uint16" },
+  },
+})
+
+export const ProjectStatePendingReferenceRecordView = projectStateView.create<ProjectStatePendingReferenceRecord>({
+  $id: "ProjectStatePendingReferenceRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    yamlPathId: { type: "integer", btype: "uint32" },
+    canonicalId: { type: "integer", btype: "uint32" },
+    targetKindId: { type: "integer", btype: "uint32" },
+    targetRootId: { type: "integer", btype: "uint32" },
+    targetNameId: { type: "integer", btype: "uint32" },
+    targetMemberId: { type: "integer", btype: "uint32" },
+    constraintKindId: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateOwnerRecordView = projectStateView.create<ProjectStateOwnerRecord>({
+  $id: "ProjectStateOwnerRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    kindId: { type: "integer", btype: "uint32" },
+    nameId: { type: "integer", btype: "uint32" },
+    factsStart: { type: "integer", btype: "uint32" },
+    factsCount: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateOwnerFactRecordView = projectStateView.create<ProjectStateOwnerFactRecord>({
+  $id: "ProjectStateOwnerFactRecord",
+  type: "object",
+  properties: {
+    ownerId: { type: "integer", btype: "uint32" },
+    roleId: { type: "integer", btype: "uint32" },
+    valueKind: { type: "integer", btype: "uint16" },
+    reserved: { type: "integer", btype: "uint16" },
+    valueId: { type: "integer", btype: "uint32" },
+    itemsStart: { type: "integer", btype: "uint32" },
+    itemsCount: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateFieldRecordView = projectStateView.create<ProjectStateFieldRecord>({
+  $id: "ProjectStateFieldRecord",
+  type: "object",
+  properties: {
+    sourceFileId: uint32Field, ownerId: uint32Field, nameId: uint32Field,
+    targetNameId: uint32Field, sourceCollectionId: uint32Field, parentNameId: uint32Field,
+    typeInfoId: uint32Field, tableInfoId: uint32Field,
+    kind: uint8Field, tableHasColumns: uint8Field, reserved: uint16Field,
+  },
+})
+
+export const ProjectStateTypeInfoRecordView = projectStateView.create<ProjectStateTypeInfoRecord>({
+  $id: "ProjectStateTypeInfoRecord",
+  type: "object",
+  properties: {
+    kindsStart: { type: "integer", btype: "uint32" },
+    kindsCount: { type: "integer", btype: "uint32" },
+    nextTypesStart: { type: "integer", btype: "uint32" },
+    nextTypesCount: { type: "integer", btype: "uint32" },
+    definedTypesStart: { type: "integer", btype: "uint32" },
+    definedTypesCount: { type: "integer", btype: "uint32" },
+    tableInfoId: { type: "integer", btype: "uint32" },
+    sourceTextId: { type: "integer", btype: "uint32" },
+    isComposite: { type: "integer", btype: "uint8" },
+    reserved8: { type: "integer", btype: "uint8" },
+    reserved16: { type: "integer", btype: "uint16" },
+  },
+})
+
+export const ProjectStateStringValueRecordView = projectStateView.create<ProjectStateStringValueRecord>({
+  $id: "ProjectStateStringValueRecord",
+  type: "object",
+  properties: { valueId: { type: "integer", btype: "uint32" } },
+})
+
+export const ProjectStateOwnerTypeRecordView = projectStateView.create<ProjectStateOwnerTypeRecord>({
+  $id: "ProjectStateOwnerTypeRecord",
+  type: "object",
+  properties: {
+    kindId: { type: "integer", btype: "uint32" },
+    nameId: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateTableInfoRecordView = projectStateView.create<ProjectStateTableInfoRecord>({
+  $id: "ProjectStateTableInfoRecord",
+  type: "object",
+  properties: {
+    ownerTypeId: uint32Field, nameId: uint32Field,
+    kind: uint8Field, reserved8: uint8Field, reserved16: uint16Field,
+  },
+})
+
+export const ProjectStateFormRecordView = projectStateView.create<ProjectStateFormRecord>({
+  $id: "ProjectStateFormRecord",
+  type: "object",
+  properties: {
+    sourceFileId: uint32Field, ownerTypeId: uint32Field, nameId: uint32Field,
+    tablePathId: uint32Field, typeInfoId: uint32Field, tableInfoId: uint32Field,
+    kind: uint8Field, tableHasColumns: uint8Field, reserved: uint16Field,
+  },
+})
+
+export const ProjectStatePendingCheckRecordView = projectStateView.create<ProjectStatePendingCheckRecord>({
+  $id: "ProjectStatePendingCheckRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    yamlPathId: { type: "integer", btype: "uint32" },
+    line: { type: "integer", btype: "uint32" },
+    col: { type: "integer", btype: "uint32" },
+    pathId: { type: "integer", btype: "uint32" },
+    ownerTypeId: { type: "integer", btype: "uint32" },
+    valueId: { type: "integer", btype: "uint32" },
+    policyYamlId: { type: "integer", btype: "uint32" },
+    allowedKindsStart: { type: "integer", btype: "uint32" },
+    allowedKindsCount: { type: "integer", btype: "uint32" },
+    elementTypeId: { type: "integer", btype: "uint32" },
+    tableContextId: { type: "integer", btype: "uint32" },
+    allowComposite: { type: "integer", btype: "uint8" },
+    hasValuesPicture: { type: "integer", btype: "uint8" },
+    reserved: { type: "integer", btype: "uint16" },
+  },
+})
+
+export const ProjectStateDependencyRecordView = projectStateView.create<ProjectStateDependencyRecord>({
+  $id: "ProjectStateDependencyRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    projectPathId: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateYamlPathRecordView = projectStateView.create<ProjectStateYamlPathRecord>({
+  $id: "ProjectStateYamlPathRecord",
+  type: "object",
+  properties: {
+    segmentsStart: { type: "integer", btype: "uint32" },
+    segmentsCount: { type: "integer", btype: "uint32" },
+  },
+})
+
+export const ProjectStateYamlPathSegmentRecordView = projectStateView.create<ProjectStateYamlPathSegmentRecord>({
+  $id: "ProjectStateYamlPathSegmentRecord",
+  type: "object",
+  properties: {
+    stringId: uint32Field, numericValue: uint32Field,
+    kind: uint8Field, reserved8: uint8Field, reserved16: uint16Field,
+  },
+})
+
+export const ProjectStateDiagnosticSectionHeaderView =
+  projectStateView.create<ProjectStateDiagnosticSectionHeader>({
+    $id: "ProjectStateDiagnosticSectionHeader",
+    type: "object",
+    properties: {
+      count: { type: "integer", btype: "uint32" },
+      recordsOffset: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateDiagnosticRecordView = projectStateView.create<ProjectStateDiagnosticRecord>({
+  $id: "ProjectStateDiagnosticRecord",
+  type: "object",
+  properties: {
+    sourceFileId: { type: "integer", btype: "uint32" },
+    line: { type: "integer", btype: "uint32" },
+    col: { type: "integer", btype: "uint32" },
+    messageId: { type: "integer", btype: "uint32" },
+    pathId: { type: "integer", btype: "uint32" },
+    severity: { type: "integer", btype: "uint8" },
+    source: { type: "integer", btype: "uint8" },
+    reserved: { type: "integer", btype: "uint16" },
+  },
+})
