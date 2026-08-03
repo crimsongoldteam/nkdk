@@ -101,12 +101,6 @@ describe("XML import worker first pass", () => {
     const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
 
     expect(result.diagnostics).toEqual([])
-    expect(result.ownerFacts).toEqual([
-      expect.objectContaining({
-        ref: { kind: "Справочник", name: "СправочникПолный" },
-        filePath: assignment.targetProjectPath,
-      }),
-    ])
     const fragments = result.configurationFragments
     expect(fragments).toEqual([
       expect.objectContaining({
@@ -120,51 +114,13 @@ describe("XML import worker first pass", () => {
       }),
     ])
     expect(fragments[0]).not.toHaveProperty("localDependencies")
-    expect(result.validationContribution.objectIndexEntries).toContainEqual(
-      expect.objectContaining({
-        canonical: "Catalog.СправочникПолный",
-        result: { ok: true, filePath: assignment.targetProjectPath, details: expect.any(Object) },
-      })
-    )
-    expect(result.validationContribution.memberIndexEntries).toContainEqual(
-      expect.objectContaining({
-        canonical: "Catalog.СправочникПолный.Attribute.РеквизитСправочника",
-        result: expect.objectContaining({ ok: true, filePath: assignment.targetProjectPath }),
-      })
-    )
-    expect(result.validationContribution.pendingReferences).toContainEqual(
-      expect.objectContaining({
-        filePath: assignment.targetProjectPath,
-        canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
-        yamlPath: ["ОсновнаяФормаОбъекта"],
-      })
-    )
-    expect(result.validationContribution.localDependencies).toContainEqual({
-      sourceProjectPath: assignment.targetProjectPath,
-      yamlPath: ["ОсновнаяФормаОбъекта"],
-      rulePath: [{ propertyKey: "defaultObjectForm" }],
-      kind: "metadataTarget",
-      canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
-    })
-    expect(result.validationContribution.objectRecords).toContainEqual(
-      expect.objectContaining({
-        filePath: assignment.targetProjectPath,
-        projectPath: assignment.targetProjectPath,
-        owner: { dir: "Справочник", name: "СправочникПолный" },
-        objectIndexEntries: expect.any(Array),
-        memberIndexEntries: expect.any(Array),
-        pendingReferences: expect.any(Array),
-      })
-    )
-    expect(() => structuredClone(result.validationContribution.pendingReferences)).not.toThrow()
+    expect(result.stateFragment).toBeDefined()
     expect(Object.keys(result).sort()).toEqual([
       "configurationFragments",
       "diagnostics",
       "files",
       "kind",
-      "ownerFacts",
       "stateFragment",
-      "validationContribution",
     ])
     expect(workerStateForTests()).toMatchObject({
       operationId: "second-pass-test",
@@ -233,16 +189,6 @@ describe("XML import worker first pass", () => {
     const stateFragment = fragmentWriter.finish()
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
-      ownerFacts: [],
-      validationContribution: {
-        objectRecords: [],
-        objectIndexEntries: [],
-        memberIndexEntries: [],
-        valueIndexEntries: [],
-        pendingReferences: [],
-        localDependencies: [],
-        logicalAddresses: [],
-      },
       diagnostics: [],
       files: [],
       configurationFragments: [],

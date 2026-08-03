@@ -1,6 +1,4 @@
 import type { XmlImportConfigurationContext } from "../context/types"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
@@ -67,6 +65,8 @@ export type ImportWorkerCommand =
       componentPath?: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
+  | { kind: "firstPassBatch"; assignments: ImportAssignment[] }
+  | { kind: "finishFirstPass" }
   | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
   | { kind: "secondPass"; assignmentId: string }
   | { kind: "endSecondPass" }
@@ -74,8 +74,6 @@ export type ImportWorkerCommand =
 
 export interface ImportFirstPassResult {
   kind: "firstPassResult"
-  ownerFacts: ValidationOwnerFacts[]
-  validationContribution: ValidationIndexContribution
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
   configurationFragments: ConfigurationSnapshotFragment[]

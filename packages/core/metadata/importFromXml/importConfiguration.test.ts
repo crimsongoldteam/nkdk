@@ -142,7 +142,7 @@ describe("configuration XML import coordinator", () => {
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
     let secondPassTokenCount = 0
     const dependencies = fakeDependencies({ calls, writtenIndexes, initialized })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
       async runSecondPass(snapshots, sink) {
@@ -285,7 +285,7 @@ describe("configuration XML import coordinator", () => {
     const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const diagnostic = importError("broken second pass")
     const dependencies = fakeDependencies({ calls, writtenIndexes })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
       async runSecondPass() {
@@ -531,7 +531,7 @@ describe("configuration XML import coordinator", () => {
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
     }
     const dependencies = fakeDependencies({ calls })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
       async runSecondPass() {

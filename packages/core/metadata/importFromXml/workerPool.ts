@@ -4,10 +4,9 @@ import Piscina from "piscina"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -48,8 +47,6 @@ export interface XmlImportWorkerPoolHandle {
 
 export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
-  ownerFacts: ValidationOwnerFacts[]
-  validationContribution: ValidationIndexContribution
   files: ImportResultFile[]
 }
 
@@ -88,6 +85,7 @@ type PoolPhase =
 export function createXmlImportWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => XmlImportWorkerThreadPool
+  operation?: MetadataWorkerOperation
   maxPendingStateBatches?: number
 }): XmlImportWorkerPool {
   const concurrency = normalizeConcurrency(params.concurrency)
@@ -99,16 +97,38 @@ export function createXmlImportWorkerPool(params: {
     getOrCreatePool(workerIndex) {
       const existing = pools.get(workerIndex)
       if (existing !== undefined) return existing
-      const created = createPool()
+      const created = params.operation === undefined
+        ? createPool()
+        : createOperationWorkerPool(params.operation, workerIndex)
       pools.set(workerIndex, created)
       return created
     },
     listPools() {
       return [...pools.values()]
     },
-    closeMode: "destroy",
+    closeMode: params.operation === undefined ? "destroy" : "dispose",
+    ...(params.operation === undefined ? {} : {
+      releaseOperation: () => params.operation!.finish("success"),
+      destroyOnCrash: () => params.operation!.finish("failure"),
+    }),
     maxPendingStateBatches: normalizePendingStateBatches(params.maxPendingStateBatches),
   })
+}
+
+function createOperationWorkerPool(
+  operation: MetadataWorkerOperation,
+  workerIndex: number,
+): XmlImportWorkerThreadPool {
+  return {
+    async run(command) {
+      const response = await operation.run(workerIndex, { kind: "import", command })
+      if (response.kind !== "importResult") {
+        throw new Error("Универсальный worker вернул неожиданный результат import")
+      }
+      return response.result
+    },
+    async destroy() {},
+  }
 }
 
 export function createXmlImportWorkerPoolHandle(params: {
@@ -226,7 +246,7 @@ function createXmlImportOperationPool(params: {
       }
 
       const resultsByWorker = await superviseWorkerJobs(
-        activeWorkerIndexes.map((workerIndex) => async (): Promise<ImportFirstPassResult[]> => {
+        activeWorkerIndexes.map((workerIndex) => async (): Promise<ImportFirstPassResult> => {
           assertProducerActive("firstPassRunning")
           const assignmentsForWorker = partitions[workerIndex] ?? []
           const initializeResponse = await runCommand(workerIndex, {
@@ -242,50 +262,41 @@ function createXmlImportOperationPool(params: {
             throw new Error("Worker вернул неожиданный результат initialize")
           }
 
-          const workerResults: ImportFirstPassResult[] = []
-          for (const assignment of assignmentsForWorker) {
+          for (let offset = 0; offset < assignmentsForWorker.length; offset += 256) {
             assertProducerActive("firstPassRunning")
             const response = await runCommand(workerIndex, {
-              kind: "firstPass",
-              assignments: [assignment],
+              kind: "firstPassBatch",
+              assignments: assignmentsForWorker.slice(offset, offset + 256),
             })
-            if (response?.kind !== "firstPassResult") {
-              throw new Error("Worker вернул неожиданный результат firstPass")
-            }
-            if (response.configurationFragments.length > 1) {
-              throw new Error("Worker вернул больше одного fragment на assignment")
-            }
+            if (response !== undefined) throw new Error("Worker вернул неожиданный результат firstPassBatch")
+          }
+          const response = await runCommand(workerIndex, { kind: "finishFirstPass" })
+          if (response?.kind !== "firstPassResult") {
+            throw new Error("Worker вернул неожиданный результат finishFirstPass")
+          }
+          for (let index = 0; index < response.configurationFragments.length; index += 1) {
+            const configurationFragment = response.configurationFragments[index]
             await stateQueue.run(() => {
               assertProducerActive("firstPassRunning")
               return sink.writeFirstPassState({
-                ...(response.configurationFragments[0] === undefined
-                  ? {}
-                  : { configurationFragment: response.configurationFragments[0] }),
-                ...(response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
+                ...(configurationFragment === undefined ? {} : { configurationFragment }),
+                ...(index !== 0 || response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
               })
             })
-            workerResults.push(withoutFirstPassState(response))
           }
-          return workerResults
+          if (response.configurationFragments.length === 0 && response.stateFragment !== undefined) {
+            await stateQueue.run(() => sink.writeFirstPassState({ stateFragment: response.stateFragment }))
+          }
+          return withoutFirstPassState(response)
         })
       )
-      const results = resultsByWorker.flat()
+      const results = resultsByWorker
 
       const diagnostics = results.flatMap((result) => result.diagnostics)
       phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
       return {
         diagnostics,
-        ownerFacts: results.flatMap((result) => result.ownerFacts),
         files: results.flatMap((result) => result.files),
-        validationContribution: {
-          objectRecords: results.flatMap((result) => result.validationContribution.objectRecords),
-          objectIndexEntries: results.flatMap((result) => result.validationContribution.objectIndexEntries),
-          memberIndexEntries: results.flatMap((result) => result.validationContribution.memberIndexEntries),
-          valueIndexEntries: results.flatMap((result) => result.validationContribution.valueIndexEntries),
-          pendingReferences: results.flatMap((result) => result.validationContribution.pendingReferences),
-          localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
-          logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
-        },
       }
     },
 

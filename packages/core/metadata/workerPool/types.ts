@@ -4,6 +4,7 @@ import type {
   PreparedYamlProjectWorkerTask,
   PreparedYamlProjectWorkerTaskResult,
 } from "../project/preparedYamlProjectWorker"
+import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -18,13 +19,25 @@ export type MetadataWorkerOperationCommand =
       readonly kind: "validation"
       readonly task: PreparedYamlProjectWorkerTask
     }
+  | {
+      readonly kind: "import"
+      readonly command: ImportWorkerCommand
+    }
 
 export interface MetadataWorkerProbeResult {
   readonly kind: "probeResult"
   readonly value: string
 }
 
-export type MetadataWorkerOperationResult = MetadataWorkerProbeResult | PreparedYamlProjectWorkerTaskResult
+export interface MetadataWorkerImportResult {
+  readonly kind: "importResult"
+  readonly result: ImportWorkerCommandResult
+}
+
+export type MetadataWorkerOperationResult =
+  | MetadataWorkerProbeResult
+  | PreparedYamlProjectWorkerTaskResult
+  | MetadataWorkerImportResult
 
 export type MetadataWorkerCommand =
   | {

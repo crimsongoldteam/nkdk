@@ -4,9 +4,11 @@ import {
   type MetadataWorkerPersistentState,
 } from "./workerState"
 import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
+import { runImportWorkerCommand } from "../importFromXml/worker"
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
+  readonly runImportCommand?: typeof runImportWorkerCommand
 }
 
 export function createMetadataWorkerCommandHandler(
@@ -49,6 +51,16 @@ export function createMetadataWorkerCommandHandler(
             rulesSnapshot: initialized.rulesSnapshot,
           },
         })
+      case "import":
+        return {
+          kind: "importResult",
+          result: await (dependencies.runImportCommand ?? runImportWorkerCommand)(command.command.command, {
+            persistentValidationState: {
+              schemaCache: initialized.schemaCache,
+              rulesSnapshot: initialized.rulesSnapshot,
+            },
+          }),
+        }
     }
   }
 }

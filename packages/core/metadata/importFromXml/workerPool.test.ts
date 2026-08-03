@@ -6,6 +6,7 @@ import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
@@ -29,10 +30,10 @@ describe("XML import worker pool", () => {
     expect(mockContextFromXML().fromXML).not.toHaveProperty("componentKind")
   })
 
-  it("sends one first-pass command per assignment with static round-robin ownership", async () => {
+  it("отправляет 257 назначений пачками 256 и 1 с одним завершением первого прохода", async () => {
     const pools = createFakePools()
-    const assignments = [assignment("one"), assignment("two"), assignment("three")]
-    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const assignments = Array.from({ length: 257 }, (_unused, index) => assignment(String(index)))
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
 
     await pool.initialize({
       operationId: "op",
@@ -41,32 +42,13 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     const first = await pool.runFirstPass(assignments)
-    await pool.runSecondPass(readTokens(2))
-
     expect(pools.runs(0).map((task) => task.kind)).toEqual([
-      "initialize", "firstPass", "firstPass", "beginSecondPass", "secondPass", "secondPass", "endSecondPass",
+      "initialize", "firstPassBatch", "firstPassBatch", "finishFirstPass",
     ])
-    expect(pools.runs(1).map((task) => task.kind)).toEqual([
-      "initialize", "firstPass", "beginSecondPass", "secondPass", "endSecondPass",
-    ])
-    expect(pools.firstPassIds(0)).toEqual([assignments[0]?.id, assignments[2]?.id])
-    expect(pools.firstPassIds(1)).toEqual([assignments[1]?.id])
-    expect(first.validationContribution.objectIndexEntries.map((entry) => entry.canonical)).toEqual([
-      "Catalog.one",
-      "Catalog.three",
-      "Catalog.two",
-    ])
-    expect(first.validationContribution.localDependencies.map((dependency) => dependency.canonical)).toEqual([
-      "Catalog.one.Form.Основная",
-      "Catalog.three.Form.Основная",
-      "Catalog.two.Form.Основная",
-    ])
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toEqual([
-      "Справочник/one/Свойства.yaml",
-      "Справочник/three/Свойства.yaml",
-      "Справочник/two/Свойства.yaml",
-    ])
-    expect(first).not.toHaveProperty("localDependencies")
+    expect(pools.firstPassBatchSizes(0)).toEqual([256, 1])
+    expect(first.files).toHaveLength(257)
+    expect(first).not.toHaveProperty("ownerFacts")
+    expect(first).not.toHaveProperty("validationContribution")
 
     await pool.close()
   })
@@ -85,6 +67,48 @@ describe("XML import worker pool", () => {
 
     expect(pools.created()).toBe(1)
     await pool.close()
+  })
+
+  it("выполняет import через универсальную операцию и не создаёт отдельный пул", async () => {
+    const commands: ImportWorkerCommand[] = []
+    const outcomes: string[] = []
+    const operation: MetadataWorkerOperation = {
+      id: "universal-import",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "import") throw new Error("Ожидалась команда import")
+        commands.push(command.command)
+        const result = command.command.kind === "finishFirstPass"
+          ? {
+              kind: "firstPassResult" as const,
+              diagnostics: [],
+              files: [],
+              configurationFragments: [],
+            }
+          : undefined
+        return { kind: "importResult", result }
+      },
+      async finish(outcome) { outcomes.push(outcome) },
+    }
+    const pool = createXmlImportWorkerPool({
+      concurrency: 1,
+      operation,
+      createWorkerPool() { throw new Error("Не должен создаваться отдельный пул") },
+    })
+
+    await pool.initialize({
+      operationId: "universal-import",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("universal"),
+      componentKind: "configuration",
+    })
+    await pool.runFirstPass([assignment("one")])
+    await pool.close()
+
+    expect(commands.map(({ kind }) => kind)).toEqual([
+      "initialize", "firstPassBatch", "finishFirstPass", "dispose",
+    ])
+    expect(outcomes).toEqual(["success"])
   })
 
   it("подтверждает state готового first-pass worker, пока другой worker заблокирован", async () => {
@@ -131,13 +155,11 @@ describe("XML import worker pool", () => {
     await pool.close()
   })
 
-  it("освобождает подтверждённый fragment до завершения последнего assignment того же worker", async () => {
+  it("публикует общий fragment только после завершения последнего assignment линии", async () => {
     const pools = createFakePools()
     const blocked = pools.blockFirstPassAssignment("last")
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
     const received: string[] = []
-    let acknowledge!: () => void
-    const acknowledged = new Promise<void>((resolve) => { acknowledge = resolve })
     await pool.initialize({
       operationId: "stream-fragments",
       context: mockContextFromXML(),
@@ -151,15 +173,18 @@ describe("XML import worker pool", () => {
           configurationFragment?: ConfigurationSnapshotFragment
         }).configurationFragment
         if (streamed !== undefined) received.push(streamed.targetProjectPath)
-        acknowledge()
       },
       async writeSecondPassState() {},
     })
-    await Promise.all([blocked.started, acknowledged])
+    await blocked.started
 
-    expect(received).toEqual(["Справочник/first/Свойства.yaml"])
+    expect(received).toEqual([])
     blocked.release()
     const result = await running
+    expect(received).toEqual([
+      "Справочник/first/Свойства.yaml",
+      "Справочник/last/Свойства.yaml",
+    ])
     expect(result).not.toHaveProperty("fragmentData")
     await pool.close()
   })
@@ -208,7 +233,7 @@ describe("XML import worker pool", () => {
     await pool.close()
   })
 
-  it("ждёт все active first-pass sinks после primary failure и не выдаёт новые assignment", async () => {
+  it("ждёт все active first-pass sinks после primary failure и не выдаёт новые пачки", async () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
     const primary = new Error("first sink failed")
@@ -245,8 +270,8 @@ describe("XML import worker pool", () => {
     const settled = await outcome
 
     expect(settled).toEqual({ status: "rejected", error: primary })
-    expect(pools.firstPassIds(0)).toEqual(["one"])
-    expect(pools.firstPassIds(1)).toEqual(["two"])
+    expect(pools.firstPassIds(0)).toEqual(["one", "three"])
+    expect(pools.firstPassIds(1)).toEqual(["two", "four"])
     expect(pools.destroyCalls()).toEqual([1, 1])
     await pool.close()
   })
@@ -402,8 +427,12 @@ describe("XML import worker pool", () => {
     await expect(
       pool.runSecondPass(readTokens(2))
     ).rejects.toThrow("Первый проход import завершён с ошибками")
-    expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
-    expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
+    expect(pools.runs(0).map((task) => task.kind)).toEqual([
+      "initialize", "firstPassBatch", "finishFirstPass",
+    ])
+    expect(pools.runs(1).map((task) => task.kind)).toEqual([
+      "initialize", "firstPassBatch", "finishFirstPass",
+    ])
 
     await pool.close()
   })
@@ -444,7 +473,7 @@ describe("XML import worker pool", () => {
         const current = workerIndex++
         return {
           async run(command) {
-            if (command.kind === "firstPass") throw primary
+            if (command.kind === "firstPassBatch") throw primary
             return undefined
           },
           async destroy() {
@@ -507,13 +536,15 @@ describe("XML import worker pool", () => {
       expect(handle.size()).toBe(2)
       expect(pools.runs(0).map((task) => task.kind)).toEqual([
         "initialize",
-        "firstPass",
+        "firstPassBatch",
+        "finishFirstPass",
         "beginSecondPass",
         "secondPass",
         "endSecondPass",
         "dispose",
         "initialize",
-        "firstPass",
+        "firstPassBatch",
+        "finishFirstPass",
         "beginSecondPass",
         "secondPass",
         "endSecondPass",
@@ -552,12 +583,13 @@ function createFakePools() {
   const secondPassBlocks = new Map<number, ReturnType<typeof gate>>()
   const initializedOutputDirs = new Map<number, string>()
   const realFirstPassFiles = new Map<number, string>()
+  const firstPassAssignments = new Map<number, ImportAssignment[]>()
   let producedFirstPass = 0
   const producedWaiters: Array<{ count: number; resolve: () => void }> = []
   const pools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, unknown>(
     async (task, workerIndex) => {
       if (task.kind === "initialize") initializedOutputDirs.set(workerIndex, task.outputDir)
-      if (task.kind === "firstPass") {
+      if (task.kind === "firstPassBatch") {
         const realFile = realFirstPassFiles.get(workerIndex)
         if (realFile !== undefined) {
           const outputDir = initializedOutputDirs.get(workerIndex)
@@ -571,62 +603,42 @@ function createFakePools() {
             profiler: createOperationProfiler({ operation: "test", scope: { scope: "main" } }),
           })
         }
-        producedFirstPass += task.assignments.length
-        for (const waiter of producedWaiters.splice(0)) {
-          if (producedFirstPass >= waiter.count) waiter.resolve()
-          else producedWaiters.push(waiter)
+        for (const item of task.assignments) {
+          producedFirstPass += 1
+          for (const waiter of producedWaiters.splice(0)) {
+            if (producedFirstPass >= waiter.count) waiter.resolve()
+            else producedWaiters.push(waiter)
+          }
+          await firstPassAssignmentBlocks.get(item.id)?.wait()
         }
-        await firstPassAssignmentBlocks.get(task.assignments[0]!.id)?.wait()
         await firstPassBlocks.get(workerIndex)?.wait()
         const failure = failures.get(workerIndex)
         if (failure !== undefined) throw failure
-        const indexContributions = task.assignments.map((item) => ({
+        const accumulated = firstPassAssignments.get(workerIndex) ?? []
+        accumulated.push(...task.assignments)
+        firstPassAssignments.set(workerIndex, accumulated)
+        return undefined
+      }
+      if (task.kind === "finishFirstPass") {
+        const assignments = firstPassAssignments.get(workerIndex) ?? []
+        firstPassAssignments.delete(workerIndex)
+        const indexContributions = assignments.map((item) => ({
           projectPath: `cf/${item.targetProjectPath}`,
           componentPath: "cf",
           resourceKind: "yaml" as const,
           yamlRole: "properties" as const,
           references: [], owners: [], fields: [], forms: [],
         }))
-        const finalFileStateBatches = task.assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
+        const finalFileStateBatches = assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
         return {
           kind: "firstPassResult" as const,
-          ownerFacts: [],
-          validationContribution: {
-            objectRecords: [],
-            objectIndexEntries: task.assignments.map((item) => {
-              const target = {
-                kind: "object" as const,
-                root: "Catalog" as const,
-                objectName: item.itemName,
-              }
-              return {
-                canonical: `Catalog.${item.itemName}`,
-                target,
-                result: {
-                  ok: true as const,
-                  filePath: item.targetProjectPath,
-                },
-              }
-            }),
-            memberIndexEntries: [],
-            valueIndexEntries: [],
-            pendingReferences: [],
-            localDependencies: task.assignments.map((item) => ({
-              sourceProjectPath: item.targetProjectPath,
-              yamlPath: ["ОсновнаяФорма"],
-              rulePath: [{ propertyKey: "defaultForm" }],
-              kind: "metadataTarget" as const,
-              canonical: `Catalog.${item.itemName}.Form.Основная`,
-            })),
-            logicalAddresses: [],
-          },
           diagnostics: diagnostics.get(workerIndex) ?? [],
-          files: task.assignments.map((item) => ({
+          files: assignments.map((item) => ({
             sourceKind: "worker" as const,
             sourcePath: join("/tmp/output", item.targetProjectPath),
             targetProjectPath: item.targetProjectPath,
           })),
-          configurationFragments: task.assignments.map((item) => ({
+          configurationFragments: assignments.map((item) => ({
               targetProjectPath: item.targetProjectPath,
               entities: [
                 {
@@ -660,7 +672,12 @@ function createFakePools() {
     },
     firstPassIds(workerIndex: number): string[] {
       return pools.commands(workerIndex).flatMap((task) =>
-        task.kind === "firstPass" ? task.assignments.map((item) => item.id) : []
+        task.kind === "firstPassBatch" ? task.assignments.map((item) => item.id) : []
+      )
+    },
+    firstPassBatchSizes(workerIndex: number): number[] {
+      return pools.commands(workerIndex).flatMap((task) =>
+        task.kind === "firstPassBatch" ? [task.assignments.length] : []
       )
     },
     created: pools.created,

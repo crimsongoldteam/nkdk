@@ -71,7 +71,7 @@ export interface ImportConfigurationFromXmlParams {
 }
 
 export interface ImportCoordinatorDependencies {
-  createWorkerPool(params: { concurrency: number }): XmlImportWorkerPool
+  createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
   }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
@@ -96,7 +96,6 @@ export interface ImportCoordinatorDependencies {
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
-  createWorkerPool: createXmlImportWorkerPool,
   async discover({ xmlDir }) {
     return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
   },
@@ -177,7 +176,18 @@ export async function importConfigurationFromXml(
       selectedComponentPath,
       fragmentBuilder,
     )
-    pool = params.xmlImportWorkerPoolHandle?.createOperationPool() ?? deps.createWorkerPool({ concurrency })
+    if (params.xmlImportWorkerPoolHandle !== undefined) {
+      pool = params.xmlImportWorkerPoolHandle.createOperationPool()
+    } else if (deps.createWorkerPool !== undefined) {
+      pool = deps.createWorkerPool({ concurrency })
+    } else {
+      const workerOperation = await projectState.workers.beginOperation({
+        id: operationId,
+        concurrency,
+        context: params.context,
+      })
+      pool = createXmlImportWorkerPool({ concurrency, operation: workerOperation })
+    }
 
     const discovered = await profiler.measureAsync(
       "Подготовка импорта конфигурации",

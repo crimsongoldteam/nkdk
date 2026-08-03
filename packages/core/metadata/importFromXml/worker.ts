@@ -6,7 +6,6 @@ import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { validationProjectComponentFromAddress } from "../validation/projectComponents"
@@ -29,10 +28,8 @@ import { createProjectStateOwnerMetadataCache } from "../projectState/dependency
 import { openProjectStateReadSession } from "../projectState/service"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
-import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
-  mergeImportValidationContributions,
   type ImportValidationContribution,
 } from "./validationContribution"
 import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
@@ -84,11 +81,30 @@ let initializedState: InitializedImportWorkerState | undefined
 let schemaCacheForTests: ValidationSchemaCache | undefined
 const preparedYaml = new Map<string, DeferredImportYaml>()
 let activeSecondPass: ActiveSecondPass | undefined
+let firstPassAccumulator: FirstPassAccumulator | undefined
 
-export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
+interface FirstPassAccumulator {
+  readonly diagnostics: ImportDiagnostic[]
+  readonly files: ImportResultFile[]
+  readonly configurationFragments: ConfigurationSnapshotFragment[]
+  readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
+  stateEntries: number
+}
+
+export async function runImportWorkerCommand(
+  command: ImportWorkerCommand,
+  options: {
+    persistentValidationState?: {
+      schemaCache: ValidationSchemaCache
+      rulesSnapshot: ValidationRulesSnapshot
+    }
+  } = {},
+): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
     endSecondPass()
     preparedYaml.clear()
+    firstPassAccumulator?.fragmentWriter.discard()
+    firstPassAccumulator = createFirstPassAccumulator()
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
@@ -96,8 +112,11 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
       outputDir: command.outputDir,
       projectDir: command.projectDir ?? command.outputDir,
       componentPath: command.componentPath ?? "cf",
-      schemaCache: schemaCacheForTests ?? createValidationSchemaCache(command.context),
-      rulesSnapshot: createValidationRulesSnapshot(command.context),
+      schemaCache: options.persistentValidationState?.schemaCache
+        ?? schemaCacheForTests
+        ?? createValidationSchemaCache(command.context),
+      rulesSnapshot: options.persistentValidationState?.rulesSnapshot
+        ?? createValidationRulesSnapshot(command.context),
     }
     return undefined
   }
@@ -105,6 +124,17 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   if (command.kind === "dispose") {
     disposeWorkerState()
     return undefined
+  }
+
+  if (command.kind === "firstPassBatch") {
+    await processFirstPass(command.assignments, requireInitializedState(), requireFirstPassAccumulator())
+    return undefined
+  }
+
+  if (command.kind === "finishFirstPass") {
+    const result = finishFirstPass(requireFirstPassAccumulator())
+    firstPassAccumulator = undefined
+    return result
   }
 
   if (command.kind === "beginSecondPass") {
@@ -121,7 +151,9 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
     return runSecondPass(command.assignmentId, requireInitializedState())
   }
 
-  return runFirstPass(command.assignments, requireInitializedState())
+  const accumulator = createFirstPassAccumulator()
+  await processFirstPass(command.assignments, requireInitializedState(), accumulator)
+  return finishFirstPass(accumulator)
 }
 
 async function runSecondPass(
@@ -272,22 +304,16 @@ export default async function importWorkerEntryPoint(command: ImportWorkerComman
       : result
 }
 
-async function runFirstPass(
+async function processFirstPass(
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState,
-): Promise<ImportFirstPassResult> {
+  accumulator: FirstPassAccumulator,
+): Promise<void> {
   const profiler = createOperationProfiler({
     operation: "import-from-xml",
     scope: { scope: "worker", workerIndex: state.workerIndex },
     aggregate: true,
   })
-  const diagnostics: ImportDiagnostic[] = []
-  const files: ImportResultFile[] = []
-  const ownerFacts: ValidationOwnerFacts[] = []
-  const fragments: ConfigurationSnapshotFragment[] = []
-  const validationContributions: ImportValidationContribution[] = []
-  const indexContributions: ProjectStateImportIndexContribution[] = []
-  const finalFileStateBatches: ProjectStateImportFinalFileStateBatch[] = []
   let earlyYamlCount = 0
   let earlyYamlBytes = 0
   let retainedYamlCount = 0
@@ -301,12 +327,6 @@ async function runFirstPass(
         collector,
         profiler,
       })
-      const preparedOwnerFacts = profiler.measure(
-        "Подготовка импорта конфигурации",
-        "Извлечение локального индекса метаданных",
-        { items: 1 },
-        () => extractImportOwnerFacts(prepared)
-      )
       const fragment = profiler.measure(
         "Подготовка импорта конфигурации",
         "Извлечение данных для индекса конфигурации",
@@ -337,10 +357,11 @@ async function runFirstPass(
         }))
         if (generatedStateEntries.length > 0) {
           const batch = createProjectStateFileUpdateBatch(generatedStateEntries)
-          finalFileStateBatches.push({
+          accumulator.fragmentWriter.appendImportFinal({
             updates: generatedStateEntries.map(({ update }) => update),
             hashBytes: batch.hashBytes,
           })
+          accumulator.stateEntries += generatedStateEntries.length
         }
         assignmentFiles.push(...xmlExternalImportFiles(assignment))
         if (prepared.deferred.length === 0) {
@@ -348,14 +369,16 @@ async function runFirstPass(
           const main = await writeMainImportYaml({ serialized, profiler })
           const validated = validateSerializedImportYaml(prepared, serialized, state)
           assignmentFiles.push(main.file)
-          finalFileStateBatches.push(validated.final)
+          accumulator.fragmentWriter.appendImportFinal(validated.final)
           const indexContribution = importIndexContribution(prepared, validationContribution, state)
-          indexContributions.push(indexContribution)
+          accumulator.fragmentWriter.appendImportIndex(indexContribution)
+          accumulator.stateEntries += 2
           earlyYamlCount += 1
           earlyYamlBytes += main.bytes
         } else {
           const indexContribution = importIndexContribution(prepared, validationContribution, state)
-          indexContributions.push(indexContribution)
+          accumulator.fragmentWriter.appendImportIndex(indexContribution)
+          accumulator.stateEntries += 1
           preparedYaml.set(assignment.id, {
             diagnosticAssignment: {
               targetProjectPath: assignment.targetProjectPath,
@@ -372,18 +395,16 @@ async function runFirstPass(
           retainedYamlCount += 1
           deferredValueCount += prepared.deferred.length
         }
-        files.push(...assignmentFiles)
+        accumulator.files.push(...assignmentFiles)
       } catch (caught) {
         preparedYaml.delete(assignment.id)
-        diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
+        accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_import_yaml_failed"))
         continue
       }
-      ownerFacts.push(...preparedOwnerFacts)
-      fragments.push(fragment)
-      validationContributions.push(validationContribution)
+      accumulator.configurationFragments.push(fragment)
     } catch (caught) {
       preparedYaml.delete(assignment.id)
-      diagnostics.push(importAssignmentDiagnostic(assignment, caught))
+      accumulator.diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
       // Полные XML-данные принадлежат prepareImportYaml и к этому моменту уже вышли из области видимости.
     }
@@ -403,22 +424,32 @@ async function runFirstPass(
     timeMs: 0,
   })
   profiler.flush()
-  const validation = mergeImportValidationContributions(validationContributions)
-  const fragmentWriter = createProjectStateFragmentWriter()
-  indexContributions.forEach((contribution) => fragmentWriter.appendImportIndex(contribution))
-  finalFileStateBatches.forEach((batch) => fragmentWriter.appendImportFinal(batch))
+}
+
+function createFirstPassAccumulator(): FirstPassAccumulator {
+  return {
+    diagnostics: [],
+    files: [],
+    configurationFragments: [],
+    fragmentWriter: createProjectStateFragmentWriter(),
+    stateEntries: 0,
+  }
+}
+
+function requireFirstPassAccumulator(): FirstPassAccumulator {
+  if (firstPassAccumulator === undefined) throw new Error("Первый проход XML-import worker не инициализирован")
+  return firstPassAccumulator
+}
+
+function finishFirstPass(accumulator: FirstPassAccumulator): ImportFirstPassResult {
   return {
     kind: "firstPassResult",
-    ownerFacts,
-    validationContribution: {
-      ...validation.validationContribution,
-      localDependencies: [...validation.validationContribution.localDependencies, ...validation.localDependencies],
-    },
-    diagnostics,
-    files,
-    configurationFragments: fragments,
-    ...(indexContributions.length === 0 && finalFileStateBatches.length === 0
-      ? {} : { stateFragment: fragmentWriter.finish() }),
+    diagnostics: accumulator.diagnostics,
+    files: accumulator.files,
+    configurationFragments: accumulator.configurationFragments,
+    ...(accumulator.stateEntries === 0
+      ? (accumulator.fragmentWriter.discard(), {})
+      : { stateFragment: accumulator.fragmentWriter.finish() }),
   }
 }
 
@@ -595,6 +626,8 @@ function requireInitializedState(): InitializedImportWorkerState {
 
 function disposeWorkerState(): void {
   endSecondPass()
+  firstPassAccumulator?.fragmentWriter.discard()
+  firstPassAccumulator = undefined
   preparedYaml.clear()
   initializedState = undefined
 }
