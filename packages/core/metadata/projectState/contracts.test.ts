@@ -204,7 +204,6 @@ function createTestStoreContractFixture() {
   }
 
   const store: ProjectStateStore = {
-    readCompatibility: () => undefined,
     readFileBaseline(files) {
       const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
       const hashBytes = new Uint8Array(files.length * 8)

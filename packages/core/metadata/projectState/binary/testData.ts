@@ -33,6 +33,7 @@ export function richYamlUpdate(
   projectPath: string,
   componentPath: string,
   canonical: string,
+  diagnosticMessage = "Ошибка",
 ): ProjectStateYamlFileUpdate {
   const update = yamlUpdate(projectPath, componentPath, canonical)
   const owner = { kind: "Справочник", name: canonical }
@@ -42,7 +43,8 @@ export function richYamlUpdate(
     localValidation: {
       contributedFacts: true,
       diagnostics: [
-        { line: 1, col: 1, severity: "error", source: "cross-file", message: "Ошибка" },
+        { line: 1, col: 1, severity: "error", source: "cross-file", message: diagnosticMessage },
+        { line: 2, col: 3, severity: "warning", source: "external-file", message: `${diagnosticMessage}: вторая` },
       ],
       schemaDiagnostics: [],
     },
@@ -53,14 +55,36 @@ export function richYamlUpdate(
       constraint: { kind: "object" },
     }],
     owners: [{ owner, facts: { registerType: "InformationRegister" } }],
-    fields: [{ owner, name: "Код", kind: "attribute", typeInfo }],
+    fields: [
+      {
+        owner,
+        name: "Код",
+        kind: "attribute",
+        typeInfo,
+        targetName: "КодСсылки",
+        sourceCollection: "Реквизиты",
+        parentName: "Товары",
+        table: { kind: "ValueTable" },
+        tableHasColumns: true,
+      },
+      { owner, name: "Описание", kind: "attribute", typeInfo, tableHasColumns: false },
+      { owner, name: "Артикул", kind: "attribute", typeInfo },
+    ],
     forms: [{
       kind: "root",
       owner,
       name: "Объект",
       source: { kind: "formAttribute", name: "Объект", typeInfo },
     }],
-    pendingChecks: [],
+    pendingChecks: [{
+      kind: "dataPath",
+      location: { line: 4, col: 5, path: "/ПутьКДанным" },
+      yamlPath: ["ПутьКДанным"],
+      owner,
+      value: "Объект.Код",
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
+    }],
     dependencies: ["Catalog.Товары"],
   }
 }

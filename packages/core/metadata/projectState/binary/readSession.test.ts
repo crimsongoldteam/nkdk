@@ -57,7 +57,11 @@ it("читает владельца и входы проверки зависи�
   }])).toMatchObject([{
     requestId: "dependency",
     status: "found",
-    input: { owners: [{ owner }], fields: [{ name: "Код" }], forms: [{ name: "Объект" }] },
+    input: {
+      owners: [{ owner }],
+      fields: [{ name: "Код" }, { name: "Описание" }, { name: "Артикул" }],
+      forms: [{ name: "Объект" }],
+    },
   }])
 })
 

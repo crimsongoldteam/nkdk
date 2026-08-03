@@ -7,6 +7,7 @@ import type {
 } from "./importSession"
 import { ProjectStateReadSessionClosedError, type ProjectStateReadSession } from "./readSession"
 import type { ProjectStateStore } from "./store"
+import { resourceUpdate, richYamlUpdate, yamlUpdate } from "./binary/testData"
 
 export interface ProjectStateStoreContractFixture {
   readonly store: ProjectStateStore
@@ -419,10 +420,6 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
   })
 }
 
-function resourceUpdate(projectPath: string, componentPath: string): ProjectStateFileUpdate {
-  return { kind: "resource", projectPath, componentPath, resourceKind: "resource" }
-}
-
 function importIndex(
   projectPath: string,
   componentPath: string,
@@ -458,24 +455,6 @@ function importFinalBatch(update: ReturnType<typeof importFinal> | ProjectStateF
   return { updates: [update as never], hashBytes: new Uint8Array(8) }
 }
 
-function yamlUpdate(projectPath: string, componentPath: string, canonical: string): ProjectStateYamlFileUpdate {
-  return {
-    kind: "yaml",
-    projectPath,
-    componentPath,
-    resourceKind: "yaml",
-    yamlRole: "configuration",
-    localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [{ kind: "object", canonical }],
-    pendingReferences: [],
-    owners: [{ owner: owner(canonical), facts: {} }],
-    fields: [],
-    forms: [],
-    pendingChecks: [],
-    dependencies: [],
-  }
-}
-
 function owner(canonical: string) {
   return { kind: "Справочник", name: canonical }
 }
@@ -494,65 +473,6 @@ function dependencyQuery(requestId: string, componentPath: string, projectPath: 
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath" as const,
     },
-  }
-}
-
-function richYamlUpdate(
-  projectPath: string,
-  componentPath: string,
-  canonical: string,
-  diagnosticMessage: string
-): ProjectStateYamlFileUpdate {
-  const update = yamlUpdate(projectPath, componentPath, canonical)
-  const typeInfo = { kinds: ["scalar"] as const, nextTypes: [] }
-  return {
-    ...update,
-    localValidation: {
-      contributedFacts: true,
-      diagnostics: [
-        { line: 1, col: 1, severity: "error", source: "cross-file", message: diagnosticMessage },
-        { line: 2, col: 3, severity: "warning", source: "external-file", message: `${diagnosticMessage}: вторая` },
-      ],
-      schemaDiagnostics: [],
-    },
-    pendingReferences: [{
-      yamlPath: ["Ссылка"],
-      canonical: "Catalog.Товары",
-      target: { kind: "object", root: "Catalog", objectName: "Товары" },
-      constraint: { kind: "object" },
-    }],
-    owners: [{ owner: owner(canonical), facts: { registerType: "InformationRegister" } }],
-    fields: [
-      {
-        owner: owner(canonical),
-        name: "Код",
-        kind: "attribute",
-        typeInfo,
-        targetName: "КодСсылки",
-        sourceCollection: "Реквизиты",
-        parentName: "Товары",
-        table: { kind: "ValueTable" },
-        tableHasColumns: true,
-      },
-      { owner: owner(canonical), name: "Описание", kind: "attribute", typeInfo, tableHasColumns: false },
-      { owner: owner(canonical), name: "Артикул", kind: "attribute", typeInfo },
-    ],
-    forms: [{
-      kind: "root",
-      owner: owner(canonical),
-      name: "Объект",
-      source: { kind: "formAttribute", name: "Объект", typeInfo },
-    }],
-    pendingChecks: [{
-      kind: "dataPath",
-      location: { line: 4, col: 5, path: "/ПутьКДанным" },
-      yamlPath: ["ПутьКДанным"],
-      owner: owner(canonical),
-      value: "Объект.Код",
-      policyInput: { yaml: "ПутьКДанным" },
-      policy: "formDataPath",
-    }],
-    dependencies: ["Catalog.Товары"],
   }
 }
 

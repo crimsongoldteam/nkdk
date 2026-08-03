@@ -24,7 +24,7 @@ import type {
   ValidationObjectRecord,
 } from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
-import { createSqliteProjectStateTestFixture } from "./sqlite/testFixture"
+import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import {
   validateProjectStateDependencyBatch,
   validateProjectStateOwnerBatch,
@@ -326,7 +326,7 @@ describe("dependency validation из ProjectState", () => {
     })
     const sourceX = ownerDependencySource("cfe/x", register, "Объект.Регистратор", "cfe/x/Форма.yaml")
     const sourceY = ownerDependencySource("cfe/y", register, "Объект.Регистратор", "cfe/y/Форма.yaml")
-    const { store, openReadSession } = createSqliteProjectStateTestFixture()
+    const { store, openReadSession } = createBinaryProjectStateTestFixture()
     const updates = [
       baseDocuments,
       localDocument,
@@ -593,7 +593,7 @@ describe("dependency validation из ProjectState", () => {
       const source = yamlUpdate("cf/ИсточникТранзакции.yaml", "cf", true)
       const target = yamlUpdate("cf/ЦельТранзакции.yaml", "cf", false)
       const configuration = configurationUpdate(true)
-      const { store } = createSqliteProjectStateTestFixture()
+      const { store } = createBinaryProjectStateTestFixture()
       store.beginUpdate()
       store.replaceFiles({ updates: [source, target, configuration], hashBytes: new Uint8Array(24) })
       store.commitUpdate()
@@ -615,7 +615,7 @@ describe("dependency validation из ProjectState", () => {
   it("даёт одинаковую reference-диагностику в writer-транзакции и read-only session после commit", () => {
     const source = yamlUpdate("cf/ИсточникСеанса.yaml", "cf", true)
     const configuration = configurationUpdate(true)
-    const { store, openReadSession } = createSqliteProjectStateTestFixture()
+    const { store, openReadSession } = createBinaryProjectStateTestFixture()
     store.beginUpdate()
     store.replaceFiles({ updates: [source, configuration], hashBytes: new Uint8Array(16) })
     const writerDiagnostics = store.validateDependencies({ requests: [] })
@@ -641,7 +641,7 @@ describe("dependency validation из ProjectState", () => {
 })
 
 function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
-  const { store } = createSqliteProjectStateTestFixture()
+  const { store } = createBinaryProjectStateTestFixture()
   store.beginUpdate()
   store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
   return store

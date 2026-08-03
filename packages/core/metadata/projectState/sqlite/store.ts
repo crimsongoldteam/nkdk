@@ -121,24 +121,6 @@ function createStore(
   let closed = false
 
   return {
-    readCompatibility() {
-      assertOpen()
-      const rows = database.prepare(`
-        SELECT key, value FROM cache_meta
-        WHERE key IN ('schema_version', 'producer_version', 'rules_fingerprint', 'hash_algorithm')
-      `).all() as unknown as { key: string; value: string }[]
-      const values = new Map(rows.map(({ key, value }) => [key, value]))
-      const schemaVersion = Number(values.get("schema_version"))
-      const producerVersion = values.get("producer_version")
-      const rulesFingerprint = values.get("rules_fingerprint")
-      const hashAlgorithm = values.get("hash_algorithm")
-      return schemaVersion === 1
-        && producerVersion !== undefined
-        && rulesFingerprint !== undefined
-        && hashAlgorithm === "xxhash64-be-v1"
-        ? { schemaVersion, producerVersion, rulesFingerprint, hashAlgorithm }
-        : undefined
-    },
     readFileBaseline(files) {
       assertOpen()
       loadBaselineRequests(database, files)
