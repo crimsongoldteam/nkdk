@@ -6,6 +6,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 
 it("соблюдает видимость cf и собственного расширения", () => {
   const session = openSessionWithUpdates([
@@ -122,16 +123,10 @@ it("отвергает запросы после закрытия", () => {
   expect(() => session.resolveTargets([])).toThrow(ProjectStateReadSessionClosedError)
 })
 
-it("декодирует факты файла один раз за сеанс чтения", () => {
-  const buffers = buildProjectStateSnapshot({
-    replacements: [{
-      update: richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
-      hash: 1n,
-    }],
-    deletions: [],
-  })
+it("не обращается к прежнему предметному декодированию", () => {
+  const buffers = typedSnapshot([richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")])
   const snapshot = new ProjectStateSnapshotView(buffers)
-  const decodeFacts = vi.spyOn(snapshot, "decodeFacts")
+  vi.spyOn(snapshot, "decodeFacts").mockImplementation(() => { throw new Error("старый декодер вызван") })
   const queryPort = createBinaryProjectStateQueryPort(snapshot)
 
   queryPort.resolveTargets([
@@ -139,15 +134,18 @@ it("декодирует факты файла один раз за сеанс �
     lookup("second", "cf", "Catalog.Source"),
   ])
 
-  expect(decodeFacts).toHaveBeenCalledTimes(1)
+  expect(queryPort.readValidationStatus({ offset: 0, batchSize: 1 })).toHaveLength(1)
 })
 
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
-  const buffers = buildProjectStateSnapshot({
-    replacements: updates.map((update, index) => ({ update, hash: BigInt(index + 1) })),
-    deletions: [],
-  })
+  const buffers = typedSnapshot(updates)
   return openBinaryProjectStateReadSession(createBinaryProjectStateReadToken(buffers))
+}
+
+function typedSnapshot(updates: ReturnType<typeof richYamlUpdate>[]) {
+  const writer = createProjectStateFragmentWriter()
+  updates.forEach((update, index) => writer.appendFile(update, BigInt(index + 1)))
+  return buildProjectStateSnapshot({ fragments: [openProjectStateFragment(writer.finish())], deletions: [] })
 }
 
 function lookup(

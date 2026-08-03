@@ -30,6 +30,7 @@ import {
 import { claimBinaryProjectStateReadToken } from "./readToken"
 import { decodeBinaryOwnerKey, encodeBinaryOwnerKey } from "./ownerKey"
 import { ProjectStateSnapshotView } from "./snapshot"
+import { createTypedProjectStateReader, hasTypedProjectStateFacts } from "./typedReader"
 
 type DecodedYamlFacts = Pick<
   ProjectStateYamlFileUpdate,
@@ -311,11 +312,11 @@ function readValidationStatus(
     throw new Error("offset и batchSize должны быть неотрицательными целыми")
   }
   const end = Math.min(snapshot.fileCount, query.offset + query.batchSize)
+  const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
   const rows = []
   for (let fileId = query.offset; fileId < end; fileId += 1) {
-    const localValidation = snapshot.decodeDiagnostics(fileId) as
-      | ProjectStateLocalValidationResult
-      | undefined
+    const localValidation = typed?.localValidation(fileId) ?? snapshot.decodeDiagnostics(fileId) as
+      | ProjectStateLocalValidationResult | undefined
     rows.push({
       projectPath: snapshot.filePath(fileId),
       componentPath: snapshot.componentPath(fileId),
@@ -331,6 +332,10 @@ function readValidationStatus(
 }
 
 function createYamlFactsReader(snapshot: ProjectStateSnapshotView): ReadYamlFacts {
+  if (hasTypedProjectStateFacts(snapshot)) {
+    const reader = createTypedProjectStateReader(snapshot)
+    return (fileId) => reader.yamlFacts(fileId)
+  }
   const decodedByFileId = new Map<number, DecodedYamlFacts | undefined>()
   return (fileId) => {
     if (!decodedByFileId.has(fileId)) {

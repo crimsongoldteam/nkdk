@@ -40,8 +40,9 @@ describe("BinaryProjectStateStore", () => {
 
   it("принимает непрозрачный фрагмент и публикует его одной заменой", () => {
     const { store, openReadSession } = createBinaryProjectStateTestFixture()
+    const update = yamlUpdate("cf/Новый.yaml", "cf", "Catalog.Новый")
     const writer = createProjectStateFragmentWriter()
-    writer.appendFile(yamlUpdate("cf/Новый.yaml", "cf", "Catalog.Новый"), 7n)
+    writer.appendFile(update, 7n)
 
     store.beginUpdate()
     store.appendFragment(writer.finish())
@@ -52,6 +53,7 @@ describe("BinaryProjectStateStore", () => {
       requestId: "new", componentPath: "cf", canonicalTarget: "Catalog.Новый",
     }])[0]).toMatchObject({ status: "found" })
     session.close()
+    expect(store.readComponentProjection("cf").updates).toEqual([update])
   })
 
   it("отвергает повреждённый фрагмент до публикации", () => {

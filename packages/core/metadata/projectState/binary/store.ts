@@ -37,6 +37,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
 import { openProjectStateFragment, type ProjectStateFragmentView } from "./fragment"
+import { createTypedProjectStateReader, hasTypedProjectStateFacts } from "./typedReader"
 
 export interface BinaryProjectStateStoreOptions {
   readonly initial?: ProjectStateSharedBuffers
@@ -210,11 +211,12 @@ export function createBinaryProjectStateStore(
     readComponentProjection(componentPath): ProjectStateComponentProjection {
       assertOpen()
       const snapshot = new ProjectStateSnapshotView(currentBuffers())
+      const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
       const updates: ProjectStateFileUpdate[] = []
       const hashes: bigint[] = []
       for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
         if (snapshot.componentPath(fileId) !== componentPath) continue
-        updates.push(decodeUpdate(snapshot, fileId))
+        updates.push(typed?.fileUpdate(fileId) ?? decodeUpdate(snapshot, fileId))
         hashes.push(snapshot.fileRecord(fileId).hash)
       }
       const hashBytes = new Uint8Array(hashes.length * 8)
@@ -331,7 +333,9 @@ function readPatch(snapshot: ProjectStateSnapshotView, projectPath: string): Pro
   const fileId = snapshot.findFile(projectPath)
   return fileId === undefined
     ? undefined
-    : { update: decodeUpdate(snapshot, fileId), hash: snapshot.fileRecord(fileId).hash }
+    : { update: hasTypedProjectStateFacts(snapshot)
+        ? createTypedProjectStateReader(snapshot).fileUpdate(fileId)
+        : decodeUpdate(snapshot, fileId), hash: snapshot.fileRecord(fileId).hash }
 }
 
 function decodeUpdate(snapshot: ProjectStateSnapshotView, fileId: number): ProjectStateFileUpdate {
@@ -377,8 +381,9 @@ function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: bool
     ? readProjectStateDependencyReadiness({ queryPort: createBinaryProjectStateQueryPort(snapshot) }).blockedComponentPaths
     : new Set<string>()
   const diagnostics: Diagnostic[] = []
+  const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
-    const validation = snapshot.decodeDiagnostics(fileId) as ProjectStateYamlFileUpdate["localValidation"] | undefined
+    const validation = typed?.localValidation(fileId) ?? snapshot.decodeDiagnostics(fileId) as ProjectStateYamlFileUpdate["localValidation"] | undefined
     if (validation === undefined) continue
     const selected = publishedMode && blocked.has(snapshot.componentPath(fileId))
       ? validation.schemaDiagnostics
@@ -395,25 +400,34 @@ function validateSnapshotDependencies(snapshot: ProjectStateSnapshotView, projec
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
   const seenOwners = new Set<string>()
+  const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
-    const update = decodeUpdate(snapshot, fileId)
-    if (update.kind !== "yaml" || readiness.blockedComponentPaths.has(update.componentPath)) continue
-    update.pendingReferences.forEach((reference, index) => references.push({
+    const record = snapshot.fileRecord(fileId)
+    if (record.updateKind !== 1) continue
+    const componentPath = snapshot.componentPath(fileId)
+    const projectPath = snapshot.filePath(fileId)
+    if (readiness.blockedComponentPaths.has(componentPath)) continue
+    const legacy = typed === undefined ? decodeUpdate(snapshot, fileId) : undefined
+    const pendingReferences = typed?.pendingReferences(fileId)
+      ?? (legacy?.kind === "yaml" ? legacy.pendingReferences : [])
+    const pendingChecks = typed?.pendingChecks(fileId)
+      ?? (legacy?.kind === "yaml" ? legacy.pendingChecks : [])
+    pendingReferences.forEach((reference, index) => references.push({
       requestId: `reference:${fileId}:${index}`,
-      componentPath: update.componentPath,
-      reference: { ...reference, filePath: update.projectPath },
+      componentPath,
+      reference: { ...reference, filePath: projectPath },
     }))
-    update.pendingChecks.forEach((check, index) => {
+    pendingChecks.forEach((check, index) => {
       dependencies.push({
         requestId: `dependency:${fileId}:${index}`,
-        componentPath: update.componentPath,
-        projectPath: update.projectPath,
+        componentPath,
+        projectPath,
         check,
       })
-      const ownerKey = `${update.componentPath}\u0000${check.owner.kind}\u0000${check.owner.name ?? ""}`
+      const ownerKey = `${componentPath}\u0000${check.owner.kind}\u0000${check.owner.name ?? ""}`
       if (!seenOwners.has(ownerKey)) {
         seenOwners.add(ownerKey)
-        owners.push({ requestId: `owner:${fileId}:${index}`, componentPath: update.componentPath, owner: check.owner })
+        owners.push({ requestId: `owner:${fileId}:${index}`, componentPath, owner: check.owner })
       }
     })
   }
