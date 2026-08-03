@@ -1,6 +1,9 @@
 import { expect, it } from "vitest"
 import { richYamlUpdate } from "./testData"
-import type { ProjectStateImportIndexContribution } from "../importSession"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportIndexContribution,
+} from "../importSession"
 import { ProjectStateOwnerFactRecordView } from "./layouts"
 import {
   createProjectStateFragmentWriter,
@@ -95,7 +98,7 @@ it("собирает оба вида import-фрагментов тем же ф�
   expect(indexView.tableRange("references")?.records).toBe(1)
 
   const finalWriter = createProjectStateFragmentWriter()
-  finalWriter.appendImportFinal({
+  const finalBatch: ProjectStateImportFinalFileStateBatch = {
     updates: [{
       projectPath: contribution.projectPath,
       componentPath: contribution.componentPath,
@@ -112,12 +115,21 @@ it("собирает оба вида import-фрагментов тем же ф�
       dependencies: [],
     }],
     hashBytes: Uint8Array.from([0, 0, 0, 0, 0, 0, 0, 9]),
-  })
+  }
+  finalWriter.appendImportFinal(finalBatch)
 
   const finalView = openProjectStateFragment(finalWriter.finish())
   expect(finalView.fileRecord(0).hash).toBe(9n)
   expect(finalView.tableRange("validationStatus")?.records).toBe(1)
   expect(finalView.diagnosticCount).toBe(1)
+
+  const combinedWriter = createProjectStateFragmentWriter()
+  combinedWriter.appendImportIndex(contribution)
+  combinedWriter.appendImportFinal(finalBatch)
+  const combined = openProjectStateFragment(combinedWriter.finish())
+  expect(combined.fileCount).toBe(1)
+  expect(combined.tableRange("references")?.records).toBe(1)
+  expect(combined.tableRange("validationStatus")?.records).toBe(1)
 })
 
 it.each([

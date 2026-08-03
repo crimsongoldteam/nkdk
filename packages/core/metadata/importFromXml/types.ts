@@ -1,10 +1,7 @@
 import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import type {
-  ProjectStateEncodedImportFinalBatch,
-  ProjectStateEncodedImportIndexBatch,
-} from "../projectState/binary/contribution"
+import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 
@@ -82,8 +79,7 @@ export interface ImportFirstPassResult {
   diagnostics: ImportDiagnostic[]
   files: ImportResultFile[]
   configurationFragments: ConfigurationSnapshotFragment[]
-  indexBatches: ProjectStateEncodedImportIndexBatch[]
-  finalStateBatches: ProjectStateEncodedImportFinalBatch[]
+  stateFragment?: ProjectStateFragment
 }
 
 export interface ImportSecondPassResult {
@@ -91,7 +87,7 @@ export interface ImportSecondPassResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
-  finalStateBatches: ProjectStateEncodedImportFinalBatch[]
+  stateFragment?: ProjectStateFragment
 }
 
 export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined

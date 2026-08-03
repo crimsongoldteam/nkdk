@@ -7,10 +7,7 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import {
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-} from "../projectState/binary/contribution"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -153,10 +150,9 @@ describe("XML import worker first pass", () => {
       "configurationFragments",
       "diagnostics",
       "files",
-      "finalStateBatches",
-      "indexBatches",
       "kind",
       "ownerFacts",
+      "stateFragment",
       "validationContribution",
     ])
     expect(workerStateForTests()).toMatchObject({
@@ -222,8 +218,8 @@ describe("XML import worker first pass", () => {
   })
 
   it("передаёт все двоичные порции и не передаёт объектные сведения", () => {
-    const indexBatch = encodeProjectStateImportIndexBatch([])
-    const finalBatch = encodeProjectStateImportFinalBatch({ updates: [], hashBytes: new Uint8Array() })
+    const fragmentWriter = createProjectStateFragmentWriter()
+    const stateFragment = fragmentWriter.finish()
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
       ownerFacts: [],
@@ -239,13 +235,12 @@ describe("XML import worker first pass", () => {
       diagnostics: [],
       files: [],
       configurationFragments: [],
-      indexBatches: [indexBatch],
-      finalStateBatches: [finalBatch],
+      stateFragment,
     }
 
     const transferable = createFirstPassTransferable(result)
 
-    expect(transferable[transferableSymbol]).toEqual([indexBatch.bytes.buffer, finalBatch.bytes.buffer])
+    expect(transferable[transferableSymbol]).toEqual(Object.values(stateFragment.buffers))
     expect(transferable[transferableSymbol].every((buffer) => buffer instanceof ArrayBuffer)).toBe(true)
     expect(transferable[valueSymbol]).toBe(result)
   })
@@ -519,7 +514,7 @@ function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
   const fixture = sharedStateFixture
   if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
   fixture.store.beginUpdate()
-  for (const batch of first.indexBatches) fixture.store.replaceImportIndex(batch)
+  if (first.stateFragment !== undefined) fixture.store.appendFragment(first.stateFragment)
   fixture.store.commitUpdate()
   return fixture.store.createReadToken()
 }
@@ -552,7 +547,6 @@ async function runCatalogAndFormSecondPass(
     diagnostics: secondResults.flatMap(({ diagnostics }) => diagnostics),
     warnings: secondResults.flatMap(({ warnings }) => warnings),
     files: secondResults.flatMap(({ files }) => files),
-    finalStateBatches: secondResults.flatMap(({ finalStateBatches }) => finalStateBatches),
   }
   return { assignments, first, second }
 }

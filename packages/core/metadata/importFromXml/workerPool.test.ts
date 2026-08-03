@@ -8,12 +8,7 @@ import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import {
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-  openProjectStateImportFinalBatch,
-  openProjectStateImportIndexBatch,
-} from "../projectState/binary/contribution"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import { createOperationProfiler } from "../validation/profile"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import { serializeImportYaml, writeMainImportYaml } from "./writeOutput"
@@ -115,11 +110,10 @@ describe("XML import worker pool", () => {
         fragments.push((batch as XmlImportStateBatch & {
           configurationFragment?: ConfigurationSnapshotFragment
         }).configurationFragment?.targetProjectPath)
-        acknowledged.push(openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath)
-        for (const final of batch.finalStateBatches) {
-          structuredClone(final, { transfer: [final.bytes.buffer] })
-          expect(final.bytes.byteLength).toBe(0)
-        }
+        acknowledged.push(fragmentProjectPath(batch))
+        const buffers = Object.values(batch.stateFragment!.buffers)
+        structuredClone(batch.stateFragment, { transfer: buffers })
+        expect(buffers.every((buffer) => buffer.byteLength === 0)).toBe(true)
         notifyAcknowledged()
       },
       async writeSecondPassState() {},
@@ -233,7 +227,7 @@ describe("XML import worker pool", () => {
     ], {
       async writeFirstPassState(batch) {
         await waitForBothSinks(started, bothStarted)
-        if (openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath.includes("one")) throw primary
+        if (fragmentProjectPath(batch).includes("one")) throw primary
         secondSink.start()
         await secondSink.wait()
       },
@@ -275,7 +269,7 @@ describe("XML import worker pool", () => {
     const running = pool.runFirstPass([assignment("one"), assignment("two")], {
       async writeFirstPassState(batch) {
         await waitForBothSinks(started, bothStarted)
-        if (openProjectStateImportIndexBatch(batch.indexBatches[0]!).contribution(0).projectPath.includes("one")) throw primary
+        if (fragmentProjectPath(batch).includes("one")) throw primary
         releaseSecondary.start()
         await releaseSecondary.wait()
         throw secondary
@@ -302,8 +296,8 @@ describe("XML import worker pool", () => {
     })
     const sink = {
       async writeFirstPassState() {},
-      async writeSecondPassState(batch: { finalStateBatches: Array<{ bytes: Uint8Array }> }) {
-        acknowledged.push(batch.finalStateBatches[0]!.bytes.byteLength)
+      async writeSecondPassState(batch: XmlImportStateBatch) {
+        acknowledged.push(Object.values(batch.stateFragment!.buffers).reduce((sum, buffer) => sum + buffer.byteLength, 0))
       },
     }
     await pool.runFirstPass([assignment("ready"), assignment("blocked")], sink as never)
@@ -343,7 +337,7 @@ describe("XML import worker pool", () => {
         started += 1
         if (started === 2) bothStarted.start()
         await bothStarted.started
-        const projectPath = openProjectStateImportFinalBatch(batch.finalStateBatches[0]!).finalState(0).projectPath
+        const projectPath = fragmentProjectPath(batch)
         if (projectPath.includes("second-0")) throw primary
         releaseSecondary.start()
         await releaseSecondary.wait()
@@ -642,8 +636,7 @@ function createFakePools() {
                 },
               ],
             })),
-          indexBatches: [encodeProjectStateImportIndexBatch(indexContributions)],
-          finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
+          stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
         }
       }
       if (task.kind === "secondPass") {
@@ -653,7 +646,7 @@ function createFakePools() {
           diagnostics: [],
           warnings: [],
           files: [],
-          finalStateBatches: [encodeProjectStateImportFinalBatch(fakeFinalBatch(`cf/second-${workerIndex}.yaml`))],
+          stateFragment: createImportFragment([], [fakeFinalBatch(`cf/second-${workerIndex}.yaml`)]),
         }
       }
       return undefined
@@ -705,6 +698,22 @@ function createFakePools() {
       )
     },
   }
+}
+
+function createImportFragment(
+  indexContributions: Parameters<ReturnType<typeof createProjectStateFragmentWriter>["appendImportIndex"]>[0][],
+  finalBatches: Parameters<ReturnType<typeof createProjectStateFragmentWriter>["appendImportFinal"]>[0][],
+) {
+  const writer = createProjectStateFragmentWriter()
+  for (const contribution of indexContributions) writer.appendImportIndex(contribution)
+  for (const batch of finalBatches) writer.appendImportFinal(batch)
+  return writer.finish()
+}
+
+function fragmentProjectPath(batch: XmlImportStateBatch): string {
+  if (batch.stateFragment === undefined) throw new Error("Ожидался двоичный фрагмент состояния")
+  const fragment = openProjectStateFragment(batch.stateFragment)
+  return fragment.stringValue(fragment.fileRecord(0).projectPathId)
 }
 
 function fakeFinalBatch(projectPath: string) {

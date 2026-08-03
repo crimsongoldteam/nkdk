@@ -11,11 +11,7 @@ import {
 import type { ComponentAddress } from "../components/address"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import {
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-  openProjectStateImportIndexBatch,
-} from "../projectState/binary/contribution"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportSession,
@@ -152,7 +148,7 @@ describe("configuration XML import coordinator", () => {
         calls.push("secondPass")
         secondPassTokenCount = snapshots.length
         await sink?.writeSecondPassState({
-          finalStateBatches: [encodeProjectStateImportFinalBatch(stateBatch(secondPassFiles, 3, "cfe/Расширение_All"))],
+          stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, "cfe/Расширение_All")),
         })
         return {
           diagnostics: [], warnings: [], files: secondPassFiles,
@@ -295,7 +291,7 @@ describe("configuration XML import coordinator", () => {
         calls.push("secondPass")
         fs.mkdirSync(componentDir, { recursive: true })
         fs.writeFileSync(yamlPath, "Имя: ЧастичныйРезультат\n")
-        return { diagnostics: [diagnostic], warnings: [], files: [], finalStateBatches: [] }
+        return { diagnostics: [diagnostic], warnings: [], files: [] }
       },
     })
 
@@ -376,8 +372,9 @@ describe("configuration XML import coordinator", () => {
     let writesAfterAbort = 0
     const activeSinks: Promise<void>[] = []
     params.projectState = projectStateWithImportSession({
-      async writeFirstPassBatch(batch) {
-        const projectPath = openProjectStateImportIndexBatch(batch).contribution(0).projectPath
+      async writeStateFragment(fragment) {
+        const view = openProjectStateFragment(fragment)
+        const projectPath = view.stringValue(view.fileRecord(0).projectPathId)
         if (projectPath === "cf/first.yaml") {
           await secondSink.started
           throw primary
@@ -398,12 +395,10 @@ describe("configuration XML import coordinator", () => {
       async runFirstPass(_assignments, sink) {
         activeSinks.push(
           sink!.writeFirstPassState({
-            indexBatches: [encodeProjectStateImportIndexBatch([{ projectPath: "cf/first.yaml" } as never])],
-            finalStateBatches: [],
+            stateFragment: indexStateFragment("cf/first.yaml"),
           }),
           sink!.writeFirstPassState({
-            indexBatches: [encodeProjectStateImportIndexBatch([{ projectPath: "cf/second.yaml" } as never])],
-            finalStateBatches: [],
+            stateFragment: indexStateFragment("cf/second.yaml"),
           }),
         )
         await activeSinks[0]
@@ -540,7 +535,7 @@ describe("configuration XML import coordinator", () => {
       ...pool,
       async runSecondPass() {
         calls.push("secondPass")
-        return { diagnostics: [diagnostic], warnings: [warning], files: [], finalStateBatches: [] }
+        return { diagnostics: [diagnostic], warnings: [warning], files: [] }
       },
     })
 
@@ -639,6 +634,7 @@ function fakeDependencies(params: {
   return {
     createWorkerPool() {
       return {
+        async writeStateFragment() {},
         async initialize(initializeParams) {
           params.calls.push("initialize")
           componentDir = initializeParams.outputDir
@@ -660,10 +656,9 @@ function fakeDependencies(params: {
           for (let index = 0; index < fragments.length; index += 1) {
             await sink?.writeFirstPassState({
               configurationFragment: fragments[index],
-              indexBatches: [],
-              finalStateBatches: index === 0
-                ? [encodeProjectStateImportFinalBatch(stateBatch(firstPassFiles, 1, selectedComponentPath))]
-                : [],
+              ...(index === 0
+                ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
+                : {}),
             })
           }
           return {
@@ -679,7 +674,7 @@ function fakeDependencies(params: {
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
           await sink?.writeSecondPassState({
-            finalStateBatches: [encodeProjectStateImportFinalBatch(stateBatch(secondPassFiles, 3, selectedComponentPath))],
+            stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
             diagnostics: [], warnings: [], files: secondPassFiles,
@@ -737,19 +732,39 @@ function stateBatch(
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
 }
 
+function indexStateFragment(projectPath: string) {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportIndex({
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole: "properties",
+    references: [],
+    owners: [],
+    fields: [],
+    forms: [],
+  })
+  return writer.finish()
+}
+
+function finalStateFragment(batch: ProjectStateImportFinalFileStateBatch) {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportFinal(batch)
+  return writer.finish()
+}
+
 function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateService {
   let nextToken = 1
   const readToken = () => new Uint8Array([nextToken++]) as never
   return {
     async beginImport() {
       return {
-        async writeFirstPassBatch() {},
-        async registerFileIdentities() {},
         async commitWorkingIndex() { return readToken() },
         async createReadToken() { return readToken() },
-        async writeFinalFileState(batch) {
-          structuredClone(batch, { transfer: [batch.bytes.buffer] })
-          expect(batch.bytes.byteLength).toBe(0)
+        async writeStateFragment(fragment) {
+          const buffers = Object.values(fragment.buffers)
+          structuredClone(fragment, { transfer: buffers })
+          expect(buffers.every((buffer) => buffer.byteLength === 0)).toBe(true)
         },
         async finalize(beforeCheckpoint) {
           await beforeCheckpoint?.()
@@ -800,11 +815,9 @@ function projectStateWithImportSession(
 ): ProjectStateService {
   const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
   const session: ProjectStateImportSession = {
-    async writeFirstPassBatch() {},
-    async registerFileIdentities() {},
+    async writeStateFragment() {},
     commitWorkingIndex: unexpected,
     createReadToken: unexpected,
-    async writeFinalFileState() {},
     finalize: unexpected,
     async abort() {},
     ...overrides,

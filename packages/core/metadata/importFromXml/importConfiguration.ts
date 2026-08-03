@@ -21,14 +21,7 @@ import {
   type PreparedWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
-import {
-  encodeProjectStateImportFinalBatch,
-  openProjectStateImportFinalBatch,
-  openProjectStateImportIndexBatch,
-  type ProjectStateEncodedImportFinalBatch,
-  type ProjectStateEncodedImportIndexBatch,
-} from "../projectState/binary/contribution"
-import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
+import { createProjectStateFragmentWriter, openProjectStateFragment, type ProjectStateFragment } from "../projectState/binary/fragment"
 import {
   createProjectStateService,
   type ProjectStateImportFinalFileStateBatch,
@@ -289,8 +282,9 @@ export async function importConfigurationFromXml(
     const externalFinalState = externalFileStateBatch(selectedComponentPath, externalProjectFiles)
     if (externalFinalState.updates.length > 0) {
       rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
-      await importSession.registerFileIdentities(externalFinalState.updates.map(fileIdentity))
-      await importSession.writeFinalFileState(encodeProjectStateImportFinalBatch(externalFinalState))
+      const externalWriter = createProjectStateFragmentWriter()
+      externalWriter.appendImportFinal(externalFinalState)
+      await importSession.writeStateFragment(externalWriter.finish())
     }
     const projectFiles = snapshotFilesFromState(files, importFileHashes)
     const indexData = profiler.measure(
@@ -379,13 +373,10 @@ function createImportStateSink(
   return {
     async writeFirstPassState(batch) {
       if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
-      await writeStreamedImportState(session, hashes, selectedComponentPath, batch)
+      if (batch.stateFragment !== undefined) await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
     },
     async writeSecondPassState(batch) {
-      await writeStreamedImportState(session, hashes, selectedComponentPath, {
-        indexBatches: [],
-        finalStateBatches: batch.finalStateBatches,
-      })
+      if (batch.stateFragment !== undefined) await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
     },
   }
 }
@@ -394,33 +385,19 @@ async function writeStreamedImportState(
   session: ProjectStateImportSession,
   hashes: Map<string, bigint>,
   selectedComponentPath: string,
-  batch: {
-    readonly indexBatches: readonly ProjectStateEncodedImportIndexBatch[]
-    readonly finalStateBatches: readonly ProjectStateEncodedImportFinalBatch[]
-  },
+  fragment: ProjectStateFragment,
 ): Promise<void> {
-  const identities = batch.finalStateBatches.flatMap((encoded) => {
-    const view = openProjectStateImportFinalBatch(encoded)
-    return Array.from({ length: view.fileCount }, (_, index) => fileIdentity(view.finalState(index)))
-  })
-  if (identities.length > 0) await session.registerFileIdentities(identities)
-  for (const indexBatch of batch.indexBatches) {
-    openProjectStateImportIndexBatch(indexBatch)
-    await session.writeFirstPassBatch(indexBatch)
+  const view = openProjectStateFragment(fragment)
+  for (let fileId = 0; fileId < view.fileCount; fileId += 1) {
+    const file = view.fileRecord(fileId)
+    if (view.stringValue(file.componentPathId) === selectedComponentPath && file.hash !== 0n) {
+      const projectPath = view.stringValue(file.projectPathId)
+      const prefix = `${selectedComponentPath}/`
+      if (!projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${projectPath}`)
+      hashes.set(projectPath.slice(prefix.length), file.hash)
+    }
   }
-  for (const finalState of batch.finalStateBatches) {
-    rememberEncodedImportFileHashes(hashes, selectedComponentPath, finalState)
-    await session.writeFinalFileState(finalState)
-  }
-}
-
-function fileIdentity(update: ProjectStateFileIdentity): ProjectStateFileIdentity {
-  return {
-    projectPath: update.projectPath,
-    componentPath: update.componentPath,
-    resourceKind: update.resourceKind,
-    ...(update.yamlRole === undefined ? {} : { yamlRole: update.yamlRole }),
-  }
+  await session.writeStateFragment(fragment)
 }
 
 async function collectSnapshotFragments(params: {
@@ -537,20 +514,6 @@ function rememberImportFileHashes(
     if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
     hashes.set(update.projectPath.slice(prefix.length), view.getBigUint64(index * 8, false))
   })
-}
-
-function rememberEncodedImportFileHashes(
-  hashes: Map<string, bigint>,
-  selectedComponentPath: string,
-  batch: ProjectStateEncodedImportFinalBatch,
-): void {
-  const view = openProjectStateImportFinalBatch(batch)
-  for (let index = 0; index < view.fileCount; index += 1) {
-    const update = view.finalState(index)
-    const prefix = `${selectedComponentPath}/`
-    if (!update.projectPath.startsWith(prefix)) throw new Error(`Файл состояния вне компонента: ${update.projectPath}`)
-    hashes.set(update.projectPath.slice(prefix.length), view.hash(index))
-  }
 }
 
 function snapshotFilesFromState(

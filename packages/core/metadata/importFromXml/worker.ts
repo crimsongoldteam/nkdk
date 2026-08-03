@@ -29,10 +29,7 @@ import {
 import { createProjectStateOwnerMetadataCache } from "../projectState/dependencyValidation"
 import { openProjectStateReadSession } from "../projectState/service"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
-import {
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-} from "../projectState/binary/contribution"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -75,6 +72,7 @@ interface DeferredImportYaml {
   ownerContext: PreparedImportYaml["ownerContext"]
   formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
   deferred: PreparedImportYaml["deferred"]
+  indexContribution: ProjectStateImportIndexContribution
 }
 
 interface ActiveSecondPass {
@@ -164,12 +162,15 @@ async function runSecondPass(
     timeMs: 0,
   })
   profiler.flush()
+  const fragmentWriter = createProjectStateFragmentWriter()
+  if (prepared !== undefined) fragmentWriter.appendImportIndex(prepared.indexContribution)
+  finalFileStateBatches.forEach((batch) => fragmentWriter.appendImportFinal(batch))
   return {
     kind: "secondPassResult",
     diagnostics,
     warnings,
     files,
-    finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
+    ...(finalFileStateBatches.length === 0 ? {} : { stateFragment: fragmentWriter.finish() }),
   }
 }
 
@@ -347,11 +348,13 @@ async function runFirstPass(
           const validated = validateSerializedImportYaml(prepared, serialized, state)
           assignmentFiles.push(main.file)
           finalFileStateBatches.push(validated.final)
-          indexContributions.push(importIndexContribution(prepared, validationContribution, state))
+          const indexContribution = importIndexContribution(prepared, validationContribution, state)
+          indexContributions.push(indexContribution)
           earlyYamlCount += 1
           earlyYamlBytes += main.bytes
         } else {
-          indexContributions.push(importIndexContribution(prepared, validationContribution, state))
+          const indexContribution = importIndexContribution(prepared, validationContribution, state)
+          indexContributions.push(indexContribution)
           preparedYaml.set(assignment.id, {
             diagnosticAssignment: {
               targetProjectPath: assignment.targetProjectPath,
@@ -363,6 +366,7 @@ async function runFirstPass(
             ownerContext: prepared.ownerContext,
             formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
             deferred: prepared.deferred,
+            indexContribution,
           })
           retainedYamlCount += 1
           deferredValueCount += prepared.deferred.length
@@ -399,6 +403,9 @@ async function runFirstPass(
   })
   profiler.flush()
   const validation = mergeImportValidationContributions(validationContributions)
+  const fragmentWriter = createProjectStateFragmentWriter()
+  indexContributions.forEach((contribution) => fragmentWriter.appendImportIndex(contribution))
+  finalFileStateBatches.forEach((batch) => fragmentWriter.appendImportFinal(batch))
   return {
     kind: "firstPassResult",
     ownerFacts,
@@ -409,8 +416,8 @@ async function runFirstPass(
     diagnostics,
     files,
     configurationFragments: fragments,
-    indexBatches: indexContributions.length === 0 ? [] : [encodeProjectStateImportIndexBatch(indexContributions)],
-    finalStateBatches: finalFileStateBatches.map(encodeProjectStateImportFinalBatch),
+    ...(indexContributions.length === 0 && finalFileStateBatches.length === 0
+      ? {} : { stateFragment: fragmentWriter.finish() }),
   }
 }
 
@@ -418,8 +425,7 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
       return [
-        ...result.indexBatches.map(({ bytes }) => bytes.buffer),
-        ...result.finalStateBatches.map(({ bytes }) => bytes.buffer),
+        ...Object.values(result.stateFragment?.buffers ?? {}),
       ]
     },
     get [valueSymbol]() {
@@ -431,7 +437,7 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
 export function createSecondPassTransferable(result: ImportSecondPassResult) {
   return {
     get [transferableSymbol]() {
-      return result.finalStateBatches.map(({ bytes }) => bytes.buffer)
+      return Object.values(result.stateFragment?.buffers ?? {})
     },
     get [valueSymbol]() {
       return result

@@ -220,11 +220,9 @@ export function createProjectStateService(
     release: () => void,
   ): ProjectStateImportSession {
     return {
-      writeFirstPassBatch: (batch) => session.writeFirstPassBatch(batch),
-      registerFileIdentities: (files) => session.registerFileIdentities(files),
+      writeStateFragment: (fragment) => session.writeStateFragment(fragment),
       commitWorkingIndex: () => session.commitWorkingIndex(),
       createReadToken: () => session.createReadToken(),
-      writeFinalFileState: (batch) => session.writeFinalFileState(batch),
       async finalize(beforeCheckpoint) {
         try {
           const result = await session.finalize(beforeCheckpoint)

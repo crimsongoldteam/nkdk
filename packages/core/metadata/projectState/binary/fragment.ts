@@ -146,6 +146,7 @@ export function createProjectStateFragmentWriter(options: {
   const strings = new LocalStringTable(options.hashString ?? xxh3.xxh64)
   let rows = emptyRows()
   let files: ProjectStateFragmentFileRecord[] = []
+  let fileIds = new Map<string, number>()
   let diagnostics: Record<string, number>[] = []
   let ownerTypeIds = new Map<string, number>()
   let closed = false
@@ -157,8 +158,7 @@ export function createProjectStateFragmentWriter(options: {
     },
     appendImportIndex(update) {
       assertOpen()
-      appendYamlIdentity(update, 0n)
-      appendIndexFacts(update, files.length - 1)
+      appendIndexFacts(update, appendYamlIdentity(update, 0n))
     },
     appendImportFinal(batch) {
       assertOpen()
@@ -169,8 +169,7 @@ export function createProjectStateFragmentWriter(options: {
       batch.updates.forEach((update, index) => {
         const hash = hashes.getBigUint64(index * 8, false)
         if (update.kind === "yaml") {
-          appendYamlIdentity(update, hash)
-          const fileId = files.length - 1
+          const fileId = appendYamlIdentity(update, hash)
           appendValidation(update, fileId)
           appendFinalFacts(update, fileId)
         } else appendFileIdentity(update, hash)
@@ -208,9 +207,8 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendCompleteFile(update: ProjectStateFileUpdate, hash: bigint): void {
-    appendFileIdentity(update, hash)
+    const fileId = appendFileIdentity(update, hash)
     if (update.kind !== "yaml") return
-    const fileId = files.length - 1
     appendValidation(update, fileId)
     appendIndexFacts(update, fileId)
     appendFinalFacts(update, fileId)
@@ -219,16 +217,16 @@ export function createProjectStateFragmentWriter(options: {
   function appendYamlIdentity(
     update: Pick<ProjectStateImportIndexContribution, "projectPath" | "componentPath" | "resourceKind" | "yamlRole">,
     hash: bigint,
-  ): void {
-    appendFileIdentity({ ...update, kind: "yaml" }, hash)
+  ): number {
+    return appendFileIdentity({ ...update, kind: "yaml" }, hash)
   }
 
   function appendFileIdentity(
     update: Pick<ProjectStateFileUpdate, "projectPath" | "componentPath" | "resourceKind" | "yamlRole" | "kind">,
     hash: bigint,
-  ): void {
+  ): number {
     if (hash < 0n || hash > MAX_HASH) throw new Error("Хэш файла вне диапазона uint64")
-    files.push({
+    const record = {
       projectPathId: strings.intern(update.projectPath),
       componentPathId: strings.intern(update.componentPath),
       hash,
@@ -236,7 +234,21 @@ export function createProjectStateFragmentWriter(options: {
       yamlRole: update.yamlRole === undefined ? 0 : YAML_ROLE_IDS[update.yamlRole],
       updateKind: update.kind === "yaml" ? 1 : 2,
       reserved: 0,
-    })
+    }
+    const existing = fileIds.get(update.projectPath)
+    if (existing !== undefined) {
+      const previous = files[existing]!
+      if (previous.componentPathId !== record.componentPathId || previous.resourceKind !== record.resourceKind
+        || previous.yamlRole !== record.yamlRole || previous.updateKind !== record.updateKind) {
+        throw new Error(`Нельзя менять identity файла ${update.projectPath}`)
+      }
+      files[existing] = record
+      return existing
+    }
+    const fileId = files.length
+    files.push(record)
+    fileIds.set(update.projectPath, fileId)
+    return fileId
   }
 
   function appendValidation(
@@ -564,6 +576,7 @@ export function createProjectStateFragmentWriter(options: {
 
   function release(): void {
     files = []
+    fileIds = new Map()
     diagnostics = []
     rows = emptyRows()
     ownerTypeIds = new Map()

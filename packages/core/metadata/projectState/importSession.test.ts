@@ -3,10 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
-import {
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-} from "./binary/contribution"
+import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { assertProjectStateFileUpdateBatch } from "./fileUpdateValidation"
 import { createProjectStateService } from "./service"
@@ -31,7 +28,7 @@ describe("ProjectState import session", () => {
     projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-state-"))
     state = createProjectStateService()
     session = await state.beginImport({ projectDir, workerCount: 2, output: { componentPaths: ["cf"] } })
-    await session.writeFirstPassBatch(encodeProjectStateImportIndexBatch([contribution]))
+    await session.writeStateFragment(stateFragment([contribution]))
     firstToken = await session.commitWorkingIndex()
     secondToken = await session.createReadToken()
   })
@@ -41,11 +38,7 @@ describe("ProjectState import session", () => {
     await fs.promises.rm(projectDir, { recursive: true, force: true })
   })
 
-  it("фиксирует индекс для отдельных read sessions и принимает после этого только final file state", async () => {
-    await expect(session.writeFirstPassBatch(encodeProjectStateImportIndexBatch([
-      indexContribution("cf/Справочник/Услуги/Свойства.yaml", "Услуги"),
-    ])))
-      .rejects.toThrow(/индекс.*неизменяем/iu)
+  it("фиксирует индекс для отдельных read sessions и принимает после этого окончательный фрагмент", async () => {
     const first = state.openReadSession(firstToken)
     const second = state.openReadSession(secondToken)
     expect(first.readOwners([{ requestId: "one", componentPath: "cf", owner: { kind: "Справочник", name: "Товары" } }]))
@@ -54,8 +47,9 @@ describe("ProjectState import session", () => {
       .toEqual([expect.objectContaining({ requestId: "two", status: "found" })])
 
     const before = first.readComponentTargetPage({ componentPath: "cf" })
-    await session.writeFinalFileState(encodeProjectStateImportFinalBatch(
-      finalBatch(contribution.projectPath, 0x0102030405060708n),
+    await session.writeStateFragment(stateFragment(
+      [contribution],
+      [finalBatch(contribution.projectPath, 0x0102030405060708n)],
     ))
     expect(first.readComponentTargetPage({ componentPath: "cf" })).toEqual(before)
     first.close()
@@ -82,14 +76,14 @@ describe("ProjectState import session", () => {
       async discard() {},
     })
 
-    await importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([indexed]))
+    await importSession.writeStateFragment(stateFragment([indexed]))
     const firstToken = await importSession.commitWorkingIndex()
     const secondToken = await importSession.createReadToken()
     expect(firstToken.buffers.files).toBe(secondToken.buffers.files)
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(0)
 
-    await importSession.writeFinalFileState(encodeProjectStateImportFinalBatch(finalBatch(indexed.projectPath, 4n)))
+    await importSession.writeStateFragment(stateFragment([indexed], [finalBatch(indexed.projectPath, 4n)]))
     await importSession.finalize()
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(1)
@@ -231,7 +225,7 @@ describe("ProjectState import session", () => {
       async openProject() {},
       async beginUpdate() {},
       async clearImportOutput() {},
-      async writeImportIndexBatch() {
+      async writeFragment() {
         events.push("write:start")
         writing.start()
         await writing.wait()
@@ -252,13 +246,13 @@ describe("ProjectState import session", () => {
       async discard() { events.push("discard") },
     })
 
-    const activeWrite = importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([]))
+    const activeWrite = importSession.writeStateFragment(stateFragment())
     await writing.started
     const aborting = importSession.abort(primary)
     await Promise.resolve()
 
-    await expect(importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([])))
-      .rejects.toThrow(/неизменяем/iu)
+    await expect(importSession.writeStateFragment(stateFragment()))
+      .rejects.toThrow(/завершена/iu)
     expect(events).toEqual(["write:start"])
     writing.release()
     await activeWrite
@@ -276,7 +270,7 @@ describe("ProjectState import session", () => {
       async openProject() {},
       async beginUpdate() { beginCount += 1 },
       async clearImportOutput() {},
-      async writeImportIndexBatch() {
+      async writeFragment() {
         events.push("write:start")
         writing.start()
         await writing.wait()
@@ -294,7 +288,7 @@ describe("ProjectState import session", () => {
       async discard() {},
     })
 
-    const activeWrite = importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([]))
+    const activeWrite = importSession.writeStateFragment(stateFragment())
     await writing.started
     const committing = importSession.commitWorkingIndex()
     await Promise.resolve()
@@ -321,6 +315,16 @@ function indexContribution(projectPath: string, name: string): ProjectStateImpor
     fields: [],
     forms: [],
   }
+}
+
+function stateFragment(
+  contributions: readonly ProjectStateImportIndexContribution[] = [],
+  finalBatches: readonly ProjectStateImportFinalFileStateBatch[] = [],
+) {
+  const writer = createProjectStateFragmentWriter()
+  for (const contribution of contributions) writer.appendImportIndex(contribution)
+  for (const batch of finalBatches) writer.appendImportFinal(batch)
+  return writer.finish()
 }
 
 function finalBatch(projectPath: string, hash: bigint): ProjectStateImportFinalFileStateBatch {
