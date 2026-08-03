@@ -1,5 +1,6 @@
 import { settingsParameterValueRule } from "../parameterValue/types"
 import { MetadataItemRule, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { normalizeAppearanceFieldsStringYAML } from "./stringValues"
 export type AppearanceFieldsXMLMode = "dataSetField"
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"
@@ -79,6 +80,7 @@ registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
   kind: "item",
   itemRule: AppearanceFieldsRules,
   sparseYAML: true,
+  normalizeYAML: ({ yaml }) => normalizeAppearanceFieldsStringYAML(yaml),
   transformOutput: ({ xml, propertyRule }) => {
     if ((propertyRule as AppearanceFieldsPropertyRule).appearanceXml === "dataSetField") {
       return Object.fromEntries(

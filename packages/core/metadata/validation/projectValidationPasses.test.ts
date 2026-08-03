@@ -219,6 +219,53 @@ describe("validateProjectFileFirstPass references", () => {
     )
   }, 20_000)
 
+  it("validates canonical appearance strings through external refs", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const validPath = "ОбщаяФорма/КаноническоеОформление/Свойства.yaml"
+    const legacyPath = "ОбщаяФорма/СтароеОформление/Свойства.yaml"
+    const commonLines = [
+      "Форма:",
+      "  УсловноеОформлениеРеквизитов:",
+      "    Элементы:",
+      "      - Оформление:",
+    ]
+    writeProjectFile(projectDir, validPath, [
+      ...commonLines,
+      "          Текст: {}",
+      "          Формат:",
+      "            Форматированный: Истина",
+      "            Текст: {ru: \"\"}",
+    ])
+    writeProjectFile(projectDir, legacyPath, [
+      ...commonLines,
+      "          Текст: {Тип: МногоязычнаяСтрока, Значение: {ru: Строка}}",
+    ])
+
+    const validate = (projectPath: string) => {
+      const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+      if (!file) throw new Error("file not resolved")
+      return validateProjectFileFirstPass({
+        projectDir,
+        file,
+        cache: createProjectYamlCache(),
+        context: mockContext,
+        schemaCache: sharedSchemaCache,
+        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      })
+    }
+
+    expect(validate(validPath).schemaDiagnostics).toEqual([])
+    expect(validate(legacyPath).schemaDiagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          path: expect.stringContaining("/Текст"),
+        }),
+      ])
+    )
+  }, 20_000)
+
   it("проверяет уникальность имён элементов внутри общей формы", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

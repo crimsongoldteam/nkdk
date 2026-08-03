@@ -2,6 +2,7 @@ import { ConfigurationContext } from "../../../context/types"
 import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "./types"
+import { normalizeAppearanceFieldsStringYAML } from "./stringValues"
 
 const importAppearanceFromYAML = (
   context: ConfigurationContext,
@@ -10,15 +11,17 @@ const importAppearanceFromYAML = (
   source?: AppearanceFields
 ): AppearanceFields | undefined => {
   if (!yaml) return undefined
+  const normalizedYAML = normalizeAppearanceFieldsStringYAML(yaml) as AppearanceFieldsYAML
   const imported = Object.fromEntries(
     Object.entries(AppearanceFieldsRules.properties).flatMap(([propertyKey, propertyRule]) => {
       const yamlKey = propertyRule.yaml
-      if (yamlKey === undefined || !Object.prototype.hasOwnProperty.call(yaml, yamlKey)) return []
+      if (yamlKey === undefined || !Object.prototype.hasOwnProperty.call(normalizedYAML, yamlKey)) return []
+      const isAppearanceString = propertyKey === "Текст" || propertyKey === "Формат"
       const value = callAtomicFromYAML({
         context,
         rule: propertyRule,
-        value: yaml[yamlKey as keyof AppearanceFieldsYAML],
-        referenceValue: source?.[propertyKey as keyof AppearanceFields],
+        value: normalizedYAML[yamlKey as keyof AppearanceFieldsYAML],
+        referenceValue: isAppearanceString ? undefined : source?.[propertyKey as keyof AppearanceFields],
       })
       return value === undefined ? [] : [[propertyKey, value]]
     })

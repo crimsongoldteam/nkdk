@@ -1,7 +1,6 @@
 import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { ColorJSONSchema } from "../../color/types"
-import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
 import { I8nTextJSONSchema } from "../../i8nText/types"
 import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -83,49 +82,25 @@ const AppearancePrimitiveValueJSONSchema = Nullable(
   ])
 )
 
-const DesignTimeI8nTextJSONSchema = Type.Union([
-  Type.String(),
+const LanguageMapJSONSchema = {
+  ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
+  additionalProperties: false,
+} as TSchema
+
+const FormattedLanguageMapJSONSchema = Type.Object(
   {
-    ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
-    additionalProperties: false,
-    minProperties: 1,
-  } as TSchema,
-])
-
-const ExplicitTextValueJSONSchema = Type.Union([
-  Type.Object(
-    {
-      Тип: Type.Literal("Поле"),
-      Значение: Type.String(),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      Тип: Type.Literal("ЗначениеВремениПроектирования"),
-      Значение: Type.String(),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      Тип: Type.Literal("МногоязычнаяСтрока"),
-      Значение: Type.Optional(I8nTextJSONSchema),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      Тип: Type.Literal("МногоязычнаяФорматированнаяСтрока"),
-      Значение: Type.Optional(FormattedI8nTextJSONSchema),
-    },
-    { additionalProperties: false }
-  ),
-])
-
-const AppearanceDesignTimeValueJSONSchema = Nullable(
-  Type.Union([DesignTimeI8nTextJSONSchema, ExplicitTextValueJSONSchema])
+    Форматированный: Type.Literal("Истина"),
+    Текст: LanguageMapJSONSchema,
+  },
+  { additionalProperties: false }
 )
+
+const AppearanceStringValueJSONSchema = Type.Union([
+  Type.Null(),
+  Type.String(),
+  LanguageMapJSONSchema,
+  FormattedLanguageMapJSONSchema,
+])
 
 const StrictFontJSONSchema = Type.Object(
   {
@@ -175,6 +150,25 @@ const propertySchema = (
   return Type.Optional(schema)
 }
 
+const appearanceStringPropertySchema = (context: ConfigurationContext): TSchema =>
+  Type.Optional(
+    Type.Union([
+      AppearanceStringValueJSONSchema,
+      Type.Object(
+        {
+          Использовать: Type.Optional(Type.Literal("Ложь")),
+          Значение: AppearanceStringValueJSONSchema,
+          РежимОтображения: Type.Optional(
+            requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
+          ),
+          ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
+          ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
+        },
+        { additionalProperties: false }
+      ),
+    ])
+  )
+
 function ensureAppearanceSettingsParameterValueJSONSchema(
   property: SettingsParameterValuePropertyRule,
   rawValueSchema: (context: ConfigurationContext) => TSchema
@@ -213,7 +207,7 @@ export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ conte
           properties.ГоризонтальноеПоложение,
           (context) => Nullable(requiredSystemEnumerationJSONSchema(context, "HorizontalAlign"))
         ),
-        Формат: propertySchema(context, properties.Формат, () => AppearanceDesignTimeValueJSONSchema),
+        Формат: appearanceStringPropertySchema(context),
         ВыделятьОтрицательные: propertySchema(
           context,
           properties.ВыделятьОтрицательные,
@@ -224,7 +218,7 @@ export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ conte
           properties.ОтметкаНезаполненного,
           () => AppearancePrimitiveValueJSONSchema
         ),
-        Текст: propertySchema(context, properties.Текст, () => AppearanceDesignTimeValueJSONSchema),
+        Текст: appearanceStringPropertySchema(context),
         Видимость: propertySchema(context, properties.Видимость, () => AppearancePrimitiveValueJSONSchema),
         Доступность: propertySchema(context, properties.Доступность, () => AppearancePrimitiveValueJSONSchema),
         ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearancePrimitiveValueJSONSchema),

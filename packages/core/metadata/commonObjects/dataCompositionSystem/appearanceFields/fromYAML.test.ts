@@ -22,27 +22,18 @@ describe("import Appearance from YAML", () => {
     expect(result).toEqual(fixtureAppearanceFields)
   })
 
-  it("imports explicit field value for text appearance", () => {
-    const result = testAtomicFromYAML({
-      rule,
-      value: {
-        Текст: {
-          Тип: "Поле",
-          Значение: "СписокФайлов.ФормаРСВ_Представление",
-        },
-      },
-    })
-
-    expect(result).toEqual({
-      itemType: "AppearanceFields",
-      Текст: {
-        parameter: "Текст",
+  it("rejects the old explicit text type", () => {
+    expect(() =>
+      testAtomicFromYAML({
+        rule,
         value: {
-          type: "Field",
-          value: "СписокФайлов.ФормаРСВ_Представление",
+          Текст: {
+            Тип: "МногоязычнаяСтрока",
+            Значение: { ru: "Многоязычная строка" },
+          },
         },
-      },
-    })
+      })
+    ).toThrow(/Текст и Формат не допускают поле Тип/)
   })
 
   it("imports explicit LocalStringType value for text appearance", () => {
@@ -50,8 +41,7 @@ describe("import Appearance from YAML", () => {
       rule,
       value: {
         Текст: {
-          Тип: "МногоязычнаяСтрока",
-          Значение: "Многоязычная строка",
+          ru: "Многоязычная строка",
         },
       },
     })
@@ -67,14 +57,14 @@ describe("import Appearance from YAML", () => {
     })
   })
 
-  it("imports quoted LocalStringType text appearance as default language", () => {
+  it("imports expanded LocalStringType text appearance", () => {
     const result = testAtomicFromYAML({
       rule,
       value: importFromYAML(`
 Текст:
   Использовать: Ложь
-  Тип: МногоязычнаяСтрока
-  Значение: "1"
+  Значение:
+    ru: "1"
 `),
     })
 
@@ -95,11 +85,8 @@ describe("import Appearance from YAML", () => {
       rule,
       value: {
         Текст: {
-          Тип: "МногоязычнаяФорматированнаяСтрока",
-          Значение: {
-            Форматированный: "Истина",
-            Текст: "Многоязычная форматированная строка",
-          },
+          Форматированный: "Истина",
+          Текст: { ru: "Многоязычная форматированная строка" },
         },
       },
     })
@@ -217,32 +204,17 @@ describe("import Appearance from YAML", () => {
     })
   })
 
-  it("preserves source empty LocalStringType for text appearance when YAML omits value", () => {
-    const result = testAtomicFromYAML({
-      rule,
-      value: {
-        Текст: {
-          Использовать: "Ложь",
+  it("rejects expanded text appearance without value", () => {
+    expect(() =>
+      testAtomicFromYAML({
+        rule,
+        value: {
+          Текст: {
+            Использовать: "Ложь",
+          },
         },
-      },
-      sourceValue: {
-        itemType: "AppearanceFields",
-        Текст: {
-          parameter: "Текст",
-          use: false,
-          value: { items: {} },
-        },
-      },
-    })
-
-    expect(result).toEqual({
-      itemType: "AppearanceFields",
-      Текст: {
-        parameter: "Текст",
-        use: false,
-        value: { items: {} },
-      },
-    })
+      })
+    ).toThrow(/развёрнутая строка требует Значение/)
   })
 
   it("imports explicit DCS auto color marker", () => {
@@ -261,7 +233,7 @@ describe("import Appearance from YAML", () => {
     })
   })
 
-  it("keeps non-color empty SettingsParameterValue unchanged", () => {
+  it("imports null as an explicit nil text value", () => {
     const result = testAtomicFromYAML({
       rule,
       value: {
@@ -271,6 +243,10 @@ describe("import Appearance from YAML", () => {
 
     expect(result).toEqual({
       itemType: "AppearanceFields",
+      Текст: {
+        parameter: "Текст",
+        value: null,
+      },
     })
   })
 })
