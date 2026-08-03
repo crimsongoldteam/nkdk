@@ -968,7 +968,9 @@ Expected: PASS. `pnpm test:architecture:rules` не нужен, если не и
 pnpm duplicates
 ```
 
-Expected: `Новых дублей относительно <base-ref> нет`. Существующие дубли не исправлять в рамках этой задачи.
+Expected: сообщение подтверждает отсутствие новых дублей относительно
+вычисленного `merge-base` между `HEAD` и `develop`. Существующие дубли не
+исправлять в рамках этой задачи.
 
 - [ ] **Step 4: Создать отдельный чистый XML-worktree для round-trip**
 
@@ -1006,3 +1008,231 @@ git -C /Users/nikita/git/round-trip-compact worktree remove "$VERIFY_XML_ROOT"
 - тесты UsePurposes и пяти standard `panelDef`;
 - результат `doc` и `small` round-trip;
 - результат `pnpm duplicates`.
+
+---
+
+## Продолжение после диагностического round-trip
+
+Tasks 0–10 уже реализованы и зафиксированы в истории ветки. Текущее
+продолжение охватывает только утверждённое исправление порядка XML-свойств
+обычного реквизита `ChartOfCharacteristicTypes`. Оба диагностических раздела
+про `RowFilter` отложены и не входят в Tasks 11–12. Новые применения `!xml`,
+reference XML и configuration index не добавляются; XML-фикстуры не меняются.
+
+### Task 11: Исправить порядок `Indexing` и `Use` у реквизита ПВХ
+
+**Files:**
+- Modify: `packages/core/metadata/appliedObjects/__tests__/ownerChildRules.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts`
+- Modify: `packages/core/metadata/appliedObjects/metadataChartOfCharacteristicTypes/childRules.ts`
+
+**Interfaces:**
+- Consumes: `metadataRuleFragment`,
+  `Attribute.attributeUseFragment.properties` и
+  `Attribute.attributeSearchAndHistoryFragment.properties`.
+- Produces: локальный фрагмент
+  `chartOfCharacteristicTypesAttributeSearchUseAndHistoryFragment` с порядком
+  `indexing → use → fullTextSearch → dataHistory`.
+- Preserves: общий `attributeUseFragment`, общий
+  `attributeSearchAndHistoryFragment`, `composeMetadataItemRule`, порядок
+  реквизита каталога и правила реквизитов табличной части ПВХ.
+
+- [ ] **Step 1: Изменить ожидаемый порядок правила и получить падающий тест**
+
+В записи владельца `ChartOfCharacteristicTypes` файла
+`ownerChildRules.test.ts` заменить ожидаемый `attributeOrder` на:
+
+```ts
+attributeOrder: [
+  ...identity,
+  ...presentation,
+  ...fill,
+  ...choice,
+  "indexing",
+  "use",
+  "fullTextSearch",
+  "dataHistory",
+  "uuid",
+],
+```
+
+- [ ] **Step 2: Добавить проверку реального порядка сериализации**
+
+В `metadataAttribute/fromYAMLToXML.test.ts` добавить тест рядом с
+`exports Use for %s`. Сериализовать минимальный реквизит ПВХ и каталога через
+существующие `probeRule`, `testPropertyFromYAMLToXML` и `serializeDirectXML`:
+
+```ts
+it("exports owner-specific order for Indexing and Use", () => {
+  const serialize = (propertyType: string, itemRule: MetadataItemRule) =>
+    serializeDirectXML(
+      testPropertyFromYAMLToXML({
+        rule: probeRule(propertyType, itemRule),
+        yaml: { Значение: { ТестовыйРеквизит: { Тип: "Строка" } } },
+      }).xml
+    )
+
+  const characteristic = serialize(
+    "MetadataChartOfCharacteristicTypesAttributes",
+    MetadataChartOfCharacteristicTypesAttributeRules
+  )
+  const catalog = serialize("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
+
+  expect(characteristic.indexOf("<Indexing>")).toBeLessThan(characteristic.indexOf("<Use>"))
+  expect(characteristic.indexOf("<Use>")).toBeLessThan(characteristic.indexOf("<FullTextSearch>"))
+  expect(catalog.indexOf("<Use>")).toBeLessThan(catalog.indexOf("<Indexing>"))
+})
+```
+
+- [ ] **Step 3: Запустить узкие тесты и подтвердить правильное падение**
+
+```bash
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts
+```
+
+Expected: FAIL — правило и сериализация ПВХ всё ещё ставят `use` перед
+`indexing`; проверка неизменившегося порядка каталога проходит.
+
+- [ ] **Step 4: Создать минимальный локальный фрагмент**
+
+В `metadataChartOfCharacteristicTypes/childRules.ts` импортировать
+`metadataRuleFragment` и объявить перед экспортируемыми правилами:
+
+```ts
+import { metadataRuleFragment } from "../../commonObjects/metadataRuleFragment"
+
+const chartOfCharacteristicTypesAttributeSearchUseAndHistoryFragment = metadataRuleFragment(
+  ["indexing", "use", "fullTextSearch", "dataHistory"],
+  {
+    indexing: Attribute.attributeSearchAndHistoryFragment.properties.indexing,
+    use: Attribute.attributeUseFragment.properties.use,
+    fullTextSearch: Attribute.attributeSearchAndHistoryFragment.properties.fullTextSearch,
+    dataHistory: Attribute.attributeSearchAndHistoryFragment.properties.dataHistory,
+  }
+)
+```
+
+В `MetadataChartOfCharacteristicTypesAttributeRules` заменить
+`Attribute.attributeUseFragment` и
+`Attribute.attributeSearchAndHistoryFragment` одним локальным фрагментом:
+
+```ts
+export const MetadataChartOfCharacteristicTypesAttributeRules = composeMetadataItemRule(
+  Attribute.metadataAttributeRuleBase,
+  Attribute.attributeIdentityFragment,
+  Attribute.attributePresentationFragment({
+    allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES,
+  }),
+  Attribute.attributeFillFragment,
+  Attribute.attributeChoiceFragment,
+  chartOfCharacteristicTypesAttributeSearchUseAndHistoryFragment,
+  Attribute.attributeUuidFragment
+)
+```
+
+Не изменять `MetadataChartOfCharacteristicTypesTabularSectionAttributeRules`
+и общие фрагменты.
+
+- [ ] **Step 5: Запустить целевые тесты**
+
+```bash
+pnpm --filter @nkdk/core exec vitest run metadata/appliedObjects/__tests__/ownerChildRules.test.ts metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts
+```
+
+Expected: PASS; точный порядок правила совпадает с XML, сериализация ПВХ
+ставит `Indexing` перед `Use`, а каталог сохраняет `Use` перед `Indexing`.
+
+- [ ] **Step 6: Выполнить контроль блока**
+
+```bash
+git diff --check
+pnpm --filter @nkdk/core type-check
+```
+
+Expected: обе команды завершаются с кодом 0.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add packages/core/metadata/appliedObjects/metadataChartOfCharacteristicTypes/childRules.ts packages/core/metadata/appliedObjects/__tests__/ownerChildRules.test.ts packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts
+git commit -m "fix: :bug: исправить порядок реквизитов плана видов характеристик"
+```
+
+### Task 12: Проверить реализацию без исправления `RowFilter`
+
+**Files:**
+- No production files are modified in this task.
+
+**Interfaces:**
+- Consumes: результат Task 11.
+- Produces: подтверждение отсутствия расхождения ПВХ, новых дублей и регрессий;
+  три ранее найденных `RowFilter`-расхождения остаются диагностическим
+  остатком.
+
+- [ ] **Step 1: Запустить полные проверки без Stryker**
+
+```bash
+git diff --check
+pnpm type-check
+pnpm test
+pnpm test:architecture
+```
+
+Expected: все команды завершаются с кодом 0. Stryker и мутационные тесты не
+запускать.
+
+- [ ] **Step 2: Проверить отсутствие новых дублей**
+
+```bash
+pnpm duplicates
+```
+
+Expected: сообщение подтверждает отсутствие новых дублей относительно
+вычисленного `merge-base` между `HEAD` и `develop`. Существующие дубли не
+исправлять.
+
+- [ ] **Step 3: Создать отдельный чистый XML-worktree**
+
+```bash
+VERIFY_CCT_XML_ROOT=$(mktemp -d /private/tmp/nkdk-cct-round-trip.XXXXXX)
+git -C /Users/nikita/git/round-trip-compact worktree add "$VERIFY_CCT_XML_ROOT" HEAD
+```
+
+Не выполнять `restore`, `reset` или `clean` в активном
+`/Users/nikita/git/round-trip-compact`.
+
+- [ ] **Step 4: Запустить полный YAML round-trip только для `cf/doc`**
+
+```bash
+env NKDK_XML_REPO="$VERIFY_CCT_XML_ROOT" NKDK_XML_DIR="$VERIFY_CCT_XML_ROOT/cf/doc" ./.agents/skills/round-trip-yaml/round-trip.sh --triage --batch-size 100
+```
+
+Expected: файл
+`ChartsOfCharacteristicTypes/ДополнительныеРеквизитыИСведения.xml` отсутствует
+в diff. Остаются только три отложенных файла форм с расхождениями `RowFilter`:
+
+```text
+CommonForms/ФормаВариантаОтчета/Ext/Form.xml
+DataProcessors/ВыгрузкаЗагрузкаEnterpriseData/Forms/Форма/Ext/Form.xml
+DataProcessors/УниверсальныйОбменДаннымиXML/Forms/УправляемаяФорма/Ext/Form.xml
+```
+
+Не исправлять и не добавлять в план эти три расхождения.
+
+- [ ] **Step 5: Удалить временный XML-worktree**
+
+```bash
+git -C /Users/nikita/git/round-trip-compact worktree remove --force "$VERIFY_CCT_XML_ROOT"
+```
+
+Удаляется только созданный на Step 3 временный worktree вместе с
+диагностическими diff; исходный `HEAD` XML-репозитория остаётся неизменным.
+
+- [ ] **Step 6: Зафиксировать результат проверки**
+
+В итоговом отчёте перечислить:
+
+- зелёные целевые и полные тесты;
+- результат `pnpm duplicates`;
+- отсутствие расхождения порядка ПВХ в `cf/doc`;
+- три неизменённых и намеренно отложенных расхождения `RowFilter`.
