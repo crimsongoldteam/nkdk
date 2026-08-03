@@ -19,6 +19,12 @@ import type { DeferredValuePath } from "../../orchestration/property/deferredObj
 import { buildClientApplicationBaseForm } from "./baseForm"
 import type { MetadataItemRule } from "../../orchestration"
 import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+import { classifyTableSource } from "./tableSourceProfile"
+
+const emptyOwnerMetadataCache = {
+  listRefs: () => [],
+  get: () => ({ status: "not-found" as const, diagnostics: [] }),
+}
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -43,14 +49,28 @@ export function convertClientApplicationFormFromYAMLToXML(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
   const rule = params.rule ?? ClientApplicationFormRules
+  const formDataPathIndex = createFormDataPathIndexFromYAML(
+    params.dataPathYaml ?? params.yaml,
+    collectFormTableDataPathsFromYAML(params.dataPathYaml ?? params.yaml)
+  )
+  const ownerMetadataCache =
+    params.context.importFromYAML?.ownerMetadataCache ??
+    params.context.exportToYAML?.ownerMetadataCache ??
+    emptyOwnerMetadataCache
+  const resolveDataPath = params.context.importFromYAML?.resolveDataPath
   const metadataContext = {
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
-      formDataPathIndex: createFormDataPathIndexFromYAML(
-        params.dataPathYaml ?? params.yaml,
-        collectFormTableDataPathsFromYAML(params.dataPathYaml ?? params.yaml)
-      ),
+      formDataPathIndex,
+      resolveTableSourceProfile: (dataPath: unknown) =>
+        classifyTableSource({
+          dataPath,
+          index: formDataPathIndex,
+          ...(resolveDataPath === undefined
+            ? {}
+            : { resolve: (value: string) => resolveDataPath({ value, index: formDataPathIndex, ownerCache: ownerMetadataCache }) }),
+        }),
     },
   }
   const formContext = createFormBodyContext(metadataContext)

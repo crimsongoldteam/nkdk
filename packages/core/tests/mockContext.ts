@@ -5,6 +5,7 @@ import {
   ConfigurationContextWithExportToXML,
   XmlImportConfigurationContext,
 } from "../metadata/context/types"
+import { resolveDataPathCore } from "../metadata/validation/dataPath/coreResolver"
 
 export const mockContext: ConfigurationContext = {
   version: "2.20",
@@ -36,6 +37,10 @@ export const mockContextToEnterprise: ConfigurationContext = {
 export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
   return {
     ...mockContext,
+    importFromYAML: {
+      resolveDataPath: ({ value, index, ownerCache }) =>
+        resolveDataPathCore({ value, nameMode: "yaml", index, ownerCache }),
+    },
     exportToXML: {
       itemsTree: [],
       version: "2.20",

@@ -135,9 +135,6 @@ describe("importDataPathStandardMembersFromYAML", () => {
       importFromYAML: {
         formDataPathIndex,
         formAttributes: [],
-      },
-      exportToYAML: {
-        toTyped: false,
         ownerMetadataCache: createLayeredOwnerMetadataCache({
           projectDir: "/project/cfe/Расширение",
           snapshots: createLayeredImportReferenceSnapshot({

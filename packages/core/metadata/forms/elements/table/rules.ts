@@ -2,7 +2,11 @@ import { registerElementRule } from "../../../orchestration/formElement/ruleFact
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
-import { dynamicListTableProperties } from "./dynamicListProperties"
+import {
+  dynamicListTableProperties,
+  hasRowFilterTableSource,
+  isDirectDynamicListTable,
+} from "./dynamicListProperties"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {
@@ -422,13 +426,15 @@ export const TableRules = {
     ...dynamicListTableProperties,
     // additionalCreateParameters: { yaml: "ДополнительныеПараметрыСоздания", type: "boolean" },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
-    // XML-only service fields are preserved only when present in the reference XML.
+    // XML-only service fields are computed from the resolved table source.
     period: {
       yaml: "Период",
       type: "boolean",
       fromXML: false,
       toYAML: false,
       fromYAML: false,
+      exportWithoutReferenceXML: true,
+      toXML: isDirectDynamicListTable,
       defaultValueXMLRaw: {
         "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
         "v8:startDate": "0001-01-01T00:00:00",
@@ -441,6 +447,8 @@ export const TableRules = {
       fromXML: false,
       toYAML: false,
       fromYAML: false,
+      exportWithoutReferenceXML: true,
+      toXML: isDirectDynamicListTable,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
     },
     rowFilter: {
@@ -449,6 +457,8 @@ export const TableRules = {
       fromXML: false,
       toYAML: false,
       fromYAML: false,
+      exportWithoutReferenceXML: true,
+      toXML: hasRowFilterTableSource,
       defaultValueXMLRaw: { "_xsi:nil": "true" },
     },
     events: {
