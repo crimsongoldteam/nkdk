@@ -21,6 +21,7 @@ import {
 } from "../../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
+import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
@@ -77,6 +78,66 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("exports a registered explicit XML scalar without reference", () => {
+    const rule = {
+      itemType: "TestExplicitXMLDefault",
+      properties: {
+        mode: { type: "string", xml: "Mode", yaml: "Режим", implicitValueYAML: "Auto" },
+      },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      itemType: rule.itemType,
+      propertyKey: "mode",
+      xmlValue: "Auto",
+      yamlValue: "Auto",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("Режим: !xml Auto"),
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Mode: "Auto" })
+  })
+
+  it("rejects an unregistered explicit XML scalar", () => {
+    expect(() =>
+      convertPropertiesFromYAMLToXML({
+        context: context(),
+        yaml: importFromYAML("Режим: !xml Auto"),
+        rule: {
+          itemType: "TestUnregisteredExplicitXML",
+          properties: { mode: { type: "string", xml: "Mode", yaml: "Режим" } },
+        } as MetadataItemRule,
+        outputs: [{ key: "owner" }],
+      })
+    ).toThrow(/TestUnregisteredExplicitXML[\s\S]*Режим[\s\S]*не зарегистрирован/)
+  })
+
+  it("rejects a registered explicit XML scalar with another value", () => {
+    const rule = {
+      itemType: "TestExplicitXMLWrongValue",
+      properties: { mode: { type: "string", xml: "Mode", yaml: "Режим" } },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      itemType: rule.itemType,
+      propertyKey: "mode",
+      xmlValue: "Auto",
+      yamlValue: "Auto",
+    })
+
+    expect(() =>
+      convertPropertiesFromYAMLToXML({
+        context: context(),
+        yaml: importFromYAML("Режим: !xml Left"),
+        rule,
+        outputs: [{ key: "owner" }],
+      })
+    ).toThrow(/TestExplicitXMLWrongValue[\s\S]*Режим[\s\S]*Left/)
+  })
+
   it("экспортирует свойства по xmlOrder независимо от reference XML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

@@ -1,3 +1,5 @@
+import { markYAMLScalarTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
+
 const collator = new Intl.Collator("ru")
 
 const priority = (key: string): number => {
@@ -24,6 +26,8 @@ export const sortYamlRuleProperties = (value: Record<string, unknown>): Record<s
     } else {
       result[key] = value[key]
     }
+    const scalarTag = yamlScalarTagAt(value, key)
+    if (scalarTag !== undefined) markYAMLScalarTag(result, key, scalarTag)
   }
 
   return result

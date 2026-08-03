@@ -12,8 +12,56 @@ import { createDeferredValuePathCollector } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
 
 describe("importPropertiesFromXMLToYAML", () => {
+  it("rejects a conflicting explicit XML property registration", () => {
+    registerExplicitXMLProperty({
+      itemType: "TestExplicitXMLRegistrationConflict",
+      propertyKey: "mode",
+      xmlValue: "Auto",
+      yamlValue: "Auto",
+    })
+
+    expect(() =>
+      registerExplicitXMLProperty({
+        itemType: "TestExplicitXMLRegistrationConflict",
+        propertyKey: "mode",
+        xmlValue: "Left",
+        yamlValue: "Left",
+      })
+    ).toThrow(/Конфликт регистрации[\s\S]*TestExplicitXMLRegistrationConflict\.mode/)
+  })
+
+  it("preserves a registered explicit XML default as a tagged YAML scalar", () => {
+    const rule = {
+      itemType: "TestExplicitXMLDefault",
+      properties: {
+        mode: { type: "string", xml: "Mode", yaml: "Режим", implicitValueYAML: "Auto" },
+      },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      itemType: rule.itemType,
+      propertyKey: "mode",
+      xmlValue: "Auto",
+      yamlValue: "Auto",
+    })
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: { Mode: "Auto" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Режим: "Auto" })
+    expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml")
+  })
+
   it("sorts only properties produced by the current rules", () => {
     registerTypeRule("TestUnsortedArray" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => xml)
     const nested = [{ Бета: 1, Альфа: 2 }]
