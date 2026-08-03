@@ -70,6 +70,13 @@ export interface ProjectStateLookupSectionHeader {
   readonly indexOffset: number
   readonly indexSize: number
   readonly indexCapacity: number
+  readonly ownerEntryCount: number
+  readonly ownerRangeCount: number
+  readonly ownerEntriesOffset: number
+  readonly ownerRangesOffset: number
+  readonly ownerIndexOffset: number
+  readonly ownerIndexSize: number
+  readonly ownerIndexCapacity: number
 }
 
 export interface ProjectStateTargetEntryRecord {
@@ -86,6 +93,18 @@ export interface ProjectStateTargetRangeRecord {
   readonly canonicalId: number
   readonly start: number
   readonly count: number
+}
+
+export interface ProjectStateOwnerEntryRecord {
+  readonly ownerKeyId: number
+  readonly sourceFileId: number
+}
+
+export interface ProjectStateOwnerRangeRecord {
+  readonly ownerKeyId: number
+  readonly start: number
+  readonly count: number
+  readonly reserved: number
 }
 
 const projectStateView = new View()
@@ -195,6 +214,13 @@ export const ProjectStateLookupSectionHeaderView =
       indexOffset: { type: "integer", btype: "uint32" },
       indexSize: { type: "integer", btype: "uint32" },
       indexCapacity: { type: "integer", btype: "uint32" },
+      ownerEntryCount: { type: "integer", btype: "uint32" },
+      ownerRangeCount: { type: "integer", btype: "uint32" },
+      ownerEntriesOffset: { type: "integer", btype: "uint32" },
+      ownerRangesOffset: { type: "integer", btype: "uint32" },
+      ownerIndexOffset: { type: "integer", btype: "uint32" },
+      ownerIndexSize: { type: "integer", btype: "uint32" },
+      ownerIndexCapacity: { type: "integer", btype: "uint32" },
     },
   })
 
@@ -221,5 +247,27 @@ export const ProjectStateTargetRangeRecordView =
       canonicalId: { type: "integer", btype: "uint32" },
       start: { type: "integer", btype: "uint32" },
       count: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateOwnerEntryRecordView =
+  projectStateView.create<ProjectStateOwnerEntryRecord>({
+    $id: "ProjectStateOwnerEntryRecord",
+    type: "object",
+    properties: {
+      ownerKeyId: { type: "integer", btype: "uint32" },
+      sourceFileId: { type: "integer", btype: "uint32" },
+    },
+  })
+
+export const ProjectStateOwnerRangeRecordView =
+  projectStateView.create<ProjectStateOwnerRangeRecord>({
+    $id: "ProjectStateOwnerRangeRecord",
+    type: "object",
+    properties: {
+      ownerKeyId: { type: "integer", btype: "uint32" },
+      start: { type: "integer", btype: "uint32" },
+      count: { type: "integer", btype: "uint32" },
+      reserved: { type: "integer", btype: "uint32" },
     },
   })

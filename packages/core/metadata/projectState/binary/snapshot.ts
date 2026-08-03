@@ -7,11 +7,15 @@ import {
   ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
+  ProjectStateOwnerEntryRecordView,
+  ProjectStateOwnerRangeRecordView,
   ProjectStateSectionRecordView,
   ProjectStateTargetEntryRecordView,
   ProjectStateTargetRangeRecordView,
   type ProjectStateFileRecord,
   type ProjectStateLookupSectionHeader,
+  type ProjectStateOwnerEntryRecord,
+  type ProjectStateOwnerRangeRecord,
   type ProjectStateTargetEntryRecord,
 } from "./layouts"
 import { openBinaryStringPool, readBinaryString, type BinaryStringPool } from "./stringPool"
@@ -61,6 +65,7 @@ export class ProjectStateSnapshotView {
   readonly #fileRecordsOffset: number
   readonly #lookupHeader: ProjectStateLookupSectionHeader
   readonly #targetIndex: BinaryHashIndex
+  readonly #ownerIndex: BinaryHashIndex
 
   constructor(readonly buffers: ProjectStateSharedBuffers) {
     for (const [name, buffer] of Object.entries(buffers)) {
@@ -126,15 +131,28 @@ export class ProjectStateSnapshotView {
     const expectedIndexOffset =
       expectedRangesOffset +
       this.#lookupHeader.targetRangeCount * ProjectStateTargetRangeRecordView.viewLength
-    const expectedLookupBytes =
+    const expectedOwnerEntriesOffset =
       expectedIndexOffset +
       this.#lookupHeader.indexCapacity * ProjectStateHashSlotRecordView.viewLength
+    const expectedOwnerRangesOffset =
+      expectedOwnerEntriesOffset +
+      this.#lookupHeader.ownerEntryCount * ProjectStateOwnerEntryRecordView.viewLength
+    const expectedOwnerIndexOffset =
+      expectedOwnerRangesOffset +
+      this.#lookupHeader.ownerRangeCount * ProjectStateOwnerRangeRecordView.viewLength
+    const expectedLookupBytes =
+      expectedOwnerIndexOffset +
+      this.#lookupHeader.ownerIndexCapacity * ProjectStateHashSlotRecordView.viewLength
     if (
       this.#lookupHeader.entriesOffset !== ProjectStateLookupSectionHeaderView.viewLength ||
       this.#lookupHeader.rangesOffset !== expectedRangesOffset ||
       this.#lookupHeader.indexOffset !== expectedIndexOffset ||
+      this.#lookupHeader.ownerEntriesOffset !== expectedOwnerEntriesOffset ||
+      this.#lookupHeader.ownerRangesOffset !== expectedOwnerRangesOffset ||
+      this.#lookupHeader.ownerIndexOffset !== expectedOwnerIndexOffset ||
       expectedLookupBytes !== buffers.lookups.byteLength ||
-      this.#lookupHeader.indexSize !== this.#lookupHeader.targetRangeCount
+      this.#lookupHeader.indexSize !== this.#lookupHeader.targetRangeCount ||
+      this.#lookupHeader.ownerIndexSize !== this.#lookupHeader.ownerRangeCount
     ) {
       throw new Error("Повреждена структура раздела индексов")
     }
@@ -143,6 +161,12 @@ export class ProjectStateSnapshotView {
       byteOffset: this.#lookupHeader.indexOffset,
       size: this.#lookupHeader.indexSize,
       capacity: this.#lookupHeader.indexCapacity,
+    }
+    this.#ownerIndex = {
+      slots: buffers.lookups,
+      byteOffset: this.#lookupHeader.ownerIndexOffset,
+      size: this.#lookupHeader.ownerIndexSize,
+      capacity: this.#lookupHeader.ownerIndexCapacity,
     }
   }
 
@@ -154,8 +178,24 @@ export class ProjectStateSnapshotView {
     return this.#lookupHeader.targetEntryCount
   }
 
+  get targetRangeCount(): number {
+    return this.#lookupHeader.targetRangeCount
+  }
+
+  get ownerEntryCount(): number {
+    return this.#lookupHeader.ownerEntryCount
+  }
+
+  get ownerRangeCount(): number {
+    return this.#lookupHeader.ownerRangeCount
+  }
+
   stringPool(): BinaryStringPool {
     return this.#strings
+  }
+
+  stringValue(id: number): string {
+    return readBinaryString(this.#strings, id)
   }
 
   fileRecord(fileId: number): ProjectStateFileRecord {
@@ -213,6 +253,47 @@ export class ProjectStateSnapshotView {
     )
   }
 
+  targetRange(rangeId: number) {
+    if (!Number.isSafeInteger(rangeId) || rangeId < 0 || rangeId >= this.targetRangeCount) {
+      throw new Error(`Неизвестный диапазон индекса целей: ${rangeId}`)
+    }
+    return ProjectStateTargetRangeRecordView.decode(
+      new DataView(this.buffers.lookups),
+      this.#lookupHeader.rangesOffset + rangeId * ProjectStateTargetRangeRecordView.viewLength,
+    )
+  }
+
+  ownerEntry(entryId: number): ProjectStateOwnerEntryRecord {
+    if (!Number.isSafeInteger(entryId) || entryId < 0 || entryId >= this.ownerEntryCount) {
+      throw new Error(`Неизвестная запись индекса владельцев: ${entryId}`)
+    }
+    return ProjectStateOwnerEntryRecordView.decode(
+      new DataView(this.buffers.lookups),
+      this.#lookupHeader.ownerEntriesOffset + entryId * ProjectStateOwnerEntryRecordView.viewLength,
+    )
+  }
+
+  ownerRange(rangeId: number): ProjectStateOwnerRangeRecord {
+    if (!Number.isSafeInteger(rangeId) || rangeId < 0 || rangeId >= this.ownerRangeCount) {
+      throw new Error(`Неизвестный диапазон индекса владельцев: ${rangeId}`)
+    }
+    return ProjectStateOwnerRangeRecordView.decode(
+      new DataView(this.buffers.lookups),
+      this.#lookupHeader.ownerRangesOffset + rangeId * ProjectStateOwnerRangeRecordView.viewLength,
+    )
+  }
+
+  lookupOwnerKey(ownerKey: string): ProjectStateOwnerEntryRecord[] {
+    const rangeId = findBinaryHashIndex(
+      this.#ownerIndex,
+      hashProjectStateTargetKey("owner", ownerKey),
+      (candidateId) => this.stringValue(this.ownerRange(candidateId).ownerKeyId) === ownerKey,
+    )
+    if (rangeId === undefined) return []
+    const range = this.ownerRange(rangeId)
+    return Array.from({ length: range.count }, (_, index) => this.ownerEntry(range.start + index))
+  }
+
   lookupTarget(componentPath: string, canonical: string): ProjectStateSnapshotTarget[] {
     const rangeId = findBinaryHashIndex(
       this.#targetIndex,
@@ -231,10 +312,7 @@ export class ProjectStateSnapshotView {
     )
     if (rangeId === undefined) return []
 
-    const range = ProjectStateTargetRangeRecordView.decode(
-      new DataView(this.buffers.lookups),
-      this.#lookupHeader.rangesOffset + rangeId * ProjectStateTargetRangeRecordView.viewLength,
-    )
+    const range = this.targetRange(rangeId)
     return Array.from({ length: range.count }, (_, index) => {
       const entry = this.targetEntry(range.start + index)
       const kind = TARGET_KINDS[entry.kind - 1]

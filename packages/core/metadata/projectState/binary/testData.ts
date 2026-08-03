@@ -35,6 +35,8 @@ export function richYamlUpdate(
   canonical: string,
 ): ProjectStateYamlFileUpdate {
   const update = yamlUpdate(projectPath, componentPath, canonical)
+  const owner = { kind: "Справочник", name: canonical }
+  const typeInfo = { kinds: ["scalar"] as const, nextTypes: [] }
   return {
     ...update,
     localValidation: {
@@ -44,6 +46,21 @@ export function richYamlUpdate(
       ],
       schemaDiagnostics: [],
     },
+    pendingReferences: [{
+      yamlPath: ["Ссылка"],
+      canonical: "Catalog.Товары",
+      target: { kind: "object", root: "Catalog", objectName: "Товары" },
+      constraint: { kind: "object" },
+    }],
+    owners: [{ owner, facts: { registerType: "InformationRegister" } }],
+    fields: [{ owner, name: "Код", kind: "attribute", typeInfo }],
+    forms: [{
+      kind: "root",
+      owner,
+      name: "Объект",
+      source: { kind: "formAttribute", name: "Объект", typeInfo },
+    }],
+    pendingChecks: [],
     dependencies: ["Catalog.Товары"],
   }
 }

@@ -1,4 +1,8 @@
-import type { ProjectStateFileUpdate, ProjectStateReferenceEntry } from "../fileUpdate"
+import type {
+  ProjectStateFileUpdate,
+  ProjectStateOwnerFact,
+  ProjectStateReferenceEntry,
+} from "../fileUpdate"
 import { encodeProjectStateHeader, type ProjectStateSectionDescriptor } from "./format"
 import { buildBinaryHashIndex } from "./hashIndex"
 import {
@@ -7,6 +11,8 @@ import {
   ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
+  ProjectStateOwnerEntryRecordView,
+  ProjectStateOwnerRangeRecordView,
   ProjectStateSectionRecordView,
   ProjectStateTargetEntryRecordView,
   ProjectStateTargetRangeRecordView,
@@ -14,6 +20,7 @@ import {
   type ProjectStateTargetEntryRecord,
   type ProjectStateTargetRangeRecord,
 } from "./layouts"
+import { encodeBinaryOwnerKey } from "./ownerKey"
 import {
   hashProjectStateTargetKey,
   ProjectStateSnapshotView,
@@ -33,6 +40,7 @@ export interface ProjectStateSnapshotPatch {
 
 interface CandidateFile {
   readonly projectPath: string
+  readonly componentPath: string
   readonly baseFileId?: number
   readonly record: Omit<
     ProjectStateFileRecord,
@@ -41,9 +49,20 @@ interface CandidateFile {
   readonly facts: Uint8Array
   readonly diagnostics: Uint8Array
   readonly references?: readonly ProjectStateReferenceEntry[]
+  readonly owners?: readonly ProjectStateOwnerFact[]
 }
 
-interface TargetDraft extends ProjectStateTargetEntryRecord {}
+interface TargetDraft {
+  readonly record: ProjectStateTargetEntryRecord
+  readonly componentPath: string
+  readonly canonical: string
+}
+
+interface OwnerDraft {
+  readonly ownerKeyId: number
+  readonly ownerKey: string
+  readonly sourceFileId: number
+}
 
 const MAX_UINT32 = 0xffff_ffff
 const TARGET_KIND_IDS: Readonly<Record<ProjectStateReferenceEntry["kind"], number>> = {
@@ -118,6 +137,7 @@ export function buildProjectStateSnapshot(input: {
     if (update.kind === "resource") {
       return {
         projectPath: update.projectPath,
+        componentPath: update.componentPath,
         record: {
           projectPathId,
           componentPathId,
@@ -133,6 +153,7 @@ export function buildProjectStateSnapshot(input: {
     }
     return {
       projectPath: update.projectPath,
+      componentPath: update.componentPath,
       record: {
         projectPathId,
         componentPathId,
@@ -145,6 +166,7 @@ export function buildProjectStateSnapshot(input: {
       facts: encodeBinaryValue(yamlFacts(update), strings),
       diagnostics: encodeBinaryValue(update.localValidation, strings),
       references: update.references,
+      owners: update.owners,
     }
   })
 
@@ -156,6 +178,7 @@ export function buildProjectStateSnapshot(input: {
       const record = base.fileRecord(fileId)
       retainedBase.push({
         projectPath,
+        componentPath: base.componentPath(fileId),
         baseFileId: fileId,
         record: {
           projectPathId: record.projectPathId,
@@ -184,35 +207,69 @@ export function buildProjectStateSnapshot(input: {
     for (let entryId = 0; entryId < base.targetEntryCount; entryId += 1) {
       const entry = base.targetEntry(entryId)
       const sourceFileId = oldToNew[entry.sourceFileId]
-      if (sourceFileId >= 0) targetDrafts.push({ ...entry, sourceFileId })
+      if (sourceFileId >= 0) {
+        targetDrafts.push({
+          record: { ...entry, sourceFileId },
+          componentPath: base.stringValue(entry.componentPathId),
+          canonical: base.stringValue(entry.canonicalId),
+        })
+      }
     }
   }
   candidates.forEach((candidate, sourceFileId) => {
     if (candidate.references === undefined) return
     for (const reference of candidate.references) {
       targetDrafts.push({
-        componentPathId: candidate.record.componentPathId,
-        canonicalId: strings.intern(reference.canonical),
-        sourceFileId,
-        kind: TARGET_KIND_IDS[reference.kind],
-        reserved8: 0,
-        reserved16: 0,
+        componentPath: candidate.componentPath,
+        canonical: reference.canonical,
+        record: {
+          componentPathId: candidate.record.componentPathId,
+          canonicalId: strings.intern(reference.canonical),
+          sourceFileId,
+          kind: TARGET_KIND_IDS[reference.kind],
+          reserved8: 0,
+          reserved16: 0,
+        },
       })
+    }
+  })
+
+  const ownerDrafts: OwnerDraft[] = []
+  if (base !== undefined) {
+    for (let entryId = 0; entryId < base.ownerEntryCount; entryId += 1) {
+      const entry = base.ownerEntry(entryId)
+      const sourceFileId = oldToNew[entry.sourceFileId]
+      if (sourceFileId >= 0) {
+        ownerDrafts.push({
+          ownerKeyId: entry.ownerKeyId,
+          ownerKey: base.stringValue(entry.ownerKeyId),
+          sourceFileId,
+        })
+      }
+    }
+  }
+  candidates.forEach((candidate, sourceFileId) => {
+    for (const { owner } of candidate.owners ?? []) {
+      const ownerKey = encodeBinaryOwnerKey(owner)
+      ownerDrafts.push({ ownerKey, ownerKeyId: strings.intern(ownerKey), sourceFileId })
     }
   })
 
   const stringPool = strings.finish()
   targetDrafts.sort((left, right) =>
-    left.componentPathId - right.componentPathId ||
-    left.canonicalId - right.canonicalId ||
-    left.sourceFileId - right.sourceFileId ||
-    left.kind - right.kind,
+    compareStrings(left.componentPath, right.componentPath) ||
+    compareStrings(left.canonical, right.canonical) ||
+    left.record.sourceFileId - right.record.sourceFileId ||
+    left.record.kind - right.record.kind,
+  )
+  ownerDrafts.sort((left, right) =>
+    compareStrings(left.ownerKey, right.ownerKey) || left.sourceFileId - right.sourceFileId,
   )
 
   const facts = concatenateCandidateBytes(candidates, "facts")
   const diagnostics = concatenateCandidateBytes(candidates, "diagnostics")
   const files = buildFilesBuffer(candidates)
-  const lookups = buildLookupsBuffer(targetDrafts, stringPool)
+  const lookups = buildLookupsBuffer(targetDrafts, ownerDrafts, stringPool)
   const stringSection = packBinaryStringPool(stringPool)
   const sectionBuffers = [stringSection, files, facts, lookups, diagnostics] as const
   const kinds = ["strings", "files", "facts", "lookups", "diagnostics"] as const
@@ -308,6 +365,7 @@ function buildFilesBuffer(candidates: readonly CandidateFile[]): SharedArrayBuff
 
 function buildLookupsBuffer(
   entries: readonly TargetDraft[],
+  ownerEntries: readonly OwnerDraft[],
   strings: ReturnType<BinaryStringPoolBuilder["finish"]>,
 ): SharedArrayBuffer {
   const ranges: ProjectStateTargetRangeRecord[] = []
@@ -316,14 +374,14 @@ function buildLookupsBuffer(
     let end = start + 1
     while (
       end < entries.length &&
-      entries[end].componentPathId === first.componentPathId &&
-      entries[end].canonicalId === first.canonicalId
+      entries[end].record.componentPathId === first.record.componentPathId &&
+      entries[end].record.canonicalId === first.record.canonicalId
     ) {
       end += 1
     }
     ranges.push({
-      componentPathId: first.componentPathId,
-      canonicalId: first.canonicalId,
+      componentPathId: first.record.componentPathId,
+      canonicalId: first.record.canonicalId,
       start,
       count: end - start,
     })
@@ -339,10 +397,37 @@ function buildLookupsBuffer(
     hashes,
     Uint32Array.from({ length: ranges.length }, (_, id) => id),
   )
+  const ownerRanges = [] as {
+    readonly ownerKeyId: number
+    readonly start: number
+    readonly count: number
+    readonly reserved: number
+  }[]
+  for (let start = 0; start < ownerEntries.length;) {
+    const first = ownerEntries[start]
+    let end = start + 1
+    while (end < ownerEntries.length && ownerEntries[end].ownerKeyId === first.ownerKeyId) {
+      end += 1
+    }
+    ownerRanges.push({ ownerKeyId: first.ownerKeyId, start, count: end - start, reserved: 0 })
+    start = end
+  }
+  const ownerIndex = buildBinaryHashIndex(
+    BigUint64Array.from(ownerRanges, (range) =>
+      hashProjectStateTargetKey("owner", readBinaryString(strings, range.ownerKeyId)),
+    ),
+    Uint32Array.from({ length: ownerRanges.length }, (_, id) => id),
+  )
   const entriesOffset = ProjectStateLookupSectionHeaderView.viewLength
   const rangesOffset = entriesOffset + entries.length * ProjectStateTargetEntryRecordView.viewLength
   const indexOffset = rangesOffset + ranges.length * ProjectStateTargetRangeRecordView.viewLength
-  const byteLength = indexOffset + index.capacity * ProjectStateHashSlotRecordView.viewLength
+  const ownerEntriesOffset = indexOffset + index.capacity * ProjectStateHashSlotRecordView.viewLength
+  const ownerRangesOffset =
+    ownerEntriesOffset + ownerEntries.length * ProjectStateOwnerEntryRecordView.viewLength
+  const ownerIndexOffset =
+    ownerRangesOffset + ownerRanges.length * ProjectStateOwnerRangeRecordView.viewLength
+  const byteLength =
+    ownerIndexOffset + ownerIndex.capacity * ProjectStateHashSlotRecordView.viewLength
   assertUint32(byteLength, "Размер раздела индексов")
   const buffer = new SharedArrayBuffer(byteLength)
   const view = new DataView(buffer)
@@ -355,12 +440,19 @@ function buildLookupsBuffer(
       indexOffset,
       indexSize: index.size,
       indexCapacity: index.capacity,
+      ownerEntryCount: ownerEntries.length,
+      ownerRangeCount: ownerRanges.length,
+      ownerEntriesOffset,
+      ownerRangesOffset,
+      ownerIndexOffset,
+      ownerIndexSize: ownerIndex.size,
+      ownerIndexCapacity: ownerIndex.capacity,
     },
     view,
   )
   entries.forEach((entry, entryId) => {
     ProjectStateTargetEntryRecordView.encode(
-      entry,
+      entry.record,
       view,
       entriesOffset + entryId * ProjectStateTargetEntryRecordView.viewLength,
     )
@@ -379,6 +471,28 @@ function buildLookupsBuffer(
       index.capacity * ProjectStateHashSlotRecordView.viewLength,
     ),
     indexOffset,
+  )
+  ownerEntries.forEach((entry, entryId) => {
+    ProjectStateOwnerEntryRecordView.encode(
+      { ownerKeyId: entry.ownerKeyId, sourceFileId: entry.sourceFileId },
+      view,
+      ownerEntriesOffset + entryId * ProjectStateOwnerEntryRecordView.viewLength,
+    )
+  })
+  ownerRanges.forEach((range, rangeId) => {
+    ProjectStateOwnerRangeRecordView.encode(
+      range,
+      view,
+      ownerRangesOffset + rangeId * ProjectStateOwnerRangeRecordView.viewLength,
+    )
+  })
+  new Uint8Array(buffer).set(
+    new Uint8Array(
+      ownerIndex.slots,
+      ownerIndex.byteOffset ?? 0,
+      ownerIndex.capacity * ProjectStateHashSlotRecordView.viewLength,
+    ),
+    ownerIndexOffset,
   )
   return buffer
 }
