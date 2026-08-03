@@ -10,6 +10,7 @@ import {
 } from "./persistence"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { resourceUpdate } from "./testData"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 
 describe("двоичный файл состояния проекта", () => {
   const projects = trackTempProjectDirs("nkdk-binary-state-")
@@ -18,10 +19,7 @@ describe("двоичный файл состояния проекта", () => {
 
   it("записывает все общие буферы одним файлом и загружает их обратно", async () => {
     const projectDir = await projects.create()
-    const expected = buildProjectStateSnapshot({
-      replacements: [{ update: resourceUpdate("cf/icon.png"), hash: 5n }],
-      deletions: [],
-    })
+    const expected = resourceSnapshot()
 
     await saveBinaryProjectState(projectDir, expected)
     const actual = await loadBinaryProjectState(projectDir)
@@ -39,10 +37,7 @@ describe("двоичный файл состояния проекта", () => {
   ] as const)("удаляет повреждённый кэш: %s", async (_name, corrupt) => {
     const projectDir = await projects.create()
     const target = projectStateBinaryPath(projectDir)
-    await saveBinaryProjectState(projectDir, buildProjectStateSnapshot({
-      replacements: [{ update: resourceUpdate("cf/icon.png"), hash: 5n }],
-      deletions: [],
-    }))
+    await saveBinaryProjectState(projectDir, resourceSnapshot())
     const bytes = corrupt(await fs.promises.readFile(target))
     await fs.promises.writeFile(target, bytes)
 
@@ -61,3 +56,9 @@ describe("двоичный файл состояния проекта", () => {
     await expect(fs.promises.access(temporary)).rejects.toMatchObject({ code: "ENOENT" })
   })
 })
+
+function resourceSnapshot() {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile(resourceUpdate("cf/icon.png"), 5n)
+  return buildProjectStateSnapshot({ fragments: [openProjectStateFragment(writer.finish())], deletions: [] })
+}

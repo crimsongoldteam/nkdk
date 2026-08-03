@@ -82,34 +82,45 @@ export const PROJECT_STATE_FACT_TABLE_ORDER = Object.freeze(
   Object.keys(PROJECT_STATE_FACT_TABLE_IDS) as ProjectStateFactTableKind[],
 )
 
+export interface ProjectStateFactRecordView {
+  readonly viewLength: number
+  decode(view: DataView, offset?: number): Record<string, number>
+  encode(value: Record<string, number>, view: DataView, offset?: number): void
+}
+
+export const PROJECT_STATE_FACT_RECORD_VIEWS = {
+  validationStatus: ProjectStateValidationStatusRecordView,
+  references: ProjectStateReferenceRecordView,
+  referenceDetails: ProjectStateReferenceDetailsRecordView,
+  pendingReferences: ProjectStatePendingReferenceRecordView,
+  owners: ProjectStateOwnerRecordView,
+  ownerFacts: ProjectStateOwnerFactRecordView,
+  ownerFactItems: ProjectStateOwnerFactItemRecordView,
+  fields: ProjectStateFieldRecordView,
+  typeInfo: ProjectStateTypeInfoRecordView,
+  typeKinds: ProjectStateStringValueRecordView,
+  definedTypes: ProjectStateStringValueRecordView,
+  ownerTypes: ProjectStateOwnerTypeRecordView,
+  tableInfo: ProjectStateTableInfoRecordView,
+  forms: ProjectStateFormRecordView,
+  formColumns: ProjectStateFormRecordView,
+  pendingChecks: ProjectStatePendingCheckRecordView,
+  allowedKinds: ProjectStateStringValueRecordView,
+  dependencies: ProjectStateDependencyRecordView,
+  yamlPaths: ProjectStateYamlPathRecordView,
+  yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
+  typeDescriptions: ProjectStateTypeDescriptionRecordView,
+  typeDescriptionValues: ProjectStateStringValueRecordView,
+} as unknown as Readonly<Record<ProjectStateFactTableKind, ProjectStateFactRecordView>>
+
 const NONE = 0xffff_ffff
 const FACT_TABLE_KINDS = new Map<number, ProjectStateFactTableKind>(
   Object.entries(PROJECT_STATE_FACT_TABLE_IDS).map(([kind, id]) => [id, kind as ProjectStateFactTableKind]),
 )
-const RECORD_BYTE_LENGTHS: Readonly<Record<ProjectStateFactTableKind, number>> = {
-  validationStatus: ProjectStateValidationStatusRecordView.viewLength,
-  references: ProjectStateReferenceRecordView.viewLength,
-  referenceDetails: ProjectStateReferenceDetailsRecordView.viewLength,
-  pendingReferences: ProjectStatePendingReferenceRecordView.viewLength,
-  owners: ProjectStateOwnerRecordView.viewLength,
-  ownerFacts: ProjectStateOwnerFactRecordView.viewLength,
-  ownerFactItems: ProjectStateOwnerFactItemRecordView.viewLength,
-  fields: ProjectStateFieldRecordView.viewLength,
-  typeInfo: ProjectStateTypeInfoRecordView.viewLength,
-  typeKinds: ProjectStateStringValueRecordView.viewLength,
-  definedTypes: ProjectStateStringValueRecordView.viewLength,
-  ownerTypes: ProjectStateOwnerTypeRecordView.viewLength,
-  tableInfo: ProjectStateTableInfoRecordView.viewLength,
-  forms: ProjectStateFormRecordView.viewLength,
-  formColumns: ProjectStateFormRecordView.viewLength,
-  pendingChecks: ProjectStatePendingCheckRecordView.viewLength,
-  allowedKinds: ProjectStateStringValueRecordView.viewLength,
-  dependencies: ProjectStateDependencyRecordView.viewLength,
-  yamlPaths: ProjectStateYamlPathRecordView.viewLength,
-  yamlPathSegments: ProjectStateYamlPathSegmentRecordView.viewLength,
-  typeDescriptions: ProjectStateTypeDescriptionRecordView.viewLength,
-  typeDescriptionValues: ProjectStateStringValueRecordView.viewLength,
-}
+const RECORD_BYTE_LENGTHS = Object.fromEntries(PROJECT_STATE_FACT_TABLE_ORDER.map((kind) => [
+  kind,
+  PROJECT_STATE_FACT_RECORD_VIEWS[kind].viewLength,
+])) as Readonly<Record<ProjectStateFactTableKind, number>>
 
 export function assertProjectStateFactSection(params: {
   readonly facts: ArrayBufferLike

@@ -99,6 +99,25 @@ it("собирает снимок только из двоичных табли�
   ).filePaths()).toEqual(["cf/a.yaml"])
 })
 
+it("находит каждый файл при смешанном латинском и кириллическом порядке путей", () => {
+  const paths = [
+    "cf/WSСсылка/Свойства.yaml",
+    "cf/WebСервис/Свойства.yaml",
+    "cf/ОбщаяФорма/Свойства.yaml",
+  ]
+  const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+    fragments: paths.map((path, index) => fragment({
+      kind: "resource",
+      projectPath: path,
+      componentPath: "cf",
+      resourceKind: "resource",
+    }, BigInt(index + 1))),
+    deletions: [],
+  }))
+
+  expect(paths.map((path) => snapshot.findFile(path))).not.toContain(undefined)
+})
+
 function fragment(update: ProjectStateFileUpdate, hash: bigint) {
   const writer = createProjectStateFragmentWriter()
   writer.appendFile(update, hash)

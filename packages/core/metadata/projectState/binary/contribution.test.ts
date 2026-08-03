@@ -52,16 +52,7 @@ it.each([
 })
 
 it("читает временный индекс import из одного переносимого буфера", () => {
-  const contribution: ProjectStateImportIndexContribution = {
-    projectPath: "cf/Товары.yaml",
-    componentPath: "cf",
-    resourceKind: "yaml",
-    yamlRole: "properties",
-    references: [{ kind: "object", canonical: "Catalog.Товары" }],
-    owners: [],
-    fields: [],
-    forms: [],
-  }
+  const contribution = importIndexContribution()
   const encoded = encodeProjectStateImportIndexBatch([contribution])
   const received = structuredClone(encoded, { transfer: [encoded.bytes.buffer] })
   const view = openProjectStateImportIndexBatch(received)
@@ -70,6 +61,11 @@ it("читает временный индекс import из одного пер
   expect(view.fileCount).toBe(1)
   expect(view.contribution(0)).toEqual(contribution)
 })
+
+function importIndexContribution(): ProjectStateImportIndexContribution {
+  return { projectPath: "cf/Товары.yaml", componentPath: "cf", resourceKind: "yaml", yamlRole: "properties",
+    references: [{ kind: "object", canonical: "Catalog.Товары" }], owners: [], fields: [], forms: [] }
+}
 
 it("читает окончательное состояние import и хэш из одного переносимого буфера", () => {
   const batch: ProjectStateImportFinalFileStateBatch = {

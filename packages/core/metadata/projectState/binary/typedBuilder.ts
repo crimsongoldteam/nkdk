@@ -1,5 +1,6 @@
 import {
   assertProjectStateFactSection,
+  PROJECT_STATE_FACT_RECORD_VIEWS,
   PROJECT_STATE_FACT_TABLE_IDS,
   PROJECT_STATE_FACT_TABLE_ORDER,
   type ProjectStateFactTableKind,
@@ -9,38 +10,20 @@ import type { ProjectStateFragmentView } from "./fragment"
 import { encodeProjectStateHeader, type ProjectStateSectionDescriptor } from "./format"
 import { buildBinaryHashIndex } from "./hashIndex"
 import {
-  ProjectStateDependencyRecordView,
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,
   ProjectStateFactSectionHeaderView,
   ProjectStateFactTableRecordView,
-  ProjectStateFieldRecordView,
   ProjectStateFileRecordView,
   ProjectStateFileSectionHeaderView,
-  ProjectStateFormRecordView,
   ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
   ProjectStateOwnerEntryRecordView,
-  ProjectStateOwnerFactItemRecordView,
-  ProjectStateOwnerFactRecordView,
   ProjectStateOwnerRangeRecordView,
-  ProjectStateOwnerRecordView,
-  ProjectStateOwnerTypeRecordView,
-  ProjectStatePendingCheckRecordView,
-  ProjectStatePendingReferenceRecordView,
-  ProjectStateReferenceDetailsRecordView,
-  ProjectStateReferenceRecordView,
   ProjectStateSectionRecordView,
-  ProjectStateStringValueRecordView,
-  ProjectStateTableInfoRecordView,
   ProjectStateTargetEntryRecordView,
   ProjectStateTargetRangeRecordView,
-  ProjectStateTypeDescriptionRecordView,
-  ProjectStateTypeInfoRecordView,
-  ProjectStateValidationStatusRecordView,
-  ProjectStateYamlPathRecordView,
-  ProjectStateYamlPathSegmentRecordView,
   type ProjectStateFileRecord,
   type ProjectStateOwnerEntryRecord,
   type ProjectStateOwnerRangeRecord,
@@ -57,36 +40,7 @@ import { BinaryStringPoolBuilder, packBinaryStringPool, readBinaryString } from 
 
 const NONE = 0xffff_ffff
 
-interface RecordCodec {
-  readonly viewLength: number
-  decode(view: DataView, offset?: number): Record<string, number>
-  encode(value: Record<string, number>, view: DataView, offset?: number): void
-}
-
-const RECORDS = {
-  validationStatus: ProjectStateValidationStatusRecordView,
-  references: ProjectStateReferenceRecordView,
-  referenceDetails: ProjectStateReferenceDetailsRecordView,
-  pendingReferences: ProjectStatePendingReferenceRecordView,
-  owners: ProjectStateOwnerRecordView,
-  ownerFacts: ProjectStateOwnerFactRecordView,
-  ownerFactItems: ProjectStateOwnerFactItemRecordView,
-  fields: ProjectStateFieldRecordView,
-  typeInfo: ProjectStateTypeInfoRecordView,
-  typeKinds: ProjectStateStringValueRecordView,
-  definedTypes: ProjectStateStringValueRecordView,
-  ownerTypes: ProjectStateOwnerTypeRecordView,
-  tableInfo: ProjectStateTableInfoRecordView,
-  forms: ProjectStateFormRecordView,
-  formColumns: ProjectStateFormRecordView,
-  pendingChecks: ProjectStatePendingCheckRecordView,
-  allowedKinds: ProjectStateStringValueRecordView,
-  dependencies: ProjectStateDependencyRecordView,
-  yamlPaths: ProjectStateYamlPathRecordView,
-  yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
-  typeDescriptions: ProjectStateTypeDescriptionRecordView,
-  typeDescriptionValues: ProjectStateStringValueRecordView,
-} as unknown as Readonly<Record<ProjectStateFactTableKind, RecordCodec>>
+const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 interface Source {
   readonly facts: ArrayBufferLike
@@ -223,7 +177,7 @@ function selectFiles(sources: readonly Source[], deletions: ReadonlySet<string>)
       if (!deletions.has(path)) byPath.set(path, { source, sourceFileId, path })
     }
   }
-  return [...byPath.values()].sort((left, right) => left.path.localeCompare(right.path))
+  return [...byPath.values()].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)
 }
 
 function markReachableRows(source: Source): void {

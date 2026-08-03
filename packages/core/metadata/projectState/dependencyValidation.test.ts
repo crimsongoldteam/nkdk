@@ -24,7 +24,7 @@ import type {
   ValidationObjectRecord,
 } from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
-import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
+import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { createBinaryProjectStateQueryPort } from "./binary/readSession"
 import { ProjectStateSnapshotView } from "./binary/snapshot"
@@ -653,10 +653,9 @@ function replaceFiles(
   store: ReturnType<typeof createBinaryProjectStateTestFixture>["store"],
   updates: readonly ProjectStateYamlFileUpdate[],
 ): void {
-  store.replaceFiles(encodeProjectStateFileUpdateBatch({
-    updates,
-    hashBytes: new Uint8Array(updates.length * 8),
-  }))
+  const writer = createProjectStateFragmentWriter()
+  updates.forEach((update) => writer.appendFile(update, 0n))
+  store.appendFragment(writer.finish())
 }
 
 interface PagedDependencyQueryPort {

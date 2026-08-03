@@ -16,11 +16,7 @@ import {
 import {
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
-  type ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
-import type {
-  ProjectStateImportFinalFileState,
-} from "../importSession"
 import type { ProjectDependencyInputQuery, ProjectStateReadSession } from "../readSession"
 import type {
   ProjectDependencyBatchQuery,
@@ -28,17 +24,12 @@ import type {
   ProjectStateComponentProjection,
   ProjectStateStore,
 } from "../store"
-import { buildProjectStateSnapshot, type ProjectStateSnapshotPatch } from "./builder"
-import {
-  openProjectStateFileUpdateBatch,
-  openProjectStateImportFinalBatch,
-  openProjectStateImportIndexBatch,
-} from "./contribution"
+import { buildProjectStateSnapshot } from "./builder"
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
 import { openProjectStateFragment, type ProjectStateFragmentView } from "./fragment"
-import { createTypedProjectStateReader, hasTypedProjectStateFacts } from "./typedReader"
+import { createTypedProjectStateReader } from "./typedReader"
 
 export interface BinaryProjectStateStoreOptions {
   readonly initial?: ProjectStateSharedBuffers
@@ -52,7 +43,6 @@ export interface BinaryProjectStateStoreFixture {
 }
 
 interface ActiveUpdate {
-  readonly replacements: Map<string, ProjectStateSnapshotPatch>
   readonly fragments: ProjectStateFragmentView[]
   readonly deletions: Set<string>
   candidate?: ProjectStateSharedBuffers
@@ -124,75 +114,13 @@ export function createBinaryProjectStateStore(
     beginUpdate() {
       assertOpen()
       if (active !== undefined) throw new Error("Обновление состояния проекта уже начато")
-      active = { replacements: new Map(), fragments: [], deletions: new Set() }
+      active = { fragments: [], deletions: new Set() }
     },
     appendFragment(fragment) {
       assertOpen()
       const update = assertActive()
-      if (update.replacements.size > 0) {
-        throw new Error("Нельзя смешивать предметные пакеты и двоичные фрагменты")
-      }
       update.fragments.push(openProjectStateFragment(fragment))
       update.candidate = undefined
-    },
-    replaceFiles(batch) {
-      assertOpen()
-      const update = assertActive()
-      const encoded = openProjectStateFileUpdateBatch(batch)
-      for (let index = 0; index < encoded.fileCount; index += 1) {
-        replace(update, encoded.update(index), encoded.hash(index))
-      }
-    },
-    replaceImportIndex(batch) {
-      assertOpen()
-      const update = assertActive()
-      const encoded = openProjectStateImportIndexBatch(batch)
-      for (let index = 0; index < encoded.fileCount; index += 1) {
-        const contribution = encoded.contribution(index)
-        const previousPatch = currentPatch(update, contribution.projectPath)
-        const previous = previousPatch?.update
-        const localValidation = previous?.kind === "yaml"
-          ? previous.localValidation
-          : { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] }
-        replace(update, {
-          ...contribution,
-          kind: "yaml",
-          localValidation,
-          pendingReferences: previous?.kind === "yaml" ? previous.pendingReferences : [],
-          pendingChecks: previous?.kind === "yaml" ? previous.pendingChecks : [],
-          dependencies: previous?.kind === "yaml" ? previous.dependencies : [],
-        }, previousPatch?.hash ?? 0n)
-      }
-    },
-    registerImportFileIdentities(files) {
-      assertOpen()
-      const update = assertActive()
-      for (const identity of files) {
-        const previous = currentPatch(update, identity.projectPath)?.update
-        if (previous !== undefined) {
-          if (!sameIdentity(previous, identity)) throw identityError(identity.projectPath)
-          continue
-        }
-        replace(update, placeholder(identity), 0n)
-      }
-    },
-    replaceImportFinalFileState(batch) {
-      assertOpen()
-      const update = assertActive()
-      const encoded = openProjectStateImportFinalBatch(batch)
-      for (let index = 0; index < encoded.fileCount; index += 1) {
-        const finalState = encoded.finalState(index)
-        const previous = currentPatch(update, finalState.projectPath)?.update
-        if (previous === undefined) throw new Error(`Identity файла ${finalState.projectPath} не зарегистрирована`)
-        if (!sameIdentity(previous, finalState) || previous.kind !== finalState.kind) {
-          throw identityError(finalState.projectPath)
-        }
-        replace(
-          update,
-          mergeImportFinal(previous, finalState),
-          encoded.hash(index),
-        )
-      }
     },
     clearImportOutput(componentPaths) {
       assertOpen()
@@ -245,12 +173,12 @@ export function createBinaryProjectStateStore(
     readComponentProjection(componentPath): ProjectStateComponentProjection {
       assertOpen()
       const snapshot = new ProjectStateSnapshotView(currentBuffers())
-      const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
+      const typed = createTypedProjectStateReader(snapshot)
       const updates: ProjectStateFileUpdate[] = []
       const hashes: bigint[] = []
       for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
         if (snapshot.componentPath(fileId) !== componentPath) continue
-        updates.push(typed?.fileUpdate(fileId) ?? decodeUpdate(snapshot, fileId))
+        updates.push(typed.fileUpdate(fileId))
         hashes.push(snapshot.fileRecord(fileId).hash)
       }
       const hashBytes = new Uint8Array(hashes.length * 8)
@@ -265,7 +193,7 @@ export function createBinaryProjectStateStore(
     commitUpdate() {
       assertOpen()
       const update = assertActive()
-      const changed = update.replacements.size > 0 || update.fragments.length > 0 || update.deletions.size > 0
+      const changed = update.fragments.length > 0 || update.deletions.size > 0
       published = materialize(update)
       active = undefined
       return changed
@@ -302,89 +230,19 @@ export function createBinaryProjectStateStore(
   }
 
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
-    if (update.replacements.size === 0 && update.fragments.length === 0 && update.deletions.size === 0) return published
-    const typedBase = hasTypedProjectStateFacts(new ProjectStateSnapshotView(published))
-    update.candidate ??= update.replacements.size === 0 && (update.fragments.length > 0 || typedBase)
-      ? buildProjectStateSnapshot({ base: published, fragments: update.fragments, deletions: [...update.deletions] })
-      : buildProjectStateSnapshot({ base: published, replacements: [...update.replacements.values()], deletions: [...update.deletions] })
+    if (update.fragments.length === 0 && update.deletions.size === 0) return published
+    update.candidate ??= buildProjectStateSnapshot({
+      base: published,
+      fragments: update.fragments,
+      deletions: [...update.deletions],
+    })
     return update.candidate
   }
-
-  function currentPatch(update: ActiveUpdate, projectPath: string): ProjectStateSnapshotPatch | undefined {
-    const replacement = update.replacements.get(projectPath)
-    if (replacement !== undefined) return replacement
-    if (update.deletions.has(projectPath)) return undefined
-    return readPatch(new ProjectStateSnapshotView(published), projectPath)
-  }
-}
-
-function replace(active: ActiveUpdate, update: ProjectStateFileUpdate, hash: bigint): void {
-  if (active.fragments.length > 0) {
-    throw new Error("Нельзя смешивать предметные пакеты и двоичные фрагменты")
-  }
-  active.deletions.delete(update.projectPath)
-  active.replacements.set(update.projectPath, { update, hash })
-  active.candidate = undefined
 }
 
 function remove(active: ActiveUpdate, projectPath: string): void {
-  active.replacements.delete(projectPath)
   active.deletions.add(projectPath)
   active.candidate = undefined
-}
-
-function placeholder(identity: ProjectStateFileIdentity): ProjectStateFileUpdate {
-  if (identity.resourceKind === "resource") return { ...identity, kind: "resource" }
-  if (identity.yamlRole === undefined) throw identityError(identity.projectPath)
-  return {
-    ...identity,
-    kind: "yaml",
-    yamlRole: identity.yamlRole,
-    localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
-    pendingReferences: [],
-    owners: [],
-    fields: [],
-    forms: [],
-    pendingChecks: [],
-    dependencies: [],
-  }
-}
-
-function mergeImportFinal(
-  previous: ProjectStateFileUpdate,
-  finalState: ProjectStateImportFinalFileState,
-): ProjectStateFileUpdate {
-  if (finalState.kind === "resource") return finalState
-  if (previous.kind !== "yaml") throw identityError(finalState.projectPath)
-  return {
-    ...previous,
-    localValidation: finalState.localValidation,
-    pendingReferences: finalState.pendingReferences,
-    pendingChecks: finalState.pendingChecks,
-    dependencies: finalState.dependencies,
-  }
-}
-
-function readPatch(snapshot: ProjectStateSnapshotView, projectPath: string): ProjectStateSnapshotPatch | undefined {
-  const fileId = snapshot.findFile(projectPath)
-  return fileId === undefined
-    ? undefined
-    : { update: hasTypedProjectStateFacts(snapshot)
-        ? createTypedProjectStateReader(snapshot).fileUpdate(fileId)
-        : decodeUpdate(snapshot, fileId), hash: snapshot.fileRecord(fileId).hash }
-}
-
-function decodeUpdate(snapshot: ProjectStateSnapshotView, fileId: number): ProjectStateFileUpdate {
-  const identity = snapshotIdentity(snapshot, fileId)
-  const record = snapshot.fileRecord(fileId)
-  if (record.updateKind === 2) return { ...identity, kind: "resource" }
-  const facts = snapshot.decodeFacts(fileId) as Omit<
-    ProjectStateYamlFileUpdate,
-    keyof ProjectStateFileIdentity | "kind" | "localValidation"
-  >
-  const localValidation = snapshot.decodeDiagnostics(fileId) as ProjectStateYamlFileUpdate["localValidation"]
-  return { ...identity, kind: "yaml", ...facts, localValidation } as ProjectStateYamlFileUpdate
 }
 
 function snapshotIdentity(snapshot: ProjectStateSnapshotView, fileId: number): ProjectStateFileIdentity {
@@ -409,18 +267,14 @@ function sameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIde
     && left.yamlRole === right.yamlRole
 }
 
-function identityError(projectPath: string): Error {
-  return new Error(`Нельзя менять identity индексированного файла ${projectPath}`)
-}
-
 function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: boolean): Diagnostic[] {
   const blocked = publishedMode
     ? readProjectStateDependencyReadiness({ queryPort: createBinaryProjectStateQueryPort(snapshot) }).blockedComponentPaths
     : new Set<string>()
   const diagnostics: Diagnostic[] = []
-  const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
+  const typed = createTypedProjectStateReader(snapshot)
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
-    const validation = typed?.localValidation(fileId) ?? snapshot.decodeDiagnostics(fileId) as ProjectStateYamlFileUpdate["localValidation"] | undefined
+    const validation = typed.localValidation(fileId)
     if (validation === undefined) continue
     const selected = publishedMode && blocked.has(snapshot.componentPath(fileId))
       ? validation.schemaDiagnostics
@@ -437,18 +291,15 @@ function validateSnapshotDependencies(snapshot: ProjectStateSnapshotView, projec
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
   const seenOwners = new Set<string>()
-  const typed = hasTypedProjectStateFacts(snapshot) ? createTypedProjectStateReader(snapshot) : undefined
+  const typed = createTypedProjectStateReader(snapshot)
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
     const record = snapshot.fileRecord(fileId)
     if (record.updateKind !== 1) continue
     const componentPath = snapshot.componentPath(fileId)
     const projectPath = snapshot.filePath(fileId)
     if (readiness.blockedComponentPaths.has(componentPath)) continue
-    const legacy = typed === undefined ? decodeUpdate(snapshot, fileId) : undefined
-    const pendingReferences = typed?.pendingReferences(fileId)
-      ?? (legacy?.kind === "yaml" ? legacy.pendingReferences : [])
-    const pendingChecks = typed?.pendingChecks(fileId)
-      ?? (legacy?.kind === "yaml" ? legacy.pendingChecks : [])
+    const pendingReferences = typed.pendingReferences(fileId)
+    const pendingChecks = typed.pendingChecks(fileId)
     pendingReferences.forEach((reference, index) => references.push({
       requestId: `reference:${fileId}:${index}`,
       componentPath,

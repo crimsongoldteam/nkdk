@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  encodeProjectStateFileUpdateBatch,
-  encodeProjectStateImportFinalBatch,
-  encodeProjectStateImportIndexBatch,
-} from "./binary/contribution"
+import { createProjectStateFragmentWriter } from "./binary/fragment"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
 import type {
@@ -101,7 +97,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const { store, openReadSession } = factory()
       const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
       store.beginUpdate()
-      store.replaceImportIndex(encodeProjectStateImportIndexBatch([contribution]))
+      appendImport(store, contribution)
       store.commitUpdate()
 
       const before = openReadSession(store.createReadToken())
@@ -121,7 +117,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
             kind: "resource" as const,
           }
         : { ...importFinal(contribution), ...override }
-      expect(() => store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(finalState))))
+      expect(() => appendImportFinal(store, contribution, importFinalBatch(finalState)))
         .toThrow(/identity|идентич/iu)
       store.rollbackUpdate()
 
@@ -132,16 +128,6 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         canonicalTarget: "Catalog.Товары",
       }])[0]).toMatchObject({ status: "found" })
       after.close()
-    })
-
-    it("final import требует предварительно зарегистрированную identity", () => {
-      const { store } = factory()
-      const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
-
-      store.beginUpdate()
-      expect(() => store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(importFinal(contribution)))))
-        .toThrow(/не зарегистрирована|identity/iu)
-      store.rollbackUpdate()
     })
 
     it("очищает stale-файлы только внутри импортируемой component boundary", () => {
@@ -156,8 +142,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       ;(store as ProjectStateStore & { clearImportOutput(componentPaths: readonly string[]): void })
         .clearImportOutput(["cf"])
       const current = importIndex("cf/Новый.yaml", "cf", "Catalog.Новый")
-      store.replaceImportIndex(encodeProjectStateImportIndexBatch([current]))
-      store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(importFinal(current))))
+      appendImportFinal(store, current, importFinalBatch(importFinal(current)))
       store.commitUpdate()
 
       expect(store.readComponentProjection("cf").updates.map(({ projectPath }) => projectPath)).toEqual(["cf/Новый.yaml"])
@@ -560,7 +545,31 @@ function identity(update: ProjectStateFileUpdate) {
 
 function replaceFiles(
   store: ProjectStateStore,
-  batch: Parameters<typeof encodeProjectStateFileUpdateBatch>[0],
+  batch: { readonly updates: readonly ProjectStateFileUpdate[]; readonly hashBytes: Uint8Array },
 ): void {
-  store.replaceFiles(encodeProjectStateFileUpdateBatch(batch))
+  if (batch.hashBytes.byteOffset !== 0 || batch.hashBytes.byteLength !== batch.hashBytes.buffer.byteLength
+    || batch.hashBytes.byteLength !== batch.updates.length * 8) {
+    throw new Error("Хэши файлов не соответствуют обновлениям")
+  }
+  const writer = createProjectStateFragmentWriter()
+  const hashes = new DataView(batch.hashBytes.buffer)
+  batch.updates.forEach((update, index) => writer.appendFile(update, hashes.getBigUint64(index * 8, false)))
+  store.appendFragment(writer.finish())
+}
+
+function appendImport(store: ProjectStateStore, contribution: ProjectStateImportIndexContribution): void {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportIndex(contribution)
+  store.appendFragment(writer.finish())
+}
+
+function appendImportFinal(
+  store: ProjectStateStore,
+  contribution: ProjectStateImportIndexContribution,
+  batch: ProjectStateImportFinalFileStateBatch,
+): void {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportIndex(contribution)
+  writer.appendImportFinal(batch)
+  store.appendFragment(writer.finish())
 }

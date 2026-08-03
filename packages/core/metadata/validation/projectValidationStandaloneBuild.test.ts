@@ -39,7 +39,7 @@ describe("project validation standalone build output", () => {
     expect(generatedValidatorsSummary).toEqual({
       format: "project-validation-ajv-standalone-v4",
       moduleKeys: ["byItemType", "format", "forms"],
-      formCount: 2,
+      formCount: 5,
       formKeys: ["validate"],
       configurationKeys: ["validate"],
       formValidateType: "function",

@@ -7,41 +7,25 @@ import type {
   ProjectStateImportIndexContribution,
 } from "../importSession"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
+import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {
   assertProjectStateFactSection,
   openProjectStateFactCatalog,
+  PROJECT_STATE_FACT_RECORD_VIEWS,
   PROJECT_STATE_FACT_TABLE_IDS,
   PROJECT_STATE_FACT_TABLE_ORDER,
   type ProjectStateFactTableKind,
   type ProjectStateFactTableRange,
 } from "./factTables"
 import {
-  ProjectStateDependencyRecordView,
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,
   ProjectStateFactSectionHeaderView,
   ProjectStateFactTableRecordView,
-  ProjectStateFieldRecordView,
-  ProjectStateFormRecordView,
   ProjectStateFragmentFileRecordView,
   ProjectStateFragmentHeaderRecordView,
   ProjectStateFragmentStringRecordView,
   ProjectStateFragmentStringSectionHeaderView,
-  ProjectStateOwnerFactRecordView,
-  ProjectStateOwnerFactItemRecordView,
-  ProjectStateOwnerRecordView,
-  ProjectStateOwnerTypeRecordView,
-  ProjectStatePendingCheckRecordView,
-  ProjectStatePendingReferenceRecordView,
-  ProjectStateReferenceDetailsRecordView,
-  ProjectStateReferenceRecordView,
-  ProjectStateStringValueRecordView,
-  ProjectStateTableInfoRecordView,
-  ProjectStateTypeInfoRecordView,
-  ProjectStateTypeDescriptionRecordView,
-  ProjectStateValidationStatusRecordView,
-  ProjectStateYamlPathRecordView,
-  ProjectStateYamlPathSegmentRecordView,
   type ProjectStateFragmentFileRecord,
 } from "./layouts"
 
@@ -109,36 +93,6 @@ const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",
   "addressingAttributes", "standardAttributes", "commands",
 ])
-
-type BinaryRecordView = {
-  readonly viewLength: number
-  encode(value: never, view: DataView, offset?: number): void
-}
-
-const FACT_RECORD_VIEWS: Readonly<Record<ProjectStateFactTableKind, BinaryRecordView>> = {
-  validationStatus: ProjectStateValidationStatusRecordView,
-  references: ProjectStateReferenceRecordView,
-  referenceDetails: ProjectStateReferenceDetailsRecordView,
-  pendingReferences: ProjectStatePendingReferenceRecordView,
-  owners: ProjectStateOwnerRecordView,
-  ownerFacts: ProjectStateOwnerFactRecordView,
-  ownerFactItems: ProjectStateOwnerFactItemRecordView,
-  fields: ProjectStateFieldRecordView,
-  typeInfo: ProjectStateTypeInfoRecordView,
-  typeKinds: ProjectStateStringValueRecordView,
-  definedTypes: ProjectStateStringValueRecordView,
-  ownerTypes: ProjectStateOwnerTypeRecordView,
-  tableInfo: ProjectStateTableInfoRecordView,
-  forms: ProjectStateFormRecordView,
-  formColumns: ProjectStateFormRecordView,
-  pendingChecks: ProjectStatePendingCheckRecordView,
-  allowedKinds: ProjectStateStringValueRecordView,
-  dependencies: ProjectStateDependencyRecordView,
-  yamlPaths: ProjectStateYamlPathRecordView,
-  yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
-  typeDescriptions: ProjectStateTypeDescriptionRecordView,
-  typeDescriptionValues: ProjectStateStringValueRecordView,
-}
 
 export function createProjectStateFragmentWriter(options: {
   readonly hashString?: (bytes: Uint8Array) => bigint
@@ -373,7 +327,7 @@ export function createProjectStateFragmentWriter(options: {
         targetRootId: strings.intern(target.root),
         targetNameId: strings.intern(target.objectName),
         targetMemberId: optionalString(targetMember),
-        constraintKindId: strings.intern(reference.constraint.kind),
+        constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
       })
     }
     for (const check of update.pendingChecks) {
@@ -728,13 +682,13 @@ function packFacts(rows: Readonly<Record<ProjectStateFactTableKind, readonly Rec
   const tableOffsets = new Map<ProjectStateFactTableKind, number>()
   for (const kind of populatedKinds) {
     tableOffsets.set(kind, offset)
-    offset += rows[kind].length * FACT_RECORD_VIEWS[kind].viewLength
+    offset += rows[kind].length * PROJECT_STATE_FACT_RECORD_VIEWS[kind].viewLength
   }
   const buffer = new ArrayBuffer(offset)
   const view = new DataView(buffer)
   ProjectStateFactSectionHeaderView.encode({ tableCount: populatedKinds.length, catalogOffset }, view)
   populatedKinds.forEach((kind, index) => {
-    const recordView = FACT_RECORD_VIEWS[kind]
+    const recordView = PROJECT_STATE_FACT_RECORD_VIEWS[kind]
     const tableOffset = tableOffsets.get(kind)!
     ProjectStateFactTableRecordView.encode({
       kind: PROJECT_STATE_FACT_TABLE_IDS[kind],

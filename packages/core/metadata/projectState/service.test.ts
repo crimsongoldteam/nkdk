@@ -896,10 +896,6 @@ function testWriterHandle(id: number): TestWriter {
     },
     async beginUpdate() {},
     async writeFragment() {},
-    async writeBatch() {},
-    async writeImportIndexBatch() {},
-    async registerImportFileIdentities() {},
-    async writeImportFinalFileState() {},
     async clearImportOutput() {},
     async deleteFiles() {},
     async deleteUnseenFiles() { return 0 },
@@ -1013,7 +1009,7 @@ function refreshResult(_value: number): ProjectStateRefreshResult {
 }
 
 function testReadToken(): ProjectStateReadToken {
-  return createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
+  return createBinaryProjectStateReadToken(buildProjectStateSnapshot({ fragments: [], deletions: [] }))
 }
 
 function nestedPrimaryFailure() {

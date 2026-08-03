@@ -21,12 +21,10 @@ import {
 } from "./dependencyValidation"
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
-import {
-  openProjectStateFileUpdateBatch,
-  openProjectStateImportFinalBatch,
-  openProjectStateImportIndexBatch,
-} from "./binary/contribution"
 import { buildProjectStateSnapshot } from "./binary/builder"
+import { openProjectStateFragment } from "./binary/fragment"
+import { ProjectStateSnapshotView } from "./binary/snapshot"
+import { createTypedProjectStateReader } from "./binary/typedReader"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
 
@@ -137,7 +135,7 @@ function file(projectPath: string) {
 
 function testReadSession(): ProjectStateReadSession {
   let closed = false
-  const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
+  const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ fragments: [], deletions: [] }))
 
   function assertOpen(): void {
     if (closed) throw new ProjectStateReadSessionClosedError(token)
@@ -263,64 +261,35 @@ function createTestStoreContractFixture() {
       staged = new Map(committed)
       stagedIdentities = new Map(committedIdentities)
     },
-    appendFragment() {
-      throw new Error("Не используется в этом договоре")
-    },
-    replaceFiles(batch) {
+    appendFragment(fragment) {
       if (staged === undefined) throw new Error("Нет активного обновления")
-      const encoded = openProjectStateFileUpdateBatch(batch)
-      Array.from({ length: encoded.fileCount }, (_, index) => encoded.update(index)).forEach((update, index) => {
-        updateTarget(staged!, update, hashBytes(encoded.hash(index)))
-        stagedIdentities!.set(update.projectPath, identity(update))
-      })
-    },
-    replaceImportIndex(batch) {
-      const target = requireStaged(staged)
-      const encoded = openProjectStateImportIndexBatch(batch)
-      const contributions = Array.from({ length: encoded.fileCount }, (_, index) => encoded.contribution(index))
-      for (const contribution of contributions) {
-        const previous = target.get(contribution.projectPath)
-        if (previous !== undefined) assertSameIdentity(previous.update, contribution)
-        requireStagedIdentities(stagedIdentities).set(contribution.projectPath, identity(contribution))
-        updateTarget(target, {
-          ...contribution,
+      const snapshot = new ProjectStateSnapshotView(buildProjectStateSnapshot({
+        fragments: [openProjectStateFragment(fragment)],
+        deletions: [],
+      }))
+      const reader = createTypedProjectStateReader(snapshot)
+      Array.from({ length: snapshot.fileCount }, (_, fileId): ProjectStateFileUpdate => {
+        const record = snapshot.fileRecord(fileId)
+        const base = {
+          projectPath: snapshot.filePath(fileId),
+          componentPath: snapshot.componentPath(fileId),
+          resourceKind: record.resourceKind === 1 ? "yaml" as const : "resource" as const,
+        }
+        if (record.updateKind === 2) return { ...base, kind: "resource" }
+        const yamlRole = ([undefined, "configuration", "properties", "form"] as const)[record.yamlRole]
+        const facts = reader.yamlFacts(fileId)
+        if (yamlRole === undefined || facts === undefined) throw new Error("Неполный индекс YAML")
+        return {
+          ...base,
           kind: "yaml",
-          localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
-          pendingReferences: [],
-          pendingChecks: [],
-          dependencies: [],
-        }, previous?.hashBytes ?? new Uint8Array(8))
-      }
-    },
-    registerImportFileIdentities(files) {
-      const identities = requireStagedIdentities(stagedIdentities)
-      for (const file of files) {
-        const previous = identities.get(file.projectPath)
-        if (previous !== undefined) {
-          assertSameIdentity(previous, file)
-          continue
+          yamlRole,
+          ...facts,
+          localValidation: reader.localValidation(fileId)
+            ?? { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
         }
-        identities.set(file.projectPath, file)
-      }
-    },
-    replaceImportFinalFileState(batch) {
-      const target = requireStaged(staged)
-      const identities = requireStagedIdentities(stagedIdentities)
-      const encoded = openProjectStateImportFinalBatch(batch)
-      const updates = Array.from({ length: encoded.fileCount }, (_, index) => encoded.finalState(index))
-      updates.forEach((update, index) => {
-        const registered = identities.get(update.projectPath)
-        if (registered === undefined) throw new Error(`Final import identity не зарегистрирована: ${update.projectPath}`)
-        assertSameIdentity(registered, update)
-        const previous = target.get(update.projectPath)
-        if (update.kind === "yaml" && previous?.update.kind !== "yaml") {
-          throw new Error(`Final import index отсутствует: ${update.projectPath}`)
-        }
-        updateTarget(
-          target,
-          update.kind === "resource" ? update : { ...previous!.update, ...update } as ProjectStateFileUpdate,
-          hashBytes(encoded.hash(index)),
-        )
+      }).forEach((update, fileId) => {
+        updateTarget(staged!, update, hashBytes(snapshot.fileRecord(fileId).hash))
+        stagedIdentities!.set(update.projectPath, identity(update))
       })
     },
     clearImportOutput(componentPaths) {
@@ -378,7 +347,7 @@ function createTestStoreContractFixture() {
       }
     },
     createReadToken() {
-      const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
+      const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ fragments: [], deletions: [] }))
       tokens.add(tokenKey(token))
       return token
     },
@@ -646,14 +615,6 @@ function requireStagedIdentities(
 ): Map<string, ProjectStateFileIdentity> {
   if (identities === undefined) throw new Error("Нет активного обновления")
   return identities
-}
-
-function assertSameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIdentity): void {
-  if (left.componentPath !== right.componentPath
-    || left.resourceKind !== right.resourceKind
-    || left.yamlRole !== right.yamlRole) {
-    throw new Error(`Final import identity не совпадает для ${right.projectPath}`)
-  }
 }
 
 function equalBytes(left: Uint8Array, right: Uint8Array): boolean {

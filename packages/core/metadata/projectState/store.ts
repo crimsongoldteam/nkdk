@@ -8,11 +8,6 @@ import type {
   ProjectDependencyInputResult,
 } from "./readSession"
 import type { ProjectStateFileBaseline, ProjectStateFileBaselinePage, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
-import type {
-  ProjectStateEncodedFileUpdateBatch,
-  ProjectStateEncodedImportFinalBatch,
-  ProjectStateEncodedImportIndexBatch,
-} from "./binary/contribution"
 import type { ProjectStateFragment } from "./binary/fragment"
 
 export interface ProjectStateFileChange {
@@ -55,10 +50,6 @@ export interface ProjectStateStore {
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
   appendFragment(fragment: ProjectStateFragment): void
-  replaceFiles(batch: ProjectStateEncodedFileUpdateBatch): void
-  replaceImportIndex(batch: ProjectStateEncodedImportIndexBatch): void
-  registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): void
-  replaceImportFinalFileState(batch: ProjectStateEncodedImportFinalBatch): void
   clearImportOutput(componentPaths: readonly string[]): void
   deleteFiles(projectPaths: readonly string[]): void
   deleteUnseenFiles(seenFileIds: Uint8Array): number

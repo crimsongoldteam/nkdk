@@ -13,10 +13,21 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import { MetadataExternalDataSourceTableRules } from "../commonObjects/metadataExternalDataSourceTable/rules"
+import { projectValidationFormRuleKey } from "./projectValidationFormRules"
 
 const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataItemRule
 
 describe("project validation standalone loader", () => {
+  it("регистрирует схему каждого YAML fileItem, а не только прикладной формы", () => {
+    const assignment = compileRegisteredMetadataResourceTopology().assignments.find(
+      ({ role, itemRule }) => role === "fileItem" && itemRule === MetadataExternalDataSourceTableRules,
+    )
+    if (assignment === undefined) throw new Error("Не найдена таблица внешнего источника данных")
+
+    expect(projectValidationFormRuleKey(MetadataExternalDataSourceTableRules)).toBe(assignment.id)
+  })
+
   it("selects standalone form validators by topology rule", () => {
     const topology = compileRegisteredMetadataResourceTopology()
     const baseNode = topology.assignments.find(

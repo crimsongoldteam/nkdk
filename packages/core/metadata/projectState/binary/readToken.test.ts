@@ -6,7 +6,7 @@ import {
 } from "./readToken"
 
 it("передаёт общие буферы без копирования и захватывается один раз", () => {
-  const buffers = buildProjectStateSnapshot({ replacements: [], deletions: [] })
+  const buffers = buildProjectStateSnapshot({ fragments: [], deletions: [] })
   const token = createBinaryProjectStateReadToken(buffers)
   const claimed = claimBinaryProjectStateReadToken(token)
 

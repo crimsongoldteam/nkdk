@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { runProjectStateStoreContract } from "../storeContract"
-import { encodeProjectStateFileUpdateBatch } from "./contribution"
 import { createBinaryProjectStateTestFixture } from "./testFixture"
 import { yamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter } from "./fragment"
@@ -13,12 +12,12 @@ describe("BinaryProjectStateStore", () => {
     const initial = yamlUpdate("cf/Исходный.yaml", "cf", "Catalog.Исходный")
     const candidate = yamlUpdate("cf/Новый.yaml", "cf", "Catalog.Новый")
     store.beginUpdate()
-    store.replaceFiles(encodeProjectStateFileUpdateBatch({ updates: [initial], hashBytes: new Uint8Array(8) }))
+    append(store, initial)
     store.commitUpdate()
     const publishedToken = store.createReadToken()
 
     store.beginUpdate()
-    store.replaceFiles(encodeProjectStateFileUpdateBatch({ updates: [candidate], hashBytes: new Uint8Array(8) }))
+    append(store, candidate)
     const candidateSession = openReadSession(store.createReadToken())
     expect(candidateSession.resolveTargets([{
       requestId: "candidate",
@@ -97,3 +96,9 @@ describe("BinaryProjectStateStore", () => {
     expect(store.commitUpdate()).toBe(false)
   })
 })
+
+function append(store: ReturnType<typeof createBinaryProjectStateTestFixture>["store"], update: ReturnType<typeof yamlUpdate>): void {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile(update, 0n)
+  store.appendFragment(writer.finish())
+}

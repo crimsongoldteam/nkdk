@@ -7,6 +7,7 @@ import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
+import { createTypedProjectStateReader } from "./typedReader"
 
 it("соблюдает видимость cf и собственного расширения", () => {
   const session = openSessionWithUpdates([
@@ -135,6 +136,30 @@ it("не обращается к прежнему предметному дек�
   ])
 
   expect(queryPort.readValidationStatus({ offset: 0, batchSize: 1 })).toHaveLength(1)
+})
+
+it("восстанавливает вложенную цель отложенной ссылки без повторного разбора ограничения", () => {
+  const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const pendingReference = {
+    yamlPath: ["Форма", "Источник"],
+    canonical: "ExternalDataSource.ВнешнийИсточник.Table.Таблица",
+    target: {
+      kind: "object" as const,
+      root: "ExternalDataSource" as const,
+      objectName: "ВнешнийИсточник",
+      segments: [{ kind: "Table" as const, objectName: "Таблица" }],
+    },
+    constraint: {
+      kind: "member" as const,
+      owner: "explicit" as const,
+      allowedObjectPaths: [["ExternalDataSource", "Table"]] as const,
+      allowOwner: true,
+    },
+  }
+  const buffers = typedSnapshot([{ ...update, pendingReferences: [pendingReference] }])
+  const reader = createTypedProjectStateReader(new ProjectStateSnapshotView(buffers))
+
+  expect(reader.pendingReferences(0)).toEqual([pendingReference])
 })
 
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {

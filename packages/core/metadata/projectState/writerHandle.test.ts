@@ -1,7 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
-import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
-import { createProjectStateFileUpdateBatch } from "./fileUpdate"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { trackTempProjectDirs } from "./tests/tempProjectDir"
 import {
@@ -27,7 +25,7 @@ describe("владелец состояния проекта в главном �
       await saving.promise
     })
     await handle.beginUpdate("/project")
-    await handle.writeBatch(batch("cf/a.bin", 1n))
+    await handle.writeFragment(fragment("cf/a.bin", 1n))
 
     await expect(handle.commitAndScheduleCheckpoint()).resolves.toEqual({
       snapshotPath: "/project/.nkdk/cache/project-state.bin",
@@ -48,7 +46,7 @@ describe("владелец состояния проекта в главном �
       .mockResolvedValueOnce(undefined)
     const handle = createHandle(save)
     await handle.beginUpdate("/project")
-    await handle.writeBatch(batch("cf/a.bin", 1n))
+    await handle.writeFragment(fragment("cf/a.bin", 1n))
     await handle.commitAndScheduleCheckpoint()
 
     await expect(handle.beginUpdate("/project")).resolves.toBeUndefined()
@@ -60,7 +58,7 @@ describe("владелец состояния проекта в главном �
     const save = vi.fn().mockResolvedValue(undefined)
     const handle = createHandle(save)
     await handle.beginUpdate("/project")
-    await handle.writeBatch(batch("cf/a.bin", 1n))
+    await handle.writeFragment(fragment("cf/a.bin", 1n))
 
     await handle.rollbackUpdate()
 
@@ -102,7 +100,7 @@ describe("владелец состояния проекта в главном �
     await handle.beginUpdate("/project", controller.signal)
     controller.abort()
 
-    await expect(handle.writeBatch(batch("cf/a.bin", 1n)))
+    await expect(handle.writeFragment(fragment("cf/a.bin", 1n)))
       .rejects.toBeInstanceOf(ProjectStateWriterCancelledError)
     await handle.rollbackUpdate()
   })
@@ -112,7 +110,7 @@ describe("владелец состояния проекта в главном �
     const first = createProjectStateWriterHandle()
     handles.push(first)
     await first.beginUpdate(projectDir)
-    await first.writeBatch(batch("cf/a.bin", 1n))
+    await first.writeFragment(fragment("cf/a.bin", 1n))
     await first.commitAndScheduleCheckpoint()
     await first.close()
     handles.splice(handles.indexOf(first), 1)
@@ -136,9 +134,8 @@ describe("владелец состояния проекта в главном �
   }
 })
 
-function batch(projectPath: string, hash: bigint) {
-  return encodeProjectStateFileUpdateBatch(createProjectStateFileUpdateBatch([{
-    update: { kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" },
-    hash,
-  }]))
+function fragment(projectPath: string, hash: bigint) {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile({ kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }, hash)
+  return writer.finish()
 }

@@ -1,4 +1,10 @@
-import { parseMetadataTargetFromModel } from "../../commonObjects/metadataTargets"
+import { isMetadataRootName } from "../../commonObjects/metadataTargets/roots"
+import type {
+  MetadataMemberKind,
+  MetadataObjectPathKind,
+  MetadataRootName,
+  ParsedMetadataTarget,
+} from "../../commonObjects/metadataTargets/types"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
 import type {
@@ -9,30 +15,12 @@ import type {
   ProjectStatePendingReference,
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
-import type { MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
+import { decodeMetadataTargetConstraint } from "./constraintCodec"
 import type { DiagnosticSource, DiagnosticSeverity } from "../../validation/types"
-import { PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
+import { PROJECT_STATE_FACT_RECORD_VIEWS, PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
 import {
-  ProjectStateDependencyRecordView,
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,
-  ProjectStateFieldRecordView,
-  ProjectStateFormRecordView,
-  ProjectStateOwnerFactItemRecordView,
-  ProjectStateOwnerFactRecordView,
-  ProjectStateOwnerRecordView,
-  ProjectStateOwnerTypeRecordView,
-  ProjectStatePendingCheckRecordView,
-  ProjectStatePendingReferenceRecordView,
-  ProjectStateReferenceDetailsRecordView,
-  ProjectStateReferenceRecordView,
-  ProjectStateStringValueRecordView,
-  ProjectStateTableInfoRecordView,
-  ProjectStateTypeDescriptionRecordView,
-  ProjectStateTypeInfoRecordView,
-  ProjectStateValidationStatusRecordView,
-  ProjectStateYamlPathRecordView,
-  ProjectStateYamlPathSegmentRecordView,
 } from "./layouts"
 import type { ProjectStateSnapshotView } from "./snapshot"
 
@@ -43,36 +31,17 @@ const FIELD_KINDS = [undefined, "attribute", "standardAttribute", "tabularSectio
 const TABLE_KINDS = [undefined, "ValueTable", "ValueTree", "ValueList", "GanttChart", "DynamicList", "RegisterRecordSet", "TabularSection"] as const
 const SEVERITIES = [undefined, "error", "warning"] as const
 const SOURCES = [undefined, "syntax", "structure", "external-file", "cross-file", "reference"] as const
+const MEMBER_KINDS = new Set<MetadataMemberKind>([
+  "Attribute", "StandardAttribute", "TabularSection", "Dimension", "Resource", "Form", "Template",
+  "Command", "AccountingFlag", "ExtDimensionAccountingFlag", "AddressingAttribute", "Field",
+])
 
-interface RecordCodec {
-  readonly viewLength: number
-  decode(view: DataView, offset?: number): Record<string, number>
+function targetPairs(parts: readonly string[]): readonly (readonly [string, string])[] {
+  if (parts.length % 2 !== 0) throw new Error("Повреждён канонический адрес metadata target")
+  return Array.from({ length: parts.length / 2 }, (_, index) => [parts[index * 2]!, parts[index * 2 + 1]!] as const)
 }
 
-const RECORDS = {
-  validationStatus: ProjectStateValidationStatusRecordView,
-  references: ProjectStateReferenceRecordView,
-  referenceDetails: ProjectStateReferenceDetailsRecordView,
-  pendingReferences: ProjectStatePendingReferenceRecordView,
-  owners: ProjectStateOwnerRecordView,
-  ownerFacts: ProjectStateOwnerFactRecordView,
-  ownerFactItems: ProjectStateOwnerFactItemRecordView,
-  fields: ProjectStateFieldRecordView,
-  typeInfo: ProjectStateTypeInfoRecordView,
-  typeKinds: ProjectStateStringValueRecordView,
-  definedTypes: ProjectStateStringValueRecordView,
-  ownerTypes: ProjectStateOwnerTypeRecordView,
-  tableInfo: ProjectStateTableInfoRecordView,
-  forms: ProjectStateFormRecordView,
-  formColumns: ProjectStateFormRecordView,
-  pendingChecks: ProjectStatePendingCheckRecordView,
-  allowedKinds: ProjectStateStringValueRecordView,
-  dependencies: ProjectStateDependencyRecordView,
-  yamlPaths: ProjectStateYamlPathRecordView,
-  yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
-  typeDescriptions: ProjectStateTypeDescriptionRecordView,
-  typeDescriptionValues: ProjectStateStringValueRecordView,
-} as unknown as Readonly<Record<ProjectStateFactTableKind, RecordCodec>>
+const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 export interface TypedProjectStateReader {
   yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"> | undefined
@@ -223,13 +192,57 @@ export function createTypedProjectStateReader(snapshot: ProjectStateSnapshotView
   }
 
   function pendingReference(value: Record<string, number>): ProjectStatePendingReference {
-    const kind = string(value.constraintKindId) as MetadataTargetConstraint["kind"]
-    const constraint = kind === "member" ? { kind, owner: "explicit" as const }
-      : kind === "object" || kind === "value" ? { kind } : { kind: "object" as const }
+    const constraint = decodeMetadataTargetConstraint(string(value.constraintKindId))
     const canonical = string(value.canonicalId)
-    const parsed = parseMetadataTargetFromModel({ canonical, constraint })
-    if (!parsed.ok) throw new Error(`Не удалось восстановить metadata target ${canonical}`)
-    return { yamlPath: yamlPath(value.yamlPathId), canonical, target: parsed.target, constraint }
+    return {
+      yamlPath: yamlPath(value.yamlPathId),
+      canonical,
+      target: storedTarget(value, canonical),
+      constraint,
+    }
+  }
+
+  function storedTarget(value: Record<string, number>, canonical: string): ParsedMetadataTarget {
+    const kind = string(value.targetKindId)
+    const root = string(value.targetRootId)
+    if (!isMetadataRootName(root)) throw new Error(`Неизвестный корень metadata target: ${root}`)
+    const objectName = string(value.targetNameId)
+    const tail = canonical.split(".").slice(2)
+    if (kind === "object") {
+      const segments = targetPairs(tail).map(([segmentKind, name]) => ({
+        kind: segmentKind as MetadataObjectPathKind | MetadataRootName,
+        objectName: name,
+      }))
+      return { kind, root, objectName, ...(segments.length === 0 ? {} : { segments }) }
+    }
+    if (kind === "member") {
+      const pairs = targetPairs(tail)
+      const firstMember = pairs.findIndex(([segmentKind]) => MEMBER_KINDS.has(segmentKind as MetadataMemberKind))
+      if (firstMember < 0) throw new Error(`Metadata target не содержит члена: ${canonical}`)
+      return {
+        kind,
+        root,
+        objectName,
+        ...(firstMember === 0 ? {} : {
+          objectSegments: pairs.slice(0, firstMember).map(([segmentKind, name]) => ({
+            kind: segmentKind as MetadataObjectPathKind | MetadataRootName,
+            objectName: name,
+          })),
+        }),
+        segments: pairs.slice(firstMember).map(([segmentKind, name]) => ({
+          kind: segmentKind as MetadataMemberKind,
+          name,
+        })),
+      }
+    }
+    if (kind === "value") {
+      if (tail[0] === "EmptyRef") return { kind, root, objectName, valueKind: "emptyRef" }
+      if (tail[0] === "EnumValue") {
+        return { kind, root, objectName, valueKind: "enumValue", valueName: string(value.targetMemberId) }
+      }
+      return { kind, root, objectName, valueKind: "predefinedValue", valueName: string(value.targetMemberId) }
+    }
+    throw new Error(`Неизвестный вид metadata target: ${kind}`)
   }
 
   function yamlFacts(fileId: number) {
