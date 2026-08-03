@@ -4,7 +4,7 @@
 
 **Goal:** Восстанавливать `Table.Period`, `Table.TopLevelParent` и `Table.RowFilter` по конечному источнику `ПутьКДанным`, включая пути через `CurrentData`, и сохранять явный `HeaderHorizontalAlign=Auto` через зарегистрированный локальный YAML-тег `!xml`.
 
-**Architecture:** Общий resolver получает нейтральное соответствие имени табличного элемента формы его `ПутьКДанным` и разрешает `CurrentData` до обычного `ResolvedDataPathTarget`. Локальный классификатор рядом с `TableRules` преобразует этот результат в профиль `dynamicList | rowFilter | none`, а декларативные `toXML`-условия создают нужные XML-узлы без reference. Общий YAML-слой переносит локальный тег отдельно от предметного значения, а нейтральная регистрация разрешает `!xml` только для явно согласованных пар `itemType + propertyKey + value`.
+**Architecture:** Общий resolver получает нейтральное соответствие имени табличного элемента формы его `ПутьКДанным` и разрешает `CurrentData` до обычного `ResolvedDataPathTarget`. Граница операции передаёт resolver форме, локальный классификатор преобразует его результат в профиль `dynamicList | rowFilter | none`, а декларативные `toXML`-условия создают нужные XML-узлы без reference. Общий YAML-слой переносит локальный тег отдельно от предметного значения, а нейтральная регистрация разрешает `!xml` только для явно согласованных пар `itemType + propertyKey + value`.
 
 **Tech Stack:** TypeScript 7, Vitest, js-yaml, pnpm, dependency-cruiser, jscpd, существующие metadata rules/resolver/indexes.
 
@@ -58,7 +58,7 @@ it("не принимает неизвестный локальный тег", (
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/yaml/jsYamlParser.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run yaml/jsYamlParser.test.ts --no-isolate
 ```
 
 Expected: FAIL, потому что `!xml` ещё не зарегистрирован и `yamlScalarTagAt` отсутствует.
@@ -165,7 +165,7 @@ it("сохраняет !xml при полном разборе и повторн
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/yaml/jsYamlParser.test.ts packages/core/yaml/export.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run yaml/jsYamlParser.test.ts yaml/export.test.ts --no-isolate
 ```
 
 Expected: тест разбора проходит, тест экспорта FAIL — пометка пока не возвращается в dumper.
@@ -211,7 +211,7 @@ if (value !== null && typeof value === "object") {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/yaml/jsYamlParser.test.ts packages/core/yaml/export.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run yaml/jsYamlParser.test.ts yaml/export.test.ts --no-isolate
 ```
 
 Expected: PASS.
@@ -270,7 +270,7 @@ registerExplicitXMLProperty({
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromXMLToYAML.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts --no-isolate
 ```
 
 Expected: FAIL — registry и интеграция отсутствуют.
@@ -368,7 +368,7 @@ assertAllowedExplicitXMLTags({ yaml, rule: params.rule })
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromXMLToYAML.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts --no-isolate
 ```
 
 Expected: PASS.
@@ -430,7 +430,7 @@ expect(headerAlignSchema.enum).toContain("Авто")
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/forms/elements/orchestration/toJSONSchema.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/forms/elements/__tests__/fromXMLToYAML.test.ts metadata/forms/elements/orchestration/toJSONSchema.test.ts --no-isolate
 ```
 
 Expected: FAIL — production-свойства ещё не зарегистрированы.
@@ -459,7 +459,7 @@ export function registerExplicitHeaderHorizontalAlign(itemType: string): void {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/forms/elements/orchestration/toJSONSchema.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/forms/elements/__tests__/fromXMLToYAML.test.ts metadata/forms/elements/orchestration/toJSONSchema.test.ts --no-isolate
 ```
 
 Expected: PASS.
@@ -509,7 +509,7 @@ readonly tableDataPathByElementName: ReadonlyMap<string, string>
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/dataPath/formIndex.test.ts packages/core/metadata/validation/dataPath/formYamlIndex.test.ts packages/core/metadata/validation/yamlFactExtractor.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/validation/dataPath/formIndex.test.ts metadata/validation/dataPath/formYamlIndex.test.ts metadata/validation/yamlFactExtractor.test.ts --no-isolate
 ```
 
 Expected: FAIL — индекс не знает элементы формы.
@@ -604,7 +604,7 @@ it.each([
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/dataPath/resolver.test.ts packages/core/metadata/forms/clientApplicationForm/validateForm.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/validation/dataPath/resolver.test.ts metadata/forms/clientApplicationForm/validateForm.test.ts --no-isolate
 ```
 
 Expected: FAIL — `coreResolver.ts` пока безусловно завершает любой `CurrentData` без target.
@@ -665,7 +665,7 @@ interface ResolveDataPathSegmentsParams extends ResolveDataPathCoreParams {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/dataPath/formIndex.test.ts packages/core/metadata/validation/dataPath/formYamlIndex.test.ts packages/core/metadata/validation/dataPath/resolver.test.ts packages/core/metadata/forms/clientApplicationForm/validateForm.test.ts packages/core/metadata/validation/yamlFactExtractor.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/validation/dataPath/formIndex.test.ts metadata/validation/dataPath/formYamlIndex.test.ts metadata/validation/dataPath/resolver.test.ts metadata/forms/clientApplicationForm/validateForm.test.ts metadata/validation/yamlFactExtractor.test.ts --no-isolate
 ```
 
 Expected: PASS.
@@ -681,7 +681,7 @@ git commit -m "fix: :bug: разрешать конечное поле чере�
 
 **Files:**
 
-- Create: `packages/core/metadata/forms/elements/table/sourceProfile.ts`
+- Create: `packages/core/metadata/forms/clientApplicationForm/tableSourceProfile.ts`
 - Modify: `packages/core/metadata/forms/elements/table/dynamicListProperties.ts`
 - Modify: `packages/core/metadata/forms/elements/table/rules.ts`
 - Modify: `packages/core/metadata/context/types.ts`
@@ -689,7 +689,7 @@ git commit -m "fix: :bug: разрешать конечное поле чере�
 - Modify: `packages/core/metadata/commonObjects/metadataPath/dataPathStandardMembers.ts`
 - Modify: `packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts`
 - Modify: `packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts`
-- Modify: `packages/core/metadata/fullSyncToXml/worker.integration.test.ts`
+- Modify: `packages/core/tests/mockContext.ts`
 
 ### Step 1: Написать матричные тесты классификатора
 
@@ -721,83 +721,30 @@ git commit -m "fix: :bug: разрешать конечное поле чере�
 
 В `elements/__tests__/fromXMLToYAML.test.ts` подтвердить, что входные `Period`, `TopLevelParent` и `RowFilter` никогда не появляются как `Период`, `РодительВерхнегоУровня` или `ОтборСтрок` в YAML. Это правило действует и при наличии reference/profile.
 
-### Step 3: Добавить интеграционный тест кэша владельца
+### Step 3: Добавить проверку кэша владельца
 
-В `fullSyncToXml/worker.integration.test.ts` создать минимальный YAML-проект формы, где:
+В `fromYAMLToXML.test.ts` создать минимальный контекст с готовым слоёным индексом владельца, где:
 
 - `ПутьКДанным` указывает на поле владельца типа табличной части — получается `RowFilter`;
 - соседнее поле владельца скалярное — не получает служебных узлов.
 
-Этот тест должен падать, если `ownerMetadataCache` доступен только в `exportToYAML`, но отсутствует в `importFromYAML`.
+Тест должен падать, если `ownerMetadataCache` недоступен в `importFromYAML`. В `metadataPath/fromYAML.test.ts` отдельно проверить преобразование стандартного реквизита с кэшем только в направлении YAML → XML.
 
 ### Step 4: Запустить тесты и подтвердить падение
 
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/fullSyncToXml/worker.integration.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts metadata/forms/elements/__tests__/fromXMLToYAML.test.ts --no-isolate
 ```
 
 Expected: FAIL — служебные узлы пока зависят от старого default/reference, а полный sync не предоставляет resolver кэш в направлении YAML → XML.
 
 ### Step 5: Реализовать единый локальный классификатор
 
-В `sourceProfile.ts`:
+В `clientApplicationForm/tableSourceProfile.ts` классифицировать нейтральный результат переданного общего resolver в `dynamicList | rowFilter | none`. Классификатор не разбирает сегменты `Items` и `CurrentData`: после Task 4 resolver возвращает обычный target конечного поля. Отсутствующий, пустой или ошибочный путь даёт `rowFilter`; target без таблицы и составной target дают `none`.
 
-```ts
-export type TableSourceProfile = "dynamicList" | "rowFilter" | "none"
-
-export function classifyTableSource(
-  source: YAMLPropertySource,
-  context?: ConfigurationContextWithExportToXML
-): TableSourceProfile {
-  const dataPath = source.raw("dataPath")
-  if (typeof dataPath !== "string" || dataPath.trim() === "") return "rowFilter"
-
-  const index = context?.importFromYAML?.formDataPathIndex
-  const ownerCache = context?.importFromYAML?.ownerMetadataCache
-  if (index === undefined || ownerCache === undefined) return "rowFilter"
-
-  const resolved = resolveDataPathCore({
-    value: dataPath,
-    nameMode: "yaml",
-    index,
-    ownerCache,
-  })
-  if (resolved.error !== undefined) return "rowFilter"
-  if (resolved.target === undefined) return "none"
-  if (resolved.target.typeInfo.nextTypes.length > 1) return "none"
-
-  const kind = resolved.target.typeInfo.table?.kind
-  if (
-    kind === "DynamicList" &&
-    resolved.target.source.kind === "formAttribute" &&
-    resolved.target.segments.length === 1
-  ) return "dynamicList"
-  if (kind === "ValueTable" || kind === "TabularSection" || kind === "RegisterRecordSet") {
-    return "rowFilter"
-  }
-  return "none"
-}
-
-export function isDirectDynamicListTable(
-  source: YAMLPropertySource,
-  context?: ConfigurationContextWithExportToXML
-): boolean {
-  return classifyTableSource(source, context) === "dynamicList"
-}
-
-export function hasRowFilterTableSource(
-  source: YAMLPropertySource,
-  context?: ConfigurationContextWithExportToXML
-): boolean {
-  return classifyTableSource(source, context) === "rowFilter"
-}
-```
-
-При необходимости адаптировать проверку составного типа к фактическому договору `DataPathTypeInfo`, но сохранить правило: любой неоднозначный конечный тип даёт `none`. `CurrentData` не проверяется текстово — после Task 4 он уже возвращает обычный target и не удовлетворяет признаку прямого корня.
-
-`dynamicListProperties.ts` импортирует `isDirectDynamicListTable` из нового файла и удаляет локальную реализацию.
+В `dynamicListProperties.ts` оставить только predicates rules, читающие готовый профиль из контекста формы. Если общий resolver не передан в низкоуровневом вызове, допустим только прежний резервный разбор непосредственного корня реквизита формы.
 
 ### Step 6: Подключить resolver-кэш в направлении YAML → XML
 
@@ -816,6 +763,8 @@ importFromYAML: {
   ownerMetadataCache: state.ownerMetadataCache,
 },
 ```
+
+Там же передать общий `resolveDataPathCore` как нейтральную функцию контекста. Тестовый `mockContextToXML` предоставляет тот же resolver, чтобы прямые тесты формы проверяли производственный договор.
 
 В `dataPathStandardMembers.ts` выбирать кэш по направлению:
 
@@ -872,7 +821,7 @@ rowFilter: {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/fullSyncToXml/worker.integration.test.ts packages/core/metadata/commonObjects/metadataPath/fromYAML.test.ts --no-isolate
+pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts metadata/forms/elements/__tests__/fromXMLToYAML.test.ts metadata/commonObjects/metadataPath/fromYAML.test.ts --no-isolate
 ```
 
 Expected: PASS.
@@ -880,7 +829,7 @@ Expected: PASS.
 ### Step 9: Зафиксировать классификацию
 
 ```bash
-git add packages/core/metadata/forms/elements/table/sourceProfile.ts packages/core/metadata/forms/elements/table/dynamicListProperties.ts packages/core/metadata/forms/elements/table/rules.ts packages/core/metadata/context/types.ts packages/core/metadata/fullSyncToXml/worker.ts packages/core/metadata/commonObjects/metadataPath/dataPathStandardMembers.ts packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/fullSyncToXml/worker.integration.test.ts packages/core/metadata/commonObjects/metadataPath/fromYAML.test.ts
+git add packages/core/metadata/forms/clientApplicationForm/tableSourceProfile.ts packages/core/metadata/forms/elements/table/dynamicListProperties.ts packages/core/metadata/forms/elements/table/rules.ts packages/core/metadata/context/types.ts packages/core/metadata/fullSyncToXml/worker.ts packages/core/tests/mockContext.ts packages/core/metadata/commonObjects/metadataPath/dataPathStandardMembers.ts packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts packages/core/metadata/commonObjects/metadataPath/fromYAML.test.ts
 git commit -m "fix: :bug: вычислять служебные узлы таблицы по источнику"
 ```
 
@@ -958,7 +907,7 @@ env NKDK_XML_REPO=/Users/nikita/git/round-trip-compact NKDK_XML_DIR=/Users/nikit
 Expected:
 
 - отсутствуют расхождения по `Period`, `TopLevelParent` и `RowFilter`, включая пути через `CurrentData`;
-- явные 33 случая `HeaderHorizontalAlign=Auto` сохраняются через YAML `!xml Авто` и не исчезают из XML;
+- явные 34 случая `HeaderHorizontalAlign=Auto` сохраняются через YAML `!xml Авто` и не исчезают из XML;
 - если остаются другие заранее известные несвязанные diff, перечислить их отдельно и не расширять эту реализацию без согласования.
 
 После диагностики не откатывать `/Users/nikita/git/round-trip-compact`: diff является результатом round-trip skill.
