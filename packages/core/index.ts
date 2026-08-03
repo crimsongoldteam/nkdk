@@ -18,6 +18,7 @@ export {
   type ProjectStateFileUpdateBatchEntry,
   type ProjectStateComponentProjection,
   type ProjectStateRefreshParams,
+  type ProjectStateRefreshProfile,
   type ProjectStateRefreshResult,
   type ProjectStateRefreshStats,
   type ProjectStateReadSession,
@@ -115,6 +116,10 @@ export {
   type ValidateProjectResult,
 } from "./metadata/validation/validateProject"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
+export {
+  createValidationProfileResult,
+  type ValidationProfileResult,
+} from "./metadata/validation/profile"
 export {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,

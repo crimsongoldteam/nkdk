@@ -17,6 +17,8 @@ packages/core/dist/index.js
 Он не использует MCP service и не импортирует `packages/core/index.ts`, потому что это source/tsx path.
 Core выводит профиль при `NKDK_PROFILE=1`.
 
+Runner использует один `ProjectStateService` для последовательных запусков: первый запуск является cold, последующие — warm. Машинный результат каждого запуска содержит счётчики состояния проекта, размер снимка, времена загрузки и checkpoint, а также SHA-256 digest полного стабильного представления diagnostics. Во время профильного запуска stderr получает отметки `[nkdk-project-state-phase]` для обнаружения путей, чтения исходных хэшей, обработки файлов в worker, чтения локальных diagnostics, dependency validation и checkpoint; итоговый JSON содержит длительность каждой фазы.
+
 ## Жёсткие инварианты
 
 - Перед каждым замером выполняй свежую сборку: `pnpm --filter @nkdk/core build`.
@@ -24,6 +26,8 @@ Core выводит профиль при `NKDK_PROFILE=1`.
 - Не запускай `pnpm test`.
 - Не исправляй validation diagnostics в рамках этого скилла.
 - Не коммить результаты замеров.
+- Не запускай runner прямо на пользовательском проекте, если его `.nkdk` нельзя изменять: подготовь временную копию без `.nkdk` и зафиксируй контрольную сумму исходного кэша до и после.
+- Для целевого проекта запускай runner через внешний ограничитель времени не более 115 секунд; не полагайся на отмену внутри JavaScript для остановки синхронной SQLite-фазы.
 - Если пользователь просит сравнить source/tsx и compiled standalone, скажи, что это отдельная диагностика вне этого скилла.
 
 ## Быстрый запуск
@@ -65,6 +69,9 @@ YAML-каталог: <path>
 Cold: <seconds>
 Warm: avg=<seconds> min=<seconds> max=<seconds>
 Diagnostics: <total> = <errors> errors + <warnings> warnings
+Hashed/parsed YAML: <cold hashed>/<cold parsed>, <warm hashed>/<warm parsed>
+Snapshot: <bytes>; load=<seconds>; checkpoint=<seconds>
+Diagnostics digest: <sha256>; cold/warm equal=<true|false>
 Peak RSS: <MiB>
 RSS по прогонам: <run list>
 ```

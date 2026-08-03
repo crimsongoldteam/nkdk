@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process"
 import { existsSync, statSync } from "node:fs"
+import { availableParallelism } from "node:os"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
@@ -112,10 +113,9 @@ function average(values) {
 
 async function runProfile(options) {
   const core = await loadCompiledCore()
-  const handle = core.createValidationWorkerPoolHandle(
-    options.concurrency === undefined ? undefined : { concurrency: options.concurrency }
-  )
+  const service = core.createProjectStateService()
   const runs = []
+  const workerPoolSize = options.concurrency ?? Math.max(1, Math.min(4, availableParallelism() - 1))
   let peakRssBytes = process.memoryUsage().rss
   const timer = setInterval(() => {
     peakRssBytes = Math.max(peakRssBytes, process.memoryUsage().rss)
@@ -124,11 +124,25 @@ async function runProfile(options) {
   try {
     for (let run = 1; run <= options.runs; run += 1) {
       const started = performance.now()
-      const validation = await handle.validateProject({ projectDir: options.projectDir })
+      const validation = await service.refreshAndValidate({
+        projectDir: options.projectDir,
+        concurrency: options.concurrency,
+        profile: {
+          onPhase(event) {
+            process.stderr.write(`[nkdk-project-state-phase] ${JSON.stringify({ run, ...event })}\n`)
+          },
+        },
+      })
       const elapsedMs = Math.round(performance.now() - started)
       const memory = memorySnapshot()
       peakRssBytes = Math.max(peakRssBytes, memory.rssBytes)
       const counts = countDiagnostics(validation.diagnostics)
+      if (validation.profile === undefined) throw new Error("compiled core did not return project-state profile")
+      const profile = core.createValidationProfileResult({
+        diagnostics: validation.diagnostics,
+        stats: validation.stats,
+        ...validation.profile,
+      })
 
       runs.push({
         run,
@@ -136,14 +150,15 @@ async function runProfile(options) {
         diagnostics: validation.diagnostics.length,
         errors: counts.errors,
         warnings: counts.warnings,
-        workerPoolSize: handle.size(),
+        workerPoolSize,
         rssMiB: memory.rssMiB,
         heapUsedMiB: memory.heapUsedMiB,
+        ...profile,
       })
     }
   } finally {
     clearInterval(timer)
-    await handle.close()
+    await service.close()
   }
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
@@ -156,6 +171,20 @@ async function runProfile(options) {
     warmMinMs: warm.length === 0 ? undefined : Math.min(...warm),
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: Math.round(peakRssBytes / 1024 / 1024),
+    diagnosticsDigestsEqual: runs.every((run) => run.diagnosticsDigest === runs[0]?.diagnosticsDigest),
+    ...(runs[0] === undefined ? {} : {
+      hashedFiles: runs[0].hashedFiles,
+      parsedYamlFiles: runs[0].parsedYamlFiles,
+      snapshotBytes: runs[0].snapshotBytes,
+      loadMs: runs[0].loadMs,
+      checkpointMs: runs[0].checkpointMs,
+      discoverFilesMs: runs[0].discoverFilesMs,
+      readBaselineMs: runs[0].readBaselineMs,
+      processFilesMs: runs[0].processFilesMs,
+      readLocalDiagnosticsMs: runs[0].readLocalDiagnosticsMs,
+      dependencyValidationMs: runs[0].dependencyValidationMs,
+      diagnosticsDigest: runs[0].diagnosticsDigest,
+    }),
   }
 
   if (options.timing) {
@@ -167,12 +196,11 @@ async function runProfile(options) {
 
 function runTimingPass(options) {
   const script = [
-    "import { createValidationWorkerPoolHandle } from './packages/core/dist/index.js';",
+    "import { createProjectStateService } from './packages/core/dist/index.js';",
     `const projectDir = ${JSON.stringify(options.projectDir)};`,
-    `const handle = createValidationWorkerPoolHandle(${
-      options.concurrency === undefined ? "" : JSON.stringify({ concurrency: options.concurrency })
-    });`,
-    "try { await handle.validateProject({ projectDir }); } finally { await handle.close(); }",
+    "const service = createProjectStateService();",
+    `const concurrency = ${JSON.stringify(options.concurrency)};`,
+    "try { await service.refreshAndValidate({ projectDir, concurrency, profile: true }); } finally { await service.close(); }",
   ].join("\n")
 
   const spawned = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
@@ -295,11 +323,23 @@ function printResult(result, options) {
         `diagnostics=${run.diagnostics}`,
         `errors=${run.errors}`,
         `warnings=${run.warnings}`,
+        `hashed=${run.hashedFiles}`,
+        `parsedYAML=${run.parsedYamlFiles}`,
+        `snapshot=${run.snapshotBytes}B`,
+        `load=${formatMs(run.loadMs)}`,
+        `checkpoint=${formatMs(run.checkpointMs)}`,
+        `discover=${formatMs(run.discoverFilesMs)}`,
+        `baseline=${formatMs(run.readBaselineMs)}`,
+        `process=${formatMs(run.processFilesMs)}`,
+        `localDiagnostics=${formatMs(run.readLocalDiagnosticsMs)}`,
+        `dependencies=${formatMs(run.dependencyValidationMs)}`,
+        `digest=${run.diagnosticsDigest}`,
         `rss=${run.rssMiB}MiB`,
         `heap=${run.heapUsedMiB}MiB`,
       ].join(" ")
     )
   }
+  console.log(`Diagnostics digests equal: ${result.diagnosticsDigestsEqual}`)
 
   if (result.timing !== undefined) {
     console.log("")
