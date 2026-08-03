@@ -1,3 +1,5 @@
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+
 export interface ExplicitXMLPropertyRegistration {
   readonly itemType: string
   readonly propertyKey: string
@@ -33,12 +35,13 @@ export function matchExplicitXMLPropertyFromXML(params: {
 
 export function assertAllowedExplicitXMLTags(params: {
   readonly yaml: unknown
-  readonly rule: MetadataItemRule
+  readonly itemType: string
+  readonly properties: Readonly<Record<string, { readonly yaml?: string }>>
 }): void {
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return
   const yaml = params.yaml as Record<string, unknown>
   const propertyByYamlKey = new Map(
-    Object.entries(params.rule.properties).flatMap(([propertyKey, rule]) =>
+    Object.entries(params.properties).flatMap(([propertyKey, rule]) =>
       typeof rule.yaml === "string" ? [[rule.yaml, propertyKey] as const] : []
     )
   )
@@ -49,13 +52,13 @@ export function assertAllowedExplicitXMLTags(params: {
     const registration =
       propertyKey === undefined
         ? undefined
-        : registrations.get(registrationKey(params.rule.itemType, propertyKey))
+        : registrations.get(registrationKey(params.itemType, propertyKey))
     if (registration === undefined) {
-      throw new Error(`Для ${params.rule.itemType}.${yamlKey} тег !xml не зарегистрирован`)
+      throw new Error(`Для ${params.itemType}.${yamlKey} тег !xml не зарегистрирован`)
     }
     if (!Object.is(registration.yamlValue, value)) {
       throw new Error(
-        `Для ${params.rule.itemType}.${yamlKey} тег !xml не допускает значение ${String(value)}`
+        `Для ${params.itemType}.${yamlKey} тег !xml не допускает значение ${String(value)}`
       )
     }
   }
@@ -64,5 +67,3 @@ export function assertAllowedExplicitXMLTags(params: {
 function registrationKey(itemType: string, propertyKey: string): string {
   return `${itemType}\0${propertyKey}`
 }
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
-import type { MetadataItemRule } from "./types"

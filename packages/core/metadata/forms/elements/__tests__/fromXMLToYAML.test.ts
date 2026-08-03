@@ -25,6 +25,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
+import { exportToYAML } from "../../../../yaml/export"
 
 import "../index"
 
@@ -382,16 +383,17 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
-    "canonicalizes explicit table HeaderHorizontalAlign=Auto to an absent XML tag",
+    "preserves explicit table HeaderHorizontalAlign=Auto through !xml",
     (rule) => {
       const yaml = testMetadataItemFromXMLToYAML({
         rule,
         xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
         name: "Колонка",
       }).yaml
-      expect(yaml).not.toHaveProperty("ГоризонтальноеПоложениеВШапке")
-      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).not.toHaveProperty(
-        "HeaderHorizontalAlign"
+      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml Авто")
+      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
+        "HeaderHorizontalAlign",
+        "Auto"
       )
     }
   )

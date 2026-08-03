@@ -139,7 +139,11 @@ export function createYAMLPropertySource(params: {
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
   const yaml = asRecord(params.yaml)
   try {
-    assertAllowedExplicitXMLTags({ yaml, rule: params.rule })
+    assertAllowedExplicitXMLTags({
+      yaml,
+      itemType: params.rule.itemType,
+      properties: params.rule.properties,
+    })
   } catch (cause) {
     throw toYAMLImportError(cause, params.context)
   }

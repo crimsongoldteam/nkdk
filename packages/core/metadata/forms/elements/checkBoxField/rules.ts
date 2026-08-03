@@ -3,6 +3,7 @@ import { registerElementRule } from "../../../orchestration/formElement/ruleFact
 import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 const CheckBoxFieldCommonRulesProperties = {
   backColor: {
@@ -164,5 +165,6 @@ export const TableCheckBoxFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
+registerExplicitHeaderHorizontalAlign(TableCheckBoxFieldRules.itemType)
 registerElementRule("CheckBoxField", CheckBoxFieldRules)
 registerElementRule("TableCheckBoxField", TableCheckBoxFieldRules)
