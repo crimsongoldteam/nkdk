@@ -427,6 +427,24 @@ export function importPropertiesFromXMLToYAML(params: {
     }
   }
 
+  const importMissingEntry = (
+    sourceState: (typeof sourceStates)[number],
+    entry: XMLImportPlanEntry
+  ): number => {
+    sourceState.foundPropertyKeys.add(entry.propertyKey)
+    const conversionStartedAt = performance.now()
+    importMatch({
+      sourceState,
+      entry,
+      sourceXMLKey: undefined,
+      xmlPath: undefined,
+      sourceXMLValue: undefined,
+      presentInXML: false,
+      ambiguousXMLKey: false,
+    })
+    return performance.now() - conversionStartedAt
+  }
+
   for (const sourceState of sourceStates) {
     const traversalStartedAt = performance.now()
     let conversionMs = 0
@@ -479,18 +497,7 @@ export function importPropertiesFromXMLToYAML(params: {
     let conversionMs = 0
     for (const entry of sourceState.plan.defaults) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
-      sourceState.foundPropertyKeys.add(entry.propertyKey)
-      const conversionStartedAt = performance.now()
-      importMatch({
-        sourceState,
-        entry,
-        sourceXMLKey: undefined,
-        xmlPath: undefined,
-        sourceXMLValue: undefined,
-        presentInXML: false,
-        ambiguousXMLKey: false,
-      })
-      conversionMs += performance.now() - conversionStartedAt
+      conversionMs += importMissingEntry(sourceState, entry)
     }
     for (const entry of sourceState.plan.entriesByPropertyKey.values()) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
@@ -504,18 +511,7 @@ export function importPropertiesFromXMLToYAML(params: {
       ) {
         continue
       }
-      sourceState.foundPropertyKeys.add(entry.propertyKey)
-      const conversionStartedAt = performance.now()
-      importMatch({
-        sourceState,
-        entry,
-        sourceXMLKey: undefined,
-        xmlPath: undefined,
-        sourceXMLValue: undefined,
-        presentInXML: false,
-        ambiguousXMLKey: false,
-      })
-      conversionMs += performance.now() - conversionStartedAt
+      conversionMs += importMissingEntry(sourceState, entry)
     }
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }

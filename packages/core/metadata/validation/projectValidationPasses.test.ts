@@ -38,6 +38,19 @@ describe("validateProjectFileFirstPass references", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
+  const validateProjectPath = (projectDir: string, projectPath: string) => {
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+    if (!file) throw new Error("file not resolved")
+    return validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+  }
+
   it("compiles all validation schemas before validating files", () => {
     expect(compiledAll.propertiesMs).toBeGreaterThanOrEqual(0)
   }, 120_000)
@@ -242,21 +255,8 @@ describe("validateProjectFileFirstPass references", () => {
       "          Текст: {Тип: МногоязычнаяСтрока, Значение: {ru: Строка}}",
     ])
 
-    const validate = (projectPath: string) => {
-      const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
-      if (!file) throw new Error("file not resolved")
-      return validateProjectFileFirstPass({
-        projectDir,
-        file,
-        cache: createProjectYamlCache(),
-        context: mockContext,
-        schemaCache: sharedSchemaCache,
-        rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      })
-    }
-
-    expect(validate(validPath).schemaDiagnostics).toEqual([])
-    expect(validate(legacyPath).schemaDiagnostics).toEqual(
+    expect(validateProjectPath(projectDir, validPath).schemaDiagnostics).toEqual([])
+    expect(validateProjectPath(projectDir, legacyPath).schemaDiagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           source: "structure",
@@ -317,16 +317,7 @@ describe("validateProjectFileFirstPass references", () => {
     }
 
     const diagnostics = projectPaths.flatMap((projectPath) => {
-      const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
-      if (!file) throw new Error("file not resolved")
-      return validateProjectFileFirstPass({
-        projectDir,
-        file,
-        cache: createProjectYamlCache(),
-        context: mockContext,
-        schemaCache: sharedSchemaCache,
-        rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      }).diagnostics
+      return validateProjectPath(projectDir, projectPath).diagnostics
     })
 
     expect(diagnostics.filter(({ message }) => message.includes("должно быть уникальным"))).toEqual([])
