@@ -102,6 +102,37 @@ describe("ProjectState writer handle", () => {
     ])
   })
 
+  it("пакетно читает исходные хэши до начала обновления", async () => {
+    const file = identity(resource("cf/a.bin"))
+    const baseline = {
+      knownHashBits: Uint8Array.of(1),
+      hashBytes: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+      deleted: [],
+    }
+    const transport = createMockWriterTransport((command) => command.kind === "readFileBaseline"
+      ? response(command, { kind: "fileBaseline", baseline })
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport)
+    await handle.openProject("/project")
+
+    await expect(handle.readFileBaseline([file])).resolves.toEqual(baseline)
+    expect(commandKinds(transport)).toEqual(["openProject", "readFileBaseline"])
+  })
+
+  it("отклоняет исходные хэши неверной позиционной длины", async () => {
+    const file = identity(resource("cf/a.bin"))
+    const transport = createMockWriterTransport((command) => command.kind === "readFileBaseline"
+      ? response(command, {
+          kind: "fileBaseline",
+          baseline: { knownHashBits: Uint8Array.of(1), hashBytes: new Uint8Array(7), deleted: [] },
+        })
+      : acknowledgeWriterCommand(command))
+    const handle = createHandle(transport)
+    await handle.openProject("/project")
+
+    await expect(handle.readFileBaseline([file])).rejects.toThrow("hashBytes")
+  })
+
   it("дожидается batch перед dependency validation и передаёт operationId", async () => {
     let resolveWrite!: (response: ProjectStateWriterResponse) => void
     const transport = createMockWriterTransport((command) => {

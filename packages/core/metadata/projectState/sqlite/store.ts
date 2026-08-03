@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto"
 import { DatabaseSync, type StatementSync } from "node:sqlite"
 import { BroadcastChannel } from "node:worker_threads"
 import type { Diagnostic } from "../../validation/types"
-import { assertProjectStateFileHashBatch, type ProjectStateReadToken } from "../contracts"
+import {
+  assertProjectStateFileBaseline,
+  assertProjectStateFileHashBatch,
+  type ProjectStateReadToken,
+} from "../contracts"
 import {
   assertProjectStateFileUpdateBatch,
   type ProjectStateDiagnostic,
@@ -135,6 +139,40 @@ function createStore(
         ? { schemaVersion, producerVersion, rulesFingerprint, hashAlgorithm }
         : undefined
     },
+    readFileBaseline(files) {
+      assertOpen()
+      loadBaselineRequests(database, files)
+      const rows = database.prepare(`
+        SELECT request.request_index, hashes.hash
+        FROM temp.file_baseline_requests request
+        LEFT JOIN components component ON component.path = request.component_path COLLATE BINARY
+        LEFT JOIN project_files file ON file.project_path = request.project_path COLLATE BINARY
+          AND file.component_id = component.id
+          AND file.resource_kind = request.resource_kind COLLATE BINARY
+          AND file.yaml_role IS request.yaml_role
+        LEFT JOIN file_hashes hashes ON hashes.file_id = file.id
+        ORDER BY request.request_index
+      `).all() as unknown as { request_index: number; hash: Uint8Array | null }[]
+      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
+      const hashBytes = new Uint8Array(files.length * 8)
+      for (const { request_index, hash } of rows) {
+        if (hash === null) continue
+        knownHashBits[Math.floor(request_index / 8)]! |= 1 << (request_index % 8)
+        hashBytes.set(hash, request_index * 8)
+      }
+      const deleted = (database.prepare(`
+        SELECT file.project_path, component.path AS component_path, file.resource_kind, file.yaml_role
+        FROM project_files file
+        JOIN components component ON component.id = file.component_id
+        LEFT JOIN temp.file_baseline_requests request
+          ON request.project_path = file.project_path COLLATE BINARY
+        WHERE request.request_index IS NULL
+        ORDER BY file.id
+      `).all() as unknown as FileIdentityRow[]).map(fileIdentityFromRow)
+      const result = { knownHashBits, hashBytes, deleted }
+      assertProjectStateFileBaseline(result, files.length)
+      return result
+    },
     compareFiles(batch) {
       assertOpen()
       assertProjectStateFileHashBatch(batch)
@@ -238,6 +276,7 @@ function createStore(
     },
     validateDependencies(_params: ProjectDependencyValidationParams): readonly Diagnostic[] {
       assertOpen()
+      statements.resolveDependencyTargets.run()
       const diagnostics: Diagnostic[] = []
       const readiness = readProjectStateDependencyReadiness({ queryPort })
       for (let offset = 0; ; offset += PENDING_DEPENDENCY_BATCH_SIZE) {
@@ -441,7 +480,7 @@ interface StoreStatements {
   readonly insertForm: StatementSync
   readonly insertPendingCheck: StatementSync
   readonly insertDependency: StatementSync
-  readonly selectDependencyTarget: StatementSync
+  readonly resolveDependencyTargets: StatementSync
 }
 
 function createStatements(database: DatabaseSync): StoreStatements {
@@ -527,23 +566,27 @@ function createStatements(database: DatabaseSync): StoreStatements {
         source_file_id, target_file_id, ordinal, dependency_kind, dependency_key
       ) VALUES (?, ?, ?, 'reference', ?)
     `),
-    selectDependencyTarget: database.prepare(`
-      SELECT e.source_file_id
-      FROM reference_entries e
-      JOIN project_files source ON source.id = ?
-      JOIN components source_component ON source_component.id = source.component_id
-      JOIN project_files target ON target.id = e.source_file_id
-      JOIN components target_component ON target_component.id = target.component_id
-      WHERE e.canonical_key = ? COLLATE BINARY
-        AND (
-          target_component.id = source_component.id
-          OR (
-            instr(target_component.path, '/') = 0
-            AND target_component.id <> source_component.id
+    resolveDependencyTargets: database.prepare(`
+      UPDATE file_dependencies AS dependency
+      SET target_file_id = (
+        SELECT reference.source_file_id
+        FROM reference_entries reference
+        JOIN project_files source ON source.id = dependency.source_file_id
+        JOIN components source_component ON source_component.id = source.component_id
+        JOIN project_files target ON target.id = reference.source_file_id
+        JOIN components target_component ON target_component.id = target.component_id
+        WHERE reference.canonical_key = dependency.dependency_key COLLATE BINARY
+          AND (
+            target_component.id = source_component.id
+            OR (
+              instr(target_component.path, '/') = 0
+              AND target_component.id <> source_component.id
+            )
           )
-        )
-      ORDER BY CASE WHEN target_component.id = source_component.id THEN 0 ELSE 1 END, e.source_file_id
-      LIMIT 1
+        ORDER BY CASE WHEN target_component.id = source_component.id THEN 0 ELSE 1 END,
+          reference.source_file_id
+        LIMIT 1
+      )
     `),
   }
 }
@@ -755,8 +798,7 @@ function insertDependencies(
 ): void {
   const sourceFileId = knownSourceFileId ?? integerId(statements.selectFile.get(update.projectPath))
   update.dependencies.forEach((dependency, ordinal) => {
-    const target = statements.selectDependencyTarget.get(sourceFileId, dependency) as { source_file_id: number } | undefined
-    statements.insertDependency.run(sourceFileId, target?.source_file_id ?? null, ordinal, dependency)
+    statements.insertDependency.run(sourceFileId, null, ordinal, dependency)
   })
 }
 
@@ -946,7 +988,34 @@ function createStoreRequestTables(database: DatabaseSync): void {
       project_path TEXT NOT NULL COLLATE BINARY,
       hash BLOB NOT NULL CHECK(length(hash) = 8)
     ) STRICT;
+
+    CREATE TEMP TABLE file_baseline_requests (
+      request_index INTEGER PRIMARY KEY,
+      project_path TEXT NOT NULL COLLATE BINARY,
+      component_path TEXT NOT NULL COLLATE BINARY,
+      resource_kind TEXT NOT NULL COLLATE BINARY,
+      yaml_role TEXT
+    ) STRICT;
   `)
+}
+
+function loadBaselineRequests(
+  database: DatabaseSync,
+  files: readonly ProjectStateFileIdentity[],
+): void {
+  database.exec("DELETE FROM temp.file_baseline_requests")
+  const insert = database.prepare(`
+    INSERT INTO temp.file_baseline_requests(
+      request_index, project_path, component_path, resource_kind, yaml_role
+    ) VALUES (?, ?, ?, ?, ?)
+  `)
+  files.forEach((file, index) => insert.run(
+    index,
+    file.projectPath,
+    file.componentPath,
+    file.resourceKind,
+    file.yamlRole ?? null,
+  ))
 }
 
 function loadComparisonRequests(

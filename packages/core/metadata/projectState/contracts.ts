@@ -7,6 +7,12 @@ export interface ProjectStateFileHashBatch {
   readonly hashBytes: Uint8Array
 }
 
+export interface ProjectStateFileBaseline {
+  readonly knownHashBits: Uint8Array
+  readonly hashBytes: Uint8Array
+  readonly deleted: readonly ProjectStateFileIdentity[]
+}
+
 declare const projectStateReadTokenBrand: unique symbol
 
 /** Непрозрачное разрешение на чтение снимка состояния проекта. */
@@ -31,7 +37,36 @@ export function assertProjectStateFileHashBatch(value: unknown): asserts value i
     throw new Error(`hashBytes должен занимать ${expectedLength} байт`)
   }
 
-  batch["files"].forEach((file, index) => assertFileIdentity(file, `files[${index}]`))
+  assertProjectStateFileIdentities(batch["files"])
+}
+
+export function assertProjectStateFileIdentities(
+  value: unknown,
+): asserts value is readonly ProjectStateFileIdentity[] {
+  if (!Array.isArray(value)) throw new Error("files должен быть массивом")
+  value.forEach((file, index) => assertFileIdentity(file, `files[${index}]`))
+}
+
+export function assertProjectStateFileBaseline(
+  value: unknown,
+  fileCount: number,
+): asserts value is ProjectStateFileBaseline {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("ProjectStateFileBaseline должен быть объектом")
+  }
+  if (!Number.isSafeInteger(fileCount) || fileCount < 0) throw new Error("fileCount должен быть неотрицательным целым")
+  const baseline = value as Record<string, unknown>
+  assertExactKeys(baseline, ["knownHashBits", "hashBytes", "deleted"], "ProjectStateFileBaseline")
+  assertOwnedBytes(baseline["knownHashBits"], Math.ceil(fileCount / 8), "knownHashBits")
+  assertOwnedBytes(baseline["hashBytes"], fileCount * PROJECT_STATE_HASH_BYTE_LENGTH, "hashBytes")
+  if (!Array.isArray(baseline["deleted"])) throw new Error("deleted должен быть массивом")
+  baseline["deleted"].forEach((file, index) => assertFileIdentity(file, `deleted[${index}]`))
+
+  const knownHashBits = baseline["knownHashBits"] as Uint8Array
+  const remainder = fileCount % 8
+  if (remainder !== 0 && (knownHashBits.at(-1)! & ~((1 << remainder) - 1)) !== 0) {
+    throw new Error("knownHashBits содержит биты за пределами files")
+  }
 }
 
 function assertFileIdentity(value: unknown, path: string): void {
@@ -50,4 +85,12 @@ function assertFileIdentity(value: unknown, path: string): void {
 
 function assertExactKeys(value: Record<string, unknown>, allowedKeys: readonly string[], path: string): void {
   if (Object.keys(value).some((key) => !allowedKeys.includes(key))) throw new Error(`${path} содержит неизвестное поле`)
+}
+
+function assertOwnedBytes(value: unknown, expectedLength: number, path: string): asserts value is Uint8Array {
+  if (!(value instanceof Uint8Array)) throw new Error(`${path} должен быть Uint8Array`)
+  if (value.byteOffset !== 0) throw new Error(`${path} должен начинаться с нулевого смещения`)
+  if (value.byteLength !== expectedLength || value.buffer.byteLength !== expectedLength) {
+    throw new Error(`${path} должен занимать ${expectedLength} байт`)
+  }
 }

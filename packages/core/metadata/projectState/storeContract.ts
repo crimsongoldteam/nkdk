@@ -43,6 +43,28 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       })
     })
 
+    it("пакетно возвращает сохранённые хэши и исчезнувшие пути", () => {
+      const { store } = factory()
+      const first = resourceUpdate("cf/Первый.bin", "cf")
+      const second = resourceUpdate("cf/Второй.bin", "cf")
+      const discovered = resourceUpdate("cf/Новый.bin", "cf")
+      const firstHash = Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8])
+      const secondHash = Uint8Array.from([9, 10, 11, 12, 13, 14, 15, 16])
+
+      store.beginUpdate()
+      store.replaceFiles({
+        updates: [first, second],
+        hashBytes: Uint8Array.from([...firstHash, ...secondHash]),
+      })
+      store.commitUpdate()
+
+      const baseline = store.readFileBaseline([identity(first), identity(discovered)])
+
+      expect(baseline.knownHashBits).toEqual(Uint8Array.of(0b0000_0001))
+      expect(baseline.hashBytes).toEqual(Uint8Array.from([...firstHash, ...new Uint8Array(8)]))
+      expect(baseline.deleted).toEqual([identity(second)])
+    })
+
     it.each([
       ["короткий", new Uint8Array(7)],
       ["длинный", new Uint8Array(9)],

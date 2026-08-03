@@ -29,7 +29,15 @@ port.on("message", (value: unknown) => {
     try {
       assertProjectStateWriterCommand(value)
       const result = await execute(value)
-      port.postMessage({ kind: "ack", requestId, result } satisfies ProjectStateWriterResponse)
+      const response = { kind: "ack", requestId, result } satisfies ProjectStateWriterResponse
+      if (result.kind === "fileBaseline") {
+        port.postMessage(response, [
+          result.baseline.knownHashBits.buffer as ArrayBuffer,
+          result.baseline.hashBytes.buffer as ArrayBuffer,
+        ])
+      } else {
+        port.postMessage(response)
+      }
       if (value.kind === "close") port.close()
     } catch (caught) {
       const error = caught instanceof Error ? caught : new Error(String(caught))
@@ -57,6 +65,8 @@ async function execute(command: ProjectStateWriterCommand): Promise<ProjectState
       return { kind: "opened" }
     case "compareFiles":
       return { kind: "filesCompared", changes: requireStore().store.compareFiles(command.batch) }
+    case "readFileBaseline":
+      return { kind: "fileBaseline", baseline: requireStore().store.readFileBaseline(command.files) }
     case "readLocalDiagnostics":
       return { kind: "localDiagnostics", diagnostics: requireStore().store.readLocalDiagnostics({ mode: "published" }) }
     case "validateDependencies": {

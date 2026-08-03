@@ -8,7 +8,7 @@ import type {
   ProjectDependencyInputQuery,
   ProjectDependencyInputResult,
 } from "./readSession"
-import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaseline, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import type { ProjectStateCompatibility } from "./compatibility"
 import type {
   ProjectStateImportFinalFileStateBatch,
@@ -51,6 +51,7 @@ export interface ProjectStateComponentProjection {
 
 export interface ProjectStateStore {
   readCompatibility(): ProjectStateCompatibility | undefined
+  readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
   replaceFiles(batch: ProjectStateFileUpdateBatch): void

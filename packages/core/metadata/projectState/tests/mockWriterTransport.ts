@@ -96,6 +96,16 @@ function acknowledgement(command: ProjectStateWriterCommand): ProjectStateWriter
   switch (command.kind) {
     case "openProject": return { kind: "opened" }
     case "compareFiles": return { kind: "filesCompared", changes: { changed: [], deleted: [] } }
+    case "readFileBaseline": {
+      return {
+        kind: "fileBaseline",
+        baseline: {
+          knownHashBits: new Uint8Array(Math.ceil(command.files.length / 8)),
+          hashBytes: new Uint8Array(command.files.length * 8),
+          deleted: [],
+        },
+      }
+    }
     case "readLocalDiagnostics": return { kind: "localDiagnostics", diagnostics: [] }
     case "validateDependencies": return { kind: "dependencyDiagnostics", diagnostics: [], operationId: command.operationId }
     case "createReadToken": return { kind: "readToken", token: new Uint8Array() as ProjectStateReadToken }

@@ -6,7 +6,12 @@ import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import { createProjectStateCompatibility, type ProjectStateCompatibility } from "./compatibility"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+import {
+  assertProjectStateFileBaseline,
+  type ProjectStateFileBaseline,
+  type ProjectStateFileHashBatch,
+  type ProjectStateReadToken,
+} from "./contracts"
 import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
 import type {
   ProjectStateImportFinalFileStateBatch,
@@ -58,6 +63,7 @@ export interface ProjectStateWriterTransport {
 
 export interface ProjectStateWriterHandle {
   openProject(projectDir: string): Promise<void>
+  readFileBaseline(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline>
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
@@ -133,6 +139,13 @@ export function createProjectStateWriterHandle(
       const result = await request({ kind: "compareFiles", requestId: randomUUID(), batch })
       if (result.kind !== "filesCompared") throw new Error("ProjectState writer не вернул сравнение файлов")
       return result.changes
+    },
+    async readFileBaseline(files) {
+      assertUsable()
+      const result = await request({ kind: "readFileBaseline", requestId: randomUUID(), files })
+      if (result.kind !== "fileBaseline") throw new Error("ProjectState writer не вернул исходные хэши")
+      assertProjectStateFileBaseline(result.baseline, files.length)
+      return result.baseline
     },
     async readLocalDiagnostics() {
       assertUsable()

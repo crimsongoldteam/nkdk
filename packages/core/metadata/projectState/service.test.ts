@@ -794,6 +794,13 @@ function testWriterHandle(id: number): TestWriter {
     resets: [],
     closed: 0,
     async openProject(projectDir) { opened.push(projectDir) },
+    async readFileBaseline(files) {
+      return {
+        knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
+        hashBytes: new Uint8Array(files.length * 8),
+        deleted: [],
+      }
+    },
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
     async validateDependencies() { return [] },

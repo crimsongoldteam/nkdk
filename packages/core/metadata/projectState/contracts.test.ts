@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  assertProjectStateFileBaseline,
   assertProjectStateFileHashBatch,
   type ProjectStateFileHashBatch,
   type ProjectStateReadToken,
@@ -204,6 +205,26 @@ function createTestStoreContractFixture() {
 
   const store: ProjectStateStore = {
     readCompatibility: () => undefined,
+    readFileBaseline(files) {
+      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
+      const hashBytes = new Uint8Array(files.length * 8)
+      files.forEach((file, index) => {
+        const previous = committed.get(file.projectPath)
+        if (previous === undefined) return
+        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+        hashBytes.set(previous.hashBytes, index * 8)
+      })
+      const known = new Set(files.map(({ projectPath }) => projectPath))
+      const result = {
+        knownHashBits,
+        hashBytes,
+        deleted: [...committed.values()]
+          .map(({ update }) => identity(update))
+          .filter(({ projectPath }) => !known.has(projectPath)),
+      }
+      assertProjectStateFileBaseline(result, files.length)
+      return result
+    },
     compareFiles(batch) {
       assertProjectStateFileHashBatch(batch)
       const changed = batch.files.flatMap((file, index) => {

@@ -1,6 +1,12 @@
 import type { ProjectStateCompatibility } from "./compatibility"
 import type { Diagnostic } from "../validation/types"
-import { assertProjectStateFileHashBatch, type ProjectStateFileHashBatch, type ProjectStateReadToken } from "./contracts"
+import {
+  assertProjectStateFileHashBatch,
+  assertProjectStateFileIdentities,
+  type ProjectStateFileBaseline,
+  type ProjectStateFileHashBatch,
+  type ProjectStateReadToken,
+} from "./contracts"
 import {
   assertProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
@@ -16,6 +22,7 @@ import {
 export type ProjectStateWriterCommand =
   | { readonly kind: "openProject"; readonly requestId: string; readonly projectDir: string; readonly compatibility: ProjectStateCompatibility }
   | { readonly kind: "compareFiles"; readonly requestId: string; readonly batch: ProjectStateFileHashBatch }
+  | { readonly kind: "readFileBaseline"; readonly requestId: string; readonly files: readonly ProjectStateFileIdentity[] }
   | { readonly kind: "readLocalDiagnostics"; readonly requestId: string }
   | { readonly kind: "validateDependencies"; readonly requestId: string; readonly operationId: string }
   | { readonly kind: "createReadToken"; readonly requestId: string }
@@ -37,6 +44,7 @@ export type ProjectStateWriterCommand =
 export type ProjectStateWriterAcknowledgement =
   | { readonly kind: "opened" }
   | { readonly kind: "filesCompared"; readonly changes: ProjectStateFileChanges }
+  | { readonly kind: "fileBaseline"; readonly baseline: ProjectStateFileBaseline }
   | { readonly kind: "localDiagnostics"; readonly diagnostics: readonly Diagnostic[] }
   | { readonly kind: "dependencyDiagnostics"; readonly diagnostics: readonly Diagnostic[]; readonly operationId: string }
   | { readonly kind: "readToken"; readonly token: ProjectStateReadToken }
@@ -132,6 +140,10 @@ export function assertProjectStateWriterCommand(value: unknown): asserts value i
     case "compareFiles":
       assertExactKeys(command, ["kind", "requestId", "batch"])
       assertProjectStateFileHashBatch(command["batch"])
+      return
+    case "readFileBaseline":
+      assertExactKeys(command, ["kind", "requestId", "files"])
+      assertProjectStateFileIdentities(command["files"])
       return
     case "readComponentProjection":
       assertExactKeys(command, ["kind", "requestId", "componentPath"])
