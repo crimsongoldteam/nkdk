@@ -2,6 +2,8 @@ import { createXmlImportWorkerPoolHandle, type XmlImportWorkerPoolHandle } from 
 import { runImportWorkerCommand, setImportWorkerSchemaCacheForTests } from "../metadata/importFromXml/worker"
 import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../metadata/importFromXml/types"
 import { createProjectStateService, type CreateProjectStateServiceOptions } from "../metadata/projectState/service"
+import { createBinaryProjectStateStore } from "../metadata/projectState/binary/store"
+import type { ProjectStateSharedBuffers } from "../metadata/projectState/binary/snapshot"
 import { createProjectStateWriterHandle } from "../metadata/projectState/writerHandle"
 import type { ValidationSchemaCache } from "../metadata/validation/projectValidationPasses"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
@@ -20,9 +22,18 @@ const fastSchemaCache: ValidationSchemaCache = {
 export function createImportProjectStateTestService(
   options: Pick<CreateProjectStateServiceOptions, "createPool"> = {},
 ) {
+  const snapshots = new Map<string, ProjectStateSharedBuffers>()
   return createProjectStateService({
     ...options,
-    createWriter: () => createProjectStateWriterHandle(),
+    createWriter: () => createProjectStateWriterHandle({
+      openStore: async (projectDir) => createBinaryProjectStateStore({
+        projectDir,
+        initial: snapshots.get(projectDir),
+      }).store,
+      save: async (projectDir, buffers) => {
+        snapshots.set(projectDir, buffers)
+      },
+    }),
   })
 }
 
