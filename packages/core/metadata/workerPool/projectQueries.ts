@@ -1,12 +1,15 @@
-import type { ProjectReferenceLocation, ProjectStateReadSession } from "../projectState/readSession"
-import type { MetadataOperationCanonicalTargetResult } from "../operations/targetResolver"
+import type {
+  ProjectReferenceLocation,
+  ProjectReferenceLookup,
+  ProjectStateReadSession,
+} from "../projectState/readSession"
 
 export interface IndexedReferencesQuery {
   readonly kind: "indexedReferences"
   readonly path: string
   readonly componentPath: string
   readonly canonical: string
-  readonly dataPathTarget: Extract<MetadataOperationCanonicalTargetResult, { ok: true }>["dataPathTarget"]
+  readonly dataPathTarget: ProjectReferenceLookup["dataPathTarget"]
 }
 
 export type ProjectQueryCommand = IndexedReferencesQuery
