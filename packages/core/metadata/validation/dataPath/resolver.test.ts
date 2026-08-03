@@ -2287,6 +2287,15 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("skips SettingsComposer of a generic report object without loading an unnamed owner", () => {
+    const result = resolve("Отчет.SettingsComposer.Settings", {
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject"] })]),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({ status: "ok", diagnostics: [] })
+  })
+
   it("skips indexed SettingsComposer user settings data paths without diagnostics", () => {
     const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
       index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),

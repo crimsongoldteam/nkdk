@@ -80,6 +80,11 @@ export type TraversalTransitionResolver = (params: {
     }
   | undefined
 
+export type OpaqueTraversalResolver = (params: {
+  owner: OwnerTypeRef
+  segment: string
+}) => boolean
+
 export type RegisterRecordsItemResolver = (params: { owner: OwnerMetadata; segment: string }) =>
   | {
       owner: OwnerTypeRef
@@ -102,6 +107,7 @@ const standardAttributeTypeResolvers: StandardAttributeTypeResolver[] = []
 const virtualOwnerFieldResolvers: VirtualOwnerFieldResolver[] = []
 const tableColumnResolvers: TableColumnResolver[] = []
 const traversalTransitionResolvers: TraversalTransitionResolver[] = []
+const opaqueTraversalResolvers: OpaqueTraversalResolver[] = []
 const registerRecordsItemResolvers: RegisterRecordsItemResolver[] = []
 
 export interface DataPathResolverRegistrySnapshot {
@@ -115,6 +121,7 @@ export interface DataPathResolverRegistrySnapshot {
   virtualOwnerFieldResolvers: VirtualOwnerFieldResolver[]
   tableColumnResolvers: TableColumnResolver[]
   traversalTransitionResolvers: TraversalTransitionResolver[]
+  opaqueTraversalResolvers: OpaqueTraversalResolver[]
   registerRecordsItemResolvers: RegisterRecordsItemResolver[]
   standardMembers: Map<string, SnapshotStandardMemberDeclaration[]>
 }
@@ -236,6 +243,14 @@ export function resolveTraversalTransition(
   return undefined
 }
 
+export function registerOpaqueTraversalResolver(resolver: OpaqueTraversalResolver): void {
+  opaqueTraversalResolvers.push(resolver)
+}
+
+export function isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean {
+  return opaqueTraversalResolvers.some((resolver) => resolver(params))
+}
+
 export function registerRegisterRecordsItemResolver(resolver: RegisterRecordsItemResolver): void {
   registerRecordsItemResolvers.push(resolver)
 }
@@ -267,6 +282,7 @@ export function clearDataPathResolverRegistryForTests(): void {
   virtualOwnerFieldResolvers.length = 0
   tableColumnResolvers.length = 0
   traversalTransitionResolvers.length = 0
+  opaqueTraversalResolvers.length = 0
   registerRecordsItemResolvers.length = 0
   clearStandardMembersForTests()
 }
@@ -283,6 +299,7 @@ export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegi
     virtualOwnerFieldResolvers: [...virtualOwnerFieldResolvers],
     tableColumnResolvers: [...tableColumnResolvers],
     traversalTransitionResolvers: [...traversalTransitionResolvers],
+    opaqueTraversalResolvers: [...opaqueTraversalResolvers],
     registerRecordsItemResolvers: [...registerRecordsItemResolvers],
     standardMembers: snapshotStandardMembersForTests(),
   }
@@ -300,6 +317,7 @@ export function restoreDataPathResolverRegistryForTests(snapshot: DataPathResolv
   virtualOwnerFieldResolvers.push(...snapshot.virtualOwnerFieldResolvers)
   tableColumnResolvers.push(...snapshot.tableColumnResolvers)
   traversalTransitionResolvers.push(...snapshot.traversalTransitionResolvers)
+  opaqueTraversalResolvers.push(...snapshot.opaqueTraversalResolvers)
   registerRecordsItemResolvers.push(...snapshot.registerRecordsItemResolvers)
   restoreStandardMembersForTests(snapshot.standardMembers)
 }

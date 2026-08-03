@@ -4,6 +4,7 @@ import { resolveObjectFieldSegment, standardAttributeAliasToYAML, type ObjectFie
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import {
   getMetadataLinkPrefixesByOwnerKind,
+  isOpaqueTraversal,
   resolveRegisteredTableColumn,
   resolveMovementItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
@@ -229,7 +230,12 @@ function resolveDataPathCoreWithCurrentData(
     if (intermediateErrorAfterDefinedType !== undefined)
       return issueResult(params, segments, intermediateErrorAfterDefinedType, replacements)
 
-    const ownerResult = params.ownerCache.get(resolvedTypeInfo.nextTypes[0] as OwnerTypeRef)
+    const nextType = resolvedTypeInfo.nextTypes[0] as OwnerTypeRef
+    if (isOpaqueTraversal({ owner: nextType, segment: lookupSegment })) {
+      return okWithoutTarget({ value, segments, replacements })
+    }
+
+    const ownerResult = params.ownerCache.get(nextType)
     if (ownerResult.status !== "ok") return ownerError(params, segments, replacements, ownerResult)
 
     const transition = resolveTraversalTransition({

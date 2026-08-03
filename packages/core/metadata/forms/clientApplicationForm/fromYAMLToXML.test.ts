@@ -382,6 +382,29 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(tableByName(result.formXML, "ВложенноеДерево").RowFilter).toBeUndefined()
   })
 
+  it("не создаёт RowFilter для коллекций SettingsComposer общего отчёта", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: { Отчет: { Тип: "ОтчетОбъект" } },
+        Элементы: {
+          Настройки: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Отчет.SettingsComposer.Settings",
+          },
+          ПараметрыДанных: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Items.Настройки.CurrentData.ItemDataParameters",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаВариантаОтчета",
+    })
+
+    expect(tableByName(result.formXML, "Настройки").RowFilter).toBeUndefined()
+    expect(tableByName(result.formXML, "ПараметрыДанных").RowFilter).toBeUndefined()
+  })
+
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
     const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath: string) =>
       convertClientApplicationFormFromYAMLToXML({
