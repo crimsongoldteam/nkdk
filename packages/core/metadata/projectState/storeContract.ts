@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest"
+import {
+  encodeProjectStateFileUpdateBatch,
+  encodeProjectStateImportFinalBatch,
+  encodeProjectStateImportIndexBatch,
+} from "./binary/contribution"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
 import type {
@@ -32,7 +37,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       ])
 
       store.beginUpdate()
-      store.replaceFiles({ updates, hashBytes })
+      replaceFiles(store, { updates, hashBytes })
       store.commitUpdate()
 
       expect(store.compareFiles({ files: updates.map(identity), hashBytes })).toEqual({ changed: [], deleted: [] })
@@ -53,7 +58,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const secondHash = Uint8Array.from([9, 10, 11, 12, 13, 14, 15, 16])
 
       store.beginUpdate()
-      store.replaceFiles({
+      replaceFiles(store, {
         updates: [first, second],
         hashBytes: Uint8Array.from([...firstHash, ...secondHash]),
       })
@@ -74,7 +79,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
     ])("отклоняет %s общий буфер хэшей в replaceFiles и compareFiles", (_name, hashBytes) => {
       const { store } = factory()
       store.beginUpdate()
-      expect(() => store.replaceFiles({ updates: [resourceUpdate("cf/a.bin", "cf")], hashBytes })).toThrow()
+      expect(() => replaceFiles(store, { updates: [resourceUpdate("cf/a.bin", "cf")], hashBytes })).toThrow()
       store.rollbackUpdate()
       expect(() => store.compareFiles({ files: [identity(resourceUpdate("cf/a.bin", "cf"))], hashBytes })).toThrow()
     })
@@ -96,7 +101,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const { store, openReadSession } = factory()
       const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
       store.beginUpdate()
-      store.replaceImportIndex([contribution])
+      store.replaceImportIndex(encodeProjectStateImportIndexBatch([contribution]))
       store.commitUpdate()
 
       const before = openReadSession(store.createReadToken())
@@ -108,10 +113,16 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       before.close()
 
       store.beginUpdate()
-      expect(() => store.replaceImportFinalFileState(importFinalBatch({
-        ...importFinal(contribution),
-        ...override,
-      }))).toThrow(/identity|идентич/iu)
+      const finalState = "kind" in override && override.kind === "resource"
+        ? {
+            projectPath: contribution.projectPath,
+            componentPath: contribution.componentPath,
+            resourceKind: "resource" as const,
+            kind: "resource" as const,
+          }
+        : { ...importFinal(contribution), ...override }
+      expect(() => store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(finalState))))
+        .toThrow(/identity|идентич/iu)
       store.rollbackUpdate()
 
       const after = openReadSession(store.createReadToken())
@@ -128,7 +139,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const contribution = importIndex("cf/Товары.yaml", "cf", "Catalog.Товары")
 
       store.beginUpdate()
-      expect(() => store.replaceImportFinalFileState(importFinalBatch(importFinal(contribution))))
+      expect(() => store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(importFinal(contribution)))))
         .toThrow(/не зарегистрирована|identity/iu)
       store.rollbackUpdate()
     })
@@ -138,15 +149,15 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const stale = yamlUpdate("cf/Старый.yaml", "cf", "Catalog.Старый")
       const neighbor = yamlUpdate("cfe/Цены/Сохранить.yaml", "cfe/Цены", "Catalog.Сохранить")
       store.beginUpdate()
-      store.replaceFiles({ updates: [stale, neighbor], hashBytes: new Uint8Array(16) })
+      replaceFiles(store, { updates: [stale, neighbor], hashBytes: new Uint8Array(16) })
       store.commitUpdate()
 
       store.beginUpdate()
       ;(store as ProjectStateStore & { clearImportOutput(componentPaths: readonly string[]): void })
         .clearImportOutput(["cf"])
       const current = importIndex("cf/Новый.yaml", "cf", "Catalog.Новый")
-      store.replaceImportIndex([current])
-      store.replaceImportFinalFileState(importFinalBatch(importFinal(current)))
+      store.replaceImportIndex(encodeProjectStateImportIndexBatch([current]))
+      store.replaceImportFinalFileState(encodeProjectStateImportFinalBatch(importFinalBatch(importFinal(current))))
       store.commitUpdate()
 
       expect(store.readComponentProjection("cf").updates.map(({ projectPath }) => projectPath)).toEqual(["cf/Новый.yaml"])
@@ -170,17 +181,17 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(diagnostic(replacement)).not.toEqual(diagnostic(update))
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [update], hashBytes })
+      replaceFiles(store, { updates: [update], hashBytes })
       store.commitUpdate()
       expectStoredFile(store, openReadSession, update, presentContribution)
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [replacement], hashBytes })
+      replaceFiles(store, { updates: [replacement], hashBytes })
       store.rollbackUpdate()
       expectStoredFile(store, openReadSession, update, presentContribution)
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [replacement], hashBytes })
+      replaceFiles(store, { updates: [replacement], hashBytes })
       store.commitUpdate()
       expectStoredFile(store, openReadSession, replacement, presentContribution)
       expect(readFileContributions(openReadSession(store.createReadToken()), update)).toEqual({
@@ -223,7 +234,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       }
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [target, source], hashBytes: new Uint8Array(16) })
+      replaceFiles(store, { updates: [target, source], hashBytes: new Uint8Array(16) })
       store.commitUpdate()
 
       const session = openReadSession(store.createReadToken())
@@ -264,7 +275,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const foreignCfe = yamlUpdate("cfe/Скидки/Скидки.yaml", "cfe/Скидки", "Catalog.Скидки")
 
       store.beginUpdate()
-      store.replaceFiles({ updates: [cf, cfe, foreignCfe], hashBytes: new Uint8Array(24) })
+      replaceFiles(store, { updates: [cf, cfe, foreignCfe], hashBytes: new Uint8Array(24) })
       store.commitUpdate()
 
       const session = openReadSession(store.createReadToken())
@@ -339,7 +350,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const first = yamlUpdate("cf/Первый.yaml", "cf", "Catalog.Дубликат")
       const second = yamlUpdate("cf/Второй.yaml", "cf", "Catalog.Дубликат")
       store.beginUpdate()
-      store.replaceFiles({ updates: [first, second], hashBytes: new Uint8Array(16) })
+      replaceFiles(store, { updates: [first, second], hashBytes: new Uint8Array(16) })
       store.commitUpdate()
 
       const session = openReadSession(store.createReadToken())
@@ -358,7 +369,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const nested = "Catalog.Товары.Attribute.Артикул"
       const base = yamlUpdate("cf/База.yaml", "cf", "Catalog.Базовый")
       store.beginUpdate()
-      store.replaceFiles({
+      replaceFiles(store, {
         updates: [
           { ...extension, references: [...extension.references, { kind: "member", canonical: nested }] },
           base,
@@ -386,7 +397,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       }
       const target = yamlUpdate("cf/Цель.yaml", "cf", "Catalog.Цель")
       store.beginUpdate()
-      store.replaceFiles({ updates: [source, target], hashBytes: new Uint8Array(16) })
+      replaceFiles(store, { updates: [source, target], hashBytes: new Uint8Array(16) })
       store.commitUpdate()
 
       store.beginUpdate()
@@ -398,7 +409,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
 
     it("отвергает чужой и уже использованный закрытый token, не давая сеансу писать", () => {
       const { store, openReadSession } = factory()
-      expect(() => openReadSession(new Uint8Array(1) as ProjectStateReadToken)).toThrow()
+      expect(() => openReadSession({} as ProjectStateReadToken)).toThrow()
 
       const token = store.createReadToken()
       const session = openReadSession(token)
@@ -440,7 +451,8 @@ function importIndex(
 
 function importFinal(identity: ProjectStateFileIdentity) {
   return {
-    ...identity,
+    projectPath: identity.projectPath,
+    componentPath: identity.componentPath,
     kind: "yaml" as const,
     resourceKind: "yaml" as const,
     yamlRole: identity.yamlRole!,
@@ -544,4 +556,11 @@ function identity(update: ProjectStateFileUpdate) {
   return yamlRole === undefined
     ? { projectPath, componentPath, resourceKind }
     : { projectPath, componentPath, resourceKind, yamlRole }
+}
+
+function replaceFiles(
+  store: ProjectStateStore,
+  batch: Parameters<typeof encodeProjectStateFileUpdateBatch>[0],
+): void {
+  store.replaceFiles(encodeProjectStateFileUpdateBatch(batch))
 }

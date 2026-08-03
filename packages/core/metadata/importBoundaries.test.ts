@@ -9,7 +9,8 @@ const ORCHESTRATION_DIR = join(METADATA_DIR, "orchestration")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
 const PROJECT_DIR = join(METADATA_DIR, "project")
-const PROJECT_STATE_SQLITE_DIR = join(METADATA_DIR, "projectState", "sqlite")
+const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
+const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
 const WORKSPACE_ROOT = join(process.cwd(), "..", "..")
 const PACKAGES_FOR_ALIAS_SCAN = ["packages/core", "packages/mcp"] as const
 const CONFIG_FILES_FOR_ALIAS_SCAN = [
@@ -81,7 +82,8 @@ let broadRegistrationOffenders: readonly {
   readonly forbiddenImports: readonly string[]
 }[]
 let compositeProductionOffenders: readonly string[]
-let sqliteBoundaryOffenders: readonly string[]
+let sqliteImportOffenders: readonly string[]
+let binaryBoundaryOffenders: readonly string[]
 let legacyFullValidationIndexOffenders: readonly {
   readonly filePath: string
   readonly forbiddenModulePath: boolean
@@ -118,7 +120,8 @@ describe("metadata import boundaries", () => {
 
     broadRegistrationOffenders = findBroadRegistrationOffenders()
     compositeProductionOffenders = findCompositeProductionOffenders()
-    sqliteBoundaryOffenders = findSqliteBoundaryOffenders()
+    sqliteImportOffenders = findSqliteImportOffenders()
+    binaryBoundaryOffenders = findBinaryBoundaryOffenders()
     legacyFullValidationIndexOffenders = findLegacyFullValidationIndexOffenders()
   })
 
@@ -388,8 +391,12 @@ describe("metadata import boundaries", () => {
     expect(compositeProductionOffenders).toEqual([])
   })
 
-  it("только projectState/sqlite знает node:sqlite, SQL и физические таблицы", () => {
-    expect(sqliteBoundaryOffenders).toEqual([])
+  it("состояние проекта не импортирует node:sqlite", () => {
+    expect(sqliteImportOffenders).toEqual([])
+  })
+
+  it("только binary-адаптер знает structurae и физический формат", () => {
+    expect(binaryBoundaryOffenders).toEqual([])
   })
 
   it("production-код не содержит старое полное представление validation-индекса", () => {
@@ -452,37 +459,20 @@ function findCompositeProductionOffenders(): string[] {
     .map(({ filePath }) => filePath)
 }
 
-function findSqliteBoundaryOffenders(): string[] {
-  const sqlitePrefix = `${resolve(PROJECT_STATE_SQLITE_DIR)}/`
-  const physicalTables = [
-    "cache_meta",
-    "components",
-    "project_files",
-    "file_hashes",
-    "file_validation_results",
-    "local_diagnostics",
-    "reference_entries",
-    "pending_references",
-    "owner_facts",
-    "field_entries",
-    "form_entries",
-    "pending_dependency_checks",
-    "file_dependencies",
-  ]
-  const sqlExpression = /\b(?:CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE|SELECT\s+.+\s+FROM|INSERT\s+INTO|UPDATE\s+\S+\s+SET|DELETE\s+FROM)\b/is
-  const physicalTableUse = new RegExp(
-    `\\b(?:TABLE|FROM|JOIN|INTO|UPDATE)\\s+(?:${physicalTables.join("|")})\\b`,
-    "i",
-  )
+function findSqliteImportOffenders(): string[] {
+  return listTypeScriptFiles(PROJECT_STATE_DIR)
+    .filter((filePath) => extractModuleSpecifiers(readSource(filePath)).includes("node:sqlite"))
+    .map((filePath) => relative(process.cwd(), filePath))
+}
+
+function findBinaryBoundaryOffenders(): string[] {
+  const binaryPrefix = `${resolve(PROJECT_STATE_BINARY_DIR)}/`
+  const physicalModules = /(?:^|\/)binary\/(?:layouts|hashIndex|stringPool)$/u
   return listTypeScriptFiles(METADATA_DIR)
-    .filter((filePath) => !resolve(filePath).startsWith(sqlitePrefix))
-    .filter((filePath) => {
-      const source = readSource(filePath)
-      const literals = [...source.matchAll(/`[\s\S]*?`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g)]
-        .map(([literal]) => literal)
-      return extractModuleSpecifiers(source).includes("node:sqlite")
-        || literals.some((literal) => sqlExpression.test(literal) || physicalTableUse.test(literal))
-    })
+    .filter((filePath) => !resolve(filePath).startsWith(binaryPrefix))
+    .filter((filePath) => extractModuleSpecifiers(readSource(filePath)).some(
+      (specifier) => specifier === "structurae" || physicalModules.test(specifier),
+    ))
     .map((filePath) => relative(process.cwd(), filePath))
 }
 

@@ -57,7 +57,6 @@ export function createBinaryProjectStateQueryPort(
 export function openBinaryProjectStateReadSession(
   token: ProjectStateReadToken,
 ): ProjectStateReadSession {
-  if (token instanceof Uint8Array) throw new Error("Ожидался двоичный token чтения")
   const snapshot = new ProjectStateSnapshotView(claimBinaryProjectStateReadToken(token))
   const queryPort = createBinaryProjectStateQueryPort(snapshot)
   return createProjectStateReadSession({ token, queryPort })

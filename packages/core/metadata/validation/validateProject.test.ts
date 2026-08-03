@@ -2,6 +2,7 @@ import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type { ProjectStateRefreshParams, ProjectStateRefreshResult } from "../projectState/refresh"
 import type { ProjectStateService } from "../projectState/service"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { Diagnostic } from "./types"
 import {
   toRootProjectDiagnostic,
@@ -97,7 +98,7 @@ function testProjectState(diagnostics: readonly Diagnostic[]): ProjectStateServi
 function refreshResult(diagnostics: readonly Diagnostic[]): ProjectStateRefreshResult {
   return {
     diagnostics,
-    readToken: new Uint8Array() as ProjectStateRefreshResult["readToken"],
+    readToken: createTestProjectStateReadToken(),
     stats: { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, deletedFiles: 0 },
   }
 }

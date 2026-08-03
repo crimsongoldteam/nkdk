@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import type { ProjectStateReadToken } from "../projectState/contracts"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
@@ -52,7 +52,7 @@ export function createOperationTestProjectHarness(prefix: string) {
     async refreshAndValidate() {
       return {
         diagnostics: index.diagnostics ?? [],
-        readToken: new Uint8Array() as ProjectStateReadToken,
+        readToken: createTestProjectStateReadToken(),
         stats: emptyOperationRefreshStats(),
       }
     },

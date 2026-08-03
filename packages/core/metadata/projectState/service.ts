@@ -16,7 +16,6 @@ import {
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateWriterHandle, type ProjectStateWriterHandle } from "./writerHandle"
-import { projectStateSnapshotPath } from "./sqlite/persistence"
 import { projectStateBinaryPath } from "./binary/persistence"
 import {
   createProjectStateRefreshDependencies,
@@ -122,7 +121,6 @@ export function createProjectStateService(
         const writer = await activate(canonical)
         await writer.reset(canonical)
         await removeBinaryProjectStateFiles(canonical)
-        await rm(projectStateSnapshotPath(canonical), { force: true })
       })
     },
     rebuild(params) {

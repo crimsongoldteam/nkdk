@@ -85,9 +85,6 @@ describe("ProjectState import session", () => {
     await importSession.writeFirstPassBatch(encodeProjectStateImportIndexBatch([indexed]))
     const firstToken = await importSession.commitWorkingIndex()
     const secondToken = await importSession.createReadToken()
-    if (firstToken instanceof Uint8Array || secondToken instanceof Uint8Array) {
-      throw new Error("Ожидался двоичный read token")
-    }
     expect(firstToken.buffers.files).toBe(secondToken.buffers.files)
     await writer.flushCheckpoint()
     expect(saved).toHaveLength(0)

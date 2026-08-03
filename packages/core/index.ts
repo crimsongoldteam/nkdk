@@ -5,13 +5,11 @@ registerCoreMetadata()
 export { registerCoreMetadata } from "./metadata/register"
 export {
   ProjectStateReadSessionClosedError,
-  createProjectStateCompatibility,
   createProjectStateFileUpdateBatch,
   createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,
-  type ProjectStateCompatibility,
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
   type ProjectStateFileUpdateBatch,

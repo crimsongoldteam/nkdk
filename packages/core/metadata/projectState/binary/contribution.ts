@@ -36,18 +36,6 @@ export interface ProjectStateImportFinalBatchView {
   finalState(index: number): ProjectStateImportFinalFileState
 }
 
-export function isProjectStateEncodedImportIndexBatch(
-  batch: readonly ProjectStateImportIndexContribution[] | ProjectStateEncodedImportIndexBatch,
-): batch is ProjectStateEncodedImportIndexBatch {
-  return !Array.isArray(batch)
-}
-
-export function isProjectStateEncodedImportFinalBatch(
-  batch: ProjectStateImportFinalFileStateBatch | ProjectStateEncodedImportFinalBatch,
-): batch is ProjectStateEncodedImportFinalBatch {
-  return !("updates" in batch)
-}
-
 export interface ProjectStateFileUpdateBatchView {
   readonly fileCount: number
   projectPath(index: number): string

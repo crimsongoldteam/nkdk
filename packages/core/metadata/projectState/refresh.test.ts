@@ -10,6 +10,7 @@ import {
   type ProjectStateEncodedFileUpdateBatch,
 } from "./binary/contribution"
 import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
+import { createTestProjectStateReadToken } from "./tests/readToken"
 import {
   refreshProjectState,
   type ProjectStateRefreshDependencies,
@@ -175,7 +176,7 @@ describe("refreshProjectState", () => {
     controller.abort()
     releaseCheckpoint()
 
-    await expect(running).resolves.toMatchObject({ readToken: new Uint8Array([1]) })
+    await expect(running).resolves.toMatchObject({ diagnostics: [] })
     expect(handle.rollbackCalls).toBe(0)
   })
 
@@ -252,7 +253,7 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
 
   async createReadToken(): Promise<ProjectStateReadToken> {
     this.events.push("token")
-    return new Uint8Array([1]) as ProjectStateReadToken
+    return createTestProjectStateReadToken()
   }
 
   async commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }> {

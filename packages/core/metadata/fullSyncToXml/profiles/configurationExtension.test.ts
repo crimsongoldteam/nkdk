@@ -3,7 +3,7 @@ import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "../../configurationIndex/types"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
-import type { ProjectStateReadToken } from "../../projectState"
+import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
 
 describe("configuration extension full XML sync profile", () => {
@@ -242,7 +242,7 @@ function state(params: {
       })),
     },
     snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)),
-    projectStateReadToken: new Uint8Array([1]) as ProjectStateReadToken,
+    projectStateReadToken: createTestProjectStateReadToken(),
   }
 }
 

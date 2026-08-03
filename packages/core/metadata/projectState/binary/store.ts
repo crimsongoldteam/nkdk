@@ -13,7 +13,6 @@ import {
   type ProjectStateReadToken,
 } from "../contracts"
 import {
-  assertProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
@@ -31,8 +30,6 @@ import type {
 import { buildProjectStateSnapshot, type ProjectStateSnapshotPatch } from "./builder"
 import {
   openProjectStateFileUpdateBatch,
-  isProjectStateEncodedImportFinalBatch,
-  isProjectStateEncodedImportIndexBatch,
   openProjectStateImportFinalBatch,
   openProjectStateImportIndexBatch,
 } from "./contribution"
@@ -110,27 +107,17 @@ export function createBinaryProjectStateStore(
     replaceFiles(batch) {
       assertOpen()
       const update = assertActive()
-      if ("bytes" in batch) {
-        const encoded = openProjectStateFileUpdateBatch(batch)
-        for (let index = 0; index < encoded.fileCount; index += 1) {
-          replace(update, encoded.update(index), encoded.hash(index))
-        }
-        return
+      const encoded = openProjectStateFileUpdateBatch(batch)
+      for (let index = 0; index < encoded.fileCount; index += 1) {
+        replace(update, encoded.update(index), encoded.hash(index))
       }
-      assertProjectStateFileUpdateBatch(batch)
-      const hashes = new DataView(batch.hashBytes.buffer)
-      batch.updates.forEach((file, index) => replace(update, file, hashes.getBigUint64(index * 8, false)))
     },
     replaceImportIndex(batch) {
       assertOpen()
       const update = assertActive()
-      const encoded = isProjectStateEncodedImportIndexBatch(batch) ? openProjectStateImportIndexBatch(batch) : undefined
-      const logical = encoded === undefined
-        ? batch as readonly import("../importSession").ProjectStateImportIndexContribution[]
-        : undefined
-      const fileCount = encoded?.fileCount ?? logical!.length
-      for (let index = 0; index < fileCount; index += 1) {
-        const contribution = encoded?.contribution(index) ?? logical![index]!
+      const encoded = openProjectStateImportIndexBatch(batch)
+      for (let index = 0; index < encoded.fileCount; index += 1) {
+        const contribution = encoded.contribution(index)
         const previousPatch = currentPatch(update, contribution.projectPath)
         const previous = previousPatch?.update
         const localValidation = previous?.kind === "yaml"
@@ -161,17 +148,9 @@ export function createBinaryProjectStateStore(
     replaceImportFinalFileState(batch) {
       assertOpen()
       const update = assertActive()
-      const encoded = isProjectStateEncodedImportFinalBatch(batch)
-        ? openProjectStateImportFinalBatch(batch)
-        : undefined
-      const logical = encoded === undefined
-        ? batch as import("../importSession").ProjectStateImportFinalFileStateBatch
-        : undefined
-      const fileCount = encoded?.fileCount ?? logical!.updates.length
-      if (logical !== undefined) assertHashBytes(logical.hashBytes, fileCount)
-      const hashes = logical === undefined ? undefined : new DataView(logical.hashBytes.buffer)
-      for (let index = 0; index < fileCount; index += 1) {
-        const finalState = encoded?.finalState(index) ?? logical!.updates[index]!
+      const encoded = openProjectStateImportFinalBatch(batch)
+      for (let index = 0; index < encoded.fileCount; index += 1) {
+        const finalState = encoded.finalState(index)
         const previous = currentPatch(update, finalState.projectPath)?.update
         if (previous === undefined) throw new Error(`Identity файла ${finalState.projectPath} не зарегистрирована`)
         if (!sameIdentity(previous, finalState) || previous.kind !== finalState.kind) {
@@ -180,7 +159,7 @@ export function createBinaryProjectStateStore(
         replace(
           update,
           mergeImportFinal(previous, finalState),
-          encoded?.hash(index) ?? hashes!.getBigUint64(index * 8, false),
+          encoded.hash(index),
         )
       }
     },
@@ -379,18 +358,6 @@ function sameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIde
 
 function identityError(projectPath: string): Error {
   return new Error(`Нельзя менять identity индексированного файла ${projectPath}`)
-}
-
-function assertHashBytes(hashBytes: Uint8Array, fileCount: number): void {
-  const expectedLength = fileCount * 8
-  if (
-    !(hashBytes instanceof Uint8Array)
-    || hashBytes.byteOffset !== 0
-    || hashBytes.byteLength !== expectedLength
-    || hashBytes.buffer.byteLength !== expectedLength
-  ) {
-    throw new Error(`hashBytes должен занимать ${expectedLength} байт`)
-  }
 }
 
 function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: boolean): Diagnostic[] {

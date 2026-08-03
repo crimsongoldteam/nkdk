@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { ProjectStateReadToken } from "../projectState/contracts"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { ProjectStateService } from "../projectState/service"
 import { completeOperationProjectState, completeOperationReadSession } from "./operationTestSupport"
 import { readIndexedOperationReferences } from "./indexReferences"
@@ -17,7 +17,7 @@ describe("readIndexedOperationReferences", () => {
 
     readIndexedOperationReferences({
       projectState,
-      readToken: new Uint8Array() as ProjectStateReadToken,
+      readToken: createTestProjectStateReadToken(),
       componentPath: "cfe/Продажи",
       path: "Справочник.Товары",
       target: {

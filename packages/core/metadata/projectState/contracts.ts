@@ -14,15 +14,8 @@ export interface ProjectStateFileBaseline {
   readonly deleted: readonly ProjectStateFileIdentity[]
 }
 
-declare const legacySqliteProjectStateReadTokenBrand: unique symbol
-
-/** Временный SQLite-token до удаления прежнего адаптера. */
-export type LegacySqliteProjectStateReadToken = Uint8Array & {
-  readonly [legacySqliteProjectStateReadTokenBrand]: "LegacySqliteProjectStateReadToken"
-}
-
 /** Непрозрачное разрешение на чтение снимка состояния проекта. */
-export type ProjectStateReadToken = LegacySqliteProjectStateReadToken | BinaryProjectStateReadToken
+export type ProjectStateReadToken = BinaryProjectStateReadToken
 
 export function assertProjectStateFileHashBatch(value: unknown): asserts value is ProjectStateFileHashBatch {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {

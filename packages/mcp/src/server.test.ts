@@ -154,7 +154,6 @@ describe("MCP server", () => {
       "dist/bin/preparedYamlProjectWorker.js",
       "dist/bin/importFromXmlWorker.js",
       "dist/bin/fullSyncToXmlWorker.js",
-      "dist/bin/projectStateWriterWorker.js",
       "dist/generateProjectValidationAjvStandalone.js",
       "dist/projectValidationAjvStandalone.js",
     ]
@@ -164,7 +163,6 @@ describe("MCP server", () => {
       "dist/bin/preparedYamlProjectWorker.js",
       "dist/bin/importFromXmlWorker.js",
       "dist/bin/fullSyncToXmlWorker.js",
-      "dist/bin/projectStateWriterWorker.js",
       "dist/generateProjectValidationAjvStandalone.js",
       "dist/projectValidationAjvStandalone.js",
     ])

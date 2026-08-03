@@ -22,10 +22,12 @@ import {
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
 import {
-  isProjectStateEncodedImportIndexBatch,
+  openProjectStateFileUpdateBatch,
   openProjectStateImportFinalBatch,
   openProjectStateImportIndexBatch,
 } from "./binary/contribution"
+import { buildProjectStateSnapshot } from "./binary/builder"
+import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
 
 describe("ProjectStateFileHashBatch", () => {
@@ -135,7 +137,7 @@ function file(projectPath: string) {
 
 function testReadSession(): ProjectStateReadSession {
   let closed = false
-  const token = new Uint8Array(1) as ProjectStateReadToken
+  const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
 
   function assertOpen(): void {
     if (closed) throw new ProjectStateReadSessionClosedError(token)
@@ -197,8 +199,7 @@ function createTestStoreContractFixture() {
   const committedIdentities = new Map<string, ProjectStateFileIdentity>()
   let staged: Map<string, StoredUpdate> | undefined
   let stagedIdentities: Map<string, ProjectStateFileIdentity> | undefined
-  const tokens = new Set<string>()
-  let nextToken = 1
+  const tokens = new Set<SharedArrayBuffer>()
 
   function current(): Map<string, StoredUpdate> {
     return staged ?? committed
@@ -248,19 +249,17 @@ function createTestStoreContractFixture() {
       stagedIdentities = new Map(committedIdentities)
     },
     replaceFiles(batch) {
-      assertProjectStateFileUpdateBatch(batch)
       if (staged === undefined) throw new Error("Нет активного обновления")
-      batch.updates.forEach((update, index) => {
-        updateTarget(staged!, update, batch.hashBytes.slice(index * 8, (index + 1) * 8))
+      const encoded = openProjectStateFileUpdateBatch(batch)
+      Array.from({ length: encoded.fileCount }, (_, index) => encoded.update(index)).forEach((update, index) => {
+        updateTarget(staged!, update, hashBytes(encoded.hash(index)))
         stagedIdentities!.set(update.projectPath, identity(update))
       })
     },
     replaceImportIndex(batch) {
       const target = requireStaged(staged)
-      const encoded = isProjectStateEncodedImportIndexBatch(batch) ? openProjectStateImportIndexBatch(batch) : undefined
-      const contributions = encoded === undefined
-        ? batch as readonly import("./importSession").ProjectStateImportIndexContribution[]
-        : Array.from({ length: encoded.fileCount }, (_, index) => encoded.contribution(index))
+      const encoded = openProjectStateImportIndexBatch(batch)
+      const contributions = Array.from({ length: encoded.fileCount }, (_, index) => encoded.contribution(index))
       for (const contribution of contributions) {
         const previous = target.get(contribution.projectPath)
         if (previous !== undefined) assertSameIdentity(previous.update, contribution)
@@ -289,10 +288,8 @@ function createTestStoreContractFixture() {
     replaceImportFinalFileState(batch) {
       const target = requireStaged(staged)
       const identities = requireStagedIdentities(stagedIdentities)
-      const encoded = "updates" in batch ? undefined : openProjectStateImportFinalBatch(batch)
-      const updates = "updates" in batch
-        ? batch.updates
-        : Array.from({ length: encoded!.fileCount }, (_, index) => encoded!.finalState(index))
+      const encoded = openProjectStateImportFinalBatch(batch)
+      const updates = Array.from({ length: encoded.fileCount }, (_, index) => encoded.finalState(index))
       updates.forEach((update, index) => {
         const registered = identities.get(update.projectPath)
         if (registered === undefined) throw new Error(`Final import identity не зарегистрирована: ${update.projectPath}`)
@@ -304,9 +301,7 @@ function createTestStoreContractFixture() {
         updateTarget(
           target,
           update.kind === "resource" ? update : { ...previous!.update, ...update } as ProjectStateFileUpdate,
-          "updates" in batch
-            ? batch.hashBytes.slice(index * 8, (index + 1) * 8)
-            : hashBytes(encoded!.hash(index)),
+          hashBytes(encoded.hash(index)),
         )
       })
     },
@@ -354,7 +349,7 @@ function createTestStoreContractFixture() {
       }
     },
     createReadToken() {
-      const token = new Uint8Array([nextToken++]) as ProjectStateReadToken
+      const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
       tokens.add(tokenKey(token))
       return token
     },
@@ -642,7 +637,6 @@ function identity(update: ProjectStateFileIdentity) {
     : { projectPath, componentPath, resourceKind, yamlRole }
 }
 
-function tokenKey(token: ProjectStateReadToken): string {
-  if (!(token instanceof Uint8Array)) throw new Error("Тестовое хранилище принимает только legacy token")
-  return [...token].join(",")
+function tokenKey(token: ProjectStateReadToken): SharedArrayBuffer {
+  return token.claim
 }

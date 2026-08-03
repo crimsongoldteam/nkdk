@@ -4,7 +4,7 @@ import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnaps
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ComponentIndexes, ComponentProjectStructure } from "./types"
 import { confirmComponentState } from "./confirm"
-import type { ProjectStateReadToken } from "../../projectState"
+import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 
 describe("confirmed component state", () => {
   const projectFiles = [{ projectPath: "Конфигурация.yaml", contentHash: 1n }]
@@ -28,7 +28,7 @@ describe("confirmed component state", () => {
     sourceProjectFiles: projectFiles,
     logicalAddresses: [],
   } satisfies ComponentIndexes
-  const projectStateReadToken = new Uint8Array([1]) as ProjectStateReadToken
+  const projectStateReadToken = createTestProjectStateReadToken()
 
   it("rejects hashes for a different structure", () => {
     expect(() =>

@@ -100,7 +100,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Reset NKDK project cache",
       description:
-        "Закрывает runtime-состояние проекта и удаляет только .nkdk/cache/project-state.sqlite. Не запускает validation и не изменяет configuration-index. Требует allowWrite=true.",
+        "Закрывает состояние проекта и удаляет только .nkdk/cache/project-state.bin. Не запускает validation и не изменяет configuration-index. Требует allowWrite=true.",
       inputSchema: projectCacheInputSchema,
     },
     async (input) => jsonToolResult(await resetProjectCache(input))

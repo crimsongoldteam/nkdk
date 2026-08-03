@@ -6,6 +6,7 @@ import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import {
   encodeProjectStateImportFinalBatch,
@@ -772,7 +773,7 @@ async function expectPendingAggregate(
 }
 
 function readTokens(count: number): ProjectStateReadToken[] {
-  return Array.from({ length: count }, (_, index) => new Uint8Array([index + 1]) as ProjectStateReadToken)
+  return Array.from({ length: count }, () => createTestProjectStateReadToken())
 }
 
 function createTempDir(name: string): string {

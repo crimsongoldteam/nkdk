@@ -7,6 +7,8 @@ import type { ProjectStateRefreshDependencies, ProjectStateRefreshResult } from 
 import { createProjectStateService, type CreateProjectStateServiceOptions } from "./service"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import type { ProjectStateReadToken } from "./contracts"
+import { buildProjectStateSnapshot } from "./binary/builder"
+import { createBinaryProjectStateReadToken } from "./binary/readToken"
 
 const tempDirs: string[] = []
 
@@ -270,7 +272,8 @@ describe("ProjectStateService", () => {
 
     await session.finalize()
     await session.abort(new Error("late abort"))
-    await expect(service.createReadToken(projectDir)).resolves.toEqual(new Uint8Array([1]))
+    const readSession = service.openReadSession(await service.createReadToken(projectDir))
+    readSession.close()
     await service.close()
   })
 
@@ -798,18 +801,13 @@ describe("ProjectStateService", () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-worker-tokens-"))
     tempDirs.push(projectDir)
     const writer = testWriterHandle(1)
-    let next = 1
-    writer.createReadToken = async () => new Uint8Array([next++]) as ProjectStateReadToken
+    writer.createReadToken = async () => testReadToken()
     const service = createProjectStateService({ createWriter: () => writer, createPool: () => testPool() })
 
     const first = await service.createReadToken(projectDir)
     const second = await service.createReadToken(projectDir)
 
-    expect(first).toBeInstanceOf(Uint8Array)
-    expect(second).toBeInstanceOf(Uint8Array)
-    if (!(first instanceof Uint8Array) || !(second instanceof Uint8Array)) throw new Error("Ожидался legacy token")
-    expect([...first]).toEqual([1])
-    expect([...second]).toEqual([2])
+    expect(first.claim).not.toBe(second.claim)
     await service.close()
   })
 
@@ -874,7 +872,7 @@ function testWriterHandle(id: number): TestWriter {
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
     async validateDependencies() { return [] },
-    async createReadToken() { return new Uint8Array([id]) as never },
+    async createReadToken() { return testReadToken() },
     async readComponentProjection(componentPath) {
       return {
         componentPath,
@@ -992,12 +990,16 @@ async function expectPreservedProjectState(
   await expect(service.createReadToken(projectDir)).resolves.toEqual(readToken)
 }
 
-function refreshResult(value: number): ProjectStateRefreshResult {
+function refreshResult(_value: number): ProjectStateRefreshResult {
   return {
     diagnostics: [],
-    readToken: new Uint8Array([value]) as never,
+    readToken: testReadToken(),
     stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
   }
+}
+
+function testReadToken(): ProjectStateReadToken {
+  return createBinaryProjectStateReadToken(buildProjectStateSnapshot({ replacements: [], deletions: [] }))
 }
 
 function nestedPrimaryFailure() {

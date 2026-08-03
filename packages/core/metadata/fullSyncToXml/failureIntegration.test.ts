@@ -10,7 +10,8 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import type { ProjectStateReadSession, ProjectStateReadToken, ProjectStateService } from "../projectState"
+import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   syncComponentToXml,
@@ -414,13 +415,13 @@ function failureDeps(
 }
 
 function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
-  const readToken = new Uint8Array([1]) as ProjectStateReadToken
+  const readToken = createTestProjectStateReadToken()
   return {
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       return { diagnostics: [], readToken, stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 } }
     },
-    async createReadToken() { return new Uint8Array([2]) as ProjectStateReadToken },
+    async createReadToken() { return createTestProjectStateReadToken() },
     async readComponentProjection({ componentPath }) {
       const files = snapshot?.files ?? []
       const hashBytes = new Uint8Array(files.length * 8)

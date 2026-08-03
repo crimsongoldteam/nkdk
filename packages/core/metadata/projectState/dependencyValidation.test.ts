@@ -24,6 +24,7 @@ import type {
   ValidationObjectRecord,
 } from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
+import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import {
   validateProjectStateDependencyBatch,
@@ -336,7 +337,7 @@ describe("dependency validation из ProjectState", () => {
       configurationUpdate(true),
     ]
     store.beginUpdate()
-    store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+    replaceFiles(store, updates)
     store.commitUpdate()
     const session = openReadSession(store.createReadToken())
     const inputs = session.readDependencyInputs([
@@ -595,16 +596,13 @@ describe("dependency validation из ProjectState", () => {
       const configuration = configurationUpdate(true)
       const { store } = createBinaryProjectStateTestFixture()
       store.beginUpdate()
-      store.replaceFiles({ updates: [source, target, configuration], hashBytes: new Uint8Array(24) })
+      replaceFiles(store, [source, target, configuration])
       store.commitUpdate()
 
       store.beginUpdate()
       if (change === "deleted") store.deleteFiles([target.projectPath])
       else {
-        store.replaceFiles({
-          updates: [{ ...target, references: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }],
-          hashBytes: new Uint8Array(8),
-        })
+        replaceFiles(store, [{ ...target, references: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }])
       }
 
       expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
@@ -617,7 +615,7 @@ describe("dependency validation из ProjectState", () => {
     const configuration = configurationUpdate(true)
     const { store, openReadSession } = createBinaryProjectStateTestFixture()
     store.beginUpdate()
-    store.replaceFiles({ updates: [source, configuration], hashBytes: new Uint8Array(16) })
+    replaceFiles(store, [source, configuration])
     const writerDiagnostics = store.validateDependencies({ requests: [] })
     store.commitUpdate()
     const session = openReadSession(store.createReadToken())
@@ -643,8 +641,18 @@ describe("dependency validation из ProjectState", () => {
 function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
   const { store } = createBinaryProjectStateTestFixture()
   store.beginUpdate()
-  store.replaceFiles({ updates, hashBytes: new Uint8Array(updates.length * 8) })
+  replaceFiles(store, updates)
   return store
+}
+
+function replaceFiles(
+  store: ReturnType<typeof createBinaryProjectStateTestFixture>["store"],
+  updates: readonly ProjectStateYamlFileUpdate[],
+): void {
+  store.replaceFiles(encodeProjectStateFileUpdateBatch({
+    updates,
+    hashBytes: new Uint8Array(updates.length * 8),
+  }))
 }
 
 interface PagedDependencyQueryPort {

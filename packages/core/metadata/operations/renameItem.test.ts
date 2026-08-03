@@ -1,7 +1,7 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
-import type { ProjectStateReadToken } from "../projectState/contracts"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import {
@@ -424,7 +424,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
         if (refresh === 2) throw technical
         return {
           diagnostics: [],
-          readToken: new Uint8Array() as ProjectStateReadToken,
+          readToken: createTestProjectStateReadToken(),
           stats: emptyOperationRefreshStats(),
         }
       },
@@ -457,7 +457,7 @@ function renameProjectState(
       }
       return {
         diagnostics: diagnosticsByRefresh[refresh - 1] ?? [],
-        readToken: new Uint8Array() as ProjectStateReadToken,
+        readToken: createTestProjectStateReadToken(),
         stats: emptyOperationRefreshStats(),
       }
     },

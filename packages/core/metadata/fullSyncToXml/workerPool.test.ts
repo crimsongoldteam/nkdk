@@ -9,7 +9,7 @@ import {
   type FullXmlSyncWorkerInitialization,
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
-import type { ProjectStateReadToken } from "../projectState"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 
 describe("full XML sync worker pool", () => {
   const initialization = {
@@ -28,7 +28,7 @@ describe("full XML sync worker pool", () => {
     },
     composition: {} as never,
     targetIndex: {} as never,
-    projectStateReadTokens: [1, 2, 3, 4].map((value) => new Uint8Array([value]) as ProjectStateReadToken),
+    projectStateReadTokens: [1, 2, 3, 4].map(() => createTestProjectStateReadToken()),
   } satisfies FullXmlSyncWorkerInitialization
 
   it("executes each static partition once", async () => {

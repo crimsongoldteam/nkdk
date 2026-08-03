@@ -9,6 +9,7 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { sampleSnapshot } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
@@ -26,7 +27,7 @@ describe("full XML sync worker", () => {
     defaultLanguage: "ru",
     exportToYAML: { toTyped: false },
   } as const
-  const readToken = new Uint8Array([1]) as ProjectStateReadToken
+  const readToken = createTestProjectStateReadToken()
 
   afterEach(() => {
     resetFullXmlSyncWorkerStateForTests()

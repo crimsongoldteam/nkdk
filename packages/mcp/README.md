@@ -1,6 +1,6 @@
 # NKDK MCP
 
-Metadata tools одного MCP-процесса используют один лениво создаваемый `ProjectStateService`. Рабочее состояние всего проекта (`cf` и все `cfe/<Имя>`) находится в SQLite в памяти; восстанавливаемый снимок атомарно сохраняется в `projectDir/.nkdk/cache/project-state.sqlite` за нейтральными договорами core.
+Metadata tools одного MCP-процесса используют один лениво создаваемый `ProjectStateService`. Рабочее состояние всего проекта (`cf` и все `cfe/<Имя>`) находится в общих двоичных буферах; восстанавливаемый снимок атомарно сохраняется в `projectDir/.nkdk/cache/project-state.bin` за нейтральными договорами core.
 
 ## Validation и `ignoreValidationErrors`
 
@@ -41,7 +41,7 @@ Metadata tools одного MCP-процесса используют один �
 { "projectDir": "/path/to/project", "allowWrite": true }
 ```
 
-Инструмент возвращает `{ "ok": true, "reset": true }`, закрывает состояние проекта в памяти и удаляет только `.nkdk/cache/project-state.sqlite`. Validation не запускается; YAML и файл индекса конфигурации не изменяются.
+Инструмент возвращает `{ "ok": true, "reset": true }`, закрывает состояние проекта в памяти и удаляет только `.nkdk/cache/project-state.bin`. Validation не запускается; YAML и файл индекса конфигурации не изменяются.
 
 `nkdk.rebuild_project_cache` имеет тот же строгий вход:
 

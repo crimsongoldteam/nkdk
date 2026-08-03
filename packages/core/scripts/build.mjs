@@ -1,6 +1,5 @@
 import esbuild from "esbuild"
 import { rm } from "node:fs/promises"
-import { fingerprintRulesSourceTree } from "./rulesSourceFingerprint.mjs"
 
 const outdir = new URL("../dist/", import.meta.url)
 const rootDir = new URL("../", import.meta.url)
@@ -9,11 +8,6 @@ const corePackageJson = (
     with: { type: "json" },
   })
 ).default
-const rulesSourceFingerprint = fingerprintRulesSourceTree(new URL("../", import.meta.url), [
-  "metadata/register.ts",
-  "metadata/validation/registerValidationMetadata.ts",
-])
-
 await rm(outdir, { force: true, recursive: true })
 
 const commonOptions = {
@@ -39,7 +33,6 @@ const commonOptions = {
   target: "node26",
   define: {
     __NKDK_CORE_VERSION__: JSON.stringify(corePackageJson.version),
-    __NKDK_RULES_SOURCE_FINGERPRINT__: JSON.stringify(rulesSourceFingerprint),
   },
 }
 
@@ -65,12 +58,6 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: ["metadata/fullSyncToXml/worker.ts"],
   outfile: new URL("fullSyncToXmlWorker.js", outdir).pathname,
-})
-
-await esbuild.build({
-  ...commonOptions,
-  entryPoints: ["metadata/projectState/writerWorker.ts"],
-  outfile: new URL("projectStateWriterWorker.js", outdir).pathname,
 })
 
 await esbuild.build({

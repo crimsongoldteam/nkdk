@@ -14,6 +14,7 @@ import type {
   ComponentProjectStructure,
 } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
@@ -497,7 +498,7 @@ function createHarness(options: HarnessOptions = {}) {
   let targetKind: ComponentAddress["kind"] = "configuration"
   let readingBase = false
   const topology = compileRegisteredMetadataResourceTopology()
-  const readToken = new Uint8Array([1]) as import("../projectState").ProjectStateReadToken
+  const readToken = createTestProjectStateReadToken()
   const projectState = {
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
@@ -509,7 +510,7 @@ function createHarness(options: HarnessOptions = {}) {
         stats: { hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
       }
     },
-    async createReadToken() { return new Uint8Array([2]) as import("../projectState").ProjectStateReadToken },
+    async createReadToken() { return createTestProjectStateReadToken() },
     async readComponentProjection({ componentPath }: { componentPath: string }) {
       projectionReads.push(componentPath)
       const hashBytes = new Uint8Array(8)

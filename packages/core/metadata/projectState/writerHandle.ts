@@ -11,7 +11,6 @@ import {
   type ProjectStateEncodedImportFinalBatch,
   type ProjectStateEncodedImportIndexBatch,
 } from "./binary/contribution"
-import type { ProjectStateCompatibility } from "./compatibility"
 import type {
   ProjectStateFileBaseline,
   ProjectStateFileHashBatch,
@@ -41,8 +40,6 @@ export class ProjectStateWriterClosedError extends Error {
 }
 
 export interface CreateProjectStateWriterHandleOptions {
-  /** Временно принимается вызывающими сторонами до удаления SQLite-совместимости. */
-  readonly compatibility?: ProjectStateCompatibility
   readonly openStore?: (projectDir: string) => Promise<ProjectStateStore>
   readonly save?: (projectDir: string, buffers: ProjectStateSharedBuffers) => Promise<void>
 }
@@ -288,6 +285,5 @@ export function createProjectStateWriterHandle(
 
 function snapshotBuffers(store: ProjectStateStore): ProjectStateSharedBuffers {
   const token = store.createReadToken()
-  if (token instanceof Uint8Array) throw new Error("Двоичное хранилище вернуло устаревший token")
   return token.buffers
 }

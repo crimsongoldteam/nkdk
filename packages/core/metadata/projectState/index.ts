@@ -21,15 +21,6 @@ export {
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
 } from "./fileUpdate"
-export type {
-  ProjectStateWriterAcknowledgement,
-  ProjectStateWriterCommand,
-  ProjectStateWriterResponse,
-} from "./writerProtocol"
-export {
-  createProjectStateCompatibility,
-  type ProjectStateCompatibility,
-} from "./compatibility"
 export {
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
