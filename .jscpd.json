@@ -1,12 +1,8 @@
 {
-  "path": [
-    "packages/**/*.ts",
-    "packages/**/*.tsx",
-    "packages/**/*.js",
-    "packages/**/*.mjs"
-  ],
+  "minLines": 5,
+  "minTokens": 50,
+  "mode": "mild",
   "format": ["typescript", "tsx", "javascript"],
-  "absolute": true,
   "ignore": [
     "**/node_modules/**",
     "**/dist/**",
@@ -16,8 +12,8 @@
     "**/generated/**",
     "**/*.generated.*",
     "**/*.gen.*",
-    "**/__fixtures__/**"
+    "**/__fixtures__/**",
+    "**/*.snap"
   ],
-  "reporters": ["json"],
-  "output": "reports/jscpd"
+  "reporters": ["json"]
 }

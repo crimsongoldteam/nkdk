@@ -296,9 +296,15 @@ function validateFactRows(params: {
       assertRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, `${kind}.ownerTypeId`)
       assertStringId(record.nameId, params.stringCount, `${kind}.nameId`)
       assertOptionalStringId(record.tablePathId, params.stringCount, `${kind}.tablePathId`)
-      assertRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, `${kind}.typeInfoId`)
+      if (record.kind === 3) {
+        assertOptionalRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, `${kind}.typeInfoId`)
+      } else {
+        assertRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, `${kind}.typeInfoId`)
+      }
       assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, `${kind}.tableInfoId`)
-      if (record.kind !== (kind === "forms" ? 1 : 2)) throw new Error(`Неверный вид записи ${kind}`)
+      if (kind === "forms" ? record.kind !== 1 : record.kind !== 2 && record.kind !== 3) {
+        throw new Error(`Неверный вид записи ${kind}`)
+      }
       assertTernary(record.tableHasColumns, `${kind}.tableHasColumns`)
     })
   }

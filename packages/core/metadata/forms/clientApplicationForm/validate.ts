@@ -20,6 +20,18 @@ import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
+import { hasMainAttributeKind } from "./mainAttributeKinds"
+import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+
+const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
+const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
+const DOCUMENT_FORM_PROPERTIES = ["АвтоВремя", "РежимПроведения", "ПерепроводитьПриЗаписи"] as const
+const REPORT_FORM_PROPERTIES = [
+  "ТипФормыОтчета",
+  "АвтоОтображениеСостояния",
+  "РежимОтображенияРезультатаОтчета",
+  "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
+] as const
 
 interface ClientApplicationFormValidationState {
   filePath: string
@@ -44,7 +56,10 @@ export function validateClientApplicationFormFirstPass(
   }
 
   const context = params.context ?? defaultValidationContext()
-  const index = createFormDataPathIndexFromYAML(entry.parsed.data)
+  const index = createFormDataPathIndexFromYAML(
+    entry.parsed.data,
+    collectFormTableDataPathsFromYAML(entry.parsed.data)
+  )
   const localDiagnostics: Diagnostic[] = []
   const occurrences = collectFormDataPathOccurrencesFromYAML({
     yaml: entry.parsed.data,
@@ -76,6 +91,11 @@ export function validateClientApplicationFormFirstPass(
       rule: ClientApplicationFormRules,
     }),
     ...index.duplicateDiagnostics,
+    ...validateContextualFormProperties({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      index,
+    }),
     ...localDiagnostics,
   ]
   for (const provider of getFormWarningProviders()) {
@@ -91,6 +111,65 @@ export function validateClientApplicationFormFirstPass(
       index,
       occurrences,
     },
+  }
+}
+
+function validateContextualFormProperties(params: {
+  filePath: string
+  parsed: ParsedYaml
+  index: FormDataPathIndex
+}): Diagnostic[] {
+  const yaml = isRecord(params.parsed.data) ? params.parsed.data : {}
+  const attributes = yaml["Реквизиты"]
+  const diagnostics: Diagnostic[] = []
+
+  collectContextualPropertyDiagnostics({
+    ...params,
+    yaml,
+    attributes,
+    properties: DOCUMENT_FORM_PROPERTIES,
+    kinds: DOCUMENT_MAIN_ATTRIBUTE_KINDS,
+    kindName: "ДокументОбъект",
+    diagnostics,
+  })
+  collectContextualPropertyDiagnostics({
+    ...params,
+    yaml,
+    attributes,
+    properties: REPORT_FORM_PROPERTIES,
+    kinds: REPORT_MAIN_ATTRIBUTE_KINDS,
+    kindName: "ОтчетОбъект",
+    diagnostics,
+  })
+
+  return diagnostics
+}
+
+function collectContextualPropertyDiagnostics(params: {
+  filePath: string
+  parsed: ParsedYaml
+  index: FormDataPathIndex
+  yaml: Record<string, unknown>
+  attributes: unknown
+  properties: readonly string[]
+  kinds: ReadonlySet<string>
+  kindName: string
+  diagnostics: Diagnostic[]
+}): void {
+  if (hasMainAttributeKind(params.attributes, params.index, params.kinds)) return
+
+  for (const property of params.properties) {
+    if (!Object.prototype.hasOwnProperty.call(params.yaml, property)) continue
+    params.diagnostics.push(
+      diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: [property],
+        severity: "error",
+        source: "structure",
+        message: `Свойство ${property} допустимо только для формы с основным реквизитом ${params.kindName}.`,
+      })
+    )
   }
 }
 

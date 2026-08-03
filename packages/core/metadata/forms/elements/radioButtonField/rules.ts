@@ -94,6 +94,7 @@ export const RadioButtonFieldRules = {
       yaml: "ВидПереключателя",
       typeSE: "RadioButtonType",
       implicitValueYAML: "Auto",
+      defaultValueXML: "Auto",
     }),
     textColor: colorRule({
       yaml: "ЦветТекста",

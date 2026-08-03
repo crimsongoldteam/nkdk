@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { parseWithJsYaml } from "./jsYamlParser"
+import { yamlScalarTagAt } from "./scalarTags"
 
 describe("parseWithJsYaml", () => {
+  it("parses a local xml tag as an ordinary scalar value", () => {
+    const parsed = parseWithJsYaml("Поле: !xml Авто")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Поле: "Авто" })
+    expect(yamlScalarTagAt(parsed.data, "Поле")).toBe("xml")
+  })
+
   it("parses data and exposes location index", () => {
     const parsed = parseWithJsYaml("Имя: Тест\nРеквизиты:\n  - Имя: Первый\n")
 

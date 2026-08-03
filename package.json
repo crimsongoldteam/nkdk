@@ -12,17 +12,20 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "type-check": "pnpm -r exec tsc --noEmit",
-    "test": "pnpm --workspace-concurrency=1 -r run test",
+    "architecture:baseline": "node tools/dependency-cruiser/src/baseline.mjs",
+    "architecture:graph": "node tools/dependency-cruiser/src/graph.mjs",
+    "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
+    "check:duplicates": "node scripts/check-new-duplicates.mjs",
+    "duplicates": "node scripts/check-new-duplicates.mjs",
+    "type-check": "pnpm --filter './packages/*' -r exec tsc --noEmit",
+    "test": "pnpm test:duplicates-script && pnpm -r run test",
+    "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:isolated": "pnpm -r run test:isolated",
-    "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs",
-    "test:mutation": "node packages/core/scripts/run-mutation-tests.mjs",
-    "test:mutation:compare": "node packages/core/scripts/compare-mutation-reports.mjs",
-    "check:duplicates": "node packages/core/scripts/check-new-duplicates.mjs"
+    "test:architecture": "node tools/dependency-cruiser/src/check.mjs",
+    "test:architecture:rules": "node --test 'tools/dependency-cruiser/test/*.test.mjs'",
+    "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^9.6.1",
-    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^26.1.2",
     "jscpd": "5.0.12",
     "tsc-alias": "^1.9.1",

@@ -1,31 +1,17 @@
 import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataChartOfCalculationTypesAttributeRules,
+  MetadataChartOfCalculationTypesTabularSectionRules,
+} from "./childRules"
 
-export interface MetadataChartOfCalculationTypesTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataChartOfCalculationTypesTabularSections"
-}
-
-export type MetadataChartOfCalculationTypesTabularSectionsRuleParams = Omit<
-  MetadataChartOfCalculationTypesTabularSectionsWidePropertyRule,
-  "type"
->
-
-export function metadataChartOfCalculationTypesTabularSectionsRule<
-  const Params extends MetadataChartOfCalculationTypesTabularSectionsRuleParams,
->(
-  params: WideExactRuleParams<MetadataChartOfCalculationTypesTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataChartOfCalculationTypesTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataChartOfCalculationTypesTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataChartOfCalculationTypesAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataChartOfCalculationTypesAttributes",
+  MetadataChartOfCalculationTypesAttributeRules
+)
+export const metadataChartOfCalculationTypesTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataChartOfCalculationTypesTabularSections",
+  MetadataChartOfCalculationTypesTabularSectionRules
+)

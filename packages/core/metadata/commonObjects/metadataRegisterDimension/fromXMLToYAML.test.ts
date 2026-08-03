@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest"
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
 import { dimensionsYAML } from "./__fixtures__/data"
 
-import "./register"
+import "../../appliedObjects/metadataInformationRegister/childRules"
 
-describe("MetadataRegisterDimensions XML → YAML", () => {
+describe("MetadataInformationRegisterDimensions XML → YAML", () => {
   it("imports register dimensions with UseInTotals", () => {
     expect(convert().yaml).toEqual({ Значение: dimensionsYAML })
   })
@@ -20,7 +20,7 @@ describe("MetadataRegisterDimensions XML → YAML", () => {
 
 const convert = () =>
   testPropertyFixtureThroughYAML({
-    propertyType: "MetadataRegisterDimensions",
+    propertyType: "MetadataInformationRegisterDimensions",
     xmlRootTag: "Dimension",
     importMetaUrl: import.meta.url,
     fixture: "dimensions.xml",

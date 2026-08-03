@@ -68,6 +68,36 @@ it("читает владельца и входы проверки зависи�
   }])
 })
 
+it("сохраняет путь к данным табличного элемента в двоичном снимке", () => {
+  const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const owner = { kind: "Справочник", name: "Catalog.Source" }
+  const update = {
+    ...source,
+    forms: [
+      ...source.forms,
+      { kind: "tableDataPath" as const, owner, name: "ТаблицаТоваров", dataPath: "Объект.Товары" },
+    ],
+  }
+  const session = openSessionWithUpdates([update])
+
+  expect(session.readDependencyInputs([{
+    requestId: "dependency",
+    componentPath: "cf",
+    projectPath: update.projectPath,
+    check: source.pendingChecks[0]!,
+  }])).toMatchObject([{
+    status: "found",
+    input: {
+      forms: expect.arrayContaining([{
+        kind: "tableDataPath",
+        owner,
+        name: "ТаблицаТоваров",
+        dataPath: "Объект.Товары",
+      }]),
+    },
+  }])
+})
+
 it("находит точные и префиксные metadata-ссылки", () => {
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const session = openSessionWithUpdates([update])

@@ -11,6 +11,7 @@ import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts
 import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import {
@@ -23,6 +24,155 @@ import {
 } from "./rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
+  const formWithMainAttribute = (
+    type: string,
+    properties: Partial<ClientApplicationFormYAML> = {}
+  ): ClientApplicationFormYAML =>
+    ({
+      ...properties,
+      Реквизиты: {
+        Объект: { Тип: type, ОсновнойРеквизит: "Истина" },
+      },
+    }) as ClientApplicationFormYAML
+
+  it.each([
+    ["основной реквизит справочника", "СправочникОбъект.Товары", "Истина", "Items"],
+    [
+      "основной реквизит ПВХ",
+      "ПланВидовХарактеристикОбъект.ВидыСубконто",
+      "Истина",
+      "Items",
+    ],
+    ["основной реквизит документа", "ДокументОбъект.Заказ", "Истина", undefined],
+    ["неосновной реквизит справочника", "СправочникОбъект.Товары", "Ложь", undefined],
+    ["составной тип со справочником", ["Строка", "СправочникОбъект.Товары"], "Истина", "Items"],
+    [
+      "составной объектный тип со справочником",
+      ["ДокументОбъект.Заказ", "СправочникОбъект.Товары"],
+      "Истина",
+      "Items",
+    ],
+  ] as const)("восстанавливает UseForFoldersAndItems: %s", (_case, type, mainAttribute, expected) => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: {
+          Объект: { Тип: type, ОсновнойРеквизит: mainAttribute },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    if (expected === undefined) expect(result.formXML).not.toHaveProperty("UseForFoldersAndItems")
+    else expect(result.formXML).toHaveProperty("UseForFoldersAndItems", expected)
+  })
+
+  it("не создаёт UseForFoldersAndItems у формы без реквизитов", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML).not.toHaveProperty("UseForFoldersAndItems")
+  })
+
+  it("находит подходящий основной реквизит среди реквизитов разных типов", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: {
+          Документ: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+          Объект: { Тип: "СправочникОбъект.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.formXML).toHaveProperty("UseForFoldersAndItems", "Items")
+  })
+
+  it("сохраняет явное Folders независимо от неявного Items", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        ИспользованиеДляГруппИЭлементов: "Группы",
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.Товары", ОсновнойРеквизит: "Истина" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    expect(result.formXML).toHaveProperty("UseForFoldersAndItems", "Folders")
+  })
+
+  it("восстанавливает XML-defaults формы документа только по основному реквизиту", () => {
+    const implicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ДокументОбъект.Заказ"),
+      name: "ФормаДокумента",
+    })
+    expect(implicit.formXML).toMatchObject({
+      AutoTime: "CurrentOrLast",
+      UsePostingMode: "Auto",
+      RepostOnWrite: true,
+    })
+
+    const explicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ДокументОбъект.Заказ", {
+        АвтоВремя: "Последним",
+        РежимПроведения: "Неоперативный",
+        ПерепроводитьПриЗаписи: "Ложь",
+      }),
+      name: "ФормаДокумента",
+    })
+    expect(explicit.formXML).toMatchObject({
+      AutoTime: "Last",
+      UsePostingMode: "Regular",
+      RepostOnWrite: false,
+    })
+
+    const other = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("СправочникОбъект.Товары"),
+      name: "ФормаСправочника",
+    })
+    expect(other.formXML).not.toHaveProperty("AutoTime")
+    expect(other.formXML).not.toHaveProperty("UsePostingMode")
+    expect(other.formXML).not.toHaveProperty("RepostOnWrite")
+  })
+
+  it("восстанавливает XML-defaults формы отчёта и сохраняет явные значения", () => {
+    const implicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ОтчетОбъект.Продажи"),
+      name: "ФормаОтчета",
+    })
+    expect(implicit.formXML).toMatchObject({
+      ReportFormType: "Main",
+      AutoShowState: "Auto",
+      ReportResultViewMode: "Auto",
+      ViewModeApplicationOnSetReportResult: "Auto",
+    })
+
+    const explicit = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: formWithMainAttribute("ОтчетОбъект.Продажи", {
+        ТипФормыОтчета: "Настройка",
+        АвтоОтображениеСостояния: "НеОтображать",
+        РежимОтображенияРезультатаОтчета: "Обычный",
+      }),
+      name: "ФормаНастроек",
+    })
+    expect(explicit.formXML).toMatchObject({
+      ReportFormType: "Settings",
+      AutoShowState: "DontShow",
+      ReportResultViewMode: "Default",
+    })
+  })
+
   it("формирует описание и содержимое формы прямо из YAML", () => {
     const yamlPath = fileURLToPath(new URL("__fixtures__/sync/yaml/Формы/ФормаЭлемента/Форма.yaml", import.meta.url))
     const yaml = importFromYAML<ClientApplicationFormYAML>(fs.readFileSync(yamlPath, "utf8"))
@@ -95,42 +245,160 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(result.formXML.Attributes).toEqual({})
   })
 
-  it("добавляет канонические служебные узлы таблицы без reference XML", () => {
-    const dynamicList = convertClientApplicationFormFromYAMLToXML({
+  it("добавляет служебные узлы по конечному источнику таблицы без reference XML", () => {
+    const convert = (requisites: ClientApplicationFormYAML["Реквизиты"], dataPath?: string) =>
+      firstTable(
+        convertClientApplicationFormFromYAMLToXML({
+          context: mockContextToXML(),
+          yaml: {
+            Реквизиты: requisites,
+            Элементы: {
+              Таблица: {
+                Вид: "ТаблицаФормы",
+                ...(dataPath === undefined ? {} : { ПутьКДанным: dataPath }),
+              },
+            },
+          } as ClientApplicationFormYAML,
+          name: "Форма",
+        }).formXML
+      )
+    const period = {
+      "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
+      "v8:startDate": "0001-01-01T00:00:00",
+      "v8:endDate": "0001-01-01T00:00:00",
+    }
+
+    const dynamicList = convert({ Список: { Тип: "ДинамическийСписок" } }, "Список")
+    expect(dynamicList.Period).toEqual(period)
+    expect(dynamicList.TopLevelParent).toEqual({ "_xsi:nil": "true" })
+    expect(dynamicList.RowFilter).toBeUndefined()
+
+    const nestedDynamicList = convert({ Список: { Тип: "ДинамическийСписок" } }, "Список.Filter")
+    expect(nestedDynamicList.Period).toBeUndefined()
+    expect(nestedDynamicList.TopLevelParent).toBeUndefined()
+    expect(nestedDynamicList.RowFilter).toBeUndefined()
+
+    const valueTable = convert({ Таблица: { Тип: "ТаблицаЗначений" } }, "Таблица")
+    expect(valueTable.Period).toBeUndefined()
+    expect(valueTable.TopLevelParent).toBeUndefined()
+    expect(valueTable.RowFilter).toEqual({ "_xsi:nil": "true" })
+
+    const valueTree = convert({ Дерево: { Тип: "ДеревоЗначений" } }, "Дерево")
+    expect(valueTree.Period).toBeUndefined()
+    expect(valueTree.TopLevelParent).toBeUndefined()
+    expect(valueTree.RowFilter).toBeUndefined()
+
+    for (const [name, type] of [
+      ["СписокЗначений", "СписокЗначений"],
+      ["Диаграмма", "ДиаграммаГанта"],
+    ] as const) {
+      const table = convert({ [name]: { Тип: type } }, name)
+      expect(table.Period).toBeUndefined()
+      expect(table.TopLevelParent).toBeUndefined()
+      expect(table.RowFilter).toBeUndefined()
+    }
+
+    const registerRecordSet = convert(
+      { НаборЗаписей: { Тип: "РегистрСведенийНаборЗаписей.Настройки" } },
+      "НаборЗаписей"
+    )
+    expect(registerRecordSet.Period).toBeUndefined()
+    expect(registerRecordSet.TopLevelParent).toBeUndefined()
+    expect(registerRecordSet.RowFilter).toEqual({ "_xsi:nil": "true" })
+
+    const scalar = convert({ Значение: { Тип: "Строка" } }, "Значение")
+    expect(scalar.Period).toBeUndefined()
+    expect(scalar.TopLevelParent).toBeUndefined()
+    expect(scalar.RowFilter).toBeUndefined()
+
+    const settingsComposer = convert(
+      { Компоновщик: { Тип: "КомпоновщикНастроекКомпоновкиДанных" } },
+      "Компоновщик.Settings.Filter"
+    )
+    expect(settingsComposer.Period).toBeUndefined()
+    expect(settingsComposer.TopLevelParent).toBeUndefined()
+    expect(settingsComposer.RowFilter).toBeUndefined()
+
+    const tabularSection = firstTable(
+      convertClientApplicationFormFromYAMLToXML({
+        context: contextWithLayeredDocumentOwner(),
+        yaml: {
+          Реквизиты: { Объект: { Тип: "ДокументОбъект.Заказ" } },
+          Элементы: { Товары: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.Товары" } },
+        } as ClientApplicationFormYAML,
+        name: "ФормаДокумента",
+      }).formXML
+    )
+    expect(tabularSection.Period).toBeUndefined()
+    expect(tabularSection.TopLevelParent).toBeUndefined()
+    expect(tabularSection.RowFilter).toEqual({ "_xsi:nil": "true" })
+
+    const missing = convert({}, undefined)
+    expect(missing.Period).toBeUndefined()
+    expect(missing.TopLevelParent).toBeUndefined()
+    expect(missing.RowFilter).toEqual({ "_xsi:nil": "true" })
+
+    for (const unresolvedPath of ["", "НеизвестныйИсточник"]) {
+      const unresolved = convert({}, unresolvedPath)
+      expect(unresolved.Period).toBeUndefined()
+      expect(unresolved.TopLevelParent).toBeUndefined()
+      expect(unresolved.RowFilter).toEqual({ "_xsi:nil": "true" })
+    }
+  })
+
+  it("разрешает конечный тип вложенной таблицы после CurrentData", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
       context: mockContextToXML(),
       yaml: {
-        Реквизиты: { Список: { Тип: "ДинамическийСписок" } },
-        Элементы: { Список: { Вид: "ТаблицаФормы", ПутьКДанным: "Список" } },
+        Реквизиты: {
+          Строки: {
+            Тип: "ТаблицаЗначений",
+            Колонки: {
+              ВложеннаяТаблица: { Тип: "ТаблицаЗначений" },
+              ВложенноеДерево: { Тип: "ДеревоЗначений" },
+            },
+          },
+        },
+        Элементы: {
+          Строки: { Вид: "ТаблицаФормы", ПутьКДанным: "Строки" },
+          ВложеннаяТаблица: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Items.Строки.CurrentData.ВложеннаяТаблица",
+          },
+          ВложенноеДерево: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Items.Строки.CurrentData.ВложенноеДерево",
+          },
+        },
       } as ClientApplicationFormYAML,
-      name: "ФормаСписка",
-    })
-    const ordinary = convertClientApplicationFormFromYAMLToXML({
-      context: mockContextToXML(),
-      yaml: {
-        Реквизиты: { Объект: { Тип: "СправочникОбъект.БонусныеПрограммыЛояльности" } },
-        Элементы: { ЦеновыеГруппы: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.ЦеновыеГруппы" } },
-      } as ClientApplicationFormYAML,
-      name: "ФормаЭлемента",
+      name: "Форма",
     })
 
-    expect(firstTable(dynamicList.formXML)).toMatchObject({
-      Period: {
-        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
-        "v8:startDate": "0001-01-01T00:00:00",
-        "v8:endDate": "0001-01-01T00:00:00",
-      },
-      TopLevelParent: { "_xsi:nil": "true" },
-      RowFilter: { "_xsi:nil": "true" },
+    expect(tableByName(result.formXML, "ВложеннаяТаблица").RowFilter).toEqual({ "_xsi:nil": "true" })
+    expect(tableByName(result.formXML, "ВложенноеДерево").RowFilter).toBeUndefined()
+  })
+
+  it("не создаёт RowFilter для коллекций SettingsComposer общего отчёта", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {
+        Реквизиты: { Отчет: { Тип: "ОтчетОбъект" } },
+        Элементы: {
+          Настройки: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Отчет.SettingsComposer.Settings",
+          },
+          ПараметрыДанных: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Items.Настройки.CurrentData.ItemDataParameters",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаВариантаОтчета",
     })
-    expect(firstTable(ordinary.formXML)).toMatchObject({
-      Period: {
-        "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
-        "v8:startDate": "0001-01-01T00:00:00",
-        "v8:endDate": "0001-01-01T00:00:00",
-      },
-      TopLevelParent: { "_xsi:nil": "true" },
-      RowFilter: { "_xsi:nil": "true" },
-    })
+
+    expect(tableByName(result.formXML, "Настройки").RowFilter).toBeUndefined()
+    expect(tableByName(result.formXML, "ПараметрыДанных").RowFilter).toBeUndefined()
   })
 
   it("восстанавливает свойства таблицы только для прямого динамического списка", () => {
@@ -210,7 +478,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
   })
 
-  it("сохраняет служебные узлы таблицы из reference XML", () => {
+  it("вычисляет служебные узлы таблицы независимо от reference XML", () => {
     const period = {
       "v8:variant": { "#text": "Custom", "_xsi:type": "v8:StandardPeriodVariant" },
       "v8:startDate": "0001-01-01T00:00:00",
@@ -241,8 +509,8 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(firstTable(result.formXML)).toMatchObject({
       Period: period,
       TopLevelParent: { "_xsi:nil": "true" },
-      RowFilter: { "_xsi:nil": "true" },
     })
+    expect(firstTable(result.formXML).RowFilter).toBeUndefined()
   })
 
   it("сохраняет идентификаторы команд из reference XML по имени", () => {
@@ -373,6 +641,12 @@ function firstTable(form: ClientApplicationFormXML): Record<string, unknown> {
   return first?.Table ?? {}
 }
 
+function tableByName(form: ClientApplicationFormXML, name: string): Record<string, unknown> {
+  const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
+  const items = Array.isArray(childItems) ? childItems : childItems === undefined ? [] : [childItems]
+  return items.find((item) => item.Table?._name === name)?.Table ?? {}
+}
+
 function firstInputField(form: ClientApplicationFormXML): Record<string, unknown> {
   const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
   const first = Array.isArray(childItems) ? childItems[0] : childItems
@@ -403,6 +677,40 @@ function contextWithLayeredCatalogOwner() {
     exportToYAML: {
       toTyped: false,
       ownerMetadataCache: createLayeredOwnerMetadataCacheForTests({ base: [{ ...initialFacts, fieldIndex }] }),
+    },
+  }
+}
+
+function contextWithLayeredDocumentOwner() {
+  const context = mockContextToXML()
+  const ref = { kind: "Документ", name: "Заказ" }
+  const filePath = "/project/cf/Документ/Заказ/Свойства.yaml"
+  const initialFacts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: {
+      fields: new Map(),
+      standardAttributeAliases: new Map(),
+      diagnostics: [],
+    },
+    model: {
+      itemType: "MetadataDocument",
+      tabularSections: [{ itemType: "MetadataTabularSection", name: "Товары", attributes: [] }],
+    },
+  })
+  const ownerMetadataCache = createLayeredOwnerMetadataCacheForTests({
+    base: [
+      {
+        ...initialFacts,
+        fieldIndex: buildObjectFieldIndex({ ref, facts: initialFacts, rule: MetadataDocumentRules }),
+      },
+    ],
+  })
+  return {
+    ...context,
+    importFromYAML: {
+      ...context.importFromYAML,
+      ownerMetadataCache,
     },
   }
 }

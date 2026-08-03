@@ -27,16 +27,16 @@ const xdtoYAML = {
 describe("MetadataWebServiceOperations YAML → XML", () => {
   it("imports XDTO type name objects", () => {
     const xml = exportYAML(xdtoYAML)
-    expect(xml).toContain("d6p1:CustomerResponse")
-    expect(xml).toContain("d6p1:Customer")
+    expect(xml).toContain(">d6p1:CustomerResponse</XDTOReturningValueType>")
+    expect(xml).toContain(">d8p1:Customer</XDTOValueType>")
   })
 
   it("exports XDTO type namespace declarations from expanded names", () => {
     const result = roundTrip()
     expect(result).toContain(
-      '<XDTOReturningValueType xmlns:d4p1="http://example.org/schema">d4p1:CustomerResponse</XDTOReturningValueType>'
+      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
     )
-    expect(result).toContain('<XDTOValueType xmlns:d4p1="http://example.org/schema">d4p1:Customer</XDTOValueType>')
+    expect(result).toContain('<XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>')
   })
 
   it("exports changed XDTO type names without reference namespace declarations", () => {
@@ -77,20 +77,21 @@ describe("MetadataWebServiceOperations YAML → XML", () => {
     expect(result).toContain(
       '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
     )
-    expect(result).toContain('<XDTOValueType xmlns:d6p1="http://example.org/schema">d6p1:Customer</XDTOValueType>')
+    expect(result).toContain('<XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>')
   })
 
   it("does not preserve non-xmlns reference attributes on matching XDTO type names", () => {
     const referenceXML = referenceWithPrefix("d4p1", ' custom="drop-me"')
     const result = exportYAML(xdtoYAML, referenceXML)
-    expect(result).toContain('xmlns:d4p1="http://example.org/schema"')
+    expect(result).toContain('xmlns:d6p1="http://example.org/schema"')
+    expect(result).toContain('xmlns:d8p1="http://example.org/schema"')
     expect(result).not.toContain("custom=")
   })
 
-  it("preserves reference namespace prefix on matching XDTO type names", () => {
+  it("uses canonical namespace prefixes instead of matching reference prefixes", () => {
     const result = exportYAML(xdtoYAML, referenceWithPrefix("d8p1"))
     expect(result).toContain(
-      '<XDTOReturningValueType xmlns:d8p1="http://example.org/schema">d8p1:CustomerResponse</XDTOReturningValueType>'
+      '<XDTOReturningValueType xmlns:d6p1="http://example.org/schema">d6p1:CustomerResponse</XDTOReturningValueType>'
     )
     expect(result).toContain('<XDTOValueType xmlns:d8p1="http://example.org/schema">d8p1:Customer</XDTOValueType>')
   })

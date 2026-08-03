@@ -446,7 +446,12 @@ function projectStateObjectField(
 function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
   const additionalColumnsByTablePath = new Map()
+  const tableDataPathByElementName = new Map<string, string>()
   for (const entry of entries) {
+    if (entry.kind === "tableDataPath") {
+      if (!tableDataPathByElementName.has(entry.name)) tableDataPathByElementName.set(entry.name, entry.dataPath)
+      continue
+    }
     if (entry.kind === "root") {
       roots.set(entry.name, {
         kind: entry.source.kind,
@@ -471,6 +476,7 @@ function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDat
   return {
     roots,
     additionalColumnsByTablePath,
+    tableDataPathByElementName,
     duplicateDiagnostics: [],
     getRoot(name) {
       return roots.get(name)
@@ -529,6 +535,7 @@ function enqueueFormOwners(
   forms: readonly ProjectStateFormEntry[],
 ): void {
   for (const form of forms) {
+    if (form.kind === "tableDataPath") continue
     enqueueTypeOwners(pending, componentPath, form.source.typeInfo.nextTypes)
     if ("table" in form.source && (form.source.table?.kind === "RegisterRecordSet" || form.source.table?.kind === "TabularSection")) {
       enqueueTypeOwners(pending, componentPath, [form.source.table.owner])

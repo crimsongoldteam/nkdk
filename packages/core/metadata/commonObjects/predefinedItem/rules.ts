@@ -36,11 +36,13 @@ export const PredefinedItemRules = {
       xml: "Code",
       yaml: "Код",
       required: true,
+      defaultValueXMLRaw: "",
     }),
     description: stringRule({
       xml: "Description",
       yaml: "Наименование",
       required: true,
+      defaultValueXMLRaw: "",
     }),
     isFolder: booleanRule({
       xml: "IsFolder",

@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { resolvePropertyItemRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { MetadataResourceDeclaration } from "../resourceTopology/types"
 
@@ -86,7 +86,7 @@ function findProjectRule(
     }
   }
   for (const propertyRule of Object.values(rule.properties)) {
-    const itemRule = getTypeRule(propertyRule.type, "collectionItemRule")?.itemRule
+    const itemRule = resolvePropertyItemRule(propertyRule)
     if (itemRule === undefined) continue
     const result = findProjectRule(itemRule, itemType, seen)
     if (result !== undefined) return result

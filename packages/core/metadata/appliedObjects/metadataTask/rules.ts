@@ -1,6 +1,9 @@
 import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
-import { metadataAttributesRule } from "../metadataDataProcessor/builders"
-import { metadataTaskAddressingAttributesRule, metadataTaskTabularSectionsRule } from "./builders"
+import {
+  metadataTaskAddressingAttributesRule,
+  metadataTaskAttributesRule,
+  metadataTaskTabularSectionsRule,
+} from "./builders"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -25,7 +28,7 @@ const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataTaskStandardAttributeNames: Record<string, string> = {
   Executed: "Выполнена",
-  Description: "Описание",
+  Description: "Наименование",
   RoutePoint: "ТочкаМаршрута",
   BusinessProcess: "БизнесПроцесс",
   Ref: "Ссылка",
@@ -217,7 +220,7 @@ export const MetadataTaskRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",
@@ -396,7 +399,7 @@ export const MetadataTaskRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: metadataAttributesRule({
+    attributes: metadataTaskAttributesRule({
       yaml: "Реквизиты",
       xml: "Attribute",
       xmlParents: childObjects,

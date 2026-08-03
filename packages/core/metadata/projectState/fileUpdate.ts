@@ -87,6 +87,12 @@ export type ProjectStateFormEntry =
       readonly name: string
       readonly source: FormDataPathColumnSource
     }
+  | {
+      readonly kind: "tableDataPath"
+      readonly owner: OwnerTypeRef
+      readonly name: string
+      readonly dataPath: string
+    }
 
 export interface ProjectStateFormSource {
   readonly kind: FormDataPathSource["kind"]
@@ -288,6 +294,9 @@ function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"])
     for (const column of columns.values()) {
       entries.push({ kind: "additionalColumn", owner, tablePath, name: column.name, source: column })
     }
+  }
+  for (const [name, dataPath] of index.tableDataPathByElementName) {
+    entries.push({ kind: "tableDataPath", owner, name, dataPath })
   }
   return entries
 }

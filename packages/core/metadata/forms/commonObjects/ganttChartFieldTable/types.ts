@@ -76,30 +76,12 @@ registerTypeRule(
     elementRule: TableRules,
     nameStyle,
     toXML: ({ context }) => ({ name: getGeneratedName(context, undefined) }),
-    transformOutput: ({ xml, yaml, referenceXML }) => {
-      const result: Record<string, unknown> = { ...xml }
-      const yamlRecord = asRecord(yaml)
-      for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
-        const rule = TableRules.properties[propertyKey]
-        if (rule?.yaml === undefined || rule.xml === undefined) continue
-        if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
-        if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
-        delete result[rule.xml]
-      }
-      return result
-    },
   })
 )
 registerTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
   type: "GanttChartFieldTable"
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
 }
 
 export type GanttChartFieldTableRuleParams = Omit<GanttChartFieldTableWidePropertyRule, "type">

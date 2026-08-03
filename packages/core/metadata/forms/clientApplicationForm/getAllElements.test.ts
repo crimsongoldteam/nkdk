@@ -41,6 +41,7 @@ describe("getAllElements", () => {
     const button: Button = {
       name: "Кнопка1",
       itemType: "Button",
+      type: "UsualButton",
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",
@@ -70,6 +71,7 @@ describe("getAllElements", () => {
     const button: Button = {
       name: "Кнопка1",
       itemType: "Button",
+      type: "UsualButton",
     }
     const buttonGroup: ButtonGroup = {
       name: "ГруппаКнопок1",

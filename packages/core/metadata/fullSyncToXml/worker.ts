@@ -30,6 +30,7 @@ import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource 
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"
+import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -295,6 +296,12 @@ function itemTypeByYamlDir(
 function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
   return {
     ...state.context,
+    importFromYAML: {
+      ...state.context.importFromYAML,
+      ownerMetadataCache: state.ownerMetadataCache,
+      resolveDataPath: ({ value, index, ownerCache }) =>
+        resolveDataPathCore({ value, nameMode: "yaml", index, ownerCache }),
+    },
     exportToYAML: {
       toTyped: state.context.exportToYAML?.toTyped ?? false,
       ...state.context.exportToYAML,

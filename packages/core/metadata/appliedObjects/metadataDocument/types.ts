@@ -1,9 +1,11 @@
 import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import {
+  MetadataDocumentAttributeRules,
+  MetadataDocumentTabularSectionRules,
+} from "./childRules"
 import { MetadataCommands, MetadataCommandsXML, MetadataCommandsYAML } from "../metadataCommand/types"
 import {
   AdditionalIndexes,
@@ -199,39 +201,11 @@ export interface MetadataDocumentYAML {
   Характеристики?: CharacteristicsDescriptionsYAML
 }
 
-export interface MetadataDocumentAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataDocumentAttributes"
-}
-
-export type MetadataDocumentAttributesRuleParams = Omit<MetadataDocumentAttributesWidePropertyRule, "type">
-
-export function metadataDocumentAttributesRule<const Params extends MetadataDocumentAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataDocumentAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataDocumentAttributes" } & Params> {
-  return defineWidePropertyRule("MetadataDocumentAttributes", {
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    }),
-  })
-}
-export interface MetadataDocumentTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataDocumentTabularSections"
-}
-
-export type MetadataDocumentTabularSectionsRuleParams = Omit<MetadataDocumentTabularSectionsWidePropertyRule, "type">
-
-export function metadataDocumentTabularSectionsRule<const Params extends MetadataDocumentTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataDocumentTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataDocumentTabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataDocumentTabularSections", {
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataDocumentAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataDocumentAttributes",
+  MetadataDocumentAttributeRules
+)
+export const metadataDocumentTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataDocumentTabularSections",
+  MetadataDocumentTabularSectionRules
+)

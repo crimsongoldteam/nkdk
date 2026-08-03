@@ -17,6 +17,7 @@ import { importFormElementPropertiesFromXMLToYAML } from "../../elements/orchest
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import type { TableChildItem } from "./types"
+import { copyYAMLScalarTags } from "../../../../yaml/scalarTags"
 
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
@@ -70,10 +71,13 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
         yamlPath: [...traversal.yamlPath, itemName],
       },
     })
-    result[itemName] = {
+    const treeProperties = moveButtonTypeToTreeYAML({ itemType, yaml: properties })
+    const treeItem = {
       Вид: CollectableElementTypeToYAML[itemType],
-      ...moveButtonTypeToTreeYAML({ itemType, yaml: properties }),
+      ...treeProperties,
     }
+    copyYAMLScalarTags(treeProperties, treeItem)
+    result[itemName] = treeItem
   }
 
   return Object.keys(result).length === 0 ? undefined : result

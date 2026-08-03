@@ -2,9 +2,9 @@ import { additionalIndexRule, metadataCommandsRule } from "../metadataAccounting
 import {
   accountingFlagsRule,
   extDimensionAccountingFlagsRule,
+  metadataChartOfAccountsAttributesRule,
   metadataChartOfAccountsTabularSectionsRule,
 } from "./builders"
-import { metadataAttributesRule } from "../metadataDataProcessor/builders"
 import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
@@ -215,7 +215,7 @@ export const MetadataChartOfAccountsRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: properties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     standardTabularSections: standardTabularSectionDescriptionsRule({
       yaml: "СтандартныеТабличныеЧасти",
@@ -397,7 +397,7 @@ export const MetadataChartOfAccountsRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    attributes: metadataChartOfAccountsAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
     tabularSections: metadataChartOfAccountsTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",

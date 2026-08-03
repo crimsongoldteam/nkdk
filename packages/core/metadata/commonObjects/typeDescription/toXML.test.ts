@@ -47,6 +47,24 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual(`<TypeDescription>\n\t<v8:Type>${xmlType}</v8:Type>\n</TypeDescription>`)
   })
 
+  it.each([
+    "ChartOfAccountsObject",
+    "InformationRegisterRecordSet",
+    "AccountingRegisterRecordSet",
+    "AccumulationRegisterRecordSet",
+    "CalculationRegisterRecordSet",
+    "SequenceRecordSet",
+    "RecalculationRecordSet",
+    "ConstantValueManager",
+  ] as const)("uses TypeSet only for base %s", (type) => {
+    expect(exportTypeDescriptionToXML(mockContext, mockRule, { type: [type] })).toEqual({
+      "v8:TypeSet": `cfg:${type}`,
+    })
+    expect(exportTypeDescriptionToXML(mockContext, mockRule, { type: [`${type}.Объект`] })).toEqual({
+      "v8:Type": `cfg:${type}.Объект`,
+    })
+  })
+
   it("exports local type namespace when rule requests it", () => {
     const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRuleWithLocalNamespace, {
       type: ["SettingsComposer"],

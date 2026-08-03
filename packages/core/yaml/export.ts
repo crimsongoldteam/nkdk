@@ -1,5 +1,6 @@
-import { JSON_SCHEMA, dump } from "js-yaml"
+import { dump } from "js-yaml"
 import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString"
+import { NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 
@@ -37,16 +38,28 @@ function prepareForDump(value: unknown, explicitStrings: Map<string, string>): u
     return explicitStringMarker(String(unwrapExplicitYAMLString(value)), explicitStrings)
   }
   if (typeof value === "string" && shouldExportAsExplicitString(value)) return explicitStringMarker(value, explicitStrings)
-  if (Array.isArray(value)) return value.map((item) => prepareForDump(item, explicitStrings))
+  if (Array.isArray(value)) {
+    return value.map((item, index) => prepareChildForDump(value, index, item, explicitStrings))
+  }
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value).map(([key, item]) => [
         key,
-        item === undefined ? null : prepareForDump(item, explicitStrings),
+        prepareChildForDump(value, key, item, explicitStrings),
       ])
     )
   }
   return value
+}
+
+function prepareChildForDump(
+  parent: object,
+  key: string | number,
+  value: unknown,
+  explicitStrings: Map<string, string>
+): unknown {
+  const prepared = value === undefined ? null : prepareForDump(value, explicitStrings)
+  return taggedScalarForDump(parent, key, prepared)
 }
 
 function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {
@@ -82,7 +95,7 @@ function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>
 export const exportToYAML = <T>(data: T): string => {
   const explicitStrings = new Map<string, string>()
   const yaml = dump(prepareForDump(data, explicitStrings), {
-    schema: JSON_SCHEMA,
+    schema: NKDK_YAML_SCHEMA,
     indent: 2,
     lineWidth: -1,
     noRefs: true,

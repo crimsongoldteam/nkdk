@@ -178,7 +178,7 @@ export const MetadataDocumentRules = {
     characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
       xmlParents: documentProperties,
-      defaultValueXMLRaw: {},
+      defaultValueXMLRaw: "",
     }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",

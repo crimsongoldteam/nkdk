@@ -280,6 +280,8 @@ export function createTypedProjectStateReader(snapshot: ProjectStateSnapshotView
           ...(value.tableHasColumns === 0 ? {} : { tableHasColumns: value.tableHasColumns === 1 }) }
       }),
       forms: ([...fileRows("forms", fileId), ...fileRows("formColumns", fileId)]).map((value) => {
+        if (value.kind === 3) return { kind: "tableDataPath" as const, owner: ownerType(value.ownerTypeId),
+          name: string(value.nameId), dataPath: string(value.tablePathId) }
         const decodedType = typeInfo(value.typeInfoId)
         if (value.kind === 2) return { kind: "additionalColumn" as const, owner: ownerType(value.ownerTypeId),
           tablePath: string(value.tablePathId), name: string(value.nameId),

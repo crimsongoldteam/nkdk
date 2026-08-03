@@ -1,6 +1,7 @@
-import { JSON_SCHEMA, YAMLException, load } from "js-yaml"
+import { YAMLException, load } from "js-yaml"
 import { markDoubleQuotedScalar, type YAMLStyleKey } from "./explicitString"
 import { buildYamlLocationIndex, type YamlLocationIndex } from "./locationIndex"
+import { isTaggedYAMLScalar, markYAMLScalarTag, NKDK_YAML_SCHEMA } from "./scalarTags"
 
 export interface JsYamlSyntaxError {
   message: string
@@ -32,7 +33,7 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
   }
 
   try {
-    const data = load(text, { schema: JSON_SCHEMA })
+    const data = load(text, { schema: NKDK_YAML_SCHEMA })
     return {
       text,
       data: prepareJsYamlData(data, text, locations),
@@ -59,7 +60,7 @@ export function parseDataWithJsYaml(text: string): JsParsedYamlData {
 
   try {
     const locations = buildYamlLocationIndex(text)
-    const data = load(text, { schema: JSON_SCHEMA })
+    const data = load(text, { schema: NKDK_YAML_SCHEMA })
     return {
       data: prepareJsYamlData(data, text, locations),
       syntaxErrors: [],
@@ -85,6 +86,11 @@ function visitYamlData(
   parent?: object,
   key?: YAMLStyleKey
 ): unknown {
+  if (isTaggedYAMLScalar(value)) {
+    if (parent !== undefined && key !== undefined) markYAMLScalarTag(parent, key, value.tag)
+    return value.value
+  }
+
   if (value === null || isSourceEmptyValue(value, path, lines, locations)) return undefined
 
   if (

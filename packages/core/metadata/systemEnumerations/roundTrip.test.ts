@@ -38,4 +38,25 @@ describe("SystemEnumeration XML → YAML → XML", () => {
     expect(imported.yaml).toEqual({ Вид: "Переключатель" })
     expect(exported.xml).toEqual({ RadioButtonType: "RadioButtons" })
   })
+
+  it("использует канонический XML-псевдоним без configuration index", () => {
+    const rule = {
+      itemType: "SystemEnumerationCanonicalAliasProbe",
+      properties: {
+        mode: {
+          type: "SystemEnumeration",
+          typeSE: "RadioButtonType",
+          xml: "RadioButtonType",
+          yaml: "Вид",
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    const exported = testPropertyFromYAMLToXML({
+      rule,
+      yaml: { Вид: "Переключатель" },
+    })
+
+    expect(exported.xml).toEqual({ RadioButtonType: "RadioButton" })
+  })
 })

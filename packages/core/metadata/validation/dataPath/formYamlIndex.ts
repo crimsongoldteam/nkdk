@@ -14,11 +14,13 @@ interface PendingFormAttribute {
 
 export function createFormDataPathIndexCollector(_params: { filePath: string }): {
   acceptProperty(fact: LocalYamlFact): void
+  acceptTableDataPath(params: { name: string; dataPath: string }): void
   completeValue(fact: LocalYamlFact): void
   finish(): FormDataPathIndex
 } {
   const attributes = new Map<string, PendingFormAttribute>()
   const additionalColumnsByTablePath = new Map<string, Map<string, FormDataPathColumnSource>>()
+  const tableDataPathByElementName = new Map<string, string>()
 
   const pendingAttribute = (name: string): PendingFormAttribute => {
     const existing = attributes.get(name)
@@ -29,6 +31,20 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
   }
 
   const acceptProperty = (fact: LocalYamlFact): void => {
+    const propertyRulePath = fact.rulePath.at(-1)
+    const ownerRulePath = fact.rulePath.at(-2)
+    const elementName = fact.yamlPath.at(-2)
+    if (
+      propertyRulePath?.propertyKey === "dataPath" &&
+      ownerRulePath?.nestedItemType === "Table" &&
+      typeof elementName === "string" &&
+      typeof fact.value === "string" &&
+      fact.value.trim().length > 0 &&
+      !tableDataPathByElementName.has(elementName)
+    ) {
+      tableDataPathByElementName.set(elementName, fact.value)
+    }
+
     const [root, attributeName, property, nestedName, nestedProperty] = fact.yamlPath
     if (root !== "Реквизиты" || typeof attributeName !== "string" || typeof property !== "string") return
     const attribute = pendingAttribute(attributeName)
@@ -60,6 +76,11 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
 
   return {
     acceptProperty,
+    acceptTableDataPath({ name, dataPath }) {
+      if (dataPath.trim().length > 0 && !tableDataPathByElementName.has(name)) {
+        tableDataPathByElementName.set(name, dataPath)
+      }
+    },
     completeValue: acceptProperty,
     finish() {
       const roots = new Map<string, FormDataPathSource>()
@@ -91,6 +112,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
       return {
         roots,
         additionalColumnsByTablePath,
+        tableDataPathByElementName,
         duplicateDiagnostics,
         getRoot(name) {
           return roots.get(name)
@@ -100,10 +122,13 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
   }
 }
 
-export function createFormDataPathIndexFromYAML(yaml: unknown): FormDataPathIndex {
+export function createFormDataPathIndexFromYAML(
+  yaml: unknown,
+  tableDataPathByElementName: ReadonlyMap<string, string> = new Map()
+): FormDataPathIndex {
   const collector = createFormDataPathIndexCollector({ filePath: "" })
   const attributes = asRecord(asRecord(yaml)?.["Реквизиты"])
-  const rule = { type: "string" } as const
+  const attributePropertyRule = { type: "string" } as const
   for (const [attributeName, rawAttribute] of Object.entries(attributes ?? {})) {
     const attribute = asRecord(rawAttribute)
     for (const property of ["Тип", "ДинамическийСписок", "ДополнительныеКолонки"] as const) {
@@ -111,7 +136,7 @@ export function createFormDataPathIndexFromYAML(yaml: unknown): FormDataPathInde
       collector.acceptProperty({
         yamlPath: ["Реквизиты", attributeName, property],
         rulePath: [],
-        rule,
+        rule: attributePropertyRule,
         value: attribute?.[property],
       })
     }
@@ -122,10 +147,13 @@ export function createFormDataPathIndexFromYAML(yaml: unknown): FormDataPathInde
       collector.acceptProperty({
         yamlPath: ["Реквизиты", attributeName, "Колонки", columnName, "Тип"],
         rulePath: [],
-        rule,
+        rule: attributePropertyRule,
         value: column?.["Тип"],
       })
     }
+  }
+  for (const [name, dataPath] of tableDataPathByElementName) {
+    collector.acceptTableDataPath({ name, dataPath })
   }
   return collector.finish()
 }

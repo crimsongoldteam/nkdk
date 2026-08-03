@@ -59,12 +59,34 @@ describe("exportCommandInterfaceToXML", () => {
   })
 
   it("export indexedItemOrderSwap", () => {
-    const expectedResult = readXMLFileAsString("indexedItemOrderSwap.xml", fixturesDir).trimEnd()
     const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, indexedItemOrderSwap)
-
     const result = xmlExport({ CommandInterface: xmlData }, false)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toMatchInlineSnapshot(`
+      "<CommandInterface>
+      \t<NavigationPanel>
+      \t\t<Item>
+      \t\t\t<Command>DataProcessor.ЗагрузкаКурсовВалютЕЦБ.Command.ЗагрузитьКурсыВалютЕЦБ</Command>
+      \t\t\t<Type>Added</Type>
+      \t\t\t<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+      \t\t\t<Index>1</Index>
+      \t\t\t<DefaultVisible>false</DefaultVisible>
+      \t\t\t<Visible>
+      \t\t\t\t<xr:Common>false</xr:Common>
+      \t\t\t</Visible>
+      \t\t</Item>
+      \t\t<Item>
+      \t\t\t<Command>InformationRegister.ОтносительныеКурсыВалют.Command.ЗагрузитьКурсыИзТаблицы</Command>
+      \t\t\t<Type>Added</Type>
+      \t\t\t<CommandGroup>FormNavigationPanelGoTo</CommandGroup>
+      \t\t\t<DefaultVisible>false</DefaultVisible>
+      \t\t\t<Visible>
+      \t\t\t\t<xr:Common>false</xr:Common>
+      \t\t\t</Visible>
+      \t\t</Item>
+      \t</NavigationPanel>
+      </CommandInterface>"
+    `)
   })
 
   it("export commandGroupReferenceOrder with reference order", () => {
@@ -149,12 +171,23 @@ describe("exportCommandInterfaceToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("export commandGroupReferenceOrder without reference uses YAML object order", () => {
+  it("export commandGroupReferenceOrder without reference uses canonical XML order", () => {
+    const sourceItem = commandGroupReferenceOrder.CommandBar[1]
     const data = {
       ...commandGroupReferenceOrder,
-      CommandBar: commandGroupReferenceOrder.CommandBar.map((item, index) =>
-        index === 1 ? { ...item, attribute: "Объект.Ref" } : item
-      ),
+      CommandBar: [
+        commandGroupReferenceOrder.CommandBar[0],
+        {
+          visible: sourceItem.visible,
+          defaultVisible: sourceItem.defaultVisible,
+          index: sourceItem.index,
+          commandGroup: sourceItem.commandGroup,
+          attribute: "Объект.Ref",
+          type: sourceItem.type,
+          command: sourceItem.command,
+          itemType: sourceItem.itemType,
+        },
+      ],
     }
     const xmlData = exportCommandInterfaceToXML(mockContext, mockRule, data)
 
@@ -164,13 +197,13 @@ describe("exportCommandInterfaceToXML", () => {
       [
         "\t\t\t<Command>Catalog.ДоговорыКонтрагентов.Command.ДоговорКонтрагентаВводНаОсновании</Command>",
         "\t\t\t<Type>Auto</Type>",
+        "\t\t\t<Attribute>Объект.Ref</Attribute>",
         "\t\t\t<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>",
         "\t\t\t<Index>1</Index>",
         "\t\t\t<DefaultVisible>false</DefaultVisible>",
         "\t\t\t<Visible>",
         "\t\t\t\t<xr:Common>false</xr:Common>",
         "\t\t\t</Visible>",
-        "\t\t\t<Attribute>Объект.Ref</Attribute>",
       ].join("\n")
     )
   })

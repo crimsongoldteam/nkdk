@@ -1,29 +1,36 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataBusinessProcessRules } from "../../appliedObjects/metadataBusinessProcess/rules"
+import { MetadataChartOfAccountsRules } from "../../appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "../../appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataConfigurationRules } from "../../appliedObjects/configuration/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "../../appliedObjects/metadataEnumeration/rules"
 import { MetadataStyleItemRules } from "../../appliedObjects/metadataStyleItem/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
 import { AccumulationRegisterAggregateRules } from "../../commonObjects/accumulationRegisterAggregates/rules"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../../commonObjects/accountingFlag/rules"
 import { MetadataExternalDataSourceCubeResourceRules } from "../../commonObjects/metadataExternalDataSourceCubeResource/rules"
+import { MetadataExternalDataSourceCubeRules } from "../../commonObjects/metadataExternalDataSourceCube/rules"
+import { MetadataExternalDataSourceTableRules } from "../../commonObjects/metadataExternalDataSourceTable/rules"
 import { MetadataIntegrationServiceChannelRules } from "../../commonObjects/metadataIntegrationServiceChannel/rules"
-import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "../../commonObjects/metadataAttribute/rules"
-import { MetadataRegisterAttributeRules } from "../../commonObjects/metadataRegisterAttribute/rules"
+import { MetadataCatalogAttributeRules, MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
+import { MetadataInformationRegisterAttributeRules } from "../../appliedObjects/metadataInformationRegister/childRules"
+import { MetadataAccumulationRegisterAttributeRules } from "../../appliedObjects/metadataAccumulationRegister/childRules"
+import { MetadataAccountingRegisterAttributeRules } from "../../appliedObjects/metadataAccountingRegister/childRules"
+import { MetadataCalculationRegisterAttributeRules } from "../../appliedObjects/metadataCalculationRegister/childRules"
 import { MetadataRegisterDimensionRules } from "../../commonObjects/metadataRegisterDimension/rules"
 import { MetadataRegisterResourceRules } from "../../commonObjects/metadataRegisterResource/rules"
-import {
-  MetadataBusinessProcessTabularSectionRules,
-  MetadataChartOfAccountsTabularSectionRules,
-  MetadataChartOfCalculationTypesTabularSectionRules,
-  MetadataChartOfCharacteristicTypesTabularSectionRules,
-  MetadataDataProcessorTabularSectionRules,
-  MetadataDocumentTabularSectionRules,
-  MetadataExchangePlanTabularSectionRules,
-  MetadataReportTabularSectionRules,
-  MetadataTabularSectionRules,
-  MetadataTaskTabularSectionRules,
-} from "../../commonObjects/metadataTabularSection/rules"
+import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"
+import { MetadataChartOfAccountsTabularSectionRules } from "../../appliedObjects/metadataChartOfAccounts/childRules"
+import { MetadataChartOfCalculationTypesTabularSectionRules } from "../../appliedObjects/metadataChartOfCalculationTypes/childRules"
+import { MetadataChartOfCharacteristicTypesTabularSectionRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/childRules"
+import { MetadataDataProcessorTabularSectionRules } from "../../appliedObjects/metadataDataProcessor/childRules"
+import { MetadataDocumentTabularSectionRules } from "../../appliedObjects/metadataDocument/childRules"
+import { MetadataExchangePlanTabularSectionRules } from "../../appliedObjects/metadataExchangePlan/childRules"
+import { MetadataReportTabularSectionRules } from "../../appliedObjects/metadataReport/childRules"
+import { MetadataTaskTabularSectionRules } from "../../appliedObjects/metadataTask/childRules"
 import { CalculatedFieldOrderExpressionRules } from "../../commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules"
 import { DCSParameterRules } from "../../commonObjects/dataCompositionSystem/dcsParameter/rules"
 import {
@@ -113,8 +120,8 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for catalog lengths and hierarchy level count", () => {
     const expected = {
-      codeLength: 10,
-      descriptionLength: 30,
+      codeLength: 9,
+      descriptionLength: 25,
       levelCount: 2,
     } as const
 
@@ -145,7 +152,25 @@ describe("implicitValueYAML contract", () => {
   })
 
   it("uses configurator defaults as implicit YAML values for style items", () => {
-    expect(MetadataStyleItemRules.properties.type.implicitValueYAML).toBe("Font")
+    expect(MetadataStyleItemRules.properties.type).toMatchObject({
+      implicitValueYAML: "Font",
+      defaultValueXML: "Font",
+    })
+  })
+
+  it.each([
+    ["business process", MetadataBusinessProcessRules],
+    ["catalog", MetadataCatalogRules],
+    ["chart of accounts", MetadataChartOfAccountsRules],
+    ["chart of calculation types", MetadataChartOfCalculationTypesRules],
+    ["chart of characteristic types", MetadataChartOfCharacteristicTypesRules],
+    ["document", MetadataDocumentRules],
+    ["enumeration", MetadataEnumerationRules],
+    ["task", MetadataTaskRules],
+    ["external data source cube", MetadataExternalDataSourceCubeRules],
+    ["external data source table", MetadataExternalDataSourceTableRules],
+  ])("uses an empty XML element for required %s Characteristics", (_name, rule) => {
+    expect(rule.properties.characteristics.defaultValueXMLRaw).toBe("")
   })
 
   it("documents implicit YAML decisions for page form elements", () => {
@@ -457,7 +482,10 @@ describe("implicitValueYAML contract", () => {
       ["AccountingFlagRules", AccountingFlagRules],
       ["ExtDimensionAccountingFlagRules", ExtDimensionAccountingFlagRules],
       ["MetadataExternalDataSourceCubeResourceRules", MetadataExternalDataSourceCubeResourceRules],
-      ["MetadataRegisterAttributeRules", MetadataRegisterAttributeRules],
+      ["MetadataInformationRegisterAttributeRules", MetadataInformationRegisterAttributeRules],
+      ["MetadataAccumulationRegisterAttributeRules", MetadataAccumulationRegisterAttributeRules],
+      ["MetadataAccountingRegisterAttributeRules", MetadataAccountingRegisterAttributeRules],
+      ["MetadataCalculationRegisterAttributeRules", MetadataCalculationRegisterAttributeRules],
       ["MetadataRegisterDimensionRules", MetadataRegisterDimensionRules],
       ["MetadataRegisterResourceRules", MetadataRegisterResourceRules],
     ] as const
@@ -471,7 +499,6 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for metadata attribute binary data storage", () => {
     const rules = [
-      ["MetadataAttributeRules", MetadataAttributeRules],
       ["MetadataCatalogAttributeRules", MetadataCatalogAttributeRules],
     ] as const
 
@@ -510,12 +537,13 @@ describe("implicitValueYAML contract", () => {
       ["MetadataDocumentTabularSectionRules", MetadataDocumentTabularSectionRules],
       ["MetadataExchangePlanTabularSectionRules", MetadataExchangePlanTabularSectionRules],
       ["MetadataReportTabularSectionRules", MetadataReportTabularSectionRules],
-      ["MetadataTabularSectionRules", MetadataTabularSectionRules],
+      ["MetadataCatalogTabularSectionRules", MetadataCatalogTabularSectionRules],
       ["MetadataTaskTabularSectionRules", MetadataTaskTabularSectionRules],
     ] as const
 
     const unexpectedLineNumberLength = rules
-      .filter(([, rule]) => rule.properties.lineNumberLength.implicitValueYAML !== 5)
+      .filter(([, rule]) => "lineNumberLength" in rule.properties)
+      .filter(([, rule]) => getRuleProperty(rule.properties, "lineNumberLength").implicitValueYAML !== 5)
       .map(([ruleName]) => `${ruleName}.lineNumberLength`)
 
     const unexpectedObjectBelonging = rules
@@ -849,6 +877,7 @@ describe("implicitValueYAML contract", () => {
 
   it("uses configurator defaults as implicit YAML values for graphical schema field size properties", () => {
     const expected = {
+      edit: true,
       height: 10,
       titleHeight: 0,
       width: 50,
@@ -863,6 +892,12 @@ describe("implicitValueYAML contract", () => {
       .map(([propertyKey]) => `GraphicalSchemaFieldRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
+    expect(GraphicalSchemaFieldRules.properties.edit).toMatchObject({
+      implicitValueYAML: true,
+      toEnterprise: false,
+    })
+    expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("toYAML")
+    expect(GraphicalSchemaFieldRules.properties.edit).not.toHaveProperty("fromYAML")
   })
 
   it("uses configurator defaults as implicit YAML values for HTML document field size properties", () => {
@@ -1037,11 +1072,15 @@ describe("implicitValueYAML contract", () => {
     expect(unexpected).toEqual([])
   })
 
-  it("uses configurator defaults as implicit YAML values for document forms", () => {
+  it("uses configurator defaults as implicit YAML values for object forms", () => {
     const expected = {
       autoTime: "CurrentOrLast",
+      autoShowState: "Auto",
       repostOnWrite: true,
+      reportFormType: "Main",
+      reportResultViewMode: "Auto",
       usePostingMode: "Auto",
+      viewModeApplicationOnSetReportResult: "Auto",
     } as const
 
     const unexpected = Object.entries(expected)
@@ -1064,7 +1103,6 @@ describe("implicitValueYAML contract", () => {
       "modalMode",
       "modified",
       "readOnly",
-      "reportFormType",
       "savedInSettingsDataModified",
     ] as const
 
@@ -1231,7 +1269,6 @@ describe("implicitValueYAML contract", () => {
     const expected = {
       checkBoxType: "Auto",
       enabled: true,
-      equalItemsWidth: false,
       itemHeight: 0,
       itemTitleHeight: 0,
       itemWidth: 0,
@@ -1257,7 +1294,7 @@ describe("implicitValueYAML contract", () => {
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
-      ["skipOnInput"]
+      ["equalItemsWidth", "skipOnInput"]
         .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )

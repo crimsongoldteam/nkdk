@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import fs from "node:fs"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 
@@ -56,6 +56,81 @@ describe("FormAttributes XML → YAML → XML", () => {
   it.each(settingsFixtures)("восстанавливает %s без reference XML", (fixture) => {
     const { expected, result } = roundTripFixture(fixture, false)
     expect(result).toBe(expected.trim())
+  })
+
+  it("сохраняет отсутствие заголовка колонки как пустой YAML", () => {
+    const source = fs.readFileSync(
+      fileURLToPath(new URL("__fixtures__/tableWithColumns.xml", import.meta.url)),
+      "utf8"
+    )
+    const xml = importContentFromXML<Record<string, unknown>>(source, {
+      preserveEmptyElements: true,
+      preserveXsiNil: true,
+    })
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const { yaml } = testPropertyFromXMLToYAML({
+      rule,
+      xml,
+      context: contexts.importContext,
+    })
+
+    expect(yaml).toMatchObject({
+      Значение: {
+        Таблица: {
+          Колонки: {
+            Колонка1: { Заголовок: "" },
+            Колонка2: { Заголовок: "" },
+          },
+        },
+      },
+    })
+
+    const roundTrip = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      context: contexts.exportContext(),
+    })
+    expect(xmlExport(roundTrip.xml, false)).not.toContain("<Title>")
+  })
+
+  it("исключает заголовок колонки, равный имени, из YAML", () => {
+    const source = fs.readFileSync(
+      fileURLToPath(new URL("__fixtures__/columnAnyType.xml", import.meta.url)),
+      "utf8"
+    )
+    const xml = importContentFromXML<Record<string, unknown>>(source, {
+      preserveEmptyElements: true,
+      preserveXsiNil: true,
+    })
+    const { yaml } = testPropertyFromXMLToYAML({ rule, xml })
+
+    expect(yaml).not.toHaveProperty(
+      "Значение.ТаблицаСКолонкойБезТипа.Колонки.РеквизитБезТипа.Заголовок"
+    )
+  })
+
+  it("восстанавливает заголовок колонки из имени при отсутствии поля в YAML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml: {
+        Значение: {
+          Таблица: {
+            Тип: "ТаблицаЗначений",
+            Колонки: {
+              РеквизитБезТипа: {},
+            },
+          },
+        },
+      },
+      context: contexts.exportContext(),
+    })
+
+    expect(xmlExport(xml, false)).toContain("<v8:content>Реквизит без типа</v8:content>")
   })
 
   it("различает обычные и дополнительные колонки", () => {
@@ -200,7 +275,7 @@ function roundTripFixture(fixture: string, withReference: boolean): { expected: 
 }
 
 function readFormAttributeFixture(fixture: string): string {
-  return readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
+  return fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
 }
 
 function withoutDeclaration(xml: string): string {

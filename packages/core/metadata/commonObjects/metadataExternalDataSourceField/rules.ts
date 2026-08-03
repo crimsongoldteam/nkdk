@@ -1,16 +1,22 @@
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 import { booleanRule } from "../boolean/types"
+import {
+  attributeChoiceFragment,
+  attributeFillFragment,
+  attributePresentationFragment,
+  metadataChildNameProperty,
+} from "../metadataAttribute/fragments"
 import { stringRule } from "../string/types"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+
 const propertiesParents = ["Properties"]
+const presentation = attributePresentationFragment({}).properties
+const choice = attributeChoiceFragment.properties
+
 export const externalDataSourceFieldBaseProperties = {
   uuid: uuidPropertyRule,
-  name: {
-    xml: "Name",
-    type: "string",
-    required: true,
-    xmlParents: propertiesParents,
-  },
+  name: metadataChildNameProperty,
+  ...presentation,
   synonym: {
     yaml: "Синоним",
     xml: "Synonym",
@@ -19,13 +25,6 @@ export const externalDataSourceFieldBaseProperties = {
     defaultValueXMLRaw: "",
     excludeIfEqualNameYAML: true,
   },
-  comment: {
-    yaml: "Комментарий",
-    xml: "Comment",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
   type: {
     yaml: "Тип",
     xml: "Type",
@@ -33,155 +32,16 @@ export const externalDataSourceFieldBaseProperties = {
     required: true,
     xmlParents: propertiesParents,
   },
-  passwordMode: {
-    yaml: "РежимПароля",
-    xml: "PasswordMode",
-    type: "boolean",
-    xmlParents: propertiesParents,
-    defaultValueXML: false,
-    implicitValueYAML: false,
-  },
-  format: {
-    yaml: "Формат",
-    xml: "Format",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  editFormat: {
-    yaml: "ФорматРедактирования",
-    xml: "EditFormat",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  toolTip: {
-    yaml: "Подсказка",
-    xml: "ToolTip",
-    type: "I8nText",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  markNegatives: {
-    yaml: "ВыделятьОтрицательные",
-    xml: "MarkNegatives",
-    type: "boolean",
-    xmlParents: propertiesParents,
-    defaultValueXML: false,
-    implicitValueYAML: false,
-  },
-  mask: {
-    yaml: "Маска",
-    xml: "Mask",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  multiLine: {
-    yaml: "МногострочныйРежим",
-    xml: "MultiLine",
-    type: "boolean",
-    xmlParents: propertiesParents,
-    defaultValueXML: false,
-    implicitValueYAML: false,
-  },
-  extendedEdit: {
-    yaml: "РасширенноеРедактирование",
-    xml: "ExtendedEdit",
-    type: "boolean",
-    xmlParents: propertiesParents,
-    defaultValueXML: false,
-    implicitValueYAML: false,
-  },
-  minValue: {
-    yaml: "МинимальноеЗначение",
-    xml: "MinValue",
-    type: "MinMaxValue",
-    xmlParents: propertiesParents,
-    typedXML: "xs:string",
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  maxValue: {
-    yaml: "МаксимальноеЗначение",
-    xml: "MaxValue",
-    type: "MinMaxValue",
-    xmlParents: propertiesParents,
-    typedXML: "xs:string",
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  fillFromFillingValue: {
-    yaml: "ЗаполнятьИзДанныхЗаполнения",
-    xml: "FillFromFillingValue",
-    type: "boolean",
-    xmlParents: propertiesParents,
-    defaultValueXML: false,
-    implicitValueYAML: false,
-  },
-  fillValue: {
-    yaml: "ЗначениеЗаполнения",
-    xml: "FillValue",
-    type: "MetadataValue",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: { "_xsi:nil": true },
-  },
-  fillChecking: {
-    yaml: "ПроверкаЗаполнения",
-    xml: "FillChecking",
-    type: "SystemEnumeration",
-    typeSE: "FillChecking",
-    xmlParents: propertiesParents,
-    defaultValueXML: "DontCheck",
-    implicitValueYAML: "DontCheck",
-  },
-  choiceParameterLinks: {
-    yaml: "СвязиПараметровВыбора",
-    xml: "ChoiceParameterLinks",
-    type: "ChoiceParameterLinks",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  choiceParameters: {
-    yaml: "ПараметрыВыбора",
-    xml: "ChoiceParameters",
-    type: "ChoiceParameters",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
-  quickChoice: {
-    yaml: "БыстрыйВыбор",
-    xml: "QuickChoice",
-    type: "SystemEnumeration",
-    typeSE: "UseQuickChoice",
-    xmlParents: propertiesParents,
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-  },
-  createOnInput: {
-    yaml: "СозданиеПриВводе",
-    xml: "CreateOnInput",
-    type: "SystemEnumeration",
-    typeSE: "CreateOnInput",
-    xmlParents: propertiesParents,
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-  },
-  choiceHistoryOnInput: {
-    yaml: "ИсторияВыбораПриВводе",
-    xml: "ChoiceHistoryOnInput",
-    type: "SystemEnumeration",
-    typeSE: "ChoiceHistoryOnInput",
-    xmlParents: propertiesParents,
-    defaultValueXML: "Auto",
-    implicitValueYAML: "Auto",
-  },
-  choiceForm: {
-    yaml: "ФормаВыбора",
-    xml: "ChoiceForm",
-    type: "string",
-    xmlParents: propertiesParents,
-    defaultValueXMLRaw: "",
-  },
+  ...attributeFillFragment.properties,
+  fillChecking: choice.fillChecking,
+  choiceParameterLinks: choice.choiceParameterLinks,
+  choiceParameters: choice.choiceParameters,
+  quickChoice: choice.quickChoice,
+  createOnInput: choice.createOnInput,
+  choiceHistoryOnInput: choice.choiceHistoryOnInput,
+  choiceForm: choice.choiceForm,
 } as const satisfies Record<string, PropertyRule>
+
 const externalDataSourceServiceProperties = {
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -200,7 +60,9 @@ const externalDataSourceServiceProperties = {
     runtimeOnly: true,
   },
 } as const satisfies Record<string, PropertyRule>
+
 export const externalDataSourceObjectServiceProperties = externalDataSourceServiceProperties
+
 export const MetadataExternalDataSourceFieldRules = {
   itemType: "MetadataExternalDataSourceField",
   xmlOrder: [

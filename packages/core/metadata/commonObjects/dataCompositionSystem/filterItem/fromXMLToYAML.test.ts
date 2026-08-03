@@ -93,6 +93,107 @@ describe("export FilterItem to YAML", () => {
     })
   })
 
+  it("сохраняет одиночную корневую группу вместе с вложенными группами", () => {
+    const result = testExportPropertyModelThroughXMLToYAML({
+      rule,
+      value: undefined,
+      xmlRootTag: "dcsset:item",
+      xmlString: `<dcsset:item
+        xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings"
+        xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:v8="http://v8.1c.ru/8.1/data/core"
+        xsi:type="dcsset:FilterItemGroup">
+        <dcsset:use>false</dcsset:use>
+        <dcsset:groupType>OrGroup</dcsset:groupType>
+        <dcsset:item xsi:type="dcsset:FilterItemGroup">
+          <dcsset:groupType>AndGroup</dcsset:groupType>
+          <dcsset:item xsi:type="dcsset:FilterItemComparison">
+            <dcsset:left xsi:type="dcscor:Field">Ссылка</dcsset:left>
+            <dcsset:comparisonType>Equal</dcsset:comparisonType>
+            <dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+          </dcsset:item>
+          <dcsset:item xsi:type="dcsset:FilterItemGroup">
+            <dcsset:groupType>NotGroup</dcsset:groupType>
+            <dcsset:item xsi:type="dcsset:FilterItemGroup">
+              <dcsset:groupType>OrGroup</dcsset:groupType>
+              <dcsset:item xsi:type="dcsset:FilterItemComparison">
+                <dcsset:left xsi:type="dcscor:Field">ПометкаУдаления</dcsset:left>
+                <dcsset:comparisonType>Equal</dcsset:comparisonType>
+                <dcsset:right xsi:type="xs:boolean">true</dcsset:right>
+              </dcsset:item>
+            </dcsset:item>
+          </dcsset:item>
+        </dcsset:item>
+        <dcsset:presentation xsi:type="v8:LocalStringType">
+          <v8:item>
+            <v8:lang>ru</v8:lang>
+            <v8:content>Корневая группа</v8:content>
+          </v8:item>
+        </dcsset:presentation>
+        <dcsset:viewMode>Normal</dcsset:viewMode>
+        <dcsset:userSettingID>11111111-1111-1111-1111-111111111111</dcsset:userSettingID>
+      </dcsset:item>`,
+    })
+
+    expect(result).toMatchObject({
+      Элементы: [
+        {
+          Использование: "Ложь",
+          ТипГруппы: "ГруппаИли",
+          Представление: {
+            Тип: "МногоязычнаяСтрока",
+            Значение: "Корневая группа",
+          },
+          РежимОтображения: "Обычный",
+          ИспользоватьПользовательскуюНастройку: "11111111-1111-1111-1111-111111111111",
+          Элементы: [
+            {
+              ТипГруппы: "ГруппаИ",
+              Элементы: [
+                { ЛевоеЗначение: ".Ссылка" },
+                {
+                  ТипГруппы: "ГруппаНе",
+                  Элементы: [
+                    {
+                      ТипГруппы: "ГруппаИли",
+                      Элементы: [{ ЛевоеЗначение: ".ПометкаУдаления" }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it("сохраняет несколько корневых элементов без дополнительной группы", () => {
+    const result = testExportPropertyModelThroughXMLToYAML({
+      rule,
+      value: undefined,
+      yaml: [
+        {
+          ТипГруппы: "ГруппаИли",
+          Элементы: [fullFilterItemComparisonYAML],
+        },
+        fullFilterItemComparisonYAML,
+      ],
+    })
+
+    expect(result).toMatchObject({
+      Элементы: [
+        {
+          ТипГруппы: "ГруппаИли",
+          Элементы: [expect.objectContaining({ ЛевоеЗначение: ".Ссылка" })],
+        },
+        expect.objectContaining({ ЛевоеЗначение: ".Ссылка" }),
+      ],
+    })
+  })
+
   it("exports FilterItemComparison InList to YAML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,

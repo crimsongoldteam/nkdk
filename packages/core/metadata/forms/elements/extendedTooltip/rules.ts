@@ -70,6 +70,7 @@ export const ExtendedTooltipRules = {
   properties: {
     title: formattedI8nTextRule({
       yaml: "Заголовок",
+      preserveEmptyXML: true,
     }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",

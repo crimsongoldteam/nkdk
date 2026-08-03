@@ -1,0 +1,16 @@
+{
+  "name": "@nkdk/dependency-cruiser",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "baseline": "node src/baseline.mjs",
+    "check": "node src/check.mjs",
+    "graph": "node src/graph.mjs",
+    "report": "node src/report.mjs",
+    "test:rules": "node --test 'test/*.test.mjs'"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "18.1.0",
+    "typescript": "6.0.3"
+  }
+}

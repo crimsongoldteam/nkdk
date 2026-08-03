@@ -1,5 +1,13 @@
 import { stringRule } from "../string/types"
-import { MetadataTabularSectionAttributeWithFillRules } from "../metadataAttribute/rules"
+import {
+  METADATA_ATTRIBUTE_ALLOWED_TYPES,
+  attributeChoiceFragment,
+  attributeFillFragment,
+  attributeIdentityFragment,
+  attributePresentationFragment,
+  attributeSearchAndHistoryFragment,
+  attributeUuidFragment,
+} from "../metadataAttribute/fragments"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataTaskAddressingAttributeRules = {
   itemType: "MetadataAttribute",
@@ -38,7 +46,12 @@ export const MetadataTaskAddressingAttributeRules = {
     "uuid",
   ],
   properties: {
-    ...MetadataTabularSectionAttributeWithFillRules.properties,
+    ...attributeIdentityFragment.properties,
+    ...attributePresentationFragment({ allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES }).properties,
+    ...attributeFillFragment.properties,
+    ...attributeChoiceFragment.properties,
+    ...attributeSearchAndHistoryFragment.properties,
+    ...attributeUuidFragment.properties,
     addressingDimension: stringRule({
       yaml: "ИзмерениеАдресации",
       xml: "AddressingDimension",

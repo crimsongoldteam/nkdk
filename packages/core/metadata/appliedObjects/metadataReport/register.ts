@@ -1,4 +1,7 @@
-import { registerDataPathOwnerKind, registerTraversalTransitionResolver } from "../../validation/dataPath/registry"
+import {
+  registerDataPathOwnerKind,
+  registerOpaqueTraversalResolver,
+} from "../../validation/dataPath/registry"
 import { MetadataReportRules } from "./rules"
 
 registerDataPathOwnerKind({
@@ -16,8 +19,8 @@ registerDataPathOwnerKind({
   metadataLinkPrefixes: ["Report"],
 })
 
-registerTraversalTransitionResolver(({ owner, segment }) => {
-  if (owner.ref.kind !== "ОтчетОбъект") return undefined
-  if (segment !== "SettingsComposer" && segment !== "КомпоновщикНастроек") return undefined
-  return { kind: "warning" }
-})
+registerOpaqueTraversalResolver(
+  ({ owner, segment }) =>
+    owner.kind === "ОтчетОбъект" &&
+    (segment === "SettingsComposer" || segment === "КомпоновщикНастроек")
+)

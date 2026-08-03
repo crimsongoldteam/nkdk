@@ -124,9 +124,6 @@ describe("importDataPathStandardMembersFromYAML", () => {
       importFromYAML: {
         formDataPathIndex,
         formAttributes: [],
-      },
-      exportToYAML: {
-        toTyped: false,
         ownerMetadataCache: createLayeredOwnerMetadataCacheForTests({ base: [{ ...initialFacts, fieldIndex }] }),
       },
     }

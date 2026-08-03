@@ -531,6 +531,35 @@ describe("validateForm", () => {
     expect(first.diagnostics).toEqual([])
   })
 
+  it.each([
+    ["АвтоВремя: Последним", "/АвтоВремя", "ДокументОбъект"],
+    ["ТипФормыОтчета: Настройка", "/ТипФормыОтчета", "ОтчетОбъект"],
+  ] as const)(
+    "отклоняет контекстное поле %s без подходящего основного реквизита",
+    (field, path, kind) => {
+      const project = createProject({
+        form: [
+          "Реквизиты:",
+          "  Объект:",
+          "    Тип: Строка",
+          "    ОсновнойРеквизит: Истина",
+          field,
+        ],
+      })
+
+      expect(runValidateForm(project)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path,
+            severity: "error",
+            source: "structure",
+            message: expect.stringContaining(kind),
+          }),
+        ])
+      )
+    }
+  )
+
   it("does not restrict InputField, LabelField, table fields, ColumnGroup header, or multiple-value DataPath terminals", () => {
     const project = createProject({
       form: [
@@ -1657,12 +1686,28 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("skips Items.*.CurrentData.* paths without diagnostics", () => {
+  it("validates a terminal field after Items.*.CurrentData", () => {
     const project = createProject({
-      form: ["Элементы:", "  Кнопка:", "    Вид: Кнопка", "    Данные: Items.Таблица.CurrentData.Номенклатура"],
+      form: [
+        "Реквизиты:",
+        "  ТаблицаЗначений:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Номенклатура:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: ТаблицаЗначений",
+        "  Кнопка:",
+        "    Вид: Кнопка",
+        "    Данные: Items.Таблица.CurrentData.НеизвестноеПоле",
+      ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(messages(runValidateForm(project))).toContain(
+      'ПутьКДанным "Items.Таблица.CurrentData.НеизвестноеПоле": неизвестная колонка "НеизвестноеПоле"'
+    )
   })
 
   it("skips tilde variant paths without diagnostics", () => {

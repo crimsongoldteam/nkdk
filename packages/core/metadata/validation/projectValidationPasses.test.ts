@@ -201,6 +201,25 @@ describe("validateProjectFileFirstPass references", () => {
     ])
   })
 
+  it("сохраняет путь к данным табличного элемента в состоянии проекта", () => {
+    const update = formFirstPassUpdate([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: СправочникОбъект.Товары",
+      "Элементы:",
+      "  ТаблицаТоваров:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Объект.Товары",
+    ])
+
+    expect(update.forms).toContainEqual({
+      kind: "tableDataPath",
+      owner: { kind: "Справочник", name: "Товары" },
+      name: "ТаблицаТоваров",
+      dataPath: "Объект.Товары",
+    })
+  })
+
   it("передаёт structural reference формы через строгий ProjectState DTO без callbacks", () => {
     const update = formFirstPassUpdate([
       "Элементы:",

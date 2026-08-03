@@ -6,9 +6,35 @@ import {
   MetadataRegisterFieldYAML,
   MetadataRegisterFieldXML,
 } from "../metadataRegisterField/types"
-import { MetadataRegisterAttributeRules } from "./rules"
+import {
+  registerAttributeBinaryStorageUseFieldFragment,
+  registerAttributeBinaryStorageUseFragment,
+  registerAttributeChoiceFragment,
+  registerAttributeDataHistoryFragment,
+  registerAttributeFillFragment,
+  registerAttributeIdentityFragment,
+  registerAttributeIndexAndFullTextFragment,
+  registerAttributePresentationFragment,
+  registerAttributeScheduleLinkFragment,
+  registerAttributeUuidFragment,
+} from "./fragments"
 
-export type MetadataRegisterAttribute = MetadataTypeByRule<typeof MetadataRegisterAttributeRules>
+type MetadataRegisterAttributeProperties =
+  & typeof registerAttributeIdentityFragment.properties
+  & typeof registerAttributePresentationFragment.properties
+  & typeof registerAttributeFillFragment.properties
+  & typeof registerAttributeChoiceFragment.properties
+  & typeof registerAttributeIndexAndFullTextFragment.properties
+  & typeof registerAttributeDataHistoryFragment.properties
+  & typeof registerAttributeBinaryStorageUseFragment.properties
+  & typeof registerAttributeBinaryStorageUseFieldFragment.properties
+  & typeof registerAttributeScheduleLinkFragment.properties
+  & typeof registerAttributeUuidFragment.properties
+
+export type MetadataRegisterAttribute = MetadataTypeByRule<{
+  itemType: "MetadataRegisterAttribute"
+  properties: MetadataRegisterAttributeProperties
+}>
 
 export interface MetadataRegisterAttributeXML extends MetadataRegisterFieldXML {
   Properties: MetadataRegisterFieldXML["Properties"] & {

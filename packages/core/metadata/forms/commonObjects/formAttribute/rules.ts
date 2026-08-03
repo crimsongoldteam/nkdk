@@ -20,6 +20,34 @@ import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
 import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
+
+const formAttributeTitleRule = i8nTextRule({
+  yaml: "Заголовок",
+  skipEmptyToXML: true,
+  defaultValue: ({
+    context,
+    name,
+    operation,
+  }: {
+    context: {
+      defaultLanguage: string
+    }
+    name?: string
+    operation: string
+  }) => {
+    if (operation === "importFromXML") {
+      return {
+        items: { [context.defaultLanguage]: "" },
+      }
+    }
+    if (name === undefined) throw new Error("name is required for title default value")
+    return {
+      items: { [context.defaultLanguage]: splitPascalCase(name) },
+    }
+  },
+  excludeIfEqualNameYAML: true,
+})
+
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   xmlOrder: [
@@ -61,32 +89,7 @@ export const FormAttributeRules = {
       defaultValueXMLEmpty: { type: [] },
       preserveEmptyXML: true,
     }),
-    title: i8nTextRule({
-      yaml: "Заголовок",
-      skipEmptyToXML: true,
-      defaultValue: ({
-        context,
-        name,
-        operation,
-      }: {
-        context: {
-          defaultLanguage: string
-        }
-        name?: string
-        operation: string
-      }) => {
-        if (operation === "importFromXML") {
-          return {
-            items: { [context.defaultLanguage]: "" },
-          }
-        }
-        if (name === undefined) throw new Error("name is required for title default value")
-        return {
-          items: { [context.defaultLanguage]: splitPascalCase(name) },
-        }
-      },
-      excludeIfEqualNameYAML: true,
-    }),
+    title: formAttributeTitleRule,
     type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
@@ -186,10 +189,7 @@ export const FormAttributeColumnRules = {
       xml: "_name",
       required: true,
     }),
-    title: i8nTextRule({
-      yaml: "Заголовок",
-      excludeIfEqualNameYAML: true,
-    }),
+    title: formAttributeTitleRule,
     type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",

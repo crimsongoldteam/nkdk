@@ -82,7 +82,8 @@ export const formFieldCommonProperties = {
   autoCellHeight: {
     yaml: "АвтоВысотаЯчейки",
     type: "boolean",
-    implicitValueYAML: true,
+    implicitValueYAML: false,
+    implicitValueXML: false,
   },
   horizontalAlign: {
     yaml: "ГоризонтальноеПоложение",

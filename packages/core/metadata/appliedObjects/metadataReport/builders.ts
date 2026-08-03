@@ -1,45 +1,14 @@
 import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+  createOwnerAttributeCollectionRuleBuilder,
+  createOwnerTabularSectionCollectionRuleBuilder,
+} from "../ownerChildRules"
+import { MetadataReportAttributeRules, MetadataReportTabularSectionRules } from "./childRules"
 
-export interface MetadataReportAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataReportAttributes"
-}
-
-export type MetadataReportAttributesRuleParams = Omit<MetadataReportAttributesWidePropertyRule, "type">
-
-export function metadataReportAttributesRule<const Params extends MetadataReportAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataReportAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataReportAttributes"; ownerFactRole: "attributes" } & Params> {
-  return defineWidePropertyRule("MetadataReportAttributes", {
-    ownerFactRole: "attributes",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    }),
-  })
-}
-export interface MetadataReportTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataReportTabularSections"
-}
-
-export type MetadataReportTabularSectionsRuleParams = Omit<MetadataReportTabularSectionsWidePropertyRule, "type">
-
-export function metadataReportTabularSectionsRule<const Params extends MetadataReportTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataReportTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataReportTabularSections"; ownerFactRole: "tabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataReportTabularSections", {
-    ownerFactRole: "tabularSections",
-    ...params,
-    operationTarget: namedCollectionTarget({
-      kind: "tabularSection",
-      migrationSegment: "ТабличнаяЧасть",
-      requiresMigration: true,
-    }),
-  })
-}
+export const metadataReportAttributesRule = createOwnerAttributeCollectionRuleBuilder(
+  "MetadataReportAttributes",
+  MetadataReportAttributeRules
+)
+export const metadataReportTabularSectionsRule = createOwnerTabularSectionCollectionRuleBuilder(
+  "MetadataReportTabularSections",
+  MetadataReportTabularSectionRules
+)

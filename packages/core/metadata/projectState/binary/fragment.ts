@@ -296,7 +296,21 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     for (const form of update.forms) {
-      const source = form.kind === "root" ? form.source : form.source
+      if (form.kind === "tableDataPath") {
+        rows.formColumns.push({
+          sourceFileId: fileId,
+          ownerTypeId: appendOwnerType(form.owner),
+          nameId: strings.intern(form.name),
+          tablePathId: strings.intern(form.dataPath),
+          typeInfoId: NONE,
+          tableInfoId: NONE,
+          kind: 3,
+          tableHasColumns: 0,
+          reserved: 0,
+        })
+        continue
+      }
+      const source = form.source
       rows[form.kind === "root" ? "forms" : "formColumns"].push({
         sourceFileId: fileId,
         ownerTypeId: appendOwnerType(form.owner),

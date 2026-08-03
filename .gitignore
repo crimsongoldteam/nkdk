@@ -40,11 +40,11 @@ mcp-server.log*
 .agents/scheduled_tasks.lock
 data/dump.rdb
 
-# Локальные отчёты mutation testing
-reports/stryker/
-
 # Локальные отчёты проверки дублей
 reports/jscpd/
 
 # Локальные отчёты длительности тестов
 reports/test-profile/
+
+# Локальные отчёты dependency-cruiser
+reports/dependency-cruiser/

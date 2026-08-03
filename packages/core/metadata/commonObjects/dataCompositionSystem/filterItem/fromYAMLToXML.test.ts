@@ -31,14 +31,14 @@ const comparisonXML = (field: string, guid: string, extra: Record<string, unknow
   ...extra,
 })
 
-const groupYAML = (groupType: "ГруппаИ" | "ГруппаИли", extra: Record<string, unknown> = {}) => ({
+const groupYAML = (groupType: "ГруппаИ" | "ГруппаИли" | "ГруппаНе", extra: Record<string, unknown> = {}) => ({
   ТипГруппы: groupType,
   ИспользоватьПользовательскуюНастройку: "Истина",
   ...extra,
 })
 
 const groupXML = (
-  groupType: "AndGroup" | "OrGroup",
+  groupType: "AndGroup" | "OrGroup" | "NotGroup",
   guid?: string,
   extra: Record<string, unknown> = {}
 ): Record<string, unknown> => ({
@@ -177,21 +177,29 @@ describe("export FilterItem to XML", () => {
     it("FilterItemGroup: сопоставляет по groupType", () => {
       const guidOrGroup = "cccccccc-0000-0000-0000-000000000003"
       const guidAndGroup = "dddddddd-0000-0000-0000-000000000004"
+      const guidNotGroup = "eeeeeeee-0000-0000-0000-000000000008"
 
       const orGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "OrGroup", userSettingID: true }
       const andGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "AndGroup", userSettingID: true }
-      // current: [OrGroup, AndGroup], reference: [AndGroup, OrGroup]
+      const notGroup: FilterItemGroup = { itemType: "FilterItemGroup", groupType: "NotGroup", userSettingID: true }
+      // current: [OrGroup, AndGroup, NotGroup], reference: обратный порядок
       const { result } = testExportPropertyModelThroughYAMLToXML({
         rule,
-        value: [orGroup, andGroup],
-        yaml: [groupYAML("ГруппаИли"), groupYAML("ГруппаИ")],
+        value: [orGroup, andGroup, notGroup],
+        yaml: [groupYAML("ГруппаИли"), groupYAML("ГруппаИ"), groupYAML("ГруппаНе")],
         xmlRootTag: "dcsset:item",
-        referenceMetadata: [groupXML("AndGroup", guidAndGroup), groupXML("OrGroup", guidOrGroup)],
+        referenceMetadata: [
+          groupXML("NotGroup", guidNotGroup),
+          groupXML("AndGroup", guidAndGroup),
+          groupXML("OrGroup", guidOrGroup),
+        ],
       })
 
       expect(result).toContain(guidOrGroup)
       expect(result).toContain(guidAndGroup)
+      expect(result).toContain(guidNotGroup)
       expect(result.indexOf(guidOrGroup)).toBeLessThan(result.indexOf(guidAndGroup))
+      expect(result.indexOf(guidAndGroup)).toBeLessThan(result.indexOf(guidNotGroup))
     })
 
     it("FilterItemComparison: не подставляет GUID при неоднозначном совпадении", () => {

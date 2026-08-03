@@ -2,7 +2,7 @@ import { compileValidationSchema } from "./../../validation/compileValidationSch
 import { beforeAll, describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
-import { MetadataTabularSectionRules } from "./rules"
+import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 
 describe("MetadataTabularSection JSON Schema", () => {
   let compiled: ReturnType<typeof compileValidationSchema>
@@ -11,7 +11,7 @@ describe("MetadataTabularSection JSON Schema", () => {
     compiled = compileValidationSchema(
       exportMetadataItemToJSONSchema({
         context: mockContext,
-        rule: MetadataTabularSectionRules,
+        rule: MetadataCatalogTabularSectionRules,
       })
     )
     compiled.Check(undefined)

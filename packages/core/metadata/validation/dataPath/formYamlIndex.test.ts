@@ -1,8 +1,46 @@
 import { describe, expect, it } from "vitest"
 import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
-import { createFormDataPathIndexCollector } from "./formYamlIndex"
+import { createFormDataPathIndexCollector, createFormDataPathIndexFromYAML } from "./formYamlIndex"
+import { collectFormTableDataPathsFromYAML } from "../../forms/clientApplicationForm/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
+  it("собирает пути табличных элементов при прямом обходе YAML по rules", () => {
+    const yaml = {
+        Элементы: {
+          ТаблицаТоваров: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "Объект.Товары",
+          },
+        },
+      }
+    const index = createFormDataPathIndexFromYAML(
+      yaml,
+      collectFormTableDataPathsFromYAML(yaml)
+    )
+
+    expect(index.tableDataPathByElementName).toEqual(
+      new Map([["ТаблицаТоваров", "Объект.Товары"]])
+    )
+  })
+
+  it("собирает путь к данным табличного элемента из rulePath", () => {
+    const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
+    collector.acceptProperty(
+      fact(
+        ["Элементы", "ТаблицаТоваров", "ПутьКДанным"],
+        "Объект.Товары",
+        [
+          { propertyKey: "childItems", nestedItemType: "Table" },
+          { propertyKey: "dataPath" },
+        ]
+      )
+    )
+
+    expect(collector.finish().tableDataPathByElementName).toEqual(
+      new Map([["ТаблицаТоваров", "Объект.Товары"]])
+    )
+  })
+
   it("собирает реквизиты и колонки только из событий свойств", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
 
@@ -33,10 +71,14 @@ describe("createFormDataPathIndexCollector", () => {
   })
 })
 
-function fact(yamlPath: readonly (string | number)[], value: unknown): LocalYamlFact {
+function fact(
+  yamlPath: readonly (string | number)[],
+  value: unknown,
+  rulePath: LocalYamlFact["rulePath"] = []
+): LocalYamlFact {
   return {
     yamlPath,
-    rulePath: [],
+    rulePath,
     rule: { type: "TestFormYamlIndex" as never, yaml: String(yamlPath.at(-1)) },
     value,
   }

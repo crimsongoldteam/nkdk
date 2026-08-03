@@ -5,6 +5,7 @@ export const formGroupCommonProperties = {
     yaml: "РазрешитьИзменениеСостава",
     type: "boolean",
     implicitValueYAML: true,
+    implicitValueXML: false,
   },
   enabled: {
     yaml: "Доступность",
