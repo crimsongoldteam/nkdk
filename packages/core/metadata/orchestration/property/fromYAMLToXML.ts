@@ -373,7 +373,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             matchingOutputs.every((output) => output.request.referenceXML === undefined)
             ? []
             : effectiveNestedRule.kind === "item" &&
-            (references.some((reference) => reference.exists && reference.value === undefined) ||
+            (planned.propertyRule.evaluateWhenYAMLMissing === true ||
+              references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",
                 getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
