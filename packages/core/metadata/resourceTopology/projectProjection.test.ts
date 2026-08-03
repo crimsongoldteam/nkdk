@@ -5,6 +5,7 @@ import { compileMetadataResourceTopology } from "./compiler"
 import {
   classifyMetadataProjectPath,
   createMetadataProjectPathClassifier,
+  iterateProjectFiles,
   listProjectFiles,
 } from "./projectProjection"
 
@@ -77,6 +78,20 @@ describe("project resource topology projection", () => {
 
     expect(files).toHaveLength(40)
     expect(maxActive).toBe(32)
+  })
+
+  it("выдаёт найденный файл до чтения следующего уровня каталогов", async () => {
+    let nestedRead = false
+    const files = iterateProjectFiles("/project", async (path) => {
+      if (path === "/project") return [file("first.yaml"), directory("nested")]
+      nestedRead = true
+      return [file("second.yaml")]
+    })
+
+    await expect(files.next()).resolves.toMatchObject({ value: "/project/first.yaml", done: false })
+    expect(nestedRead).toBe(false)
+    await expect(files.next()).resolves.toMatchObject({ value: "/project/nested/second.yaml", done: false })
+    expect(nestedRead).toBe(true)
   })
 
   it.each([

@@ -7,7 +7,7 @@ import type {
   ProjectDependencyInputQuery,
   ProjectDependencyInputResult,
 } from "./readSession"
-import type { ProjectStateFileBaseline, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaseline, ProjectStateFileBaselinePage, ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
 import type {
   ProjectStateEncodedFileUpdateBatch,
   ProjectStateEncodedImportFinalBatch,
@@ -51,6 +51,7 @@ export interface ProjectStateComponentProjection {
 
 export interface ProjectStateStore {
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
+  readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaselinePage
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
   appendFragment(fragment: ProjectStateFragment): void
@@ -60,12 +61,13 @@ export interface ProjectStateStore {
   replaceImportFinalFileState(batch: ProjectStateEncodedImportFinalBatch): void
   clearImportOutput(componentPaths: readonly string[]): void
   deleteFiles(projectPaths: readonly string[]): void
+  deleteUnseenFiles(seenFileIds: Uint8Array): number
   readLocalDiagnostics(params?: { readonly mode?: "published" }): readonly Diagnostic[]
   readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch
   validateDependencies(params: ProjectDependencyValidationParams): readonly Diagnostic[]
   readComponentProjection(componentPath: string): ProjectStateComponentProjection
   createReadToken(): ProjectStateReadToken
-  commitUpdate(): void
+  commitUpdate(): boolean
   rollbackUpdate(): void
   checkpoint(): Promise<void>
   close(): void

@@ -135,19 +135,27 @@ export async function discoverMetadataProjectResources(params: {
   readonly include?: "all" | "content"
   readonly sort?: boolean
 }): Promise<readonly MetadataProjectResourceMatch[]> {
-  const root = resolve(params.projectDir)
   const matches: MetadataProjectResourceMatch[] = []
+  for await (const match of iterateMetadataProjectResources(params)) matches.push(match)
+  return params.sort === false
+    ? matches
+    : matches.sort((left, right) => Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath)))
+}
+
+export async function* iterateMetadataProjectResources(params: {
+  readonly topology: CompiledMetadataResourceTopology
+  readonly projectDir: string
+  readonly include?: "all" | "content"
+}): AsyncGenerator<MetadataProjectResourceMatch> {
+  const root = resolve(params.projectDir)
   const classify = createMetadataProjectPathClassifier(params.topology)
-  for (const absolutePath of await listProjectFiles(root)) {
+  for await (const absolutePath of iterateProjectFiles(root)) {
     const projectPath = relative(root, absolutePath).replace(/\\/g, "/")
     const match = classify(projectPath)
     if (match === undefined || match.kind === "ignore") continue
     if (params.include === "content" && match.kind !== "content") continue
-    matches.push(match)
+    yield match
   }
-  return params.sort === false
-    ? matches
-    : matches.sort((left, right) => Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath)))
 }
 
 function resolveOwner(
@@ -180,6 +188,14 @@ export async function listProjectFiles(
   readDirectory: ReadProjectDirectory = (directory) => readdir(directory, { withFileTypes: true }),
 ): Promise<string[]> {
   const files: string[] = []
+  for await (const file of iterateProjectFiles(root, readDirectory)) files.push(file)
+  return files
+}
+
+export async function* iterateProjectFiles(
+  root: string,
+  readDirectory: ReadProjectDirectory = (directory) => readdir(directory, { withFileTypes: true }),
+): AsyncGenerator<string> {
   let directories = [root]
   while (directories.length > 0) {
     const nextDirectories: string[] = []
@@ -194,11 +210,10 @@ export async function listProjectFiles(
           if (entry.isDirectory() && (entry.name === ".git" || entry.name === ".nkdk")) continue
           const path = join(directory, entry.name)
           if (entry.isDirectory()) nextDirectories.push(path)
-          else if (entry.isFile()) files.push(path)
+          else if (entry.isFile()) yield path
         }
       }
     }
     directories = nextDirectories
   }
-  return files
 }

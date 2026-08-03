@@ -14,6 +14,14 @@ export interface ProjectStateFileBaseline {
   readonly deleted: readonly ProjectStateFileIdentity[]
 }
 
+export interface ProjectStateFileBaselinePage {
+  readonly knownHashBits: Uint8Array
+  readonly hashBytes: Uint8Array
+  /** `-1` означает, что файла не было в сохранённом состоянии. */
+  readonly previousFileIds: Int32Array
+  readonly storedFileCount: number
+}
+
 /** Непрозрачное разрешение на чтение снимка состояния проекта. */
 export type ProjectStateReadToken = BinaryProjectStateReadToken
 
@@ -63,6 +71,29 @@ export function assertProjectStateFileBaseline(
   const remainder = fileCount % 8
   if (remainder !== 0 && (knownHashBits.at(-1)! & ~((1 << remainder) - 1)) !== 0) {
     throw new Error("knownHashBits содержит биты за пределами files")
+  }
+}
+
+export function assertProjectStateFileBaselinePage(
+  value: unknown,
+  fileCount: number,
+): asserts value is ProjectStateFileBaselinePage {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("ProjectStateFileBaselinePage должен быть объектом")
+  }
+  const page = value as Record<string, unknown>
+  assertExactKeys(page, ["knownHashBits", "hashBytes", "previousFileIds", "storedFileCount"], "ProjectStateFileBaselinePage")
+  assertOwnedBytes(page["knownHashBits"], Math.ceil(fileCount / 8), "knownHashBits")
+  assertOwnedBytes(page["hashBytes"], fileCount * PROJECT_STATE_HASH_BYTE_LENGTH, "hashBytes")
+  if (!(page["previousFileIds"] instanceof Int32Array) || page["previousFileIds"].length !== fileCount) {
+    throw new Error(`previousFileIds должен содержать ${fileCount} значений`)
+  }
+  if (!Number.isSafeInteger(page["storedFileCount"]) || (page["storedFileCount"] as number) < 0) {
+    throw new Error("storedFileCount должен быть неотрицательным целым")
+  }
+  const storedFileCount = page["storedFileCount"] as number
+  for (const id of page["previousFileIds"] as Int32Array) {
+    if (id < -1 || id >= storedFileCount) throw new Error("previousFileIds содержит неизвестный файл")
   }
 }
 

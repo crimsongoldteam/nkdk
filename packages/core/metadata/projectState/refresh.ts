@@ -8,10 +8,10 @@ import {
 import type { Diagnostic } from "../validation/types"
 import { dedupeDiagnostics, sortDiagnostics } from "../validation/diagnostics"
 import type { ProjectStateFragment } from "./binary/fragment"
-import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaselinePage, ProjectStateReadToken } from "./contracts"
 import {
-  discoverProjectStateValidationFiles,
-  type ProjectStateValidationFile,
+  discoverProjectStateValidationFileBatches,
+  type ProjectStateDiscoveredFileBatch,
 } from "./projectFiles"
 
 export interface ProjectStateRefreshStats {
@@ -59,10 +59,11 @@ export interface ProjectStateProfileOptions {
 }
 
 export interface ProjectStateRefreshHandle {
-  readFileBaseline(files: readonly import("./fileUpdate").ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline>
+  readFileBaselinePage(files: readonly import("./fileUpdate").ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeFragment(fragment: ProjectStateFragment): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
+  deleteUnseenFiles(seenFileIds: Uint8Array): Promise<number>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
   createReadToken(): Promise<ProjectStateReadToken>
@@ -84,14 +85,17 @@ export interface ProjectStateRefreshDependencies {
   readonly handle: ProjectStateRefreshHandle
   readonly afterProcessFiles?: () => Promise<void>
   readonly beforeCheckpoint?: () => Promise<void>
-  readonly discoverFiles: (params: ProjectStateRefreshParams) => Promise<readonly ProjectStateValidationFile[]>
+  readonly discoverFiles: (params: ProjectStateRefreshParams) => AsyncIterable<ProjectStateDiscoveredFileBatch>
   readonly processFiles: (
-    files: readonly ProjectStateValidationFile[],
-    baseline: ProjectStateFileBaseline,
+    batches: AsyncIterable<ProjectStateValidationFileBatch>,
     producer: Pick<ProjectStateRefreshHandle, "writeFragment" | "deleteFiles">,
     operation: ProjectStateRefreshOperation,
     projectDir: string,
   ) => Promise<ProjectStateValidationStats>
+}
+
+export interface ProjectStateValidationFileBatch extends ProjectStateFileBaselinePage {
+  readonly files: ProjectStateDiscoveredFileBatch["files"]
 }
 
 export function createProjectStateRefreshDependencies(params: {
@@ -105,12 +109,12 @@ export function createProjectStateRefreshDependencies(params: {
     handle: params.handle,
     ...(params.afterProcessFiles === undefined ? {} : { afterProcessFiles: params.afterProcessFiles }),
     ...(params.beforeCheckpoint === undefined ? {} : { beforeCheckpoint: params.beforeCheckpoint }),
-    discoverFiles: ({ projectDir }) => discoverProjectStateValidationFiles(projectDir),
-    processFiles(files, baseline, producer, operation, projectDir) {
+    discoverFiles: ({ projectDir }) => discoverProjectStateValidationFileBatches(projectDir),
+    processFiles(batches, producer, operation, projectDir) {
       return params.pool.runProjectStateRefresh({
         projectDir,
         context: params.context,
-        source: { files, baseline },
+        source: { batches },
         operation,
       }, producer)
     },
@@ -126,20 +130,16 @@ export async function refreshProjectState(
   let updateActive = false
   try {
     operation.signal.throwIfAborted()
-    const files = await dependencies.discoverFiles(operationParams)
-    operation.signal.throwIfAborted()
-    const baseline = await dependencies.handle.readFileBaseline(files.map(({ identity }) => identity))
-    operation.signal.throwIfAborted()
     await dependencies.handle.beginUpdate(params.projectDir, operation.signal)
     updateActive = true
-    await dependencies.handle.deleteFiles(baseline.deleted.map(({ projectPath }) => projectPath))
+    const scan = createBaselineScan(dependencies.discoverFiles(operationParams), dependencies.handle, operation.signal)
     const workerStats = await dependencies.processFiles(
-      files,
-      baseline,
+      scan.batches,
       dependencies.handle,
       operation,
       params.projectDir,
     )
+    const deletedFiles = await dependencies.handle.deleteUnseenFiles(await scan.finish())
     await dependencies.afterProcessFiles?.()
     operation.signal.throwIfAborted()
     const localDiagnostics = await dependencies.handle.readLocalDiagnostics()
@@ -163,7 +163,7 @@ export async function refreshProjectState(
         hashedFiles: workerStats.hashedFiles,
         parsedYamlFiles: workerStats.parsedYamlFiles,
         changedFiles: workerStats.changedFiles,
-        deletedFiles: baseline.deleted.length + workerStats.missingFiles,
+        deletedFiles: deletedFiles + workerStats.missingFiles,
       },
     }
   } catch (caught) {
@@ -175,6 +175,39 @@ export async function refreshProjectState(
       }
     }
     throw caught
+  }
+}
+
+function createBaselineScan(
+  discovered: AsyncIterable<ProjectStateDiscoveredFileBatch>,
+  handle: Pick<ProjectStateRefreshHandle, "readFileBaselinePage">,
+  signal: AbortSignal,
+): { readonly batches: AsyncIterable<ProjectStateValidationFileBatch>; finish(): Promise<Uint8Array> } {
+  let storedFileCount: number | undefined
+  let seenFileIds: Uint8Array | undefined
+  let completed = false
+  const batches = (async function* () {
+    for await (const batch of discovered) {
+      signal.throwIfAborted()
+      const baseline = await handle.readFileBaselinePage(batch.files.map(({ identity }) => identity))
+      storedFileCount ??= baseline.storedFileCount
+      if (baseline.storedFileCount !== storedFileCount) throw new Error("Сохранённое состояние изменилось во время обнаружения файлов")
+      seenFileIds ??= new Uint8Array(Math.ceil(storedFileCount / 8))
+      for (const fileId of baseline.previousFileIds) {
+        if (fileId >= 0) seenFileIds[Math.floor(fileId / 8)]! |= 1 << (fileId % 8)
+      }
+      yield { files: batch.files, ...baseline }
+    }
+    completed = true
+  })()
+  return {
+    batches,
+    async finish() {
+      if (!completed) throw new Error("Обнаружение файлов проекта не завершено")
+      if (seenFileIds !== undefined) return seenFileIds
+      const empty = await handle.readFileBaselinePage([])
+      return new Uint8Array(Math.ceil(empty.storedFileCount / 8))
+    },
   }
 }
 

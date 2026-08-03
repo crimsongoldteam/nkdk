@@ -230,6 +230,21 @@ function createTestStoreContractFixture() {
       assertProjectStateFileBaseline(result, files.length)
       return result
     },
+    readFileBaselinePage(files) {
+      const paths = [...committed.keys()]
+      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
+      const hashBytes = new Uint8Array(files.length * 8)
+      const previousFileIds = new Int32Array(files.length).fill(-1)
+      files.forEach((file, index) => {
+        const fileId = paths.indexOf(file.projectPath)
+        const previous = committed.get(file.projectPath)
+        if (fileId < 0 || previous === undefined) return
+        previousFileIds[index] = fileId
+        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+        hashBytes.set(previous.hashBytes, index * 8)
+      })
+      return { knownHashBits, hashBytes, previousFileIds, storedFileCount: paths.length }
+    },
     compareFiles(batch) {
       assertProjectStateFileHashBatch(batch)
       const changed = batch.files.flatMap((file, index) => {
@@ -326,6 +341,17 @@ function createTestStoreContractFixture() {
         stagedIdentities!.delete(projectPath)
       })
     },
+    deleteUnseenFiles(seenFileIds) {
+      const paths = [...committed.keys()]
+      let deleted = 0
+      paths.forEach((projectPath, fileId) => {
+        if ((seenFileIds[Math.floor(fileId / 8)]! & (1 << (fileId % 8))) !== 0) return
+        staged!.delete(projectPath)
+        stagedIdentities!.delete(projectPath)
+        deleted += 1
+      })
+      return deleted
+    },
     readLocalDiagnostics: () => [...committed.values()]
       .map(({ update }) => update)
       .flatMap((update) => update.kind === "yaml"
@@ -364,6 +390,7 @@ function createTestStoreContractFixture() {
       stagedIdentities!.forEach((value, key) => committedIdentities.set(key, value))
       staged = undefined
       stagedIdentities = undefined
+      return true
     },
     rollbackUpdate() {
       staged = undefined

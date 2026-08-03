@@ -14,6 +14,7 @@ import {
 } from "./binary/contribution"
 import type {
   ProjectStateFileBaseline,
+  ProjectStateFileBaselinePage,
   ProjectStateFileHashBatch,
   ProjectStateReadToken,
 } from "./contracts"
@@ -48,6 +49,7 @@ export interface CreateProjectStateWriterHandleOptions {
 export interface ProjectStateWriterHandle {
   openProject(projectDir: string): Promise<void>
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline>
+  readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage>
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
@@ -61,6 +63,7 @@ export interface ProjectStateWriterHandle {
   writeImportFinalFileState(batch: ProjectStateEncodedImportFinalBatch): Promise<void>
   clearImportOutput(componentPaths: readonly string[]): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
+  deleteUnseenFiles(seenFileIds: Uint8Array): Promise<number>
   commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }>
   /** Временный псевдоним до перевода всех вызывающих сторон. */
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
@@ -99,6 +102,9 @@ export function createProjectStateWriterHandle(
     },
     async readFileBaseline(files) {
       return requireStore().readFileBaseline(files)
+    },
+    async readFileBaselinePage(files) {
+      return requireStore().readFileBaselinePage(files)
     },
     async compareFiles(batch) {
       return requireStore().compareFiles(batch)
@@ -165,14 +171,19 @@ export function createProjectStateWriterHandle(
       assertNotCancelled()
       requireStore().deleteFiles(projectPaths)
     },
+    async deleteUnseenFiles(seenFileIds) {
+      assertOperation()
+      assertNotCancelled()
+      return requireStore().deleteUnseenFiles(seenFileIds)
+    },
     async commitAndScheduleCheckpoint() {
       assertOperation()
       assertNotCancelled()
       const currentStore = requireStore()
-      currentStore.commitUpdate()
+      const changed = currentStore.commitUpdate()
       updateActive = false
       operationSignal = undefined
-      scheduleSave(snapshotBuffers(currentStore))
+      if (changed) scheduleSave(snapshotBuffers(currentStore))
       return { snapshotPath: projectStateBinaryPath(projectDir!) }
     },
     commitAndCheckpoint() {

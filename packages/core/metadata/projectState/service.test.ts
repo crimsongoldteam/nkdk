@@ -31,12 +31,18 @@ describe("ProjectStateService", () => {
       createWriter: () => writer,
       createPool: () => testPool(),
       async refresh(params, dependencies) {
-        const files = await dependencies.discoverFiles(params)
-        const baseline = await dependencies.handle.readFileBaseline(files.map(({ identity }) => identity))
         await dependencies.handle.beginUpdate(params.projectDir)
+        const batches = (async function* () {
+          let yielded = false
+          for await (const batch of dependencies.discoverFiles(params)) {
+            yielded = true
+            const baseline = await dependencies.handle.readFileBaselinePage(batch.files.map(({ identity }) => identity))
+            yield { files: batch.files, ...baseline }
+          }
+          if (!yielded) await dependencies.handle.readFileBaselinePage([])
+        })()
         await dependencies.processFiles(
-          files,
-          baseline,
+          batches,
           dependencies.handle,
           { signal: new AbortController().signal, abort() {} },
           params.projectDir,
@@ -869,6 +875,14 @@ function testWriterHandle(id: number): TestWriter {
         deleted: [],
       }
     },
+    async readFileBaselinePage(files) {
+      return {
+        knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
+        hashBytes: new Uint8Array(files.length * 8),
+        previousFileIds: new Int32Array(files.length).fill(-1),
+        storedFileCount: 0,
+      }
+    },
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
     async validateDependencies() { return [] },
@@ -888,6 +902,7 @@ function testWriterHandle(id: number): TestWriter {
     async writeImportFinalFileState() {},
     async clearImportOutput() {},
     async deleteFiles() {},
+    async deleteUnseenFiles() { return 0 },
     async commitAndScheduleCheckpoint() { return { snapshotPath: "snapshot" } },
     async commitAndCheckpoint() { return { snapshotPath: "snapshot" } },
     async flushCheckpoint() { return { snapshotPath: "snapshot" } },
@@ -904,12 +919,10 @@ function testWriterHandle(id: number): TestWriter {
 
 function testPool(): PreparedYamlProjectWorkerPool {
   return {
-    runProjectStateRefresh: async () => ({
-      hashedFiles: 0,
-      parsedYamlFiles: 0,
-      changedFiles: 0,
-      missingFiles: 0,
-    }),
+    runProjectStateRefresh: async ({ source }: Parameters<PreparedYamlProjectWorkerPool["runProjectStateRefresh"]>[0]) => {
+      for await (const _batch of source.batches) { /* завершить обнаружение */ }
+      return { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }
+    },
     close: async () => undefined,
   } as unknown as PreparedYamlProjectWorkerPool
 }

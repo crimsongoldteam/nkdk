@@ -2,6 +2,7 @@ import { isAbsolute, resolve, relative } from "path"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
+  iterateMetadataProjectResources as iterateTopologyProjectResources,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
@@ -102,6 +103,23 @@ export async function discoverMetadataProjectResources(
       absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
     }))
     .sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
+}
+
+export async function* iterateMetadataProjectResources(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {},
+  context: MetadataProjectResourceContext = defaultResourceContext(),
+): AsyncGenerator<MetadataProjectResourceRef> {
+  for await (const match of iterateTopologyProjectResources({
+    topology: context.topology,
+    projectDir,
+    include: options.include === "yaml" ? "content" : "all",
+  })) {
+    yield {
+      ...toLegacyResource(match, context),
+      absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
+    }
+  }
 }
 
 export function assertMetadataProjectPathInside(projectDir: string, filePath: string): string {

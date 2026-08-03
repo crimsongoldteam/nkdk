@@ -12,8 +12,9 @@ import type {
 import { createOperationProfiler, createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateFragment } from "../projectState/binary/fragment"
-import { assertProjectStateFileBaseline, type ProjectStateFileBaseline } from "../projectState/contracts"
+import { openProjectStateFragment, type ProjectStateFragment } from "../projectState/binary/fragment"
+import { assertProjectStateFileBaselinePage } from "../projectState/contracts"
+import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -21,14 +22,10 @@ import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
 } from "./preparedYamlProject"
-import {
-  LOCAL_VALIDATION_BATCH_SIZE,
-  type ProjectStateValidationFileTask,
-  type PreparedYamlProjectWorkerTask,
-  type PreparedYamlProjectWorkerTaskResult,
+import type {
+  PreparedYamlProjectWorkerTask,
+  PreparedYamlProjectWorkerTaskResult,
 } from "./preparedYamlProjectWorker"
-
-const RESOURCE_REFRESH_BATCH_SIZE = 128
 
 export interface PreparedYamlProjectWorkerPool {
   run(params: {
@@ -65,8 +62,7 @@ export interface PreparedYamlProjectWorkerPool {
 }
 
 export interface ProjectStateValidationSource {
-  readonly files: readonly ProjectStateValidationFileTask[]
-  readonly baseline: ProjectStateFileBaseline
+  readonly batches: AsyncIterable<ProjectStateValidationFileBatch>
 }
 
 export interface ProjectStateValidationProducer {
@@ -305,8 +301,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
         : undefined
       const operation = refreshParams.operation ?? createPreparedYamlValidationOperation()
       const { signal } = operation
-      const { files, baseline } = refreshParams.source
-      assertProjectStateFileBaseline(baseline, files.length)
       await this.initValidation(refreshParams.context, operation)
       let taskCount = 0
       let taskPreparationMs = 0
@@ -317,25 +311,26 @@ export function createPreparedYamlProjectWorkerPool(params: {
       let deletionCount = 0
       let applyDeletionsMs = 0
       let firstFailure: { readonly reason: unknown } | undefined
+      const batches = refreshParams.source.batches[Symbol.asyncIterator]()
       const settled = await Promise.allSettled(Array.from({ length: params.concurrency }, async (_unused, index) => {
         try {
           let hashedFiles = 0
           let parsedYamlFiles = 0
           let changedFiles = 0
           let missingFiles = 0
-          for (let start = index; start < files.length;) {
+          while (true) {
             signal.throwIfAborted()
-            const sourceIndexes: number[] = []
-            const resourceOnly = files[start]?.identity.resourceKind === "resource"
-            const batchSize = resourceOnly ? RESOURCE_REFRESH_BATCH_SIZE : LOCAL_VALIDATION_BATCH_SIZE
-            for (let offset = 0; offset < batchSize; offset += 1) {
-              const sourceIndex = start + offset * params.concurrency
-              if (sourceIndex >= files.length) break
-              if (resourceOnly && files[sourceIndex]?.identity.resourceKind !== "resource") break
-              sourceIndexes.push(sourceIndex)
-            }
+            const next = await batches.next()
+            if (next.done) break
+            const batch = next.value
+            assertProjectStateFileBaselinePage({
+              knownHashBits: batch.knownHashBits,
+              hashBytes: batch.hashBytes,
+              previousFileIds: batch.previousFileIds,
+              storedFileCount: batch.storedFileCount,
+            }, batch.files.length)
             let startedAt = profileEnabled ? performance.now() : 0
-            const task = createProjectStateRefreshTask(refreshParams, index, sourceIndexes)
+            const task = createProjectStateRefreshTask(refreshParams, index, batch)
             const transferable = move(projectStateRefreshTransferable(task))
             if (profileEnabled) {
               taskPreparationMs += performance.now() - startedAt
@@ -363,7 +358,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
             parsedYamlFiles += response.parsedYamlFiles
             changedFiles += response.changedFiles
             missingFiles += response.missingProjectPaths.length
-            start += sourceIndexes.length * params.concurrency
           }
           signal.throwIfAborted()
           let startedAt = profileEnabled ? performance.now() : 0
@@ -374,12 +368,15 @@ export function createPreparedYamlProjectWorkerPool(params: {
           if (finishResponse.kind !== "finishProjectStateFragmentResult") {
             throw new Error("Worker вернул неожиданный результат finishProjectStateFragment")
           }
-          await producer.writeFragment(finishResponse.fragment)
+          const fragmentView = openProjectStateFragment(finishResponse.fragment)
+          if (fragmentView.fileCount > 0) await producer.writeFragment(finishResponse.fragment)
           if (profileEnabled) {
             applyFragmentMs += performance.now() - startedAt
-            fragmentCount += 1
-            fragmentBytes += Object.values(finishResponse.fragment.buffers)
-              .reduce((sum, buffer) => sum + buffer.byteLength, 0)
+            if (fragmentView.fileCount > 0) {
+              fragmentCount += 1
+              fragmentBytes += Object.values(finishResponse.fragment.buffers)
+                .reduce((sum, buffer) => sum + buffer.byteLength, 0)
+            }
           }
           return { hashedFiles, parsedYamlFiles, changedFiles, missingFiles }
         } catch (caught) {
@@ -472,32 +469,17 @@ function createProjectStateRefreshTask(
     readonly source: ProjectStateValidationSource
   },
   workerIndex: number,
-  sourceIndexes: readonly number[],
+  batch: ProjectStateValidationFileBatch,
 ): Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }> {
-  const knownHashBits = new Uint8Array(Math.ceil(sourceIndexes.length / 8))
-  const expectedHashBytes = new Uint8Array(sourceIndexes.length * 8)
-  sourceIndexes.forEach((sourceIndex, taskIndex) => {
-    if (hasKnownBaselineHash(params.source.baseline.knownHashBits, sourceIndex)) {
-      knownHashBits[Math.floor(taskIndex / 8)]! |= 1 << (taskIndex % 8)
-    }
-    expectedHashBytes.set(
-      params.source.baseline.hashBytes.subarray(sourceIndex * 8, sourceIndex * 8 + 8),
-      taskIndex * 8,
-    )
-  })
   return {
     kind: "refreshProjectState",
     workerIndex,
     projectDir: params.projectDir,
     context: params.context,
-    files: sourceIndexes.map((sourceIndex) => params.source.files[sourceIndex]!),
-    knownHashBits,
-    expectedHashBytes,
+    files: batch.files,
+    knownHashBits: batch.knownHashBits,
+    expectedHashBytes: batch.hashBytes,
   }
-}
-
-function hasKnownBaselineHash(bits: Uint8Array, index: number): boolean {
-  return (bits[Math.floor(index / 8)]! & (1 << (index % 8))) !== 0
 }
 
 function projectStateRefreshTransferable(

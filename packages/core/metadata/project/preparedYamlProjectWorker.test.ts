@@ -12,6 +12,7 @@ import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
 import {
   createPreparedYamlProjectWorkerPool,
 } from "./preparedYamlProjectWorkerPool"
@@ -627,6 +628,7 @@ describe("project-state refresh pool", () => {
           return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
         }
         if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
+        fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
         return {
           kind: "refreshProjectStateResult",
           missingProjectPaths: [],
@@ -646,14 +648,7 @@ describe("project-state refresh pool", () => {
       await pool.runProjectStateRefresh({
         projectDir,
         context: mockContext,
-        source: {
-          files: [{ identity, absolutePath: join(projectDir, identity.projectPath) }],
-          baseline: {
-            knownHashBits: new Uint8Array(1),
-            hashBytes: new Uint8Array(8),
-            deleted: [],
-          },
-        },
+        source: { batches: validationBatches([{ identity, absolutePath: join(projectDir, identity.projectPath) }]) },
       }, {
         async writeFragment() {},
         async deleteFiles() {},
@@ -685,42 +680,14 @@ describe("project-state refresh pool", () => {
       absolutePath: join(projectDir, "cf", `${index}.bin`),
     }))
     const taskSizes: number[] = []
-    const fragmentWriter = createProjectStateFragmentWriter()
-    const fake = {
-      async run(input: unknown) {
-        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
-        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
-        if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
-        if (task.kind === "finishProjectStateFragment") {
-          return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
-        }
-        if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
-        taskSizes.push(task.files.length)
-        task.files.forEach(({ identity }) => fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n))
-        return {
-          kind: "refreshProjectStateResult",
-          missingProjectPaths: [],
-          hashedFiles: task.files.length,
-          parsedYamlFiles: 0,
-          changedFiles: task.files.length,
-        }
-      },
-      async destroy() {},
-    }
+    const fake = createRefreshPoolFake((task) => { taskSizes.push(task.files.length) })
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
     let writes = 0
     try {
       const running = pool.runProjectStateRefresh({
         projectDir,
         context: mockContext,
-        source: {
-          files,
-          baseline: {
-            knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
-            hashBytes: new Uint8Array(files.length * 8),
-            deleted: [],
-          },
-        },
+        source: { batches: validationBatches(files) },
       }, {
         async writeFragment() {
           writes += 1
@@ -736,6 +703,46 @@ describe("project-state refresh pool", () => {
       })
       expect(taskSizes).toEqual([128, 1])
       expect(writes).toBe(1)
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("не запрашивает следующую пачку, пока единственный worker занят", async () => {
+    const projectDir = createTempDir()
+    const files = [0, 1].map((index) => ({
+      identity: { projectPath: `cf/${index}.bin`, componentPath: "cf", resourceKind: "resource" as const },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    let releaseFirst!: () => void
+    let notifyFirstStarted!: () => void
+    const firstReleased = new Promise<void>((resolve) => { releaseFirst = resolve })
+    const firstStarted = new Promise<void>((resolve) => { notifyFirstStarted = resolve })
+    let secondRequested = false
+    let calls = 0
+    const fake = createRefreshPoolFake(async () => {
+      calls += 1
+      if (calls === 1) {
+        notifyFirstStarted()
+        await firstReleased
+      }
+    })
+    const batches = (async function* () {
+      for await (const batch of validationBatches([files[0]!])) yield batch
+      secondRequested = true
+      for await (const batch of validationBatches([files[1]!])) yield batch
+    })()
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    try {
+      const running = pool.runProjectStateRefresh({ projectDir, context: mockContext, source: { batches } }, {
+        async writeFragment() {},
+        async deleteFiles() {},
+      })
+      await firstStarted
+      expect(secondRequested).toBe(false)
+      releaseFirst()
+      await expect(running).resolves.toMatchObject({ hashedFiles: 2 })
+      expect(secondRequested).toBe(true)
     } finally {
       await pool.close()
     }
@@ -816,4 +823,46 @@ function profileTime(line: string): number {
   const match = /\btime=([\d.]+)ms/.exec(line)
   if (match?.[1] === undefined) throw new Error(`В profile-записи отсутствует time: ${line}`)
   return Number(match[1])
+}
+
+async function* validationBatches(
+  files: ProjectStateValidationFileBatch["files"],
+): AsyncGenerator<ProjectStateValidationFileBatch> {
+  for (let offset = 0; offset < files.length; offset += 128) {
+    const batch = files.slice(offset, offset + 128)
+    yield {
+      files: batch,
+      knownHashBits: new Uint8Array(Math.ceil(batch.length / 8)),
+      hashBytes: new Uint8Array(batch.length * 8),
+      previousFileIds: new Int32Array(batch.length).fill(-1),
+      storedFileCount: 0,
+    }
+  }
+}
+
+function createRefreshPoolFake(
+  onTask: (task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>) => void | Promise<void>,
+) {
+  const fragmentWriter = createProjectStateFragmentWriter()
+  return {
+    async run(input: unknown) {
+      const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
+      const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+      if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+      if (task.kind === "finishProjectStateFragment") {
+        return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
+      }
+      if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
+      await onTask(task)
+      task.files.forEach(({ identity }) => fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n))
+      return {
+        kind: "refreshProjectStateResult",
+        missingProjectPaths: [],
+        hashedFiles: task.files.length,
+        parsedYamlFiles: 0,
+        changedFiles: task.files.length,
+      }
+    },
+    async destroy() {},
+  }
 }

@@ -31,6 +31,24 @@ export interface ProjectStateComponentProjection {
   readonly hashBytes: Uint8Array
 }
 
+async function* measureAsyncIterable<T>(
+  phase: "discoverFiles",
+  source: AsyncIterable<T>,
+  phaseMs: { discoverFilesMs: number },
+  onPhase?: (event: import("./refresh").ProjectStateProfilePhaseEvent) => void,
+): AsyncGenerator<T> {
+  const iterator = source[Symbol.asyncIterator]()
+  while (true) {
+    const startedAt = performance.now()
+    const next = await iterator.next()
+    const elapsedMs = performance.now() - startedAt
+    phaseMs.discoverFilesMs += elapsedMs
+    onPhase?.({ phase, elapsedMs })
+    if (next.done) return
+    yield next.value
+  }
+}
+
 export interface ProjectStateService {
   beginImport(params: ProjectStateImportParams): Promise<ProjectStateImportSession>
   refreshAndValidate(params: ProjectStateRefreshParams): Promise<ProjectStateRefreshResult>
@@ -335,8 +353,8 @@ export function createProjectStateService(
       ? writer
       : {
           ...writer,
-          readFileBaseline: (files: Parameters<ProjectStateWriterHandle["readFileBaseline"]>[0]) =>
-            measurePhase("readBaseline", () => writer.readFileBaseline(files)),
+          readFileBaselinePage: (files: Parameters<ProjectStateWriterHandle["readFileBaselinePage"]>[0]) =>
+            measurePhase("readBaseline", () => writer.readFileBaselinePage(files)),
           readLocalDiagnostics: () => measurePhase("readLocalDiagnostics", () => writer.readLocalDiagnostics()),
           validateDependencies: () => measurePhase("dependencyValidation", () => writer.validateDependencies()),
           async commitAndScheduleCheckpoint() {
@@ -363,10 +381,15 @@ export function createProjectStateService(
         ? dependencies
         : {
             ...dependencies,
-            discoverFiles: (refreshParams) => measurePhase("discoverFiles", () => dependencies.discoverFiles(refreshParams)),
-            processFiles: (files, baseline, producer, operation, projectDir) => measurePhase(
+            discoverFiles: (refreshParams) => measureAsyncIterable(
+              "discoverFiles",
+              dependencies.discoverFiles(refreshParams),
+              phaseMs,
+              options.onPhase,
+            ),
+            processFiles: (batches, producer, operation, projectDir) => measurePhase(
               "processFiles",
-              () => dependencies.processFiles(files, baseline, producer, operation, projectDir),
+              () => dependencies.processFiles(batches, producer, operation, projectDir),
             ),
           })
     } catch (caught) {

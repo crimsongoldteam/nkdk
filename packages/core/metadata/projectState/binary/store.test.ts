@@ -69,4 +69,31 @@ describe("BinaryProjectStateStore", () => {
 
     expect(store.compareFiles({ files: [], hashBytes: new Uint8Array() })).toEqual({ changed: [], deleted: [] })
   })
+
+  it("читает baseline страницами и удаляет только неотмеченные прежние файлы", () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    const first = yamlUpdate("cf/Первый.yaml", "cf", "Catalog.Первый")
+    const second = yamlUpdate("cf/Второй.yaml", "cf", "Catalog.Второй")
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile(first, 11n)
+    writer.appendFile(second, 12n)
+    store.beginUpdate()
+    store.appendFragment(writer.finish())
+    expect(store.commitUpdate()).toBe(true)
+
+    const page = store.readFileBaselinePage([first])
+    expect(page.storedFileCount).toBe(2)
+    expect(page.previousFileIds[0]).toBeGreaterThanOrEqual(0)
+    expect(new DataView(page.hashBytes.buffer).getBigUint64(0, false)).toBe(11n)
+
+    store.beginUpdate()
+    const seen = new Uint8Array(1)
+    seen[0] = 1 << page.previousFileIds[0]!
+    expect(store.deleteUnseenFiles(seen)).toBe(1)
+    expect(store.commitUpdate()).toBe(true)
+    expect(store.readComponentProjection("cf").updates).toEqual([first])
+
+    store.beginUpdate()
+    expect(store.commitUpdate()).toBe(false)
+  })
 })

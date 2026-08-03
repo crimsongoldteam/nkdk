@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate } from "./fileUpdate"
 import { createProjectStateFragmentWriter, type ProjectStateFragment } from "./binary/fragment"
-import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaselinePage, ProjectStateReadToken } from "./contracts"
 import { createTestProjectStateReadToken } from "./tests/readToken"
 import {
   refreshProjectState,
@@ -25,14 +25,15 @@ describe("refreshProjectState", () => {
 
     const result = await refreshProjectState({ projectDir: "/project" }, {
       handle,
-      async discoverFiles() {
+      async *discoverFiles() {
         events.push("discover")
-        return files
+        yield { files }
       },
-      async processFiles(selected, baseline, producer, operation, projectDir) {
+      async processFiles(batches, producer, operation, projectDir) {
+        const selected = []
+        for await (const batch of batches) selected.push(...batch.files)
         events.push("process")
-        expect(selected).toBe(files)
-        expect(baseline.deleted).toEqual([deleted])
+        expect(selected).toEqual(files)
         expect(operation.signal).toBe(handle.signal)
         expect(projectDir).toBe("/project")
         const writer = createProjectStateFragmentWriter()
@@ -45,12 +46,12 @@ describe("refreshProjectState", () => {
     })
 
     expect(events).toEqual([
+      "begin",
       "discover",
       "baseline",
-      "begin",
-      "delete:cf/Удалённый.yaml",
       "process",
       "write",
+      "delete:cf/Удалённый.yaml",
       "workers-closed",
       "local",
       "dependencies",
@@ -85,21 +86,21 @@ describe("refreshProjectState", () => {
     const discoveryHandle = new TrackingRefreshHandle([])
     await expect(refreshProjectState({ projectDir: "/project" }, {
       ...emptyDependencies(discoveryHandle),
-      discoverFiles: async () => { throw new Error("discover failed") },
+      discoverFiles: async function* () { throw new Error("discover failed") },
     })).rejects.toThrow("discover failed")
 
     const baselineHandle = new class extends TrackingRefreshHandle {
-      override async readFileBaseline(): Promise<ProjectStateFileBaseline> {
+      override async readFileBaselinePage(): Promise<ProjectStateFileBaselinePage> {
         throw new Error("baseline failed")
       }
     }([])
     await expect(refreshProjectState({ projectDir: "/project" }, emptyDependencies(baselineHandle)))
       .rejects.toThrow("baseline failed")
 
-    expect(discoveryHandle.beginCalls).toBe(0)
-    expect(discoveryHandle.rollbackCalls).toBe(0)
-    expect(baselineHandle.beginCalls).toBe(0)
-    expect(baselineHandle.rollbackCalls).toBe(0)
+    expect(discoveryHandle.beginCalls).toBe(1)
+    expect(discoveryHandle.rollbackCalls).toBe(1)
+    expect(baselineHandle.beginCalls).toBe(1)
+    expect(baselineHandle.rollbackCalls).toBe(1)
   })
 
   it("откатывает всю транзакцию при технической ошибке worker", async () => {
@@ -180,8 +181,9 @@ describe("refreshProjectState", () => {
 
     await expect(refreshProjectState({ projectDir: "/project", signal: userController.signal }, {
       ...emptyDependencies(handle),
-      async processFiles(_files, _baseline, _producer, operation: ProjectStateRefreshOperation) {
+      async processFiles(batches, _producer, operation: ProjectStateRefreshOperation) {
         workerSignal = operation.signal
+        for await (const _batch of batches) { /* завершить обнаружение */ }
         userController.abort()
         return { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }
       },
@@ -211,12 +213,13 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     this.options = options
   }
 
-  async readFileBaseline(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline> {
+  async readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage> {
     this.events.push("baseline")
     return {
       knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
       hashBytes: new Uint8Array(files.length * 8),
-      deleted: this.options.deleted === undefined ? [] : [this.options.deleted],
+      previousFileIds: new Int32Array(files.length).fill(-1),
+      storedFileCount: this.options.deleted === undefined ? 0 : 1,
     }
   }
 
@@ -232,6 +235,12 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
 
   async deleteFiles(projectPaths: readonly string[]): Promise<void> {
     for (const path of projectPaths) this.events.push(`delete:${path}`)
+  }
+
+  async deleteUnseenFiles(_seenFileIds: Uint8Array): Promise<number> {
+    if (this.options.deleted === undefined) return 0
+    this.events.push(`delete:${this.options.deleted.projectPath}`)
+    return 1
   }
 
   async readLocalDiagnostics(): Promise<readonly Diagnostic[]> {
@@ -264,13 +273,11 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
 function emptyDependencies(handle: ProjectStateRefreshHandle): ProjectStateRefreshDependencies {
   return {
     handle,
-    discoverFiles: async () => [],
-    processFiles: async () => ({
-      hashedFiles: 0,
-      parsedYamlFiles: 0,
-      changedFiles: 0,
-      missingFiles: 0,
-    }),
+    discoverFiles: async function* () {},
+    processFiles: async (batches) => {
+      for await (const _batch of batches) { /* завершить обнаружение */ }
+      return { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }
+    },
   }
 }
 

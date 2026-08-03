@@ -68,6 +68,17 @@ describe("владелец состояния проекта в главном �
     await expect(handle.readComponentProjection("cf")).resolves.toMatchObject({ updates: [] })
   })
 
+  it("не планирует сохранение для неизменившегося состояния", async () => {
+    const save = vi.fn().mockResolvedValue(undefined)
+    const handle = createHandle(save)
+
+    await handle.beginUpdate("/project")
+    await handle.commitAndScheduleCheckpoint()
+    await handle.flushCheckpoint()
+
+    expect(save).not.toHaveBeenCalled()
+  })
+
   it("передаёт двоичный фрагмент хранилищу и публикует его только при commit", async () => {
     const handle = createHandle(async () => undefined)
     const writer = createProjectStateFragmentWriter()

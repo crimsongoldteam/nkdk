@@ -9,6 +9,7 @@ import {
 } from "../dependencyValidation"
 import {
   assertProjectStateFileBaseline,
+  assertProjectStateFileBaselinePage,
   assertProjectStateFileHashBatch,
   type ProjectStateReadToken,
 } from "../contracts"
@@ -82,6 +83,24 @@ export function createBinaryProjectStateStore(
       const deleted = allIdentities(snapshot).filter(({ projectPath }) => !requestedPaths.has(projectPath))
       const result = { knownHashBits, hashBytes, deleted }
       assertProjectStateFileBaseline(result, files.length)
+      return result
+    },
+    readFileBaselinePage(files) {
+      assertOpen()
+      const snapshot = new ProjectStateSnapshotView(published)
+      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
+      const hashBytes = new Uint8Array(files.length * 8)
+      const previousFileIds = new Int32Array(files.length).fill(-1)
+      const hashes = new DataView(hashBytes.buffer)
+      files.forEach((file, index) => {
+        const fileId = snapshot.findFile(file.projectPath)
+        if (fileId === undefined || !sameIdentity(snapshotIdentity(snapshot, fileId), file)) return
+        previousFileIds[index] = fileId
+        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+        hashes.setBigUint64(index * 8, snapshot.fileRecord(fileId).hash, false)
+      })
+      const result = { knownHashBits, hashBytes, previousFileIds, storedFileCount: snapshot.fileCount }
+      assertProjectStateFileBaselinePage(result, files.length)
       return result
     },
     compareFiles(batch) {
@@ -189,6 +208,21 @@ export function createBinaryProjectStateStore(
       const update = assertActive()
       projectPaths.forEach((projectPath) => remove(update, projectPath))
     },
+    deleteUnseenFiles(seenFileIds) {
+      assertOpen()
+      const update = assertActive()
+      const snapshot = new ProjectStateSnapshotView(published)
+      if (seenFileIds.byteLength !== Math.ceil(snapshot.fileCount / 8)) {
+        throw new Error("Битовая карта обнаруженных файлов имеет неверный размер")
+      }
+      let deleted = 0
+      for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
+        if ((seenFileIds[Math.floor(fileId / 8)]! & (1 << (fileId % 8))) !== 0) continue
+        remove(update, snapshot.filePath(fileId))
+        deleted += 1
+      }
+      return deleted
+    },
     readLocalDiagnostics(params) {
       assertOpen()
       return readDiagnostics(
@@ -231,8 +265,10 @@ export function createBinaryProjectStateStore(
     commitUpdate() {
       assertOpen()
       const update = assertActive()
+      const changed = update.replacements.size > 0 || update.fragments.length > 0 || update.deletions.size > 0
       published = materialize(update)
       active = undefined
+      return changed
     },
     rollbackUpdate() {
       assertOpen()
@@ -267,7 +303,8 @@ export function createBinaryProjectStateStore(
 
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
     if (update.replacements.size === 0 && update.fragments.length === 0 && update.deletions.size === 0) return published
-    update.candidate ??= update.fragments.length > 0
+    const typedBase = hasTypedProjectStateFacts(new ProjectStateSnapshotView(published))
+    update.candidate ??= update.replacements.size === 0 && (update.fragments.length > 0 || typedBase)
       ? buildProjectStateSnapshot({ base: published, fragments: update.fragments, deletions: [...update.deletions] })
       : buildProjectStateSnapshot({ base: published, replacements: [...update.replacements.values()], deletions: [...update.deletions] })
     return update.candidate
