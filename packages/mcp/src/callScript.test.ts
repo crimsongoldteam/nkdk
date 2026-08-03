@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest"
 
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
 const callScriptModule = await import(callScript.href)
-const { parseArgs, reportServerStderr } = callScriptModule
+const { operationFailed, parseArgs, reportServerStderr } = callScriptModule
 
 describe("MCP call script", () => {
   it("keeps the CLI usage contract", () => {
@@ -60,5 +60,20 @@ describe("MCP call script", () => {
     expect(client.callTool).toHaveBeenCalledWith(request, undefined, {
       timeout: 2_147_483_647,
     })
+  })
+
+  it("не считает project_validation техническим сбоем успешной операции", () => {
+    expect(operationFailed({
+      ok: true,
+      failed: [{ kind: "project_validation", name: "cf/a.yaml", message: "invalid" }],
+    })).toBe(false)
+
+    expect(operationFailed({
+      ok: true,
+      failed: [
+        { kind: "project_validation", name: "cf/a.yaml", message: "invalid" },
+        { kind: "write", name: "cf/b.yaml", message: "EACCES" },
+      ],
+    })).toBe(true)
   })
 })

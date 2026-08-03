@@ -106,9 +106,13 @@ function structuredPayload(result) {
   }
 }
 
-function operationFailed(payload) {
+export function operationFailed(payload) {
   if (!payload || typeof payload !== "object") return false
-  return payload.ok === false || (Array.isArray(payload.failed) && payload.failed.length > 0)
+  if (payload.ok === false) return true
+  if (!Array.isArray(payload.failed) || payload.failed.length === 0) return false
+  return payload.failed.some(
+    (failure) => !failure || typeof failure !== "object" || failure.kind !== "project_validation"
+  )
 }
 
 function failureMessage(toolName, result, payload) {
