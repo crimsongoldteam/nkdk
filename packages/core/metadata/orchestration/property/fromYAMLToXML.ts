@@ -37,6 +37,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "../../forms/commonObjects/dynamicList/externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
+import { assertAllowedExplicitXMLTags } from "./explicitXMLPropertyRegistry"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -137,6 +138,15 @@ export function createYAMLPropertySource(params: {
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
   const yaml = asRecord(params.yaml)
+  try {
+    assertAllowedExplicitXMLTags({
+      yaml,
+      itemType: params.rule.itemType,
+      properties: params.rule.properties,
+    })
+  } catch (cause) {
+    throw toYAMLImportError(cause, params.context)
+  }
   const source = createYAMLPropertySource({
     yaml,
     rule: params.rule,

@@ -12,6 +12,7 @@ import { registerElementRule } from "../../../orchestration/formElement/ruleFact
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 export const PictureFieldRules = {
   itemType: "PictureField",
@@ -227,5 +228,6 @@ export const TablePictureFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
+registerExplicitHeaderHorizontalAlign(TablePictureFieldRules.itemType)
 registerElementRule("PictureField", PictureFieldRules)
 registerElementRule("TablePictureField", TablePictureFieldRules)

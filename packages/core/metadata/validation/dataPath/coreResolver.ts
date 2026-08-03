@@ -4,6 +4,7 @@ import { resolveObjectFieldSegment, standardAttributeAliasToYAML, type ObjectFie
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import {
   getMetadataLinkPrefixesByOwnerKind,
+  isOpaqueTraversal,
   resolveRegisteredTableColumn,
   resolveMovementItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
@@ -103,6 +104,13 @@ interface TableColumnSource {
 }
 
 export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveDataPathCoreResult {
+  return resolveDataPathCoreWithCurrentData(params, new Set())
+}
+
+function resolveDataPathCoreWithCurrentData(
+  params: ResolveDataPathCoreParams,
+  currentDataElements: ReadonlySet<string>
+): ResolveDataPathCoreResult {
   const { value } = params
   if (value.trim().length === 0) return okWithoutTarget({ value, segments: [] })
 
@@ -110,7 +118,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
   const replacements: ResolvedDataPathSegmentReplacement[] = []
 
   if (isCurrentDataPath(segments)) {
-    return okWithoutTarget({ value, segments })
+    return resolveCurrentDataPath({ params, segments, currentDataElements })
   }
 
   if (isTildeVariantPath(value)) {
@@ -222,7 +230,12 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
     if (intermediateErrorAfterDefinedType !== undefined)
       return issueResult(params, segments, intermediateErrorAfterDefinedType, replacements)
 
-    const ownerResult = params.ownerCache.get(resolvedTypeInfo.nextTypes[0] as OwnerTypeRef)
+    const nextType = resolvedTypeInfo.nextTypes[0] as OwnerTypeRef
+    if (isOpaqueTraversal({ owner: nextType, segment: lookupSegment })) {
+      return okWithoutTarget({ value, segments, replacements })
+    }
+
+    const ownerResult = params.ownerCache.get(nextType)
     if (ownerResult.status !== "ok") return ownerError(params, segments, replacements, ownerResult)
 
     const transition = resolveTraversalTransition({
@@ -355,6 +368,87 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
   }
 
   return okTarget({ value, segments, state, replacements })
+}
+
+function resolveCurrentDataPath(params: {
+  params: ResolveDataPathCoreParams
+  segments: readonly string[]
+  currentDataElements: ReadonlySet<string>
+}): ResolveDataPathCoreResult {
+  const elementName = params.segments[1] ?? ""
+  const tableDataPath = params.params.index.tableDataPathByElementName.get(elementName)
+  if (tableDataPath === undefined) {
+    return error(
+      params.params,
+      `ПутьКДанным "${params.params.value}": неизвестный табличный элемент "${elementName}"`,
+      "current_data_unsupported"
+    )
+  }
+  if (params.currentDataElements.has(elementName)) {
+    return error(
+      params.params,
+      `ПутьКДанным "${params.params.value}": обнаружен цикл CurrentData для элемента "${elementName}"`,
+      "current_data_unsupported"
+    )
+  }
+
+  const tableDataPathSegments = tableDataPath.split(".")
+  const expandedSegments = [...tableDataPathSegments, ...params.segments.slice(3)]
+  const expandedValue = expandedSegments.join(".")
+  const nextElements = new Set(params.currentDataElements)
+  nextElements.add(elementName)
+  const result = resolveDataPathCoreWithCurrentData(
+    { ...params.params, value: expandedValue },
+    nextElements
+  )
+
+  return rebaseCurrentDataResult({
+    result,
+    originalValue: params.params.value,
+    originalSegments: params.segments,
+    expandedValue,
+    tableDataPathSegmentCount: tableDataPathSegments.length,
+  })
+}
+
+function rebaseCurrentDataResult(params: {
+  result: ResolveDataPathCoreResult
+  originalValue: string
+  originalSegments: readonly string[]
+  expandedValue: string
+  tableDataPathSegmentCount: number
+}): ResolveDataPathCoreResult {
+  const replacements = params.result.replacements
+    .filter(({ segmentIndex }) => segmentIndex >= params.tableDataPathSegmentCount)
+    .map((replacement) => ({
+      ...replacement,
+      segmentIndex: 3 + replacement.segmentIndex - params.tableDataPathSegmentCount,
+    }))
+  const target =
+    params.result.target === undefined
+      ? undefined
+      : {
+          ...params.result.target,
+          value: params.originalValue,
+          segments: params.originalSegments,
+        }
+  const common = {
+    value: params.originalValue,
+    segments: params.originalSegments,
+    replacements,
+    ...(target === undefined ? {} : { target }),
+  }
+  if (params.result.status === "ok") {
+    return { ...params.result, ...common, issues: [] }
+  }
+  return {
+    ...params.result,
+    ...common,
+    issues: params.result.issues.map((issue) => ({
+      ...issue,
+      message: issue.message.replaceAll(`"${params.expandedValue}"`, `"${params.originalValue}"`),
+    })),
+  }
 }
 
 function canUseFormOnlyTableForField(typeInfo: DataPathTypeInfo): boolean {

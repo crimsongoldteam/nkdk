@@ -20,6 +20,7 @@ import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
+import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
@@ -54,7 +55,10 @@ export function validateClientApplicationFormFirstPass(
   }
 
   const context = params.context ?? defaultValidationContext()
-  const index = createFormDataPathIndexFromYAML(entry.parsed.data)
+  const index = createFormDataPathIndexFromYAML(
+    entry.parsed.data,
+    collectFormTableDataPathsFromYAML(entry.parsed.data)
+  )
   const localDiagnostics: Diagnostic[] = []
   const occurrences = collectFormDataPathOccurrencesFromYAML({
     yaml: entry.parsed.data,

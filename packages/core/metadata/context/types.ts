@@ -157,6 +157,27 @@ export interface FormimportFromYAMLContext {
   formAttributes?: readonly FormDataPathAttributeContext[]
   /** Компактный индекс реквизитов формы, построенный прямо из YAML без metadata-модели. */
   formDataPathIndex?: FormDataPathIndex
+  /** Готовый неизменяемый индекс владельцев DataPath для YAML → XML. */
+  readonly ownerMetadataCache?: OwnerMetadataCache
+  /** Общий resolver ПутьКДанным, переданный границей операции. */
+  readonly resolveDataPath?: (params: {
+    value: string
+    index: FormDataPathIndex
+    ownerCache: OwnerMetadataCache
+  }) => {
+    status: "ok" | "warning" | "error"
+    target?: {
+      segments: readonly string[]
+      source: { kind: string }
+      typeInfo: {
+        isComposite?: boolean
+        nextTypes: readonly unknown[]
+        table?: { kind: string }
+      }
+    }
+  }
+  /** Вычисленный профиль конечного источника таблицы формы. */
+  readonly resolveTableSourceProfile?: (dataPath: unknown) => "dynamicList" | "rowFilter" | "none"
   /** Сопоставление текущих и reference-путей для вложенных metadata-коллекций. */
   referenceRemap?: {
     readonly currentPath: string

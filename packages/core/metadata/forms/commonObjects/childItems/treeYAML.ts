@@ -1,4 +1,5 @@
 import { CollectableElementType } from "../../../orchestration"
+import { copyYAMLScalarTags } from "../../../../yaml/scalarTags"
 
 export const childItemsTreePropertyTypes = [
   "GroupChildItems",
@@ -70,6 +71,7 @@ export const moveButtonTypeToTreeYAML = (params: {
   yaml: Record<string, unknown> | undefined
 }): Record<string, unknown> => {
   const result = { ...(params.yaml ?? {}) }
+  if (params.yaml !== undefined) copyYAMLScalarTags(params.yaml, result)
   if (isButtonElementType(params.itemType) && result.Вид !== undefined) {
     result.ТипКнопки = result.Вид
     delete result.Вид

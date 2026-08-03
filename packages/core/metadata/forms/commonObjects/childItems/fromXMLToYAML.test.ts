@@ -6,6 +6,7 @@ import {
 } from "../../../configurationIndex/collector/context"
 import { createLocalIndexesCollector } from "../../../project/localIndexes"
 import { mockContextFromXML } from "../../../../tests/mockContext"
+import { exportToYAML } from "../../../../yaml/export"
 import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
 
@@ -111,5 +112,26 @@ describe("importChildItemsFromXMLToYAML", () => {
     })
 
     expect(yaml).toEqual({ ОК: { Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" } })
+  })
+
+  it("сохраняет !xml у явного Auto в колонке таблицы", () => {
+    const yaml = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "TableChildItems", yaml: "Элементы" },
+      xml: {
+        InputField: {
+          _name: "Колонка",
+          DataPath: "Таблица.Поле",
+          HeaderHorizontalAlign: "Auto",
+        },
+      },
+      traversal: {
+        yamlPath: ["Элементы"],
+        rulePath: [{ propertyKey: "childItems" }],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml Авто")
   })
 })

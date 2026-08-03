@@ -2,8 +2,23 @@ import { describe, expect, it } from "vitest"
 import { explicitYAMLString } from "./explicitString"
 import { exportToYAML } from "./export"
 import { importFromYAML } from "./import"
+import { parseWithJsYaml } from "./jsYamlParser"
+import { markYAMLScalarTag } from "./scalarTags"
 
 describe("exportToYAML", () => {
+  it("exports a marked scalar with the local xml tag", () => {
+    const data = { Поле: "Авто" }
+    markYAMLScalarTag(data, "Поле", "xml")
+
+    expect(exportToYAML(data)).toBe("Поле: !xml Авто")
+  })
+
+  it("preserves the local xml tag across parse and export", () => {
+    const parsed = parseWithJsYaml("Поле: !xml Авто")
+
+    expect(exportToYAML(parsed.data)).toBe("Поле: !xml Авто")
+  })
+
   it("preserves newline-only block scalar values", () => {
     const yaml = exportToYAML({ Пояснение: "\n" })
 

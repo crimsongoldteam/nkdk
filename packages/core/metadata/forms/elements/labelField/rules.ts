@@ -10,6 +10,7 @@ import { registerElementRule } from "../../../orchestration/formElement/ruleFact
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
+import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 export const LabelFieldRules = {
   itemType: "LabelField",
@@ -199,5 +200,6 @@ export const TableLabelFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
+registerExplicitHeaderHorizontalAlign(TableLabelFieldRules.itemType)
 registerElementRule("LabelField", LabelFieldRules)
 registerElementRule("TableLabelField", TableLabelFieldRules)

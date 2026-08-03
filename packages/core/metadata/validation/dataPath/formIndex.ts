@@ -16,6 +16,7 @@ import type {
 export interface FormDataPathIndex {
   roots: Map<string, FormDataPathSource>
   additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
+  tableDataPathByElementName: ReadonlyMap<string, string>
   duplicateDiagnostics: Diagnostic[]
   getRoot(name: string): FormDataPathSource | undefined
 }
@@ -24,6 +25,7 @@ export interface BuildFormDataPathIndexParams {
   filePath: string
   parsed: ParsedYaml
   form: ClientApplicationForm
+  tableDataPathByElementName?: ReadonlyMap<string, string>
 }
 
 export interface KnownPlatformFormSource {
@@ -33,9 +35,15 @@ export interface KnownPlatformFormSource {
   match: "exact" | "prefix"
 }
 
-export function buildFormDataPathIndex({ filePath, parsed, form }: BuildFormDataPathIndexParams): FormDataPathIndex {
+export function buildFormDataPathIndex({
+  filePath,
+  parsed,
+  form,
+  tableDataPathByElementName: suppliedTableDataPaths,
+}: BuildFormDataPathIndexParams): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
   const additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath = new Map()
+  const tableDataPathByElementName = new Map(suppliedTableDataPaths)
   const duplicateDiagnostics: Diagnostic[] = []
   const seenNames = new Map<string, number>()
 
@@ -56,6 +64,7 @@ export function buildFormDataPathIndex({ filePath, parsed, form }: BuildFormData
   return {
     roots,
     additionalColumnsByTablePath,
+    tableDataPathByElementName,
     duplicateDiagnostics,
     getRoot(name: string): FormDataPathSource | undefined {
       return roots.get(name)

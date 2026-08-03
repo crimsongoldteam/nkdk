@@ -25,6 +25,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
+import { exportToYAML } from "../../../../yaml/export"
 
 import "../index"
 
@@ -112,8 +113,8 @@ describe("элементы формы XML → YAML → XML", () => {
       includeCheckBoxType: false,
     })
     if (expectedXML.includes("<Table")) {
-      expect(importContentFromXML(actualXML, { preserveXsiNil: true })).toEqual(
-        importContentFromXML(expectedXML, { preserveXsiNil: true })
+      expect(withoutComputedTableServiceNodes(importContentFromXML(actualXML, { preserveXsiNil: true }))).toEqual(
+        withoutComputedTableServiceNodes(importContentFromXML(expectedXML, { preserveXsiNil: true }))
       )
     } else {
       expect(actualXML).toBe(expectedXML)
@@ -382,20 +383,39 @@ describe("элементы формы XML → YAML → XML", () => {
   })
 
   it.each([TableInputFieldRules, TableLabelFieldRules, TablePictureFieldRules, TableCheckBoxFieldRules])(
-    "canonicalizes explicit table HeaderHorizontalAlign=Auto to an absent XML tag",
+    "preserves explicit table HeaderHorizontalAlign=Auto through !xml",
     (rule) => {
       const yaml = testMetadataItemFromXMLToYAML({
         rule,
         xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
         name: "Колонка",
       }).yaml
-      expect(yaml).not.toHaveProperty("ГоризонтальноеПоложениеВШапке")
-      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).not.toHaveProperty(
-        "HeaderHorizontalAlign"
+      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml Авто")
+      expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
+        "HeaderHorizontalAlign",
+        "Auto"
       )
     }
   )
 })
+
+function withoutComputedTableServiceNodes<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(withoutComputedTableServiceNodes) as T
+  if (typeof value !== "object" || value === null) return value
+
+  const source = value as Record<string, unknown>
+  const result = Object.fromEntries(
+    Object.entries(source)
+      .filter(([key]) => key !== "Period" && key !== "TopLevelParent" && key !== "RowFilter")
+      .map(([key, nested]) => [
+        key,
+        key === "#text" && typeof nested === "string" && nested.trim().length === 0
+          ? ""
+          : withoutComputedTableServiceNodes(nested),
+      ])
+  )
+  return result as T
+}
 
 function resolveItemType(xmlTag: string, fixtureName: string, xml: Record<string, unknown>): CollectableElementType {
   if (

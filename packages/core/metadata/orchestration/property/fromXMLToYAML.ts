@@ -25,6 +25,8 @@ import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
+import { markYAMLScalarTag } from "../../../yaml/scalarTags"
+import { matchExplicitXMLPropertyFromXML } from "./explicitXMLPropertyRegistry"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -102,6 +104,12 @@ export function importPropertiesFromXMLToYAML(params: {
     if (params.profile !== undefined) params.profile.propertyCount++
     const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
     const { propertyKey: key, rule: propertyRule } = entry
+    const explicitXML = matchExplicitXMLPropertyFromXML({
+      itemType: rule.itemType,
+      propertyKey: key,
+      presentInXML,
+      xmlValue: sourceXMLValue,
+    })
     const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedConfigurationIndexAddressing =
       propertyRule.configurationIndexAddressing ??
@@ -350,6 +358,7 @@ export function importPropertiesFromXMLToYAML(params: {
             owner,
           })
         : value
+      const exportedYamlValue = explicitXML?.yamlValue ?? yamlValue
       if (!convertedDirectly) {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -384,9 +393,13 @@ export function importPropertiesFromXMLToYAML(params: {
 
       if (!canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })) return
       const outputStartedAt = performance.now()
-      const exportedValues = getExportToYAMLResult(propertyRule, propertyRule.yaml!, yamlValue, value)
+      const exportedValues =
+        explicitXML === undefined
+          ? getExportToYAMLResult(propertyRule, propertyRule.yaml!, yamlValue, value)
+          : { [propertyRule.yaml!]: exportedYamlValue }
       if (exportedValues === undefined) return
       Object.assign(result, exportedValues)
+      if (explicitXML !== undefined) markYAMLScalarTag(result, propertyRule.yaml!, "xml")
       const profile = params.profile
       if (profile !== undefined) profile.exportedCount++
       addProfileTime(params.profile, "outputMs", outputStartedAt)
@@ -395,7 +408,7 @@ export function importPropertiesFromXMLToYAML(params: {
         yamlPath: propertyYamlPath,
         rulePath: propertyRulePath,
         rule: propertyRule,
-        value: yamlValue,
+        value: exportedYamlValue,
         ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
       })
       const finalize = getTypeRule(propertyRule.type, "finalizeImportedYAML")

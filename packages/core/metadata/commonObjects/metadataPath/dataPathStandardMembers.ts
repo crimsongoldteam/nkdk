@@ -52,7 +52,10 @@ function formatWithResolver(params: {
 }): string {
   const formAttributes = currentFormAttributes(params.context)
   const directIndex = params.context.importFromYAML?.formDataPathIndex
-  const suppliedOwnerCache = params.context.exportToYAML?.ownerMetadataCache
+  const suppliedOwnerCache =
+    params.direction === "yaml-to-internal"
+      ? params.context.importFromYAML?.ownerMetadataCache ?? params.context.exportToYAML?.ownerMetadataCache
+      : params.context.exportToYAML?.ownerMetadataCache ?? params.context.importFromYAML?.ownerMetadataCache
   const projectDir = params.context.importFromYAML?.projectDir ?? params.context.exportToYAML?.projectDir
   if (formAttributes.length === 0 && directIndex === undefined) return params.value
 

@@ -20,13 +20,31 @@ function dynamicListTableProperty<const Rule extends CompactScalarRule>(rule: Ru
   } as const
 }
 
+function tableSourceProfile(source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) {
+  const dataPath = source.raw("dataPath")
+  const resolved = context?.importFromYAML?.resolveTableSourceProfile?.(dataPath)
+  if (resolved !== undefined) return resolved
+  if (typeof dataPath !== "string" || dataPath.trim().length === 0) return "rowFilter"
+  const directKind = context?.importFromYAML?.formDataPathIndex?.getRoot(dataPath)?.tableSource?.table.kind
+  if (directKind === "DynamicList") return "dynamicList"
+  if (directKind === "ValueTable" || directKind === "TabularSection" || directKind === "RegisterRecordSet") {
+    return "rowFilter"
+  }
+  return "none"
+}
+
 export function isDirectDynamicListTable(
   source: YAMLPropertySource,
   context?: ConfigurationContextWithExportToXML
 ): boolean {
-  const dataPath = source.raw("dataPath")
-  if (typeof dataPath !== "string") return false
-  return context?.importFromYAML?.formDataPathIndex?.getRoot(dataPath)?.tableSource?.table.kind === "DynamicList"
+  return tableSourceProfile(source, context) === "dynamicList"
+}
+
+export function hasRowFilterTableSource(
+  source: YAMLPropertySource,
+  context?: ConfigurationContextWithExportToXML
+): boolean {
+  return tableSourceProfile(source, context) === "rowFilter"
 }
 
 export const dynamicListTableProperties = {

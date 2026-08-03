@@ -1686,12 +1686,28 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("skips Items.*.CurrentData.* paths without diagnostics", () => {
+  it("validates a terminal field after Items.*.CurrentData", () => {
     const project = createProject({
-      form: ["Элементы:", "  Кнопка:", "    Вид: Кнопка", "    Данные: Items.Таблица.CurrentData.Номенклатура"],
+      form: [
+        "Реквизиты:",
+        "  ТаблицаЗначений:",
+        "    Тип: ТаблицаЗначений",
+        "    Колонки:",
+        "      Номенклатура:",
+        "        Тип: Строка",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: ТаблицаЗначений",
+        "  Кнопка:",
+        "    Вид: Кнопка",
+        "    Данные: Items.Таблица.CurrentData.НеизвестноеПоле",
+      ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(messages(runValidateForm(project))).toContain(
+      'ПутьКДанным "Items.Таблица.CurrentData.НеизвестноеПоле": неизвестная колонка "НеизвестноеПоле"'
+    )
   })
 
   it("skips tilde variant paths without diagnostics", () => {

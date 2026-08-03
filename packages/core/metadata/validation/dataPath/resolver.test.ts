@@ -2287,6 +2287,15 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("skips SettingsComposer of a generic report object without loading an unnamed owner", () => {
+    const result = resolve("Отчет.SettingsComposer.Settings", {
+      index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject"] })]),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({ status: "ok", diagnostics: [] })
+  })
+
   it("skips indexed SettingsComposer user settings data paths without diagnostics", () => {
     const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
       index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
@@ -2378,14 +2387,72 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("skips Items.*.CurrentData.* paths without diagnostics", () => {
-    const result = resolve("Items.Таблица.CurrentData.Номенклатура", {
-      index: indexWithAttributes([]),
+  it("resolves a CurrentData terminal field through the table element data path", () => {
+    const value = "Items.Таблица.CurrentData.ВложеннаяТаблица"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "yaml",
+      index: indexWithForm({
+        attributes: [
+          attribute("ТаблицаЗначений", { type: ["ValueTable"] }, [
+            column("ВложеннаяТаблица", { type: ["ValueTable"] }),
+          ]),
+        ],
+        tableDataPathByElementName: new Map([["Таблица", "ТаблицаЗначений"]]),
+      }),
+      ownerCache: ownerCache([]),
     })
 
     expect(result).toMatchObject({
       status: "ok",
-      diagnostics: [],
+      value,
+      segments: ["Items", "Таблица", "CurrentData", "ВложеннаяТаблица"],
+      target: {
+        source: { kind: "tableColumn", table: "ТаблицаЗначений", name: "ВложеннаяТаблица" },
+        typeInfo: { table: { kind: "ValueTable" } },
+      },
+    })
+  })
+
+  it("keeps a CurrentData SettingsComposer collection as a known target-less path", () => {
+    const value = "Items.Настройки.CurrentData.Filter"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "yaml",
+      index: indexWithForm({
+        attributes: [attribute("Компоновщик", { type: ["SettingsComposer"] })],
+        tableDataPathByElementName: new Map([["Настройки", "Компоновщик.Settings"]]),
+      }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({ status: "ok", value })
+    expect(result.target).toBeUndefined()
+  })
+
+  it("reports a CurrentData cycle through a table element data path", () => {
+    const value = "Items.Таблица.CurrentData.Поле"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "yaml",
+      index: indexWithForm({
+        attributes: [],
+        tableDataPathByElementName: new Map([
+          ["Таблица", "Items.Таблица.CurrentData.ВложеннаяТаблица"],
+        ]),
+      }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      value,
+      issues: [
+        expect.objectContaining({
+          code: "current_data_unsupported",
+          message: expect.stringContaining("обнаружен цикл CurrentData"),
+        }),
+      ],
     })
   })
 
@@ -2657,12 +2724,20 @@ function chartOfCalculationTypesOwners(): OwnerMetadataCache {
 }
 
 function indexWithAttributes(attributes: FormAttribute[]): FormDataPathIndex {
+  return indexWithForm({ attributes })
+}
+
+function indexWithForm(params: {
+  attributes: FormAttribute[]
+  tableDataPathByElementName?: ReadonlyMap<string, string>
+}): FormDataPathIndex {
   return buildFormDataPathIndex({
     filePath: "/tmp/form.yaml",
     parsed: parseMetadataYaml("Реквизиты: {}\n"),
+    tableDataPathByElementName: params.tableDataPathByElementName,
     form: {
       itemType: "ClientApplicationForm",
-      attributes,
+      attributes: params.attributes,
     } as ClientApplicationForm,
   })
 }
