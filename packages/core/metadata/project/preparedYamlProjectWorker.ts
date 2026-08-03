@@ -1,4 +1,5 @@
 import { resolve } from "node:path"
+import { readFile } from "node:fs/promises"
 import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { hashFileBytes } from "../configurationIndex/hash"
@@ -6,6 +7,7 @@ import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import {
   createProjectStateFileUpdateBatch,
   toProjectStateFileUpdate,
+  type ProjectStateFileIdentity,
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
 } from "../projectState/fileUpdate"
@@ -76,6 +78,15 @@ export type PreparedYamlProjectWorkerTask =
       hashBytes: Uint8Array
     }
   | {
+      kind: "refreshProjectState"
+      workerIndex: number
+      projectDir: string
+      context: ConfigurationContext
+      files: readonly ProjectStateValidationFileTask[]
+      knownHashBits: Uint8Array
+      expectedHashBytes: Uint8Array
+    }
+  | {
       kind: "collectValidationFacts"
       workerIndex: number
       projectDir: string
@@ -108,6 +119,14 @@ export type PreparedYamlProjectWorkerTaskResult =
       parsedYamlFiles: number
     }
   | {
+      kind: "refreshProjectStateResult"
+      fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
+      missingProjectPaths: readonly string[]
+      hashedFiles: number
+      parsedYamlFiles: number
+      changedFiles: number
+    }
+  | {
       kind: "collectValidationFactsResult"
       contribution: ValidationIndexContribution
     }
@@ -116,6 +135,8 @@ export async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask,
   options: {
     createValidationSchemaCache?: typeof createProjectValidationWorkerSchemaCache
+    readFile?: (absolutePath: string) => Promise<Uint8Array>
+    hashBytes?: (bytes: Uint8Array) => bigint
   } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
@@ -131,6 +152,7 @@ export async function runPreparedYamlProjectWorkerTask(
     return { kind: "initValidationResult", ...compileProfile }
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+  if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
   if (message.kind === "validateLocal") {
     if (message.files.length > LOCAL_VALIDATION_BATCH_SIZE) {
       throw new Error(`Локальная worker-задача должна содержать не более ${LOCAL_VALIDATION_BATCH_SIZE} YAML`)
@@ -182,18 +204,114 @@ export async function runPreparedYamlProjectWorkerTask(
   return response
 }
 
+export interface ProjectStateValidationFileTask {
+  readonly identity: ProjectStateFileIdentity
+  readonly absolutePath: string
+  readonly descriptor?: PreparedYamlProjectFileDescriptor
+}
+
+async function refreshProjectStateFiles(
+  message: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+  dependencies: {
+    readFile?: (absolutePath: string) => Promise<Uint8Array>
+    hashBytes?: (bytes: Uint8Array) => bigint
+  },
+): Promise<Extract<PreparedYamlProjectWorkerTaskResult, { kind: "refreshProjectStateResult" }>> {
+  const expectedBitLength = Math.ceil(message.files.length / 8)
+  if (message.knownHashBits.byteLength !== expectedBitLength) {
+    throw new Error(`knownHashBits должен занимать ${expectedBitLength} байт`)
+  }
+  if (message.expectedHashBytes.byteLength !== message.files.length * 8) {
+    throw new Error(`expectedHashBytes должен занимать ${message.files.length * 8} байт`)
+  }
+  const read = dependencies.readFile ?? (async (absolutePath) => new Uint8Array(await readFile(absolutePath)))
+  const hash = dependencies.hashBytes ?? hashFileBytes
+  const entries: ProjectStateFileUpdateBatchEntry[] = []
+  const yamlBatches: ProjectStateFileUpdateBatch[] = []
+  let hashedFiles = 0
+  let parsedYamlFiles = 0
+  let changedFiles = 0
+  const missingProjectPaths: string[] = []
+
+  for (let index = 0; index < message.files.length; index += 1) {
+    const file = message.files[index]!
+    let bytes: Uint8Array | undefined
+    try {
+      bytes = await read(file.absolutePath)
+      hashedFiles += 1
+      const currentHash = hash(bytes)
+      if (hasKnownHash(message.knownHashBits, index)
+        && currentHash === readExpectedHash(message.expectedHashBytes, index)) continue
+      if (file.identity.resourceKind === "yaml") {
+        if (file.descriptor === undefined) throw new Error(`У YAML отсутствует descriptor: ${file.identity.projectPath}`)
+        const validation = runValidationFirstPass({
+          kind: "validateLocal",
+          workerIndex: message.workerIndex,
+          projectDir: message.projectDir,
+          context: message.context,
+          files: [{ descriptor: file.descriptor, bytes }],
+          hashBytes: encodeHash(currentHash),
+        })
+        yamlBatches.push(...validation.fileUpdateBatches.filter(({ updates }) => updates.length > 0))
+        parsedYamlFiles += validation.yamlLifetime.parsed
+        changedFiles += 1
+        continue
+      }
+      entries.push({ update: { ...file.identity, kind: "resource" }, hash: currentHash })
+      changedFiles += 1
+    } catch (caught) {
+      if (!isMissingFile(caught)) throw caught
+      missingProjectPaths.push(file.identity.projectPath)
+    } finally {
+      bytes = undefined
+    }
+  }
+
+  return {
+    kind: "refreshProjectStateResult",
+    fileUpdateBatches: [
+      ...yamlBatches,
+      ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
+    ],
+    missingProjectPaths,
+    hashedFiles,
+    parsedYamlFiles,
+    changedFiles,
+  }
+}
+
+function hasKnownHash(bits: Uint8Array, index: number): boolean {
+  return (bits[Math.floor(index / 8)]! & (1 << (index % 8))) !== 0
+}
+
+function readExpectedHash(hashBytes: Uint8Array, index: number): bigint {
+  return new DataView(hashBytes.buffer, hashBytes.byteOffset, hashBytes.byteLength).getBigUint64(index * 8, false)
+}
+
+function encodeHash(hash: bigint): Uint8Array {
+  const hashBytes = new Uint8Array(8)
+  new DataView(hashBytes.buffer).setBigUint64(0, hash, false)
+  return hashBytes
+}
+
+function isMissingFile(caught: unknown): boolean {
+  return typeof caught === "object" && caught !== null && "code" in caught && caught.code === "ENOENT"
+}
+
 export default async function preparedYamlProjectWorkerEntryPoint(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
-  return result.kind === "validateFirstPassResult" || result.kind === "validateLocalResult"
+  return result.kind === "validateFirstPassResult"
+    || result.kind === "validateLocalResult"
+    || result.kind === "refreshProjectStateResult"
     ? movableValidationResult(result)
     : result
 }
 
 type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
-  { kind: "validateFirstPassResult" | "validateLocalResult" }
+  { kind: "validateFirstPassResult" | "validateLocalResult" | "refreshProjectStateResult" }
 >
 
 export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {

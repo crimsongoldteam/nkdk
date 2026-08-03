@@ -36,6 +36,118 @@ afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
+describe("project-state refresh worker", () => {
+  it("читает и хэширует изменённый resource внутри worker", async () => {
+    const absolutePath = "/project/cf/Логотип.bin"
+    const readCalls: string[] = []
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        identity: { projectPath: "cf/Логотип.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      async readFile(path: string) {
+        readCalls.push(path)
+        return Uint8Array.from([1, 2, 3])
+      },
+      hashBytes: () => 0x0102030405060708n,
+    })
+
+    expect(readCalls).toEqual([absolutePath])
+    expect(result).toEqual({
+      kind: "refreshProjectStateResult",
+      fileUpdateBatches: [{
+        updates: [{
+          kind: "resource",
+          projectPath: "cf/Логотип.bin",
+          componentPath: "cf",
+          resourceKind: "resource",
+        }],
+        hashBytes: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+      }],
+      missingProjectPaths: [],
+      hashedFiles: 1,
+      parsedYamlFiles: 0,
+      changedFiles: 1,
+    })
+    expect(result).not.toHaveProperty("bytes")
+  })
+
+  it("проверяет изменённый YAML из тех же прочитанных байтов", async () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "ТоварыWorker")
+    const bytes = new TextEncoder().encode("{}\n")
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        identity: {
+          projectPath: descriptor.rootProjectPath,
+          componentPath: descriptor.componentPath,
+          resourceKind: "yaml",
+          yamlRole: descriptor.role,
+        },
+        absolutePath: descriptor.filePath,
+        descriptor,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => bytes,
+      hashBytes: (value) => {
+        expect(value).toBe(bytes)
+        return 9n
+      },
+    })
+
+    expect(result.kind).toBe("refreshProjectStateResult")
+    if (result.kind !== "refreshProjectStateResult") return
+    expect(result.fileUpdateBatches).toHaveLength(1)
+    expect(result.fileUpdateBatches[0]?.updates).toEqual([
+      expect.objectContaining({ kind: "yaml", projectPath: descriptor.rootProjectPath }),
+    ])
+    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+  })
+
+  it("возвращает исчезнувший после discovery путь без повтора чтения", async () => {
+    const missing = Object.assign(new Error("missing"), { code: "ENOENT" })
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        identity: { projectPath: "cf/Исчез.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath: "/project/cf/Исчез.bin",
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => { throw missing },
+    })
+
+    expect(result).toEqual({
+      kind: "refreshProjectStateResult",
+      fileUpdateBatches: [],
+      missingProjectPaths: ["cf/Исчез.bin"],
+      hashedFiles: 0,
+      parsedYamlFiles: 0,
+      changedFiles: 0,
+    })
+  })
+})
+
 describe("collectValidationFacts", () => {
   it("rejects the whole command when a discovered YAML file can no longer be read", async () => {
     const projectDir = createTempDir()
