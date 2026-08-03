@@ -55,6 +55,21 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/appliedObjects/metadataExternalDataSource/toYAML.test.ts",
 ])
 const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
+const LEGACY_FULL_VALIDATION_INDEX_ALLOWLIST = new Set(["packages/core/metadata/importBoundaries.test.ts"])
+const FORBIDDEN_LEGACY_FULL_VALIDATION_MODULE_SUFFIXES = [
+  "/sharedProjectReferenceIndex",
+  "/sharedValidationBinaryOwners",
+  "/sharedValidationSnapshot",
+  "/persistedSharedValidationSnapshot",
+  "/validationSnapshotProvider",
+  "/dataPath/sharedOwnerCache",
+] as const
+const FORBIDDEN_VALIDATION_WORKER_FIELDS = [
+  "validationSnapshot",
+  "sharedValidation",
+  "sharedReferenceIndex",
+  "sharedProjectValidationGraph",
+] as const
 let sourceFiles: readonly SourceTreeFile[]
 let sourceByAbsolutePath: ReadonlyMap<string, string>
 let legacyAliasOffenders: {
@@ -67,6 +82,12 @@ let broadRegistrationOffenders: readonly {
 }[]
 let compositeProductionOffenders: readonly string[]
 let sqliteBoundaryOffenders: readonly string[]
+let legacyFullValidationIndexOffenders: readonly {
+  readonly filePath: string
+  readonly forbiddenModulePath: boolean
+  readonly forbiddenImports: readonly string[]
+  readonly forbiddenWorkerFields: readonly string[]
+}[]
 
 describe("metadata import boundaries", () => {
   beforeAll(() => {
@@ -98,6 +119,7 @@ describe("metadata import boundaries", () => {
     broadRegistrationOffenders = findBroadRegistrationOffenders()
     compositeProductionOffenders = findCompositeProductionOffenders()
     sqliteBoundaryOffenders = findSqliteBoundaryOffenders()
+    legacyFullValidationIndexOffenders = findLegacyFullValidationIndexOffenders()
   })
 
   it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
@@ -370,6 +392,10 @@ describe("metadata import boundaries", () => {
     expect(sqliteBoundaryOffenders).toEqual([])
   })
 
+  it("production-код не содержит старое полное представление validation-индекса", () => {
+    expect(legacyFullValidationIndexOffenders).toEqual([])
+  })
+
   it("синхронизация и операции не хранят metadata-модель", () => {
     const files = [
       ...listTypeScriptFiles(join(METADATA_DIR, "fullSyncToXml")),
@@ -458,6 +484,30 @@ function findSqliteBoundaryOffenders(): string[] {
         || literals.some((literal) => sqlExpression.test(literal) || physicalTableUse.test(literal))
     })
     .map((filePath) => relative(process.cwd(), filePath))
+}
+
+function findLegacyFullValidationIndexOffenders() {
+  return sourceFiles
+    .map((file) => ({
+      filePath: relative(WORKSPACE_ROOT, file.absolutePath),
+      source: file.source,
+    }))
+    .filter(({ filePath }) => !LEGACY_FULL_VALIDATION_INDEX_ALLOWLIST.has(filePath))
+    .map(({ filePath, source }) => ({
+      filePath,
+      forbiddenModulePath: FORBIDDEN_LEGACY_FULL_VALIDATION_MODULE_SUFFIXES.some((suffix) =>
+        filePath.endsWith(`${suffix.slice(1)}.ts`)
+      ),
+      forbiddenImports: extractModuleSpecifiers(source).filter((specifier) =>
+        FORBIDDEN_LEGACY_FULL_VALIDATION_MODULE_SUFFIXES.some((suffix) => specifier.endsWith(suffix))
+      ),
+      forbiddenWorkerFields: filePath.endsWith(".test.ts")
+        ? []
+        : FORBIDDEN_VALIDATION_WORKER_FIELDS.filter((field) => new RegExp(`\\b${field}\\b`).test(source)),
+    }))
+    .filter(({ forbiddenModulePath, forbiddenImports, forbiddenWorkerFields }) =>
+      forbiddenModulePath || forbiddenImports.length > 0 || forbiddenWorkerFields.length > 0
+    )
 }
 
 function findImportOffenders(dir: string, forbiddenImports: readonly string[]) {

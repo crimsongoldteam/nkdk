@@ -1,14 +1,11 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
-import { performance } from "node:perf_hooks"
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
-import { createProjectValidationGraph } from "../validation/projectValidationGraph"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { assertProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
@@ -553,7 +550,6 @@ describe("local validation pool", () => {
         if (task.kind !== "validateLocal") throw new Error(`unexpected task: ${task.kind}`)
         transfers.push(wrapper[transferableSymbol] ?? [])
         validatedPaths.push(...task.files.map(({ descriptor }) => descriptor.rootProjectPath))
-        expect(task).not.toHaveProperty("sharedProjectValidationGraph")
         expect(task.files.map(({ bytes: value }) => [...value])).toEqual([[...bytes]])
         return localValidationResult(task)
       },
@@ -815,80 +811,6 @@ describe("local validation pool", () => {
       await pool.close()
     }
   })
-})
-
-describe("validation second-pass worker profile", () => {
-  it("attributes eager active views to context construction and excludes blocked states from items", async () => {
-    const projectDir = createTempDir()
-    const files = [
-      componentProperties(projectDir, "cf", "Источник"),
-      componentProperties(projectDir, "cfe/A", "ЗаблокированA"),
-      componentProperties(projectDir, "cfe/B", "ЗаблокированB"),
-    ]
-    for (const file of files) mkdirSync(dirname(file.filePath), { recursive: true })
-    writeFileSync(files[0]!.filePath, ["ВводитсяНаОсновании:", "  - Справочник.НетТакого", ""].join("\n"))
-    writeFileSync(files[1]!.filePath, "{}\n")
-    writeFileSync(files[2]!.filePath, "{}\n")
-
-    const firstPass = await runPreparedYamlProjectWorkerTask({
-      kind: "validateFirstPass",
-      workerIndex: 0,
-      projectDir,
-      context: mockContext,
-      files,
-    })
-    expect(firstPass.kind).toBe("validateFirstPassResult")
-    if (firstPass.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
-    const graph = createProjectValidationGraph(firstPass.components)
-    const cfLayer = graph.layers.find(({ componentPath }) => componentPath === "cf")
-    const references = cfLayer?.contribution.pendingReferences ?? []
-    expect(references).toHaveLength(1)
-
-    const sharedGraph = createSharedProjectValidationGraph(graph)
-    const referenceBuffer = sharedGraph.reference.buffer
-    let clock = 0
-    const instrumentedGraph = {
-      ...sharedGraph,
-      reference: {
-        stats: sharedGraph.reference.stats,
-        get buffer() {
-          clock += 10
-          return referenceBuffer
-        },
-      },
-    }
-    const previousProfile = process.env["NKDK_PROFILE"]
-    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    const now = vi.spyOn(performance, "now").mockImplementation(() => clock)
-    let profileLines: string[] = []
-    process.env["NKDK_PROFILE"] = "1"
-    try {
-      await runPreparedYamlProjectWorkerTask({
-        kind: "validateSecondPass",
-        workerIndex: 0,
-        projectDir,
-        context: mockContext,
-        sharedProjectValidationGraph: instrumentedGraph,
-        blockedComponentPaths: ["cfe/A", "cfe/B"],
-        pendingReferenceLayers: [{ componentPath: "cf", references }],
-      })
-      profileLines = error.mock.calls.map(([line]) => String(line))
-    } finally {
-      if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
-      else process.env["NKDK_PROFILE"] = previousProfile
-      now.mockRestore()
-      error.mockRestore()
-    }
-
-    const contextProfile = profileLine(profileLines, "Построение контекста worker")
-    const referencesProfile = profileLine(profileLines, "Проверка ссылок")
-    const secondPassProfile = profileLine(profileLines, "Worker second pass")
-    expect(contextProfile).toContain("items=1")
-    expect(profileTime(contextProfile)).toBeGreaterThan(0)
-    expect(referencesProfile).toContain("items=1")
-    expect(profileTime(referencesProfile)).toBe(0)
-    expect(secondPassProfile).toContain("items=1")
-  }, 120_000)
 })
 
 function createTempDir(): string {

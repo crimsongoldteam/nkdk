@@ -1,22 +1,28 @@
 import { describe, expect, it } from "vitest"
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { validationComponentLayers } from "../validation/componentVisibility"
 import {
-  createSharedProjectReferenceIndex,
-  createSharedProjectReferenceSnapshotFromGraph,
-} from "../validation/sharedProjectReferenceIndex"
+  createOwnerMetadataCacheFromValidationTable,
+  type OwnerMetadataCache,
+} from "../validation/dataPath/ownerCache"
 import { createProjectValidationGraph } from "../validation/projectValidationGraph"
-import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
-import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 import type { FormDataPathColumnSource, OwnerTypeRef } from "../validation/dataPath/types"
 import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
 import {
+  createProjectReferenceIndex,
+  createProjectReferenceSnapshot,
   validatePendingReferencesWithIndex,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
 } from "../validation/projectReferenceIndex"
-import type { ComponentValidationLayer, ValidationObjectRecord } from "../validation/projectValidationTypes"
+import { createValidationObjectTable } from "../validation/projectValidationObjectTable"
+import type {
+  ComponentValidationLayer,
+  ProjectValidationGraph,
+  ValidationObjectRecord,
+} from "../validation/projectValidationTypes"
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
 import { createSqliteProjectStateTestFixture } from "./sqlite/testFixture"
 import { validateProjectStateDependencyBatch, validateProjectStateReferenceBatch } from "./dependencyValidation"
@@ -54,13 +60,9 @@ describe("dependency validation из ProjectState", () => {
     referenceCase("cfe/x -> cfe/x", "cfe/x", ["cfe/x"]),
     referenceCase("fallback cfe/x -> cf", "cfe/x", ["cf"]),
     referenceCase("forbidden cfe/x -> cfe/y", "cfe/x", ["cfe/y"]),
-  ])("полностью совпадает с shared graph: $name", ({ sourceComponent, updates, graph }) => {
-    const sharedDiagnostics = validatePendingReferencesWithIndex({
-      index: createSharedProjectReferenceIndex({
-        projectDir: "/project",
-        componentPath: sourceComponent,
-        snapshot: createSharedProjectReferenceSnapshotFromGraph(graph),
-      }),
+  ])("полностью совпадает с чистым validation-графом: $name", ({ sourceComponent, updates, graph }) => {
+    const graphDiagnostics = validatePendingReferencesWithIndex({
+      index: createReferenceIndexFromGraphForTests(graph, sourceComponent),
       references: graph.layers.find(({ componentPath }) => componentPath === sourceComponent)!.contribution
         .pendingReferences!,
     }).diagnostics
@@ -70,7 +72,7 @@ describe("dependency validation из ProjectState", () => {
       requests: [{ requestId: "reference", componentPath: sourceComponent, projectPath: updates[0]!.projectPath }],
     })
 
-    expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    expect(storeDiagnostics).toEqual(graphDiagnostics)
     store.rollbackUpdate()
   })
 
@@ -99,7 +101,7 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
-  it("полностью совпадает с shared graph для отсутствующего владельца", () => {
+  it("полностью совпадает с чистым validation-графом для отсутствующего владельца", () => {
     const source = ownerDependencySource()
     const graph = createProjectValidationGraph([
       {
@@ -121,18 +123,18 @@ describe("dependency validation из ProjectState", () => {
         return this.roots.get(name)
       },
     }
-    const sharedDiagnostics = sharedDependencyDiagnostics({ source, graph, componentPath: "cf", index })
+    const graphDiagnostics = graphDependencyDiagnostics({ source, graph, componentPath: "cf", index })
     const store = storeWithUpdates([source])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "owner", componentPath: "cf", projectPath: source.projectPath }],
     })
 
-    expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    expect(storeDiagnostics).toEqual(graphDiagnostics)
     store.rollbackUpdate()
   })
 
-  it("полностью совпадает с shared graph для отсутствующего поля владельца", () => {
+  it("полностью совпадает с чистым validation-графом для отсутствующего поля владельца", () => {
     const source = ownerDependencySource()
     const owner = ownerUpdate()
     const fieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
@@ -166,14 +168,14 @@ describe("dependency validation из ProjectState", () => {
         return roots.get(name)
       },
     }
-    const sharedDiagnostics = sharedDependencyDiagnostics({ source, graph, componentPath: "cf", index })
+    const graphDiagnostics = graphDependencyDiagnostics({ source, graph, componentPath: "cf", index })
     const store = storeWithUpdates([source, owner])
 
     const storeDiagnostics = store.validateDependencies({
       requests: [{ requestId: "field", componentPath: "cf", projectPath: source.projectPath }],
     })
 
-    expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    expect(storeDiagnostics).toEqual(graphDiagnostics)
     store.rollbackUpdate()
   })
 
@@ -209,7 +211,7 @@ describe("dependency validation из ProjectState", () => {
       ownerLayer("cf", fallbackOwner, fallbackFieldIndex),
     ])
     const roots = new Map(source.forms.filter((entry) => entry.kind === "root").map((entry) => [entry.name, entry.source]))
-    const sharedDiagnostics = sharedDependencyDiagnostics({
+    const graphDiagnostics = graphDependencyDiagnostics({
       source,
       graph,
       componentPath: "cfe/x",
@@ -228,7 +230,7 @@ describe("dependency validation из ProjectState", () => {
       requests: [{ requestId: "data-path", componentPath: "cfe/x", projectPath: source.projectPath }],
     })
 
-    expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    expect(storeDiagnostics).toEqual(graphDiagnostics)
     store.rollbackUpdate()
   })
 
@@ -389,7 +391,7 @@ describe("dependency validation из ProjectState", () => {
         },
       ],
     ])
-    const sharedDiagnostics = sharedDependencyDiagnostics({
+    const graphDiagnostics = graphDependencyDiagnostics({
       source,
       graph,
       componentPath: "cf",
@@ -408,7 +410,7 @@ describe("dependency validation из ProjectState", () => {
       requests: [{ requestId: "form", componentPath: "cf", projectPath: source.projectPath }],
     })
 
-    expect(storeDiagnostics).toEqual(sharedDiagnostics)
+    expect(storeDiagnostics).toEqual(graphDiagnostics)
     store.rollbackUpdate()
   })
 
@@ -703,24 +705,65 @@ function missingMemberDiagnostic(filePath: string) {
   }
 }
 
-function sharedDependencyDiagnostics(params: {
+function graphDependencyDiagnostics(params: {
   source: ProjectStateYamlFileUpdate
-  graph: ReturnType<typeof createProjectValidationGraph>
+  graph: ProjectValidationGraph
   componentPath: string
   index: FormDataPathIndex
 }) {
   return validatePendingChecks({
-    ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-      projectDir: "/project",
-      componentPath: params.componentPath,
-      graph: createSharedProjectValidationGraph(params.graph),
-    }),
+    ownerCache: createOwnerCacheFromGraphForTests(params.graph, params.componentPath),
     checks: params.source.pendingChecks.map((check) => ({
       ...check,
       location: { ...check.location, filePath: params.source.projectPath },
       index: params.index,
     })),
   }).diagnostics
+}
+
+function createReferenceIndexFromGraphForTests(
+  graph: ProjectValidationGraph,
+  componentPath: string,
+) {
+  const visibleLayers = validationComponentLayers(componentPath)
+    .map((path) => graph.layers.find((layer) => layer.componentPath === path))
+    .filter((layer): layer is ComponentValidationLayer => layer !== undefined)
+  const snapshot = createProjectReferenceSnapshot({
+    objectIndexEntries: visibleLayerEntries(visibleLayers, (layer) => layer.contribution.objectIndexEntries ?? []),
+    memberIndexEntries: visibleLayerEntries(visibleLayers, (layer) => layer.contribution.memberIndexEntries ?? []),
+    valueIndexEntries: visibleLayerEntries(visibleLayers, (layer) => layer.contribution.valueIndexEntries ?? []),
+    pendingReferences: [],
+  })
+  return createProjectReferenceIndex({ projectDir: "/project", snapshot })
+}
+
+function visibleLayerEntries<Entry extends { readonly canonical: string }>(
+  layers: readonly ComponentValidationLayer[],
+  select: (layer: ComponentValidationLayer) => readonly Entry[],
+): Entry[] {
+  const result: Entry[] = []
+  const claimed = new Set<string>()
+  for (const layer of layers) {
+    const entries = select(layer)
+    result.push(...entries.filter((entry) => !claimed.has(entry.canonical)))
+    for (const entry of entries) claimed.add(entry.canonical)
+  }
+  return result
+}
+
+function createOwnerCacheFromGraphForTests(
+  graph: ProjectValidationGraph,
+  componentPath: string,
+): OwnerMetadataCache {
+  const table = createValidationObjectTable()
+  for (const layerPath of [...validationComponentLayers(componentPath)].reverse()) {
+    const layer = graph.layers.find(({ componentPath: candidate }) => candidate === layerPath)
+    if (layer !== undefined) table.mergeRecords(layer.contribution.objectRecords)
+  }
+  return createOwnerMetadataCacheFromValidationTable({
+    projectDir: `/project/${componentPath}`,
+    table,
+  })
 }
 
 function configurationUpdate(
