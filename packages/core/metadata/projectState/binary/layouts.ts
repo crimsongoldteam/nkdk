@@ -177,6 +177,30 @@ export interface ProjectStateOwnerFactRecord {
   readonly itemsCount: number
 }
 
+export interface ProjectStateOwnerFactItemRecord {
+  readonly ownerFactId: number
+  readonly parentItemId: number
+  readonly nameId: number
+  readonly typeDescriptionId: number
+  readonly kind: number
+  readonly reserved8: number
+  readonly reserved16: number
+}
+
+export interface ProjectStateTypeDescriptionRecord {
+  readonly typesStart: number
+  readonly typesCount: number
+  readonly typeIdsStart: number
+  readonly typeIdsCount: number
+  readonly stringLength: number
+  readonly digits: number
+  readonly fractionDigits: number
+  readonly allowedLength: number
+  readonly allowedSign: number
+  readonly dateFractions: number
+  readonly reserved: number
+}
+
 export interface ProjectStateFieldRecord {
   readonly sourceFileId: number
   readonly ownerId: number
@@ -283,6 +307,44 @@ export interface ProjectStateDiagnosticRecord {
   readonly pathId: number
   readonly severity: number
   readonly source: number
+  readonly reserved: number
+}
+
+export interface ProjectStateFragmentHeaderRecord {
+  readonly magicFirst: number
+  readonly magicSecond: number
+  readonly major: number
+  readonly minor: number
+  readonly patch: number
+  readonly reserved16: number
+  readonly fileCount: number
+  readonly stringCount: number
+  readonly stringsByteLength: number
+  readonly filesByteLength: number
+  readonly factsByteLength: number
+  readonly diagnosticsByteLength: number
+}
+
+export interface ProjectStateFragmentStringSectionHeader {
+  readonly count: number
+  readonly recordsOffset: number
+  readonly utf8Offset: number
+  readonly utf8ByteLength: number
+}
+
+export interface ProjectStateFragmentStringRecord {
+  readonly offset: number
+  readonly byteLength: number
+  readonly hash: bigint
+}
+
+export interface ProjectStateFragmentFileRecord {
+  readonly projectPathId: number
+  readonly componentPathId: number
+  readonly hash: bigint
+  readonly resourceKind: number
+  readonly yamlRole: number
+  readonly updateKind: number
   readonly reserved: number
 }
 
@@ -555,6 +617,27 @@ export const ProjectStateOwnerFactRecordView = projectStateView.create<ProjectSt
   },
 })
 
+export const ProjectStateOwnerFactItemRecordView = projectStateView.create<ProjectStateOwnerFactItemRecord>({
+  $id: "ProjectStateOwnerFactItemRecord",
+  type: "object",
+  properties: {
+    ownerFactId: uint32Field, parentItemId: uint32Field, nameId: uint32Field,
+    typeDescriptionId: uint32Field,
+    kind: uint8Field, reserved8: uint8Field, reserved16: uint16Field,
+  },
+})
+
+export const ProjectStateTypeDescriptionRecordView = projectStateView.create<ProjectStateTypeDescriptionRecord>({
+  $id: "ProjectStateTypeDescriptionRecord",
+  type: "object",
+  properties: {
+    typesStart: uint32Field, typesCount: uint32Field,
+    typeIdsStart: uint32Field, typeIdsCount: uint32Field,
+    stringLength: uint32Field, digits: uint32Field, fractionDigits: uint32Field,
+    allowedLength: uint8Field, allowedSign: uint8Field, dateFractions: uint8Field, reserved: uint8Field,
+  },
+})
+
 export const ProjectStateFieldRecordView = projectStateView.create<ProjectStateFieldRecord>({
   $id: "ProjectStateFieldRecord",
   type: "object",
@@ -689,5 +772,43 @@ export const ProjectStateDiagnosticRecordView = projectStateView.create<ProjectS
     severity: { type: "integer", btype: "uint8" },
     source: { type: "integer", btype: "uint8" },
     reserved: { type: "integer", btype: "uint16" },
+  },
+})
+
+export const ProjectStateFragmentHeaderRecordView = projectStateView.create<ProjectStateFragmentHeaderRecord>({
+  $id: "ProjectStateFragmentHeaderRecord",
+  type: "object",
+  properties: {
+    magicFirst: uint32Field, magicSecond: uint32Field,
+    major: uint16Field, minor: uint16Field, patch: uint16Field, reserved16: uint16Field,
+    fileCount: uint32Field, stringCount: uint32Field,
+    stringsByteLength: uint32Field, filesByteLength: uint32Field,
+    factsByteLength: uint32Field, diagnosticsByteLength: uint32Field,
+  },
+})
+
+export const ProjectStateFragmentStringSectionHeaderView =
+  projectStateView.create<ProjectStateFragmentStringSectionHeader>({
+    $id: "ProjectStateFragmentStringSectionHeader",
+    type: "object",
+    properties: {
+      count: uint32Field, recordsOffset: uint32Field,
+      utf8Offset: uint32Field, utf8ByteLength: uint32Field,
+    },
+  })
+
+export const ProjectStateFragmentStringRecordView = projectStateView.create<ProjectStateFragmentStringRecord>({
+  $id: "ProjectStateFragmentStringRecord",
+  type: "object",
+  properties: { offset: uint32Field, byteLength: uint32Field, hash: { type: "number", btype: "biguint64" } },
+})
+
+export const ProjectStateFragmentFileRecordView = projectStateView.create<ProjectStateFragmentFileRecord>({
+  $id: "ProjectStateFragmentFileRecord",
+  type: "object",
+  properties: {
+    projectPathId: uint32Field, componentPathId: uint32Field,
+    hash: { type: "number", btype: "biguint64" },
+    resourceKind: uint8Field, yamlRole: uint8Field, updateKind: uint8Field, reserved: uint8Field,
   },
 })

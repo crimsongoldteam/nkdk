@@ -7,6 +7,7 @@ import {
   ProjectStateFieldRecordView,
   ProjectStateFormRecordView,
   ProjectStateOwnerFactRecordView,
+  ProjectStateOwnerFactItemRecordView,
   ProjectStateOwnerRecordView,
   ProjectStateOwnerTypeRecordView,
   ProjectStatePendingCheckRecordView,
@@ -16,6 +17,7 @@ import {
   ProjectStateStringValueRecordView,
   ProjectStateTableInfoRecordView,
   ProjectStateTypeInfoRecordView,
+  ProjectStateTypeDescriptionRecordView,
   ProjectStateValidationStatusRecordView,
   ProjectStateYamlPathRecordView,
   ProjectStateYamlPathSegmentRecordView,
@@ -28,6 +30,7 @@ export type ProjectStateFactTableKind =
   | "pendingReferences"
   | "owners"
   | "ownerFacts"
+  | "ownerFactItems"
   | "fields"
   | "typeInfo"
   | "typeKinds"
@@ -41,6 +44,8 @@ export type ProjectStateFactTableKind =
   | "dependencies"
   | "yamlPaths"
   | "yamlPathSegments"
+  | "typeDescriptions"
+  | "typeDescriptionValues"
 
 export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTableKind, number>> = {
   validationStatus: 1,
@@ -62,6 +67,9 @@ export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTable
   dependencies: 17,
   yamlPaths: 18,
   yamlPathSegments: 19,
+  ownerFactItems: 20,
+  typeDescriptions: 21,
+  typeDescriptionValues: 22,
 }
 
 export interface ProjectStateFactTableRange {
@@ -69,6 +77,10 @@ export interface ProjectStateFactTableRange {
   readonly byteLength: number
   readonly records: number
 }
+
+export const PROJECT_STATE_FACT_TABLE_ORDER = Object.freeze(
+  Object.keys(PROJECT_STATE_FACT_TABLE_IDS) as ProjectStateFactTableKind[],
+)
 
 const NONE = 0xffff_ffff
 const FACT_TABLE_KINDS = new Map<number, ProjectStateFactTableKind>(
@@ -81,6 +93,7 @@ const RECORD_BYTE_LENGTHS: Readonly<Record<ProjectStateFactTableKind, number>> =
   pendingReferences: ProjectStatePendingReferenceRecordView.viewLength,
   owners: ProjectStateOwnerRecordView.viewLength,
   ownerFacts: ProjectStateOwnerFactRecordView.viewLength,
+  ownerFactItems: ProjectStateOwnerFactItemRecordView.viewLength,
   fields: ProjectStateFieldRecordView.viewLength,
   typeInfo: ProjectStateTypeInfoRecordView.viewLength,
   typeKinds: ProjectStateStringValueRecordView.viewLength,
@@ -94,6 +107,8 @@ const RECORD_BYTE_LENGTHS: Readonly<Record<ProjectStateFactTableKind, number>> =
   dependencies: ProjectStateDependencyRecordView.viewLength,
   yamlPaths: ProjectStateYamlPathRecordView.viewLength,
   yamlPathSegments: ProjectStateYamlPathSegmentRecordView.viewLength,
+  typeDescriptions: ProjectStateTypeDescriptionRecordView.viewLength,
+  typeDescriptionValues: ProjectStateStringValueRecordView.viewLength,
 }
 
 export function assertProjectStateFactSection(params: {
@@ -104,12 +119,14 @@ export function assertProjectStateFactSection(params: {
 }): void {
   assertCount(params.fileCount, "fileCount")
   assertCount(params.stringCount, "stringCount")
-  const tables = openFactCatalog(params.facts)
+  const tables = openProjectStateFactCatalog(params.facts)
   const diagnosticCount = assertDiagnostics(params.diagnostics, params.fileCount, params.stringCount)
   validateFactRows({ ...params, tables, diagnosticCount })
 }
 
-function openFactCatalog(facts: ArrayBufferLike): ReadonlyMap<ProjectStateFactTableKind, ProjectStateFactTableRange> {
+export function openProjectStateFactCatalog(
+  facts: ArrayBufferLike,
+): ReadonlyMap<ProjectStateFactTableKind, ProjectStateFactTableRange> {
   if (facts.byteLength < ProjectStateFactSectionHeaderView.viewLength) {
     throw new Error("Раздел фактов оборван")
   }
@@ -193,6 +210,11 @@ function validateFactRows(params: {
     assertOptionalRowId(record.detailsId, params.tables.get("referenceDetails")?.records ?? 0, "reference.detailsId")
     if (record.kind < 1 || record.kind > 3) throw new Error("Неизвестный вид ссылки")
   })
+  forEachRecord(params.tables.get("referenceDetails"), ProjectStateReferenceDetailsRecordView, view, (record) => {
+    assertOptionalRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, "referenceDetails.typeInfoId")
+    assertOptionalStringId(record.sourceTextId, params.stringCount, "referenceDetails.sourceTextId")
+    if (record.kind > 2 || record.styleItemType > 3) throw new Error("Неизвестный вариант сведений ссылки")
+  })
   forEachRecord(params.tables.get("pendingReferences"), ProjectStatePendingReferenceRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "pendingReference.sourceFileId")
     assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "pendingReference.yamlPathId")
@@ -208,12 +230,42 @@ function validateFactRows(params: {
     assertOptionalStringId(record.nameId, params.stringCount, "owner.nameId")
     assertRange(record.factsStart, record.factsCount, params.tables.get("ownerFacts")?.records ?? 0, "owner.facts")
   })
-  validateRowsWithSourceFile(params, "fields", ProjectStateFieldRecordView)
-  validateRowsWithSourceFile(params, "forms", ProjectStateFormRecordView)
-  validateRowsWithSourceFile(params, "formColumns", ProjectStateFormRecordView)
-  validateRowsWithSourceFile(params, "pendingChecks", ProjectStatePendingCheckRecordView)
-  validateRowsWithSourceFile(params, "dependencies", ProjectStateDependencyRecordView)
-  for (const kind of ["typeKinds", "definedTypes", "allowedKinds"] as const) {
+  forEachRecord(params.tables.get("ownerFacts"), ProjectStateOwnerFactRecordView, view, (record) => {
+    assertRowId(record.ownerId, params.tables.get("ownerTypes")?.records ?? 0, "ownerFact.ownerId")
+    assertStringId(record.roleId, params.stringCount, "ownerFact.roleId")
+    if (record.valueKind < 1 || record.valueKind > 5) throw new Error("Неизвестный вариант owner fact")
+    if (record.valueKind === 1) assertStringId(record.valueId, params.stringCount, "ownerFact.valueId")
+    if (record.valueKind === 2) {
+      assertRange(record.itemsStart, record.itemsCount, params.tables.get("definedTypes")?.records ?? 0, "ownerFact.items")
+    }
+    if (record.valueKind === 3) {
+      assertRowId(record.valueId, params.tables.get("typeDescriptions")?.records ?? 0, "ownerFact.typeDescriptionId")
+    }
+    if (record.valueKind === 4 || record.valueKind === 5) {
+      assertRange(record.itemsStart, record.itemsCount, params.tables.get("ownerFactItems")?.records ?? 0, "ownerFact.items")
+    }
+  })
+  forEachRecord(params.tables.get("fields"), ProjectStateFieldRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "field.sourceFileId")
+    assertRowId(record.ownerId, params.tables.get("ownerTypes")?.records ?? 0, "field.ownerId")
+    assertStringId(record.nameId, params.stringCount, "field.nameId")
+    assertOptionalStringId(record.targetNameId, params.stringCount, "field.targetNameId")
+    assertOptionalStringId(record.sourceCollectionId, params.stringCount, "field.sourceCollectionId")
+    assertOptionalStringId(record.parentNameId, params.stringCount, "field.parentNameId")
+    assertRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, "field.typeInfoId")
+    assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, "field.tableInfoId")
+    if (record.kind < 1 || record.kind > 6) throw new Error("Неизвестный вид поля")
+    assertTernary(record.tableHasColumns, "field.tableHasColumns")
+  })
+  forEachRecord(params.tables.get("typeInfo"), ProjectStateTypeInfoRecordView, view, (record) => {
+    assertRange(record.kindsStart, record.kindsCount, params.tables.get("typeKinds")?.records ?? 0, "typeInfo.kinds")
+    assertRange(record.nextTypesStart, record.nextTypesCount, params.tables.get("ownerTypes")?.records ?? 0, "typeInfo.nextTypes")
+    assertRange(record.definedTypesStart, record.definedTypesCount, params.tables.get("definedTypes")?.records ?? 0, "typeInfo.definedTypes")
+    assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, "typeInfo.tableInfoId")
+    assertOptionalStringId(record.sourceTextId, params.stringCount, "typeInfo.sourceTextId")
+    assertTernary(record.isComposite, "typeInfo.isComposite")
+  })
+  for (const kind of ["typeKinds", "definedTypes", "allowedKinds", "typeDescriptionValues"] as const) {
     forEachRecord(params.tables.get(kind), ProjectStateStringValueRecordView, view, (record) => {
       assertStringId(record.valueId, params.stringCount, `${kind}.valueId`)
     })
@@ -221,6 +273,55 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("ownerTypes"), ProjectStateOwnerTypeRecordView, view, (record) => {
     assertStringId(record.kindId, params.stringCount, "ownerType.kindId")
     assertOptionalStringId(record.nameId, params.stringCount, "ownerType.nameId")
+  })
+  forEachRecord(params.tables.get("tableInfo"), ProjectStateTableInfoRecordView, view, (record) => {
+    assertOptionalRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, "tableInfo.ownerTypeId")
+    assertOptionalStringId(record.nameId, params.stringCount, "tableInfo.nameId")
+    if (record.kind < 1 || record.kind > 7) throw new Error("Неизвестный вид таблицы DataPath")
+  })
+  for (const kind of ["forms", "formColumns"] as const) {
+    forEachRecord(params.tables.get(kind), ProjectStateFormRecordView, view, (record) => {
+      assertFileId(record.sourceFileId, params.fileCount, `${kind}.sourceFileId`)
+      assertRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, `${kind}.ownerTypeId`)
+      assertStringId(record.nameId, params.stringCount, `${kind}.nameId`)
+      assertOptionalStringId(record.tablePathId, params.stringCount, `${kind}.tablePathId`)
+      assertRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, `${kind}.typeInfoId`)
+      assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, `${kind}.tableInfoId`)
+      if (record.kind !== (kind === "forms" ? 1 : 2)) throw new Error(`Неверный вид записи ${kind}`)
+      assertTernary(record.tableHasColumns, `${kind}.tableHasColumns`)
+    })
+  }
+  forEachRecord(params.tables.get("pendingChecks"), ProjectStatePendingCheckRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "pendingCheck.sourceFileId")
+    assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "pendingCheck.yamlPathId")
+    assertOptionalStringId(record.pathId, params.stringCount, "pendingCheck.pathId")
+    assertRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, "pendingCheck.ownerTypeId")
+    assertStringId(record.valueId, params.stringCount, "pendingCheck.valueId")
+    assertStringId(record.policyYamlId, params.stringCount, "pendingCheck.policyYamlId")
+    assertRange(record.allowedKindsStart, record.allowedKindsCount, params.tables.get("allowedKinds")?.records ?? 0, "pendingCheck.allowedKinds")
+    assertOptionalStringId(record.elementTypeId, params.stringCount, "pendingCheck.elementTypeId")
+    assertOptionalStringId(record.tableContextId, params.stringCount, "pendingCheck.tableContextId")
+    assertTernary(record.allowComposite, "pendingCheck.allowComposite")
+    assertTernary(record.hasValuesPicture, "pendingCheck.hasValuesPicture")
+  })
+  forEachRecord(params.tables.get("dependencies"), ProjectStateDependencyRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")
+    assertStringId(record.projectPathId, params.stringCount, "dependency.projectPathId")
+  })
+  forEachRecord(params.tables.get("ownerFactItems"), ProjectStateOwnerFactItemRecordView, view, (record) => {
+    assertRowId(record.ownerFactId, params.tables.get("ownerFacts")?.records ?? 0, "ownerFactItem.ownerFactId")
+    assertOptionalRowId(record.parentItemId, params.tables.get("ownerFactItems")?.records ?? 0, "ownerFactItem.parentItemId")
+    assertStringId(record.nameId, params.stringCount, "ownerFactItem.nameId")
+    assertOptionalRowId(
+      record.typeDescriptionId,
+      params.tables.get("typeDescriptions")?.records ?? 0,
+      "ownerFactItem.typeDescriptionId",
+    )
+  })
+  forEachRecord(params.tables.get("typeDescriptions"), ProjectStateTypeDescriptionRecordView, view, (record) => {
+    const values = params.tables.get("typeDescriptionValues")?.records ?? 0
+    assertRange(record.typesStart, record.typesCount, values, "typeDescription.types")
+    assertRange(record.typeIdsStart, record.typeIdsCount, values, "typeDescription.typeIds")
   })
   forEachRecord(params.tables.get("yamlPaths"), ProjectStateYamlPathRecordView, view, (record) => {
     assertRange(
@@ -233,20 +334,6 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("yamlPathSegments"), ProjectStateYamlPathSegmentRecordView, view, (record) => {
     if (record.kind !== 1 && record.kind !== 2) throw new Error("Неизвестный вид сегмента YAML-пути")
     if (record.kind === 1) assertStringId(record.stringId, params.stringCount, "yamlPathSegment.stringId")
-  })
-}
-
-function validateRowsWithSourceFile<TRow extends { readonly sourceFileId: number }>(
-  params: {
-    readonly facts: ArrayBufferLike
-    readonly fileCount: number
-    readonly tables: ReadonlyMap<ProjectStateFactTableKind, ProjectStateFactTableRange>
-  },
-  kind: ProjectStateFactTableKind,
-  recordView: RecordView<TRow>,
-): void {
-  forEachRecord(params.tables.get(kind), recordView, new DataView(params.facts), (record) => {
-    assertFileId(record.sourceFileId, params.fileCount, `${kind}.sourceFileId`)
   })
 }
 
@@ -297,4 +384,8 @@ function assertRange(start: number, count: number, total: number, field: string)
 
 function assertBoolean(value: number, field: string): void {
   if (value !== 0 && value !== 1) throw new Error(`${field} должен быть двоичным признаком`)
+}
+
+function assertTernary(value: number, field: string): void {
+  if (value < 0 || value > 2) throw new Error(`${field} должен быть трёхзначным признаком`)
 }
