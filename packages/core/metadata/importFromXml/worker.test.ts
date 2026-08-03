@@ -16,6 +16,7 @@ import {
   workerStateForTests,
 } from "./worker"
 import type { ImportAssignment } from "./types"
+import { serializeImportYaml } from "./writeOutput"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -77,6 +78,16 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
+  it("сохраняет сериализованный текст вместе с байтами без обратного декодирования", () => {
+    const serialized = serializeImportYaml({
+      output: { sourceKind: "worker", sourcePath: "/tmp/test.yaml", targetProjectPath: "test.yaml" },
+      yaml: { Имя: "Тест" },
+    })
+
+    expect(serialized.text).toBe("Имя: Тест")
+    expect(new TextDecoder().decode(serialized.bytes)).toBe(serialized.text)
+  })
+
   it("writes ready YAML and returns the complete local validation contribution", async () => {
     const outputDir = createTempDir("first-pass-ready")
     await initializeWorker(outputDir)

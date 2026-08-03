@@ -8,16 +8,15 @@ import { finalizeImportedYamlValues } from "../orchestration/property/finalizeIm
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { validationProjectComponentFromAddress } from "../validation/projectComponents"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createValidationSchemaCache,
-  validateProjectFileFirstPass,
   type ValidationSchemaCache,
 } from "../validation/projectValidationPasses"
+import { validateKnownProjectYaml } from "../validation/knownYamlValidation"
+import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
   projectStateFieldEntries,
@@ -62,6 +61,7 @@ interface InitializedImportWorkerState {
   projectDir: string
   componentPath: string
   schemaCache: ValidationSchemaCache
+  rulesSnapshot: ValidationRulesSnapshot
 }
 
 interface DeferredImportYaml {
@@ -97,6 +97,7 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
       projectDir: command.projectDir ?? command.outputDir,
       componentPath: command.componentPath ?? "cf",
       schemaCache: schemaCacheForTests ?? createValidationSchemaCache(command.context),
+      rulesSnapshot: createValidationRulesSnapshot(command.context),
     }
     return undefined
   }
@@ -481,15 +482,14 @@ function validateSerializedImportYaml(
   })
   const file = resolveValidationProjectFile(state.projectDir, prepared.targetProjectPath, component)
   if (file === undefined) throw new Error(`Не удалось классифицировать YAML import: ${prepared.targetProjectPath}`)
-  const text = new TextDecoder().decode(serialized.bytes)
-  const entry = { filePath: file.absolutePath, text, parsed: parseMetadataYaml(text) }
-  const first = validateProjectFileFirstPass({
+  const first = validateKnownProjectYaml({
     projectDir: state.projectDir,
     file,
-    cache: createProjectYamlCacheFromEntries([entry]),
+    text: serialized.text,
+    yaml: prepared.yaml,
     context: state.context,
     schemaCache: state.schemaCache,
-    rulesSnapshot: createValidationRulesSnapshot(state.context),
+    rulesSnapshot: state.rulesSnapshot,
   })
   const full = toProjectStateFileUpdate(first, importFileIdentity(state, prepared.targetProjectPath, file.kind))
   return splitImportYamlUpdate(full, serialized.localHash)

@@ -13,6 +13,7 @@ export interface PreparedImportYamlOutput {
 
 export interface SerializedImportYaml {
   readonly file: ImportResultFile
+  readonly text: string
   readonly bytes: Uint8Array<ArrayBuffer>
   readonly localHash: bigint
 }
@@ -20,8 +21,9 @@ export interface SerializedImportYaml {
 const textEncoder = new TextEncoder()
 
 export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedImportYaml {
-  const bytes = textEncoder.encode(file.yaml === undefined ? "" : exportToYAML(file.yaml))
-  return { file: file.output, bytes, localHash: hashFileBytes(bytes) }
+  const text = file.yaml === undefined ? "" : exportToYAML(file.yaml)
+  const bytes = textEncoder.encode(text)
+  return { file: file.output, text, bytes, localHash: hashFileBytes(bytes) }
 }
 
 export async function writeMainImportYaml(params: ({

@@ -1,5 +1,6 @@
 import { parseDataWithJsYaml, parseWithJsYaml, type JsYamlSyntaxError } from "./jsYamlParser"
 import type { YamlLocationIndex } from "./locationIndex"
+import { buildYamlLocationIndex } from "./locationIndex"
 
 export interface ParsedYaml {
   text: string
@@ -20,6 +21,15 @@ export function parseMetadataYaml(text: string): ParsedYaml {
     data: parsed.data,
     locations: parsed.locations,
     syntaxErrors: parsed.syntaxErrors,
+  }
+}
+
+export function parsedYamlFromKnownData(text: string, data: unknown): ParsedYaml {
+  return {
+    text,
+    data,
+    locations: buildYamlLocationIndex(text),
+    syntaxErrors: [],
   }
 }
 
