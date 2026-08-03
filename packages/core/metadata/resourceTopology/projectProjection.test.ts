@@ -5,6 +5,7 @@ import { compileMetadataResourceTopology } from "./compiler"
 import {
   classifyMetadataProjectPath,
   createMetadataProjectPathClassifier,
+  iterateMetadataProjectPathCandidates,
   iterateProjectFiles,
   listProjectFiles,
 } from "./projectProjection"
@@ -92,6 +93,70 @@ describe("project resource topology projection", () => {
     expect(nestedRead).toBe(false)
     await expect(files.next()).resolves.toMatchObject({ value: "/project/nested/second.yaml", done: false })
     expect(nestedRead).toBe(true)
+  })
+
+  it("переносит курсор по каталогам и не читает недостижимую ветвь", async () => {
+    const readDirectories: string[] = []
+    const entries = new Map<string, ReturnType<typeof file>[]>([
+      ["/project", [directory("Объект"), directory(".service"), directory("НедостижимаяВетка")]],
+      ["/project/Объект", [directory("Первый")]],
+      ["/project/Объект/Первый", [file("Свойства.yaml"), file("Модуль.bsl"), file("Лишний.yaml")]],
+      ["/project/.service", [file("cache.bin")]],
+    ])
+
+    const candidates = []
+    for await (const candidate of iterateMetadataProjectPathCandidates({
+      topology,
+      projectDir: "/project",
+      readDirectory: async (path) => {
+        readDirectories.push(path)
+        return entries.get(path) ?? []
+      },
+    })) candidates.push(candidate)
+
+    const expectedPaths = [
+      ".service/cache.bin",
+      "Объект/Первый/Свойства.yaml",
+      "Объект/Первый/Модуль.bsl",
+    ]
+    expect(readDirectories).not.toContain("/project/НедостижимаяВетка")
+    expect(candidates.map(({ projectPath }) => projectPath)).toEqual(expectedPaths)
+    expect(candidates.map((candidate) => candidate.classify())).toEqual(
+      expectedPaths.map((path) => classifyMetadataProjectPath(topology, path)),
+    )
+  })
+
+  it("откладывает ошибку неоднозначного пути до классификации кандидата", async () => {
+    const ambiguous = compileMetadataResourceTopology([
+      {
+        dir: "",
+        kind: "test",
+        rule,
+        exportSchema: () => ({}) as never,
+        resources: [
+          {
+            kind: "content",
+            projectPattern: "Файл.yaml",
+            role: "properties",
+            required: true,
+            repeatable: false,
+            compositionImpact: "none",
+            itemRule: rule,
+            source,
+          },
+          { kind: "ignore", side: "project", pattern: "Файл.yaml", source },
+        ],
+      } satisfies RegisteredProjectSpec,
+    ])
+    const candidates = iterateMetadataProjectPathCandidates({
+      topology: ambiguous,
+      projectDir: "/project",
+      readDirectory: async () => [file("Файл.yaml")],
+    })
+    const candidate = (await candidates.next()).value
+
+    expect(candidate?.projectPath).toBe("Файл.yaml")
+    expect(() => candidate?.classify()).toThrow("Путь Проекта принадлежит нескольким ресурсам: Файл.yaml")
   })
 
   it.each([
