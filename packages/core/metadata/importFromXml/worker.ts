@@ -229,7 +229,6 @@ async function processSecondPass(
     items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
-  profiler.flush()
 }
 
 function createSecondPassAccumulator(workerIndex: number): SecondPassAccumulator {

@@ -62,6 +62,12 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
+  entryPoints: ["metadata/workerPool/worker.ts"],
+  outfile: new URL("worker.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
   entryPoints: ["metadata/validation/generateProjectValidationAjvStandalone.ts"],
   outfile: new URL("generateProjectValidationAjvStandalone.js", outdir).pathname,
 })

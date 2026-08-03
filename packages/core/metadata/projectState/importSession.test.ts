@@ -299,6 +299,40 @@ describe("ProjectState import session", () => {
     expect(events).toEqual(["write:start", "write:end", "commit"])
     expect(beginCount).toBe(2)
   })
+
+  it("сообщает отдельные времена фиксации и завершения import", async () => {
+    const phases: string[] = []
+    const writer = {
+      async openProject() {},
+      async beginUpdate() {},
+      async clearImportOutput() {},
+      async commitUpdate() {},
+      async createReadToken() { return {} as never },
+      async readLocalDiagnostics() { return [] },
+      async validateDependencies() { return [] },
+      async commitAndScheduleCheckpoint() {},
+    } as unknown as ProjectStateWriterHandle
+    const importSession = await createProjectStateImportSession({
+      projectDir: "/project",
+      workerCount: 1,
+      output: { componentPaths: ["cf"] },
+      writer,
+      profile: { onPhase: ({ phase }) => phases.push(phase) },
+      async publish() {},
+      async discard() {},
+    })
+
+    await importSession.commitWorkingIndex()
+    await importSession.finalize()
+
+    expect(phases).toEqual([
+      "workingIndex",
+      "finalBuild",
+      "dependencyValidation",
+      "save",
+      "publication",
+    ])
+  })
 })
 
 function indexContribution(projectPath: string, name: string): ProjectStateImportIndexContribution {

@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks"
 import type { ProjectStateReadToken } from "./contracts"
 import type {
   ProjectStateFieldEntry,
@@ -22,6 +23,18 @@ export interface ProjectStateImportParams {
   readonly workerCount: number
   readonly output: { readonly componentPaths: readonly string[] }
   readonly signal?: AbortSignal
+  readonly profile?: ProjectStateImportProfileOptions
+}
+
+export type ProjectStateImportProfilePhase =
+  | "workingIndex"
+  | "finalBuild"
+  | "dependencyValidation"
+  | "save"
+  | "publication"
+
+export interface ProjectStateImportProfileOptions {
+  readonly onPhase?: (event: { readonly phase: ProjectStateImportProfilePhase; readonly elapsedMs: number }) => void
 }
 
 export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
@@ -77,6 +90,15 @@ export async function createProjectStateImportSession(
   let finalWrites = Promise.resolve()
   const activeWrites = new Set<Promise<void>>()
 
+  async function measurePhase<T>(phaseName: ProjectStateImportProfilePhase, action: () => Promise<T>): Promise<T> {
+    const startedAt = performance.now()
+    try {
+      return await action()
+    } finally {
+      params.profile?.onPhase?.({ phase: phaseName, elapsedMs: performance.now() - startedAt })
+    }
+  }
+
   function trackWrite(write: Promise<void>): Promise<void> {
     activeWrites.add(write)
     void write.then(
@@ -127,10 +149,13 @@ export async function createProjectStateImportSession(
     async commitWorkingIndex() {
       if (phase !== "index") throw new Error("Рабочий индекс import уже зафиксирован")
       phase = "committing"
-      await Promise.all([...activeWrites])
-      await params.writer.commitUpdate()
-      const token = await params.writer.createReadToken()
-      await params.writer.beginUpdate(params.projectDir, params.signal)
+      const token = await measurePhase("workingIndex", async () => {
+        await Promise.all([...activeWrites])
+        await params.writer.commitUpdate()
+        const committed = await params.writer.createReadToken()
+        await params.writer.beginUpdate(params.projectDir, params.signal)
+        return committed
+      })
       phase = "final"
       return token
     },
@@ -141,18 +166,23 @@ export async function createProjectStateImportSession(
     async finalize(beforeCheckpoint) {
       if (phase !== "final") throw new Error("Import session нельзя завершить до фиксации индекса")
       phase = "finalizing"
-      await finalWrites
-      const localDiagnostics = await params.writer.readLocalDiagnostics()
-      const dependencyDiagnostics = await params.writer.validateDependencies()
+      const localDiagnostics = await measurePhase("finalBuild", async () => {
+        await finalWrites
+        return params.writer.readLocalDiagnostics()
+      })
+      const dependencyDiagnostics = await measurePhase(
+        "dependencyValidation",
+        () => params.writer.validateDependencies(),
+      )
       await beforeCheckpoint?.()
       const readToken = await params.writer.createReadToken()
-      await params.writer.commitAndScheduleCheckpoint()
+      await measurePhase("save", () => params.writer.commitAndScheduleCheckpoint())
       const result: ProjectStateRefreshResult = {
         diagnostics: [...localDiagnostics, ...dependencyDiagnostics],
         readToken,
         stats: { hashedFiles: changedPaths.size, parsedYamlFiles: 0, changedFiles: changedPaths.size, deletedFiles: 0 },
       }
-      await params.publish(result)
+      await measurePhase("publication", async () => params.publish(result))
       phase = "done"
       return result
     },

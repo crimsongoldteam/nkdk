@@ -168,6 +168,11 @@ export async function importConfigurationFromXml(
       projectDir: params.projectDir,
       workerCount: concurrency,
       output: { componentPaths: [selectedComponentPath] },
+      profile: {
+        onPhase({ phase, elapsedMs }) {
+          profiler.record("Подготовка импорта конфигурации", importStatePhaseName(phase), { timeMs: elapsedMs })
+        },
+      },
     })
     const fragmentBuilder = createConfigurationIndexFragmentBuilder()
     const stateSink = createImportStateSink(
@@ -351,6 +356,18 @@ export async function importConfigurationFromXml(
       outcome.failed.push(...cleanupFailures.map(operationDiagnostic))
     }
   }
+}
+
+function importStatePhaseName(
+  phase: import("../projectState/importSession").ProjectStateImportProfilePhase,
+): string {
+  return {
+    workingIndex: "Фиксация рабочего индекса",
+    finalBuild: "Построение окончательного состояния",
+    dependencyValidation: "Полная проверка зависимостей",
+    save: "Сохранение состояния проекта",
+    publication: "Публикация состояния проекта",
+  }[phase]
 }
 
 async function abortCleanupDiagnostics(

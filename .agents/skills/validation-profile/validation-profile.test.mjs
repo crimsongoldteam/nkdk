@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url"
 import {
   aggregateRows,
   clearBinaryProjectStateCache,
+  createPhaseAccumulator,
+  summarizeWorkerPoolSteps,
 } from "./validation-profile.mjs"
 
 const skillDir = dirname(fileURLToPath(import.meta.url))
@@ -57,6 +59,32 @@ test("упорядочивает подробные строки Б1–Б4 по 
   assert.equal(rows.find(({ step }) => step === "- Двоичное кодирование результата").bytesSum, 12)
 })
 
+test("разделяет создание, готовность и повторное использование worker", () => {
+  const records = [
+    initializationRecord("Создание worker", 7),
+    initializationRecord("Готовность worker", 11),
+    initializationRecord("Повторное использование worker", 3),
+  ]
+
+  assert.deepEqual(summarizeWorkerPoolSteps(records), {
+    workerPoolCreateMs: 7,
+    workerReadyMs: 11,
+    workerReuseMs: 3,
+  })
+})
+
+test("обобщает повторяющиеся события одной фазы", () => {
+  const phases = createPhaseAccumulator()
+  phases.add({ phase: "discoverFiles", elapsedMs: 2 })
+  phases.add({ phase: "discoverFiles", elapsedMs: 3 })
+  phases.add({ phase: "processFiles", elapsedMs: 7 })
+
+  assert.deepEqual(phases.records(), [
+    { phase: "discoverFiles", elapsedMs: 5 },
+    { phase: "processFiles", elapsedMs: 7 },
+  ])
+})
+
 function profileRecord(substep, time) {
   return {
     operation: "validation",
@@ -66,6 +94,17 @@ function profileRecord(substep, time) {
     worker: 0,
     items: 1,
     bytes: substep === "Двоичное кодирование результата" ? 12 : undefined,
+    time,
+    rssPeak: 1,
+  }
+}
+
+function initializationRecord(substep, time) {
+  return {
+    operation: "validation",
+    step: "Инициализация",
+    substep,
+    scope: "main",
     time,
     rssPeak: 1,
   }

@@ -39,6 +39,9 @@ export interface ProjectStateRefreshProfile {
   readonly processFilesMs: number
   readonly readLocalDiagnosticsMs: number
   readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs: number
+  readonly workerReadyMs: number
+  readonly workerReuseMs: number
 }
 
 export type ProjectStateProfilePhase =
@@ -49,6 +52,9 @@ export type ProjectStateProfilePhase =
   | "dependencyValidation"
   | "scheduleSave"
   | "saveBinary"
+  | "workerPoolCreate"
+  | "workerReady"
+  | "workerReuse"
 
 export interface ProjectStateProfilePhaseEvent {
   readonly phase: ProjectStateProfilePhase

@@ -349,14 +349,16 @@ export function createPreparedYamlProjectWorkerPool(params: {
             }, batch.files.length)
             let startedAt = profileEnabled ? performance.now() : 0
             const task = createProjectStateRefreshTask(refreshParams, index, batch)
-            const transferable = move(projectStateRefreshTransferable(task))
+            const workerInput = params.operation === undefined
+              ? move(projectStateRefreshTransferable(task))
+              : task
             if (profileEnabled) {
               taskPreparationMs += performance.now() - startedAt
               taskCount += 1
               startedAt = performance.now()
             }
             const response = (await getOrCreatePool(pools, index, createPool).run(
-              transferable,
+              workerInput,
               { signal },
             )) as PreparedYamlProjectWorkerTaskResult
             if (profileEnabled) workerWaitMs += performance.now() - startedAt

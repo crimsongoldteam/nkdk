@@ -17,6 +17,9 @@ export interface ValidationProfileResult {
   readonly processFilesMs: number
   readonly readLocalDiagnosticsMs: number
   readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs: number
+  readonly workerReadyMs: number
+  readonly workerReuseMs: number
   readonly diagnosticsDigest: string
 }
 
@@ -32,6 +35,9 @@ export function createValidationProfileResult(params: {
   readonly processFilesMs: number
   readonly readLocalDiagnosticsMs: number
   readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs?: number
+  readonly workerReadyMs?: number
+  readonly workerReuseMs?: number
 }): ValidationProfileResult {
   return {
     ...params.stats,
@@ -44,6 +50,9 @@ export function createValidationProfileResult(params: {
     processFilesMs: params.processFilesMs,
     readLocalDiagnosticsMs: params.readLocalDiagnosticsMs,
     dependencyValidationMs: params.dependencyValidationMs,
+    workerPoolCreateMs: params.workerPoolCreateMs ?? 0,
+    workerReadyMs: params.workerReadyMs ?? 0,
+    workerReuseMs: params.workerReuseMs ?? 0,
     diagnosticsDigest: createHash("sha256").update(stableJson(params.diagnostics)).digest("hex"),
   }
 }

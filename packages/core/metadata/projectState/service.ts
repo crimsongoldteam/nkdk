@@ -335,6 +335,8 @@ export function createProjectStateService(
   ): Promise<ProjectStateRefreshResult> {
     const context = params.context ?? defaultContext()
     const concurrency = normalizeConcurrency(params.concurrency)
+    const poolStart = performance.now()
+    const previousWorkerCount = workers.size()
     const workerOperation = createPool === undefined
       ? await workers.beginOperation({
           id: `project-state-refresh-${Date.now()}-${Math.random()}`,
@@ -343,6 +345,18 @@ export function createProjectStateService(
           ...(params.signal === undefined ? {} : { signal: params.signal }),
         })
       : undefined
+    let workerPoolCreateMs = 0
+    let workerReuseMs = 0
+    if (createPool === undefined) {
+      const elapsedMs = performance.now() - poolStart
+      if (workers.size() > previousWorkerCount) {
+        workerPoolCreateMs = elapsedMs
+        options.onPhase?.({ phase: "workerPoolCreate", elapsedMs })
+      } else {
+        workerReuseMs = elapsedMs
+        options.onPhase?.({ phase: "workerReuse", elapsedMs })
+      }
+    }
     const pool = createPool?.(concurrency) ?? createPreparedYamlProjectWorkerPool({
       concurrency,
       operation: workerOperation!,
@@ -357,6 +371,13 @@ export function createProjectStateService(
     let scheduleSaveMs = 0
     let saveStartedAt: number | undefined
     let snapshotPath: string | undefined
+    let workerReadyMs = 0
+    if (options.loadMs !== undefined) {
+      const startedAt = performance.now()
+      await pool.initValidation(context)
+      workerReadyMs = performance.now() - startedAt
+      options.onPhase?.({ phase: "workerReady", elapsedMs: workerReadyMs })
+    }
     const phaseMs = {
       discoverFilesMs: 0,
       readBaselineMs: 0,
@@ -365,7 +386,7 @@ export function createProjectStateService(
       dependencyValidationMs: 0,
     }
     const measurePhase = async <T>(
-      phase: Exclude<import("./refresh").ProjectStateProfilePhase, "scheduleSave" | "saveBinary">,
+      phase: "discoverFiles" | "readBaseline" | "processFiles" | "readLocalDiagnostics" | "dependencyValidation",
       action: () => Promise<T>,
     ): Promise<T> => {
       const startedAt = performance.now()
@@ -444,6 +465,9 @@ export function createProjectStateService(
         loadMs: options.loadMs,
         scheduleSaveMs,
         saveBinaryMs,
+        workerPoolCreateMs,
+        workerReadyMs,
+        workerReuseMs,
         ...phaseMs,
       },
     }

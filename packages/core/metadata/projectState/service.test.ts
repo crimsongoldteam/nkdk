@@ -142,12 +142,16 @@ describe("ProjectStateService", () => {
       processFilesMs: expect.any(Number),
       readLocalDiagnosticsMs: expect.any(Number),
       dependencyValidationMs: expect.any(Number),
+      workerPoolCreateMs: expect.any(Number),
+      workerReadyMs: expect.any(Number),
+      workerReuseMs: expect.any(Number),
     })
     expect(profiled.profile?.loadMs).toBeGreaterThanOrEqual(0)
     expect(profiled.profile?.scheduleSaveMs).toBeGreaterThanOrEqual(0)
     expect(profiled.profile?.saveBinaryMs).toBeGreaterThanOrEqual(0)
     expect(profiled.profile?.dependencyValidationMs).toBeGreaterThanOrEqual(0)
     expect(phases).toEqual([
+      "workerReady",
       "discoverFiles",
       "readBaseline",
       "processFiles",
@@ -986,6 +990,13 @@ function testWriterHandle(id: number): TestWriter {
 
 function testPool(): PreparedYamlProjectWorkerPool {
   return {
+    initValidation: async () => ({
+      workerInitMs: 0,
+      schemaCompileMs: 0,
+      formSchemaMs: 0,
+      propertiesSchemaMs: 0,
+      rulesSnapshotBytes: 0,
+    }),
     runProjectStateRefresh: async ({ source }: Parameters<PreparedYamlProjectWorkerPool["runProjectStateRefresh"]>[0]) => {
       for await (const _batch of source.batches) { /* завершить обнаружение */ }
       return { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, missingFiles: 0 }

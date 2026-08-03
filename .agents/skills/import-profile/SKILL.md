@@ -24,6 +24,7 @@ node .agents/skills/import-profile/import-profile.mjs /path/to/xml /path/to/yaml
 ## Параметры runner'а
 
 - `--runs N` — число прогонов, по умолчанию `1`.
+- `--concurrency N` — число worker, по умолчанию `4`.
 - `--json` — вывести только JSON.
 
 ## Как отвечать пользователю
@@ -42,3 +43,7 @@ Peak RSS: <MiB>
 ```
 
 Если профиль содержит шаги, добавь краткую таблицу распределения.
+
+Машинный результат каждого запуска содержит `firstPassMs`, `workingIndexMs`,
+`secondPassMs`, `externalFilesMs`, `finalBuildMs`, `dependencyValidationMs`,
+`publicationMs`, `saveMs` и полное время до ответа `responseMs` в поле `phases`.

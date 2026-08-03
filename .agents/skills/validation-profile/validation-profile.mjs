@@ -132,16 +132,20 @@ async function runProfile(options) {
     for (let run = 1; run <= options.runs; run += 1) {
       const started = performance.now()
       let saveBinaryCompleted = false
+      const phaseAccumulator = createPhaseAccumulator()
       const validation = await service.refreshAndValidate({
         projectDir: options.projectDir,
         concurrency: options.concurrency,
         profile: {
           onPhase(event) {
             if (event.phase === "saveBinary") saveBinaryCompleted = true
-            process.stderr.write(`[nkdk-project-state-phase] ${JSON.stringify({ run, ...event })}\n`)
+            phaseAccumulator.add(event)
           },
         },
       })
+      for (const event of phaseAccumulator.records()) {
+        process.stderr.write(`[nkdk-project-state-phase] ${JSON.stringify({ run, ...event })}\n`)
+      }
       const elapsedMs = Math.round(performance.now() - started)
       const memory = memorySnapshot()
       peakRssBytes = Math.max(peakRssBytes, memory.rssBytes)
@@ -165,6 +169,9 @@ async function runProfile(options) {
         heapUsedMiB: memory.heapUsedMiB,
         ...profile,
         phases: {
+          workerPoolCreateMs: profile.workerPoolCreateMs,
+          workerReadyMs: profile.workerReadyMs,
+          workerReuseMs: profile.workerReuseMs,
           loadBinaryMs: profile.loadMs,
           processFilesMs: profile.processFilesMs,
           buildBuffersMs: profile.scheduleSaveMs,
@@ -198,6 +205,9 @@ async function runProfile(options) {
       buildBuffersMs: runs[0].phases.buildBuffersMs,
       dependencyValidationMs: runs[0].phases.dependencyValidationMs,
       saveBinaryMs: runs[0].phases.saveBinaryMs,
+      workerPoolCreateMs: runs[0].phases.workerPoolCreateMs,
+      workerReadyMs: runs[0].phases.workerReadyMs,
+      workerReuseMs: runs[0].phases.workerReuseMs,
       diagnosticsDigest: runs[0].diagnosticsDigest,
     }),
   }
@@ -207,6 +217,18 @@ async function runProfile(options) {
   }
 
   return result
+}
+
+export function createPhaseAccumulator() {
+  const elapsedByPhase = new Map()
+  return {
+    add(event) {
+      elapsedByPhase.set(event.phase, (elapsedByPhase.get(event.phase) ?? 0) + event.elapsedMs)
+    },
+    records() {
+      return [...elapsedByPhase].map(([phase, elapsedMs]) => ({ phase, elapsedMs }))
+    },
+  }
 }
 
 function runTimingPass(options) {
@@ -318,6 +340,18 @@ function tokenizeProfileLine(line) {
 function parseProfileValue(value) {
   if (value.startsWith('"') && value.endsWith('"')) return JSON.parse(value)
   return value
+}
+
+export function summarizeWorkerPoolSteps(steps) {
+  const names = {
+    workerPoolCreateMs: "Создание worker",
+    workerReadyMs: "Готовность worker",
+    workerReuseMs: "Повторное использование worker",
+  }
+  return Object.fromEntries(Object.entries(names).map(([field, substep]) => [
+    field,
+    sum(steps.filter((step) => step.scope === "main" && step.substep === substep), "time"),
+  ]))
 }
 
 function printResult(result, options) {

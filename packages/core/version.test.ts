@@ -16,4 +16,11 @@ describe("NKDK_CORE_VERSION", () => {
     expect(mcpBuild).toContain("__NKDK_CORE_VERSION__: JSON.stringify(corePackageJson.version)")
     expect(mcpBuild).toContain("__NKDK_MCP_VERSION__: JSON.stringify(packageJson.version)")
   })
+
+  it("включает универсальный worker в compiled-сборку", () => {
+    const coreBuild = readFileSync(join(process.cwd(), "scripts/build.mjs"), "utf-8")
+
+    expect(coreBuild).toContain('entryPoints: ["metadata/workerPool/worker.ts"]')
+    expect(coreBuild).toContain('outfile: new URL("worker.js", outdir).pathname')
+  })
 })

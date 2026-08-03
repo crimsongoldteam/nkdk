@@ -310,6 +310,28 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("выводит агрегированный профиль только после завершения прохода", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    vi.stubEnv("NKDK_PROFILE", "1")
+    const outputDir = createTempDir("second-pass-profile")
+    const assignments = createCatalogAndFormAssignments("Неизвестный.LineNumber")
+    await initializeWorker(outputDir)
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignments.catalog, assignments.form],
+    }))
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    error.mockClear()
+
+    await runImportWorkerCommand({ kind: "secondPassBatch", assignmentIds: [assignments.form.id] })
+    expect(error).not.toHaveBeenCalled()
+
+    await runImportWorkerCommand({ kind: "finishSecondPass" })
+    const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
+    expect(lines.length).toBeGreaterThan(0)
+    expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
+  })
+
   it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
     const outputDir = createTempDir("foreign-assignment")
     await initializeWorker(outputDir)

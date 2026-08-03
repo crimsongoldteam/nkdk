@@ -575,6 +575,15 @@ describe("configuration XML import coordinator", () => {
       )
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
+    for (const substep of [
+      "Фиксация рабочего индекса",
+      "Построение окончательного состояния",
+      "Полная проверка зависимостей",
+      "Сохранение состояния проекта",
+      "Публикация состояния проекта",
+    ]) {
+      expect(lines.some((line) => line.includes(`substep=${JSON.stringify(substep)}`))).toBe(true)
+    }
   })
 
   it.each([
@@ -759,9 +768,12 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
   const readToken = () => new Uint8Array([nextToken++]) as never
   return {
     workers: createUnusedMetadataWorkerPool(),
-    async beginImport() {
+    async beginImport(importParams) {
       return {
-        async commitWorkingIndex() { return readToken() },
+        async commitWorkingIndex() {
+          importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
+          return readToken()
+        },
         async createReadToken() { return readToken() },
         async writeStateFragment(fragment) {
           const buffers = Object.values(fragment.buffers)
@@ -769,7 +781,11 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
           expect(buffers.every((buffer) => buffer.byteLength === 0)).toBe(true)
         },
         async finalize(beforeCheckpoint) {
+          importParams.profile?.onPhase?.({ phase: "finalBuild", elapsedMs: 1 })
+          importParams.profile?.onPhase?.({ phase: "dependencyValidation", elapsedMs: 1 })
           await beforeCheckpoint?.()
+          importParams.profile?.onPhase?.({ phase: "save", elapsedMs: 1 })
+          importParams.profile?.onPhase?.({ phase: "publication", elapsedMs: 1 })
           return {
             diagnostics: [],
             readToken: readToken(),

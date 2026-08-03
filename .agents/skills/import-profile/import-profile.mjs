@@ -11,7 +11,7 @@ const mcpCall = join(repoRoot, ".agents/tools/mcp/call.mjs")
 function usage() {
   return [
     "Использование:",
-    "  node .agents/skills/import-profile/import-profile.mjs <xml-dir> <yaml-dir> [--runs N] [--json]",
+    "  node .agents/skills/import-profile/import-profile.mjs <xml-dir> <yaml-dir> [--runs N] [--concurrency N] [--json]",
   ].join("\n")
 }
 
@@ -28,6 +28,7 @@ function isPositiveInteger(value) {
 function parseArgs(argv) {
   const options = {
     runs: 1,
+    concurrency: 4,
     jsonOnly: false,
     xmlDir: undefined,
     yamlDir: undefined,
@@ -39,6 +40,12 @@ function parseArgs(argv) {
       const value = argv[++index]
       if (!isPositiveInteger(value)) fail("--runs должен быть положительным целым числом")
       options.runs = Number(value)
+      continue
+    }
+    if (arg === "--concurrency") {
+      const value = argv[++index]
+      if (!isPositiveInteger(value)) fail("--concurrency должен быть положительным целым числом")
+      options.concurrency = Number(value)
       continue
     }
     if (arg === "--json") {
@@ -88,7 +95,7 @@ function runProfile(options) {
     mkdirProjectSymlink(projectDir, options.yamlDir)
     writeFileSync(
       inputJson,
-      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", concurrency: 1, allowWrite: true })}\n`,
+      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", concurrency: options.concurrency, allowWrite: true })}\n`,
       "utf8"
     )
 
@@ -127,6 +134,7 @@ function runProfile(options) {
       errors: summary.errors,
       warnings: summary.warnings,
       workerPoolSize: workerPoolSize(steps),
+      phases: summarizeImportSteps(steps, elapsedMs),
     })
 
     if (spawned.status !== 0) {
@@ -148,6 +156,26 @@ function runProfile(options) {
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     steps: allSteps,
   }
+}
+
+export function summarizeImportSteps(steps, elapsedMs) {
+  const names = {
+    firstPassMs: "Первый проход worker",
+    workingIndexMs: "Фиксация рабочего индекса",
+    secondPassMs: "Второй проход worker",
+    externalFilesMs: "Копирование внешних файлов XML-выгрузки",
+    finalBuildMs: "Построение окончательного состояния",
+    dependencyValidationMs: "Полная проверка зависимостей",
+    publicationMs: "Публикация состояния проекта",
+    saveMs: "Сохранение состояния проекта",
+  }
+  return Object.fromEntries([
+    ...Object.entries(names).map(([field, substep]) => [
+      field,
+      sum(steps.filter((step) => step.scope === "main" && step.substep === substep), "time"),
+    ]),
+    ["responseMs", elapsedMs],
+  ])
 }
 
 function clearDirectory(dir) {
@@ -482,6 +510,8 @@ function formatBytes(value) {
   return value === undefined ? "-" : `${(value / 1024 / 1024).toFixed(2)}MiB`
 }
 
-const options = parseArgs(process.argv.slice(2))
-const result = runProfile(options)
-printResult(result, options)
+if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const options = parseArgs(process.argv.slice(2))
+  const result = runProfile(options)
+  printResult(result, options)
+}

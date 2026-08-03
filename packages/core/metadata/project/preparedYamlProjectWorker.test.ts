@@ -14,6 +14,7 @@ import {
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
 import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -703,6 +704,47 @@ describe("validation first-pass worker boundary", () => {
 })
 
 describe("project-state refresh pool", () => {
+  it("передаёт универсальному worker само задание без Piscina-оболочки", async () => {
+    const projectDir = createTempDir()
+    const identity = {
+      projectPath: "cf/resource.bin",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+    }
+    const fragmentWriter = createProjectStateFragmentWriter()
+    const tasks: PreparedYamlProjectWorkerTask[] = []
+    const operation: MetadataWorkerOperation = {
+      id: "validation",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "validation") throw new Error("unexpected command")
+        tasks.push(command.task)
+        if (command.task.kind === "initValidation") {
+          return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        }
+        if (command.task.kind === "finishProjectStateFragment") {
+          return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
+        }
+        if (command.task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${command.task.kind}`)
+        return {
+          kind: "refreshProjectStateResult",
+          missingProjectPaths: [],
+          hashedFiles: 1,
+          parsedYamlFiles: 0,
+          changedFiles: 1,
+        }
+      },
+      async finish() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, operation })
+
+    await runSingleResourceRefresh(pool, projectDir, identity)
+
+    const refresh = tasks.find((task) => task.kind === "refreshProjectState")
+    expect(refresh).toMatchObject({ kind: "refreshProjectState", files: [expect.objectContaining({ projectPath: identity.projectPath })] })
+    await pool.close()
+  })
+
   it("профилирует применение пачек одной агрегированной записью", async () => {
     const projectDir = createTempDir()
     const identity = {
@@ -740,14 +782,7 @@ describe("project-state refresh pool", () => {
     let profileLines: string[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
-      await pool.runProjectStateRefresh({
-        projectDir,
-        context: mockContext,
-        source: { batches: validationBatches([{ identity, absolutePath: join(projectDir, identity.projectPath) }]) },
-      }, {
-        async writeFragment() {},
-        async deleteFiles() {},
-      })
+      await runSingleResourceRefresh(pool, projectDir, identity)
       profileLines = error.mock.calls.map(([line]) => String(line))
     } finally {
       await pool.close()
@@ -883,6 +918,21 @@ describe("project-state refresh pool", () => {
     }
   })
 })
+
+function runSingleResourceRefresh(
+  pool: ReturnType<typeof createPreparedYamlProjectWorkerPool>,
+  projectDir: string,
+  identity: ProjectStateFileIdentity,
+) {
+  return pool.runProjectStateRefresh({
+    projectDir,
+    context: mockContext,
+    source: { batches: validationBatches([{ identity, absolutePath: join(projectDir, identity.projectPath) }]) },
+  }, {
+    async writeFragment() {},
+    async deleteFiles() {},
+  })
+}
 
 function createTempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "nkdk-validation-facts-worker-"))
