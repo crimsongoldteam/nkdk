@@ -22,7 +22,10 @@ import {
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import { registeredExplicitXMLTestRule } from "../../../tests/property/explicitXMLPropertyRegistry"
+import {
+  registeredExplicitXMLTestRule,
+  registeredMissingExplicitXMLTestRule,
+} from "../../../tests/property/explicitXMLPropertyRegistry"
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
@@ -90,6 +93,17 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Mode: "Auto" })
+  })
+
+  it("does not materialize a default for a registered missing XML property", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("Поле: !xml"),
+      rule: registeredMissingExplicitXMLTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("rejects an unregistered explicit XML scalar", () => {

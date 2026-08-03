@@ -479,6 +479,32 @@ export function importPropertiesFromXMLToYAML(params: {
     let conversionMs = 0
     for (const entry of sourceState.plan.defaults) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
+      sourceState.foundPropertyKeys.add(entry.propertyKey)
+      const conversionStartedAt = performance.now()
+      importMatch({
+        sourceState,
+        entry,
+        sourceXMLKey: undefined,
+        xmlPath: undefined,
+        sourceXMLValue: undefined,
+        presentInXML: false,
+        ambiguousXMLKey: false,
+      })
+      conversionMs += performance.now() - conversionStartedAt
+    }
+    for (const entry of sourceState.plan.entriesByPropertyKey.values()) {
+      if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
+      if (
+        matchExplicitXMLPropertyFromXML({
+          itemType: rule.itemType,
+          propertyKey: entry.propertyKey,
+          presentInXML: false,
+          xmlValue: undefined,
+        }) === undefined
+      ) {
+        continue
+      }
+      sourceState.foundPropertyKeys.add(entry.propertyKey)
       const conversionStartedAt = performance.now()
       importMatch({
         sourceState,

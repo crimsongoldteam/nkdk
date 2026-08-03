@@ -138,8 +138,9 @@ export function createYAMLPropertySource(params: {
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
   const yaml = asRecord(params.yaml)
+  let explicitXMLActions: ReadonlyMap<string, "emit" | "omit">
   try {
-    assertAllowedExplicitXMLTags({
+    explicitXMLActions = assertAllowedExplicitXMLTags({
       yaml,
       itemType: params.rule.itemType,
       properties: params.rule.properties,
@@ -180,6 +181,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       params.profile.propertyCount++
       params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
     }
+    if (explicitXMLActions.get(propertyKey) === "omit") continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
     if (!source.has(propertyKey)) {
