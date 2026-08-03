@@ -26,6 +26,8 @@ import type {
 import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
 import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
+import { createBinaryProjectStateQueryPort } from "./binary/readSession"
+import { ProjectStateSnapshotView } from "./binary/snapshot"
 import {
   validateProjectStateDependencyBatch,
   validateProjectStateOwnerBatch,
@@ -305,7 +307,7 @@ describe("dependency validation из ProjectState", () => {
 
   it("читает только текущего владельца и страницы требуемого kind для разных cfe", () => {
     const register = { kind: "РегистрНакопления", name: "Продажи" }
-    const documentRefs = Array.from({ length: 2_001 }, (_, index) => ({
+    const documentRefs = Array.from({ length: 3 }, (_, index) => ({
       kind: "Документ",
       name: `Документ${index.toString().padStart(4, "0")}`,
     }))
@@ -327,7 +329,7 @@ describe("dependency validation из ProjectState", () => {
     })
     const sourceX = ownerDependencySource("cfe/x", register, "Объект.Регистратор", "cfe/x/Форма.yaml")
     const sourceY = ownerDependencySource("cfe/y", register, "Объект.Регистратор", "cfe/y/Форма.yaml")
-    const { store, openReadSession } = createBinaryProjectStateTestFixture()
+    const { store } = createBinaryProjectStateTestFixture()
     const updates = [
       baseDocuments,
       localDocument,
@@ -339,7 +341,10 @@ describe("dependency validation из ProjectState", () => {
     store.beginUpdate()
     replaceFiles(store, updates)
     store.commitUpdate()
-    const session = openReadSession(store.createReadToken())
+    const session = createBinaryProjectStateQueryPort(
+      new ProjectStateSnapshotView(store.createReadToken().buffers),
+      { pageSize: 2 },
+    )
     const inputs = session.readDependencyInputs([
       dependencyQuery("input-x", sourceX),
       dependencyQuery("input-y", sourceY),
@@ -363,8 +368,8 @@ describe("dependency validation из ProjectState", () => {
       } while (cursor !== undefined)
     }
     expect(pageSizes).toEqual(new Map([
-      ["cfe/x", [2_000, 1]],
-      ["cfe/y", [2_000, 1]],
+      ["cfe/x", [2, 1]],
+      ["cfe/y", [2, 1]],
     ]))
 
     const layeredOwners = pagedSession.readDependencyOwnerInputs([
@@ -375,7 +380,6 @@ describe("dependency validation из ProjectState", () => {
       dependencyOwnerInput("local", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Local"] }),
       dependencyOwnerInput("fallback", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Base"] }, "Номер"),
     ])
-    session.close()
   })
 
   it("останавливает closed reverse lookup до следующей страницы", () => {

@@ -41,7 +41,12 @@ const PAGE_SIZE = 2_000
 
 export function createBinaryProjectStateQueryPort(
   snapshot: ProjectStateSnapshotView,
+  options: { readonly pageSize?: number } = {},
 ): ProjectStateQueryPort {
+  const pageSize = options.pageSize ?? PAGE_SIZE
+  if (!Number.isSafeInteger(pageSize) || pageSize < 1) {
+    throw new Error("pageSize должен быть положительным целым числом")
+  }
   const readYamlFacts = createYamlFactsReader(snapshot)
   const queryPort: ProjectStateQueryPort = {
     resolveTargets: (requests) => resolveTargets(snapshot, readYamlFacts, requests),
@@ -50,8 +55,8 @@ export function createBinaryProjectStateQueryPort(
     readDependencyInputs: (requests) => readDependencyInputs(snapshot, readYamlFacts, requests),
     readDependencyOwnerInputs: (requests) =>
       readDependencyOwnerInputs(snapshot, readYamlFacts, requests),
-    readOwnerRefPage: (query) => readOwnerRefPage(snapshot, query),
-    readComponentTargetPage: (query) => readComponentTargetPage(snapshot, query),
+    readOwnerRefPage: (query) => readOwnerRefPage(snapshot, query, pageSize),
+    readComponentTargetPage: (query) => readComponentTargetPage(snapshot, query, pageSize),
     readValidationStatus: (query) => readValidationStatus(snapshot, query),
   }
   return queryPort
@@ -244,9 +249,10 @@ function findReferences(
 function readOwnerRefPage(
   snapshot: ProjectStateSnapshotView,
   query: ProjectOwnerRefPageQuery,
+  pageSize: number,
 ): ProjectOwnerRefPage {
   const rows: { readonly key: string; readonly owner: OwnerTypeRef }[] = []
-  for (let rangeId = 0; rangeId < snapshot.ownerRangeCount && rows.length <= PAGE_SIZE; rangeId += 1) {
+  for (let rangeId = 0; rangeId < snapshot.ownerRangeCount && rows.length <= pageSize; rangeId += 1) {
     const range = snapshot.ownerRange(rangeId)
     const key = snapshot.stringValue(range.ownerKeyId)
     if (key <= (query.cursor ?? "")) continue
@@ -262,19 +268,20 @@ function readOwnerRefPage(
     }
     if ((own.size > 0 ? own.size : base.size) === 1) rows.push({ key, owner })
   }
-  const page = rows.slice(0, PAGE_SIZE)
+  const page = rows.slice(0, pageSize)
   return {
     refs: page.map(({ owner }) => owner),
-    ...(rows.length <= PAGE_SIZE ? {} : { nextCursor: page.at(-1)!.key }),
+    ...(rows.length <= pageSize ? {} : { nextCursor: page.at(-1)!.key }),
   }
 }
 
 function readComponentTargetPage(
   snapshot: ProjectStateSnapshotView,
   query: { readonly componentPath: string; readonly cursor?: string },
+  pageSize: number,
 ): ProjectComponentTargetPage {
   const rows: { readonly canonical: string; readonly sourceFileId: number }[] = []
-  for (let rangeId = 0; rangeId < snapshot.targetRangeCount && rows.length <= PAGE_SIZE; rangeId += 1) {
+  for (let rangeId = 0; rangeId < snapshot.targetRangeCount && rows.length <= pageSize; rangeId += 1) {
     const range = snapshot.targetRange(rangeId)
     if (snapshot.stringValue(range.componentPathId) !== query.componentPath) continue
     const canonical = snapshot.stringValue(range.canonicalId)
@@ -285,13 +292,13 @@ function readComponentTargetPage(
     }
     if (files.size === 1) rows.push({ canonical, sourceFileId: files.values().next().value! })
   }
-  const page = rows.slice(0, PAGE_SIZE)
+  const page = rows.slice(0, pageSize)
   return {
     entries: page.map(({ canonical, sourceFileId }) => ({
       logicalAddress: canonical,
       sourceProjectPath: snapshot.filePath(sourceFileId),
     })),
-    ...(rows.length <= PAGE_SIZE ? {} : { nextCursor: page.at(-1)!.canonical }),
+    ...(rows.length <= pageSize ? {} : { nextCursor: page.at(-1)!.canonical }),
   }
 }
 
