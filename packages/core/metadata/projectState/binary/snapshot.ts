@@ -38,6 +38,12 @@ export interface ProjectStateSnapshotTarget {
   readonly componentPath: string
 }
 
+export interface ProjectStateHashIndexStats {
+  readonly size: number
+  readonly capacity: number
+  readonly loadFactor: number
+}
+
 const SECTION_ORDER: readonly ProjectStateSectionKind[] = [
   "strings",
   "files",
@@ -192,6 +198,18 @@ export class ProjectStateSnapshotView {
 
   stringPool(): BinaryStringPool {
     return this.#strings
+  }
+
+  hashIndexStats(): {
+    readonly strings: ProjectStateHashIndexStats
+    readonly targets: ProjectStateHashIndexStats
+    readonly owners: ProjectStateHashIndexStats
+  } {
+    return {
+      strings: hashIndexStats(this.#strings.lookup),
+      targets: hashIndexStats(this.#targetIndex),
+      owners: hashIndexStats(this.#ownerIndex),
+    }
   }
 
   stringValue(id: number): string {
@@ -356,5 +374,13 @@ export class ProjectStateSnapshotView {
       throw new Error(`Повреждён диапазон ${section} файла`)
     }
     return new Uint8Array(buffer, offset, byteLength)
+  }
+}
+
+function hashIndexStats(index: BinaryHashIndex): ProjectStateHashIndexStats {
+  return {
+    size: index.size,
+    capacity: index.capacity,
+    loadFactor: index.size / index.capacity,
   }
 }

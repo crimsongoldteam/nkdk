@@ -18,4 +18,9 @@ it("строит новый снимок из прежних файлов, за�
   expect(view.filePaths()).toEqual(["cf/b.yaml"])
   expect(view.lookupTarget("cf", "Catalog.A")).toEqual([])
   expect(view.lookupTarget("cf", "Catalog.B")).toHaveLength(1)
+  expect(view.hashIndexStats()).toMatchObject({
+    strings: { loadFactor: 0.75 },
+    targets: { loadFactor: 0.5 },
+    owners: { loadFactor: 0.5 },
+  })
 })

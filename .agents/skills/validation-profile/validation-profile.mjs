@@ -124,11 +124,13 @@ async function runProfile(options) {
   try {
     for (let run = 1; run <= options.runs; run += 1) {
       const started = performance.now()
+      let saveBinaryCompleted = false
       const validation = await service.refreshAndValidate({
         projectDir: options.projectDir,
         concurrency: options.concurrency,
         profile: {
           onPhase(event) {
+            if (event.phase === "saveBinary") saveBinaryCompleted = true
             process.stderr.write(`[nkdk-project-state-phase] ${JSON.stringify({ run, ...event })}\n`)
           },
         },
@@ -138,6 +140,7 @@ async function runProfile(options) {
       peakRssBytes = Math.max(peakRssBytes, memory.rssBytes)
       const counts = countDiagnostics(validation.diagnostics)
       if (validation.profile === undefined) throw new Error("compiled core did not return project-state profile")
+      if (!saveBinaryCompleted) throw new Error("compiled core did not finish binary project-state save")
       const profile = core.createValidationProfileResult({
         diagnostics: validation.diagnostics,
         stats: validation.stats,
@@ -154,6 +157,13 @@ async function runProfile(options) {
         rssMiB: memory.rssMiB,
         heapUsedMiB: memory.heapUsedMiB,
         ...profile,
+        phases: {
+          loadBinaryMs: profile.loadMs,
+          processFilesMs: profile.processFilesMs,
+          buildBuffersMs: profile.scheduleSaveMs,
+          dependencyValidationMs: profile.dependencyValidationMs,
+          saveBinaryMs: profile.saveBinaryMs,
+        },
       })
     }
   } finally {
@@ -176,13 +186,11 @@ async function runProfile(options) {
       hashedFiles: runs[0].hashedFiles,
       parsedYamlFiles: runs[0].parsedYamlFiles,
       snapshotBytes: runs[0].snapshotBytes,
-      loadMs: runs[0].loadMs,
-      checkpointMs: runs[0].checkpointMs,
-      discoverFilesMs: runs[0].discoverFilesMs,
-      readBaselineMs: runs[0].readBaselineMs,
+      loadBinaryMs: runs[0].phases.loadBinaryMs,
       processFilesMs: runs[0].processFilesMs,
-      readLocalDiagnosticsMs: runs[0].readLocalDiagnosticsMs,
-      dependencyValidationMs: runs[0].dependencyValidationMs,
+      buildBuffersMs: runs[0].phases.buildBuffersMs,
+      dependencyValidationMs: runs[0].phases.dependencyValidationMs,
+      saveBinaryMs: runs[0].phases.saveBinaryMs,
       diagnosticsDigest: runs[0].diagnosticsDigest,
     }),
   }
@@ -326,13 +334,11 @@ function printResult(result, options) {
         `hashed=${run.hashedFiles}`,
         `parsedYAML=${run.parsedYamlFiles}`,
         `snapshot=${run.snapshotBytes}B`,
-        `load=${formatMs(run.loadMs)}`,
-        `checkpoint=${formatMs(run.checkpointMs)}`,
-        `discover=${formatMs(run.discoverFilesMs)}`,
-        `baseline=${formatMs(run.readBaselineMs)}`,
-        `process=${formatMs(run.processFilesMs)}`,
-        `localDiagnostics=${formatMs(run.readLocalDiagnosticsMs)}`,
-        `dependencies=${formatMs(run.dependencyValidationMs)}`,
+        `loadBinary=${formatMs(run.phases.loadBinaryMs)}`,
+        `processFiles=${formatMs(run.phases.processFilesMs)}`,
+        `buildBuffers=${formatMs(run.phases.buildBuffersMs)}`,
+        `dependencyValidation=${formatMs(run.phases.dependencyValidationMs)}`,
+        `saveBinary=${formatMs(run.phases.saveBinaryMs)}`,
         `digest=${run.diagnosticsDigest}`,
         `rss=${run.rssMiB}MiB`,
         `heap=${run.heapUsedMiB}MiB`,
