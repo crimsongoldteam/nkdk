@@ -2,7 +2,7 @@ import { isAbsolute, resolve, relative } from "path"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
-  iterateMetadataProjectResources as iterateTopologyProjectResources,
+  iterateMetadataProjectPathCandidates as iterateTopologyProjectPathCandidates,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
@@ -21,6 +21,12 @@ export interface MetadataProjectResourceDiscoveryOptions {
 export interface MetadataProjectResourceContext {
   topology: CompiledMetadataResourceTopology
   rootSpec: MetadataProjectSpec
+}
+
+export interface MetadataProjectResourceCandidate {
+  readonly projectPath: string
+  readonly absolutePath: string
+  classify(): MetadataProjectResourceRef | undefined
 }
 
 export interface MetadataProjectResourceOwner {
@@ -110,14 +116,37 @@ export async function* iterateMetadataProjectResources(
   options: MetadataProjectResourceDiscoveryOptions = {},
   context: MetadataProjectResourceContext = defaultResourceContext(),
 ): AsyncGenerator<MetadataProjectResourceRef> {
-  for await (const match of iterateTopologyProjectResources({
+  for await (const candidate of iterateMetadataProjectResourceCandidates(projectDir, options, context)) {
+    const resource = candidate.classify()
+    if (resource !== undefined) yield resource
+  }
+}
+
+export async function* iterateMetadataProjectResourceCandidates(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {},
+  context: MetadataProjectResourceContext = defaultResourceContext(),
+): AsyncGenerator<MetadataProjectResourceCandidate> {
+  for await (const candidate of iterateTopologyProjectPathCandidates({
     topology: context.topology,
     projectDir,
     include: options.include === "yaml" ? "content" : "all",
   })) {
+    let classified = false
+    let cached: MetadataProjectResourceRef | undefined
     yield {
-      ...toLegacyResource(match, context),
-      absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
+      projectPath: candidate.projectPath,
+      absolutePath: candidate.absolutePath,
+      classify() {
+        if (!classified) {
+          const match = candidate.classify()
+          cached = match === undefined || match.kind === "ignore"
+            ? undefined
+            : { ...toLegacyResource(match, context), absolutePath: candidate.absolutePath }
+          classified = true
+        }
+        return cached
+      },
     }
   }
 }

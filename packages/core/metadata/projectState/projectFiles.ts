@@ -1,5 +1,9 @@
 import { toPreparedYamlProjectFileDescriptor, type PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import { discoverMetadataProjectResources, iterateMetadataProjectResources } from "../project/resources"
+import {
+  discoverMetadataProjectResources,
+  iterateMetadataProjectResourceCandidates,
+  type MetadataProjectResourceRef,
+} from "../project/resources"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import type { ProjectStateFileIdentity } from "./fileUpdate"
 
@@ -10,26 +14,54 @@ export interface ProjectStateValidationFile {
 }
 
 export interface ProjectStateDiscoveredFileBatch {
+  readonly paths: readonly ProjectStateDiscoveredPath[]
+  /** Переходный ленивый договор до перевода refresh на paths. */
   readonly files: readonly ProjectStateValidationFile[]
 }
 
+export interface ProjectStateDiscoveredPath {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly absolutePath: string
+  classify(): ProjectStateValidationFile | undefined
+}
+
+export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 512
+
 export async function* discoverProjectStateValidationFileBatches(
   projectDir: string,
-  batchSize = 32,
+  batchSize = PROJECT_STATE_VALIDATION_BATCH_SIZE,
 ): AsyncGenerator<ProjectStateDiscoveredFileBatch> {
   if (!Number.isSafeInteger(batchSize) || batchSize < 1) throw new Error("Размер пачки должен быть положительным целым")
   const { components } = await discoverValidationProjectComponents(projectDir)
-  let batch: ProjectStateValidationFile[] = []
+  let batch: ProjectStateDiscoveredPath[] = []
   for (const component of components) {
-    for await (const resource of iterateMetadataProjectResources(component.componentDir, { include: "all" }, component)) {
-      if (resource.absolutePath === undefined) continue
-      batch.push(toValidationFile(component.componentPath, resource, component))
+    for await (const candidate of iterateMetadataProjectResourceCandidates(
+      component.componentDir,
+      { include: "all" },
+      component,
+    )) {
+      let classified = false
+      let cached: ProjectStateValidationFile | undefined
+      batch.push({
+        projectPath: `${component.componentPath}/${candidate.projectPath}`,
+        componentPath: component.componentPath,
+        absolutePath: candidate.absolutePath,
+        classify() {
+          if (!classified) {
+            const resource = candidate.classify()
+            cached = resource === undefined ? undefined : toValidationFile(component.componentPath, resource, component)
+            classified = true
+          }
+          return cached
+        },
+      })
       if (batch.length < batchSize) continue
-      yield { files: batch }
+      yield toDiscoveredBatch(batch)
       batch = []
     }
   }
-  if (batch.length > 0) yield { files: batch }
+  if (batch.length > 0) yield toDiscoveredBatch(batch)
 }
 
 export async function discoverProjectStateValidationFiles(
@@ -49,7 +81,7 @@ export async function discoverProjectStateValidationFiles(
 
 function toValidationFile(
   componentPath: string,
-  resource: Awaited<ReturnType<typeof discoverMetadataProjectResources>>[number],
+  resource: MetadataProjectResourceRef,
   component: Parameters<typeof toPreparedYamlProjectFileDescriptor>[1],
 ): ProjectStateValidationFile {
   const identity: ProjectStateFileIdentity = {
@@ -64,5 +96,19 @@ function toValidationFile(
     ...(resource.kind === "yaml"
       ? { descriptor: toPreparedYamlProjectFileDescriptor(resource, component) }
       : {}),
+  }
+}
+
+function toDiscoveredBatch(paths: readonly ProjectStateDiscoveredPath[]): ProjectStateDiscoveredFileBatch {
+  let files: readonly ProjectStateValidationFile[] | undefined
+  return {
+    paths,
+    get files() {
+      files ??= paths.flatMap((path) => {
+        const file = path.classify()
+        return file === undefined ? [] : [file]
+      })
+      return files
+    },
   }
 }

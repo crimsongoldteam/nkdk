@@ -27,7 +27,15 @@ describe("refreshProjectState", () => {
       handle,
       async *discoverFiles() {
         events.push("discover")
-        yield { files }
+        yield {
+          paths: files.map((file) => ({
+            projectPath: file.identity.projectPath,
+            componentPath: file.identity.componentPath,
+            absolutePath: file.absolutePath,
+            classify: () => file,
+          })),
+          files,
+        }
       },
       async processFiles(batches, producer, operation, projectDir) {
         const selected = []
