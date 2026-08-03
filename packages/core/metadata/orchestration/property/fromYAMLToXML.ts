@@ -741,7 +741,7 @@ function isYAMLPropertyExportEnabled(params: {
 
 function requiresYAMLToXMLEvaluation(rule: PropertyRule): boolean {
   return (
-    rule.exportWithoutReferenceXML === true ||
+    rule.evaluateWhenYAMLMissing === true ||
     rule.exportNilValue === true ||
     Object.prototype.hasOwnProperty.call(rule, "implicitValueXML")
   )

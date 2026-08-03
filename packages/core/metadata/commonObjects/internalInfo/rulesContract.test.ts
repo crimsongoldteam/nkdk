@@ -10,10 +10,10 @@ describe("InternalInfo rules contract", () => {
     MetadataExternalDataSourceCubeRules,
     MetadataExternalDataSourceDimensionTableRules,
     MetadataExternalDataSourceTableRules,
-  ])("восстанавливает InternalInfo %s без XML-референса", (rule) => {
+  ])("вычисляет InternalInfo %s при отсутствии YAML", (rule) => {
     expect(rule.properties.internalInfo).toMatchObject({
       type: "InternalInfo",
-      exportWithoutReferenceXML: true,
+      evaluateWhenYAMLMissing: true,
     })
   })
 })

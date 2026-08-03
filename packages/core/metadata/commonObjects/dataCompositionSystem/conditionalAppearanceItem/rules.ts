@@ -33,6 +33,7 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:filter",
       yaml: "Отбор",
       defaultValueXMLRaw: {},
+      evaluateWhenYAMLMissing: true,
     }),
     appearance: appearanceFieldsRule({
       xml: "dcsset:appearance",

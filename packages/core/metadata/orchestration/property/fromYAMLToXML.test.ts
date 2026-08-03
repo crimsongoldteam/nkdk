@@ -170,6 +170,27 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("evaluates XML property when YAML is missing", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          xml: "Value",
+          yaml: "Значение",
+          defaultValueXMLRaw: {},
+          evaluateWhenYAMLMissing: true,
+        } as PropertyRule,
+      }),
+      outputs: [{ key: "owner" }],
+      sparseYAML: true,
+      omitDefaultsForSparseYAML: true,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: {} })
+  })
+
   it.each([
     ["отсутствующий YAML", {}, { Value: "yaml-default" }],
     ["явный XML-implicit", { Значение: "xml-implicit" }, {}],

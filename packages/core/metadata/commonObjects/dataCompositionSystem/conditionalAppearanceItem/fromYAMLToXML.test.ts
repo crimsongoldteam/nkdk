@@ -38,5 +38,6 @@ describe("export ConditionalAppearanceItems to XML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+    expect(result).toContain("<dcsset:filter/>")
   })
 })

@@ -72,6 +72,6 @@ export type InternalInfoRuleParams = Omit<InternalInfoWidePropertyRule, "type">
 
 export function internalInfoRule<const Params extends InternalInfoRuleParams>(
   params: WideExactRuleParams<InternalInfoRuleParams, Params>
-): Readonly<{ type: "InternalInfo"; exportWithoutReferenceXML: true } & Params> {
-  return defineWidePropertyRule("InternalInfo", { exportWithoutReferenceXML: true, ...params })
+): Readonly<{ type: "InternalInfo"; evaluateWhenYAMLMissing: true } & Params> {
+  return defineWidePropertyRule("InternalInfo", { evaluateWhenYAMLMissing: true, ...params })
 }
