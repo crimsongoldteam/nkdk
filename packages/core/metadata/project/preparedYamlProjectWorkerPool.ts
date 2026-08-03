@@ -12,7 +12,7 @@ import type {
 import { createOperationProfiler, createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
-import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
+import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import { assertProjectStateFileBaseline, type ProjectStateFileBaseline } from "../projectState/contracts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
@@ -70,7 +70,7 @@ export interface ProjectStateValidationSource {
 }
 
 export interface ProjectStateValidationProducer {
-  writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
+  writeFragment(fragment: ProjectStateFragment): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
 }
 
@@ -311,9 +311,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
       let taskCount = 0
       let taskPreparationMs = 0
       let workerWaitMs = 0
-      let batchCount = 0
-      let batchBytes = 0
-      let applyBatchMs = 0
+      let fragmentCount = 0
+      let fragmentBytes = 0
+      let applyFragmentMs = 0
       let deletionCount = 0
       let applyDeletionsMs = 0
       let firstFailure: { readonly reason: unknown } | undefined
@@ -350,16 +350,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
             if (response.kind !== "refreshProjectStateResult") {
               throw new Error("Worker вернул неожиданный результат refreshProjectState")
             }
-            for (const batch of response.fileUpdateBatches) {
-              signal.throwIfAborted()
-              if (profileEnabled) startedAt = performance.now()
-              await producer.writeBatch(batch)
-              if (profileEnabled) {
-                applyBatchMs += performance.now() - startedAt
-                batchCount += 1
-                batchBytes += batch.bytes.byteLength
-              }
-            }
             if (response.missingProjectPaths.length > 0) {
               signal.throwIfAborted()
               if (profileEnabled) startedAt = performance.now()
@@ -375,10 +365,30 @@ export function createPreparedYamlProjectWorkerPool(params: {
             missingFiles += response.missingProjectPaths.length
             start += sourceIndexes.length * params.concurrency
           }
+          signal.throwIfAborted()
+          let startedAt = profileEnabled ? performance.now() : 0
+          const finishResponse = (await getOrCreatePool(pools, index, createPool).run({
+            kind: "finishProjectStateFragment",
+            workerIndex: index,
+          } satisfies PreparedYamlProjectWorkerTask, { signal })) as PreparedYamlProjectWorkerTaskResult
+          if (finishResponse.kind !== "finishProjectStateFragmentResult") {
+            throw new Error("Worker вернул неожиданный результат finishProjectStateFragment")
+          }
+          await producer.writeFragment(finishResponse.fragment)
+          if (profileEnabled) {
+            applyFragmentMs += performance.now() - startedAt
+            fragmentCount += 1
+            fragmentBytes += Object.values(finishResponse.fragment.buffers)
+              .reduce((sum, buffer) => sum + buffer.byteLength, 0)
+          }
           return { hashedFiles, parsedYamlFiles, changedFiles, missingFiles }
         } catch (caught) {
           firstFailure ??= { reason: caught }
           operation.abort(caught)
+          await getOrCreatePool(pools, index, createPool).run({
+            kind: "finishProjectStateFragment",
+            workerIndex: index,
+          } satisfies PreparedYamlProjectWorkerTask).catch(() => undefined)
           throw caught
         }
       }))
@@ -391,10 +401,10 @@ export function createPreparedYamlProjectWorkerPool(params: {
         items: taskCount,
         timeMs: workerWaitMs,
       })
-      profiler?.record("Обработка файлов Б1–Б4", "Применение двоичных пачек", {
-        items: batchCount,
-        bytes: batchBytes,
-        timeMs: applyBatchMs,
+      profiler?.record("Обработка файлов Б1–Б4", "Применение двоичных фрагментов", {
+        items: fragmentCount,
+        bytes: fragmentBytes,
+        timeMs: applyFragmentMs,
       })
       profiler?.record("Обработка файлов Б1–Б4", "Применение удалений", {
         items: deletionCount,

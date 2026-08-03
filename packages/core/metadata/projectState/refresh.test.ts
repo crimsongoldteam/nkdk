@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { Diagnostic } from "../validation/types"
-import {
-  createProjectStateFileUpdateBatch,
-  type ProjectStateFileIdentity,
-  type ProjectStateFileUpdate,
-} from "./fileUpdate"
-import {
-  encodeProjectStateFileUpdateBatch,
-  type ProjectStateEncodedFileUpdateBatch,
-} from "./binary/contribution"
+import type { ProjectStateFileIdentity, ProjectStateFileUpdate } from "./fileUpdate"
+import { createProjectStateFragmentWriter, type ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
 import { createTestProjectStateReadToken } from "./tests/readToken"
 import {
@@ -42,9 +35,9 @@ describe("refreshProjectState", () => {
         expect(baseline.deleted).toEqual([deleted])
         expect(operation.signal).toBe(handle.signal)
         expect(projectDir).toBe("/project")
-        await producer.writeBatch(encodeProjectStateFileUpdateBatch(
-          createProjectStateFileUpdateBatch([{ update: yamlUpdate(yaml), hash: 0n }]),
-        ))
+        const writer = createProjectStateFragmentWriter()
+        writer.appendFile(yamlUpdate(yaml), 0n)
+        await producer.writeFragment(writer.finish())
         return { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 1 }
       },
       afterProcessFiles: async () => { events.push("workers-closed") },
@@ -233,7 +226,7 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     this.signal = signal
   }
 
-  async writeBatch(_batch: ProjectStateEncodedFileUpdateBatch): Promise<void> {
+  async writeFragment(_fragment: ProjectStateFragment): Promise<void> {
     this.events.push("write")
   }
 

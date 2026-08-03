@@ -15,6 +15,11 @@ import {
   encodeProjectStateFileUpdateBatch,
   type ProjectStateEncodedFileUpdateBatch,
 } from "../projectState/binary/contribution"
+import {
+  createProjectStateFragmentWriter,
+  type ProjectStateFragment,
+  type ProjectStateFragmentWriter,
+} from "../projectState/binary/fragment"
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -82,6 +87,7 @@ export type PreparedYamlProjectWorkerTask =
       knownHashBits: Uint8Array
       expectedHashBytes: Uint8Array
     }
+  | { kind: "finishProjectStateFragment"; workerIndex: number }
   | {
       kind: "collectValidationFacts"
       workerIndex: number
@@ -110,12 +116,12 @@ export type PreparedYamlProjectWorkerTaskResult =
     }
   | {
       kind: "refreshProjectStateResult"
-      fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
       missingProjectPaths: readonly string[]
       hashedFiles: number
       parsedYamlFiles: number
       changedFiles: number
     }
+  | { kind: "finishProjectStateFragmentResult"; fragment: ProjectStateFragment }
   | {
       kind: "collectValidationFactsResult"
       contribution: ValidationIndexContribution
@@ -155,6 +161,11 @@ export async function runPreparedYamlProjectWorkerTask(
     }
   }
   if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
+  if (message.kind === "finishProjectStateFragment") {
+    const writer = projectStateFragmentWriters.get(message.workerIndex) ?? createProjectStateFragmentWriter()
+    projectStateFragmentWriters.delete(message.workerIndex)
+    return { kind: "finishProjectStateFragmentResult", fragment: writer.finish() }
+  }
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
@@ -223,7 +234,7 @@ async function refreshProjectStateFiles(
   }
   const read = dependencies.readFile ?? (async (absolutePath) => new Uint8Array(await readFile(absolutePath)))
   const hash = dependencies.hashBytes ?? hashFileBytes
-  const entries: ProjectStateFileUpdateBatchEntry[] = []
+  const writer = projectStateFragmentWriter(message.workerIndex)
   let yamlValidation: ValidationFirstPassAccumulator | undefined
   let hashedFiles = 0
   let parsedYamlFiles = 0
@@ -261,7 +272,7 @@ async function refreshProjectStateFiles(
         changedFiles += 1
         continue
       }
-      entries.push({ update: { ...file.identity, kind: "resource" }, hash: currentHash })
+      writer.appendFile({ ...file.identity, kind: "resource" }, currentHash)
       changedFiles += 1
     } catch (caught) {
       if (!isMissingFile(caught)) throw caught
@@ -276,10 +287,12 @@ async function refreshProjectStateFiles(
     ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
       ? []
       : yamlResult.fileUpdateBatches),
-    ...(entries.length === 0 ? [] : [createProjectStateFileUpdateBatch(entries)]),
   ]
   const encodeStartedAt = profileEnabled ? performance.now() : 0
-  const fileUpdateBatches = logicalBatches.map(encodeProjectStateFileUpdateBatch)
+  for (const batch of logicalBatches) {
+    const hashes = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
+    batch.updates.forEach((update, index) => writer.appendFile(update, hashes.getBigUint64(index * 8, false)))
+  }
   const encodeMs = profileEnabled ? performance.now() - encodeStartedAt : 0
   profiler?.record("Обработка файлов Б1–Б4", "Чтение файлов", {
     items: message.files.length,
@@ -295,13 +308,12 @@ async function refreshProjectStateFiles(
   })
   profiler?.record("Обработка файлов Б1–Б4", "Двоичное кодирование результата", {
     items: changedFiles,
-    bytes: fileUpdateBatches.reduce((sum, batch) => sum + batch.bytes.byteLength, 0),
+    bytes: 0,
     timeMs: encodeMs,
   })
   profiler?.flush()
   return {
     kind: "refreshProjectStateResult",
-    fileUpdateBatches,
     missingProjectPaths,
     hashedFiles,
     parsedYamlFiles,
@@ -326,25 +338,37 @@ export default async function preparedYamlProjectWorkerEntryPoint(
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
   return result.kind === "validateFirstPassResult"
-    || result.kind === "refreshProjectStateResult"
+    || result.kind === "finishProjectStateFragmentResult"
     ? movableValidationResult(result)
     : result
 }
 
 type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
-  { kind: "validateFirstPassResult" | "refreshProjectStateResult" }
+  { kind: "validateFirstPassResult" | "finishProjectStateFragmentResult" }
 >
 
 export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
   return {
     get [transferableSymbol]() {
-      return result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
+      return result.kind === "validateFirstPassResult"
+        ? result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
+        : Object.values(result.fragment.buffers)
     },
     get [valueSymbol]() {
       return result
     },
   }
+}
+
+const projectStateFragmentWriters = new Map<number, ProjectStateFragmentWriter>()
+
+function projectStateFragmentWriter(workerIndex: number): ProjectStateFragmentWriter {
+  const current = projectStateFragmentWriters.get(workerIndex)
+  if (current !== undefined) return current
+  const writer = createProjectStateFragmentWriter()
+  projectStateFragmentWriters.set(workerIndex, writer)
+  return writer
 }
 
 function movableValidationResult(result: TransferableValidationWorkerResult): TransferableValidationWorkerResult {

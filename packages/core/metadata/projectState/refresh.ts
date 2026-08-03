@@ -7,7 +7,7 @@ import {
 } from "../project/preparedYamlProjectWorkerPool"
 import type { Diagnostic } from "../validation/types"
 import { dedupeDiagnostics, sortDiagnostics } from "../validation/diagnostics"
-import type { ProjectStateEncodedFileUpdateBatch } from "./binary/contribution"
+import type { ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaseline, ProjectStateReadToken } from "./contracts"
 import {
   discoverProjectStateValidationFiles,
@@ -61,7 +61,7 @@ export interface ProjectStateProfileOptions {
 export interface ProjectStateRefreshHandle {
   readFileBaseline(files: readonly import("./fileUpdate").ProjectStateFileIdentity[]): Promise<ProjectStateFileBaseline>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
-  writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
+  writeFragment(fragment: ProjectStateFragment): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
@@ -88,7 +88,7 @@ export interface ProjectStateRefreshDependencies {
   readonly processFiles: (
     files: readonly ProjectStateValidationFile[],
     baseline: ProjectStateFileBaseline,
-    producer: Pick<ProjectStateRefreshHandle, "writeBatch" | "deleteFiles">,
+    producer: Pick<ProjectStateRefreshHandle, "writeFragment" | "deleteFiles">,
     operation: ProjectStateRefreshOperation,
     projectDir: string,
   ) => Promise<ProjectStateValidationStats>
