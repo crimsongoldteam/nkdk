@@ -18,6 +18,7 @@ import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import type { MetadataItemRule } from "../../orchestration"
+import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -47,7 +48,8 @@ export function convertClientApplicationFormFromYAMLToXML(
     importFromYAML: {
       ...params.context.importFromYAML,
       formDataPathIndex: createFormDataPathIndexFromYAML(
-        params.dataPathYaml ?? params.yaml
+        params.dataPathYaml ?? params.yaml,
+        collectFormTableDataPathsFromYAML(params.dataPathYaml ?? params.yaml)
       ),
     },
   }

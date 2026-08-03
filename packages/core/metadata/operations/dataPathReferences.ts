@@ -6,6 +6,7 @@ import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation
 import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import type { OperationSnapshotItem } from "./projectSnapshot"
+import { collectFormTableDataPathsFromYAML } from "../forms/clientApplicationForm/formTableDataPaths"
 
 export interface DataPathReferenceInput {
   item: OperationSnapshotItem
@@ -52,7 +53,10 @@ export function collectFormDataPathReferencesForItem(params: {
 }): DataPathReferenceInput[] {
   if (params.item.kind !== "form") return []
 
-  const index = createFormDataPathIndexFromYAML(params.item.yaml)
+  const index = createFormDataPathIndexFromYAML(
+    params.item.yaml,
+    collectFormTableDataPathsFromYAML(params.item.yaml)
+  )
 
   const references: DataPathReferenceInput[] = []
   for (const occurrence of collectFormDataPathOccurrencesFromYAML({
