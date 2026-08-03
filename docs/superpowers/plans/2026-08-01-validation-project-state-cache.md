@@ -628,7 +628,7 @@
 - Modify: `packages/core/metadata/project/preparedYamlProjectWorker.ts`
 - Modify: `packages/core/metadata/project/preparedYamlProjectWorker.test.ts`
 
-**Contract:** Каждая актуализация читает bytes и вычисляет xxHash64 всех управляемых project specs ресурсов. Только новые/изменённые YAML передаются на parse и локальную validation. Неизменённые локальные diagnostics читаются из store; удалённые файлы каскадно удаляются. Перед публикацией проверяется, что обработанные bytes всё ещё соответствуют файловой системе.
+**Contract:** Каждая актуализация один раз читает bytes и вычисляет xxHash64 всех управляемых project specs ресурсов. Только новые/изменённые YAML передаются на parse и локальную validation. Неизменённые локальные diagnostics читаются из store; удалённые файлы каскадно удаляются. Состояние относится к фактически прочитанным байтам и не объявляется атомарным снимком файловой системы.
 
 - [ ] **Step 1: Написать тесты инкрементальности**
 
@@ -639,7 +639,8 @@
   - изменение одного YAML: разбирается только он;
   - изменение внешнего управляемого файла: меняется хэш, но YAML не разбирается;
   - удаление YAML удаляет старые diagnostics и вклады;
-  - изменение файла во время операции вызывает ограниченный повтор, затем техническую ошибку;
+  - изменение файла после чтения не вызывает повтор всей validation, а обнаруживается следующим вызовом по новому хэшу;
+  - чтение не вызывает `stat`/`fstat` и не создаёт `dev`/`inode`/`size`/`mtimeNs`;
   - локальный результат хэширования кодируется в big-endian один раз, а все границы получают общий буфер правильной длины без `bigint` в DTO.
 
 - [ ] **Step 2: Запустить тесты до реализации**
@@ -650,18 +651,17 @@
 
 - [ ] **Step 3: Объединить обнаружение ресурсов и хэширование bytes**
 
-  `discoverMetadataProjectResources` остаётся источником состава. Новый слой открывает каждый ресурс, запоминает `stat` до чтения, читает его один раз, повторяет `stat` на том же handle и вызывает существующий `hashFileBytes(bytes)`:
+  `discoverMetadataProjectResources` остаётся источником состава. Новый слой читает каждый ресурс один раз и вызывает существующий `hashFileBytes(bytes)`:
 
   ```ts
   export interface HashedProjectResource {
     readonly ref: MetadataProjectResourceRef
     readonly bytes: Uint8Array
     readonly localHash: bigint
-    readonly stability: { readonly dev: bigint; readonly ino: bigint; readonly size: bigint; readonly mtimeNs: bigint }
   }
   ```
 
-  `localHash` и поля `stability` — кратковременные локальные значения одного процесса, не DTO и не часть worker/store-протокола. Сразу после хэширования `localHash` кодируется в позицию общего `ProjectStateFileHashBatch.hashBytes` в big-endian; при подготовке writer-пачки нужные восемь байт копируются между общими пакетными буферами без обратного декодирования в `bigint`. Bytes неизменённых ресурсов освобождаются сразу после сравнения. Bytes изменённых YAML передаются worker как transferable buffer, чтобы worker не перечитывал файл. `mtime` участвует только в защите от параллельного изменения, но никогда не заменяет чтение и хэширование содержимого.
+  `localHash` — кратковременное локальное значение одного процесса, не DTO и не часть worker/store-протокола. Сразу после хэширования он кодируется в позицию общего `ProjectStateFileHashBatch.hashBytes` в big-endian; при подготовке writer-пачки нужные восемь байт копируются между общими пакетными буферами без обратного декодирования в `bigint`. Bytes неизменённых ресурсов освобождаются сразу после сравнения. Bytes изменённых YAML передаются worker как transferable buffer, чтобы worker не перечитывал файл. Метаданные файловой системы не читаются и не сохраняются.
 
 - [ ] **Step 4: Добавить режим обработки только выбранных YAML**
 
@@ -684,10 +684,10 @@
   -> удалить исчезнувшие
   -> записать изменённые не-YAML как ProjectStateResourceUpdate внутри ProjectStateFileUpdateBatch
   -> локально обработать и записать изменённые YAML
-  -> передать открытую транзакцию и stability stamps полной проверке Task 7
+  -> передать открытую транзакцию полной проверке Task 7
   ```
 
-  Diagnostics проекта не откатывают транзакцию. Исчезновение, замена inode, изменение размера или `mtimeNs` между чтением и публикацией отменяет текущую транзакцию и запускает новую попытку; после двух конфликтов возвращается техническая ошибка. Любая другая техническая ошибка вызывает `rollbackUpdate`.
+  Diagnostics проекта не откатывают транзакцию. Параллельное изменение после чтения не отменяет транзакцию и не запускает повтор: следующий вызов заново читает все ресурсы и обнаруживает новый хэш. Ошибка самого чтения или другая техническая ошибка вызывает `rollbackUpdate`.
 
 - [ ] **Step 6: Реализовать один активный проект**
 
@@ -797,7 +797,7 @@
 
 - [ ] **Step 5: Встроить проверку после обновления**
 
-  `refreshProjectState` после замены вкладов, но до `commitUpdate`, всегда выполняет `validateDependencies` на пишущем соединении, которое видит строки открытой транзакции. Затем он повторяет discovery, сравнивает полный набор project paths и повторяет `stat` существующих путей, сопоставляя его с `stability`, полученным при чтении. Так обнаруживаются и изменения содержимого, и появление/удаление ресурса во время операции. Только при неизменной файловой системе выполняются `commitUpdate`, выдача read token и checkpoint. При отличии транзакция откатывается и вся попытка повторяется не более двух раз. Итог результата:
+  `refreshProjectState` после замены вкладов, но до `commitUpdate`, всегда выполняет `validateDependencies` на пишущем соединении, которое видит строки открытой транзакции. После этого без повторного discovery и `stat` выполняются `commitUpdate`, выдача read token и checkpoint. Опубликованное состояние относится к прочитанным в начале операции байтам; следующий вызов снова читает и хэширует весь состав. Итог результата:
 
   ```ts
   export interface ProjectStateRefreshResult {
@@ -999,7 +999,7 @@
 
 ---
 
-## Task 11: Перевести полную и частичную sync на обязательную актуализацию
+## Task 11: Перевести полную sync на обязательную актуализацию
 
 **Files:**
 
@@ -1018,11 +1018,11 @@
 - Modify: `packages/core/metadata/project/componentState/indexes.test.ts`
 - Modify: `packages/core/metadata/fullSyncToXml/worker.test.ts`
 
-**Contract:** Любая полная или частичная sync сначала выполняет общую актуализацию всего YAML-проекта. При error diagnostics sync блокируется, если не указан `ignoreValidationErrors: true`. Sync использует проекцию нужного компонента и read token из состояния, не холодно перестраивает validation snapshot.
+**Contract:** Полная sync сначала выполняет общую актуализацию всего YAML-проекта. При error diagnostics sync блокируется, если не указан `ignoreValidationErrors: true`. Sync использует проекцию нужного компонента и read token из состояния, не холодно перестраивает validation snapshot. Частичная sync пока не реализуется; договор не должен мешать добавить её позднее.
 
 - [ ] **Step 1: Добавить тесты блокировки и порядка**
 
-  Проверить полную и выборочную sync при: чистом проекте, error diagnostics по умолчанию, error diagnostics с ignore, технической ошибке. До построения плана должен завершиться refresh. Отдельно проверить `planSyncConfigurationToXml`: предварительный план также актуализирует состояние, потому что иначе он может выбрать устаревшие assignments.
+  Проверить полную sync при: чистом проекте, error diagnostics по умолчанию, error diagnostics с ignore, технической ошибке. До построения плана должен завершиться refresh. Отдельно проверить `planSyncConfigurationToXml`: предварительный план также актуализирует состояние, потому что иначе он может выбрать устаревшие assignments.
 
 - [ ] **Step 2: Увидеть исходное падение**
 
@@ -1081,7 +1081,7 @@
 
   Expected: PASS.
 
-  Дополнительно выполнить локальную сквозную проверку на компактной XML-выгрузке `/Users/nikita/git/round-trip-compact/cf/all`: импортировать её во временный YAML-проект, выполнить полную и выборочную sync во временную XML-копию и подтвердить, что обе операции сначала завершили актуализацию состояния. Исходный каталог открывается только для чтения; абсолютный путь передаётся проверке явно и не попадает в production-код или обязательные CI-тесты.
+  Дополнительно выполнить локальную сквозную проверку на компактной XML-выгрузке `/Users/nikita/git/round-trip-compact/cf/all`: импортировать её во временный YAML-проект, выполнить полную sync во временную XML-копию и подтвердить, что операция сначала завершила актуализацию состояния. Исходный каталог открывается только для чтения; абсолютный путь передаётся проверке явно и не попадает в production-код или обязательные CI-тесты.
 
 - [ ] **Step 8: Commit**
 
@@ -1226,7 +1226,7 @@
 
   Expected: PASS; тест подтверждает раннюю запись и отсутствие повторного чтения.
 
-  Затем выполнить локальную сквозную проверку import на `/Users/nikita/git/round-trip-compact/cf/all` во временный YAML-проект. На том же временном проекте выполнить прогретую полную sync и одну выборочную sync во временную XML-копию. Зафиксировать, что исходная XML-выгрузка не изменена, import не перечитывает окончательные YAML, а sync использует актуальное project state. Путь задаётся только параметром локального запуска и не встраивается в тесты или production-код.
+  Затем выполнить локальную сквозную проверку import на `/Users/nikita/git/round-trip-compact/cf/all` во временный YAML-проект. На том же временном проекте выполнить прогретую полную sync во временную XML-копию. Зафиксировать, что исходная XML-выгрузка не изменена, import не перечитывает окончательные YAML, а sync использует актуальное project state. Путь задаётся только параметром локального запуска и не встраивается в тесты или production-код.
 
 - [ ] **Step 10: Commit**
 
@@ -1452,6 +1452,71 @@
 
 ---
 
+## Task 15A: Упростить согласованность чтения и защитить изменяющие операции по хэшу
+
+**Files:**
+
+- Modify: `packages/core/metadata/projectState/projectFiles.ts`
+- Modify: `packages/core/metadata/projectState/refresh.ts`
+- Modify: `packages/core/metadata/projectState/refresh.test.ts`
+- Modify: `packages/core/metadata/projectState/projectFilesConcurrency.test.ts`
+- Modify: `packages/core/metadata/operations/projectSnapshot.ts`
+- Modify: `packages/core/metadata/operations/filePlan.ts`
+- Modify: `packages/core/metadata/operations/renameItem.ts`
+- Modify: `packages/core/metadata/operations/renameItem.test.ts`
+
+**Contract:** Validation и поиск ссылок строят состояние по фактически прочитанным байтам без `stat`/`fstat`, полей стабильности и повторного полного прохода. Полная sync сохраняет существующее сравнение ожидаемого хэша с хэшем непосредственно используемых байтов. Переименование сохраняет ожидаемые хэши затронутых YAML и до первой записи отклоняет весь план, если хотя бы один файл изменился.
+
+- [ ] **Step 1: Тестом закрепить одно чтение без метаданных файловой системы**
+
+  Удалить тесты ограниченного stability retry и заменить их наблюдаемыми договорами:
+
+  - каждый ресурс читается один раз и хэшируется по прочитанным байтам;
+  - результат не содержит `stability`, `dev`, `inode`, `size` или `mtimeNs`;
+  - после локальной и dependency validation не выполняются повторные discovery/stat;
+  - исчезновение до или во время самого чтения остаётся обычной технической ошибкой чтения и откатывает транзакцию.
+
+  Run: `pnpm --filter @nakidka/core test -- metadata/projectState/refresh.test.ts metadata/projectState/projectFilesConcurrency.test.ts`
+
+  Expected: FAIL до упрощения production-кода.
+
+- [ ] **Step 2: Удалить общий механизм stability**
+
+  Перевести чтение на один `readFile` внутри существующего ограничителя параллелизма. Удалить `ProjectResourceStability`, `isProjectStateFileCollectionStable`, `ProjectStateFilesChangedError`, две попытки refresh и все `stat`/`fstat`. Не менять вычисление xxHash64, передачу bytes изменённых YAML, транзакцию SQLite или диагностики.
+
+- [ ] **Step 3: Тестом закрепить оптимистическую защиту переименования**
+
+  Расширить существующий тест наблюдаемого договора: после построения плана изменить один из затронутых YAML и проверить, что фактическое переименование не записывает и не перемещает ни одного файла, возвращает технический конфликт и всё равно не скрывает исходные diagnostics. Не проверять внутреннее устройство плана.
+
+  Run: `pnpm --filter @nakidka/core test -- metadata/operations/renameItem.test.ts metadata/fullSyncToXml/worker.test.ts metadata/fullSyncToXml/transferExternalFiles.test.ts`
+
+  Expected: новый rename case FAIL; существующие sync-проверки подтверждают хэширование непосредственно используемых байтов.
+
+- [ ] **Step 4: Добавить ожидаемые хэши в границу применения плана**
+
+  Снимок затронутого YAML хранит xxHash64 прочитанных байтов. Перед первым изменяющим шагом `applyMetadataOperationFilePlan` одним предварительным проходом читает и хэширует все затронутые исходные файлы. При любом расхождении план не применяется. После начала применения сохраняется существующий договор частичного результата при технической ошибке; атомарную многофайловую запись не вводить.
+
+- [ ] **Step 5: Проверить границы и производительность**
+
+  Run:
+
+  ```bash
+  pnpm --filter @nakidka/core test -- metadata/projectState/refresh.test.ts metadata/projectState/projectFilesConcurrency.test.ts metadata/operations/renameItem.test.ts metadata/fullSyncToXml/worker.test.ts metadata/fullSyncToXml/transferExternalFiles.test.ts
+  pnpm --filter @nakidka/core type-check
+  rg -n "ProjectResourceStability|ProjectStateFilesChangedError|mtimeNs|handle\.stat|isProjectStateFileCollectionStable" packages/core/metadata/projectState
+  ```
+
+  Expected: тесты и type-check PASS; `rg` не находит production-механизма stability.
+
+- [ ] **Step 6: Commit**
+
+  ```bash
+  git add packages/core/metadata/projectState packages/core/metadata/operations
+  git commit -m "perf: :zap: убрать повторную проверку файлов validation"
+  ```
+
+---
+
 ## Task 16: Выполнить приёмочное профилирование и полную проверку
 
 **Files:**
@@ -1500,7 +1565,7 @@
   - отсутствует второй полный индекс;
   - зафиксированы время, Peak RSS, snapshot size, load и checkpoint.
 
-  Отдельно повторить компактный сквозной сценарий import + полная/частичная sync на `/Users/nikita/git/round-trip-compact/cf/all`. Все изменяемые результаты и кэш размещать во временном каталоге; исходную XML-выгрузку использовать только для чтения.
+  Отдельно повторить компактный сквозной сценарий import + полная sync на `/Users/nikita/git/round-trip-compact/cf/all`. Все изменяемые результаты и кэш размещать во временном каталоге; исходную XML-выгрузку использовать только для чтения. Частичная sync пока не реализуется и в приёмочный сценарий не входит.
 
 - [ ] **Step 5: Выполнить окончательную проверку**
 
