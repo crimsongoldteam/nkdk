@@ -10,6 +10,7 @@ import {
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 
 describe("full XML sync worker pool", () => {
   const initialization = {
@@ -66,6 +67,38 @@ describe("full XML sync worker pool", () => {
     expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1])
+  })
+
+  it("выполняет синхронизацию через универсальную операцию без отдельного пула", async () => {
+    const commands: FullXmlSyncWorkerCommand[] = []
+    const outcomes: string[] = []
+    const operation: MetadataWorkerOperation = {
+      id: "full-sync",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "fullSync") throw new Error("Ожидалась команда fullSync")
+        commands.push(command.command)
+        return {
+          kind: "fullSyncResult",
+          result: command.command.kind === "execute" ? executionResult() : undefined,
+        }
+      },
+      async finish(outcome) { outcomes.push(outcome) },
+    }
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      operation,
+      createWorkerPool() { throw new Error("Не должен создаваться отдельный пул") },
+    })
+    const { projectStateReadTokens: _tokens, ...universalInitialization } = initialization
+
+    await pool.initialize(universalInitialization)
+    await pool.execute([assignment("one")])
+    await pool.close()
+
+    expect(commands.map(({ kind }) => kind)).toEqual(["initialize", "execute", "dispose"])
+    expect(commands[0]).not.toHaveProperty("projectStateReadToken")
+    expect(outcomes).toEqual(["success"])
   })
 
   it("merges execution results from workers", async () => {

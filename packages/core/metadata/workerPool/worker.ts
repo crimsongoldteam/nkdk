@@ -6,10 +6,12 @@ import {
 } from "./workerState"
 import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import { runImportWorkerCommand } from "../importFromXml/worker"
+import { runFullXmlSyncWorkerCommand } from "../fullSyncToXml/worker"
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
   readonly runImportCommand?: typeof runImportWorkerCommand
+  readonly runFullSyncCommand?: typeof runFullXmlSyncWorkerCommand
 }
 
 export function createMetadataWorkerCommandHandler(
@@ -38,6 +40,7 @@ export function createMetadataWorkerCommandHandler(
     }
     if (command.kind === "resetOperation") {
       await (dependencies.runImportCommand ?? runImportWorkerCommand)({ kind: "dispose" })
+      await (dependencies.runFullSyncCommand ?? runFullXmlSyncWorkerCommand)({ kind: "dispose" })
       initialized.resetOperation(command.operationId)
       return undefined
     }
@@ -63,19 +66,39 @@ export function createMetadataWorkerCommandHandler(
             },
           }),
         })
+      case "fullSync":
+        return movableOperationResult({
+          kind: "fullSyncResult",
+          result: await (dependencies.runFullSyncCommand ?? runFullXmlSyncWorkerCommand)(
+            command.command.command,
+            {
+              openReadSession() { throw new Error("Состояние проекта не установлено в универсальный worker") },
+              ...(initialized.projectState === undefined
+                ? {}
+                : { projectStateReadSession: initialized.projectState }),
+            },
+          ),
+        })
     }
   }
 }
 
-function movableImportResult(
-  result: Extract<MetadataWorkerCommandResult, { kind: "importResult" }>,
-): Extract<MetadataWorkerCommandResult, { kind: "importResult" }> {
-  const buffers = Object.values(result.result?.stateFragment?.buffers ?? {})
+function movableImportResult(result: Extract<MetadataWorkerCommandResult, { kind: "importResult" }>) {
+  return movableOperationResult(result, Object.values(result.result?.stateFragment?.buffers ?? {}))
+}
+
+function movableOperationResult<T extends Exclude<MetadataWorkerCommandResult, undefined>>(
+  result: T,
+  transferables: readonly ArrayBuffer[] = result.kind === "fullSyncResult" && result.result !== undefined
+    ? [result.result.fragmentBuffer]
+    : [],
+): T {
+  const buffers = [...transferables]
   if (buffers.length === 0) return result
   return move({
     get [transferableSymbol]() { return buffers },
     get [valueSymbol]() { return result },
-  }) as unknown as Extract<MetadataWorkerCommandResult, { kind: "importResult" }>
+  }) as unknown as T
 }
 
 const runMetadataWorkerCommand = createMetadataWorkerCommandHandler()

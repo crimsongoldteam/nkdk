@@ -121,6 +121,25 @@ describe("full XML sync worker", () => {
     expect(closed).toBe(true)
   })
 
+  it("использует установленную сессию универсальной линии и не закрывает её", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    let closed = false
+    const session = emptyReadSession({ close() { closed = true } })
+
+    await initialize(
+      projectDir,
+      [assigned],
+      context,
+      undefined,
+      () => { throw new Error("Не должна открываться отдельная сессия") },
+      session,
+    )
+    await runFullXmlSyncWorkerCommand({ kind: "dispose" })
+
+    expect(closed).toBe(false)
+  })
+
   it("closes the session when initialize fails after opening it", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
@@ -382,6 +401,7 @@ describe("full XML sync worker", () => {
     workerContext: ConfigurationContext = context,
     baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>,
     openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession = () => emptyReadSession(),
+    projectStateReadSession?: ProjectStateReadSession,
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -406,8 +426,11 @@ describe("full XML sync worker", () => {
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
       targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
-      projectStateReadToken: readToken,
-    }, { openReadSession })
+      ...(projectStateReadSession === undefined ? { projectStateReadToken: readToken } : {}),
+    }, {
+      openReadSession,
+      ...(projectStateReadSession === undefined ? {} : { projectStateReadSession }),
+    })
   }
 })
 

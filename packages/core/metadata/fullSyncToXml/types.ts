@@ -91,7 +91,7 @@ export type FullXmlSyncWorkerCommand =
       readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
       readonly targetIndex: SharedConfigurationIndexSnapshot
-      readonly projectStateReadToken: ProjectStateReadToken
+      readonly projectStateReadToken?: ProjectStateReadToken
     }
   | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncAssignment[] }
   | { readonly kind: "dispose" }

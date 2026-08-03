@@ -5,6 +5,7 @@ import type {
   PreparedYamlProjectWorkerTaskResult,
 } from "../project/preparedYamlProjectWorker"
 import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
+import type { FullXmlSyncWorkerCommand, FullXmlSyncWorkerCommandResult } from "../fullSyncToXml/types"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -23,6 +24,10 @@ export type MetadataWorkerOperationCommand =
       readonly kind: "import"
       readonly command: ImportWorkerCommand
     }
+  | {
+      readonly kind: "fullSync"
+      readonly command: FullXmlSyncWorkerCommand
+    }
 
 export interface MetadataWorkerProbeResult {
   readonly kind: "probeResult"
@@ -34,10 +39,16 @@ export interface MetadataWorkerImportResult {
   readonly result: ImportWorkerCommandResult
 }
 
+export interface MetadataWorkerFullSyncResult {
+  readonly kind: "fullSyncResult"
+  readonly result: FullXmlSyncWorkerCommandResult
+}
+
 export type MetadataWorkerOperationResult =
   | MetadataWorkerProbeResult
   | PreparedYamlProjectWorkerTaskResult
   | MetadataWorkerImportResult
+  | MetadataWorkerFullSyncResult
 
 export type MetadataWorkerCommand =
   | {

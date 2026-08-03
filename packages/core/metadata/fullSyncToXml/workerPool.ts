@@ -7,6 +7,7 @@ import type { MergedConfigurationSnapshotFragments } from "../configurationIndex
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "../projectState"
+import type { MetadataWorkerOperation } from "../workerPool/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
@@ -29,7 +30,7 @@ export interface FullXmlSyncWorkerInitialization {
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly composition: FullXmlSyncSharedCompositionSnapshot
   readonly targetIndex: SharedConfigurationIndexSnapshot
-  readonly projectStateReadTokens: readonly ProjectStateReadToken[]
+  readonly projectStateReadTokens?: readonly ProjectStateReadToken[]
 }
 
 export interface FullXmlSyncExecutionPoolResult {
@@ -56,6 +57,7 @@ type PoolPhase = "new" | "initialized" | "executing" | "done" | "crashed" | "clo
 export function createFullXmlSyncWorkerPool(params: {
   concurrency?: number
   createWorkerPool?: () => FullXmlSyncWorkerThreadPool
+  operation?: MetadataWorkerOperation
 }): FullXmlSyncWorkerPool {
   const concurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
   const pools = new Map<number, FullXmlSyncWorkerThreadPool>()
@@ -81,14 +83,16 @@ export function createFullXmlSyncWorkerPool(params: {
       phase = "executing"
       const partitions = partitionRoundRobin(assignments, concurrency).filter((partition) => partition.length > 0)
       const initialized = initialization
-      const { projectStateReadTokens, ...workerInitialization } = initialized
+      const { projectStateReadTokens = [], ...workerInitialization } = initialized
       const results = await Promise.all(
         partitions.map(async (partition, workerIndex): Promise<FullXmlSyncExecutionResult> => {
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
             workerIndex,
             ...workerInitialization,
-            projectStateReadToken: requireWorkerReadToken(projectStateReadTokens, workerIndex),
+            ...(params.operation === undefined
+              ? { projectStateReadToken: requireWorkerReadToken(projectStateReadTokens, workerIndex) }
+              : {}),
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
@@ -121,12 +125,14 @@ export function createFullXmlSyncWorkerPool(params: {
         } catch {
           // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
         }
+        await params.operation?.finish("failure")
         phase = "closed"
         return
       }
       try {
         await destroyAllWorkers()
       } finally {
+        await params.operation?.finish("success")
         phase = "closed"
       }
     },
@@ -161,7 +167,9 @@ export function createFullXmlSyncWorkerPool(params: {
   function getOrCreatePool(workerIndex: number): FullXmlSyncWorkerThreadPool {
     let pool = pools.get(workerIndex)
     if (pool === undefined) {
-      pool = createPool()
+      pool = params.operation === undefined
+        ? createPool()
+        : createOperationWorkerPool(params.operation, workerIndex)
       pools.set(workerIndex, pool)
     }
     return pool
@@ -189,6 +197,22 @@ export function createFullXmlSyncWorkerPool(params: {
       failures.push(...flattenFailures(caught))
     }
     return failures
+  }
+}
+
+function createOperationWorkerPool(
+  operation: MetadataWorkerOperation,
+  workerIndex: number,
+): FullXmlSyncWorkerThreadPool {
+  return {
+    async run(command) {
+      const response = await operation.run(workerIndex, { kind: "fullSync", command })
+      if (response.kind !== "fullSyncResult") {
+        throw new Error("Универсальный worker вернул неожиданный результат fullSync")
+      }
+      return response.result
+    },
+    async destroy() {},
   }
 }
 

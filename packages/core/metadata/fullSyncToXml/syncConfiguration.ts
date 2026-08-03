@@ -90,7 +90,7 @@ export interface FullXmlSyncCoordinatorDependencies {
   readonly confirmState: typeof confirmComponentState
   readonly resolveProfile: typeof resolveFullXmlSyncComponentProfile
   readonly buildPlan: typeof buildXmlSyncPlan
-  readonly createWorkerPool: (params: { concurrency: number }) => FullXmlSyncWorkerPool
+  readonly createWorkerPool?: (params: { concurrency: number }) => FullXmlSyncWorkerPool
   readonly transferExternalFiles: typeof transferFullXmlSyncExternalFiles
   readonly validateWrittenFiles: typeof validateFullXmlSyncWrittenFiles
   readonly writeIndex: (params: {
@@ -120,7 +120,6 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   confirmState: confirmComponentState,
   resolveProfile: resolveFullXmlSyncComponentProfile,
   buildPlan: buildXmlSyncPlan,
-  createWorkerPool: ({ concurrency }) => createFullXmlSyncWorkerPool({ concurrency }),
   transferExternalFiles: transferFullXmlSyncExternalFiles,
   validateWrittenFiles: validateFullXmlSyncWrittenFiles,
   writeIndex: writeConfigurationIndexAtomically,
@@ -173,13 +172,25 @@ export async function syncComponentToXml(
     })
 
     const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
-    pool = deps.createWorkerPool({ concurrency: workerConcurrency })
-    const projectStateReadTokens = await createWorkerReadTokens({
-      projectState: params.projectState,
-      projectDir,
-      first: target.projectStateReadToken,
-      count: Math.min(workerConcurrency, plan.assignments.length),
-    })
+    const usesUniversalWorkers = deps.createWorkerPool === undefined
+    pool = usesUniversalWorkers
+      ? createFullXmlSyncWorkerPool({
+          concurrency: workerConcurrency,
+          operation: await params.projectState.workers.beginOperation({
+            id: `full-xml-sync-${Date.now()}-${Math.random()}`,
+            concurrency: workerConcurrency,
+            context: params.context,
+          }),
+        })
+      : deps.createWorkerPool!({ concurrency: workerConcurrency })
+    const projectStateReadTokens = usesUniversalWorkers
+      ? undefined
+      : await createWorkerReadTokens({
+          projectState: params.projectState,
+          projectDir,
+          first: target.projectStateReadToken,
+          count: Math.min(workerConcurrency, plan.assignments.length),
+        })
     await pool.initialize({
       componentPath: target.structure.componentPath,
       componentDir: target.structure.componentDir,
@@ -188,7 +199,7 @@ export async function syncComponentToXml(
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
       targetIndex: target.snapshot,
-      projectStateReadTokens,
+      ...(projectStateReadTokens === undefined ? {} : { projectStateReadTokens }),
     })
     const execution = await pool.execute(plan.assignments)
     warnings = [...warnings, ...execution.warnings]

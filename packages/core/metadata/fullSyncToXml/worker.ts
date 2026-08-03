@@ -43,6 +43,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly composition: FullXmlSyncCompositionReader
   readonly ownerMetadataCache: ProjectStateOwnerMetadataCache
   readonly projectStateReadSession: ProjectStateReadSession
+  readonly ownsProjectStateReadSession: boolean
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly baseFormSource?: BaseFormSource
   activeAssignmentId: string | undefined
@@ -55,7 +56,9 @@ export async function runFullXmlSyncWorkerCommand(
   dependencies: FullXmlSyncWorkerDependencies = defaultWorkerDependencies,
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
-    const projectStateReadSession = dependencies.openReadSession(command.projectStateReadToken)
+    const projectStateReadSession = dependencies.projectStateReadSession
+      ?? dependencies.openReadSession(requireProjectStateReadToken(command.projectStateReadToken))
+    const ownsProjectStateReadSession = dependencies.projectStateReadSession === undefined
     try {
       const baseFormSource = createBaseFormSource(command.profile)
       const baseIndex =
@@ -83,6 +86,7 @@ export async function runFullXmlSyncWorkerCommand(
           queryPort: projectStateReadSession,
         }),
         projectStateReadSession,
+        ownsProjectStateReadSession,
         profile: command.profile,
         ...(baseFormSource === undefined ? {} : { baseFormSource }),
         activeAssignmentId: undefined,
@@ -90,7 +94,7 @@ export async function runFullXmlSyncWorkerCommand(
       return undefined
     } catch (caught) {
       try {
-        projectStateReadSession.close()
+        if (ownsProjectStateReadSession) projectStateReadSession.close()
       } catch (cleanupFailure) {
         throw aggregateCleanupFailures(caught, cleanupFailure)
       }
@@ -100,7 +104,7 @@ export async function runFullXmlSyncWorkerCommand(
   if (command.kind === "dispose") {
     const state = initializedState
     initializedState = undefined
-    state?.projectStateReadSession.close()
+    if (state?.ownsProjectStateReadSession === true) state.projectStateReadSession.close()
     return undefined
   }
   return executeAssignments(command.assignments, requireInitializedState())
@@ -108,6 +112,12 @@ export async function runFullXmlSyncWorkerCommand(
 
 export interface FullXmlSyncWorkerDependencies {
   readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
+  readonly projectStateReadSession?: ProjectStateReadSession
+}
+
+function requireProjectStateReadToken(token: ProjectStateReadToken | undefined): ProjectStateReadToken {
+  if (token === undefined) throw new Error("Full XML sync worker не получил состояние проекта")
+  return token
 }
 
 const defaultWorkerDependencies: FullXmlSyncWorkerDependencies = {
