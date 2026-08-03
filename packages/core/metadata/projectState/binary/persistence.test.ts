@@ -32,7 +32,7 @@ describe("двоичный файл состояния проекта", () => {
   })
 
   it.each([
-    ["другую patch-версию", (bytes: Buffer) => { bytes.writeUInt16LE(2, 12); return bytes }],
+    ["другую patch-версию", (bytes: Buffer) => { bytes.writeUInt16LE(3, 12); return bytes }],
     ["неверную границу раздела", (bytes: Buffer) => { bytes.writeUInt32LE(bytes.byteLength + 1, 36); return bytes }],
     ["неверную контрольную сумму", (bytes: Buffer) => { bytes[bytes.length - 1]! ^= 0xff; return bytes }],
     ["оборванный файл", (bytes: Buffer) => bytes.subarray(0, bytes.byteLength - 1)],

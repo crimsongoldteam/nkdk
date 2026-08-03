@@ -32,6 +32,8 @@ import {
   readBinaryString,
 } from "./stringPool"
 import { encodeBinaryValue } from "./valueCodec"
+import type { ProjectStateFragmentView } from "./fragment"
+import { buildTypedProjectStateSnapshot } from "./typedBuilder"
 
 export interface ProjectStateSnapshotPatch {
   readonly update: ProjectStateFileUpdate
@@ -114,6 +116,36 @@ function yamlFacts(update: Extract<ProjectStateFileUpdate, { kind: "yaml" }>) {
 }
 
 export function buildProjectStateSnapshot(input: {
+  readonly base?: ProjectStateSharedBuffers
+  readonly fragments: readonly ProjectStateFragmentView[]
+  readonly deletions: readonly string[]
+}): ProjectStateSharedBuffers
+export function buildProjectStateSnapshot(input: {
+  readonly base?: ProjectStateSharedBuffers
+  readonly replacements: readonly ProjectStateSnapshotPatch[]
+  readonly deletions: readonly string[]
+}): ProjectStateSharedBuffers
+export function buildProjectStateSnapshot(input: {
+  readonly base?: ProjectStateSharedBuffers
+  readonly fragments?: readonly ProjectStateFragmentView[]
+  readonly replacements?: readonly ProjectStateSnapshotPatch[]
+  readonly deletions: readonly string[]
+}): ProjectStateSharedBuffers {
+  if (input.fragments !== undefined) {
+    return buildTypedProjectStateSnapshot({
+      base: input.base,
+      fragments: input.fragments,
+      deletions: input.deletions,
+    })
+  }
+  return buildLegacyProjectStateSnapshot({
+    base: input.base,
+    replacements: input.replacements ?? [],
+    deletions: input.deletions,
+  })
+}
+
+function buildLegacyProjectStateSnapshot(input: {
   readonly base?: ProjectStateSharedBuffers
   readonly replacements: readonly ProjectStateSnapshotPatch[]
   readonly deletions: readonly string[]

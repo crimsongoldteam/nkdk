@@ -4,6 +4,7 @@ import { findBinaryHashIndex, type BinaryHashIndex } from "./hashIndex"
 import {
   ProjectStateFileRecordView,
   ProjectStateFileSectionHeaderView,
+  ProjectStateDiagnosticSectionHeaderView,
   ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
@@ -20,6 +21,12 @@ import {
 } from "./layouts"
 import { openBinaryStringPool, readBinaryString, type BinaryStringPool } from "./stringPool"
 import { decodeBinaryValue } from "./valueCodec"
+import {
+  openProjectStateFactCatalog,
+  PROJECT_STATE_FACT_TABLE_ORDER,
+  type ProjectStateFactTableKind,
+  type ProjectStateFactTableRange,
+} from "./factTables"
 
 export interface ProjectStateSharedBuffers {
   readonly header: SharedArrayBuffer
@@ -198,6 +205,21 @@ export class ProjectStateSnapshotView {
 
   stringPool(): BinaryStringPool {
     return this.#strings
+  }
+
+  factTableCatalog(): ReadonlyMap<ProjectStateFactTableKind, ProjectStateFactTableRange> {
+    return openProjectStateFactCatalog(this.buffers.facts)
+  }
+
+  factTableRanges(): ProjectStateFactTableRange[] {
+    const catalog = this.factTableCatalog()
+    return PROJECT_STATE_FACT_TABLE_ORDER.map((kind) =>
+      catalog.get(kind) ?? { byteOffset: 0, byteLength: 0, records: 0 },
+    )
+  }
+
+  get diagnosticCount(): number {
+    return ProjectStateDiagnosticSectionHeaderView.decode(new DataView(this.buffers.diagnostics)).count
   }
 
   hashIndexStats(): {

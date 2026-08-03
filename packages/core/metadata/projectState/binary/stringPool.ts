@@ -45,7 +45,10 @@ export class BinaryStringPoolBuilder {
 
   intern(value: string): number {
     const utf8 = textEncoder.encode(value)
-    const hash = xxh3.xxh64(utf8)
+    return this.internBytes(xxh3.xxh64(utf8), utf8)
+  }
+
+  internBytes(hash: bigint, utf8: Uint8Array): number {
     const existing = this.#find(hash, utf8)
     if (existing !== undefined) return this.#baseCount + existing
     if (this.#base !== undefined) {
@@ -62,7 +65,7 @@ export class BinaryStringPoolBuilder {
     }
 
     const id = this.#values.length
-    this.#values.push(utf8)
+    this.#values.push(utf8.slice())
     this.#hashes.push(hash)
     this.#insert(id)
     return this.#baseCount + id
