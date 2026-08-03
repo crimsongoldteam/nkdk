@@ -1,4 +1,5 @@
 import type { ConfigurationContext } from "../context/types"
+import type { ProjectStateReadToken } from "../projectState/contracts"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -32,6 +33,11 @@ export type MetadataWorkerCommand =
       readonly operationId: string
       readonly outcome: MetadataWorkerOperationOutcome
     }
+  | {
+      readonly kind: "installProjectState"
+      readonly readToken: ProjectStateReadToken
+    }
+  | { readonly kind: "clearProjectState" }
 
 export type MetadataWorkerCommandResult = MetadataWorkerOperationResult | undefined
 
@@ -54,6 +60,8 @@ export interface MetadataWorkerPoolHandle {
     context: ConfigurationContext
     signal?: AbortSignal
   }): Promise<MetadataWorkerOperation>
+  installProjectState(token: ProjectStateReadToken): Promise<void>
+  clearProjectState(): Promise<void>
   size(): number
   close(): Promise<void>
 }

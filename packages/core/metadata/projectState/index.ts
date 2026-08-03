@@ -1,4 +1,5 @@
 export type { ProjectStateFileHashBatch, ProjectStateReadToken } from "./contracts"
+export { cloneBinaryProjectStateReadToken as cloneProjectStateReadToken } from "./binary/readToken"
 export {
   assertProjectStateImportFinalFileStateBatch,
   type ProjectStateImportFinalFileState,

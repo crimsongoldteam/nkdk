@@ -2,7 +2,10 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import { cloneBinaryProjectStateReadToken } from "../projectState/binary/readToken"
 import type {
+  MetadataWorkerCommand,
   MetadataWorkerCommandResult,
   MetadataWorkerLine,
   MetadataWorkerOperation,
@@ -17,6 +20,7 @@ export function createMetadataWorkerPoolHandle(params: {
   const lines = new Map<number, MetadataWorkerLine>()
   const createLine = params.createLine ?? createPiscinaLine
   let activeOperationId: string | undefined
+  let projectStateSeed: ProjectStateReadToken | undefined
   let closed = false
   let closePromise: Promise<void> | undefined
 
@@ -41,6 +45,12 @@ export function createMetadataWorkerPoolHandle(params: {
               workerIndex,
               context: operationParams.context,
             })
+            if (projectStateSeed !== undefined) {
+              await line.run({
+                kind: "installProjectState",
+                readToken: cloneBinaryProjectStateReadToken(projectStateSeed),
+              })
+            }
           } catch (caught) {
             lines.delete(workerIndex)
             await line.destroy().catch(() => undefined)
@@ -88,6 +98,20 @@ export function createMetadataWorkerPoolHandle(params: {
       }
       return operation
     },
+    async installProjectState(token) {
+      assertHandleOpen(closed)
+      cloneBinaryProjectStateReadToken(token)
+      projectStateSeed = token
+      await sendProjectStateCommand(lines, () => ({
+        kind: "installProjectState",
+        readToken: cloneBinaryProjectStateReadToken(token),
+      }))
+    },
+    async clearProjectState() {
+      assertHandleOpen(closed)
+      projectStateSeed = undefined
+      await sendProjectStateCommand(lines, () => ({ kind: "clearProjectState" }))
+    },
     size() {
       return lines.size
     },
@@ -101,6 +125,21 @@ export function createMetadataWorkerPoolHandle(params: {
   }
 }
 
+type ProjectStateLineCommand =
+  | { readonly kind: "installProjectState"; readonly readToken: ProjectStateReadToken }
+  | { readonly kind: "clearProjectState" }
+
+async function sendProjectStateCommand(
+  lines: Map<number, MetadataWorkerLine>,
+  createCommand: (workerIndex: number) => ProjectStateLineCommand,
+): Promise<void> {
+  const failures: unknown[] = []
+  await Promise.all([...lines].map(([workerIndex, line]) =>
+    runRecoverableLineCommand(lines, workerIndex, line, createCommand(workerIndex), failures)
+  ))
+  throwLineFailures(failures, "Не удалось установить состояние проекта в worker")
+}
+
 async function resetUsedLines(
   lines: Map<number, MetadataWorkerLine>,
   used: ReadonlySet<number>,
@@ -108,19 +147,39 @@ async function resetUsedLines(
   outcome: MetadataWorkerOperationOutcome
 ): Promise<void> {
   const failures: unknown[] = []
-  await Promise.all([...used].map(async (workerIndex) => {
+  await Promise.all([...used].map((workerIndex) => {
     const line = lines.get(workerIndex)
     if (line === undefined) return
-    try {
-      await line.run({ kind: "resetOperation", operationId, outcome })
-    } catch (caught) {
-      failures.push(caught)
-      if (lines.get(workerIndex) === line) lines.delete(workerIndex)
-      await line.destroy().catch(() => undefined)
-    }
+    return runRecoverableLineCommand(
+      lines,
+      workerIndex,
+      line,
+      { kind: "resetOperation", operationId, outcome },
+      failures,
+    )
   }))
+  throwLineFailures(failures, "Не удалось очистить состояние worker")
+}
+
+async function runRecoverableLineCommand(
+  lines: Map<number, MetadataWorkerLine>,
+  workerIndex: number,
+  line: MetadataWorkerLine,
+  command: MetadataWorkerCommand,
+  failures: unknown[],
+): Promise<void> {
+  try {
+    await line.run(command)
+  } catch (caught) {
+    failures.push(caught)
+    if (lines.get(workerIndex) === line) lines.delete(workerIndex)
+    await line.destroy().catch(() => undefined)
+  }
+}
+
+function throwLineFailures(failures: readonly unknown[], message: string): void {
   if (failures.length === 1) throw failures[0]
-  if (failures.length > 1) throw new AggregateError(failures, "Не удалось очистить состояние worker")
+  if (failures.length > 1) throw new AggregateError(failures, message)
 }
 
 function requireOperationResult(result: MetadataWorkerCommandResult): MetadataWorkerOperationResult {
@@ -142,6 +201,10 @@ function assertConcurrency(concurrency: number): void {
   if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
     throw new Error("Степень параллелизма worker должна быть положительным целым числом")
   }
+}
+
+function assertHandleOpen(closed: boolean): void {
+  if (closed) throw new Error("Универсальный пул worker закрыт")
 }
 
 function assertWorkerIndex(workerIndex: number, concurrency: number): void {
