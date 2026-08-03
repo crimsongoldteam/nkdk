@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
-import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import type { ProjectStateService } from "../projectState/service"
 import { completeOperationProjectState, completeOperationReadSession } from "./operationTestSupport"
 import { readIndexedOperationReferences } from "./indexReferences"
 
 describe("readIndexedOperationReferences", () => {
-  it("разрешает цель в выбранном компоненте общего состояния проекта", () => {
+  it("разрешает цель в выбранном компоненте общего состояния проекта", async () => {
     const resolveTargets = vi.fn(() => [{ requestId: "target", status: "missing" as const }])
     const projectState = completeOperationProjectState({
       async refreshAndValidate() { throw new Error("unexpected refresh") },
@@ -15,9 +14,8 @@ describe("readIndexedOperationReferences", () => {
       }),
     }) as ProjectStateService
 
-    readIndexedOperationReferences({
+    await readIndexedOperationReferences({
       projectState,
-      readToken: createTestProjectStateReadToken(),
       componentPath: "cfe/Продажи",
       path: "Справочник.Товары",
       target: {

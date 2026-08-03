@@ -5,8 +5,8 @@ import { createTestProjectStateReadToken } from "../projectState/tests/readToken
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
-import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import type { Diagnostic } from "../validation/types"
+import { runProjectQuery } from "../workerPool/projectQueries"
 
 export const operationValidationError = {
   filePath: "cf/Справочник/Товары/Свойства.yaml",
@@ -183,7 +183,28 @@ export function completeOperationProjectState(
 ): ProjectStateService {
   return {
     ...overrides,
-    workers: createUnusedMetadataWorkerPool(),
+    workers: {
+      async beginOperation({ id, concurrency }) {
+        return {
+          id,
+          concurrency,
+          async run(_workerIndex, command) {
+            if (command.kind !== "projectQuery") throw new Error("unexpected metadata worker operation")
+            const session = overrides.openReadSession(createTestProjectStateReadToken())
+            try {
+              return runProjectQuery(command.command, session)
+            } finally {
+              session.close()
+            }
+          },
+          async finish() {},
+        }
+      },
+      async installProjectState() {},
+      async clearProjectState() {},
+      size: () => 1,
+      async close() {},
+    },
     async beginImport() { throw new Error("unexpected beginImport") },
     async createReadToken() { throw new Error("unexpected createReadToken") },
     async readComponentProjection() { throw new Error("unexpected readComponentProjection") },

@@ -1,4 +1,3 @@
-import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
 import type { MetadataOperationCanonicalTargetResult } from "./targetResolver"
@@ -11,34 +10,37 @@ export type IndexedOperationReferencesResult =
     }
   | { readonly ok: false; readonly message: string }
 
-export function readIndexedOperationReferences(params: {
+export async function readIndexedOperationReferences(params: {
   readonly projectState: ProjectStateService
-  readonly readToken: ProjectStateReadToken
   readonly path: string
   readonly componentPath?: string
   readonly target: Extract<MetadataOperationCanonicalTargetResult, { ok: true }>
-}): IndexedOperationReferencesResult {
-  const session = params.projectState.openReadSession(params.readToken)
+}): Promise<IndexedOperationReferencesResult> {
+  const operation = await params.projectState.workers.beginOperation({
+    id: `project-query-${Date.now()}-${Math.random()}`,
+    concurrency: 1,
+    context: { version: "2.20", defaultLanguage: "ru" },
+  })
+  let outcome: "success" | "failure" = "success"
   try {
-    const [resolved] = session.resolveTargets([{
-      requestId: "target",
+    const result = await operation.run(0, {
+      kind: "projectQuery",
+      command: {
+        kind: "indexedReferences",
+        path: params.path,
       componentPath: params.componentPath ?? "cf",
-      canonicalTarget: params.target.canonical,
-    }])
-    if (resolved?.status !== "found") return { ok: false, message: `Цель не найдена: ${params.path}` }
-
-    const [found] = session.findReferences([{
-      requestId: "references",
-      componentPath: resolved.source.componentPath,
       canonical: params.target.canonical,
-      match: "prefix",
       dataPathTarget: params.target.dataPathTarget,
-    }])
-    if (found === undefined || found.requestId !== "references") {
-      throw new Error("Ответ поиска ссылок не соответствует запросу")
-    }
-    return { ok: true, source: resolved.source, references: found.references }
+      },
+    })
+    if (result.kind !== "indexedReferencesResult") throw new Error("Worker вернул неожиданный результат запроса")
+    return result.found
+      ? { ok: true, source: result.source, references: result.references }
+      : { ok: false, message: result.message }
+  } catch (caught) {
+    outcome = "failure"
+    throw caught
   } finally {
-    session.close()
+    await operation.finish(outcome)
   }
 }

@@ -7,6 +7,7 @@ import {
 import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import { runImportWorkerCommand } from "../importFromXml/worker"
 import { runFullXmlSyncWorkerCommand } from "../fullSyncToXml/worker"
+import { runProjectQuery } from "./projectQueries"
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
@@ -79,6 +80,8 @@ export function createMetadataWorkerCommandHandler(
             },
           ),
         })
+      case "projectQuery":
+        return runProjectQuery(command.command.command, initialized.projectState)
     }
   }
 }

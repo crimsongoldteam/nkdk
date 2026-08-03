@@ -29,9 +29,8 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
   const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
   if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, resultDiagnostics)
 
-  const indexed = readIndexedOperationReferences({
+  const indexed = await readIndexedOperationReferences({
     projectState: params.projectState,
-    readToken: refreshed.readToken,
     path: params.path,
     componentPath: params.componentPath,
     target: canonical,

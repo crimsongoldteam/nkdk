@@ -67,9 +67,8 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
   const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
   if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, beforeDiagnostics)
 
-  const indexed = readIndexedOperationReferences({
+  const indexed = await readIndexedOperationReferences({
     projectState: params.projectState,
-    readToken: before.readToken,
     path: params.path,
     componentPath: params.componentPath,
     target: canonical,
