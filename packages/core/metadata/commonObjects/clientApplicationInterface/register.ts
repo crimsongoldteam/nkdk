@@ -21,6 +21,10 @@ import {
   type SectionsPanelRepresentation,
   type SectionsPanelRepresentationYAML,
 } from "../../systemEnumerations/types"
+import {
+  collectExplicitEmptyPanelDefinitionUUIDs,
+  markExplicitEmptyPanelDefinition,
+} from "./explicitPanelDefinition"
 import { ClientApplicationInterfaceRules } from "./rules"
 import {
   ClientApplicationInterfaceGroup,
@@ -49,6 +53,16 @@ const standardPanelsByUuid = {
 const standardPanelUuidByName = Object.fromEntries(
   Object.entries(standardPanelsByUuid).map(([uuid, name]) => [name, uuid])
 ) as Record<string, string>
+
+const requiredStandardPanelUuids = [
+  "b553047f-c9aa-4157-978d-448ecad24248",
+  "13322b22-3960-4d68-93a6-fe2dd7f28ca3",
+  "c933ac92-92cd-459d-81cc-e0c8a83ced99",
+  "cbab57f2-a0f3-4f0a-89ea-4cb19570ab75",
+  "b2735bd3-d822-4430-ba59-c9e869693b24",
+] as const
+
+const standardPanelUuids = new Set<string>(Object.keys(standardPanelsByUuid))
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
@@ -450,14 +464,25 @@ const exportPanelToYAML = (
 
   if (!needsExpanded && standardName !== undefined) return { Панель: standardName }
 
-  return {
-    Панель: {
-      ...(displayName !== undefined ? { Имя: displayName } : {}),
-      ...(panel.uuid !== undefined && standardName === undefined ? { UUID: panel.uuid } : {}),
-      ...(panel.height !== undefined ? { Высота: panel.height } : {}),
-      ...(presentation !== undefined ? { Представление: presentation } : {}),
-    },
+  const yamlPanel: ClientApplicationInterfacePanelYAML = {
+    ...(displayName !== undefined ? { Имя: displayName } : {}),
+    ...(panel.uuid !== undefined && standardName === undefined ? { UUID: panel.uuid } : {}),
+    ...(panel.height !== undefined ? { Высота: panel.height } : {}),
+    ...(presentation !== undefined ? { Представление: presentation } : {}),
   }
+  const panelDef = panel.uuid === undefined ? undefined : panelDefsById.get(panel.uuid)
+  if (
+    panel.uuid !== undefined &&
+    standardName === undefined &&
+    panelDef !== undefined &&
+    panelDef.name === undefined &&
+    panelDef.spr === undefined &&
+    yamlPanel.Имя === undefined &&
+    yamlPanel.Представление === undefined
+  ) {
+    markExplicitEmptyPanelDefinition(yamlPanel)
+  }
+  return { Панель: yamlPanel }
 }
 
 const exportGroupToYAML = (
@@ -772,20 +797,16 @@ const collectPanelsFromYAML = (value: unknown): ClientApplicationInterfacePanel[
   })
 }
 
-const isStandardPanelUuid = (uuid: string): boolean => uuid in standardPanelsByUuid
-
-const needsDefaultPanelDef = (uuid: string): boolean =>
-  isStandardPanelUuid(uuid) && uuid !== "00000000-0000-0000-0000-000000000000"
-
 const mergePanelDefWithReference = (params: {
   id: string
+  name?: string
   spr?: SectionsPanelRepresentation
   referencePanelDef?: ClientApplicationInterfacePanelDef
 }): Record<string, unknown> => {
   const referenceXML = getReferenceRawXML(params.referencePanelDef) ?? params.referencePanelDef
   const xml = copyUnknownXMLKeys(referenceXML, ["_id", "id", "name", "spr"])
   xml._id = params.id
-  const name = params.referencePanelDef?.name
+  const name = params.name ?? params.referencePanelDef?.name
   if (name !== undefined) xml.name = name
   if (params.spr !== undefined) xml.spr = params.spr
   return xml
@@ -805,30 +826,45 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? panelDefs
   const byId = new Map(panelDefs.map((panelDef) => [panelDef.id, panelDef]))
   const referenceById = new Map(referencePanelDefs.map((panelDef) => [panelDef.id, panelDef]))
+  const explicitPanelDefIds =
+    source === undefined
+      ? new Set<string>()
+      : new Set(
+          ["top", "left", "right", "bottom"].flatMap((propertyKey) =>
+            [...collectExplicitEmptyPanelDefinitionUUIDs(source.raw(propertyKey), standardPanelUuids)]
+          )
+        )
   const emittedIds = new Set<string>()
   const result: Record<string, unknown>[] = []
 
-  for (const referencePanelDef of referencePanelDefs) {
-    emittedIds.add(referencePanelDef.id)
-    const panel = panels.find((item) => item.uuid === referencePanelDef.id)
+  for (const id of requiredStandardPanelUuids) {
+    emittedIds.add(id)
+    const panel = panels.find((item) => item.uuid === id)
     result.push(
       mergePanelDefWithReference({
-        id: referencePanelDef.id,
-        spr: panel?.spr ?? byId.get(referencePanelDef.id)?.spr,
-        referencePanelDef,
+        id,
+        spr: panel?.spr ?? byId.get(id)?.spr,
+        referencePanelDef: referenceById.get(id),
       })
     )
   }
 
   for (const panel of panels) {
     if (panel.uuid === undefined || emittedIds.has(panel.uuid)) continue
-    const shouldCreatePanelDef = needsDefaultPanelDef(panel.uuid) || panel.spr !== undefined || byId.has(panel.uuid)
+    const panelDef = byId.get(panel.uuid)
+    const shouldCreatePanelDef =
+      panel.name !== undefined ||
+      panel.spr !== undefined ||
+      panelDef?.name !== undefined ||
+      panelDef?.spr !== undefined ||
+      explicitPanelDefIds.has(panel.uuid)
     if (!shouldCreatePanelDef) continue
     emittedIds.add(panel.uuid)
     result.push(
       mergePanelDefWithReference({
         id: panel.uuid,
-        spr: panel.spr ?? byId.get(panel.uuid)?.spr,
+        name: panel.name ?? panelDef?.name,
+        spr: panel.spr ?? panelDef?.spr,
         referencePanelDef: referenceById.get(panel.uuid),
       })
     )
