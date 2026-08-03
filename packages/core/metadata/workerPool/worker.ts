@@ -1,4 +1,5 @@
 import type { MetadataWorkerCommand, MetadataWorkerCommandResult } from "./types"
+import { move, transferableSymbol, valueSymbol } from "piscina"
 import {
   createMetadataWorkerPersistentState,
   type MetadataWorkerPersistentState,
@@ -36,6 +37,7 @@ export function createMetadataWorkerCommandHandler(
       return undefined
     }
     if (command.kind === "resetOperation") {
+      await (dependencies.runImportCommand ?? runImportWorkerCommand)({ kind: "dispose" })
       initialized.resetOperation(command.operationId)
       return undefined
     }
@@ -52,7 +54,7 @@ export function createMetadataWorkerCommandHandler(
           },
         })
       case "import":
-        return {
+        return movableImportResult({
           kind: "importResult",
           result: await (dependencies.runImportCommand ?? runImportWorkerCommand)(command.command.command, {
             persistentValidationState: {
@@ -60,9 +62,20 @@ export function createMetadataWorkerCommandHandler(
               rulesSnapshot: initialized.rulesSnapshot,
             },
           }),
-        }
+        })
     }
   }
+}
+
+function movableImportResult(
+  result: Extract<MetadataWorkerCommandResult, { kind: "importResult" }>,
+): Extract<MetadataWorkerCommandResult, { kind: "importResult" }> {
+  const buffers = Object.values(result.result?.stateFragment?.buffers ?? {})
+  if (buffers.length === 0) return result
+  return move({
+    get [transferableSymbol]() { return buffers },
+    get [valueSymbol]() { return result },
+  }) as unknown as Extract<MetadataWorkerCommandResult, { kind: "importResult" }>
 }
 
 const runMetadataWorkerCommand = createMetadataWorkerCommandHandler()

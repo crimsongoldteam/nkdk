@@ -147,13 +147,13 @@ export async function createProjectStateImportSession(
       await beforeCheckpoint?.()
       const readToken = await params.writer.createReadToken()
       await params.writer.commitAndScheduleCheckpoint()
-      phase = "done"
       const result: ProjectStateRefreshResult = {
         diagnostics: [...localDiagnostics, ...dependencyDiagnostics],
         readToken,
         stats: { hashedFiles: changedPaths.size, parsedYamlFiles: 0, changedFiles: changedPaths.size, deletedFiles: 0 },
       }
       await params.publish(result)
+      phase = "done"
       return result
     },
     async abort(cause) {

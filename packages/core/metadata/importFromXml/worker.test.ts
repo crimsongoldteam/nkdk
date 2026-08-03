@@ -7,7 +7,7 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -115,6 +115,10 @@ describe("XML import worker first pass", () => {
     ])
     expect(fragments[0]).not.toHaveProperty("localDependencies")
     expect(result.stateFragment).toBeDefined()
+    const state = openProjectStateFragment(result.stateFragment!)
+    const imported = Array.from({ length: state.fileCount }, (_, fileId) => state.fileRecord(fileId))
+      .find((file) => state.stringValue(file.projectPathId).endsWith(assignment.targetProjectPath))
+    expect(imported?.hash).not.toBe(0n)
     expect(Object.keys(result).sort()).toEqual([
       "configurationFragments",
       "diagnostics",
@@ -306,6 +310,25 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("отклоняет идентификатор задания, принадлежащий другой линии", async () => {
+    const outputDir = createTempDir("foreign-assignment")
+    await initializeWorker(outputDir)
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [catalogAssignment({ id: "owned" })],
+    }))
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+
+    await expect(runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: ["foreign"],
+    })).rejects.toThrow("не принадлежит этой линии")
+    const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
+
+    expect(finished).toMatchObject({ kind: "secondPassResult", diagnostics: [], files: [] })
+    expect(finished).not.toHaveProperty("stateFragment")
+  })
+
   it.each([
     ["Catalog", catalogAssignment()],
     [

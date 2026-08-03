@@ -70,4 +70,31 @@ describe("единая точка входа worker", () => {
       persistentValidationState: expect.any(Object),
     }))
   })
+
+  it.each(["success", "failure", "cancelled"] as const)(
+    "очищает временное состояние после исхода %s, сохраняя постоянное состояние линии",
+    async (outcome) => {
+      const resetOperation = vi.fn()
+      const persistentState = {
+        schemaCache: {},
+        rulesSnapshot: {},
+        beginOperation: vi.fn(),
+        resetOperation,
+        installProjectState: vi.fn(),
+        clearProjectState: vi.fn(),
+      }
+      const createState = vi.fn(async () => persistentState)
+      const runImportCommand = vi.fn(async () => undefined)
+      const run = createMetadataWorkerCommandHandler({
+        createState: createState as never,
+        runImportCommand: runImportCommand as never,
+      })
+      await run({ kind: "initializeLine", workerIndex: 0, context })
+      await run({ kind: "resetOperation", operationId: "import", outcome })
+
+      expect(runImportCommand).toHaveBeenCalledWith({ kind: "dispose" })
+      expect(resetOperation).toHaveBeenCalledWith("import")
+      expect(createState).toHaveBeenCalledTimes(1)
+    },
+  )
 })

@@ -50,6 +50,9 @@ describe("XML import worker pool", () => {
     expect(first).not.toHaveProperty("ownerFacts")
     expect(first).not.toHaveProperty("validationContribution")
 
+    await pool.runSecondPass(readTokens(1))
+    expect(pools.secondPassBatchSizes(0)).toEqual([256, 1])
+
     await pool.close()
   })
 
@@ -539,15 +542,15 @@ describe("XML import worker pool", () => {
         "firstPassBatch",
         "finishFirstPass",
         "beginSecondPass",
-        "secondPass",
-        "endSecondPass",
+        "secondPassBatch",
+        "finishSecondPass",
         "dispose",
         "initialize",
         "firstPassBatch",
         "finishFirstPass",
         "beginSecondPass",
-        "secondPass",
-        "endSecondPass",
+        "secondPassBatch",
+        "finishSecondPass",
         "dispose",
       ])
       expect(pools.firstPassIds(0)).toEqual(["one-a", "two-a"])
@@ -651,8 +654,11 @@ function createFakePools() {
           stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
         }
       }
-      if (task.kind === "secondPass") {
+      if (task.kind === "secondPassBatch") {
         await secondPassBlocks.get(workerIndex)?.wait()
+        return undefined
+      }
+      if (task.kind === "finishSecondPass") {
         return {
           kind: "secondPassResult" as const,
           diagnostics: [],
@@ -678,6 +684,11 @@ function createFakePools() {
     firstPassBatchSizes(workerIndex: number): number[] {
       return pools.commands(workerIndex).flatMap((task) =>
         task.kind === "firstPassBatch" ? [task.assignments.length] : []
+      )
+    },
+    secondPassBatchSizes(workerIndex: number): number[] {
+      return pools.commands(workerIndex).flatMap((task) =>
+        task.kind === "secondPassBatch" ? [task.assignmentIds.length] : []
       )
     },
     created: pools.created,

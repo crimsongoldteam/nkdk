@@ -319,27 +319,27 @@ function createXmlImportOperationPool(params: {
           if (beginResponse !== undefined) {
             throw new Error("Worker вернул неожиданный результат beginSecondPass")
           }
-          const workerResults: ImportSecondPassResult[] = []
-          for (const assignmentId of assignmentIdsByWorker.get(workerIndex) ?? []) {
+          const assignmentIds = assignmentIdsByWorker.get(workerIndex) ?? []
+          for (let offset = 0; offset < assignmentIds.length; offset += 256) {
             assertProducerActive("secondPassRunning")
-            const response = await runCommand(workerIndex, { kind: "secondPass", assignmentId })
-            if (response?.kind !== "secondPassResult") {
-              throw new Error("Worker вернул неожиданный результат secondPass")
-            }
-            await stateQueue.run(() => {
-              assertProducerActive("secondPassRunning")
-              return sink.writeSecondPassState({
-                ...(response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
-              })
+            const response = await runCommand(workerIndex, {
+              kind: "secondPassBatch",
+              assignmentIds: assignmentIds.slice(offset, offset + 256),
             })
-            workerResults.push(withoutSecondPassState(response))
+            if (response !== undefined) throw new Error("Worker вернул неожиданный результат secondPassBatch")
           }
           assertProducerActive("secondPassRunning")
-          const endResponse = await runCommand(workerIndex, { kind: "endSecondPass" })
-          if (endResponse !== undefined) {
-            throw new Error("Worker вернул неожиданный результат endSecondPass")
+          const response = await runCommand(workerIndex, { kind: "finishSecondPass" })
+          if (response?.kind !== "secondPassResult") {
+            throw new Error("Worker вернул неожиданный результат finishSecondPass")
           }
-          return mergeSecondPassResults(workerResults)
+          await stateQueue.run(() => {
+            assertProducerActive("secondPassRunning")
+            return sink.writeSecondPassState({
+              ...(response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
+            })
+          })
+          return withoutSecondPassState(response)
         })
       )
       phase = "secondPassDone"
@@ -484,15 +484,6 @@ function withoutFirstPassState(result: ImportFirstPassResult): ImportFirstPassRe
 function withoutSecondPassState(result: ImportSecondPassResult): ImportSecondPassResult {
   const { stateFragment: _stateFragment, ...rest } = result
   return rest
-}
-
-function mergeSecondPassResults(results: readonly ImportSecondPassResult[]): ImportSecondPassResult {
-  return {
-    kind: "secondPassResult",
-    diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
-    warnings: results.flatMap(({ warnings }) => warnings),
-    files: results.flatMap(({ files }) => files),
-  }
 }
 
 function createBoundedStateQueue(limit: number) {

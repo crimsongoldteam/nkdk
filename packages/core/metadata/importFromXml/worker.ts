@@ -80,13 +80,23 @@ interface ActiveSecondPass {
 let initializedState: InitializedImportWorkerState | undefined
 let schemaCacheForTests: ValidationSchemaCache | undefined
 const preparedYaml = new Map<string, DeferredImportYaml>()
+const assignedImportIds = new Set<string>()
 let activeSecondPass: ActiveSecondPass | undefined
 let firstPassAccumulator: FirstPassAccumulator | undefined
+let secondPassAccumulator: SecondPassAccumulator | undefined
 
 interface FirstPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
   readonly files: ImportResultFile[]
   readonly configurationFragments: ConfigurationSnapshotFragment[]
+  readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
+  stateEntries: number
+}
+
+interface SecondPassAccumulator {
+  readonly diagnostics: ImportDiagnostic[]
+  readonly warnings: ImportDiagnostic[]
+  readonly files: ImportResultFile[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   stateEntries: number
 }
@@ -103,6 +113,7 @@ export async function runImportWorkerCommand(
   if (command.kind === "initialize") {
     endSecondPass()
     preparedYaml.clear()
+    assignedImportIds.clear()
     firstPassAccumulator?.fragmentWriter.discard()
     firstPassAccumulator = createFirstPassAccumulator()
     initializedState = {
@@ -139,16 +150,38 @@ export async function runImportWorkerCommand(
 
   if (command.kind === "beginSecondPass") {
     beginSecondPass(command.readToken, requireInitializedState())
+    secondPassAccumulator?.fragmentWriter.discard()
+    secondPassAccumulator = createSecondPassAccumulator()
     return undefined
   }
 
+  if (command.kind === "secondPassBatch") {
+    const state = requireInitializedState()
+    const accumulator = requireSecondPassAccumulator()
+    for (const assignmentId of command.assignmentIds) {
+      await processSecondPass(assignmentId, state, accumulator)
+    }
+    return undefined
+  }
+
+  if (command.kind === "finishSecondPass") {
+    const result = finishSecondPass(requireSecondPassAccumulator())
+    secondPassAccumulator = undefined
+    endSecondPass()
+    return result
+  }
+
   if (command.kind === "endSecondPass") {
+    secondPassAccumulator?.fragmentWriter.discard()
+    secondPassAccumulator = undefined
     endSecondPass()
     return undefined
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(command.assignmentId, requireInitializedState())
+    const accumulator = createSecondPassAccumulator()
+    await processSecondPass(command.assignmentId, requireInitializedState(), accumulator)
+    return finishSecondPass(accumulator)
   }
 
   const accumulator = createFirstPassAccumulator()
@@ -156,19 +189,19 @@ export async function runImportWorkerCommand(
   return finishFirstPass(accumulator)
 }
 
-async function runSecondPass(
+async function processSecondPass(
   assignmentId: string,
-  state: InitializedImportWorkerState
-): Promise<ImportSecondPassResult> {
+  state: InitializedImportWorkerState,
+  accumulator: SecondPassAccumulator,
+): Promise<void> {
+  if (!assignedImportIds.has(assignmentId)) {
+    throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
+  }
   const profiler = createOperationProfiler({
     operation: "import-from-xml",
     scope: { scope: "worker", workerIndex: state.workerIndex },
     aggregate: true,
   })
-  const diagnostics: ImportDiagnostic[] = []
-  const warnings: ImportDiagnostic[] = []
-  const files: ImportResultFile[] = []
-  const finalFileStateBatches: ProjectStateImportFinalFileStateBatch[] = []
   const secondPass = activeSecondPass
   if (secondPass === undefined) throw new Error("Второй проход XML-import worker не начат")
   const prepared = preparedYaml.get(assignmentId)
@@ -178,32 +211,48 @@ async function runSecondPass(
         prepared,
         secondPass.ownerMetadataCache,
         state,
-        warnings,
+        accumulator.warnings,
         profiler,
       )
-      files.push(written.file)
-      finalFileStateBatches.push(written.finalState)
+      accumulator.files.push(written.file)
+      accumulator.fragmentWriter.appendImportIndex(prepared.indexContribution)
+      accumulator.fragmentWriter.appendImportFinal(written.finalState)
+      accumulator.stateEntries += 2
     } catch (caught) {
-      diagnostics.push(importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"))
+      accumulator.diagnostics.push(
+        importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
+      )
     } finally {
       preparedYaml.delete(assignmentId)
     }
   }
 
   profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
-    items: files.length,
+    items: prepared === undefined ? 0 : 1,
     timeMs: 0,
   })
   profiler.flush()
-  const fragmentWriter = createProjectStateFragmentWriter()
-  if (prepared !== undefined) fragmentWriter.appendImportIndex(prepared.indexContribution)
-  finalFileStateBatches.forEach((batch) => fragmentWriter.appendImportFinal(batch))
+}
+
+function createSecondPassAccumulator(): SecondPassAccumulator {
+  return {
+    diagnostics: [],
+    warnings: [],
+    files: [],
+    fragmentWriter: createProjectStateFragmentWriter(),
+    stateEntries: 0,
+  }
+}
+
+function finishSecondPass(accumulator: SecondPassAccumulator): ImportSecondPassResult {
   return {
     kind: "secondPassResult",
-    diagnostics,
-    warnings,
-    files,
-    ...(finalFileStateBatches.length === 0 ? {} : { stateFragment: fragmentWriter.finish() }),
+    diagnostics: accumulator.diagnostics,
+    warnings: accumulator.warnings,
+    files: accumulator.files,
+    ...(accumulator.stateEntries === 0
+      ? (accumulator.fragmentWriter.discard(), {})
+      : { stateFragment: accumulator.fragmentWriter.finish() }),
   }
 }
 
@@ -319,6 +368,7 @@ async function processFirstPass(
   let retainedYamlCount = 0
   let deferredValueCount = 0
   for (const assignment of assignments) {
+    assignedImportIds.add(assignment.id)
     const collector = createConfigurationIndexCollector()
     try {
       const prepared = await prepareImportYaml({
@@ -369,9 +419,9 @@ async function processFirstPass(
           const main = await writeMainImportYaml({ serialized, profiler })
           const validated = validateSerializedImportYaml(prepared, serialized, state)
           assignmentFiles.push(main.file)
-          accumulator.fragmentWriter.appendImportFinal(validated.final)
           const indexContribution = importIndexContribution(prepared, validationContribution, state)
           accumulator.fragmentWriter.appendImportIndex(indexContribution)
+          accumulator.fragmentWriter.appendImportFinal(validated.final)
           accumulator.stateEntries += 2
           earlyYamlCount += 1
           earlyYamlBytes += main.bytes
@@ -439,6 +489,11 @@ function createFirstPassAccumulator(): FirstPassAccumulator {
 function requireFirstPassAccumulator(): FirstPassAccumulator {
   if (firstPassAccumulator === undefined) throw new Error("Первый проход XML-import worker не инициализирован")
   return firstPassAccumulator
+}
+
+function requireSecondPassAccumulator(): SecondPassAccumulator {
+  if (secondPassAccumulator === undefined) throw new Error("Второй проход XML-import worker не инициализирован")
+  return secondPassAccumulator
 }
 
 function finishFirstPass(accumulator: FirstPassAccumulator): ImportFirstPassResult {
@@ -628,7 +683,10 @@ function disposeWorkerState(): void {
   endSecondPass()
   firstPassAccumulator?.fragmentWriter.discard()
   firstPassAccumulator = undefined
+  secondPassAccumulator?.fragmentWriter.discard()
+  secondPassAccumulator = undefined
   preparedYaml.clear()
+  assignedImportIds.clear()
   initializedState = undefined
 }
 

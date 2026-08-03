@@ -219,8 +219,9 @@ export function createProjectStateService(
         ...params,
         projectDir,
         writer: importWriter,
-        async publish() {
+        async publish(result) {
           if (settled) return
+          await workers.installProjectState(result.readToken)
           settled = true
           active = { projectDir, writer: importWriter }
           await closeOrRetire(previous?.writer)

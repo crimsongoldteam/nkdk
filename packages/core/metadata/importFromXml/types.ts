@@ -69,6 +69,8 @@ export type ImportWorkerCommand =
   | { kind: "finishFirstPass" }
   | { kind: "beginSecondPass"; readToken: ProjectStateReadToken }
   | { kind: "secondPass"; assignmentId: string }
+  | { kind: "secondPassBatch"; assignmentIds: string[] }
+  | { kind: "finishSecondPass" }
   | { kind: "endSecondPass" }
   | { kind: "dispose" }
 
