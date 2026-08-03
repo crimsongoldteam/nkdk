@@ -149,11 +149,11 @@ describe("refreshProjectState", () => {
     const waitForRelease = new Promise<void>((resolve) => { releaseCheckpoint = resolve })
     const started = new Promise<void>((resolve) => { checkpointStarted = resolve })
     const handle = new class extends TrackingRefreshHandle {
-      override async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+      override async commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }> {
         this.checkpointCalls += 1
         checkpointStarted()
         await waitForRelease
-        return { snapshotPath: "/project/.nkdk/cache/project-state.sqlite" }
+        return { snapshotPath: "/project/.nkdk/cache/project-state.bin" }
       }
     }([])
     const running = refreshProjectState(
@@ -245,10 +245,10 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     return new Uint8Array([1]) as ProjectStateReadToken
   }
 
-  async commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }> {
+  async commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }> {
     this.events.push("checkpoint")
     this.checkpointCalls += 1
-    return { snapshotPath: "/project/.nkdk/cache/project-state.sqlite" }
+    return { snapshotPath: "/project/.nkdk/cache/project-state.bin" }
   }
 
   async rollbackUpdate(): Promise<void> {

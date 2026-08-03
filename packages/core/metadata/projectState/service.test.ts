@@ -18,9 +18,9 @@ describe("ProjectStateService", () => {
   it("returns load, checkpoint and snapshot measurements only for an explicitly profiled refresh", async () => {
     const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-state-profile-"))
     tempDirs.push(projectDir)
-    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.bin")
     const writer = testWriterHandle(1)
-    writer.commitAndCheckpoint = async () => {
+    writer.commitAndScheduleCheckpoint = async () => {
       await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
       await writeFile(snapshotPath, "snapshot")
       return { snapshotPath }
@@ -41,7 +41,7 @@ describe("ProjectStateService", () => {
         )
         await dependencies.handle.readLocalDiagnostics()
         await dependencies.handle.validateDependencies()
-        await dependencies.handle.commitAndCheckpoint()
+        await dependencies.handle.commitAndScheduleCheckpoint()
         return refreshResult(1)
       },
     })
@@ -56,7 +56,8 @@ describe("ProjectStateService", () => {
     expect(profiled.profile).toEqual({
       snapshotBytes: 8,
       loadMs: expect.any(Number),
-      checkpointMs: expect.any(Number),
+      scheduleSaveMs: expect.any(Number),
+      saveBinaryMs: expect.any(Number),
       discoverFilesMs: expect.any(Number),
       readBaselineMs: expect.any(Number),
       processFilesMs: expect.any(Number),
@@ -64,7 +65,8 @@ describe("ProjectStateService", () => {
       dependencyValidationMs: expect.any(Number),
     })
     expect(profiled.profile?.loadMs).toBeGreaterThanOrEqual(0)
-    expect(profiled.profile?.checkpointMs).toBeGreaterThanOrEqual(0)
+    expect(profiled.profile?.scheduleSaveMs).toBeGreaterThanOrEqual(0)
+    expect(profiled.profile?.saveBinaryMs).toBeGreaterThanOrEqual(0)
     expect(profiled.profile?.dependencyValidationMs).toBeGreaterThanOrEqual(0)
     expect(phases).toEqual([
       "discoverFiles",
@@ -72,7 +74,8 @@ describe("ProjectStateService", () => {
       "processFiles",
       "readLocalDiagnostics",
       "dependencyValidation",
-      "checkpoint",
+      "scheduleSave",
+      "saveBinary",
     ])
     expect(ordinary).not.toHaveProperty("profile")
     await service.close()
@@ -193,7 +196,7 @@ describe("ProjectStateService", () => {
     const { projectDir, service, session } = await beginImportLeaseTest(
       "nkdk-project-state-import-finalize-failure-",
       ({ candidate, next }) => {
-        candidate.commitAndCheckpoint = async () => { throw primary }
+        candidate.commitAndScheduleCheckpoint = async () => { throw primary }
         candidate.rollbackUpdate = async () => { events.push("rollback") }
         candidate.close = async () => { candidate.closed += 1; events.push("discard") }
         const openNext = next.openProject.bind(next)
@@ -218,7 +221,7 @@ describe("ProjectStateService", () => {
     const { service, session } = await beginImportLeaseTest(
       "nkdk-project-state-import-finalize-cleanup-failure-",
       ({ candidate }) => {
-        candidate.commitAndCheckpoint = async () => { throw primary }
+        candidate.commitAndScheduleCheckpoint = async () => { throw primary }
         candidate.close = async () => {
           closeAttempts += 1
           if (closeAttempts === 1) throw cleanup
@@ -276,9 +279,9 @@ describe("ProjectStateService", () => {
     const { projectDir, service, session } = await beginImportLeaseTest(
       "nkdk-project-state-import-reset-snapshot-",
       async ({ projectDir: dir, candidate }) => {
-        snapshotPath = join(dir, ".nkdk", "cache", "project-state.sqlite")
+        snapshotPath = join(dir, ".nkdk", "cache", "project-state.bin")
         await mkdir(join(dir, ".nkdk", "cache"), { recursive: true })
-        candidate.commitAndCheckpoint = async () => {
+        candidate.commitAndScheduleCheckpoint = async () => {
           await writeFile(snapshotPath, "import snapshot")
           return { snapshotPath }
         }
@@ -478,7 +481,7 @@ describe("ProjectStateService", () => {
       tokenCalls += 1
       return createCandidateToken()
     }
-    candidate.commitAndCheckpoint = async () => {
+    candidate.commitAndScheduleCheckpoint = async () => {
       checkpointCalls += 1
       return { snapshotPath }
     }
@@ -530,7 +533,7 @@ describe("ProjectStateService", () => {
       await tokenGate
       return createCandidateToken()
     }
-    candidate.commitAndCheckpoint = async () => {
+    candidate.commitAndScheduleCheckpoint = async () => {
       checkpointCalls += 1
       await writeFile(snapshotPath, "candidate")
       return { snapshotPath }
@@ -823,7 +826,7 @@ describe("ProjectStateService", () => {
       await resetWriter(canonicalProjectDir)
       tokenValid = false
     }
-    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+    const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.bin")
     const configurationIndexPath = join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")
     let refreshCalls = 0
     const service = createProjectStateService({
@@ -886,7 +889,9 @@ function testWriterHandle(id: number): TestWriter {
     async writeImportFinalFileState() {},
     async clearImportOutput() {},
     async deleteFiles() {},
+    async commitAndScheduleCheckpoint() { return { snapshotPath: "snapshot" } },
     async commitAndCheckpoint() { return { snapshotPath: "snapshot" } },
+    async flushCheckpoint() { return { snapshotPath: "snapshot" } },
     async commitUpdate() {},
     async rollbackUpdate() {},
     async reset(projectDir) {
@@ -941,7 +946,7 @@ async function beginImportLeaseTest(
 async function snapshotProject(prefix: string): Promise<{ projectDir: string; snapshotPath: string }> {
   const projectDir = await mkdtemp(join(tmpdir(), prefix))
   tempDirs.push(projectDir)
-  const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.sqlite")
+  const snapshotPath = join(projectDir, ".nkdk", "cache", "project-state.bin")
   await mkdir(join(projectDir, ".nkdk", "cache"), { recursive: true })
   await writeFile(snapshotPath, "previous")
   return { projectDir, snapshotPath }

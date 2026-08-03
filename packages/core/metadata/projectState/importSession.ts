@@ -165,7 +165,7 @@ export async function createProjectStateImportSession(
       const dependencyDiagnostics = await params.writer.validateDependencies()
       await beforeCheckpoint?.()
       const readToken = await params.writer.createReadToken()
-      await params.writer.commitAndCheckpoint()
+      await params.writer.commitAndScheduleCheckpoint()
       phase = "done"
       const result: ProjectStateRefreshResult = {
         diagnostics: [...localDiagnostics, ...dependencyDiagnostics],

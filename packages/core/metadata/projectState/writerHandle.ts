@@ -1,30 +1,28 @@
-import { randomUUID } from "node:crypto"
-import { dirname, join } from "node:path"
-import { fileURLToPath } from "node:url"
-import { Worker } from "node:worker_threads"
-import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
-import { createProjectStateCompatibility, type ProjectStateCompatibility } from "./compatibility"
-import type { ProjectStateFileIdentity, ProjectStateFileUpdateBatch } from "./fileUpdate"
+import fs from "node:fs"
 import type { Diagnostic } from "../validation/types"
-import {
-  assertProjectStateFileBaseline,
-  type ProjectStateFileBaseline,
-  type ProjectStateFileHashBatch,
-  type ProjectStateReadToken,
+import { createBinaryProjectStateStore } from "./binary/store"
+import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
+import type { ProjectStateSharedBuffers } from "./binary/snapshot"
+import type { ProjectStateCompatibility } from "./compatibility"
+import type {
+  ProjectStateFileBaseline,
+  ProjectStateFileHashBatch,
+  ProjectStateReadToken,
 } from "./contracts"
-import type { ProjectStateComponentProjection, ProjectStateFileChanges } from "./store"
+import {
+  assertProjectStateFileUpdateBatch,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdateBatch,
+} from "./fileUpdate"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "./importSession"
-import {
-  assertProjectStateWriterBatch,
-  type ProjectStateWriterAcknowledgement,
-  type ProjectStateWriterCommand,
-  type ProjectStateWriterResponse,
-} from "./writerProtocol"
-
-const DEFAULT_MAX_IN_FLIGHT_BATCHES = 2
+import type {
+  ProjectStateComponentProjection,
+  ProjectStateFileChanges,
+  ProjectStateStore,
+} from "./store"
 
 export class ProjectStateWriterCancelledError extends Error {
   constructor() {
@@ -41,24 +39,10 @@ export class ProjectStateWriterClosedError extends Error {
 }
 
 export interface CreateProjectStateWriterHandleOptions {
+  /** Временно принимается вызывающими сторонами до удаления SQLite-совместимости. */
   readonly compatibility?: ProjectStateCompatibility
-  readonly maxInFlightBatches?: number
-  readonly signal?: AbortSignal
-  readonly transportFactory?: () => ProjectStateWriterTransport
-}
-
-export interface ProjectStateWriterTransport {
-  postMessage(command: ProjectStateWriterCommand, transfer?: readonly ArrayBuffer[]): void
-  on(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
-  on(event: "error", listener: (error: Error) => void): this
-  on(event: "exit", listener: (code: number) => void): this
-  once(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
-  once(event: "error", listener: (error: Error) => void): this
-  once(event: "exit", listener: (code: number) => void): this
-  off(event: "message", listener: (response: ProjectStateWriterResponse) => void): this
-  off(event: "error", listener: (error: Error) => void): this
-  off(event: "exit", listener: (code: number) => void): this
-  terminate(): Promise<number>
+  readonly openStore?: (projectDir: string) => Promise<ProjectStateStore>
+  readonly save?: (projectDir: string, buffers: ProjectStateSharedBuffers) => Promise<void>
 }
 
 export interface ProjectStateWriterHandle {
@@ -76,412 +60,230 @@ export interface ProjectStateWriterHandle {
   writeImportFinalFileState(batch: ProjectStateImportFinalFileStateBatch): Promise<void>
   clearImportOutput(componentPaths: readonly string[]): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
+  commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }>
+  /** Временный псевдоним до перевода всех вызывающих сторон. */
   commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
+  flushCheckpoint(): Promise<{ readonly snapshotPath: string }>
   commitUpdate(): Promise<void>
   rollbackUpdate(): Promise<void>
   reset(projectDir: string): Promise<void>
   close(): Promise<void>
 }
 
-interface PendingRequest {
-  readonly resolve: (result: ProjectStateWriterAcknowledgement) => void
-  readonly reject: (caught: unknown) => void
-  readonly batch: boolean
-}
-
-interface QueuedBatch {
-  readonly batch: ProjectStateFileUpdateBatch
-  readonly resolve: () => void
-  readonly reject: (caught: unknown) => void
-}
-
 export function createProjectStateWriterHandle(
   options: CreateProjectStateWriterHandleOptions = {},
 ): ProjectStateWriterHandle {
-  const compatibility = options.compatibility ?? createProjectStateCompatibility()
-  const maxInFlight = options.maxInFlightBatches ?? DEFAULT_MAX_IN_FLIGHT_BATCHES
-  if (!Number.isSafeInteger(maxInFlight) || maxInFlight < 1) {
-    throw new Error("Размер очереди ProjectState writer должен быть положительным целым числом")
-  }
-  const transport = options.transportFactory?.() ?? createWorkerTransport()
-  const pending = new Map<string, PendingRequest>()
-  const queuedBatches: QueuedBatch[] = []
-  const operationWrites = new Set<Promise<void>>()
-  let inFlightBatches = 0
-  let openedProjectDir: string | undefined
-  let operationId: string | undefined
-  let cancelledError: ProjectStateWriterCancelledError | undefined
-  let cancellation: Promise<void> | undefined
-  let operationFailure: unknown
-  let irreversibleCommit = false
+  const save = options.save ?? saveBinaryProjectState
+  let projectDir: string | undefined
+  let store: ProjectStateStore | undefined
+  let updateActive = false
   let operationSignal: AbortSignal | undefined
-  let fatalError: Error | undefined
-  let closing = false
+  let pendingSave: Promise<void> | undefined
+  let saveFailure: unknown
+  let closed = false
   let closePromise: Promise<void> | undefined
 
-  transport.on("message", receive)
-  transport.once("error", failWorker)
-  transport.once("exit", (code) => {
-    if (!closing) failWorker(new Error(`ProjectState writer worker неожиданно завершился с кодом ${code}`))
-    else if (pending.size > 0) rejectOutstanding(new ProjectStateWriterClosedError())
-  })
-
   const handle: ProjectStateWriterHandle = {
-    async openProject(projectDir) {
-      assertUsable()
-      if (openedProjectDir === projectDir) return
-      if (operationId !== undefined) throw new Error("Нельзя сменить проект во время обновления состояния")
-      await request({ kind: "openProject", requestId: randomUUID(), projectDir, compatibility })
-      openedProjectDir = projectDir
-    },
-    async compareFiles(batch) {
-      assertUsable()
-      const result = await request({ kind: "compareFiles", requestId: randomUUID(), batch })
-      if (result.kind !== "filesCompared") throw new Error("ProjectState writer не вернул сравнение файлов")
-      return result.changes
+    async openProject(nextProjectDir) {
+      assertOpen()
+      if (projectDir === nextProjectDir && store !== undefined) return
+      await closeCurrentStore()
+      projectDir = nextProjectDir
+      store = options.openStore === undefined
+        ? createBinaryProjectStateStore({
+            initial: await loadBinaryProjectState(nextProjectDir),
+            projectDir: nextProjectDir,
+          }).store
+        : await options.openStore(nextProjectDir)
     },
     async readFileBaseline(files) {
-      assertUsable()
-      const result = await request({ kind: "readFileBaseline", requestId: randomUUID(), files })
-      if (result.kind !== "fileBaseline") throw new Error("ProjectState writer не вернул исходные хэши")
-      assertProjectStateFileBaseline(result.baseline, files.length)
-      return result.baseline
+      return requireStore().readFileBaseline(files)
+    },
+    async compareFiles(batch) {
+      return requireStore().compareFiles(batch)
     },
     async readLocalDiagnostics() {
-      assertUsable()
-      const result = await request({ kind: "readLocalDiagnostics", requestId: randomUUID() })
-      if (result.kind !== "localDiagnostics") throw new Error("ProjectState writer не вернул локальные diagnostics")
-      return result.diagnostics
+      return requireStore().readLocalDiagnostics()
     },
     async validateDependencies() {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      await Promise.all([...operationWrites])
-      if (operationFailure !== undefined) throw operationFailure
-      if (cancelledError !== undefined) throw cancelledError
-      const result = await request({
-        kind: "validateDependencies",
-        requestId: randomUUID(),
-        operationId: currentOperationId,
-      })
-      if (result.kind !== "dependencyDiagnostics") {
-        throw new Error("ProjectState writer не вернул dependency diagnostics")
-      }
-      return result.diagnostics
+      assertOperation()
+      assertNotCancelled()
+      return requireStore().validateDependencies({ requests: [] })
     },
     async createReadToken() {
-      assertUsable()
-      const result = await request({ kind: "createReadToken", requestId: randomUUID() })
-      if (result.kind !== "readToken") throw new Error("ProjectState writer не вернул read token")
-      return result.token
+      return requireStore().createReadToken()
     },
     async readComponentProjection(componentPath) {
-      assertUsable()
-      const result = await request({ kind: "readComponentProjection", requestId: randomUUID(), componentPath })
-      if (result.kind !== "componentProjection") throw new Error("ProjectState writer не вернул проекцию компонента")
-      return result.projection
+      return requireStore().readComponentProjection(componentPath)
     },
-    async beginUpdate(projectDir, signal) {
-      assertUsable()
-      const nextSignal = signal ?? options.signal
-      if (nextSignal?.aborted === true) throw cancellationError()
-      await handle.openProject(projectDir)
-      if (isAbortSignalAborted(nextSignal)) throw cancellationError()
-      if (operationId !== undefined) throw new Error("Обновление состояния проекта уже начато")
-      const nextOperationId = randomUUID()
-      await request({ kind: "beginUpdate", requestId: randomUUID(), operationId: nextOperationId })
-      operationId = nextOperationId
-      operationFailure = undefined
-      cancelledError = undefined
-      cancellation = undefined
-      operationSignal = nextSignal
-      operationSignal?.addEventListener("abort", cancelOperation, { once: true })
-      if (operationSignal?.aborted === true) cancelOperation()
+    async beginUpdate(nextProjectDir, signal) {
+      assertOpen()
+      await handle.openProject(nextProjectDir)
+      if (updateActive) throw new Error("Обновление состояния проекта уже начато")
+      await awaitPreviousSaveWithRetry()
+      if (signal?.aborted === true) throw new ProjectStateWriterCancelledError()
+      requireStore().beginUpdate()
+      updateActive = true
+      operationSignal = signal
     },
-    writeBatch(batch) {
-      try {
-        assertUsable()
-        assertActiveOperation()
-        assertProjectStateWriterBatch(batch)
-        if (cancelledError !== undefined) return Promise.reject(cancelledError)
-      } catch (caught) {
-        return Promise.reject(caught)
-      }
-      let resolveWrite!: () => void
-      let rejectWrite!: (caught: unknown) => void
-      const result = new Promise<void>((resolve, reject) => {
-        resolveWrite = resolve
-        rejectWrite = reject
-      })
-      queuedBatches.push({ batch, resolve: resolveWrite, reject: rejectWrite })
-      operationWrites.add(result)
-      void result.then(
-        () => operationWrites.delete(result),
-        (caught) => {
-          operationWrites.delete(result)
-          operationFailure ??= caught
-        },
-      )
-      drainBatches()
-      return result
+    async writeBatch(batch) {
+      assertOperation()
+      assertNotCancelled()
+      assertProjectStateFileUpdateBatch(batch)
+      requireStore().replaceFiles(batch)
     },
     async writeImportIndexBatch(batch) {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      await request({ kind: "writeImportIndexBatch", requestId: randomUUID(), operationId: currentOperationId, batch })
+      assertOperation()
+      assertNotCancelled()
+      requireStore().replaceImportIndex(batch)
     },
     async registerImportFileIdentities(files) {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      await request({ kind: "registerImportFileIdentities", requestId: randomUUID(), operationId: currentOperationId, files })
+      assertOperation()
+      assertNotCancelled()
+      requireStore().registerImportFileIdentities(files)
     },
     async writeImportFinalFileState(batch) {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      const result = await request(
-        { kind: "writeImportFinalFileState", requestId: randomUUID(), operationId: currentOperationId, batch },
-        [batch.hashBytes.buffer as ArrayBuffer],
-      )
-      if (result.kind !== "importFinalFileStateWritten") {
-        throw new Error("ProjectState writer не подтвердил final file state")
-      }
-    },
-    async deleteFiles(projectPaths) {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      if (cancelledError !== undefined) throw cancelledError
-      await request({ kind: "deleteFiles", requestId: randomUUID(), operationId: currentOperationId, projectPaths })
+      assertOperation()
+      assertNotCancelled()
+      requireStore().replaceImportFinalFileState(batch)
     },
     async clearImportOutput(componentPaths) {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      await request({ kind: "clearImportOutput", requestId: randomUUID(), operationId: currentOperationId, componentPaths })
+      assertOperation()
+      assertNotCancelled()
+      requireStore().clearImportOutput(componentPaths)
     },
-    async commitAndCheckpoint() {
-      assertUsable()
-      if (cancelledError !== undefined) {
-        await cancellation
-        operationId = undefined
-        clearOperationSignal()
-        throw cancelledError
-      }
-      const currentOperationId = assertActiveOperation()
-      await Promise.all([...operationWrites])
-      if (operationFailure !== undefined) throw operationFailure
-      if (cancelledError !== undefined) {
-        await cancellation
-        operationId = undefined
-        clearOperationSignal()
-        throw cancelledError
-      }
-      irreversibleCommit = true
-      let committed = false
-      try {
-        await request({ kind: "commitUpdate", requestId: randomUUID(), operationId: currentOperationId })
-        committed = true
-        const result = await request({ kind: "checkpoint", requestId: randomUUID() })
-        operationId = undefined
-        if (result.kind !== "checkpointed") throw new Error("ProjectState writer не подтвердил checkpoint")
-        return { snapshotPath: result.snapshotPath }
-      } catch (caught) {
-        if (committed) await restoreAfterFailedCheckpoint()
-        throw caught
-      } finally {
-        irreversibleCommit = false
-        clearOperationSignal()
-      }
+    async deleteFiles(projectPaths) {
+      assertOperation()
+      assertNotCancelled()
+      requireStore().deleteFiles(projectPaths)
+    },
+    async commitAndScheduleCheckpoint() {
+      assertOperation()
+      assertNotCancelled()
+      const currentStore = requireStore()
+      currentStore.commitUpdate()
+      updateActive = false
+      operationSignal = undefined
+      scheduleSave(snapshotBuffers(currentStore))
+      return { snapshotPath: projectStateBinaryPath(projectDir!) }
+    },
+    commitAndCheckpoint() {
+      return handle.commitAndScheduleCheckpoint()
+    },
+    async flushCheckpoint() {
+      assertOpen()
+      await pendingSave
+      if (saveFailure !== undefined) throw saveFailure
+      return { snapshotPath: projectStateBinaryPath(requireProjectDir()) }
     },
     async commitUpdate() {
-      assertUsable()
-      const currentOperationId = assertActiveOperation()
-      await Promise.all([...operationWrites])
-      if (operationFailure !== undefined) throw operationFailure
-      const result = await request({ kind: "commitUpdate", requestId: randomUUID(), operationId: currentOperationId })
-      if (result.kind !== "updateCommitted") throw new Error("ProjectState writer не подтвердил commit")
-      operationId = undefined
-      clearOperationSignal()
+      assertOperation()
+      assertNotCancelled()
+      requireStore().commitUpdate()
+      updateActive = false
+      operationSignal = undefined
     },
     async rollbackUpdate() {
-      assertUsable()
-      await cancellation?.catch(() => undefined)
-      if (operationId === undefined) return
-      const currentOperationId = assertActiveOperation()
-      await Promise.allSettled([...operationWrites])
-      await request({ kind: "rollbackUpdate", requestId: randomUUID(), operationId: currentOperationId })
-      operationId = undefined
-      clearOperationSignal()
+      assertOpen()
+      if (!updateActive) return
+      requireStore().rollbackUpdate()
+      updateActive = false
+      operationSignal = undefined
     },
-    async reset(projectDir) {
-      assertUsable()
-      if (operationId !== undefined) throw new Error("Нельзя сбросить состояние во время обновления")
-      await request({ kind: "reset", requestId: randomUUID(), projectDir })
-      openedProjectDir = projectDir
+    async reset(nextProjectDir) {
+      assertOpen()
+      await handle.openProject(nextProjectDir)
+      if (updateActive) await handle.rollbackUpdate()
+      await pendingSave?.catch(() => undefined)
+      requireStore().close()
+      await fs.promises.unlink(projectStateBinaryPath(nextProjectDir)).catch(() => undefined)
+      store = options.openStore === undefined
+        ? createBinaryProjectStateStore({ projectDir: nextProjectDir }).store
+        : await options.openStore(nextProjectDir)
+      pendingSave = undefined
+      saveFailure = undefined
     },
     close() {
       if (closePromise !== undefined) return closePromise
-      closing = true
-      clearOperationSignal()
-      rejectOutstanding(new ProjectStateWriterClosedError())
-      closePromise = closeWorker()
+      closed = true
+      closePromise = closeCurrentStore()
       return closePromise
     },
   }
+
   return handle
 
-  function request(command: ProjectStateWriterCommand, transfer: readonly ArrayBuffer[] = []): Promise<ProjectStateWriterAcknowledgement> {
-    assertUsableForRequest(command.kind)
-    return new Promise((resolve, reject) => {
-      const batch = command.kind === "writeBatch"
-      pending.set(command.requestId, { resolve, reject, batch })
-      try {
-        transport.postMessage(command, transfer)
-      } catch (caught) {
-        pending.delete(command.requestId)
-        if (batch) {
-          inFlightBatches -= 1
-          drainBatches()
-        }
-        reject(caught)
-      }
+  function assertOpen(): void {
+    if (closed) throw new ProjectStateWriterClosedError()
+  }
+
+  function requireStore(): ProjectStateStore {
+    assertOpen()
+    if (store === undefined) throw new Error("Проект состояния ещё не открыт")
+    return store
+  }
+
+  function requireProjectDir(): string {
+    if (projectDir === undefined) throw new Error("Проект состояния ещё не открыт")
+    return projectDir
+  }
+
+  function assertOperation(): void {
+    requireStore()
+    if (!updateActive) throw new Error("Нет активного обновления состояния проекта")
+  }
+
+  function assertNotCancelled(): void {
+    if (operationSignal?.aborted === true) throw new ProjectStateWriterCancelledError()
+  }
+
+  function scheduleSave(buffers: ProjectStateSharedBuffers): void {
+    const currentProjectDir = requireProjectDir()
+    const previous = pendingSave?.catch(() => undefined) ?? Promise.resolve()
+    saveFailure = undefined
+    pendingSave = previous.then(() => save(currentProjectDir, buffers)).catch((caught) => {
+      saveFailure = caught
+      throw caught
     })
+    void pendingSave.catch(() => undefined)
   }
 
-  function receive(response: ProjectStateWriterResponse): void {
-    const waiter = pending.get(response.requestId)
-    if (waiter === undefined) return
-    pending.delete(response.requestId)
-    if (waiter.batch) {
-      inFlightBatches -= 1
-      drainBatches()
+  async function awaitPreviousSaveWithRetry(): Promise<void> {
+    try {
+      await pendingSave
+    } catch {
+      const currentStore = requireStore()
+      saveFailure = undefined
+      scheduleSave(snapshotBuffers(currentStore))
+      await pendingSave
     }
-    if (response.kind === "failed") {
-      const error = new Error(response.error.message)
-      error.name = response.error.name
-      waiter.reject(error)
-    } else {
-      waiter.resolve(response.result)
+    if (saveFailure !== undefined) throw saveFailure
+  }
+
+  async function closeCurrentStore(): Promise<void> {
+    if (updateActive) {
+      store?.rollbackUpdate()
+      updateActive = false
+      operationSignal = undefined
     }
-  }
-
-  function drainBatches(): void {
-    if (cancelledError !== undefined || fatalError !== undefined || closing) return
-    while (inFlightBatches < maxInFlight && queuedBatches.length > 0) {
-      const queued = queuedBatches.shift()!
-      try {
-        assertProjectStateWriterBatch(queued.batch)
-        const currentOperationId = assertActiveOperation()
-        inFlightBatches += 1
-        void request(
-          { kind: "writeBatch", requestId: randomUUID(), operationId: currentOperationId, batch: queued.batch },
-          [queued.batch.hashBytes.buffer as ArrayBuffer],
-        ).then(() => queued.resolve(), queued.reject)
-      } catch (caught) {
-        queued.reject(caught)
-      }
+    let failure: unknown
+    try {
+      await pendingSave
+      if (saveFailure !== undefined) failure = saveFailure
+    } catch (caught) {
+      failure = caught
     }
-  }
-
-  function cancelOperation(): void {
-    if (
-      operationId === undefined ||
-      cancelledError !== undefined ||
-      fatalError !== undefined ||
-      irreversibleCommit
-    )
-      return
-    const currentOperationId = operationId
-    cancelledError = cancellationError()
-    for (const queued of queuedBatches.splice(0)) queued.reject(cancelledError)
-    for (const [requestId, waiter] of pending) {
-      if (!waiter.batch) continue
-      pending.delete(requestId)
-      inFlightBatches -= 1
-      waiter.reject(cancelledError)
-    }
-    cancellation = request({
-      kind: "cancelOperation",
-      requestId: randomUUID(),
-      operationId: currentOperationId,
-    }).then(() => {
-      if (operationId !== currentOperationId) return
-      operationId = undefined
-      clearOperationSignal()
-    })
-    void cancellation.catch(() => undefined)
-  }
-
-  function failWorker(caught: Error): void {
-    if (fatalError !== undefined) return
-    fatalError = caught
-    rejectOutstanding(caught)
-  }
-
-  function rejectOutstanding(caught: Error): void {
-    for (const queued of queuedBatches.splice(0)) queued.reject(caught)
-    for (const waiter of pending.values()) waiter.reject(caught)
-    pending.clear()
-    inFlightBatches = 0
-  }
-
-  async function closeWorker(): Promise<void> {
-    if (fatalError === undefined) {
-      try {
-        await request({ kind: "close", requestId: randomUUID() })
-      } catch {
-        // Worker уже мог завершиться после подтверждённой аварии.
-      }
-    }
-    await transport.terminate()
-  }
-
-  async function restoreAfterFailedCheckpoint(): Promise<void> {
-    const currentProjectDir = openedProjectDir
-    operationId = undefined
-    operationFailure = undefined
-    if (currentProjectDir === undefined) throw new Error("ProjectState writer потерял открытый проект")
-    await request({
-      kind: "openProject",
-      requestId: randomUUID(),
-      projectDir: currentProjectDir,
-      compatibility,
-    })
-  }
-
-  function assertActiveOperation(): string {
-    if (operationId === undefined) throw new Error("Нет активного обновления состояния проекта")
-    return operationId
-  }
-
-  function assertUsable(): void {
-    if (fatalError !== undefined) throw fatalError
-    if (closing) throw new Error("ProjectState writer закрыт")
-  }
-
-  function assertUsableForRequest(kind: ProjectStateWriterCommand["kind"]): void {
-    if (fatalError !== undefined) throw fatalError
-    if (closing && kind !== "close") throw new Error("ProjectState writer закрыт")
-  }
-
-  function cancellationError(): ProjectStateWriterCancelledError {
-    return cancelledError ?? new ProjectStateWriterCancelledError()
-  }
-
-  function clearOperationSignal(): void {
-    operationSignal?.removeEventListener("abort", cancelOperation)
-    operationSignal = undefined
+    store?.close()
+    store = undefined
+    projectDir = undefined
+    pendingSave = undefined
+    saveFailure = undefined
+    if (failure !== undefined) throw failure
   }
 }
 
-function isAbortSignalAborted(signal: AbortSignal | undefined): boolean {
-  return signal?.aborted === true
-}
-
-function createWorkerTransport(): ProjectStateWriterTransport {
-  const currentFile = fileURLToPath(import.meta.url)
-  const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "writerWorker.ts")
-    : join(dirname(currentFile), "projectStateWriterWorker.js")
-  return new Worker(workerFile, {
-    execArgv: currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : [],
-  })
+function snapshotBuffers(store: ProjectStateStore): ProjectStateSharedBuffers {
+  const token = store.createReadToken()
+  if (token instanceof Uint8Array) throw new Error("Двоичное хранилище вернуло устаревший token")
+  return token.buffers
 }

@@ -1,5 +1,6 @@
 import { availableParallelism } from "node:os"
-import { realpath, rm, stat } from "node:fs/promises"
+import { readdir, realpath, rm, stat } from "node:fs/promises"
+import { basename, dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "./contracts"
@@ -9,13 +10,14 @@ import {
   type ProjectStateImportParams,
   type ProjectStateImportSession,
 } from "./importSession"
-import { openSqliteProjectStateReadSession } from "./sqlite/readSession"
+import { openBinaryProjectStateReadSession } from "./binary/readSession"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateWriterHandle, type ProjectStateWriterHandle } from "./writerHandle"
 import { projectStateSnapshotPath } from "./sqlite/persistence"
+import { projectStateBinaryPath } from "./binary/persistence"
 import {
   createProjectStateRefreshDependencies,
   refreshProjectState,
@@ -44,7 +46,7 @@ export interface ProjectStateService {
   close(): Promise<void>
 }
 
-export const openProjectStateReadSession = openSqliteProjectStateReadSession
+export const openProjectStateReadSession = openBinaryProjectStateReadSession
 
 export interface CreateProjectStateServiceOptions {
   readonly createWriter?: () => ProjectStateWriterHandle
@@ -62,7 +64,7 @@ export function createProjectStateService(
   const createWriter = options.createWriter ?? (() => createProjectStateWriterHandle())
   const createPool = options.createPool ?? ((concurrency) => createPreparedYamlProjectWorkerPool({ concurrency }))
   const refresh = options.refresh ?? refreshProjectState
-  const openReadSession = options.openReadSession ?? openSqliteProjectStateReadSession
+  const openReadSession = options.openReadSession ?? openBinaryProjectStateReadSession
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
   const retiredWriters = new Set<ProjectStateWriterHandle>()
   let sequence = Promise.resolve()
@@ -119,6 +121,7 @@ export function createProjectStateService(
         const canonical = await realpath(projectDir)
         const writer = await activate(canonical)
         await writer.reset(canonical)
+        await removeBinaryProjectStateFiles(canonical)
         await rm(projectStateSnapshotPath(canonical), { force: true })
       })
     },
@@ -308,7 +311,8 @@ export function createProjectStateService(
       poolClosePromise ??= pool.close()
       return poolClosePromise
     }
-    let checkpointMs = 0
+    let scheduleSaveMs = 0
+    let saveStartedAt: number | undefined
     let snapshotPath: string | undefined
     const phaseMs = {
       discoverFilesMs: 0,
@@ -318,7 +322,7 @@ export function createProjectStateService(
       dependencyValidationMs: 0,
     }
     const measurePhase = async <T>(
-      phase: Exclude<import("./refresh").ProjectStateProfilePhase, "checkpoint">,
+      phase: Exclude<import("./refresh").ProjectStateProfilePhase, "scheduleSave" | "saveBinary">,
       action: () => Promise<T>,
     ): Promise<T> => {
       const startedAt = performance.now()
@@ -338,13 +342,14 @@ export function createProjectStateService(
             measurePhase("readBaseline", () => writer.readFileBaseline(files)),
           readLocalDiagnostics: () => measurePhase("readLocalDiagnostics", () => writer.readLocalDiagnostics()),
           validateDependencies: () => measurePhase("dependencyValidation", () => writer.validateDependencies()),
-          async commitAndCheckpoint() {
+          async commitAndScheduleCheckpoint() {
+            saveStartedAt = performance.now()
             const startedAt = performance.now()
-            const checkpoint = await writer.commitAndCheckpoint()
+            const checkpoint = await writer.commitAndScheduleCheckpoint()
             const elapsedMs = performance.now() - startedAt
-            checkpointMs += elapsedMs
+            scheduleSaveMs += elapsedMs
             snapshotPath = checkpoint.snapshotPath
-            options.onPhase?.({ phase: "checkpoint", elapsedMs })
+            options.onPhase?.({ phase: "scheduleSave", elapsedMs })
             return checkpoint
           },
         }
@@ -378,13 +383,17 @@ export function createProjectStateService(
     }
     await closePool()
     if (options.loadMs === undefined) return result
+    await writer.flushCheckpoint()
+    const saveBinaryMs = saveStartedAt === undefined ? 0 : performance.now() - saveStartedAt
+    options.onPhase?.({ phase: "saveBinary", elapsedMs: saveBinaryMs })
     if (snapshotPath === undefined) throw new Error("Профиль состояния проекта не получил путь checkpoint")
     return {
       ...result,
       profile: {
         snapshotBytes: (await stat(snapshotPath)).size,
         loadMs: options.loadMs,
-        checkpointMs,
+        scheduleSaveMs,
+        saveBinaryMs,
         ...phaseMs,
       },
     }
@@ -415,6 +424,21 @@ export function createProjectStateService(
       errorMessage(primaryErrors[0] ?? primary),
     )
   }
+}
+
+async function removeBinaryProjectStateFiles(projectDir: string): Promise<void> {
+  const target = projectStateBinaryPath(projectDir)
+  const directory = dirname(target)
+  let names: string[]
+  try {
+    names = await readdir(directory)
+  } catch {
+    return
+  }
+  const targetName = basename(target)
+  await Promise.all(names
+    .filter((name) => name === targetName || (name.startsWith(`.${targetName}.`) && name.endsWith(".tmp")))
+    .map((name) => rm(join(directory, name), { force: true })))
 }
 
 function flattenFailures(caught: unknown): unknown[] {

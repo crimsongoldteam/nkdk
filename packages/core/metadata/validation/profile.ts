@@ -10,7 +10,8 @@ export interface ValidationProfileResult {
   readonly deletedFiles: number
   readonly snapshotBytes: number
   readonly loadMs: number
-  readonly checkpointMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
   readonly discoverFilesMs: number
   readonly readBaselineMs: number
   readonly processFilesMs: number
@@ -24,7 +25,8 @@ export function createValidationProfileResult(params: {
   readonly stats: ProjectStateRefreshStats
   readonly snapshotBytes: number
   readonly loadMs: number
-  readonly checkpointMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
   readonly discoverFilesMs: number
   readonly readBaselineMs: number
   readonly processFilesMs: number
@@ -35,7 +37,8 @@ export function createValidationProfileResult(params: {
     ...params.stats,
     snapshotBytes: params.snapshotBytes,
     loadMs: params.loadMs,
-    checkpointMs: params.checkpointMs,
+    scheduleSaveMs: params.scheduleSaveMs,
+    saveBinaryMs: params.saveBinaryMs,
     discoverFilesMs: params.discoverFilesMs,
     readBaselineMs: params.readBaselineMs,
     processFilesMs: params.processFilesMs,

@@ -31,7 +31,8 @@ export interface ProjectStateRefreshResult {
 export interface ProjectStateRefreshProfile {
   readonly snapshotBytes: number
   readonly loadMs: number
-  readonly checkpointMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
   readonly discoverFilesMs: number
   readonly readBaselineMs: number
   readonly processFilesMs: number
@@ -45,7 +46,8 @@ export type ProjectStateProfilePhase =
   | "processFiles"
   | "readLocalDiagnostics"
   | "dependencyValidation"
-  | "checkpoint"
+  | "scheduleSave"
+  | "saveBinary"
 
 export interface ProjectStateProfilePhaseEvent {
   readonly phase: ProjectStateProfilePhase
@@ -64,7 +66,7 @@ export interface ProjectStateRefreshHandle {
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
   createReadToken(): Promise<ProjectStateReadToken>
-  commitAndCheckpoint(): Promise<{ readonly snapshotPath: string }>
+  commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }>
   rollbackUpdate(): Promise<void>
 }
 
@@ -152,7 +154,7 @@ export async function refreshProjectState(
     operation.signal.throwIfAborted()
     const readToken = await dependencies.handle.createReadToken()
     operation.signal.throwIfAborted()
-    await dependencies.handle.commitAndCheckpoint()
+    await dependencies.handle.commitAndScheduleCheckpoint()
     updateActive = false
     return {
       diagnostics,
