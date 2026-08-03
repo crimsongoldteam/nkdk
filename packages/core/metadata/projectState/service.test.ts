@@ -802,6 +802,9 @@ describe("ProjectStateService", () => {
     const first = await service.createReadToken(projectDir)
     const second = await service.createReadToken(projectDir)
 
+    expect(first).toBeInstanceOf(Uint8Array)
+    expect(second).toBeInstanceOf(Uint8Array)
+    if (!(first instanceof Uint8Array) || !(second instanceof Uint8Array)) throw new Error("Ожидался legacy token")
     expect([...first]).toEqual([1])
     expect([...second]).toEqual([2])
     await service.close()

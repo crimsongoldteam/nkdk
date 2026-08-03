@@ -622,6 +622,7 @@ function identity(update: ProjectStateFileIdentity) {
     : { projectPath, componentPath, resourceKind, yamlRole }
 }
 
-function tokenKey(token: Uint8Array): string {
+function tokenKey(token: ProjectStateReadToken): string {
+  if (!(token instanceof Uint8Array)) throw new Error("Тестовое хранилище принимает только legacy token")
   return [...token].join(",")
 }

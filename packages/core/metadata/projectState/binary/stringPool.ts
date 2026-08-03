@@ -1,10 +1,22 @@
 import { xxh3 } from "@node-rs/xxhash"
-import { buildBinaryHashIndex, type BinaryHashIndex } from "./hashIndex"
-import { ProjectStateStringRecordView } from "./layouts"
+import {
+  buildBinaryHashIndex,
+  findBinaryHashIndex,
+  forEachBinaryHashIndexEntry,
+  type BinaryHashIndex,
+} from "./hashIndex"
+import {
+  ProjectStateHashSlotRecordView,
+  ProjectStateStringRecordView,
+  ProjectStateStringSectionHeaderView,
+} from "./layouts"
 
 export interface BinaryStringPool {
   readonly records: SharedArrayBuffer
+  readonly recordsByteOffset?: number
   readonly utf8: SharedArrayBuffer
+  readonly utf8ByteOffset?: number
+  readonly utf8ByteLength?: number
   readonly lookup: BinaryHashIndex
   readonly count: number
 }
@@ -22,15 +34,28 @@ function bytesEqual(left: Uint8Array, right: Uint8Array): boolean {
 }
 
 export class BinaryStringPoolBuilder {
+  readonly #base?: BinaryStringPool
   readonly #values: Uint8Array[] = []
   readonly #hashes: bigint[] = []
   #slots = new Uint32Array(8)
+
+  constructor(base?: BinaryStringPool) {
+    this.#base = base
+  }
 
   intern(value: string): number {
     const utf8 = textEncoder.encode(value)
     const hash = xxh3.xxh64(utf8)
     const existing = this.#find(hash, utf8)
-    if (existing !== undefined) return existing
+    if (existing !== undefined) return this.#baseCount + existing
+    if (this.#base !== undefined) {
+      const baseId = findBinaryHashIndex(
+        this.#base.lookup,
+        hash,
+        (id) => binaryStringEquals(this.#base!, id, utf8),
+      )
+      if (baseId !== undefined) return baseId
+    }
 
     if ((this.#values.length + 1) / this.#slots.length > MAX_LOAD_FACTOR) {
       this.#resize(this.#slots.length * 2)
@@ -40,20 +65,41 @@ export class BinaryStringPoolBuilder {
     this.#values.push(utf8)
     this.#hashes.push(hash)
     this.#insert(id)
-    return id
+    return this.#baseCount + id
   }
 
   finish(): BinaryStringPool {
-    const totalUtf8Bytes = this.#values.reduce((total, value) => total + value.byteLength, 0)
+    const baseUtf8Bytes = this.#base?.utf8ByteLength ?? this.#base?.utf8.byteLength ?? 0
+    const appendedUtf8Bytes = this.#values.reduce((total, value) => total + value.byteLength, 0)
+    const totalUtf8Bytes = baseUtf8Bytes + appendedUtf8Bytes
+    const count = this.#baseCount + this.#values.length
     const records = new SharedArrayBuffer(
-      this.#values.length * ProjectStateStringRecordView.viewLength,
+      count * ProjectStateStringRecordView.viewLength,
     )
     const utf8 = new SharedArrayBuffer(totalUtf8Bytes)
     const recordsView = new DataView(records)
     const utf8View = new Uint8Array(utf8)
-    let offset = 0
+    let offset = baseUtf8Bytes
 
-    this.#values.forEach((value, id) => {
+    if (this.#base !== undefined) {
+      new Uint8Array(records).set(
+        new Uint8Array(
+          this.#base.records,
+          this.#base.recordsByteOffset ?? 0,
+          this.#base.count * ProjectStateStringRecordView.viewLength,
+        ),
+      )
+      utf8View.set(
+        new Uint8Array(
+          this.#base.utf8,
+          this.#base.utf8ByteOffset ?? 0,
+          baseUtf8Bytes,
+        ),
+      )
+    }
+
+    this.#values.forEach((value, localId) => {
+      const id = this.#baseCount + localId
       utf8View.set(value, offset)
       ProjectStateStringRecordView.encode(
         { offset, byteLength: value.byteLength },
@@ -66,12 +112,32 @@ export class BinaryStringPoolBuilder {
     return {
       records,
       utf8,
-      lookup: buildBinaryHashIndex(
-        BigUint64Array.from(this.#hashes),
-        Uint32Array.from({ length: this.#values.length }, (_, id) => id),
-      ),
-      count: this.#values.length,
+      utf8ByteOffset: 0,
+      utf8ByteLength: totalUtf8Bytes,
+      lookup: this.#buildLookup(count),
+      count,
     }
+  }
+
+  get #baseCount(): number {
+    return this.#base?.count ?? 0
+  }
+
+  #buildLookup(count: number): BinaryHashIndex {
+    const hashes = new BigUint64Array(count)
+    if (this.#base !== undefined) {
+      forEachBinaryHashIndexEntry(this.#base.lookup, (hash, id) => {
+        if (id >= this.#baseCount) throw new Error("Повреждён индекс строк исходного снимка")
+        hashes[id] = hash
+      })
+    }
+    this.#hashes.forEach((hash, localId) => {
+      hashes[this.#baseCount + localId] = hash
+    })
+    return buildBinaryHashIndex(
+      hashes,
+      Uint32Array.from({ length: count }, (_, id) => id),
+    )
   }
 
   #find(hash: bigint, utf8: Uint8Array): number | undefined {
@@ -109,12 +175,14 @@ function readStringBytes(pool: BinaryStringPool, id: number): Uint8Array<SharedA
 
   const record = ProjectStateStringRecordView.decode(
     new DataView(pool.records),
-    id * ProjectStateStringRecordView.viewLength,
+    (pool.recordsByteOffset ?? 0) + id * ProjectStateStringRecordView.viewLength,
   )
-  if (record.offset + record.byteLength > pool.utf8.byteLength) {
+  const utf8ByteOffset = pool.utf8ByteOffset ?? 0
+  const utf8ByteLength = pool.utf8ByteLength ?? pool.utf8.byteLength
+  if (record.offset + record.byteLength > utf8ByteLength) {
     throw new Error(`Повреждена строка с идентификатором ${id}`)
   }
-  return new Uint8Array(pool.utf8, record.offset, record.byteLength)
+  return new Uint8Array(pool.utf8, utf8ByteOffset + record.offset, record.byteLength)
 }
 
 export function readBinaryString(pool: BinaryStringPool, id: number): string {
@@ -127,4 +195,90 @@ export function binaryStringEquals(
   utf8: Uint8Array,
 ): boolean {
   return bytesEqual(readStringBytes(pool, id), utf8)
+}
+
+export function packBinaryStringPool(pool: BinaryStringPool): SharedArrayBuffer {
+  const recordsByteLength = pool.count * ProjectStateStringRecordView.viewLength
+  const utf8ByteLength = pool.utf8ByteLength ?? pool.utf8.byteLength
+  const lookupByteLength =
+    pool.lookup.capacity * ProjectStateHashSlotRecordView.viewLength
+  const recordsOffset = ProjectStateStringSectionHeaderView.viewLength
+  const utf8Offset = recordsOffset + recordsByteLength
+  const lookupOffset = utf8Offset + utf8ByteLength
+  const buffer = new SharedArrayBuffer(lookupOffset + lookupByteLength)
+  const bytes = new Uint8Array(buffer)
+
+  bytes.set(
+    new Uint8Array(
+      pool.records,
+      pool.recordsByteOffset ?? 0,
+      recordsByteLength,
+    ),
+    recordsOffset,
+  )
+  bytes.set(
+    new Uint8Array(
+      pool.utf8,
+      pool.utf8ByteOffset ?? 0,
+      utf8ByteLength,
+    ),
+    utf8Offset,
+  )
+  bytes.set(
+    new Uint8Array(
+      pool.lookup.slots,
+      pool.lookup.byteOffset ?? 0,
+      lookupByteLength,
+    ),
+    lookupOffset,
+  )
+  ProjectStateStringSectionHeaderView.encode(
+    {
+      count: pool.count,
+      recordsOffset,
+      utf8Offset,
+      utf8ByteLength,
+      lookupOffset,
+      lookupSize: pool.lookup.size,
+      lookupCapacity: pool.lookup.capacity,
+    },
+    new DataView(buffer),
+  )
+  return buffer
+}
+
+export function openBinaryStringPool(buffer: SharedArrayBuffer): BinaryStringPool {
+  if (buffer.byteLength < ProjectStateStringSectionHeaderView.viewLength) {
+    throw new Error("Раздел строк оборван")
+  }
+  const header = ProjectStateStringSectionHeaderView.decode(new DataView(buffer))
+  const recordsByteLength = header.count * ProjectStateStringRecordView.viewLength
+  const lookupByteLength =
+    header.lookupCapacity * ProjectStateHashSlotRecordView.viewLength
+  if (
+    header.recordsOffset !== ProjectStateStringSectionHeaderView.viewLength ||
+    header.utf8Offset !== header.recordsOffset + recordsByteLength ||
+    header.lookupOffset !== header.utf8Offset + header.utf8ByteLength ||
+    header.lookupOffset + lookupByteLength !== buffer.byteLength ||
+    header.lookupSize !== header.count ||
+    header.lookupCapacity < 1 ||
+    (header.lookupCapacity & (header.lookupCapacity - 1)) !== 0
+  ) {
+    throw new Error("Повреждена структура раздела строк")
+  }
+
+  return {
+    records: buffer,
+    recordsByteOffset: header.recordsOffset,
+    utf8: buffer,
+    utf8ByteOffset: header.utf8Offset,
+    utf8ByteLength: header.utf8ByteLength,
+    lookup: {
+      slots: buffer,
+      byteOffset: header.lookupOffset,
+      size: header.lookupSize,
+      capacity: header.lookupCapacity,
+    },
+    count: header.count,
+  }
 }

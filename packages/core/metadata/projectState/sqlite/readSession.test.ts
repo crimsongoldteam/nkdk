@@ -63,7 +63,7 @@ it("проверяет и одноразово закрывает token в от�
   storeYaml(fixture, update)
   const token = fixture.store.createReadToken()
 
-  const result = await workerHarness.run(token)
+  const result = await workerHarness.run(sqliteToken(token))
 
   expect(result).toEqual({
     requestId: "worker",
@@ -77,8 +77,9 @@ it("проверяет и одноразово закрывает token в от�
 it("атомарно заявляет tokenNonce при передаче независимой копии token в worker thread", async () => {
   const fixture = createSqliteProjectStateTestFixture()
   const token = fixture.store.createReadToken()
-  const tokenCopy = new Uint8Array(new SharedArrayBuffer(token.byteLength))
-  tokenCopy.set(token)
+  const bytes = sqliteToken(token)
+  const tokenCopy = new Uint8Array(new SharedArrayBuffer(bytes.byteLength))
+  tokenCopy.set(bytes)
 
   await workerHarness.run(tokenCopy)
 
@@ -87,7 +88,7 @@ it("атомарно заявляет tokenNonce при передаче нез�
 
 it("координированно закрывает внешний worker-сеанс вместе с хранилищем", async () => {
   const fixture = createSqliteProjectStateTestFixture()
-  const closed = workerHarness.waitForClose(fixture.store.createReadToken())
+  const closed = workerHarness.waitForClose(sqliteToken(fixture.store.createReadToken()))
   const staleToken = fixture.store.createReadToken()
 
   await closed.opened
@@ -122,6 +123,11 @@ function yaml(projectPath: string, canonical: string): ProjectStateYamlFileUpdat
     pendingChecks: [],
     dependencies: [],
   }
+}
+
+function sqliteToken(token: ReturnType<SqliteProjectStateStoreFixture["store"]["createReadToken"]>): Uint8Array {
+  if (!(token instanceof Uint8Array)) throw new Error("Ожидался SQLite token")
+  return token
 }
 
 function storeYaml(fixture: SqliteProjectStateStoreFixture, update: ProjectStateYamlFileUpdate): void {

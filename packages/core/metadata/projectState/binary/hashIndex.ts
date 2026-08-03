@@ -2,6 +2,7 @@ import { ProjectStateHashSlotRecordView } from "./layouts"
 
 export interface BinaryHashIndex {
   readonly slots: SharedArrayBuffer
+  readonly byteOffset?: number
   readonly size: number
   readonly capacity: number
 }
@@ -23,8 +24,8 @@ function initialSlot(hash: bigint, capacity: number): number {
   return Number(hash & BigInt(capacity - 1))
 }
 
-function slotOffset(slot: number): number {
-  return slot * ProjectStateHashSlotRecordView.viewLength
+function slotOffset(index: BinaryHashIndex, slot: number): number {
+  return (index.byteOffset ?? 0) + slot * ProjectStateHashSlotRecordView.viewLength
 }
 
 export function buildBinaryHashIndex(
@@ -39,13 +40,14 @@ export function buildBinaryHashIndex(
   const capacity = capacityFor(size)
   const slots = new SharedArrayBuffer(capacity * ProjectStateHashSlotRecordView.viewLength)
   const view = new DataView(slots)
+  const builtIndex = { slots, byteOffset: 0, size, capacity }
 
-  for (let index = 0; index < size; index += 1) {
-    const hash = hashes[index]
+  for (let entryIndex = 0; entryIndex < size; entryIndex += 1) {
+    const hash = hashes[entryIndex]
     let slot = initialSlot(hash, capacity)
 
     while (
-      ProjectStateHashSlotRecordView.decode(view, slotOffset(slot)).occupied !== 0
+      ProjectStateHashSlotRecordView.decode(view, slotOffset(builtIndex, slot)).occupied !== 0
     ) {
       slot = (slot + 1) & (capacity - 1)
     }
@@ -53,17 +55,17 @@ export function buildBinaryHashIndex(
     ProjectStateHashSlotRecordView.encode(
       {
         hash,
-        recordId: recordIds[index],
+        recordId: recordIds[entryIndex],
         occupied: 1,
         reserved8: 0,
         reserved16: 0,
       },
       view,
-      slotOffset(slot),
+      slotOffset(builtIndex, slot),
     )
   }
 
-  return { slots, size, capacity }
+  return builtIndex
 }
 
 export function findBinaryHashIndex(
@@ -75,7 +77,7 @@ export function findBinaryHashIndex(
   let slot = initialSlot(hash, index.capacity)
 
   for (let probes = 0; probes < index.capacity; probes += 1) {
-    const record = ProjectStateHashSlotRecordView.decode(view, slotOffset(slot))
+    const record = ProjectStateHashSlotRecordView.decode(view, slotOffset(index, slot))
 
     if (record.occupied === 0) {
       return undefined
@@ -88,4 +90,15 @@ export function findBinaryHashIndex(
   }
 
   return undefined
+}
+
+export function forEachBinaryHashIndexEntry(
+  index: BinaryHashIndex,
+  visit: (hash: bigint, recordId: number) => void,
+): void {
+  const view = new DataView(index.slots)
+  for (let slot = 0; slot < index.capacity; slot += 1) {
+    const record = ProjectStateHashSlotRecordView.decode(view, slotOffset(index, slot))
+    if (record.occupied !== 0) visit(record.hash, record.recordId)
+  }
 }
