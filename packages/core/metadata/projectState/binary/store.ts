@@ -36,6 +36,7 @@ import {
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
+import { openProjectStateFragment, type ProjectStateFragmentView } from "./fragment"
 
 export interface BinaryProjectStateStoreOptions {
   readonly initial?: ProjectStateSharedBuffers
@@ -50,6 +51,7 @@ export interface BinaryProjectStateStoreFixture {
 
 interface ActiveUpdate {
   readonly replacements: Map<string, ProjectStateSnapshotPatch>
+  readonly fragments: ProjectStateFragmentView[]
   readonly deletions: Set<string>
   candidate?: ProjectStateSharedBuffers
 }
@@ -59,7 +61,7 @@ const YAML_ROLES = [undefined, "configuration", "properties", "form"] as const
 export function createBinaryProjectStateStore(
   options: BinaryProjectStateStoreOptions = {},
 ): BinaryProjectStateStoreFixture {
-  let published = options.initial ?? buildProjectStateSnapshot({ replacements: [], deletions: [] })
+  let published = options.initial ?? buildProjectStateSnapshot({ fragments: [], deletions: [] })
   let active: ActiveUpdate | undefined
   let closed = false
 
@@ -102,7 +104,16 @@ export function createBinaryProjectStateStore(
     beginUpdate() {
       assertOpen()
       if (active !== undefined) throw new Error("Обновление состояния проекта уже начато")
-      active = { replacements: new Map(), deletions: new Set() }
+      active = { replacements: new Map(), fragments: [], deletions: new Set() }
+    },
+    appendFragment(fragment) {
+      assertOpen()
+      const update = assertActive()
+      if (update.replacements.size > 0) {
+        throw new Error("Нельзя смешивать предметные пакеты и двоичные фрагменты")
+      }
+      update.fragments.push(openProjectStateFragment(fragment))
+      update.candidate = undefined
     },
     replaceFiles(batch) {
       assertOpen()
@@ -253,12 +264,10 @@ export function createBinaryProjectStateStore(
   }
 
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
-    if (update.replacements.size === 0 && update.deletions.size === 0) return published
-    update.candidate ??= buildProjectStateSnapshot({
-      base: published,
-      replacements: [...update.replacements.values()],
-      deletions: [...update.deletions],
-    })
+    if (update.replacements.size === 0 && update.fragments.length === 0 && update.deletions.size === 0) return published
+    update.candidate ??= update.fragments.length > 0
+      ? buildProjectStateSnapshot({ base: published, fragments: update.fragments, deletions: [...update.deletions] })
+      : buildProjectStateSnapshot({ base: published, replacements: [...update.replacements.values()], deletions: [...update.deletions] })
     return update.candidate
   }
 
@@ -271,6 +280,9 @@ export function createBinaryProjectStateStore(
 }
 
 function replace(active: ActiveUpdate, update: ProjectStateFileUpdate, hash: bigint): void {
+  if (active.fragments.length > 0) {
+    throw new Error("Нельзя смешивать предметные пакеты и двоичные фрагменты")
+  }
   active.deletions.delete(update.projectPath)
   active.replacements.set(update.projectPath, { update, hash })
   active.candidate = undefined

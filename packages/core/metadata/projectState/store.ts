@@ -13,6 +13,7 @@ import type {
   ProjectStateEncodedImportFinalBatch,
   ProjectStateEncodedImportIndexBatch,
 } from "./binary/contribution"
+import type { ProjectStateFragment } from "./binary/fragment"
 
 export interface ProjectStateFileChange {
   readonly index: number
@@ -52,6 +53,7 @@ export interface ProjectStateStore {
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void
+  appendFragment(fragment: ProjectStateFragment): void
   replaceFiles(batch: ProjectStateEncodedFileUpdateBatch): void
   replaceImportIndex(batch: ProjectStateEncodedImportIndexBatch): void
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): void

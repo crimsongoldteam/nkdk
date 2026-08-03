@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { encodeProjectStateFileUpdateBatch } from "./binary/contribution"
 import { createProjectStateFileUpdateBatch } from "./fileUpdate"
+import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { trackTempProjectDirs } from "./tests/tempProjectDir"
 import {
   createProjectStateWriterHandle,
@@ -64,6 +65,23 @@ describe("владелец состояния проекта в главном �
     await handle.rollbackUpdate()
 
     expect(save).not.toHaveBeenCalled()
+    await expect(handle.readComponentProjection("cf")).resolves.toMatchObject({ updates: [] })
+  })
+
+  it("передаёт двоичный фрагмент хранилищу и публикует его только при commit", async () => {
+    const handle = createHandle(async () => undefined)
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile({
+      kind: "resource", projectPath: "cf/a.bin", componentPath: "cf", resourceKind: "resource",
+    }, 1n)
+    await handle.beginUpdate("/project")
+
+    await handle.writeFragment(writer.finish())
+    await expect(handle.readComponentProjection("cf")).resolves.toMatchObject({
+      updates: [{ projectPath: "cf/a.bin" }],
+    })
+
+    await handle.rollbackUpdate()
     await expect(handle.readComponentProjection("cf")).resolves.toMatchObject({ updates: [] })
   })
 

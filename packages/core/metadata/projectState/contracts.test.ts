@@ -248,6 +248,9 @@ function createTestStoreContractFixture() {
       staged = new Map(committed)
       stagedIdentities = new Map(committedIdentities)
     },
+    appendFragment() {
+      throw new Error("Не используется в этом договоре")
+    },
     replaceFiles(batch) {
       if (staged === undefined) throw new Error("Нет активного обновления")
       const encoded = openProjectStateFileUpdateBatch(batch)

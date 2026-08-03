@@ -881,6 +881,7 @@ function testWriterHandle(id: number): TestWriter {
       }
     },
     async beginUpdate() {},
+    async writeFragment() {},
     async writeBatch() {},
     async writeImportIndexBatch() {},
     async registerImportFileIdentities() {},

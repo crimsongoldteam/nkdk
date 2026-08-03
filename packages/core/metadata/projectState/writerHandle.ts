@@ -3,6 +3,7 @@ import type { Diagnostic } from "../validation/types"
 import { createBinaryProjectStateStore } from "./binary/store"
 import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
 import type { ProjectStateSharedBuffers } from "./binary/snapshot"
+import type { ProjectStateFragment } from "./binary/fragment"
 import {
   openProjectStateImportFinalBatch,
   openProjectStateImportIndexBatch,
@@ -53,6 +54,7 @@ export interface ProjectStateWriterHandle {
   createReadToken(): Promise<ProjectStateReadToken>
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
+  writeFragment(fragment: ProjectStateFragment): Promise<void>
   writeBatch(batch: ProjectStateEncodedFileUpdateBatch): Promise<void>
   writeImportIndexBatch(batch: ProjectStateEncodedImportIndexBatch): Promise<void>
   registerImportFileIdentities(files: readonly ProjectStateFileIdentity[]): Promise<void>
@@ -130,6 +132,11 @@ export function createProjectStateWriterHandle(
       assertNotCancelled()
       openProjectStateFileUpdateBatch(batch)
       requireStore().replaceFiles(batch)
+    },
+    async writeFragment(fragment) {
+      assertOperation()
+      assertNotCancelled()
+      requireStore().appendFragment(fragment)
     },
     async writeImportIndexBatch(batch) {
       assertOperation()

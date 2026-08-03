@@ -3,6 +3,7 @@ import { runProjectStateStoreContract } from "../storeContract"
 import { encodeProjectStateFileUpdateBatch } from "./contribution"
 import { createBinaryProjectStateTestFixture } from "./testFixture"
 import { yamlUpdate } from "./testData"
+import { createProjectStateFragmentWriter } from "./fragment"
 
 describe("BinaryProjectStateStore", () => {
   runProjectStateStoreContract(() => createBinaryProjectStateTestFixture())
@@ -35,5 +36,35 @@ describe("BinaryProjectStateStore", () => {
     }])).toEqual([{ requestId: "published", status: "missing" }])
     publishedSession.close()
     expect(store.readComponentProjection("cf").updates).toEqual([initial])
+  })
+
+  it("принимает непрозрачный фрагмент и публикует его одной заменой", () => {
+    const { store, openReadSession } = createBinaryProjectStateTestFixture()
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile(yamlUpdate("cf/Новый.yaml", "cf", "Catalog.Новый"), 7n)
+
+    store.beginUpdate()
+    store.appendFragment(writer.finish())
+    store.commitUpdate()
+
+    const session = openReadSession(store.createReadToken())
+    expect(session.resolveTargets([{
+      requestId: "new", componentPath: "cf", canonicalTarget: "Catalog.Новый",
+    }])[0]).toMatchObject({ status: "found" })
+    session.close()
+  })
+
+  it("отвергает повреждённый фрагмент до публикации", () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    const writer = createProjectStateFragmentWriter()
+    writer.appendFile(yamlUpdate("cf/Новый.yaml", "cf", "Catalog.Новый"), 7n)
+    const fragment = writer.finish()
+    new Uint8Array(fragment.buffers.header)[0] ^= 0xff
+
+    store.beginUpdate()
+    expect(() => store.appendFragment(fragment)).toThrow(/сигнатур/iu)
+    store.rollbackUpdate()
+
+    expect(store.compareFiles({ files: [], hashBytes: new Uint8Array() })).toEqual({ changed: [], deleted: [] })
   })
 })
