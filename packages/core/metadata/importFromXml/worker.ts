@@ -90,6 +90,7 @@ interface FirstPassAccumulator {
   readonly files: ImportResultFile[]
   readonly configurationFragments: ConfigurationSnapshotFragment[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
+  readonly profiler: ValidationProfiler
   stateEntries: number
 }
 
@@ -98,6 +99,7 @@ interface SecondPassAccumulator {
   readonly warnings: ImportDiagnostic[]
   readonly files: ImportResultFile[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
+  readonly profiler: ValidationProfiler
   stateEntries: number
 }
 
@@ -115,7 +117,6 @@ export async function runImportWorkerCommand(
     preparedYaml.clear()
     assignedImportIds.clear()
     firstPassAccumulator?.fragmentWriter.discard()
-    firstPassAccumulator = createFirstPassAccumulator()
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
@@ -129,6 +130,7 @@ export async function runImportWorkerCommand(
       rulesSnapshot: options.persistentValidationState?.rulesSnapshot
         ?? createValidationRulesSnapshot(command.context),
     }
+    firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined
   }
 
@@ -151,7 +153,7 @@ export async function runImportWorkerCommand(
   if (command.kind === "beginSecondPass") {
     beginSecondPass(command.readToken, requireInitializedState())
     secondPassAccumulator?.fragmentWriter.discard()
-    secondPassAccumulator = createSecondPassAccumulator()
+    secondPassAccumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     return undefined
   }
 
@@ -179,12 +181,12 @@ export async function runImportWorkerCommand(
   }
 
   if (command.kind === "secondPass") {
-    const accumulator = createSecondPassAccumulator()
+    const accumulator = createSecondPassAccumulator(requireInitializedState().workerIndex)
     await processSecondPass(command.assignmentId, requireInitializedState(), accumulator)
     return finishSecondPass(accumulator)
   }
 
-  const accumulator = createFirstPassAccumulator()
+  const accumulator = createFirstPassAccumulator(requireInitializedState().workerIndex)
   await processFirstPass(command.assignments, requireInitializedState(), accumulator)
   return finishFirstPass(accumulator)
 }
@@ -197,11 +199,7 @@ async function processSecondPass(
   if (!assignedImportIds.has(assignmentId)) {
     throw new Error(`Задание ${assignmentId} не принадлежит этой линии import`)
   }
-  const profiler = createOperationProfiler({
-    operation: "import-from-xml",
-    scope: { scope: "worker", workerIndex: state.workerIndex },
-    aggregate: true,
-  })
+  const profiler = accumulator.profiler
   const secondPass = activeSecondPass
   if (secondPass === undefined) throw new Error("Второй проход XML-import worker не начат")
   const prepared = preparedYaml.get(assignmentId)
@@ -234,17 +232,19 @@ async function processSecondPass(
   profiler.flush()
 }
 
-function createSecondPassAccumulator(): SecondPassAccumulator {
+function createSecondPassAccumulator(workerIndex: number): SecondPassAccumulator {
   return {
     diagnostics: [],
     warnings: [],
     files: [],
     fragmentWriter: createProjectStateFragmentWriter(),
+    profiler: createImportWorkerProfiler(workerIndex),
     stateEntries: 0,
   }
 }
 
 function finishSecondPass(accumulator: SecondPassAccumulator): ImportSecondPassResult {
+  accumulator.profiler.flush()
   return {
     kind: "secondPassResult",
     diagnostics: accumulator.diagnostics,
@@ -358,11 +358,7 @@ async function processFirstPass(
   state: InitializedImportWorkerState,
   accumulator: FirstPassAccumulator,
 ): Promise<void> {
-  const profiler = createOperationProfiler({
-    operation: "import-from-xml",
-    scope: { scope: "worker", workerIndex: state.workerIndex },
-    aggregate: true,
-  })
+  const profiler = accumulator.profiler
   let earlyYamlCount = 0
   let earlyYamlBytes = 0
   let retainedYamlCount = 0
@@ -473,15 +469,15 @@ async function processFirstPass(
     items: deferredValueCount,
     timeMs: 0,
   })
-  profiler.flush()
 }
 
-function createFirstPassAccumulator(): FirstPassAccumulator {
+function createFirstPassAccumulator(workerIndex: number): FirstPassAccumulator {
   return {
     diagnostics: [],
     files: [],
     configurationFragments: [],
     fragmentWriter: createProjectStateFragmentWriter(),
+    profiler: createImportWorkerProfiler(workerIndex),
     stateEntries: 0,
   }
 }
@@ -497,6 +493,7 @@ function requireSecondPassAccumulator(): SecondPassAccumulator {
 }
 
 function finishFirstPass(accumulator: FirstPassAccumulator): ImportFirstPassResult {
+  accumulator.profiler.flush()
   return {
     kind: "firstPassResult",
     diagnostics: accumulator.diagnostics,
@@ -506,6 +503,14 @@ function finishFirstPass(accumulator: FirstPassAccumulator): ImportFirstPassResu
       ? (accumulator.fragmentWriter.discard(), {})
       : { stateFragment: accumulator.fragmentWriter.finish() }),
   }
+}
+
+function createImportWorkerProfiler(workerIndex: number): ValidationProfiler {
+  return createOperationProfiler({
+    operation: "import-from-xml",
+    scope: { scope: "worker", workerIndex },
+    aggregate: true,
+  })
 }
 
 export function createFirstPassTransferable(result: ImportFirstPassResult) {
