@@ -9,7 +9,6 @@ import type {
 } from "./readSession"
 import type {
   ProjectStateFileBaseline,
-  ProjectStateFileBaselinePage,
   ProjectStateFileBaselinePathPage,
   ProjectStateFileHashBatch,
   ProjectStateReadToken,
@@ -52,7 +51,6 @@ export interface ProjectStateComponentProjection {
 
 export interface ProjectStateStore {
   readFileBaseline(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaseline
-  readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): ProjectStateFileBaselinePage
   readFileBaselinePathPage(projectPaths: readonly string[]): ProjectStateFileBaselinePathPage
   compareFiles(current: ProjectStateFileHashBatch): ProjectStateFileChanges
   beginUpdate(): void

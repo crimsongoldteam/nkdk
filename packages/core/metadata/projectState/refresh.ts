@@ -8,10 +8,11 @@ import {
 import type { Diagnostic } from "../validation/types"
 import { dedupeDiagnostics, sortDiagnostics } from "../validation/diagnostics"
 import type { ProjectStateFragment } from "./binary/fragment"
-import type { ProjectStateFileBaselinePage, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
 import {
   discoverProjectStateValidationFileBatches,
   type ProjectStateDiscoveredFileBatch,
+  type ProjectStateValidationFileTask,
 } from "./projectFiles"
 
 export interface ProjectStateRefreshStats {
@@ -59,7 +60,7 @@ export interface ProjectStateProfileOptions {
 }
 
 export interface ProjectStateRefreshHandle {
-  readFileBaselinePage(files: readonly import("./fileUpdate").ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage>
+  readFileBaselinePathPage(projectPaths: readonly string[]): Promise<ProjectStateFileBaselinePathPage>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
   writeFragment(fragment: ProjectStateFragment): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
@@ -94,8 +95,8 @@ export interface ProjectStateRefreshDependencies {
   ) => Promise<ProjectStateValidationStats>
 }
 
-export interface ProjectStateValidationFileBatch extends ProjectStateFileBaselinePage {
-  readonly files: ProjectStateDiscoveredFileBatch["files"]
+export interface ProjectStateValidationFileBatch extends ProjectStateFileBaselinePathPage {
+  readonly files: readonly ProjectStateValidationFileTask[]
 }
 
 export function createProjectStateRefreshDependencies(params: {
@@ -180,7 +181,7 @@ export async function refreshProjectState(
 
 function createBaselineScan(
   discovered: AsyncIterable<ProjectStateDiscoveredFileBatch>,
-  handle: Pick<ProjectStateRefreshHandle, "readFileBaselinePage">,
+  handle: Pick<ProjectStateRefreshHandle, "readFileBaselinePathPage">,
   signal: AbortSignal,
 ): { readonly batches: AsyncIterable<ProjectStateValidationFileBatch>; finish(): Promise<Uint8Array> } {
   let storedFileCount: number | undefined
@@ -189,14 +190,15 @@ function createBaselineScan(
   const batches = (async function* () {
     for await (const batch of discovered) {
       signal.throwIfAborted()
-      const baseline = await handle.readFileBaselinePage(batch.files.map(({ identity }) => identity))
+      const baseline = await handle.readFileBaselinePathPage(batch.paths.map(({ projectPath }) => projectPath))
       storedFileCount ??= baseline.storedFileCount
       if (baseline.storedFileCount !== storedFileCount) throw new Error("Сохранённое состояние изменилось во время обнаружения файлов")
       seenFileIds ??= new Uint8Array(Math.ceil(storedFileCount / 8))
       for (const fileId of baseline.previousFileIds) {
         if (fileId >= 0) seenFileIds[Math.floor(fileId / 8)]! |= 1 << (fileId % 8)
       }
-      yield { files: batch.files, ...baseline }
+      const selected = selectValidationFiles(batch, baseline)
+      if (selected.files.length > 0) yield selected
     }
     completed = true
   })()
@@ -205,9 +207,58 @@ function createBaselineScan(
     async finish() {
       if (!completed) throw new Error("Обнаружение файлов проекта не завершено")
       if (seenFileIds !== undefined) return seenFileIds
-      const empty = await handle.readFileBaselinePage([])
+      const empty = await handle.readFileBaselinePathPage([])
       return new Uint8Array(Math.ceil(empty.storedFileCount / 8))
     },
+  }
+}
+
+function selectValidationFiles(
+  batch: ProjectStateDiscoveredFileBatch,
+  baseline: ProjectStateFileBaselinePathPage,
+): ProjectStateValidationFileBatch {
+  const files: ProjectStateValidationFileTask[] = []
+  const known: boolean[] = []
+  const hashes: Uint8Array[] = []
+  const previousFileIds: number[] = []
+  batch.paths.forEach((path, index) => {
+    const previousFileId = baseline.previousFileIds[index]!
+    if (previousFileId >= 0) {
+      files.push({
+        projectPath: path.projectPath,
+        componentPath: path.componentPath,
+        absolutePath: path.absolutePath,
+      })
+      known.push(true)
+      hashes.push(baseline.hashBytes.slice(index * 8, (index + 1) * 8))
+      previousFileIds.push(previousFileId)
+      return
+    }
+    const discovered = path.classify()
+    if (discovered === undefined) return
+    files.push({
+      projectPath: discovered.identity.projectPath,
+      componentPath: discovered.identity.componentPath,
+      absolutePath: discovered.absolutePath,
+      identity: discovered.identity,
+      ...(discovered.descriptor === undefined ? {} : { descriptor: discovered.descriptor }),
+    })
+    known.push(false)
+    hashes.push(new Uint8Array(8))
+    previousFileIds.push(-1)
+  })
+  const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
+  known.forEach((value, index) => {
+    if (value) knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+  })
+  const hashBytes = new Uint8Array(files.length * 8)
+  hashes.forEach((hash, index) => hashBytes.set(hash, index * 8))
+  return {
+    files,
+    knownHashBits,
+    hashBytes,
+    previousFileIds: Int32Array.from(previousFileIds),
+    storedFileCount: baseline.storedFileCount,
   }
 }
 

@@ -80,19 +80,16 @@ describe("BinaryProjectStateStore", () => {
     store.appendFragment(writer.finish())
     expect(store.commitUpdate()).toBe(true)
 
-    const page = store.readFileBaselinePage([first])
-    expect(page.storedFileCount).toBe(2)
-    expect(page.previousFileIds[0]).toBeGreaterThanOrEqual(0)
-    expect(new DataView(page.hashBytes.buffer).getBigUint64(0, false)).toBe(11n)
-
     const pathPage = store.readFileBaselinePathPage([first.projectPath, "cf/Новый.yaml"])
+    expect(pathPage.storedFileCount).toBe(2)
     expect(pathPage.knownHashBits).toEqual(Uint8Array.of(0b0000_0001))
-    expect(Array.from(pathPage.previousFileIds)).toEqual([page.previousFileIds[0], -1])
+    expect(pathPage.previousFileIds[0]).toBeGreaterThanOrEqual(0)
+    expect(Array.from(pathPage.previousFileIds)).toEqual([pathPage.previousFileIds[0], -1])
     expect(new DataView(pathPage.hashBytes.buffer).getBigUint64(0, false)).toBe(11n)
 
     store.beginUpdate()
     const seen = new Uint8Array(1)
-    seen[0] = 1 << page.previousFileIds[0]!
+    seen[0] = 1 << pathPage.previousFileIds[0]!
     expect(store.deleteUnseenFiles(seen)).toBe(1)
     expect(store.commitUpdate()).toBe(true)
     expect(store.readComponentProjection("cf").updates).toEqual([first])

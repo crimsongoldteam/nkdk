@@ -75,24 +75,6 @@ export function createBinaryProjectStateStore(
       assertProjectStateFileBaseline(result, files.length)
       return result
     },
-    readFileBaselinePage(files) {
-      assertOpen()
-      const snapshot = new ProjectStateSnapshotView(published)
-      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
-      const hashBytes = new Uint8Array(files.length * 8)
-      const previousFileIds = new Int32Array(files.length).fill(-1)
-      const hashes = new DataView(hashBytes.buffer)
-      files.forEach((file, index) => {
-        const fileId = snapshot.findFile(file.projectPath)
-        if (fileId === undefined || !sameIdentity(snapshotIdentity(snapshot, fileId), file)) return
-        previousFileIds[index] = fileId
-        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
-        hashes.setBigUint64(index * 8, snapshot.fileRecord(fileId).hash, false)
-      })
-      const result = { knownHashBits, hashBytes, previousFileIds, storedFileCount: snapshot.fileCount }
-      assertProjectStateFileBaselinePage(result, files.length)
-      return result
-    },
     readFileBaselinePathPage(projectPaths) {
       assertOpen()
       const snapshot = new ProjectStateSnapshotView(published)

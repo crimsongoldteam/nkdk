@@ -15,8 +15,6 @@ export interface ProjectStateValidationFile {
 
 export interface ProjectStateDiscoveredFileBatch {
   readonly paths: readonly ProjectStateDiscoveredPath[]
-  /** Переходный ленивый договор до перевода refresh на paths. */
-  readonly files: readonly ProjectStateValidationFile[]
 }
 
 export interface ProjectStateDiscoveredPath {
@@ -24,6 +22,14 @@ export interface ProjectStateDiscoveredPath {
   readonly componentPath: string
   readonly absolutePath: string
   classify(): ProjectStateValidationFile | undefined
+}
+
+export interface ProjectStateValidationFileTask {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly absolutePath: string
+  readonly identity?: ProjectStateFileIdentity
+  readonly descriptor?: PreparedYamlProjectFileDescriptor
 }
 
 export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 512
@@ -100,15 +106,5 @@ function toValidationFile(
 }
 
 function toDiscoveredBatch(paths: readonly ProjectStateDiscoveredPath[]): ProjectStateDiscoveredFileBatch {
-  let files: readonly ProjectStateValidationFile[] | undefined
-  return {
-    paths,
-    get files() {
-      files ??= paths.flatMap((path) => {
-        const file = path.classify()
-        return file === undefined ? [] : [file]
-      })
-      return files
-    },
-  }
+  return { paths }
 }

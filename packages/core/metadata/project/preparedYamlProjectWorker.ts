@@ -1,4 +1,4 @@
-import { resolve } from "node:path"
+import { relative, resolve } from "node:path"
 import { readFile } from "node:fs/promises"
 import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
@@ -23,7 +23,12 @@ import {
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { validationProjectComponentFromAddress } from "../validation/projectComponents"
+import {
+  bindValidationProjectComponent,
+  createValidationProjectComponent,
+  type ValidationProjectComponent,
+  validationProjectComponentFromAddress,
+} from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import {
   extractProjectValidationFileFacts,
@@ -51,6 +56,9 @@ import type {
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
 } from "./preparedYamlProject"
+import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
+import { classifyMetadataProjectPath } from "./resources"
+import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
@@ -133,6 +141,7 @@ export async function runPreparedYamlProjectWorkerTask(
     createValidationSchemaCache?: typeof createProjectValidationWorkerSchemaCache
     readFile?: (absolutePath: string) => Promise<Uint8Array>
     hashBytes?: (bytes: Uint8Array) => bigint
+    classifyProjectStateFile?: typeof classifyChangedProjectStateFile
   } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
@@ -143,6 +152,13 @@ export async function runPreparedYamlProjectWorkerTask(
       })
     )
     validationRulesSnapshot = message.rulesSnapshot
+    projectStateComponentTemplates = {
+      configuration: createValidationProjectComponent("/", { kind: "configuration" }),
+      configurationExtension: createValidationProjectComponent("/", {
+        kind: "configurationExtension",
+        name: "Шаблон",
+      }),
+    }
     const compileProfile = { formMs: 0, propertiesMs: 0, totalMs: 0 }
     profiler.flush()
     return { kind: "initValidationResult", ...compileProfile }
@@ -205,17 +221,12 @@ export async function runPreparedYamlProjectWorkerTask(
   return response
 }
 
-export interface ProjectStateValidationFileTask {
-  readonly identity: ProjectStateFileIdentity
-  readonly absolutePath: string
-  readonly descriptor?: PreparedYamlProjectFileDescriptor
-}
-
 async function refreshProjectStateFiles(
   message: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
   dependencies: {
     readFile?: (absolutePath: string) => Promise<Uint8Array>
     hashBytes?: (bytes: Uint8Array) => bigint
+    classifyProjectStateFile?: typeof classifyChangedProjectStateFile
   },
 ): Promise<Extract<PreparedYamlProjectWorkerTaskResult, { kind: "refreshProjectStateResult" }>> {
   const profileEnabled = process.env["NKDK_PROFILE"] === "1"
@@ -258,13 +269,18 @@ async function refreshProjectStateFiles(
         && currentHash === readExpectedHash(message.expectedHashBytes, index)
       if (profileEnabled) compareMs += performance.now() - startedAt
       if (unchanged) continue
-      if (file.identity.resourceKind === "yaml") {
-        if (file.descriptor === undefined) throw new Error(`У YAML отсутствует descriptor: ${file.identity.projectPath}`)
+      const classified = file.identity === undefined
+        ? (dependencies.classifyProjectStateFile ?? classifyChangedProjectStateFile)(file, message.projectDir)
+        : { identity: file.identity, descriptor: file.descriptor }
+      if (classified.identity.resourceKind === "yaml") {
+        if (classified.descriptor === undefined) {
+          throw new Error(`У YAML отсутствует descriptor: ${classified.identity.projectPath}`)
+        }
         yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
         const parsed = processValidationFirstPassFile(yamlValidation, {
           projectDir: message.projectDir,
           context: message.context,
-          descriptor: file.descriptor,
+          descriptor: classified.descriptor,
           bytes,
           hash: currentHash,
         })
@@ -272,11 +288,11 @@ async function refreshProjectStateFiles(
         changedFiles += 1
         continue
       }
-      writer.appendFile({ ...file.identity, kind: "resource" }, currentHash)
+      writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
       changedFiles += 1
     } catch (caught) {
       if (!isMissingFile(caught)) throw caught
-      missingProjectPaths.push(file.identity.projectPath)
+      missingProjectPaths.push(file.projectPath)
     } finally {
       bytes = undefined
     }
@@ -318,6 +334,31 @@ async function refreshProjectStateFiles(
     hashedFiles,
     parsedYamlFiles,
     changedFiles,
+  }
+}
+
+export function classifyChangedProjectStateFile(
+  task: ProjectStateValidationFileTask,
+  projectDir: string,
+): { identity: ProjectStateFileIdentity; descriptor?: PreparedYamlProjectFileDescriptor } {
+  const template = task.componentPath === "cf"
+    ? requireProjectStateComponentTemplates().configuration
+    : requireProjectStateComponentTemplates().configurationExtension
+  const component = bindValidationProjectComponent(template, projectDir, task.componentPath)
+  const componentProjectPath = relative(component.componentDir, task.absolutePath).replace(/\\/g, "/")
+  const resource = classifyMetadataProjectPath(componentProjectPath, component)
+  if (resource === undefined) throw new Error(`Сохранённый путь больше не принадлежит проекту: ${task.projectPath}`)
+  const identity: ProjectStateFileIdentity = {
+    projectPath: task.projectPath,
+    componentPath: task.componentPath,
+    resourceKind: resource.kind,
+    ...(resource.kind === "yaml" ? { yamlRole: resource.role } : {}),
+  }
+  return {
+    identity,
+    ...(resource.kind === "yaml"
+      ? { descriptor: toPreparedYamlProjectFileDescriptor({ ...resource, absolutePath: task.absolutePath }, component) }
+      : {}),
   }
 }
 
@@ -459,6 +500,10 @@ function estimateProfilePayloadBytes(value: unknown): number | undefined {
 
 let validationSchemaCache: ValidationSchemaCache | undefined
 let validationRulesSnapshot: ValidationRulesSnapshot | undefined
+let projectStateComponentTemplates: {
+  readonly configuration: ValidationProjectComponent
+  readonly configurationExtension: ValidationProjectComponent
+} | undefined
 const validationYamlLifetimeForTests = { current: 0, max: 0, parsed: 0, propertyEvents: 0 }
 
 export function resetValidationYamlLifetimeForTests(): void {
@@ -470,6 +515,13 @@ export function resetValidationYamlLifetimeForTests(): void {
 
 export function getValidationYamlLifetimeForTests(): Readonly<typeof validationYamlLifetimeForTests> {
   return { ...validationYamlLifetimeForTests }
+}
+
+function requireProjectStateComponentTemplates() {
+  if (projectStateComponentTemplates === undefined) {
+    throw new Error("Prepared YAML worker не инициализирован для классификации project state")
+  }
+  return projectStateComponentTemplates
 }
 
 interface ValidationFirstPassInput {

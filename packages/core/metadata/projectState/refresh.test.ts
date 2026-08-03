@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate } from "./fileUpdate"
 import { createProjectStateFragmentWriter, type ProjectStateFragment } from "./binary/fragment"
-import type { ProjectStateFileBaselinePage, ProjectStateReadToken } from "./contracts"
+import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
 import { createTestProjectStateReadToken } from "./tests/readToken"
 import {
   refreshProjectState,
@@ -18,6 +18,8 @@ describe("refreshProjectState", () => {
     const deleted = identity("cf/Удалённый.yaml", "yaml")
     const handle = new TrackingRefreshHandle(events, { deleted })
     const files = [{
+      projectPath: yaml.projectPath,
+      componentPath: yaml.componentPath,
       identity: yaml,
       absolutePath: "/project/cf/Конфигурация.yaml",
       descriptor: {} as never,
@@ -27,15 +29,12 @@ describe("refreshProjectState", () => {
       handle,
       async *discoverFiles() {
         events.push("discover")
-        yield {
-          paths: files.map((file) => ({
+        yield { paths: files.map((file) => ({
             projectPath: file.identity.projectPath,
             componentPath: file.identity.componentPath,
             absolutePath: file.absolutePath,
             classify: () => file,
-          })),
-          files,
-        }
+          })) }
       },
       async processFiles(batches, producer, operation, projectDir) {
         const selected = []
@@ -75,6 +74,75 @@ describe("refreshProjectState", () => {
     })
   })
 
+  it("не классифицирует известный путь, но классифицирует новый", async () => {
+    const known = vi.fn(() => identity("cf/Известный.yaml", "yaml"))
+    const freshIdentity = identity("cf/Новый.yaml", "yaml")
+    const fresh = vi.fn(() => ({
+      identity: freshIdentity,
+      absolutePath: "/project/cf/Новый.yaml",
+      descriptor: {} as never,
+    }))
+    const handle = new TrackingRefreshHandle([], { knownProjectPaths: ["cf/Известный.yaml"] })
+    let selected: readonly { readonly projectPath: string; readonly identity?: ProjectStateFileIdentity }[] = []
+
+    await refreshProjectState({ projectDir: "/project" }, {
+      ...emptyDependencies(handle),
+      discoverFiles: async function* () {
+        yield { paths: [
+          {
+            projectPath: "cf/Известный.yaml",
+            componentPath: "cf",
+            absolutePath: "/project/cf/Известный.yaml",
+            classify: () => ({ identity: known(), absolutePath: "/project/cf/Известный.yaml", descriptor: {} as never }),
+          },
+          {
+            projectPath: freshIdentity.projectPath,
+            componentPath: "cf",
+            absolutePath: "/project/cf/Новый.yaml",
+            classify: fresh,
+          },
+        ] }
+      },
+      processFiles: async (batches) => {
+        for await (const batch of batches) selected = batch.files
+        return { hashedFiles: 2, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 0 }
+      },
+    })
+
+    expect(handle.readPaths).toEqual(["cf/Известный.yaml", "cf/Новый.yaml"])
+    expect(known).not.toHaveBeenCalled()
+    expect(fresh).toHaveBeenCalledTimes(1)
+    expect(selected[0]).toMatchObject({ projectPath: "cf/Известный.yaml" })
+    expect(selected[0]).not.toHaveProperty("identity")
+    expect(selected[1]?.identity?.projectPath).toBe("cf/Новый.yaml")
+    expect(handle.seenFileIds).toEqual(Uint8Array.of(0b0000_0001))
+  })
+
+  it("представляет переименование удалением старого и появлением нового пути", async () => {
+    const old = identity("cf/СтароеИмя.yaml", "yaml")
+    const fresh = identity("cf/НовоеИмя.yaml", "yaml")
+    const handle = new TrackingRefreshHandle([], { deleted: old })
+
+    const result = await refreshProjectState({ projectDir: "/project" }, {
+      ...emptyDependencies(handle),
+      discoverFiles: async function* () {
+        yield { paths: [{
+          projectPath: fresh.projectPath,
+          componentPath: fresh.componentPath,
+          absolutePath: "/project/cf/НовоеИмя.yaml",
+          classify: () => ({ identity: fresh, absolutePath: "/project/cf/НовоеИмя.yaml", descriptor: {} as never }),
+        }] }
+      },
+      processFiles: async (batches) => {
+        for await (const batch of batches) expect(batch.files[0]?.identity).toEqual(fresh)
+        return { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, missingFiles: 0 }
+      },
+    })
+
+    expect(handle.seenFileIds).toEqual(Uint8Array.of(0))
+    expect(result.stats.deletedFiles).toBe(1)
+  })
+
   it("сохраняет локальные ошибки и выполняет полную проверку зависимостей", async () => {
     const duplicate = diagnostic("cf/Конфигурация.yaml", "duplicate", "structure", 1)
     const dependency = diagnostic("cf/Конфигурация.yaml", "dependency", "reference", 2)
@@ -98,7 +166,7 @@ describe("refreshProjectState", () => {
     })).rejects.toThrow("discover failed")
 
     const baselineHandle = new class extends TrackingRefreshHandle {
-      override async readFileBaselinePage(): Promise<ProjectStateFileBaselinePage> {
+      override async readFileBaselinePathPage(): Promise<ProjectStateFileBaselinePathPage> {
         throw new Error("baseline failed")
       }
     }([])
@@ -210,24 +278,36 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     readonly deleted?: ProjectStateFileIdentity
     readonly localDiagnostics?: readonly Diagnostic[]
     readonly dependencyDiagnostics?: readonly Diagnostic[]
+    readonly knownProjectPaths?: readonly string[]
   }
   signal?: AbortSignal
   beginCalls = 0
   checkpointCalls = 0
   rollbackCalls = 0
+  readPaths: string[] = []
+  seenFileIds?: Uint8Array
 
   constructor(events: string[], options: TrackingRefreshHandle["options"] = {}) {
     this.events = events
     this.options = options
   }
 
-  async readFileBaselinePage(files: readonly ProjectStateFileIdentity[]): Promise<ProjectStateFileBaselinePage> {
+  async readFileBaselinePathPage(projectPaths: readonly string[]): Promise<ProjectStateFileBaselinePathPage> {
     this.events.push("baseline")
+    this.readPaths.push(...projectPaths)
+    const knownHashBits = new Uint8Array(Math.ceil(projectPaths.length / 8))
+    const previousFileIds = new Int32Array(projectPaths.length).fill(-1)
+    for (const [index, projectPath] of projectPaths.entries()) {
+      const fileId = this.options.knownProjectPaths?.indexOf(projectPath) ?? -1
+      if (fileId < 0) continue
+      previousFileIds[index] = fileId
+      knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
+    }
     return {
-      knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
-      hashBytes: new Uint8Array(files.length * 8),
-      previousFileIds: new Int32Array(files.length).fill(-1),
-      storedFileCount: this.options.deleted === undefined ? 0 : 1,
+      knownHashBits,
+      hashBytes: new Uint8Array(projectPaths.length * 8),
+      previousFileIds,
+      storedFileCount: this.options.knownProjectPaths?.length ?? (this.options.deleted === undefined ? 0 : 1),
     }
   }
 
@@ -245,7 +325,8 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     for (const path of projectPaths) this.events.push(`delete:${path}`)
   }
 
-  async deleteUnseenFiles(_seenFileIds: Uint8Array): Promise<number> {
+  async deleteUnseenFiles(seenFileIds: Uint8Array): Promise<number> {
+    this.seenFileIds = seenFileIds
     if (this.options.deleted === undefined) return 0
     this.events.push(`delete:${this.options.deleted.projectPath}`)
     return 1

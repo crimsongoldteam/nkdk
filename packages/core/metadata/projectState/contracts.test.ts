@@ -252,21 +252,6 @@ function createTestStoreContractFixture() {
       assertProjectStateFileBaseline(result, files.length)
       return result
     },
-    readFileBaselinePage(files) {
-      const paths = [...committed.keys()]
-      const knownHashBits = new Uint8Array(Math.ceil(files.length / 8))
-      const hashBytes = new Uint8Array(files.length * 8)
-      const previousFileIds = new Int32Array(files.length).fill(-1)
-      files.forEach((file, index) => {
-        const fileId = paths.indexOf(file.projectPath)
-        const previous = committed.get(file.projectPath)
-        if (fileId < 0 || previous === undefined) return
-        previousFileIds[index] = fileId
-        knownHashBits[Math.floor(index / 8)]! |= 1 << (index % 8)
-        hashBytes.set(previous.hashBytes, index * 8)
-      })
-      return { knownHashBits, hashBytes, previousFileIds, storedFileCount: paths.length }
-    },
     readFileBaselinePathPage(projectPaths) {
       const paths = [...committed.keys()]
       const knownHashBits = new Uint8Array(Math.ceil(projectPaths.length / 8))

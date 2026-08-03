@@ -36,10 +36,20 @@ describe("ProjectStateService", () => {
           let yielded = false
           for await (const batch of dependencies.discoverFiles(params)) {
             yielded = true
-            const baseline = await dependencies.handle.readFileBaselinePage(batch.files.map(({ identity }) => identity))
-            yield { files: batch.files, ...baseline }
+            const baseline = await dependencies.handle.readFileBaselinePathPage(batch.paths.map(({ projectPath }) => projectPath))
+            const files = batch.paths.flatMap((path) => {
+              const file = path.classify()
+              return file === undefined ? [] : [{
+                projectPath: file.identity.projectPath,
+                componentPath: file.identity.componentPath,
+                absolutePath: file.absolutePath,
+                identity: file.identity,
+                ...(file.descriptor === undefined ? {} : { descriptor: file.descriptor }),
+              }]
+            })
+            yield { files, ...baseline }
           }
-          if (!yielded) await dependencies.handle.readFileBaselinePage([])
+          if (!yielded) await dependencies.handle.readFileBaselinePathPage([])
         })()
         await dependencies.processFiles(
           batches,
@@ -873,14 +883,6 @@ function testWriterHandle(id: number): TestWriter {
         knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
         hashBytes: new Uint8Array(files.length * 8),
         deleted: [],
-      }
-    },
-    async readFileBaselinePage(files) {
-      return {
-        knownHashBits: new Uint8Array(Math.ceil(files.length / 8)),
-        hashBytes: new Uint8Array(files.length * 8),
-        previousFileIds: new Int32Array(files.length).fill(-1),
-        storedFileCount: 0,
       }
     },
     async readFileBaselinePathPage(projectPaths) {

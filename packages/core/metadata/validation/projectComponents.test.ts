@@ -2,7 +2,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { discoverValidationProjectComponents } from "./projectComponents"
+import {
+  bindValidationProjectComponent,
+  createValidationProjectComponent,
+  discoverValidationProjectComponents,
+} from "./projectComponents"
 
 describe("validation project components", () => {
   const tempDirs: string[] = []
@@ -49,5 +53,24 @@ describe("validation project components", () => {
 
     expect(discovery.hasConfiguration).toBe(false)
     expect(discovery.components.map(({ componentPath }) => componentPath)).toEqual(["cfe/Продажи"])
+  })
+
+  it.each([
+    ["configuration", "cf"],
+    ["configurationExtension", "cfe/Продажи"],
+  ] as const)("привязывает готовую topology %s к каталогу компонента", (kind, componentPath) => {
+    const template = createValidationProjectComponent("/template", kind === "configuration"
+      ? { kind }
+      : { kind, name: "Шаблон" })
+    const bound = bindValidationProjectComponent(template, "/project", componentPath)
+
+    expect(bound).toMatchObject({ componentPath, componentDir: join("/project", ...componentPath.split("/")) })
+    expect(bound.topology).toBe(template.topology)
+  })
+
+  it("отвергает компонент другого вида", () => {
+    const template = createValidationProjectComponent("/template", { kind: "configuration" })
+    expect(() => bindValidationProjectComponent(template, "/project", "cfe/Продажи"))
+      .toThrow("Недопустимый validation componentPath")
   })
 })

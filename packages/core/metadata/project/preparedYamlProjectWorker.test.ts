@@ -12,11 +12,14 @@ import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
 import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
+import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
 } from "./preparedYamlProjectWorkerPool"
 import preparedYamlProjectWorkerEntryPoint, {
+  classifyChangedProjectStateFile,
   collectValidationFacts,
   runPreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTask,
@@ -91,6 +94,8 @@ describe("project-state refresh worker", () => {
       projectDir: "/project",
       context: mockContext,
       files: [{
+        projectPath: "cf/Логотип.bin",
+        componentPath: "cf",
         identity: { projectPath: "cf/Логотип.bin", componentPath: "cf", resourceKind: "resource" },
         absolutePath,
       }],
@@ -118,6 +123,92 @@ describe("project-state refresh worker", () => {
     expect(fragment.fileRecord(0).hash).toBe(0x0102030405060708n)
   })
 
+  it("не классифицирует известный файл при совпадении хэша", async () => {
+    const classify = vi.fn()
+    const expectedHashBytes = new Uint8Array(8)
+    new DataView(expectedHashBytes.buffer).setBigUint64(0, 9n, false)
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath: "cf/Известный.bin",
+        componentPath: "cf",
+        absolutePath: "/project/cf/Известный.bin",
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes,
+    }, {
+      readFile: async () => Uint8Array.of(1),
+      hashBytes: () => 9n,
+      classifyProjectStateFile: classify,
+    })
+
+    expect(classify).not.toHaveBeenCalled()
+    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0 })
+    expect((await finishProjectStateFragment()).fileCount).toBe(0)
+  })
+
+  it("один раз классифицирует изменённый известный YAML и проверяет прочитанные байты", async () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "ИзвестныйWorker")
+    const identity: ProjectStateFileIdentity = {
+      projectPath: descriptor.rootProjectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    }
+    const bytes = new TextEncoder().encode("{}\n")
+    const classify = vi.fn(() => ({ identity, descriptor }))
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        projectPath: identity.projectPath,
+        componentPath: identity.componentPath,
+        absolutePath: descriptor.filePath,
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => bytes,
+      hashBytes: (value) => {
+        expect(value).toBe(bytes)
+        return 9n
+      },
+      classifyProjectStateFile: classify,
+    })
+
+    expect(classify).toHaveBeenCalledTimes(1)
+    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+    const fragment = await finishProjectStateFragment()
+    expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(identity.projectPath)
+  })
+
+  it("восстанавливает описание изменённого известного пути из topology worker", () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "КлассифицированныйWorker")
+
+    expect(classifyChangedProjectStateFile({
+      projectPath: descriptor.rootProjectPath,
+      componentPath: "cf",
+      absolutePath: descriptor.filePath,
+    }, projectDir)).toMatchObject({
+      identity: { projectPath: descriptor.rootProjectPath, resourceKind: "yaml", yamlRole: "properties" },
+      descriptor: { rootProjectPath: descriptor.rootProjectPath },
+    })
+    expect(() => classifyChangedProjectStateFile({
+      projectPath: "cf/Неизвестный/Файл.txt",
+      componentPath: "cf",
+      absolutePath: join(projectDir, "cf", "Неизвестный", "Файл.txt"),
+    }, projectDir)).toThrow("Сохранённый путь больше не принадлежит проекту")
+  })
+
   it("проверяет изменённый YAML из тех же прочитанных байтов", async () => {
     const projectDir = createTempDir()
     const descriptor = componentProperties(projectDir, "cf", "ТоварыWorker")
@@ -129,6 +220,8 @@ describe("project-state refresh worker", () => {
       projectDir,
       context: mockContext,
       files: [{
+        projectPath: descriptor.rootProjectPath,
+        componentPath: descriptor.componentPath,
         identity: {
           projectPath: descriptor.rootProjectPath,
           componentPath: descriptor.componentPath,
@@ -185,6 +278,8 @@ describe("project-state refresh worker", () => {
       projectDir: "/project",
       context: mockContext,
       files: [{
+        projectPath: "cf/Исчез.bin",
+        componentPath: "cf",
         identity: { projectPath: "cf/Исчез.bin", componentPath: "cf", resourceKind: "resource" },
         absolutePath: "/project/cf/Исчез.bin",
       }],
@@ -793,6 +888,8 @@ function yamlRefreshTask(
     projectDir,
     context: mockContext,
     files: descriptors.map((descriptor) => ({
+      projectPath: descriptor.rootProjectPath,
+      componentPath: descriptor.componentPath,
       identity: {
         projectPath: descriptor.rootProjectPath,
         componentPath: descriptor.componentPath,
@@ -826,12 +923,20 @@ function profileTime(line: string): number {
 }
 
 async function* validationBatches(
-  files: ProjectStateValidationFileBatch["files"],
+  files: ReadonlyArray<{
+    readonly identity: ProjectStateFileIdentity
+    readonly absolutePath: string
+    readonly descriptor?: PreparedYamlProjectFileDescriptor
+  }>,
 ): AsyncGenerator<ProjectStateValidationFileBatch> {
   for (let offset = 0; offset < files.length; offset += 128) {
     const batch = files.slice(offset, offset + 128)
     yield {
-      files: batch,
+      files: batch.map((file) => ({
+        ...file,
+        projectPath: file.identity.projectPath,
+        componentPath: file.identity.componentPath,
+      })),
       knownHashBits: new Uint8Array(Math.ceil(batch.length / 8)),
       hashBytes: new Uint8Array(batch.length * 8),
       previousFileIds: new Int32Array(batch.length).fill(-1),
@@ -854,7 +959,10 @@ function createRefreshPoolFake(
       }
       if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
       await onTask(task)
-      task.files.forEach(({ identity }) => fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n))
+      task.files.forEach(({ identity }) => {
+        if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
+        fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
+      })
       return {
         kind: "refreshProjectStateResult",
         missingProjectPaths: [],

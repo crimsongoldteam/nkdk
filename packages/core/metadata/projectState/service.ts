@@ -353,8 +353,9 @@ export function createProjectStateService(
       ? writer
       : {
           ...writer,
-          readFileBaselinePage: (files: Parameters<ProjectStateWriterHandle["readFileBaselinePage"]>[0]) =>
-            measurePhase("readBaseline", () => writer.readFileBaselinePage(files)),
+          readFileBaselinePathPage: (
+            projectPaths: Parameters<ProjectStateWriterHandle["readFileBaselinePathPage"]>[0],
+          ) => measurePhase("readBaseline", () => writer.readFileBaselinePathPage(projectPaths)),
           readLocalDiagnostics: () => measurePhase("readLocalDiagnostics", () => writer.readLocalDiagnostics()),
           validateDependencies: () => measurePhase("dependencyValidation", () => writer.validateDependencies()),
           async commitAndScheduleCheckpoint() {
