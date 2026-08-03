@@ -842,6 +842,46 @@ describe("project-state refresh pool", () => {
       await pool.close()
     }
   })
+
+  it("держит не больше одной активной пачки на каждый из четырёх worker", async () => {
+    const projectDir = createTempDir()
+    const files = Array.from({ length: 9 }, (_unused, index) => ({
+      identity: { projectPath: `cf/${index}.bin`, componentPath: "cf", resourceKind: "resource" as const },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    let active = 0
+    let maxActive = 0
+    const processed: string[] = []
+    const pool = createPreparedYamlProjectWorkerPool({
+      concurrency: 4,
+      createWorkerPool: () => createRefreshPoolFake(async (task) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+        processed.push(...task.files.map(({ projectPath }) => projectPath))
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        active -= 1
+      }),
+    })
+    const batches = (async function* () {
+      for (const file of files) yield* validationBatches([file])
+    })()
+
+    try {
+      await expect(pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: { batches },
+      }, {
+        async writeFragment() {},
+        async deleteFiles() {},
+      })).resolves.toMatchObject({ hashedFiles: 9 })
+
+      expect(maxActive).toBe(4)
+      expect(processed.sort()).toEqual(files.map(({ identity }) => identity.projectPath).sort())
+    } finally {
+      await pool.close()
+    }
+  })
 })
 
 function createTempDir(): string {
