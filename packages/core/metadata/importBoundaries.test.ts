@@ -270,6 +270,7 @@ describe("metadata import boundaries", () => {
 
   it("source worker pools resolve their TypeScript loader through one runtime helper", () => {
     const sourceWorkerPools = [
+      "workerPool/handle.ts",
       "importFromXml/workerPool.ts",
       "project/preparedYamlProjectWorkerPool.ts",
       "fullSyncToXml/workerPool.ts",
