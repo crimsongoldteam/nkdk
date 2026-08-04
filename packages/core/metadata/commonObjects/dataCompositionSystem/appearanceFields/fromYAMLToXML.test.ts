@@ -16,25 +16,30 @@ const rule = {
 describe("AppearanceFields YAML → XML", () => {
   it.each([
     ["empty xs:string", "", { "_xsi:type": "xs:string", "#text": "" }],
-    ["empty LocalStringType", {}, { "_xsi:type": "v8:LocalStringType" }],
+    ["empty LocalStringType", { Значение: {} }, { "_xsi:type": "v8:LocalStringType" }],
     [
       "empty ru item",
-      { ru: "" },
+      { Значение: { ru: "" } },
       {
         "_xsi:type": "v8:LocalStringType",
         "v8:item": [{ "v8:lang": "ru", "v8:content": "" }],
       },
     ],
     [
+      "Field",
+      { Тип: "Поле", Значение: "Таблица.Поле" },
+      { "_xsi:type": "dcscor:Field", "#text": "Таблица.Поле" },
+    ],
+    [
       "empty LocalFormattedStringType",
-      { Форматированный: "Истина", Текст: {} },
+      { Тип: "ФорматированнаяСтрока", Значение: {} },
       {
         "_xsi:type": "v8:LocalFormattedStringType",
         "v8:lws": { "v8:item": [] },
         "v8:formatted": true,
       },
     ],
-    ["xsi:nil", null, { "_xsi:nil": true }],
+    ["xsi:nil", { Значение: null }, { "_xsi:nil": true }],
   ])("exports %s", (_name, value, expectedValueXML) => {
     const result = testPropertyFromYAMLToXML({
       rule,
@@ -47,6 +52,24 @@ describe("AppearanceFields YAML → XML", () => {
           {
             "dcscor:parameter": "Текст",
             "dcscor:value": expectedValueXML,
+            "_xsi:type": "dcsset:SettingsParameterValue",
+          },
+        ],
+      },
+    })
+  })
+
+  it("exports a parameter without dcscor:value", () => {
+    const result = testPropertyFromYAMLToXML({
+      rule,
+      yaml: { Оформление: { Текст: {} } },
+    })
+
+    expect(result.xml).toEqual({
+      appearance: {
+        "dcscor:item": [
+          {
+            "dcscor:parameter": "Текст",
             "_xsi:type": "dcsset:SettingsParameterValue",
           },
         ],
