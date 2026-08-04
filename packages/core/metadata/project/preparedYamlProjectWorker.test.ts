@@ -11,7 +11,11 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"
-import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
+import {
+  createProjectStateRefreshBinaryResult,
+  openProjectStateRefreshBinaryResult,
+} from "./projectStateRefreshBinaryResult"
 import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
 import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
 import type { MetadataWorkerOperation } from "../workerPool/types"
@@ -44,6 +48,39 @@ afterEach(() => {
 })
 
 describe("project-state refresh worker", () => {
+  it("возвращает отдельный двоичный фрагмент для каждой рабочей пачки", async () => {
+    const createTask = (projectPath: string): PreparedYamlProjectWorkerTask => ({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath,
+        componentPath: "cf",
+        identity: { projectPath, componentPath: "cf", resourceKind: "resource" },
+        absolutePath: `/project/${projectPath}`,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    })
+    const dependencies = {
+      readFile: async () => Uint8Array.of(1),
+      hashBytes: () => 1n,
+    }
+
+    const first = openProjectStateRefreshBinaryResult(
+      await runPreparedYamlProjectWorkerTask(createTask("cf/Первый.bin"), dependencies),
+    )
+    const second = openProjectStateRefreshBinaryResult(
+      await runPreparedYamlProjectWorkerTask(createTask("cf/Второй.bin"), dependencies),
+    )
+
+    expect(first.fragmentView.fileCount).toBe(1)
+    expect(first.fragmentView.stringValue(first.fragmentView.fileRecord(0).projectPathId)).toBe("cf/Первый.bin")
+    expect(second.fragmentView.fileCount).toBe(1)
+    expect(second.fragmentView.stringValue(second.fragmentView.fileRecord(0).projectPathId)).toBe("cf/Второй.bin")
+  })
+
   it("профилирует Б1–Б4 одной записью на подпункт", async () => {
     const projectDir = createTempDir()
     const descriptors = [
@@ -59,7 +96,6 @@ describe("project-state refresh worker", () => {
         readFile: async () => new TextEncoder().encode("{}\n"),
         hashBytes: () => 9n,
       })
-      await finishProjectStateFragment()
       lines = error.mock.calls
         .map(([line]) => String(line))
         .filter((line) => line.includes('step="Обработка файлов Б1–Б4"'))
@@ -111,15 +147,14 @@ describe("project-state refresh worker", () => {
     })
 
     expect(readCalls).toEqual([absolutePath])
-    expect(result).toMatchObject({
-      kind: "refreshProjectStateResult",
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({
       missingProjectPaths: [],
       hashedFiles: 1,
       parsedYamlFiles: 0,
       changedFiles: 1,
     })
-    if (result.kind !== "refreshProjectStateResult") return
-    const fragment = await finishProjectStateFragment()
+    const fragment = refresh.fragmentView
     expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe("cf/Логотип.bin")
     expect(fragment.fileRecord(0).hash).toBe(0x0102030405060708n)
   })
@@ -148,8 +183,9 @@ describe("project-state refresh worker", () => {
     })
 
     expect(classify).not.toHaveBeenCalled()
-    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0 })
-    expect((await finishProjectStateFragment()).fileCount).toBe(0)
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0 })
+    expect(refresh.fragmentView.fileCount).toBe(0)
   })
 
   it("один раз классифицирует изменённый известный YAML и проверяет прочитанные байты", async () => {
@@ -186,8 +222,9 @@ describe("project-state refresh worker", () => {
     })
 
     expect(classify).toHaveBeenCalledTimes(1)
-    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
-    const fragment = await finishProjectStateFragment()
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+    const fragment = refresh.fragmentView
     expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(identity.projectPath)
   })
 
@@ -242,11 +279,10 @@ describe("project-state refresh worker", () => {
       },
     })
 
-    expect(result.kind).toBe("refreshProjectStateResult")
-    if (result.kind !== "refreshProjectStateResult") return
-    const fragment = await finishProjectStateFragment()
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    const fragment = refresh.fragmentView
     expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(descriptor.rootProjectPath)
-    expect(result).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
   })
 
   it("собирает изменённые YAML одной worker-пачки в один нормализованный результат", async () => {
@@ -261,9 +297,7 @@ describe("project-state refresh worker", () => {
       hashBytes: () => 9n,
     })
 
-    expect(result.kind).toBe("refreshProjectStateResult")
-    if (result.kind !== "refreshProjectStateResult") return
-    const fragment = await finishProjectStateFragment()
+    const fragment = openProjectStateRefreshBinaryResult(result).fragmentView
     expect(Array.from({ length: fragment.fileCount }, (_, index) =>
       fragment.stringValue(fragment.fileRecord(index).projectPathId))).toEqual(
       descriptors.map(({ rootProjectPath }) => rootProjectPath),
@@ -290,14 +324,14 @@ describe("project-state refresh worker", () => {
       readFile: async () => { throw missing },
     })
 
-    expect(result).toEqual({
-      kind: "refreshProjectStateResult",
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({
       missingProjectPaths: ["cf/Исчез.bin"],
       hashedFiles: 0,
       parsedYamlFiles: 0,
       changedFiles: 0,
     })
-    expect((await finishProjectStateFragment()).fileCount).toBe(0)
+    expect(refresh.fragmentView.fileCount).toBe(0)
   })
 })
 
@@ -628,6 +662,39 @@ describe("validation first-pass worker boundary", () => {
     expect(openProjectStateFileUpdateBatch(received.fileUpdateBatches[0]!).fileCount).toBe(1)
   }, 120_000)
 
+  it("передаёт все секции refresh как владеющие ArrayBuffer", async () => {
+    const projectDir = createTempDir()
+    const absolutePath = join(projectDir, "cf", "resource.bin")
+    mkdirSync(dirname(absolutePath), { recursive: true })
+    writeFileSync(absolutePath, "data")
+
+    const boundaryResult = await preparedYamlProjectWorkerEntryPoint({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        projectPath: "cf/resource.bin",
+        componentPath: "cf",
+        identity: { projectPath: "cf/resource.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    })
+    const movable = boundaryResult as unknown as {
+      readonly [transferableSymbol]: readonly ArrayBuffer[]
+      readonly [valueSymbol]: typeof boundaryResult
+    }
+    const result = movable[valueSymbol]
+    if (result.kind !== "binaryResult") throw new Error("unexpected worker response")
+
+    expect(movable[transferableSymbol]).toEqual(result.buffers.map(({ buffer }) => buffer))
+    const received = structuredClone(result, { transfer: [...movable[transferableSymbol]] })
+    expect(result.buffers.every(({ buffer }) => buffer.byteLength === 0)).toBe(true)
+    expect(openProjectStateRefreshBinaryResult(received).fragmentView.fileCount).toBe(1)
+  })
+
   it("leaves non-first-pass worker results outside the Piscina transfer wrapper", async () => {
     const result = await preparedYamlProjectWorkerEntryPoint({
       kind: "prepare",
@@ -711,7 +778,6 @@ describe("project-state refresh pool", () => {
       componentPath: "cf",
       resourceKind: "resource" as const,
     }
-    const fragmentWriter = createProjectStateFragmentWriter()
     const tasks: PreparedYamlProjectWorkerTask[] = []
     const operation: MetadataWorkerOperation = {
       id: "validation",
@@ -722,17 +788,8 @@ describe("project-state refresh pool", () => {
         if (command.task.kind === "initValidation") {
           return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
         }
-        if (command.task.kind === "finishProjectStateFragment") {
-          return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
-        }
         if (command.task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${command.task.kind}`)
-        return {
-          kind: "refreshProjectStateResult",
-          missingProjectPaths: [],
-          hashedFiles: 1,
-          parsedYamlFiles: 0,
-          changedFiles: 1,
-        }
+        return successfulRefreshResult(command.task)
       },
       async finish() {},
     }
@@ -752,30 +809,7 @@ describe("project-state refresh pool", () => {
       componentPath: "cf",
       resourceKind: "resource" as const,
     }
-    const fragmentWriter = createProjectStateFragmentWriter()
-    fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
-    const fake = {
-      async run(input: unknown) {
-        const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
-        const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
-        if (task.kind === "initValidation") {
-          return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
-        }
-        if (task.kind === "finishProjectStateFragment") {
-          return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
-        }
-        if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
-        fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
-        return {
-          kind: "refreshProjectStateResult",
-          missingProjectPaths: [],
-          hashedFiles: 1,
-          parsedYamlFiles: 0,
-          changedFiles: 1,
-        }
-      },
-      async destroy() {},
-    }
+    const fake = createRefreshPoolFake(() => undefined)
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     const previousProfile = process.env["NKDK_PROFILE"]
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
@@ -799,7 +833,7 @@ describe("project-state refresh pool", () => {
     expect(matching[0]).toContain("items=1")
   })
 
-  it("передаёт один фрагмент после всех пачек worker", async () => {
+  it("передаёт фрагмент каждой пачки и не задерживает worker его применением", async () => {
     const projectDir = createTempDir()
     const files = Array.from({ length: 129 }, (_unused, index) => ({
       identity: {
@@ -810,7 +844,13 @@ describe("project-state refresh pool", () => {
       absolutePath: join(projectDir, "cf", `${index}.bin`),
     }))
     const taskSizes: number[] = []
-    const fake = createRefreshPoolFake((task) => { taskSizes.push(task.files.length) })
+    const secondTask = Promise.withResolvers<void>()
+    const firstWrite = Promise.withResolvers<void>()
+    const writeStarted = Promise.withResolvers<void>()
+    const fake = createRefreshPoolFake((task) => {
+      taskSizes.push(task.files.length)
+      if (taskSizes.length === 2) secondTask.resolve()
+    })
     const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
     let writes = 0
     try {
@@ -821,18 +861,60 @@ describe("project-state refresh pool", () => {
       }, {
         async writeFragment() {
           writes += 1
+          if (writes === 1) {
+            writeStarted.resolve()
+            await firstWrite.promise
+          }
         },
         async deleteFiles() {},
       })
 
+      await writeStarted.promise
+      await secondTask.promise
+      expect(taskSizes).toEqual([128, 1])
+      firstWrite.resolve()
       await expect(running).resolves.toEqual({
         hashedFiles: 129,
         parsedYamlFiles: 0,
         changedFiles: 129,
         missingFiles: 0,
       })
-      expect(taskSizes).toEqual([128, 1])
-      expect(writes).toBe(1)
+      expect(writes).toBe(2)
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("применяет удалённые пути из двоичной пачки", async () => {
+    const projectDir = createTempDir()
+    const removed = "cf/Удалён.bin"
+    const fake = createRefreshPoolFake(
+      () => undefined,
+      () => createProjectStateRefreshBinaryResult({
+          fragment: createProjectStateFragmentWriter().finish(),
+          missingProjectPaths: [removed],
+          hashedFiles: 0,
+          parsedYamlFiles: 0,
+          changedFiles: 0,
+      }),
+    )
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    const deleted: string[] = []
+    try {
+      const result = await pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: { batches: validationBatches([{
+          identity: { projectPath: removed, componentPath: "cf", resourceKind: "resource" },
+          absolutePath: join(projectDir, removed),
+        }]) },
+      }, {
+        async writeFragment() {},
+        async deleteFiles(paths) { deleted.push(...paths) },
+      })
+
+      expect(deleted).toEqual([removed])
+      expect(result).toMatchObject({ missingFiles: 1, changedFiles: 0 })
     } finally {
       await pool.close()
     }
@@ -994,12 +1076,6 @@ function yamlRefreshTask(
   }
 }
 
-async function finishProjectStateFragment(workerIndex = 0) {
-  const result = await runPreparedYamlProjectWorkerTask({ kind: "finishProjectStateFragment", workerIndex })
-  if (result.kind !== "finishProjectStateFragmentResult") throw new Error("Не получен двоичный фрагмент")
-  return openProjectStateFragment(result.fragment)
-}
-
 function profileLine(lines: readonly string[], substep: string): string {
   const matches = lines.filter((line) => line.includes(`substep="${substep}"`))
   expect(matches).toHaveLength(1)
@@ -1037,30 +1113,36 @@ async function* validationBatches(
 
 function createRefreshPoolFake(
   onTask: (task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>) => void | Promise<void>,
+  createResult: (
+    task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+  ) => ReturnType<typeof createProjectStateRefreshBinaryResult> = successfulRefreshResult,
 ) {
-  const fragmentWriter = createProjectStateFragmentWriter()
   return {
     async run(input: unknown) {
       const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
       const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
       if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
-      if (task.kind === "finishProjectStateFragment") {
-        return { kind: "finishProjectStateFragmentResult", fragment: fragmentWriter.finish() }
-      }
       if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
       await onTask(task)
-      task.files.forEach(({ identity }) => {
-        if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
-        fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
-      })
-      return {
-        kind: "refreshProjectStateResult",
-        missingProjectPaths: [],
-        hashedFiles: task.files.length,
-        parsedYamlFiles: 0,
-        changedFiles: task.files.length,
-      }
+      return createResult(task)
     },
     async destroy() {},
   }
+}
+
+function successfulRefreshResult(
+  task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+) {
+  const fragmentWriter = createProjectStateFragmentWriter()
+  task.files.forEach(({ identity }) => {
+    if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
+    fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
+  })
+  return createProjectStateRefreshBinaryResult({
+    fragment: fragmentWriter.finish(),
+    missingProjectPaths: [],
+    hashedFiles: task.files.length,
+    parsedYamlFiles: 0,
+    changedFiles: task.files.length,
+  })
 }

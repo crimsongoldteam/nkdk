@@ -17,8 +17,6 @@ import {
 } from "../projectState/binary/contribution"
 import {
   createProjectStateFragmentWriter,
-  type ProjectStateFragment,
-  type ProjectStateFragmentWriter,
 } from "../projectState/binary/fragment"
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
@@ -59,6 +57,11 @@ import type {
 import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 import { classifyMetadataProjectPath } from "./resources"
 import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
+import {
+  createMovableBinaryResult,
+  type MetadataWorkerBinaryResult,
+} from "../workerPool/binaryResult"
+import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
@@ -95,7 +98,6 @@ export type PreparedYamlProjectWorkerTask =
       knownHashBits: Uint8Array
       expectedHashBytes: Uint8Array
     }
-  | { kind: "finishProjectStateFragment"; workerIndex: number }
   | {
       kind: "collectValidationFacts"
       workerIndex: number
@@ -122,14 +124,7 @@ export type PreparedYamlProjectWorkerTaskResult =
       fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
       yamlLifetime: ValidationYamlLifetime
     }
-  | {
-      kind: "refreshProjectStateResult"
-      missingProjectPaths: readonly string[]
-      hashedFiles: number
-      parsedYamlFiles: number
-      changedFiles: number
-    }
-  | { kind: "finishProjectStateFragmentResult"; fragment: ProjectStateFragment }
+  | MetadataWorkerBinaryResult
   | {
       kind: "collectValidationFactsResult"
       contribution: ValidationIndexContribution
@@ -184,11 +179,6 @@ export async function runPreparedYamlProjectWorkerTask(
     }
   }
   if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
-  if (message.kind === "finishProjectStateFragment") {
-    const writer = projectStateFragmentWriters.get(message.workerIndex) ?? createProjectStateFragmentWriter()
-    projectStateFragmentWriters.delete(message.workerIndex)
-    return { kind: "finishProjectStateFragmentResult", fragment: writer.finish() }
-  }
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
@@ -235,7 +225,7 @@ async function refreshProjectStateFiles(
     hashBytes?: (bytes: Uint8Array) => bigint
     classifyProjectStateFile?: typeof classifyChangedProjectStateFile
   },
-): Promise<Extract<PreparedYamlProjectWorkerTaskResult, { kind: "refreshProjectStateResult" }>> {
+): Promise<MetadataWorkerBinaryResult> {
   const profileEnabled = process.env["NKDK_PROFILE"] === "1"
   const profiler = profileEnabled
     ? createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
@@ -252,95 +242,102 @@ async function refreshProjectStateFiles(
   }
   const read = dependencies.readFile ?? (async (absolutePath) => new Uint8Array(await readFile(absolutePath)))
   const hash = dependencies.hashBytes ?? hashFileBytes
-  const writer = projectStateFragmentWriter(message.workerIndex)
+  const writer = createProjectStateFragmentWriter()
   let yamlValidation: ValidationFirstPassAccumulator | undefined
   let hashedFiles = 0
   let parsedYamlFiles = 0
   let changedFiles = 0
   const missingProjectPaths: string[] = []
-  for (let index = 0; index < message.files.length; index += 1) {
-    const file = message.files[index]!
-    let bytes: Uint8Array | undefined
-    try {
-      let startedAt = profileEnabled ? performance.now() : 0
-      bytes = await read(file.absolutePath)
-      if (profileEnabled) readMs += performance.now() - startedAt
-      hashedFiles += 1
-      if (profileEnabled) startedAt = performance.now()
-      const currentHash = hash(bytes)
-      if (profileEnabled) {
-        hashMs += performance.now() - startedAt
-        startedAt = performance.now()
-      }
-      const unchanged = hasKnownHash(message.knownHashBits, index)
-        && currentHash === readExpectedHash(message.expectedHashBytes, index)
-      if (profileEnabled) compareMs += performance.now() - startedAt
-      if (unchanged) continue
-      const classified = file.identity === undefined
-        ? (dependencies.classifyProjectStateFile ?? classifyChangedProjectStateFile)(file, message.projectDir)
-        : { identity: file.identity, descriptor: file.descriptor }
-      if (classified.identity.resourceKind === "yaml") {
-        if (classified.descriptor === undefined) {
-          throw new Error(`У YAML отсутствует descriptor: ${classified.identity.projectPath}`)
+  try {
+    for (let index = 0; index < message.files.length; index += 1) {
+      const file = message.files[index]!
+      let bytes: Uint8Array | undefined
+      try {
+        let startedAt = profileEnabled ? performance.now() : 0
+        bytes = await read(file.absolutePath)
+        if (profileEnabled) readMs += performance.now() - startedAt
+        hashedFiles += 1
+        if (profileEnabled) startedAt = performance.now()
+        const currentHash = hash(bytes)
+        if (profileEnabled) {
+          hashMs += performance.now() - startedAt
+          startedAt = performance.now()
         }
-        yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
-        const parsed = processValidationFirstPassFile(yamlValidation, {
-          projectDir: message.projectDir,
-          context: message.context,
-          descriptor: classified.descriptor,
-          bytes,
-          hash: currentHash,
-        })
-        if (parsed) parsedYamlFiles += 1
+        const unchanged = hasKnownHash(message.knownHashBits, index)
+          && currentHash === readExpectedHash(message.expectedHashBytes, index)
+        if (profileEnabled) compareMs += performance.now() - startedAt
+        if (unchanged) continue
+        const classified = file.identity === undefined
+          ? (dependencies.classifyProjectStateFile ?? classifyChangedProjectStateFile)(file, message.projectDir)
+          : { identity: file.identity, descriptor: file.descriptor }
+        if (classified.identity.resourceKind === "yaml") {
+          if (classified.descriptor === undefined) {
+            throw new Error(`У YAML отсутствует descriptor: ${classified.identity.projectPath}`)
+          }
+          yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
+          const parsed = processValidationFirstPassFile(yamlValidation, {
+            projectDir: message.projectDir,
+            context: message.context,
+            descriptor: classified.descriptor,
+            bytes,
+            hash: currentHash,
+          })
+          if (parsed) parsedYamlFiles += 1
+          changedFiles += 1
+          continue
+        }
+        writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
         changedFiles += 1
-        continue
+      } catch (caught) {
+        if (!isMissingFile(caught)) throw caught
+        missingProjectPaths.push(file.projectPath)
+      } finally {
+        bytes = undefined
       }
-      writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
-      changedFiles += 1
-    } catch (caught) {
-      if (!isMissingFile(caught)) throw caught
-      missingProjectPaths.push(file.projectPath)
-    } finally {
-      bytes = undefined
     }
-  }
 
-  const yamlResult = yamlValidation === undefined ? undefined : finishValidationFirstPass(yamlValidation)
-  const logicalBatches = [
-    ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
-      ? []
-      : yamlResult.fileUpdateBatches),
-  ]
-  const encodeStartedAt = profileEnabled ? performance.now() : 0
-  for (const batch of logicalBatches) {
-    const hashes = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
-    batch.updates.forEach((update, index) => writer.appendFile(update, hashes.getBigUint64(index * 8, false)))
-  }
-  const encodeMs = profileEnabled ? performance.now() - encodeStartedAt : 0
-  profiler?.record("Обработка файлов Б1–Б4", "Чтение файлов", {
-    items: message.files.length,
-    timeMs: readMs,
-  })
-  profiler?.record("Обработка файлов Б1–Б4", "Вычисление хэшей", {
-    items: hashedFiles,
-    timeMs: hashMs,
-  })
-  profiler?.record("Обработка файлов Б1–Б4", "Сравнение хэшей", {
-    items: hashedFiles,
-    timeMs: compareMs,
-  })
-  profiler?.record("Обработка файлов Б1–Б4", "Двоичное кодирование результата", {
-    items: changedFiles,
-    bytes: 0,
-    timeMs: encodeMs,
-  })
-  profiler?.flush()
-  return {
-    kind: "refreshProjectStateResult",
-    missingProjectPaths,
-    hashedFiles,
-    parsedYamlFiles,
-    changedFiles,
+    const yamlResult = yamlValidation === undefined ? undefined : finishValidationFirstPass(yamlValidation)
+    const logicalBatches = [
+      ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
+        ? []
+        : yamlResult.fileUpdateBatches),
+    ]
+    const encodeStartedAt = profileEnabled ? performance.now() : 0
+    for (const batch of logicalBatches) {
+      const hashes = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
+      batch.updates.forEach((update, index) => writer.appendFile(update, hashes.getBigUint64(index * 8, false)))
+    }
+    const fragment = writer.finish()
+    const result = createProjectStateRefreshBinaryResult({
+      fragment,
+      missingProjectPaths,
+      hashedFiles,
+      parsedYamlFiles,
+      changedFiles,
+    })
+    const encodeMs = profileEnabled ? performance.now() - encodeStartedAt : 0
+    profiler?.record("Обработка файлов Б1–Б4", "Чтение файлов", {
+      items: message.files.length,
+      timeMs: readMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Вычисление хэшей", {
+      items: hashedFiles,
+      timeMs: hashMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Сравнение хэшей", {
+      items: hashedFiles,
+      timeMs: compareMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Двоичное кодирование результата", {
+      items: changedFiles,
+      bytes: result.buffers.reduce((sum, { buffer }) => sum + buffer.byteLength, 0),
+      timeMs: encodeMs,
+    })
+    profiler?.flush()
+    return result
+  } catch (caught) {
+    writer.discard()
+    throw caught
   }
 }
 
@@ -385,38 +382,24 @@ export default async function preparedYamlProjectWorkerEntryPoint(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   const result = await runPreparedYamlProjectWorkerTask(message)
-  return result.kind === "validateFirstPassResult"
-    || result.kind === "finishProjectStateFragmentResult"
-    ? movableValidationResult(result)
-    : result
+  if (result.kind === "binaryResult") return createMovableBinaryResult(result)
+  return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
 }
 
 type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
-  { kind: "validateFirstPassResult" | "finishProjectStateFragmentResult" }
+  { kind: "validateFirstPassResult" }
 >
 
 export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
   return {
     get [transferableSymbol]() {
-      return result.kind === "validateFirstPassResult"
-        ? result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
-        : Object.values(result.fragment.buffers)
+      return result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
     },
     get [valueSymbol]() {
       return result
     },
   }
-}
-
-const projectStateFragmentWriters = new Map<number, ProjectStateFragmentWriter>()
-
-function projectStateFragmentWriter(workerIndex: number): ProjectStateFragmentWriter {
-  const current = projectStateFragmentWriters.get(workerIndex)
-  if (current !== undefined) return current
-  const writer = createProjectStateFragmentWriter()
-  projectStateFragmentWriters.set(workerIndex, writer)
-  return writer
 }
 
 function movableValidationResult(result: TransferableValidationWorkerResult): TransferableValidationWorkerResult {
