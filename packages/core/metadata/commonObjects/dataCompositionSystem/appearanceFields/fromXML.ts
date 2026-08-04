@@ -20,19 +20,23 @@ const asRecord = (value: unknown): Record<string, unknown> | undefined =>
     ? (value as Record<string, unknown>)
     : undefined
 
-const exportAppearanceStringValue = (value: unknown): unknown => {
-  if (value === null) return null
+const exportAppearanceStringValue = (value: unknown): Record<string, unknown> | string => {
+  if (value === undefined) return {}
+  if (value === null) return { Значение: null }
   const record = asRecord(value)
   if (record?.type === "string" && typeof record.value === "string") return record.value
+  if (record?.type === "Field" && typeof record.value === "string") {
+    return { Тип: "Поле", Значение: record.value }
+  }
   if (record?.type === "LocalFormattedStringType") {
     const formatted = asRecord(record.value)
     const items = asRecord(formatted?.items)
     if (formatted?.formatted === true && items !== undefined) {
-      return { Форматированный: "Истина", Текст: { ...items } }
+      return { Тип: "ФорматированнаяСтрока", Значение: { ...items } }
     }
   }
   const items = asRecord(record?.items)
-  if (items !== undefined) return { ...items }
+  if (items !== undefined) return { Значение: { ...items } }
   throw new Error("AppearanceFields XML: неподдерживаемое строковое значение")
 }
 
@@ -51,9 +55,13 @@ const exportAppearanceStringParameter = (value: SettingsParameterValue, exported
   if (!hasServiceFields) return canonicalValue
 
   const wrapper = asRecord(exported)
-  if (wrapper === undefined) throw new Error("AppearanceFields XML: неверная развёрнутая строка")
+  const canonicalObject =
+    typeof canonicalValue === "string" ? { Значение: canonicalValue } : asRecord(canonicalValue)
+  if (wrapper === undefined || canonicalObject === undefined) {
+    throw new Error("AppearanceFields XML: неверная развёрнутая строка")
+  }
   const { Тип: _type, Значение: _value, ...serviceFields } = wrapper
-  return { ...serviceFields, Значение: canonicalValue }
+  return { ...canonicalObject, ...serviceFields }
 }
 
 const restoreAppearanceStringNilValues = (
