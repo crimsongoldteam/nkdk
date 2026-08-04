@@ -21,6 +21,32 @@ describeAppliedObjectYAMLToXMLFixtures({
 })
 
 describe("MetadataDocument YAML restrictions", () => {
+  it("restores scalar configurator defaults without reference XML", () => {
+    const result = testMetadataItemFromYAMLToXML({
+      rule: MetadataDocumentRules,
+      name: "ДокументПоУмолчанию",
+      yaml: { Синоним: "" },
+    })
+
+    expect(result.xml).toMatchObject({
+      MetaDataObject: {
+        Document: {
+          Properties: {
+            CheckUnique: true,
+            NumberLength: 9,
+            NumberPeriodicity: "Nonperiodical",
+            Posting: "Allow",
+            PostInPrivilegedMode: true,
+            RealTimePosting: "Allow",
+            RegisterRecordsDeletion: "AutoDeleteOnUnpost",
+            RegisterRecordsWritingOnPost: "WriteSelected",
+            UnpostInPrivilegedMode: true,
+          },
+        },
+      },
+    })
+  })
+
   it("accepts common basedOn objects and rejects unsupported roots", () => {
     const result = testMetadataItemFromYAMLToXML({
       rule: MetadataDocumentRules,

@@ -131,8 +131,8 @@ export const MetadataDocumentRules = {
       yaml: "ЗаписьДвиженийПриПроведении",
       typeSE: "RegisterRecordsWritingOnPost",
       xml: "RegisterRecordsWritingOnPost",
-      defaultValueXML: "WriteModified",
-      implicitValueYAML: "WriteModified",
+      defaultValueXML: "WriteSelected",
+      implicitValueYAML: "WriteSelected",
       xmlParents: documentProperties,
     }),
     additionalIndexes: additionalIndexRule({
@@ -182,8 +182,8 @@ export const MetadataDocumentRules = {
     }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
-      defaultValueXML: false,
-      implicitValueYAML: false,
+      defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: documentProperties,
     }),
     choiceDataGetModeOnInputByString: systemEnumerationRule({
@@ -369,15 +369,15 @@ export const MetadataDocumentRules = {
     }),
     numberLength: numberRule({
       yaml: "ДлинаНомера",
-      defaultValueXML: 11,
+      defaultValueXML: 9,
       xmlParents: documentProperties,
-      implicitValueYAML: 11,
+      implicitValueYAML: 9,
     }),
     numberPeriodicity: systemEnumerationRule({
       yaml: "ПериодичностьНомера",
       typeSE: "BusinessProcessNumberPeriodicity",
-      defaultValueXML: "Year",
-      implicitValueYAML: "Year",
+      defaultValueXML: "Nonperiodical",
+      implicitValueYAML: "Nonperiodical",
       xmlParents: documentProperties,
     }),
     numberType: systemEnumerationRule({
@@ -409,29 +409,29 @@ export const MetadataDocumentRules = {
     posting: systemEnumerationRule({
       yaml: "Проведение",
       typeSE: "Posting",
-      defaultValueXML: "Deny",
-      implicitValueYAML: "Deny",
+      defaultValueXML: "Allow",
+      implicitValueYAML: "Allow",
       xmlParents: documentProperties,
     }),
     privilegedPostingMode: booleanRule({
       yaml: "ПривилегированныйРежимПриПроведении",
       xml: "PostInPrivilegedMode",
-      defaultValueXML: false,
-      implicitValueYAML: false,
+      defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: documentProperties,
     }),
     privilegedUnpostingMode: booleanRule({
       yaml: "ПривилегированныйРежимПриОтменеПроведения",
       xml: "UnpostInPrivilegedMode",
-      defaultValueXML: false,
-      implicitValueYAML: false,
+      defaultValueXML: true,
+      implicitValueYAML: true,
       xmlParents: documentProperties,
     }),
     realTimePosting: systemEnumerationRule({
       yaml: "ОперативноеПроведение",
       typeSE: "RealTimePosting",
-      defaultValueXML: "Deny",
-      implicitValueYAML: "Deny",
+      defaultValueXML: "Allow",
+      implicitValueYAML: "Allow",
       xmlParents: documentProperties,
     }),
     registerRecords: metadataItemLinksRule({
@@ -447,8 +447,8 @@ export const MetadataDocumentRules = {
     registerRecordsDeletion: systemEnumerationRule({
       yaml: "УдалениеДвижений",
       typeSE: "RegisterRecordsDeletion",
-      defaultValueXML: "AutoDelete",
-      implicitValueYAML: "AutoDelete",
+      defaultValueXML: "AutoDeleteOnUnpost",
+      implicitValueYAML: "AutoDeleteOnUnpost",
       xmlParents: documentProperties,
     }),
     searchStringModeOnInputByString: systemEnumerationRule({
