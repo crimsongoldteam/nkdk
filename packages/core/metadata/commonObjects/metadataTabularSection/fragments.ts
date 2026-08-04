@@ -38,7 +38,7 @@ export function tabularSectionInternalInfoFragment(params: {
   return metadataRuleFragment(["internalInfo"], {
     internalInfo: {
       type: "InternalInfo",
-      exportWithoutReferenceXML: true,
+      evaluateWhenYAMLMissing: true,
       forReferenceOnly: true,
       getName: params.getName,
       items: params.items,

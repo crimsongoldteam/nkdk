@@ -86,6 +86,10 @@ describe("exportToYAML", () => {
     expect(exportToYAML({ Поле: undefined })).toBe("Поле:")
   })
 
+  it("distinguishes null from an undefined value", () => {
+    expect(exportToYAML({ Явное: null, Отсутствует: undefined })).toBe("Явное: null\nОтсутствует:")
+  })
+
   it("exports empty and numeric-looking strings as double-quoted scalars", () => {
     expect(exportToYAML({ Пусто: "", Код: "000000001" })).toBe('Пусто: ""\nКод: "000000001"')
   })

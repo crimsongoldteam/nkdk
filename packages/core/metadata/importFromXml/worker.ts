@@ -1,4 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { posix } from "node:path"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
@@ -231,13 +232,18 @@ async function runFirstPass(
         () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
       )
       try {
+        const externalFiles = xmlExternalImportFiles(assignment)
+        const externalTargets = new Set(externalFiles.map((file) => file.targetProjectPath))
         const assignmentFiles = await writeGeneratedImportFiles({
           outputDir: state.outputDir,
           targetProjectPath: prepared.targetProjectPath,
-          generatedFiles: prepared.generatedFiles,
+          generatedFiles: prepared.generatedFiles.filter(
+            (file) =>
+              !externalTargets.has(posix.join(posix.dirname(prepared.targetProjectPath), file.relativePath))
+          ),
           profiler,
         })
-        assignmentFiles.push(...xmlExternalImportFiles(assignment))
+        assignmentFiles.push(...externalFiles)
         if (prepared.deferred.length === 0) {
           const main = await writeMainImportYaml({
             outputDir: state.outputDir,

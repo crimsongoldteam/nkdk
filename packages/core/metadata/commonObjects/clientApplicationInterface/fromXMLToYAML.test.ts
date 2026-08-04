@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { exportToYAML } from "../../../yaml/export"
 import { ClientApplicationInterfaceRules } from "./rules"
 
@@ -61,4 +62,28 @@ describe("ClientApplicationInterface XML → YAML", () => {
     expect(result.Лево).toEqual([{ Панель: { Имя: "МояПанельИстории" } }])
     expect(exportToYAML(result)).not.toContain("b553047f-c9aa-4157-978d-448ecad24248")
   })
+
+  it("distinguishes an absent non-standard panel definition from an empty one", () => {
+    const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
+    const withoutPanelDef = convertXML(interfaceXML(uuid))
+    const withEmptyPanelDef = convertXML(interfaceXML(uuid, `<panelDef id="${uuid}"/>`))
+
+    expect(exportToYAML(withoutPanelDef)).toContain(`UUID: ${uuid}`)
+    expect(exportToYAML(withoutPanelDef)).not.toContain(`UUID: !xml ${uuid}`)
+    expect(exportToYAML(withEmptyPanelDef)).toContain(`UUID: !xml ${uuid}`)
+  })
 })
+
+function convertXML(xml: string): Record<string, unknown> {
+  return testMetadataItemFromXMLToYAML({
+    rule: ClientApplicationInterfaceRules,
+    xml: importContentFromXML<Record<string, unknown>>(xml),
+  }).yaml as Record<string, unknown>
+}
+
+function interfaceXML(uuid: string, panelDef = ""): string {
+  return `<ClientApplicationInterface xmlns="http://v8.1c.ru/8.2/managed-application/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="InterfaceLayouter">
+  <right><panel id="custom"><uuid>${uuid}</uuid></panel></right>
+  ${panelDef}
+</ClientApplicationInterface>`
+}

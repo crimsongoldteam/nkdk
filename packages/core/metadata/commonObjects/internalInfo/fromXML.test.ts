@@ -229,7 +229,7 @@ describe("importInternalInfoFromXML", () => {
         internalInfo: {
           ...completeRule,
           xml: "InternalInfo",
-          exportWithoutReferenceXML: true,
+          evaluateWhenYAMLMissing: true,
         },
       },
     } as MetadataItemRule

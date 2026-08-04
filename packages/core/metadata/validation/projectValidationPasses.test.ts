@@ -38,6 +38,19 @@ describe("validateProjectFileFirstPass references", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
+  const validateProjectPath = (projectDir: string, projectPath: string) => {
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
+    if (!file) throw new Error("file not resolved")
+    return validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+  }
+
   it("compiles all validation schemas before validating files", () => {
     expect(compiledAll.propertiesMs).toBeGreaterThanOrEqual(0)
   }, 120_000)
@@ -219,6 +232,40 @@ describe("validateProjectFileFirstPass references", () => {
     )
   }, 20_000)
 
+  it("validates canonical appearance strings through external refs", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const validPath = "ОбщаяФорма/КаноническоеОформление/Свойства.yaml"
+    const legacyPath = "ОбщаяФорма/СтароеОформление/Свойства.yaml"
+    const commonLines = [
+      "Форма:",
+      "  УсловноеОформлениеРеквизитов:",
+      "    Элементы:",
+      "      - Оформление:",
+    ]
+    writeProjectFile(projectDir, validPath, [
+      ...commonLines,
+      "          Текст: {}",
+      "          Формат:",
+      "            Форматированный: Истина",
+      "            Текст: {ru: \"\"}",
+    ])
+    writeProjectFile(projectDir, legacyPath, [
+      ...commonLines,
+      "          Текст: {Тип: МногоязычнаяСтрока, Значение: {ru: Строка}}",
+    ])
+
+    expect(validateProjectPath(projectDir, validPath).schemaDiagnostics).toEqual([])
+    expect(validateProjectPath(projectDir, legacyPath).schemaDiagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          path: expect.stringContaining("/Текст"),
+        }),
+      ])
+    )
+  }, 20_000)
+
   it("проверяет уникальность имён элементов внутри общей формы", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
@@ -270,16 +317,7 @@ describe("validateProjectFileFirstPass references", () => {
     }
 
     const diagnostics = projectPaths.flatMap((projectPath) => {
-      const file = resolveValidationProjectFile(projectDir, join(projectDir, projectPath))
-      if (!file) throw new Error("file not resolved")
-      return validateProjectFileFirstPass({
-        projectDir,
-        file,
-        cache: createProjectYamlCache(),
-        context: mockContext,
-        schemaCache: sharedSchemaCache,
-        rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      }).diagnostics
+      return validateProjectPath(projectDir, projectPath).diagnostics
     })
 
     expect(diagnostics.filter(({ message }) => message.includes("должно быть уникальным"))).toEqual([])

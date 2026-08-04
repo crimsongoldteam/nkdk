@@ -121,7 +121,16 @@ export const getExportToYAMLResult = (
   )
     return undefined
 
-  if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return undefined
+  const preservesPresence =
+    getTypeRule(rule.type, "xmlImportPropertyBehavior")?.presenceAffectsExport === true
+  if (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === 0 &&
+    !preservesPresence
+  )
+    return undefined
 
   return value === undefined ? undefined : { [yamlKey]: value }
 }

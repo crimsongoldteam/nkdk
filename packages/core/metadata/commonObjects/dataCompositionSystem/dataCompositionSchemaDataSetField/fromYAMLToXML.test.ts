@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
-  appearanceDataCompositionSchemaDataSetField,
-  directAppearanceFieldsDataCompositionSchemaDataSetField,
   availableValuesDataCompositionSchemaDataSetField,
   folderDataCompositionSchemaDataSetField,
   fullDataCompositionSchemaDataSetField,
@@ -13,7 +11,6 @@ import {
   folderDataCompositionSchemaDataSetFieldYAML,
   legacyDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
 import "./types"
 
 describe("export DataCompositionSchemaDataSetField to XML", () => {
@@ -43,41 +40,21 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("exports appearance.xml", () => {
+  it("exports appearance-collection.xml", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
-      value: appearanceDataCompositionSchemaDataSetField,
+      value: undefined,
       yaml: {
         Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
-        ПутьКДанным: "Сумма",
-        Поле: "Сумма",
+        ПутьКДанным: "ВремяВыполнения",
+        Поле: "ВремяВыполнения",
+        ТипЗначения: "Число(15, 3)",
         Оформление: {
-          Формат: { Значение: explicitYAMLString("ЧЦ=15; ЧДЦ=2") },
+          Формат: "ЧЦ=15; ЧДЦ=3; ЧН=0,000",
         },
       },
       xmlRootTag: "Field",
-      path: "appearance.xml",
-      importMetaUrl: import.meta.url,
-    })
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("exports appearance-direct-fields.xml", () => {
-    const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
-      rule: { type: "DataCompositionSchemaDataSetField" },
-      value: directAppearanceFieldsDataCompositionSchemaDataSetField,
-      yaml: {
-        Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
-        ПутьКДанным: "Сумма",
-        Поле: "Сумма",
-        Оформление: {
-          Формат: { Значение: explicitYAMLString("ЧЦ=15; ЧДЦ=2") },
-          ЦветТекста: { Значение: "Синий" },
-        },
-      },
-      xmlRootTag: "Field",
-      path: "appearance-direct-fields.xml",
+      path: "appearance-collection.xml",
       importMetaUrl: import.meta.url,
     })
 

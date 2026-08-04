@@ -16,3 +16,20 @@ export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRul
   })
   return rule
 }
+
+export function registeredMissingExplicitXMLTestRule(): MetadataItemRule {
+  const itemType = "ExplicitXMLMissingProbe"
+  const rule = {
+    itemType,
+    properties: {
+      value: { type: "string", xml: "Value", yaml: "Поле", defaultValueXML: "default" },
+    },
+  } as MetadataItemRule
+  registerExplicitXMLProperty({
+    itemType,
+    propertyKey: "value",
+    action: "omit",
+    yamlValue: "",
+  })
+  return rule
+}

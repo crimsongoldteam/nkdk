@@ -32,7 +32,6 @@ const appearanceRule = {
   xml: "dcssch:appearance",
   yaml: "Оформление",
   toXML: isField,
-  appearanceXml: "dataSetField",
   configurationIndexAddressing: "yamlPath",
 } as const satisfies AppearanceFieldsPropertyRule
 export const DataCompositionSchemaDataSetFieldRules = {

@@ -166,7 +166,7 @@ export interface BasePropertyRule {
   /**
    * Вычислять XML-only свойство при отсутствии значения в YAML.
    */
-  exportWithoutReferenceXML?: true
+  evaluateWhenYAMLMissing?: true
 
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
   toXML?: false | YAMLToXMLCondition

@@ -93,7 +93,7 @@ function importAdditionalColumnsFromXMLToYAML(params: {
       xml: item.Column,
       traversal: { ...params.traversal, yamlPath: [...params.traversal.yamlPath, table] },
     })
-    if (columns !== undefined) result[table] = columns
+    result[table] = columns ?? {}
   }
 
   return Object.keys(result).length === 0 ? undefined : result

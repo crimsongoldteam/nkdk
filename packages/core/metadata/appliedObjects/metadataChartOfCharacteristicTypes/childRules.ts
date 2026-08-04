@@ -1,4 +1,15 @@
 import { Attribute, Tabular, composeMetadataItemRule, getParentFromContext } from "../ownerChildRules"
+import { metadataRuleFragment } from "../../commonObjects/metadataRuleFragment"
+
+const chartOfCharacteristicTypesAttributeSearchUseAndHistoryFragment = metadataRuleFragment(
+  ["indexing", "use", "fullTextSearch", "dataHistory"],
+  {
+    indexing: Attribute.attributeSearchAndHistoryFragment.properties.indexing,
+    use: Attribute.attributeUseFragment.properties.use,
+    fullTextSearch: Attribute.attributeSearchAndHistoryFragment.properties.fullTextSearch,
+    dataHistory: Attribute.attributeSearchAndHistoryFragment.properties.dataHistory,
+  }
+)
 
 const tabularInternalInfo = Tabular.tabularSectionInternalInfoFragment({
   getName: ({ context, metadata }) => `${getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).name}.${metadata.name}`,
@@ -6,7 +17,7 @@ const tabularInternalInfo = Tabular.tabularSectionInternalInfoFragment({
 })
 
 export const MetadataChartOfCharacteristicTypesAttributeRules = composeMetadataItemRule(
-  Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeFillFragment, Attribute.attributeChoiceFragment, Attribute.attributeUseFragment, Attribute.attributeSearchAndHistoryFragment, Attribute.attributeUuidFragment
+  Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeFillFragment, Attribute.attributeChoiceFragment, chartOfCharacteristicTypesAttributeSearchUseAndHistoryFragment, Attribute.attributeUuidFragment
 )
 export const MetadataChartOfCharacteristicTypesTabularSectionAttributeRules = composeMetadataItemRule(
   Attribute.metadataAttributeRuleBase, Attribute.attributeIdentityFragment, Attribute.attributePresentationFragment({ allowedTypes: Attribute.METADATA_ATTRIBUTE_ALLOWED_TYPES }), Attribute.attributeChoiceFragment, Attribute.attributeSearchAndHistoryFragment, Attribute.attributeUuidFragment

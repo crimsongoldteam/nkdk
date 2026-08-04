@@ -521,6 +521,8 @@ export const ClientApplicationFormRules = {
       yaml: "НазначенияИспользования",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
+      defaultValue: () => ["PlatformApplication"],
+      defaultValueXML: ["PlatformApplication"],
     }),
     // #endregion
     // #region Catalog

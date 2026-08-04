@@ -8,6 +8,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { importFromYAML } from "../../../yaml/import"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
 import { characteristicsDescriptionsRule } from "./types"
@@ -125,6 +126,52 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     expect(xml).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
     expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
     expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
+  })
+
+  it.each([
+    [
+      "отсутствуют все четыре XML-default",
+      [
+        "ПолеПутиКДанным: !xml",
+        "ПолеИспользованияМножественныхЗначений: !xml",
+        "ПолеКлючаМножественныхЗначений: !xml",
+        "ПолеПорядкаМножественныхЗначений: !xml",
+      ],
+      ["DataPathField", "MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
+    ],
+    [
+      "присутствует только DataPathField",
+      [
+        "ПолеПутиКДанным: Data.Path",
+        "ПолеИспользованияМножественныхЗначений: !xml",
+        "ПолеКлючаМножественныхЗначений: !xml",
+        "ПолеПорядкаМножественныхЗначений: !xml",
+      ],
+      ["MultipleValuesUseField", "MultipleValuesKeyField", "MultipleValuesOrderField"],
+    ],
+    [
+      "отсутствует только DataPathField",
+      [
+        "ПолеПутиКДанным: !xml",
+        "ПолеИспользованияМножественныхЗначений: Use.Path",
+        "ПолеКлючаМножественныхЗначений: Key.Path",
+        "ПолеПорядкаМножественныхЗначений: Order.Path",
+      ],
+      ["DataPathField"],
+    ],
+  ])("восстанавливает XML-форму, когда %s", (_name, lines, omittedXMLKeys) => {
+    const yaml = importFromYAML(`Характеристики:\n  - ${lines.join("\n    ")}`)
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    for (const xmlKey of omittedXMLKeys) expect(xml).not.toContain(`<xr:${xmlKey}>`)
+  })
+
+  it("отклоняет !xml для незарегистрированного ПолеКлюча", () => {
+    const yaml = importFromYAML("Характеристики:\n  - ПолеКлюча: !xml")
+
+    expect(() => testPropertyFromYAMLToXML({ rule, yaml })).toThrow(
+      /CharacteristicsDescription[\s\S]*ПолеКлюча[\s\S]*не зарегистрирован/
+    )
   })
 })
 

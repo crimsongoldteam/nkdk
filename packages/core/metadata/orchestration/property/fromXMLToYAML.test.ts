@@ -14,7 +14,10 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import { registeredExplicitXMLTestRule } from "../../../tests/property/explicitXMLPropertyRegistry"
+import {
+  registeredExplicitXMLTestRule,
+  registeredMissingExplicitXMLTestRule,
+} from "../../../tests/property/explicitXMLPropertyRegistry"
 
 describe("importPropertiesFromXMLToYAML", () => {
   it("rejects a conflicting explicit XML property registration", () => {
@@ -50,6 +53,23 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({ Режим: "Auto" })
     expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml")
+  })
+
+  it("preserves a registered missing XML default as an empty tagged YAML scalar", () => {
+    const rule = registeredMissingExplicitXMLTestRule()
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule,
+      sources: [{ context, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Поле: "" })
+    expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml")
   })
 
   it("sorts only properties produced by the current rules", () => {
@@ -154,6 +174,28 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(present).toEqual({ Значение: "Явно пусто" })
     expect(absent).toEqual({})
+  })
+
+  it("preserves an explicit null returned by an XML importer", () => {
+    registerTypeRule("TestExplicitNull" as PropertyRuleType, "importFromXML", () => null)
+    registerTypeRule("TestExplicitNull" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestExplicitNullItem",
+        properties: {
+          value: { type: "TestExplicitNull", xml: "Value", yaml: "Значение" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Value: { "_xsi:nil": true } } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Значение: null })
   })
 
   it("processes only an absent property with defaultValue", () => {

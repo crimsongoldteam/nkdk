@@ -318,7 +318,9 @@ export function importPropertiesFromXMLToYAML(params: {
       const rawValue =
         importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
           ? propertyRule.defaultValueXMLEmpty
-          : (importedValue ?? registeredExplicitEmptyValue)
+          : importedValue === undefined
+            ? registeredExplicitEmptyValue
+            : importedValue
       const preserveExplicitDefault =
         propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
       const cleanValue =
@@ -425,6 +427,24 @@ export function importPropertiesFromXMLToYAML(params: {
     }
   }
 
+  const importMissingEntry = (
+    sourceState: (typeof sourceStates)[number],
+    entry: XMLImportPlanEntry
+  ): number => {
+    sourceState.foundPropertyKeys.add(entry.propertyKey)
+    const conversionStartedAt = performance.now()
+    importMatch({
+      sourceState,
+      entry,
+      sourceXMLKey: undefined,
+      xmlPath: undefined,
+      sourceXMLValue: undefined,
+      presentInXML: false,
+      ambiguousXMLKey: false,
+    })
+    return performance.now() - conversionStartedAt
+  }
+
   for (const sourceState of sourceStates) {
     const traversalStartedAt = performance.now()
     let conversionMs = 0
@@ -477,17 +497,21 @@ export function importPropertiesFromXMLToYAML(params: {
     let conversionMs = 0
     for (const entry of sourceState.plan.defaults) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
-      const conversionStartedAt = performance.now()
-      importMatch({
-        sourceState,
-        entry,
-        sourceXMLKey: undefined,
-        xmlPath: undefined,
-        sourceXMLValue: undefined,
-        presentInXML: false,
-        ambiguousXMLKey: false,
-      })
-      conversionMs += performance.now() - conversionStartedAt
+      conversionMs += importMissingEntry(sourceState, entry)
+    }
+    for (const entry of sourceState.plan.entriesByPropertyKey.values()) {
+      if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
+      if (
+        matchExplicitXMLPropertyFromXML({
+          itemType: rule.itemType,
+          propertyKey: entry.propertyKey,
+          presentInXML: false,
+          xmlValue: undefined,
+        }) === undefined
+      ) {
+        continue
+      }
+      conversionMs += importMissingEntry(sourceState, entry)
     }
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }

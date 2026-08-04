@@ -35,7 +35,7 @@ describe("export ConditionalAppearance to YAML", () => {
       xmlRootTag: "dcsset:conditionalAppearance",
       importMetaUrl: import.meta.url,
     })
-    expect(result).toEqual({})
+    expect(result).toEqual({ УсловноеОформление: {} })
   })
 
   it("exports minimalUserSettings", () => {

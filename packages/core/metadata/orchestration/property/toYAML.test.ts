@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToYAML } from "./toYAML"
+import { registerTypeRule } from "./typeRuleRegistry"
+import type { PropertyRuleType } from "./registry"
 import type { PropertyRule } from "./types"
 
 describe("exportPropertyToYAML", () => {
@@ -33,6 +35,29 @@ describe("exportPropertyToYAML", () => {
         context: { ...mockContext, exportToYAML: { toTyped: false } },
         rule,
         value: false,
+      })
+    ).toBeUndefined()
+  })
+
+  it("preserves an empty object when XML presence affects export", () => {
+    const type = "TestPresenceAffectsExport" as PropertyRuleType
+    registerTypeRule(type, "xmlImportPropertyBehavior", { presenceAffectsExport: true })
+
+    expect(
+      exportPropertyToYAML({
+        context: { ...mockContext, exportToYAML: { toTyped: false } },
+        rule: { yaml: "Поле", type } as PropertyRule,
+        value: {},
+      })
+    ).toEqual({ Поле: {} })
+  })
+
+  it("omits an ordinary empty object", () => {
+    expect(
+      exportPropertyToYAML({
+        context: { ...mockContext, exportToYAML: { toTyped: false } },
+        rule: { yaml: "Поле", type: "TestOrdinaryEmptyObject" as PropertyRuleType } as PropertyRule,
+        value: {},
       })
     ).toBeUndefined()
   })

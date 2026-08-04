@@ -59,6 +59,14 @@ const importExplicitTextValueFromYAML = (
     return { type: "DesignTimeValue", value: data["Значение"] }
   }
   if (data["Тип"] === "МногоязычнаяСтрока") {
+    if (
+      typeof data["Значение"] === "object" &&
+      data["Значение"] !== null &&
+      !Array.isArray(data["Значение"]) &&
+      Object.keys(data["Значение"] as object).length === 0
+    ) {
+      return { items: {} }
+    }
     const value = importI8nTextFromYAML({
       context,
       rule: { type: "I8nText" },
@@ -67,6 +75,19 @@ const importExplicitTextValueFromYAML = (
     if (value !== undefined) return value
   }
   if (data["Тип"] === "МногоязычнаяФорматированнаяСтрока") {
+    const rawValue = data["Значение"]
+    if (
+      typeof rawValue === "object" &&
+      rawValue !== null &&
+      !Array.isArray(rawValue) &&
+      (rawValue as Record<string, unknown>).Форматированный === "Истина" &&
+      typeof (rawValue as Record<string, unknown>).Текст === "object" &&
+      (rawValue as Record<string, unknown>).Текст !== null &&
+      !Array.isArray((rawValue as Record<string, unknown>).Текст) &&
+      Object.keys((rawValue as Record<string, unknown>).Текст as object).length === 0
+    ) {
+      return { type: "LocalFormattedStringType", value: { formatted: true, items: {} } }
+    }
     const value = importFormattedI8nTextFromYAML({
       context,
       rule: { type: "FormattedI8nText" },
