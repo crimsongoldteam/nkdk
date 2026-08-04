@@ -4,7 +4,11 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
-import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
+import {
+  createConfigurationIndexReader,
+  type AssignmentScopedConfigurationIndexReader,
+  type SharedConfigurationIndexSnapshot,
+} from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "../projectState"
 import type { MetadataWorkerOperation } from "../workerPool/types"
@@ -14,6 +18,7 @@ import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
+  FullXmlSyncExecutionAssignment,
   FullXmlSyncExpectedOutput,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
@@ -102,6 +107,7 @@ export function createFullXmlSyncWorkerPool(params: {
   const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
   let phase: PoolPhase = "new"
   let initialization: FullXmlSyncWorkerInitialization | undefined
+  let targetIndexReader: AssignmentScopedConfigurationIndexReader | undefined
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
 
@@ -109,6 +115,7 @@ export function createFullXmlSyncWorkerPool(params: {
     async initialize(initializeParams) {
       assertPhase(phase, "new", "Full XML sync worker pool уже инициализирован")
       initialization = initializeParams
+      targetIndexReader = createConfigurationIndexReader(initializeParams.targetIndex)
       phase = "initialized"
     },
 
@@ -119,7 +126,16 @@ export function createFullXmlSyncWorkerPool(params: {
         throw new Error("Full XML sync worker pool не инициализирован")
       }
       phase = "executing"
-      const partitions = partitionRoundRobin(assignments, concurrency).filter((partition) => partition.length > 0)
+      const indexReader = targetIndexReader
+      if (indexReader === undefined) {
+        throw new Error("Full XML sync worker pool не получил target index")
+      }
+      const executableAssignments = assignments.map((assignment): FullXmlSyncExecutionAssignment => ({
+        ...assignment,
+        configurationIndexEntityRange: indexReader.entityRange(assignment.sourceProjectPath),
+      }))
+      const partitions = partitionRoundRobin(executableAssignments, concurrency)
+        .filter((partition) => partition.length > 0)
       const initialized = initialization
       const { projectStateReadTokens = [], ...workerInitialization } = initialized
       const results = await Promise.all(

@@ -15,7 +15,7 @@ import {
   createFullXmlSyncCompositionSnapshot,
 } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
-import type { FullXmlSyncAssignment } from "./types"
+import type { FullXmlSyncAssignment, FullXmlSyncExecutionAssignment } from "./types"
 import { emptyProjectStateReadSession } from "./testHelpers"
 import { openFullXmlSyncBinaryResult } from "./binaryResult"
 import {
@@ -351,7 +351,7 @@ describe("full XML sync worker", () => {
         })
       )
       const extensionIndex = sampleSnapshot()
-      const assigned: FullXmlSyncAssignment = {
+      const assigned: FullXmlSyncExecutionAssignment = {
         id: projectPath,
         sourceProjectPath: projectPath,
         sourcePath,
@@ -360,6 +360,7 @@ describe("full XML sync worker", () => {
         itemType: "MetadataCommonForm",
         itemName: "ФормаПродаж",
         logicalAddress,
+        configurationIndexEntityRange: { start: 0, count: 0 },
         ...fullXmlSyncTestTopologyFields(projectPath),
       }
       await runFullXmlSyncWorkerCommand({
@@ -491,7 +492,7 @@ describe("full XML sync worker", () => {
 
 const emptyReadSession = emptyProjectStateReadSession
 
-function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
+function assignment(projectDir: string, name: string): FullXmlSyncExecutionAssignment {
   const sourcePath = join(projectDir, "Справочник", name, "Свойства.yaml")
   return {
     id: `Справочник/${name}/Свойства.yaml`,
@@ -502,6 +503,7 @@ function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
     itemType: "MetadataCatalog",
     itemName: name,
     logicalAddress: `Справочник.${name}`,
+    configurationIndexEntityRange: { start: 0, count: 0 },
     ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
 }

@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { entity, fragment } from "../configurationIndex/testData"
-import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWorkerCommand } from "./types"
+import type { ConfigurationSnapshotEntity } from "../configurationIndex/types"
+import type {
+  FullXmlSyncAssignment,
+  FullXmlSyncDiagnostic,
+  FullXmlSyncExecutionAssignment,
+  FullXmlSyncWorkerCommand,
+} from "./types"
 import {
   createFullXmlSyncWorkerPool,
   normalizeFullXmlSyncConcurrency,
@@ -29,7 +37,7 @@ describe("full XML sync worker pool", () => {
       adoptedUuids: {},
     },
     composition: {} as never,
-    targetIndex: {} as never,
+    targetIndex: targetIndex([]),
     projectStateReadTokens: [1, 2, 3, 4].map(() => createTestProjectStateReadToken()),
   } satisfies FullXmlSyncWorkerInitialization
 
@@ -83,6 +91,25 @@ describe("full XML sync worker pool", () => {
     expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution"])
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1])
+  })
+
+  it("один раз связывает назначения с диапазонами target index до передачи worker", async () => {
+    const pools = createFakePools()
+    const pool = createFullXmlSyncWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+    await pool.initialize({
+      ...initialization,
+      targetIndex: targetIndex([entity("Справочник.one", "one.yaml")]),
+    })
+
+    await pool.execute([assignment("one"), assignment("new")])
+
+    expect(pools.executionAssignments(0).map(({ configurationIndexEntityRange }) =>
+      configurationIndexEntityRange
+    )).toEqual([
+      { start: expect.any(Number), count: 1 },
+      { start: 0, count: 0 },
+    ])
+    await pool.close()
   })
 
   it("выполняет синхронизацию через универсальную операцию без отдельного пула", async () => {
@@ -244,6 +271,17 @@ function assignment(id: string): FullXmlSyncAssignment {
   }
 }
 
+function targetIndex(entities: readonly ConfigurationSnapshotEntity[]) {
+  return snapshotConfigurationIndex(encodeConfigurationIndex({
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath: "cf",
+    files: [...new Set(entities.map(({ sourceProjectPath }) => sourceProjectPath))]
+      .map((projectPath) => ({ projectPath, contentHash: 1n })),
+    entities,
+  }))
+}
+
 function executionResult() {
   return createFullXmlSyncBinaryResult({
     diagnostics: [],
@@ -289,6 +327,11 @@ function createFakePools() {
     },
     executeBatchSizes(workerIndex: number): number[] {
       return pools.commands(workerIndex).flatMap((task) => task.kind === "executeBatch" ? [task.assignments.length] : [])
+    },
+    executionAssignments(workerIndex: number): FullXmlSyncExecutionAssignment[] {
+      return pools.commands(workerIndex).flatMap((task) =>
+        task.kind === "executeBatch" ? [...task.assignments] : []
+      )
     },
     created: pools.created,
     failWorker(workerIndex: number, error: Error) {
