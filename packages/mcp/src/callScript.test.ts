@@ -6,11 +6,48 @@ import { describe, expect, it, vi } from "vitest"
 
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
 const callScriptModule = await import(callScript.href)
-const { operationFailed, parseArgs, reportServerStderr } = callScriptModule
+const {
+  createMcpToolSession,
+  operationFailed,
+  parseArgs,
+  reportServerStderr,
+  resolveServerLaunch,
+} = callScriptModule
 
 describe("MCP call script", () => {
   it("keeps the CLI usage contract", () => {
     expect(() => parseArgs([])).toThrow("tool name is required")
+  })
+
+  it("выбирает исходный или собранный MCP server", () => {
+    expect(resolveServerLaunch("source").args).toContain("--import")
+    expect(resolveServerLaunch("source").args.at(-1)).toMatch(/packages\/mcp\/src\/server\.ts$/u)
+    expect(resolveServerLaunch("compiled").args).toEqual([
+      expect.stringMatching(/packages\/mcp\/dist\/bin\/nkdk-mcp$/u),
+    ])
+    expect(parseArgs(["nkdk.get_schema", "--input", "args.json", "--compiled"]).serverMode).toBe("compiled")
+  })
+
+  it("выполняет несколько вызовов через одно MCP-соединение", async () => {
+    const client = {
+      connect: vi.fn().mockResolvedValue(undefined),
+      callTool: vi.fn().mockResolvedValue({ structuredContent: { ok: true } }),
+      close: vi.fn().mockResolvedValue(undefined),
+    }
+    const transport = { stderr: undefined }
+    const session = await createMcpToolSession({
+      serverMode: "compiled",
+      createClient: () => client,
+      createTransport: () => transport,
+    })
+
+    await session.call("first", { value: 1 })
+    await session.call("second", { value: 2 })
+    await session.close()
+
+    expect(client.connect).toHaveBeenCalledTimes(1)
+    expect(client.callTool).toHaveBeenCalledTimes(2)
+    expect(client.close).toHaveBeenCalledTimes(1)
   })
 
   it("persists and prints server stderr once when an MCP call fails", async () => {
