@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { CoreProjectStateService } from "../coreApi"
 import { rebuildProjectCache, resetProjectCache } from "./projectCache"
-import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
+import { createCoreProjectStateTestDouble, createDiagnosticCollectionForTest } from "./projectStateTestSupport"
 
 describe("project cache service", () => {
   const tempDirs: string[] = []
@@ -39,7 +39,7 @@ describe("project cache service", () => {
     }]
     const stats = { hashedFiles: 3, parsedYamlFiles: 2, changedFiles: 3, deletedFiles: 0 }
     const projectState = state({
-      rebuild: vi.fn(async () => ({ diagnostics, stats, readToken: new Uint8Array() })),
+      rebuild: vi.fn(async () => ({ diagnostics: createDiagnosticCollectionForTest(diagnostics), stats, readToken: new Uint8Array() })),
     })
 
     const result = await rebuildProjectCache(
@@ -48,7 +48,13 @@ describe("project cache service", () => {
     )
 
     expect(projectState.rebuild).toHaveBeenCalledWith({ projectDir })
-    expect(result).toEqual({ ok: true, diagnostics, stats })
+    expect(result).toEqual({
+      ok: true,
+      diagnostics: [{ ...diagnostics[0], source: "structure" }],
+      summary: { errors: 1, warnings: 0, shown: 1, omitted: 0 },
+      truncated: false,
+      stats,
+    })
   })
 
   function createProject(): string {

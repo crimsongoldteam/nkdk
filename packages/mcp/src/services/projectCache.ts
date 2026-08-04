@@ -3,6 +3,8 @@ import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contr
 import type { ProjectCacheInput } from "../contracts/projectCache"
 import { resolveProjectRoot } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
+import { prepareDiagnosticOutput } from "./diagnosticReport"
+import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 
 interface ProjectCacheDeps {
   readonly projectState: CoreProjectStateService
@@ -11,6 +13,9 @@ interface ProjectCacheDeps {
 export type ResetProjectCachePayload = ToolPayload<{ reset: true }>
 export type RebuildProjectCachePayload = ToolPayload<{
   diagnostics: readonly Diagnostic[]
+  summary: DiagnosticSummary
+  truncated: boolean
+  report?: DiagnosticReportReference
   stats: CoreProjectStateStats
 }>
 
@@ -38,7 +43,14 @@ export async function rebuildProjectCache(
   try {
     const projectState = deps?.projectState ?? await projectStateHandle.get()
     const result = await projectState.rebuild({ projectDir: project.projectDir })
-    return toolSuccess({ diagnostics: result.diagnostics, stats: result.stats })
+    const output = await prepareDiagnosticOutput({
+      projectDir: project.projectDir,
+      operation: "rebuild",
+      operationId: `${Date.now()}-${Math.random()}`,
+      diagnostics: result.diagnostics,
+      map: (diagnostic) => diagnostic,
+    })
+    return toolSuccess({ ...output, stats: result.stats })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }

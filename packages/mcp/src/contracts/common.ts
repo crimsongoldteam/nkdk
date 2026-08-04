@@ -53,6 +53,9 @@ export function jsonToolResult(
   payload: ToolPayload,
   presentation?: { readonly text: string; readonly resource?: DiagnosticReportReference },
 ): CallToolResult {
+  const isValidationResult = !payload.ok
+    && "code" in payload
+    && String(payload.code) === "validation_failed"
   return {
     content: [
       { type: "text", text: presentation?.text ?? (payload.ok ? "Операция выполнена." : payload.message) },
@@ -64,7 +67,7 @@ export function jsonToolResult(
       }]),
     ],
     structuredContent: payload,
-    ...(payload.ok ? {} : { isError: true }),
+    ...(payload.ok || isValidationResult ? {} : { isError: true }),
   }
 }
 

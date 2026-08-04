@@ -1,11 +1,11 @@
 import fs from "node:fs/promises"
 import { join } from "node:path"
 import { pathToFileURL } from "node:url"
-import type { MetadataDiagnostic, MetadataDiagnosticCollection } from "@nkdk/core"
 import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 
 export const MAX_INLINE_DIAGNOSTICS = 100
 export const MAX_INLINE_DIAGNOSTIC_BYTES = 512 * 1024
+const REPORT_WRITE_CHUNK_BYTES = 256 * 1024
 
 export interface DiagnosticReportFileSystem {
   mkdir(path: string): Promise<void>
@@ -37,24 +37,35 @@ const defaultFileSystem: DiagnosticReportFileSystem = {
   async unlink(path) { await fs.unlink(path) },
 }
 
-export async function prepareDiagnosticOutput(params: {
-  readonly projectDir: string
-  readonly operation: DiagnosticReportOperation
-  readonly operationId: string
-  readonly diagnostics: MetadataDiagnosticCollection
-  readonly fileSystem?: DiagnosticReportFileSystem
-}): Promise<{
-  readonly diagnostics: readonly MetadataDiagnostic[]
+interface ReleasableIterable<T> extends Iterable<T> {
+  release?(): void
+}
+
+export type PreparedDiagnosticOutput<T> = Record<string, unknown> & {
+  readonly diagnostics: readonly T[]
   readonly summary: DiagnosticSummary
   readonly truncated: boolean
   readonly report?: DiagnosticReportReference
-}> {
+}
+
+export async function prepareDiagnosticOutput<Source, T extends { readonly severity: "error" | "warning" }>(params: {
+  readonly projectDir: string
+  readonly operation: DiagnosticReportOperation
+  readonly operationId: string
+  readonly diagnostics: ReleasableIterable<Source>
+  readonly fileSystem?: DiagnosticReportFileSystem
+  readonly map: (diagnostic: Source) => T | undefined
+}): Promise<PreparedDiagnosticOutput<T>> {
   const fileSystem = params.fileSystem ?? defaultFileSystem
-  const inline: MetadataDiagnostic[] = []
+  const inline: T[] = []
   const inlineLines: string[] = []
   let inlineBytes = 0
   let total = 0
+  let errors = 0
+  let warnings = 0
   let writer: Awaited<ReturnType<DiagnosticReportFileSystem["open"]>> | undefined
+  let reportChunk = ""
+  let reportChunkBytes = 0
   let report: DiagnosticReportReference | undefined
   const reportsDir = join(params.projectDir, ".nkdk", "reports")
   const fileName = `${params.operation}-${params.operationId}.jsonl`
@@ -62,7 +73,9 @@ export async function prepareDiagnosticOutput(params: {
   const temporaryPath = `${finalPath}.tmp`
 
   try {
-    for (const diagnostic of params.diagnostics) {
+    for (const source of params.diagnostics) {
+      const diagnostic = params.map(source)
+      if (diagnostic === undefined) continue
       const line = `${JSON.stringify(diagnostic)}\n`
       const lineBytes = Buffer.byteLength(line)
       const fitsInline = inline.length < MAX_INLINE_DIAGNOSTICS
@@ -75,14 +88,26 @@ export async function prepareDiagnosticOutput(params: {
         if (writer === undefined) {
           await fileSystem.mkdir(reportsDir)
           writer = await fileSystem.open(temporaryPath)
-          for (const previous of inlineLines) await writer.write(previous)
+          for (const previous of inlineLines) {
+            reportChunk += previous
+            reportChunkBytes += Buffer.byteLength(previous)
+          }
         }
-        await writer.write(line)
+        reportChunk += line
+        reportChunkBytes += lineBytes
+        if (reportChunkBytes >= REPORT_WRITE_CHUNK_BYTES) {
+          await writer.write(reportChunk)
+          reportChunk = ""
+          reportChunkBytes = 0
+        }
       }
       total += 1
+      if (diagnostic.severity === "error") errors += 1
+      else warnings += 1
     }
 
     if (writer !== undefined) {
+      if (reportChunk.length > 0) await writer.write(reportChunk)
       await writer.close()
       writer = undefined
       await fileSystem.rename(temporaryPath, finalPath)
@@ -93,8 +118,8 @@ export async function prepareDiagnosticOutput(params: {
     return {
       diagnostics: inline,
       summary: {
-        errors: params.diagnostics.errors,
-        warnings: params.diagnostics.warnings,
+        errors,
+        warnings,
         shown: inline.length,
         omitted: total - inline.length,
       },
@@ -103,8 +128,25 @@ export async function prepareDiagnosticOutput(params: {
     }
   } finally {
     if (writer !== undefined) await writer.close().catch(() => undefined)
-    params.diagnostics.release()
+    params.diagnostics.release?.()
   }
+}
+
+export async function withDiagnosticOutput<
+  Source,
+  T extends { readonly severity: "error" | "warning" },
+  Result,
+>(params: {
+  readonly projectDir: string
+  readonly operation: DiagnosticReportOperation
+  readonly operationId: string
+  readonly diagnostics: ReleasableIterable<Source>
+  readonly fileSystem?: DiagnosticReportFileSystem
+  readonly map: (diagnostic: Source) => T | undefined
+  readonly build: (output: PreparedDiagnosticOutput<T>) => Result
+}): Promise<Result> {
+  const output = await prepareDiagnosticOutput(params)
+  return params.build(output)
 }
 
 async function removePreviousReports(

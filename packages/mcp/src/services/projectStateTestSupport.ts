@@ -1,5 +1,11 @@
 import { vi } from "vitest"
 import type { CoreProjectStateService } from "../coreApi"
+import {
+  createDiagnosticBatchWriter,
+  createMetadataDiagnosticCollection,
+  openDiagnosticBatch,
+  type MetadataDiagnostic,
+} from "@nkdk/core"
 
 export function createCoreProjectStateTestDouble(): CoreProjectStateService {
   return {
@@ -13,3 +19,17 @@ export function createCoreProjectStateTestDouble(): CoreProjectStateService {
     close: vi.fn(),
   }
 }
+
+export function createDiagnosticCollectionForTest(
+  diagnostics: readonly (Omit<MetadataDiagnostic, "source"> & { readonly source?: MetadataDiagnostic["source"] })[],
+) {
+  const writer = createDiagnosticBatchWriter()
+  for (const diagnostic of diagnostics) writer.append({ source: "structure", ...diagnostic })
+  return createMetadataDiagnosticCollection([openDiagnosticBatch(writer.finish())])
+}
+
+export const emptyDiagnosticOutputForTest = {
+  diagnostics: [],
+  summary: { errors: 0, warnings: 0, shown: 0, omitted: 0 },
+  truncated: false,
+} as const

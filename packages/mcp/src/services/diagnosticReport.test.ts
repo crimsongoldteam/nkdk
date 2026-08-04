@@ -8,6 +8,7 @@ import {
 import {
   MAX_INLINE_DIAGNOSTICS,
   prepareDiagnosticOutput,
+  withDiagnosticOutput,
   type DiagnosticReportFileSystem,
 } from "./diagnosticReport"
 
@@ -30,6 +31,7 @@ describe("выдача диагностик MCP", () => {
       operationId: "op",
       diagnostics,
       fileSystem,
+      map: (value) => value,
     })
 
     expect(result.diagnostics).toHaveLength(shown)
@@ -53,6 +55,7 @@ describe("выдача диагностик MCP", () => {
       operationId: "new",
       diagnostics,
       fileSystem,
+      map: (value) => value,
     })
 
     expect(fileSystem.calls).toEqual([
@@ -64,6 +67,31 @@ describe("выдача диагностик MCP", () => {
       "unlink:validation-old.jsonl",
     ])
     expect(fileSystem.lines).toHaveLength(101)
+  })
+
+  it("добавляет ограниченные diagnostics к специфическому результату операции", async () => {
+    const result = await withDiagnosticOutput({
+      projectDir: "/project",
+      operation: "import",
+      operationId: "op",
+      diagnostics: [
+        { severity: "error" as const, message: "Ошибка" },
+        { severity: "warning" as const, message: "Предупреждение" },
+      ],
+      fileSystem: memoryFileSystem(),
+      map: (value) => value,
+      build: (output) => ({ succeeded: 7, ...output }),
+    })
+
+    expect(result).toMatchObject({
+      succeeded: 7,
+      diagnostics: [
+        { severity: "error", message: "Ошибка" },
+        { severity: "warning", message: "Предупреждение" },
+      ],
+      summary: { errors: 1, warnings: 1, shown: 2, omitted: 0 },
+      truncated: false,
+    })
   })
 })
 
@@ -98,7 +126,11 @@ function memoryFileSystem(initialFiles: readonly string[] = []): DiagnosticRepor
     async open(path) {
       calls.push(`open:${path}`)
       return {
-        async write(line) { lines.push(line) },
+        async write(chunk) {
+          for (const line of chunk.split("\n")) {
+            if (line.length > 0) lines.push(`${line}\n`)
+          }
+        },
         async close() { calls.push("close") },
       }
     },

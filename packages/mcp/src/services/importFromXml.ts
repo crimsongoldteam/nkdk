@@ -3,6 +3,8 @@ import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contr
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
 import { resolveComponent } from "./componentResolver"
 import { projectStateHandle } from "./projectStateHandle"
+import { withDiagnosticOutput, type DiagnosticReportFileSystem } from "./diagnosticReport"
+import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -23,6 +25,7 @@ interface CoreImportResult {
 
 interface ImportFromXmlDeps {
   projectState?: CoreProjectStateService
+  diagnosticReportFileSystem?: DiagnosticReportFileSystem
   importConfigurationFromXml: (params: {
     context: {
       defaultLanguage: "ru"
@@ -44,7 +47,20 @@ export type ImportFromXmlPayload = ToolPayload<{
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
   configurationIndexPath?: string
+  diagnostics: readonly ImportOutputDiagnostic[]
+  summary: DiagnosticSummary
+  truncated: boolean
+  report?: DiagnosticReportReference
 }>
+
+interface ImportOutputDiagnostic {
+  readonly severity: "error" | "warning"
+  readonly message: string
+  readonly code?: string
+  readonly targetProjectPath?: string
+  readonly kind?: string
+  readonly name?: string
+}
 
 export async function importFromXml(
   input: ImportFromXmlInput,
@@ -78,53 +94,75 @@ export async function importFromXml(
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })
 
-    const failed = result.failed.map(mapFailure)
-    const warnings = result.warnings.map(mapWarning)
-    if (result.componentPath === undefined) {
-      return toolError(
-        "core_error",
-        result.failed.find((failure) => failure.severity === "error")?.message ?? "Не удалось определить компонент XML-выгрузки",
-        {
+    return await withDiagnosticOutput({
+      projectDir: project.projectDir,
+      operation: "import",
+      operationId: `${Date.now()}-${Math.random()}`,
+      diagnostics: concatenate(result.failed, result.warnings),
+      ...(deps?.diagnosticReportFileSystem === undefined ? {} : { fileSystem: deps.diagnosticReportFileSystem }),
+      map: mapDiagnostic,
+      build(output): ImportFromXmlPayload {
+        const failed = output.diagnostics.filter(isImportError).map(mapFailureOutput)
+        const warnings = output.diagnostics.filter(isImportWarning).map(mapWarningOutput)
+        const details = {
           succeeded: result.succeeded,
+          ...output,
           failed,
           warnings,
           ...(result.configurationIndexPath === undefined
             ? {}
             : { configurationIndexPath: result.configurationIndexPath }),
-        },
-      )
-    }
-
-    return toolSuccess({
-      componentPath: result.componentPath,
-      succeeded: result.succeeded,
-      failed,
-      warnings,
-      ...(result.configurationIndexPath === undefined
-        ? {}
-        : { configurationIndexPath: result.configurationIndexPath }),
+        }
+        if (result.componentPath === undefined) {
+          return toolError(
+            "core_error",
+            result.failed.find((failure) => failure.severity === "error")?.message ?? "Не удалось определить компонент XML-выгрузки",
+            details,
+          )
+        }
+        return toolSuccess({ componentPath: result.componentPath, ...details })
+      },
     })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }
 }
 
-function mapFailure(failure: CoreImportDiagnostic): { kind: string; name: string; message: string } {
-  return {
-    kind: failure.code,
-    name: failure.targetProjectPath,
-    message: failure.message,
-  }
+function* concatenate<T>(...sources: readonly (readonly T[])[]): Iterable<T> {
+  for (const source of sources) yield* source
 }
 
-function mapWarning(warning: CoreImportDiagnostic): {
+function mapDiagnostic(diagnostic: CoreImportDiagnostic): ImportOutputDiagnostic {
+  return diagnostic.severity === "error"
+    ? { severity: "error", kind: diagnostic.code, name: diagnostic.targetProjectPath, message: diagnostic.message }
+    : {
+        severity: "warning",
+        code: diagnostic.code,
+        message: diagnostic.message,
+        ...(diagnostic.targetProjectPath.length === 0 ? {} : { targetProjectPath: diagnostic.targetProjectPath }),
+      }
+}
+
+function isImportError(diagnostic: ImportOutputDiagnostic): boolean {
+  return diagnostic.severity === "error"
+}
+
+function isImportWarning(diagnostic: ImportOutputDiagnostic): boolean {
+  return diagnostic.severity === "warning"
+}
+
+function mapFailureOutput(failure: ImportOutputDiagnostic): { kind: string; name: string; message: string } {
+  return { kind: failure.kind ?? "", name: failure.name ?? "", message: failure.message }
+}
+
+function mapWarningOutput(warning: ImportOutputDiagnostic): {
   code: string
   message: string
   targetProjectPath?: string
 } {
   return {
-    code: warning.code,
+    code: warning.code ?? "",
     message: warning.message,
-    ...(warning.targetProjectPath.length === 0 ? {} : { targetProjectPath: warning.targetProjectPath }),
+    ...(warning.targetProjectPath === undefined ? {} : { targetProjectPath: warning.targetProjectPath }),
   }
 }

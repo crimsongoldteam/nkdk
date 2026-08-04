@@ -4,6 +4,8 @@ import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { importFromXml } from "./importFromXml"
 import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
+import { jsonToolResult } from "../contracts/common"
+import type { DiagnosticReportFileSystem } from "./diagnosticReport"
 
 const importContext = {
   defaultLanguage: "ru" as const,
@@ -87,6 +89,16 @@ describe("importFromXml service", () => {
       ok: true,
       componentPath: "cfe/Расширение",
       succeeded: 1,
+      diagnostics: [
+        {
+          severity: "error",
+          kind: "xml_import_assignment_failed",
+          name: "Перечисление/Виды/Свойства.yaml",
+          message: "broken xml",
+        },
+      ],
+      summary: { errors: 1, warnings: 0, shown: 1, omitted: 0 },
+      truncated: false,
       failed: [
         {
           kind: "xml_import_assignment_failed",
@@ -120,6 +132,16 @@ describe("importFromXml service", () => {
       message: "Неизвестный корень Configuration.xml",
       details: {
         succeeded: 0,
+        diagnostics: [
+          {
+            severity: "error",
+            kind: "xml_import_operation_failed",
+            name: "",
+            message: "Неизвестный корень Configuration.xml",
+          },
+        ],
+        summary: { errors: 1, warnings: 0, shown: 1, omitted: 0 },
+        truncated: false,
         failed: [
           {
             kind: "xml_import_operation_failed",
@@ -161,6 +183,22 @@ describe("importFromXml service", () => {
       ok: true,
       componentPath: "cfe/Расширение",
       succeeded: 0,
+      diagnostics: [
+        {
+          severity: "error",
+          kind: "xml_import_operation_failed",
+          name: "",
+          message: "Целевой каталог компонента не пуст: cfe/Расширение",
+        },
+        {
+          severity: "error",
+          kind: "xml_import_operation_failed",
+          name: "",
+          message: "Снимок компонента уже существует: cfe/Расширение",
+        },
+      ],
+      summary: { errors: 2, warnings: 0, shown: 2, omitted: 0 },
+      truncated: false,
       failed: [
         {
           kind: "xml_import_operation_failed",
@@ -214,6 +252,16 @@ describe("importFromXml service", () => {
       ok: true,
       componentPath: "cf",
       succeeded: 1,
+      diagnostics: [
+        {
+          severity: "warning",
+          code: "unresolved_data_path",
+          message: "path",
+          targetProjectPath: "Форма.yaml",
+        },
+      ],
+      summary: { errors: 0, warnings: 1, shown: 1, omitted: 0 },
+      truncated: false,
       failed: [],
       warnings: [
         {
@@ -251,6 +299,43 @@ describe("importFromXml service", () => {
     })
   })
 
+  it("ограничивает ответ с 26 918 ошибками и пишет полный отчёт", async () => {
+    const projectDir = createProject()
+    const report = countingReportFileSystem()
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      componentPath: "cf",
+      succeeded: 0,
+      failed: Array.from({ length: 26_918 }, (_unused, index) => ({
+        severity: "error" as const,
+        code: "xml_import_assignment_failed",
+        message: `Ошибка ${index}`,
+        targetProjectPath: `Справочник/${index}/Свойства.yaml`,
+      })),
+      warnings: [],
+    })
+
+    const result = await importFromXml(
+      { xmlDir: "/xml", projectDir, allowWrite: true },
+      {
+        importConfigurationFromXml,
+        projectState: createCoreProjectStateTestDouble(),
+        diagnosticReportFileSystem: report.fileSystem,
+      },
+    )
+    const messageBytes = Buffer.byteLength(JSON.stringify(jsonToolResult(result)))
+
+    expect(result).toMatchObject({
+      ok: true,
+      summary: { errors: 26_918, warnings: 0, shown: 100, omitted: 26_818 },
+      truncated: true,
+      report: { format: "application/x-ndjson" },
+    })
+    expect(result.ok && result.diagnostics).toHaveLength(100)
+    expect(result.ok && result.failed).toHaveLength(100)
+    expect(report.lines()).toBe(26_918)
+    expect(messageBytes).toBeLessThan(1024 * 1024)
+  })
+
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-import-"))
     tempDirs.push(projectDir)
@@ -258,6 +343,28 @@ describe("importFromXml service", () => {
     return projectDir
   }
 })
+
+function countingReportFileSystem(): {
+  readonly fileSystem: DiagnosticReportFileSystem
+  readonly lines: () => number
+} {
+  let lines = 0
+  return {
+    lines: () => lines,
+    fileSystem: {
+      async mkdir() {},
+      async open() {
+        return {
+          async write(chunk) { lines += chunk.match(/\n/g)?.length ?? 0 },
+          async close() {},
+        }
+      },
+      async rename() {},
+      async readdir() { return [] },
+      async unlink() {},
+    },
+  }
+}
 
 function importFailure(message: string) {
   return {

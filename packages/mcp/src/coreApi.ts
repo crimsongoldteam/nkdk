@@ -4,6 +4,8 @@ import type {
   FullXmlSyncResult,
   ImportConfigurationFromXmlParams,
   MetadataOperationResult,
+  MetadataDiagnostic,
+  MetadataDiagnosticCollection,
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
 } from "@nkdk/core"
@@ -17,14 +19,8 @@ export interface SchemaSummaryOptions {
   keyTerms?: string
 }
 
-export interface Diagnostic {
-  filePath: string
-  line: number
-  col: number
-  severity: "error" | "warning"
-  message: string
-  path?: string
-}
+export type Diagnostic = MetadataDiagnostic
+export type CoreDiagnosticCollection = MetadataDiagnosticCollection
 
 export interface XmlSyncState {
   version: 1
@@ -65,7 +61,7 @@ export interface CoreApi {
   validateProject(params: {
     projectDir: string
     projectState: CoreProjectStateService
-  }): Promise<{ diagnostics: Diagnostic[] }>
+  }): Promise<{ diagnostics: CoreDiagnosticCollection }>
   renameMetadataItem(params: {
     projectDir: string
     componentPath: string
@@ -142,7 +138,7 @@ export interface CoreProjectStateService {
   readComponentProjection(params: unknown): Promise<unknown>
   reset(projectDir: string): Promise<void>
   rebuild(params: unknown): Promise<{
-    diagnostics: readonly Diagnostic[]
+    diagnostics: CoreDiagnosticCollection
     stats: CoreProjectStateStats
     readToken: unknown
   }>

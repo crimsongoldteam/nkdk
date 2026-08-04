@@ -1,4 +1,5 @@
 import { z } from "zod/v4"
+import { diagnosticOutputShape } from "./diagnostics"
 
 const localName = z
   .string()
@@ -24,3 +25,8 @@ export const findReferencesInputShape = {
 
 export type RenameItemInput = z.infer<z.ZodObject<typeof renameItemInputShape>>
 export type FindReferencesInput = z.infer<z.ZodObject<typeof findReferencesInputShape>>
+
+export const metadataOperationOutputSchema = z.looseObject({
+  ok: z.boolean(),
+  ...diagnosticOutputShape,
+})

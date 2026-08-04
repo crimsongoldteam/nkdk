@@ -40,4 +40,17 @@ describe("common MCP contracts", () => {
     expect(result.content).toEqual([{ type: "text", text: "Нужно подтвердить запись" }])
     expect(result.isError).toBe(true)
   })
+
+  it("не помечает обычный провал validation как ошибку протокола MCP", () => {
+    const payload = {
+      ok: false,
+      code: "validation_failed",
+      message: "Проект содержит ошибки",
+      diagnostics: [],
+    } as never
+
+    const result = jsonToolResult(payload)
+
+    expect(result.isError).toBeUndefined()
+  })
 })

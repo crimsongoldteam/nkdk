@@ -100,6 +100,20 @@ describe("registerNkdkCapabilities", () => {
       expect(tool?.description).toContain("Проверки выполняются всегда")
     }
 
+    for (const name of [
+      "nkdk.validate_project",
+      "nkdk.rebuild_project_cache",
+      "nkdk.import_from_xml",
+      "nkdk.sync_to_xml",
+      "nkdk.rename_item",
+      "nkdk.find_references",
+    ]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { outputSchema?: unknown }
+        | undefined
+      expect(tool?.outputSchema, `${name} должен объявлять outputSchema`).toBeDefined()
+    }
+
     for (const name of ["nkdk.reset_project_cache", "nkdk.rebuild_project_cache"]) {
       const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
         | { inputSchema: z.ZodType }
@@ -142,6 +156,29 @@ describe("registerNkdkCapabilities", () => {
         reusedConnection: false,
       }).success
     ).toBe(true)
+  })
+
+  it("возвращает краткую сводку и ссылку на полный отчёт без JSON-дубликата", () => {
+    const payload = {
+      ok: true as const,
+      diagnostics: [],
+      summary: { errors: 120, warnings: 3, shown: 100, omitted: 23 },
+      truncated: true,
+      report: { uri: "file:///project/.nkdk/reports/validation-op.jsonl", format: "application/x-ndjson" as const },
+    }
+
+    const result = registerToolsModule.metadataToolResult(payload, "Validation")
+
+    expect(result.content).toEqual([
+      { type: "text", text: "Validation: ошибок 120, предупреждений 3; показано 100, скрыто 23." },
+      {
+        type: "resource_link",
+        uri: payload.report.uri,
+        name: "Полный отчёт diagnostics",
+        mimeType: "application/x-ndjson",
+      },
+    ])
+    expect(result.structuredContent).toBe(payload)
   })
 
   it("passes the MCP cancellation signal to infobase import", async () => {

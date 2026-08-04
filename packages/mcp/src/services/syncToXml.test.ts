@@ -75,6 +75,9 @@ describe("syncToXml service", () => {
       ok: true,
       succeeded: 1,
       configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      diagnostics: [],
+      summary: { errors: 0, warnings: 0, shown: 0, omitted: 0 },
+      truncated: false,
       warnings: [],
       failed: [],
     })
@@ -209,6 +212,12 @@ describe("syncToXml service", () => {
     expect(result).toEqual({
       ok: true,
       succeeded: 2,
+      diagnostics: [
+        { severity: "error", code: "bad_yaml", message: "bad yaml" },
+        { severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" },
+      ],
+      summary: { errors: 1, warnings: 1, shown: 2, omitted: 0 },
+      truncated: false,
       warnings: [{ severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" }],
       failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
     })

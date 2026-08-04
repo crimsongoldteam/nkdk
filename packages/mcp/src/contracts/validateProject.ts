@@ -1,5 +1,6 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
+import { diagnosticReportSchema, diagnosticSummarySchema } from "./diagnostics"
 
 export const validateProjectInputShape = {
   projectDir: z.string().min(1),
@@ -15,10 +16,9 @@ export const diagnosticSchema = z.object({
 export const validateProjectSuccessOutputShape = {
   ok: z.literal(true),
   diagnostics: z.array(diagnosticSchema),
-  summary: z.object({
-    errors: z.number(),
-    warnings: z.number(),
-  }),
+  summary: diagnosticSummarySchema,
+  truncated: z.boolean(),
+  report: diagnosticReportSchema.optional(),
 }
 
 export const validateProjectOutputShape = z.union([

@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { jsonToolResult } from "../contracts/common"
 import { describeProjectStructureInputShape } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape } from "../contracts/getSchema"
-import { importFromXmlInputShape } from "../contracts/importFromXml"
+import { importFromXmlInputShape, importFromXmlSuccessOutputShape } from "../contracts/importFromXml"
 import { importFromInfobaseInputShape } from "../contracts/importFromInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
@@ -10,10 +10,11 @@ import {
   listInfobaseExtensionsInputSchema,
   listInfobaseExtensionsSuccessSchema,
 } from "../contracts/listInfobaseExtensions"
-import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
-import { syncToXmlInputShape } from "../contracts/syncToXml"
-import { validateProjectInputShape } from "../contracts/validateProject"
-import { projectCacheInputSchema } from "../contracts/projectCache"
+import { findReferencesInputShape, metadataOperationOutputSchema, renameItemInputShape } from "../contracts/operations"
+import { syncToXmlInputShape, syncToXmlSuccessOutputShape } from "../contracts/syncToXml"
+import { validateProjectInputShape, validateProjectSuccessOutputShape } from "../contracts/validateProject"
+import { projectCacheInputSchema, rebuildProjectCacheOutputSchema } from "../contracts/projectCache"
+import type { ToolPayload } from "../contracts/common"
 import {
   closeAllPlatformConnectionsInputShape,
   closePlatformConnectionInputShape,
@@ -91,8 +92,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "Validate NKDK YAML project",
       description: "Проверяет все компоненты в корне NKDK-проекта и возвращает diagnostics в JSON.",
       inputSchema: validateProjectInputShape,
+      outputSchema: validateProjectSuccessOutputShape,
     },
-    async (input) => jsonToolResult(await validateYamlProject(input))
+    async (input) => metadataToolResult(await validateYamlProject(input), "Validation")
   )
 
   server.registerTool(
@@ -113,8 +115,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Строит отдельное полное состояние проекта, выполняет validation и атомарно заменяет cache даже при обычных diagnostics. Возвращает diagnostics и статистику. Требует allowWrite=true.",
       inputSchema: projectCacheInputSchema,
+      outputSchema: rebuildProjectCacheOutputSchema,
     },
-    async (input) => jsonToolResult(await rebuildProjectCache(input))
+    async (input) => metadataToolResult(await rebuildProjectCache(input), "Перестроение состояния проекта")
   )
 
   server.registerTool(
@@ -124,8 +127,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
+      outputSchema: importFromXmlSuccessOutputShape,
     },
-    async (input) => jsonToolResult(await importFromXml(input))
+    async (input) => metadataToolResult(await importFromXml(input), "Импорт")
   )
 
   server.registerTool(
@@ -168,8 +172,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы пишутся только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
+      outputSchema: syncToXmlSuccessOutputShape,
     },
-    async (input) => jsonToolResult(await syncToXml(input))
+    async (input) => metadataToolResult(await syncToXml(input), "Синхронизация")
   )
 
   server.registerTool(
@@ -190,8 +195,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Единственный MCP-способ сохранить XML/reference identity при переименовании metadataRef в выбранном компоненте projectDir/componentPath. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics.",
       inputSchema: renameItemInputShape,
+      outputSchema: metadataOperationOutputSchema,
     },
-    async (input) => jsonToolResult(await renameItem(input))
+    async (input) => metadataToolResult(await renameItem(input), "Переименование")
   )
 
   server.registerTool(
@@ -201,8 +207,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description:
         "Ищет внешние ссылки на metadataRef в выбранном компоненте projectDir/componentPath. componentPath по умолчанию cf. Проверки выполняются всегда; ignoreValidationErrors только разрешает продолжение при diagnostics. Файлы не изменяет.",
       inputSchema: findReferencesInputShape,
+      outputSchema: metadataOperationOutputSchema,
     },
-    async (input) => jsonToolResult(await findReferences(input))
+    async (input) => metadataToolResult(await findReferences(input), "Поиск ссылок")
   )
 
   for (const guide of guideDefinitions) {
@@ -246,6 +253,34 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       })
     )
   }
+}
+
+export function metadataToolResult(payload: ToolPayload, operation: string) {
+  const summary = payload["summary"]
+  const report = payload["report"]
+  if (
+    typeof summary === "object"
+    && summary !== null
+    && "errors" in summary
+    && "warnings" in summary
+    && "shown" in summary
+    && "omitted" in summary
+  ) {
+    return jsonToolResult(payload, {
+      text: `${operation}: ошибок ${summary.errors}, предупреждений ${summary.warnings}; показано ${summary.shown}, скрыто ${summary.omitted}.`,
+      ...(isDiagnosticReport(report) ? { resource: report } : {}),
+    })
+  }
+  return jsonToolResult(payload)
+}
+
+function isDiagnosticReport(value: unknown): value is { uri: string; format: "application/x-ndjson" } {
+  return typeof value === "object"
+    && value !== null
+    && "uri" in value
+    && typeof value.uri === "string"
+    && "format" in value
+    && value.format === "application/x-ndjson"
 }
 
 export function createImportFromInfobaseHandler(

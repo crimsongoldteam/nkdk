@@ -1,5 +1,6 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
+import { diagnosticOutputShape } from "./diagnostics"
 
 export const failedObjectSchema = z.object({
   kind: z.string(),
@@ -24,6 +25,7 @@ export const importFromXmlInputShape = {
 
 export const importFromXmlSuccessOutputShape = {
   ok: z.literal(true),
+  ...diagnosticOutputShape,
   componentPath: z.string(),
   succeeded: z.number(),
   failed: z.array(failedObjectSchema),

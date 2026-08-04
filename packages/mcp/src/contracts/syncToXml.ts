@@ -1,5 +1,6 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
+import { diagnosticOutputShape } from "./diagnostics"
 
 export const syncToXmlInputShape = {
   projectDir: z.string().min(1),
@@ -12,6 +13,7 @@ export const syncToXmlInputShape = {
 
 export const syncToXmlSuccessOutputShape = {
   ok: z.literal(true),
+  ...diagnosticOutputShape,
   result: z.unknown().optional(),
   succeeded: z.number().optional(),
   configurationIndexPath: z.string().optional(),
