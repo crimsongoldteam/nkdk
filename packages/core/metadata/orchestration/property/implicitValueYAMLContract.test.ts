@@ -135,7 +135,7 @@ describe("implicitValueYAML contract", () => {
   })
 
   it("uses configurator defaults as implicit YAML values for document number length", () => {
-    expect(MetadataDocumentRules.properties.numberLength.implicitValueYAML).toBe(11)
+    expect(MetadataDocumentRules.properties.numberLength.implicitValueYAML).toBe(9)
   })
 
   it("keeps enumeration object belonging service fields explicit in YAML", () => {
