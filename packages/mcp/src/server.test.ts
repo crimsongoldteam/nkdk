@@ -148,6 +148,16 @@ describe("MCP server", () => {
     expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
   })
 
+  it("declares binary project-state runtime dependencies", async () => {
+    const packageJson = (
+      await import("../package.json", {
+        with: { type: "json" },
+      })
+    ).default
+
+    expect(packageJson.dependencies).toHaveProperty("structurae", "4.0.2")
+  })
+
   it("publishes the universal worker with standalone schemas", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile(new URL("../scripts/build.mjs", import.meta.url), "utf8")
