@@ -18,6 +18,35 @@ import {
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it.each([
+    ["PlatformApplication", undefined],
+    ["MobilePlatformApplication", "МобильноеПриложение"],
+    [["PlatformApplication", "MobilePlatformApplication"], "ПлатформаИМобильноеПриложение"],
+  ] as const)("импортирует назначение формы %s", (xmlValue, expectedYAML) => {
+    const values = Array.isArray(xmlValue) ? xmlValue : [xmlValue]
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: mockContextFromXML(),
+      formName: "Форма",
+      formXML: {},
+      metadataXML: {
+        Form: {
+          Properties: {
+            FormType: "Managed",
+            UsePurposes: {
+              "v8:Value": values.map((value) => ({
+                "_xsi:type": "app:ApplicationUsePurpose",
+                "#text": value,
+              })),
+            },
+          },
+        },
+      },
+    })
+
+    if (expectedYAML === undefined) expect(result.yaml).not.toHaveProperty("НазначенияИспользования")
+    else expect(result.yaml).toHaveProperty("НазначенияИспользования", expectedYAML)
+  })
+
   it("обходит правила формы один раз для двух XML-источников", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
@@ -636,12 +665,19 @@ describe("форма XML → YAML → XML", () => {
       referenceFormXML: form.Form,
       referenceMetadataXML: metadata.MetaDataObject,
     })
+    const expectedMetadata = structuredClone(metadata.MetaDataObject)
+    expectedMetadata.Form.Properties.UsePurposes ??= {
+      "v8:Value": {
+        "_xsi:type": "app:ApplicationUsePurpose",
+        "#text": "PlatformApplication",
+      },
+    }
 
     expect(canonicalSnapshot13XML(xmlExport({ Form: converted.formXML }))).toEqual(
       canonicalSnapshot13XML(readXMLFixtureAsString(import.meta.url, formFixture))
     )
     expect(canonicalXML(xmlExport({ MetaDataObject: converted.metadataXML }))).toEqual(
-      canonicalXML(readXMLFixtureAsString(import.meta.url, metadataFixture))
+      canonicalXML(xmlExport({ MetaDataObject: expectedMetadata }))
     )
   })
 })

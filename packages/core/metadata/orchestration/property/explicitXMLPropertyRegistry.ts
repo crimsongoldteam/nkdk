@@ -1,11 +1,21 @@
 import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 
-export interface ExplicitXMLPropertyRegistration {
-  readonly itemType: string
-  readonly propertyKey: string
-  readonly xmlValue: unknown
-  readonly yamlValue: unknown
-}
+export type ExplicitXMLPropertyRegistration =
+  | {
+      readonly action?: "emit"
+      readonly itemType: string
+      readonly propertyKey: string
+      readonly xmlValue: unknown
+      readonly yamlValue: unknown
+    }
+  | {
+      readonly action: "omit"
+      readonly itemType: string
+      readonly propertyKey: string
+      readonly yamlValue: ""
+    }
+
+export type ExplicitXMLPropertyAction = "emit" | "omit"
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 
@@ -16,7 +26,7 @@ export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyReg
     registrations.set(key, registration)
     return
   }
-  if (Object.is(current.xmlValue, registration.xmlValue) && Object.is(current.yamlValue, registration.yamlValue)) {
+  if (sameRegistration(current, registration)) {
     return
   }
   throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
@@ -28,17 +38,20 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly presentInXML: boolean
   readonly xmlValue: unknown
 }): ExplicitXMLPropertyRegistration | undefined {
-  if (!params.presentInXML) return undefined
   const registration = registrations.get(registrationKey(params.itemType, params.propertyKey))
-  return registration !== undefined && Object.is(registration.xmlValue, params.xmlValue) ? registration : undefined
+  if (registration?.action === "omit") return params.presentInXML ? undefined : registration
+  return registration !== undefined && params.presentInXML && Object.is(registration.xmlValue, params.xmlValue)
+    ? registration
+    : undefined
 }
 
 export function assertAllowedExplicitXMLTags(params: {
   readonly yaml: unknown
   readonly itemType: string
   readonly properties: Readonly<Record<string, { readonly yaml?: string }>>
-}): void {
-  if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return
+}): ReadonlyMap<string, ExplicitXMLPropertyAction> {
+  const actions = new Map<string, ExplicitXMLPropertyAction>()
+  if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
   const yaml = params.yaml as Record<string, unknown>
   const propertyByYamlKey = new Map(
     Object.entries(params.properties).flatMap(([propertyKey, rule]) =>
@@ -61,7 +74,20 @@ export function assertAllowedExplicitXMLTags(params: {
         `Для ${params.itemType}.${yamlKey} тег !xml не допускает значение ${String(value)}`
       )
     }
+    actions.set(propertyKey!, registration.action ?? "emit")
   }
+  return actions
+}
+
+function sameRegistration(
+  left: ExplicitXMLPropertyRegistration,
+  right: ExplicitXMLPropertyRegistration
+): boolean {
+  const leftAction = left.action ?? "emit"
+  const rightAction = right.action ?? "emit"
+  if (leftAction !== rightAction || !Object.is(left.yamlValue, right.yamlValue)) return false
+  return leftAction === "omit" ||
+    ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }
 
 function registrationKey(itemType: string, propertyKey: string): string {

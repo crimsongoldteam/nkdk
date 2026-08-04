@@ -22,7 +22,10 @@ import {
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
-import { registeredExplicitXMLTestRule } from "../../../tests/property/explicitXMLPropertyRegistry"
+import {
+  registeredExplicitXMLTestRule,
+  registeredMissingExplicitXMLTestRule,
+} from "../../../tests/property/explicitXMLPropertyRegistry"
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
@@ -90,6 +93,17 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Mode: "Auto" })
+  })
+
+  it("does not materialize a default for a registered missing XML property", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("Поле: !xml"),
+      rule: registeredMissingExplicitXMLTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("rejects an unregistered explicit XML scalar", () => {
@@ -168,6 +182,27 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("evaluates XML property when YAML is missing", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          xml: "Value",
+          yaml: "Значение",
+          defaultValueXMLRaw: {},
+          evaluateWhenYAMLMissing: true,
+        } as PropertyRule,
+      }),
+      outputs: [{ key: "owner" }],
+      sparseYAML: true,
+      omitDefaultsForSparseYAML: true,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
   it.each([
@@ -1005,6 +1040,24 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Value: "исходное" })
+  })
+
+  it("does not use reference XML when the property disables reference preservation", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          preserveUnknownReferenceXML: false,
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("сохраняет reference XML для отключённого общего экспорта", () => {

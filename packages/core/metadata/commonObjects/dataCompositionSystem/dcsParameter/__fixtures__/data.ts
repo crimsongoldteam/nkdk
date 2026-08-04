@@ -16,6 +16,7 @@ export const fullDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "ВходящиеПараметры",
     title: { items: { ru: "Параметр1" } },
+    value: null,
     useRestriction: true,
     editParameters: {
       itemType: "SettingsParameterValueCollection" as const,
@@ -76,6 +77,7 @@ export const fullDCSParameters = [
     name: "Составной",
     title: { items: { ru: "Составной" } },
     valueType: compositeValueType,
+    value: null,
   },
   {
     itemType: "DCSParameter" as const,
@@ -87,6 +89,7 @@ export const fullDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "БезТипа",
     title: { items: { ru: "Без типа" } },
+    value: null,
   },
   {
     itemType: "DCSParameter" as const,
@@ -99,6 +102,7 @@ export const fullDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "СТипом",
     title: { items: { ru: "С типом" } },
+    value: null,
   },
 ] as const satisfies DCSParameters
 
@@ -116,12 +120,14 @@ export const minimalDCSParameters = [
     itemType: "DCSParameter" as const,
     name: "Параметр4",
     title: { items: { ru: "Параметр4" } },
+    value: null,
   },
 ] as const satisfies DCSParameters
 
 export const fullDCSParametersYAML = {
   ВходящиеПараметры: {
     Заголовок: "Параметр1",
+    Значение: null,
     ОграничениеИспользования: "Истина",
     ПараметрыРедактирования: {
       БыстрыйВыбор: {
@@ -166,6 +172,7 @@ export const fullDCSParametersYAML = {
   Составной: {
     Заголовок: "Составной",
     ТипЗначения: ["Булево", "Строка", "ДатаВремя", "Число"],
+    Значение: null,
   },
   БезТипаДоступенСписок: {
     Заголовок: "Без типа доступен список",
@@ -173,6 +180,7 @@ export const fullDCSParametersYAML = {
   },
   БезТипа: {
     Заголовок: "Без типа",
+    Значение: null,
   },
   СТипомДоступенСписок: {
     Заголовок: "С типом доступен список",
@@ -181,6 +189,7 @@ export const fullDCSParametersYAML = {
   },
   СТипом: {
     Заголовок: "С типом",
+    Значение: null,
   },
 } as const satisfies DCSParametersYAML
 
@@ -194,5 +203,6 @@ export const explicitNullValueDCSParametersYAML = {
 export const minimalDCSParametersYAML = {
   Параметр4: {
     Заголовок: "Параметр4",
+    Значение: null,
   },
 } as const satisfies DCSParametersYAML

@@ -34,14 +34,8 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
           Имя: "HorizontalAlign",
           Значение: "Лево",
         },
-        Формат: {
-          Тип: "МногоязычнаяСтрока",
-          Значение: "ЧЦ=3; ЧДЦ=2",
-        },
-        Текст: {
-          Тип: "МногоязычнаяСтрока",
-          Значение: "Текст",
-        },
+        Формат: "ЧЦ=3; ЧДЦ=2",
+        Текст: { ru: "Текст" },
       })
     ).toBe(true)
   })
@@ -64,19 +58,31 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
     expect(compiled.Check({ ЦветФона: { Использовать: "Ложь", Значение: "Авто" } })).toBe(true)
   })
 
-  it("accepts explicit text type marker without value", () => {
-    const compiled = compiledAppearanceFieldsSchema
-
-    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока" } })).toBe(true)
-    expect(compiled.Check({ Формат: { Использовать: "Ложь", Тип: "МногоязычнаяСтрока" } })).toBe(true)
-    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяФорматированнаяСтрока" } })).toBe(true)
+  it.each([
+    "",
+    "Строка",
+    {},
+    { ru: "" },
+    { ru: "Строка" },
+    { Форматированный: "Истина", Текст: {} },
+    null,
+    { Использовать: "Ложь", Значение: { ru: "Строка" } },
+  ])("accepts canonical appearance string value %#", (value) => {
+    expect(compiledAppearanceFieldsSchema.Check({ Текст: value })).toBe(true)
+    expect(compiledAppearanceFieldsSchema.Check({ Формат: value })).toBe(true)
   })
 
-  it("keeps explicit text value validation strict when value is present", () => {
-    const compiled = compiledAppearanceFieldsSchema
-
-    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Значение: 42 } })).toBe(false)
-    expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Лишнее: "x" } })).toBe(false)
+  it.each([
+    { Тип: "МногоязычнаяСтрока", Значение: { ru: "x" } },
+    { Использовать: "Ложь" },
+    { ru_RU: "x" },
+    { ru: 1 },
+    { Форматированный: "Истина" },
+    { Форматированный: "Ложь", Текст: {} },
+    { Использовать: "Ложь", Значение: "x", Лишнее: true },
+  ])("rejects non-canonical appearance string value %#", (value) => {
+    expect(compiledAppearanceFieldsSchema.Check({ Текст: value })).toBe(false)
+    expect(compiledAppearanceFieldsSchema.Check({ Формат: value })).toBe(false)
   })
 
   it("does not accept auto as a normal color value", () => {

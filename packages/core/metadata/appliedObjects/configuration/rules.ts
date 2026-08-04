@@ -42,7 +42,7 @@ const configurationInternalInfoContainedObjectClassIds = [
 export const configurationInternalInfoRule: PropertyRule = internalInfoRule({
   xmlParents: [],
   forReferenceOnly: true,
-  exportWithoutReferenceXML: true,
+  evaluateWhenYAMLMissing: true,
   containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
 })
 export const MetadataConfigurationRules = {

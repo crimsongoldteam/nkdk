@@ -36,6 +36,9 @@ describe("export ConditionalAppearanceItems to YAML", () => {
       rule,
       value: minimalConditionalAppearanceItems,
       yaml: minimalConditionalAppearanceItemsYAML,
+      xmlRootTag: "ConditionalAppearance",
+      path: "minimal.xml",
+      importMetaUrl: import.meta.url,
     })
 
     expect(result).toEqual({ УсловноеОформлениеКомпоновкиДанных: minimalConditionalAppearanceItemsYAML })

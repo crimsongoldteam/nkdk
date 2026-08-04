@@ -1,16 +1,12 @@
 import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
-import type { ParameterValueDcsValueFragment, ParameterValueXML } from "../parameterValue/types"
-import { AppearanceFieldsRules, type DirectAppearanceXMLTag } from "./rules"
+import type { ParameterValueXML } from "../parameterValue/types"
+import { AppearanceFieldsRules } from "./rules"
 
 export type AppearanceFields = FormTypeByRule<typeof AppearanceFieldsRules>
 
 export type AppearanceFieldsYAML = YAMLTypeByRule<typeof AppearanceFieldsRules>
 
-export type DirectAppearanceFieldXML = {
-  "dcsset:value"?: ParameterValueDcsValueFragment | ParameterValueDcsValueFragment[]
-}
-
-export type AppearanceFieldsXML = Partial<Record<DirectAppearanceXMLTag, DirectAppearanceFieldXML>> & {
+export type AppearanceFieldsXML = {
   "dcscor:item"?: ParameterValueXML | ParameterValueXML[]
 }

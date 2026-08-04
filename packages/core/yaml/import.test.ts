@@ -29,6 +29,10 @@ describe("importFromYAML", () => {
     expect(importFromYAML<{ Поле?: string }>("Поле:\n")).toEqual({ Поле: undefined })
   })
 
+  it("preserves an explicit null value", () => {
+    expect(importFromYAML<{ Поле: null }>("Поле: null\n")).toEqual({ Поле: null })
+  })
+
   it("imports empty documents as undefined", () => {
     expect(importFromYAML("")).toBeUndefined()
   })

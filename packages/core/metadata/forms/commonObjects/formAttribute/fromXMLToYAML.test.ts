@@ -142,10 +142,13 @@ describe("FormAttributes XML → YAML → XML", () => {
           Type: { "v8:Type": "v8:ValueTable" },
           Columns: {
             Column: { _name: "Обычная", Type: { "v8:Type": "xs:string" } },
-            AdditionalColumns: {
-              _table: "Таблица.Данные",
-              Column: { _name: "Дополнительная", Type: { "v8:Type": "xs:boolean" } },
-            },
+            AdditionalColumns: [
+              { _table: "Таблица.Пустая" },
+              {
+                _table: "Таблица.Заполненная",
+                Column: { _name: "Дополнительная", Type: { "v8:Type": "xs:boolean" } },
+              },
+            ],
           },
         },
       },
@@ -156,7 +159,8 @@ describe("FormAttributes XML → YAML → XML", () => {
         Таблица: {
           Колонки: { Обычная: expect.any(Object) },
           ДополнительныеКолонки: {
-            "Таблица.Данные": { Дополнительная: expect.any(Object) },
+            "Таблица.Пустая": {},
+            "Таблица.Заполненная": { Дополнительная: expect.any(Object) },
           },
         },
       },

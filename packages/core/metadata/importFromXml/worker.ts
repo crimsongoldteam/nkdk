@@ -1,4 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
@@ -424,10 +425,16 @@ async function processFirstPass(
         () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
       )
       try {
+        const externalFiles = xmlExternalImportFiles(assignment)
+        const externalTargets = new Set(externalFiles.map((file) => file.targetProjectPath))
+        const generatedFiles = prepared.generatedFiles.filter(
+          (file) =>
+            !externalTargets.has(posix.join(posix.dirname(prepared.targetProjectPath), file.relativePath))
+        )
         const assignmentFiles = await writeGeneratedImportFiles({
           outputDir: state.outputDir,
           targetProjectPath: prepared.targetProjectPath,
-          generatedFiles: prepared.generatedFiles,
+          generatedFiles,
           profiler,
         })
         const generatedStateEntries = assignmentFiles.map((file, index) => ({
@@ -437,7 +444,7 @@ async function processFirstPass(
             componentPath: state.componentPath,
             resourceKind: "resource" as const,
           },
-          hash: hashGeneratedContent(prepared.generatedFiles[index]?.content ?? ""),
+          hash: hashGeneratedContent(generatedFiles[index]?.content ?? ""),
         }))
         if (generatedStateEntries.length > 0) {
           const batch = createProjectStateFileUpdateBatch(generatedStateEntries)
@@ -447,7 +454,7 @@ async function processFirstPass(
           })
           accumulator.stateEntries += generatedStateEntries.length
         }
-        assignmentFiles.push(...xmlExternalImportFiles(assignment))
+        assignmentFiles.push(...externalFiles)
         if (prepared.deferred.length === 0) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })

@@ -39,7 +39,6 @@ export const DCSParameterRules = {
       valueType: "Primitive",
       xml: "dcssch:value",
       yaml: "Значение",
-      exportNilValue: true,
       preserveUnknownReferenceXML: false,
     }),
     useRestriction: booleanRule({

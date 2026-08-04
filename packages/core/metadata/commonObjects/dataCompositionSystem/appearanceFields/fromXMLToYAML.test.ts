@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
+import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "./__fixtures__/data"
 import "./types"
 
@@ -9,7 +11,45 @@ const rule: PropertyRule = {
   yaml: "Оформление",
 }
 
+const directRule = {
+  itemType: "AppearanceFieldsProbe",
+  properties: {
+    appearance: { type: "AppearanceFields", yaml: "Оформление", xml: "appearance" },
+  },
+} as MetadataItemRule
+
 describe("AppearanceFields XML → YAML", () => {
+  it.each([
+    ["empty xs:string", { "_xsi:type": "xs:string", "#text": "" }, ""],
+    ["empty LocalStringType", { "_xsi:type": "v8:LocalStringType" }, {}],
+    [
+      "empty ru item",
+      { "_xsi:type": "v8:LocalStringType", "v8:item": { "v8:lang": "ru", "v8:content": "" } },
+      { ru: "" },
+    ],
+    [
+      "empty LocalFormattedStringType",
+      { "_xsi:type": "v8:LocalFormattedStringType", "v8:formatted": true },
+      { Форматированный: "Истина", Текст: {} },
+    ],
+    ["xsi:nil", { "_xsi:nil": true }, null],
+  ])("exports %s canonically", (_name, valueXML, expectedYAML) => {
+    const result = testPropertyFromXMLToYAML({
+      rule: directRule,
+      xml: {
+        appearance: {
+          "dcscor:item": {
+            "_xsi:type": "dcsset:SettingsParameterValue",
+            "dcscor:parameter": "Текст",
+            "dcscor:value": valueXML,
+          },
+        },
+      },
+    }).yaml
+
+    expect(result).toEqual({ Оформление: { Текст: expectedYAML } })
+  })
+
   it("should export minimal appearance", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
@@ -19,37 +59,6 @@ describe("AppearanceFields XML → YAML", () => {
 
     expect(result).toEqual({
       Оформление: fixtureAppearanceFieldsYAML,
-    })
-  })
-
-  it("exports explicit Field value for text appearance", () => {
-    const result = testExportPropertyModelThroughXMLToYAML({
-      rule,
-      value: {
-        itemType: "AppearanceFields",
-        Текст: {
-          parameter: "Текст",
-          value: {
-            type: "Field",
-            value: "Реквизит1",
-          },
-        },
-      },
-      yaml: {
-        Текст: {
-          Тип: "Поле",
-          Значение: "Реквизит1",
-        },
-      },
-    })
-
-    expect(result).toEqual({
-      Оформление: {
-        Текст: {
-          Тип: "Поле",
-          Значение: "Реквизит1",
-        },
-      },
     })
   })
 
@@ -71,11 +80,8 @@ describe("AppearanceFields XML → YAML", () => {
       },
       yaml: {
         Текст: {
-          Тип: "МногоязычнаяФорматированнаяСтрока",
-          Значение: {
-            Форматированный: "Истина",
-            Текст: "Многоязычная форматированная строка",
-          },
+          Форматированный: "Истина",
+          Текст: { ru: "Многоязычная форматированная строка" },
         },
       },
     })
@@ -83,11 +89,8 @@ describe("AppearanceFields XML → YAML", () => {
     expect(result).toEqual({
       Оформление: {
         Текст: {
-          Тип: "МногоязычнаяФорматированнаяСтрока",
-          Значение: {
-            Форматированный: "Истина",
-            Текст: "Многоязычная форматированная строка",
-          },
+          Форматированный: "Истина",
+          Текст: { ru: "Многоязычная форматированная строка" },
         },
       },
     })

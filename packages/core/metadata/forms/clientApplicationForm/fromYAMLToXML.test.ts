@@ -35,6 +35,35 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
     }) as ClientApplicationFormYAML
 
+  it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+
+    expect(result.metadataXML.Form.Properties.UsePurposes).toEqual({
+      "v8:Value": {
+        "_xsi:type": "app:ApplicationUsePurpose",
+        "#text": "PlatformApplication",
+      },
+    })
+  })
+
+  it.each([
+    ["МобильноеПриложение", ["MobilePlatformApplication"]],
+    ["ПлатформаИМобильноеПриложение", ["PlatformApplication", "MobilePlatformApplication"]],
+  ] as const)("экспортирует явное назначение %s", (yamlValue, xmlValues) => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml: { НазначенияИспользования: yamlValue } as ClientApplicationFormYAML,
+      name: "Форма",
+    })
+    const value = result.metadataXML.Form.Properties.UsePurposes["v8:Value"]
+
+    expect(Array.isArray(value) ? value.map((item) => item["#text"]) : [value["#text"]]).toEqual(xmlValues)
+  })
+
   it.each([
     ["основной реквизит справочника", "СправочникОбъект.Товары", "Истина", "Items"],
     [
@@ -207,6 +236,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         "  Объект:",
         "    Тип: Строка",
         "    ДополнительныеКолонки:",
+        "      Список.Пустая: {}",
         "      Список.Способы:",
         "        Реквизит1:",
         "          Тип: Строка",
@@ -224,6 +254,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         _name: "Объект",
         Columns: {
           AdditionalColumns: [
+            { _table: "Список.Пустая" },
             {
               _table: "Список.Способы",
               Column: [expect.objectContaining({ _name: "Реквизит1" })],
@@ -232,6 +263,13 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         },
       }),
     ])
+
+    const attributes = result.formXML.Attributes?.Attribute
+    const attribute = Array.isArray(attributes) ? attributes[0] : attributes
+    const additionalColumns = attribute !== undefined && "Columns" in attribute ? attribute.Columns?.AdditionalColumns : []
+    expect(Array.isArray(additionalColumns) ? additionalColumns : [additionalColumns]).toContainEqual({
+      _table: "Список.Пустая",
+    })
   })
 
   it("сохраняет пустой контейнер реквизитов из reference XML", () => {

@@ -3,6 +3,7 @@ import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString
 import { NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
+const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
 
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
 
@@ -33,19 +34,23 @@ const removeDocumentFinalLineEnding = (yaml: string): string => {
   return yaml.slice(0, -1)
 }
 
-function prepareForDump(value: unknown, explicitStrings: Map<string, string>): unknown {
+function prepareForDump(
+  value: unknown,
+  explicitStrings: Map<string, string>,
+  undefinedValues: Set<string>
+): unknown {
   if (isExplicitYAMLString(value)) {
     return explicitStringMarker(String(unwrapExplicitYAMLString(value)), explicitStrings)
   }
   if (typeof value === "string" && shouldExportAsExplicitString(value)) return explicitStringMarker(value, explicitStrings)
   if (Array.isArray(value)) {
-    return value.map((item, index) => prepareChildForDump(value, index, item, explicitStrings))
+    return value.map((item, index) => prepareChildForDump(value, index, item, explicitStrings, undefinedValues))
   }
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value).map(([key, item]) => [
         key,
-        prepareChildForDump(value, key, item, explicitStrings),
+        prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
       ])
     )
   }
@@ -56,9 +61,15 @@ function prepareChildForDump(
   parent: object,
   key: string | number,
   value: unknown,
-  explicitStrings: Map<string, string>
+  explicitStrings: Map<string, string>,
+  undefinedValues: Set<string>
 ): unknown {
-  const prepared = value === undefined ? null : prepareForDump(value, explicitStrings)
+  if (value === undefined && !Array.isArray(parent)) {
+    const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
+    undefinedValues.add(marker)
+    return marker
+  }
+  const prepared = value === undefined ? null : prepareForDump(value, explicitStrings, undefinedValues)
   return taggedScalarForDump(parent, key, prepared)
 }
 
@@ -76,8 +87,10 @@ function shouldExportAsExplicitString(value: string): boolean {
   return /^[`@]/.test(value)
 }
 
-function normalizeEmptyNullValues(yaml: string): string {
-  return yaml.replace(/: null$/gm, ":")
+function restoreUndefinedValues(yaml: string, undefinedValues: Set<string>): string {
+  let result = yaml
+  for (const marker of undefinedValues) result = result.split(`: ${marker}`).join(":")
+  return result
 }
 
 function normalizeQuotedTypeLinkValues(yaml: string): string {
@@ -94,7 +107,8 @@ function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>
 
 export const exportToYAML = <T>(data: T): string => {
   const explicitStrings = new Map<string, string>()
-  const yaml = dump(prepareForDump(data, explicitStrings), {
+  const undefinedValues = new Set<string>()
+  const yaml = dump(prepareForDump(data, explicitStrings, undefinedValues), {
     schema: NKDK_YAML_SCHEMA,
     indent: 2,
     lineWidth: -1,
@@ -105,6 +119,6 @@ export const exportToYAML = <T>(data: T): string => {
     quoteStyle: "double",
   })
   return removeDocumentFinalLineEnding(
-    normalizeQuotedTypeLinkValues(quoteExplicitStrings(normalizeEmptyNullValues(yaml), explicitStrings))
+    normalizeQuotedTypeLinkValues(quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings))
   )
 }

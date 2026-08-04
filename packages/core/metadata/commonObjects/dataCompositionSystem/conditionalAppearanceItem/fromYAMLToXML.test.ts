@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../orchestration"
+import { MetadataItemRule, PropertyRule } from "../../../orchestration"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
+import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
 import {
   fullConditionalAppearanceItems,
   minimalConditionalAppearanceItems,
@@ -38,5 +39,32 @@ describe("export ConditionalAppearanceItems to XML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+    expect(result).toContain("<dcsset:filter/>")
+  })
+
+  it("восстанавливает обязательный пустой отбор при отсутствии поля в непустом YAML-элементе", () => {
+    const metadataRule = {
+      itemType: "ConditionalAppearanceProbe",
+      properties: {
+        value: {
+          type: "ConditionalAppearanceItems",
+          yaml: "Значение",
+          xml: "ConditionalAppearance",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const restored = testPropertyFromYAMLToXML({
+      rule: metadataRule,
+      yaml: {
+        Значение: [
+          {
+            Поля: ["ТипОбъектаПоиска"],
+            Оформление: {},
+          },
+        ],
+      },
+    })
+
+    expect(serializeDirectXML(restored.xml)).toContain("<dcsset:filter/>")
   })
 })

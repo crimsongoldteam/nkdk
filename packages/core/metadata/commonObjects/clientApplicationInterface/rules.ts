@@ -23,7 +23,7 @@ export const ClientApplicationInterfaceRules = {
       xml: "panelDef",
       toYAML: false,
       fromYAML: false,
-      exportWithoutReferenceXML: true,
+      evaluateWhenYAMLMissing: true,
     }),
     top: clientApplicationInterfaceItemsRule({
       yaml: "Верх",

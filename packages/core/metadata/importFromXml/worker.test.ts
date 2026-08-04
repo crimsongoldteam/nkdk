@@ -294,6 +294,25 @@ describe("XML import worker first pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
   })
 
+  it("не генерирует внешний файл повторно, когда им владеет XML-выгрузка", async () => {
+    const outputDir = createTempDir("first-pass-xml-owned-generated")
+    const assignments = createCatalogAndFormAssignments("Неизвестный.LineNumber", "Товары", false, true)
+    const targetProjectPath =
+      "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/ПроизвольныйЗапросМинимум.query"
+    const sourcePath = join(createTempDir("external-query"), "ПроизвольныйЗапросМинимум.query")
+    writeFileSync(sourcePath, "ВЫБРАТЬ 1", "utf-8")
+    assignments.form.externalFiles = [{ sourcePath, targetProjectPath }]
+    await initializeWorker(outputDir)
+
+    const first = expectFirstPass(
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
+    )
+
+    expect(first.files.filter((file) => file.targetProjectPath === targetProjectPath)).toEqual([
+      { sourceKind: "xml", sourcePath, targetProjectPath },
+    ])
+  })
+
   it("returns XML external file descriptors during the first pass", async () => {
     const sourcePath = join(createTempDir("external-source"), "Help.xml")
     writeFileSync(sourcePath, "<Help/>", "utf-8")
