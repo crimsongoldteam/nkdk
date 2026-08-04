@@ -7,7 +7,11 @@ import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
-import { createTypedProjectStateReader } from "./typedReader"
+import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
+import {
+  createTypedProjectStateReadIndex,
+  createTypedProjectStateReader,
+} from "./typedReader"
 
 it("соблюдает видимость cf и собственного расширения", () => {
   const session = openSessionWithUpdates([
@@ -166,6 +170,107 @@ it("не обращается к прежнему предметному дек�
   ])
 
   expect(queryPort.readValidationStatus({ offset: 0, batchSize: 1 })).toHaveLength(1)
+})
+
+it("использует переданный типизированный читатель для всех страниц состояния проверки", () => {
+  const buffers = typedSnapshot([
+    richYamlUpdate("cf/first.yaml", "cf", "Catalog.First"),
+    richYamlUpdate("cf/second.yaml", "cf", "Catalog.Second"),
+  ])
+  const snapshot = new ProjectStateSnapshotView(buffers)
+  const reader = createTypedProjectStateReader(snapshot)
+  const localValidation = vi.spyOn(reader, "localValidation")
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+
+  queryPort.readValidationStatus({ offset: 0, batchSize: 1 })
+  queryPort.readValidationStatus({ offset: 1, batchSize: 1 })
+
+  expect(localValidation).toHaveBeenCalledTimes(2)
+})
+
+it("разрешает одинаковую цель один раз для всей серии запросов", () => {
+  const buffers = typedSnapshot([
+    richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
+  ])
+  const snapshot = new ProjectStateSnapshotView(buffers)
+  const lookupTarget = vi.spyOn(snapshot, "lookupTarget")
+  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+
+  expect(queryPort.resolveTargets([
+    lookup("first", "cf", "Catalog.Source"),
+    lookup("second", "cf", "Catalog.Source"),
+  ]).map(({ status }) => status)).toEqual(["found", "found"])
+
+  expect(lookupTarget).toHaveBeenCalledTimes(1)
+})
+
+it("читает сведения цели без восстановления всех фактов YAML", () => {
+  const buffers = typedSnapshot([
+    richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
+  ])
+  const snapshot = new ProjectStateSnapshotView(buffers)
+  const reader = createTypedProjectStateReader(snapshot)
+  const yamlFacts = vi.spyOn(reader, "yamlFacts")
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+
+  expect(queryPort.resolveTargets([
+    lookup("target", "cf", "Catalog.Source"),
+  ])[0]).toMatchObject({ status: "found" })
+
+  expect(yamlFacts).not.toHaveBeenCalled()
+})
+
+it("читает входы DataPath без восстановления всех фактов YAML", () => {
+  const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([update]))
+  const reader = createTypedProjectStateReader(snapshot)
+  const yamlFacts = vi.spyOn(reader, "yamlFacts")
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+
+  expect(queryPort.readDependencyInputs([{
+    requestId: "dependency",
+    componentPath: "cf",
+    projectPath: update.projectPath,
+    check: {
+      kind: "dataPath",
+      yamlPath: ["ПутьКДанным"],
+      location: { line: 1, col: 1 },
+      owner: { kind: "Справочник", name: "Catalog.Source" },
+      value: "Объект.Код",
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
+    },
+  }])[0]).toMatchObject({ status: "found" })
+
+  expect(yamlFacts).not.toHaveBeenCalled()
+})
+
+it("декодирует повторно запрошенную строку снимка один раз", () => {
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([
+    richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
+  ]))
+  const stringId = snapshot.fileRecord(0).projectPathId
+  const decode = vi.spyOn(TextDecoder.prototype, "decode")
+
+  expect(snapshot.stringValue(stringId)).toBe("cf/source.yaml")
+  expect(snapshot.stringValue(stringId)).toBe("cf/source.yaml")
+
+  expect(decode).toHaveBeenCalledTimes(1)
+})
+
+it("переиспользует компактное разбиение строк таблицы между читателями снимка", () => {
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([
+    richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
+  ]))
+  const index = createTypedProjectStateReadIndex(snapshot)
+  const decode = vi.spyOn(PROJECT_STATE_FACT_RECORD_VIEWS.validationStatus, "decode")
+
+  createTypedProjectStateReader(snapshot, index).localValidation(0)
+  const firstReadCalls = decode.mock.calls.length
+  decode.mockClear()
+  createTypedProjectStateReader(snapshot, index).localValidation(0)
+
+  expect(decode.mock.calls.length).toBeLessThan(firstReadCalls)
 })
 
 it("восстанавливает вложенную цель отложенной ссылки без повторного разбора ограничения", () => {

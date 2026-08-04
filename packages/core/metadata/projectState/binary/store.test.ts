@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { runProjectStateStoreContract } from "../storeContract"
 import { createBinaryProjectStateTestFixture } from "./testFixture"
 import { yamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter } from "./fragment"
+import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 
 describe("BinaryProjectStateStore", () => {
   runProjectStateStoreContract(() => createBinaryProjectStateTestFixture())
@@ -96,6 +97,21 @@ describe("BinaryProjectStateStore", () => {
 
     store.beginUpdate()
     expect(store.commitUpdate()).toBe(false)
+  })
+
+  it("переиспользует разбиение двоичных записей между чтениями снимка", () => {
+    const { store } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    append(store, yamlUpdate("cf/Объект.yaml", "cf", "Catalog.Объект"))
+    store.commitUpdate()
+    const decode = vi.spyOn(PROJECT_STATE_FACT_RECORD_VIEWS.validationStatus, "decode")
+
+    store.readLocalDiagnostics()
+    const firstRead = decode.mock.calls.length
+    decode.mockClear()
+    store.readLocalDiagnostics()
+
+    expect(decode.mock.calls.length).toBeLessThan(firstRead)
   })
 })
 

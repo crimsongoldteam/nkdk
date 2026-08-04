@@ -3,10 +3,10 @@ import { toolErrorOutputShape } from "./common"
 import { diagnosticOutputShape } from "./diagnostics"
 
 export const failedObjectSchema = z.object({
-  kind: z.string(),
-  name: z.string(),
-  parent: z.string().optional(),
+  severity: z.literal("error"),
+  code: z.string(),
   message: z.string(),
+  targetProjectPath: z.string().optional(),
 })
 
 export const importWarningSchema = z.object({

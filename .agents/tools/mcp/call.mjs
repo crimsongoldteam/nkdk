@@ -116,7 +116,9 @@ export function operationFailed(payload) {
   if (payload.ok === false) return true
   if (!Array.isArray(payload.failed) || payload.failed.length === 0) return false
   return payload.failed.some(
-    (failure) => !failure || typeof failure !== "object" || failure.kind !== "project_validation"
+    (failure) => !failure
+      || typeof failure !== "object"
+      || failure.code !== "project_validation"
   )
 }
 

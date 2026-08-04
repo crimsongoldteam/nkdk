@@ -102,14 +102,14 @@ describe("MCP call script", () => {
   it("не считает project_validation техническим сбоем успешной операции", () => {
     expect(operationFailed({
       ok: true,
-      failed: [{ kind: "project_validation", name: "cf/a.yaml", message: "invalid" }],
+      failed: [{ code: "project_validation", name: "cf/a.yaml", message: "invalid" }],
     })).toBe(false)
 
     expect(operationFailed({
       ok: true,
       failed: [
-        { kind: "project_validation", name: "cf/a.yaml", message: "invalid" },
-        { kind: "write", name: "cf/b.yaml", message: "EACCES" },
+        { code: "project_validation", name: "cf/a.yaml", message: "invalid" },
+        { code: "write", name: "cf/b.yaml", message: "EACCES" },
       ],
     })).toBe(true)
   })

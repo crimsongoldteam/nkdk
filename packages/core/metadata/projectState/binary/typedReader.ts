@@ -45,21 +45,68 @@ const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 export interface TypedProjectStateReader {
   yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"> | undefined
+  referenceDetails(
+    fileId: number,
+    kind: ProjectStateYamlFileUpdate["references"][number]["kind"],
+    canonical: string,
+  ): ProjectStateYamlFileUpdate["references"][number]["details"]
+  owners(fileId: number): ProjectStateYamlFileUpdate["owners"]
+  fields(fileId: number): ProjectStateYamlFileUpdate["fields"]
+  forms(fileId: number): ProjectStateYamlFileUpdate["forms"]
   localValidation(fileId: number): ProjectStateLocalValidationResult | undefined
   pendingReferences(fileId: number): ProjectStateYamlFileUpdate["pendingReferences"]
   pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"]
   fileUpdate(fileId: number): ProjectStateFileUpdate
 }
 
-export function createTypedProjectStateReader(snapshot: ProjectStateSnapshotView): TypedProjectStateReader {
+interface FileRowIndex {
+  readonly offsets: Uint32Array
+  readonly rowIds: Uint32Array
+}
+
+export interface TypedProjectStateReadIndex {
+  readonly facts: ArrayBufferLike
+  readonly fileCount: number
+  readonly rowsByFile: Map<ProjectStateFactTableKind, FileRowIndex>
+}
+
+export function createTypedProjectStateReadIndex(
+  snapshot: ProjectStateSnapshotView,
+): TypedProjectStateReadIndex {
+  return {
+    facts: snapshot.buffers.facts,
+    fileCount: snapshot.fileCount,
+    rowsByFile: new Map(),
+  }
+}
+
+export function createTypedProjectStateReader(
+  snapshot: ProjectStateSnapshotView,
+  readIndex: TypedProjectStateReadIndex = createTypedProjectStateReadIndex(snapshot),
+): TypedProjectStateReader {
+  if (readIndex.facts !== snapshot.buffers.facts || readIndex.fileCount !== snapshot.fileCount) {
+    throw new Error("Индекс чтения не соответствует снимку состояния проекта")
+  }
   const catalog = snapshot.factTableCatalog()
   const factsView = new DataView(snapshot.buffers.facts)
   const strings: (string | undefined)[] = new Array(snapshot.stringPool().count)
-  const rowsByFile = new Map<ProjectStateFactTableKind, readonly number[][]>()
   const yamlCache = new Map<number, ReturnType<TypedProjectStateReader["yamlFacts"]>>()
+  const ownersCache = new Map<number, ProjectStateYamlFileUpdate["owners"]>()
+  const fieldsCache = new Map<number, ProjectStateYamlFileUpdate["fields"]>()
+  const formsCache = new Map<number, ProjectStateYamlFileUpdate["forms"]>()
   const validationCache = new Map<number, ProjectStateLocalValidationResult | undefined>()
 
-  return { yamlFacts, localValidation, pendingReferences, pendingChecks, fileUpdate }
+  return {
+    yamlFacts,
+    referenceDetails,
+    owners,
+    fields,
+    forms,
+    localValidation,
+    pendingReferences,
+    pendingChecks,
+    fileUpdate,
+  }
 
   function string(id: number): string {
     if (id === NONE) throw new Error("Обязательная строка отсутствует")
@@ -82,15 +129,29 @@ export function createTypedProjectStateReader(snapshot: ProjectStateSnapshotView
   }
 
   function fileRows(kind: ProjectStateFactTableKind, fileId: number): Record<string, number>[] {
-    let byFile = rowsByFile.get(kind)
-    if (byFile === undefined) {
-      const mutable = Array.from({ length: snapshot.fileCount }, () => [] as number[])
+    let index = readIndex.rowsByFile.get(kind)
+    if (index === undefined) {
       const count = catalog.get(kind)?.records ?? 0
-      for (let id = 0; id < count; id += 1) mutable[row(kind, id).sourceFileId]?.push(id)
-      byFile = mutable
-      rowsByFile.set(kind, byFile)
+      const sourceFileIds = new Uint32Array(count)
+      const offsets = new Uint32Array(snapshot.fileCount + 1)
+      for (let id = 0; id < count; id += 1) {
+        const sourceFileId = row(kind, id).sourceFileId
+        sourceFileIds[id] = sourceFileId
+        offsets[sourceFileId + 1] += 1
+      }
+      for (let id = 0; id < snapshot.fileCount; id += 1) offsets[id + 1] += offsets[id]
+      const cursors = offsets.slice(0, snapshot.fileCount)
+      const rowIds = new Uint32Array(count)
+      for (let id = 0; id < count; id += 1) {
+        const sourceFileId = sourceFileIds[id]
+        rowIds[cursors[sourceFileId]++] = id
+      }
+      index = { offsets, rowIds }
+      readIndex.rowsByFile.set(kind, index)
     }
-    return (byFile[fileId] ?? []).map((id) => row(kind, id))
+    const start = index.offsets[fileId] ?? 0
+    const end = index.offsets[fileId + 1] ?? start
+    return Array.from({ length: end - start }, (_, offset) => row(kind, index.rowIds[start + offset]))
   }
 
   function ownerType(id: number): OwnerTypeRef {
@@ -249,54 +310,90 @@ export function createTypedProjectStateReader(snapshot: ProjectStateSnapshotView
     if (yamlCache.has(fileId)) return yamlCache.get(fileId)
     if (snapshot.fileRecord(fileId).updateKind !== 1) return undefined
     const result: NonNullable<ReturnType<TypedProjectStateReader["yamlFacts"]>> = {
-      references: fileRows("references", fileId).map((value) => {
-        const kind = REFERENCE_KINDS[value.kind]
-        if (kind === undefined) throw new Error(`Неизвестный вид ссылки: ${value.kind}`)
-        if (value.detailsId === NONE) return { kind, canonical: string(value.canonicalId) }
-        const details = row("referenceDetails", value.detailsId)
-        const decodedType = details.typeInfoId === NONE ? undefined : typeInfo(details.typeInfoId)
-        const detailsKind = ([undefined, "attribute", "standardAttribute"] as const)[details.kind]
-        const styleItemType = ([undefined, "Color", "Font", "Border"] as const)[details.styleItemType]
-        return { kind, canonical: string(value.canonicalId), details: {
-          ...(detailsKind === undefined ? {} : { kind: detailsKind }),
-          ...(decodedType === undefined ? {} : { typeInfo: {
-            kinds: decodedType.kinds, ...(decodedType.sourceText === undefined ? {} : { sourceText: decodedType.sourceText }),
-            ...(decodedType.definedTypes === undefined ? {} : { definedTypes: decodedType.definedTypes }),
-          } }),
-          ...(styleItemType === undefined ? {} : { styleItemType }),
-        } }
-      }),
+      references: fileRows("references", fileId).map(reference),
       pendingReferences: pendingReferences(fileId),
-      owners: fileRows("owners", fileId).map((value) => ({
-        owner: { kind: string(value.kindId), ...optionalName(value.nameId) }, facts: ownerFacts(value),
-      })),
-      fields: fileRows("fields", fileId).map((value) => {
-        const kind = FIELD_KINDS[value.kind]
-        if (kind === undefined) throw new Error(`Неизвестный вид поля: ${value.kind}`)
-        const table = tableInfo(value.tableInfoId)
-        return { owner: ownerType(value.ownerId), name: string(value.nameId), kind, typeInfo: typeInfo(value.typeInfoId),
-          ...optionalField("targetName", value.targetNameId), ...optionalField("sourceCollection", value.sourceCollectionId),
-          ...optionalField("parentName", value.parentNameId), ...(table === undefined ? {} : { table }),
-          ...(value.tableHasColumns === 0 ? {} : { tableHasColumns: value.tableHasColumns === 1 }) }
-      }),
-      forms: ([...fileRows("forms", fileId), ...fileRows("formColumns", fileId)]).map((value) => {
-        if (value.kind === 3) return { kind: "tableDataPath" as const, owner: ownerType(value.ownerTypeId),
-          name: string(value.nameId), dataPath: string(value.tablePathId) }
-        const decodedType = typeInfo(value.typeInfoId)
-        if (value.kind === 2) return { kind: "additionalColumn" as const, owner: ownerType(value.ownerTypeId),
-          tablePath: string(value.tablePathId), name: string(value.nameId),
-          source: { name: string(value.nameId), typeInfo: decodedType } }
-        const table = tableInfo(value.tableInfoId)
-        return { kind: "root" as const, owner: ownerType(value.ownerTypeId), name: string(value.nameId), source: {
-          kind: "formAttribute" as const, name: string(value.nameId), typeInfo: decodedType,
-          ...(table === undefined ? {} : { table }),
-          ...(value.tableHasColumns === 0 ? {} : { tableHasColumns: value.tableHasColumns === 1 }),
-        } }
-      }),
+      owners: owners(fileId),
+      fields: fields(fileId),
+      forms: forms(fileId),
       pendingChecks: pendingChecks(fileId),
       dependencies: fileRows("dependencies", fileId).map((value) => string(value.projectPathId)),
     }
     yamlCache.set(fileId, result)
+    return result
+  }
+
+  function reference(value: Record<string, number>): ProjectStateYamlFileUpdate["references"][number] {
+    const kind = REFERENCE_KINDS[value.kind]
+    if (kind === undefined) throw new Error(`Неизвестный вид ссылки: ${value.kind}`)
+    if (value.detailsId === NONE) return { kind, canonical: string(value.canonicalId) }
+    const details = row("referenceDetails", value.detailsId)
+    const decodedType = details.typeInfoId === NONE ? undefined : typeInfo(details.typeInfoId)
+    const detailsKind = ([undefined, "attribute", "standardAttribute"] as const)[details.kind]
+    const styleItemType = ([undefined, "Color", "Font", "Border"] as const)[details.styleItemType]
+    return { kind, canonical: string(value.canonicalId), details: {
+      ...(detailsKind === undefined ? {} : { kind: detailsKind }),
+      ...(decodedType === undefined ? {} : { typeInfo: {
+        kinds: decodedType.kinds, ...(decodedType.sourceText === undefined ? {} : { sourceText: decodedType.sourceText }),
+        ...(decodedType.definedTypes === undefined ? {} : { definedTypes: decodedType.definedTypes }),
+      } }),
+      ...(styleItemType === undefined ? {} : { styleItemType }),
+    } }
+  }
+
+  function referenceDetails(
+    fileId: number,
+    kind: ProjectStateYamlFileUpdate["references"][number]["kind"],
+    canonical: string,
+  ): ProjectStateYamlFileUpdate["references"][number]["details"] {
+    const value = fileRows("references", fileId).find((candidate) =>
+      REFERENCE_KINDS[candidate.kind] === kind && string(candidate.canonicalId) === canonical)
+    return value === undefined ? undefined : reference(value).details
+  }
+
+  function owners(fileId: number): ProjectStateYamlFileUpdate["owners"] {
+    const cached = ownersCache.get(fileId)
+    if (cached !== undefined) return cached
+    const result = fileRows("owners", fileId).map((value) => ({
+      owner: { kind: string(value.kindId), ...optionalName(value.nameId) }, facts: ownerFacts(value),
+    }))
+    ownersCache.set(fileId, result)
+    return result
+  }
+
+  function fields(fileId: number): ProjectStateYamlFileUpdate["fields"] {
+    const cached = fieldsCache.get(fileId)
+    if (cached !== undefined) return cached
+    const result = fileRows("fields", fileId).map((value) => {
+      const kind = FIELD_KINDS[value.kind]
+      if (kind === undefined) throw new Error(`Неизвестный вид поля: ${value.kind}`)
+      const table = tableInfo(value.tableInfoId)
+      return { owner: ownerType(value.ownerId), name: string(value.nameId), kind, typeInfo: typeInfo(value.typeInfoId),
+        ...optionalField("targetName", value.targetNameId), ...optionalField("sourceCollection", value.sourceCollectionId),
+        ...optionalField("parentName", value.parentNameId), ...(table === undefined ? {} : { table }),
+        ...(value.tableHasColumns === 0 ? {} : { tableHasColumns: value.tableHasColumns === 1 }) }
+    })
+    fieldsCache.set(fileId, result)
+    return result
+  }
+
+  function forms(fileId: number): ProjectStateYamlFileUpdate["forms"] {
+    const cached = formsCache.get(fileId)
+    if (cached !== undefined) return cached
+    const result = ([...fileRows("forms", fileId), ...fileRows("formColumns", fileId)]).map((value) => {
+      if (value.kind === 3) return { kind: "tableDataPath" as const, owner: ownerType(value.ownerTypeId),
+        name: string(value.nameId), dataPath: string(value.tablePathId) }
+      const decodedType = typeInfo(value.typeInfoId)
+      if (value.kind === 2) return { kind: "additionalColumn" as const, owner: ownerType(value.ownerTypeId),
+        tablePath: string(value.tablePathId), name: string(value.nameId),
+        source: { name: string(value.nameId), typeInfo: decodedType } }
+      const table = tableInfo(value.tableInfoId)
+      return { kind: "root" as const, owner: ownerType(value.ownerTypeId), name: string(value.nameId), source: {
+        kind: "formAttribute" as const, name: string(value.nameId), typeInfo: decodedType,
+        ...(table === undefined ? {} : { table }),
+        ...(value.tableHasColumns === 0 ? {} : { tableHasColumns: value.tableHasColumns === 1 }),
+      } }
+    })
+    formsCache.set(fileId, result)
     return result
   }
 

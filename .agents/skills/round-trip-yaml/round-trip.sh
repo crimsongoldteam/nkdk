@@ -304,13 +304,6 @@ fi
 NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 NKDK_XML_REPO="$(cd "${NKDK_XML_REPO}" && pwd)"
 
-if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
-  echo "Ошибка: рабочее дерево nkdk-core не чистое." >&2
-  echo "Сохрани или откати изменения перед запуском round-trip-yaml." >&2
-  git -C "${REPO_DIR}" status --short >&2
-  exit 1
-fi
-
 MCP_CALL="${REPO_DIR}/.agents/tools/mcp/call.mjs"
 [ -x "${MCP_CALL}" ] || die "локальный MCP-клиент не найден: ${MCP_CALL}"
 
@@ -354,6 +347,12 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   SYNC_OUTPUT="${RUN_PROJECT_DIR}.sync-output.json"
 
   RUN_XML_REL="$(config_rel_path "${RUN_XML_DIR}")"
+  if [ -n "$(git -C "${NKDK_XML_REPO}" status --porcelain -- "${RUN_XML_REL}")" ]; then
+    echo "Ошибка: активный XML-каталог содержит изменения: ${RUN_XML_REL}" >&2
+    echo "Сохрани или откати изменения в этом каталоге перед запуском round-trip-yaml." >&2
+    git -C "${NKDK_XML_REPO}" status --short -- "${RUN_XML_REL}" >&2
+    exit 1
+  fi
   echo "[restore] Откат XML-каталога к HEAD: ${RUN_XML_REL}"
   git -C "${NKDK_XML_REPO}" restore -- "${RUN_XML_REL}"
 

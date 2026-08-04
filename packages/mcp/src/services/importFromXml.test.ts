@@ -92,8 +92,8 @@ describe("importFromXml service", () => {
       diagnostics: [
         {
           severity: "error",
-          kind: "xml_import_assignment_failed",
-          name: "Перечисление/Виды/Свойства.yaml",
+          code: "xml_import_assignment_failed",
+          targetProjectPath: "Перечисление/Виды/Свойства.yaml",
           message: "broken xml",
         },
       ],
@@ -101,8 +101,9 @@ describe("importFromXml service", () => {
       truncated: false,
       failed: [
         {
-          kind: "xml_import_assignment_failed",
-          name: "Перечисление/Виды/Свойства.yaml",
+          severity: "error",
+          code: "xml_import_assignment_failed",
+          targetProjectPath: "Перечисление/Виды/Свойства.yaml",
           message: "broken xml",
         },
       ],
@@ -135,8 +136,7 @@ describe("importFromXml service", () => {
         diagnostics: [
           {
             severity: "error",
-            kind: "xml_import_operation_failed",
-            name: "",
+            code: "xml_import_operation_failed",
             message: "Неизвестный корень Configuration.xml",
           },
         ],
@@ -144,8 +144,8 @@ describe("importFromXml service", () => {
         truncated: false,
         failed: [
           {
-            kind: "xml_import_operation_failed",
-            name: "",
+            severity: "error",
+            code: "xml_import_operation_failed",
             message: "Неизвестный корень Configuration.xml",
           },
         ],
@@ -186,14 +186,12 @@ describe("importFromXml service", () => {
       diagnostics: [
         {
           severity: "error",
-          kind: "xml_import_operation_failed",
-          name: "",
+          code: "xml_import_operation_failed",
           message: "Целевой каталог компонента не пуст: cfe/Расширение",
         },
         {
           severity: "error",
-          kind: "xml_import_operation_failed",
-          name: "",
+          code: "xml_import_operation_failed",
           message: "Снимок компонента уже существует: cfe/Расширение",
         },
       ],
@@ -201,13 +199,13 @@ describe("importFromXml service", () => {
       truncated: false,
       failed: [
         {
-          kind: "xml_import_operation_failed",
-          name: "",
+          severity: "error",
+          code: "xml_import_operation_failed",
           message: "Целевой каталог компонента не пуст: cfe/Расширение",
         },
         {
-          kind: "xml_import_operation_failed",
-          name: "",
+          severity: "error",
+          code: "xml_import_operation_failed",
           message: "Снимок компонента уже существует: cfe/Расширение",
         },
       ],

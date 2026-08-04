@@ -74,6 +74,7 @@ export function hashProjectStateTargetKey(componentPath: string, canonical: stri
 
 export class ProjectStateSnapshotView {
   readonly #strings: BinaryStringPool
+  readonly #decodedStrings = new Map<number, string>()
   readonly #fileCount: number
   readonly #fileRecordsOffset: number
   readonly #lookupHeader: ProjectStateLookupSectionHeader
@@ -235,7 +236,11 @@ export class ProjectStateSnapshotView {
   }
 
   stringValue(id: number): string {
-    return readBinaryString(this.#strings, id)
+    const cached = this.#decodedStrings.get(id)
+    if (cached !== undefined) return cached
+    const value = readBinaryString(this.#strings, id)
+    this.#decodedStrings.set(id, value)
+    return value
   }
 
   fileRecord(fileId: number): ProjectStateFileRecord {
@@ -247,11 +252,11 @@ export class ProjectStateSnapshotView {
   }
 
   filePath(fileId: number): string {
-    return readBinaryString(this.#strings, this.fileRecord(fileId).projectPathId)
+    return this.stringValue(this.fileRecord(fileId).projectPathId)
   }
 
   componentPath(fileId: number): string {
-    return readBinaryString(this.#strings, this.fileRecord(fileId).componentPathId)
+    return this.stringValue(this.fileRecord(fileId).componentPathId)
   }
 
   filePaths(): string[] {
@@ -358,8 +363,8 @@ export class ProjectStateSnapshotView {
             candidateId * ProjectStateTargetRangeRecordView.viewLength,
         )
         return (
-          readBinaryString(this.#strings, candidate.componentPathId) === componentPath &&
-          readBinaryString(this.#strings, candidate.canonicalId) === canonical
+          this.stringValue(candidate.componentPathId) === componentPath &&
+          this.stringValue(candidate.canonicalId) === canonical
         )
       },
     )
@@ -372,10 +377,10 @@ export class ProjectStateSnapshotView {
       if (kind === undefined) throw new Error(`Неизвестный вид цели: ${entry.kind}`)
       return {
         kind,
-        canonical: readBinaryString(this.#strings, entry.canonicalId),
+        canonical: this.stringValue(entry.canonicalId),
         sourceFileId: entry.sourceFileId,
         projectPath: this.filePath(entry.sourceFileId),
-        componentPath: readBinaryString(this.#strings, entry.componentPathId),
+        componentPath: this.stringValue(entry.componentPathId),
       }
     })
   }

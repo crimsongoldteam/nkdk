@@ -31,7 +31,11 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
 import { openProjectStateFragment, type ProjectStateFragmentView } from "./fragment"
-import { createTypedProjectStateReader } from "./typedReader"
+import {
+  createTypedProjectStateReadIndex,
+  createTypedProjectStateReader,
+  type TypedProjectStateReadIndex,
+} from "./typedReader"
 
 export interface BinaryProjectStateStoreOptions {
   readonly initial?: ProjectStateSharedBuffers
@@ -50,6 +54,11 @@ interface ActiveUpdate {
   candidate?: ProjectStateSharedBuffers
 }
 
+interface BinaryProjectStateReadContext {
+  readonly snapshot: ProjectStateSnapshotView
+  readonly readIndex: TypedProjectStateReadIndex
+}
+
 const YAML_ROLES = [undefined, "configuration", "properties", "form"] as const
 
 export function createBinaryProjectStateStore(
@@ -58,6 +67,7 @@ export function createBinaryProjectStateStore(
   let published = options.initial ?? buildProjectStateSnapshot({ fragments: [], deletions: [] })
   let active: ActiveUpdate | undefined
   let closed = false
+  const readContexts = new WeakMap<ProjectStateSharedBuffers, BinaryProjectStateReadContext>()
 
   const store: ProjectStateStore = {
     readFileBaseline(files) {
@@ -156,7 +166,7 @@ export function createBinaryProjectStateStore(
     readLocalDiagnostics(params) {
       assertOpen()
       return readDiagnostics(
-        new ProjectStateSnapshotView(currentBuffers()),
+        readContext(currentBuffers()),
         params?.mode === "published",
       )
     },
@@ -169,13 +179,15 @@ export function createBinaryProjectStateStore(
     },
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery) {
       assertOpen()
-      const queryPort = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(currentBuffers()))
+      const context = readContext(currentBuffers())
+      const typed = createTypedProjectStateReader(context.snapshot, context.readIndex)
+      const queryPort = createBinaryProjectStateQueryPort(context.snapshot, { typedReader: typed })
       return { results: queryPort.readDependencyInputs(params.requests) }
     },
     validateDependencies(_params: ProjectDependencyValidationParams) {
       assertOpen()
       return validateSnapshotDependencies(
-        new ProjectStateSnapshotView(currentBuffers()),
+        readContext(currentBuffers()),
         options.projectDir ?? "",
       )
     },
@@ -188,8 +200,9 @@ export function createBinaryProjectStateStore(
     },
     readComponentProjection(componentPath): ProjectStateComponentProjection {
       assertOpen()
-      const snapshot = new ProjectStateSnapshotView(currentBuffers())
-      const typed = createTypedProjectStateReader(snapshot)
+      const context = readContext(currentBuffers())
+      const { snapshot } = context
+      const typed = createTypedProjectStateReader(snapshot, context.readIndex)
       const updates: ProjectStateFileUpdate[] = []
       const hashes: bigint[] = []
       for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
@@ -245,6 +258,15 @@ export function createBinaryProjectStateStore(
     return active === undefined ? published : materialize(active)
   }
 
+  function readContext(buffers: ProjectStateSharedBuffers): BinaryProjectStateReadContext {
+    let context = readContexts.get(buffers)
+    if (context !== undefined) return context
+    const snapshot = new ProjectStateSnapshotView(buffers)
+    context = { snapshot, readIndex: createTypedProjectStateReadIndex(snapshot) }
+    readContexts.set(buffers, context)
+    return context
+  }
+
   function materialize(update: ActiveUpdate): ProjectStateSharedBuffers {
     if (update.fragments.length === 0 && update.deletions.size === 0) return published
     update.candidate ??= buildProjectStateSnapshot({
@@ -283,12 +305,15 @@ function sameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIde
     && left.yamlRole === right.yamlRole
 }
 
-function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: boolean): Diagnostic[] {
+function readDiagnostics(context: BinaryProjectStateReadContext, publishedMode: boolean): Diagnostic[] {
+  const { snapshot } = context
+  const typed = createTypedProjectStateReader(snapshot, context.readIndex)
   const blocked = publishedMode
-    ? readProjectStateDependencyReadiness({ queryPort: createBinaryProjectStateQueryPort(snapshot) }).blockedComponentPaths
+    ? readProjectStateDependencyReadiness({
+        queryPort: createBinaryProjectStateQueryPort(snapshot, { typedReader: typed }),
+      }).blockedComponentPaths
     : new Set<string>()
   const diagnostics: Diagnostic[] = []
-  const typed = createTypedProjectStateReader(snapshot)
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
     const validation = typed.localValidation(fileId)
     if (validation === undefined) continue
@@ -300,14 +325,15 @@ function readDiagnostics(snapshot: ProjectStateSnapshotView, publishedMode: bool
   return diagnostics
 }
 
-function validateSnapshotDependencies(snapshot: ProjectStateSnapshotView, projectDir: string): Diagnostic[] {
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+function validateSnapshotDependencies(context: BinaryProjectStateReadContext, projectDir: string): Diagnostic[] {
+  const { snapshot } = context
+  const typed = createTypedProjectStateReader(snapshot, context.readIndex)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed })
   const readiness = readProjectStateDependencyReadiness({ queryPort })
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
   const seenOwners = new Set<string>()
-  const typed = createTypedProjectStateReader(snapshot)
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
     const record = snapshot.fileRecord(fileId)
     if (record.updateKind !== 1) continue

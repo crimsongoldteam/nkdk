@@ -44,7 +44,7 @@ interface ImportFromXmlDeps {
 export type ImportFromXmlPayload = ToolPayload<{
   componentPath: string
   succeeded: number
-  failed: Array<{ kind: string; name: string; parent?: string; message: string }>
+  failed: Array<{ severity: "error"; code: string; message: string; targetProjectPath?: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
   configurationIndexPath?: string
   diagnostics: readonly ImportOutputDiagnostic[]
@@ -56,10 +56,8 @@ export type ImportFromXmlPayload = ToolPayload<{
 interface ImportOutputDiagnostic {
   readonly severity: "error" | "warning"
   readonly message: string
-  readonly code?: string
+  readonly code: string
   readonly targetProjectPath?: string
-  readonly kind?: string
-  readonly name?: string
 }
 
 export async function importFromXml(
@@ -133,14 +131,12 @@ function* concatenate<T>(...sources: readonly (readonly T[])[]): Iterable<T> {
 }
 
 function mapDiagnostic(diagnostic: CoreImportDiagnostic): ImportOutputDiagnostic {
-  return diagnostic.severity === "error"
-    ? { severity: "error", kind: diagnostic.code, name: diagnostic.targetProjectPath, message: diagnostic.message }
-    : {
-        severity: "warning",
-        code: diagnostic.code,
-        message: diagnostic.message,
-        ...(diagnostic.targetProjectPath.length === 0 ? {} : { targetProjectPath: diagnostic.targetProjectPath }),
-      }
+  return {
+    severity: diagnostic.severity,
+    code: diagnostic.code,
+    message: diagnostic.message,
+    ...(diagnostic.targetProjectPath.length === 0 ? {} : { targetProjectPath: diagnostic.targetProjectPath }),
+  }
 }
 
 function isImportError(diagnostic: ImportOutputDiagnostic): boolean {
@@ -151,8 +147,18 @@ function isImportWarning(diagnostic: ImportOutputDiagnostic): boolean {
   return diagnostic.severity === "warning"
 }
 
-function mapFailureOutput(failure: ImportOutputDiagnostic): { kind: string; name: string; message: string } {
-  return { kind: failure.kind ?? "", name: failure.name ?? "", message: failure.message }
+function mapFailureOutput(failure: ImportOutputDiagnostic): {
+  severity: "error"
+  code: string
+  message: string
+  targetProjectPath?: string
+} {
+  return {
+    severity: "error",
+    code: failure.code,
+    message: failure.message,
+    ...(failure.targetProjectPath === undefined ? {} : { targetProjectPath: failure.targetProjectPath }),
+  }
 }
 
 function mapWarningOutput(warning: ImportOutputDiagnostic): {

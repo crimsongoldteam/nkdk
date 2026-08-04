@@ -40,7 +40,7 @@ export interface ImportFromInfobaseDependencies {
 
 export type ImportFromInfobasePayload = ToolPayload<{
   succeeded: number
-  failed: Array<{ kind: string; name: string; parent?: string; message: string }>
+  failed: Array<{ severity: "error"; code: string; message: string; targetProjectPath?: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
   configurationIndexPath?: string
   settingsPath?: string
@@ -184,11 +184,14 @@ function defaultDependencies(): ImportFromInfobaseDependencies {
 
 function mapFailure(
   failure: CoreImportDiagnostic
-): { kind: string; name: string; message: string } {
+): { severity: "error"; code: string; message: string; targetProjectPath?: string } {
   return {
-    kind: failure.code,
-    name: failure.targetProjectPath,
+    severity: "error",
+    code: failure.code,
     message: failure.message,
+    ...(failure.targetProjectPath.length === 0
+      ? {}
+      : { targetProjectPath: failure.targetProjectPath }),
   }
 }
 
