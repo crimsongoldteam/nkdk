@@ -11,6 +11,7 @@ import {
   snapshotConfigurationIndex,
 } from "./sharedSnapshot"
 import { reverseInputOrder, sampleSnapshot, TEST_UUID } from "./testData"
+import { buildBinaryHashIndex } from "../binary/hashIndex"
 
 describe("shared configuration index snapshot", () => {
   const projectDirs: string[] = []
@@ -32,6 +33,14 @@ describe("shared configuration index snapshot", () => {
     const snapshot = snapshotConfigurationIndex(encoded)
     const first = createConfigurationIndexReader(snapshot)
     const second = createConfigurationIndexReader(snapshot)
+
+    expect(snapshot.stringLookup.slots).toBeInstanceOf(SharedArrayBuffer)
+    expect(first.snapshot.stringLookup.slots).toBe(second.snapshot.stringLookup.slots)
+    expect(first.snapshot.fileLookup.slots).toBe(second.snapshot.fileLookup.slots)
+    expect(first.snapshot.entityLookup.slots).toBe(second.snapshot.entityLookup.slots)
+    expect(first.snapshot.sourceEntityLookup.slots).toBe(second.snapshot.sourceEntityLookup.slots)
+    expect(first.snapshot.sourceEntityOffsets).toBe(second.snapshot.sourceEntityOffsets)
+    expect(first.snapshot.sourceEntityRanges).toBe(second.snapshot.sourceEntityRanges)
 
     expect(first.header()).toEqual({
       specificationVersion: "1.3",
@@ -58,6 +67,54 @@ describe("shared configuration index snapshot", () => {
     expect(first).not.toHaveProperty("identities")
     expect(first).not.toHaveProperty("xmlNodes")
     expect(first).not.toHaveProperty("xmlValue")
+  })
+
+  it("подтверждает исходные ключи при коллизиях всех lookup-таблиц", () => {
+    const options = {
+      hashStringBytes: () => 5n,
+      hashStringId: () => 7n,
+    }
+    const data = sampleSnapshot()
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(data), options)
+    const reader = createConfigurationIndexReader(snapshot, options)
+
+    expect(reader.file("Configuration.yaml")).toEqual(
+      data.files.find(({ projectPath }) => projectPath === "Configuration.yaml")
+    )
+    expect(reader.file("Документы/Заказ.yaml")).toEqual(
+      data.files.find(({ projectPath }) => projectPath === "Документы/Заказ.yaml")
+    )
+    expect(reader.entity(data.entities[0]!.logicalAddress)).toEqual(data.entities[0])
+    expect(reader.entity(data.entities[1]!.logicalAddress)).toEqual(data.entities[1])
+    expect([...reader.entitiesBySourceProjectPath(data.entities[0]!.sourceProjectPath)])
+      .toContainEqual(data.entities[0])
+    expect(reader.file("Нет.yaml")).toBeUndefined()
+    expect(reader.entity("Нет")).toBeUndefined()
+  })
+
+  it("отвергает повреждённую перестановку source entity offsets", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const corruptedOffsets = new Uint32Array(new SharedArrayBuffer(snapshot.sourceEntityOffsets.byteLength))
+    corruptedOffsets.set(new Uint32Array(snapshot.sourceEntityOffsets))
+    corruptedOffsets[0] = corruptedOffsets[1]!
+
+    expect(() => createConfigurationIndexReader({
+      ...snapshot,
+      sourceEntityOffsets: corruptedOffsets.buffer as SharedArrayBuffer,
+    })).toThrow(/Повреждён lookup/iu)
+  })
+
+  it("отвергает lookup recordId за границей исходной секции", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const corruptedLookup = buildBinaryHashIndex(
+      new BigUint64Array([1n]),
+      new Uint32Array([0xffffffff]),
+    )
+
+    expect(() => createConfigurationIndexReader({
+      ...snapshot,
+      entityLookup: corruptedLookup,
+    })).toThrow(/Повреждён lookup/iu)
   })
 
   it("rejects incompatible or corrupted index before creating a shared buffer", () => {

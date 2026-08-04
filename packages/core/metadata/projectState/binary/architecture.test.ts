@@ -24,6 +24,20 @@ it("не сохраняет неизменившийся снимок", () => {
   expect(writer).toContain("if (changed) scheduleSave")
 })
 
+it("не восстанавливает полные локальные lookup-структуры в full sync worker", () => {
+  const composition = source("fullSyncToXml/sharedMetadata.ts")
+  const worker = source("fullSyncToXml/worker.ts")
+  const configurationIndex = source("configurationIndex/sharedSnapshot.ts")
+
+  expect(worker).not.toContain("composition.assignments()")
+  expect(configurationIndex).not.toContain("private stringIds?: Map")
+  expect(configurationIndex).not.toContain("fileOffsetByPathId?: Map")
+  expect(configurationIndex).not.toContain("entityOffsetByAddressId?: Map")
+  expect(configurationIndex).not.toContain("entityOffsetsBySourcePathId?: Map")
+  expect(composition).toContain("findBinaryHashIndex")
+  expect(configurationIndex).toContain("findBinaryHashIndex")
+})
+
 function source(relativePath: string): string {
   return readFileSync(join(metadataRoot, relativePath), "utf8")
 }
