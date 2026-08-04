@@ -213,7 +213,7 @@ write_mcp_input() {
   local path="$1"
   local xml_dir="$2"
   local project_dir="$3"
-  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",concurrency:1,allowWrite:true})+"\n")' \
+  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",concurrency:4,allowWrite:true})+"\n")' \
     "${path}" "${xml_dir}" "${project_dir}"
 }
 
@@ -221,7 +221,7 @@ write_mcp_sync_input() {
   local path="$1"
   local xml_dir="$2"
   local project_dir="$3"
-  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",concurrency:1,allowWrite:true,ignoreValidationErrors:true})+"\n")' \
+  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",concurrency:4,allowWrite:true,ignoreValidationErrors:true})+"\n")' \
     "${path}" "${xml_dir}" "${project_dir}"
 }
 

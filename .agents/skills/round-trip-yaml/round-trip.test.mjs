@@ -13,3 +13,10 @@ test("проверяет только активный XML-каталог, а н
 test("не требует отсутствующих справочных файлов metadata", () => {
   assert.doesNotMatch(skill, /\.agents\/knowledge\/metadata/u)
 })
+
+test("запускает импорт и sync с четырьмя работниками", () => {
+  const concurrencyValues = [...script.matchAll(/componentPath:"cf",concurrency:(\d+)/gu)]
+    .map((match) => Number(match[1]))
+
+  assert.deepEqual(concurrencyValues, [4, 4])
+})
