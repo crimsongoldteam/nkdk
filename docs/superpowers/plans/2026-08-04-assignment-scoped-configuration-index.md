@@ -42,7 +42,7 @@
 
 **Interfaces:**
 - Consumes: существующие `SharedConfigurationIndexSnapshot`, `ConfigurationIndexReader.entity(logicalAddress)` и таблицы `sourceEntityOffsets`/`sourceEntityRanges`.
-- Produces: `ConfigurationIndexEntityRange`, `ConfigurationIndexAssignmentLookupStats`, `ConfigurationIndexReader.entityRange(projectPath)`, `ConfigurationIndexReader.forEntityRange(range, stats)`.
+- Produces: `ConfigurationIndexEntityRange`, `ConfigurationIndexAssignmentLookupStats` и отдельный `AssignmentScopedConfigurationIndexReader` с `entityRange(projectPath)`/`forEntityRange(range, stats)`; общий `ConfigurationIndexReader` не расширяется.
 
 - [ ] **Step 1: Добавить падающие тесты связывания и локального чтения**
 
@@ -115,14 +115,16 @@ export function createConfigurationIndexAssignmentLookupStats(): ConfigurationIn
 }
 ```
 
-Расширить `ConfigurationIndexReader`:
+Добавить узкую возможность поверх `ConfigurationIndexReader`:
 
 ```ts
+export interface AssignmentScopedConfigurationIndexReader extends ConfigurationIndexReader {
 entityRange(projectPath: string): ConfigurationIndexEntityRange
 forEntityRange(
   range: ConfigurationIndexEntityRange,
   stats?: ConfigurationIndexAssignmentLookupStats,
 ): ConfigurationIndexReader
+}
 ```
 
 `SharedConfigurationIndexReader.entityRange()` должен выполнить существующий поиск `sourceProjectPath → rangeId` ровно один раз и вернуть пару из `sourceEntityRanges`; неизвестный путь возвращает `{ start: 0, count: 0 }`.

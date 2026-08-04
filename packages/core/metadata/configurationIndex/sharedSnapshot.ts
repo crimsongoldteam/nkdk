@@ -35,6 +35,19 @@ export interface ConfigurationIndexLookupHashOptions {
   readonly hashStringId?: (id: number) => bigint
 }
 
+export interface ConfigurationIndexEntityRange {
+  readonly start: number
+  readonly count: number
+}
+
+export interface ConfigurationIndexAssignmentLookupStats {
+  localHits: number
+  localMisses: number
+  globalFallbacks: number
+  decodedEntities: number
+  rangeEntities: number
+}
+
 type SnapshotConfigurationIndexOptions = DecodeConfigurationIndexOptions
   & ConfigurationIndexLookupHashOptions
 
@@ -46,6 +59,14 @@ export interface ConfigurationIndexReader {
   entity(logicalAddress: string): ConfigurationSnapshotEntity | undefined
   entities(): Iterable<ConfigurationSnapshotEntity>
   entitiesBySourceProjectPath(projectPath: string): Iterable<ConfigurationSnapshotEntity>
+}
+
+export interface AssignmentScopedConfigurationIndexReader extends ConfigurationIndexReader {
+  entityRange(projectPath: string): ConfigurationIndexEntityRange
+  forEntityRange(
+    range: ConfigurationIndexEntityRange,
+    stats?: ConfigurationIndexAssignmentLookupStats,
+  ): ConfigurationIndexReader
 }
 
 interface DirectoryEntry {
@@ -108,11 +129,21 @@ export function snapshotConfigurationIndex(
 export function createConfigurationIndexReader(
   snapshot: SharedConfigurationIndexSnapshot,
   options: ConfigurationIndexLookupHashOptions = {},
-): ConfigurationIndexReader {
+): AssignmentScopedConfigurationIndexReader {
   return new SharedConfigurationIndexReader(snapshot, options)
 }
 
-class SharedConfigurationIndexReader implements ConfigurationIndexReader {
+export function createConfigurationIndexAssignmentLookupStats(): ConfigurationIndexAssignmentLookupStats {
+  return {
+    localHits: 0,
+    localMisses: 0,
+    globalFallbacks: 0,
+    decodedEntities: 0,
+    rangeEntities: 0,
+  }
+}
+
+class SharedConfigurationIndexReader implements AssignmentScopedConfigurationIndexReader {
   readonly snapshot: SharedConfigurationIndexSnapshot
   private readonly buffer: Buffer
   private readonly directory: readonly DirectoryEntry[]
@@ -183,7 +214,39 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   *entitiesBySourceProjectPath(projectPath: string): Iterable<ConfigurationSnapshotEntity> {
     const projectPathId = this.findStringId(projectPath)
     if (projectPathId === undefined) return
-    for (const offset of this.entityOffsetsForSourcePath(projectPathId)) yield this.decodeEntity(offset)
+    const range = this.entityRangeForSourcePathId(projectPathId)
+    for (const offset of this.sourceEntityOffsets.subarray(range.start, range.start + range.count)) {
+      yield this.decodeEntity(offset)
+    }
+  }
+
+  entityRange(projectPath: string): ConfigurationIndexEntityRange {
+    const projectPathId = this.findStringId(projectPath)
+    return projectPathId === undefined
+      ? { start: 0, count: 0 }
+      : this.entityRangeForSourcePathId(projectPathId)
+  }
+
+  forEntityRange(
+    range: ConfigurationIndexEntityRange,
+    stats = createConfigurationIndexAssignmentLookupStats(),
+  ): ConfigurationIndexReader {
+    if (
+      !Number.isSafeInteger(range.start)
+      || !Number.isSafeInteger(range.count)
+      || range.start < 0
+      || range.count < 0
+      || range.start + range.count > this.sourceEntityOffsets.length
+    ) {
+      throw new Error("Повреждён диапазон entity индекса конфигурации")
+    }
+    return new AssignmentConfigurationIndexReader({
+      source: this,
+      offsets: this.sourceEntityOffsets.subarray(range.start, range.start + range.count),
+      logicalAddressAt: (offset) => this.logicalAddressAt(offset),
+      decodeAt: (offset) => this.decodeEntity(offset),
+      stats,
+    })
   }
 
   private decodeFile(offset: number, files = section(this.buffer, this.directory, 3)): ConfigurationSnapshotFile {
@@ -276,6 +339,11 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     }
   }
 
+  private logicalAddressAt(offset: number): string {
+    const entities = section(this.buffer, this.directory, 4)
+    return this.stringById(entities.readUInt32LE(offset + 4))
+  }
+
   private findStringId(value: string): number | undefined {
     const encoded = textEncoder.encode(value)
     return findBinaryHashIndex(
@@ -317,7 +385,7 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     return entityId === undefined ? undefined : this.entityOffsets[entityId]
   }
 
-  private entityOffsetsForSourcePath(sourceProjectPathId: number): Uint32Array {
+  private entityRangeForSourcePathId(sourceProjectPathId: number): ConfigurationIndexEntityRange {
     const entities = section(this.buffer, this.directory, 4)
     const rangeId = findBinaryHashIndex(
       this.snapshot.sourceEntityLookup,
@@ -328,10 +396,12 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
         return entities.readUInt32LE(firstEntityOffset + 8) === sourceProjectPathId
       },
     )
-    if (rangeId === undefined) return this.sourceEntityOffsets.subarray(0, 0)
-    const start = this.sourceEntityRanges[rangeId * 2]!
-    const count = this.sourceEntityRanges[rangeId * 2 + 1]!
-    return this.sourceEntityOffsets.subarray(start, start + count)
+    return rangeId === undefined
+      ? { start: 0, count: 0 }
+      : {
+          start: this.sourceEntityRanges[rangeId * 2]!,
+          count: this.sourceEntityRanges[rangeId * 2 + 1]!,
+        }
   }
 
   private stringBytesEqual(id: number, expected: Uint8Array): boolean {
@@ -374,6 +444,76 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
       seenEntityIds[entityId] = 1
     }
   }
+}
+
+class AssignmentConfigurationIndexReader implements ConfigurationIndexReader {
+  readonly snapshot: SharedConfigurationIndexSnapshot
+  private readonly source: ConfigurationIndexReader
+  private readonly decodeAt: (offset: number) => ConfigurationSnapshotEntity
+  private readonly stats: ConfigurationIndexAssignmentLookupStats
+  private readonly offsetByLogicalAddress = new Map<string, number>()
+  private readonly cache = new Map<string, ConfigurationSnapshotEntity | undefined>()
+
+  constructor(params: {
+    readonly source: ConfigurationIndexReader
+    readonly offsets: Uint32Array
+    readonly logicalAddressAt: (offset: number) => string
+    readonly decodeAt: (offset: number) => ConfigurationSnapshotEntity
+    readonly stats: ConfigurationIndexAssignmentLookupStats
+  }) {
+    this.source = params.source
+    this.snapshot = params.source.snapshot
+    this.decodeAt = params.decodeAt
+    this.stats = params.stats
+    this.stats.rangeEntities += params.offsets.length
+    for (const offset of params.offsets) {
+      const logicalAddress = params.logicalAddressAt(offset)
+      if (this.offsetByLogicalAddress.has(logicalAddress)) {
+        throw new Error("Повторяется logicalAddress entity в диапазоне")
+      }
+      this.offsetByLogicalAddress.set(logicalAddress, offset)
+    }
+  }
+
+  header(): Pick<ConfigurationSnapshot, "specificationVersion" | "indexGeneration" | "componentPath"> {
+    return this.source.header()
+  }
+
+  file(projectPath: string): ConfigurationSnapshotFile | undefined {
+    return this.source.file(projectPath)
+  }
+
+  files(): Iterable<ConfigurationSnapshotFile> {
+    return this.source.files()
+  }
+
+  entity(logicalAddress: string): ConfigurationSnapshotEntity | undefined {
+    const offset = this.offsetByLogicalAddress.get(logicalAddress)
+    if (offset === undefined) this.stats.localMisses += 1
+    else this.stats.localHits += 1
+
+    if (this.cache.has(logicalAddress)) return this.cache.get(logicalAddress)
+
+    let entity: ConfigurationSnapshotEntity | undefined
+    if (offset === undefined) {
+      this.stats.globalFallbacks += 1
+      entity = this.source.entity(logicalAddress)
+    } else {
+      entity = this.decodeAt(offset)
+    }
+    this.cache.set(logicalAddress, entity)
+    if (entity !== undefined) this.stats.decodedEntities += 1
+    return entity
+  }
+
+  entities(): Iterable<ConfigurationSnapshotEntity> {
+    return this.source.entities()
+  }
+
+  entitiesBySourceProjectPath(projectPath: string): Iterable<ConfigurationSnapshotEntity> {
+    return this.source.entitiesBySourceProjectPath(projectPath)
+  }
+
 }
 
 function buildSharedLookups(params: {

@@ -6,6 +6,7 @@ import { ConfigurationIndexCompatibilityError } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { configurationIndexPath } from "./fileIO"
 import {
+  createConfigurationIndexAssignmentLookupStats,
   createConfigurationIndexReader,
   readConfigurationIndexSnapshot,
   snapshotConfigurationIndex,
@@ -90,6 +91,71 @@ describe("shared configuration index snapshot", () => {
       .toContainEqual(data.entities[0])
     expect(reader.file("Нет.yaml")).toBeUndefined()
     expect(reader.entity("Нет")).toBeUndefined()
+  })
+
+  it("связывает sourceProjectPath с числовым диапазоном текущего снимка", () => {
+    const data = sampleSnapshot()
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(data)),
+    )
+
+    const range = reader.entityRange("Документы/Заказ.yaml")
+
+    expect(range.count).toBe(1)
+    expect(reader.entityRange("Новый.yaml")).toEqual({ start: 0, count: 0 })
+    expect(reader.forEntityRange(range).entity("Документ.Заказ")).toEqual(data.entities[1])
+  })
+
+  it("сначала читает entity локально, кэширует декодирование и считает fallback", () => {
+    const data = sampleSnapshot()
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(data)),
+    )
+    const stats = createConfigurationIndexAssignmentLookupStats()
+    const local = reader.forEntityRange(reader.entityRange("Документы/Заказ.yaml"), stats)
+
+    expect(local.entity("Документ.Заказ")).toEqual(data.entities[1])
+    expect(local.entity("Документ.Заказ")).toEqual(data.entities[1])
+    expect(local.entity("Конфигурация")).toEqual(data.entities[0])
+    expect(local.entity("Конфигурация")).toEqual(data.entities[0])
+    expect(stats).toEqual({
+      localHits: 2,
+      localMisses: 2,
+      globalFallbacks: 1,
+      decodedEntities: 2,
+      rangeEntities: 1,
+    })
+  })
+
+  it("не принимает entity соседнего диапазона за локальную", () => {
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+    )
+    const stats = createConfigurationIndexAssignmentLookupStats()
+    const local = reader.forEntityRange(reader.entityRange("Документы/Заказ.yaml"), stats)
+
+    expect(local.entity("Конфигурация")).toEqual(reader.entity("Конфигурация"))
+    expect(stats.localHits).toBe(0)
+    expect(stats.globalFallbacks).toBe(1)
+  })
+
+  it("отвергает выход локального диапазона за границы снимка", () => {
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+    )
+
+    expect(() => reader.forEntityRange({ start: 1, count: 2 }))
+      .toThrow("Повреждён диапазон entity индекса конфигурации")
+  })
+
+  it("отвергает повторный logicalAddress внутри локального диапазона", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const reader = createConfigurationIndexReader(snapshot)
+    const sourceOffsets = new Uint32Array(snapshot.sourceEntityOffsets)
+    sourceOffsets[1] = sourceOffsets[0]!
+
+    expect(() => reader.forEntityRange({ start: 0, count: 2 }))
+      .toThrow("Повторяется logicalAddress entity в диапазоне")
   })
 
   it("отвергает повреждённую перестановку source entity offsets", () => {
