@@ -94,7 +94,6 @@ export async function runProfile(options, overrides = {}) {
   const runs = []
   const allSteps = []
   dependencies.buildMcp()
-  const projectDir = dependencies.createProject(options.yamlDir)
   const session = await dependencies.createSession({
     serverMode: "compiled",
     env: { ...process.env, NKDK_PROFILE: "1" },
@@ -103,6 +102,7 @@ export async function runProfile(options, overrides = {}) {
   try {
     for (let run = 1; run <= options.runs; run += 1) {
       dependencies.clearOutput(options.yamlDir)
+      const projectDir = dependencies.createProject(options.yamlDir)
       const started = dependencies.now()
       const { result, payload } = await session.call("nkdk.import_from_xml", {
         xmlDir: options.xmlDir,
@@ -132,7 +132,7 @@ export async function runProfile(options, overrides = {}) {
       })
 
       if (result.isError || operationFailed(payload)) {
-        const details = stderr.trim()
+        const details = [formatFailurePayload(payload), stderr.trim()].filter(Boolean).join("\n")
         throw new Error(`Импорт: прогон ${run} завершился ошибкой${details.length === 0 ? "" : `\n${details}`}`)
       }
     }
@@ -153,6 +153,16 @@ export async function runProfile(options, overrides = {}) {
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
+}
+
+function formatFailurePayload(payload) {
+  if (!payload || typeof payload !== "object") return ""
+  const failure = {
+    ok: payload.ok,
+    error: payload.error,
+    failed: payload.failed,
+  }
+  return JSON.stringify(failure, null, 2)
 }
 
 export function parseProfileSteps(stderr) {

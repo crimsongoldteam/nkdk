@@ -69,6 +69,7 @@ test("собирает MCP до замера и переиспользует о�
     close: mock.fn(async () => undefined),
   }
   const createSession = mock.fn(async () => session)
+  const createProject = mock.fn(() => `/project-${createProject.mock.callCount()}`)
 
   const result = await runProfile(
     { xmlDir: "/xml", yamlDir: "/yaml", runs: 2, concurrency: 4 },
@@ -77,13 +78,18 @@ test("собирает MCP до замера и переиспользует о�
       createSession,
       now: () => clock,
       clearOutput: mock.fn(),
-      createProject: mock.fn(() => "/project"),
+      createProject,
     },
   )
 
   assert.equal(buildMcp.mock.callCount(), 1)
   assert.equal(createSession.mock.callCount(), 1)
+  assert.equal(createProject.mock.callCount(), 2)
   assert.equal(call.mock.callCount(), 2)
+  assert.deepEqual(call.mock.calls.map(({ arguments: callArguments }) => callArguments[1].projectDir), [
+    "/project-0",
+    "/project-1",
+  ])
   assert.equal(session.close.mock.callCount(), 1)
   assert.equal(result.mode, "compiled-mcp-stdio")
   assert.equal(result.runs.length, 2)
