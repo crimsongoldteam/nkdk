@@ -17,6 +17,7 @@ import { fullXmlSyncTestOutput, fullXmlSyncTestTopologyFields } from "./testTopo
 
 describe("writeFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
+  const emptyComposition = { children: () => [] }
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
@@ -56,6 +57,7 @@ describe("writeFullXmlSyncAssignment", () => {
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      composition: emptyComposition,
     })
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
@@ -102,6 +104,7 @@ describe("writeFullXmlSyncAssignment", () => {
       },
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      composition: emptyComposition,
     })).toThrow("Не найден узел топологии: test-assignment")
   })
 
@@ -155,6 +158,7 @@ describe("writeFullXmlSyncAssignment", () => {
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      composition: emptyComposition,
     })
     const result = await writeFullXmlSyncAssignment({ prepared: preparedAssignment, context, outputDir })
 

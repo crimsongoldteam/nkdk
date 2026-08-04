@@ -204,7 +204,7 @@ async function executeAssignments(
             }),
         context: exportContext(state),
         index: state.index,
-        assignments: state.composition.assignments(),
+        composition: state.composition,
       })
       expectedOutputs.push(
         ...prepared.documents.map(({ targetXmlPath }) => ({

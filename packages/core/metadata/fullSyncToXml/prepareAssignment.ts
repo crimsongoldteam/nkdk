@@ -4,11 +4,11 @@ import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnaps
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
-import type { FullXmlSyncCompositionEntry } from "./sharedMetadata"
 import type { FullXmlSyncAssignment, PreparedXMLAssignment, PreparedXMLDocument } from "./types"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { getMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
+import type { MetadataXmlPrepareComposition } from "../resourceTopology/capabilities"
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 import { projectXmlExportOwnerChain } from "../resourceTopology/xmlExportProjection"
 import {
@@ -25,7 +25,7 @@ export function prepareFullXmlSyncAssignment(params: {
   baseConfigurationIndex?: ConfigurationIndexReader
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
-  assignments?: readonly FullXmlSyncCompositionEntry[]
+  composition: MetadataXmlPrepareComposition
   topology?: CompiledMetadataResourceTopology
 }): PreparedXMLAssignment {
   const indexCollector = createConfigurationIndexCollector()
@@ -90,14 +90,7 @@ function prepareTopologyAssignmentDocuments(
       logicalAddress: params.assignment.logicalAddress,
       outputs: capabilityOutputs,
       index: params.index,
-      composition: (params.assignments ?? []).map((entry) => ({
-        sourceProjectPath: entry.sourceProjectPath,
-        itemType: entry.itemType,
-        itemName: entry.itemName,
-        logicalAddress: entry.logicalAddress,
-        assignmentRole: entry.role === "form" ? "fileItem" : entry.role,
-        ...(entry.ownerLogicalAddress === undefined ? {} : { ownerLogicalAddress: entry.ownerLogicalAddress }),
-      })),
+      composition: params.composition,
       profile: params.profile,
     })
   })

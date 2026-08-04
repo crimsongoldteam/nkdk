@@ -13,6 +13,10 @@ import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
+import {
+  createFullXmlSyncCompositionReader,
+  createFullXmlSyncCompositionSnapshot,
+} from "./sharedMetadata"
 
 describe("writeFullXmlSyncAssignment for root Configuration", () => {
   const tempDirs: string[] = []
@@ -45,11 +49,16 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     })
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
+    const assignments = [
+      root,
+      catalogAssignment(projectDir, "Товары"),
+      catalogAssignment(projectDir, "Контрагенты"),
+    ]
 
     const context = mockContextToXML()
     const preparedAssignment = prepareFullXmlSyncAssignment({
       assignment: root,
-      assignments: [root, catalogAssignment(projectDir, "Товары"), catalogAssignment(projectDir, "Контрагенты")],
+      composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
@@ -88,6 +97,11 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     })
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
+    const assignments = [
+      root,
+      catalogAssignment(projectDir, "Контрагенты"),
+      catalogAssignment(projectDir, "Товары"),
+    ]
     const baseIndex = sampleSnapshot()
     const index = {
       ...baseIndex,
@@ -110,7 +124,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     const context = mockContextToXML()
     const preparedAssignment = prepareFullXmlSyncAssignment({
       assignment: root,
-      assignments: [root, catalogAssignment(projectDir, "Контрагенты"), catalogAssignment(projectDir, "Товары")],
+      composition: createFullXmlSyncCompositionReader(createFullXmlSyncCompositionSnapshot(assignments)),
       preparedYamlFile: prepared.yamlFiles[0]!,
       context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(index))),

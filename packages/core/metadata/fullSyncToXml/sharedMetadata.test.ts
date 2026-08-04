@@ -7,6 +7,7 @@ import {
   createFullXmlSyncCompositionReader,
   createFullXmlSyncCompositionSnapshot,
 } from "./sharedMetadata"
+import type { FullXmlSyncAssignment } from "./types"
 
 describe("full sync shared composition", () => {
   const tempDirs: string[] = []
@@ -44,4 +45,91 @@ describe("full sync shared composition", () => {
       left.assignmentsByOwner("Справочник.Товары").map(({ itemName }) => itemName)
     ).toEqual(["ФормаЭлемента"])
   })
+
+  it("находит только детей владельца и сохраняет предметный порядок при коллизии", () => {
+    const assignments = [
+      assignment({
+        id: "Конфигурация.yaml",
+        itemName: "Конфигурация",
+        itemType: "MetadataConfiguration",
+        logicalAddress: "Конфигурация",
+        role: "configuration",
+      }),
+      assignment({
+        id: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+        itemName: "ФормаСписка",
+        logicalAddress: "Справочник.Товары.Форма.ФормаСписка",
+        ownerLogicalAddress: "Справочник.Товары",
+        role: "form",
+      }),
+      assignment({
+        id: "Справочник/Услуги/Формы/ФормаЭлемента/Форма.yaml",
+        itemName: "ФормаЭлемента",
+        logicalAddress: "Справочник.Услуги.Форма.ФормаЭлемента",
+        ownerLogicalAddress: "Справочник.Услуги",
+        role: "form",
+      }),
+      assignment({
+        id: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        itemName: "ФормаЭлемента",
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        ownerLogicalAddress: "Справочник.Товары",
+        role: "form",
+      }),
+      assignment({
+        id: "Справочник/Товары/Свойства.yaml",
+        itemName: "Товары",
+        logicalAddress: "Справочник.Товары",
+        role: "properties",
+      }),
+    ]
+    const hashOwner = () => 7n
+    const shared = createFullXmlSyncCompositionSnapshot(assignments, { hashOwner })
+    const left = createFullXmlSyncCompositionReader(shared, { hashOwner })
+    const right = createFullXmlSyncCompositionReader(shared, { hashOwner })
+
+    expect(shared.ownerLookup.slots).toBeInstanceOf(SharedArrayBuffer)
+    expect(left.children("Справочник.Товары").map(({ itemName }) => itemName)).toEqual([
+      "ФормаСписка",
+      "ФормаЭлемента",
+    ])
+    expect(left.children("Справочник.Услуги").map(({ itemName }) => itemName)).toEqual([
+      "ФормаЭлемента",
+    ])
+    expect(left.children("Справочник.Нет")).toEqual([])
+    expect(left.children("Конфигурация").map(({ itemName }) => itemName)).toEqual(["Товары"])
+    expect(left.itemTypeByYamlDir()).toEqual({ Справочник: "MetadataCatalog" })
+    expect(right.children("Справочник.Товары")).toEqual(left.children("Справочник.Товары"))
+  })
 })
+
+function assignment(params: {
+  id: string
+  itemName: string
+  logicalAddress: string
+  itemType?: string
+  ownerLogicalAddress?: string
+  role: FullXmlSyncAssignment["role"]
+}): FullXmlSyncAssignment {
+  return {
+    id: params.id,
+    sourceProjectPath: params.id,
+    sourcePath: `/project/${params.id}`,
+    expectedContentHash: 1n,
+    role: params.role,
+    itemType: params.itemType ?? "MetadataCatalog",
+    itemName: params.itemName,
+    logicalAddress: params.logicalAddress,
+    ...(params.ownerLogicalAddress === undefined
+      ? {}
+      : {
+          owner: {
+            itemType: "MetadataCatalog",
+            name: params.ownerLogicalAddress.split(".").at(-1)!,
+            logicalAddress: params.ownerLogicalAddress,
+          },
+        }),
+    nodeId: "test",
+    potentialOutputs: [],
+  }
+}

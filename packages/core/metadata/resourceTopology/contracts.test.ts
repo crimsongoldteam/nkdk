@@ -73,7 +73,7 @@ describe("registered metadata resource topology contracts", () => {
         },
       ],
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      composition: [],
+      composition: { children: () => [] },
       profile: createYAMLToXMLProfile(),
     })
 
