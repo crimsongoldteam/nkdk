@@ -10,7 +10,10 @@ import { sampleSnapshot } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
+import {
+  createFullXmlSyncCompositionReader,
+  createFullXmlSyncCompositionSnapshot,
+} from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
 import { emptyProjectStateReadSession } from "./testHelpers"
@@ -76,6 +79,43 @@ describe("full XML sync worker", () => {
 
     expect(batch.writtenFiles.file(0)).toMatchObject({ targetXmlPath: "Catalogs/Товары.xml" })
     expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
+  })
+
+  it("строит каталог типов один раз при initialize и переиспользует между пачками", async () => {
+    const projectDir = createProject(["Первый", "Второй"])
+    const assignments = [assignment(projectDir, "Первый"), assignment(projectDir, "Второй")]
+    const composition = createFullXmlSyncCompositionSnapshot(assignments)
+    let catalogBuilds = 0
+
+    await runFullXmlSyncWorkerCommand({
+      kind: "initialize",
+      workerIndex: 0,
+      componentPath: "cf",
+      componentDir: projectDir,
+      outputDir: join(projectDir, ".out"),
+      context,
+      profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
+      composition,
+      targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+      projectStateReadToken: readToken,
+    }, {
+      openReadSession: () => emptyReadSession(),
+      createCompositionReader(snapshot) {
+        const reader = createFullXmlSyncCompositionReader(snapshot)
+        return {
+          ...reader,
+          itemTypeByYamlDir() {
+            catalogBuilds += 1
+            return reader.itemTypeByYamlDir()
+          },
+        }
+      },
+    })
+
+    await runFullXmlSyncWorkerCommand({ kind: "executeBatch", assignments: [assignments[0]!] })
+    await runFullXmlSyncWorkerCommand({ kind: "executeBatch", assignments: [assignments[1]!] })
+
+    expect(catalogBuilds).toBe(1)
   })
 
   it("keeps an already written XML and stops when the next YAML hash changed", async () => {

@@ -33,7 +33,11 @@ describe("full sync shared composition", () => {
     const right = createFullXmlSyncCompositionReader(shared)
 
     expect(shared.table).toBeInstanceOf(SharedArrayBuffer)
-    expect(left.assignments()).toEqual(right.assignments())
+    expect(left.assignment(
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    )).toEqual(right.assignment(
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    ))
     expect(left.assignment(
       "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
     )).toMatchObject({
@@ -42,7 +46,7 @@ describe("full sync shared composition", () => {
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
     expect(
-      left.assignmentsByOwner("Справочник.Товары").map(({ itemName }) => itemName)
+      left.children("Справочник.Товары").map(({ itemName }) => itemName)
     ).toEqual(["ФормаЭлемента"])
   })
 

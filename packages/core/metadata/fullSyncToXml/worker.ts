@@ -43,6 +43,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly index: ConfigurationIndexReader
   readonly baseIndex?: ConfigurationIndexReader
   readonly composition: FullXmlSyncCompositionReader
+  readonly itemTypeByYamlDir: Readonly<Record<string, string>>
   readonly ownerMetadataCache: ProjectStateOwnerMetadataCache
   readonly projectStateReadSession: ProjectStateReadSession
   readonly ownsProjectStateReadSession: boolean
@@ -63,6 +64,9 @@ export async function runFullXmlSyncWorkerCommand(
     const ownsProjectStateReadSession = dependencies.projectStateReadSession === undefined
     try {
       const baseFormSource = createBaseFormSource(command.profile)
+      const composition = (dependencies.createCompositionReader ?? createFullXmlSyncCompositionReader)(
+        command.composition,
+      )
       const baseIndex =
         command.profile.baseForms === undefined
           ? undefined
@@ -81,7 +85,8 @@ export async function runFullXmlSyncWorkerCommand(
         },
         index: createConfigurationIndexReader(command.targetIndex),
         ...(baseIndex === undefined ? {} : { baseIndex }),
-        composition: createFullXmlSyncCompositionReader(command.composition),
+        composition,
+        itemTypeByYamlDir: composition.itemTypeByYamlDir(),
         ownerMetadataCache: createProjectStateOwnerMetadataCache({
           projectDir: command.componentDir,
           componentPath: command.componentPath,
@@ -126,6 +131,7 @@ export async function runFullXmlSyncWorkerCommand(
 export interface FullXmlSyncWorkerDependencies {
   readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
   readonly projectStateReadSession?: ProjectStateReadSession
+  readonly createCompositionReader?: typeof createFullXmlSyncCompositionReader
 }
 
 function requireProjectStateReadToken(token: ProjectStateReadToken | undefined): ProjectStateReadToken {
@@ -157,7 +163,6 @@ async function executeAssignments(
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
-  const itemTypes = itemTypeByYamlDir(state.composition.assignments())
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
   for (const assignment of assignments) {
@@ -178,7 +183,7 @@ async function executeAssignments(
 
       const preparedYaml = prepareYamlFiles({
         files: [assignmentDescriptor(assignment, state)],
-        itemTypeByYamlDir: itemTypes,
+        itemTypeByYamlDir: state.itemTypeByYamlDir,
         sourceBytes: new Map([[assignment.sourcePath, bytes]]),
       })
       diagnostics.push(
@@ -308,16 +313,6 @@ function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "i
   if (assignment.role === "configuration") return { dir: "", name: assignment.itemName }
   const parts = assignment.sourceProjectPath.split("/")
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
-}
-
-function itemTypeByYamlDir(
-  assignments: readonly Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath" | "itemType">[]
-): Record<string, string> {
-  return Object.fromEntries(
-    assignments
-      .map((assignment) => [ownerFromAssignment(assignment).dir, assignment.itemType] as const)
-      .filter(([dir]) => dir.length > 0)
-  )
 }
 
 function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {

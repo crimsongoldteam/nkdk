@@ -45,8 +45,6 @@ export interface FullXmlSyncCompositionEntry {
 
 export interface FullXmlSyncCompositionReader extends MetadataXmlPrepareComposition {
   assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
-  assignments(): FullXmlSyncCompositionEntry[]
   children(ownerLogicalAddress: string): readonly MetadataXmlPrepareCompositionEntry[]
   itemTypeByYamlDir(): Readonly<Record<string, string>>
 }
@@ -215,19 +213,6 @@ export function createFullXmlSyncCompositionReader(
         if (entry.id === id) return entry
       }
       return undefined
-    },
-    assignmentsByOwner(ownerLogicalAddress) {
-      const result: FullXmlSyncCompositionEntry[] = []
-      for (let index = 0; index < count; index += 1) {
-        const entry = entryAt(index)
-        if (entry.ownerLogicalAddress === ownerLogicalAddress) result.push(entry)
-      }
-      return result
-    },
-    assignments() {
-      const result: FullXmlSyncCompositionEntry[] = []
-      for (let index = 0; index < count; index += 1) result.push(entryAt(index))
-      return result
     },
     children(ownerLogicalAddress) {
       const rangeId = findBinaryHashIndex(
