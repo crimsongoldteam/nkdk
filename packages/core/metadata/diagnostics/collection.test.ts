@@ -46,6 +46,38 @@ describe("двоичная коллекция диагностик", () => {
     expect(() => iterator.next()).toThrow(/освобождена/)
     expect(() => collection.release()).not.toThrow()
   })
+
+  it("не декодирует записи до первого обращения к содержимому", () => {
+    const source = batch([diagnostic()])
+    let reads = 0
+    const collection = createMetadataDiagnosticCollection([{
+      count: source.count,
+      diagnostic(index) {
+        reads += 1
+        return source.diagnostic(index)
+      },
+    }])
+
+    expect(reads).toBe(0)
+    expect([...collection]).toEqual([diagnostic()])
+    expect(reads).toBeGreaterThan(0)
+  })
+
+  it("освобождает непрочитанную коллекцию без декодирования", () => {
+    let reads = 0
+    const collection = createMetadataDiagnosticCollection([{
+      count: 1,
+      diagnostic() {
+        reads += 1
+        return diagnostic()
+      },
+    }])
+
+    collection.release()
+
+    expect(reads).toBe(0)
+    expect(() => collection.count).toThrow(/освобождена/)
+  })
 })
 
 function batch(diagnostics: readonly MetadataDiagnostic[]) {

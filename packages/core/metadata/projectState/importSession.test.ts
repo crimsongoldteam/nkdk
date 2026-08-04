@@ -56,7 +56,7 @@ describe("ProjectState import session", () => {
     second.close()
 
     const result = await session.finalize()
-    expect(result.diagnostics).toEqual([])
+    expect([...result.diagnostics]).toEqual([])
     expect(result.stats).toMatchObject({ changedFiles: 1 })
   })
 
@@ -309,7 +309,9 @@ describe("ProjectState import session", () => {
       async commitUpdate() {},
       async createReadToken() { return {} as never },
       async readLocalDiagnostics() { return [] },
+      async readLocalDiagnosticBatches() { return [] },
       async validateDependencies() { return [] },
+      async validateDependencyDiagnosticBatches() { return [] },
       async commitAndScheduleCheckpoint() {},
     } as unknown as ProjectStateWriterHandle
     const importSession = await createProjectStateImportSession({

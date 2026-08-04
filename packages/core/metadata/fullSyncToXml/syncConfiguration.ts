@@ -381,7 +381,9 @@ async function refreshSyncProject(params: {
     context: params.context,
     ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
   })
-  return { diagnostics: result.diagnostics.map(projectValidationDiagnostic), readToken: result.readToken }
+  const diagnostics = [...result.diagnostics].map(projectValidationDiagnostic)
+  result.diagnostics.release()
+  return { diagnostics, readToken: result.readToken }
 }
 
 async function readConfirmedComponentState(params: {

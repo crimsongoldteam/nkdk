@@ -3,6 +3,7 @@ import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
+import type { MetadataDiagnosticCollection } from "../diagnostics/collection"
 
 export interface ValidateProjectParams {
   projectDir: string
@@ -12,7 +13,7 @@ export interface ValidateProjectParams {
 }
 
 export interface ValidateProjectResult {
-  diagnostics: Diagnostic[]
+  diagnostics: MetadataDiagnosticCollection
 }
 
 export interface ValidationWorkerPoolHandle {
@@ -28,7 +29,7 @@ export async function validateProject(params: ValidateProjectParams): Promise<Va
       context: params.context,
       concurrency: normalizeValidationConcurrency(params.concurrency),
     })
-    return { diagnostics: [...result.diagnostics] }
+    return { diagnostics: result.diagnostics }
   } finally {
     if (ownsProjectState) await projectState.close()
   }

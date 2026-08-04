@@ -5,8 +5,11 @@ import {
   type PreparedYamlValidationOperation,
   type ProjectStateValidationStats,
 } from "../project/preparedYamlProjectWorkerPool"
-import type { Diagnostic } from "../validation/types"
-import { dedupeDiagnostics, sortDiagnostics } from "../validation/diagnostics"
+import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import {
+  createMetadataDiagnosticCollection,
+  type MetadataDiagnosticCollection,
+} from "../diagnostics/collection"
 import type { ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
 import {
@@ -23,7 +26,7 @@ export interface ProjectStateRefreshStats {
 }
 
 export interface ProjectStateRefreshResult {
-  readonly diagnostics: readonly Diagnostic[]
+  readonly diagnostics: MetadataDiagnosticCollection
   readonly readToken: ProjectStateReadToken
   readonly stats: ProjectStateRefreshStats
   readonly profile?: ProjectStateRefreshProfile
@@ -71,8 +74,8 @@ export interface ProjectStateRefreshHandle {
   writeFragment(fragment: ProjectStateFragment): Promise<void>
   deleteFiles(projectPaths: readonly string[]): Promise<void>
   deleteUnseenFiles(seenFileIds: Uint8Array): Promise<number>
-  readLocalDiagnostics(): Promise<readonly Diagnostic[]>
-  validateDependencies(): Promise<readonly Diagnostic[]>
+  readLocalDiagnosticBatches(): Promise<readonly DiagnosticBatchView[]>
+  validateDependencyDiagnosticBatches(): Promise<readonly DiagnosticBatchView[]>
   createReadToken(): Promise<ProjectStateReadToken>
   commitAndScheduleCheckpoint(): Promise<{ readonly snapshotPath: string }>
   rollbackUpdate(): Promise<void>
@@ -135,6 +138,7 @@ export async function refreshProjectState(
   const operation = createPreparedYamlValidationOperation(params.signal)
   const operationParams = { ...params, signal: operation.signal }
   let updateActive = false
+  let diagnostics: MetadataDiagnosticCollection | undefined
   try {
     operation.signal.throwIfAborted()
     await dependencies.handle.beginUpdate(params.projectDir, operation.signal)
@@ -149,14 +153,14 @@ export async function refreshProjectState(
     const deletedFiles = await dependencies.handle.deleteUnseenFiles(await scan.finish())
     await dependencies.afterProcessFiles?.()
     operation.signal.throwIfAborted()
-    const localDiagnostics = await dependencies.handle.readLocalDiagnostics()
+    const localDiagnostics = await dependencies.handle.readLocalDiagnosticBatches()
     operation.signal.throwIfAborted()
-    const dependencyDiagnostics = await dependencies.handle.validateDependencies()
+    const dependencyDiagnostics = await dependencies.handle.validateDependencyDiagnosticBatches()
     operation.signal.throwIfAborted()
-    const diagnostics = sortDiagnostics(dedupeDiagnostics([
+    diagnostics = createMetadataDiagnosticCollection([
       ...localDiagnostics,
       ...dependencyDiagnostics,
-    ]))
+    ])
     await dependencies.beforeCheckpoint?.()
     operation.signal.throwIfAborted()
     const readToken = await dependencies.handle.createReadToken()
@@ -174,6 +178,7 @@ export async function refreshProjectState(
       },
     }
   } catch (caught) {
+    diagnostics?.release()
     if (updateActive) {
       try {
         await dependencies.handle.rollbackUpdate()

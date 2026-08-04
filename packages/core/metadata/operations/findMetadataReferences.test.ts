@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "fs"
 import { join } from "path"
 import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import type { ProjectStateService } from "../projectState/service"
 import { findMetadataReferences } from "./findMetadataReferences"
 import {
@@ -271,7 +272,11 @@ function referenceProjectState(
     async refreshAndValidate() {
       if (refreshError !== undefined) throw refreshError
       calls.push("refresh")
-      return { diagnostics, readToken: createTestProjectStateReadToken(), stats: emptyOperationRefreshStats() }
+      return {
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(diagnostics),
+        readToken: createTestProjectStateReadToken(),
+        stats: emptyOperationRefreshStats(),
+      }
     },
     openReadSession() {
       if (!targetFound) {

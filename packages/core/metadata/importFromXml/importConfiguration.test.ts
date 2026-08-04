@@ -18,6 +18,7 @@ import type {
   ProjectStateService,
 } from "../projectState"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
@@ -787,7 +788,7 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
           importParams.profile?.onPhase?.({ phase: "save", elapsedMs: 1 })
           importParams.profile?.onPhase?.({ phase: "publication", elapsedMs: 1 })
           return {
-            diagnostics: [],
+            diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
             readToken: readToken(),
             stats: { hashedFiles: 4, parsedYamlFiles: 0, changedFiles: 4, deletedFiles: 0 },
           }
@@ -798,7 +799,7 @@ function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateSe
     async refreshAndValidate() {
       calls.push("baseMetadata")
       return {
-        diagnostics: [],
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
         readToken: readToken(),
         stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
       }

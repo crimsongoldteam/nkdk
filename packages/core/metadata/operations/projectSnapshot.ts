@@ -54,7 +54,8 @@ export async function buildMetadataOperationSnapshot(
       projectDir: validationProjectDir,
       context,
     }) ?? validateProject({ projectDir: validationProjectDir, context, concurrency: 1 }))
-    const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
+    const errors = [...validation.diagnostics].filter((diagnostic) => diagnostic.severity === "error")
+    validation.diagnostics.release()
     if (errors.length > 0) {
       return {
         ok: false,

@@ -15,6 +15,7 @@ import type {
 } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {
@@ -507,7 +508,7 @@ function createHarness(options: HarnessOptions = {}) {
       events.push("refresh")
       if (options.refreshFailure !== undefined) throw options.refreshFailure
       return {
-        diagnostics: options.refreshDiagnostics ?? [],
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(options.refreshDiagnostics ?? []),
         readToken,
         stats: { hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
       }

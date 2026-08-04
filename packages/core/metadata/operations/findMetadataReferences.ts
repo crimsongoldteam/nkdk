@@ -17,6 +17,7 @@ import type {
 export async function findMetadataReferences(params: FindMetadataReferencesParams): Promise<MetadataOperationResult> {
   const refreshed = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
   const diagnostics = [...refreshed.diagnostics]
+  refreshed.diagnostics.release()
   if (hasMetadataOperationErrors(diagnostics) && params.ignoreValidationErrors !== true) {
     return metadataOperationValidationFailure("YAML-проект содержит ошибки validation", diagnostics)
   }

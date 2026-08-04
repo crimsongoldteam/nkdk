@@ -11,6 +11,7 @@ import { buildProjectStateSnapshot } from "./binary/builder"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
 import { createMetadataWorkerLineFactory } from "../../tests/metadataWorkerTestPool"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 
 const tempDirs: string[] = []
 
@@ -56,7 +57,7 @@ describe("ProjectStateService", () => {
     })
     const workers = createMetadataWorkerPoolHandle({ createLine: lines.factory })
     const writer = testWriterHandle(1)
-    writer.validateDependencies = async () => { events.push("dependencies"); return [] }
+    writer.validateDependencyDiagnosticBatches = async () => { events.push("dependencies"); return [] }
     writer.commitAndScheduleCheckpoint = async () => {
       events.push("checkpoint")
       return { snapshotPath: "snapshot" }
@@ -65,7 +66,7 @@ describe("ProjectStateService", () => {
       createWriter: () => writer,
       workerPool: workers,
       async refresh(_params, dependencies) {
-        await dependencies.handle.validateDependencies()
+        await dependencies.handle.validateDependencyDiagnosticBatches()
         await dependencies.handle.commitAndScheduleCheckpoint()
         return { ...refreshResult(1), readToken: await dependencies.handle.createReadToken() }
       },
@@ -118,8 +119,8 @@ describe("ProjectStateService", () => {
           { signal: new AbortController().signal, abort() {} },
           params.projectDir,
         )
-        await dependencies.handle.readLocalDiagnostics()
-        await dependencies.handle.validateDependencies()
+        await dependencies.handle.readLocalDiagnosticBatches()
+        await dependencies.handle.validateDependencyDiagnosticBatches()
         await dependencies.handle.commitAndScheduleCheckpoint()
         return refreshResult(1)
       },
@@ -182,7 +183,8 @@ describe("ProjectStateService", () => {
 
     const session = await service.beginImport({ projectDir, workerCount: 1, output: { componentPaths: ["cf"] } })
     await session.commitWorkingIndex()
-    await expect(session.finalize()).resolves.toMatchObject({ diagnostics: [] })
+    const result = await session.finalize()
+    expect([...result.diagnostics]).toEqual([])
     await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
 
     await service.close()
@@ -705,7 +707,8 @@ describe("ProjectStateService", () => {
     )
 
     await service.refreshAndValidate({ projectDir })
-    await expect(service.rebuild({ projectDir })).resolves.toEqual(refreshResult(2))
+    const rebuilt = await service.rebuild({ projectDir })
+    expect([...rebuilt.diagnostics]).toEqual([])
     await expect(readProjectFiles(service, projectDir)).resolves.toEqual([{ projectPath: "old-2" }])
     expect(candidate.closed).toBe(0)
     await service.close()
@@ -726,7 +729,8 @@ describe("ProjectStateService", () => {
     )
 
     await service.refreshAndValidate({ projectDir })
-    await expect(service.rebuild({ projectDir })).resolves.toEqual(refreshResult(2))
+    const rebuilt = await service.rebuild({ projectDir })
+    expect([...rebuilt.diagnostics]).toEqual([])
     const firstClose = service.close()
     const secondClose = service.close()
     const failure = await firstClose.catch((caught: unknown) => caught)
@@ -761,14 +765,14 @@ describe("ProjectStateService", () => {
           await writeFile(snapshotPath, "candidate")
           return {
             ...refreshResult(calls),
-            diagnostics: [{
+            diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([{
               filePath: "cf/Справочник/Товары/Свойства.yaml",
               line: 1,
               col: 1,
               severity: "error",
               source: "structure",
               message: "Ошибка validation",
-            }],
+            }]),
           }
         }
         return refreshResult(calls)
@@ -784,7 +788,7 @@ describe("ProjectStateService", () => {
     const rebuildResult = await rebuilding
     const projectFiles = await readProjectFiles(service, projectDir)
 
-    expect(rebuildResult.diagnostics).toEqual([expect.objectContaining({ severity: "error" })])
+    expect([...rebuildResult.diagnostics]).toEqual([expect.objectContaining({ severity: "error" })])
     expect(old.closed).toBe(1)
     expect(candidate.opened).toEqual([await realpath(projectDir)])
     expect(refreshedProjectDirs).toEqual([await realpath(projectDir), await realpath(projectDir)])
@@ -803,7 +807,8 @@ describe("ProjectStateService", () => {
       async refresh() { return refreshResult(1) },
     })
 
-    await expect(service.rebuild({ projectDir })).resolves.toEqual(refreshResult(1))
+    const rebuilt = await service.rebuild({ projectDir })
+    expect([...rebuilt.diagnostics]).toEqual([])
     expect(candidate.opened).toEqual([await realpath(projectDir)])
     expect(candidate.closed).toBe(0)
     await service.close()
@@ -960,7 +965,9 @@ function testWriterHandle(id: number): TestWriter {
     },
     async compareFiles() { return { changed: [], deleted: [] } },
     async readLocalDiagnostics() { return [] },
+    async readLocalDiagnosticBatches() { return [] },
     async validateDependencies() { return [] },
+    async validateDependencyDiagnosticBatches() { return [] },
     async createReadToken() { return testReadToken() },
     async readComponentProjection(componentPath) {
       return {
@@ -1084,7 +1091,7 @@ async function expectPreservedProjectState(
 
 function refreshResult(_value: number): ProjectStateRefreshResult {
   return {
-    diagnostics: [],
+    diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
     readToken: testReadToken(),
     stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
   }

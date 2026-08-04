@@ -56,6 +56,7 @@ type RenamePlanResult = { ok: true; plan: RenamePlan } | { ok: false; failure: M
 export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
   const before = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
   const beforeDiagnostics = [...before.diagnostics]
+  before.diagnostics.release()
   if (hasMetadataOperationErrors(beforeDiagnostics) && params.ignoreValidationErrors !== true) {
     return metadataOperationValidationFailure("YAML-проект содержит ошибки validation", beforeDiagnostics)
   }
@@ -104,6 +105,7 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
   const applied = applyMetadataOperationFilePlan({ steps: plan.steps })
   const after = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
   const afterDiagnostics = [...after.diagnostics]
+  after.diagnostics.release()
   if (!applied.ok) {
     return {
       ok: false,

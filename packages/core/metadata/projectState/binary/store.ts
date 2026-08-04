@@ -1,4 +1,6 @@
 import type { Diagnostic } from "../../validation/types"
+import { openDiagnosticBatch } from "../../diagnostics/binaryBatch"
+import { readLocalDiagnosticBatch, validateDependencyDiagnosticBatch } from "./diagnosticBatches"
 import {
   readProjectStateDependencyReadiness,
   validateProjectStateDependencyBatch,
@@ -158,6 +160,13 @@ export function createBinaryProjectStateStore(
         params?.mode === "published",
       )
     },
+    readLocalDiagnosticBatches(params) {
+      assertOpen()
+      return [readLocalDiagnosticBatch(
+        new ProjectStateSnapshotView(currentBuffers()),
+        params?.mode === "published",
+      )]
+    },
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery) {
       assertOpen()
       const queryPort = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(currentBuffers()))
@@ -169,6 +178,13 @@ export function createBinaryProjectStateStore(
         new ProjectStateSnapshotView(currentBuffers()),
         options.projectDir ?? "",
       )
+    },
+    validateDependencyDiagnosticBatches(_params: ProjectDependencyValidationParams) {
+      assertOpen()
+      return [openDiagnosticBatch(validateDependencyDiagnosticBatch(
+        new ProjectStateSnapshotView(currentBuffers()),
+        options.projectDir ?? "",
+      ))]
     },
     readComponentProjection(componentPath): ProjectStateComponentProjection {
       assertOpen()

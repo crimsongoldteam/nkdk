@@ -14,6 +14,7 @@ import type {
   ProjectStateReadToken,
 } from "./contracts"
 import type { ProjectStateFragment } from "./binary/fragment"
+import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
 
 export interface ProjectStateFileChange {
   readonly index: number
@@ -59,8 +60,10 @@ export interface ProjectStateStore {
   deleteFiles(projectPaths: readonly string[]): void
   deleteUnseenFiles(seenFileIds: Uint8Array): number
   readLocalDiagnostics(params?: { readonly mode?: "published" }): readonly Diagnostic[]
+  readLocalDiagnosticBatches?(params?: { readonly mode?: "published" }): readonly DiagnosticBatchView[]
   readDependencyCheckBatch(params: ProjectDependencyBatchQuery): ProjectDependencyBatch
   validateDependencies(params: ProjectDependencyValidationParams): readonly Diagnostic[]
+  validateDependencyDiagnosticBatches?(params: ProjectDependencyValidationParams): readonly DiagnosticBatchView[]
   readComponentProjection(componentPath: string): ProjectStateComponentProjection
   createReadToken(): ProjectStateReadToken
   commitUpdate(): boolean

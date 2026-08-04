@@ -1,5 +1,10 @@
 import fs from "node:fs"
 import type { Diagnostic } from "../validation/types"
+import {
+  encodeDiagnosticBatch,
+  openDiagnosticBatch,
+  type DiagnosticBatchView,
+} from "../diagnostics/binaryBatch"
 import { createBinaryProjectStateStore } from "./binary/store"
 import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
 import type { ProjectStateSharedBuffers } from "./binary/snapshot"
@@ -44,7 +49,9 @@ export interface ProjectStateWriterHandle {
   readFileBaselinePathPage(projectPaths: readonly string[]): Promise<ProjectStateFileBaselinePathPage>
   compareFiles(batch: ProjectStateFileHashBatch): Promise<ProjectStateFileChanges>
   readLocalDiagnostics(): Promise<readonly Diagnostic[]>
+  readLocalDiagnosticBatches(): Promise<readonly DiagnosticBatchView[]>
   validateDependencies(): Promise<readonly Diagnostic[]>
+  validateDependencyDiagnosticBatches(): Promise<readonly DiagnosticBatchView[]>
   createReadToken(): Promise<ProjectStateReadToken>
   readComponentProjection(componentPath: string): Promise<ProjectStateComponentProjection>
   beginUpdate(projectDir: string, signal?: AbortSignal): Promise<void>
@@ -100,10 +107,22 @@ export function createProjectStateWriterHandle(
     async readLocalDiagnostics() {
       return requireStore().readLocalDiagnostics()
     },
+    async readLocalDiagnosticBatches() {
+      const current = requireStore()
+      return current.readLocalDiagnosticBatches?.()
+        ?? [openDiagnosticBatch(encodeDiagnosticBatch(current.readLocalDiagnostics()))]
+    },
     async validateDependencies() {
       assertOperation()
       assertNotCancelled()
       return requireStore().validateDependencies({ requests: [] })
+    },
+    async validateDependencyDiagnosticBatches() {
+      assertOperation()
+      assertNotCancelled()
+      const current = requireStore()
+      return current.validateDependencyDiagnosticBatches?.({ requests: [] })
+        ?? [openDiagnosticBatch(encodeDiagnosticBatch(current.validateDependencies({ requests: [] })))]
     },
     async createReadToken() {
       return requireStore().createReadToken()

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "../validation/types"
+import { encodeDiagnosticBatch, openDiagnosticBatch } from "../diagnostics/binaryBatch"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate } from "./fileUpdate"
 import { createProjectStateFragmentWriter, type ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
@@ -153,9 +154,31 @@ describe("refreshProjectState", () => {
 
     const result = await refreshProjectState({ projectDir: "/project" }, emptyDependencies(handle))
 
-    expect(result.diagnostics).toEqual([duplicate, dependency])
+    expect([...result.diagnostics]).toEqual([duplicate, dependency])
     expect(handle.checkpointCalls).toBe(1)
     expect(handle.rollbackCalls).toBe(0)
+  })
+
+  it("не декодирует сохранённые диагностики при создании результата", async () => {
+    const stored = diagnostic("cf/Конфигурация.yaml", "stored", "structure", 1)
+    let reads = 0
+    const handle = new class extends TrackingRefreshHandle {
+      override async readLocalDiagnosticBatches() {
+        return [{
+          count: 1,
+          diagnostic() {
+            reads += 1
+            return stored
+          },
+        }]
+      }
+    }([])
+
+    const result = await refreshProjectState({ projectDir: "/project" }, emptyDependencies(handle))
+
+    expect(reads).toBe(0)
+    expect([...result.diagnostics]).toEqual([stored])
+    expect(reads).toBeGreaterThan(0)
   })
 
   it("не начинает транзакцию при ошибке обнаружения или чтения baseline", async () => {
@@ -246,7 +269,8 @@ describe("refreshProjectState", () => {
     controller.abort()
     releaseCheckpoint()
 
-    await expect(running).resolves.toMatchObject({ diagnostics: [] })
+    const result = await running
+    expect([...result.diagnostics]).toEqual([])
     expect(handle.rollbackCalls).toBe(0)
   })
 
@@ -332,14 +356,14 @@ class TrackingRefreshHandle implements ProjectStateRefreshHandle {
     return 1
   }
 
-  async readLocalDiagnostics(): Promise<readonly Diagnostic[]> {
+  async readLocalDiagnosticBatches() {
     this.events.push("local")
-    return this.options.localDiagnostics ?? []
+    return [openDiagnosticBatch(encodeDiagnosticBatch(this.options.localDiagnostics ?? []))]
   }
 
-  async validateDependencies(): Promise<readonly Diagnostic[]> {
+  async validateDependencyDiagnosticBatches() {
     this.events.push("dependencies")
-    return this.options.dependencyDiagnostics ?? []
+    return [openDiagnosticBatch(encodeDiagnosticBatch(this.options.dependencyDiagnostics ?? []))]
   }
 
   async createReadToken(): Promise<ProjectStateReadToken> {

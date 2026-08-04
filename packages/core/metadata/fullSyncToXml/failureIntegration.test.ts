@@ -13,6 +13,7 @@ import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   syncComponentToXml,
@@ -422,7 +423,11 @@ function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService
     workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
-      return { diagnostics: [], readToken, stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 } }
+      return {
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
+        readToken,
+        stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
+      }
     },
     async createReadToken() { return createTestProjectStateReadToken() },
     async readComponentProjection({ componentPath }) {

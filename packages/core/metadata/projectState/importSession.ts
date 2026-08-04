@@ -17,6 +17,7 @@ import {
   assertProjectStateImportFinalFileState,
   assertProjectStatePortableData,
 } from "./fileUpdateValidation"
+import { createMetadataDiagnosticCollection } from "../diagnostics/collection"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string
@@ -168,17 +169,17 @@ export async function createProjectStateImportSession(
       phase = "finalizing"
       const localDiagnostics = await measurePhase("finalBuild", async () => {
         await finalWrites
-        return params.writer.readLocalDiagnostics()
+        return params.writer.readLocalDiagnosticBatches()
       })
       const dependencyDiagnostics = await measurePhase(
         "dependencyValidation",
-        () => params.writer.validateDependencies(),
+        () => params.writer.validateDependencyDiagnosticBatches(),
       )
       await beforeCheckpoint?.()
       const readToken = await params.writer.createReadToken()
       await measurePhase("save", () => params.writer.commitAndScheduleCheckpoint())
       const result: ProjectStateRefreshResult = {
-        diagnostics: [...localDiagnostics, ...dependencyDiagnostics],
+        diagnostics: createMetadataDiagnosticCollection([...localDiagnostics, ...dependencyDiagnostics]),
         readToken,
         stats: { hashedFiles: changedPaths.size, parsedYamlFiles: 0, changedFiles: changedPaths.size, deletedFiles: 0 },
       }

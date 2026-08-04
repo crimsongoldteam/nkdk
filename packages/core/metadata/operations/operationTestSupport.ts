@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
@@ -52,7 +53,7 @@ export function createOperationTestProjectHarness(prefix: string) {
   const projectState = completeOperationProjectState({
     async refreshAndValidate() {
       return {
-        diagnostics: index.diagnostics ?? [],
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(index.diagnostics ?? []),
         readToken: createTestProjectStateReadToken(),
         stats: emptyOperationRefreshStats(),
       }

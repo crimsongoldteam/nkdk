@@ -8,6 +8,7 @@ import {
   toRootProjectDiagnostic,
   validateProject,
 } from "./validateProject"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 
 describe("validateProject", () => {
   it("всегда актуализирует весь проект через переданное состояние и не закрывает его", async () => {
@@ -21,9 +22,9 @@ describe("validateProject", () => {
       projectState,
     })
 
-    expect(result).toEqual({
-      diagnostics: [diagnostic("cf/Конфигурация.yaml", "invalid", "structure")],
-    })
+    expect([...result.diagnostics]).toEqual([
+      diagnostic("cf/Конфигурация.yaml", "invalid", "structure"),
+    ])
     expect(projectState.refreshes).toEqual([{
       projectDir: "/project",
       concurrency: 2,
@@ -98,7 +99,7 @@ function testProjectState(diagnostics: readonly Diagnostic[]): ProjectStateServi
 
 function refreshResult(diagnostics: readonly Diagnostic[]): ProjectStateRefreshResult {
   return {
-    diagnostics,
+    diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(diagnostics),
     readToken: createTestProjectStateReadToken(),
     stats: { hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1, deletedFiles: 0 },
   }

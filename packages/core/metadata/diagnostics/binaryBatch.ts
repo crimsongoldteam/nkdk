@@ -33,6 +33,14 @@ export interface DiagnosticBatchWriter {
   discard(): void
 }
 
+export function encodeDiagnosticBatch(
+  diagnostics: Iterable<MetadataDiagnostic>,
+): EncodedDiagnosticBatch {
+  const writer = createDiagnosticBatchWriter()
+  for (const diagnostic of diagnostics) writer.append(diagnostic)
+  return writer.finish()
+}
+
 const DIAGNOSTIC_BATCH_MAGIC = 0x4444_4b4e
 const DIAGNOSTIC_BATCH_VERSION = 1
 const DIAGNOSTIC_HEADER_BYTES = 32

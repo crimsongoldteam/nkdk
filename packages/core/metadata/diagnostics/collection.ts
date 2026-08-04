@@ -1,5 +1,6 @@
 import type { MetadataDiagnostic } from "../validation/types"
 import type { DiagnosticBatchView } from "./binaryBatch"
+import { encodeDiagnosticBatch, openDiagnosticBatch } from "./binaryBatch"
 
 export interface MetadataDiagnosticCollection extends Iterable<MetadataDiagnostic> {
   readonly errors: number
@@ -15,21 +16,16 @@ export function createMetadataDiagnosticCollection(
   let sources = [...inputSources]
   const total = sources.reduce((sum, source) => sum + source.count, 0)
   if (total > 0xffff_ffff) throw new Error("Слишком много диагностик для одной коллекции")
-  let entries = buildSortedUniqueEntries(sources, total)
+  let entries: Uint32Array | undefined
   let released = false
   let errors = 0
   let warnings = 0
-  for (let offset = 0; offset < entries.length; offset += 2) {
-    const diagnostic = diagnosticAt(sources, entries, offset)
-    if (diagnostic.severity === "error") errors += 1
-    else warnings += 1
-  }
-  const count = entries.length / 2
+  let count = 0
 
   return {
-    get errors() { return errors },
-    get warnings() { return warnings },
-    get count() { return count },
+    get errors() { assertAvailable(); ensureEntries(); return errors },
+    get warnings() { assertAvailable(); ensureEntries(); return warnings },
+    get count() { assertAvailable(); ensureEntries(); return count },
     get released() { return released },
     release() {
       if (released) return
@@ -39,12 +35,13 @@ export function createMetadataDiagnosticCollection(
     },
     [Symbol.iterator]() {
       assertAvailable()
+      const orderedEntries = ensureEntries()
       let offset = 0
       return {
         next(): IteratorResult<MetadataDiagnostic> {
           assertAvailable()
-          if (offset >= entries.length) return { done: true, value: undefined }
-          const value = diagnosticAt(sources, entries, offset)
+          if (offset >= orderedEntries.length) return { done: true, value: undefined }
+          const value = diagnosticAt(sources, orderedEntries, offset)
           offset += 2
           return { done: false, value }
         },
@@ -55,6 +52,26 @@ export function createMetadataDiagnosticCollection(
   function assertAvailable(): void {
     if (released) throw new Error("Коллекция diagnostics освобождена")
   }
+
+  function ensureEntries(): Uint32Array {
+    if (entries !== undefined) return entries
+    entries = buildSortedUniqueEntries(sources, total)
+    count = entries.length / 2
+    for (let offset = 0; offset < entries.length; offset += 2) {
+      const diagnostic = diagnosticAt(sources, entries, offset)
+      if (diagnostic.severity === "error") errors += 1
+      else warnings += 1
+    }
+    return entries
+  }
+}
+
+export function createMetadataDiagnosticCollectionFromDiagnostics(
+  diagnostics: Iterable<MetadataDiagnostic>,
+): MetadataDiagnosticCollection {
+  return createMetadataDiagnosticCollection([
+    openDiagnosticBatch(encodeDiagnosticBatch(diagnostics)),
+  ])
 }
 
 function buildSortedUniqueEntries(

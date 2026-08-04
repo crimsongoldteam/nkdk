@@ -405,8 +405,14 @@ export function createProjectStateService(
           readFileBaselinePathPage: (
             projectPaths: Parameters<ProjectStateWriterHandle["readFileBaselinePathPage"]>[0],
           ) => measurePhase("readBaseline", () => writer.readFileBaselinePathPage(projectPaths)),
-          readLocalDiagnostics: () => measurePhase("readLocalDiagnostics", () => writer.readLocalDiagnostics()),
-          validateDependencies: () => measurePhase("dependencyValidation", () => writer.validateDependencies()),
+          readLocalDiagnosticBatches: () => measurePhase(
+            "readLocalDiagnostics",
+            () => writer.readLocalDiagnosticBatches(),
+          ),
+          validateDependencyDiagnosticBatches: () => measurePhase(
+            "dependencyValidation",
+            () => writer.validateDependencyDiagnosticBatches(),
+          ),
           async commitAndScheduleCheckpoint() {
             saveStartedAt = performance.now()
             const startedAt = performance.now()

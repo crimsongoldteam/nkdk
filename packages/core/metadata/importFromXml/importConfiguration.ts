@@ -322,12 +322,13 @@ export async function importConfigurationFromXml(
       )
     )
     finalized = true
-    const validationFailures = stateResult.diagnostics.map((diagnostic) => ({
+    const validationFailures = [...stateResult.diagnostics].map((diagnostic) => ({
       severity: diagnostic.severity,
       code: "project_validation",
       message: diagnostic.message,
       targetProjectPath: diagnostic.filePath,
     } satisfies ImportDiagnostic))
+    stateResult.diagnostics.release()
     return outcome = {
       ...successResult(discovered.assignments.length, warnings, params.projectDir, address),
       failed: validationFailures.filter(({ severity }) => severity === "error"),

@@ -8,11 +8,12 @@ import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
 import type { ValidationWorkerPoolHandle } from "../validation/validateProject"
 import type { Diagnostic } from "../validation/types"
 import { buildMetadataOperationSnapshot, buildMetadataOperationSnapshotFromPreparedProject } from "./projectSnapshot"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 
 function validationHandle(diagnostics: Diagnostic[]): ValidationWorkerPoolHandle {
   return {
     async validateProject() {
-      return { diagnostics }
+      return { diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(diagnostics) }
     },
   }
 }
