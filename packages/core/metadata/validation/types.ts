@@ -20,3 +20,7 @@ export interface Diagnostic {
   source: DiagnosticSource
   path?: string
 }
+
+export interface MetadataDiagnostic extends Diagnostic {
+  readonly code?: string
+}

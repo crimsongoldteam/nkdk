@@ -107,7 +107,24 @@ export { buildYamlLocationIndex } from "./yaml/locationIndex"
 export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
-export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
+export type {
+  Diagnostic,
+  DiagnosticSource,
+  DiagnosticSeverity,
+  MetadataDiagnostic,
+  MetadataKind,
+} from "./metadata/validation/types"
+export {
+  createDiagnosticBatchWriter,
+  openDiagnosticBatch,
+  type DiagnosticBatchView,
+  type DiagnosticBatchWriter,
+  type EncodedDiagnosticBatch,
+} from "./metadata/diagnostics/binaryBatch"
+export {
+  createMetadataDiagnosticCollection,
+  type MetadataDiagnosticCollection,
+} from "./metadata/diagnostics/collection"
 export {
   validateProject,
   type ValidateProjectParams,
