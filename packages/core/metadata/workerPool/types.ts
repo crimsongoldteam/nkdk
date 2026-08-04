@@ -7,6 +7,7 @@ import type {
 import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
 import type { FullXmlSyncWorkerCommand, FullXmlSyncWorkerCommandResult } from "../fullSyncToXml/types"
 import type { ProjectQueryCommand, ProjectQueryResult } from "./projectQueries"
+import type { MetadataWorkerBinaryResult } from "./binaryResult"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -51,6 +52,7 @@ export interface MetadataWorkerFullSyncResult {
 
 export type MetadataWorkerOperationResult =
   | MetadataWorkerProbeResult
+  | MetadataWorkerBinaryResult
   | PreparedYamlProjectWorkerTaskResult
   | MetadataWorkerImportResult
   | MetadataWorkerFullSyncResult

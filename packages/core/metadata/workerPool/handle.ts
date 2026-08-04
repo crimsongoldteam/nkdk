@@ -71,19 +71,21 @@ export function createMetadataWorkerPoolHandle(params: {
           operationParams.signal?.throwIfAborted()
           const line = requireLine(lines, workerIndex)
           used.add(workerIndex)
+          let result: MetadataWorkerCommandResult
           try {
-            const result = await line.run({
+            result = await line.run({
               kind: "runOperation",
               operationId: operationParams.id,
               command,
             })
-            return requireOperationResult(result)
           } catch (caught) {
             used.delete(workerIndex)
             if (lines.get(workerIndex) === line) lines.delete(workerIndex)
             await line.destroy().catch(() => undefined)
             throw caught
           }
+          assertActiveOperation(operationParams.id, activeOperationId, finished)
+          return requireOperationResult(result)
         },
         async finish(outcome) {
           if (finished) return

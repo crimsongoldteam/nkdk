@@ -1,4 +1,8 @@
-import type { MetadataWorkerCommand, MetadataWorkerCommandResult } from "./types"
+import type {
+  MetadataWorkerCommand,
+  MetadataWorkerCommandResult,
+  MetadataWorkerOperationResult,
+} from "./types"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import {
   createMetadataWorkerPersistentState,
@@ -8,6 +12,7 @@ import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProject
 import { runImportWorkerCommand } from "../importFromXml/worker"
 import { runFullXmlSyncWorkerCommand } from "../fullSyncToXml/worker"
 import { runProjectQuery } from "./projectQueries"
+import { createMovableBinaryResult } from "./binaryResult"
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
@@ -47,18 +52,21 @@ export function createMetadataWorkerCommandHandler(
     }
 
     initialized.beginOperation(command.operationId)
+    let result: MetadataWorkerOperationResult
     switch (command.command.kind) {
       case "probe":
-        return { kind: "probeResult", value: command.command.value }
+        result = { kind: "probeResult", value: command.command.value }
+        break
       case "validation":
-        return runPreparedYamlProjectWorkerTask(command.command.task, {
+        result = await runPreparedYamlProjectWorkerTask(command.command.task, {
           persistentValidationState: {
             schemaCache: initialized.schemaCache,
             rulesSnapshot: initialized.rulesSnapshot,
           },
         })
+        break
       case "import":
-        return movableImportResult({
+        result = movableImportResult({
           kind: "importResult",
           result: await (dependencies.runImportCommand ?? runImportWorkerCommand)(command.command.command, {
             persistentValidationState: {
@@ -67,8 +75,9 @@ export function createMetadataWorkerCommandHandler(
             },
           }),
         })
+        break
       case "fullSync":
-        return movableOperationResult({
+        result = movableOperationResult({
           kind: "fullSyncResult",
           result: await (dependencies.runFullSyncCommand ?? runFullXmlSyncWorkerCommand)(
             command.command.command,
@@ -80,10 +89,17 @@ export function createMetadataWorkerCommandHandler(
             },
           ),
         })
+        break
       case "projectQuery":
-        return runProjectQuery(command.command.command, initialized.projectState)
+        result = await runProjectQuery(command.command.command, initialized.projectState)
+        break
     }
+    return movableBinaryResult(result)
   }
+}
+
+function movableBinaryResult(result: MetadataWorkerOperationResult): MetadataWorkerOperationResult {
+  return result.kind === "binaryResult" ? createMovableBinaryResult(result) : result
 }
 
 function movableImportResult(result: Extract<MetadataWorkerCommandResult, { kind: "importResult" }>) {

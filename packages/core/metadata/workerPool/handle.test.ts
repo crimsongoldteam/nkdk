@@ -70,6 +70,24 @@ describe("createMetadataWorkerPoolHandle", () => {
     await expect(handle.beginOperation(operation("sync", 1))).rejects.toThrow("закрыт")
   })
 
+  it("не принимает поздний результат уже завершённой операции", async () => {
+    const delayed = Promise.withResolvers<MetadataWorkerCommandResult>()
+    const lines = createMockWorkerThreadPoolFactory<MetadataWorkerCommand, MetadataWorkerCommandResult>((command) => {
+      if (command.kind === "runOperation") return delayed.promise
+      return undefined
+    })
+    const handle = createMetadataWorkerPoolHandle({ createLine: lines.factory })
+    const first = await handle.beginOperation(operation("validation-1", 1))
+    const lateResult = first.run(0, { kind: "probe", value: "late" })
+
+    await first.finish("failure")
+    const second = await handle.beginOperation(operation("validation-2", 1))
+    delayed.resolve({ kind: "probeResult", value: "late" })
+
+    await expect(lateResult).rejects.toThrow("уже завершена")
+    await second.finish("success")
+  })
+
   it("после ошибки заменяет только аварийную линию", async () => {
     let failed = false
     const lines = createMockWorkerThreadPoolFactory<MetadataWorkerCommand, MetadataWorkerCommandResult>((command) => {
