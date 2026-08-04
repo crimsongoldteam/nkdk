@@ -1,11 +1,15 @@
 import { xxh3 } from "@node-rs/xxhash"
+import {
+  BinaryHashSlotRecordView,
+  findBinaryHashIndex,
+  openBinaryHashIndex,
+  type BinaryHashIndex,
+} from "../../binary/hashIndex"
 import { decodeProjectStateHeader, type ProjectStateSectionKind } from "./format"
-import { findBinaryHashIndex, type BinaryHashIndex } from "./hashIndex"
 import {
   ProjectStateFileRecordView,
   ProjectStateFileSectionHeaderView,
   ProjectStateDiagnosticSectionHeaderView,
-  ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
   ProjectStateOwnerEntryRecordView,
@@ -147,7 +151,7 @@ export class ProjectStateSnapshotView {
       this.#lookupHeader.targetRangeCount * ProjectStateTargetRangeRecordView.viewLength
     const expectedOwnerEntriesOffset =
       expectedIndexOffset +
-      this.#lookupHeader.indexCapacity * ProjectStateHashSlotRecordView.viewLength
+      this.#lookupHeader.indexCapacity * BinaryHashSlotRecordView.viewLength
     const expectedOwnerRangesOffset =
       expectedOwnerEntriesOffset +
       this.#lookupHeader.ownerEntryCount * ProjectStateOwnerEntryRecordView.viewLength
@@ -156,7 +160,7 @@ export class ProjectStateSnapshotView {
       this.#lookupHeader.ownerRangeCount * ProjectStateOwnerRangeRecordView.viewLength
     const expectedLookupBytes =
       expectedOwnerIndexOffset +
-      this.#lookupHeader.ownerIndexCapacity * ProjectStateHashSlotRecordView.viewLength
+      this.#lookupHeader.ownerIndexCapacity * BinaryHashSlotRecordView.viewLength
     if (
       this.#lookupHeader.entriesOffset !== ProjectStateLookupSectionHeaderView.viewLength ||
       this.#lookupHeader.rangesOffset !== expectedRangesOffset ||
@@ -170,18 +174,18 @@ export class ProjectStateSnapshotView {
     ) {
       throw new Error("Повреждена структура раздела индексов")
     }
-    this.#targetIndex = {
+    this.#targetIndex = openBinaryHashIndex({
       slots: buffers.lookups,
       byteOffset: this.#lookupHeader.indexOffset,
       size: this.#lookupHeader.indexSize,
       capacity: this.#lookupHeader.indexCapacity,
-    }
-    this.#ownerIndex = {
+    })
+    this.#ownerIndex = openBinaryHashIndex({
       slots: buffers.lookups,
       byteOffset: this.#lookupHeader.ownerIndexOffset,
       size: this.#lookupHeader.ownerIndexSize,
       capacity: this.#lookupHeader.ownerIndexCapacity,
-    }
+    })
   }
 
   get fileCount(): number {

@@ -1,12 +1,12 @@
 import { xxh3 } from "@node-rs/xxhash"
 import {
+  BinaryHashSlotRecordView,
   buildBinaryHashIndex,
   findBinaryHashIndex,
   forEachBinaryHashIndexEntry,
   type BinaryHashIndex,
-} from "./hashIndex"
+} from "../../binary/hashIndex"
 import {
-  ProjectStateHashSlotRecordView,
   ProjectStateStringRecordView,
   ProjectStateStringSectionHeaderView,
 } from "./layouts"
@@ -204,7 +204,7 @@ export function packBinaryStringPool(pool: BinaryStringPool): SharedArrayBuffer 
   const recordsByteLength = pool.count * ProjectStateStringRecordView.viewLength
   const utf8ByteLength = pool.utf8ByteLength ?? pool.utf8.byteLength
   const lookupByteLength =
-    pool.lookup.capacity * ProjectStateHashSlotRecordView.viewLength
+    pool.lookup.capacity * BinaryHashSlotRecordView.viewLength
   const recordsOffset = ProjectStateStringSectionHeaderView.viewLength
   const utf8Offset = recordsOffset + recordsByteLength
   const lookupOffset = utf8Offset + utf8ByteLength
@@ -261,7 +261,7 @@ export function openBinaryStringPool(
   const header = ProjectStateStringSectionHeaderView.decode(new DataView(buffer, byteOffset, byteLength))
   const recordsByteLength = header.count * ProjectStateStringRecordView.viewLength
   const lookupByteLength =
-    header.lookupCapacity * ProjectStateHashSlotRecordView.viewLength
+    header.lookupCapacity * BinaryHashSlotRecordView.viewLength
   if (
     header.recordsOffset !== ProjectStateStringSectionHeaderView.viewLength ||
     header.utf8Offset !== header.recordsOffset + recordsByteLength ||
