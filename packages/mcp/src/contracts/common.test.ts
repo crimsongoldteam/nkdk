@@ -16,13 +16,13 @@ describe("common MCP contracts", () => {
     expect(errorCodeSchema.parse(code)).toBe(code)
   })
 
-  it("serializes success payloads to structuredContent and JSON text", () => {
+  it("возвращает structuredContent без дублирования всего payload в тексте", () => {
     const payload = toolSuccess({ value: 42 })
 
     const result = jsonToolResult(payload)
 
     expect(result.structuredContent).toEqual({ ok: true, value: 42 })
-    expect(result.content).toEqual([{ type: "text", text: JSON.stringify({ ok: true, value: 42 }) }])
+    expect(result.content).toEqual([{ type: "text", text: "Операция выполнена." }])
     expect(result.isError).toBeUndefined()
   })
 
@@ -37,7 +37,7 @@ describe("common MCP contracts", () => {
       message: "Нужно подтвердить запись",
       details: { path: "/tmp/out" },
     })
-    expect(result.content).toEqual([{ type: "text", text: JSON.stringify(result.structuredContent) }])
+    expect(result.content).toEqual([{ type: "text", text: "Нужно подтвердить запись" }])
     expect(result.isError).toBe(true)
   })
 })

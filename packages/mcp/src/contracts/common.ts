@@ -1,5 +1,6 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { z } from "zod/v4"
+import type { DiagnosticReportReference } from "./diagnostics"
 
 export const errorCodeSchema = z.enum([
   "confirmation_required",
@@ -48,9 +49,20 @@ export function toolError(code: ToolErrorCode, message: string, details?: unknow
   return details === undefined ? { ok: false, code, message } : { ok: false, code, message, details }
 }
 
-export function jsonToolResult(payload: ToolPayload): CallToolResult {
+export function jsonToolResult(
+  payload: ToolPayload,
+  presentation?: { readonly text: string; readonly resource?: DiagnosticReportReference },
+): CallToolResult {
   return {
-    content: [{ type: "text", text: JSON.stringify(payload) }],
+    content: [
+      { type: "text", text: presentation?.text ?? (payload.ok ? "Операция выполнена." : payload.message) },
+      ...(presentation?.resource === undefined ? [] : [{
+        type: "resource_link" as const,
+        uri: presentation.resource.uri,
+        name: "Полный отчёт diagnostics",
+        mimeType: presentation.resource.format,
+      }]),
+    ],
     structuredContent: payload,
     ...(payload.ok ? {} : { isError: true }),
   }
