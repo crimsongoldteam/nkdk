@@ -1,7 +1,13 @@
 import { performance } from "node:perf_hooks"
 import { createHash } from "node:crypto"
-import type { ProjectStateRefreshStats } from "../projectState/refresh"
 import type { Diagnostic } from "./types"
+
+interface ValidationProfileStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+}
 
 export interface ValidationProfileResult {
   readonly hashedFiles: number
@@ -25,7 +31,7 @@ export interface ValidationProfileResult {
 
 export function createValidationProfileResult(params: {
   readonly diagnostics: readonly Diagnostic[]
-  readonly stats: ProjectStateRefreshStats
+  readonly stats: ValidationProfileStats
   readonly snapshotBytes: number
   readonly loadMs: number
   readonly scheduleSaveMs: number

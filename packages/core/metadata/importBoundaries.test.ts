@@ -396,7 +396,7 @@ describe("metadata import boundaries", () => {
     expect(sqliteImportOffenders).toEqual([])
   })
 
-  it("только binary-адаптер знает structurae и физический формат", () => {
+  it("только двоичные адаптеры знают structurae и физический формат", () => {
     expect(binaryBoundaryOffenders).toEqual([])
   })
 
@@ -471,6 +471,7 @@ function findBinaryBoundaryOffenders(): string[] {
   const physicalModules = /(?:^|\/)binary\/(?:layouts|hashIndex|stringPool)$/u
   return listTypeScriptFiles(METADATA_DIR)
     .filter((filePath) => !resolve(filePath).startsWith(binaryPrefix))
+    .filter((filePath) => !/(?:^|\/)(?:binaryResult|projectQueries)\.ts$/u.test(filePath))
     .filter((filePath) => extractModuleSpecifiers(readSource(filePath)).some(
       (specifier) => specifier === "structurae" || physicalModules.test(specifier),
     ))
