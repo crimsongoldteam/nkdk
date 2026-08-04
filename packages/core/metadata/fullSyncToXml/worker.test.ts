@@ -1,11 +1,15 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { childSegmentUid, childUid } from "../configurationIndex/logicalAddress"
-import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import {
+  createConfigurationIndexReader,
+  snapshotConfigurationIndex,
+  type SharedConfigurationIndexSnapshot,
+} from "../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
@@ -34,6 +38,8 @@ describe("full XML sync worker", () => {
   const readToken = createTestProjectStateReadToken()
 
   afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
     resetFullXmlSyncWorkerStateForTests()
     for (const dir of tempDirs.splice(0)) {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -116,6 +122,31 @@ describe("full XML sync worker", () => {
     await runFullXmlSyncWorkerCommand({ kind: "executeBatch", assignments: [assignments[1]!] })
 
     expect(catalogBuilds).toBe(1)
+  })
+
+  it("профилирует локальный reader назначения и освобождает его после обработки", async () => {
+    vi.stubEnv("NKDK_PROFILE", "1")
+    const profileOutput = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const projectDir = createProject(["Товары"])
+    const baseAssignment = assignment(projectDir, "Товары")
+    const targetSnapshot = targetIndexForAssignment(baseAssignment)
+    const assigned: FullXmlSyncExecutionAssignment = {
+      ...baseAssignment,
+      configurationIndexEntityRange: createConfigurationIndexReader(targetSnapshot)
+        .entityRange(baseAssignment.sourceProjectPath),
+    }
+    await initialize(projectDir, [assigned], context, undefined, undefined, undefined, targetSnapshot)
+
+    await runFullXmlSyncWorkerCommand({ kind: "executeBatch", assignments: [assigned] })
+    await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })
+
+    const output = profileOutput.mock.calls.flat().join("\n")
+    expect(output).toContain('substep="Локальные попадания"')
+    expect(output).toContain('substep="Локальные промахи"')
+    expect(output).toContain('substep="Глобальные fallback"')
+    expect(output).toContain('substep="Декодированные entity"')
+    expect(output).toContain('substep="Entity в диапазонах"')
+    expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("assignmentIndex")
   })
 
   it("keeps an already written XML and stops when the next YAML hash changed", async () => {
@@ -458,6 +489,9 @@ describe("full XML sync worker", () => {
     baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>,
     openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession = () => emptyReadSession(),
     projectStateReadSession?: ProjectStateReadSession,
+    targetSnapshot: SharedConfigurationIndexSnapshot = snapshotConfigurationIndex(
+      encodeConfigurationIndex(sampleSnapshot())
+    ),
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -481,7 +515,7 @@ describe("full XML sync worker", () => {
             }),
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
-      targetIndex: snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+      targetIndex: targetSnapshot,
       ...(projectStateReadSession === undefined ? { projectStateReadToken: readToken } : {}),
     }, {
       openReadSession,
@@ -506,4 +540,18 @@ function assignment(projectDir: string, name: string): FullXmlSyncExecutionAssig
     configurationIndexEntityRange: { start: 0, count: 0 },
     ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
+}
+
+function targetIndexForAssignment(assigned: FullXmlSyncAssignment): SharedConfigurationIndexSnapshot {
+  return snapshotConfigurationIndex(encodeConfigurationIndex({
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath: "cf",
+    files: [{ projectPath: assigned.sourceProjectPath, contentHash: assigned.expectedContentHash }],
+    entities: [{
+      logicalAddress: assigned.logicalAddress,
+      sourceProjectPath: assigned.sourceProjectPath,
+      identities: { xmlName: assigned.itemName },
+    }],
+  }))
 }
