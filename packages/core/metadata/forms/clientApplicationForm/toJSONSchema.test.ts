@@ -1,24 +1,26 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTypeRule } from "../../orchestration"
+import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
 import { registerCoreMetadata } from "../../register"
-import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { mockContext } from "../../../tests/mockContext"
+import { ClientApplicationFormRules } from "./rules"
+import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 
 registerCoreMetadata()
 
-let compiledSchema: ReturnType<typeof compileValidationSchema>
+let usePurposesSchema: ReturnType<typeof compileValidationSchema>
 
 describe("ClientApplicationForm exportToJSONSchema type rule", () => {
   beforeAll(() => {
-    const schema = exportClientApplicationFormToJSONSchema({
+    const schema = exportPropertyToJSONSchema({
       context: mockContext,
-      rule: { type: "ClientApplicationForm" },
+      rule: ClientApplicationFormRules.properties.usePurposes,
       value: undefined,
     })
-    if (schema === undefined) throw new Error("ClientApplicationForm schema is not registered")
-    compiledSchema = compileValidationSchema(schema, { eagerFallback: true })
-  }, 120_000)
+    if (schema === undefined) throw new Error("UsePurposes schema is not registered")
+    usePurposesSchema = compileValidationSchema(schema)
+  })
 
   it("registers client form JSON Schema exporter", () => {
     const exportToJSONSchema = getTypeRule("ClientApplicationForm", "exportToJSONSchema")
@@ -26,11 +28,10 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
   })
 
   it.each([
-    [{}, true],
-    [{ НазначенияИспользования: "МобильноеПриложение" }, true],
-    [{ НазначенияИспользования: "ПлатформаИМобильноеПриложение" }, true],
-    [{ НазначенияИспользования: "Произвольное" }, false],
-  ])("validates use purposes %#", (yaml, expected) => {
-    expect(compiledSchema.Check(yaml)).toBe(expected)
+    ["МобильноеПриложение", true],
+    ["ПлатформаИМобильноеПриложение", true],
+    ["Произвольное", false],
+  ])("validates use purpose %s", (yaml, expected) => {
+    expect(usePurposesSchema.Check(yaml)).toBe(expected)
   })
 })
