@@ -2,6 +2,7 @@ import type { XmlImportConfigurationContext } from "../context/types"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -90,4 +91,4 @@ export interface ImportSecondPassResult {
   stateFragment?: ProjectStateFragment
 }
 
-export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined
+export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | MetadataWorkerBinaryResult | undefined

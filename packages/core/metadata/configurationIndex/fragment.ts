@@ -51,6 +51,7 @@ interface FragmentEnvelope {
 
 export interface ConfigurationIndexFragmentBuilder {
   add(fragment: ConfigurationSnapshotFragment): void
+  addEncoded(buffer: ArrayBuffer): void
   metrics(): {
     readonly sourceProjectPaths: number
     readonly entities: number
@@ -76,6 +77,10 @@ export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFra
         const previous = entities.get(entity.logicalAddress)
         entities.set(entity.logicalAddress, previous === undefined ? copyEntity(entity) : mergeEntity(previous, entity))
       }
+    },
+    addEncoded(buffer) {
+      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+      for (const fragment of decodeConfigurationIndexFragments(buffer)) this.add(fragment)
     },
     metrics() {
       return {

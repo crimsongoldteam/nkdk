@@ -127,6 +127,7 @@ function compareDiagnostics(left: MetadataDiagnostic, right: MetadataDiagnostic)
     || left.message.localeCompare(right.message)
     || (left.path ?? "").localeCompare(right.path ?? "")
     || (left.code ?? "").localeCompare(right.code ?? "")
+    || (left.value ?? "").localeCompare(right.value ?? "")
 }
 
 function equalDiagnostics(left: MetadataDiagnostic, right: MetadataDiagnostic): boolean {
@@ -138,4 +139,5 @@ function equalDiagnostics(left: MetadataDiagnostic, right: MetadataDiagnostic): 
     && left.message === right.message
     && left.path === right.path
     && left.code === right.code
+    && left.value === right.value
 }

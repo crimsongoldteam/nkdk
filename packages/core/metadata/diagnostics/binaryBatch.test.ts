@@ -15,6 +15,7 @@ describe("двоичная пачка диагностик", () => {
       severity: "error",
       source: "reference",
       code: "missing_reference",
+      value: "Справочник.Товары",
       path: "/Реквизиты/0/Тип",
       message: "Не найдена ссылка",
     })
@@ -40,6 +41,7 @@ describe("двоичная пачка диагностик", () => {
       severity: "error",
       source: "reference",
       code: "missing_reference",
+      value: "Справочник.Товары",
       path: "/Реквизиты/0/Тип",
       message: "Не найдена ссылка",
     })

@@ -7,15 +7,23 @@ import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { MetadataWorkerOperation } from "../workerPool/types"
+import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import {
+  createMetadataDiagnosticCollection,
+  type MetadataDiagnosticCollection,
+} from "../diagnostics/collection"
 import type {
   ImportAssignment,
   ImportDiagnostic,
-  ImportFirstPassResult,
   ImportResultFile,
-  ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
+import {
+  importDiagnosticValue,
+  openImportBinaryResult,
+  type ImportResultFileBatchView,
+} from "./binaryResult"
 
 export interface XmlImportWorkerPool {
   initialize(params: {
@@ -46,18 +54,33 @@ export interface XmlImportWorkerPoolHandle {
 }
 
 export interface XmlImportFirstPassPoolResult {
-  diagnostics: ImportDiagnostic[]
-  files: ImportResultFile[]
+  diagnostics: ImportDiagnosticCollection
+  files: ImportResultFileCollection
 }
 
 export interface XmlImportSecondPassPoolResult {
-  diagnostics: ImportDiagnostic[]
-  warnings: ImportDiagnostic[]
-  files: ImportResultFile[]
+  diagnostics: ImportDiagnosticCollection
+  warnings: ImportDiagnosticCollection
+  files: ImportResultFileCollection
+}
+
+export interface ImportDiagnosticCollection extends Iterable<ImportDiagnostic> {
+  readonly errors: number
+  readonly warnings: number
+  readonly count: number
+  readonly released: boolean
+  release(): void
+}
+
+export interface ImportResultFileCollection extends Iterable<ImportResultFile> {
+  readonly count: number
+  readonly released: boolean
+  release(): void
 }
 
 export interface XmlImportStateBatch {
   readonly configurationFragment?: ConfigurationSnapshotFragment
+  readonly configurationFragmentBuffer?: ArrayBuffer
   readonly stateFragment?: ProjectStateFragment
 }
 
@@ -237,6 +260,8 @@ function createXmlImportOperationPool(params: {
 
       phase = "firstPassRunning"
       const partitions = partitionRoundRobin(assignments, params.concurrency)
+      const diagnosticViewsByWorker: DiagnosticBatchView[][] = []
+      const fileViewsByWorker: ImportResultFileBatchView[][] = []
       for (let index = 0; index < partitions.length; index += 1) {
         const partition = partitions[index] ?? []
         if (partition.length > 0) {
@@ -246,7 +271,11 @@ function createXmlImportOperationPool(params: {
       }
 
       const resultsByWorker = await superviseWorkerJobs(
-        activeWorkerIndexes.map((workerIndex) => async (): Promise<ImportFirstPassResult> => {
+        activeWorkerIndexes.map((workerIndex) => async (): Promise<void> => {
+          const diagnosticViews: DiagnosticBatchView[] = []
+          const fileViews: ImportResultFileBatchView[] = []
+          diagnosticViewsByWorker[workerIndex] = diagnosticViews
+          fileViewsByWorker[workerIndex] = fileViews
           assertProducerActive("firstPassRunning")
           const assignmentsForWorker = partitions[workerIndex] ?? []
           const initializeResponse = await runCommand(workerIndex, {
@@ -268,35 +297,34 @@ function createXmlImportOperationPool(params: {
               kind: "firstPassBatch",
               assignments: assignmentsForWorker.slice(offset, offset + 256),
             })
-            if (response !== undefined) throw new Error("Worker вернул неожиданный результат firstPassBatch")
+            const batch = openImportBinaryResult(response)
+            diagnosticViews.push(batch.diagnostics)
+            fileViews.push(batch.files)
+            if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
+              await stateQueue.run(() => {
+                assertProducerActive("firstPassRunning")
+                return sink.writeFirstPassState({
+                  ...(batch.configurationFragmentBuffer === undefined
+                    ? {}
+                    : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+                  ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
+                })
+              })
+            }
           }
           const response = await runCommand(workerIndex, { kind: "finishFirstPass" })
-          if (response?.kind !== "firstPassResult") {
+          if (response !== undefined) {
             throw new Error("Worker вернул неожиданный результат finishFirstPass")
           }
-          for (let index = 0; index < response.configurationFragments.length; index += 1) {
-            const configurationFragment = response.configurationFragments[index]
-            await stateQueue.run(() => {
-              assertProducerActive("firstPassRunning")
-              return sink.writeFirstPassState({
-                ...(configurationFragment === undefined ? {} : { configurationFragment }),
-                ...(index !== 0 || response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
-              })
-            })
-          }
-          if (response.configurationFragments.length === 0 && response.stateFragment !== undefined) {
-            await stateQueue.run(() => sink.writeFirstPassState({ stateFragment: response.stateFragment }))
-          }
-          return withoutFirstPassState(response)
         })
       )
-      const results = resultsByWorker
-
-      const diagnostics = results.flatMap((result) => result.diagnostics)
-      phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
+      await superviseWorkerJobs([() => stateQueue.flush()])
+      void resultsByWorker
+      const diagnostics = createImportDiagnosticCollection(collectViews(diagnosticViewsByWorker))
+      phase = diagnostics.errors > 0 ? "firstPassErrors" : "firstPassReady"
       return {
         diagnostics,
-        files: results.flatMap((result) => result.files),
+        files: createImportResultFileCollection(collectViews(fileViewsByWorker)),
       }
     },
 
@@ -309,8 +337,17 @@ function createXmlImportOperationPool(params: {
       if (readTokens.length !== activeWorkerIndexes.length) {
         throw new Error(`Второму проходу import требуется ${activeWorkerIndexes.length} отдельных read token`)
       }
-      const results = await superviseWorkerJobs(
-        activeWorkerIndexes.map((workerIndex, activeIndex) => async (): Promise<ImportSecondPassResult> => {
+      const diagnosticViewsByWorker: DiagnosticBatchView[][] = []
+      const warningViewsByWorker: DiagnosticBatchView[][] = []
+      const fileViewsByWorker: ImportResultFileBatchView[][] = []
+      await superviseWorkerJobs(
+        activeWorkerIndexes.map((workerIndex, activeIndex) => async (): Promise<void> => {
+          const diagnosticViews: DiagnosticBatchView[] = []
+          const warningViews: DiagnosticBatchView[] = []
+          const fileViews: ImportResultFileBatchView[] = []
+          diagnosticViewsByWorker[workerIndex] = diagnosticViews
+          warningViewsByWorker[workerIndex] = warningViews
+          fileViewsByWorker[workerIndex] = fileViews
           assertProducerActive("secondPassRunning")
           const beginResponse = await runCommand(workerIndex, {
             kind: "beginSecondPass",
@@ -326,27 +363,27 @@ function createXmlImportOperationPool(params: {
               kind: "secondPassBatch",
               assignmentIds: assignmentIds.slice(offset, offset + 256),
             })
-            if (response !== undefined) throw new Error("Worker вернул неожиданный результат secondPassBatch")
+            const batch = openImportBinaryResult(response)
+            diagnosticViews.push(batch.diagnostics)
+            warningViews.push(batch.warnings)
+            fileViews.push(batch.files)
+            if (batch.stateFragment !== undefined) {
+              await stateQueue.run(() => sink.writeSecondPassState({ stateFragment: batch.stateFragment }))
+            }
           }
           assertProducerActive("secondPassRunning")
           const response = await runCommand(workerIndex, { kind: "finishSecondPass" })
-          if (response?.kind !== "secondPassResult") {
+          if (response !== undefined) {
             throw new Error("Worker вернул неожиданный результат finishSecondPass")
           }
-          await stateQueue.run(() => {
-            assertProducerActive("secondPassRunning")
-            return sink.writeSecondPassState({
-              ...(response.stateFragment === undefined ? {} : { stateFragment: response.stateFragment }),
-            })
-          })
-          return withoutSecondPassState(response)
         })
       )
+      await superviseWorkerJobs([() => stateQueue.flush()])
       phase = "secondPassDone"
       return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
-        warnings: results.flatMap((result) => result.warnings),
-        files: results.flatMap((result) => result.files),
+        diagnostics: createImportDiagnosticCollection(collectViews(diagnosticViewsByWorker)),
+        warnings: createImportDiagnosticCollection(collectViews(warningViewsByWorker)),
+        files: createImportResultFileCollection(collectViews(fileViewsByWorker)),
       }
     },
     workerCount() {
@@ -409,7 +446,7 @@ function createXmlImportOperationPool(params: {
       return settled.map((result) => (result as PromiseFulfilledResult<T>).value)
     }
     const primary = fatalError
-    const failures: unknown[] = [primary]
+    const failures = collectFailureLeaves(primary)
     for (const result of rejected) appendSecondaryFailures(failures, result.reason)
     const cleanupFailure = await crashCleanupPromise
     if (cleanupFailure !== undefined) appendSecondaryFailures(failures, cleanupFailure)
@@ -476,29 +513,100 @@ async function destroyWorkerPools(pools: readonly XmlImportWorkerThreadPool[]): 
   if (failures.length > 1) throw new AggregateError(failures, workerFailureMessage(failures[0]))
 }
 
-function withoutFirstPassState(result: ImportFirstPassResult): ImportFirstPassResult {
-  const { stateFragment: _stateFragment, ...rest } = result
-  return { ...rest, configurationFragments: [] }
+function collectViews<T>(viewsByWorker: readonly (readonly T[] | undefined)[]): T[] {
+  const result: T[] = []
+  for (const views of viewsByWorker) {
+    if (views !== undefined) result.push(...views)
+  }
+  return result
 }
 
-function withoutSecondPassState(result: ImportSecondPassResult): ImportSecondPassResult {
-  const { stateFragment: _stateFragment, ...rest } = result
-  return rest
+function createImportDiagnosticCollection(sources: readonly DiagnosticBatchView[]): ImportDiagnosticCollection {
+  const diagnostics: MetadataDiagnosticCollection = createMetadataDiagnosticCollection(sources)
+  return {
+    get errors() { return diagnostics.errors },
+    get warnings() { return diagnostics.warnings },
+    get count() { return diagnostics.count },
+    get released() { return diagnostics.released },
+    release() { diagnostics.release() },
+    *[Symbol.iterator]() {
+      for (const diagnostic of diagnostics) yield importDiagnosticValue(diagnostic)
+    },
+  }
+}
+
+function createImportResultFileCollection(sources: readonly ImportResultFileBatchView[]): ImportResultFileCollection {
+  const count = sources.reduce((sum, source) => sum + source.count, 0)
+  let activeSources = [...sources]
+  let released = false
+  return {
+    get count() { assertAvailable(); return count },
+    get released() { return released },
+    release() {
+      released = true
+      activeSources = []
+    },
+    *[Symbol.iterator]() {
+      assertAvailable()
+      for (const source of activeSources) {
+        for (let index = 0; index < source.count; index += 1) yield source.file(index)
+      }
+    },
+  }
+
+  function assertAvailable(): void {
+    if (released) throw new Error("Коллекция файлов import освобождена")
+  }
 }
 
 function createBoundedStateQueue(limit: number) {
+  const pending: Array<() => Promise<void>> = []
   const active = new Set<Promise<void>>()
+  const waiters = new Set<ReturnType<typeof Promise.withResolvers<void>>>()
+  const failures: unknown[] = []
   return {
-    async run(task: () => Promise<void>): Promise<void> {
-      while (active.size >= limit) await Promise.race(active)
-      const running = task()
-      active.add(running)
-      try {
-        await running
-      } finally {
-        active.delete(running)
-      }
+    run(task: () => Promise<void>): Promise<void> {
+      if (failures.length === 0) pending.push(task)
+      pump()
+      return Promise.resolve()
     },
+    async flush(): Promise<void> {
+      if (pending.length > 0 || active.size > 0) {
+        const waiter = Promise.withResolvers<void>()
+        waiters.add(waiter)
+        await waiter.promise
+      }
+      if (failures.length === 1) throw failures[0]
+      if (failures.length > 1) throw new AggregateError(failures, workerFailureMessage(failures[0]))
+    },
+  }
+
+  function pump(): void {
+    while (failures.length === 0 && active.size < limit && pending.length > 0) {
+      const task = pending.shift()!
+      const running = Promise.resolve().then(task)
+      active.add(running)
+      void running.then(
+        () => finish(running),
+        (caught) => {
+          failures.push(caught)
+          pending.length = 0
+          finish(running)
+        },
+      )
+    }
+    notifyIfIdle()
+  }
+
+  function finish(running: Promise<void>): void {
+    active.delete(running)
+    pump()
+  }
+
+  function notifyIfIdle(): void {
+    if (pending.length > 0 || active.size > 0) return
+    for (const waiter of waiters) waiter.resolve()
+    waiters.clear()
   }
 }
 

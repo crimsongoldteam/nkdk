@@ -245,6 +245,13 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
 
+  it("завершает потоковый первый проход без возврата накопленных массивов", async () => {
+    await initializeWorker(createTempDir("stream-finish-first"))
+    await runImportWorkerCommand({ kind: "firstPassBatch", assignments: [catalogAssignment()] })
+
+    expect(await runImportWorkerCommand({ kind: "finishFirstPass" })).toBeUndefined()
+  })
+
   it("releases retained YAML on dispose", async () => {
     const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
     await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
@@ -326,7 +333,8 @@ describe("XML import worker second pass", () => {
     await runImportWorkerCommand({ kind: "secondPassBatch", assignmentIds: [assignments.form.id] })
     expect(error).not.toHaveBeenCalled()
 
-    await runImportWorkerCommand({ kind: "finishSecondPass" })
+    const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
+    expect(finished).toBeUndefined()
     const lines = error.mock.calls.map(([line]) => String(line)).filter((line) => line.startsWith("[nkdk-profile-step]"))
     expect(lines.length).toBeGreaterThan(0)
     expect(lines.filter((line) => line.includes('substep="Сериализация YAML"'))).toHaveLength(1)
@@ -347,8 +355,7 @@ describe("XML import worker second pass", () => {
     })).rejects.toThrow("не принадлежит этой линии")
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
 
-    expect(finished).toMatchObject({ kind: "secondPassResult", diagnostics: [], files: [] })
-    expect(finished).not.toHaveProperty("stateFragment")
+    expect(finished).toBeUndefined()
   })
 
   it.each([

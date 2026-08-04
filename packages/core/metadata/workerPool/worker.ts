@@ -103,7 +103,12 @@ function movableBinaryResult(result: MetadataWorkerOperationResult): MetadataWor
 }
 
 function movableImportResult(result: Extract<MetadataWorkerCommandResult, { kind: "importResult" }>) {
-  return movableOperationResult(result, Object.values(result.result?.stateFragment?.buffers ?? {}))
+  return movableOperationResult(
+    result,
+    result.result?.kind === "binaryResult"
+      ? result.result.buffers.map(({ buffer }) => buffer)
+      : Object.values(result.result?.stateFragment?.buffers ?? {}),
+  )
 }
 
 function movableOperationResult<T extends Exclude<MetadataWorkerCommandResult, undefined>>(

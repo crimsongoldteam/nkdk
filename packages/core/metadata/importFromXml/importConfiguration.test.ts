@@ -25,6 +25,7 @@ import {
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
+import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
 
 const failurePhases = [
   "discover",
@@ -153,7 +154,9 @@ describe("configuration XML import coordinator", () => {
           stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, "cfe/Расширение_All")),
         })
         return {
-          diagnostics: [], warnings: [], files: secondPassFiles,
+          diagnostics: diagnosticCollection([]),
+          warnings: diagnosticCollection([]),
+          files: fileCollection(secondPassFiles),
         }
       },
     })
@@ -293,7 +296,11 @@ describe("configuration XML import coordinator", () => {
         calls.push("secondPass")
         fs.mkdirSync(componentDir, { recursive: true })
         fs.writeFileSync(yamlPath, "Имя: ЧастичныйРезультат\n")
-        return { diagnostics: [diagnostic], warnings: [], files: [] }
+        return {
+          diagnostics: diagnosticCollection([diagnostic]),
+          warnings: diagnosticCollection([]),
+          files: fileCollection([]),
+        }
       },
     })
 
@@ -537,7 +544,11 @@ describe("configuration XML import coordinator", () => {
       ...pool,
       async runSecondPass() {
         calls.push("secondPass")
-        return { diagnostics: [diagnostic], warnings: [warning], files: [] }
+        return {
+          diagnostics: diagnosticCollection([diagnostic]),
+          warnings: diagnosticCollection([warning]),
+          files: fileCollection([]),
+        }
       },
     })
 
@@ -673,10 +684,10 @@ function fakeDependencies(params: {
             })
           }
           return {
-            diagnostics: [],
+            diagnostics: diagnosticCollection([]),
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
-            files: firstPassFiles,
+            files: fileCollection(firstPassFiles),
           }
         },
         async runSecondPass(_tokens, sink) {
@@ -688,7 +699,9 @@ function fakeDependencies(params: {
             stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
           })
           return {
-            diagnostics: [], warnings: [], files: secondPassFiles,
+            diagnostics: diagnosticCollection([]),
+            warnings: diagnosticCollection([]),
+            files: fileCollection(secondPassFiles),
           }
         },
         workerCount() { return 1 },
@@ -925,6 +938,34 @@ function importError(message: string): ImportDiagnostic {
     code: "xml_import_assignment_failed",
     message,
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
+  }
+}
+
+function diagnosticCollection(items: readonly ImportDiagnostic[]): ImportDiagnosticCollection {
+  let released = false
+  return {
+    errors: items.filter(({ severity }) => severity === "error").length,
+    warnings: items.filter(({ severity }) => severity === "warning").length,
+    count: items.length,
+    get released() { return released },
+    release() { released = true },
+    *[Symbol.iterator]() {
+      if (released) throw new Error("Коллекция diagnostics освобождена")
+      yield* items
+    },
+  }
+}
+
+function fileCollection(items: readonly ImportResultFile[]): ImportResultFileCollection {
+  let released = false
+  return {
+    count: items.length,
+    get released() { return released },
+    release() { released = true },
+    *[Symbol.iterator]() {
+      if (released) throw new Error("Коллекция файлов import освобождена")
+      yield* items
+    },
   }
 }
 

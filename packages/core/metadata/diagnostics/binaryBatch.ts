@@ -67,6 +67,7 @@ interface EncodedRow {
   readonly severity: number
   readonly source: number
   readonly codeId: number
+  readonly valueId: number
 }
 
 export function createDiagnosticBatchWriter(): DiagnosticBatchWriter {
@@ -91,6 +92,7 @@ export function createDiagnosticBatchWriter(): DiagnosticBatchWriter {
         severity: SEVERITY_IDS[diagnostic.severity],
         source: SOURCE_IDS[diagnostic.source],
         codeId: diagnostic.code === undefined ? NONE : intern(diagnostic.code),
+        valueId: diagnostic.value === undefined ? NONE : intern(diagnostic.value),
       })
     },
     get byteLength() {
@@ -105,7 +107,8 @@ export function createDiagnosticBatchWriter(): DiagnosticBatchWriter {
       const filesOffset = stringsOffset + strings.byteLength
       const recordsOffset = filesOffset + filePathStringIds.length * Uint32Array.BYTES_PER_ELEMENT
       const codesOffset = recordsOffset + rows.length * ProjectStateDiagnosticRecordView.viewLength
-      const bytes = new Uint8Array(codesOffset + rows.length * Uint32Array.BYTES_PER_ELEMENT)
+      const valuesOffset = codesOffset + rows.length * Uint32Array.BYTES_PER_ELEMENT
+      const bytes = new Uint8Array(valuesOffset + rows.length * Uint32Array.BYTES_PER_ELEMENT)
       const view = new DataView(bytes.buffer)
 
       view.setUint32(0, DIAGNOSTIC_BATCH_MAGIC, true)
@@ -134,6 +137,7 @@ export function createDiagnosticBatchWriter(): DiagnosticBatchWriter {
           reserved: 0,
         }, view, recordsOffset + index * ProjectStateDiagnosticRecordView.viewLength)
         view.setUint32(codesOffset + index * Uint32Array.BYTES_PER_ELEMENT, row.codeId, true)
+        view.setUint32(valuesOffset + index * Uint32Array.BYTES_PER_ELEMENT, row.valueId, true)
       })
       release()
       return { bytes }
@@ -198,7 +202,8 @@ export function openDiagnosticBatch(batch: EncodedDiagnosticBatch): DiagnosticBa
   const expectedFilesOffset = safeAdd(stringsOffset, stringsLength)
   const expectedRecordsOffset = safeAdd(filesOffset, safeMultiply(fileCount, Uint32Array.BYTES_PER_ELEMENT))
   const codesOffset = safeAdd(recordsOffset, safeMultiply(count, ProjectStateDiagnosticRecordView.viewLength))
-  const expectedByteLength = safeAdd(codesOffset, safeMultiply(count, Uint32Array.BYTES_PER_ELEMENT))
+  const valuesOffset = safeAdd(codesOffset, safeMultiply(count, Uint32Array.BYTES_PER_ELEMENT))
+  const expectedByteLength = safeAdd(valuesOffset, safeMultiply(count, Uint32Array.BYTES_PER_ELEMENT))
   if (
     stringsOffset !== DIAGNOSTIC_HEADER_BYTES ||
     filesOffset !== expectedFilesOffset ||
@@ -223,6 +228,7 @@ export function openDiagnosticBatch(batch: EncodedDiagnosticBatch): DiagnosticBa
     assertStringId(record.messageId, strings)
     assertOptionalStringId(record.pathId, strings)
     assertOptionalStringId(view.getUint32(codesOffset + index * Uint32Array.BYTES_PER_ELEMENT, true), strings)
+    assertOptionalStringId(view.getUint32(valuesOffset + index * Uint32Array.BYTES_PER_ELEMENT, true), strings)
     if (record.severity < 1 || record.severity >= SEVERITIES.length) throw new Error("Неизвестная важность диагностики")
     if (record.source < 1 || record.source >= SOURCES.length) throw new Error("Неизвестный источник диагностики")
     if (record.reserved !== 0) throw new Error("Повреждена запись диагностики")
@@ -243,6 +249,10 @@ export function openDiagnosticBatch(batch: EncodedDiagnosticBatch): DiagnosticBa
         strings,
         view.getUint32(codesOffset + index * Uint32Array.BYTES_PER_ELEMENT, true),
       )
+      const value = optionalString(
+        strings,
+        view.getUint32(valuesOffset + index * Uint32Array.BYTES_PER_ELEMENT, true),
+      )
       return {
         filePath: filePaths[record.sourceFileId]!,
         line: record.line,
@@ -252,6 +262,7 @@ export function openDiagnosticBatch(batch: EncodedDiagnosticBatch): DiagnosticBa
         source: SOURCES[record.source] as DiagnosticSource,
         ...(path === undefined ? {} : { path }),
         ...(code === undefined ? {} : { code }),
+        ...(value === undefined ? {} : { value }),
       }
     },
   }
@@ -275,7 +286,7 @@ function encodedByteLength(count: number, fileCount: number, stringCount: number
   return DIAGNOSTIC_HEADER_BYTES
     + stringsLength
     + fileCount * Uint32Array.BYTES_PER_ELEMENT
-    + count * (ProjectStateDiagnosticRecordView.viewLength + Uint32Array.BYTES_PER_ELEMENT)
+    + count * (ProjectStateDiagnosticRecordView.viewLength + 2 * Uint32Array.BYTES_PER_ELEMENT)
 }
 
 function capacityFor(size: number): number {

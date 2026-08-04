@@ -7,12 +7,15 @@ import {
   type ProjectStateFragment,
   type ProjectStateFragmentView,
 } from "../projectState/binary/fragment"
+import {
+  PROJECT_STATE_FRAGMENT_BUFFER_NAMES,
+  projectStateFragmentFromNamedBuffers,
+} from "../workerPool/projectStateBuffers"
 
 const PAYLOAD_KIND = "validation.refresh"
 const PATH_HEADER_BYTES = 8
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder("utf-8", { fatal: true })
-const FRAGMENT_BUFFER_NAMES = ["header", "strings", "files", "facts", "diagnostics"] as const
 const COUNTER_NAMES = ["hashedFiles", "parsedYamlFiles", "changedFiles"] as const
 
 export interface ProjectStateRefreshBinaryResultView {
@@ -40,7 +43,7 @@ export function createProjectStateRefreshBinaryResult(params: {
       changedFiles: params.changedFiles,
     },
     buffers: [
-      ...FRAGMENT_BUFFER_NAMES.map((name) => ({
+      ...PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => ({
         name: `projectState.${name}`,
         buffer: params.fragment.buffers[name],
       })),
@@ -61,20 +64,12 @@ export function openProjectStateRefreshBinaryResult(
     }
   }
   const expectedBufferNames = [
-    ...FRAGMENT_BUFFER_NAMES.map((name) => `projectState.${name}`),
+    ...PROJECT_STATE_FRAGMENT_BUFFER_NAMES.map((name) => `projectState.${name}`),
     "missingProjectPaths",
   ]
   assertExactNames(value.buffers.map(({ name }) => name), expectedBufferNames, "буферов validation refresh")
   const buffers = new Map(value.buffers.map(({ name, buffer }) => [name, buffer]))
-  const fragment: ProjectStateFragment = {
-    buffers: {
-      header: requireBuffer(buffers, "projectState.header"),
-      strings: requireBuffer(buffers, "projectState.strings"),
-      files: requireBuffer(buffers, "projectState.files"),
-      facts: requireBuffer(buffers, "projectState.facts"),
-      diagnostics: requireBuffer(buffers, "projectState.diagnostics"),
-    },
-  }
+  const fragment: ProjectStateFragment = projectStateFragmentFromNamedBuffers(buffers)
   const fragmentView = openProjectStateFragment(fragment)
   return {
     fragment,

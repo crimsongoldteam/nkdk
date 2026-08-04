@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -13,6 +13,7 @@ import { createProjectStateFragmentWriter, openProjectStateFragment } from "../p
 import { createOperationProfiler } from "../validation/profile"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import { serializeImportYaml, writeMainImportYaml } from "./writeOutput"
+import { createImportBinaryResult } from "./binaryResult"
 import {
   createXmlImportWorkerPool,
   createXmlImportWorkerPoolHandle,
@@ -46,7 +47,9 @@ describe("XML import worker pool", () => {
       "initialize", "firstPassBatch", "firstPassBatch", "finishFirstPass",
     ])
     expect(pools.firstPassBatchSizes(0)).toEqual([256, 1])
-    expect(first.files).toHaveLength(257)
+    expect(first.files.count).toBe(257)
+    expect(Array.isArray(first.files)).toBe(false)
+    expect(Array.isArray(first.diagnostics)).toBe(false)
     expect(first).not.toHaveProperty("ownerFacts")
     expect(first).not.toHaveProperty("validationContribution")
 
@@ -81,13 +84,8 @@ describe("XML import worker pool", () => {
       async run(_workerIndex, command) {
         if (command.kind !== "import") throw new Error("Ожидалась команда import")
         commands.push(command.command)
-        const result = command.command.kind === "finishFirstPass"
-          ? {
-              kind: "firstPassResult" as const,
-              diagnostics: [],
-              files: [],
-              configurationFragments: [],
-            }
+        const result = command.command.kind === "firstPassBatch"
+          ? createImportBinaryResult({ diagnostics: [], files: [] })
           : undefined
         return { kind: "importResult", result }
       },
@@ -134,9 +132,7 @@ describe("XML import worker pool", () => {
 
     const running = pool.runFirstPass([assignment("ready"), assignment("blocked")], {
       async writeFirstPassState(batch: XmlImportStateBatch) {
-        fragments.push((batch as XmlImportStateBatch & {
-          configurationFragment?: ConfigurationSnapshotFragment
-        }).configurationFragment?.targetProjectPath)
+        fragments.push(configurationProjectPaths(batch)[0])
         acknowledged.push(fragmentProjectPath(batch))
         const buffers = Object.values(batch.stateFragment!.buffers)
         structuredClone(batch.stateFragment, { transfer: buffers })
@@ -172,10 +168,7 @@ describe("XML import worker pool", () => {
 
     const running = pool.runFirstPass([assignment("first"), assignment("last")], {
       async writeFirstPassState(batch: XmlImportStateBatch) {
-        const streamed = (batch as XmlImportStateBatch & {
-          configurationFragment?: ConfigurationSnapshotFragment
-        }).configurationFragment
-        if (streamed !== undefined) received.push(streamed.targetProjectPath)
+        received.push(...configurationProjectPaths(batch))
       },
       async writeSecondPassState() {},
     })
@@ -214,7 +207,7 @@ describe("XML import worker pool", () => {
       [assignment("one"), assignment("two"), assignment("three"), assignment("four")],
       {
         async writeFirstPassState(batch: XmlImportStateBatch) {
-          expect(batch.configurationFragment).toBeDefined()
+          expect(batch.configurationFragmentBuffer).toBeDefined()
           active += 1
           started += 1
           maxActive = Math.max(maxActive, active)
@@ -426,7 +419,7 @@ describe("XML import worker pool", () => {
     })
     const result = await pool.runFirstPass([assignment("one"), assignment("two")])
 
-    expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
+    expect([...result.diagnostics]).toContainEqual(expect.objectContaining({ severity: "error" }))
     await expect(
       pool.runSecondPass(readTokens(2))
     ).rejects.toThrow("Первый проход import завершён с ошибками")
@@ -586,7 +579,6 @@ function createFakePools() {
   const secondPassBlocks = new Map<number, ReturnType<typeof gate>>()
   const initializedOutputDirs = new Map<number, string>()
   const realFirstPassFiles = new Map<number, string>()
-  const firstPassAssignments = new Map<number, ImportAssignment[]>()
   let producedFirstPass = 0
   const producedWaiters: Array<{ count: number; resolve: () => void }> = []
   const pools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, unknown>(
@@ -617,31 +609,22 @@ function createFakePools() {
         await firstPassBlocks.get(workerIndex)?.wait()
         const failure = failures.get(workerIndex)
         if (failure !== undefined) throw failure
-        const accumulated = firstPassAssignments.get(workerIndex) ?? []
-        accumulated.push(...task.assignments)
-        firstPassAssignments.set(workerIndex, accumulated)
-        return undefined
-      }
-      if (task.kind === "finishFirstPass") {
-        const assignments = firstPassAssignments.get(workerIndex) ?? []
-        firstPassAssignments.delete(workerIndex)
-        const indexContributions = assignments.map((item) => ({
+        const indexContributions = task.assignments.map((item) => ({
           projectPath: `cf/${item.targetProjectPath}`,
           componentPath: "cf",
           resourceKind: "yaml" as const,
           yamlRole: "properties" as const,
           references: [], owners: [], fields: [], forms: [],
         }))
-        const finalFileStateBatches = assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
-        return {
-          kind: "firstPassResult" as const,
+        const finalFileStateBatches = task.assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
+        return createImportBinaryResult({
           diagnostics: diagnostics.get(workerIndex) ?? [],
-          files: assignments.map((item) => ({
+          files: task.assignments.map((item) => ({
             sourceKind: "worker" as const,
             sourcePath: join("/tmp/output", item.targetProjectPath),
             targetProjectPath: item.targetProjectPath,
           })),
-          configurationFragments: assignments.map((item) => ({
+          configurationFragments: task.assignments.map((item) => ({
               targetProjectPath: item.targetProjectPath,
               entities: [
                 {
@@ -652,20 +635,20 @@ function createFakePools() {
               ],
             })),
           stateFragment: createImportFragment(indexContributions, finalFileStateBatches),
-        }
+        })
+      }
+      if (task.kind === "finishFirstPass") {
+        return undefined
       }
       if (task.kind === "secondPassBatch") {
         await secondPassBlocks.get(workerIndex)?.wait()
-        return undefined
+        return createImportBinaryResult({
+          diagnostics: [], warnings: [], files: [],
+          stateFragment: createImportFragment([], [fakeFinalBatch(`cf/second-${workerIndex}.yaml`)]),
+        })
       }
       if (task.kind === "finishSecondPass") {
-        return {
-          kind: "secondPassResult" as const,
-          diagnostics: [],
-          warnings: [],
-          files: [],
-          stateFragment: createImportFragment([], [fakeFinalBatch(`cf/second-${workerIndex}.yaml`)]),
-        }
+        return undefined
       }
       return undefined
     }
@@ -742,6 +725,13 @@ function fragmentProjectPath(batch: XmlImportStateBatch): string {
   if (batch.stateFragment === undefined) throw new Error("Ожидался двоичный фрагмент состояния")
   const fragment = openProjectStateFragment(batch.stateFragment)
   return fragment.stringValue(fragment.fileRecord(0).projectPathId)
+}
+
+function configurationProjectPaths(batch: XmlImportStateBatch): string[] {
+  if (batch.configurationFragment !== undefined) return [batch.configurationFragment.targetProjectPath]
+  if (batch.configurationFragmentBuffer === undefined) return []
+  return decodeConfigurationIndexFragments(batch.configurationFragmentBuffer)
+    .map(({ targetProjectPath }) => targetProjectPath)
 }
 
 function fakeFinalBatch(projectPath: string) {

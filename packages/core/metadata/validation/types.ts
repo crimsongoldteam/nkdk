@@ -23,4 +23,5 @@ export interface Diagnostic {
 
 export interface MetadataDiagnostic extends Diagnostic {
   readonly code?: string
+  readonly value?: string
 }

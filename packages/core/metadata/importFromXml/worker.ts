@@ -1,4 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
@@ -49,6 +50,7 @@ import {
   xmlExternalImportFiles,
   type SerializedImportYaml,
 } from "./writeOutput"
+import { createImportBinaryResult } from "./binaryResult"
 
 interface InitializedImportWorkerState {
   operationId: string
@@ -140,14 +142,24 @@ export async function runImportWorkerCommand(
   }
 
   if (command.kind === "firstPassBatch") {
-    await processFirstPass(command.assignments, requireInitializedState(), requireFirstPassAccumulator())
-    return undefined
+    const accumulator = requireFirstPassAccumulator()
+    await processFirstPass(command.assignments, requireInitializedState(), accumulator)
+    const result = finishFirstPass(accumulator, false)
+    firstPassAccumulator = createFirstPassAccumulator(requireInitializedState().workerIndex, accumulator.profiler)
+    return createImportBinaryResult({
+      diagnostics: result.diagnostics,
+      files: result.files,
+      configurationFragments: result.configurationFragments,
+      ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
+    })
   }
 
   if (command.kind === "finishFirstPass") {
-    const result = finishFirstPass(requireFirstPassAccumulator())
+    const accumulator = requireFirstPassAccumulator()
+    accumulator.fragmentWriter.discard()
+    accumulator.profiler.flush()
     firstPassAccumulator = undefined
-    return result
+    return undefined
   }
 
   if (command.kind === "beginSecondPass") {
@@ -163,14 +175,26 @@ export async function runImportWorkerCommand(
     for (const assignmentId of command.assignmentIds) {
       await processSecondPass(assignmentId, state, accumulator)
     }
-    return undefined
+    const result = finishSecondPass(accumulator, false)
+    secondPassAccumulator = createSecondPassAccumulator(state.workerIndex, accumulator.profiler)
+    return createImportBinaryResult({
+      diagnostics: result.diagnostics,
+      warnings: result.warnings,
+      files: result.files,
+      ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
+    })
   }
 
   if (command.kind === "finishSecondPass") {
-    const result = finishSecondPass(requireSecondPassAccumulator())
+    const accumulator = requireSecondPassAccumulator()
+    accumulator.fragmentWriter.discard()
+    accumulator.profiler.flush()
     secondPassAccumulator = undefined
     endSecondPass()
-    return result
+    if (preparedYaml.size > 0) {
+      throw new Error(`Второй проход XML-import не обработал ${preparedYaml.size} отложенных YAML`)
+    }
+    return undefined
   }
 
   if (command.kind === "endSecondPass") {
@@ -231,19 +255,19 @@ async function processSecondPass(
   })
 }
 
-function createSecondPassAccumulator(workerIndex: number): SecondPassAccumulator {
+function createSecondPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): SecondPassAccumulator {
   return {
     diagnostics: [],
     warnings: [],
     files: [],
     fragmentWriter: createProjectStateFragmentWriter(),
-    profiler: createImportWorkerProfiler(workerIndex),
+    profiler,
     stateEntries: 0,
   }
 }
 
-function finishSecondPass(accumulator: SecondPassAccumulator): ImportSecondPassResult {
-  accumulator.profiler.flush()
+function finishSecondPass(accumulator: SecondPassAccumulator, flushProfile = true): ImportSecondPassResult {
+  if (flushProfile) accumulator.profiler.flush()
   return {
     kind: "secondPassResult",
     diagnostics: accumulator.diagnostics,
@@ -345,7 +369,9 @@ function secondPassExportContext(params: {
 
 export default async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   const result = await runImportWorkerCommand(command)
-  return result?.kind === "firstPassResult"
+  return result?.kind === "binaryResult"
+    ? createMovableBinaryResult(result)
+    : result?.kind === "firstPassResult"
     ? movableFirstPassResult(result)
     : result?.kind === "secondPassResult"
       ? movableSecondPassResult(result)
@@ -470,13 +496,13 @@ async function processFirstPass(
   })
 }
 
-function createFirstPassAccumulator(workerIndex: number): FirstPassAccumulator {
+function createFirstPassAccumulator(workerIndex: number, profiler = createImportWorkerProfiler(workerIndex)): FirstPassAccumulator {
   return {
     diagnostics: [],
     files: [],
     configurationFragments: [],
     fragmentWriter: createProjectStateFragmentWriter(),
-    profiler: createImportWorkerProfiler(workerIndex),
+    profiler,
     stateEntries: 0,
   }
 }
@@ -491,8 +517,8 @@ function requireSecondPassAccumulator(): SecondPassAccumulator {
   return secondPassAccumulator
 }
 
-function finishFirstPass(accumulator: FirstPassAccumulator): ImportFirstPassResult {
-  accumulator.profiler.flush()
+function finishFirstPass(accumulator: FirstPassAccumulator, flushProfile = true): ImportFirstPassResult {
+  if (flushProfile) accumulator.profiler.flush()
   return {
     kind: "firstPassResult",
     diagnostics: accumulator.diagnostics,

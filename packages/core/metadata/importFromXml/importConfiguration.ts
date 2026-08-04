@@ -131,6 +131,7 @@ export async function importConfigurationFromXml(
   let finalized = false
   let outcome: ConfigurationImportResult | undefined
   const importFileHashes = new Map<string, bigint>()
+  const temporaryCollections: Array<{ release(): void }> = []
 
   async function closePoolForCleanup(): Promise<unknown[]> {
     if (pool === undefined || poolCloseAttempted) return []
@@ -227,9 +228,11 @@ export async function importConfigurationFromXml(
       { items: discovered.assignments.length },
       () => pool!.runFirstPass(discovered.assignments, stateSink)
     )
-    if (hasErrors(first.diagnostics)) {
-      const cleanup = await abortCleanupDiagnostics(importSession, first.diagnostics, closePoolForCleanup)
-      return outcome = failedResult([...first.diagnostics, ...cleanup], [], resolvedComponentPath)
+    temporaryCollections.push(first.diagnostics, first.files)
+    if (first.diagnostics.errors > 0) {
+      const firstDiagnostics = [...first.diagnostics]
+      const cleanup = await abortCleanupDiagnostics(importSession, firstDiagnostics, closePoolForCleanup)
+      return outcome = failedResult([...firstDiagnostics, ...cleanup], [], resolvedComponentPath)
     }
     const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
       context: params.context,
@@ -255,10 +258,12 @@ export async function importConfigurationFromXml(
       { items: discovered.assignments.length },
       () => pool!.runSecondPass(readTokens, stateSink)
     )
-    warnings = second.warnings
-    if (hasErrors(second.diagnostics)) {
-      const cleanup = await abortCleanupDiagnostics(importSession, second.diagnostics, closePoolForCleanup)
-      return outcome = failedResult([...second.diagnostics, ...cleanup], warnings, resolvedComponentPath)
+    temporaryCollections.push(second.diagnostics, second.warnings, second.files)
+    warnings = [...second.warnings]
+    if (second.diagnostics.errors > 0) {
+      const secondDiagnostics = [...second.diagnostics]
+      const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
+      return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
 
     const allFiles = [...first.files, ...second.files]
@@ -344,6 +349,7 @@ export async function importConfigurationFromXml(
       resolvedComponentPath,
     )
   } finally {
+    for (const collection of temporaryCollections) collection.release()
     profiler.flush()
     const cleanupFailures = await closePoolForCleanup()
     if (ownsProjectState) {
@@ -401,6 +407,7 @@ function createImportStateSink(
   return {
     async writeFirstPassState(batch) {
       if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
+      if (batch.configurationFragmentBuffer !== undefined) fragmentBuilder.addEncoded(batch.configurationFragmentBuffer)
       if (batch.stateFragment !== undefined) await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
     },
     async writeSecondPassState(batch) {
@@ -581,10 +588,6 @@ function failedResult(
     failed,
     warnings,
   }
-}
-
-function hasErrors(diagnostics: readonly ImportDiagnostic[]): boolean {
-  return diagnostics.some((diagnostic) => diagnostic.severity === "error")
 }
 
 function operationDiagnostic(caught: unknown): ImportDiagnostic {
