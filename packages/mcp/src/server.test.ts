@@ -148,24 +148,13 @@ describe("MCP server", () => {
     expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
   })
 
-  it("documents expected publish build outputs", () => {
-    const outputs = [
-      "dist/bin/nkdk-mcp",
-      "dist/bin/preparedYamlProjectWorker.js",
-      "dist/bin/importFromXmlWorker.js",
-      "dist/bin/fullSyncToXmlWorker.js",
-      "dist/generateProjectValidationAjvStandalone.js",
-      "dist/projectValidationAjvStandalone.js",
-    ]
+  it("publishes the universal worker with standalone schemas", async () => {
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("../scripts/build.mjs", import.meta.url), "utf8")
+    )
 
-    expect(outputs).toEqual([
-      "dist/bin/nkdk-mcp",
-      "dist/bin/preparedYamlProjectWorker.js",
-      "dist/bin/importFromXmlWorker.js",
-      "dist/bin/fullSyncToXmlWorker.js",
-      "dist/generateProjectValidationAjvStandalone.js",
-      "dist/projectValidationAjvStandalone.js",
-    ])
+    expect(source).toContain('outfile: join(binDir, "worker.js")')
+    expect(source).toContain('join(binDir, "projectValidationAjvStandalone.js")')
   })
 
   it("uses package version for MCP server metadata", async () => {
