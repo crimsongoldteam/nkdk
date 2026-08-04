@@ -18,22 +18,66 @@ const directRule = {
   },
 } as MetadataItemRule
 
+const exportText = (valueXML: unknown): unknown =>
+  testPropertyFromXMLToYAML({
+    rule: directRule,
+    xml: {
+      appearance: {
+        "dcscor:item": {
+          "_xsi:type": "dcsset:SettingsParameterValue",
+          "dcscor:parameter": "Текст",
+          ...(valueXML === undefined ? {} : { "dcscor:value": valueXML }),
+        },
+      },
+    },
+  }).yaml
+
 describe("AppearanceFields XML → YAML", () => {
   it.each([
+    ["xs:string", { "_xsi:type": "xs:string", "#text": "Строка" }, "Строка"],
     ["empty xs:string", { "_xsi:type": "xs:string", "#text": "" }, ""],
-    ["empty LocalStringType", { "_xsi:type": "v8:LocalStringType" }, {}],
     [
-      "empty ru item",
-      { "_xsi:type": "v8:LocalStringType", "v8:item": { "v8:lang": "ru", "v8:content": "" } },
-      { ru: "" },
+      "LocalStringType",
+      { "_xsi:type": "v8:LocalStringType", "v8:item": { "v8:lang": "ru", "v8:content": "Строка" } },
+      { Значение: { ru: "Строка" } },
+    ],
+    ["empty LocalStringType", { "_xsi:type": "v8:LocalStringType" }, { Значение: {} }],
+    [
+      "Field",
+      { "_xsi:type": "dcscor:Field", "#text": "Таблица.Поле" },
+      { Тип: "Поле", Значение: "Таблица.Поле" },
+    ],
+    [
+      "LocalFormattedStringType",
+      {
+        "_xsi:type": "v8:LocalFormattedStringType",
+        "v8:lws": { "v8:item": { "v8:lang": "ru", "v8:content": "Строка" } },
+        "v8:formatted": true,
+      },
+      { Тип: "ФорматированнаяСтрока", Значение: { ru: "Строка" } },
     ],
     [
       "empty LocalFormattedStringType",
       { "_xsi:type": "v8:LocalFormattedStringType", "v8:formatted": true },
-      { Форматированный: "Истина", Текст: {} },
+      { Тип: "ФорматированнаяСтрока", Значение: {} },
     ],
-    ["xsi:nil", { "_xsi:nil": true }, null],
+    ["xsi:nil", { "_xsi:nil": true }, { Значение: null }],
+    ["missing dcscor:value", undefined, {}],
   ])("exports %s canonically", (_name, valueXML, expectedYAML) => {
+    expect(exportText(valueXML)).toEqual({ Оформление: { Текст: expectedYAML } })
+  })
+
+  it.each([
+    [{ "_xsi:type": "xs:string", "#text": "Строка" }, { Значение: "Строка", Использовать: "Ложь" }],
+    [
+      { "_xsi:type": "v8:LocalStringType", "v8:item": { "v8:lang": "ru", "v8:content": "Строка" } },
+      { Значение: { ru: "Строка" }, Использовать: "Ложь" },
+    ],
+    [
+      { "_xsi:type": "dcscor:Field", "#text": "Таблица.Поле" },
+      { Тип: "Поле", Значение: "Таблица.Поле", Использовать: "Ложь" },
+    ],
+  ])("preserves service fields for string form %#", (valueXML, expectedYAML) => {
     const result = testPropertyFromXMLToYAML({
       rule: directRule,
       xml: {
@@ -41,6 +85,7 @@ describe("AppearanceFields XML → YAML", () => {
           "dcscor:item": {
             "_xsi:type": "dcsset:SettingsParameterValue",
             "dcscor:parameter": "Текст",
+            "dcscor:use": false,
             "dcscor:value": valueXML,
           },
         },
@@ -80,8 +125,8 @@ describe("AppearanceFields XML → YAML", () => {
       },
       yaml: {
         Текст: {
-          Форматированный: "Истина",
-          Текст: { ru: "Многоязычная форматированная строка" },
+          Тип: "ФорматированнаяСтрока",
+          Значение: { ru: "Многоязычная форматированная строка" },
         },
       },
     })
@@ -89,8 +134,8 @@ describe("AppearanceFields XML → YAML", () => {
     expect(result).toEqual({
       Оформление: {
         Текст: {
-          Форматированный: "Истина",
-          Текст: { ru: "Многоязычная форматированная строка" },
+          Тип: "ФорматированнаяСтрока",
+          Значение: { ru: "Многоязычная форматированная строка" },
         },
       },
     })

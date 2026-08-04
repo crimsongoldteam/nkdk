@@ -3,7 +3,13 @@ import { move, transferableSymbol, valueSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { hashFileBytes } from "../configurationIndex/hash"
-import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
+import {
+  createConfigurationIndexAssignmentLookupStats,
+  createConfigurationIndexReader,
+  type AssignmentScopedConfigurationIndexReader,
+  type ConfigurationIndexAssignmentLookupStats,
+  type ConfigurationIndexReader,
+} from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
@@ -20,6 +26,7 @@ import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader }
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
+  FullXmlSyncExecutionAssignment,
   FullXmlSyncExecutionResult,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
@@ -33,6 +40,7 @@ import { classifyMetadataProjectPath } from "../resourceTopology/projectProjecti
 import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 import { createFullXmlSyncBinaryResult } from "./binaryResult"
+import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -40,13 +48,15 @@ interface InitializedFullXmlSyncWorkerState {
   readonly componentDir: string
   readonly outputDir: string
   readonly context: ConfigurationContext
-  readonly index: ConfigurationIndexReader
+  readonly index: AssignmentScopedConfigurationIndexReader
   readonly baseIndex?: ConfigurationIndexReader
   readonly composition: FullXmlSyncCompositionReader
+  readonly itemTypeByYamlDir: Readonly<Record<string, string>>
   readonly ownerMetadataCache: ProjectStateOwnerMetadataCache
   readonly projectStateReadSession: ProjectStateReadSession
   readonly ownsProjectStateReadSession: boolean
   readonly profile: FullXmlSyncWorkerProfileRuntime
+  readonly lookupProfiler: ValidationProfiler
   readonly baseFormSource?: BaseFormSource
   activeAssignmentId: string | undefined
 }
@@ -63,6 +73,9 @@ export async function runFullXmlSyncWorkerCommand(
     const ownsProjectStateReadSession = dependencies.projectStateReadSession === undefined
     try {
       const baseFormSource = createBaseFormSource(command.profile)
+      const composition = (dependencies.createCompositionReader ?? createFullXmlSyncCompositionReader)(
+        command.composition,
+      )
       const baseIndex =
         command.profile.baseForms === undefined
           ? undefined
@@ -81,7 +94,8 @@ export async function runFullXmlSyncWorkerCommand(
         },
         index: createConfigurationIndexReader(command.targetIndex),
         ...(baseIndex === undefined ? {} : { baseIndex }),
-        composition: createFullXmlSyncCompositionReader(command.composition),
+        composition,
+        itemTypeByYamlDir: composition.itemTypeByYamlDir(),
         ownerMetadataCache: createProjectStateOwnerMetadataCache({
           projectDir: command.componentDir,
           componentPath: command.componentPath,
@@ -90,6 +104,11 @@ export async function runFullXmlSyncWorkerCommand(
         projectStateReadSession,
         ownsProjectStateReadSession,
         profile: command.profile,
+        lookupProfiler: createOperationProfiler({
+          operation: "full-sync-to-xml",
+          scope: { scope: "worker", workerIndex: command.workerIndex },
+          aggregate: true,
+        }),
         ...(baseFormSource === undefined ? {} : { baseFormSource }),
         activeAssignmentId: undefined,
       }
@@ -109,7 +128,10 @@ export async function runFullXmlSyncWorkerCommand(
     if (state?.ownsProjectStateReadSession === true) state.projectStateReadSession.close()
     return undefined
   }
-  if (command.kind === "finishExecution") return undefined
+  if (command.kind === "finishExecution") {
+    requireInitializedState().lookupProfiler.flush()
+    return undefined
+  }
   if (command.kind === "executeBatch") {
     const result = await executeAssignments(command.assignments, requireInitializedState())
     return createFullXmlSyncBinaryResult({
@@ -126,6 +148,7 @@ export async function runFullXmlSyncWorkerCommand(
 export interface FullXmlSyncWorkerDependencies {
   readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
   readonly projectStateReadSession?: ProjectStateReadSession
+  readonly createCompositionReader?: typeof createFullXmlSyncCompositionReader
 }
 
 function requireProjectStateReadToken(token: ProjectStateReadToken | undefined): ProjectStateReadToken {
@@ -149,7 +172,7 @@ export default async function fullXmlSyncWorkerEntryPoint(
 }
 
 async function executeAssignments(
-  assignments: readonly FullXmlSyncAssignment[],
+  assignments: readonly FullXmlSyncExecutionAssignment[],
   state: InitializedFullXmlSyncWorkerState
 ): Promise<FullXmlSyncExecutionResult> {
   const diagnostics: FullXmlSyncDiagnostic[] = []
@@ -157,12 +180,16 @@ async function executeAssignments(
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
-  const itemTypes = itemTypeByYamlDir(state.composition.assignments())
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
   for (const assignment of assignments) {
     state.activeAssignmentId = assignment.id
+    const lookupStats = createConfigurationIndexAssignmentLookupStats()
     try {
+      const assignmentIndex = state.index.forEntityRange(
+        assignment.configurationIndexEntityRange,
+        lookupStats,
+      )
       const bytes = await fs.promises.readFile(assignment.sourcePath)
       const actualHash = hashFileBytes(bytes)
       if (actualHash !== assignment.expectedContentHash) {
@@ -178,7 +205,7 @@ async function executeAssignments(
 
       const preparedYaml = prepareYamlFiles({
         files: [assignmentDescriptor(assignment, state)],
-        itemTypeByYamlDir: itemTypes,
+        itemTypeByYamlDir: state.itemTypeByYamlDir,
         sourceBytes: new Map([[assignment.sourcePath, bytes]]),
       })
       diagnostics.push(
@@ -203,8 +230,8 @@ async function executeAssignments(
               ...(state.baseIndex === undefined ? {} : { baseConfigurationIndex: state.baseIndex }),
             }),
         context: exportContext(state),
-        index: state.index,
-        assignments: state.composition.assignments(),
+        index: assignmentIndex,
+        composition: state.composition,
       })
       expectedOutputs.push(
         ...prepared.documents.map(({ targetXmlPath }) => ({
@@ -229,6 +256,7 @@ async function executeAssignments(
         )
       )
     } finally {
+      recordConfigurationIndexLookupStats(state.lookupProfiler, lookupStats)
       state.activeAssignmentId = undefined
     }
   }
@@ -241,6 +269,19 @@ async function executeAssignments(
     expectedOutputs,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
+}
+
+function recordConfigurationIndexLookupStats(
+  profiler: ValidationProfiler,
+  stats: ConfigurationIndexAssignmentLookupStats,
+): void {
+  if (process.env["NKDK_PROFILE"] !== "1") return
+  const step = "Configuration index назначения"
+  profiler.record(step, "Локальные попадания", { items: stats.localHits, timeMs: 0 })
+  profiler.record(step, "Локальные промахи", { items: stats.localMisses, timeMs: 0 })
+  profiler.record(step, "Глобальные fallback", { items: stats.globalFallbacks, timeMs: 0 })
+  profiler.record(step, "Декодированные entity", { items: stats.decodedEntities, timeMs: 0 })
+  profiler.record(step, "Entity в диапазонах", { items: stats.rangeEntities, timeMs: 0 })
 }
 
 function ownerRefsFromAssignment(assignment: FullXmlSyncAssignment): OwnerTypeRef[] {
@@ -308,16 +349,6 @@ function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "i
   if (assignment.role === "configuration") return { dir: "", name: assignment.itemName }
   const parts = assignment.sourceProjectPath.split("/")
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
-}
-
-function itemTypeByYamlDir(
-  assignments: readonly Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath" | "itemType">[]
-): Record<string, string> {
-  return Object.fromEntries(
-    assignments
-      .map((assignment) => [ownerFromAssignment(assignment).dir, assignment.itemType] as const)
-      .filter(([dir]) => dir.length > 0)
-  )
 }
 
 function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {

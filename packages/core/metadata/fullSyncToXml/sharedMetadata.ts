@@ -1,3 +1,11 @@
+import { xxh3 } from "@node-rs/xxhash"
+import {
+  buildBinaryHashIndex,
+  findBinaryHashIndex,
+  forEachBinaryHashIndexEntry,
+  openBinaryHashIndex,
+  type BinaryHashIndex,
+} from "../binary/hashIndex"
 import {
   createSharedStringPool,
   createSharedStringPoolView,
@@ -6,14 +14,17 @@ import {
 import type { FullXmlSyncAssignment } from "./types"
 
 const COMPOSITION_MAGIC = 0x4e4b434d
-const COMPOSITION_VERSION = 1
-const HEADER_INTS = 5
+const COMPOSITION_VERSION = 2
+const HEADER_INTS = 6
 const ENTRY_INTS = 7
 const EMPTY = ""
 
 export interface FullXmlSyncSharedCompositionSnapshot {
   readonly strings: Pick<SharedStringPool, "buffer" | "count" | "bytes">
   readonly table: SharedArrayBuffer
+  readonly childEntryIds: SharedArrayBuffer
+  readonly ownerRanges: SharedArrayBuffer
+  readonly ownerLookup: BinaryHashIndex
   readonly bytes: number
   readonly assignments: number
 }
@@ -28,16 +39,31 @@ export interface FullXmlSyncCompositionEntry {
   readonly ownerLogicalAddress?: string
 }
 
+export interface FullXmlSyncCompositionChild {
+  readonly sourceProjectPath: string
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly assignmentRole: "configuration" | "properties" | "fileItem"
+  readonly ownerLogicalAddress?: string
+}
+
 export interface FullXmlSyncCompositionReader {
   assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
-  assignments(): FullXmlSyncCompositionEntry[]
+  children(ownerLogicalAddress: string): readonly FullXmlSyncCompositionChild[]
+  itemTypeByYamlDir(): Readonly<Record<string, string>>
+}
+
+interface FullXmlSyncCompositionHashOptions {
+  readonly hashOwner?: (ownerLogicalAddress: string) => bigint
 }
 
 export function createFullXmlSyncCompositionSnapshot(
-  assignments: readonly FullXmlSyncAssignment[]
+  assignments: readonly FullXmlSyncAssignment[],
+  options: FullXmlSyncCompositionHashOptions = {},
 ): FullXmlSyncSharedCompositionSnapshot {
   const entries = [...assignments].sort((left, right) => Buffer.compare(Buffer.from(left.id), Buffer.from(right.id)))
+  const rootLogicalAddress = entries.find(({ role }) => role === "configuration")?.logicalAddress
   const stringValues = [EMPTY]
   for (const assignment of entries) {
     stringValues.push(
@@ -59,6 +85,7 @@ export function createFullXmlSyncCompositionSnapshot(
   ints[2] = entries.length
   ints[3] = HEADER_INTS
   ints[4] = table.byteLength + strings.bytes
+  ints[5] = stringId(rootLogicalAddress ?? EMPTY)
 
   entries.forEach((assignment, index) => {
     const base = HEADER_INTS + index * ENTRY_INTS
@@ -71,11 +98,65 @@ export function createFullXmlSyncCompositionSnapshot(
     ints[base + 6] = stringId(assignment.owner?.logicalAddress ?? EMPTY)
   })
 
-  return { strings, table, bytes: table.byteLength + strings.bytes, assignments: entries.length }
+  const childEntries = entries.flatMap((assignment, entryId) => {
+    const ownerLogicalAddress = assignment.owner?.logicalAddress
+      ?? (assignment.role === "configuration" ? undefined : rootLogicalAddress)
+    return ownerLogicalAddress === undefined
+      ? []
+      : [{ ownerLogicalAddress, ownerStringId: stringId(ownerLogicalAddress), entryId }]
+  }).sort((left, right) => left.ownerStringId - right.ownerStringId || left.entryId - right.entryId)
+  const childEntryIds = new Uint32Array(new SharedArrayBuffer(
+    childEntries.length * Uint32Array.BYTES_PER_ELEMENT,
+  ))
+  const ranges: Array<{ ownerLogicalAddress: string; start: number; count: number }> = []
+  for (let start = 0; start < childEntries.length;) {
+    let end = start + 1
+    while (
+      end < childEntries.length
+      && childEntries[end]!.ownerStringId === childEntries[start]!.ownerStringId
+    ) end += 1
+    for (let index = start; index < end; index += 1) {
+      childEntryIds[index] = childEntries[index]!.entryId
+    }
+    ranges.push({
+      ownerLogicalAddress: childEntries[start]!.ownerLogicalAddress,
+      start,
+      count: end - start,
+    })
+    start = end
+  }
+  const ownerRanges = new Uint32Array(new SharedArrayBuffer(
+    ranges.length * 2 * Uint32Array.BYTES_PER_ELEMENT,
+  ))
+  ranges.forEach((range, rangeId) => {
+    ownerRanges[rangeId * 2] = range.start
+    ownerRanges[rangeId * 2 + 1] = range.count
+  })
+  const hashOwner = options.hashOwner ?? defaultHashOwner
+  const ownerLookup = buildBinaryHashIndex(
+    BigUint64Array.from(ranges, ({ ownerLogicalAddress }) => hashOwner(ownerLogicalAddress)),
+    Uint32Array.from(ranges, (_, rangeId) => rangeId),
+  )
+
+  return {
+    strings,
+    table,
+    childEntryIds: childEntryIds.buffer as SharedArrayBuffer,
+    ownerRanges: ownerRanges.buffer as SharedArrayBuffer,
+    ownerLookup,
+    bytes:
+      table.byteLength
+      + strings.bytes
+      + childEntryIds.byteLength
+      + ownerRanges.byteLength
+      + ownerLookup.slots.byteLength,
+    assignments: entries.length,
+  }
 }
 
 export function createFullXmlSyncCompositionReader(
-  snapshot: FullXmlSyncSharedCompositionSnapshot
+  snapshot: FullXmlSyncSharedCompositionSnapshot,
+  options: FullXmlSyncCompositionHashOptions = {},
 ): FullXmlSyncCompositionReader {
   const header = new Int32Array(snapshot.table, 0, HEADER_INTS)
   if (header[0] !== COMPOSITION_MAGIC || header[1] !== COMPOSITION_VERSION) {
@@ -85,7 +166,31 @@ export function createFullXmlSyncCompositionReader(
   const rowsOffset = header[3] ?? HEADER_INTS
   const ints = new Int32Array(snapshot.table)
   const strings = createSharedStringPoolView(snapshot.strings)
+  const rootLogicalAddress = strings.get(header[5] ?? 0)
+  const childEntryIds = new Uint32Array(snapshot.childEntryIds)
+  const ownerRanges = new Uint32Array(snapshot.ownerRanges)
+  const ownerLookup = openBinaryHashIndex(snapshot.ownerLookup)
+  const rangeCount = ownerRanges.length / 2
+  if (
+    snapshot.table.byteLength !== (rowsOffset + count * ENTRY_INTS) * Int32Array.BYTES_PER_ELEMENT
+    || snapshot.ownerRanges.byteLength % (2 * Uint32Array.BYTES_PER_ELEMENT) !== 0
+    || ownerLookup.size !== rangeCount
+  ) throw new Error("Повреждён shared composition snapshot")
+  for (const entryId of childEntryIds) {
+    if (entryId >= count) throw new Error("Повреждён shared composition snapshot")
+  }
+  for (let rangeId = 0; rangeId < rangeCount; rangeId += 1) {
+    const start = ownerRanges[rangeId * 2]!
+    const rangeLength = ownerRanges[rangeId * 2 + 1]!
+    if (rangeLength === 0 || start + rangeLength > childEntryIds.length) {
+      throw new Error("Повреждён shared composition snapshot")
+    }
+  }
+  forEachBinaryHashIndexEntry(ownerLookup, (_hash, rangeId) => {
+    if (rangeId >= rangeCount) throw new Error("Повреждён shared composition snapshot")
+  })
   const cache = new Map<number, FullXmlSyncCompositionEntry>()
+  const hashOwner = options.hashOwner ?? defaultHashOwner
 
   function entryAt(index: number): FullXmlSyncCompositionEntry {
     const existing = cache.get(index)
@@ -114,18 +219,56 @@ export function createFullXmlSyncCompositionReader(
       }
       return undefined
     },
-    assignmentsByOwner(ownerLogicalAddress) {
-      const result: FullXmlSyncCompositionEntry[] = []
+    children(ownerLogicalAddress) {
+      const rangeId = findBinaryHashIndex(
+        ownerLookup,
+        hashOwner(ownerLogicalAddress),
+        (candidateRangeId) => ownerAt(candidateRangeId) === ownerLogicalAddress,
+      )
+      if (rangeId === undefined) return []
+      const start = ownerRanges[rangeId * 2]!
+      const rangeLength = ownerRanges[rangeId * 2 + 1]!
+      return Array.from(
+        { length: rangeLength },
+        (_, index) => capabilityEntryAt(childEntryIds[start + index]!),
+      )
+    },
+    itemTypeByYamlDir() {
+      const result: Record<string, string> = {}
       for (let index = 0; index < count; index += 1) {
-        const entry = entryAt(index)
-        if (entry.ownerLogicalAddress === ownerLogicalAddress) result.push(entry)
+        const base = rowsOffset + index * ENTRY_INTS
+        if (strings.get(ints[base + 2] ?? 0) === "configuration") continue
+        const sourceProjectPath = strings.get(ints[base + 1] ?? 0)
+        const yamlDir = sourceProjectPath.split("/", 1)[0] ?? EMPTY
+        if (yamlDir.length > 0) result[yamlDir] = strings.get(ints[base + 3] ?? 0)
       }
       return result
     },
-    assignments() {
-      const result: FullXmlSyncCompositionEntry[] = []
-      for (let index = 0; index < count; index += 1) result.push(entryAt(index))
-      return result
-    },
   }
+
+  function ownerAt(rangeId: number): string {
+    const start = ownerRanges[rangeId * 2]!
+    const entryId = childEntryIds[start]!
+    const base = rowsOffset + entryId * ENTRY_INTS
+    const explicitOwner = strings.get(ints[base + 6] ?? 0)
+    return explicitOwner.length > 0 ? explicitOwner : rootLogicalAddress
+  }
+
+  function capabilityEntryAt(entryId: number): FullXmlSyncCompositionChild {
+    const entry = entryAt(entryId)
+    return {
+      sourceProjectPath: entry.sourceProjectPath,
+      itemType: entry.itemType,
+      itemName: entry.itemName,
+      logicalAddress: entry.logicalAddress,
+      assignmentRole: entry.role === "form" ? "fileItem" : entry.role,
+      ...(entry.ownerLogicalAddress === undefined
+        ? {}
+        : { ownerLogicalAddress: entry.ownerLogicalAddress }),
+    }
+  }
+}
+
+function defaultHashOwner(ownerLogicalAddress: string): bigint {
+  return xxh3.xxh64(Buffer.from(ownerLogicalAddress))
 }

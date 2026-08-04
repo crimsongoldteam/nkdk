@@ -1,5 +1,6 @@
 import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
+import type { ConfigurationIndexEntityRange } from "../configurationIndex/sharedSnapshot"
 import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
 import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../orchestration/property/types"
@@ -32,6 +33,10 @@ export interface FullXmlSyncAssignment {
   readonly owner?: { readonly itemType: string; readonly name: string; readonly logicalAddress: string }
   readonly nodeId: string
   readonly potentialOutputs: readonly FullXmlSyncPotentialOutput[]
+}
+
+export interface FullXmlSyncExecutionAssignment extends FullXmlSyncAssignment {
+  readonly configurationIndexEntityRange: ConfigurationIndexEntityRange
 }
 
 export interface FullXmlSyncExternalFile {
@@ -94,8 +99,8 @@ export type FullXmlSyncWorkerCommand =
       readonly targetIndex: SharedConfigurationIndexSnapshot
       readonly projectStateReadToken?: ProjectStateReadToken
     }
-  | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncAssignment[] }
-  | { readonly kind: "executeBatch"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncExecutionAssignment[] }
+  | { readonly kind: "executeBatch"; readonly assignments: readonly FullXmlSyncExecutionAssignment[] }
   | { readonly kind: "finishExecution" }
   | { readonly kind: "dispose" }
 

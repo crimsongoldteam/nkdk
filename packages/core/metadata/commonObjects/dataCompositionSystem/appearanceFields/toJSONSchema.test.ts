@@ -35,7 +35,7 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
           Значение: "Лево",
         },
         Формат: "ЧЦ=3; ЧДЦ=2",
-        Текст: { ru: "Текст" },
+        Текст: { Значение: { ru: "Текст" } },
       })
     ).toBe(true)
   })
@@ -62,24 +62,29 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
     "",
     "Строка",
     {},
-    { ru: "" },
-    { ru: "Строка" },
-    { Форматированный: "Истина", Текст: {} },
-    null,
+    { Значение: {} },
+    { Значение: { ru: "Строка" } },
+    { Значение: { Тип: "язык Тип", Значение: "язык Значение", Форматированный: "язык Форматированный" } },
+    { Тип: "Поле", Значение: "Таблица.Поле" },
+    { Тип: "ФорматированнаяСтрока", Значение: {} },
+    { Значение: null },
     { Использовать: "Ложь", Значение: { ru: "Строка" } },
+    { Тип: "Поле", Значение: "Таблица.Поле", Использовать: "Ложь" },
   ])("accepts canonical appearance string value %#", (value) => {
     expect(compiledAppearanceFieldsSchema.Check({ Текст: value })).toBe(true)
     expect(compiledAppearanceFieldsSchema.Check({ Формат: value })).toBe(true)
   })
 
   it.each([
+    null,
+    { ru: "x" },
     { Тип: "МногоязычнаяСтрока", Значение: { ru: "x" } },
-    { Использовать: "Ложь" },
-    { ru_RU: "x" },
-    { ru: 1 },
-    { Форматированный: "Истина" },
-    { Форматированный: "Ложь", Текст: {} },
-    { Использовать: "Ложь", Значение: "x", Лишнее: true },
+    { Тип: "Поле" },
+    { Тип: "Поле", Значение: { ru: "x" } },
+    { Тип: "ФорматированнаяСтрока", Значение: "x" },
+    { Форматированный: "Истина", Текст: {} },
+    { Значение: { ru: 1 } },
+    { Значение: "x", Лишнее: true },
   ])("rejects non-canonical appearance string value %#", (value) => {
     expect(compiledAppearanceFieldsSchema.Check({ Текст: value })).toBe(false)
     expect(compiledAppearanceFieldsSchema.Check({ Формат: value })).toBe(false)

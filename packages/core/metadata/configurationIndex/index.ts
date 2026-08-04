@@ -31,9 +31,13 @@ export {
 } from "./fragment"
 export { hashConfigurationProjectFiles, hashConfigurationProjectFileList, type HashConfigurationProjectFilesOptions } from "./projectFiles"
 export {
+  createConfigurationIndexAssignmentLookupStats,
   createConfigurationIndexReader,
   readConfigurationIndexSnapshot,
   snapshotConfigurationIndex,
+  type AssignmentScopedConfigurationIndexReader,
+  type ConfigurationIndexAssignmentLookupStats,
+  type ConfigurationIndexEntityRange,
   type ConfigurationIndexReader,
   type SharedConfigurationIndexSnapshot,
 } from "./sharedSnapshot"

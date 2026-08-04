@@ -28,6 +28,10 @@ export interface MetadataXmlPrepareCompositionEntry {
   readonly ownerLogicalAddress?: string
 }
 
+export interface MetadataXmlPrepareComposition {
+  children(ownerLogicalAddress: string): readonly MetadataXmlPrepareCompositionEntry[]
+}
+
 export interface PreparedMetadataXmlDocument {
   readonly declarationId: string
   readonly targetXmlPath: string
@@ -48,7 +52,7 @@ export interface MetadataXmlPrepareCapability {
     readonly logicalAddress: string
     readonly outputs: readonly MetadataXmlPrepareOutput[]
     readonly index: ConfigurationIndexReader
-    readonly composition: readonly MetadataXmlPrepareCompositionEntry[]
+    readonly composition: MetadataXmlPrepareComposition
     readonly profile: YAMLToXMLProfile
   }) => readonly PreparedMetadataXmlDocument[]
 }

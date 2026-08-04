@@ -15,7 +15,7 @@ import { withYAMLImportDiagnostics } from "../yamlImportError"
 import { getFileItemXMLRootContainer } from "./fileItemChildCollections"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 import { withConfigurationIndexExportPropertyContext } from "../../configurationIndex/referenceView"
-import type { MetadataXmlPrepareCompositionEntry } from "../../resourceTopology/capabilities"
+import type { MetadataXmlPrepareComposition } from "../../resourceTopology/capabilities"
 
 export const prepareAppliedObjectOwnerXML = (params: {
   rule: MetadataItemRule
@@ -152,17 +152,17 @@ registerMetadataXmlPrepareCapability({
 function collectCompositionChildPropertyValues(params: {
   rule: MetadataItemRule
   ownerLogicalAddress: string
-  composition: readonly MetadataXmlPrepareCompositionEntry[]
+  composition: MetadataXmlPrepareComposition
 }): ReadonlyMap<string, unknown> {
   const values = new Map<string, unknown>()
+  const children = params.composition.children(params.ownerLogicalAddress)
   for (const childCollection of params.rule.childCollections ?? []) {
     const fileItemRule = childCollection.fileItemRule
     if (fileItemRule === undefined) continue
-    const names = params.composition
+    const names = children
       .filter(
         (entry) =>
           entry.assignmentRole === "fileItem" &&
-          entry.ownerLogicalAddress === params.ownerLogicalAddress &&
           entry.itemType === fileItemRule.itemType
       )
       .map((entry) => entry.itemName)

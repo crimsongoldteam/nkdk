@@ -30,6 +30,7 @@
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/stringValues.ts` — структурная проверка публичного YAML и перевод в существующие формы общего `SettingsParameterValue`.
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.ts` — закрытое объединение короткой строки и объектных вариантов договора.
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts` — договор XML → YAML, включая регрессию `dcscor:Field` и различение пустых форм.
+- `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/__fixtures__/data.ts` — общие YAML-ожидания `Текст` и `Формат` в новом каноническом виде.
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAML.test.ts` — договор YAML → модель и ошибки структурного импорта.
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromYAMLToXML.test.ts` — договор YAML → XML без reference.
 - `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema.test.ts` — принимаемые и отклоняемые YAML-формы.
@@ -39,6 +40,7 @@
 ### Task 1: Канонический XML → YAML
 
 **Files:**
+- Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/__fixtures__/data.ts`
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXML.ts:23-57`
 

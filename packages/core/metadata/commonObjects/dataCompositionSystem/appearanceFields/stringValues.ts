@@ -1,59 +1,59 @@
 const stringPropertyKeys = ["Текст", "Формат"] as const
-const expandedKeys = new Set([
+const serviceKeys = new Set([
   "Использовать",
-  "Значение",
   "РежимОтображения",
   "ИдентификаторПользовательскойНастройки",
   "ПредставлениеПользовательскойНастройки",
 ])
+const publicKeys = new Set(["Тип", "Значение", ...serviceKeys])
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
 
-const normalizeRawStringValue = (value: unknown): { readonly type?: string; readonly value: unknown } => {
-  if (value === null || typeof value === "string") return { value }
-
+const assertLanguageMap = (value: unknown): Record<string, string> => {
   const record = asRecord(value)
-  if (record === undefined || "Тип" in record) {
-    throw new Error("AppearanceFields YAML: Текст и Формат не допускают поле Тип")
+  if (record === undefined || Object.values(record).some((item) => typeof item !== "string")) {
+    throw new Error("AppearanceFields YAML: Значение многоязычной строки должно быть картой строк")
   }
-  if ("Форматированный" in record || "Текст" in record) {
-    if (
-      record.Форматированный !== "Истина" ||
-      asRecord(record.Текст) === undefined ||
-      Object.keys(record).some((key) => key !== "Форматированный" && key !== "Текст")
-    ) {
-      throw new Error("AppearanceFields YAML: неверная форматированная строка")
-    }
-    return { type: "МногоязычнаяФорматированнаяСтрока", value }
-  }
-  return { type: "МногоязычнаяСтрока", value }
+  return record as Record<string, string>
 }
 
 const normalizeStringParameter = (yaml: unknown): unknown => {
+  if (typeof yaml === "string") return yaml
+
   const record = asRecord(yaml)
-  if (record !== undefined && "Тип" in record) {
-    throw new Error("AppearanceFields YAML: Текст и Формат не допускают поле Тип")
+  if (record === undefined) {
+    throw new Error("AppearanceFields YAML: строковое значение должно быть строкой или объектом")
   }
-  const expanded = record !== undefined && Object.keys(record).some((key) => expandedKeys.has(key))
-  if (expanded && !Object.prototype.hasOwnProperty.call(record, "Значение")) {
-    throw new Error("AppearanceFields YAML: развёрнутая строка требует Значение")
+  if (Object.keys(record).some((key) => !publicKeys.has(key))) {
+    throw new Error("AppearanceFields YAML: неизвестное поле строкового значения")
   }
 
-  const normalized = normalizeRawStringValue(expanded ? record!.Значение : yaml)
-  if (expanded) {
+  const { Тип: type, Значение: value, ...serviceFields } = record
+  const hasValue = Object.prototype.hasOwnProperty.call(record, "Значение")
+
+  if (type === "Поле") {
+    if (!hasValue || typeof value !== "string") {
+      throw new Error("AppearanceFields YAML: Поле требует строковое Значение")
+    }
+    return { ...serviceFields, Тип: "Поле", Значение: value }
+  }
+  if (type === "ФорматированнаяСтрока") {
+    const items = assertLanguageMap(value)
     return {
-      ...record,
-      ...(normalized.type === undefined ? {} : { Тип: normalized.type }),
-      Значение: normalized.value,
+      ...serviceFields,
+      Тип: "МногоязычнаяФорматированнаяСтрока",
+      Значение: { Форматированный: "Истина", Текст: items },
     }
   }
-  if (normalized.type === undefined) {
-    return normalized.value === null ? { Значение: null } : normalized.value
+  if (type !== undefined) {
+    throw new Error("AppearanceFields YAML: неизвестный Тип строкового значения")
   }
-  return { Тип: normalized.type, Значение: normalized.value }
+  if (!hasValue) return { ...serviceFields, Значение: undefined }
+  if (value === null || typeof value === "string") return { ...serviceFields, Значение: value }
+  return { ...serviceFields, Тип: "МногоязычнаяСтрока", Значение: assertLanguageMap(value) }
 }
 
 export const normalizeAppearanceFieldsStringYAML = (yaml: unknown): unknown => {

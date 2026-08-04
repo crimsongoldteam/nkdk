@@ -22,6 +22,7 @@ import {
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
+  const emptyComposition = { children: () => [] }
 
   afterEach(() => {
     vi.restoreAllMocks()
@@ -121,7 +122,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       baseConfigurationIndex,
-      assignments: [],
+      composition: emptyComposition,
       topology,
     })
 
@@ -183,6 +184,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         },
       },
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+      composition: emptyComposition,
       topology,
     })
 
@@ -208,7 +210,6 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
       ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
-
     const prepared = prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {
@@ -225,6 +226,7 @@ describe("prepareFullXmlSyncAssignment", () => {
           encodeConfigurationIndex(sampleSnapshot())
         )
       ),
+      composition: emptyComposition,
     })
     const metadataDocument = prepared.documents.find((document) =>
       Object.hasOwn(document.xml, "MetaDataObject")
@@ -302,7 +304,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      assignments: [],
+      composition: emptyComposition,
     })
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
@@ -371,7 +373,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      assignments: [],
+      composition: emptyComposition,
     })
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
@@ -437,7 +439,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      assignments: [],
+      composition: emptyComposition,
     })
 
     const aggregates = prepared.documents.find((document) => document.targetXmlPath.endsWith("/Ext/Aggregates.xml"))
@@ -505,7 +507,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      assignments: [],
+      composition: emptyComposition,
     })
 
     expect(prepared.documents[0]?.xml).toMatchObject({
@@ -569,26 +571,27 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
       ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
+    const children = vi.fn(() => [
+      {
+        sourceProjectPath:
+          "ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
+        assignmentRole: "fileItem" as const,
+        itemType: "MetadataExternalDataSourceDimensionTable",
+        itemName: "Таблица",
+        logicalAddress: `${assignment.logicalAddress}.ТаблицаИзмерений.Таблица`,
+        ownerLogicalAddress: assignment.logicalAddress,
+      },
+    ])
 
     const prepared = prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
-      assignments: [
-        {
-          id: "dimension-table",
-          sourceProjectPath:
-            "ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
-          role: "form",
-          itemType: "MetadataExternalDataSourceDimensionTable",
-          itemName: "Таблица",
-          logicalAddress: `${assignment.logicalAddress}.ТаблицаИзмерений.Таблица`,
-          ownerLogicalAddress: assignment.logicalAddress,
-        },
-      ],
+      composition: { children },
     })
 
+    expect(children).toHaveBeenCalledExactlyOnceWith(assignment.logicalAddress)
     expect(prepared.documents[0]?.xml).toMatchObject({
       MetaDataObject: {
         Cube: {

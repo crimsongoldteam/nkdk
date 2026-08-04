@@ -57,11 +57,11 @@ registerProjectSpec({
 
 registerMetadataXmlPrepareCapability({
   id: "configuration",
-  run: ({ context, preparedYamlFile, assignment, outputs, composition, profile }) => {
+  run: ({ context, preparedYamlFile, assignment, logicalAddress, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
     if (output === undefined) return []
     const currentChildObjects = buildConfigurationChildObjectsFromProjectEntries({
-      entries: composition
+      entries: composition.children(logicalAddress)
         .filter((entry) => entry.assignmentRole === "properties")
         .map((entry) => {
           const parts = entry.sourceProjectPath.split("/")

@@ -320,8 +320,8 @@ describe("validateProjectFileFirstPass references", () => {
       ...commonLines,
       "          Текст: {}",
       "          Формат:",
-      "            Форматированный: Истина",
-      "            Текст: {ru: \"\"}",
+      "            Тип: ФорматированнаяСтрока",
+      "            Значение: {ru: \"\"}",
     ])
     writeProjectFile(projectDir, legacyPath, [
       ...commonLines,

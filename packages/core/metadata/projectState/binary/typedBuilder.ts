@@ -8,7 +8,7 @@ import {
 } from "./factTables"
 import type { ProjectStateFragmentView } from "./fragment"
 import { encodeProjectStateHeader, type ProjectStateSectionDescriptor } from "./format"
-import { buildBinaryHashIndex } from "./hashIndex"
+import { BinaryHashSlotRecordView, buildBinaryHashIndex } from "../../binary/hashIndex"
 import {
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,
@@ -16,7 +16,6 @@ import {
   ProjectStateFactTableRecordView,
   ProjectStateFileRecordView,
   ProjectStateFileSectionHeaderView,
-  ProjectStateHashSlotRecordView,
   ProjectStateHeaderRecordView,
   ProjectStateLookupSectionHeaderView,
   ProjectStateOwnerEntryRecordView,
@@ -476,18 +475,18 @@ function encodeLookups(entries: readonly ProjectStateTargetEntryRecord[], ownerE
   const entriesOffset = ProjectStateLookupSectionHeaderView.viewLength
   const rangesOffset = entriesOffset + entries.length * ProjectStateTargetEntryRecordView.viewLength
   const indexOffset = rangesOffset + ranges.length * ProjectStateTargetRangeRecordView.viewLength
-  const ownerEntriesOffset = indexOffset + index.capacity * ProjectStateHashSlotRecordView.viewLength
+  const ownerEntriesOffset = indexOffset + index.capacity * BinaryHashSlotRecordView.viewLength
   const ownerRangesOffset = ownerEntriesOffset + ownerEntries.length * ProjectStateOwnerEntryRecordView.viewLength
   const ownerIndexOffset = ownerRangesOffset + ownerRanges.length * ProjectStateOwnerRangeRecordView.viewLength
-  const buffer = new SharedArrayBuffer(ownerIndexOffset + ownerIndex.capacity * ProjectStateHashSlotRecordView.viewLength)
+  const buffer = new SharedArrayBuffer(ownerIndexOffset + ownerIndex.capacity * BinaryHashSlotRecordView.viewLength)
   const view = new DataView(buffer)
   ProjectStateLookupSectionHeaderView.encode({ targetEntryCount: entries.length, targetRangeCount: ranges.length, entriesOffset, rangesOffset, indexOffset, indexSize: index.size, indexCapacity: index.capacity, ownerEntryCount: ownerEntries.length, ownerRangeCount: ownerRanges.length, ownerEntriesOffset, ownerRangesOffset, ownerIndexOffset, ownerIndexSize: ownerIndex.size, ownerIndexCapacity: ownerIndex.capacity }, view)
   entries.forEach((row, id) => ProjectStateTargetEntryRecordView.encode(row, view, entriesOffset + id * ProjectStateTargetEntryRecordView.viewLength))
   ranges.forEach((row, id) => ProjectStateTargetRangeRecordView.encode(row, view, rangesOffset + id * ProjectStateTargetRangeRecordView.viewLength))
-  new Uint8Array(buffer).set(new Uint8Array(index.slots, index.byteOffset ?? 0, index.capacity * ProjectStateHashSlotRecordView.viewLength), indexOffset)
+  new Uint8Array(buffer).set(new Uint8Array(index.slots, index.byteOffset ?? 0, index.capacity * BinaryHashSlotRecordView.viewLength), indexOffset)
   ownerEntries.forEach((row, id) => ProjectStateOwnerEntryRecordView.encode(row, view, ownerEntriesOffset + id * ProjectStateOwnerEntryRecordView.viewLength))
   ownerRanges.forEach((row, id) => ProjectStateOwnerRangeRecordView.encode(row, view, ownerRangesOffset + id * ProjectStateOwnerRangeRecordView.viewLength))
-  new Uint8Array(buffer).set(new Uint8Array(ownerIndex.slots, ownerIndex.byteOffset ?? 0, ownerIndex.capacity * ProjectStateHashSlotRecordView.viewLength), ownerIndexOffset)
+  new Uint8Array(buffer).set(new Uint8Array(ownerIndex.slots, ownerIndex.byteOffset ?? 0, ownerIndex.capacity * BinaryHashSlotRecordView.viewLength), ownerIndexOffset)
   return buffer
 }
 

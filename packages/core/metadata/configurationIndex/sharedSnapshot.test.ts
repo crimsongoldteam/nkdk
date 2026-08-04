@@ -6,11 +6,13 @@ import { ConfigurationIndexCompatibilityError } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { configurationIndexPath } from "./fileIO"
 import {
+  createConfigurationIndexAssignmentLookupStats,
   createConfigurationIndexReader,
   readConfigurationIndexSnapshot,
   snapshotConfigurationIndex,
 } from "./sharedSnapshot"
 import { reverseInputOrder, sampleSnapshot, TEST_UUID } from "./testData"
+import { buildBinaryHashIndex } from "../binary/hashIndex"
 
 describe("shared configuration index snapshot", () => {
   const projectDirs: string[] = []
@@ -32,6 +34,14 @@ describe("shared configuration index snapshot", () => {
     const snapshot = snapshotConfigurationIndex(encoded)
     const first = createConfigurationIndexReader(snapshot)
     const second = createConfigurationIndexReader(snapshot)
+
+    expect(snapshot.stringLookup.slots).toBeInstanceOf(SharedArrayBuffer)
+    expect(first.snapshot.stringLookup.slots).toBe(second.snapshot.stringLookup.slots)
+    expect(first.snapshot.fileLookup.slots).toBe(second.snapshot.fileLookup.slots)
+    expect(first.snapshot.entityLookup.slots).toBe(second.snapshot.entityLookup.slots)
+    expect(first.snapshot.sourceEntityLookup.slots).toBe(second.snapshot.sourceEntityLookup.slots)
+    expect(first.snapshot.sourceEntityOffsets).toBe(second.snapshot.sourceEntityOffsets)
+    expect(first.snapshot.sourceEntityRanges).toBe(second.snapshot.sourceEntityRanges)
 
     expect(first.header()).toEqual({
       specificationVersion: "1.3",
@@ -58,6 +68,119 @@ describe("shared configuration index snapshot", () => {
     expect(first).not.toHaveProperty("identities")
     expect(first).not.toHaveProperty("xmlNodes")
     expect(first).not.toHaveProperty("xmlValue")
+  })
+
+  it("подтверждает исходные ключи при коллизиях всех lookup-таблиц", () => {
+    const options = {
+      hashStringBytes: () => 5n,
+      hashStringId: () => 7n,
+    }
+    const data = sampleSnapshot()
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(data), options)
+    const reader = createConfigurationIndexReader(snapshot, options)
+
+    expect(reader.file("Configuration.yaml")).toEqual(
+      data.files.find(({ projectPath }) => projectPath === "Configuration.yaml")
+    )
+    expect(reader.file("Документы/Заказ.yaml")).toEqual(
+      data.files.find(({ projectPath }) => projectPath === "Документы/Заказ.yaml")
+    )
+    expect(reader.entity(data.entities[0]!.logicalAddress)).toEqual(data.entities[0])
+    expect(reader.entity(data.entities[1]!.logicalAddress)).toEqual(data.entities[1])
+    expect([...reader.entitiesBySourceProjectPath(data.entities[0]!.sourceProjectPath)])
+      .toContainEqual(data.entities[0])
+    expect(reader.file("Нет.yaml")).toBeUndefined()
+    expect(reader.entity("Нет")).toBeUndefined()
+  })
+
+  it("связывает sourceProjectPath с числовым диапазоном текущего снимка", () => {
+    const data = sampleSnapshot()
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(data)),
+    )
+
+    const range = reader.entityRange("Документы/Заказ.yaml")
+
+    expect(range.count).toBe(1)
+    expect(reader.entityRange("Новый.yaml")).toEqual({ start: 0, count: 0 })
+    expect(reader.forEntityRange(range).entity("Документ.Заказ")).toEqual(data.entities[1])
+  })
+
+  it("сначала читает entity локально, кэширует декодирование и считает fallback", () => {
+    const data = sampleSnapshot()
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(data)),
+    )
+    const stats = createConfigurationIndexAssignmentLookupStats()
+    const local = reader.forEntityRange(reader.entityRange("Документы/Заказ.yaml"), stats)
+
+    expect(local.entity("Документ.Заказ")).toEqual(data.entities[1])
+    expect(local.entity("Документ.Заказ")).toEqual(data.entities[1])
+    expect(local.entity("Конфигурация")).toEqual(data.entities[0])
+    expect(local.entity("Конфигурация")).toEqual(data.entities[0])
+    expect(stats).toEqual({
+      localHits: 2,
+      localMisses: 2,
+      globalFallbacks: 1,
+      decodedEntities: 2,
+      rangeEntities: 1,
+    })
+  })
+
+  it("не принимает entity соседнего диапазона за локальную", () => {
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+    )
+    const stats = createConfigurationIndexAssignmentLookupStats()
+    const local = reader.forEntityRange(reader.entityRange("Документы/Заказ.yaml"), stats)
+
+    expect(local.entity("Конфигурация")).toEqual(reader.entity("Конфигурация"))
+    expect(stats.localHits).toBe(0)
+    expect(stats.globalFallbacks).toBe(1)
+  })
+
+  it("отвергает выход локального диапазона за границы снимка", () => {
+    const reader = createConfigurationIndexReader(
+      snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot())),
+    )
+
+    expect(() => reader.forEntityRange({ start: 1, count: 2 }))
+      .toThrow("Повреждён диапазон entity индекса конфигурации")
+  })
+
+  it("отвергает повторный logicalAddress внутри локального диапазона", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const reader = createConfigurationIndexReader(snapshot)
+    const sourceOffsets = new Uint32Array(snapshot.sourceEntityOffsets)
+    sourceOffsets[1] = sourceOffsets[0]!
+
+    expect(() => reader.forEntityRange({ start: 0, count: 2 }))
+      .toThrow("Повторяется logicalAddress entity в диапазоне")
+  })
+
+  it("отвергает повреждённую перестановку source entity offsets", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const corruptedOffsets = new Uint32Array(new SharedArrayBuffer(snapshot.sourceEntityOffsets.byteLength))
+    corruptedOffsets.set(new Uint32Array(snapshot.sourceEntityOffsets))
+    corruptedOffsets[0] = corruptedOffsets[1]!
+
+    expect(() => createConfigurationIndexReader({
+      ...snapshot,
+      sourceEntityOffsets: corruptedOffsets.buffer as SharedArrayBuffer,
+    })).toThrow(/Повреждён lookup/iu)
+  })
+
+  it("отвергает lookup recordId за границей исходной секции", () => {
+    const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))
+    const corruptedLookup = buildBinaryHashIndex(
+      new BigUint64Array([1n]),
+      new Uint32Array([0xffffffff]),
+    )
+
+    expect(() => createConfigurationIndexReader({
+      ...snapshot,
+      entityLookup: corruptedLookup,
+    })).toThrow(/Повреждён lookup/iu)
   })
 
   it("rejects incompatible or corrupted index before creating a shared buffer", () => {
