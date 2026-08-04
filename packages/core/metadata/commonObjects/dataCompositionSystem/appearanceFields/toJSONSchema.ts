@@ -82,25 +82,7 @@ const AppearancePrimitiveValueJSONSchema = Nullable(
   ])
 )
 
-const LanguageMapJSONSchema = {
-  ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
-  additionalProperties: false,
-} as TSchema
-
-const FormattedLanguageMapJSONSchema = Type.Object(
-  {
-    Форматированный: Type.Literal("Истина"),
-    Текст: LanguageMapJSONSchema,
-  },
-  { additionalProperties: false }
-)
-
-const AppearanceStringValueJSONSchema = Type.Union([
-  Type.Null(),
-  Type.String(),
-  LanguageMapJSONSchema,
-  FormattedLanguageMapJSONSchema,
-])
+const LanguageMapJSONSchema = Type.Record(Type.String(), Type.String(), { additionalProperties: false })
 
 const StrictFontJSONSchema = Type.Object(
   {
@@ -133,6 +115,15 @@ const requiredSystemEnumerationJSONSchema = (
   return schema
 }
 
+const appearanceStringServiceProperties = (context: ConfigurationContext) => ({
+  Использовать: Type.Optional(Type.Literal("Ложь")),
+  РежимОтображения: Type.Optional(
+    requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
+  ),
+  ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
+  ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
+})
+
 const propertySchema = (
   context: ConfigurationContext,
   property: SettingsParameterValuePropertyRule,
@@ -150,24 +141,29 @@ const propertySchema = (
   return Type.Optional(schema)
 }
 
-const appearanceStringPropertySchema = (context: ConfigurationContext): TSchema =>
-  Type.Optional(
+const appearanceStringPropertySchema = (context: ConfigurationContext): TSchema => {
+  const service = appearanceStringServiceProperties(context)
+  return Type.Optional(
     Type.Union([
-      AppearanceStringValueJSONSchema,
+      Type.String(),
       Type.Object(
         {
-          Использовать: Type.Optional(Type.Literal("Ложь")),
-          Значение: AppearanceStringValueJSONSchema,
-          РежимОтображения: Type.Optional(
-            requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
-          ),
-          ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
-          ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
+          ...service,
+          Значение: Type.Optional(Type.Union([Type.String(), LanguageMapJSONSchema, Type.Null()])),
         },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        { ...service, Тип: Type.Literal("Поле"), Значение: Type.String() },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        { ...service, Тип: Type.Literal("ФорматированнаяСтрока"), Значение: LanguageMapJSONSchema },
         { additionalProperties: false }
       ),
     ])
   )
+}
 
 function ensureAppearanceSettingsParameterValueJSONSchema(
   property: SettingsParameterValuePropertyRule,
