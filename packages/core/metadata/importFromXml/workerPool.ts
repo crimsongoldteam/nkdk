@@ -8,6 +8,7 @@ import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import { createOperationProfiler } from "../validation/profile"
 import {
   createMetadataDiagnosticCollection,
   type MetadataDiagnosticCollection,
@@ -244,6 +245,7 @@ function createXmlImportOperationPool(params: {
   let crashCleanupPromise: Promise<unknown | undefined> | undefined
   let closePromise: Promise<void> | undefined
   const stateQueue = createBoundedStateQueue(params.maxPendingStateBatches)
+  const transferProfiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" }, aggregate: true })
 
   return {
     async initialize(initializeParams) {
@@ -297,7 +299,7 @@ function createXmlImportOperationPool(params: {
               kind: "firstPassBatch",
               assignments: assignmentsForWorker.slice(offset, offset + 256),
             })
-            const batch = openImportBinaryResult(response)
+            const batch = openProfiledImportBinaryResult(response, transferProfiler)
             diagnosticViews.push(batch.diagnostics)
             fileViews.push(batch.files)
             if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
@@ -363,7 +365,7 @@ function createXmlImportOperationPool(params: {
               kind: "secondPassBatch",
               assignmentIds: assignmentIds.slice(offset, offset + 256),
             })
-            const batch = openImportBinaryResult(response)
+            const batch = openProfiledImportBinaryResult(response, transferProfiler)
             diagnosticViews.push(batch.diagnostics)
             warningViews.push(batch.warnings)
             fileViews.push(batch.files)
@@ -405,6 +407,7 @@ function createXmlImportOperationPool(params: {
         // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
       } finally {
         phase = "closed"
+        transferProfiler.flush()
         await params.releaseOperation?.()
       }
       return
@@ -415,6 +418,7 @@ function createXmlImportOperationPool(params: {
       else await disposeActiveWorkers()
     } finally {
       phase = "closed"
+      transferProfiler.flush()
       await params.releaseOperation?.()
     }
   }
@@ -476,6 +480,22 @@ function createXmlImportOperationPool(params: {
       })
     )
   }
+}
+
+function openProfiledImportBinaryResult(
+  response: ImportWorkerCommandResult,
+  profiler: ReturnType<typeof createOperationProfiler>,
+) {
+  const startedAt = performance.now()
+  const batch = openImportBinaryResult(response)
+  profiler.record("Подготовка импорта конфигурации", "Передача двоичного результата", {
+    items: 1,
+    bytes: response?.kind === "binaryResult"
+      ? response.buffers.reduce((total, { buffer }) => total + buffer.byteLength, 0)
+      : 0,
+    timeMs: performance.now() - startedAt,
+  })
+  return batch
 }
 
 const noopStateSink: XmlImportStateSink = {

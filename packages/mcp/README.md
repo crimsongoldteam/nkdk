@@ -2,6 +2,17 @@
 
 Metadata tools одного MCP-процесса используют один лениво создаваемый `ProjectStateService`. Рабочее состояние всего проекта (`cf` и все `cfe/<Имя>`) находится в общих двоичных буферах; восстанавливаемый снимок атомарно сохраняется в `projectDir/.nkdk/cache/project-state.bin` за нейтральными договорами core.
 
+## Большие результаты diagnostics
+
+`validate_project`, `rebuild_project_cache`, `import_from_xml`, `sync_to_xml`, `rename_item` и `find_references` возвращают общий набор полей:
+
+- `summary`: полное число ошибок и предупреждений, а также число показанных и скрытых записей;
+- `diagnostics`: не более 100 первых записей общим объёмом не более 512 КиБ;
+- `truncated`: признак наличия полного отчёта;
+- `report`: ссылка на JSONL-файл полного результата, если предел превышен.
+
+Полный отчёт атомарно публикуется в `projectDir/.nkdk/reports`. Каждая строка содержит одну diagnostic либо ссылку; прежний отчёт той же операции удаляется только после успешной публикации нового. Текст MCP-ответа содержит краткую сводку и ссылку на ресурс, но не повторяет `structuredContent`.
+
 ## Validation и `ignoreValidationErrors`
 
 `nkdk.validate_project` принимает ровно корень проекта:
@@ -49,4 +60,4 @@ Metadata tools одного MCP-процесса используют один �
 { "projectDir": "/path/to/project", "allowWrite": true }
 ```
 
-Он строит отдельное полное состояние, выполняет validation и после успешной технической фиксации атомарно заменяет активное состояние и дисковый снимок. Успешный ответ содержит `ok: true`, массив `diagnostics` и статистику `hashedFiles`, `parsedYamlFiles`, `changedFiles`, `deletedFiles`; обычные diagnostics не отменяют перестроение.
+Он строит отдельное полное состояние, выполняет validation и после успешной технической фиксации атомарно заменяет активное состояние и дисковый снимок. Успешный ответ содержит `ok: true`, общие поля ограниченной выдачи diagnostics и статистику `hashedFiles`, `parsedYamlFiles`, `changedFiles`, `deletedFiles`; обычные diagnostics не отменяют перестроение.

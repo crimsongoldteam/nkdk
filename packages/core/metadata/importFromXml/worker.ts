@@ -146,7 +146,7 @@ export async function runImportWorkerCommand(
     await processFirstPass(command.assignments, requireInitializedState(), accumulator)
     const result = finishFirstPass(accumulator, false)
     firstPassAccumulator = createFirstPassAccumulator(requireInitializedState().workerIndex, accumulator.profiler)
-    return createImportBinaryResult({
+    return encodeImportBinaryResult(accumulator.profiler, {
       diagnostics: result.diagnostics,
       files: result.files,
       configurationFragments: result.configurationFragments,
@@ -177,7 +177,7 @@ export async function runImportWorkerCommand(
     }
     const result = finishSecondPass(accumulator, false)
     secondPassAccumulator = createSecondPassAccumulator(state.workerIndex, accumulator.profiler)
-    return createImportBinaryResult({
+    return encodeImportBinaryResult(accumulator.profiler, {
       diagnostics: result.diagnostics,
       warnings: result.warnings,
       files: result.files,
@@ -536,6 +536,20 @@ function createImportWorkerProfiler(workerIndex: number): ValidationProfiler {
     scope: { scope: "worker", workerIndex },
     aggregate: true,
   })
+}
+
+function encodeImportBinaryResult(
+  profiler: ValidationProfiler,
+  params: Parameters<typeof createImportBinaryResult>[0],
+) {
+  const startedAt = performance.now()
+  const result = createImportBinaryResult(params)
+  profiler.record("Подготовка импорта конфигурации", "Двоичное кодирование результата", {
+    items: params.files.length,
+    bytes: result.buffers.reduce((total, { buffer }) => total + buffer.byteLength, 0),
+    timeMs: performance.now() - startedAt,
+  })
+  return result
 }
 
 export function createFirstPassTransferable(result: ImportFirstPassResult) {

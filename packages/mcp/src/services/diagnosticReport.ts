@@ -66,6 +66,9 @@ export async function prepareDiagnosticOutput<Source, T extends { readonly sever
   let writer: Awaited<ReturnType<DiagnosticReportFileSystem["open"]>> | undefined
   let reportChunk = ""
   let reportChunkBytes = 0
+  let previewMs = 0
+  let reportMs = 0
+  let totalReportBytes = 0
   let report: DiagnosticReportReference | undefined
   const reportsDir = join(params.projectDir, ".nkdk", "reports")
   const fileName = `${params.operation}-${params.operationId}.jsonl`
@@ -74,10 +77,15 @@ export async function prepareDiagnosticOutput<Source, T extends { readonly sever
 
   try {
     for (const source of params.diagnostics) {
+      const previewStartedAt = performance.now()
       const diagnostic = params.map(source)
-      if (diagnostic === undefined) continue
+      if (diagnostic === undefined) {
+        previewMs += performance.now() - previewStartedAt
+        continue
+      }
       const line = `${JSON.stringify(diagnostic)}\n`
       const lineBytes = Buffer.byteLength(line)
+      totalReportBytes += lineBytes
       const fitsInline = inline.length < MAX_INLINE_DIAGNOSTICS
         && inlineBytes + lineBytes <= MAX_INLINE_DIAGNOSTIC_BYTES
       if (writer === undefined && fitsInline) {
@@ -85,9 +93,10 @@ export async function prepareDiagnosticOutput<Source, T extends { readonly sever
         inlineLines.push(line)
         inlineBytes += lineBytes
       } else {
+        previewMs += performance.now() - previewStartedAt
         if (writer === undefined) {
-          await fileSystem.mkdir(reportsDir)
-          writer = await fileSystem.open(temporaryPath)
+          await reportAction(() => fileSystem.mkdir(reportsDir))
+          writer = await reportAction(() => fileSystem.open(temporaryPath))
           for (const previous of inlineLines) {
             reportChunk += previous
             reportChunkBytes += Buffer.byteLength(previous)
@@ -96,24 +105,28 @@ export async function prepareDiagnosticOutput<Source, T extends { readonly sever
         reportChunk += line
         reportChunkBytes += lineBytes
         if (reportChunkBytes >= REPORT_WRITE_CHUNK_BYTES) {
-          await writer.write(reportChunk)
+          await reportAction(() => writer!.write(reportChunk))
           reportChunk = ""
           reportChunkBytes = 0
         }
       }
+      if (fitsInline) previewMs += performance.now() - previewStartedAt
       total += 1
       if (diagnostic.severity === "error") errors += 1
       else warnings += 1
     }
 
     if (writer !== undefined) {
-      if (reportChunk.length > 0) await writer.write(reportChunk)
-      await writer.close()
+      if (reportChunk.length > 0) await reportAction(() => writer!.write(reportChunk))
+      await reportAction(() => writer!.close())
       writer = undefined
-      await fileSystem.rename(temporaryPath, finalPath)
+      await reportAction(() => fileSystem.rename(temporaryPath, finalPath))
       report = { uri: pathToFileURL(finalPath).href, format: "application/x-ndjson" }
-      await removePreviousReports(fileSystem, reportsDir, params.operation, fileName)
+      await reportAction(() => removePreviousReports(fileSystem, reportsDir, params.operation, fileName))
     }
+
+    writeProfileStep(params.operation, "Подготовка начала diagnostics", previewMs, total, inlineBytes)
+    writeProfileStep(params.operation, "Запись полного отчёта diagnostics", reportMs, total, report === undefined ? 0 : totalReportBytes)
 
     return {
       diagnostics: inline,
@@ -129,6 +142,15 @@ export async function prepareDiagnosticOutput<Source, T extends { readonly sever
   } finally {
     if (writer !== undefined) await writer.close().catch(() => undefined)
     params.diagnostics.release?.()
+  }
+
+  async function reportAction<Result>(action: () => Promise<Result>): Promise<Result> {
+    const startedAt = performance.now()
+    try {
+      return await action()
+    } finally {
+      reportMs += performance.now() - startedAt
+    }
   }
 }
 
@@ -147,6 +169,20 @@ export async function withDiagnosticOutput<
 }): Promise<Result> {
   const output = await prepareDiagnosticOutput(params)
   return params.build(output)
+}
+
+function writeProfileStep(operation: string, substep: string, timeMs: number, items: number, bytes: number): void {
+  if (process.env["NKDK_PROFILE"] !== "1") return
+  console.error([
+    "[nkdk-profile-step]",
+    `operation=${JSON.stringify(operation)}`,
+    `step=${JSON.stringify("Выдача результата MCP")}`,
+    `substep=${JSON.stringify(substep)}`,
+    "scope=main",
+    `items=${items}`,
+    `bytes=${bytes}`,
+    `time=${timeMs.toFixed(2)}ms`,
+  ].join(" "))
 }
 
 async function removePreviousReports(

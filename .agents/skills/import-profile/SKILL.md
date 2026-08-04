@@ -46,4 +46,9 @@ Peak RSS: <MiB>
 
 Машинный результат каждого запуска содержит `firstPassMs`, `workingIndexMs`,
 `secondPassMs`, `externalFilesMs`, `finalBuildMs`, `dependencyValidationMs`,
-`publicationMs`, `saveMs` и полное время до ответа `responseMs` в поле `phases`.
+`publicationMs`, `saveMs`, времена двоичного кодирования и приёма, подготовки
+начала diagnostics и JSONL-отчёта, размеры двоичных данных, отчёта и
+`structuredContent`, а также полное время до ответа `responseMs` в поле `phases`.
+Подробные записи отдельных типов и объектов в JSON не включаются; `profileRows`
+содержит только агрегированные строки. При большом результате поле `report`
+фиксирует существование, размер и число строк полного отчёта.

@@ -124,7 +124,9 @@ function runProfile(options) {
     const stderr = `${spawned.stderr ?? ""}\n${readTextIfExists(stderrLog)}`
     const steps = stderr.split(/\r?\n/).filter((line) => line.startsWith("[nkdk-profile-step] ")).map(parseProfileLine)
     for (const step of steps) allSteps.push(step)
-    const summary = parseImportSummary(readJsonIfExists(outputJson))
+    const payload = readJsonIfExists(outputJson)
+    const summary = parseImportSummary(payload)
+    const report = inspectReport(payload?.report)
 
     runs.push({
       run,
@@ -133,6 +135,8 @@ function runProfile(options) {
       succeeded: summary.succeeded,
       errors: summary.errors,
       warnings: summary.warnings,
+      truncated: payload?.truncated,
+      report,
       workerPoolSize: workerPoolSize(steps),
       phases: summarizeImportSteps(steps, elapsedMs),
     })
@@ -154,7 +158,7 @@ function runProfile(options) {
     warmMinMs: warm.length === 0 ? undefined : Math.min(...warm),
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
-    steps: allSteps,
+    profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
 }
 
@@ -169,11 +173,21 @@ export function summarizeImportSteps(steps, elapsedMs) {
     publicationMs: "Публикация состояния проекта",
     saveMs: "Сохранение состояния проекта",
   }
+  const records = (substep, scope) => steps.filter((step) =>
+    step.substep === substep && (scope === undefined || step.scope === scope)
+  )
   return Object.fromEntries([
     ...Object.entries(names).map(([field, substep]) => [
       field,
       sum(steps.filter((step) => step.scope === "main" && step.substep === substep), "time"),
     ]),
+    ["workerBinaryEncodeMs", sum(records("Двоичное кодирование результата", "worker"), "time")],
+    ["workerBinaryTransferMs", sum(records("Передача двоичного результата", "main"), "time")],
+    ["workerBinaryBytes", sum(records("Двоичное кодирование результата", "worker"), "bytes")],
+    ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
+    ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
+    ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
+    ["mcpStructuredBytes", sum(records("Формирование structuredContent MCP", "main"), "bytes")],
     ["responseMs", elapsedMs],
   ])
 }
@@ -199,11 +213,24 @@ function readTextIfExists(path) {
   return readFileSync(path, "utf8")
 }
 
+function inspectReport(report) {
+  if (report?.format !== "application/x-ndjson" || typeof report.uri !== "string") return undefined
+  const path = fileURLToPath(report.uri)
+  if (!existsSync(path)) return { ...report, exists: false }
+  const contents = readFileSync(path, "utf8")
+  return {
+    ...report,
+    exists: true,
+    bytes: Buffer.byteLength(contents),
+    lines: contents.length === 0 ? 0 : contents.split("\n").length - 1,
+  }
+}
+
 function parseImportSummary(payload) {
   return {
     succeeded: payload?.succeeded,
-    errors: Array.isArray(payload?.failed) ? payload.failed.length : undefined,
-    warnings: Array.isArray(payload?.warnings) ? payload.warnings.length : undefined,
+    errors: payload?.summary?.errors ?? (Array.isArray(payload?.failed) ? payload.failed.length : undefined),
+    warnings: payload?.summary?.warnings ?? (Array.isArray(payload?.warnings) ? payload.warnings.length : undefined),
   }
 }
 
@@ -307,11 +334,16 @@ function printResult(result, options) {
     )
   }
 
-  if (result.steps.length > 0) {
+  if (result.profileRows.length > 0) {
     console.log("")
     console.log("Шаги import-from-xml:")
-    printMarkdownTable(aggregateRows(result.steps))
+    printMarkdownTable(result.profileRows)
   }
+}
+
+export function isSummaryProfileStep(step) {
+  if (typeof step.substep !== "string") return false
+  return !step.substep.startsWith("XML в YAML:")
 }
 
 function aggregateRows(steps) {

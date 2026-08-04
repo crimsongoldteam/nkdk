@@ -256,6 +256,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
 }
 
 export function metadataToolResult(payload: ToolPayload, operation: string) {
+  profileStructuredContent(payload)
   const summary = payload["summary"]
   const report = payload["report"]
   if (
@@ -272,6 +273,23 @@ export function metadataToolResult(payload: ToolPayload, operation: string) {
     })
   }
   return jsonToolResult(payload)
+}
+
+function profileStructuredContent(payload: ToolPayload): void {
+  if (process.env["NKDK_PROFILE"] !== "1") return
+  const startedAt = performance.now()
+  const bytes = Buffer.byteLength(JSON.stringify(payload))
+  const timeMs = performance.now() - startedAt
+  console.error([
+    "[nkdk-profile-step]",
+    `operation=${JSON.stringify("mcp")}`,
+    `step=${JSON.stringify("Выдача результата MCP")}`,
+    `substep=${JSON.stringify("Формирование structuredContent MCP")}`,
+    "scope=main",
+    "items=1",
+    `bytes=${bytes}`,
+    `time=${timeMs.toFixed(2)}ms`,
+  ].join(" "))
 }
 
 function isDiagnosticReport(value: unknown): value is { uri: string; format: "application/x-ndjson" } {
