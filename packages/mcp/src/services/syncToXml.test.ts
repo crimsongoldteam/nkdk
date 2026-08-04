@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { syncToXml } from "./syncToXml"
+import { createCoreProjectStateTestDouble } from "./projectStateTestSupport"
 
 describe("syncToXml service", () => {
   const tempDirs: string[] = []
@@ -21,9 +22,10 @@ describe("syncToXml service", () => {
       configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
     const syncConfigurationToXML = vi.fn()
+    const projectState = createCoreProjectStateTestDouble()
     const result = await syncToXml(
-      { projectDir, componentPath: "cf", xmlDir: "/xml" },
-      { planSyncToXml, syncConfigurationToXML },
+      { projectDir, componentPath: "cf", xmlDir: "/xml", ignoreValidationErrors: true },
+      { projectState, planSyncToXml, syncConfigurationToXML },
     )
 
     expect(result).toMatchObject({
@@ -38,6 +40,8 @@ describe("syncToXml service", () => {
       projectDir,
       componentPath: "cf",
       xmlDir: "/xml",
+      ignoreValidationErrors: true,
+      projectState,
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
@@ -51,9 +55,10 @@ describe("syncToXml service", () => {
       configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
 
+    const projectState = createCoreProjectStateTestDouble()
     const result = await syncToXml(
-      { projectDir, componentPath: "cf", xmlDir: "/xml", allowWrite: true, concurrency: 4 },
-      { syncConfigurationToXML },
+      { projectDir, componentPath: "cf", xmlDir: "/xml", allowWrite: true, concurrency: 4, ignoreValidationErrors: true },
+      { projectState, syncConfigurationToXML },
     )
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
@@ -62,15 +67,35 @@ describe("syncToXml service", () => {
         componentPath: "cf",
         xmlDir: "/xml",
         concurrency: 4,
+        ignoreValidationErrors: true,
+        projectState,
       }),
     )
     expect(result).toEqual({
       ok: true,
       succeeded: 1,
       configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
+      diagnostics: [],
+      summary: { errors: 0, warnings: 0, shown: 0, omitted: 0 },
+      truncated: false,
       warnings: [],
       failed: [],
     })
+  })
+
+  it("не закрывает общее project state после sync", async () => {
+    const projectDir = createProject()
+    const close = vi.fn(async () => undefined)
+    const projectState = Object.assign(createCoreProjectStateTestDouble(), { close })
+    const syncConfigurationToXML = vi.fn().mockResolvedValue({ succeeded: 0, failed: [], warnings: [] })
+
+    await syncToXml(
+      { projectDir, componentPath: "cf", xmlDir: "/xml", allowWrite: true },
+      { projectState, syncConfigurationToXML },
+    )
+
+    expect(syncConfigurationToXML).toHaveBeenCalledWith(expect.objectContaining({ projectState }))
+    expect(close).not.toHaveBeenCalled()
   })
 
   it.each([false, true])(
@@ -93,17 +118,19 @@ describe("syncToXml service", () => {
           "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
       })
 
+      const projectState = createCoreProjectStateTestDouble()
       const result = await syncToXml({
         projectDir,
         componentPath: "cfe/Расширение",
         xmlDir: "/xml",
         allowWrite,
-      }, { planSyncToXml, syncConfigurationToXML })
+      }, { projectState, planSyncToXml, syncConfigurationToXML })
 
       const expected = {
         projectDir,
         componentPath: "cfe/Расширение",
         xmlDir: "/xml",
+        projectState,
       }
       if (allowWrite) {
         expect(syncConfigurationToXML).toHaveBeenCalledWith(
@@ -170,6 +197,7 @@ describe("syncToXml service", () => {
 
   it("maps diagnostics from the new full sync result", async () => {
     const projectDir = createProject()
+    const projectState = createCoreProjectStateTestDouble()
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 2,
       failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
@@ -178,12 +206,18 @@ describe("syncToXml service", () => {
 
     const result = await syncToXml(
       { projectDir, xmlDir: "/xml", allowWrite: true },
-      { syncConfigurationToXML },
+      { projectState, syncConfigurationToXML },
     )
 
     expect(result).toEqual({
       ok: true,
       succeeded: 2,
+      diagnostics: [
+        { severity: "error", code: "bad_yaml", message: "bad yaml" },
+        { severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" },
+      ],
+      summary: { errors: 1, warnings: 1, shown: 2, omitted: 0 },
+      truncated: false,
       warnings: [{ severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" }],
       failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
     })

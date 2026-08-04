@@ -9,21 +9,27 @@ import {
   type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
 import type { ComponentAddress } from "../components/address"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import { createImportSharedMetadata } from "./metadataSnapshot"
-import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
+import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import type {
+  ProjectStateImportFinalFileStateBatch,
+  ProjectStateImportSession,
+  ProjectStateService,
+} from "../projectState"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
+import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
 
 const failurePhases = [
   "discover",
   "firstPass",
-  "mergeMetadata",
   "secondPass",
   "mergeFiles",
   "transferExternalFiles",
@@ -136,23 +142,22 @@ describe("configuration XML import coordinator", () => {
     createBaseConfiguration(params.projectDir)
     const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
-    let secondPassSnapshots: LayeredImportReferenceSnapshot | undefined
-    const base = createImportSharedMetadata([
-      ownerFacts("Базовый", join(params.projectDir, "cf", "Справочник", "Базовый", "Свойства.yaml")),
-    ])
+    let secondPassTokenCount = 0
     const dependencies = fakeDependencies({ calls, writtenIndexes, initialized })
-    dependencies.buildComponentReferenceSnapshot = async ({ componentDir }) => {
-      calls.push("baseMetadata")
-      expect(componentDir).toBe(join(params.projectDir, "cf"))
-      return base
-    }
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
-      async runSecondPass(snapshots) {
+      async runSecondPass(snapshots, sink) {
         calls.push("secondPass")
-        secondPassSnapshots = snapshots
-        return { diagnostics: [], warnings: [], files: secondPassFiles }
+        secondPassTokenCount = snapshots.length
+        await sink?.writeSecondPassState({
+          stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, "cfe/Расширение_All")),
+        })
+        return {
+          diagnostics: diagnosticCollection([]),
+          warnings: diagnosticCollection([]),
+          files: fileCollection(secondPassFiles),
+        }
       },
     })
 
@@ -174,7 +179,7 @@ describe("configuration XML import coordinator", () => {
         metadataItemAugmenter: "configurationExtension",
       },
     ])
-    expect(secondPassSnapshots?.base).toBe(base)
+    expect(secondPassTokenCount).toBe(1)
     expect(writtenIndexes[0]).toMatchObject({
       address: { kind: "configurationExtension", name: "Расширение_All" },
       data: {
@@ -284,14 +289,18 @@ describe("configuration XML import coordinator", () => {
     const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const diagnostic = importError("broken second pass")
     const dependencies = fakeDependencies({ calls, writtenIndexes })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
       async runSecondPass() {
         calls.push("secondPass")
         fs.mkdirSync(componentDir, { recursive: true })
         fs.writeFileSync(yamlPath, "Имя: ЧастичныйРезультат\n")
-        return { diagnostics: [diagnostic], warnings: [], files: [] }
+        return {
+          diagnostics: diagnosticCollection([diagnostic]),
+          warnings: diagnosticCollection([]),
+          files: fileCollection([]),
+        }
       },
     })
 
@@ -314,7 +323,6 @@ describe("configuration XML import coordinator", () => {
       "discover",
       "initialize",
       "firstPass",
-      "mergeMetadata",
       "secondPass",
       "mergeFiles",
       "transferExternalFiles",
@@ -344,6 +352,144 @@ describe("configuration XML import coordinator", () => {
     expect(fs.existsSync(yamlPath)).toBe(
       ["mergeFiles", "transferExternalFiles", "hashProject", "writeIndex"].includes(failurePhase)
     )
+  })
+
+  it("не маскирует primary failure ошибками cleanup до публикации", async () => {
+    const params = createParams("configuration")
+    const dependencies = fakeDependencies({
+      calls: [],
+      failurePhase: "firstPass",
+      workerCloseFailure: new Error("worker cleanup failed"),
+      projectStateCloseFailure: new Error("state cleanup failed"),
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      "firstPass failed",
+      "worker cleanup failed",
+      "state cleanup failed",
+    ])
+  })
+
+  it("закрывает pool и ждёт оставшийся sink до abort session", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("first sink failed")
+    const secondSink = gate()
+    const events: string[] = []
+    let aborted = false
+    let writesAfterAbort = 0
+    const activeSinks: Promise<void>[] = []
+    params.projectState = projectStateWithImportSession({
+      async writeStateFragment(fragment) {
+        const view = openProjectStateFragment(fragment)
+        const projectPath = view.stringValue(view.fileRecord(0).projectPathId)
+        if (projectPath === "cf/first.yaml") {
+          await secondSink.started
+          throw primary
+        }
+        secondSink.start()
+        await secondSink.wait()
+        if (aborted) writesAfterAbort += 1
+        events.push("second-write")
+      },
+      async abort() {
+        aborted = true
+        events.push("abort")
+      },
+    })
+    const dependencies = fakeDependencies({ calls: [] })
+    dependencies.createWorkerPool = () => ({
+      async initialize() {},
+      async runFirstPass(_assignments, sink) {
+        activeSinks.push(
+          sink!.writeFirstPassState({
+            stateFragment: indexStateFragment("cf/first.yaml"),
+          }),
+          sink!.writeFirstPassState({
+            stateFragment: indexStateFragment("cf/second.yaml"),
+          }),
+        )
+        await activeSinks[0]
+        throw new Error("unreachable")
+      },
+      async runSecondPass() { throw new Error("unexpected second pass") },
+      workerCount() { return 2 },
+      async close() {
+        events.push("close:start")
+        await Promise.allSettled(activeSinks)
+        events.push("close:end")
+      },
+    })
+
+    const running = importConfigurationFromXml(params, dependencies)
+    await secondSink.started
+    await new Promise<void>((resolve) => setImmediate(resolve))
+
+    expect(events).not.toContain("abort")
+    secondSink.release()
+    const result = await running
+
+    expect(result.failed.map(({ message }) => message)).toEqual([primary.message])
+    expect(events).toEqual(["close:start", "second-write", "close:end", "abort"])
+    expect(writesAfterAbort).toBe(0)
+  })
+
+  it("сохраняет порядок primary, pool close и session abort failures", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("primary failed")
+    const closeFailure = new Error("pool close failed")
+    const abortFailure = new Error("session abort failed")
+    params.projectState = projectStateWithImportSession({
+      async abort() { throw abortFailure },
+    })
+    const dependencies = fakeDependencies({ calls: [], failurePhase: "firstPass" })
+    dependencies.createWorkerPool = () => ({
+      async initialize() {},
+      async runFirstPass() { throw primary },
+      async runSecondPass() { throw new Error("unexpected second pass") },
+      workerCount() { return 1 },
+      async close() { throw closeFailure },
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      primary.message,
+      closeFailure.message,
+      abortFailure.message,
+    ])
+  })
+
+  it("не маскирует AggregateError finalize повторным abort coordinator", async () => {
+    const params = createParams("configuration")
+    const primary = new Error("checkpoint failed")
+    const cleanup = new Error("discard failed")
+    params.projectState = projectStateWithImportSession({
+      async commitWorkingIndex() { return new Uint8Array([1]) as never },
+      async finalize(beforeCheckpoint) {
+        await beforeCheckpoint?.()
+        throw new AggregateError([primary, cleanup], primary.message)
+      },
+    })
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls: [] }))
+
+    expect(result.failed.map(({ message }) => message)).toEqual([
+      primary.message,
+      cleanup.message,
+    ])
+  })
+
+  it("после публикации cleanup failure не превращает успешный import в failure", async () => {
+    const params = createParams("configuration")
+    const result = await importConfigurationFromXml(params, fakeDependencies({
+      calls: [],
+      workerCloseFailure: new Error("worker cleanup failed"),
+      projectStateCloseFailure: new Error("state cleanup failed"),
+    }))
+
+    expect(result).toMatchObject({ succeeded: assignments.length, failed: [] })
   })
 
   it("does not read unrelated XML before a preflight failure", async () => {
@@ -393,12 +539,16 @@ describe("configuration XML import coordinator", () => {
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
     }
     const dependencies = fakeDependencies({ calls })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
       async runSecondPass() {
         calls.push("secondPass")
-        return { diagnostics: [diagnostic], warnings: [warning], files: [] }
+        return {
+          diagnostics: diagnosticCollection([diagnostic]),
+          warnings: diagnosticCollection([warning]),
+          files: fileCollection([]),
+        }
       },
     })
 
@@ -437,6 +587,15 @@ describe("configuration XML import coordinator", () => {
       )
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
+    for (const substep of [
+      "Фиксация рабочего индекса",
+      "Построение окончательного состояния",
+      "Полная проверка зависимостей",
+      "Сохранение состояния проекта",
+      "Публикация состояния проекта",
+    ]) {
+      expect(lines.some((line) => line.includes(`substep=${JSON.stringify(substep)}`))).toBe(true)
+    }
   })
 
   it.each([
@@ -484,8 +643,11 @@ function fakeDependencies(params: {
   writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }>
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
   transfers?: string[]
+  workerCloseFailure?: Error
+  projectStateCloseFailure?: Error
 }): ImportCoordinatorDependencies {
   let componentDir: string | undefined
+  let selectedComponentPath = "cf"
   const call = (phase: FailurePhase): void => {
     params.calls.push(phase)
     if (params.failurePhase === phase) throw new Error(`${phase} failed`)
@@ -494,9 +656,11 @@ function fakeDependencies(params: {
   return {
     createWorkerPool() {
       return {
+        async writeStateFragment() {},
         async initialize(initializeParams) {
           params.calls.push("initialize")
           componentDir = initializeParams.outputDir
+          selectedComponentPath = initializeParams.componentPath ?? "cf"
           params.initialized?.push({
             outputDir: initializeParams.outputDir,
             componentKind: initializeParams.componentKind,
@@ -505,25 +669,45 @@ function fakeDependencies(params: {
               : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }),
           })
         },
-        async runFirstPass() {
+        async runFirstPass(_assignments, sink) {
           call("firstPass")
+          const fragments = fragmentData.sourceProjectPaths.map((targetProjectPath) => ({
+            targetProjectPath,
+            entities: fragmentData.entities.filter((entity) => entity.sourceProjectPath === targetProjectPath),
+          }))
+          for (let index = 0; index < fragments.length; index += 1) {
+            await sink?.writeFirstPassState({
+              configurationFragment: fragments[index],
+              ...(index === 0
+                ? { stateFragment: finalStateFragment(stateBatch(firstPassFiles, 1, selectedComponentPath)) }
+                : {}),
+            })
+          }
           return {
-            diagnostics: [],
+            diagnostics: diagnosticCollection([]),
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
-            files: firstPassFiles,
-            fragmentData,
+            files: fileCollection(firstPassFiles),
           }
         },
-        async runSecondPass() {
+        async runSecondPass(_tokens, sink) {
           call("secondPass")
           if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
           fs.mkdirSync(componentDir, { recursive: true })
           fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
-          return { diagnostics: [], warnings: [], files: secondPassFiles }
+          await sink?.writeSecondPassState({
+            stateFragment: finalStateFragment(stateBatch(secondPassFiles, 3, selectedComponentPath)),
+          })
+          return {
+            diagnostics: diagnosticCollection([]),
+            warnings: diagnosticCollection([]),
+            files: fileCollection(secondPassFiles),
+          }
         },
+        workerCount() { return 1 },
         async close() {
           params.calls.push("closeWorkers")
+          if (params.workerCloseFailure !== undefined) throw params.workerCloseFailure
         },
       }
     },
@@ -531,12 +715,8 @@ function fakeDependencies(params: {
       call("discover")
       return { assignments }
     },
-    createSharedMetadata() {
-      call("mergeMetadata")
-      return createImportSharedMetadata([])
-    },
-    async buildComponentReferenceSnapshot() {
-      return createImportSharedMetadata([])
+    createProjectStateService() {
+      return fakeProjectState(params.calls, params.projectStateCloseFailure)
     },
     mergeFiles(files) {
       call("mergeFiles")
@@ -548,8 +728,8 @@ function fakeDependencies(params: {
     },
     async hashProject(_projectDir, projectPaths) {
       call("hashProject")
-      expect(projectPaths).toEqual(resultFiles.map((file) => file.targetProjectPath))
-      return projectFiles
+      expect(projectPaths).toEqual([])
+      return []
     },
     async writeIndex({ address, data }) {
       call("writeIndex")
@@ -558,10 +738,123 @@ function fakeDependencies(params: {
   }
 }
 
+function stateBatch(
+  files: readonly ImportResultFile[],
+  firstHash: number,
+  componentPath = "cf",
+): ProjectStateImportFinalFileStateBatch {
+  const entries = files.map((file, index) => ({
+    update: {
+      kind: "resource" as const,
+      projectPath: `${componentPath}/${file.targetProjectPath}`,
+      componentPath,
+      resourceKind: "resource" as const,
+    },
+    hash: BigInt(firstHash + index),
+  }))
+  const batch = createProjectStateFileUpdateBatch(entries)
+  return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
+}
+
+function indexStateFragment(projectPath: string) {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportIndex({
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "yaml",
+    yamlRole: "properties",
+    references: [],
+    owners: [],
+    fields: [],
+    forms: [],
+  })
+  return writer.finish()
+}
+
+function finalStateFragment(batch: ProjectStateImportFinalFileStateBatch) {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendImportFinal(batch)
+  return writer.finish()
+}
+
+function fakeProjectState(calls: string[], closeFailure?: Error): ProjectStateService {
+  let nextToken = 1
+  const readToken = () => new Uint8Array([nextToken++]) as never
+  return {
+    workers: createUnusedMetadataWorkerPool(),
+    async beginImport(importParams) {
+      return {
+        async commitWorkingIndex() {
+          importParams.profile?.onPhase?.({ phase: "workingIndex", elapsedMs: 1 })
+          return readToken()
+        },
+        async createReadToken() { return readToken() },
+        async writeStateFragment(fragment) {
+          const buffers = Object.values(fragment.buffers)
+          structuredClone(fragment, { transfer: buffers })
+          expect(buffers.every((buffer) => buffer.byteLength === 0)).toBe(true)
+        },
+        async finalize(beforeCheckpoint) {
+          importParams.profile?.onPhase?.({ phase: "finalBuild", elapsedMs: 1 })
+          importParams.profile?.onPhase?.({ phase: "dependencyValidation", elapsedMs: 1 })
+          await beforeCheckpoint?.()
+          importParams.profile?.onPhase?.({ phase: "save", elapsedMs: 1 })
+          importParams.profile?.onPhase?.({ phase: "publication", elapsedMs: 1 })
+          return {
+            diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
+            readToken: readToken(),
+            stats: { hashedFiles: 4, parsedYamlFiles: 0, changedFiles: 4, deletedFiles: 0 },
+          }
+        },
+        async abort() {},
+      }
+    },
+    async refreshAndValidate() {
+      calls.push("baseMetadata")
+      return {
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
+        readToken: readToken(),
+        stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
+      }
+    },
+    async createReadToken() { return readToken() },
+    openReadSession() { throw new Error("not used") },
+    async readComponentProjection() { throw new Error("not used") },
+    async reset() {},
+    async rebuild() { throw new Error("not used") },
+    async close() {
+      if (closeFailure !== undefined) throw closeFailure
+    },
+  }
+}
+
 function temporaryDirectory(prefix: string): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), prefix))
   tempDirs.push(directory)
   return directory
+}
+
+function gate() {
+  let release!: () => void
+  let start!: () => void
+  const waiting = new Promise<void>((resolve) => { release = resolve })
+  const started = new Promise<void>((resolve) => { start = resolve })
+  return { started, release, start, wait: () => waiting }
+}
+
+function projectStateWithImportSession(
+  overrides: Partial<ProjectStateImportSession>,
+): ProjectStateService {
+  const unexpected = async (): Promise<never> => { throw new Error("unexpected import session call") }
+  const session: ProjectStateImportSession = {
+    async writeStateFragment() {},
+    commitWorkingIndex: unexpected,
+    createReadToken: unexpected,
+    finalize: unexpected,
+    async abort() {},
+    ...overrides,
+  }
+  return { async beginImport() { return session } } as unknown as ProjectStateService
 }
 
 function createBaseConfiguration(projectDir: string): void {
@@ -648,6 +941,34 @@ function importError(message: string): ImportDiagnostic {
   }
 }
 
+function diagnosticCollection(items: readonly ImportDiagnostic[]): ImportDiagnosticCollection {
+  let released = false
+  return {
+    errors: items.filter(({ severity }) => severity === "error").length,
+    warnings: items.filter(({ severity }) => severity === "warning").length,
+    count: items.length,
+    get released() { return released },
+    release() { released = true },
+    *[Symbol.iterator]() {
+      if (released) throw new Error("Коллекция diagnostics освобождена")
+      yield* items
+    },
+  }
+}
+
+function fileCollection(items: readonly ImportResultFile[]): ImportResultFileCollection {
+  let released = false
+  return {
+    count: items.length,
+    get released() { return released },
+    release() { released = true },
+    *[Symbol.iterator]() {
+      if (released) throw new Error("Коллекция файлов import освобождена")
+      yield* items
+    },
+  }
+}
+
 function configurationIndex(component: string): ConfigurationSnapshot {
   return {
     specificationVersion: "1.3",
@@ -671,17 +992,5 @@ function emptyValidationContribution(): ValidationIndexContribution {
     pendingReferences: [],
     localDependencies: [],
     logicalAddresses: [],
-  }
-}
-
-function ownerFacts(name: string, filePath: string): ValidationOwnerFacts {
-  return {
-    ref: { kind: "Справочник", name },
-    filePath,
-    fieldIndex: {
-      fields: new Map(),
-      standardAttributeAliases: new Map(),
-      diagnostics: [],
-    },
   }
 }

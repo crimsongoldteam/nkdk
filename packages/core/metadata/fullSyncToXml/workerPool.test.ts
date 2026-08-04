@@ -9,6 +9,9 @@ import {
   type FullXmlSyncWorkerInitialization,
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import type { MetadataWorkerOperation } from "../workerPool/types"
+import { createFullXmlSyncBinaryResult } from "./binaryResult"
 
 describe("full XML sync worker pool", () => {
   const initialization = {
@@ -27,7 +30,7 @@ describe("full XML sync worker pool", () => {
     },
     composition: {} as never,
     targetIndex: {} as never,
-    localMetadata: {} as never,
+    projectStateReadTokens: [1, 2, 3, 4].map(() => createTestProjectStateReadToken()),
   } satisfies FullXmlSyncWorkerInitialization
 
   it("executes each static partition once", async () => {
@@ -41,11 +44,28 @@ describe("full XML sync worker pool", () => {
     await pool.initialize(initialization)
     await pool.execute(assignments)
 
-    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
-    expect(pools.runs(1).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution"])
+    expect(pools.runs(1).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution"])
     expect(pools.executeIds(0)).toEqual(["one", "three"])
     expect(pools.executeIds(1)).toEqual(["two"])
     await expect(pool.execute(assignments)).rejects.toThrow("уже было запущено")
+    await pool.close()
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution", "dispose"])
+    expect(pools.runs(1).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution", "dispose"])
+  })
+
+  it("передаёт назначения пачками 256 и завершает worker без накопленного результата", async () => {
+    const pools = createFakePools()
+    const assignments = Array.from({ length: 257 }, (_unused, index) => assignment(String(index)))
+    const pool = createFullXmlSyncWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+
+    await pool.initialize(initialization)
+    await pool.execute(assignments)
+
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual([
+      "initialize", "executeBatch", "executeBatch", "finishExecution",
+    ])
+    expect(pools.executeBatchSizes(0)).toEqual([256, 1])
     await pool.close()
   })
 
@@ -60,9 +80,41 @@ describe("full XML sync worker pool", () => {
     await pool.execute([assignment("only")])
 
     expect(pools.created()).toBe(1)
-    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution"])
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1])
+  })
+
+  it("выполняет синхронизацию через универсальную операцию без отдельного пула", async () => {
+    const commands: FullXmlSyncWorkerCommand[] = []
+    const outcomes: string[] = []
+    const operation: MetadataWorkerOperation = {
+      id: "full-sync",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "fullSync") throw new Error("Ожидалась команда fullSync")
+        commands.push(command.command)
+        return {
+          kind: "fullSyncResult",
+          result: command.command.kind === "executeBatch" ? executionResult() : undefined,
+        }
+      },
+      async finish(outcome) { outcomes.push(outcome) },
+    }
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      operation,
+      createWorkerPool() { throw new Error("Не должен создаваться отдельный пул") },
+    })
+    const { projectStateReadTokens: _tokens, ...universalInitialization } = initialization
+
+    await pool.initialize(universalInitialization)
+    await pool.execute([assignment("one")])
+    await pool.close()
+
+    expect(commands.map(({ kind }) => kind)).toEqual(["initialize", "executeBatch", "finishExecution", "dispose"])
+    expect(commands[0]).not.toHaveProperty("projectStateReadToken")
+    expect(outcomes).toEqual(["success"])
   })
 
   it("merges execution results from workers", async () => {
@@ -84,8 +136,9 @@ describe("full XML sync worker pool", () => {
     await pool.initialize(initialization)
     const result = await pool.execute([assignment("one"), assignment("two")])
 
-    expect(result.diagnostics).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
-    expect(result.expectedOutputs).toHaveLength(2)
+    expect(Array.isArray(result.diagnostics)).toBe(false)
+    expect([...result.diagnostics]).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
+    expect(result.expectedOutputs.count).toBe(2)
     expect(result.fragmentData).toEqual({
       sourceProjectPaths: ["one.yaml", "two.yaml"],
       entities: [entity("Справочник.two", "two.yaml")],
@@ -105,8 +158,68 @@ describe("full XML sync worker pool", () => {
     await expect(pool.execute([assignment("one"), assignment("two")])).rejects.toThrow("worker crashed")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
+    expect(pools.runs(0).map(({ kind }) => kind)).toContain("dispose")
+    expect(pools.runs(1).map(({ kind }) => kind)).toContain("dispose")
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1, 1])
+  })
+
+  it("preserves a crash as primary and aggregates dispose and destroy failures", async () => {
+    const primary = new Error("execute failed")
+    const disposeFailure = new Error("dispose failed")
+    const destroyFailure = new Error("destroy failed")
+    const commands: string[] = []
+    let destroyCalls = 0
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      createWorkerPool: () => ({
+        async run(command) {
+          commands.push(command.kind)
+          if (command.kind === "executeBatch") throw primary
+          if (command.kind === "dispose") throw disposeFailure
+          return undefined
+        },
+        async destroy() {
+          destroyCalls += 1
+          throw destroyFailure
+        },
+      }),
+    })
+    await pool.initialize(initialization)
+
+    let failure: unknown
+    try {
+      await pool.execute([assignment("one")])
+    } catch (caught) {
+      failure = caught
+    }
+
+    expect(failure).toBeInstanceOf(AggregateError)
+    expect((failure as AggregateError).errors).toEqual([primary, disposeFailure, destroyFailure])
+    expect((failure as Error).message).toBe(primary.message)
+    expect(commands).toEqual(["initialize", "executeBatch", "dispose"])
+    expect(destroyCalls).toBe(1)
+  })
+
+  it("destroys a worker even when normal dispose fails", async () => {
+    const disposeFailure = new Error("dispose failed")
+    let destroyCalls = 0
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 1,
+      createWorkerPool: () => ({
+        async run(command) {
+          if (command.kind === "dispose") throw disposeFailure
+          if (command.kind !== "executeBatch") return undefined
+          return executionResult()
+        },
+        async destroy() { destroyCalls += 1 },
+      }),
+    })
+    await pool.initialize(initialization)
+    await pool.execute([assignment("one")])
+
+    await expect(pool.close()).rejects.toBe(disposeFailure)
+    expect(destroyCalls).toBe(1)
   })
 
   it("normalizes default concurrency and rejects invalid explicit values", () => {
@@ -131,6 +244,16 @@ function assignment(id: string): FullXmlSyncAssignment {
   }
 }
 
+function executionResult() {
+  return createFullXmlSyncBinaryResult({
+    diagnostics: [],
+    warnings: [],
+    writtenFiles: [],
+    expectedOutputs: [],
+    configurationFragments: [],
+  })
+}
+
 function createFakePools() {
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, FullXmlSyncDiagnostic[]>()
@@ -139,11 +262,10 @@ function createFakePools() {
     FullXmlSyncWorkerCommand,
     unknown
   >(async (task, workerIndex) => {
-    if (task.kind !== "execute") return undefined
+    if (task.kind !== "executeBatch") return undefined
     const failure = failures.get(workerIndex)
     if (failure !== undefined) throw failure
-    return {
-      kind: "executionResult" as const,
+    return createFullXmlSyncBinaryResult({
       diagnostics: diagnostics.get(workerIndex) ?? [],
       warnings: [],
       writtenFiles: [],
@@ -151,8 +273,8 @@ function createFakePools() {
         assignmentId: id,
         targetXmlPath: `${id}.xml`,
       })),
-      fragmentBuffer: encodeConfigurationIndexFragments(fragments.get(workerIndex) ?? []),
-    }
+      configurationFragments: fragments.get(workerIndex) ?? [],
+    })
   })
 
   return {
@@ -162,8 +284,11 @@ function createFakePools() {
     },
     executeIds(workerIndex: number): string[] {
       return pools.commands(workerIndex).flatMap((task) =>
-        task.kind === "execute" ? task.assignments.map(({ id }) => id) : []
+        task.kind === "executeBatch" ? task.assignments.map(({ id }) => id) : []
       )
+    },
+    executeBatchSizes(workerIndex: number): number[] {
+      return pools.commands(workerIndex).flatMap((task) => task.kind === "executeBatch" ? [task.assignments.length] : [])
     },
     created: pools.created,
     failWorker(workerIndex: number, error: Error) {

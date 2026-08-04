@@ -1,21 +1,20 @@
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import Piscina from "piscina"
+import Piscina, { move, transferableSymbol, valueSymbol } from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   ComponentFirstPassPoolResult,
   FirstPassPoolResult,
-  SecondPassPoolParams,
-  SecondPassPoolResult,
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
-import { createValidationProfiler } from "../validation/profile"
-import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
+import { createOperationProfiler, createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
+import type { ProjectStateFragment } from "../projectState/binary/fragment"
+import { assertProjectStateFileBaselinePage } from "../projectState/contracts"
+import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -23,7 +22,13 @@ import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
 } from "./preparedYamlProject"
-import type { PreparedYamlProjectWorkerTask, PreparedYamlProjectWorkerTaskResult } from "./preparedYamlProjectWorker"
+import type { MetadataWorkerOperation } from "../workerPool/types"
+import { runMetadataWorkerOperationQueue } from "../workerPool/operationQueue"
+import type {
+  PreparedYamlProjectWorkerTask,
+  PreparedYamlProjectWorkerTaskResult,
+} from "./preparedYamlProjectWorker"
+import { openProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
 
 export interface PreparedYamlProjectWorkerPool {
   run(params: {
@@ -32,20 +37,52 @@ export interface PreparedYamlProjectWorkerPool {
     files: PreparedYamlProjectFileDescriptor[]
     includeYamlData?: boolean
   }): Promise<PreparedYamlProjectWorkerPoolResult>
-  initValidation(context: ConfigurationContext): Promise<ValidationWorkerPoolStartProfile>
+  initValidation(
+    context: ConfigurationContext,
+    operation?: PreparedYamlValidationOperation,
+  ): Promise<ValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: {
     projectDir: string
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<FirstPassPoolResult>
+  runProjectStateRefresh(
+    params: {
+      projectDir: string
+      context: ConfigurationContext
+      source: ProjectStateValidationSource
+      operation?: PreparedYamlValidationOperation
+    },
+    producer: ProjectStateValidationProducer,
+  ): Promise<ProjectStateValidationStats>
   runValidationFactPass(params: {
     projectDir: string
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<ValidationIndexContribution>
-  runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   close(): Promise<void>
   size(): number
+}
+
+export interface ProjectStateValidationSource {
+  readonly batches: AsyncIterable<ProjectStateValidationFileBatch>
+}
+
+export interface ProjectStateValidationProducer {
+  writeFragment(fragment: ProjectStateFragment): Promise<void>
+  deleteFiles(projectPaths: readonly string[]): Promise<void>
+}
+
+export interface ProjectStateValidationStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly missingFiles: number
+}
+
+export interface PreparedYamlValidationOperation {
+  readonly signal: AbortSignal
+  abort(reason: unknown): void
 }
 
 export interface PreparedYamlProjectWorkerPoolResult {
@@ -63,9 +100,26 @@ export type PreparedWorkerPool = Pick<Piscina, "run" | "destroy">
 export function createPreparedYamlProjectWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => PreparedWorkerPool
+  operation?: MetadataWorkerOperation
 }): PreparedYamlProjectWorkerPool {
   const pools = new Map<number, PreparedWorkerPool>()
-  const createPool = params.createWorkerPool ?? createWorkerPool
+  let operationFailed = false
+  const createPool = params.operation === undefined
+    ? (_workerIndex: number) => (params.createWorkerPool ?? createWorkerPool)()
+    : (workerIndex: number): PreparedWorkerPool => ({
+        async run(task) {
+          try {
+            return await params.operation!.run(workerIndex, {
+              kind: "validation",
+              task: task as PreparedYamlProjectWorkerTask,
+            })
+          } catch (caught) {
+            operationFailed = true
+            throw caught
+          }
+        },
+        async destroy() {},
+      })
   const activeWorkerIndexes = new Set<number>()
   const initializedValidationWorkerIndexes = new Set<number>()
   let validationStartProfile: ValidationWorkerPoolStartProfile | undefined
@@ -154,7 +208,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
         workers,
       }
     },
-    async initValidation(context) {
+    async initValidation(context, suppliedOperation) {
+      const operation = suppliedOperation ?? createPreparedYamlValidationOperation()
+      operation.signal.throwIfAborted()
       const indexesToInit = Array.from({ length: params.concurrency }, (_, index) => index).filter(
         (index) => !initializedValidationWorkerIndexes.has(index)
       )
@@ -164,16 +220,26 @@ export function createPreparedYamlProjectWorkerPool(params: {
 
       const rulesSnapshot = createValidationRulesSnapshot(context)
       const startedAt = performance.now()
-      const results = await Promise.all(
+      let firstFailure: { readonly reason: unknown } | undefined
+      const settled = await Promise.allSettled(
         indexesToInit.map(async (index) => {
-          const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
-          const response = (await getOrCreatePool(pools, index, createPool).run(
-            task
-          )) as PreparedYamlProjectWorkerTaskResult
-          if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
-          return response
+          try {
+            const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
+            const response = (await getOrCreatePool(pools, index, createPool).run(
+              task,
+              { signal: operation.signal },
+            )) as PreparedYamlProjectWorkerTaskResult
+            if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
+            return response
+          } catch (caught) {
+            firstFailure ??= { reason: caught }
+            operation.abort(caught)
+            throw caught
+          }
         })
       )
+      if (firstFailure !== undefined) throw firstFailure.reason
+      const results = fulfilledValues(settled)
 
       for (const index of indexesToInit) initializedValidationWorkerIndexes.add(index)
       const startProfile = {
@@ -207,6 +273,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
               diagnostics: [],
               schemaDiagnostics: [],
               fileResults: [],
+              fileUpdateBatches: [],
               yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
             }
           }
@@ -234,6 +301,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
         diagnostics: components.flatMap(({ diagnostics }) => diagnostics),
         schemaDiagnostics: components.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
         fileResults: components.flatMap(({ fileResults }) => fileResults),
+        fileUpdateBatches: results.flatMap(({ fileUpdateBatches }) => fileUpdateBatches),
         yamlLifetime: {
           current: results.reduce((sum, result) => sum + result.yamlLifetime.current, 0),
           max: Math.max(0, ...results.map((result) => result.yamlLifetime.max)),
@@ -241,6 +309,128 @@ export function createPreparedYamlProjectWorkerPool(params: {
           propertyEvents: results.reduce((sum, result) => sum + result.yamlLifetime.propertyEvents, 0),
         },
       }
+    },
+    async runProjectStateRefresh(refreshParams, producer) {
+      const profileEnabled = process.env["NKDK_PROFILE"] === "1"
+      const profiler = profileEnabled
+        ? createOperationProfiler({
+            operation: "validation",
+            scope: { scope: "main" },
+            aggregate: true,
+          })
+        : undefined
+      const operation = refreshParams.operation ?? createPreparedYamlValidationOperation()
+      const { signal } = operation
+      await this.initValidation(refreshParams.context, operation)
+      let taskCount = 0
+      let taskPreparationMs = 0
+      let workerWaitMs = 0
+      let fragmentCount = 0
+      let fragmentBytes = 0
+      let applyFragmentMs = 0
+      let deletionCount = 0
+      let applyDeletionsMs = 0
+      const stats = {
+        hashedFiles: 0,
+        parsedYamlFiles: 0,
+        changedFiles: 0,
+        missingFiles: 0,
+      }
+      const queueOperation: MetadataWorkerOperation = {
+        id: params.operation?.id ?? "validation-refresh",
+        concurrency: params.concurrency,
+        async run(workerIndex, command) {
+          if (command.kind !== "validation" || command.task.kind !== "refreshProjectState") {
+            throw new Error("Очередь validation refresh получила неожиданную команду")
+          }
+          const task = { ...command.task, workerIndex }
+          const startedAt = profileEnabled ? performance.now() : 0
+          const response = params.operation === undefined
+            ? await getOrCreatePool(pools, workerIndex, createPool).run(
+                move(projectStateRefreshTransferable(task)),
+                { signal },
+              ) as PreparedYamlProjectWorkerTaskResult
+            : await params.operation.run(workerIndex, { kind: "validation", task })
+          if (profileEnabled) workerWaitMs += performance.now() - startedAt
+          return response
+        },
+        async finish() {},
+      }
+      const tasks = (async function* () {
+        let batchId = 0
+        for await (const batch of refreshParams.source.batches) {
+          signal.throwIfAborted()
+          assertProjectStateFileBaselinePage({
+            knownHashBits: batch.knownHashBits,
+            hashBytes: batch.hashBytes,
+            previousFileIds: batch.previousFileIds,
+            storedFileCount: batch.storedFileCount,
+          }, batch.files.length)
+          const startedAt = profileEnabled ? performance.now() : 0
+          const task = createProjectStateRefreshTask(refreshParams, 0, batch)
+          if (profileEnabled) {
+            taskPreparationMs += performance.now() - startedAt
+            taskCount += 1
+          }
+          yield {
+            batchId: batchId++,
+            command: { kind: "validation" as const, task },
+          }
+        }
+      })()
+      try {
+        await runMetadataWorkerOperationQueue({
+          operation: queueOperation,
+          tasks,
+          signal,
+          async accept({ result }) {
+            const response = openProjectStateRefreshBinaryResult(result)
+            stats.hashedFiles += response.hashedFiles
+            stats.parsedYamlFiles += response.parsedYamlFiles
+            stats.changedFiles += response.changedFiles
+            stats.missingFiles += response.missingProjectPaths.length
+
+            if (response.missingProjectPaths.length > 0) {
+              signal.throwIfAborted()
+              const startedAt = profileEnabled ? performance.now() : 0
+              await producer.deleteFiles(response.missingProjectPaths)
+              if (profileEnabled) applyDeletionsMs += performance.now() - startedAt
+              deletionCount += response.missingProjectPaths.length
+            }
+            if (response.fragmentView.fileCount > 0) {
+              signal.throwIfAborted()
+              const startedAt = profileEnabled ? performance.now() : 0
+              await producer.writeFragment(response.fragment)
+              if (profileEnabled) applyFragmentMs += performance.now() - startedAt
+              fragmentCount += 1
+              fragmentBytes += Object.values(response.fragment.buffers)
+                .reduce((sum, buffer) => sum + buffer.byteLength, 0)
+            }
+          },
+        })
+      } catch (caught) {
+        operation.abort(caught)
+        throw caught
+      }
+      profiler?.record("Обработка файлов Б1–Б4", "Подготовка заданий", {
+        items: taskCount,
+        timeMs: taskPreparationMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Ожидание worker", {
+        items: taskCount,
+        timeMs: workerWaitMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Применение двоичных фрагментов", {
+        items: fragmentCount,
+        bytes: fragmentBytes,
+        timeMs: applyFragmentMs,
+      })
+      profiler?.record("Обработка файлов Б1–Б4", "Применение удалений", {
+        items: deletionCount,
+        timeMs: applyDeletionsMs,
+      })
+      profiler?.flush()
+      return stats
     },
     async runValidationFactPass(factPassParams) {
       const rulesSnapshot = createValidationRulesSnapshot(factPassParams.context)
@@ -276,52 +466,49 @@ export function createPreparedYamlProjectWorkerPool(params: {
         logicalAddresses: results.flatMap((result) => result.logicalAddresses),
       }
     },
-    async runValidationSecondPass(secondPassParams) {
-      const activeIndexes = Array.from(activeWorkerIndexes)
-      if (activeIndexes.length === 0) return { diagnostics: [] }
-
-      const sharedProjectValidationGraph = createSharedProjectValidationGraph(secondPassParams.graph)
-      const blocked = new Set(secondPassParams.blockedComponentPaths)
-      const referencePartitions = partitionRoundRobin(
-        secondPassParams.graph.layers
-          .filter(({ componentPath }) => !blocked.has(componentPath))
-          .flatMap(({ componentPath, contribution }) =>
-            (contribution.pendingReferences ?? []).map((reference) => ({ componentPath, reference }))
-          ),
-        activeIndexes.length
-      )
-      const results = await Promise.all(
-        activeIndexes.map(async (index, partitionIndex) => {
-          const task = {
-            kind: "validateSecondPass",
-            workerIndex: index,
-            projectDir: secondPassParams.projectDir,
-            context: secondPassParams.context,
-            sharedProjectValidationGraph,
-            blockedComponentPaths: secondPassParams.blockedComponentPaths,
-            pendingReferenceLayers: groupPendingReferencesByComponent(referencePartitions[partitionIndex] ?? []),
-          } satisfies PreparedYamlProjectWorkerTask
-          const response = (await getOrCreatePool(pools, index, createPool).run(
-            task
-          )) as PreparedYamlProjectWorkerTaskResult
-          if (response.kind !== "validateSecondPassResult") {
-            throw new Error("Worker вернул неожиданный результат validateSecondPass")
-          }
-          return response
-        })
-      )
-
-      return { diagnostics: results.flatMap((result) => result.diagnostics) }
-    },
     async close() {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
       pools.clear()
       activeWorkerIndexes.clear()
       initializedValidationWorkerIndexes.clear()
       validationStartProfile = undefined
+      await params.operation?.finish(operationFailed ? "failure" : "success")
     },
     size() {
       return params.concurrency
+    },
+  }
+}
+
+function createProjectStateRefreshTask(
+  params: {
+    readonly projectDir: string
+    readonly context: ConfigurationContext
+    readonly source: ProjectStateValidationSource
+  },
+  workerIndex: number,
+  batch: ProjectStateValidationFileBatch,
+): Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }> {
+  return {
+    kind: "refreshProjectState",
+    workerIndex,
+    projectDir: params.projectDir,
+    context: params.context,
+    files: batch.files,
+    knownHashBits: batch.knownHashBits,
+    expectedHashBytes: batch.hashBytes,
+  }
+}
+
+function projectStateRefreshTransferable(
+  task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+) {
+  return {
+    get [transferableSymbol]() {
+      return [task.knownHashBits.buffer as ArrayBuffer, task.expectedHashBytes.buffer as ArrayBuffer]
+    },
+    get [valueSymbol]() {
+      return task
     },
   }
 }
@@ -384,33 +571,15 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
   }
 }
 
-function groupPendingReferencesByComponent(
-  assignments: readonly {
-    componentPath: string
-    reference: PendingMetadataTargetReference
-  }[]
-): Array<{
-  componentPath: string
-  references: PendingMetadataTargetReference[]
-}> {
-  const byComponent = new Map<string, PendingMetadataTargetReference[]>()
-  for (const { componentPath, reference } of assignments) {
-    const references = byComponent.get(componentPath) ?? []
-    references.push(reference)
-    byComponent.set(componentPath, references)
-  }
-  return [...byComponent].map(([componentPath, references]) => ({ componentPath, references }))
-}
-
 function getOrCreatePool(
   pools: Map<number, PreparedWorkerPool>,
   index: number,
-  createPool: () => PreparedWorkerPool
+  createPool: (workerIndex: number) => PreparedWorkerPool
 ): PreparedWorkerPool {
   const existing = pools.get(index)
   if (existing !== undefined) return existing
 
-  const pool = createPool()
+  const pool = createPool(index)
   pools.set(index, pool)
   return pool
 }
@@ -484,4 +653,20 @@ function partitionRoundRobin<T>(items: readonly T[], count: number): T[][] {
   const result = Array.from({ length: count }, () => [] as T[])
   items.forEach((item, index) => result[index % count]?.push(item))
   return result
+}
+
+export function createPreparedYamlValidationOperation(parentSignal?: AbortSignal): PreparedYamlValidationOperation {
+  const controller = new AbortController()
+  return {
+    signal: parentSignal === undefined
+      ? controller.signal
+      : AbortSignal.any([parentSignal, controller.signal]),
+    abort(reason) {
+      if (!controller.signal.aborted) controller.abort(reason)
+    },
+  }
+}
+
+function fulfilledValues<T>(results: readonly PromiseSettledResult<T>[]): T[] {
+  return results.flatMap((outcome) => outcome.status === "fulfilled" ? [outcome.value] : [])
 }

@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { readComponentHashState } from "../project/componentState/hashes"
+import { hashConfigurationProjectFileList } from "../configurationIndex"
 import { readComponentProjectStructure } from "../project/componentState/structure"
 import type { ComponentProjectStructure } from "../project/componentState/types"
 import { buildXmlSyncPlan } from "./selection"
@@ -26,7 +26,10 @@ describe("XML sync selection", () => {
       projectDir,
       address: { kind: "configuration" },
     })
-    const hashes = await readComponentHashState({ structure })
+    const hashes = {
+      componentPath: structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(structure.componentDir, structure.projectPaths),
+    }
     return { structure, hashes }
   }
 

@@ -23,6 +23,26 @@ const validationContext = {
 }
 
 describe("exportPropertyToJSONSchema implicitValueYAML", () => {
+  it.each([
+    ["без неявного значения", { type: "boolean" }, ["Истина", "Ложь"]],
+    ["с явным noImplicitValueYAML", { type: "boolean", noImplicitValueYAML: true }, ["Истина", "Ложь"]],
+    ["с неявной Истиной", { type: "boolean", implicitValueYAML: true }, ["Ложь"]],
+    ["с неявной Ложью", { type: "boolean", implicitValueYAML: false }, ["Истина"]],
+  ] as const)("оставляет допустимые boolean-значения %s", (_name, rule, allowedValues) => {
+    const schema = exportPropertyToJSONSchema({
+      context: validationContext,
+      rule,
+      value: undefined,
+    })
+    if (schema === undefined) throw new Error("Expected boolean schema")
+    const check = compileValidationSchema(schema)
+    const allowed = new Set<string>(allowedValues)
+
+    for (const value of ["Истина", "Ложь", "Авто"] as const) {
+      expect(check.Check(value)).toBe(allowed.has(value))
+    }
+  })
+
   it("creates distinct validation refs for boolean implicit values", () => {
     const refs = [undefined, true, false].map((implicitValueYAML) => {
       const schema = exportPropertyToJSONSchema({

@@ -19,6 +19,7 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -48,6 +49,19 @@ describe("validateProjectFileFirstPass references", () => {
       context: mockContext,
       schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+  }
+
+  function formFirstPassUpdate(lines: string[]) {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    writeProjectFile(projectDir, projectPath, lines)
+    return toProjectStateFileUpdate(validateProjectPath(projectDir, projectPath), {
+      projectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "form",
     })
   }
 
@@ -231,6 +245,65 @@ describe("validateProjectFileFirstPass references", () => {
       ])
     )
   }, 20_000)
+
+  it("keeps a form index contribution without pending DataPath checks", () => {
+    const update = formFirstPassUpdate([
+      "Реквизиты:",
+      "  Значение:",
+      "    Тип: Строка",
+      "Элементы: {}",
+    ])
+
+    expect(update.pendingChecks).toEqual([])
+    expect(update.forms).toEqual([
+      expect.objectContaining({
+        kind: "root",
+        owner: { kind: "Справочник", name: "Товары" },
+        name: "Значение",
+      }),
+    ])
+  })
+
+  it("сохраняет путь к данным табличного элемента в состоянии проекта", () => {
+    const update = formFirstPassUpdate([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: СправочникОбъект.Товары",
+      "Элементы:",
+      "  ТаблицаТоваров:",
+      "    Вид: ТаблицаФормы",
+      "    ПутьКДанным: Объект.Товары",
+    ])
+
+    expect(update.forms).toContainEqual({
+      kind: "tableDataPath",
+      owner: { kind: "Справочник", name: "Товары" },
+      name: "ТаблицаТоваров",
+      dataPath: "Объект.Товары",
+    })
+  })
+
+  it("передаёт structural reference формы через строгий ProjectState DTO без callbacks", () => {
+    const update = formFirstPassUpdate([
+      "Элементы:",
+      "  Картинка:",
+      "    Вид: ПолеРисунка",
+      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+    ])
+
+    expect(update.pendingReferences).toHaveLength(1)
+    expect(Object.keys(update.pendingReferences[0]!).sort()).toEqual([
+      "canonical",
+      "constraint",
+      "target",
+      "yamlPath",
+    ])
+    expect(() => structuredClone(update)).not.toThrow()
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
+  })
 
   it("validates canonical appearance strings through external refs", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))

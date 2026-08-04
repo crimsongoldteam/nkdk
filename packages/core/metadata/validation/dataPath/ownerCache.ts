@@ -15,7 +15,7 @@ import { ownerFactFromYAML } from "./ownerFacts"
 
 export interface OwnerMetadataCache {
   get(ref: OwnerTypeRef): OwnerMetadataResult
-  listRefs(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[]
+  listRefs(kind: OwnerTypeRef["kind"]): Iterable<OwnerTypeRef>
 }
 
 export type OwnerMetadataResult =
@@ -118,16 +118,7 @@ function loadOwnerFromValidationTable(params: {
   const tableRef = ownerKind ? { kind: ownerKind.projectDir, name: params.ref.name } : params.ref
   const record = params.table.getOwner(tableRef)
   if (record === undefined) {
-    const dir = ownerKind?.projectDir ?? params.ref.kind
-    return {
-      status: "not-found",
-      diagnostics: [
-        crossFileDiagnostic(
-          ownerFilePath(params.projectDir, dir, params.ref.name ?? ""),
-          ownerNotFoundMessage(params.ref)
-        ),
-      ],
-    }
+    return ownerMetadataNotFound({ projectDir: params.projectDir, ref: params.ref })
   }
 
   if (record.importDiagnostics.length > 0) {
@@ -161,6 +152,53 @@ function loadOwnerFromValidationTable(params: {
       spec,
       fieldIndex,
     },
+  }
+}
+
+export function ownerMetadataNotFound(params: {
+  projectDir: string
+  ref: OwnerTypeRef
+}): Extract<OwnerMetadataResult, { status: "not-found" }> {
+  const ownerKind = getDataPathOwnerKind(params.ref.kind)
+  return {
+    status: "not-found",
+    diagnostics: [
+      crossFileDiagnostic(
+        ownerFilePath(resolve(params.projectDir), ownerKind?.projectDir ?? params.ref.kind, params.ref.name ?? ""),
+        ownerNotFoundMessage(params.ref),
+      ),
+    ],
+  }
+}
+
+export function ownerMetadataFromFacts(params: {
+  projectDir: string
+  ref: OwnerTypeRef
+  facts: Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">
+  fieldIndex: ObjectFieldIndex
+}): OwnerMetadataResult {
+  const ownerKind = getDataPathOwnerKind(params.ref.kind)
+  const filePath = ownerFilePath(
+    resolve(params.projectDir),
+    ownerKind?.projectDir ?? params.ref.kind,
+    params.ref.name ?? "",
+  )
+  if (ownerKind === undefined) {
+    return {
+      status: "import-error",
+      diagnostics: [crossFileDiagnostic(filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`)],
+    }
+  }
+  const spec = createValidationSpecFromOwnerKind(ownerKind)
+  const facts: ValidationOwnerFacts = {
+    ref: params.ref,
+    filePath,
+    fieldIndex: params.fieldIndex,
+    ...params.facts,
+  }
+  return {
+    status: "ok",
+    owner: { ref: params.ref, filePath, facts, rule: spec.rule, spec, fieldIndex: params.fieldIndex },
   }
 }
 

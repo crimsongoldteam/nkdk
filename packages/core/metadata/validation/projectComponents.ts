@@ -92,6 +92,26 @@ export function validationProjectComponentFromAddress(
   return component
 }
 
+export function bindValidationProjectComponent(
+  template: ValidationProjectComponent,
+  projectDir: string,
+  nextComponentPath: string,
+): ValidationProjectComponent {
+  const expectedKind = nextComponentPath === "cf"
+    ? "configuration"
+    : nextComponentPath.startsWith("cfe/") && nextComponentPath.length > "cfe/".length
+      ? "configurationExtension"
+      : undefined
+  if (expectedKind === undefined || template.kind !== expectedKind) {
+    throw new Error(`Недопустимый validation componentPath для ${template.kind}: ${nextComponentPath}`)
+  }
+  return {
+    ...template,
+    componentPath: nextComponentPath,
+    componentDir: join(projectDir, ...nextComponentPath.split("/")),
+  }
+}
+
 async function isDirectory(path: string): Promise<boolean> {
   try {
     return (await stat(path)).isDirectory()

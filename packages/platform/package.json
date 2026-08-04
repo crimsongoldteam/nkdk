@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "test": "vitest run --reporter=default --reporter=json --outputFile.json=/private/tmp/nkdk-vitest-platform.json",
+    "test": "node ../core/scripts/run-test-duration-check.mjs",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

@@ -2,11 +2,16 @@
   "minLines": 5,
   "minTokens": 50,
   "mode": "mild",
-  "format": ["typescript", "javascript"],
+  "format": ["typescript", "tsx", "javascript"],
   "ignore": [
     "**/node_modules/**",
     "**/dist/**",
+    "**/build/**",
     "**/coverage/**",
+    "**/reports/**",
+    "**/generated/**",
+    "**/*.generated.*",
+    "**/*.gen.*",
     "**/__fixtures__/**",
     "**/*.snap"
   ],

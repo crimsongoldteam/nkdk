@@ -9,6 +9,7 @@ import {
   assertMetadataProjectPathInside,
   classifyMetadataProjectPath,
   discoverMetadataProjectResources,
+  iterateMetadataProjectResourceCandidates,
   resolveMetadataProjectResource,
 } from "./resources"
 import {
@@ -145,6 +146,21 @@ describe("metadata project resources", () => {
       join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
       join(projectDir, "Справочник", "Товары", "Формы", "ФормаСписка", "Форма.yaml"),
     ])
+  })
+
+  it("откладывает и запоминает перевод найденного пути в ресурс проекта", async () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Конфигурация.yaml")
+    const candidates = iterateMetadataProjectResourceCandidates(projectDir)
+    const candidate = (await candidates.next()).value
+
+    expect(candidate).toMatchObject({
+      projectPath: "Конфигурация.yaml",
+      absolutePath: join(projectDir, "Конфигурация.yaml"),
+    })
+    const first = candidate?.classify()
+    expect(first).toMatchObject({ kind: "yaml", role: "configuration" })
+    expect(candidate?.classify()).toBe(first)
   })
 
   it("discovers YAML and resource files by default", async () => {

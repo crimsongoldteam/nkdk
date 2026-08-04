@@ -25,7 +25,7 @@ export function writeMigrationFile(params: { yamlDir: string; entries: Migration
   }
 }
 
-function exportMigrationRenameMap(value: Record<string, string>): string {
+export function exportMigrationRenameMap(value: Record<string, string>): string {
   return Object.entries(value)
     .map(([key, item]) => `${JSON.stringify(key)}: ${item}\n`)
     .join("")

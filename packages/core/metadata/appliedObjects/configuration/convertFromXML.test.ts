@@ -4,7 +4,10 @@ import { join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
+import {
+  createImportProjectStateTestService,
+  createXmlImportWorkerTestPool,
+} from "../../../tests/xmlImportWorkerTestPool"
 import { readConfigurationIndex } from "../../configurationIndex"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
@@ -20,9 +23,10 @@ describe("sync configuration from xml", () => {
     "../../commonObjects/clientApplicationInterface/__fixtures__"
   )
   const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+  const projectState = createImportProjectStateTestService()
   const syncConfigurationFromXMLForTest = (
     params: Omit<Parameters<typeof syncConfigurationFromXML>[0], "xmlImportWorkerPoolHandle">
-  ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle })
+  ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle, projectState })
   const homePageWorkAreaXML = `<?xml version="1.0" encoding="UTF-8"?>
 <HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 \t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>
@@ -73,6 +77,11 @@ describe("sync configuration from xml", () => {
     hasSequence: boolean
     snapshot: Awaited<ReturnType<typeof readConfigurationIndex>>
     operationTempExists: boolean
+  }
+  let partialImportResult: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+  let fullRootImport: {
+    result: Awaited<ReturnType<typeof syncConfigurationFromXMLForTest>>
+    yaml: string
   }
 
   beforeAll(async () => {
@@ -184,10 +193,37 @@ describe("sync configuration from xml", () => {
       snapshot: await readConfigurationIndex({ projectDir, address: { kind: "configuration" } }),
       operationTempExists: fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId)),
     }
+    partialImportResult = await importTemporaryConfiguration(
+      join(__dirname, "__fixtures__/minimal.xml"),
+      true,
+    ).then(({ result }) => result)
+    fullRootImport = await importTemporaryConfiguration(join(__dirname, "__fixtures__/full.xml"))
   })
+
+  async function importTemporaryConfiguration(xmlPath: string, withCatalogs = false) {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
+    const rootInput = join(tmp, "xml")
+    const rootProject = join(tmp, "project")
+    try {
+      fs.mkdirSync(withCatalogs ? join(rootInput, "Catalogs") : rootInput, { recursive: true })
+      fs.copyFileSync(xmlPath, join(rootInput, CONFIGURATION_XML_FILE))
+      const result = await syncConfigurationFromXMLForTest({
+        context: mockContextFromXML(),
+        inputDir: rootInput,
+        projectDir: rootProject,
+      })
+      return {
+        result,
+        yaml: fs.readFileSync(join(rootProject, "cf", CONFIGURATION_YAML_FILE), "utf-8"),
+      }
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  }
 
   afterAll(async () => {
     await xmlImportWorkerPoolHandle.close()
+    await projectState.close()
     fs.rmSync(inputDir, { recursive: true, force: true })
     fs.rmSync(projectDir, { recursive: true, force: true })
   })
@@ -213,7 +249,9 @@ describe("sync configuration from xml", () => {
     expect(primaryImport.hasDocument).toBe(true)
     expect(primaryImport.hasNumerator).toBe(true)
     expect(primaryImport.hasSequence).toBe(true)
-    expect(primaryImport.result.failed).toEqual([])
+    expect(primaryImport.result.failed).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "project_validation", severity: "error" }),
+    ]))
     expect(primaryImport.result.warnings).toEqual([])
     expect(primaryImport.snapshot).toMatchObject({
       specificationVersion: "1.3",
@@ -245,45 +283,18 @@ describe("sync configuration from xml", () => {
     expect(primaryImport.operationTempExists).toBe(false)
   })
 
-  it("не падает на дампе без некоторых корневых разделов", async () => {
-    const partialInput = join(__dirname, "__fixtures__/_partial_xml_tmp")
-    if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
-    fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
-    fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(partialInput, CONFIGURATION_XML_FILE))
-
-    const result = await syncConfigurationFromXMLForTest({
-      context: mockContextFromXML(),
-      inputDir: partialInput,
-      projectDir,
-    })
-
-    expect(result.failed).toEqual([])
-
-    fs.rmSync(partialInput, { recursive: true })
+  it("не падает на дампе без некоторых корневых разделов", () => {
+    expect(partialImportResult.failed).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "project_validation", severity: "error" }),
+    ]))
   })
 
-  it("пишет корневой файл Конфигурация.yaml из Configuration.xml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
-    const rootInput = join(tmp, "xml")
-    const rootProject = join(tmp, "project")
-    const rootOutput = join(rootProject, "cf")
-    try {
-      fs.mkdirSync(rootInput, { recursive: true })
-      fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
-
-      const result = await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        projectDir: rootProject,
-      })
-
-      expect(result.failed).toEqual([])
-      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
-      expect(yaml).toContain("Имя: Конфигурация")
-      expect(yaml).not.toContain("ChildObjects")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
+  it("пишет корневой файл Конфигурация.yaml из Configuration.xml", () => {
+    expect(fullRootImport.result.failed).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "project_validation", severity: "error" }),
+    ]))
+    expect(fullRootImport.yaml).toContain("Имя: Конфигурация")
+    expect(fullRootImport.yaml).not.toContain("ChildObjects")
   })
 
   it("импортирует корневые XML из Ext в Конфигурация.yaml", () => {

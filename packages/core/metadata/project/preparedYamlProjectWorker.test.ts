@@ -1,14 +1,34 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
-import { performance } from "node:perf_hooks"
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
+import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
-import { createProjectValidationGraph } from "../validation/projectValidationGraph"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
-import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
+import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
+import { hashFileBytes } from "../configurationIndex/hash"
+import {
+  openProjectStateFileUpdateBatch,
+} from "../projectState/binary/contribution"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
+import {
+  createProjectStateRefreshBinaryResult,
+  openProjectStateRefreshBinaryResult,
+} from "./projectStateRefreshBinaryResult"
+import type { ProjectStateFileIdentity } from "../projectState/fileUpdate"
+import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
+import type { MetadataWorkerOperation } from "../workerPool/types"
+import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
+import {
+  createPreparedYamlProjectWorkerPool,
+} from "./preparedYamlProjectWorkerPool"
+import preparedYamlProjectWorkerEntryPoint, {
+  classifyChangedProjectStateFile,
+  collectValidationFacts,
+  runPreparedYamlProjectWorkerTask,
+  type PreparedYamlProjectWorkerTask,
+} from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
 
@@ -18,11 +38,301 @@ beforeAll(async () => {
     workerIndex: 0,
     context: mockContext,
     rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  }, {
+    createValidationSchemaCache: async () => createTestValidationSchemaCache(),
   })
 })
 
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
+
+describe("project-state refresh worker", () => {
+  it("возвращает отдельный двоичный фрагмент для каждой рабочей пачки", async () => {
+    const createTask = (projectPath: string): PreparedYamlProjectWorkerTask => ({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath,
+        componentPath: "cf",
+        identity: { projectPath, componentPath: "cf", resourceKind: "resource" },
+        absolutePath: `/project/${projectPath}`,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    })
+    const dependencies = {
+      readFile: async () => Uint8Array.of(1),
+      hashBytes: () => 1n,
+    }
+
+    const first = openProjectStateRefreshBinaryResult(
+      await runPreparedYamlProjectWorkerTask(createTask("cf/Первый.bin"), dependencies),
+    )
+    const second = openProjectStateRefreshBinaryResult(
+      await runPreparedYamlProjectWorkerTask(createTask("cf/Второй.bin"), dependencies),
+    )
+
+    expect(first.fragmentView.fileCount).toBe(1)
+    expect(first.fragmentView.stringValue(first.fragmentView.fileRecord(0).projectPathId)).toBe("cf/Первый.bin")
+    expect(second.fragmentView.fileCount).toBe(1)
+    expect(second.fragmentView.stringValue(second.fragmentView.fileRecord(0).projectPathId)).toBe("cf/Второй.bin")
+  })
+
+  it("профилирует Б1–Б4 одной записью на подпункт", async () => {
+    const projectDir = createTempDir()
+    const descriptors = [
+      componentProperties(projectDir, "cf", "ПервыйПрофиль"),
+      componentProperties(projectDir, "cf", "ВторойПрофиль"),
+    ]
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previousProfile = process.env["NKDK_PROFILE"]
+    let lines: string[] = []
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      await runPreparedYamlProjectWorkerTask(yamlRefreshTask(projectDir, descriptors), {
+        readFile: async () => new TextEncoder().encode("{}\n"),
+        hashBytes: () => 9n,
+      })
+      lines = error.mock.calls
+        .map(([line]) => String(line))
+        .filter((line) => line.includes('step="Обработка файлов Б1–Б4"'))
+    } finally {
+      if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previousProfile
+      error.mockRestore()
+    }
+
+    const substeps = [
+      "Чтение файлов",
+      "Вычисление хэшей",
+      "Сравнение хэшей",
+      "Разбор YAML",
+      "Локальная проверка YAML",
+      "Сбор сведений файла",
+      "Двоичное кодирование результата",
+    ]
+    for (const substep of substeps) {
+      const matching = lines.filter((line) => line.includes(`substep="${substep}"`))
+      expect(matching).toHaveLength(1)
+      expect(matching[0]).toContain("items=2")
+    }
+  })
+
+  it("читает и хэширует изменённый resource внутри worker", async () => {
+    const absolutePath = "/project/cf/Логотип.bin"
+    const readCalls: string[] = []
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath: "cf/Логотип.bin",
+        componentPath: "cf",
+        identity: { projectPath: "cf/Логотип.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      async readFile(path: string) {
+        readCalls.push(path)
+        return Uint8Array.from([1, 2, 3])
+      },
+      hashBytes: () => 0x0102030405060708n,
+    })
+
+    expect(readCalls).toEqual([absolutePath])
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({
+      missingProjectPaths: [],
+      hashedFiles: 1,
+      parsedYamlFiles: 0,
+      changedFiles: 1,
+    })
+    const fragment = refresh.fragmentView
+    expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe("cf/Логотип.bin")
+    expect(fragment.fileRecord(0).hash).toBe(0x0102030405060708n)
+  })
+
+  it("не классифицирует известный файл при совпадении хэша", async () => {
+    const classify = vi.fn()
+    const expectedHashBytes = new Uint8Array(8)
+    new DataView(expectedHashBytes.buffer).setBigUint64(0, 9n, false)
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath: "cf/Известный.bin",
+        componentPath: "cf",
+        absolutePath: "/project/cf/Известный.bin",
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes,
+    }, {
+      readFile: async () => Uint8Array.of(1),
+      hashBytes: () => 9n,
+      classifyProjectStateFile: classify,
+    })
+
+    expect(classify).not.toHaveBeenCalled()
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 0, changedFiles: 0 })
+    expect(refresh.fragmentView.fileCount).toBe(0)
+  })
+
+  it("один раз классифицирует изменённый известный YAML и проверяет прочитанные байты", async () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "ИзвестныйWorker")
+    const identity: ProjectStateFileIdentity = {
+      projectPath: descriptor.rootProjectPath,
+      componentPath: "cf",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    }
+    const bytes = new TextEncoder().encode("{}\n")
+    const classify = vi.fn(() => ({ identity, descriptor }))
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        projectPath: identity.projectPath,
+        componentPath: identity.componentPath,
+        absolutePath: descriptor.filePath,
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => bytes,
+      hashBytes: (value) => {
+        expect(value).toBe(bytes)
+        return 9n
+      },
+      classifyProjectStateFile: classify,
+    })
+
+    expect(classify).toHaveBeenCalledTimes(1)
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+    const fragment = refresh.fragmentView
+    expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(identity.projectPath)
+  })
+
+  it("восстанавливает описание изменённого известного пути из topology worker", () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "КлассифицированныйWorker")
+
+    expect(classifyChangedProjectStateFile({
+      projectPath: descriptor.rootProjectPath,
+      componentPath: "cf",
+      absolutePath: descriptor.filePath,
+    }, projectDir)).toMatchObject({
+      identity: { projectPath: descriptor.rootProjectPath, resourceKind: "yaml", yamlRole: "properties" },
+      descriptor: { rootProjectPath: descriptor.rootProjectPath },
+    })
+    expect(() => classifyChangedProjectStateFile({
+      projectPath: "cf/Неизвестный/Файл.txt",
+      componentPath: "cf",
+      absolutePath: join(projectDir, "cf", "Неизвестный", "Файл.txt"),
+    }, projectDir)).toThrow("Сохранённый путь больше не принадлежит проекту")
+  })
+
+  it("проверяет изменённый YAML из тех же прочитанных байтов", async () => {
+    const projectDir = createTempDir()
+    const descriptor = componentProperties(projectDir, "cf", "ТоварыWorker")
+    const bytes = new TextEncoder().encode("{}\n")
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        projectPath: descriptor.rootProjectPath,
+        componentPath: descriptor.componentPath,
+        identity: {
+          projectPath: descriptor.rootProjectPath,
+          componentPath: descriptor.componentPath,
+          resourceKind: "yaml",
+          yamlRole: descriptor.role,
+        },
+        absolutePath: descriptor.filePath,
+        descriptor,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => bytes,
+      hashBytes: (value) => {
+        expect(value).toBe(bytes)
+        return 9n
+      },
+    })
+
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    const fragment = refresh.fragmentView
+    expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe(descriptor.rootProjectPath)
+    expect(refresh).toMatchObject({ hashedFiles: 1, parsedYamlFiles: 1, changedFiles: 1 })
+  })
+
+  it("собирает изменённые YAML одной worker-пачки в один нормализованный результат", async () => {
+    const projectDir = createTempDir()
+    const descriptors = [
+      componentProperties(projectDir, "cf", "ПервыйWorker"),
+      componentProperties(projectDir, "cf", "ВторойWorker"),
+    ]
+
+    const result = await runPreparedYamlProjectWorkerTask(yamlRefreshTask(projectDir, descriptors), {
+      readFile: async () => new TextEncoder().encode("{}\n"),
+      hashBytes: () => 9n,
+    })
+
+    const fragment = openProjectStateRefreshBinaryResult(result).fragmentView
+    expect(Array.from({ length: fragment.fileCount }, (_, index) =>
+      fragment.stringValue(fragment.fileRecord(index).projectPathId))).toEqual(
+      descriptors.map(({ rootProjectPath }) => rootProjectPath),
+    )
+  })
+
+  it("возвращает исчезнувший после discovery путь без повтора чтения", async () => {
+    const missing = Object.assign(new Error("missing"), { code: "ENOENT" })
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir: "/project",
+      context: mockContext,
+      files: [{
+        projectPath: "cf/Исчез.bin",
+        componentPath: "cf",
+        identity: { projectPath: "cf/Исчез.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath: "/project/cf/Исчез.bin",
+      }],
+      knownHashBits: Uint8Array.of(1),
+      expectedHashBytes: new Uint8Array(8),
+    }, {
+      readFile: async () => { throw missing },
+    })
+
+    const refresh = openProjectStateRefreshBinaryResult(result)
+    expect(refresh).toMatchObject({
+      missingProjectPaths: ["cf/Исчез.bin"],
+      hashedFiles: 0,
+      parsedYamlFiles: 0,
+      changedFiles: 0,
+    })
+    expect(refresh.fragmentView.fileCount).toBe(0)
+  })
 })
 
 describe("collectValidationFacts", () => {
@@ -256,7 +566,154 @@ describe("validation first-pass worker boundary", () => {
       "cfe/Склад/Справочник/Склад/Свойства.yaml",
     ])
     expect(result.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 3 })
+    expect(result.fileUpdateBatches).toHaveLength(1)
+    const encodedFileUpdateBatch = result.fileUpdateBatches[0]!
+    const fileUpdateBatch = openProjectStateFileUpdateBatch(encodedFileUpdateBatch)
+    expect(fileUpdateBatch.fileCount).toBe(3)
+    expect(Array.from({ length: fileUpdateBatch.fileCount }, (_, index) => fileUpdateBatch.projectPath(index))).toEqual([
+      "cf/Справочник/Основная/Свойства.yaml",
+      "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
+      "cfe/Склад/Справочник/Склад/Свойства.yaml",
+    ])
+    expect(Array.from({ length: fileUpdateBatch.fileCount }, (_, index) => fileUpdateBatch.hash(index)))
+      .toEqual(Array(3).fill(hashFileBytes(Buffer.from("{}\n"))))
+    expect(structuredClone(encodedFileUpdateBatch)).toEqual(encodedFileUpdateBatch)
   }, 120_000)
+
+  it("returns portable form checks without rule objects or index functions", async () => {
+    const projectDir = createTempDir()
+    const componentDir = join(projectDir, "cf")
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const filePath = join(componentDir, ...projectPath.split("/"))
+    mkdirSync(dirname(filePath), { recursive: true })
+    writeFileSync(
+      filePath,
+      [
+        "Реквизиты:",
+        "  Значение:",
+        "    Тип: Строка",
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Значение",
+        "",
+      ].join("\n")
+    )
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [
+        {
+          componentPath: "cf",
+          componentDir,
+          rootProjectPath: `cf/${projectPath}`,
+          projectPath,
+          filePath,
+          role: "form",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "ClientApplicationForm",
+        },
+      ],
+    })
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    const batch = result.fileUpdateBatches[0]!
+    const update = openProjectStateFileUpdateBatch(batch).update(0)
+    if (update?.kind !== "yaml") throw new Error("unexpected project state update")
+
+    expect(update.pendingChecks).toEqual([
+      expect.objectContaining({
+        policyInput: expect.objectContaining({ yaml: "ПутьКДанным" }),
+      }),
+    ])
+    expect(update.pendingChecks[0]).not.toHaveProperty("rule")
+    expect(update.pendingChecks[0]).not.toHaveProperty("index")
+    expect(structuredClone(batch)).toEqual(batch)
+  }, 120_000)
+
+  it("declares only shared hash buffers at the Piscina worker boundary", async () => {
+    const projectDir = createTempDir()
+    const file = componentProperties(projectDir, "cf", "Товары")
+    mkdirSync(dirname(file.filePath), { recursive: true })
+    writeFileSync(file.filePath, "{}\n")
+
+    const boundaryResult = await preparedYamlProjectWorkerEntryPoint({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [file],
+    })
+    const movable = boundaryResult as unknown as {
+      readonly [transferableSymbol]: readonly ArrayBuffer[]
+      readonly [valueSymbol]: typeof boundaryResult
+    }
+
+    expect(movable[transferableSymbol]).toBeDefined()
+    const result = movable[valueSymbol]
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    expect(movable[transferableSymbol]).toEqual(
+      result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
+    )
+    const received = structuredClone(result, { transfer: [...movable[transferableSymbol]] })
+    expect(result.fileUpdateBatches[0]!.bytes.byteLength).toBe(0)
+    if (received.kind !== "validateFirstPassResult") throw new Error("unexpected transferred response")
+    expect(openProjectStateFileUpdateBatch(received.fileUpdateBatches[0]!).fileCount).toBe(1)
+  }, 120_000)
+
+  it("передаёт все секции refresh как владеющие ArrayBuffer", async () => {
+    const projectDir = createTempDir()
+    const absolutePath = join(projectDir, "cf", "resource.bin")
+    mkdirSync(dirname(absolutePath), { recursive: true })
+    writeFileSync(absolutePath, "data")
+
+    const boundaryResult = await preparedYamlProjectWorkerEntryPoint({
+      kind: "refreshProjectState",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [{
+        projectPath: "cf/resource.bin",
+        componentPath: "cf",
+        identity: { projectPath: "cf/resource.bin", componentPath: "cf", resourceKind: "resource" },
+        absolutePath,
+      }],
+      knownHashBits: new Uint8Array(1),
+      expectedHashBytes: new Uint8Array(8),
+    })
+    const movable = boundaryResult as unknown as {
+      readonly [transferableSymbol]: readonly ArrayBuffer[]
+      readonly [valueSymbol]: typeof boundaryResult
+    }
+    const result = movable[valueSymbol]
+    if (result.kind !== "binaryResult") throw new Error("unexpected worker response")
+
+    expect(movable[transferableSymbol]).toEqual(result.buffers.map(({ buffer }) => buffer))
+    const received = structuredClone(result, { transfer: [...movable[transferableSymbol]] })
+    expect(result.buffers.every(({ buffer }) => buffer.byteLength === 0)).toBe(true)
+    expect(openProjectStateRefreshBinaryResult(received).fragmentView.fileCount).toBe(1)
+  })
+
+  it("leaves non-first-pass worker results outside the Piscina transfer wrapper", async () => {
+    const result = await preparedYamlProjectWorkerEntryPoint({
+      kind: "prepare",
+      workerIndex: 0,
+      projectDir: createTempDir(),
+      itemTypeByYamlDir: {},
+      files: [],
+      includeYamlData: false,
+    })
+
+    expect(result).toEqual({
+      kind: "prepareResult",
+      yamlFiles: [],
+      declarations: [],
+      dependencies: [],
+      diagnostics: [],
+    })
+    expect((result as unknown as { [transferableSymbol]?: unknown })[transferableSymbol]).toBeUndefined()
+  })
 
   it("returns a failed file result when a descriptor cannot be classified", async () => {
     const projectDir = createTempDir()
@@ -313,79 +770,251 @@ describe("validation first-pass worker boundary", () => {
   }, 120_000)
 })
 
-describe("validation second-pass worker profile", () => {
-  it("attributes eager active views to context construction and excludes blocked states from items", async () => {
+describe("project-state refresh pool", () => {
+  it("передаёт универсальному worker само задание без Piscina-оболочки", async () => {
     const projectDir = createTempDir()
-    const files = [
-      componentProperties(projectDir, "cf", "Источник"),
-      componentProperties(projectDir, "cfe/A", "ЗаблокированA"),
-      componentProperties(projectDir, "cfe/B", "ЗаблокированB"),
-    ]
-    for (const file of files) mkdirSync(dirname(file.filePath), { recursive: true })
-    writeFileSync(files[0]!.filePath, ["ВводитсяНаОсновании:", "  - Справочник.НетТакого", ""].join("\n"))
-    writeFileSync(files[1]!.filePath, "{}\n")
-    writeFileSync(files[2]!.filePath, "{}\n")
-
-    const firstPass = await runPreparedYamlProjectWorkerTask({
-      kind: "validateFirstPass",
-      workerIndex: 0,
-      projectDir,
-      context: mockContext,
-      files,
-    })
-    expect(firstPass.kind).toBe("validateFirstPassResult")
-    if (firstPass.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
-    const graph = createProjectValidationGraph(firstPass.components)
-    const cfLayer = graph.layers.find(({ componentPath }) => componentPath === "cf")
-    const references = cfLayer?.contribution.pendingReferences ?? []
-    expect(references).toHaveLength(1)
-
-    const sharedGraph = createSharedProjectValidationGraph(graph)
-    const referenceBuffer = sharedGraph.reference.buffer
-    let clock = 0
-    const instrumentedGraph = {
-      ...sharedGraph,
-      reference: {
-        stats: sharedGraph.reference.stats,
-        get buffer() {
-          clock += 10
-          return referenceBuffer
-        },
-      },
+    const identity = {
+      projectPath: "cf/resource.bin",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
     }
-    const previousProfile = process.env["NKDK_PROFILE"]
+    const tasks: PreparedYamlProjectWorkerTask[] = []
+    const operation: MetadataWorkerOperation = {
+      id: "validation",
+      concurrency: 1,
+      async run(_workerIndex, command) {
+        if (command.kind !== "validation") throw new Error("unexpected command")
+        tasks.push(command.task)
+        if (command.task.kind === "initValidation") {
+          return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+        }
+        if (command.task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${command.task.kind}`)
+        return successfulRefreshResult(command.task)
+      },
+      async finish() {},
+    }
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, operation })
+
+    await runSingleResourceRefresh(pool, projectDir, identity)
+
+    const refresh = tasks.find((task) => task.kind === "refreshProjectState")
+    expect(refresh).toMatchObject({ kind: "refreshProjectState", files: [expect.objectContaining({ projectPath: identity.projectPath })] })
+    await pool.close()
+  })
+
+  it("профилирует применение пачек одной агрегированной записью", async () => {
+    const projectDir = createTempDir()
+    const identity = {
+      projectPath: "cf/resource.bin",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+    }
+    const fake = createRefreshPoolFake(() => undefined)
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    const now = vi.spyOn(performance, "now").mockImplementation(() => clock)
+    const previousProfile = process.env["NKDK_PROFILE"]
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
     let profileLines: string[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
-      await runPreparedYamlProjectWorkerTask({
-        kind: "validateSecondPass",
-        workerIndex: 0,
-        projectDir,
-        context: mockContext,
-        sharedProjectValidationGraph: instrumentedGraph,
-        blockedComponentPaths: ["cfe/A", "cfe/B"],
-        pendingReferenceLayers: [{ componentPath: "cf", references }],
-      })
+      await runSingleResourceRefresh(pool, projectDir, identity)
       profileLines = error.mock.calls.map(([line]) => String(line))
     } finally {
+      await pool.close()
       if (previousProfile === undefined) delete process.env["NKDK_PROFILE"]
       else process.env["NKDK_PROFILE"] = previousProfile
-      now.mockRestore()
       error.mockRestore()
     }
 
-    const contextProfile = profileLine(profileLines, "Построение контекста worker")
-    const referencesProfile = profileLine(profileLines, "Проверка ссылок")
-    const secondPassProfile = profileLine(profileLines, "Worker second pass")
-    expect(contextProfile).toContain("items=1")
-    expect(profileTime(contextProfile)).toBeGreaterThan(0)
-    expect(referencesProfile).toContain("items=1")
-    expect(profileTime(referencesProfile)).toBe(0)
-    expect(secondPassProfile).toContain("items=1")
-  }, 120_000)
+    const matching = profileLines.filter((line) =>
+      line.includes('step="Обработка файлов Б1–Б4"')
+      && line.includes('substep="Применение двоичных фрагментов"')
+    )
+    expect(matching).toHaveLength(1)
+    expect(matching[0]).toContain("items=1")
+  })
+
+  it("передаёт фрагмент каждой пачки и не задерживает worker его применением", async () => {
+    const projectDir = createTempDir()
+    const files = Array.from({ length: 129 }, (_unused, index) => ({
+      identity: {
+        projectPath: `cf/${index}.bin`,
+        componentPath: "cf",
+        resourceKind: "resource" as const,
+      },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    const taskSizes: number[] = []
+    const secondTask = Promise.withResolvers<void>()
+    const firstWrite = Promise.withResolvers<void>()
+    const writeStarted = Promise.withResolvers<void>()
+    const fake = createRefreshPoolFake((task) => {
+      taskSizes.push(task.files.length)
+      if (taskSizes.length === 2) secondTask.resolve()
+    })
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    let writes = 0
+    try {
+      const running = pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: { batches: validationBatches(files) },
+      }, {
+        async writeFragment() {
+          writes += 1
+          if (writes === 1) {
+            writeStarted.resolve()
+            await firstWrite.promise
+          }
+        },
+        async deleteFiles() {},
+      })
+
+      await writeStarted.promise
+      await secondTask.promise
+      expect(taskSizes).toEqual([128, 1])
+      firstWrite.resolve()
+      await expect(running).resolves.toEqual({
+        hashedFiles: 129,
+        parsedYamlFiles: 0,
+        changedFiles: 129,
+        missingFiles: 0,
+      })
+      expect(writes).toBe(2)
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("применяет удалённые пути из двоичной пачки", async () => {
+    const projectDir = createTempDir()
+    const removed = "cf/Удалён.bin"
+    const fake = createRefreshPoolFake(
+      () => undefined,
+      () => createProjectStateRefreshBinaryResult({
+          fragment: createProjectStateFragmentWriter().finish(),
+          missingProjectPaths: [removed],
+          hashedFiles: 0,
+          parsedYamlFiles: 0,
+          changedFiles: 0,
+      }),
+    )
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    const deleted: string[] = []
+    try {
+      const result = await pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: { batches: validationBatches([{
+          identity: { projectPath: removed, componentPath: "cf", resourceKind: "resource" },
+          absolutePath: join(projectDir, removed),
+        }]) },
+      }, {
+        async writeFragment() {},
+        async deleteFiles(paths) { deleted.push(...paths) },
+      })
+
+      expect(deleted).toEqual([removed])
+      expect(result).toMatchObject({ missingFiles: 1, changedFiles: 0 })
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("не запрашивает следующую пачку, пока единственный worker занят", async () => {
+    const projectDir = createTempDir()
+    const files = [0, 1].map((index) => ({
+      identity: { projectPath: `cf/${index}.bin`, componentPath: "cf", resourceKind: "resource" as const },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    let releaseFirst!: () => void
+    let notifyFirstStarted!: () => void
+    const firstReleased = new Promise<void>((resolve) => { releaseFirst = resolve })
+    const firstStarted = new Promise<void>((resolve) => { notifyFirstStarted = resolve })
+    let secondRequested = false
+    let calls = 0
+    const fake = createRefreshPoolFake(async () => {
+      calls += 1
+      if (calls === 1) {
+        notifyFirstStarted()
+        await firstReleased
+      }
+    })
+    const batches = (async function* () {
+      for await (const batch of validationBatches([files[0]!])) yield batch
+      secondRequested = true
+      for await (const batch of validationBatches([files[1]!])) yield batch
+    })()
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1, createWorkerPool: () => fake })
+    try {
+      const running = pool.runProjectStateRefresh({ projectDir, context: mockContext, source: { batches } }, {
+        async writeFragment() {},
+        async deleteFiles() {},
+      })
+      await firstStarted
+      expect(secondRequested).toBe(false)
+      releaseFirst()
+      await expect(running).resolves.toMatchObject({ hashedFiles: 2 })
+      expect(secondRequested).toBe(true)
+    } finally {
+      await pool.close()
+    }
+  })
+
+  it("держит не больше одной активной пачки на каждый из четырёх worker", async () => {
+    const projectDir = createTempDir()
+    const files = Array.from({ length: 9 }, (_unused, index) => ({
+      identity: { projectPath: `cf/${index}.bin`, componentPath: "cf", resourceKind: "resource" as const },
+      absolutePath: join(projectDir, "cf", `${index}.bin`),
+    }))
+    let active = 0
+    let maxActive = 0
+    const processed: string[] = []
+    const pool = createPreparedYamlProjectWorkerPool({
+      concurrency: 4,
+      createWorkerPool: () => createRefreshPoolFake(async (task) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+        processed.push(...task.files.map(({ projectPath }) => projectPath))
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        active -= 1
+      }),
+    })
+    const batches = (async function* () {
+      for (const file of files) yield* validationBatches([file])
+    })()
+
+    try {
+      await expect(pool.runProjectStateRefresh({
+        projectDir,
+        context: mockContext,
+        source: { batches },
+      }, {
+        async writeFragment() {},
+        async deleteFiles() {},
+      })).resolves.toMatchObject({ hashedFiles: 9 })
+
+      expect(maxActive).toBe(4)
+      expect(processed.sort()).toEqual(files.map(({ identity }) => identity.projectPath).sort())
+    } finally {
+      await pool.close()
+    }
+  })
 })
+
+function runSingleResourceRefresh(
+  pool: ReturnType<typeof createPreparedYamlProjectWorkerPool>,
+  projectDir: string,
+  identity: ProjectStateFileIdentity,
+) {
+  return pool.runProjectStateRefresh({
+    projectDir,
+    context: mockContext,
+    source: { batches: validationBatches([{ identity, absolutePath: join(projectDir, identity.projectPath) }]) },
+  }, {
+    async writeFragment() {},
+    async deleteFiles() {},
+  })
+}
 
 function createTempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "nkdk-validation-facts-worker-"))
@@ -421,6 +1050,32 @@ function componentProperties(projectDir: string, componentPath: string, name: st
   }
 }
 
+function yamlRefreshTask(
+  projectDir: string,
+  descriptors: readonly ReturnType<typeof componentProperties>[],
+): PreparedYamlProjectWorkerTask {
+  return {
+    kind: "refreshProjectState",
+    workerIndex: 0,
+    projectDir,
+    context: mockContext,
+    files: descriptors.map((descriptor) => ({
+      projectPath: descriptor.rootProjectPath,
+      componentPath: descriptor.componentPath,
+      identity: {
+        projectPath: descriptor.rootProjectPath,
+        componentPath: descriptor.componentPath,
+        resourceKind: "yaml" as const,
+        yamlRole: descriptor.role,
+      },
+      absolutePath: descriptor.filePath,
+      descriptor,
+    })),
+    knownHashBits: new Uint8Array(Math.ceil(descriptors.length / 8)),
+    expectedHashBytes: new Uint8Array(descriptors.length * 8),
+  }
+}
+
 function profileLine(lines: readonly string[], substep: string): string {
   const matches = lines.filter((line) => line.includes(`substep="${substep}"`))
   expect(matches).toHaveLength(1)
@@ -431,4 +1086,63 @@ function profileTime(line: string): number {
   const match = /\btime=([\d.]+)ms/.exec(line)
   if (match?.[1] === undefined) throw new Error(`В profile-записи отсутствует time: ${line}`)
   return Number(match[1])
+}
+
+async function* validationBatches(
+  files: ReadonlyArray<{
+    readonly identity: ProjectStateFileIdentity
+    readonly absolutePath: string
+    readonly descriptor?: PreparedYamlProjectFileDescriptor
+  }>,
+): AsyncGenerator<ProjectStateValidationFileBatch> {
+  for (let offset = 0; offset < files.length; offset += 128) {
+    const batch = files.slice(offset, offset + 128)
+    yield {
+      files: batch.map((file) => ({
+        ...file,
+        projectPath: file.identity.projectPath,
+        componentPath: file.identity.componentPath,
+      })),
+      knownHashBits: new Uint8Array(Math.ceil(batch.length / 8)),
+      hashBytes: new Uint8Array(batch.length * 8),
+      previousFileIds: new Int32Array(batch.length).fill(-1),
+      storedFileCount: 0,
+    }
+  }
+}
+
+function createRefreshPoolFake(
+  onTask: (task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>) => void | Promise<void>,
+  createResult: (
+    task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+  ) => ReturnType<typeof createProjectStateRefreshBinaryResult> = successfulRefreshResult,
+) {
+  return {
+    async run(input: unknown) {
+      const wrapper = input as { [valueSymbol]?: PreparedYamlProjectWorkerTask }
+      const task = wrapper[valueSymbol] ?? input as PreparedYamlProjectWorkerTask
+      if (task.kind === "initValidation") return { kind: "initValidationResult", formMs: 0, propertiesMs: 0, totalMs: 0 }
+      if (task.kind !== "refreshProjectState") throw new Error(`unexpected task: ${task.kind}`)
+      await onTask(task)
+      return createResult(task)
+    },
+    async destroy() {},
+  }
+}
+
+function successfulRefreshResult(
+  task: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+) {
+  const fragmentWriter = createProjectStateFragmentWriter()
+  task.files.forEach(({ identity }) => {
+    if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
+    fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
+  })
+  return createProjectStateRefreshBinaryResult({
+    fragment: fragmentWriter.finish(),
+    missingProjectPaths: [],
+    hashedFiles: task.files.length,
+    parsedYamlFiles: 0,
+    changedFiles: task.files.length,
+  })
 }

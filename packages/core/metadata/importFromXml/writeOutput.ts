@@ -1,39 +1,66 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { dirname, join, posix } from "node:path"
 import { exportToYAML } from "../../yaml/export"
+import { hashFileBytes } from "../configurationIndex/hash"
 import type { ExternalFileEntry } from "../context/types"
 import type { ValidationProfiler } from "../validation/profile"
 import type { ImportAssignment, ImportResultFile } from "./types"
 
-export async function writeMainImportYaml(params: {
+export interface PreparedImportYamlOutput {
+  readonly output: ImportResultFile
+  readonly yaml: unknown
+}
+
+export interface SerializedImportYaml {
+  readonly file: ImportResultFile
+  readonly text: string
+  readonly bytes: Uint8Array<ArrayBuffer>
+  readonly localHash: bigint
+}
+
+const textEncoder = new TextEncoder()
+
+export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedImportYaml {
+  const text = file.yaml === undefined ? "" : exportToYAML(file.yaml)
+  const bytes = textEncoder.encode(text)
+  return { file: file.output, text, bytes, localHash: hashFileBytes(bytes) }
+}
+
+export async function writeMainImportYaml(params: ({
+  serialized: SerializedImportYaml
+  profiler: ValidationProfiler
+} | {
   outputDir: string
   targetProjectPath: string
   yaml: unknown
   profiler: ValidationProfiler
-}): Promise<{ file: ImportResultFile; bytes: number }> {
-  const exported = params.profiler.measure(
+})): Promise<{ file: ImportResultFile; bytes: number; localHash: bigint }> {
+  const serialized = "serialized" in params ? params.serialized : params.profiler.measure(
     "Подготовка импорта конфигурации",
     "Сериализация YAML",
     { items: 1 },
-    () => (params.yaml === undefined ? "" : exportToYAML(params.yaml))
+    () => {
+      const sourcePath = join(params.outputDir, params.targetProjectPath)
+      return serializeImportYaml({
+        output: { sourceKind: "worker", sourcePath, targetProjectPath: params.targetProjectPath },
+        yaml: params.yaml,
+      })
+    }
   )
-  const sourcePath = join(params.outputDir, params.targetProjectPath)
+  const sourcePath = serialized.file.sourcePath
   await params.profiler.measureAsync(
     "Подготовка импорта конфигурации",
     "Запись основного YAML-файла",
     { items: 1 },
     async () => {
       await mkdir(dirname(sourcePath), { recursive: true })
-      await writeFile(sourcePath, exported, "utf-8")
+      await writeFile(sourcePath, serialized.bytes)
     }
   )
   return {
-    file: {
-      sourceKind: "worker",
-      sourcePath,
-      targetProjectPath: params.targetProjectPath,
-    },
-    bytes: Buffer.byteLength(exported, "utf-8"),
+    file: serialized.file,
+    bytes: serialized.bytes.byteLength,
+    localHash: serialized.localHash,
   }
 }
 

@@ -89,6 +89,34 @@ export interface ValidatePendingReferencesWithIndexResult {
   stats: ProjectReferenceIndexStats
 }
 
+export function unresolvedProjectReferenceResult(
+  reference: PendingMetadataTargetReference,
+  status: "missing" | "ambiguous",
+  objectFilePath?: string,
+): Extract<ProjectReferenceIndexResult, { ok: false }> {
+  if (status === "ambiguous") {
+    return {
+      ok: false,
+      reason: "conflict",
+      diagnostics: [referenceDiagnostic(reference, `Неоднозначная ссылка "${reference.canonical}"`)],
+    }
+  }
+  if (reference.target.kind === "object") {
+    return {
+      ok: false,
+      reason: "notFound",
+      diagnostics: [
+        referenceDiagnostic(reference, `Не найден объект "${formatObjectTarget(reference.target)}"`, objectFilePath),
+      ],
+    }
+  }
+  return {
+    ok: false,
+    reason: "notFound",
+    diagnostics: [referenceDiagnostic(reference, `Не найдена ссылка "${reference.canonical}"`)],
+  }
+}
+
 export function projectObjectIndexKey(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
   return [
     target.root,
@@ -218,38 +246,31 @@ function resolveReference(
 ): ProjectReferenceIndexResult {
   const entry = lookupEntry(params.snapshot, reference.target)
   if (entry === undefined) {
-    if (reference.target.kind === "object") {
-      const filePath = params.resolveObjectFilePath?.(reference.target)
-      return {
-        ok: false,
-        reason: "notFound",
-        diagnostics: [
-          referenceDiagnostic(reference, `Не найден объект "${formatObjectTarget(reference.target)}"`, filePath),
-        ],
-      }
-    }
-    return {
-      ok: false,
-      reason: "notFound",
-      diagnostics: [referenceDiagnostic(reference, `Не найдена ссылка "${reference.canonical}"`)],
-    }
+    return unresolvedProjectReferenceResult(
+      reference,
+      "missing",
+      reference.target.kind === "object" ? params.resolveObjectFilePath?.(reference.target) : undefined,
+    )
   }
   if (isConflict(entry)) {
-    return {
-      ok: false,
-      reason: "conflict",
-      diagnostics: [referenceDiagnostic(reference, `Неоднозначная ссылка "${reference.canonical}"`)],
-    }
+    return unresolvedProjectReferenceResult(reference, "ambiguous")
   }
   if (!entry.result.ok) {
     return { ok: false, reason: "notFound", diagnostics: entry.result.diagnostics }
   }
+  return resolvedProjectReferenceResult(reference, entry.result.details)
+}
+
+export function resolvedProjectReferenceResult(
+  reference: PendingMetadataTargetReference,
+  details: unknown,
+): ProjectReferenceIndexResult {
   if (reference.target.kind === "object") {
-    const filterResult = matchesObjectFilters({ reference, entry: entry as ProjectObjectIndexEntry })
+    const filterResult = matchesObjectFilters({ reference, details })
     if (!filterResult.ok) return filterResult
   }
   if (reference.target.kind === "member") {
-    const filterResult = matchesMemberFilters({ reference, entry: entry as ProjectMemberIndexEntry })
+    const filterResult = matchesMemberFilters({ reference, details })
     if (!filterResult.ok) return filterResult
   }
   return { ok: true }
@@ -257,13 +278,13 @@ function resolveReference(
 
 function matchesObjectFilters(params: {
   reference: PendingMetadataTargetReference
-  entry: ProjectObjectIndexEntry
+  details: unknown
 }): ProjectReferenceIndexResult {
   if (params.reference.constraint.kind !== "object") return { ok: true }
 
   for (const filter of params.reference.constraint.filters ?? []) {
     if (filter.kind !== "styleItemType") continue
-    const actualType = styleItemTypeFromDetails(params.entry.result.ok ? params.entry.result.details : undefined)
+    const actualType = styleItemTypeFromDetails(params.details)
     if (actualType === undefined || filter.values.includes(actualType)) continue
     return memberFilterError(
       params.reference,
@@ -276,7 +297,7 @@ function matchesObjectFilters(params: {
 
 function matchesMemberFilters(params: {
   reference: PendingMetadataTargetReference
-  entry: ProjectMemberIndexEntry
+  details: unknown
 }): ProjectReferenceIndexResult {
   if (params.reference.constraint.kind !== "member") return { ok: true }
 
@@ -290,19 +311,19 @@ function matchesMemberFilters(params: {
 
 function matchesMemberFilter(params: {
   reference: PendingMetadataTargetReference
-  entry: ProjectMemberIndexEntry
+  details: unknown
   filter: MetadataTargetFilter
 }): ProjectReferenceIndexResult {
   const displayName = params.reference.canonical
   switch (params.filter.kind) {
     case "directMember":
-      if (params.entry.target.segments.length === 1) return { ok: true }
+      if (params.reference.target.kind === "member" && params.reference.target.segments.length === 1) return { ok: true }
       return memberFilterError(
         params.reference,
         `Член "${displayName}" не подходит: ожидаются прямые члены текущего объекта`
       )
     case "hasType":
-      if (matchesHasTypeFilter(params.entry.result.ok ? params.entry.result.details : undefined, params.filter.type)) {
+      if (matchesHasTypeFilter(params.details, params.filter.type)) {
         return { ok: true }
       }
       return memberFilterError(
@@ -310,7 +331,7 @@ function matchesMemberFilter(params: {
         `Член "${displayName}" не подходит: ожидаются члены, тип которых содержит ${formatTypeFilter(params.filter.type)}`
       )
     case "stringIndexedAttribute":
-      if (matchesStringIndexedAttributeFilter(params.entry.result.ok ? params.entry.result.details : undefined)) {
+      if (matchesStringIndexedAttributeFilter(params.details)) {
         return { ok: true }
       }
       return memberFilterError(
@@ -321,7 +342,7 @@ function matchesMemberFilter(params: {
       if (
         matchesInputByStringFieldFilter({
           canonical: params.reference.canonical,
-          details: params.entry.result.ok ? params.entry.result.details : undefined,
+          details: params.details,
         })
       ) {
         return { ok: true }
@@ -401,7 +422,7 @@ function styleItemTypeFromDetails(details: unknown): "Color" | "Font" | "Border"
   const record = details as Record<string, unknown>
   const model = record["model"]
   const source = typeof model === "object" && model !== null ? (model as Record<string, unknown>) : record
-  const value = source["type"] ?? source["Тип"]
+  const value = record["styleItemType"] ?? source["type"] ?? source["Тип"]
   return value === "Color" || value === "Font" || value === "Border" ? value : undefined
 }
 

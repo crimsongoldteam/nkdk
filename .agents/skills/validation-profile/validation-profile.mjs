@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process"
 import { existsSync, statSync } from "node:fs"
-import { dirname, resolve } from "node:path"
+import { readdir, rm } from "node:fs/promises"
+import { availableParallelism } from "node:os"
+import { basename, dirname, join, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
@@ -9,7 +11,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
 function usage() {
   return [
     "Использование:",
-    "  node .agents/skills/validation-profile/validation-profile.mjs <yaml-dir> [--runs N] [--concurrency N] [--timing] [--json]",
+    "  node .agents/skills/validation-profile/validation-profile.mjs <yaml-dir> [--runs N] [--concurrency N] [--timing] [--timing-only] [--json]",
   ].join("\n")
 }
 
@@ -28,6 +30,7 @@ function parseArgs(argv) {
     runs: 5,
     concurrency: undefined,
     timing: false,
+    timingOnly: false,
     jsonOnly: false,
     projectDir: undefined,
   }
@@ -50,6 +53,10 @@ function parseArgs(argv) {
       options.timing = true
       continue
     }
+    if (arg === "--timing-only") {
+      options.timingOnly = true
+      continue
+    }
     if (arg === "--json") {
       options.jsonOnly = true
       continue
@@ -64,6 +71,7 @@ function parseArgs(argv) {
   }
 
   if (options.projectDir === undefined) fail("не указан YAML-каталог")
+  if (options.timing && options.timingOnly) fail("--timing и --timing-only нельзя использовать вместе")
   if (!existsSync(options.projectDir)) fail(`YAML-каталог не найден: ${options.projectDir}`)
   if (!statSync(options.projectDir).isDirectory()) fail(`путь не является каталогом: ${options.projectDir}`)
 
@@ -112,10 +120,9 @@ function average(values) {
 
 async function runProfile(options) {
   const core = await loadCompiledCore()
-  const handle = core.createValidationWorkerPoolHandle(
-    options.concurrency === undefined ? undefined : { concurrency: options.concurrency }
-  )
+  const service = core.createProjectStateService()
   const runs = []
+  const workerPoolSize = options.concurrency ?? Math.max(1, Math.min(4, availableParallelism() - 1))
   let peakRssBytes = process.memoryUsage().rss
   const timer = setInterval(() => {
     peakRssBytes = Math.max(peakRssBytes, process.memoryUsage().rss)
@@ -124,11 +131,32 @@ async function runProfile(options) {
   try {
     for (let run = 1; run <= options.runs; run += 1) {
       const started = performance.now()
-      const validation = await handle.validateProject({ projectDir: options.projectDir })
+      let saveBinaryCompleted = false
+      const phaseAccumulator = createPhaseAccumulator()
+      const validation = await service.refreshAndValidate({
+        projectDir: options.projectDir,
+        concurrency: options.concurrency,
+        profile: {
+          onPhase(event) {
+            if (event.phase === "saveBinary") saveBinaryCompleted = true
+            phaseAccumulator.add(event)
+          },
+        },
+      })
+      for (const event of phaseAccumulator.records()) {
+        process.stderr.write(`[nkdk-project-state-phase] ${JSON.stringify({ run, ...event })}\n`)
+      }
       const elapsedMs = Math.round(performance.now() - started)
       const memory = memorySnapshot()
       peakRssBytes = Math.max(peakRssBytes, memory.rssBytes)
       const counts = countDiagnostics(validation.diagnostics)
+      if (validation.profile === undefined) throw new Error("compiled core did not return project-state profile")
+      if (!saveBinaryCompleted) throw new Error("compiled core did not finish binary project-state save")
+      const profile = core.createValidationProfileResult({
+        diagnostics: validation.diagnostics,
+        stats: validation.stats,
+        ...validation.profile,
+      })
 
       runs.push({
         run,
@@ -136,14 +164,25 @@ async function runProfile(options) {
         diagnostics: validation.diagnostics.length,
         errors: counts.errors,
         warnings: counts.warnings,
-        workerPoolSize: handle.size(),
+        workerPoolSize,
         rssMiB: memory.rssMiB,
         heapUsedMiB: memory.heapUsedMiB,
+        ...profile,
+        phases: {
+          workerPoolCreateMs: profile.workerPoolCreateMs,
+          workerReadyMs: profile.workerReadyMs,
+          workerReuseMs: profile.workerReuseMs,
+          loadBinaryMs: profile.loadMs,
+          processFilesMs: profile.processFilesMs,
+          buildBuffersMs: profile.scheduleSaveMs,
+          dependencyValidationMs: profile.dependencyValidationMs,
+          saveBinaryMs: profile.saveBinaryMs,
+        },
       })
     }
   } finally {
     clearInterval(timer)
-    await handle.close()
+    await service.close()
   }
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
@@ -156,6 +195,21 @@ async function runProfile(options) {
     warmMinMs: warm.length === 0 ? undefined : Math.min(...warm),
     warmMaxMs: warm.length === 0 ? undefined : Math.max(...warm),
     peakRssMiB: Math.round(peakRssBytes / 1024 / 1024),
+    diagnosticsDigestsEqual: runs.every((run) => run.diagnosticsDigest === runs[0]?.diagnosticsDigest),
+    ...(runs[0] === undefined ? {} : {
+      hashedFiles: runs[0].hashedFiles,
+      parsedYamlFiles: runs[0].parsedYamlFiles,
+      snapshotBytes: runs[0].snapshotBytes,
+      loadBinaryMs: runs[0].phases.loadBinaryMs,
+      processFilesMs: runs[0].processFilesMs,
+      buildBuffersMs: runs[0].phases.buildBuffersMs,
+      dependencyValidationMs: runs[0].phases.dependencyValidationMs,
+      saveBinaryMs: runs[0].phases.saveBinaryMs,
+      workerPoolCreateMs: runs[0].phases.workerPoolCreateMs,
+      workerReadyMs: runs[0].phases.workerReadyMs,
+      workerReuseMs: runs[0].phases.workerReuseMs,
+      diagnosticsDigest: runs[0].diagnosticsDigest,
+    }),
   }
 
   if (options.timing) {
@@ -165,14 +219,30 @@ async function runProfile(options) {
   return result
 }
 
+export function createPhaseAccumulator() {
+  const elapsedByPhase = new Map()
+  return {
+    add(event) {
+      elapsedByPhase.set(event.phase, (elapsedByPhase.get(event.phase) ?? 0) + event.elapsedMs)
+    },
+    records() {
+      return [...elapsedByPhase].map(([phase, elapsedMs]) => ({ phase, elapsedMs }))
+    },
+  }
+}
+
 function runTimingPass(options) {
   const script = [
-    "import { createValidationWorkerPoolHandle } from './packages/core/dist/index.js';",
+    "import { createProjectStateService, createValidationProfileResult } from './packages/core/dist/index.js';",
     `const projectDir = ${JSON.stringify(options.projectDir)};`,
-    `const handle = createValidationWorkerPoolHandle(${
-      options.concurrency === undefined ? "" : JSON.stringify({ concurrency: options.concurrency })
-    });`,
-    "try { await handle.validateProject({ projectDir }); } finally { await handle.close(); }",
+    "const service = createProjectStateService();",
+    `const concurrency = ${JSON.stringify(options.concurrency)};`,
+    "try {",
+    "  const startedAt = performance.now();",
+    "  const validation = await service.refreshAndValidate({ projectDir, concurrency, profile: true });",
+    "  const profile = createValidationProfileResult({ diagnostics: validation.diagnostics, stats: validation.stats, ...validation.profile });",
+    "  console.log(JSON.stringify({ elapsedMs: performance.now() - startedAt, diagnostics: validation.diagnostics.length, stats: validation.stats, profile }));",
+    "} finally { await service.close(); }",
   ].join("\n")
 
   const spawned = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
@@ -204,6 +274,7 @@ function runTimingPass(options) {
   }
   return {
     steps: stepLines.map(parseValidationStepLine),
+    run: JSON.parse(spawned.stdout.trim()),
   }
 }
 
@@ -271,6 +342,18 @@ function parseProfileValue(value) {
   return value
 }
 
+export function summarizeWorkerPoolSteps(steps) {
+  const names = {
+    workerPoolCreateMs: "Создание worker",
+    workerReadyMs: "Готовность worker",
+    workerReuseMs: "Повторное использование worker",
+  }
+  return Object.fromEntries(Object.entries(names).map(([field, substep]) => [
+    field,
+    sum(steps.filter((step) => step.scope === "main" && step.substep === substep), "time"),
+  ]))
+}
+
 function printResult(result, options) {
   if (options.jsonOnly) {
     console.log(JSON.stringify(result, null, 2))
@@ -295,15 +378,26 @@ function printResult(result, options) {
         `diagnostics=${run.diagnostics}`,
         `errors=${run.errors}`,
         `warnings=${run.warnings}`,
+        `hashed=${run.hashedFiles}`,
+        `parsedYAML=${run.parsedYamlFiles}`,
+        `snapshot=${run.snapshotBytes}B`,
+        `loadBinary=${formatMs(run.phases.loadBinaryMs)}`,
+        `processFiles=${formatMs(run.phases.processFilesMs)}`,
+        `buildBuffers=${formatMs(run.phases.buildBuffersMs)}`,
+        `dependencyValidation=${formatMs(run.phases.dependencyValidationMs)}`,
+        `saveBinary=${formatMs(run.phases.saveBinaryMs)}`,
+        `digest=${run.diagnosticsDigest}`,
         `rss=${run.rssMiB}MiB`,
         `heap=${run.heapUsedMiB}MiB`,
       ].join(" ")
     )
   }
+  console.log(`Diagnostics digests equal: ${result.diagnosticsDigestsEqual}`)
 
   if (result.timing !== undefined) {
     console.log("")
     printInitializationTable(result.timing.steps)
+    printFileProcessingTable(result.timing.steps)
     printValidationStageTable(result.timing.steps)
   }
 }
@@ -317,12 +411,22 @@ function printInitializationTable(steps) {
 }
 
 function printValidationStageTable(steps) {
-  const rows = aggregateRows(steps.filter((step) => step.step !== "Инициализация"))
+  const rows = aggregateRows(steps.filter((step) =>
+    step.step !== "Инициализация" && step.step !== "Обработка файлов Б1–Б4"
+  ))
   console.log("Шаги validation:")
   printMarkdownTable(rows)
 }
 
-function aggregateRows(steps) {
+function printFileProcessingTable(steps) {
+  const rows = aggregateRows(steps.filter((step) => step.step === "Обработка файлов Б1–Б4"))
+  if (rows.length === 0) return
+  console.log("Обработка файлов Б1–Б4:")
+  printMarkdownTable(rows)
+  console.log("")
+}
+
+export function aggregateRows(steps) {
   const byStep = new Map()
   const bySubstep = new Map()
   for (const step of steps) {
@@ -349,6 +453,7 @@ function pushGroup(groups, key, value) {
 function orderedStepNames(steps) {
   const preferred = [
     "Инициализация",
+    "Обработка файлов Б1–Б4",
     "Подготовка YAML-проекта",
     "Первичная проверка YAML",
     "Обобщение индексов",
@@ -361,6 +466,19 @@ function orderedStepNames(steps) {
 
 function orderedSubstepRows(steps, stepName) {
   const preferred = {
+    "Обработка файлов Б1–Б4": [
+      "Подготовка заданий",
+      "Чтение файлов",
+      "Вычисление хэшей",
+      "Сравнение хэшей",
+      "Разбор YAML",
+      "Локальная проверка YAML",
+      "Сбор сведений файла",
+      "Двоичное кодирование результата",
+      "Ожидание worker",
+      "Применение двоичных пачек",
+      "Применение удалений",
+    ],
     "Подготовка YAML-проекта": [
       "Поиск файлов проекта",
       "Классификация файлов проекта",
@@ -428,6 +546,7 @@ function substepLabel(stepName, substep) {
     }
     return labels[substep] ?? `- ${substep}`
   }
+  if (stepName === "Обработка файлов Б1–Б4") return `- ${substep}`
   return `- ${substep}`
 }
 
@@ -445,6 +564,8 @@ function toTableRow(name, records) {
     workerAvgMs: avg(workerTimes),
     workerMaxMs: max(workerTimes),
     workerSumMs: sumValues(workerTimes),
+    items: name.startsWith("- ") ? sum(records, "items") : undefined,
+    bytesSum: name.startsWith("- ") ? sum(records, "bytes") : undefined,
     processRssMaxMiB: maxValue(main, "rssPeak"),
     workerRssMinMiB: min(workerRss),
     workerRssAvgMiB: avg(workerRss),
@@ -472,6 +593,8 @@ function printMarkdownTable(rows) {
     "Worker avg",
     "Worker max",
     "Worker sum",
+    "Элементы",
+    "Данные sum",
     "RSS процесса max",
     "RSS worker min",
     "RSS worker avg",
@@ -490,6 +613,8 @@ function printMarkdownTable(rows) {
         formatMs(row.workerAvgMs),
         formatMs(row.workerMaxMs),
         formatMs(row.workerSumMs),
+        formatInteger(row.items),
+        formatBytes(row.bytesSum),
         formatMiB(row.processRssMaxMiB),
         formatMiB(row.workerRssMinMiB),
         formatMiB(row.workerRssAvgMiB),
@@ -542,6 +667,54 @@ function formatBytes(value) {
   return value === undefined ? "-" : `${(value / 1024 / 1024).toFixed(2)}MiB`
 }
 
-const options = parseArgs(process.argv.slice(2))
-const result = await runProfile(options)
-printResult(result, options)
+function formatInteger(value) {
+  return value === undefined ? "-" : String(value)
+}
+
+export async function clearBinaryProjectStateCache(projectDir) {
+  const target = resolve(projectDir, ".nkdk", "cache", "project-state.bin")
+  const directory = dirname(target)
+  let names
+  try {
+    names = await readdir(directory)
+  } catch (caught) {
+    if (caught?.code === "ENOENT") return
+    throw caught
+  }
+  const targetName = basename(target)
+  await Promise.all(names
+    .filter((name) => name === targetName || (name.startsWith(`.${targetName}.`) && name.endsWith(".tmp")))
+    .map((name) => rm(join(directory, name), { force: true })))
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2))
+  if (options.timingOnly) {
+    await clearBinaryProjectStateCache(options.projectDir)
+    const timing = runTimingPass(options)
+    if (options.jsonOnly) {
+      console.log(JSON.stringify({
+        mode: "compiled-standalone-timing-only",
+        projectDir: options.projectDir,
+        ...timing,
+      }, null, 2))
+      return
+    }
+    console.log("Validation profile: cold timing-only")
+    console.log(`YAML-каталог: ${options.projectDir}`)
+    console.log(`Diagnostics: ${timing.run.diagnostics}`)
+    console.log(`Cold: ${formatMs(timing.run.elapsedMs)}`)
+    console.log(`Process files: ${formatMs(timing.run.profile.processFilesMs)}`)
+    console.log("")
+    printInitializationTable(timing.steps)
+    printFileProcessingTable(timing.steps)
+    printValidationStageTable(timing.steps)
+    return
+  }
+  const result = await runProfile(options)
+  printResult(result, options)
+}
+
+if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main()
+}

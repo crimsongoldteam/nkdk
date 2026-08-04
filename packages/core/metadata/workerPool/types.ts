@@ -1,0 +1,108 @@
+import type { ConfigurationContext } from "../context/types"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import type {
+  PreparedYamlProjectWorkerTask,
+  PreparedYamlProjectWorkerTaskResult,
+} from "../project/preparedYamlProjectWorker"
+import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
+import type { FullXmlSyncWorkerCommand, FullXmlSyncWorkerCommandResult } from "../fullSyncToXml/types"
+import type { ProjectQueryCommand, ProjectQueryResult } from "./projectQueries"
+import type { MetadataWorkerBinaryResult } from "./binaryResult"
+
+export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
+
+export interface MetadataWorkerProbeCommand {
+  readonly kind: "probe"
+  readonly value: string
+}
+
+export type MetadataWorkerOperationCommand =
+  | MetadataWorkerProbeCommand
+  | {
+      readonly kind: "validation"
+      readonly task: PreparedYamlProjectWorkerTask
+    }
+  | {
+      readonly kind: "import"
+      readonly command: ImportWorkerCommand
+    }
+  | {
+      readonly kind: "fullSync"
+      readonly command: FullXmlSyncWorkerCommand
+    }
+  | {
+      readonly kind: "projectQuery"
+      readonly command: ProjectQueryCommand
+    }
+
+export interface MetadataWorkerProbeResult {
+  readonly kind: "probeResult"
+  readonly value: string
+}
+
+export interface MetadataWorkerImportResult {
+  readonly kind: "importResult"
+  readonly result: ImportWorkerCommandResult
+}
+
+export interface MetadataWorkerFullSyncResult {
+  readonly kind: "fullSyncResult"
+  readonly result: FullXmlSyncWorkerCommandResult
+}
+
+export type MetadataWorkerOperationResult =
+  | MetadataWorkerProbeResult
+  | MetadataWorkerBinaryResult
+  | PreparedYamlProjectWorkerTaskResult
+  | MetadataWorkerImportResult
+  | MetadataWorkerFullSyncResult
+  | ProjectQueryResult
+
+export type MetadataWorkerCommand =
+  | {
+      readonly kind: "initializeLine"
+      readonly workerIndex: number
+      readonly context: ConfigurationContext
+    }
+  | {
+      readonly kind: "runOperation"
+      readonly operationId: string
+      readonly command: MetadataWorkerOperationCommand
+    }
+  | {
+      readonly kind: "resetOperation"
+      readonly operationId: string
+      readonly outcome: MetadataWorkerOperationOutcome
+    }
+  | {
+      readonly kind: "installProjectState"
+      readonly readToken: ProjectStateReadToken
+    }
+  | { readonly kind: "clearProjectState" }
+
+export type MetadataWorkerCommandResult = MetadataWorkerOperationResult | undefined
+
+export interface MetadataWorkerLine {
+  run(command: MetadataWorkerCommand): Promise<MetadataWorkerCommandResult>
+  destroy(): Promise<void>
+}
+
+export interface MetadataWorkerOperation {
+  readonly id: string
+  readonly concurrency: number
+  run(workerIndex: number, command: MetadataWorkerOperationCommand): Promise<MetadataWorkerOperationResult>
+  finish(outcome: MetadataWorkerOperationOutcome): Promise<void>
+}
+
+export interface MetadataWorkerPoolHandle {
+  beginOperation(params: {
+    id: string
+    concurrency: number
+    context: ConfigurationContext
+    signal?: AbortSignal
+  }): Promise<MetadataWorkerOperation>
+  installProjectState(token: ProjectStateReadToken): Promise<void>
+  clearProjectState(): Promise<void>
+  size(): number
+  close(): Promise<void>
+}

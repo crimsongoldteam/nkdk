@@ -94,4 +94,3 @@ equalItemsWidth: {
 - Запустить целевые тесты `checkBoxField`, затем `pnpm type-check`, `pnpm test`, `pnpm duplicates`.
 - Stryker не запускать.
 - Итоговый round-trip `cf/doc` не должен содержать расхождение `EqualItemsWidth`.
-

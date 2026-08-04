@@ -1,4 +1,5 @@
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
@@ -29,11 +30,13 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
   type ValidationRulesSnapshot,
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
+import { collectStructuralYamlReferences } from "./structuralReferences"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -52,6 +55,7 @@ export interface ValidationYamlFacts {
   diagnostics: Diagnostic[]
   localValueValidationProfile: LocalValueValidationProfile
   fieldIndex?: ObjectFieldIndex
+  formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
 }
 
@@ -576,9 +580,27 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     index,
     yamlPath: [],
   })
+  const root = rootFromYAML[file.owner.dir]
+  const structuralReferences = collectStructuralYamlReferences({
+    filePath: file.absolutePath,
+    parsed,
+    rule: ClientApplicationFormRules,
+    yaml: data,
+    owner: root === undefined ? undefined : { root, objectName: file.owner.name },
+    context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+  })
+  if (!structuralReferences.ok) throw new Error(structuralReferences.message)
+  const pendingReferences = structuralReferences.references.map(({
+    setCanonical: _setCanonical,
+    stageCanonical: _stageCanonical,
+    commitStaged: _commitStaged,
+    ...reference
+  }) => reference)
 
   return {
     ...emptyFacts(),
+    formDataPathIndex: index,
+    pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {
       [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
@@ -847,6 +869,7 @@ function collectRuleDataPathChecks(params: {
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",
+      yamlPath,
       location: yamlDiagnosticLocationAtPath({
         filePath: params.file.absolutePath,
         parsed: params.parsed,
@@ -855,7 +878,7 @@ function collectRuleDataPathChecks(params: {
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
       index: params.index,
-      rule,
+      policyInput: toDataPathPolicyInput(rule),
       elementType: params.elementType,
       ...(params.owner["КартинкаЗначений"] === undefined ? {} : { hasValuesPicture: true }),
       ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным"
@@ -873,9 +896,9 @@ function tableContextForChildren(
   currentContext: { dataPath: string } | undefined
 ): { dataPath: string } | undefined {
   if (elementType !== "Table") return currentContext
-  return checks.find((check) => check.rule.yaml === "ПутьКДанным")?.value === undefined
+  return checks.find((check) => check.policyInput.yaml === "ПутьКДанным")?.value === undefined
     ? currentContext
-    : { dataPath: checks.find((check) => check.rule.yaml === "ПутьКДанным")!.value }
+    : { dataPath: checks.find((check) => check.policyInput.yaml === "ПутьКДанным")!.value }
 }
 
 function elementTypeFromYaml(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined {

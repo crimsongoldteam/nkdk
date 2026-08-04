@@ -8,6 +8,8 @@ import {
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"
+import { getMetadataProjectSpecByDir } from "../project/specs"
+import type { OwnerTypeRef } from "../validation/dataPath/types"
 import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } from "./operationPath"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataFileItemRole, MetadataNamedChildKind } from "./types"
@@ -38,6 +40,60 @@ export interface ResolveMetadataOperationPathFailure {
   ok: false
   code: "target_not_found" | "unsupported_target"
   message: string
+}
+
+export type MetadataOperationCanonicalTargetResult =
+  | {
+      ok: true
+      canonical: string
+      targetKind: "object" | "namedCollection" | "fileItem"
+      dataPathTarget: { owner: OwnerTypeRef; fieldName?: string }
+    }
+  | ResolveMetadataOperationPathFailure
+
+export function resolveMetadataOperationCanonicalTarget(
+  path: ParsedMetadataOperationPath,
+): MetadataOperationCanonicalTargetResult {
+  const spec = getMetadataProjectSpecByDir(path.owner.itemTypePrefix)
+  if (spec === undefined) return unsupportedTarget(`Неизвестный вид metadata-объекта: ${path.owner.itemTypePrefix}`)
+  let rule = spec.rule
+  const canonicalParts = [canonicalObjectPrefix(path.owner.itemTypePrefix, path.owner.name)]
+  let directFieldName: string | undefined
+  let targetKind: "object" | "namedCollection" | "fileItem" = "object"
+  for (let index = 0; index < path.chain.length; index += 1) {
+    const segment = path.chain[index]!
+    const descriptor = findTargetDescriptor(rule, segment)
+    if (descriptor === undefined) {
+      return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" нет operationTarget-декларации`)
+    }
+    const declaration = descriptor.declaration
+    targetKind = declaration.kind === "namedCollectionTarget" ? "namedCollection" : "fileItem"
+    const canonicalKind = declaration.kind === "namedCollectionTarget"
+      ? canonicalNamedKind(declaration.targetKind)
+      : canonicalFileItemKind(declaration.role)
+    canonicalParts.push(canonicalKind, segment.name)
+    if (path.chain.length === 1 && declaration.kind === "namedCollectionTarget" && declaration.targetKind === "attribute") {
+      directFieldName = segment.name
+    }
+    if (index === path.chain.length - 1) break
+    if (declaration.kind !== "namedCollectionTarget") {
+      return unsupportedTarget(`Файловая цель "${segment.collectionSegment}" не может иметь вложенные цели`)
+    }
+    const nested = nestedItemRule(rule.properties[descriptor.propertyName])
+    if (nested === undefined) {
+      return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" не описано правило вложенного элемента`)
+    }
+    rule = nested
+  }
+  return {
+    ok: true,
+    canonical: canonicalParts.join("."),
+    targetKind,
+    dataPathTarget: {
+      owner: { kind: path.owner.itemTypePrefix, name: path.owner.name },
+      ...(directFieldName === undefined ? {} : { fieldName: directFieldName }),
+    },
+  }
 }
 
 export function resolveMetadataOperationPath(
@@ -166,7 +222,7 @@ function resolveFileItemTarget(params: {
   canonicalParts: string[]
 }): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const folderPath = join(
-    params.snapshot.projectDir,
+    params.item.resource.componentDir,
     params.path.owner.itemTypePrefix,
     params.path.owner.name,
     params.descriptor.declaration.folderName

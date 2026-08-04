@@ -1,4 +1,67 @@
 import { performance } from "node:perf_hooks"
+import { createHash } from "node:crypto"
+import type { Diagnostic } from "./types"
+
+interface ValidationProfileStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+}
+
+export interface ValidationProfileResult {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+  readonly snapshotBytes: number
+  readonly loadMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
+  readonly discoverFilesMs: number
+  readonly readBaselineMs: number
+  readonly processFilesMs: number
+  readonly readLocalDiagnosticsMs: number
+  readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs: number
+  readonly workerReadyMs: number
+  readonly workerReuseMs: number
+  readonly diagnosticsDigest: string
+}
+
+export function createValidationProfileResult(params: {
+  readonly diagnostics: readonly Diagnostic[]
+  readonly stats: ValidationProfileStats
+  readonly snapshotBytes: number
+  readonly loadMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
+  readonly discoverFilesMs: number
+  readonly readBaselineMs: number
+  readonly processFilesMs: number
+  readonly readLocalDiagnosticsMs: number
+  readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs?: number
+  readonly workerReadyMs?: number
+  readonly workerReuseMs?: number
+}): ValidationProfileResult {
+  return {
+    ...params.stats,
+    snapshotBytes: params.snapshotBytes,
+    loadMs: params.loadMs,
+    scheduleSaveMs: params.scheduleSaveMs,
+    saveBinaryMs: params.saveBinaryMs,
+    discoverFilesMs: params.discoverFilesMs,
+    readBaselineMs: params.readBaselineMs,
+    processFilesMs: params.processFilesMs,
+    readLocalDiagnosticsMs: params.readLocalDiagnosticsMs,
+    dependencyValidationMs: params.dependencyValidationMs,
+    workerPoolCreateMs: params.workerPoolCreateMs ?? 0,
+    workerReadyMs: params.workerReadyMs ?? 0,
+    workerReuseMs: params.workerReuseMs ?? 0,
+    diagnosticsDigest: createHash("sha256").update(stableJson(params.diagnostics)).digest("hex"),
+  }
+}
 
 export type ValidationProfileScope = { scope: "main" } | { scope: "worker"; workerIndex: number }
 
@@ -253,4 +316,14 @@ function encodeProfileValue(value: string): string {
 
 function bytesToMiB(value: number): number {
   return value / 1024 / 1024
+}
+
+function stableJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value)
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`
+  return `{${Object.entries(value)
+    .filter(([, entry]) => entry !== undefined)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, entry]) => `${JSON.stringify(key)}:${stableJson(entry)}`)
+    .join(",")}}`
 }

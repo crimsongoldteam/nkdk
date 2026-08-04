@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
-import { afterAll, afterEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
@@ -15,9 +15,6 @@ const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
 
 afterAll(async () => {
   await xmlImportWorkerPoolHandle.close()
-})
-
-afterEach(async () => {
   await Promise.all(
     temporaryDirectories.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true }))
   )
@@ -47,12 +44,13 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     fromYAML: false,
     xmlParents: ["ChildObjects"] as string[],
   })
+  let importedFormPath = ""
+  let importFailures: unknown[] = []
 
-  it("записывает Формы/<form>/Форма.yaml для каталога", async () => {
+  beforeAll(async () => {
     const inputDir = preparedInputDirectory(sourceDir)
     const projectDir = temporaryDirectory("nkdk-child-form-project-")
-    const outputDir = join(projectDir, "cf")
-
+    importedFormPath = join(projectDir, "cf", "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml")
     const result = await importConfigurationFromXml({
       context: mockContextFromXML(),
       inputDir,
@@ -60,9 +58,14 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
       concurrency: 1,
       xmlImportWorkerPoolHandle,
     })
+    importFailures = result.failed
+  })
 
-    expect(result.failed).toEqual([])
-    expect(fs.existsSync(join(outputDir, "Справочник", name, "Формы", "ФормаЭлемента", "Форма.yaml"))).toBe(true)
+  it("записывает Формы/<form>/Форма.yaml для каталога несмотря на validation errors неполной fixture", () => {
+    expect(importFailures).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "project_validation", severity: "error" }),
+    ]))
+    expect(fs.existsSync(importedFormPath)).toBe(true)
   })
 
   it("экспортирует ссылку на текущую форму в настройках формы локальным именем", async () => {

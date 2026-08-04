@@ -4,6 +4,7 @@ import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnaps
 import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ComponentIndexes, ComponentProjectStructure } from "./types"
 import { confirmComponentState } from "./confirm"
+import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 
 describe("confirmed component state", () => {
   const projectFiles = [{ projectPath: "Конфигурация.yaml", contentHash: 1n }]
@@ -25,10 +26,9 @@ describe("confirmed component state", () => {
   const indexes = {
     componentPath: "cf",
     sourceProjectFiles: projectFiles,
-    metadata: {} as ComponentIndexes["metadata"],
-    dependencies: [],
     logicalAddresses: [],
   } satisfies ComponentIndexes
+  const projectStateReadToken = createTestProjectStateReadToken()
 
   it("rejects hashes for a different structure", () => {
     expect(() =>
@@ -37,6 +37,7 @@ describe("confirmed component state", () => {
         hashes: { componentPath: "cf", projectFiles: [] },
         indexes,
         snapshot,
+        projectStateReadToken,
       })
     ).toThrow("структура и хэши относятся к разному составу файлов")
   })
@@ -51,6 +52,7 @@ describe("confirmed component state", () => {
           sourceProjectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 2n }],
         },
         snapshot,
+        projectStateReadToken,
       })
     ).toThrow("индексы относятся к другому состоянию файлов")
   })
@@ -70,6 +72,7 @@ describe("confirmed component state", () => {
         hashes: { componentPath: "cf", projectFiles },
         indexes,
         snapshot: other,
+        projectStateReadToken,
       })
     ).toThrow("снимок относится к другому компоненту")
   })
@@ -90,6 +93,7 @@ describe("confirmed component state", () => {
       hashes: { componentPath: "cf", projectFiles },
       indexes: currentIndexes,
       snapshot,
+      projectStateReadToken,
     })
 
     expect(confirmed.indexes).toBe(currentIndexes)

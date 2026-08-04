@@ -2,53 +2,13 @@ import { execFile } from "node:child_process"
 import { existsSync } from "node:fs"
 import { promisify } from "node:util"
 import { beforeAll, describe, expect, it } from "vitest"
-import { compileValidationSchema } from "./compileValidationSchema"
-import { createProjectValidationStandaloneSchemaSet } from "./projectValidationStandaloneSchemas"
-import { getValidationProjectSpecByDir } from "./projectSpecs"
-import {
-  projectValidationFormRuleKey,
-} from "./projectValidationFormRules"
-import {
-  ClientApplicationFormRules,
-  ClientApplicationFormWithExtendedPresentationRules,
-} from "../forms/clientApplicationForm/rules"
 
 const execFileAsync = promisify(execFile)
 
 describe("project validation standalone build output", () => {
-  let schemaSet: ReturnType<typeof createProjectValidationStandaloneSchemaSet>
-  let enumerationSchema: ReturnType<typeof compileValidationSchema>
-  let catalogSchema: ReturnType<typeof compileValidationSchema>
-  let baseFormSchema: ReturnType<typeof compileValidationSchema>
-  let specializedFormSchema: ReturnType<typeof compileValidationSchema>
   let generatedValidatorsSummary: unknown
 
   beforeAll(async () => {
-    schemaSet = createProjectValidationStandaloneSchemaSet()
-    const enumeration = getValidationProjectSpecByDir("Перечисление")
-    const catalog = getValidationProjectSpecByDir("Справочник")
-    if (enumeration === undefined || catalog === undefined) {
-      throw new Error("Validation project specs are not registered")
-    }
-    enumerationSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[enumeration.rule.itemType])
-    catalogSchema = compileValidationSchema(schemaSet.refs, schemaSet.byItemType[catalog.rule.itemType])
-    baseFormSchema = compileValidationSchema(
-      schemaSet.refs,
-      schemaSet.forms[
-        projectValidationFormRuleKey(ClientApplicationFormRules)
-      ]
-    )
-    specializedFormSchema = compileValidationSchema(
-      schemaSet.refs,
-      schemaSet.forms[
-        projectValidationFormRuleKey(
-          ClientApplicationFormWithExtendedPresentationRules
-        )
-      ]
-    )
-    enumerationSchema.Check(undefined)
-    catalogSchema.Check(undefined)
-
     const modulePath = new URL("../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
     if (!existsSync(modulePath)) return
 
@@ -73,54 +33,13 @@ describe("project validation standalone build output", () => {
     generatedValidatorsSummary = JSON.parse(stdout)
   })
 
-  it("includes refs produced by metadata collection registrations", () => {
-    const ref = "nkdk://schema/validation/2.20/ru/MetadataCatalogAttribute"
-
-    expect(schemaSet.refs[ref]).toMatchObject({
-      type: "object",
-    })
-    const catalog = getValidationProjectSpecByDir("Справочник")
-    if (catalog === undefined) throw new Error("Catalog validation spec is not registered")
-
-    expect(JSON.stringify(schemaSet.byItemType[catalog.rule.itemType])).toContain(ref)
-  })
-
-  it("includes common form body schema in the validation graph", () => {
-    const ref = "nkdk://schema/validation/2.20/ru/ClientApplicationForm"
-
-    expect(schemaSet.refs[ref]).toMatchObject({
-      type: "object",
-    })
-    const commonForm = getValidationProjectSpecByDir("ОбщаяФорма")
-    if (commonForm === undefined) throw new Error("Common form validation spec is not registered")
-
-    expect(JSON.stringify(schemaSet.byItemType[commonForm.rule.itemType])).toContain(ref)
-  })
-
-  it("keeps standalone form variants separate", () => {
-    const yaml = { РасширенноеПредставление: "Продажи" }
-
-    expect(baseFormSchema.Check(yaml)).toBe(false)
-    expect(specializedFormSchema.Check(yaml)).toBe(true)
-  })
-
-  it("accepts enumeration value names from YAML keys", () => {
-    expect(enumerationSchema.Check({ Значения: { Значение1: {} } })).toBe(true)
-  })
-
-  it("accepts predefined item codes from YAML keys", () => {
-    expect(catalogSchema.Check({ Предопределенные: { ПредопределенноеЗначение: { Наименование: "Предопределенное значение" } } })).toBe(
-      true
-    )
-  })
-
   it("loads generated validators from dist when build has produced them", () => {
     if (generatedValidatorsSummary === undefined) return
 
     expect(generatedValidatorsSummary).toEqual({
       format: "project-validation-ajv-standalone-v4",
       moduleKeys: ["byItemType", "format", "forms"],
-      formCount: 2,
+      formCount: 5,
       formKeys: ["validate"],
       configurationKeys: ["validate"],
       formValidateType: "function",

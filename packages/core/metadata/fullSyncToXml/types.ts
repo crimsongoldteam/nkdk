@@ -6,8 +6,9 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ProjectStateReadToken } from "../projectState"
 import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/types"
+import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -50,6 +51,7 @@ export interface FullXmlSyncPlan {
 export interface FullXmlSyncDiagnostic {
   readonly severity: "error" | "warning"
   readonly code: string
+  readonly source?: string
   readonly message: string
   readonly assignmentId?: string
   readonly sourceProjectPath?: string
@@ -90,10 +92,11 @@ export type FullXmlSyncWorkerCommand =
       readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
       readonly targetIndex: SharedConfigurationIndexSnapshot
-      readonly localMetadata: SharedValidationSnapshot
-      readonly baseMetadata?: SharedValidationSnapshot
+      readonly projectStateReadToken?: ProjectStateReadToken
     }
   | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | { readonly kind: "executeBatch"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | { readonly kind: "finishExecution" }
   | { readonly kind: "dispose" }
 
 export interface FullXmlSyncExpectedOutput {
@@ -116,4 +119,4 @@ export interface FullXmlSyncExecutionResult {
   readonly fragmentBuffer: ArrayBuffer
 }
 
-export type FullXmlSyncWorkerCommandResult = FullXmlSyncExecutionResult | undefined
+export type FullXmlSyncWorkerCommandResult = FullXmlSyncExecutionResult | MetadataWorkerBinaryResult | undefined

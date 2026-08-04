@@ -121,8 +121,15 @@ export interface CompiledMetadataPathMatch {
   readonly values: Readonly<Record<string, string>>
 }
 
+export interface CompiledMetadataPathCursor {
+  readonly canDescend: boolean
+  advance(segment: string): CompiledMetadataPathCursor | undefined
+  matches(): readonly CompiledMetadataPathMatch[]
+}
+
 export interface CompiledMetadataPathIndex {
-  readonly match: (path: string) => readonly CompiledMetadataPathMatch[]
+  root(): CompiledMetadataPathCursor
+  match(path: string): readonly CompiledMetadataPathMatch[]
 }
 
 export interface CompiledMetadataResourceTopology {

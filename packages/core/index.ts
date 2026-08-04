@@ -3,6 +3,29 @@ import { registerCoreMetadata } from "./metadata/register"
 registerCoreMetadata()
 
 export { registerCoreMetadata } from "./metadata/register"
+export {
+  ProjectStateReadSessionClosedError,
+  createProjectStateFileUpdateBatch,
+  createProjectStateService,
+  createProjectStateWriterHandle,
+  ProjectStateWriterCancelledError,
+  ProjectStateWriterClosedError,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdate,
+  type ProjectStateFileUpdateBatch,
+  type ProjectStateFileUpdateBatchEntry,
+  type ProjectStateComponentProjection,
+  type ProjectStateRefreshParams,
+  type ProjectStateRefreshProfile,
+  type ProjectStateRefreshResult,
+  type ProjectStateRefreshStats,
+  type ProjectStateReadSession,
+  type ProjectStateReadSessionFactory,
+  type ProjectStateReadToken,
+  type ProjectStateStore,
+  type ProjectStateService,
+  type ProjectStateWriterHandle,
+} from "./metadata/projectState"
 export * from "./metadata/configurationIndex"
 export { componentPath, type ComponentAddress } from "./metadata/components/address"
 export { NKDK_CORE_VERSION } from "./version"
@@ -84,15 +107,34 @@ export { buildYamlLocationIndex } from "./yaml/locationIndex"
 export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
-export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
+export type {
+  Diagnostic,
+  DiagnosticSource,
+  DiagnosticSeverity,
+  MetadataDiagnostic,
+  MetadataKind,
+} from "./metadata/validation/types"
 export {
-  createValidationWorkerPoolHandle,
+  createDiagnosticBatchWriter,
+  openDiagnosticBatch,
+  type DiagnosticBatchView,
+  type DiagnosticBatchWriter,
+  type EncodedDiagnosticBatch,
+} from "./metadata/diagnostics/binaryBatch"
+export {
+  createMetadataDiagnosticCollection,
+  type MetadataDiagnosticCollection,
+} from "./metadata/diagnostics/collection"
+export {
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
-  type ValidationWorkerPoolHandle,
 } from "./metadata/validation/validateProject"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
+export {
+  createValidationProfileResult,
+  type ValidationProfileResult,
+} from "./metadata/validation/profile"
 export {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,

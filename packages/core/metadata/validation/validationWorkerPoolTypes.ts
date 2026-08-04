@@ -1,6 +1,6 @@
-import type { ConfigurationContext } from "../context/types"
-import type { ProjectValidationGraph, ValidationGraphContribution } from "./projectValidationTypes"
+import type { ValidationGraphContribution } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
+import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
 
 export interface ValidationFirstPassFileResult {
   componentPath: string
@@ -23,6 +23,7 @@ export interface FirstPassPoolResult {
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
+  fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
 }
 
@@ -31,17 +32,6 @@ export interface ValidationYamlLifetime {
   max: number
   parsed: number
   propertyEvents: number
-}
-
-export interface SecondPassPoolParams {
-  projectDir: string
-  context: ConfigurationContext
-  graph: ProjectValidationGraph
-  blockedComponentPaths: readonly string[]
-}
-
-export interface SecondPassPoolResult {
-  diagnostics: Diagnostic[]
 }
 
 export interface ValidationWorkerPoolStartProfile {

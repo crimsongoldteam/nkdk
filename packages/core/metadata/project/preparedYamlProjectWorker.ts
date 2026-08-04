@@ -1,30 +1,45 @@
-import { join, resolve } from "node:path"
+import { relative, resolve } from "node:path"
+import { readFile } from "node:fs/promises"
 import { performance } from "node:perf_hooks"
+import { move, transferableSymbol, valueSymbol } from "piscina"
+import { hashFileBytes } from "../configurationIndex/hash"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import {
+  createProjectStateFileUpdateBatch,
+  toProjectStateFileUpdate,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdateBatch,
+  type ProjectStateFileUpdateBatchEntry,
+} from "../projectState/fileUpdate"
+import {
+  encodeProjectStateFileUpdateBatch,
+  type ProjectStateEncodedFileUpdateBatch,
+} from "../projectState/binary/contribution"
+import {
+  createProjectStateFragmentWriter,
+} from "../projectState/binary/fragment"
 import type { ConfigurationContext } from "../context/types"
-import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
-import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
-import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { validationProjectComponentFromAddress } from "../validation/projectComponents"
+import {
+  bindValidationProjectComponent,
+  createValidationProjectComponent,
+  type ValidationProjectComponent,
+  validationProjectComponentFromAddress,
+} from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
-import { validatePendingReferencesWithIndex } from "../validation/projectReferenceIndex"
 import {
   extractProjectValidationFileFacts,
   validateProjectFileFirstPass,
-  validateProjectFileSecondPass,
   readProjectYamlDiagnostic,
   readProjectYamlEntryForValidation,
   type ProjectValidationFirstPassProfile,
-  type ProjectValidationFileState,
   type ValidationSchemaCache,
   type ValidationSchemaCacheCompileProfile,
 } from "../validation/projectValidationPasses"
 import { createProjectValidationWorkerSchemaCache } from "../validation/projectValidationWorkerSchemaCache"
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
-import type { SharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type {
   ComponentFirstPassPoolResult,
@@ -39,6 +54,16 @@ import type {
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
 } from "./preparedYamlProject"
+import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
+import { classifyMetadataProjectPath } from "./resources"
+import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
+import {
+  createMovableBinaryResult,
+  type MetadataWorkerBinaryResult,
+} from "../workerPool/binaryResult"
+import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
+
+export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
 registerValidationMetadata()
 
@@ -65,23 +90,20 @@ export type PreparedYamlProjectWorkerTask =
       files: PreparedYamlProjectFileDescriptor[]
     }
   | {
+      kind: "refreshProjectState"
+      workerIndex: number
+      projectDir: string
+      context: ConfigurationContext
+      files: readonly ProjectStateValidationFileTask[]
+      knownHashBits: Uint8Array
+      expectedHashBytes: Uint8Array
+    }
+  | {
       kind: "collectValidationFacts"
       workerIndex: number
       projectDir: string
       files: PreparedYamlProjectFileDescriptor[]
       rulesSnapshot: ValidationRulesSnapshot
-    }
-  | {
-      kind: "validateSecondPass"
-      workerIndex: number
-      projectDir: string
-      context: ConfigurationContext
-      sharedProjectValidationGraph: SharedProjectValidationGraph
-      blockedComponentPaths: readonly string[]
-      pendingReferenceLayers: Array<{
-        componentPath: string
-        references: PendingMetadataTargetReference[]
-      }>
     }
 
 export type PreparedYamlProjectWorkerTaskResult =
@@ -99,45 +121,70 @@ export type PreparedYamlProjectWorkerTaskResult =
       diagnostics: Diagnostic[]
       schemaDiagnostics: Diagnostic[]
       fileResults: ValidationFirstPassFileResult[]
+      fileUpdateBatches: readonly ProjectStateEncodedFileUpdateBatch[]
       yamlLifetime: ValidationYamlLifetime
     }
+  | MetadataWorkerBinaryResult
   | {
       kind: "collectValidationFactsResult"
       contribution: ValidationIndexContribution
     }
-  | {
-      kind: "validateSecondPassResult"
-      diagnostics: Diagnostic[]
+
+export async function runPreparedYamlProjectWorkerTask(
+  message: PreparedYamlProjectWorkerTask,
+  options: {
+    createValidationSchemaCache?: typeof createProjectValidationWorkerSchemaCache
+    readFile?: (absolutePath: string) => Promise<Uint8Array>
+    hashBytes?: (bytes: Uint8Array) => bigint
+    classifyProjectStateFile?: typeof classifyChangedProjectStateFile
+    persistentValidationState?: {
+      readonly schemaCache: ValidationSchemaCache
+      readonly rulesSnapshot: ValidationRulesSnapshot
     }
-
-interface WorkerValidationState {
-  states: Map<string, ProjectValidationFileState>
-}
-
-export default async function runPreparedYamlProjectWorkerTask(
-  message: PreparedYamlProjectWorkerTask
+  } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
-    validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
-      createProjectValidationWorkerSchemaCache({ context: message.context })
+    validationSchemaCache = options.persistentValidationState?.schemaCache ?? await profiler.measureAsync(
+      "Инициализация",
+      "Инициализация validation worker",
+      { items: 1 },
+      () => (options.createValidationSchemaCache ?? createProjectValidationWorkerSchemaCache)({
+        context: message.context,
+      })
     )
-    validationRulesSnapshot = message.rulesSnapshot
+    validationRulesSnapshot = options.persistentValidationState?.rulesSnapshot ?? message.rulesSnapshot
+    projectStateComponentTemplates = {
+      configuration: createValidationProjectComponent("/", { kind: "configuration" }),
+      configurationExtension: createValidationProjectComponent("/", {
+        kind: "configurationExtension",
+        name: "Шаблон",
+      }),
+    }
     const compileProfile = { formMs: 0, propertiesMs: 0, totalMs: 0 }
     profiler.flush()
     return { kind: "initValidationResult", ...compileProfile }
   }
-  if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+  if (message.kind === "validateFirstPass") {
+    const result = runValidationFirstPass({
+      workerIndex: message.workerIndex,
+      projectDir: message.projectDir,
+      context: message.context,
+      files: message.files.map((descriptor) => ({ descriptor })),
+    })
+    return {
+      kind: "validateFirstPassResult",
+      ...result,
+      fileUpdateBatches: result.fileUpdateBatches.map(encodeProjectStateFileUpdateBatch),
+    }
+  }
+  if (message.kind === "refreshProjectState") return refreshProjectStateFiles(message, options)
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
       contribution: await collectValidationFacts(message),
     }
   }
-  if (message.kind === "validateSecondPass") {
-    return { kind: "validateSecondPassResult", ...runValidationSecondPass(message) }
-  }
-
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const prepareStartedAt = performance.now()
   const { yamlFiles, declarations, dependencies, diagnostics, profile } = prepareYamlFiles({
@@ -169,6 +216,194 @@ export default async function runPreparedYamlProjectWorkerTask(
   })
   profiler.flush()
   return response
+}
+
+async function refreshProjectStateFiles(
+  message: Extract<PreparedYamlProjectWorkerTask, { kind: "refreshProjectState" }>,
+  dependencies: {
+    readFile?: (absolutePath: string) => Promise<Uint8Array>
+    hashBytes?: (bytes: Uint8Array) => bigint
+    classifyProjectStateFile?: typeof classifyChangedProjectStateFile
+  },
+): Promise<MetadataWorkerBinaryResult> {
+  const profileEnabled = process.env["NKDK_PROFILE"] === "1"
+  const profiler = profileEnabled
+    ? createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+    : undefined
+  let readMs = 0
+  let hashMs = 0
+  let compareMs = 0
+  const expectedBitLength = Math.ceil(message.files.length / 8)
+  if (message.knownHashBits.byteLength !== expectedBitLength) {
+    throw new Error(`knownHashBits должен занимать ${expectedBitLength} байт`)
+  }
+  if (message.expectedHashBytes.byteLength !== message.files.length * 8) {
+    throw new Error(`expectedHashBytes должен занимать ${message.files.length * 8} байт`)
+  }
+  const read = dependencies.readFile ?? (async (absolutePath) => new Uint8Array(await readFile(absolutePath)))
+  const hash = dependencies.hashBytes ?? hashFileBytes
+  const writer = createProjectStateFragmentWriter()
+  let yamlValidation: ValidationFirstPassAccumulator | undefined
+  let hashedFiles = 0
+  let parsedYamlFiles = 0
+  let changedFiles = 0
+  const missingProjectPaths: string[] = []
+  try {
+    for (let index = 0; index < message.files.length; index += 1) {
+      const file = message.files[index]!
+      let bytes: Uint8Array | undefined
+      try {
+        let startedAt = profileEnabled ? performance.now() : 0
+        bytes = await read(file.absolutePath)
+        if (profileEnabled) readMs += performance.now() - startedAt
+        hashedFiles += 1
+        if (profileEnabled) startedAt = performance.now()
+        const currentHash = hash(bytes)
+        if (profileEnabled) {
+          hashMs += performance.now() - startedAt
+          startedAt = performance.now()
+        }
+        const unchanged = hasKnownHash(message.knownHashBits, index)
+          && currentHash === readExpectedHash(message.expectedHashBytes, index)
+        if (profileEnabled) compareMs += performance.now() - startedAt
+        if (unchanged) continue
+        const classified = file.identity === undefined
+          ? (dependencies.classifyProjectStateFile ?? classifyChangedProjectStateFile)(file, message.projectDir)
+          : { identity: file.identity, descriptor: file.descriptor }
+        if (classified.identity.resourceKind === "yaml") {
+          if (classified.descriptor === undefined) {
+            throw new Error(`У YAML отсутствует descriptor: ${classified.identity.projectPath}`)
+          }
+          yamlValidation ??= createValidationFirstPassAccumulator(message.workerIndex)
+          const parsed = processValidationFirstPassFile(yamlValidation, {
+            projectDir: message.projectDir,
+            context: message.context,
+            descriptor: classified.descriptor,
+            bytes,
+            hash: currentHash,
+          })
+          if (parsed) parsedYamlFiles += 1
+          changedFiles += 1
+          continue
+        }
+        writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
+        changedFiles += 1
+      } catch (caught) {
+        if (!isMissingFile(caught)) throw caught
+        missingProjectPaths.push(file.projectPath)
+      } finally {
+        bytes = undefined
+      }
+    }
+
+    const yamlResult = yamlValidation === undefined ? undefined : finishValidationFirstPass(yamlValidation)
+    const logicalBatches = [
+      ...(yamlResult === undefined || yamlResult.fileUpdateBatches[0]?.updates.length === 0
+        ? []
+        : yamlResult.fileUpdateBatches),
+    ]
+    const encodeStartedAt = profileEnabled ? performance.now() : 0
+    for (const batch of logicalBatches) {
+      const hashes = new DataView(batch.hashBytes.buffer, batch.hashBytes.byteOffset, batch.hashBytes.byteLength)
+      batch.updates.forEach((update, index) => writer.appendFile(update, hashes.getBigUint64(index * 8, false)))
+    }
+    const fragment = writer.finish()
+    const result = createProjectStateRefreshBinaryResult({
+      fragment,
+      missingProjectPaths,
+      hashedFiles,
+      parsedYamlFiles,
+      changedFiles,
+    })
+    const encodeMs = profileEnabled ? performance.now() - encodeStartedAt : 0
+    profiler?.record("Обработка файлов Б1–Б4", "Чтение файлов", {
+      items: message.files.length,
+      timeMs: readMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Вычисление хэшей", {
+      items: hashedFiles,
+      timeMs: hashMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Сравнение хэшей", {
+      items: hashedFiles,
+      timeMs: compareMs,
+    })
+    profiler?.record("Обработка файлов Б1–Б4", "Двоичное кодирование результата", {
+      items: changedFiles,
+      bytes: result.buffers.reduce((sum, { buffer }) => sum + buffer.byteLength, 0),
+      timeMs: encodeMs,
+    })
+    profiler?.flush()
+    return result
+  } catch (caught) {
+    writer.discard()
+    throw caught
+  }
+}
+
+export function classifyChangedProjectStateFile(
+  task: ProjectStateValidationFileTask,
+  projectDir: string,
+): { identity: ProjectStateFileIdentity; descriptor?: PreparedYamlProjectFileDescriptor } {
+  const template = task.componentPath === "cf"
+    ? requireProjectStateComponentTemplates().configuration
+    : requireProjectStateComponentTemplates().configurationExtension
+  const component = bindValidationProjectComponent(template, projectDir, task.componentPath)
+  const componentProjectPath = relative(component.componentDir, task.absolutePath).replace(/\\/g, "/")
+  const resource = classifyMetadataProjectPath(componentProjectPath, component)
+  if (resource === undefined) throw new Error(`Сохранённый путь больше не принадлежит проекту: ${task.projectPath}`)
+  const identity: ProjectStateFileIdentity = {
+    projectPath: task.projectPath,
+    componentPath: task.componentPath,
+    resourceKind: resource.kind,
+    ...(resource.kind === "yaml" ? { yamlRole: resource.role } : {}),
+  }
+  return {
+    identity,
+    ...(resource.kind === "yaml"
+      ? { descriptor: toPreparedYamlProjectFileDescriptor({ ...resource, absolutePath: task.absolutePath }, component) }
+      : {}),
+  }
+}
+
+function hasKnownHash(bits: Uint8Array, index: number): boolean {
+  return (bits[Math.floor(index / 8)]! & (1 << (index % 8))) !== 0
+}
+
+function readExpectedHash(hashBytes: Uint8Array, index: number): bigint {
+  return new DataView(hashBytes.buffer, hashBytes.byteOffset, hashBytes.byteLength).getBigUint64(index * 8, false)
+}
+
+function isMissingFile(caught: unknown): boolean {
+  return typeof caught === "object" && caught !== null && "code" in caught && caught.code === "ENOENT"
+}
+
+export default async function preparedYamlProjectWorkerEntryPoint(
+  message: PreparedYamlProjectWorkerTask
+): Promise<PreparedYamlProjectWorkerTaskResult> {
+  const result = await runPreparedYamlProjectWorkerTask(message)
+  if (result.kind === "binaryResult") return createMovableBinaryResult(result)
+  return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
+}
+
+type TransferableValidationWorkerResult = Extract<
+  PreparedYamlProjectWorkerTaskResult,
+  { kind: "validateFirstPassResult" }
+>
+
+export function createValidationFirstPassTransferable(result: TransferableValidationWorkerResult) {
+  return {
+    get [transferableSymbol]() {
+      return result.fileUpdateBatches.map(({ bytes }) => bytes.buffer)
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
+}
+
+function movableValidationResult(result: TransferableValidationWorkerResult): TransferableValidationWorkerResult {
+  return move(createValidationFirstPassTransferable(result)) as unknown as TransferableValidationWorkerResult
 }
 
 interface CollectValidationFactsDependencies {
@@ -255,7 +490,10 @@ function estimateProfilePayloadBytes(value: unknown): number | undefined {
 
 let validationSchemaCache: ValidationSchemaCache | undefined
 let validationRulesSnapshot: ValidationRulesSnapshot | undefined
-let validationState = createEmptyWorkerValidationState()
+let projectStateComponentTemplates: {
+  readonly configuration: ValidationProjectComponent
+  readonly configurationExtension: ValidationProjectComponent
+} | undefined
 const validationYamlLifetimeForTests = { current: 0, max: 0, parsed: 0, propertyEvents: 0 }
 
 export function resetValidationYamlLifetimeForTests(): void {
@@ -269,105 +507,211 @@ export function getValidationYamlLifetimeForTests(): Readonly<typeof validationY
   return { ...validationYamlLifetimeForTests }
 }
 
-function createEmptyWorkerValidationState(): WorkerValidationState {
-  return {
-    states: new Map(),
+function requireProjectStateComponentTemplates() {
+  if (projectStateComponentTemplates === undefined) {
+    throw new Error("Prepared YAML worker не инициализирован для классификации project state")
   }
+  return projectStateComponentTemplates
 }
 
-function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" }>): {
+interface ValidationFirstPassInput {
+  readonly workerIndex: number
+  readonly projectDir: string
+  readonly context: ConfigurationContext
+  readonly files: ReadonlyArray<{
+    readonly descriptor: PreparedYamlProjectFileDescriptor
+    readonly bytes?: Uint8Array
+    readonly hash?: bigint
+  }>
+}
+
+interface ValidationFirstPassResult {
   components: ComponentFirstPassPoolResult[]
   diagnostics: Diagnostic[]
   schemaDiagnostics: Diagnostic[]
   fileResults: ValidationFirstPassFileResult[]
+  fileUpdateBatches: readonly ProjectStateFileUpdateBatch[]
   yamlLifetime: ValidationYamlLifetime
-} {
-  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
-  validationState = createEmptyWorkerValidationState()
+}
+
+interface ValidationFirstPassAccumulator {
+  readonly profiler: ReturnType<typeof createValidationProfiler>
+  readonly components: Map<string, ComponentFirstPassPoolResult>
+  readonly schemaCache: ValidationSchemaCache
+  readonly firstPassProfile: Omit<ProjectValidationFirstPassProfile, "key">
+  readonly fileUpdateEntries: ProjectStateFileUpdateBatchEntry[]
+  readonly detailedProfile: {
+    enabled: boolean
+    parseMs: number
+    validationMs: number
+    collectMs: number
+  }
+  processedFiles: number
+}
+
+function runValidationFirstPass(message: ValidationFirstPassInput): ValidationFirstPassResult {
+  const accumulator = createValidationFirstPassAccumulator(message.workerIndex)
+  for (const file of message.files) {
+    processValidationFirstPassFile(accumulator, {
+      projectDir: message.projectDir,
+      context: message.context,
+      ...file,
+    })
+  }
+  return finishValidationFirstPass(accumulator)
+}
+
+function createValidationFirstPassAccumulator(workerIndex: number): ValidationFirstPassAccumulator {
   resetValidationYamlLifetimeForTests()
-  const components = new Map<string, ComponentFirstPassPoolResult>()
-  const schemaCache = requireValidationSchemaCache()
-  const firstPassProfile = createEmptyFirstPassProfileSummary()
+  return {
+    profiler: createValidationProfiler({ scope: "worker", workerIndex }),
+    components: new Map(),
+    schemaCache: requireValidationSchemaCache(),
+    firstPassProfile: createEmptyFirstPassProfileSummary(),
+    fileUpdateEntries: [],
+    detailedProfile: {
+      enabled: process.env["NKDK_PROFILE"] === "1",
+      parseMs: 0,
+      validationMs: 0,
+      collectMs: 0,
+    },
+    processedFiles: 0,
+  }
+}
 
-  for (const descriptor of message.files) {
-    const component = componentFirstPassResult(components, descriptor.componentPath)
-    const projectComponent = validationProjectComponentFromAddress(message.projectDir, descriptor)
-    const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
-    if (file === undefined) {
-      const filePath = resolve(descriptor.filePath)
-      component.diagnostics.push({
-        filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "structure",
-        message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
-      })
-      component.fileResults.push({
-        componentPath: descriptor.componentPath,
-        filePath,
-        rootProjectPath: descriptor.rootProjectPath,
-        contributedFacts: false,
-        schemaDiagnostics: [],
-      })
-      continue
-    }
-    const entry = readProjectYamlEntryForValidation(file.absolutePath)
-    if ("error" in entry) {
-      const diagnostic = readProjectYamlDiagnostic(entry)
-      component.diagnostics.push(diagnostic)
-      component.fileResults.push({
-        componentPath: descriptor.componentPath,
-        filePath: file.absolutePath,
-        rootProjectPath: descriptor.rootProjectPath,
-        contributedFacts: false,
-        schemaDiagnostics: [],
-      })
-      continue
-    }
-
-    validationYamlLifetimeForTests.current += 1
-    validationYamlLifetimeForTests.parsed += 1
-    validationYamlLifetimeForTests.max = Math.max(
-      validationYamlLifetimeForTests.max,
-      validationYamlLifetimeForTests.current
-    )
-    let first
-    try {
-      first = validateProjectFileFirstPass({
-        projectDir: descriptor.componentDir,
-        file,
-        cache: createProjectYamlCacheFromEntries([entry]),
-        context: message.context,
-        schemaCache,
-        rulesSnapshot: requireValidationRulesSnapshot(),
-      })
-    } finally {
-      validationYamlLifetimeForTests.current -= 1
-    }
-
-    if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
-    validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
-    validationState.states.set(resolve(file.absolutePath), first.state)
-    component.contribution.objectRecords.push(...first.objectRecords)
-    component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
-    component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
-    component.contribution.valueIndexEntries?.push(...first.valueIndexEntries)
-    component.contribution.pendingReferences?.push(...first.pendingReferences)
-    component.diagnostics.push(...first.diagnostics)
-    component.schemaDiagnostics.push(...first.schemaDiagnostics)
+function processValidationFirstPassFile(
+  accumulator: ValidationFirstPassAccumulator,
+  input: {
+    readonly projectDir: string
+    readonly context: ConfigurationContext
+    readonly descriptor: PreparedYamlProjectFileDescriptor
+    readonly bytes?: Uint8Array
+    readonly hash?: bigint
+  },
+): boolean {
+  accumulator.processedFiles += 1
+  const { descriptor } = input
+  const component = componentFirstPassResult(accumulator.components, descriptor.componentPath)
+  const projectComponent = validationProjectComponentFromAddress(input.projectDir, descriptor)
+  const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
+  if (file === undefined) {
+    const filePath = resolve(descriptor.filePath)
+    component.diagnostics.push({
+      filePath,
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
+    })
+    component.fileResults.push({
+      componentPath: descriptor.componentPath,
+      filePath,
+      rootProjectPath: descriptor.rootProjectPath,
+      contributedFacts: false,
+      schemaDiagnostics: [],
+    })
+    return false
+  }
+  let startedAt = accumulator.detailedProfile.enabled ? performance.now() : 0
+  const entry = input.bytes === undefined
+    ? readProjectYamlEntryForValidation(file.absolutePath)
+    : projectYamlEntryFromBytes(file.absolutePath, input.bytes)
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.detailedProfile.parseMs += performance.now() - startedAt
+  }
+  if ("error" in entry) {
+    const diagnostic = readProjectYamlDiagnostic(entry)
+    component.diagnostics.push(diagnostic)
     component.fileResults.push({
       componentPath: descriptor.componentPath,
       filePath: file.absolutePath,
       rootProjectPath: descriptor.rootProjectPath,
-      contributedFacts: first.contributedFacts,
-      schemaDiagnostics: first.schemaDiagnostics,
+      contributedFacts: false,
+      schemaDiagnostics: [],
+    })
+    return false
+  }
+
+  validationYamlLifetimeForTests.current += 1
+  validationYamlLifetimeForTests.parsed += 1
+  validationYamlLifetimeForTests.max = Math.max(
+    validationYamlLifetimeForTests.max,
+    validationYamlLifetimeForTests.current,
+  )
+  let first
+  try {
+    if (accumulator.detailedProfile.enabled) startedAt = performance.now()
+    first = validateProjectFileFirstPass({
+      projectDir: descriptor.componentDir,
+      file,
+      cache: createProjectYamlCacheFromEntries([entry]),
+      context: input.context,
+      schemaCache: accumulator.schemaCache,
+      rulesSnapshot: requireValidationRulesSnapshot(),
+    })
+    if (accumulator.detailedProfile.enabled) {
+      accumulator.detailedProfile.validationMs += performance.now() - startedAt
+    }
+  } finally {
+    validationYamlLifetimeForTests.current -= 1
+  }
+
+  if (accumulator.detailedProfile.enabled) startedAt = performance.now()
+  if (first.profile !== undefined) addFirstPassProfile(accumulator.firstPassProfile, first.profile)
+  validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
+  component.contribution.objectRecords.push(...first.objectRecords)
+  component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
+  component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)
+  component.contribution.valueIndexEntries?.push(...first.valueIndexEntries)
+  component.contribution.pendingReferences?.push(...first.pendingReferences)
+  component.diagnostics.push(...first.diagnostics)
+  component.schemaDiagnostics.push(...first.schemaDiagnostics)
+  component.fileResults.push({
+    componentPath: descriptor.componentPath,
+    filePath: file.absolutePath,
+    rootProjectPath: descriptor.rootProjectPath,
+    contributedFacts: first.contributedFacts,
+    schemaDiagnostics: first.schemaDiagnostics,
+  })
+  accumulator.fileUpdateEntries.push({
+    update: toProjectStateFileUpdate(first, {
+      projectPath: descriptor.rootProjectPath,
+      componentPath: descriptor.componentPath,
+      resourceKind: "yaml",
+      yamlRole: descriptor.role,
+    }),
+    hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
+  })
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.detailedProfile.collectMs += performance.now() - startedAt
+  }
+  return true
+}
+
+function finishValidationFirstPass(accumulator: ValidationFirstPassAccumulator): ValidationFirstPassResult {
+  recordFirstPassProfile(
+    accumulator.profiler,
+    accumulator.processedFiles,
+    accumulator.firstPassProfile,
+  )
+  if (accumulator.detailedProfile.enabled) {
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Разбор YAML", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.parseMs,
+    })
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Локальная проверка YAML", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.validationMs,
+    })
+    accumulator.profiler.record("Обработка файлов Б1–Б4", "Сбор сведений файла", {
+      items: accumulator.processedFiles,
+      timeMs: accumulator.detailedProfile.collectMs,
     })
   }
-  recordFirstPassProfile(profiler, message.files.length, firstPassProfile)
-  profiler.flush()
+  accumulator.profiler.flush()
 
-  const componentResults = [...components.values()].sort((left, right) =>
+  const componentResults = [...accumulator.components.values()].sort((left, right) =>
     left.componentPath.localeCompare(right.componentPath, "ru")
   )
   return {
@@ -375,8 +719,14 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     diagnostics: componentResults.flatMap(({ diagnostics }) => diagnostics),
     schemaDiagnostics: componentResults.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
     fileResults: componentResults.flatMap(({ fileResults }) => fileResults),
+    fileUpdateBatches: [createProjectStateFileUpdateBatch(accumulator.fileUpdateEntries)],
     yamlLifetime: getValidationYamlLifetimeForTests(),
   }
+}
+
+function projectYamlEntryFromBytes(filePath: string, bytes: Uint8Array) {
+  const text = new TextDecoder().decode(bytes)
+  return { filePath, text, parsed: parseMetadataYaml(text) }
 }
 
 function componentFirstPassResult(
@@ -483,100 +833,4 @@ function requireValidationSchemaCache(): ValidationSchemaCache {
 function requireValidationRulesSnapshot(): ValidationRulesSnapshot {
   if (validationRulesSnapshot === undefined) throw new Error("Prepared YAML worker rulesSnapshot не инициализирован")
   return validationRulesSnapshot
-}
-
-function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateSecondPass" }>): {
-  diagnostics: Diagnostic[]
-} {
-  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
-  const diagnostics: Diagnostic[] = []
-  const blocked = new Set(message.blockedComponentPaths)
-  const activeStates = [...validationState.states.values()].filter(({ file }) => !blocked.has(file.componentPath))
-  const activeReferenceLayers = message.pendingReferenceLayers.filter(({ componentPath }) => !blocked.has(componentPath))
-  const activeComponentPaths = [
-    ...new Set([
-      ...activeStates.map(({ file }) => file.componentPath),
-      ...activeReferenceLayers.map(({ componentPath }) => componentPath),
-    ]),
-  ]
-  const views = profiler.measure(
-    "Проверка зависимостей",
-    "Построение контекста worker",
-    { items: activeComponentPaths.length },
-    () => {
-      const views = new Map<
-        string,
-        {
-          ownerCache: ReturnType<typeof createOwnerMetadataCacheFromSharedProjectValidationGraph>
-          referenceIndex: ReturnType<typeof createSharedProjectReferenceIndex>
-        }
-      >()
-      for (const componentPath of activeComponentPaths) {
-        views.set(componentPath, {
-          ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
-            projectDir: message.projectDir,
-            componentPath,
-            graph: message.sharedProjectValidationGraph,
-          }),
-          referenceIndex: createSharedProjectReferenceIndex({
-            projectDir: message.projectDir,
-            componentPath,
-            snapshot: message.sharedProjectValidationGraph.reference,
-            resolveObjectFilePath: (target) =>
-              resolveObjectFilePath({
-                projectDir: join(message.projectDir, componentPath),
-                target,
-              }),
-          }),
-        })
-      }
-      return views
-    }
-  )
-  const view = (componentPath: string) => {
-    const created = views.get(componentPath)
-    if (created === undefined) throw new Error(`Не построен validation view компонента: ${componentPath}`)
-    return created
-  }
-  const pendingReferenceCount = activeReferenceLayers.reduce(
-    (count, layer) => count + layer.references.length,
-    0
-  )
-  profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: pendingReferenceCount }, () => {
-    for (const layer of activeReferenceLayers) {
-      const referenceResult = validatePendingReferencesWithIndex({
-        index: view(layer.componentPath).referenceIndex,
-        references: layer.references,
-      })
-      diagnostics.push(...referenceResult.diagnostics)
-    }
-  })
-
-  profiler.measure("Проверка зависимостей", "Worker second pass", { items: activeStates.length }, () => {
-    for (const state of activeStates) {
-      const { ownerCache, referenceIndex } = view(state.file.componentPath)
-      const second = validateProjectFileSecondPass({
-        projectDir: message.projectDir,
-        state,
-        context: message.context,
-        ownerCache,
-        referenceIndex,
-        skipMetadataTargetValidation: true,
-      })
-      diagnostics.push(...second.diagnostics)
-    }
-  })
-  profiler.flush()
-
-  validationState = createEmptyWorkerValidationState()
-
-  return { diagnostics }
-}
-
-function resolveObjectFilePath(params: {
-  projectDir: string
-  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
-}): string | undefined {
-  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
-  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }

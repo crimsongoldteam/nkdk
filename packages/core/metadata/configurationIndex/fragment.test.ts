@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest"
 import {
+  createConfigurationIndexFragmentBuilder,
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
 } from "./fragment"
+import { encodeConfigurationIndex } from "./encode"
 import { entity, fragment } from "./testData"
 
 describe("configuration snapshot worker fragments", () => {
@@ -61,6 +63,41 @@ describe("configuration snapshot worker fragments", () => {
       sourceProjectPaths: ["Пустой.yaml"],
       entities: [],
     })
+  })
+
+  it("инкрементально хранит только уникальное конечное состояние без входных fragments", () => {
+    const builder = createConfigurationIndexFragmentBuilder()
+    for (let index = 0; index < 100; index += 1) {
+      builder.add(fragment("А.yaml", { ...entity("Объект", "А.yaml"), xml: { explicitEmpty: true } }))
+      expect(builder.metrics()).toEqual({ sourceProjectPaths: 1, entities: 1, retainedInputFragments: 0 })
+    }
+
+    expect(builder.finish()).toEqual({
+      sourceProjectPaths: ["А.yaml"],
+      entities: [{ ...entity("Объект", "А.yaml"), xml: { explicitEmpty: true } }],
+    })
+    expect(builder.metrics()).toEqual({ sourceProjectPaths: 0, entities: 0, retainedInputFragments: 0 })
+  })
+
+  it("сохраняет cross-assignment parent и form в одном корректном configuration index", () => {
+    const builder = createConfigurationIndexFragmentBuilder()
+    builder.add(fragment("Справочник/Товары/Свойства.yaml", entity(
+      "Catalog.Товары",
+      "Справочник/Товары/Свойства.yaml",
+    )))
+    builder.add(fragment("Справочник/Товары/Формы/Форма/Форма.yaml", entity(
+      "Catalog.Товары.Form.Форма",
+      "Справочник/Товары/Формы/Форма/Форма.yaml",
+    )))
+    const merged = builder.finish()
+
+    expect(() => encodeConfigurationIndex({
+      specificationVersion: "1.3",
+      indexGeneration: 1n,
+      componentPath: "cf",
+      files: merged.sourceProjectPaths.map((projectPath) => ({ projectPath, contentHash: 1n })),
+      entities: merged.entities,
+    })).not.toThrow()
   })
 
   it("отклоняет пустые entity, неизвестные поля и несовпадающий путь", () => {

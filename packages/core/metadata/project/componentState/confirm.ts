@@ -1,4 +1,5 @@
 import { createConfigurationIndexReader } from "../../configurationIndex"
+import type { ProjectStateReadToken } from "../../projectState"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure, ConfirmedComponentState } from "./types"
 import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
 
@@ -7,6 +8,7 @@ export function confirmComponentState(params: {
   readonly hashes: ComponentHashState
   readonly indexes: ComponentIndexes
   readonly snapshot: SharedConfigurationIndexSnapshot
+  readonly projectStateReadToken: ProjectStateReadToken
 }): ConfirmedComponentState {
   if (
     params.structure.componentPath !== params.hashes.componentPath ||
@@ -29,19 +31,14 @@ export function confirmComponentState(params: {
   return Object.freeze({ ...params })
 }
 
-function equalPaths(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((value, index) => value === right[index])
-}
-
 function equalProjectFiles(
   left: readonly { projectPath: string; contentHash: bigint }[],
   right: readonly { projectPath: string; contentHash: bigint }[]
 ): boolean {
-  return (
-    left.length === right.length &&
-    left.every(
-      (value, index) =>
-        value.projectPath === right[index]?.projectPath && value.contentHash === right[index]?.contentHash
-    )
-  )
+  return left.length === right.length && left.every((value, index) =>
+    value.projectPath === right[index]?.projectPath && value.contentHash === right[index]?.contentHash)
+}
+
+function equalPaths(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
 }

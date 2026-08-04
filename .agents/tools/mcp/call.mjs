@@ -20,11 +20,15 @@ class CallScriptUsageError extends Error {}
 export function parseArgs(argv) {
   const [toolName, ...rest] = argv
   if (!toolName || toolName.startsWith("-")) throw new CallScriptUsageError("tool name is required")
-  const options = { toolName, debug: false }
+  const options = { toolName, debug: false, serverMode: "source" }
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index]
     if (arg === "--debug") {
       options.debug = true
+      continue
+    }
+    if (arg === "--compiled") {
+      options.serverMode = "compiled"
       continue
     }
     const value = rest[index + 1]
@@ -54,6 +58,7 @@ function usage(message) {
       "  --response-log path      сохранить полный ответ",
       "  --server-stdout-log path создать stdout-log файл диагностики",
       "  --server-stderr-log path записать stderr MCP-сервера",
+      "  --compiled              запустить собранный MCP вместо исходного TypeScript",
       "  --debug                  печатать краткую диагностику",
       "",
     ].join("\n")
@@ -106,9 +111,15 @@ function structuredPayload(result) {
   }
 }
 
-function operationFailed(payload) {
+export function operationFailed(payload) {
   if (!payload || typeof payload !== "object") return false
-  return payload.ok === false || (Array.isArray(payload.failed) && payload.failed.length > 0)
+  if (payload.ok === false) return true
+  if (!Array.isArray(payload.failed) || payload.failed.length === 0) return false
+  return payload.failed.some(
+    (failure) => !failure
+      || typeof failure !== "object"
+      || failure.code !== "project_validation"
+  )
 }
 
 function failureMessage(toolName, result, payload) {
@@ -124,6 +135,66 @@ function childEnvironment() {
   return Object.fromEntries(Object.entries(process.env).filter((entry) => entry[1] !== undefined))
 }
 
+export function resolveServerLaunch(serverMode = "source") {
+  if (serverMode === "compiled") {
+    return { command: process.execPath, args: [`${mcpPackageRoot}/dist/bin/nkdk-mcp`] }
+  }
+  if (serverMode === "source") {
+    return {
+      command: process.execPath,
+      args: ["--import", tsxLoader, `${mcpPackageRoot}/src/server.ts`],
+    }
+  }
+  throw new Error(`unknown MCP server mode: ${serverMode}`)
+}
+
+export async function createMcpToolSession({
+  serverMode = "source",
+  debug = false,
+  env = childEnvironment(),
+  createTransport = (options) => new StdioClientTransport(options),
+  createClient = () => new Client({ name: "nkdk-round-trip", version: "1.0.0" }),
+} = {}) {
+  const launch = resolveServerLaunch(serverMode)
+  if (debug) process.stderr.write(`[mcp] ${launch.command} ${launch.args.join(" ")}\n`)
+  const transport = createTransport({
+    ...launch,
+    cwd: repoRoot,
+    env,
+    stderr: "pipe",
+  })
+  const client = createClient()
+  let stderr = ""
+  let closed = false
+
+  await client.connect(transport)
+  if (transport.stderr) {
+    transport.stderr.setEncoding("utf8")
+    transport.stderr.on("data", (chunk) => {
+      stderr += chunk
+      if (debug) process.stderr.write(chunk)
+    })
+  }
+
+  return {
+    async call(toolName, args) {
+      if (debug) process.stderr.write(`[mcp] tool ${toolName}\n`)
+      const result = await callToolWithoutPracticalLimit(client, { name: toolName, arguments: args })
+      return { result, payload: structuredPayload(result) }
+    },
+    takeStderr() {
+      const current = stderr
+      stderr = ""
+      return current
+    },
+    async close() {
+      if (closed) return
+      closed = true
+      await client.close()
+    },
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   const input = JSON.parse(await readFile(options.input, "utf8"))
@@ -131,35 +202,11 @@ async function main() {
   await writeJson(options.requestLog, request)
   await writeText(options.serverStdoutLog, "MCP stdio stdout carries protocol frames and is owned by the SDK.\n")
 
-  const command = process.execPath
-  const args = ["--import", tsxLoader, `${mcpPackageRoot}/src/server.ts`]
-  if (options.debug) {
-    process.stderr.write("[mcp] " + command + " " + args.join(" ") + "\n")
-    process.stderr.write("[mcp] tool " + options.toolName + "\n")
-  }
-
-  const transport = new StdioClientTransport({
-    command,
-    args,
-    cwd: repoRoot,
-    env: childEnvironment(),
-    stderr: "pipe",
-  })
-  const client = new Client({ name: "nkdk-round-trip", version: "1.0.0" })
-  let stderr = ""
-  await client.connect(transport)
-  if (transport.stderr) {
-    transport.stderr.setEncoding("utf8")
-    transport.stderr.on("data", (chunk) => {
-      stderr += chunk
-      if (options.debug) process.stderr.write(chunk)
-    })
-  }
+  const session = await createMcpToolSession({ serverMode: options.serverMode, debug: options.debug })
 
   let failed = true
   try {
-    const result = await callToolWithoutPracticalLimit(client, request)
-    const payload = structuredPayload(result)
+    const { result, payload } = await session.call(options.toolName, input)
     await writeJson(options.responseLog, result)
     await writeJson(options.output, payload ?? result)
     if (result.isError || operationFailed(payload)) {
@@ -169,10 +216,10 @@ async function main() {
     if (options.debug) process.stderr.write(`[mcp] ok ${options.toolName}\n`)
   } finally {
     try {
-      await client.close()
+      await session.close()
     } finally {
       await reportServerStderr({
-        stderr,
+        stderr: session.takeStderr(),
         failed,
         debug: options.debug,
         logPath: options.serverStderrLog,

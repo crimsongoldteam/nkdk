@@ -6,16 +6,28 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
 import { configurationIndexPath, importConfigurationFromXml, readConfigurationIndex } from "../../index"
 import { mockContextFromXML } from "../../tests/mockContext"
+import {
+  createImportProjectStateTestService,
+  createXmlImportWorkerTestPool,
+} from "../../tests/xmlImportWorkerTestPool"
 import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedYamlWorkerTestPool"
-import { createXmlImportWorkerTestPool } from "../../tests/xmlImportWorkerTestPool"
+import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
+const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
+const projectState = createImportProjectStateTestService({
+  createPool: (concurrency) => createPreparedYamlProjectWorkerPool({
+    concurrency,
+    createWorkerPool: preparedYamlWorkerFactory,
+  }),
+})
 let importedExtension: Awaited<ReturnType<typeof importExtension>>
 
 afterAll(async () => {
   await xmlImportWorkerPoolHandle.close()
+  await projectState.close()
   for (const directory of temporaryDirectories.splice(0)) {
     fs.rmSync(directory, { recursive: true, force: true })
   }
@@ -32,7 +44,14 @@ describe("configuration extension XML import", () => {
     expect(result).toEqual({
       componentPath: "cfe/РасширениеКонтроль",
       succeeded: 3,
-      failed: [],
+      failed: [
+        {
+          severity: "error",
+          code: "project_validation",
+          message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
+          targetProjectPath: "cfe/РасширениеКонтроль/Конфигурация.yaml",
+        },
+      ],
       warnings: [],
       configurationIndexPath: configurationIndexPath(projectDir, {
         kind: "configurationExtension",
@@ -130,7 +149,7 @@ async function importExtension() {
     concurrency: 1,
     operationId: "configuration-extension-e2e",
     xmlImportWorkerPoolHandle,
-    createReferenceWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
+    projectState,
   })
   const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")

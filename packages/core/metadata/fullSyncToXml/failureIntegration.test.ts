@@ -10,7 +10,10 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
+import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
+import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   syncComponentToXml,
@@ -21,9 +24,12 @@ import {
   removeFullSyncTempDirs,
 } from "./testHelpers"
 import { fullXmlSyncTestOutput } from "./testTopology"
+import {
+  createFullXmlSyncDiagnosticCollectionFromDiagnostics,
+  createFullXmlSyncFileCollectionFromFiles,
+} from "./workerPool"
 
 const fullSyncTopology = compileRegisteredMetadataResourceTopology()
-const emptyValidationMetadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -37,6 +43,20 @@ describe("full XML sync failure integration", () => {
   } as ConfigurationContext
   let missingAdoptedUuidResult: Awaited<ReturnType<typeof syncComponentToXml>>
   let workerStartedForMissingAdoptedUuid: boolean
+
+  function syncIndexedProject(
+    state: Awaited<ReturnType<typeof createIndexedProject>>,
+    deps: FullXmlSyncCoordinatorDependencies,
+    componentPath = "cf",
+  ) {
+    return syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath,
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous),
+    }, deps)
+  }
 
   beforeAll(async () => {
     const state = await createIndexedProject()
@@ -58,12 +78,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    missingAdoptedUuidResult = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cfe/Дополнение",
-      xmlDir: state.xmlDir,
-    }, deps)
+    missingAdoptedUuidResult = await syncIndexedProject(state, deps, "cfe/Дополнение")
   })
 
   it("does not touch a non-empty XML target", async () => {
@@ -77,6 +92,7 @@ describe("full XML sync failure integration", () => {
       projectDir: root,
       componentPath: "cf",
       xmlDir,
+      projectState: testProjectState(),
     })
 
     expect(result.failed).toEqual([
@@ -90,12 +106,7 @@ describe("full XML sync failure integration", () => {
     const before = fs.readFileSync(state.indexPath)
     const deps = failureDeps(state.previous, state.projectDir, state.xmlDir)
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_operation_failed" }),
@@ -117,14 +128,14 @@ describe("full XML sync failure integration", () => {
         async initialize() {},
         async execute() {
           return {
-            warnings: [],
-            diagnostics: [{
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([{
               severity: "error" as const,
               code: "full_xml_sync_assignment_failed",
               message: "Не удалось построить XML",
-            }],
-            writtenFiles: [],
-            expectedOutputs: [],
+            }]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([]),
             fragmentData: { sourceProjectPaths: [], entities: [] },
           }
         },
@@ -139,18 +150,74 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_assignment_failed" }),
     ])
     expect(transferred).toBe(false)
     expect(written).toBe(false)
+    expect(fs.readFileSync(state.indexPath)).toEqual(before)
+  })
+
+  it("rejects an incomplete selection before creating XML or confirming the snapshot", async () => {
+    const state = await createIndexedProject()
+    const before = fs.readFileSync(state.indexPath)
+    fs.rmdirSync(state.xmlDir)
+    let componentStateConfirmed = false
+    let profileConfirmed = false
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...baseDeps,
+      async exists(path) {
+        return path === state.projectDir
+      },
+      async mkdir(path) {
+        await fs.promises.mkdir(path, { recursive: true })
+      },
+      confirmState(params) {
+        componentStateConfirmed = true
+        return Object.freeze(params)
+      },
+      resolveProfile() {
+        return {
+          kind: "configuration",
+          supports: () => true,
+          baseAddress: () => undefined,
+          confirm({ target }) {
+            profileConfirmed = true
+            return {
+              kind: "configuration",
+              target,
+              workerProfile: {
+                kind: "configuration",
+                componentKind: "configuration",
+                adoptedUuids: {},
+              },
+            }
+          },
+        }
+      },
+      createWorkerPool() {
+        throw new Error("worker pool must not be created")
+      },
+    }
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous),
+      selection: { kind: "selected", projectPaths: [] },
+    }, deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ message: "Публичная частичная синхронизация в XML пока не поддерживается" }),
+    ])
+    expect(fs.existsSync(state.xmlDir)).toBe(false)
+    expect(componentStateConfirmed).toBe(false)
+    expect(profileConfirmed).toBe(false)
     expect(fs.readFileSync(state.indexPath)).toEqual(before)
   })
 
@@ -172,12 +239,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    const result = await syncComponentToXml({
-      context,
-      projectDir: state.projectDir,
-      componentPath: "cf",
-      xmlDir: state.xmlDir,
-    }, deps)
+    const result = await syncIndexedProject(state, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_output_invalid" }),
@@ -222,6 +284,7 @@ async function createIndexedProject() {
     writeSnapshot(extensionPath, { ...previous, componentPath: "cfe/Дополнение" }),
   ])
   return {
+    workers: createUnusedMetadataWorkerPool(),
     projectDir,
     xmlDir,
     previous,
@@ -276,8 +339,6 @@ function failureDeps(
       return {
         componentPath: structure.componentPath,
         sourceProjectFiles: hashes.projectFiles,
-        metadata: emptyValidationMetadata,
-        dependencies: [],
         logicalAddresses: [],
       }
     },
@@ -330,16 +391,16 @@ function failureDeps(
         async execute() {
           fs.writeFileSync(join(xmlDir, "partial.xml"), "partial")
           return {
-            diagnostics: [],
-            warnings: [],
-            writtenFiles: [{
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "partial.xml",
-            }],
-            expectedOutputs: [{
+            }]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "partial.xml",
-            }],
+            }]),
             fragmentData: {
               sourceProjectPaths: ["Конфигурация.yaml"],
               entities: [],
@@ -358,4 +419,40 @@ function failureDeps(
     writeIndex: writeConfigurationIndexAtomically,
   }
   return deps
+}
+
+function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
+  const readToken = createTestProjectStateReadToken()
+  return {
+    workers: createUnusedMetadataWorkerPool(),
+    async beginImport() { throw new Error("not used") },
+    async refreshAndValidate() {
+      return {
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
+        readToken,
+        stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
+      }
+    },
+    async createReadToken() { return createTestProjectStateReadToken() },
+    async readComponentProjection({ componentPath }) {
+      const files = snapshot?.files ?? []
+      const hashBytes = new Uint8Array(files.length * 8)
+      const view = new DataView(hashBytes.buffer)
+      files.forEach(({ contentHash }, index) => view.setBigUint64(index * 8, contentHash, false))
+      return {
+        componentPath,
+        projectFiles: files.map(({ projectPath }) => ({ projectPath: `${componentPath}/${projectPath}` })),
+        hashBytes,
+      }
+    },
+    openReadSession() {
+      return {
+        readComponentTargetPage: () => ({ entries: [] }),
+        close() {},
+      } as unknown as ProjectStateReadSession
+    },
+    async reset() {},
+    async rebuild() { throw new Error("not used") },
+    async close() {},
+  }
 }

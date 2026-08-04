@@ -5,7 +5,7 @@ export const neutralProductionPattern =
 
 const allowedInternalTargets = [
   "^packages/core/metadata/(?:orchestration|validation|project)/",
-  "^packages/core/metadata/(?:context|helpers|resourceTopology|configurationIndex|components|sourceWorkerRuntime)(?:/|\\.ts$)",
+  "^packages/core/metadata/(?:context|helpers|resourceTopology|configurationIndex|components|diagnostics|projectState|workerPool|sourceWorkerRuntime)(?:/|\\.ts$)",
   "^packages/core/(?:helpers|yaml|xml)/",
 ]
 

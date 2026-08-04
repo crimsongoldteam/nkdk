@@ -1,98 +1,42 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockContext } from "../../../tests/mockContext"
-import { createPreparedYamlWorkerThreadPoolFactory } from "../../../tests/preparedYamlWorkerTestPool"
-import type { PreparedYamlProjectWorkerTask } from "../preparedYamlProjectWorker"
+import { afterEach, describe, expect, it } from "vitest"
+import { hashConfigurationProjectFileList } from "../../configurationIndex"
 import { readComponentIndexes } from "./indexes"
-import { readComponentHashState } from "./hashes"
 import { readComponentProjectStructure } from "./structure"
 
 describe("component indexes", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    let dir: string | undefined
+    while ((dir = tempDirs.pop()) !== undefined) {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
-  it("always builds indexes from current topology and YAML", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-indexes-cold-"))
-    tempDirs.push(projectDir)
-    const filePath = join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml")
-    mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, "Реквизиты: {}\n")
-    const structure = await readComponentProjectStructure({
-      projectDir,
-      address: { kind: "configuration" },
-    })
-    const hashes = await readComponentHashState({ structure })
-    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
-      if (task.kind !== "collectValidationFacts") {
-        throw new Error(`Неожиданное задание worker: ${task.kind}`)
-      }
-      return {
-        kind: "collectValidationFactsResult" as const,
-        contribution: {
-          objectRecords: [],
-          objectIndexEntries: [],
-          memberIndexEntries: [],
-          valueIndexEntries: [],
-          pendingReferences: [],
-          localDependencies: [],
-          logicalAddresses: [
-            {
-              logicalAddress: "Catalog.Товары.Attribute.Артикул",
-              sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-            },
-          ],
-        },
-      }
-    })
-    const destroy = vi.fn(async () => undefined)
-    const createWorkerPool = vi.fn(() => ({ run, destroy }))
+  it("projects sync logical addresses from topology without validation facts", async () => {
+    const { structure, hashes } = await indexedProject(
+      "Справочник/Товары/Свойства.yaml",
+      "Реквизиты: {}\n",
+    )
 
-    const indexes = await readComponentIndexes({
-      structure,
-      hashes,
-      context: mockContext,
-      createWorkerPool,
-    })
+    const indexes = await readIndexes(structure, hashes)
 
-    expect(createWorkerPool).toHaveBeenCalledOnce()
-    expect(run).toHaveBeenCalledOnce()
-    expect(destroy).toHaveBeenCalledOnce()
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
     expect(indexes.logicalAddresses).toEqual([
       {
         logicalAddress: "Справочник.Товары",
         sourceProjectPath: "Справочник/Товары/Свойства.yaml",
       },
-      {
-        logicalAddress: "Catalog.Товары.Attribute.Артикул",
-        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      },
     ])
   })
 
   it("builds indexes from the current root YAML", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-indexes-"))
-    tempDirs.push(projectDir)
-    const filePath = join(projectDir, "cf", "Конфигурация.yaml")
-    mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, "Имя: Конфигурация\n")
-    const structure = await readComponentProjectStructure({
-      projectDir,
-      address: { kind: "configuration" },
-    })
-    const hashes = await readComponentHashState({ structure })
+    const { structure, hashes } = await indexedProject("Конфигурация.yaml", "Имя: Конфигурация\n")
 
-    const indexes = await readComponentIndexes({
-      structure,
-      hashes,
-      context: mockContext,
-      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
-    })
+    const indexes = await readIndexes(structure, hashes)
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
     expect(indexes.logicalAddresses).toEqual([
@@ -100,28 +44,77 @@ describe("component indexes", () => {
     ])
   })
 
-  it("rebuilds canonical addresses of child metadata from current YAML", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-child-indexes-"))
-    tempDirs.push(projectDir)
-    const filePath = join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml")
-    mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, ["Реквизиты:", "  Артикул:", "    Тип: Строка", ""].join("\n"))
-    const structure = await readComponentProjectStructure({
-      projectDir,
-      address: { kind: "configuration" },
-    })
-    const hashes = await readComponentHashState({ structure })
+  it("does not rebuild child validation addresses from YAML", async () => {
+    const { structure, hashes } = await indexedProject(
+      "Справочник/Товары/Свойства.yaml",
+      ["Реквизиты:", "  Артикул:", "    Тип: Строка", ""].join("\n"),
+    )
 
-    const indexes = await readComponentIndexes({
+    const indexes = await readIndexes(structure, hashes)
+
+    expect(indexes.logicalAddresses).toEqual([{ logicalAddress: "Справочник.Товары", sourceProjectPath: "Справочник/Товары/Свойства.yaml" }])
+  })
+
+  it("adds nested logical addresses from paged project state without reading YAML", async () => {
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const { structure, hashes } = await indexedProject(projectPath, "Имя: Товары\n")
+    const cursors: Array<string | undefined> = []
+    const params = {
       structure,
       hashes,
-      context: mockContext,
-      createWorkerPool: createPreparedYamlWorkerThreadPoolFactory(),
-    })
+      projectStateReadSession: {
+        readComponentTargetPage(query: { componentPath: string; cursor?: string }) {
+          cursors.push(query.cursor)
+          return query.cursor === undefined
+            ? {
+                entries: [{ logicalAddress: "Catalog.Товары", sourceProjectPath: `cf/${projectPath}` }],
+                nextCursor: "Catalog.Товары",
+              }
+            : {
+                entries: [{
+                  logicalAddress: "Catalog.Товары.Attribute.Артикул",
+                  sourceProjectPath: `cf/${projectPath}`,
+                }],
+              }
+        },
+      },
+    }
 
-    expect(indexes.logicalAddresses).toContainEqual({
-      logicalAddress: "Catalog.Товары.Attribute.Артикул",
-      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-    })
+    const indexes = await readComponentIndexes(params)
+
+    expect(cursors).toEqual([undefined, "Catalog.Товары"])
+    expect(indexes.logicalAddresses).toEqual([
+      { logicalAddress: "Справочник.Товары", sourceProjectPath: projectPath },
+      { logicalAddress: "Catalog.Товары", sourceProjectPath: projectPath },
+      { logicalAddress: "Catalog.Товары.Attribute.Артикул", sourceProjectPath: projectPath },
+    ])
   })
+
+  async function indexedProject(projectPath: string, content: string) {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-indexes-"))
+    tempDirs.push(projectDir)
+    const filePath = join(projectDir, "cf", ...projectPath.split("/"))
+    mkdirSync(join(filePath, ".."), { recursive: true })
+    writeFileSync(filePath, content)
+    const structure = await readComponentProjectStructure({ projectDir, address: { kind: "configuration" } })
+    return { structure, hashes: await hashState(structure) }
+  }
 })
+
+async function hashState(structure: Awaited<ReturnType<typeof readComponentProjectStructure>>) {
+  return {
+    componentPath: structure.componentPath,
+    projectFiles: await hashConfigurationProjectFileList(structure.componentDir, structure.projectPaths),
+  }
+}
+
+function readIndexes(
+  structure: Awaited<ReturnType<typeof readComponentProjectStructure>>,
+  hashes: Awaited<ReturnType<typeof hashState>>,
+) {
+  return readComponentIndexes({
+    structure,
+    hashes,
+    projectStateReadSession: { readComponentTargetPage: () => ({ entries: [] }) },
+  })
+}

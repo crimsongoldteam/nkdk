@@ -3,6 +3,7 @@ import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "../../configurationIndex/types"
 import type { ConfirmedComponentState } from "../../project/componentState/types"
+import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
 
 describe("configuration extension full XML sync profile", () => {
@@ -45,7 +46,7 @@ describe("configuration extension full XML sync profile", () => {
     })
   })
 
-  it("exposes only the current extension, base and runtime identities", () => {
+  it("adopts a nested object present in current ProjectState component indexes", () => {
     const adopted = ["Catalog.Товары", "Catalog.Товары.Attribute.Артикул"]
     const base = state({
       componentPath: "cf",
@@ -235,14 +236,13 @@ function state(params: {
     indexes: {
       componentPath: params.componentPath,
       sourceProjectFiles: projectFiles,
-      metadata: {} as ConfirmedComponentState["indexes"]["metadata"],
-      dependencies: [],
       logicalAddresses: (params.logicalAddresses ?? []).map((logicalAddress) => ({
         logicalAddress,
         sourceProjectPath: projectFiles[0]!.projectPath,
       })),
     },
     snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(snapshot)),
+    projectStateReadToken: createTestProjectStateReadToken(),
   }
 }
 

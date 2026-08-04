@@ -11,7 +11,7 @@ export function registeredProjectValidationFormRules(): ProjectValidationFormRul
   for (const assignment of compileRegisteredMetadataResourceTopology()
     .assignments) {
     if (
-      assignment.projectRole !== "form" ||
+      assignment.role !== "fileItem" ||
       byRule.has(assignment.itemRule)
     ) {
       continue

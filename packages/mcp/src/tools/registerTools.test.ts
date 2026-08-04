@@ -25,6 +25,8 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.list_infobases",
       "nkdk.list_infobase_extensions",
       "nkdk.validate_project",
+      "nkdk.reset_project_cache",
+      "nkdk.rebuild_project_cache",
       "nkdk.import_from_xml",
       "nkdk.import_from_infobase",
       "nkdk.close_platform_connection",
@@ -89,6 +91,37 @@ describe("registerNkdkCapabilities", () => {
     expect(syncTool?.description).toContain("projectDir/componentPath")
     expect(syncTool?.description).toContain("xmlRootDir/componentPath")
     expect(syncTool?.description).not.toContain("reference")
+    expect(syncTool?.description).toContain("Проверки выполняются всегда")
+
+    for (const name of ["nkdk.rename_item", "nkdk.find_references"]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { description: string }
+        | undefined
+      expect(tool?.description).toContain("Проверки выполняются всегда")
+    }
+
+    for (const name of [
+      "nkdk.validate_project",
+      "nkdk.rebuild_project_cache",
+      "nkdk.import_from_xml",
+      "nkdk.sync_to_xml",
+      "nkdk.rename_item",
+      "nkdk.find_references",
+    ]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { outputSchema?: unknown }
+        | undefined
+      expect(tool?.outputSchema, `${name} должен объявлять outputSchema`).toBeDefined()
+    }
+
+    for (const name of ["nkdk.reset_project_cache", "nkdk.rebuild_project_cache"]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { inputSchema: z.ZodType }
+        | undefined
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true }).success).toBe(true)
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: false }).success).toBe(false)
+      expect(tool?.inputSchema.safeParse({ projectDir: "/project", allowWrite: true, extra: 1 }).success).toBe(false)
+    }
 
     const listInfobasesTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.list_infobases")?.[1] as
       | { description: string }
@@ -123,6 +156,29 @@ describe("registerNkdkCapabilities", () => {
         reusedConnection: false,
       }).success
     ).toBe(true)
+  })
+
+  it("возвращает краткую сводку и ссылку на полный отчёт без JSON-дубликата", () => {
+    const payload = {
+      ok: true as const,
+      diagnostics: [],
+      summary: { errors: 120, warnings: 3, shown: 100, omitted: 23 },
+      truncated: true,
+      report: { uri: "file:///project/.nkdk/reports/validation-op.jsonl", format: "application/x-ndjson" as const },
+    }
+
+    const result = registerToolsModule.metadataToolResult(payload, "Validation")
+
+    expect(result.content).toEqual([
+      { type: "text", text: "Validation: ошибок 120, предупреждений 3; показано 100, скрыто 23." },
+      {
+        type: "resource_link",
+        uri: payload.report.uri,
+        name: "Полный отчёт diagnostics",
+        mimeType: "application/x-ndjson",
+      },
+    ])
+    expect(result.structuredContent).toBe(payload)
   })
 
   it("passes the MCP cancellation signal to infobase import", async () => {

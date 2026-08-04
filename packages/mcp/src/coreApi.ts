@@ -4,10 +4,11 @@ import type {
   FullXmlSyncResult,
   ImportConfigurationFromXmlParams,
   MetadataOperationResult,
+  MetadataDiagnostic,
+  MetadataDiagnosticCollection,
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
 } from "@nkdk/core"
-import * as coreApi from "@nkdk/core"
 
 export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/core"
 
@@ -18,14 +19,8 @@ export interface SchemaSummaryOptions {
   keyTerms?: string
 }
 
-export interface Diagnostic {
-  filePath: string
-  line: number
-  col: number
-  severity: "error" | "warning"
-  message: string
-  path?: string
-}
+export type Diagnostic = MetadataDiagnostic
+export type CoreDiagnosticCollection = MetadataDiagnosticCollection
 
 export interface XmlSyncState {
   version: 1
@@ -33,6 +28,7 @@ export interface XmlSyncState {
 }
 
 export interface CoreApi {
+  createProjectStateService(): CoreProjectStateService
   ProjectFileSchemaError: {
     new (message: string): Error
     prototype: Error
@@ -62,27 +58,32 @@ export interface CoreApi {
     directoryPath?: string
     depth?: number
   }): MetadataProjectDirectoryStructure
-  createValidationWorkerPoolHandle(params?: { concurrency?: number }): {
-    validateProject(params: { projectDir: string }): Promise<{ diagnostics: Diagnostic[] }>
-    close(): Promise<void>
-    size(): number
-  }
-  validateProject(params: { projectDir: string }): Promise<{ diagnostics: Diagnostic[] }>
+  validateProject(params: {
+    projectDir: string
+    projectState: CoreProjectStateService
+  }): Promise<{ diagnostics: CoreDiagnosticCollection }>
   renameMetadataItem(params: {
     projectDir: string
+    componentPath: string
     path: string
     newName: string
     allowWrite?: boolean
+    ignoreValidationErrors?: boolean
+    projectState: CoreProjectStateService
   }): Promise<MetadataOperationResult>
   findMetadataReferences(params: {
     projectDir: string
+    componentPath: string
     path: string
-    allowWrite?: boolean
+    ignoreValidationErrors?: boolean
+    projectState: CoreProjectStateService
   }): Promise<MetadataOperationResult>
   planSyncToXml(params: {
     projectDir: string
     componentPath: string
     xmlDir: string
+    projectState: CoreProjectStateService
+    ignoreValidationErrors?: boolean
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -96,7 +97,9 @@ export interface CoreApi {
     outputDir: string
     externalFileTransfer?: "copy" | "move"
   }): Promise<ConfigurationImportResult>
-  importConfigurationFromXml(params: ImportConfigurationFromXmlParams): Promise<ConfigurationImportResult>
+  importConfigurationFromXml(
+    params: Omit<ImportConfigurationFromXmlParams, "projectState"> & { projectState: CoreProjectStateService }
+  ): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -117,6 +120,8 @@ export interface CoreApi {
     componentPath: string
     xmlDir: string
     concurrency?: number
+    projectState: CoreProjectStateService
+    ignoreValidationErrors?: boolean
   }): Promise<FullXmlSyncResult>
   readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
   initializeXmlSyncState(params: {
@@ -125,6 +130,28 @@ export interface CoreApi {
   }): Promise<XmlSyncState>
 }
 
-export function loadCoreApi(): Promise<CoreApi> {
-  return Promise.resolve(coreApi as CoreApi)
+export interface CoreProjectStateService {
+  beginImport(params: unknown): Promise<unknown>
+  refreshAndValidate(params: unknown): Promise<unknown>
+  createReadToken(projectDir: string): Promise<unknown>
+  openReadSession(token: unknown): unknown
+  readComponentProjection(params: unknown): Promise<unknown>
+  reset(projectDir: string): Promise<void>
+  rebuild(params: unknown): Promise<{
+    diagnostics: CoreDiagnosticCollection
+    stats: CoreProjectStateStats
+    readToken: unknown
+  }>
+  close(): Promise<void>
+}
+
+export interface CoreProjectStateStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+}
+
+export async function loadCoreApi(): Promise<CoreApi> {
+  return await import("@nkdk/core") as unknown as CoreApi
 }

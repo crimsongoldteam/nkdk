@@ -81,4 +81,3 @@ reference или configuration index не требуется: статистик
 - Целевые тесты обоих common objects, затем `pnpm type-check`, `pnpm test`, `pnpm duplicates`.
 - Stryker в этой задаче не запускается.
 - Итоговый round-trip `cf/doc` не должен содержать эти 15 расхождений.
-

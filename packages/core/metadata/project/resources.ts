@@ -2,6 +2,7 @@ import { isAbsolute, resolve, relative } from "path"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
+  iterateMetadataProjectPathCandidates as iterateTopologyProjectPathCandidates,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
@@ -20,6 +21,12 @@ export interface MetadataProjectResourceDiscoveryOptions {
 export interface MetadataProjectResourceContext {
   topology: CompiledMetadataResourceTopology
   rootSpec: MetadataProjectSpec
+}
+
+export interface MetadataProjectResourceCandidate {
+  readonly projectPath: string
+  readonly absolutePath: string
+  classify(): MetadataProjectResourceRef | undefined
 }
 
 export interface MetadataProjectResourceOwner {
@@ -94,6 +101,7 @@ export async function discoverMetadataProjectResources(
     topology: context.topology,
     projectDir,
     include: options.include === "yaml" ? "content" : "all",
+    sort: false,
   })
   return matches
     .map((match) => ({
@@ -101,6 +109,46 @@ export async function discoverMetadataProjectResources(
       absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
     }))
     .sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
+}
+
+export async function* iterateMetadataProjectResources(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {},
+  context: MetadataProjectResourceContext = defaultResourceContext(),
+): AsyncGenerator<MetadataProjectResourceRef> {
+  for await (const candidate of iterateMetadataProjectResourceCandidates(projectDir, options, context)) {
+    const resource = candidate.classify()
+    if (resource !== undefined) yield resource
+  }
+}
+
+export async function* iterateMetadataProjectResourceCandidates(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {},
+  context: MetadataProjectResourceContext = defaultResourceContext(),
+): AsyncGenerator<MetadataProjectResourceCandidate> {
+  for await (const candidate of iterateTopologyProjectPathCandidates({
+    topology: context.topology,
+    projectDir,
+    include: options.include === "yaml" ? "content" : "all",
+  })) {
+    let classified = false
+    let cached: MetadataProjectResourceRef | undefined
+    yield {
+      projectPath: candidate.projectPath,
+      absolutePath: candidate.absolutePath,
+      classify() {
+        if (!classified) {
+          const match = candidate.classify()
+          cached = match === undefined || match.kind === "ignore"
+            ? undefined
+            : { ...toLegacyResource(match, context), absolutePath: candidate.absolutePath }
+          classified = true
+        }
+        return cached
+      },
+    }
+  }
 }
 
 export function assertMetadataProjectPathInside(projectDir: string, filePath: string): string {

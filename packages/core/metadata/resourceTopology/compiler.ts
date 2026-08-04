@@ -1,13 +1,10 @@
 import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
-import {
-  joinMetadataPathPatterns,
-  matchMetadataPathPattern,
-} from "./patterns"
+import { compileMetadataPathIndex } from "./pathIndex"
+import { joinMetadataPathPatterns } from "./patterns"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataExternalFileNode,
   CompiledMetadataIgnoredPathNode,
-  CompiledMetadataPathIndex,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
   MetadataContentDeclaration,
@@ -47,7 +44,7 @@ export function compileMetadataResourceTopology(
   return Object.freeze({
     assignments: Object.freeze(frozenAssignments),
     ignoredPaths: Object.freeze(ignoredPaths),
-    projectIndex: createPathIndex([
+    projectIndex: compileMetadataPathIndex([
       ...frozenAssignments.map((assignment) => [assignment.id, assignment.projectPattern] as const),
       ...frozenAssignments.flatMap((assignment) =>
         assignment.externalFiles.map((file) => [file.id, file.projectPattern] as const)
@@ -56,7 +53,7 @@ export function compileMetadataResourceTopology(
         .filter((path) => path.side === "project")
         .map((path) => [path.id, path.pattern] as const),
     ]),
-    xmlIndex: createPathIndex([
+    xmlIndex: compileMetadataPathIndex([
       ...frozenAssignments.flatMap((assignment) =>
         assignment.xmlDocuments.map((document) => [document.id, document.xmlPattern] as const)
       ),
@@ -194,34 +191,6 @@ function freezeAssignment(assignment: MutableAssignment): CompiledMetadataAssign
     ...assignment,
     xmlDocuments: Object.freeze([...assignment.xmlDocuments]),
     externalFiles: Object.freeze([...assignment.externalFiles]),
-  })
-}
-
-function createPathIndex(entries: readonly (readonly [string, string])[]): CompiledMetadataPathIndex {
-  const entriesByFirstSegment = new Map<string, Array<readonly [string, string]>>()
-  const fallbackEntries: Array<readonly [string, string]> = []
-  for (const entry of entries) {
-    const firstSegment = entry[1].split("/", 1)[0]
-    if (firstSegment === undefined || firstSegment.includes("{")) {
-      fallbackEntries.push(entry)
-      continue
-    }
-    const bucket = entriesByFirstSegment.get(firstSegment) ?? []
-    bucket.push(entry)
-    entriesByFirstSegment.set(firstSegment, bucket)
-  }
-  return Object.freeze({
-    match(path: string) {
-      const firstSegment = path.replace(/\\/g, "/").split("/", 1)[0] ?? ""
-      const candidates = [
-        ...(entriesByFirstSegment.get(firstSegment) ?? []),
-        ...fallbackEntries,
-      ]
-      return candidates.flatMap(([nodeId, pattern]) => {
-        const values = matchMetadataPathPattern(pattern, path)
-        return values === undefined ? [] : [{ nodeId, values }]
-      })
-    },
   })
 }
 

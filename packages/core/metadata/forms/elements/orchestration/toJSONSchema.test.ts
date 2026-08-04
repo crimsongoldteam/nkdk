@@ -8,6 +8,7 @@ import {
   getTreeNodeJSONSchemaPropertyAliases,
 } from "../../commonObjects/childItems/treeYAML"
 import { compileValidationSchema } from "../../../validation/compileValidationSchema"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
 
@@ -65,7 +66,7 @@ describe("form element JSON Schema", () => {
   })
 
   it("разрешает только явное Ложь для АвтоВводНовойСтроки", () => {
-    const schema = exportElementRuleToJSONSchema({
+    const schema = exportPropertyToJSONSchema({
       context: {
         ...context,
         exportToJSONSchema: {
@@ -74,21 +75,24 @@ describe("form element JSON Schema", () => {
           excludeImplicitValueYAML: true,
         },
       },
-      rule: getElementRule("Table"),
-      yamlKind: "ТаблицаФормы",
+      rule: getElementRule("Table").properties.autoInsertNewRow,
+      value: undefined,
     })
+    if (schema === undefined) throw new Error("Expected АвтоВводНовойСтроки schema")
     const check = compileValidationSchema(schema)
 
-    expect(check.Check({ Вид: "ТаблицаФормы" })).toBe(true)
-    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Ложь" })).toBe(true)
-    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Истина" })).toBe(false)
-    expect(check.Check({ Вид: "ТаблицаФормы", АвтоВводНовойСтроки: "Авто" })).toBe(false)
+    expect(check.Check("Ложь")).toBe(true)
+    expect(check.Check("Истина")).toBe(false)
+    expect(check.Check("Авто")).toBe(false)
   })
 
-  it.each(["РастягиватьПоГоризонтали", "РастягиватьПоВертикали"])(
+  it.each([
+    ["РастягиватьПоГоризонтали", "horizontalStretch"],
+    ["РастягиватьПоВертикали", "verticalStretch"],
+  ] as const)(
     "разрешает оба boolean-значения для %s группы",
-    (yamlKey) => {
-      const schema = exportElementRuleToJSONSchema({
+    (_yamlKey, propertyKey) => {
+      const schema = exportPropertyToJSONSchema({
         context: {
           ...context,
           exportToJSONSchema: {
@@ -97,15 +101,15 @@ describe("form element JSON Schema", () => {
             excludeImplicitValueYAML: true,
           },
         },
-        rule: getElementRule("UsualGroup"),
-        yamlKind: "Группа",
+        rule: getElementRule("UsualGroup").properties[propertyKey],
+        value: undefined,
       })
+      if (schema === undefined) throw new Error(`Expected ${propertyKey} schema`)
       const check = compileValidationSchema(schema)
 
-      expect(check.Check({ Вид: "Группа" })).toBe(true)
-      expect(check.Check({ Вид: "Группа", [yamlKey]: "Истина" })).toBe(true)
-      expect(check.Check({ Вид: "Группа", [yamlKey]: "Ложь" })).toBe(true)
-      expect(check.Check({ Вид: "Группа", [yamlKey]: "Авто" })).toBe(false)
+      expect(check.Check("Истина")).toBe(true)
+      expect(check.Check("Ложь")).toBe(true)
+      expect(check.Check("Авто")).toBe(false)
     }
   )
 })

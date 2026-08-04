@@ -49,6 +49,60 @@ interface FragmentEnvelope {
   }[]
 }
 
+export interface ConfigurationIndexFragmentBuilder {
+  add(fragment: ConfigurationSnapshotFragment): void
+  addEncoded(buffer: ArrayBuffer): void
+  metrics(): {
+    readonly sourceProjectPaths: number
+    readonly entities: number
+    readonly retainedInputFragments: 0
+  }
+  finish(): MergedConfigurationSnapshotFragments
+}
+
+export function createConfigurationIndexFragmentBuilder(): ConfigurationIndexFragmentBuilder {
+  const sourceProjectPaths = new Set<string>()
+  const entities = new Map<string, ConfigurationSnapshotEntity>()
+  let finished = false
+
+  return {
+    add(fragment) {
+      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+      validateTargetProjectPath(fragment.targetProjectPath)
+      sourceProjectPaths.add(fragment.targetProjectPath)
+      for (const entity of fragment.entities) {
+        if (entity.sourceProjectPath !== fragment.targetProjectPath) {
+          throw new Error("entity содержит другой sourceProjectPath")
+        }
+        const previous = entities.get(entity.logicalAddress)
+        entities.set(entity.logicalAddress, previous === undefined ? copyEntity(entity) : mergeEntity(previous, entity))
+      }
+    },
+    addEncoded(buffer) {
+      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+      for (const fragment of decodeConfigurationIndexFragments(buffer)) this.add(fragment)
+    },
+    metrics() {
+      return {
+        sourceProjectPaths: sourceProjectPaths.size,
+        entities: entities.size,
+        retainedInputFragments: 0,
+      }
+    },
+    finish() {
+      if (finished) throw new Error("Builder фрагментов индекса конфигурации уже завершён")
+      finished = true
+      const result = {
+        sourceProjectPaths: [...sourceProjectPaths].sort(compareUtf8),
+        entities: [...entities.values()].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress)),
+      }
+      sourceProjectPaths.clear()
+      entities.clear()
+      return result
+    },
+  }
+}
+
 export function encodeConfigurationIndexFragments(
   fragments: readonly ConfigurationSnapshotFragment[]
 ): ArrayBuffer {
@@ -91,21 +145,11 @@ export function decodeConfigurationIndexFragments(buffer: ArrayBuffer): Configur
 export function mergeConfigurationIndexFragments(
   workerBuffers: readonly ArrayBuffer[]
 ): MergedConfigurationSnapshotFragments {
-  const sourceProjectPaths = new Set<string>()
-  const entities = new Map<string, ConfigurationSnapshotEntity>()
+  const builder = createConfigurationIndexFragmentBuilder()
   for (const fragment of workerBuffers.flatMap(decodeConfigurationIndexFragments)) {
-    sourceProjectPaths.add(fragment.targetProjectPath)
-    for (const entity of fragment.entities) {
-      const previous = entities.get(entity.logicalAddress)
-      entities.set(entity.logicalAddress, previous === undefined ? copyEntity(entity) : mergeEntity(previous, entity))
-    }
+    builder.add(fragment)
   }
-
-  const mergedEntities = [...entities.values()].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
-  return {
-    sourceProjectPaths: [...sourceProjectPaths].sort(compareUtf8),
-    entities: mergedEntities,
-  }
+  return builder.finish()
 }
 
 function encodeEntity(

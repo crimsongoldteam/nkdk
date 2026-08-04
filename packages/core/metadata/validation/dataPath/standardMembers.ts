@@ -409,6 +409,7 @@ function resolveClosedReverseLookupMember(params: {
       ownerCache: params.ownerCache,
       target: params.member.target ?? params.member.result,
       property: params.member.property,
+      limit: 1,
     })
     if (candidates.length === 0) return missingLinkedObjects(params.member)
   }
@@ -439,6 +440,7 @@ function reverseLookupCandidates(params: {
   ownerCache: OwnerMetadataCache
   target: string
   property: string
+  limit?: number
 }): OwnerTypeRef[] {
   const currentLink = metadataLinkForOwnerRef(params.owner.ref)
   if (currentLink === undefined) return []
@@ -452,7 +454,10 @@ function reverseLookupCandidates(params: {
     if (ownerResult.status !== "ok") continue
 
     const links = metadataLinksFromProperty(metadataRecord(ownerResult.owner.facts)[params.property])
-    if (links.some((link) => link === currentLink)) result.push(ref)
+    if (links.some((link) => link === currentLink)) {
+      result.push(ref)
+      if (result.length === params.limit) break
+    }
   }
   return result
 }

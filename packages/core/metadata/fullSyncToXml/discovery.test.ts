@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { readComponentHashState } from "../project/componentState/hashes"
+import { hashConfigurationProjectFileList } from "../configurationIndex"
 import { readComponentProjectStructure } from "../project/componentState/structure"
 import { buildFullXmlSyncPlan } from "./discovery"
 
@@ -30,7 +30,10 @@ describe("full XML sync discovery", () => {
       projectDir,
       address: { kind: "configuration" },
     })
-    const hashes = await readComponentHashState({ structure })
+    const hashes = {
+      componentPath: structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(structure.componentDir, structure.projectPaths),
+    }
     return buildFullXmlSyncPlan({ structure, hashes })
   }
 

@@ -6,9 +6,13 @@ import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
+import {
+  createFullXmlSyncDiagnosticCollectionFromDiagnostics,
+  createFullXmlSyncFileCollectionFromFiles,
+} from "./workerPool"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
+import type { ProjectStateReadSession } from "../projectState"
 
 const tempDirs: string[] = []
 
@@ -22,6 +26,23 @@ export function createTempRoot(): string {
   const root = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-"))
   tempDirs.push(root)
   return root
+}
+
+export function emptyProjectStateReadSession(
+  overrides: Partial<ProjectStateReadSession> = {},
+): ProjectStateReadSession {
+  return {
+    resolveTargets: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwners: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    findReferences: (requests) => requests.map(({ requestId }) => ({ requestId, references: [] })),
+    readDependencyInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readDependencyOwnerInputs: (requests) => requests.map(({ requestId }) => ({ requestId, status: "missing" as const })),
+    readOwnerRefPage: () => ({ refs: [] }),
+    readComponentTargetPage: () => ({ entries: [] }),
+    readValidationStatus: () => [],
+    close() {},
+    ...overrides,
+  }
 }
 
 export function createMockFullSyncDependencies(
@@ -108,20 +129,20 @@ export function createMockFullSyncDependencies(
         async initialize() {},
         async execute() {
           return {
-            diagnostics: [],
-            warnings: [],
-            writtenFiles: [
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([
               {
                 assignmentId: "Конфигурация.yaml",
                 targetXmlPath: "Configuration.xml",
               },
-            ],
-            expectedOutputs: [
+            ]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([
               {
                 assignmentId: "Конфигурация.yaml",
                 targetXmlPath: "Configuration.xml",
               },
-            ],
+            ]),
             fragmentData: {
               sourceProjectPaths: ["Конфигурация.yaml"],
               entities: [],
@@ -169,8 +190,6 @@ function indexes(structure: ComponentProjectStructure, hashState: ComponentHashS
   return {
     componentPath: structure.componentPath,
     sourceProjectFiles: hashState.projectFiles,
-    metadata: createSharedValidationSnapshot({ records: [], filePaths: [] }),
-    dependencies: [],
     logicalAddresses: [
       {
         logicalAddress: "Конфигурация",

@@ -89,7 +89,12 @@ describe("import from infobase", () => {
 
     expect(result).toMatchObject({
       ok: true,
-      failed: [{ kind: "xml_failed", name: "Catalogs/Test.xml", message: "failed" }],
+      failed: [{
+        severity: "error",
+        code: "xml_failed",
+        targetProjectPath: "Catalogs/Test.xml",
+        message: "failed",
+      }],
       temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
     })
     expect(fixture.calls).not.toContain("writeProjectSettings")

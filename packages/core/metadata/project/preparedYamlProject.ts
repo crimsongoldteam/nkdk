@@ -199,7 +199,7 @@ export async function discoverPreparedYamlValidationProjectFiles(
   return files.flat().sort((left, right) => left.rootProjectPath.localeCompare(right.rootProjectPath, "ru"))
 }
 
-function toPreparedYamlProjectFileDescriptor(
+export function toPreparedYamlProjectFileDescriptor(
   resource: MetadataProjectResourceRef,
   component: { componentPath: string; componentDir: string }
 ): PreparedYamlProjectFileDescriptor {

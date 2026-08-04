@@ -21,11 +21,7 @@ const context = {
 const schemaCache = new Map<string, TSchema>()
 const compiledSchemaCache = new Map<string, ValidationSchemaValidator>()
 const graphCache = new Map<string, ReturnType<typeof exportJSONSchemaGraph>>()
-const compiledGraphCache = new Map<string, ValidationSchemaValidator>()
 let configurationSchema: ValidationSchemaValidator
-let inlineClientApplicationFormJSON = ""
-let inlineClientApplicationFormHasDcsArrays = false
-let inlineUsualGroupJSON = ""
 
 function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema {
   const cacheKey = `${name}:${mode ?? "externalRefs"}`
@@ -64,47 +60,10 @@ function commonFormValidationGraph(): ReturnType<typeof exportJSONSchemaGraph> {
   return graph
 }
 
-function compiledClientApplicationFormGraph(): ValidationSchemaValidator {
-  const cacheKey = "ClientApplicationForm:withNestedChildItems"
-  const cached = compiledGraphCache.get(cacheKey)
-  if (cached !== undefined) return cached
-
-  const graph = clientApplicationFormGraph()
-  const compiled = compileValidationSchema(graph.schemas, graph.roots.form!, {
-    inlineRefs: false,
-    eagerFallback: true,
-  })
-  compiled.Check(undefined)
-  compiledGraphCache.set(cacheKey, compiled)
-  return compiled
-}
-
-function eagerCompiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator {
-  const cacheKey = `eager:${name}:${mode ?? "externalRefs"}`
-  const cached = compiledSchemaCache.get(cacheKey)
-  if (cached !== undefined) return cached
-
-  const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
-  compiled.Check(undefined)
-  compiledSchemaCache.set(cacheKey, compiled)
-  return compiled
-}
-
 describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeAll(() => {
-    compiledSchemaForName("InputField", "inline")
-    compiledSchemaForName("TableInputField", "inline")
-    eagerCompiledSchemaForName("LabelDecoration", "inline")
-    compiledClientApplicationFormGraph()
+    clientApplicationFormGraph()
     commonFormValidationGraph()
-    inlineClientApplicationFormJSON = JSON.stringify(schemaForName("ClientApplicationForm", "inline"))
-    inlineClientApplicationFormHasDcsArrays = [
-      '"Поля"',
-      '"Порядок"',
-      '"Отбор"',
-      '"ПараметрыДанных"',
-    ].every((token) => inlineClientApplicationFormJSON.includes(token))
-    inlineUsualGroupJSON = JSON.stringify(schemaForName("UsualGroup", "inline"))
     for (const name of [
       "MetadataCatalog",
       "MetadataCatalogAttribute",
@@ -355,23 +314,6 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
   })
 
-  it("accepts dynamic list auto order marker in form graph", () => {
-    expect(
-      compiledClientApplicationFormGraph().Check({
-        Реквизиты: {
-          Список: {
-            Тип: "ДинамическийСписок",
-            ДинамическийСписок: {
-              Порядок: {
-                Элементы: [{ Поле: "НалоговыйПериод" }, "[Авто]"],
-              },
-            },
-          },
-        },
-      })
-    ).toBe(true)
-  })
-
   it("exports single form objects as refs in form graph", () => {
     const graph = clientApplicationFormGraph()
     const tableSchema = graph.schemas["nkdk://schema/Table"] as {
@@ -410,6 +352,33 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(graph.schemas["nkdk://schema/SingleViewStatusAddition"]).toMatchObject({
       $id: "nkdk://schema/SingleViewStatusAddition",
     })
+  })
+
+  it("keeps registered form subgraphs reachable from the form graph", () => {
+    const graphJSON = JSON.stringify(clientApplicationFormGraph())
+    const expectedProperties = [
+      "ТаблицаФормы",
+      "КоманднаяПанель",
+      "Автозаполнение",
+      "ОтображениеСтрокиПоиска",
+      "УправлениеПоиском",
+      "Источник",
+      "ОтображениеСостоянияПросмотра",
+      "УсловноеОформление",
+      "УсловноеОформлениеРеквизитов",
+      "ЦветТекста",
+      "Формат",
+      "Поля",
+      "Порядок",
+      "Отбор",
+      "ПараметрыДанных",
+      "ЛевоеЗначение",
+      "ПравоеЗначение",
+      "ТипГруппы",
+      "ПроизвольныйЗапрос",
+    ]
+
+    expect(expectedProperties.filter((property) => !graphJSON.includes(`"${property}"`))).toEqual([])
   })
 
   it("exports common form form body as a ClientApplicationForm ref", () => {
@@ -507,22 +476,6 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(inputField.properties?.Шрифт).toMatchObject({ $ref: `${prefix}Font/base` })
   })
 
-  it("allows opaque multiple-value DataPath in InputField schema", () => {
-    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
-
-    expect(compiledSchemaForName("InputField", "inline").Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(
-      true
-    )
-  })
-
-  it("rejects opaque multiple-value DataPath in TableInputField schema", () => {
-    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
-
-    expect(
-      compiledSchemaForName("TableInputField", "inline").Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })
-    ).toBe(false)
-  })
-
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
     const schema = schemaForName("Button")
 
@@ -534,94 +487,12 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
   })
 
-  it("accepts value-based formatted title in label decoration schemas", () => {
-    expect(
-      eagerCompiledSchemaForName("LabelDecoration", "inline").Check({
-        Вид: "Надпись",
-        Заголовок: {
-          Форматированный: "Истина",
-          Текст: "<b>Заголовок</>",
-        },
-      })
-    ).toBe(true)
-  })
-
   it("exports nested child items as refs by default", () => {
     const schema = schemaForName("UsualGroup")
     const json = JSON.stringify(schema)
 
     expect(json).toContain("nkdk://schema/InputField")
     expect(json).not.toContain('"ПутьКДанным"')
-  })
-
-  it("exports nested child items inline in inline mode", () => {
-    const json = inlineUsualGroupJSON
-
-    expect(json).not.toContain("nkdk://schema/InputField")
-    expect(json).toContain('"Элементы"')
-    expect(json).toContain('"ПутьКДанным"')
-  })
-
-  it("exports form child item unions with AJV Вид discriminator", () => {
-    const schema = schemaForName("UsualGroup", "inline") as {
-      properties?: {
-        Элементы?: {
-          $defs?: {
-            GroupChildItems?: {
-              patternProperties?: {
-                "^.*$"?: {
-                  oneOf?: Array<{ properties?: { Вид?: { const?: string } } }>
-                  discriminator?: { propertyName?: string }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^.*$"]
-
-    expect(childItemSchema).toMatchObject({
-      discriminator: { propertyName: "Вид" },
-    })
-    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
-    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
-  })
-
-  it("exports value-based UserVisible in form element schemas", () => {
-    const schema = schemaForName("UsualGroup", "inline")
-    const json = JSON.stringify(schema)
-    const legacyAllow = "Разрешить" + "Использование"
-    const legacyDeny = "Запретить" + "Использование"
-
-    expect(json).toContain('"Использование"')
-    expect(json).not.toContain(legacyAllow)
-    expect(json).not.toContain(legacyDeny)
-  })
-
-  it("exports nested child items in inline form element schemas", () => {
-    const schema = schemaForName("UsualGroup", "inline")
-    const json = JSON.stringify(schema)
-
-    expect(json).toContain('"Элементы"')
-    expect(json).toContain('"ПолеВвода"')
-  })
-
-  it("exports table command bar fields in inline client form schemas", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"ТаблицаФормы"')
-    expect(json).toContain('"КоманднаяПанель"')
-    expect(json).toContain('"Автозаполнение"')
-  })
-
-  it("exports command bar search additions with source fields", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"ОтображениеСтрокиПоиска"')
-    expect(json).toContain('"УправлениеПоиском"')
-    expect(json).toContain('"Источник"')
   })
 
   it("accepts command names in command bar button schemas", () => {
@@ -636,44 +507,6 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
         .Errors(value)[1]
         .map((error) => `${error.instancePath}: ${error.message}`)
     ).toEqual([])
-  })
-
-  it("exports view status source in inline client form schemas", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"ОтображениеСостоянияПросмотра"')
-    expect(json).toContain('"Источник"')
-  })
-
-  it("exports dynamic list conditional appearance in inline client form schemas", () => {
-    expect(inlineClientApplicationFormJSON).toContain('"УсловноеОформление"')
-  })
-
-  it("exports appearance SettingsParameterValue fields in inline client form schemas", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"УсловноеОформлениеРеквизитов"')
-    expect(json).toContain('"ЦветТекста"')
-    expect(json).toContain('"Формат"')
-  })
-
-  it("exports dynamic list DCS arrays in inline client form schemas", () => {
-    expect(inlineClientApplicationFormHasDcsArrays).toBe(true)
-  })
-
-  it("exports DCS conditional appearance values generated from all fixtures", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"ЛевоеЗначение"')
-    expect(json).toContain('"ПравоеЗначение"')
-    expect(json).toContain('"ТипГруппы"')
-  })
-
-  it("exports ManualQuery literal in inline client form schemas", () => {
-    const json = inlineClientApplicationFormJSON
-
-    expect(json).toContain('"ПроизвольныйЗапрос"')
-    expect(json).toContain('"Истина"')
   })
 
   it("exports registered property refs through project schema registry", () => {

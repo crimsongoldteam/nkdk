@@ -15,6 +15,7 @@
     "architecture:baseline": "node tools/dependency-cruiser/src/baseline.mjs",
     "architecture:graph": "node tools/dependency-cruiser/src/graph.mjs",
     "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
+    "check:duplicates": "node scripts/check-new-duplicates.mjs",
     "duplicates": "node scripts/check-new-duplicates.mjs",
     "type-check": "pnpm --filter './packages/*' -r exec tsc --noEmit",
     "test": "pnpm test:duplicates-script && pnpm -r run test",

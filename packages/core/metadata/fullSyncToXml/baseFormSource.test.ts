@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { readComponentHashState } from "../project/componentState/hashes"
+import { hashConfigurationProjectFileList } from "../configurationIndex"
 import { readComponentProjectStructure } from "../project/componentState/structure"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
@@ -95,7 +95,10 @@ describe("verified base form source", () => {
       projectDir,
       address: { kind: "configuration" },
     })
-    const hashes = await readComponentHashState({ structure })
+    const hashes = {
+      componentPath: structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(structure.componentDir, structure.projectPaths),
+    }
     return { structure, hashes, projectPath, sourcePath }
   }
 })

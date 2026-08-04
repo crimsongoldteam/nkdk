@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { renameItem } from "./renameItem"
+import { emptyDiagnosticOutputForTest } from "./projectStateTestSupport"
 
 describe("renameItem service", () => {
   const tempDirs: string[] = []
@@ -21,6 +22,7 @@ describe("renameItem service", () => {
       blockedReferences: [],
     }
     const renameMetadataItem = vi.fn().mockResolvedValue(coreResult)
+    const projectState = { refreshAndValidate: vi.fn() }
 
     const result = await renameItem(
       {
@@ -29,17 +31,24 @@ describe("renameItem service", () => {
         metadataRef: "Справочник.Товары",
         newName: "Номенклатура",
         allowWrite: true,
+        ignoreValidationErrors: true,
       },
-      { renameMetadataItem },
+      { renameMetadataItem, projectState: projectState as never },
     )
 
     expect(renameMetadataItem).toHaveBeenCalledWith({
-      projectDir: join(projectDir, "cfe", "Расширение"),
+      projectDir,
+      componentPath: "cfe/Расширение",
       path: "Справочник.Товары",
       newName: "Номенклатура",
       allowWrite: true,
+      ignoreValidationErrors: true,
+      projectState,
     })
-    expect(result).toEqual(coreResult)
+    expect(result).toEqual({
+      ...coreResult,
+      ...emptyDiagnosticOutputForTest,
+    })
   })
 
   function createProject(): string {

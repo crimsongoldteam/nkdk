@@ -112,6 +112,7 @@ function firstPassResult(params: {
 
   return {
     components,
+    fileUpdateBatches: [],
     diagnostics: components.flatMap(({ diagnostics }) => diagnostics),
     schemaDiagnostics: components.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
     fileResults: components.flatMap(({ fileResults }) => fileResults),

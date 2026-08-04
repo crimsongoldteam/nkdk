@@ -96,7 +96,12 @@ describe("import_from_infobase contract", () => {
       importFromInfobaseOutputShape.parse({
         ok: true,
         succeeded: 1,
-        failed: [{ kind: "failed", name: "Catalogs/Test.xml", message: "failed" }],
+        failed: [{
+          severity: "error",
+          code: "failed",
+          targetProjectPath: "Catalogs/Test.xml",
+          message: "failed",
+        }],
         warnings: [],
         mode: "designer-agent",
         reusedConnection: false,

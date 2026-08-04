@@ -3,13 +3,72 @@ import { Type } from "typebox"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "./compiler"
+import { compileMetadataPathIndex } from "./pathIndex"
 import {
   expandMetadataPathPattern,
   matchMetadataPathPattern,
 } from "./patterns"
-import type { MetadataResourceDeclaration } from "./types"
+import type {
+  CompiledMetadataPathCursor,
+  CompiledMetadataPathIndex,
+  MetadataResourceDeclaration,
+} from "./types"
 
 describe("metadata resource topology path patterns", () => {
+  const pathCases = [
+    {
+      pattern: "Catalogs/Items.yaml",
+      path: "Catalogs/Items.yaml",
+      values: {},
+    },
+    {
+      pattern: "Catalogs/{name}/Items.yaml",
+      path: "Catalogs/Products/Items.yaml",
+      values: { name: "Products" },
+    },
+    {
+      pattern: "Catalogs/{name}.yaml",
+      path: "Catalogs/Products.yaml",
+      values: { name: "Products" },
+    },
+    {
+      pattern: "Files/{rest...}",
+      path: "Files/a/b/c.bin",
+      values: { rest: "a/b/c.bin" },
+    },
+    {
+      pattern: "{name}/{name}.yaml",
+      path: "Products/Products.yaml",
+      values: { name: "Products" },
+    },
+    {
+      pattern: "{name}/{name}.yaml",
+      path: "One/Two.yaml",
+      values: undefined,
+    },
+  ] as const
+
+  it.each(pathCases)("сохраняет договор шаблона $pattern", ({ pattern, path, values }) => {
+    const index = compileMetadataPathIndex([["node", pattern]])
+    const expected = values === undefined ? [] : [{ nodeId: "node", values }]
+
+    expect(index.match(path)).toEqual(expected)
+    expect(cursorMatch(index, path)).toEqual(expected)
+  })
+
+  it("сообщает, может ли курсор продолжить путь", () => {
+    const exactIndex = compileMetadataPathIndex([["node", "Catalogs/Items.yaml"]])
+    const catalogs = exactIndex.root().advance("Catalogs")
+    const file = catalogs?.advance("Items.yaml")
+    const restIndex = compileMetadataPathIndex([["node", "Files/{rest...}"]])
+    const rest = restIndex.root().advance("Files")?.advance("a")
+
+    expect(exactIndex.root().canDescend).toBe(true)
+    expect(catalogs?.canDescend).toBe(true)
+    expect(file?.canDescend).toBe(false)
+    expect(rest?.canDescend).toBe(true)
+  })
+
   it("matches named parameters inside path segments", () => {
     expect(
       matchMetadataPathPattern(
@@ -165,6 +224,12 @@ describe("compileMetadataResourceTopology", () => {
     ])
   })
 })
+
+function cursorMatch(index: CompiledMetadataPathIndex, path: string) {
+  let cursor: CompiledMetadataPathCursor | undefined = index.root()
+  for (const segment of path.split("/")) cursor = cursor?.advance(segment)
+  return cursor?.matches() ?? []
+}
 
 function spec(
   dir: string,

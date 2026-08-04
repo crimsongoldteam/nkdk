@@ -37,6 +37,7 @@ const commonOptions = {
     "p-limit",
     "piscina",
     "ssh2",
+    "structurae",
     "typebox",
     "uuid",
     "yaml",
@@ -81,6 +82,12 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
+  entryPoints: [join(repoRoot, "packages/core/metadata/workerPool/worker.ts")],
+  outfile: join(binDir, "worker.js"),
+})
+
+await esbuild.build({
+  ...commonOptions,
   entryPoints: [join(repoRoot, "packages/core/metadata/validation/generateProjectValidationAjvStandalone.ts")],
   outfile: join(distDir, "generateProjectValidationAjvStandalone.js"),
 })
@@ -92,6 +99,10 @@ const { generateProjectValidationAjvStandalone } = await import(
 await generateProjectValidationAjvStandalone({
   outfile: join(distDir, "projectValidationAjvStandalone.js"),
 })
+await cp(
+  join(distDir, "projectValidationAjvStandalone.js"),
+  join(binDir, "projectValidationAjvStandalone.js"),
+)
 
 await chmod(binFile, 0o755)
 await cp(join(repoRoot, "README.md"), join(packageRoot, "README.md"))

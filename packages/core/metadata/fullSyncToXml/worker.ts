@@ -1,13 +1,20 @@
 import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
-import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import {
+  createProjectStateOwnerMetadataCache,
+  openProjectStateReadSession,
+  type ProjectStateOwnerMetadataCache,
+  type ProjectStateReadSession,
+  type ProjectStateReadToken,
+} from "../projectState"
+import type { OwnerTypeRef } from "../validation/dataPath/types"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader } from "./sharedMetadata"
 import type {
@@ -23,7 +30,9 @@ import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
+import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
+import { createFullXmlSyncBinaryResult } from "./binaryResult"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -34,7 +43,9 @@ interface InitializedFullXmlSyncWorkerState {
   readonly index: ConfigurationIndexReader
   readonly baseIndex?: ConfigurationIndexReader
   readonly composition: FullXmlSyncCompositionReader
-  readonly ownerMetadataCache: OwnerMetadataCache
+  readonly ownerMetadataCache: ProjectStateOwnerMetadataCache
+  readonly projectStateReadSession: ProjectStateReadSession
+  readonly ownsProjectStateReadSession: boolean
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly baseFormSource?: BaseFormSource
   activeAssignmentId: string | undefined
@@ -43,55 +54,98 @@ interface InitializedFullXmlSyncWorkerState {
 let initializedState: InitializedFullXmlSyncWorkerState | undefined
 
 export async function runFullXmlSyncWorkerCommand(
-  command: FullXmlSyncWorkerCommand
+  command: FullXmlSyncWorkerCommand,
+  dependencies: FullXmlSyncWorkerDependencies = defaultWorkerDependencies,
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
-    const baseFormSource = createBaseFormSource(command.profile)
-    const baseIndex =
-      command.profile.baseForms === undefined
-        ? undefined
-        : createConfigurationIndexReader(command.profile.baseForms.snapshot)
-    initializedState = {
-      workerIndex: command.workerIndex,
-      componentPath: command.componentPath,
-      componentDir: command.componentDir,
-      outputDir: command.outputDir,
-      context: {
-        ...command.context,
-        importFromYAML: {
-          ...command.context.importFromYAML,
+    const projectStateReadSession = dependencies.projectStateReadSession
+      ?? dependencies.openReadSession(requireProjectStateReadToken(command.projectStateReadToken))
+    const ownsProjectStateReadSession = dependencies.projectStateReadSession === undefined
+    try {
+      const baseFormSource = createBaseFormSource(command.profile)
+      const baseIndex =
+        command.profile.baseForms === undefined
+          ? undefined
+          : createConfigurationIndexReader(command.profile.baseForms.snapshot)
+      initializedState = {
+        workerIndex: command.workerIndex,
+        componentPath: command.componentPath,
+        componentDir: command.componentDir,
+        outputDir: command.outputDir,
+        context: {
+          ...command.context,
+          importFromYAML: {
+            ...command.context.importFromYAML,
+            projectDir: command.componentDir,
+          },
+        },
+        index: createConfigurationIndexReader(command.targetIndex),
+        ...(baseIndex === undefined ? {} : { baseIndex }),
+        composition: createFullXmlSyncCompositionReader(command.composition),
+        ownerMetadataCache: createProjectStateOwnerMetadataCache({
           projectDir: command.componentDir,
-        },
-      },
-      index: createConfigurationIndexReader(command.targetIndex),
-      ...(baseIndex === undefined ? {} : { baseIndex }),
-      composition: createFullXmlSyncCompositionReader(command.composition),
-      ownerMetadataCache: createLayeredOwnerMetadataCache({
-        localProjectDir: command.componentDir,
-        ...(command.profile.baseForms === undefined ? {} : { baseProjectDir: command.profile.baseForms.componentDir }),
-        snapshots: {
-          local: command.localMetadata,
-          ...(command.baseMetadata === undefined ? {} : { base: command.baseMetadata }),
-        },
-      }),
-      profile: command.profile,
-      ...(baseFormSource === undefined ? {} : { baseFormSource }),
-      activeAssignmentId: undefined,
+          componentPath: command.componentPath,
+          queryPort: projectStateReadSession,
+        }),
+        projectStateReadSession,
+        ownsProjectStateReadSession,
+        profile: command.profile,
+        ...(baseFormSource === undefined ? {} : { baseFormSource }),
+        activeAssignmentId: undefined,
+      }
+      return undefined
+    } catch (caught) {
+      try {
+        if (ownsProjectStateReadSession) projectStateReadSession.close()
+      } catch (cleanupFailure) {
+        throw aggregateCleanupFailures(caught, cleanupFailure)
+      }
+      throw caught
     }
-    return undefined
   }
   if (command.kind === "dispose") {
+    const state = initializedState
     initializedState = undefined
+    if (state?.ownsProjectStateReadSession === true) state.projectStateReadSession.close()
     return undefined
   }
+  if (command.kind === "finishExecution") return undefined
+  if (command.kind === "executeBatch") {
+    const result = await executeAssignments(command.assignments, requireInitializedState())
+    return createFullXmlSyncBinaryResult({
+      diagnostics: result.diagnostics,
+      warnings: result.warnings,
+      writtenFiles: result.writtenFiles,
+      expectedOutputs: result.expectedOutputs,
+      fragmentBuffer: result.fragmentBuffer,
+    })
+  }
   return executeAssignments(command.assignments, requireInitializedState())
+}
+
+export interface FullXmlSyncWorkerDependencies {
+  readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
+  readonly projectStateReadSession?: ProjectStateReadSession
+}
+
+function requireProjectStateReadToken(token: ProjectStateReadToken | undefined): ProjectStateReadToken {
+  if (token === undefined) throw new Error("Full XML sync worker не получил состояние проекта")
+  return token
+}
+
+const defaultWorkerDependencies: FullXmlSyncWorkerDependencies = {
+  openReadSession: openProjectStateReadSession,
 }
 
 export default async function fullXmlSyncWorkerEntryPoint(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   const result = await runFullXmlSyncWorkerCommand(command)
-  return result === undefined ? undefined : movableExecutionResult(result)
+  return result === undefined
+    ? undefined
+    : result.kind === "binaryResult"
+      ? createMovableBinaryResult(result)
+      : movableExecutionResult(result)
 }
 
 async function executeAssignments(
@@ -104,6 +158,7 @@ async function executeAssignments(
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
   const itemTypes = itemTypeByYamlDir(state.composition.assignments())
+  state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
   for (const assignment of assignments) {
     state.activeAssignmentId = assignment.id
@@ -186,6 +241,11 @@ async function executeAssignments(
     expectedOutputs,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
+}
+
+function ownerRefsFromAssignment(assignment: FullXmlSyncAssignment): OwnerTypeRef[] {
+  const owner = ownerFromAssignment(assignment)
+  return owner.dir.length === 0 ? [] : [{ kind: owner.dir, name: owner.name }]
 }
 
 async function readBaseFormIfAdopted(assignment: FullXmlSyncAssignment, state: InitializedFullXmlSyncWorkerState) {

@@ -40,6 +40,9 @@ mcp-server.log*
 .agents/scheduled_tasks.lock
 data/dump.rdb
 
+# Локальные отчёты проверки дублей
+reports/jscpd/
+
 # Локальные отчёты длительности тестов
 reports/test-profile/
 

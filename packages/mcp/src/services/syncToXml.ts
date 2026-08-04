@@ -1,48 +1,15 @@
-import { loadCoreApi } from "../coreApi"
+import { loadCoreApi, type CoreApi, type CoreProjectStateService } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type SyncToXmlInput } from "../contracts/syncToXml"
 import { resolveComponent } from "./componentResolver"
-
-interface CoreDiagnostic {
-  severity: "error" | "warning"
-  code: string
-  message: string
-}
-
-interface CoreSyncResult {
-  succeeded: number
-  failed: readonly CoreDiagnostic[]
-  warnings: readonly CoreDiagnostic[]
-  configurationIndexPath?: string
-}
+import { projectStateHandle } from "./projectStateHandle"
+import { withDiagnosticOutput } from "./diagnosticReport"
+import type { DiagnosticReportReference, DiagnosticSummary } from "../contracts/diagnostics"
 
 interface SyncToXmlDeps {
-  planSyncToXml?: (params: {
-    projectDir: string
-    componentPath: string
-    xmlDir: string
-  }) => Promise<unknown>
-  syncConfigurationToXML: (params: {
-    context: {
-      defaultLanguage: "ru"
-      version: "2.20"
-      exportToYAML: { toTyped: false }
-      exportToXML: {
-        itemsTree: []
-        version: "2.20"
-        context: {
-          forms: []
-          templates: []
-          parentName: ""
-          metadataForNumbering: []
-        }
-      }
-    }
-    projectDir: string
-    componentPath: string
-    xmlDir: string
-    concurrency?: number
-  }) => Promise<CoreSyncResult>
+  readonly projectState?: CoreProjectStateService
+  readonly planSyncToXml?: CoreApi["planSyncToXml"]
+  readonly syncConfigurationToXML: CoreApi["syncConfigurationToXML"]
 }
 
 export type SyncToXmlPayload = ToolPayload<{
@@ -51,7 +18,17 @@ export type SyncToXmlPayload = ToolPayload<{
   configurationIndexPath?: string
   warnings?: Array<{ severity: "warning"; code: string; message: string }>
   failed?: Array<{ severity: "error"; code: string; message: string }>
+  diagnostics: readonly SyncOutputDiagnostic[]
+  summary: DiagnosticSummary
+  truncated: boolean
+  report?: DiagnosticReportReference
 }>
+
+interface SyncOutputDiagnostic {
+  readonly severity: "error" | "warning"
+  readonly code: string
+  readonly message: string
+}
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
   try {
@@ -66,18 +43,30 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
     })
     if (!component.ok) return component.error
 
-    const core = deps ?? (await loadCoreApi())
+    const loadedCore = deps === undefined ? await loadCoreApi() : undefined
+    const core = deps ?? loadedCore!
+    const projectState = deps?.projectState ?? await projectStateHandle.get()
     if (input.allowWrite !== true) {
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
-      const result = await core.planSyncToXml({
+      const planParams = {
         projectDir: component.projectDir,
         componentPath: component.componentPath,
         xmlDir: input.xmlDir,
+        ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
+      }
+      const result = await core.planSyncToXml({ ...planParams, projectState })
+      const diagnostics = "diagnostics" in result ? result.diagnostics : []
+      return await withDiagnosticOutput({
+        projectDir: component.projectDir,
+        operation: "sync",
+        operationId: `${Date.now()}-${Math.random()}`,
+        diagnostics,
+        map: mapDiagnostic,
+        build: (output) => toolSuccess({ result: withoutDiagnostics(result), ...output }),
       })
-      return toolSuccess({ result })
     }
 
-    const result = await core.syncConfigurationToXML({
+    const syncParams: Parameters<CoreApi["syncConfigurationToXML"]>[0] = {
       context: {
         defaultLanguage: "ru",
         version: "2.20",
@@ -97,23 +86,56 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       componentPath: component.componentPath,
       xmlDir: input.xmlDir,
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
-    })
+      ...(input.ignoreValidationErrors === undefined ? {} : { ignoreValidationErrors: input.ignoreValidationErrors }),
+      projectState,
+    }
+    const result = await core.syncConfigurationToXML(syncParams)
 
-    return toolSuccess({
-      succeeded: result.succeeded,
-      ...(result.configurationIndexPath === undefined ? {} : { configurationIndexPath: result.configurationIndexPath }),
-      warnings: result.warnings.map(mapWarning),
-      failed: result.failed.map(mapError),
+    const diagnostics = result.diagnostics ?? concatenate(result.failed, result.warnings)
+    return await withDiagnosticOutput({
+      projectDir: component.projectDir,
+      operation: "sync",
+      operationId: `${Date.now()}-${Math.random()}`,
+      diagnostics,
+      map: mapDiagnostic,
+      build: (output) => toolSuccess({
+        succeeded: result.succeeded,
+        ...(result.configurationIndexPath === undefined ? {} : { configurationIndexPath: result.configurationIndexPath }),
+        ...output,
+        warnings: output.diagnostics.filter(isWarning).map(mapWarning),
+        failed: output.diagnostics.filter(isError).map(mapError),
+      }),
     })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }
 }
 
-function mapWarning(diagnostic: CoreDiagnostic): { severity: "warning"; code: string; message: string } {
+function mapDiagnostic(diagnostic: { severity: "error" | "warning"; code: string; message: string }): SyncOutputDiagnostic {
+  return { severity: diagnostic.severity, code: diagnostic.code, message: diagnostic.message }
+}
+
+function isWarning(diagnostic: SyncOutputDiagnostic): boolean {
+  return diagnostic.severity === "warning"
+}
+
+function isError(diagnostic: SyncOutputDiagnostic): boolean {
+  return diagnostic.severity === "error"
+}
+
+function mapWarning(diagnostic: SyncOutputDiagnostic): { severity: "warning"; code: string; message: string } {
   return { severity: "warning", code: diagnostic.code, message: diagnostic.message }
 }
 
-function mapError(diagnostic: CoreDiagnostic): { severity: "error"; code: string; message: string } {
+function mapError(diagnostic: SyncOutputDiagnostic): { severity: "error"; code: string; message: string } {
   return { severity: "error", code: diagnostic.code, message: diagnostic.message }
+}
+
+function* concatenate<T>(...sources: readonly (readonly T[])[]): Iterable<T> {
+  for (const source of sources) yield* source
+}
+
+function withoutDiagnostics<T extends object>(result: T): Omit<T, "diagnostics"> {
+  const { diagnostics: _diagnostics, ...rest } = result as T & { diagnostics?: unknown }
+  return rest
 }

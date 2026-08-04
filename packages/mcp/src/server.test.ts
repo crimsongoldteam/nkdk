@@ -3,7 +3,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
 import { createNkdkMcpServer, runServerUntilTransportCloses, shutdownNkdkMcpServer } from "./server"
 
-const closeValidationHandle = vi.hoisted(() => vi.fn())
+const closeProjectStateHandle = vi.hoisted(() => vi.fn())
 const closePlatformSessionManager = vi.hoisted(() => vi.fn())
 const listInfobases = vi.hoisted(() =>
   vi.fn(async () => ({
@@ -21,8 +21,8 @@ const listInfobaseExtensions = vi.hoisted(() =>
   }))
 )
 
-vi.mock("./services/validationHandle", () => ({
-  closeValidationHandle,
+vi.mock("./services/projectStateHandle", () => ({
+  projectStateHandle: { close: closeProjectStateHandle },
 }))
 
 vi.mock("./services/platformSessionHandle", () => ({
@@ -127,13 +127,14 @@ describe("MCP server", () => {
     }
   })
 
-  it("loads core API without a monorepo-relative runtime import", async () => {
+  it("loads core API lazily without a monorepo-relative runtime import", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8")
     )
 
     expect(source).not.toContain("../../core/index.ts")
     expect(source).toContain('from "@nkdk/core"')
+    expect(source).toContain('import("@nkdk/core")')
   })
 
   it("keeps private core as a build-only dependency", async () => {
@@ -147,24 +148,23 @@ describe("MCP server", () => {
     expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
   })
 
-  it("documents expected publish build outputs", () => {
-    const outputs = [
-      "dist/bin/nkdk-mcp",
-      "dist/bin/preparedYamlProjectWorker.js",
-      "dist/bin/importFromXmlWorker.js",
-      "dist/bin/fullSyncToXmlWorker.js",
-      "dist/generateProjectValidationAjvStandalone.js",
-      "dist/projectValidationAjvStandalone.js",
-    ]
+  it("declares binary project-state runtime dependencies", async () => {
+    const packageJson = (
+      await import("../package.json", {
+        with: { type: "json" },
+      })
+    ).default
 
-    expect(outputs).toEqual([
-      "dist/bin/nkdk-mcp",
-      "dist/bin/preparedYamlProjectWorker.js",
-      "dist/bin/importFromXmlWorker.js",
-      "dist/bin/fullSyncToXmlWorker.js",
-      "dist/generateProjectValidationAjvStandalone.js",
-      "dist/projectValidationAjvStandalone.js",
-    ])
+    expect(packageJson.dependencies).toHaveProperty("structurae", "4.0.2")
+  })
+
+  it("publishes the universal worker with standalone schemas", async () => {
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("../scripts/build.mjs", import.meta.url), "utf8")
+    )
+
+    expect(source).toContain('outfile: join(binDir, "worker.js")')
+    expect(source).toContain('join(binDir, "projectValidationAjvStandalone.js")')
   })
 
   it("uses package version for MCP server metadata", async () => {
@@ -180,7 +180,7 @@ describe("MCP server", () => {
   })
 
   it("closes validation and platform handles on shutdown", async () => {
-    closeValidationHandle.mockResolvedValueOnce(undefined)
+    closeProjectStateHandle.mockResolvedValueOnce(undefined)
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 0,
       stoppedOwnedProcesses: 0,
@@ -188,12 +188,12 @@ describe("MCP server", () => {
 
     await shutdownNkdkMcpServer()
 
-    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 
   it("closes validation and platform handles when the transport closes", async () => {
-    closeValidationHandle.mockResolvedValueOnce(undefined)
+    closeProjectStateHandle.mockResolvedValueOnce(undefined)
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 1,
       stoppedOwnedProcesses: 1,
@@ -207,20 +207,20 @@ describe("MCP server", () => {
 
     await runServerUntilTransportCloses(server, transport)
 
-    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 
   it("attempts both shutdown branches when one fails", async () => {
-    closeValidationHandle.mockRejectedValueOnce(new Error("validation close failed"))
+    closeProjectStateHandle.mockRejectedValueOnce(new Error("project state close failed"))
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 0,
       stoppedOwnedProcesses: 0,
     })
 
-    await expect(shutdownNkdkMcpServer()).rejects.toThrow("validation close failed")
+    await expect(shutdownNkdkMcpServer()).rejects.toThrow("project state close failed")
 
-    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 })

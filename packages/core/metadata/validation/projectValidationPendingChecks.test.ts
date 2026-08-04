@@ -6,6 +6,8 @@ import { resolveValidationProjectFile } from "./projectFiles"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { toDataPathPolicyInput } from "./dataPath/policies"
+import type { DataPathPropertyRule } from "../orchestration/property/types"
 
 const ownerCache: OwnerMetadataCache = {
   get: () => ({ status: "not-found", diagnostics: [] }),
@@ -56,6 +58,20 @@ describe("validatePendingChecks", () => {
     expect(facts.pendingChecks[0]).toHaveProperty(
       "location.path",
       "/Элементы/Поле/КонтекстноеМеню/Элементы/Открыть/Данные"
+    )
+
+    const fullRule = {
+      ...facts.pendingChecks[0]!.policyInput,
+      type: "DataPath",
+      defaultType: "string",
+    } satisfies DataPathPropertyRule
+    const checksWithCurrentRule = facts.pendingChecks.map((check) => ({ ...check, policyInput: fullRule }))
+    const checksWithRestoredPolicy = facts.pendingChecks.map((check) => ({
+      ...check,
+      policyInput: toDataPathPolicyInput(fullRule),
+    }))
+    expect(validatePendingChecks({ ownerCache, checks: checksWithRestoredPolicy })).toEqual(
+      validatePendingChecks({ ownerCache, checks: checksWithCurrentRule })
     )
 
     expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual(

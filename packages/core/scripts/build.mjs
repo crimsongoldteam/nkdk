@@ -8,7 +8,6 @@ const corePackageJson = (
     with: { type: "json" },
   })
 ).default
-
 await rm(outdir, { force: true, recursive: true })
 
 const commonOptions = {
@@ -23,6 +22,7 @@ const commonOptions = {
     "js-yaml",
     "p-limit",
     "piscina",
+    "structurae",
     "typebox",
     "uuid",
   ],
@@ -58,6 +58,12 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: ["metadata/fullSyncToXml/worker.ts"],
   outfile: new URL("fullSyncToXmlWorker.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: ["metadata/workerPool/worker.ts"],
+  outfile: new URL("worker.js", outdir).pathname,
 })
 
 await esbuild.build({
