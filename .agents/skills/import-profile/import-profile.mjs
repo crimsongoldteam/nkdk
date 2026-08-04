@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process"
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
+import { createMcpToolSession, operationFailed } from "../../tools/mcp/call.mjs"
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
-const mcpCall = join(repoRoot, ".agents/tools/mcp/call.mjs")
 
-function usage() {
+export function usage() {
   return [
     "Использование:",
     "  node .agents/skills/import-profile/import-profile.mjs <xml-dir> <yaml-dir> [--runs N] [--concurrency N] [--json]",
@@ -81,75 +81,68 @@ function assertDirectory(path, label) {
   if (!statSync(path).isDirectory()) fail(`${label} не является каталогом: ${path}`)
 }
 
-function runProfile(options) {
+const defaultDependencies = {
+  buildMcp: buildCompiledMcp,
+  createSession: createMcpToolSession,
+  now: () => performance.now(),
+  clearOutput: clearDirectory,
+  createProject: createProfileProject,
+}
+
+export async function runProfile(options, overrides = {}) {
+  const dependencies = { ...defaultDependencies, ...overrides }
   const runs = []
   const allSteps = []
+  dependencies.buildMcp()
+  const projectDir = dependencies.createProject(options.yamlDir)
+  const session = await dependencies.createSession({
+    serverMode: "compiled",
+    env: { ...process.env, NKDK_PROFILE: "1" },
+  })
 
-  for (let run = 1; run <= options.runs; run += 1) {
-    clearDirectory(options.yamlDir)
-    const runDir = mkdtempSync(join(tmpdir(), "nkdk-import-profile-"))
-    const projectDir = join(runDir, "project")
-    const inputJson = join(runDir, "import-arguments.json")
-    const outputJson = join(runDir, "import-output.json")
-    const stderrLog = join(runDir, "server.stderr.log")
-    mkdirProjectSymlink(projectDir, options.yamlDir)
-    writeFileSync(
-      inputJson,
-      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", concurrency: options.concurrency, allowWrite: true })}\n`,
-      "utf8"
-    )
+  try {
+    for (let run = 1; run <= options.runs; run += 1) {
+      dependencies.clearOutput(options.yamlDir)
+      const started = dependencies.now()
+      const { result, payload } = await session.call("nkdk.import_from_xml", {
+        xmlDir: options.xmlDir,
+        projectDir,
+        componentPath: "cf",
+        concurrency: options.concurrency,
+        allowWrite: true,
+      })
+      const elapsedMs = Math.round(dependencies.now() - started)
+      const stderr = session.takeStderr()
+      const steps = parseProfileSteps(stderr)
+      for (const step of steps) allSteps.push(step)
+      const summary = parseImportSummary(payload)
+      const report = inspectReport(payload?.report)
 
-    const started = performance.now()
-    const spawned = spawnSync(
-      process.execPath,
-      [
-        mcpCall,
-        "nkdk.import_from_xml",
-        "--input",
-        inputJson,
-        "--output",
-        outputJson,
-        "--server-stderr-log",
-        stderrLog,
-      ],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: { ...process.env, NKDK_PROFILE: "1" },
-        maxBuffer: 1024 * 1024 * 128,
+      runs.push({
+        run,
+        elapsedMs,
+        exitCode: result.isError ? 1 : 0,
+        succeeded: summary.succeeded,
+        errors: summary.errors,
+        warnings: summary.warnings,
+        truncated: payload?.truncated,
+        report,
+        workerPoolSize: workerPoolSize(steps),
+        phases: summarizeImportSteps(steps, elapsedMs),
+      })
+
+      if (result.isError || operationFailed(payload)) {
+        const details = stderr.trim()
+        throw new Error(`Импорт: прогон ${run} завершился ошибкой${details.length === 0 ? "" : `\n${details}`}`)
       }
-    )
-    const elapsedMs = Math.round(performance.now() - started)
-    const stdout = spawned.stdout ?? ""
-    const stderr = `${spawned.stderr ?? ""}\n${readTextIfExists(stderrLog)}`
-    const steps = stderr.split(/\r?\n/).filter((line) => line.startsWith("[nkdk-profile-step] ")).map(parseProfileLine)
-    for (const step of steps) allSteps.push(step)
-    const payload = readJsonIfExists(outputJson)
-    const summary = parseImportSummary(payload)
-    const report = inspectReport(payload?.report)
-
-    runs.push({
-      run,
-      elapsedMs,
-      exitCode: spawned.status ?? 1,
-      succeeded: summary.succeeded,
-      errors: summary.errors,
-      warnings: summary.warnings,
-      truncated: payload?.truncated,
-      report,
-      workerPoolSize: workerPoolSize(steps),
-      phases: summarizeImportSteps(steps, elapsedMs),
-    })
-
-    if (spawned.status !== 0) {
-      const message = [stderr.trim(), stdout.trim()].filter(Boolean).join("\n")
-      throw new Error(`import run ${run} failed with status ${spawned.status}\n${message}`)
     }
+  } finally {
+    await session.close()
   }
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
   return {
-    mode: "mcp-stdio-source-tsx",
+    mode: "compiled-mcp-stdio",
     xmlDir: options.xmlDir,
     yamlDir: options.yamlDir,
     runs,
@@ -160,6 +153,39 @@ function runProfile(options) {
     peakRssMiB: max(allSteps.map((step) => step.rssPeak).filter((value) => value !== undefined)),
     profileRows: aggregateRows(allSteps.filter(isSummaryProfileStep)),
   }
+}
+
+export function parseProfileSteps(stderr) {
+  return stderr
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("[nkdk-profile-step] "))
+    .map(parseProfileLine)
+}
+
+function buildCompiledMcp() {
+  const result = spawnSync("pnpm", ["--filter", "@nkdk/mcp", "build"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 128,
+  })
+  if (result.status !== 0) {
+    const details = [result.stderr, result.stdout].filter(Boolean).join("\n").trim()
+    throw new Error(`Сборка MCP: команда завершилась с кодом ${result.status ?? "unknown"}${details.length === 0 ? "" : `\n${details}`}`)
+  }
+  for (const path of [
+    "packages/mcp/dist/bin/nkdk-mcp",
+    "packages/mcp/dist/bin/worker.js",
+    "packages/mcp/dist/bin/projectValidationAjvStandalone.js",
+  ]) {
+    if (!existsSync(join(repoRoot, path))) throw new Error(`Сборка MCP: отсутствует ${path}`)
+  }
+}
+
+function createProfileProject(yamlDir) {
+  const runDir = mkdtempSync(join(tmpdir(), "nkdk-import-profile-"))
+  const projectDir = join(runDir, "project")
+  mkdirProjectSymlink(projectDir, yamlDir)
+  return projectDir
 }
 
 export function summarizeImportSteps(steps, elapsedMs) {
@@ -176,7 +202,7 @@ export function summarizeImportSteps(steps, elapsedMs) {
   const records = (substep, scope) => steps.filter((step) =>
     step.substep === substep && (scope === undefined || step.scope === scope)
   )
-  return Object.fromEntries([
+  const phases = Object.fromEntries([
     ...Object.entries(names).map(([field, substep]) => [
       field,
       sum(steps.filter((step) => step.scope === "main" && step.substep === substep), "time"),
@@ -187,9 +213,28 @@ export function summarizeImportSteps(steps, elapsedMs) {
     ["diagnosticPreviewMs", sum(records("Подготовка начала diagnostics", "main"), "time")],
     ["diagnosticReportMs", sum(records("Запись полного отчёта diagnostics", "main"), "time")],
     ["diagnosticReportBytes", sum(records("Запись полного отчёта diagnostics", "main"), "bytes")],
+    ["mcpStructuredMs", sum(records("Формирование structuredContent MCP", "main"), "time")],
     ["mcpStructuredBytes", sum(records("Формирование structuredContent MCP", "main"), "bytes")],
-    ["responseMs", elapsedMs],
   ])
+  const measuredMainMs = sumFields(phases, [
+    "firstPassMs",
+    "workingIndexMs",
+    "secondPassMs",
+    "externalFilesMs",
+    "finalBuildMs",
+    "dependencyValidationMs",
+    "publicationMs",
+    "saveMs",
+    "diagnosticPreviewMs",
+    "diagnosticReportMs",
+    "mcpStructuredMs",
+  ])
+  return {
+    ...phases,
+    measuredMainMs,
+    mcpOverheadMs: Math.max(0, elapsedMs - measuredMainMs),
+    responseMs: elapsedMs,
+  }
 }
 
 function clearDirectory(dir) {
@@ -201,16 +246,6 @@ function clearDirectory(dir) {
 function mkdirProjectSymlink(projectDir, yamlDir) {
   mkdirSync(projectDir, { recursive: true })
   symlinkSync(yamlDir, join(projectDir, "cf"), "dir")
-}
-
-function readJsonIfExists(path) {
-  if (!existsSync(path)) return undefined
-  return JSON.parse(readFileSync(path, "utf8"))
-}
-
-function readTextIfExists(path) {
-  if (!existsSync(path)) return ""
-  return readFileSync(path, "utf8")
 }
 
 function inspectReport(report) {
@@ -309,7 +344,7 @@ function printResult(result, options) {
   }
 
   const lastRun = result.runs.at(-1)
-  console.log("Import profile: source tsx")
+  console.log("Import profile: compiled MCP stdio")
   console.log(`XML-каталог: ${result.xmlDir}`)
   console.log(`YAML-каталог: ${result.yamlDir}`)
   console.log(`Воркеры: ${lastRun?.workerPoolSize ?? "unknown"}`)
@@ -499,6 +534,10 @@ function sum(records, field) {
   return records.reduce((total, record) => total + (record[field] ?? 0), 0)
 }
 
+function sumFields(record, fields) {
+  return fields.reduce((total, field) => total + (record[field] ?? 0), 0)
+}
+
 function sumOrUndefined(records, field) {
   return records.length === 0 ? undefined : sum(records, field)
 }
@@ -544,6 +583,10 @@ function formatBytes(value) {
 
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const options = parseArgs(process.argv.slice(2))
-  const result = runProfile(options)
-  printResult(result, options)
+  runProfile(options)
+    .then((result) => printResult(result, options))
+    .catch((error) => {
+      console.error(error instanceof Error ? error.message : String(error))
+      process.exitCode = 1
+    })
 }

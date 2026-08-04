@@ -303,15 +303,20 @@ function createXmlImportOperationPool(params: {
             diagnosticViews.push(batch.diagnostics)
             fileViews.push(batch.files)
             if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
-              await stateQueue.run(() => {
-                assertProducerActive("firstPassRunning")
-                return sink.writeFirstPassState({
-                  ...(batch.configurationFragmentBuffer === undefined
-                    ? {}
-                    : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
-                  ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
-                })
-              })
+              await stateQueue.run(() => transferProfiler.measureAsync(
+                "Подготовка импорта конфигурации",
+                "Применение состояния пачки первого прохода",
+                { items: 1 },
+                () => {
+                  assertProducerActive("firstPassRunning")
+                  return sink.writeFirstPassState({
+                    ...(batch.configurationFragmentBuffer === undefined
+                      ? {}
+                      : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+                    ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
+                  })
+                },
+              ))
             }
           }
           const response = await runCommand(workerIndex, { kind: "finishFirstPass" })

@@ -1,17 +1,9 @@
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
-import { dirname, join } from "node:path"
-import test from "node:test"
-import { fileURLToPath } from "node:url"
-import { isSummaryProfileStep, summarizeImportSteps } from "./import-profile.mjs"
-
-const skillDir = dirname(fileURLToPath(import.meta.url))
+import test, { mock } from "node:test"
+import { isSummaryProfileStep, runProfile, summarizeImportSteps, usage } from "./import-profile.mjs"
 
 test("справка фиксирует четыре worker по умолчанию", () => {
-  const output = execFileSync(process.execPath, [join(skillDir, "import-profile.mjs"), "--help"], {
-    encoding: "utf8",
-  })
-  assert.match(output, /--concurrency N/u)
+  assert.match(usage(), /--concurrency N/u)
 })
 
 test("сводит этапы импорта и двоичной выдачи в стабильные поля", () => {
@@ -31,7 +23,7 @@ test("сводит этапы импорта и двоичной выдачи в
     main("Формирование structuredContent MCP", 23, 4_096),
   ]
 
-  assert.deepEqual(summarizeImportSteps(steps, 99), {
+  assert.deepEqual(summarizeImportSteps(steps, 300), {
     firstPassMs: 11,
     workingIndexMs: 12,
     secondPassMs: 13,
@@ -46,8 +38,11 @@ test("сводит этапы импорта и двоичной выдачи в
     diagnosticPreviewMs: 21,
     diagnosticReportMs: 22,
     diagnosticReportBytes: 2_048,
+    mcpStructuredMs: 23,
     mcpStructuredBytes: 4_096,
-    responseMs: 99,
+    measuredMainMs: 182,
+    mcpOverheadMs: 118,
+    responseMs: 300,
   })
 })
 
@@ -56,10 +51,54 @@ test("пропускает профильные записи без строко
   assert.equal(isSummaryProfileStep({ substep: null }), false)
 })
 
+test("собирает MCP до замера и переиспользует одну сессию", async () => {
+  let clock = 0
+  const buildMcp = mock.fn(() => {
+    clock += 5_000
+  })
+  const call = mock.fn(async () => {
+    clock += 100
+    return {
+      result: { isError: false, structuredContent: { ok: true } },
+      payload: { ok: true, succeeded: 1, failed: [], warnings: [], summary: { errors: 0, warnings: 0 } },
+    }
+  })
+  const session = {
+    call,
+    takeStderr: mock.fn(() => profileLine("Первый проход worker", 40)),
+    close: mock.fn(async () => undefined),
+  }
+  const createSession = mock.fn(async () => session)
+
+  const result = await runProfile(
+    { xmlDir: "/xml", yamlDir: "/yaml", runs: 2, concurrency: 4 },
+    {
+      buildMcp,
+      createSession,
+      now: () => clock,
+      clearOutput: mock.fn(),
+      createProject: mock.fn(() => "/project"),
+    },
+  )
+
+  assert.equal(buildMcp.mock.callCount(), 1)
+  assert.equal(createSession.mock.callCount(), 1)
+  assert.equal(call.mock.callCount(), 2)
+  assert.equal(session.close.mock.callCount(), 1)
+  assert.equal(result.mode, "compiled-mcp-stdio")
+  assert.equal(result.runs.length, 2)
+  assert.equal(result.coldMs, 100)
+  assert.equal(result.runs[0].elapsedMs, 100)
+})
+
 function main(substep, time, bytes) {
   return { scope: "main", substep, time, bytes }
 }
 
 function worker(substep, time, bytes) {
   return { scope: "worker", worker: 0, substep, time, bytes }
+}
+
+function profileLine(substep, time) {
+  return `[nkdk-profile-step] operation="import-from-xml" step="Подготовка импорта конфигурации" substep=${JSON.stringify(substep)} scope=main items=1 time=${time}ms\n`
 }

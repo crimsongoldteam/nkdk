@@ -131,12 +131,7 @@ describe("XML import worker first pass", () => {
       workerIndex: 0,
       preparedYamlIds: [],
     })
-    expect(result.files).toContainEqual({
-      sourceKind: "worker",
-      sourcePath: join(outputDir, assignment.targetProjectPath),
-      targetProjectPath: assignment.targetProjectPath,
-    })
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
+    expectWrittenImportFile(result, outputDir, assignment)
     expect(workerStateForTests()).not.toHaveProperty("preparedModels")
     expect(workerStateForTests()).not.toHaveProperty("preparedXml")
   })
@@ -376,12 +371,7 @@ describe("XML import worker second pass", () => {
     await initializeWorker(outputDir)
     const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
 
-    expect(first.files).toContainEqual({
-      sourceKind: "worker",
-      sourcePath: join(outputDir, assignment.targetProjectPath),
-      targetProjectPath: assignment.targetProjectPath,
-    })
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
+    expectWrittenImportFile(first, outputDir, assignment)
     expect(existsSync(join(outputDir, assignment.targetProjectPath.replace(/\/Свойства\.yaml$/, ".yaml")))).toBe(false)
   })
 
@@ -507,6 +497,19 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
 function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerCommand>>): ImportFirstPassResult {
   if (result?.kind !== "firstPassResult") throw new Error("Ожидался firstPassResult")
   return result
+}
+
+function expectWrittenImportFile(
+  result: ImportFirstPassResult,
+  outputDir: string,
+  assignment: ImportAssignment,
+): void {
+  expect(result.files).toContainEqual({
+    sourceKind: "worker",
+    sourcePath: join(outputDir, assignment.targetProjectPath),
+    targetProjectPath: assignment.targetProjectPath,
+  })
+  expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
 }
 
 async function initializeWorker(outputDir: string): Promise<void> {

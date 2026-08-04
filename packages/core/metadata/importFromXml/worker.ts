@@ -143,15 +143,27 @@ export async function runImportWorkerCommand(
 
   if (command.kind === "firstPassBatch") {
     const accumulator = requireFirstPassAccumulator()
+    const startedAt = performance.now()
     await processFirstPass(command.assignments, requireInitializedState(), accumulator)
-    const result = finishFirstPass(accumulator, false)
+    const result = accumulator.profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Упаковка состояния пачки первого прохода",
+      { items: command.assignments.length },
+      () => finishFirstPass(accumulator, false),
+    )
     firstPassAccumulator = createFirstPassAccumulator(requireInitializedState().workerIndex, accumulator.profiler)
-    return encodeImportBinaryResult(accumulator.profiler, {
+    const encoded = encodeImportBinaryResult(accumulator.profiler, {
       diagnostics: result.diagnostics,
       files: result.files,
       configurationFragments: result.configurationFragments,
       ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
     })
+    accumulator.profiler.record(
+      "Подготовка импорта конфигурации",
+      "Полная обработка пачки первого прохода",
+      { items: command.assignments.length, timeMs: performance.now() - startedAt },
+    )
+    return encoded
   }
 
   if (command.kind === "finishFirstPass") {
@@ -336,7 +348,8 @@ async function writePreparedYamlToOutput(
   )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
-  return { file: main.file, finalState: validateSerializedImportYaml(prepared, serialized, state).final }
+  const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
+  return { file: main.file, finalState: validated.final }
 }
 
 function secondPassExportContext(params: {
@@ -438,7 +451,7 @@ async function processFirstPass(
         if (prepared.deferred.length === 0) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })
-          const validated = validateSerializedImportYaml(prepared, serialized, state)
+          const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
           assignmentFiles.push(main.file)
           const indexContribution = importIndexContribution(prepared, validationContribution, state)
           accumulator.fragmentWriter.appendImportIndex(indexContribution)
@@ -605,6 +618,7 @@ function validateSerializedImportYaml(
   prepared: Pick<DeferredImportYaml, "targetProjectPath" | "yaml">,
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
+  profiler: ValidationProfiler,
 ): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
   const component = validationProjectComponentFromAddress(state.projectDir, {
     componentPath: state.componentPath,
@@ -612,17 +626,73 @@ function validateSerializedImportYaml(
   })
   const file = resolveValidationProjectFile(state.projectDir, prepared.targetProjectPath, component)
   if (file === undefined) throw new Error(`Не удалось классифицировать YAML import: ${prepared.targetProjectPath}`)
-  const first = validateKnownProjectYaml({
-    projectDir: state.projectDir,
-    file,
-    text: serialized.text,
-    yaml: prepared.yaml,
-    context: state.context,
-    schemaCache: state.schemaCache,
-    rulesSnapshot: state.rulesSnapshot,
-  })
-  const full = toProjectStateFileUpdate(first, importFileIdentity(state, prepared.targetProjectPath, file.kind))
+  const first = profiler.measure(
+    "Локальная валидация готового YAML",
+    "Подготовка снимка и локальная проверка",
+    { items: 1 },
+    () => validateKnownProjectYaml({
+      projectDir: state.projectDir,
+      file,
+      text: serialized.text,
+      yaml: prepared.yaml,
+      context: state.context,
+      schemaCache: state.schemaCache,
+      rulesSnapshot: state.rulesSnapshot,
+    }),
+  )
+  if (first.profile !== undefined) {
+    profiler.record("Локальная валидация готового YAML", "Ядро локальной проверки", {
+      items: 1,
+      timeMs: first.profile.totalMs,
+    })
+    profiler.record("Ядро локальной проверки", "Проверка JSON Schema", {
+      items: 1,
+      timeMs: first.profile.schemaMs,
+    })
+    profiler.record("Ядро локальной проверки", "Дополнительные валидаторы", {
+      items: 1,
+      timeMs: first.profile.validatorsMs,
+    })
+    profiler.record("Ядро локальной проверки", "Проверка equal-name", {
+      items: 1,
+      timeMs: first.profile.equalNameMs,
+    })
+    profiler.record("Ядро локальной проверки", "Извлечение YAML-фактов", {
+      items: 1,
+      timeMs: first.profile.yamlFactsMs,
+    })
+    profiler.record("Ядро локальной проверки", "Построение индексов", {
+      items: 1,
+      timeMs: first.profile.fieldIndexMs
+        + first.profile.objectIndexMs
+        + first.profile.memberIndexMs
+        + first.profile.valueIndexMs,
+    })
+    for (const [substep, value] of Object.entries(first.profile.localValueValidationProfile)) {
+      profiler.record("Ядро локальной проверки", substep, value)
+    }
+  }
+  const full = profiler.measure(
+    "Локальная валидация готового YAML",
+    "Преобразование результата в состояние проекта",
+    { items: 1 },
+    () => toProjectStateFileUpdate(first, importFileIdentity(state, prepared.targetProjectPath, file.kind)),
+  )
   return splitImportYamlUpdate(full, serialized.localHash)
+}
+
+function measureSerializedImportYamlValidation(
+  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "yaml">,
+  serialized: SerializedImportYaml,
+  state: InitializedImportWorkerState,
+  profiler: ValidationProfiler,
+): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
+  return profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Локальная валидация готового YAML",
+    { items: 1 },
+    () => validateSerializedImportYaml(prepared, serialized, state, profiler),
+  )
 }
 
 function splitImportYamlUpdate(
