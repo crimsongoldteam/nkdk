@@ -7,6 +7,10 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
+import {
+  createFullXmlSyncDiagnosticCollectionFromDiagnostics,
+  createFullXmlSyncFileCollectionFromFiles,
+} from "./workerPool"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { ProjectStateReadSession } from "../projectState"
 
@@ -125,20 +129,20 @@ export function createMockFullSyncDependencies(
         async initialize() {},
         async execute() {
           return {
-            diagnostics: [],
-            warnings: [],
-            writtenFiles: [
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([
               {
                 assignmentId: "Конфигурация.yaml",
                 targetXmlPath: "Configuration.xml",
               },
-            ],
-            expectedOutputs: [
+            ]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([
               {
                 assignmentId: "Конфигурация.yaml",
                 targetXmlPath: "Configuration.xml",
               },
-            ],
+            ]),
             fragmentData: {
               sourceProjectPaths: ["Конфигурация.yaml"],
               entities: [],

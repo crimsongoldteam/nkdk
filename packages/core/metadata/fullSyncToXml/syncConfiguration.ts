@@ -202,10 +202,18 @@ export async function syncComponentToXml(
       ...(projectStateReadTokens === undefined ? {} : { projectStateReadTokens }),
     })
     const execution = await pool.execute(plan.assignments)
-    warnings = [...warnings, ...execution.warnings]
-    diagnostics = [...diagnostics, ...execution.diagnostics, ...execution.warnings]
-    if (hasErrors(execution.diagnostics)) {
-      return await complete(failedResult(execution.diagnostics, warnings, diagnostics))
+    const executionDiagnostics = [...execution.diagnostics]
+    const executionWarnings = [...execution.warnings]
+    const expectedOutputs = [...execution.expectedOutputs]
+    const writtenFiles = [...execution.writtenFiles]
+    execution.diagnostics.release()
+    execution.warnings.release()
+    execution.expectedOutputs.release()
+    execution.writtenFiles.release()
+    warnings = [...warnings, ...executionWarnings]
+    diagnostics = [...diagnostics, ...executionDiagnostics, ...executionWarnings]
+    if (hasErrors(executionDiagnostics)) {
+      return await complete(failedResult(executionDiagnostics, warnings, diagnostics))
     }
 
     const external = await deps.transferExternalFiles({
@@ -214,8 +222,8 @@ export async function syncComponentToXml(
       ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
     })
     const outputDiagnostics = deps.validateWrittenFiles({
-      expectedOutputs: execution.expectedOutputs,
-      writtenFiles: execution.writtenFiles,
+      expectedOutputs,
+      writtenFiles,
       copiedFiles: withExternalAssignmentIds(plan, external.copiedFiles),
     })
     warnings = [...warnings, ...outputDiagnostics.filter(({ severity }) => severity === "warning")]

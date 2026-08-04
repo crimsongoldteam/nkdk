@@ -24,6 +24,10 @@ import {
   removeFullSyncTempDirs,
 } from "./testHelpers"
 import { fullXmlSyncTestOutput } from "./testTopology"
+import {
+  createFullXmlSyncDiagnosticCollectionFromDiagnostics,
+  createFullXmlSyncFileCollectionFromFiles,
+} from "./workerPool"
 
 const fullSyncTopology = compileRegisteredMetadataResourceTopology()
 
@@ -124,14 +128,14 @@ describe("full XML sync failure integration", () => {
         async initialize() {},
         async execute() {
           return {
-            warnings: [],
-            diagnostics: [{
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([{
               severity: "error" as const,
               code: "full_xml_sync_assignment_failed",
               message: "Не удалось построить XML",
-            }],
-            writtenFiles: [],
-            expectedOutputs: [],
+            }]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([]),
             fragmentData: { sourceProjectPaths: [], entities: [] },
           }
         },
@@ -387,16 +391,16 @@ function failureDeps(
         async execute() {
           fs.writeFileSync(join(xmlDir, "partial.xml"), "partial")
           return {
-            diagnostics: [],
-            warnings: [],
-            writtenFiles: [{
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "partial.xml",
-            }],
-            expectedOutputs: [{
+            }]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "partial.xml",
-            }],
+            }]),
             fragmentData: {
               sourceProjectPaths: ["Конфигурация.yaml"],
               entities: [],

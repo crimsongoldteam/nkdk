@@ -1,10 +1,16 @@
 import { describe, expect, it, vi } from "vitest"
 import type { ProjectStateReadSession } from "../projectState/readSession"
-import { runProjectQuery } from "./projectQueries"
+import { openIndexedReferencesResult, runProjectQuery } from "./projectQueries"
 
 describe("project worker queries", () => {
   it("разрешает цель и находит ссылки одним запросом к установленному состоянию", () => {
-    const findReferences = vi.fn(() => [{ requestId: "references", references: [] }])
+    const findReferences = vi.fn(() => [{ requestId: "references", references: [{
+      kind: "metadataTarget" as const,
+      projectPath: "cf/Документ/Заказ/Свойства.yaml",
+      componentPath: "cf",
+      yamlPath: ["Реквизиты", 0, "Тип"],
+      canonical: "Catalog.Товары",
+    }] }])
     const session = {
       resolveTargets: () => [{
         requestId: "target",
@@ -23,7 +29,15 @@ describe("project worker queries", () => {
       dataPathTarget: { owner: { kind: "Справочник", name: "Товары" } },
     }, session)
 
-    expect(result).toMatchObject({ found: true, source: { componentPath: "cf" } })
+    const opened = openIndexedReferencesResult(result)
+    expect(opened).toMatchObject({ source: { componentPath: "cf" }, references: { count: 1 } })
+    expect(opened.references.reference(0)).toEqual({
+      kind: "metadataTarget",
+      projectPath: "cf/Документ/Заказ/Свойства.yaml",
+      componentPath: "cf",
+      yamlPath: ["Реквизиты", 0, "Тип"],
+      canonical: "Catalog.Товары",
+    })
     expect(findReferences).toHaveBeenCalledOnce()
   })
 

@@ -25,7 +25,11 @@ import {
   type FullXmlSyncCoordinatorDependencies,
 } from "./syncConfiguration"
 import { createMockFullSyncDependencies, emptyProjectStateReadSession } from "./testHelpers"
-import type { FullXmlSyncExecutionPoolResult } from "./workerPool"
+import {
+  createFullXmlSyncDiagnosticCollectionFromDiagnostics,
+  createFullXmlSyncFileCollectionFromFiles,
+  type FullXmlSyncExecutionPoolResult,
+} from "./workerPool"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 
 describe("shared full XML sync coordinator", () => {
@@ -625,16 +629,16 @@ function createHarness(options: HarnessOptions = {}) {
         async execute(): Promise<FullXmlSyncExecutionPoolResult> {
           events.push("execute")
           return {
-            diagnostics: [...options.executionDiagnostics ?? []],
-            warnings: [],
-            writtenFiles: [{
+            diagnostics: createFullXmlSyncDiagnosticCollectionFromDiagnostics(options.executionDiagnostics ?? []),
+            warnings: createFullXmlSyncDiagnosticCollectionFromDiagnostics([]),
+            writtenFiles: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "Configuration.xml",
-            }],
-            expectedOutputs: [{
+            }]),
+            expectedOutputs: createFullXmlSyncFileCollectionFromFiles([{
               assignmentId: "Конфигурация.yaml",
               targetXmlPath: "Configuration.xml",
-            }],
+            }]),
             fragmentData: options.fragmentData ?? {
               sourceProjectPaths: ["Конфигурация.yaml"],
               entities: [],

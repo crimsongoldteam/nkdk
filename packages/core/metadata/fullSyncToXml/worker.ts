@@ -1,5 +1,6 @@
 import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
@@ -31,6 +32,7 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
+import { createFullXmlSyncBinaryResult } from "./binaryResult"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -107,6 +109,17 @@ export async function runFullXmlSyncWorkerCommand(
     if (state?.ownsProjectStateReadSession === true) state.projectStateReadSession.close()
     return undefined
   }
+  if (command.kind === "finishExecution") return undefined
+  if (command.kind === "executeBatch") {
+    const result = await executeAssignments(command.assignments, requireInitializedState())
+    return createFullXmlSyncBinaryResult({
+      diagnostics: result.diagnostics,
+      warnings: result.warnings,
+      writtenFiles: result.writtenFiles,
+      expectedOutputs: result.expectedOutputs,
+      fragmentBuffer: result.fragmentBuffer,
+    })
+  }
   return executeAssignments(command.assignments, requireInitializedState())
 }
 
@@ -128,7 +141,11 @@ export default async function fullXmlSyncWorkerEntryPoint(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   const result = await runFullXmlSyncWorkerCommand(command)
-  return result === undefined ? undefined : movableExecutionResult(result)
+  return result === undefined
+    ? undefined
+    : result.kind === "binaryResult"
+      ? createMovableBinaryResult(result)
+      : movableExecutionResult(result)
 }
 
 async function executeAssignments(

@@ -114,7 +114,9 @@ function movableImportResult(result: Extract<MetadataWorkerCommandResult, { kind
 function movableOperationResult<T extends Exclude<MetadataWorkerCommandResult, undefined>>(
   result: T,
   transferables: readonly ArrayBuffer[] = result.kind === "fullSyncResult" && result.result !== undefined
-    ? [result.result.fragmentBuffer]
+    ? result.result.kind === "binaryResult"
+      ? result.result.buffers.map(({ buffer }) => buffer)
+      : [result.result.fragmentBuffer]
     : [],
 ): T {
   const buffers = [...transferables]

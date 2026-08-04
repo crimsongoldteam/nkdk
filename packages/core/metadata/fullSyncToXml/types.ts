@@ -8,6 +8,7 @@ import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTy
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { ProjectStateReadToken } from "../projectState"
 import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/types"
+import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -94,6 +95,8 @@ export type FullXmlSyncWorkerCommand =
       readonly projectStateReadToken?: ProjectStateReadToken
     }
   | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | { readonly kind: "executeBatch"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | { readonly kind: "finishExecution" }
   | { readonly kind: "dispose" }
 
 export interface FullXmlSyncExpectedOutput {
@@ -116,4 +119,4 @@ export interface FullXmlSyncExecutionResult {
   readonly fragmentBuffer: ArrayBuffer
 }
 
-export type FullXmlSyncWorkerCommandResult = FullXmlSyncExecutionResult | undefined
+export type FullXmlSyncWorkerCommandResult = FullXmlSyncExecutionResult | MetadataWorkerBinaryResult | undefined

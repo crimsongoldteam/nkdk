@@ -14,6 +14,7 @@ import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncAssignment } from "./types"
 import { emptyProjectStateReadSession } from "./testHelpers"
+import { openFullXmlSyncBinaryResult } from "./binaryResult"
 import {
   fullXmlSyncWorkerStateForTests,
   resetFullXmlSyncWorkerStateForTests,
@@ -61,6 +62,20 @@ describe("full XML sync worker", () => {
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("activeAssignmentId")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("preparedIds")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("baseIndexSnapshot")
+  })
+
+  it("возвращает каждую рабочую пачку двоичным результатом и ничего не накапливает к завершению", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned])
+
+    const batch = openFullXmlSyncBinaryResult(await runFullXmlSyncWorkerCommand({
+      kind: "executeBatch",
+      assignments: [assigned],
+    }))
+
+    expect(batch.writtenFiles.file(0)).toMatchObject({ targetXmlPath: "Catalogs/Товары.xml" })
+    expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
   })
 
   it("keeps an already written XML and stops when the next YAML hash changed", async () => {

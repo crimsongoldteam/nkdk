@@ -1,6 +1,7 @@
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import type { ProjectStateService } from "../projectState/service"
 import type { MetadataOperationCanonicalTargetResult } from "./targetResolver"
+import { openIndexedReferencesResult } from "../workerPool/projectQueries"
 
 export type IndexedOperationReferencesResult =
   | {
@@ -33,10 +34,21 @@ export async function readIndexedOperationReferences(params: {
       dataPathTarget: params.target.dataPathTarget,
       },
     })
-    if (result.kind !== "indexedReferencesResult") throw new Error("Worker вернул неожиданный результат запроса")
-    return result.found
-      ? { ok: true, source: result.source, references: result.references }
-      : { ok: false, message: result.message }
+    if (result.kind === "binaryResult") {
+      const opened = openIndexedReferencesResult(result)
+      return {
+        ok: true,
+        source: opened.source,
+        references: Array.from(
+          { length: opened.references.count },
+          (_unused, index) => opened.references.reference(index),
+        ),
+      }
+    }
+    if (result.kind !== "indexedReferencesResult" || result.found) {
+      throw new Error("Worker вернул неожиданный результат запроса")
+    }
+    return { ok: false, message: result.message }
   } catch (caught) {
     outcome = "failure"
     throw caught

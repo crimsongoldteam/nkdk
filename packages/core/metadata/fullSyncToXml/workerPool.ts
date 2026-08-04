@@ -14,13 +14,13 @@ import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
-  FullXmlSyncExecutionResult,
   FullXmlSyncExpectedOutput,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
 } from "./types"
 import { aggregateCleanupFailures, failureMessage, flattenFailures } from "./cleanupFailure"
+import { openFullXmlSyncBinaryResult, type FullXmlSyncBinaryBatchView } from "./binaryResult"
 
 export interface FullXmlSyncWorkerInitialization {
   readonly componentPath: string
@@ -34,11 +34,49 @@ export interface FullXmlSyncWorkerInitialization {
 }
 
 export interface FullXmlSyncExecutionPoolResult {
-  readonly diagnostics: FullXmlSyncDiagnostic[]
-  readonly warnings: FullXmlSyncDiagnostic[]
-  readonly writtenFiles: FullXmlSyncWrittenFile[]
-  readonly expectedOutputs: FullXmlSyncExpectedOutput[]
+  readonly diagnostics: FullXmlSyncDiagnosticCollection
+  readonly warnings: FullXmlSyncDiagnosticCollection
+  readonly writtenFiles: FullXmlSyncFileCollection<FullXmlSyncWrittenFile>
+  readonly expectedOutputs: FullXmlSyncFileCollection<FullXmlSyncExpectedOutput>
   readonly fragmentData: MergedConfigurationSnapshotFragments
+}
+
+export interface FullXmlSyncDiagnosticCollection extends Iterable<FullXmlSyncDiagnostic> {
+  readonly count: number
+  readonly errors: number
+  readonly warnings: number
+  readonly released: boolean
+  release(): void
+}
+
+export interface FullXmlSyncFileCollection<T> extends Iterable<T> {
+  readonly count: number
+  readonly released: boolean
+  release(): void
+}
+
+export function createFullXmlSyncDiagnosticCollectionFromDiagnostics(
+  diagnostics: readonly FullXmlSyncDiagnostic[],
+): FullXmlSyncDiagnosticCollection {
+  return createDiagnosticCollection([{
+    count: diagnostics.length,
+    diagnostic(index) {
+      const value = diagnostics[index]
+      if (value === undefined) throw new RangeError(`Неизвестная diagnostic sync: ${index}`)
+      return value
+    },
+  }])
+}
+
+export function createFullXmlSyncFileCollectionFromFiles<T>(files: readonly T[]): FullXmlSyncFileCollection<T> {
+  return createFileCollection([{
+    count: files.length,
+    file(index) {
+      const value = files[index]
+      if (value === undefined) throw new RangeError(`Неизвестный файл sync: ${index}`)
+      return value
+    },
+  }])
 }
 
 export interface FullXmlSyncWorkerPool {
@@ -85,7 +123,7 @@ export function createFullXmlSyncWorkerPool(params: {
       const initialized = initialization
       const { projectStateReadTokens = [], ...workerInitialization } = initialized
       const results = await Promise.all(
-        partitions.map(async (partition, workerIndex): Promise<FullXmlSyncExecutionResult> => {
+        partitions.map(async (partition, workerIndex): Promise<FullXmlSyncBinaryBatchView[]> => {
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
             workerIndex,
@@ -97,23 +135,29 @@ export function createFullXmlSyncWorkerPool(params: {
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
           }
-          const response = await runCommand(workerIndex, {
-            kind: "execute",
-            assignments: partition,
-          })
-          if (response?.kind !== "executionResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат execute"))
+          const batches: FullXmlSyncBinaryBatchView[] = []
+          for (let offset = 0; offset < partition.length; offset += 256) {
+            const response = await runCommand(workerIndex, {
+              kind: "executeBatch",
+              assignments: partition.slice(offset, offset + 256),
+            })
+            batches.push(openFullXmlSyncBinaryResult(response))
           }
-          return response
+          const finishResponse = await runCommand(workerIndex, { kind: "finishExecution" })
+          if (finishResponse !== undefined) {
+            return failWorker(new Error("Worker вернул неожиданный результат finishExecution"))
+          }
+          return batches
         })
       )
+      const batches = results.flatMap((value) => value)
       phase = "done"
       return {
-        diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
-        warnings: results.flatMap(({ warnings }) => warnings),
-        writtenFiles: results.flatMap(({ writtenFiles }) => writtenFiles),
-        expectedOutputs: results.flatMap(({ expectedOutputs }) => expectedOutputs),
-        fragmentData: mergeConfigurationIndexFragments(results.map(({ fragmentBuffer }) => fragmentBuffer)),
+        diagnostics: createDiagnosticCollection(batches.map(({ diagnostics }) => diagnostics)),
+        warnings: createDiagnosticCollection(batches.map(({ warnings }) => warnings)),
+        writtenFiles: createFileCollection(batches.map(({ writtenFiles }) => writtenFiles)),
+        expectedOutputs: createFileCollection(batches.map(({ expectedOutputs }) => expectedOutputs)),
+        fragmentData: mergeConfigurationIndexFragments(batches.map(({ fragmentBuffer }) => fragmentBuffer)),
       }
     },
 
@@ -197,6 +241,59 @@ export function createFullXmlSyncWorkerPool(params: {
       failures.push(...flattenFailures(caught))
     }
     return failures
+  }
+}
+
+function createDiagnosticCollection(
+  inputViews: readonly FullXmlSyncBinaryBatchView["diagnostics"][],
+): FullXmlSyncDiagnosticCollection {
+  const values = createViewCollection(inputViews, "diagnostics sync", (view, index) => view.diagnostic(index))
+  let counts: { errors: number; warnings: number } | undefined
+  return {
+    get count() { return values.count },
+    get errors() { return diagnosticCounts().errors },
+    get warnings() { return diagnosticCounts().warnings },
+    get released() { return values.released },
+    release() { values.release() },
+    [Symbol.iterator]() { return values[Symbol.iterator]() },
+  }
+
+  function diagnosticCounts(): { errors: number; warnings: number } {
+    if (counts !== undefined) return counts
+    counts = { errors: 0, warnings: 0 }
+    for (const diagnostic of values) counts[`${diagnostic.severity}s`] += 1
+    return counts
+  }
+}
+
+function createFileCollection<T>(
+  inputViews: readonly { readonly count: number; file(index: number): T }[],
+): FullXmlSyncFileCollection<T> {
+  return createViewCollection(inputViews, "файлов sync", (view, index) => view.file(index))
+}
+
+function createViewCollection<TView extends { readonly count: number }, T>(
+  inputViews: readonly TView[],
+  name: string,
+  read: (view: TView, index: number) => T,
+): FullXmlSyncFileCollection<T> {
+  let views = [...inputViews]
+  let released = false
+  const count = views.reduce((sum, view) => sum + view.count, 0)
+  return {
+    get count() { assertAvailable(); return count },
+    get released() { return released },
+    release() { released = true; views = [] },
+    *[Symbol.iterator]() {
+      assertAvailable()
+      for (const view of views) {
+        for (let index = 0; index < view.count; index += 1) yield read(view, index)
+      }
+    },
+  }
+
+  function assertAvailable(): void {
+    if (released) throw new Error(`Коллекция ${name} освобождена`)
   }
 }
 
