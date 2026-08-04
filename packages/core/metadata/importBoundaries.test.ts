@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "fs"
-import { join, relative, resolve } from "path"
+import { dirname, join, relative, resolve } from "path"
 import { beforeAll, describe, expect, it } from "vitest"
 import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnapshot"
 
@@ -11,6 +11,7 @@ const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "form
 const PROJECT_DIR = join(METADATA_DIR, "project")
 const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
 const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
+const SHARED_METADATA_BINARY_DIR = join(METADATA_DIR, "binary")
 const WORKSPACE_ROOT = join(process.cwd(), "..", "..")
 const PACKAGES_FOR_ALIAS_SCAN = ["packages/core", "packages/mcp"] as const
 const CONFIG_FILES_FOR_ALIAS_SCAN = [
@@ -467,13 +468,19 @@ function findSqliteImportOffenders(): string[] {
 }
 
 function findBinaryBoundaryOffenders(): string[] {
-  const binaryPrefix = `${resolve(PROJECT_STATE_BINARY_DIR)}/`
+  const binaryPrefixes = [PROJECT_STATE_BINARY_DIR, SHARED_METADATA_BINARY_DIR]
+    .map((directory) => `${resolve(directory)}/`)
+  const sharedHashIndex = resolve(SHARED_METADATA_BINARY_DIR, "hashIndex")
   const physicalModules = /(?:^|\/)binary\/(?:layouts|hashIndex|stringPool)$/u
   return listTypeScriptFiles(METADATA_DIR)
-    .filter((filePath) => !resolve(filePath).startsWith(binaryPrefix))
+    .filter((filePath) => !binaryPrefixes.some((prefix) => resolve(filePath).startsWith(prefix)))
     .filter((filePath) => !/(?:^|\/)(?:binaryResult|projectQueries)\.ts$/u.test(filePath))
     .filter((filePath) => extractModuleSpecifiers(readSource(filePath)).some(
-      (specifier) => specifier === "structurae" || physicalModules.test(specifier),
+      (specifier) => specifier === "structurae"
+        || (
+          physicalModules.test(specifier)
+          && resolve(dirname(filePath), specifier) !== sharedHashIndex
+        ),
     ))
     .map((filePath) => relative(process.cwd(), filePath))
 }

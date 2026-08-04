@@ -12,10 +12,6 @@ import {
   type SharedStringPool,
 } from "../validation/sharedStringPool"
 import type { FullXmlSyncAssignment } from "./types"
-import type {
-  MetadataXmlPrepareComposition,
-  MetadataXmlPrepareCompositionEntry,
-} from "../resourceTopology/capabilities"
 
 const COMPOSITION_MAGIC = 0x4e4b434d
 const COMPOSITION_VERSION = 2
@@ -43,9 +39,18 @@ export interface FullXmlSyncCompositionEntry {
   readonly ownerLogicalAddress?: string
 }
 
-export interface FullXmlSyncCompositionReader extends MetadataXmlPrepareComposition {
+export interface FullXmlSyncCompositionChild {
+  readonly sourceProjectPath: string
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly assignmentRole: "configuration" | "properties" | "fileItem"
+  readonly ownerLogicalAddress?: string
+}
+
+export interface FullXmlSyncCompositionReader {
   assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  children(ownerLogicalAddress: string): readonly MetadataXmlPrepareCompositionEntry[]
+  children(ownerLogicalAddress: string): readonly FullXmlSyncCompositionChild[]
   itemTypeByYamlDir(): Readonly<Record<string, string>>
 }
 
@@ -249,7 +254,7 @@ export function createFullXmlSyncCompositionReader(
     return explicitOwner.length > 0 ? explicitOwner : rootLogicalAddress
   }
 
-  function capabilityEntryAt(entryId: number): MetadataXmlPrepareCompositionEntry {
+  function capabilityEntryAt(entryId: number): FullXmlSyncCompositionChild {
     const entry = entryAt(entryId)
     return {
       sourceProjectPath: entry.sourceProjectPath,
