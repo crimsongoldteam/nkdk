@@ -10,6 +10,7 @@ import { openPlatformCommandSession } from "./sshProtocol"
 import { createSsh2Transport } from "./ssh2Transport"
 import { createStandaloneServerSession } from "./standaloneServer"
 import { createPlatformOperationLog } from "./operationLog"
+import { nodeProcessLogReader } from "./processLog"
 import type {
   OwnedProcess,
   ProcessRunOptions,
@@ -199,6 +200,7 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
         portRuntime,
         fileSystem,
         processRuntime: nodeProcessRuntime,
+        processLogReader: nodeProcessLogReader,
         generateHostKey,
         sshTransport,
         openCommandSession: openPlatformCommandSession,
