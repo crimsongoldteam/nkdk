@@ -12,7 +12,6 @@ export type {
   ListConfigurationExtensionsParams,
   ListConfigurationExtensionsResult,
   NormalizedPlatformConnectionSettings,
-  PlatformConnectionSettings,
   PlatformSession,
   PlatformSessionManager,
   PlatformSessionMode,

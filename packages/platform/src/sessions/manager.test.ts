@@ -110,7 +110,6 @@ describe("platform session manager", () => {
     { connectionString: 'File="/bases/other";' },
     { user: "Другой" },
     { password: "other-secret" },
-    { useStandaloneServer: true },
   ])("replaces a session when its fingerprint changes: %s", async (change) => {
     const fixture = createFixture()
     const manager = createPlatformSessionManager(fixture.dependencies)
@@ -122,6 +121,35 @@ describe("platform session manager", () => {
 
     expect(fixture.created).toHaveLength(2)
     expect(fixture.sessions[0]?.closeCalls).toBe(1)
+  })
+
+  it("switches the cached session to the mode requested by each call", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams({ mode: "designer-agent" }))
+
+    await expect(
+      manager.exportConfiguration(exportParams({ mode: "standalone-server" }))
+    ).resolves.toMatchObject({ mode: "standalone-server", reusedConnection: false })
+
+    expect(fixture.created).toEqual([
+      "/project:designer-agent",
+      "/project:standalone-server",
+    ])
+    expect(fixture.sessions[0]?.closeCalls).toBe(1)
+  })
+
+  it("reuses a live session when only unresolved references change", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams({ unresolvedReferences: "include" }))
+
+    await expect(
+      manager.exportConfiguration(exportParams({ unresolvedReferences: "omit" }))
+    ).resolves.toMatchObject({ reusedConnection: true })
+
+    expect(fixture.created).toHaveLength(1)
+    expect(fixture.exportedUnresolvedReferences).toEqual(["include", "omit"])
   })
 
   it("replaces an offline session when database credentials change", async () => {
@@ -136,7 +164,7 @@ describe("platform session manager", () => {
     }
     const params = {
       connectionString: 'Srvr="cluster";Ref="base";',
-      useStandaloneServer: true,
+      mode: "standalone-server" as const,
       database,
     }
     await manager.exportConfiguration(exportParams(params))
@@ -346,7 +374,8 @@ function baseExportParams(projectDir: string) {
     connectionString: 'File="/bases/demo";',
     user: "Администратор",
     password: "secret",
-    useStandaloneServer: false,
+    mode: "designer-agent" as const,
+    unresolvedReferences: "include" as const,
     sessionIdleTimeout: 900,
   }
 }
@@ -373,6 +402,7 @@ function createFixture(
   exportStarts: string[]
   listStarts: string[]
   exportedOutputDirs: string[]
+  exportedUnresolvedReferences: string[]
   options: {
     listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
   }
@@ -386,6 +416,7 @@ function createFixture(
   const exportStarts: string[] = []
   const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
+  const exportedUnresolvedReferences: string[] = []
   let cancelFailures = options.cancelFailures ?? 0
   let timerId = 0
   const timers = new Map<number, { callback: () => void; timeoutMs: number }>()
@@ -406,11 +437,12 @@ function createFixture(
       ownedProcess: true,
       closeCalls: 0,
       cancelCalls: 0,
-      async exportConfiguration(outputDir, _operationLogPath, signal) {
+      async exportConfiguration(outputDir, _operationLogPath, unresolvedReferences, signal) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
         notify(exportStartWaiters, `${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
+        exportedUnresolvedReferences.push(unresolvedReferences)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
       async listExtensions(signal) {
@@ -452,6 +484,7 @@ function createFixture(
     exportStarts,
     listStarts,
     exportedOutputDirs,
+    exportedUnresolvedReferences,
     options,
     waitForExportStart(start) {
       if (exportStarts.includes(start)) return Promise.resolve()

@@ -1,6 +1,6 @@
 import type { InfobaseConnection } from "../infobases/types"
 import { PlatformSessionError } from "./errors"
-import type { DatabaseConnectionSettings } from "./types"
+import type { DatabaseConnectionSettings, UnresolvedReferencesMode } from "./types"
 
 export type ProcessLaunch = {
   command: string
@@ -48,7 +48,9 @@ export function buildStandaloneConfigInit(
           `--dbms=${params.database.dbms}`,
           `--database-server=${params.database.server}`,
           `--database-name=${params.database.name}`,
-          `--database-user=${params.database.user}`,
+          ...(params.database.user === undefined
+            ? []
+            : [`--database-user=${params.database.user}`]),
           ...(params.database.password === undefined
             ? []
             : [`--database-password=${params.database.password}`]),
@@ -65,6 +67,7 @@ export function buildStandaloneConfigExport(params: {
   outputDir: string
   user?: string
   password?: string
+  unresolvedReferences: UnresolvedReferencesMode
 }): ProcessLaunch {
   return {
     command: params.ibcmdPath,
@@ -74,6 +77,7 @@ export function buildStandaloneConfigExport(params: {
       "export",
       ...(params.user === undefined ? [] : [`--user=${params.user}`]),
       ...(params.password === undefined ? [] : [`--password=${params.password}`]),
+      ...(params.unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
       `--config=${params.configPath}`,
       params.outputDir,
     ],
@@ -119,8 +123,15 @@ export function buildStandaloneLaunch(params: {
   }
 }
 
-export function buildDumpConfigurationCommand(outputDir: string): string {
-  return `config dump-config-to-files --dir="${interactiveValue(outputDir)}" --format=hierarchical`
+export function buildDumpConfigurationCommand(
+  outputDir: string,
+  unresolvedReferences: UnresolvedReferencesMode
+): string {
+  return [
+    `config dump-config-to-files --dir="${interactiveValue(outputDir)}"`,
+    "--format=hierarchical",
+    ...(unresolvedReferences === "omit" ? ["--ignore-unresolved-refs"] : []),
+  ].join(" ")
 }
 
 export function buildListDesignerExtensionsCommand(): string {

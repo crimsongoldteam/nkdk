@@ -20,24 +20,20 @@ export type DatabaseConnectionSettings = {
   password?: string
 }
 
-export type PlatformConnectionSettings = {
+export type NormalizedPlatformConnectionSettings = {
   connectionString: string
   user?: string
   password?: string
-  useStandaloneServer?: boolean
-  sessionIdleTimeout?: number
+  sessionIdleTimeout: number
   database?: DatabaseConnectionSettings
 }
 
-export type NormalizedPlatformConnectionSettings = Required<
-  Pick<PlatformConnectionSettings, "connectionString" | "sessionIdleTimeout">
-> &
-  Pick<PlatformConnectionSettings, "user" | "password" | "database">
-
-export type ExportConfigurationParams = PlatformConnectionSettings & {
+export type ExportConfigurationParams = NormalizedPlatformConnectionSettings & {
   projectDir: string
   outputDir: string
   logPath: string
+  mode: PlatformSessionMode
+  unresolvedReferences: UnresolvedReferencesMode
   signal?: AbortSignal
 }
 
@@ -46,8 +42,9 @@ export type ExportConfigurationResult = {
   reusedConnection: boolean
 }
 
-export type ListConfigurationExtensionsParams = PlatformConnectionSettings & {
+export type ListConfigurationExtensionsParams = NormalizedPlatformConnectionSettings & {
   projectDir: string
+  mode: PlatformSessionMode
   signal?: AbortSignal
 }
 
@@ -76,7 +73,12 @@ export type ProjectSettings = {
 export interface PlatformSession {
   mode: PlatformSessionMode
   ownedProcess: boolean
-  exportConfiguration(outputDir: string, operationLogPath: string, signal?: AbortSignal): Promise<void>
+  exportConfiguration(
+    outputDir: string,
+    operationLogPath: string,
+    unresolvedReferences: UnresolvedReferencesMode,
+    signal?: AbortSignal
+  ): Promise<void>
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>

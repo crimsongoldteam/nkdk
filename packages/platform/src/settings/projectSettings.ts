@@ -4,8 +4,6 @@ import { parse } from "yaml"
 import type { z } from "zod"
 import { parseConnection } from "../infobases/parseConnection"
 import type {
-  NormalizedPlatformConnectionSettings,
-  PlatformConnectionSettings,
   ProjectSettings,
 } from "../sessions/types"
 import { projectSettingsStructuralSchema } from "./projectSettingsSchema"
@@ -116,28 +114,6 @@ export async function readProjectSettings(
   return validation.ok
     ? { status: "ready", projectDir: canonicalProjectDir, settingsPath, settings: validation.settings }
     : { status: "invalid", projectDir: canonicalProjectDir, settingsPath, diagnostics: validation.diagnostics }
-}
-
-// Временная внутренняя граница старого менеджера; удаляется при переводе операций на явный mode.
-export function normalizePlatformConnectionSettings(
-  value: PlatformConnectionSettings
-): NormalizedPlatformConnectionSettings & { useStandaloneServer: boolean } {
-  const infobase = {
-    connectionString: value.connectionString,
-    ...(value.user === undefined ? {} : { user: value.user }),
-    ...(value.password === undefined ? {} : { password: value.password }),
-    ...(value.sessionIdleTimeout === undefined ? {} : { sessionIdleTimeout: value.sessionIdleTimeout }),
-    ...(value.database === undefined ? {} : { database: value.database }),
-  }
-  const result = validateProjectSettings({
-    infobase: {
-      ...infobase,
-      operations: { import: { mode: value.useStandaloneServer === true ? "standalone-server" : "designer-agent" } },
-    },
-  })
-  if (!result.ok) throw new Error(result.diagnostics[0]?.message ?? "Некорректные настройки подключения")
-  const { operations: _operations, ...settings } = result.settings.infobase
-  return { ...settings, useStandaloneServer: value.useStandaloneServer === true }
 }
 
 function semanticDiagnostics(settings: ProjectSettings): ProjectSettingsDiagnostic[] {

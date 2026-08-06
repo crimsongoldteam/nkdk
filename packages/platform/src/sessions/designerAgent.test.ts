@@ -10,7 +10,7 @@ describe("Designer agent session", () => {
   it("starts once, exports through SSH, and closes gracefully", async () => {
     const fixture = createFixture()
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
-    await session.exportConfiguration("/project/.nkdk/tmp/op/xml", "/project/.nkdk/tmp/op/platform.log")
+    await session.exportConfiguration("/project/.nkdk/tmp/op/xml", "/project/.nkdk/tmp/op/platform.log", "omit")
     await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: true })
 
     expect(fixture.calls).toEqual([
@@ -23,7 +23,7 @@ describe("Designer agent session", () => {
       "read /project/.nkdk/agentbasedir.json",
       "rm /project/.nkdk/0/.nkdk-export",
       "mkdir /project/.nkdk/0/.nkdk-export",
-      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical',
+      'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical --ignore-unresolved-refs',
       "rm /project/.nkdk/tmp/op/xml",
       "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml",
       "write /project/.nkdk/tmp/op/platform.log",
@@ -55,7 +55,8 @@ describe("Designer agent session", () => {
     )
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log"
+      "/project/.nkdk/tmp/op/platform.log",
+      "include"
     )
 
     expect(fixture.calls.find((call) => call.startsWith("spawn "))).toContain(
@@ -150,7 +151,8 @@ describe("Designer agent session", () => {
     await expect(
       session.exportConfiguration(
         "/project/.nkdk/tmp/op/xml",
-        "/project/.nkdk/tmp/op/platform.log"
+        "/project/.nkdk/tmp/op/platform.log",
+        "include"
       )
     ).rejects.toThrow("dump failed")
 
@@ -165,7 +167,7 @@ describe("Designer agent session", () => {
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     await expect(
-      session.exportConfiguration("/outside/xml", "/project/.nkdk/tmp/op/platform.log")
+      session.exportConfiguration("/outside/xml", "/project/.nkdk/tmp/op/platform.log", "include")
     ).rejects.toMatchObject({ code: "platform_command_failed" })
     expect(fixture.calls.some((call) => call.includes("dump-config-to-files"))).toBe(false)
   })
@@ -224,7 +226,8 @@ describe("Designer agent session", () => {
     await expect(
       session.exportConfiguration(
         "/project/.nkdk/tmp/op/xml",
-        "/project/.nkdk/tmp/op/platform.log"
+        "/project/.nkdk/tmp/op/platform.log",
+        "include"
       )
     ).rejects.toMatchObject({ code: "platform_command_failed" })
     expect(fixture.calls.some((call) => call.startsWith("rm "))).toBe(false)
@@ -316,6 +319,7 @@ describe("Designer agent session", () => {
     const exporting = session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
       "/project/.nkdk/tmp/op/platform.log",
+      "include",
       controller.signal
     )
     const exportResult = expect(exporting).rejects.toMatchObject({
@@ -354,6 +358,7 @@ describe("Designer agent session", () => {
     const exporting = session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
       "/project/.nkdk/tmp/op/platform.log",
+      "include",
       controller.signal
     )
     const exportResult = expect(exporting).rejects.toMatchObject({

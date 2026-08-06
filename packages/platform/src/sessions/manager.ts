@@ -1,11 +1,9 @@
 import { join } from "node:path"
-import { normalizePlatformConnectionSettings } from "../settings/projectSettings"
 import { PlatformSessionError } from "./errors"
 import { createNodePlatformSessionManagerDependencies } from "./nodeRuntime"
 import type {
   CreatePlatformSessionParams,
   NormalizedPlatformConnectionSettings,
-  PlatformConnectionSettings,
   PlatformSession,
   PlatformSessionManager,
   PlatformSessionMode,
@@ -45,7 +43,12 @@ export function createPlatformSessionManager(
   async function exportConfiguration(params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]) {
     const outputDir = await dependencies.canonicalizeProjectDir(params.outputDir)
     const result = await withSession(params, (session) =>
-      session.exportConfiguration(outputDir, params.logPath, params.signal)
+      session.exportConfiguration(
+        outputDir,
+        params.logPath,
+        params.unresolvedReferences,
+        params.signal
+      )
     )
     return {
       mode: result.mode,
@@ -63,8 +66,9 @@ export function createPlatformSessionManager(
   }
 
   async function withSession<T>(
-    params: PlatformConnectionSettings & {
+    params: NormalizedPlatformConnectionSettings & {
       projectDir: string
+      mode: PlatformSessionMode
       signal?: AbortSignal
     },
     operation: (session: PlatformSession) => Promise<T>
@@ -76,8 +80,8 @@ export function createPlatformSessionManager(
     const key = await dependencies.canonicalizeProjectDir(params.projectDir)
     return enqueue(key, async () => {
       throwIfCancelled(params.signal)
-      const settings = normalizePlatformConnectionSettings(params)
-      const mode: PlatformSessionMode = settings.useStandaloneServer ? "standalone-server" : "designer-agent"
+      const settings: NormalizedPlatformConnectionSettings = params
+      const mode = params.mode
       const fingerprint = createFingerprint(settings, mode)
       let cached = sessions.get(key)
       let reusedConnection = false

@@ -13,6 +13,7 @@ describe("standalone server session", () => {
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
       "/project/.nkdk/tmp/op/platform.log",
+      "omit",
       controller.signal
     )
     await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
@@ -23,7 +24,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
       "write /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
       "chmod /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
-      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=true grace=5000",
+      "run ibcmd infobase config export --password=secret --ignore-unresolved-refs --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=true grace=5000",
       "write /project/.nkdk/tmp/op/platform.log",
       "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
     ])
@@ -68,7 +69,8 @@ describe("standalone server session", () => {
     )
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log"
+      "/project/.nkdk/tmp/op/platform.log",
+      "include"
     )
 
     expect(fixture.calls).toContain(
@@ -147,7 +149,7 @@ describe("standalone server session", () => {
     )
     const exportFailure = createFixture({ exportExitCode: 1 })
     const session = await createStandaloneServerSession(createParams(), exportFailure.dependencies)
-    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
       code: "platform_command_failed",
     })
   })
@@ -163,7 +165,7 @@ describe("standalone server session", () => {
     const fixture = createFixture({ exportCancelled: true })
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
 
-    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
       code: "operation_cancelled",
     })
   })
@@ -175,7 +177,7 @@ describe("standalone server session", () => {
     })
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
 
-    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
       code: "operation_cancelled",
       message: expect.stringContaining("после ошибки остановки"),
     })

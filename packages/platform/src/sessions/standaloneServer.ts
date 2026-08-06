@@ -118,7 +118,7 @@ export async function createStandaloneServerSession(
     isAlive() {
       return !closed
     },
-    async exportConfiguration(outputDir, operationLogPath, signal) {
+    async exportConfiguration(outputDir, operationLogPath, unresolvedReferences, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -126,6 +126,7 @@ export async function createStandaloneServerSession(
         ibcmdPath,
         configPath,
         outputDir,
+        unresolvedReferences,
         ...(params.settings.user === undefined ? {} : { user: params.settings.user }),
         ...(params.settings.password === undefined
           ? {}

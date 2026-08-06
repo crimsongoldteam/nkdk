@@ -162,7 +162,7 @@ export async function createDesignerAgentSession(
     isAlive() {
       return !closed && processHandle.isAlive() && commandSession.isAlive()
     },
-    async exportConfiguration(outputDir, operationLogPath, signal) {
+    async exportConfiguration(outputDir, operationLogPath, unresolvedReferences, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -177,7 +177,8 @@ export async function createDesignerAgentSession(
       try {
         await commandSession.run(
           buildDumpConfigurationCommand(
-            relativeAgentPath(userServiceDir, stagingDir)
+            relativeAgentPath(userServiceDir, stagingDir),
+            unresolvedReferences
           ),
           { signal }
         )
