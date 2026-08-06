@@ -453,7 +453,10 @@
 					<tl>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
-							<v8:content>{  "prefix": "р_",  "attributes": [    {
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
       "Name": "р_ТаблицаЗначений",
       "Title": "Заголовок",
       "Type": {
@@ -461,7 +464,10 @@
           "ValueTable"
         ]
       },
-    },  ],  "childItems": []}</v8:content>
+    },
+  ],
+  "childItems": []
+}</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -472,7 +478,31 @@
 					<tl>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
-							<v8:content>{  "prefix": "р_",  "attributes": [    {      "Name": "р_ТаблицаЗначений",      "Title": "Заголовок",      "Type": {        "Type": [          "ValueTable"        ]      },    },    {      "Name": "р_Реквизит",      "Title": "Заголовок реквизита",      "Path": "р_ТаблицаЗначений",      "Type": {        "Type": [          "string"        ]      }    }  ],  "childItems": []}</v8:content>
+							<v8:content>{
+  "prefix": "р_",
+  "attributes": [
+    {
+      "Name": "р_ТаблицаЗначений",
+      "Title": "Заголовок",
+      "Type": {
+        "Type": [
+          "ValueTable"
+        ]
+      },
+    },
+    {
+      "Name": "р_Реквизит",
+      "Title": "Заголовок реквизита",
+      "Path": "р_ТаблицаЗначений",
+      "Type": {
+        "Type": [
+          "string"
+        ]
+      }
+    }
+  ],
+  "childItems": []
+}</v8:content>
 						</v8:item>
 					</tl>
 				</c>

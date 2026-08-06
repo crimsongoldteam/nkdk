@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { redactPlatformText, type PlatformOperationLog } from "./operationLog"
+import { recordedArgument, recordedPath } from "../testing/recordedPath"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createStandaloneServerSession,
@@ -412,19 +413,20 @@ function createFixture(
     dependencies: {
       fileSystem: {
         async mkdir(path) {
-          calls.push(`mkdir ${path}`)
+          calls.push(`mkdir ${recordedPath(path)}`)
         },
         async writeFile(path, content, writeOptions) {
+          const recorded = recordedPath(path)
           calls.push(
-            `write ${path}${writeOptions?.mode === undefined ? "" : ` mode=${writeOptions.mode}`}`
+            `write ${recorded}${writeOptions?.mode === undefined ? "" : ` mode=${writeOptions.mode}`}`
           )
-          writes.set(path, content)
+          writes.set(recorded, content)
         },
         async chmod(path, mode) {
-          calls.push(`chmod ${path} mode=${mode}`)
+          calls.push(`chmod ${recordedPath(path)} mode=${mode}`)
         },
         async rm(path) {
-          calls.push(`rm ${path}`)
+          calls.push(`rm ${recordedPath(path)}`)
           rmCalls += 1
           if (rmCalls === options.rmFailureCall) {
             throw new Error("rm failed")
@@ -436,7 +438,7 @@ function createFixture(
           const isList = args.includes("extension")
           calls.push(
             [
-              `run ${command} ${args.join(" ")}`,
+              `run ${recordedPath(command)} ${args.map(recordedArgument).join(" ")}`,
               `timeout=${runOptions?.timeoutMs}`,
               ...(args.includes("export") || isList
                 ? [

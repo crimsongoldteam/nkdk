@@ -6,11 +6,15 @@ export const TEST_DURATION_TARGET_MS = 10
 export const TEST_DURATION_LIMIT_MS = 50
 export const TEST_FILE_LIMIT_MS = 1_000
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
+export const WINDOWS_LIMIT_MULTIPLIER = 5
 
 export function analyzeTestDurationReport(report, lifecycleReport, environment = {}) {
   assertTestDurationReport(report)
   const { lifecycleByFile, packageSetupDuration } = parseLifecycleReport(lifecycleReport, report.testResults)
-  const limitMultiplier = environment.CI === "true" ? 3 : 1
+  const limitMultiplier = Math.max(
+    environment.CI === "true" ? 3 : 1,
+    environment.platform === "win32" ? WINDOWS_LIMIT_MULTIPLIER : 1,
+  )
 
   const warnings = []
   const failures = []
@@ -46,7 +50,10 @@ export function readTestDurationReports(options) {
 
 export function runTestDurationAssertion(options) {
   const { report, lifecycleReport } = readTestDurationReports(options)
-  const { warnings, failures } = analyzeTestDurationReport(report, lifecycleReport, process.env)
+  const { warnings, failures } = analyzeTestDurationReport(report, lifecycleReport, {
+    ...process.env,
+    platform: process.platform,
+  })
   for (const warning of warnings) process.stdout.write(`Цель 10ms превышена: ${formatResult(warning)}\n`)
   for (const failure of failures) process.stderr.write(`Лимит превышен: ${formatResult(failure)}\n`)
   return failures.length === 0 ? 0 : 1

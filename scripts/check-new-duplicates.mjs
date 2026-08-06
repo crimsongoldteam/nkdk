@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, readFile, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
+import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 
 const SOURCE_PATHS = ["packages", "scripts"]
 
@@ -141,8 +142,9 @@ function runJscpd({ jscpdBin, sourceRoot, configPath, reportDir }) {
 
   mkdirSync(reportDir, { recursive: true })
   run(
-    jscpdBin,
+    process.execPath,
     [
+      jscpdBin,
       ...paths,
       "--config",
       configPath,
@@ -191,7 +193,7 @@ export async function main(args = process.argv.slice(2)) {
   const baseReportDir = join(tempDir, "base-report")
   const currentReportDir = join(tempDir, "current-report")
   const configPath = join(repoRoot, ".jscpd.json")
-  const jscpdBin = join(repoRoot, "node_modules", ".bin", "jscpd")
+  const jscpdBin = resolveNodePackageBinary("jscpd", import.meta.url)
 
   try {
     await mkdir(baseRoot, { recursive: true })

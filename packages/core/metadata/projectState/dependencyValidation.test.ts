@@ -148,13 +148,35 @@ describe("dependency validation из ProjectState", () => {
     const store = storeWithUpdates([source, configuration])
 
     expect(store.validateDependencies({ requests: [] })).toEqual([{
-      filePath: "/project/cf/Справочник/НетТакого/Свойства.yaml",
+      filePath: "cf/Справочник/НетТакого/Свойства.yaml",
       line: 1,
       col: 1,
       severity: "error",
       source: "reference",
       message: 'Не найден объект "Справочник.НетТакого"',
     }])
+    store.rollbackUpdate()
+  })
+
+  it("сохраняет префикс компонента в пути отсутствующего объекта расширения", () => {
+    const source: ProjectStateYamlFileUpdate = {
+      ...yamlUpdate("cfe/Продажи/ИсточникОбъекта.yaml", "cfe/Продажи", false),
+      references: [],
+      pendingReferences: [{
+        yamlPath: ["Ссылка"],
+        canonical: "Catalog.НетТакого",
+        target: objectTarget,
+        constraint: { kind: "object" },
+      }],
+    }
+    const store = storeWithUpdates([source, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([
+      expect.objectContaining({
+        filePath: "cfe/Продажи/Справочник/НетТакого/Свойства.yaml",
+        source: "reference",
+      }),
+    ])
     store.rollbackUpdate()
   })
 

@@ -1,4 +1,4 @@
-import { isAbsolute, resolve, relative } from "path"
+import { isAbsolute, resolve } from "path"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
@@ -9,6 +9,7 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import { projectPathFromFileSystem } from "./path"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
 export type MetadataProjectResourceInclude = "all" | "yaml"
@@ -152,13 +153,11 @@ export async function* iterateMetadataProjectResourceCandidates(
 }
 
 export function assertMetadataProjectPathInside(projectDir: string, filePath: string): string {
-  const projectRoot = resolve(projectDir)
-  const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
-  const projectPath = relative(projectRoot, absolutePath)
-  if (projectPath === "" || projectPath.startsWith("..") || isAbsolute(projectPath)) {
+  try {
+    return projectPathFromFileSystem(projectDir, filePath)
+  } catch {
     throw new Error("Файл находится вне указанного YAML-проекта")
   }
-  return projectPath.replace(/\\/g, "/")
 }
 
 export function resolveMetadataProjectResource(

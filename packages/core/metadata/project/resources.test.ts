@@ -234,4 +234,11 @@ describe("metadata project resources", () => {
       "Файл находится вне указанного YAML-проекта"
     )
   })
+
+  it("не считает имя ..backup выходом за корень проекта", () => {
+    const projectDir = createProject()
+    const filePath = join(projectDir, "..backup", "Свойства.yaml")
+
+    expect(assertMetadataProjectPathInside(projectDir, filePath)).toBe("..backup/Свойства.yaml")
+  })
 })

@@ -61,6 +61,10 @@ describe("componentResolver", () => {
       ok: false,
       error: { code: "invalid_arguments" },
     })
+    expect(resolveComponent({ projectDir, componentPath: "C:\\outside\\cf" })).toMatchObject({
+      ok: false,
+      error: { code: "invalid_arguments" },
+    })
   })
 
   it("rejects non-standard component root", () => {
@@ -134,6 +138,12 @@ describe("componentResolver", () => {
     expect(resolveStructurePath(join(projectDir, "cf"), "Catalogs/Товары.yaml")).toBe("Catalogs/Товары.yaml")
     expect(() => resolveStructurePath(join(projectDir, "cf"), "../secret.yaml")).toThrow(
       "structurePath должен находиться внутри компонента",
+    )
+    expect(() => resolveStructurePath(join(projectDir, "cf"), "C:\\outside\\secret.yaml")).toThrow(
+      "structurePath должен быть относительным путем",
+    )
+    expect(() => resolveStructurePath(join(projectDir, "cf"), "file:///outside/secret.yaml")).toThrow(
+      "structurePath должен быть относительным путем",
     )
   })
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
 import { createProcessLogReader } from "./processLog"
+import { recordedPath } from "../testing/recordedPath"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
@@ -682,32 +683,33 @@ function createFixture(
       },
       fileSystem: {
         async mkdir(path) {
-          calls.push(`mkdir ${path}`)
+          calls.push(`mkdir ${recordedPath(path)}`)
         },
         async readFile(path) {
-          calls.push(`read ${path}`)
+          calls.push(`read ${recordedPath(path)}`)
           return (
             options.agentBaseConfig ??
             JSON.stringify({ usersInfo: [{ name: "", dir: "0" }] })
           )
         },
         async realpath(path) {
-          return options.realpaths?.[path] ?? path
+          return options.realpaths?.[recordedPath(path)] ?? path
         },
         async rm(path) {
-          calls.push(`rm ${path}`)
+          calls.push(`rm ${recordedPath(path)}`)
         },
         async rename(from, to) {
-          calls.push(`rename ${from} ${to}`)
+          calls.push(`rename ${recordedPath(from)} ${recordedPath(to)}`)
         },
         async writeFile(path, content) {
-          calls.push(`write ${path}`)
-          writes.set(path, content)
+          const recorded = recordedPath(path)
+          calls.push(`write ${recorded}`)
+          writes.set(recorded, content)
         },
       },
       processRuntime: {
         spawn(command, args, spawnOptions) {
-          calls.push(`spawn ${command} ${args.join(" ")} cwd=${spawnOptions?.cwd ?? ""}`)
+          calls.push(`spawn ${recordedPath(command)} ${args.map(recordedPath).join(" ")} cwd=${recordedPath(spawnOptions?.cwd ?? "")}`)
           return processHandle
         },
       },
@@ -731,7 +733,7 @@ function createFixture(
         },
       }),
       async generateHostKey(path) {
-        calls.push(`generateHostKey ${path}`)
+        calls.push(`generateHostKey ${recordedPath(path)}`)
         return "fingerprint"
       },
       sshTransport: {

@@ -17,7 +17,7 @@
     "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
     "check:duplicates": "node scripts/check-new-duplicates.mjs",
     "duplicates": "node scripts/check-new-duplicates.mjs",
-    "type-check": "pnpm --filter './packages/*' -r exec tsc --noEmit",
+    "type-check": "pnpm --filter \"./packages/*\" -r exec tsc --noEmit",
     "test": "pnpm test:duplicates-script && pnpm -r --workspace-concurrency=1 run test",
     "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",
     "test:isolated": "pnpm -r run test:isolated",

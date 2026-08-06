@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox"
-import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { classifyMetadataProjectPath } from "../project/resources"
+import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
 import {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForMetadataItemRule,
@@ -84,20 +84,17 @@ export function exportJSONSchemaForSchemaName(params: ExportJSONSchemaForSchemaN
 
 function normalizeProjectPath(params: Pick<ExportJSONSchemaForProjectFileParams, "filePath" | "projectDir">): string {
   const { filePath, projectDir } = params
-  const fullPath = projectDir && !isAbsolute(filePath) ? resolve(projectDir, filePath) : resolve(filePath)
-
   if (projectDir) {
-    const projectPath = resolve(projectDir)
-    const relativePath = relative(projectPath, fullPath)
-    if (relativePath === "" || relativePath.startsWith("..") || isAbsolute(relativePath)) {
+    try {
+      return projectPathFromFileSystem(projectDir, filePath)
+    } catch {
       throw new ProjectFileSchemaError("Файл находится вне указанного YAML-проекта")
     }
-    return toProjectSeparators(relativePath)
   }
 
-  return toProjectSeparators(filePath)
-}
-
-function toProjectSeparators(filePath: string): string {
-  return filePath.split(sep).join("/")
+  try {
+    return parseProjectPath(filePath)
+  } catch {
+    throw new ProjectFileSchemaError(expectedPatterns)
+  }
 }

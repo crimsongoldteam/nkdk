@@ -267,6 +267,18 @@ describe("exportJSONSchemaForProjectFile", () => {
     ).toThrow(new ProjectFileSchemaError("Файл находится вне указанного YAML-проекта"))
   })
 
+  it("не считает имя ..backup выходом за явный каталог проекта", () => {
+    const projectDir = createProject()
+    const exportSchema = () => exportJSONSchemaForProjectFile({
+      context,
+      projectDir,
+      filePath: join(projectDir, "..backup", "Свойства.yaml"),
+    })
+
+    expect(exportSchema).toThrow(ProjectFileSchemaError)
+    expect(exportSchema).not.toThrow("Файл находится вне указанного YAML-проекта")
+  })
+
   it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
     const schema = requiredMapValue(compiledInlineSchemas, "Справочник/Товары/Свойства.yaml")
 

@@ -1,6 +1,11 @@
+import { join } from "node:path"
+import { pathToFileURL } from "node:url"
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "@nkdk/platform"
 import { importFromInfobase, type ImportFromInfobaseDependencies } from "./importFromInfobase"
+
+const temporaryDirectory = join("/project", ".nkdk", "tmp", "import-from-infobase", "op-1")
+const platformLogPath = join(temporaryDirectory, "platform.log")
 
 describe("import from infobase", () => {
   it("requires explicit write confirmation before reading settings", async () => {
@@ -18,10 +23,10 @@ describe("import from infobase", () => {
       "readProjectSettings /project",
       "resolveTarget /project cf",
       "assertTargetEmpty /project/cf",
-      "mkdir /project/.nkdk/tmp/import-from-infobase/op-1/xml",
+      `mkdir ${join(temporaryDirectory, "xml")}`,
       "exportConfiguration",
       "syncConfigurationFromXML move",
-      "rm /project/.nkdk/tmp/import-from-infobase/op-1",
+      `rm ${temporaryDirectory}`,
     ])
     expect(result).toEqual({
       ok: true,
@@ -85,7 +90,7 @@ describe("import from infobase", () => {
         details: {
           stage: "authentication",
           mode: "designer-agent",
-          logPath: "/project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+          logPath: platformLogPath,
         },
       }),
     })
@@ -97,11 +102,11 @@ describe("import from infobase", () => {
       code: "authentication_failed",
       message: "Access denied",
       details: {
-        temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+        temporaryDirectory,
         stage: "authentication",
         mode: "designer-agent",
         log: {
-          uri: "file:///project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+          uri: pathToFileURL(platformLogPath).href,
           format: "text/plain",
         },
       },
@@ -140,7 +145,7 @@ describe("import from infobase", () => {
     expect(result).toMatchObject({
       ok: true,
       failed: [expect.objectContaining({ code: "xml_failed" })],
-      temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+      temporaryDirectory,
     })
     expect(fixture.calls).not.toContain(expect.stringMatching(/^rm /u))
   })
@@ -161,7 +166,7 @@ describe("import from infobase", () => {
       ok: false,
       code: "core_error",
       message: "Не удалось импортировать конфигурацию из информационной базы",
-      details: { temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1" },
+      details: { temporaryDirectory },
     })
     expect(JSON.stringify(result)).not.toContain("secret")
   })

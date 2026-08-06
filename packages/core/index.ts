@@ -150,6 +150,12 @@ export {
   type MetadataProjectStructureNode,
 } from "./metadata/project/directoryStructure"
 export {
+  parseProjectPath,
+  projectPathFromFileSystem,
+  resolveProjectPath,
+  type ProjectPathOptions,
+} from "./metadata/project/path"
+export {
   describeMetadataRuleOperationTargets,
   type MetadataRuleOperationTargetDescriptor,
 } from "./metadata/project"

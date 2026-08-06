@@ -2,11 +2,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { parseProjectPath as parseCoreProjectPath } from "@nkdk/core"
 import { validateYamlProject } from "./validateProject"
 import { createDiagnosticCollectionForTest } from "./projectStateTestSupport"
 
 const core = vi.hoisted(() => ({
   ProjectFileSchemaError: class ProjectFileSchemaError extends Error {},
+  parseProjectPath: vi.fn(),
   validateProject: vi.fn(),
 }))
 const projectState = vi.hoisted(() => ({ close: vi.fn() }))
@@ -23,6 +25,8 @@ describe("validateProject service", () => {
   const tempDirs: string[] = []
 
   beforeEach(() => {
+    core.parseProjectPath.mockReset()
+    core.parseProjectPath.mockImplementation(parseCoreProjectPath)
     core.validateProject.mockReset()
     core.validateProject.mockResolvedValue({ diagnostics: createDiagnosticCollectionForTest([]) })
   })
@@ -160,6 +164,7 @@ describe("validateProject service", () => {
     "\\\\server\\share\\secret.yaml",
     "\\secret.yaml",
     "file:///secret.yaml",
+    "cf//Свойства.yaml",
     "cfe\\Продажи/..\\..\\secret.yaml",
     "cfe/Продажи/../../secret.yaml",
   ])(

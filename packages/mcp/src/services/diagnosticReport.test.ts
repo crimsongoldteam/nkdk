@@ -1,3 +1,4 @@
+import { basename, join } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   createDiagnosticBatchWriter,
@@ -59,11 +60,11 @@ describe("выдача диагностик MCP", () => {
     })
 
     expect(fileSystem.calls).toEqual([
-      "mkdir:/project/.nkdk/reports",
-      "open:/project/.nkdk/reports/validation-new.jsonl.tmp",
+      `mkdir:${join("/project", ".nkdk", "reports")}`,
+      `open:${join("/project", ".nkdk", "reports", "validation-new.jsonl.tmp")}`,
       "close",
       "rename:validation-new.jsonl.tmp:validation-new.jsonl",
-      "readdir:/project/.nkdk/reports",
+      `readdir:${join("/project", ".nkdk", "reports")}`,
       "unlink:validation-old.jsonl",
     ])
     expect(fileSystem.lines).toHaveLength(101)
@@ -135,10 +136,10 @@ function memoryFileSystem(initialFiles: readonly string[] = []): DiagnosticRepor
       }
     },
     async rename(from, to) {
-      calls.push(`rename:${from.split("/").at(-1)}:${to.split("/").at(-1)}`)
-      files.add(to.split("/").at(-1)!)
+      calls.push(`rename:${basename(from)}:${basename(to)}`)
+      files.add(basename(to))
     },
     async readdir(path) { calls.push(`readdir:${path}`); return [...files] },
-    async unlink(path) { calls.push(`unlink:${path.split("/").at(-1)}`); files.delete(path.split("/").at(-1)!) },
+    async unlink(path) { calls.push(`unlink:${basename(path)}`); files.delete(basename(path)) },
   }
 }

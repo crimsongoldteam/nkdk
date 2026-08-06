@@ -25,7 +25,7 @@ const movedFixtures = [
 const resolveFixturePath = (filePath: string, baseDir?: string): string => {
   if (baseDir) return join(baseDir, filePath)
 
-  const normalizedPath = filePath.replace(/^\/+/, "")
+  const normalizedPath = filePath.replaceAll("\\", "/").replace(/^\/+/, "")
   const match = movedFixtures.find(([prefix]) => normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`))
   if (!match) return join(fixturesRoot, normalizedPath)
 
