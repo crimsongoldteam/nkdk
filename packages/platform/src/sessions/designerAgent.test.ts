@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
 import type { PlatformOperationLog } from "./operationLog"
+import { createProcessLogReader } from "./processLog"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
@@ -194,7 +195,10 @@ describe("Designer agent session", () => {
   })
 
   it("moves a partial dump and preserves safe platform diagnostics after a command failure", async () => {
-    const fixture = createFixture({ dumpFailure: true, processLog: "process detail secret" })
+    const fixture = createFixture({
+      dumpFailure: true,
+      processLogDuringDump: "process detail secret",
+    })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     const error = await exportError(session, fixture.operationLog)
@@ -206,6 +210,24 @@ describe("Designer agent session", () => {
     )
     expect(fixture.writes.get(fixture.operationLog.path)).toContain("process detail ***")
     expect(fixture.writes.get(fixture.operationLog.path)).not.toContain("secret")
+  })
+
+  it("excludes an earlier process-log failure from a reused export", async () => {
+    const fixture = createFixture({
+      dumpFailure: true,
+      processLog: "earlier failure\n",
+      processLogDuringDump: "current failure\n",
+    })
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    await exportError(session, fixture.operationLog)
+
+    const log = fixture.writes.get(fixture.operationLog.path)
+    expect(log).toContain("current failure")
+    expect(log).not.toContain("earlier failure")
   })
 
   it("retains the platform failure when the process log cannot be read", async () => {
@@ -528,6 +550,7 @@ function createFixture(
     extensionResponseComplete?: boolean
     extensionListError?: Error
     processLog?: string
+    processLogDuringDump?: string
     processLogReadFailure?: boolean
     openCommandError?: Error
   } = {}
@@ -562,6 +585,7 @@ function createFixture(
   let connectFailures = options.connectFailures ?? 0
   let killFailures = options.killFailures ?? 0
   let signalFailures = options.signalFailures ?? 0
+  let processLog = options.processLog ?? ""
   const { promise: cleanupStarted, resolve: resolveCleanupStarted } = Promise.withResolvers<void>()
   const { promise: dumpStarted, resolve: resolveDumpStarted } = Promise.withResolvers<void>()
   const processHandle = {
@@ -610,6 +634,7 @@ function createFixture(
         throw options.extensionListError
       }
       if (options.dumpFailure === true && command.startsWith("config ")) {
+        processLog += options.processLogDuringDump ?? ""
         throw new Error("dump failed")
       }
       if (options.dumpWaitsForAbort === true && command.startsWith("config ")) {
@@ -661,10 +686,6 @@ function createFixture(
         },
         async readFile(path) {
           calls.push(`read ${path}`)
-          if (path.endsWith("/process.log")) {
-            if (options.processLogReadFailure === true) throw new Error("read failed secret")
-            return options.processLog ?? ""
-          }
           return (
             options.agentBaseConfig ??
             JSON.stringify({ usersInfo: [{ name: "", dir: "0" }] })
@@ -690,6 +711,25 @@ function createFixture(
           return processHandle
         },
       },
+      processLogReader: createProcessLogReader({
+        async info() {
+          if (options.processLogReadFailure === true) {
+            throw new Error("read failed secret")
+          }
+          return {
+            identity: "process-log",
+            size: Buffer.byteLength(processLog),
+          }
+        },
+        async readRange(_path, start, length) {
+          if (options.processLogReadFailure === true) {
+            throw new Error("read failed secret")
+          }
+          return Buffer.from(processLog)
+            .subarray(start, start + length)
+            .toString("utf8")
+        },
+      }),
       async generateHostKey(path) {
         calls.push(`generateHostKey ${path}`)
         return "fingerprint"

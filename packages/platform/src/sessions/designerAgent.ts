@@ -8,6 +8,7 @@ import {
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
+import type { ProcessLogCursor, ProcessLogReader } from "./processLog"
 import { openPlatformCommandSession } from "./sshProtocol"
 import type {
   OwnedProcess,
@@ -29,6 +30,7 @@ export interface DesignerAgentDependencies {
     writeFile(path: string, content: string): Promise<void>
   }
   processRuntime: Pick<SessionProcessRuntime, "spawn">
+  processLogReader: ProcessLogReader
   generateHostKey(path: string): Promise<string>
   sshTransport: SshTransport
   openCommandSession: typeof openPlatformCommandSession
@@ -218,6 +220,10 @@ export async function createDesignerAgentSession(
       const stagingDir = join(userServiceDir, ".nkdk-export")
       await appendAgentLog(operationLog, "stage=configuration-export status=start")
       await prepareStagingDirectory(stagingDir, dependencies)
+      const processLogCursor = await captureProcessLogCursor(
+        processLogPath,
+        dependencies.processLogReader
+      )
       let commandFailure: unknown
       try {
         await commandSession.run(
@@ -246,7 +252,8 @@ export async function createDesignerAgentSession(
             "configuration-export",
             operationLog,
             processLogPath,
-            dependencies
+            dependencies,
+            processLogCursor
           )
         }
         commandFailure = caught
@@ -255,10 +262,17 @@ export async function createDesignerAgentSession(
         await moveStagingDirectory(stagingDir, resolvedOutputDir, dependencies)
       } catch {
         if (commandFailure === undefined) {
-          throw await agentFailure(new PlatformSessionError(
-            "platform_command_failed",
-            "Не удалось переместить выгрузку агента в каталог операции"
-          ), "configuration-export", operationLog, processLogPath, dependencies)
+          throw await agentFailure(
+            new PlatformSessionError(
+              "platform_command_failed",
+              "Не удалось переместить выгрузку агента в каталог операции"
+            ),
+            "configuration-export",
+            operationLog,
+            processLogPath,
+            dependencies,
+            processLogCursor
+          )
         }
       }
       if (commandFailure !== undefined) {
@@ -267,7 +281,8 @@ export async function createDesignerAgentSession(
           "configuration-export",
           operationLog,
           processLogPath,
-          dependencies
+          dependencies,
+          processLogCursor
         )
       }
       await appendAgentLog(operationLog, "stage=configuration-export status=ready")
@@ -344,11 +359,15 @@ async function agentFailure(
   stage: "session-start" | "authentication" | "configuration-export",
   operationLog: PlatformOperationLog,
   processLogPath: string,
-  dependencies: DesignerAgentDependencies
+  dependencies: DesignerAgentDependencies,
+  processLogCursor?: ProcessLogCursor
 ): Promise<PlatformSessionError> {
   if (cause instanceof PlatformSessionError && cause.details !== undefined) return cause
   try {
-    const processLog = await dependencies.fileSystem.readFile(processLogPath)
+    const processLog = await dependencies.processLogReader.readSince(
+      processLogPath,
+      processLogCursor
+    )
     if (processLog.trim() !== "") {
       await operationLog.append(`process-log\n${processLog}`)
     }
@@ -364,6 +383,17 @@ async function agentFailure(
     fallbackMessage: "Операция агента Конфигуратора завершилась с ошибкой",
     cause,
   })
+}
+
+async function captureProcessLogCursor(
+  path: string,
+  reader: ProcessLogReader
+): Promise<ProcessLogCursor | undefined> {
+  try {
+    return await reader.capture(path)
+  } catch {
+    return undefined
+  }
 }
 
 async function ensureProcessStopped(
