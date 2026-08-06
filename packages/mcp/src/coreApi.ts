@@ -28,6 +28,7 @@ export interface XmlSyncState {
 }
 
 export interface CoreApi {
+  parseProjectPath(input: string, options?: { readonly allowRoot?: boolean }): string
   createProjectStateService(): CoreProjectStateService
   ProjectFileSchemaError: {
     new (message: string): Error

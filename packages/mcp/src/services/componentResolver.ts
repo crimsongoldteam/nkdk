@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, statSync } from "fs"
-import { isAbsolute, relative, resolve, sep } from "path"
+import { isAbsolute, posix, relative, resolve, sep, win32 } from "path"
 import { toolError, type ToolFailure } from "../contracts/common"
 
 const STANDARD_COMPONENT_ROOTS = new Set(["cf", "cfe", "erf", "epf"])
@@ -108,7 +108,7 @@ export function assertImportTargetEmpty(componentDir: string): ToolFailure | und
 export function resolveStructurePath(componentDir: string, structurePath: string | undefined): string | undefined {
   if (structurePath === undefined) return undefined
 
-  if (structurePath.trim() === "" || isAbsolute(structurePath)) {
+  if (structurePath.trim() === "" || isAbsoluteInputPath(structurePath)) {
     throw new Error("structurePath должен быть относительным путем")
   }
 
@@ -127,13 +127,22 @@ export function resolveStructurePath(componentDir: string, structurePath: string
 }
 
 function normalizeRelativePath(input: string): string | undefined {
-  if (input.trim() === "" || isAbsolute(input)) return undefined
+  if (input.trim() === "" || isAbsoluteInputPath(input)) return undefined
 
   const normalized = input.replaceAll("\\", "/")
   const segments = normalized.split("/").filter((segment) => segment.length > 0 && segment !== ".")
   if (segments.length === 0 || segments.some((segment) => segment === "..")) return undefined
 
   return segments.join("/")
+}
+
+function isAbsoluteInputPath(input: string): boolean {
+  const normalized = input.replaceAll("\\", "/")
+  return (
+    posix.isAbsolute(normalized) ||
+    win32.isAbsolute(input) ||
+    /^[a-z][a-z\d+.-]*:/i.test(normalized)
+  )
 }
 
 function isInside(root: string, child: string): boolean {

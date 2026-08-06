@@ -1,5 +1,4 @@
-import { posix, win32 } from "path"
-import { loadCoreApi } from "../coreApi"
+import { loadCoreApi, type CoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
 import { resolveProjectRoot } from "./componentResolver"
@@ -38,7 +37,7 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
       map(diagnostic) {
         if (!isVisibleDiagnostic(diagnostic)) return undefined
         return {
-          filePath: visibleProjectPath(diagnostic.filePath),
+          filePath: visibleProjectPath(core, diagnostic.filePath),
           severity: diagnostic.severity,
           message: diagnostic.message,
           ...(diagnostic.path === undefined ? {} : { path: diagnostic.path }),
@@ -58,17 +57,12 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
   }
 }
 
-function visibleProjectPath(filePath: string): string {
-  const normalized = filePath.replaceAll("\\", "/")
-  if (
-    posix.isAbsolute(normalized) ||
-    win32.isAbsolute(normalized) ||
-    /^[a-z][a-z\d+.-]*:/i.test(normalized) ||
-    normalized.split("/").includes("..")
-  ) {
+function visibleProjectPath(core: Pick<CoreApi, "parseProjectPath">, filePath: string): string {
+  try {
+    return core.parseProjectPath(filePath)
+  } catch {
     throw new Error("Core вернул путь диагностики вне NKDK-проекта")
   }
-  return normalized
 }
 
 function isVisibleDiagnostic(diagnostic: { severity: "error" | "warning" }): boolean {
