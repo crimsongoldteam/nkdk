@@ -1,5 +1,6 @@
 import type { PlatformInstallation } from "../platform/findPlatform"
 import type { ConfigurationExtensionInfo } from "../extensions/types"
+import type { PlatformOperationLog } from "./operationLog"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
@@ -75,7 +76,7 @@ export interface PlatformSession {
   ownedProcess: boolean
   exportConfiguration(
     outputDir: string,
-    operationLogPath: string,
+    operationLog: PlatformOperationLog,
     unresolvedReferences: UnresolvedReferencesMode,
     signal?: AbortSignal
   ): Promise<void>
@@ -90,6 +91,7 @@ export type CreatePlatformSessionParams = {
   sessionDir: string
   installation: PlatformInstallation
   settings: NormalizedPlatformConnectionSettings
+  operationLog?: PlatformOperationLog
 }
 
 export interface PlatformSessionManager {

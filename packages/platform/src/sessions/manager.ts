@@ -1,6 +1,8 @@
 import { join } from "node:path"
+import { parseConnection } from "../infobases/parseConnection"
 import { PlatformSessionError } from "./errors"
 import { createNodePlatformSessionManagerDependencies } from "./nodeRuntime"
+import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type {
   CreatePlatformSessionParams,
   NormalizedPlatformConnectionSettings,
@@ -17,6 +19,7 @@ export interface PlatformSessionManagerDependencies {
   createStandaloneSession(params: CreatePlatformSessionParams): Promise<PlatformSession>
   setTimer(callback: () => void, timeoutMs: number): unknown
   clearTimer(timer: unknown): void
+  createOperationLog(params: { path: string; secrets: readonly string[] }): Promise<PlatformOperationLog>
 }
 
 type SessionFingerprint = {
@@ -41,11 +44,22 @@ export function createPlatformSessionManager(
   const pendingOperations = new Map<string, number>()
 
   async function exportConfiguration(params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]) {
+    const operationLog = await openOperationLog(params)
+    await appendRequired(
+      operationLog,
+      [
+        `operation mode=${params.mode}`,
+        `connection=${connectionKind(params.connectionString)}`,
+        `infobase-auth=${params.user === undefined ? "os" : "credentials"}`,
+        `database-auth=${databaseAuthenticationKind(params.database)}`,
+      ].join(" "),
+      params.mode
+    )
     const outputDir = await dependencies.canonicalizeProjectDir(params.outputDir)
-    const result = await withSession(params, (session) =>
+    const result = await withSession(params, operationLog, (session) =>
       session.exportConfiguration(
         outputDir,
-        params.logPath,
+        operationLog,
         params.unresolvedReferences,
         params.signal
       )
@@ -57,7 +71,7 @@ export function createPlatformSessionManager(
   }
 
   async function listExtensions(params: Parameters<PlatformSessionManager["listExtensions"]>[0]) {
-    const result = await withSession(params, (session) => session.listExtensions(params.signal))
+    const result = await withSession(params, undefined, (session) => session.listExtensions(params.signal))
     return {
       extensions: result.value,
       mode: result.mode,
@@ -71,6 +85,7 @@ export function createPlatformSessionManager(
       mode: PlatformSessionMode
       signal?: AbortSignal
     },
+    operationLog: PlatformOperationLog | undefined,
     operation: (session: PlatformSession) => Promise<T>
   ): Promise<{
     value: T
@@ -88,13 +103,15 @@ export function createPlatformSessionManager(
       if (cached !== undefined && cached.session.isAlive() && fingerprintsEqual(cached.fingerprint, fingerprint)) {
         cancelIdleTimer(cached)
         reusedConnection = true
+        if (operationLog !== undefined) await appendRequired(operationLog, "connection reused=true", mode)
       } else {
         if (cached !== undefined) {
           cancelIdleTimer(cached)
           await cached.session.close()
           if (sessions.get(key) === cached) sessions.delete(key)
         }
-        cached = await createSession(key, settings, mode, fingerprint)
+        if (operationLog !== undefined) await appendRequired(operationLog, "connection reused=false", mode)
+        cached = await createSession(key, settings, mode, fingerprint, operationLog)
         sessions.set(key, cached)
       }
 
@@ -150,24 +167,95 @@ export function createPlatformSessionManager(
     projectDir: string,
     settings: NormalizedPlatformConnectionSettings,
     mode: PlatformSessionMode,
-    fingerprint: SessionFingerprint
+    fingerprint: SessionFingerprint,
+    operationLog?: PlatformOperationLog
   ): Promise<CachedSession> {
-    const installation = await dependencies.findPlatform()
+    if (operationLog !== undefined) {
+      await appendRequired(operationLog, "stage=platform-discovery status=start", mode)
+    }
+    let installation: PlatformInstallation | undefined
+    try {
+      installation = await dependencies.findPlatform()
+    } catch (cause) {
+      if (operationLog === undefined) throw cause
+      throw await platformFailure({
+        code: "platform_not_found",
+        stage: "platform-discovery",
+        mode,
+        log: operationLog,
+        platformText: cause instanceof Error ? cause.message : "",
+        fallbackMessage: "Не удалось найти платформу 1С:Предприятие",
+        cause,
+      })
+    }
     if (installation === undefined) {
+      if (operationLog !== undefined) {
+        throw await platformFailure({
+          code: "platform_not_found",
+          stage: "platform-discovery",
+          mode,
+          log: operationLog,
+          platformText: "",
+          fallbackMessage: "Не найдена поддерживаемая платформа 1С:Предприятие 8.3.27",
+        })
+      }
       throw new PlatformSessionError("platform_not_found", "Не найдена поддерживаемая платформа 1С:Предприятие 8.3.27")
     }
-    assertRequiredComponents(installation, mode)
+    try {
+      assertRequiredComponents(installation, mode)
+    } catch (cause) {
+      if (operationLog === undefined || !(cause instanceof PlatformSessionError)) throw cause
+      throw await platformFailure({
+        code: cause.code,
+        stage: "platform-discovery",
+        mode,
+        log: operationLog,
+        platformText: cause.message,
+        fallbackMessage: cause.message,
+        cause,
+      })
+    }
+    if (operationLog !== undefined) {
+      await appendRequired(operationLog, "stage=platform-discovery status=ready", mode)
+      await appendRequired(operationLog, "stage=session-start status=start", mode)
+    }
     const sessionDir = join(
       projectDir,
       ".nkdk",
       "platform-sessions",
       mode === "designer-agent" ? "agent" : "standalone"
     )
-    const createParams = { projectDir, sessionDir, installation, settings }
-    const session =
-      mode === "designer-agent"
+    const createParams = {
+      projectDir,
+      sessionDir,
+      installation,
+      settings,
+      ...(operationLog === undefined ? {} : { operationLog }),
+    }
+    let session: PlatformSession
+    try {
+      session = mode === "designer-agent"
         ? await dependencies.createDesignerSession(createParams)
         : await dependencies.createStandaloneSession(createParams)
+    } catch (cause) {
+      if (
+        operationLog === undefined ||
+        (cause instanceof PlatformSessionError && cause.details !== undefined)
+      ) throw cause
+      const code = cause instanceof PlatformSessionError ? cause.code : "session_start_failed"
+      throw await platformFailure({
+        code,
+        stage: "session-start",
+        mode,
+        log: operationLog,
+        platformText: cause instanceof Error ? cause.message : "",
+        fallbackMessage: "Не удалось открыть подключение к платформе",
+        cause,
+      })
+    }
+    if (operationLog !== undefined) {
+      await appendRequired(operationLog, "stage=session-start status=ready", mode)
+    }
     return { session, fingerprint }
   }
 
@@ -217,6 +305,52 @@ export function createPlatformSessionManager(
     closeConnection,
     closeAllConnections,
   }
+
+  async function openOperationLog(
+    params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]
+  ): Promise<PlatformOperationLog> {
+    try {
+      return await dependencies.createOperationLog({
+        path: params.logPath,
+        secrets: [params.password, params.database?.password].filter(
+          (value): value is string => value !== undefined
+        ),
+      })
+    } catch (cause) {
+      throw new PlatformSessionError(
+        "platform_command_failed",
+        "Не удалось создать журнал операции платформы",
+        { cause, details: { stage: "platform-log", mode: params.mode } }
+      )
+    }
+  }
+}
+
+async function appendRequired(
+  operationLog: PlatformOperationLog,
+  message: string,
+  mode: PlatformSessionMode
+): Promise<void> {
+  if (await operationLog.append(message)) return
+  throw await platformFailure({
+    code: "platform_command_failed",
+    stage: "platform-log",
+    mode,
+    log: operationLog,
+    platformText: "",
+    fallbackMessage: "Не удалось записать журнал операции платформы",
+  })
+}
+
+function connectionKind(connectionString: string): string {
+  return parseConnection(connectionString).type
+}
+
+function databaseAuthenticationKind(
+  database: NormalizedPlatformConnectionSettings["database"]
+): string {
+  if (database === undefined) return "none"
+  return database.user === undefined ? "os" : "credentials"
 }
 
 function throwIfCancelled(signal?: AbortSignal): void {

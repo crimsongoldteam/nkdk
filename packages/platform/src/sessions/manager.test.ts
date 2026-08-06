@@ -1,9 +1,62 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
+import type { PlatformOperationLog } from "./operationLog"
 import type { ExportConfigurationParams, ListConfigurationExtensionsParams, PlatformSession } from "./types"
 import { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./manager"
 
 describe("platform session manager", () => {
+  it("records selected mode, discovery and a new connection", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await manager.exportConfiguration(exportParams({ mode: "standalone-server" }))
+
+    expect(fixture.logEvents).toEqual(expect.arrayContaining([
+      expect.stringContaining("mode=standalone-server"),
+      expect.stringContaining("platform-discovery"),
+      expect.stringContaining("reused=false"),
+    ]))
+  })
+
+  it("decorates a missing platform with discovery details and a log path", async () => {
+    const fixture = createFixture({ platformMissing: true })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.exportConfiguration(exportParams())).rejects.toMatchObject({
+      code: "platform_not_found",
+      details: {
+        stage: "platform-discovery",
+        mode: "designer-agent",
+        logPath: "/project/.nkdk/tmp/op/platform.log",
+      },
+    })
+  })
+
+  it("decorates a missing platform component with discovery details", async () => {
+    const fixture = createFixture({ designerMissing: true })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.exportConfiguration(exportParams())).rejects.toMatchObject({
+      code: "platform_component_missing",
+      details: {
+        stage: "platform-discovery",
+        mode: "designer-agent",
+        logPath: "/project/.nkdk/tmp/op/platform.log",
+      },
+    })
+  })
+
+  it("stops before platform discovery when the operation log cannot be created", async () => {
+    const fixture = createFixture({ logCreateFailure: true })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.exportConfiguration(exportParams())).rejects.toMatchObject({
+      code: "platform_command_failed",
+      details: { stage: "platform-log", mode: "designer-agent" },
+    })
+    expect(fixture.findPlatformCalls).toBe(0)
+  })
+
   it("reuses one healthy session with the same private fingerprint", async () => {
     const fixture = createFixture()
     const manager = createPlatformSessionManager(fixture.dependencies)
@@ -394,6 +447,9 @@ function createFixture(
     closeFailureProject?: string
     cancelFailures?: number
     listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
+    platformMissing?: boolean
+    designerMissing?: boolean
+    logCreateFailure?: boolean
   } = {}
 ): {
   dependencies: PlatformSessionManagerDependencies
@@ -403,6 +459,8 @@ function createFixture(
   listStarts: string[]
   exportedOutputDirs: string[]
   exportedUnresolvedReferences: string[]
+  logEvents: string[]
+  findPlatformCalls: number
   options: {
     listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
   }
@@ -417,6 +475,8 @@ function createFixture(
   const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
   const exportedUnresolvedReferences: string[] = []
+  const logEvents: string[] = []
+  let findPlatformCalls = 0
   let cancelFailures = options.cancelFailures ?? 0
   let timerId = 0
   const timers = new Map<number, { callback: () => void; timeoutMs: number }>()
@@ -485,6 +545,10 @@ function createFixture(
     listStarts,
     exportedOutputDirs,
     exportedUnresolvedReferences,
+    logEvents,
+    get findPlatformCalls() {
+      return findPlatformCalls
+    },
     options,
     waitForExportStart(start) {
       if (exportStarts.includes(start)) return Promise.resolve()
@@ -502,13 +566,37 @@ function createFixture(
     },
     dependencies: {
       canonicalizeProjectDir: async (projectDir) => projectDir.replace(/\/+$/, ""),
-      findPlatform: async () => ({
-        version: "8.3.27.2214",
-        directory: "/opt/1cv8",
-        enterprisePath: "1cv8",
-        ibcmdPath: "ibcmd",
-        ibsrvPath: "ibsrv",
-      }),
+      findPlatform: async () => {
+        findPlatformCalls += 1
+        return options.platformMissing === true ? undefined : {
+          version: "8.3.27.2214",
+          directory: "/opt/1cv8",
+          ...(options.designerMissing === true ? {} : { enterprisePath: "1cv8" }),
+          ibcmdPath: "ibcmd",
+          ibsrvPath: "ibsrv",
+        }
+      },
+      async createOperationLog(params) {
+        if (options.logCreateFailure === true) throw new Error("log secret")
+        let available = true
+        return {
+          path: params.path,
+          get available() {
+            return available
+          },
+          async append(message) {
+            if (!available) return false
+            logEvents.push(message)
+            return true
+          },
+          async process(stage) {
+            if (!available) return false
+            logEvents.push(`process stage=${stage}`)
+            return true
+          },
+          sanitize: (value) => value.replaceAll("secret", "***"),
+        } satisfies PlatformOperationLog
+      },
       createDesignerSession: (params) => createSession(params, "designer-agent"),
       createStandaloneSession: (params) => createSession(params, "standalone-server"),
       setTimer(callback, timeoutMs) {

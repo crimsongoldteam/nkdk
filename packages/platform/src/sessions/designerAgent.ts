@@ -162,7 +162,7 @@ export async function createDesignerAgentSession(
     isAlive() {
       return !closed && processHandle.isAlive() && commandSession.isAlive()
     },
-    async exportConfiguration(outputDir, operationLogPath, unresolvedReferences, signal) {
+    async exportConfiguration(outputDir, operationLog, unresolvedReferences, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -212,10 +212,9 @@ export async function createDesignerAgentSession(
       }
       if (commandFailure !== undefined) throw commandFailure
       try {
-        await dependencies.fileSystem.writeFile(
-          operationLogPath,
-          "Конфигурация выгружена через агент Конфигуратора\n"
-        )
+        if (!(await operationLog.append("Конфигурация выгружена через агент Конфигуратора"))) {
+          throw new Error("operation log unavailable")
+        }
       } catch {
         throw new PlatformSessionError(
           "platform_command_failed",

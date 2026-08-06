@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { redactPlatformText, type PlatformOperationLog } from "./operationLog"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createStandaloneServerSession,
@@ -12,7 +13,7 @@ describe("standalone server session", () => {
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log",
+      fixture.operationLog,
       "omit",
       controller.signal
     )
@@ -24,14 +25,13 @@ describe("standalone server session", () => {
       "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
       "write /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
       "chmod /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
-      "run ibcmd infobase config export --password=secret --ignore-unresolved-refs --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=true grace=5000",
-      "write /project/.nkdk/tmp/op/platform.log",
+      "run ibcmd infobase config export --password=secret --ignore-unresolved-refs --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=true grace=5000",
       "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
     ])
     expect(fixture.writes.get("/project/.nkdk/platform-sessions/standalone/config.yaml")).toBe(
       "database:\n  path: /bases/demo\n"
     )
-    expect(fixture.writes.get("/project/.nkdk/tmp/op/platform.log")).not.toContain("secret")
+    expect(fixture.operationLogText).not.toContain("secret")
   })
 
   it("rejects a missing ibcmd", async () => {
@@ -69,7 +69,7 @@ describe("standalone server session", () => {
     )
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log",
+      fixture.operationLog,
       "include"
     )
 
@@ -77,7 +77,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --dbms=PostgreSQL --database-server=db.example.local --database-name=production --database-user=dbuser --database-password=dbsecret timeout=1800000"
     )
     expect(fixture.calls).toContain(
-      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=false grace=5000"
+      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000 signal=false grace=5000"
     )
   })
 
@@ -149,9 +149,80 @@ describe("standalone server session", () => {
     )
     const exportFailure = createFixture({ exportExitCode: 1 })
     const session = await createStandaloneServerSession(createParams(), exportFailure.dependencies)
-    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", exportFailure.operationLog, "include")).rejects.toMatchObject({
       code: "platform_command_failed",
     })
+  })
+
+  it("returns a concise export error and writes complete safe process details", async () => {
+    const fixture = createFixture({
+      exportExitCode: 1,
+      exportStdout: "secondary database-secret",
+      exportStderr: "Access denied secret\nmore details",
+    })
+    const session = await createStandaloneServerSession(
+      createParams({ settings: { database: undefined } }),
+      fixture.dependencies
+    )
+
+    const error = await exportError(session, fixture.operationLog)
+
+    expectSafeProcessFailure(error, fixture.operationLogText, {
+      code: "platform_command_failed",
+      message: "Access denied ***",
+      stage: "configuration-export",
+    })
+  })
+
+  it("returns a concise initialization error and logs it without credentials", async () => {
+    const fixture = createFixture({
+      initExitCode: 1,
+      initStdout: "secondary database-secret",
+      initStderr: "Database access denied secret\nmore details",
+    })
+
+    const error = await createStandaloneServerSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    ).catch((caught: unknown) => caught)
+
+    expectSafeProcessFailure(error, fixture.operationLogText, {
+      code: "session_start_failed",
+      message: "Database access denied ***",
+      stage: "session-start",
+    })
+  })
+
+  it.each([
+    ["cancellation", { exportCancelled: true }, "operation_cancelled"],
+    ["timeout", { exportTimedOut: true }, "session_timeout"],
+    ["thrown process error", { exportThrows: true }, "platform_command_failed"],
+  ] as const)("preserves %s diagnostics", async (_name, options, code) => {
+    const fixture = createFixture(options)
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    const error = await exportError(session, fixture.operationLog)
+
+    expect(error).toMatchObject({
+      code,
+      details: {
+        stage: "configuration-export",
+        mode: "standalone-server",
+      },
+    })
+  })
+
+  it("fails a successful export when its process record cannot be appended", async () => {
+    const fixture = createFixture({ logAppendFails: true })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    const error = await exportError(session, fixture.operationLog)
+
+    expect(error).toMatchObject({
+      code: "platform_command_failed",
+      details: { stage: "platform-log", mode: "standalone-server" },
+    })
+    expect(error).toMatchObject({ details: expect.not.objectContaining({ logPath: expect.anything() }) })
   })
 
   it("maps an ibcmd initialization timeout", async () => {
@@ -165,7 +236,7 @@ describe("standalone server session", () => {
     const fixture = createFixture({ exportCancelled: true })
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
 
-    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", fixture.operationLog, "include")).rejects.toMatchObject({
       code: "operation_cancelled",
     })
   })
@@ -177,7 +248,7 @@ describe("standalone server session", () => {
     })
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
 
-    await expect(session.exportConfiguration("/xml", "/log", "include")).rejects.toMatchObject({
+    await expect(session.exportConfiguration("/xml", fixture.operationLog, "include")).rejects.toMatchObject({
       code: "operation_cancelled",
       message: expect.stringContaining("после ошибки остановки"),
     })
@@ -220,6 +291,33 @@ describe("standalone server session", () => {
   })
 })
 
+async function exportError(
+  session: Awaited<ReturnType<typeof createStandaloneServerSession>>,
+  operationLog: PlatformOperationLog
+): Promise<unknown> {
+  return session.exportConfiguration("/xml", operationLog, "include")
+    .catch((caught: unknown) => caught)
+}
+
+function expectSafeProcessFailure(
+  error: unknown,
+  operationLogText: string,
+  expected: { code: string; message: string; stage: string }
+): void {
+  expect(error).toMatchObject({
+    code: expected.code,
+    message: expected.message,
+    details: {
+      stage: expected.stage,
+      mode: "standalone-server",
+      logPath: "/project/.nkdk/tmp/op/platform.log",
+    },
+  })
+  expect(operationLogText).toContain("exitCode=1")
+  expect(operationLogText).not.toContain("secret")
+  expect(operationLogText).not.toContain("database-secret")
+}
+
 function createParams(
   overrides: Partial<Omit<CreatePlatformSessionParams, "settings">> & {
     settings?: Partial<CreatePlatformSessionParams["settings"]>
@@ -249,8 +347,13 @@ function createFixture(
   options: {
     initExitCode?: number
     initStdout?: string
+    initStderr?: string
     initTimedOut?: boolean
     exportExitCode?: number
+    exportStdout?: string
+    exportStderr?: string
+    exportTimedOut?: boolean
+    exportThrows?: boolean
     exportCancelled?: boolean
     exportTerminationFailed?: boolean
     rmFailureCall?: number
@@ -258,18 +361,54 @@ function createFixture(
     listExitCode?: number
     listTimedOut?: boolean
     listCancelled?: boolean
+    logAppendFails?: boolean
   } = {}
 ): {
   calls: string[]
   writes: Map<string, string>
   dependencies: StandaloneServerDependencies
+  operationLog: PlatformOperationLog
+  readonly operationLogText: string
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
   let rmCalls = 0
+  let operationLogText = ""
+  let logAvailable = true
+  const operationLog: PlatformOperationLog = {
+    path: "/project/.nkdk/tmp/op/platform.log",
+    get available() {
+      return logAvailable
+    },
+    async append(message) {
+      if (!logAvailable) return false
+      if (options.logAppendFails === true) {
+        logAvailable = false
+        return false
+      }
+      operationLogText += `${redactPlatformText(message, ["secret", "database-secret"])}\n`
+      return true
+    },
+    async process(stage, launch, result) {
+      return this.append([
+        `stage=${stage}`,
+        `command=${launch.command} ${launch.args.join(" ")}`,
+        `exitCode=${result.exitCode}`,
+        `stdout=${result.stdout}`,
+        `stderr=${result.stderr}`,
+      ].join("\n"))
+    },
+    sanitize(value) {
+      return redactPlatformText(value, ["secret", "database-secret"])
+    },
+  }
   return {
     calls,
     writes,
+    operationLog,
+    get operationLogText() {
+      return operationLogText
+    },
     dependencies: {
       fileSystem: {
         async mkdir(path) {
@@ -308,6 +447,7 @@ function createFixture(
             ].join(" ")
           )
           const isExport = args.includes("export")
+          if (isExport && options.exportThrows === true) throw new Error("spawn failed secret")
           if (isList) {
             return {
               stdout: options.listStdout ?? "",
@@ -319,11 +459,11 @@ function createFixture(
           }
           return {
             stdout: isExport
-              ? "[INFO] Export complete\n"
+              ? (options.exportStdout ?? "[INFO] Export complete\n")
               : (options.initStdout ?? "database:\n  path: /bases/demo\n"),
-            stderr: "",
+            stderr: isExport ? (options.exportStderr ?? "") : (options.initStderr ?? ""),
             exitCode: isExport ? (options.exportExitCode ?? 0) : (options.initExitCode ?? 0),
-            timedOut: isExport ? false : (options.initTimedOut ?? false),
+            timedOut: isExport ? (options.exportTimedOut ?? false) : (options.initTimedOut ?? false),
             cancelled: isExport ? (options.exportCancelled ?? false) : false,
             terminationFailed: isExport
               ? (options.exportTerminationFailed ?? false)

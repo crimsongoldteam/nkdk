@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "./errors"
+import type { PlatformOperationLog } from "./operationLog"
 import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
@@ -10,7 +11,7 @@ describe("Designer agent session", () => {
   it("starts once, exports through SSH, and closes gracefully", async () => {
     const fixture = createFixture()
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
-    await session.exportConfiguration("/project/.nkdk/tmp/op/xml", "/project/.nkdk/tmp/op/platform.log", "omit")
+    await session.exportConfiguration("/project/.nkdk/tmp/op/xml", fixture.operationLog, "omit")
     await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: true })
 
     expect(fixture.calls).toEqual([
@@ -55,7 +56,7 @@ describe("Designer agent session", () => {
     )
     await session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log",
+      fixture.operationLog,
       "include"
     )
 
@@ -151,7 +152,7 @@ describe("Designer agent session", () => {
     await expect(
       session.exportConfiguration(
         "/project/.nkdk/tmp/op/xml",
-        "/project/.nkdk/tmp/op/platform.log",
+        fixture.operationLog,
         "include"
       )
     ).rejects.toThrow("dump failed")
@@ -167,7 +168,7 @@ describe("Designer agent session", () => {
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
     await expect(
-      session.exportConfiguration("/outside/xml", "/project/.nkdk/tmp/op/platform.log", "include")
+      session.exportConfiguration("/outside/xml", fixture.operationLog, "include")
     ).rejects.toMatchObject({ code: "platform_command_failed" })
     expect(fixture.calls.some((call) => call.includes("dump-config-to-files"))).toBe(false)
   })
@@ -226,7 +227,7 @@ describe("Designer agent session", () => {
     await expect(
       session.exportConfiguration(
         "/project/.nkdk/tmp/op/xml",
-        "/project/.nkdk/tmp/op/platform.log",
+        fixture.operationLog,
         "include"
       )
     ).rejects.toMatchObject({ code: "platform_command_failed" })
@@ -318,7 +319,7 @@ describe("Designer agent session", () => {
 
     const exporting = session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log",
+      fixture.operationLog,
       "include",
       controller.signal
     )
@@ -357,7 +358,7 @@ describe("Designer agent session", () => {
 
     const exporting = session.exportConfiguration(
       "/project/.nkdk/tmp/op/xml",
-      "/project/.nkdk/tmp/op/platform.log",
+      fixture.operationLog,
       "include",
       controller.signal
     )
@@ -433,10 +434,24 @@ function createFixture(
   writes: Map<string, string>
   cleanupStarted: Promise<void>
   dumpStarted: Promise<void>
+  operationLog: PlatformOperationLog
   dependencies: DesignerAgentDependencies
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
+  const operationLog: PlatformOperationLog = {
+    path: "/project/.nkdk/tmp/op/platform.log",
+    available: true,
+    async append(message) {
+      calls.push(`write ${this.path}`)
+      writes.set(this.path, message)
+      return true
+    },
+    async process() {
+      return true
+    },
+    sanitize: (value) => value.replaceAll("secret", "***"),
+  }
   let alive = options.processAlive ?? true
   let now = 0
   let connectFailures = options.connectFailures ?? 0
@@ -524,6 +539,7 @@ function createFixture(
   return {
     calls,
     writes,
+    operationLog,
     cleanupStarted,
     dumpStarted,
     dependencies: {

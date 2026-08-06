@@ -9,6 +9,7 @@ import { createDesignerAgentSession } from "./designerAgent"
 import { openPlatformCommandSession } from "./sshProtocol"
 import { createSsh2Transport } from "./ssh2Transport"
 import { createStandaloneServerSession } from "./standaloneServer"
+import { createPlatformOperationLog } from "./operationLog"
 import type {
   OwnedProcess,
   ProcessRunOptions,
@@ -225,6 +226,11 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
     clearTimer(timer) {
       clearTimeout(timer as ReturnType<typeof setTimeout>)
     },
+    createOperationLog: (params) => createPlatformOperationLog(params, {
+      fileSystem,
+      platform: process.platform,
+      now: () => new Date(),
+    }),
   }
 }
 

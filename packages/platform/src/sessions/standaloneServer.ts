@@ -8,6 +8,7 @@ import {
   buildStandaloneListExtensions,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
+import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type { SessionProcessRuntime } from "./runtime"
 import type { CreatePlatformSessionParams, PlatformSession } from "./types"
 
@@ -68,16 +69,38 @@ export async function createStandaloneServerSession(
       "Не удалось удалить прежнюю конфигурацию ibcmd"
     )
   }
-  const initialized = await dependencies.processRuntime.run(init.command, init.args, {
-    timeoutMs: dependencies.commandTimeoutMs,
-  })
+  let initialized
+  try {
+    initialized = await dependencies.processRuntime.run(init.command, init.args, {
+      timeoutMs: dependencies.commandTimeoutMs,
+    })
+  } catch (cause) {
+    if (params.operationLog === undefined) throw cause
+    throw await processFailure(
+      params.operationLog,
+      "session_start_failed",
+      "session-start",
+      cause instanceof Error ? cause.message : "",
+      "ibcmd не смог подготовить конфигурацию автономного сервера",
+      cause
+    )
+  }
+  if (params.operationLog !== undefined && !(await params.operationLog.process("session-start", init, initialized))) {
+    throw await logWriteFailure(params.operationLog)
+  }
   if (initialized.timedOut === true) {
+    if (params.operationLog !== undefined) {
+      throw await processFailure(params.operationLog, "session_timeout", "session-start", "", "Истекло время подготовки конфигурации ibcmd")
+    }
     throw new PlatformSessionError(
       "session_timeout",
       "Истекло время подготовки конфигурации ibcmd"
     )
   }
   if (initialized.exitCode !== 0) {
+    if (params.operationLog !== undefined) {
+      throw await processFailure(params.operationLog, "session_start_failed", "session-start", processText(initialized), "ibcmd не смог подготовить конфигурацию автономного сервера")
+    }
     throw new PlatformSessionError(
       "session_start_failed",
       "ibcmd не смог подготовить конфигурацию автономного сервера"
@@ -118,7 +141,7 @@ export async function createStandaloneServerSession(
     isAlive() {
       return !closed
     },
-    async exportConfiguration(outputDir, operationLogPath, unresolvedReferences, signal) {
+    async exportConfiguration(outputDir, operationLog, unresolvedReferences, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -132,34 +155,35 @@ export async function createStandaloneServerSession(
           ? {}
           : { password: params.settings.password }),
       })
-      const exported = await dependencies.processRuntime.run(command.command, command.args, {
-        signal,
-        terminationGraceMs: dependencies.closeTimeoutMs,
-      })
+      let exported
+      try {
+        exported = await dependencies.processRuntime.run(command.command, command.args, {
+          timeoutMs: dependencies.commandTimeoutMs,
+          signal,
+          terminationGraceMs: dependencies.closeTimeoutMs,
+        })
+      } catch (cause) {
+        throw await processFailure(operationLog, "platform_command_failed", "configuration-export", cause instanceof Error ? cause.message : "", "Не удалось запустить выгрузку конфигурации через ibcmd", cause)
+      }
+      if (!(await operationLog.process("configuration-export", command, exported))) {
+        throw await logWriteFailure(operationLog)
+      }
       if (exported.cancelled === true) {
-        throw new PlatformSessionError(
+        throw await processFailure(
+          operationLog,
           "operation_cancelled",
+          "configuration-export",
+          "",
           exported.terminationFailed === true
             ? "Выгрузка конфигурации через ibcmd отменена после ошибки остановки процесса"
             : "Выгрузка конфигурации через ibcmd отменена"
         )
       }
-      if (exported.exitCode !== 0) {
-        throw new PlatformSessionError(
-          "platform_command_failed",
-          "ibcmd не смог выгрузить конфигурацию в XML"
-        )
+      if (exported.timedOut === true) {
+        throw await processFailure(operationLog, "session_timeout", "configuration-export", "", "Истекло время выгрузки конфигурации через ibcmd")
       }
-      try {
-        await dependencies.fileSystem.writeFile(
-          operationLogPath,
-          "Конфигурация выгружена через автономный сервер\n"
-        )
-      } catch {
-        throw new PlatformSessionError(
-          "platform_command_failed",
-          "Не удалось записать журнал операции платформы"
-        )
+      if (exported.exitCode !== 0) {
+        throw await processFailure(operationLog, "platform_command_failed", "configuration-export", processText(exported), "ibcmd не смог выгрузить конфигурацию в XML")
       }
     },
     async listExtensions(signal) {
@@ -217,6 +241,33 @@ export async function createStandaloneServerSession(
     close: closeSession,
     cancel: closeSession,
   }
+}
+
+function processText(result: { stderr: string; stdout: string }): string {
+  return `${result.stderr}\n${result.stdout}`
+}
+
+async function processFailure(
+  operationLog: PlatformOperationLog,
+  code: Parameters<typeof platformFailure>[0]["code"],
+  stage: Parameters<typeof platformFailure>[0]["stage"],
+  platformText: string,
+  fallbackMessage: string,
+  cause?: unknown
+): Promise<PlatformSessionError> {
+  return platformFailure({
+    code,
+    stage,
+    mode: "standalone-server",
+    log: operationLog,
+    platformText,
+    fallbackMessage,
+    ...(cause === undefined ? {} : { cause }),
+  })
+}
+
+async function logWriteFailure(operationLog: PlatformOperationLog): Promise<PlatformSessionError> {
+  return processFailure(operationLog, "platform_command_failed", "platform-log", "", "Не удалось записать журнал операции платформы")
 }
 
 function missingComponent(name: string): PlatformSessionError {
