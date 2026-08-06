@@ -18,7 +18,7 @@ describe("Designer agent session", () => {
       "reservePort 127.0.0.1",
       "mkdir /project/.nkdk/platform-sessions/agent",
       "generateHostKey /project/.nkdk/platform-sessions/agent/host.key",
-      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /Sserver\\reference /AgentMode /AgentSSHHostKey /project/.nkdk/platform-sessions/agent/host.key /AgentBaseDir /project/.nkdk /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log -NoTruncate cwd=/project/.nkdk",
+      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /Sserver\\reference /AgentMode /AgentSSHHostKey /project/.nkdk/platform-sessions/agent/host.key /AgentBaseDir /project/.nkdk /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log cwd=/project/.nkdk",
       "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       "read /project/.nkdk/agentbasedir.json",

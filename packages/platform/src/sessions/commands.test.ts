@@ -40,7 +40,6 @@ describe("platform session commands", () => {
         "58248",
         "/Out",
         "/project/.nkdk/platform/agent/process.log",
-        "-NoTruncate",
       ],
     })
   })

@@ -26,7 +26,6 @@ export function buildDesignerAgentLaunch(params: {
       String(params.port),
       "/Out",
       params.logPath,
-      "-NoTruncate",
     ],
   }
 }
