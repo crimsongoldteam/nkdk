@@ -1,3 +1,5 @@
+import type { PlatformOperationLog } from "./operationLog"
+
 export interface SshShell {
   write(value: string): void
   onData(listener: (chunk: string) => void): () => void
@@ -17,7 +19,7 @@ export interface SshTransport {
 export interface PlatformCommandSession {
   run(
     command: string,
-    options?: { signal?: AbortSignal; timeoutMs?: number }
+    options?: { signal?: AbortSignal; timeoutMs?: number; operationLog?: PlatformOperationLog }
   ): Promise<PlatformCommandResult>
   isAlive(): boolean
   close(): Promise<void>

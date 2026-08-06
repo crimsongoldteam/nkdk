@@ -7,6 +7,7 @@ import {
   buildListDesignerExtensionsCommand,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
+import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import { openPlatformCommandSession } from "./sshProtocol"
 import type {
   OwnedProcess,
@@ -64,6 +65,7 @@ export async function createDesignerAgentSession(
   const port = await dependencies.portRuntime.reservePort("127.0.0.1")
   await dependencies.fileSystem.mkdir(params.sessionDir)
   const hostKeyPath = join(params.sessionDir, "host.key")
+  const processLogPath = join(params.sessionDir, "process.log")
   let hostKeyHash: string
   try {
     hostKeyHash = await dependencies.generateHostKey(hostKeyPath)
@@ -78,28 +80,52 @@ export async function createDesignerAgentSession(
     connection,
     hostKeyPath,
     baseDir: agentBaseDir,
-    logPath: join(params.sessionDir, "process.log"),
+    logPath: processLogPath,
     port,
   })
+  if (params.operationLog !== undefined) {
+    await appendAgentLog(
+      params.operationLog,
+      [
+        "stage=session-start",
+        `launch=${launch.command} ${launch.args.join(" ")}`,
+        `authentication=${params.settings.user === undefined && params.settings.password === undefined ? "os" : "credentials"}`,
+      ].join(" ")
+    )
+  }
   const processHandle = dependencies.processRuntime.spawn(launch.command, launch.args)
   if (!processHandle.isAlive()) {
-    throw new PlatformSessionError(
+    const failure = new PlatformSessionError(
       "session_start_failed",
       "Агент Конфигуратора завершился до открытия SSH"
     )
+    if (params.operationLog !== undefined) {
+      throw await agentFailure(failure, "session-start", params.operationLog, processLogPath, dependencies)
+    }
+    throw failure
   }
 
   let commandSession: PlatformCommandSession
   let userServiceDir: string
   let canonicalAgentBaseDir: string
+  let failureStage: "session-start" | "authentication" = "session-start"
   try {
     const shell = await connectWithRetry({ port, hostKeyHash, processHandle, dependencies })
+    failureStage = "authentication"
+    if (params.operationLog !== undefined) {
+      await appendAgentLog(params.operationLog, "stage=authentication status=start")
+    }
     commandSession = await dependencies.openCommandSession({
       shell,
       user: params.settings.user,
       password: params.settings.password,
       timeoutMs: dependencies.startupTimeoutMs,
+      operationLog: params.operationLog,
     })
+    if (params.operationLog !== undefined) {
+      await appendAgentLog(params.operationLog, "stage=authentication status=ready")
+    }
+    failureStage = "session-start"
     const directories = await readAgentDirectories(
       params.projectDir,
       agentBaseDir,
@@ -109,6 +135,9 @@ export async function createDesignerAgentSession(
     userServiceDir = directories.userServiceDir
   } catch (caught) {
     await stopAfterFailedStart(processHandle)
+    if (params.operationLog !== undefined) {
+      throw await agentFailure(caught, failureStage, params.operationLog, processLogPath, dependencies)
+    }
     throw caught
   }
 
@@ -172,6 +201,7 @@ export async function createDesignerAgentSession(
         dependencies
       )
       const stagingDir = join(userServiceDir, ".nkdk-export")
+      await appendAgentLog(operationLog, "stage=configuration-export status=start")
       await prepareStagingDirectory(stagingDir, dependencies)
       let commandFailure: unknown
       try {
@@ -180,7 +210,7 @@ export async function createDesignerAgentSession(
             relativeAgentPath(userServiceDir, stagingDir),
             unresolvedReferences
           ),
-          { signal }
+          { signal, operationLog }
         )
       } catch (caught) {
         if (
@@ -196,7 +226,13 @@ export async function createDesignerAgentSession(
           } catch {
             // Менеджер повторит остановку, сохранив исходную отмену.
           }
-          throw caught
+          throw await agentFailure(
+            caught,
+            "configuration-export",
+            operationLog,
+            processLogPath,
+            dependencies
+          )
         }
         commandFailure = caught
       }
@@ -204,23 +240,22 @@ export async function createDesignerAgentSession(
         await moveStagingDirectory(stagingDir, resolvedOutputDir, dependencies)
       } catch {
         if (commandFailure === undefined) {
-          throw new PlatformSessionError(
+          throw await agentFailure(new PlatformSessionError(
             "platform_command_failed",
             "Не удалось переместить выгрузку агента в каталог операции"
-          )
+          ), "configuration-export", operationLog, processLogPath, dependencies)
         }
       }
-      if (commandFailure !== undefined) throw commandFailure
-      try {
-        if (!(await operationLog.append("Конфигурация выгружена через агент Конфигуратора"))) {
-          throw new Error("operation log unavailable")
-        }
-      } catch {
-        throw new PlatformSessionError(
-          "platform_command_failed",
-          "Не удалось записать журнал операции платформы"
+      if (commandFailure !== undefined) {
+        throw await agentFailure(
+          commandFailure,
+          "configuration-export",
+          operationLog,
+          processLogPath,
+          dependencies
         )
       }
+      await appendAgentLog(operationLog, "stage=configuration-export status=ready")
     },
     async listExtensions(signal) {
       if (closed) {
@@ -275,6 +310,45 @@ export async function createDesignerAgentSession(
     },
     cancel: cancelSession,
   }
+}
+
+async function appendAgentLog(operationLog: PlatformOperationLog, message: string): Promise<void> {
+  if (await operationLog.append(message)) return
+  throw await platformFailure({
+    code: "platform_command_failed",
+    stage: "platform-log",
+    mode: "designer-agent",
+    log: operationLog,
+    platformText: "",
+    fallbackMessage: "Не удалось записать журнал операции платформы",
+  })
+}
+
+async function agentFailure(
+  cause: unknown,
+  stage: "session-start" | "authentication" | "configuration-export",
+  operationLog: PlatformOperationLog,
+  processLogPath: string,
+  dependencies: DesignerAgentDependencies
+): Promise<PlatformSessionError> {
+  if (cause instanceof PlatformSessionError && cause.details !== undefined) return cause
+  try {
+    const processLog = await dependencies.fileSystem.readFile(processLogPath)
+    if (processLog.trim() !== "") {
+      await operationLog.append(`process-log\n${processLog}`)
+    }
+  } catch {
+    // Исходная ошибка платформы важнее недоступного /Out-журнала.
+  }
+  return platformFailure({
+    code: cause instanceof PlatformSessionError ? cause.code : "platform_command_failed",
+    stage,
+    mode: "designer-agent",
+    log: operationLog,
+    platformText: cause instanceof Error ? cause.message : "",
+    fallbackMessage: "Операция агента Конфигуратора завершилась с ошибкой",
+    cause,
+  })
 }
 
 async function ensureProcessStopped(

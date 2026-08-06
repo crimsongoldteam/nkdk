@@ -22,6 +22,7 @@ describe("Designer agent session", () => {
       "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       "read /project/.nkdk/agentbasedir.json",
+      "write /project/.nkdk/tmp/op/platform.log",
       "rm /project/.nkdk/0/.nkdk-export",
       "mkdir /project/.nkdk/0/.nkdk-export",
       'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical --ignore-unresolved-refs',
@@ -45,6 +46,45 @@ describe("Designer agent session", () => {
     expect(fixture.calls.find((call) => call.startsWith("spawn "))).toContain(
       "/Sserver\\reference"
     )
+  })
+
+  it("logs the safe launch and authentication stages", async () => {
+    const fixture = createFixture()
+
+    await createDesignerAgentSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    )
+
+    const text = fixture.writes.get(fixture.operationLog.path)
+    expect(text).toContain("stage=session-start")
+    expect(text).toContain("authentication=credentials")
+    expect(text).toContain("stage=authentication")
+    expect(text).toContain("1cv8 DESIGNER")
+    expect(text).not.toContain("secret")
+  })
+
+  it("preserves an authentication failure and appends the safe process log", async () => {
+    const fixture = createFixture({
+      openCommandError: new PlatformSessionError("authentication_failed", "Access denied secret"),
+      processLog: "authentication detail secret",
+    })
+
+    const error = await createDesignerAgentSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    ).catch((caught: unknown) => caught)
+
+    expect(error).toMatchObject({
+      code: "authentication_failed",
+      message: "Access denied ***",
+      details: {
+        stage: "authentication",
+        mode: "designer-agent",
+        logPath: fixture.operationLog.path,
+      },
+    })
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain("authentication detail ***")
   })
 
   it("exports a file connection relative to AgentBaseDir without --server", async () => {
@@ -145,22 +185,46 @@ describe("Designer agent session", () => {
     expect(String(error)).not.toContain("SecretMalformedExtension")
   })
 
-  it("moves a partial agent dump to the operation directory after a command failure", async () => {
-    const fixture = createFixture({ dumpFailure: true })
+  it("moves a partial dump and preserves safe platform diagnostics after a command failure", async () => {
+    const fixture = createFixture({ dumpFailure: true, processLog: "process detail secret" })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
 
-    await expect(
-      session.exportConfiguration(
-        "/project/.nkdk/tmp/op/xml",
-        fixture.operationLog,
-        "include"
-      )
-    ).rejects.toThrow("dump failed")
+    const error = await exportError(session, fixture.operationLog)
+    expectAgentExportFailure(error, fixture.operationLog.path)
 
     expect(fixture.calls).toContain("rm /project/.nkdk/tmp/op/xml")
     expect(fixture.calls).toContain(
       "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml"
     )
+    expect(fixture.writes.get(fixture.operationLog.path)).toContain("process detail ***")
+    expect(fixture.writes.get(fixture.operationLog.path)).not.toContain("secret")
+  })
+
+  it("retains the platform failure when the process log cannot be read", async () => {
+    const fixture = createFixture({ dumpFailure: true, processLogReadFailure: true })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    const error = await exportError(session, fixture.operationLog)
+    expectAgentExportFailure(error, fixture.operationLog.path)
+  })
+
+  it("writes a reused session export only to the current operation log", async () => {
+    const fixture = createFixture()
+    const firstLog = fixture.operationLog
+    const secondLog = fixture.createOperationLog("/project/.nkdk/tmp/op-2/platform.log")
+    const session = await createDesignerAgentSession(
+      createParams({ operationLog: firstLog }),
+      fixture.dependencies
+    )
+
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      secondLog,
+      "include"
+    )
+
+    expect(fixture.writes.get(secondLog.path)).toContain("configuration-export")
+    expect(fixture.writes.get(firstLog.path)).not.toContain("configuration-export")
   })
 
   it("rejects an export outside AgentBaseDir", async () => {
@@ -249,8 +313,12 @@ describe("Designer agent session", () => {
   it("does not connect when the owned process exits during startup", async () => {
     const fixture = createFixture({ processAlive: false })
 
-    await expect(createDesignerAgentSession(createParams(), fixture.dependencies)).rejects.toMatchObject({
+    await expect(createDesignerAgentSession(
+      createParams({ operationLog: fixture.operationLog }),
+      fixture.dependencies
+    )).rejects.toMatchObject({
       code: "session_start_failed",
+      details: { stage: "session-start", mode: "designer-agent" },
     })
     expect(fixture.calls).not.toContain("ssh.connect 127.0.0.1:58248 fingerprint")
   })
@@ -388,6 +456,29 @@ describe("Designer agent session", () => {
   })
 })
 
+async function exportError(
+  session: Awaited<ReturnType<typeof createDesignerAgentSession>>,
+  operationLog: PlatformOperationLog
+): Promise<unknown> {
+  return session.exportConfiguration(
+    "/project/.nkdk/tmp/op/xml",
+    operationLog,
+    "include"
+  ).catch((caught: unknown) => caught)
+}
+
+function expectAgentExportFailure(error: unknown, logPath: string): void {
+  expect(error).toMatchObject({
+    code: "platform_command_failed",
+    message: "dump failed",
+    details: {
+      stage: "configuration-export",
+      mode: "designer-agent",
+      logPath,
+    },
+  })
+}
+
 function createParams(
   overrides: Partial<Omit<CreatePlatformSessionParams, "settings">> & {
     settings?: Partial<CreatePlatformSessionParams["settings"]>
@@ -428,6 +519,9 @@ function createFixture(
     extensionInfo?: unknown[]
     extensionResponseComplete?: boolean
     extensionListError?: Error
+    processLog?: string
+    processLogReadFailure?: boolean
+    openCommandError?: Error
   } = {}
 ): {
   calls: string[]
@@ -435,23 +529,26 @@ function createFixture(
   cleanupStarted: Promise<void>
   dumpStarted: Promise<void>
   operationLog: PlatformOperationLog
+  createOperationLog(path: string): PlatformOperationLog
   dependencies: DesignerAgentDependencies
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
-  const operationLog: PlatformOperationLog = {
-    path: "/project/.nkdk/tmp/op/platform.log",
+  const createOperationLog = (path: string): PlatformOperationLog => ({
+    path,
     available: true,
     async append(message) {
-      calls.push(`write ${this.path}`)
-      writes.set(this.path, message)
+      calls.push(`write ${path}`)
+      const safeMessage = this.sanitize(message)
+      writes.set(path, `${writes.get(path) ?? ""}${safeMessage}\n`)
       return true
     },
-    async process() {
-      return true
+    async process(stage, launch) {
+      return this.append(`stage=${stage} command=${launch.command} ${launch.args.join(" ")}`)
     },
     sanitize: (value) => value.replaceAll("secret", "***"),
-  }
+  })
+  const operationLog = createOperationLog("/project/.nkdk/tmp/op/platform.log")
   let alive = options.processAlive ?? true
   let now = 0
   let connectFailures = options.connectFailures ?? 0
@@ -540,6 +637,7 @@ function createFixture(
     calls,
     writes,
     operationLog,
+    createOperationLog,
     cleanupStarted,
     dumpStarted,
     dependencies: {
@@ -555,6 +653,10 @@ function createFixture(
         },
         async readFile(path) {
           calls.push(`read ${path}`)
+          if (path.endsWith("/process.log")) {
+            if (options.processLogReadFailure === true) throw new Error("read failed secret")
+            return options.processLog ?? ""
+          }
           return (
             options.agentBaseConfig ??
             JSON.stringify({ usersInfo: [{ name: "", dir: "0" }] })
@@ -603,6 +705,7 @@ function createFixture(
       },
       async openCommandSession() {
         calls.push("shell.connect-ib")
+        if (options.openCommandError !== undefined) throw options.openCommandError
         return commandSession
       },
       clock: {
