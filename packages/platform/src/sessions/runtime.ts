@@ -68,6 +68,7 @@ export type ProcessRunResult = {
 export interface SessionFileSystem {
   mkdir(path: string): Promise<void>
   writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
+  appendFile(path: string, content: string): Promise<void>
   readFile(path: string): Promise<string>
   rm(path: string): Promise<void>
   rename(from: string, to: string): Promise<void>

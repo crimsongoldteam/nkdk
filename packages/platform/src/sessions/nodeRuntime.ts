@@ -26,6 +26,9 @@ const fileSystem: SessionFileSystem = {
   async writeFile(path, content, options) {
     await fs.promises.writeFile(path, content, options)
   },
+  async appendFile(path, content) {
+    await fs.promises.appendFile(path, content)
+  },
   async readFile(path) {
     return fs.promises.readFile(path, "utf8")
   },

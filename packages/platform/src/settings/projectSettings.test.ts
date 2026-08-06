@@ -11,9 +11,7 @@ const fileInfobase = {
   operations: { import: { mode: "designer-agent" } },
 }
 
-describe("project settings validation", () => {
-  it("applies import defaults", () => {
-    const ready = validateProjectSettings(parseProjectSettingsYaml(`
+const settingsWithDefaults = validateProjectSettings(parseProjectSettingsYaml(`
 infobase:
   connectionString: 'File="/bases/demo";'
   operations:
@@ -21,7 +19,9 @@ infobase:
       mode: designer-agent
 `))
 
-    expect(ready).toEqual({
+describe("project settings validation", () => {
+  it("applies import defaults", () => {
+    expect(settingsWithDefaults).toEqual({
       ok: true,
       settings: {
         infobase: {

@@ -1,5 +1,20 @@
 export { findPlatform, type PlatformInstallation } from "./src/platform/findPlatform"
-export { PlatformSessionError, type PlatformSessionErrorCode } from "./src/sessions/errors"
+export {
+  PlatformSessionError,
+  type PlatformFailureDetails,
+  type PlatformFailureStage,
+  type PlatformSessionErrorCode,
+} from "./src/sessions/errors"
+export {
+  concisePlatformMessage,
+  createPlatformOperationLog,
+  platformFailure,
+  redactPlatformText,
+  type PlatformFailureParams,
+  type PlatformOperationLog,
+  type PlatformOperationLogDependencies,
+  type PlatformOperationLogFileSystem,
+} from "./src/sessions/operationLog"
 export type {
   CloseAllConnectionsResult,
   CloseConnectionResult,
