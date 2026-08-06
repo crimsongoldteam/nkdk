@@ -23,7 +23,7 @@ export function analyzeTestDurationReport(report, lifecycleReport) {
     }
 
     for (const test of suite.assertionResults) {
-      assertTest(test)
+      if (!assertTest(test)) continue
       const result = { type: "test", file: suite.name, name: test.fullName, duration: test.duration }
       if (test.duration > TEST_DURATION_LIMIT_MS) failures.push(result)
       else if (test.duration > TEST_DURATION_TARGET_MS) warnings.push(result)
@@ -120,10 +120,14 @@ function assertSuite(suite) {
 
 function assertTest(test) {
   if (test === null || typeof test !== "object" ||
-    typeof test.fullName !== "string" || test.fullName === "" ||
-    !isFiniteNumber(test.duration) || test.duration < 0) {
+    typeof test.fullName !== "string" || test.fullName === "") {
     throw new Error("Отчёт Vitest содержит повреждённый assertion result")
   }
+  if (test.status === "skipped" || test.status === "pending" || test.status === "todo") return false
+  if (!isFiniteNumber(test.duration) || test.duration < 0) {
+    throw new Error("Отчёт Vitest содержит повреждённый assertion result")
+  }
+  return true
 }
 
 function isFiniteNumber(value) {

@@ -83,6 +83,26 @@ describe("assert test durations", () => {
     expect(() => analyzeTestDurationReport({ testResults: [{ assertionResults: [] }] }, lifecycleReport(1))).toThrow()
   })
 
+  it("не требует длительность у пропущенного теста", () => {
+    const skippedReport = {
+      success: true,
+      numTotalTests: 1,
+      numPassedTests: 0,
+      numFailedTests: 0,
+      numPendingTests: 1,
+      numTodoTests: 0,
+      testResults: [{
+        name: "/project/packages/core/example.test.ts",
+        assertionResults: [{ fullName: "optional integration", status: "skipped" }],
+      }],
+    }
+
+    expect(analyzeTestDurationReport(skippedReport, lifecycleReport(1))).toEqual({
+      warnings: [],
+      failures: [],
+    })
+  })
+
   it("отклоняет неполный отчёт и отсутствие файла", () => {
     expect(() => analyzeTestDurationReport({
       success: true,
