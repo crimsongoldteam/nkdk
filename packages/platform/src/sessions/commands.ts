@@ -1,11 +1,7 @@
 import type { InfobaseConnection } from "../infobases/types"
 import { PlatformSessionError } from "./errors"
+import type { ProcessLaunch } from "./runtime"
 import type { DatabaseConnectionSettings, UnresolvedReferencesMode } from "./types"
-
-export type ProcessLaunch = {
-  command: string
-  args: string[]
-}
 
 export function buildDesignerAgentLaunch(params: {
   enterprisePath: string

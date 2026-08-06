@@ -18,7 +18,7 @@ describe("Designer agent session", () => {
       "reservePort 127.0.0.1",
       "mkdir /project/.nkdk/platform-sessions/agent",
       "generateHostKey /project/.nkdk/platform-sessions/agent/host.key",
-      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /Sserver\\reference /AgentMode /AgentSSHHostKey /project/.nkdk/platform-sessions/agent/host.key /AgentBaseDir /project/.nkdk /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log -NoTruncate",
+      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /Sserver\\reference /AgentMode /AgentSSHHostKey /project/.nkdk/platform-sessions/agent/host.key /AgentBaseDir /project/.nkdk /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log -NoTruncate cwd=/project/.nkdk",
       "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       "read /project/.nkdk/agentbasedir.json",
@@ -49,10 +49,17 @@ describe("Designer agent session", () => {
   })
 
   it("logs the safe launch and authentication stages", async () => {
-    const fixture = createFixture()
+    const fixture = createFixture({
+      agentBaseConfig: JSON.stringify({
+        usersInfo: [{ name: "Администратор", dir: "0" }],
+      }),
+    })
 
     await createDesignerAgentSession(
-      createParams({ operationLog: fixture.operationLog }),
+      createParams({
+        operationLog: fixture.operationLog,
+        settings: { user: "Администратор" },
+      }),
       fixture.dependencies
     )
 
@@ -62,6 +69,7 @@ describe("Designer agent session", () => {
     expect(text).toContain("stage=authentication")
     expect(text).toContain("1cv8 DESIGNER")
     expect(text).not.toContain("secret")
+    expect(text).not.toContain("Администратор")
   })
 
   it("preserves an authentication failure and appends the safe process log", async () => {
@@ -310,7 +318,7 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toEqual([])
   })
 
-  it("does not connect when the owned process exits during startup", async () => {
+  it("classifies an exit before SSH as session start", async () => {
     const fixture = createFixture({ processAlive: false })
 
     await expect(createDesignerAgentSession(
@@ -677,8 +685,8 @@ function createFixture(
         },
       },
       processRuntime: {
-        spawn(command, args) {
-          calls.push(`spawn ${command} ${args.join(" ")}`)
+        spawn(command, args, spawnOptions) {
+          calls.push(`spawn ${command} ${args.join(" ")} cwd=${spawnOptions?.cwd ?? ""}`)
           return processHandle
         },
       },

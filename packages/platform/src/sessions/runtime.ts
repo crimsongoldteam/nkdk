@@ -1,4 +1,26 @@
-import type { PlatformOperationLog } from "./operationLog"
+export type ProcessLaunch = {
+  command: string
+  args: string[]
+}
+
+export type PlatformFailureStage =
+  | "platform-discovery"
+  | "session-start"
+  | "authentication"
+  | "configuration-export"
+  | "platform-log"
+
+export interface PlatformOperationLog {
+  readonly path: string
+  readonly available: boolean
+  append(message: string): Promise<boolean>
+  process(
+    stage: PlatformFailureStage,
+    launch: ProcessLaunch,
+    result: ProcessRunResult
+  ): Promise<boolean>
+  sanitize(value: string): string
+}
 
 export interface SshShell {
   write(value: string): void
@@ -13,6 +35,8 @@ export interface SshTransport {
     port: number
     timeoutMs: number
     expectedHostKeyHash: string
+    user?: string
+    password?: string
   }): Promise<SshShell>
 }
 
@@ -44,7 +68,7 @@ export interface OwnedProcess {
 }
 
 export interface SessionProcessRuntime {
-  spawn(command: string, args: readonly string[]): OwnedProcess
+  spawn(command: string, args: readonly string[], options?: { cwd?: string }): OwnedProcess
   run(
     command: string,
     args: readonly string[],

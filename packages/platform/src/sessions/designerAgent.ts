@@ -93,7 +93,11 @@ export async function createDesignerAgentSession(
       ].join(" ")
     )
   }
-  const processHandle = dependencies.processRuntime.spawn(launch.command, launch.args)
+  const processHandle = dependencies.processRuntime.spawn(
+    launch.command,
+    launch.args,
+    { cwd: agentBaseDir }
+  )
   if (!processHandle.isAlive()) {
     const failure = new PlatformSessionError(
       "session_start_failed",
@@ -110,7 +114,14 @@ export async function createDesignerAgentSession(
   let canonicalAgentBaseDir: string
   let failureStage: "session-start" | "authentication" = "session-start"
   try {
-    const shell = await connectWithRetry({ port, hostKeyHash, processHandle, dependencies })
+    const shell = await connectWithRetry({
+      port,
+      hostKeyHash,
+      processHandle,
+      dependencies,
+      user: params.settings.user,
+      password: params.settings.password,
+    })
     failureStage = "authentication"
     if (params.operationLog !== undefined) {
       await appendAgentLog(params.operationLog, "stage=authentication status=start")
@@ -129,6 +140,7 @@ export async function createDesignerAgentSession(
     const directories = await readAgentDirectories(
       params.projectDir,
       agentBaseDir,
+      params.settings.user ?? "",
       dependencies
     )
     canonicalAgentBaseDir = directories.agentBaseDir
@@ -136,7 +148,10 @@ export async function createDesignerAgentSession(
   } catch (caught) {
     await stopAfterFailedStart(processHandle)
     if (params.operationLog !== undefined) {
-      throw await agentFailure(caught, failureStage, params.operationLog, processLogPath, dependencies)
+      const stage = caught instanceof PlatformSessionError && caught.code === "authentication_failed"
+        ? "authentication"
+        : failureStage
+      throw await agentFailure(caught, stage, params.operationLog, processLogPath, dependencies)
     }
     throw caught
   }
@@ -374,6 +389,7 @@ async function runCleanupCommand(
 async function readAgentDirectories(
   projectDir: string,
   agentBaseDir: string,
+  userName: string,
   dependencies: DesignerAgentDependencies
 ): Promise<{ agentBaseDir: string; userServiceDir: string }> {
   try {
@@ -386,7 +402,7 @@ async function readAgentDirectories(
     const user = parsed["usersInfo"].find(
       (entry) =>
         isRecord(entry) &&
-        entry["name"] === "" &&
+        entry["name"] === userName &&
         typeof entry["dir"] === "string"
     )
     if (!isRecord(user) || typeof user["dir"] !== "string") {
@@ -487,6 +503,8 @@ async function connectWithRetry(params: {
   hostKeyHash: string
   processHandle: OwnedProcess
   dependencies: DesignerAgentDependencies
+  user?: string
+  password?: string
 }) {
   const deadline = params.dependencies.clock.now() + params.dependencies.startupTimeoutMs
   for (;;) {
@@ -502,8 +520,13 @@ async function connectWithRetry(params: {
         port: params.port,
         timeoutMs: params.dependencies.startupTimeoutMs,
         expectedHostKeyHash: params.hostKeyHash,
+        user: params.user,
+        password: params.password,
       })
-    } catch {
+    } catch (caught) {
+      if (caught instanceof PlatformSessionError && caught.code === "authentication_failed") {
+        throw caught
+      }
       if (params.dependencies.clock.now() >= deadline) {
         throw new PlatformSessionError(
           "session_timeout",

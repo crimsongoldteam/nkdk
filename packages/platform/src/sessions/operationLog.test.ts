@@ -15,6 +15,10 @@ describe("platform operation log", () => {
     )).toBe("ibcmd --password *** --database-password=*** /P ***")
     expect(redactPlatformText("--password hidden --database-password=hidden-db /P hidden-pwd", []))
       .toBe("--password *** --database-password=*** /P ***")
+    expect(redactPlatformText("1cv8 /Pjoined-password", []))
+      .toBe("1cv8 /P***")
+    expect(redactPlatformText("1cv8 /Out /private/tmp/platform.log", []))
+      .toBe("1cv8 /Out /private/tmp/platform.log")
   })
 
   it("selects one bounded non-empty platform message", () => {

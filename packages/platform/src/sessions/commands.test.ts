@@ -58,6 +58,19 @@ describe("platform session commands", () => {
     ).toBe("/Sserver\\reference")
   })
 
+  it("does not pass infobase credentials to the Designer process", () => {
+    const args = buildDesignerAgentLaunch({
+      enterprisePath: "1cv8",
+      connection: { type: "file", path: "/bases/demo" },
+      hostKeyPath: "/agent/host.key",
+      baseDir: "/agent",
+      logPath: "/agent/process.log",
+      port: 1543,
+    }).args
+    expect(args).not.toContain(expect.stringMatching(/^\/N/u))
+    expect(args).not.toContain(expect.stringMatching(/^\/P/u))
+  })
+
   it("builds standalone process arguments as arrays", () => {
     expect(buildStandaloneConfigInit({ ibcmdPath: "ibcmd", databasePath: "/bases/demo" })).toEqual({
       command: "ibcmd",

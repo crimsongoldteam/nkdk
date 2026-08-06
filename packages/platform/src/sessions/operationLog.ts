@@ -1,11 +1,12 @@
-import type { ProcessLaunch } from "./commands"
 import {
   PlatformSessionError,
   type PlatformFailureStage,
   type PlatformSessionErrorCode,
 } from "./errors"
-import type { ProcessRunResult } from "./runtime"
+import type { PlatformOperationLog, ProcessLaunch } from "./runtime"
 import type { PlatformSessionMode } from "./types"
+
+export type { PlatformOperationLog } from "./runtime"
 
 const PRIVATE_FILE_MODE = 0o600
 const MAX_CONCISE_MESSAGE_LENGTH = 500
@@ -20,18 +21,6 @@ export interface PlatformOperationLogDependencies {
   fileSystem: PlatformOperationLogFileSystem
   platform: NodeJS.Platform
   now(): Date
-}
-
-export interface PlatformOperationLog {
-  readonly path: string
-  readonly available: boolean
-  append(message: string): Promise<boolean>
-  process(
-    stage: PlatformFailureStage,
-    launch: ProcessLaunch,
-    result: ProcessRunResult
-  ): Promise<boolean>
-  sanitize(value: string): string
 }
 
 export type PlatformFailureParams = {
@@ -106,9 +95,13 @@ export function redactPlatformText(value: string, secrets: readonly string[]): s
     /(--(?:database-)?password)(=|\s+)(?:"[^"]*"|'[^']*'|[^\s]+)/giu,
     "$1$2***"
   )
-  return sanitized.replace(
+  sanitized = sanitized.replace(
     /(\/P(?:wd)?)(\s+)(?:"[^"]*"|'[^']*'|[^\s]+)/giu,
     "$1$2***"
+  )
+  return sanitized.replace(
+    /(\/P(?:wd)?)(?:"[^"]*"|'[^']*'|[^\s]+)/gu,
+    "$1***"
   )
 }
 

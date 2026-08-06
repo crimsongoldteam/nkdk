@@ -42,11 +42,12 @@ const fileSystem: SessionFileSystem = {
 }
 
 export const nodeProcessRuntime: SessionProcessRuntime = {
-  spawn(command, args) {
+  spawn(command, args, options) {
     return wrapOwnedProcess(
       spawnChild(command, [...args], {
         shell: false,
         stdio: ["ignore", "pipe", "pipe"],
+        cwd: options?.cwd,
       })
     )
   },

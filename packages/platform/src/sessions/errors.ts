@@ -9,12 +9,8 @@ export type PlatformSessionErrorCode =
   | "platform_command_failed"
   | "operation_cancelled"
 
-export type PlatformFailureStage =
-  | "platform-discovery"
-  | "session-start"
-  | "authentication"
-  | "configuration-export"
-  | "platform-log"
+import type { PlatformFailureStage } from "./runtime"
+export type { PlatformFailureStage } from "./runtime"
 
 export type PlatformFailureDetails = {
   stage: PlatformFailureStage

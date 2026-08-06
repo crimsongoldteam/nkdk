@@ -1,6 +1,6 @@
 import type { PlatformInstallation } from "../platform/findPlatform"
 import type { ConfigurationExtensionInfo } from "../extensions/types"
-import type { PlatformOperationLog } from "./operationLog"
+import type { PlatformOperationLog } from "./runtime"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
