@@ -1,6 +1,9 @@
+import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type { ImportResultFile } from "./types"
 import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"
+
+const projectDir = resolve("/project")
 
 describe("XML import result files", () => {
   it("rejects duplicate and escaping target paths before copying external files", async () => {
@@ -12,7 +15,7 @@ describe("XML import result files", () => {
     const calls: string[] = []
     await expect(
       transferXmlImportExternalFiles(
-        { projectDir: "/project", files: [externalFile("../outside.txt")], concurrency: 1, transfer: "copy" },
+        { projectDir, files: [externalFile("../outside.txt")], concurrency: 1, transfer: "copy" },
         recordingFileOperations(calls)
       )
     ).rejects.toThrow("вне Проекта")
@@ -24,7 +27,7 @@ describe("XML import result files", () => {
 
     await transferXmlImportExternalFiles(
       {
-        projectDir: "/project",
+        projectDir,
         files: [workerFile("Конфигурация.yaml")],
         concurrency: 1,
         transfer: "copy",
@@ -36,35 +39,36 @@ describe("XML import result files", () => {
   })
 
   it.each([
-    ["copy", "copyFile /xml/МодульПриложения.bsl -> /project/МодульПриложения.bsl"],
-    ["move", "rename /xml/МодульПриложения.bsl -> /project/МодульПриложения.bsl"],
-  ] as const)("uses %s for XML-owned files", async (transfer, expected) => {
+    ["copy", "copyFile"],
+    ["move", "rename"],
+  ] as const)("uses %s for XML-owned files", async (transfer, operation) => {
     const calls: string[] = []
+    const external = externalFile("МодульПриложения.bsl")
 
     await transferXmlImportExternalFiles(
       {
-        projectDir: "/project",
-        files: [workerFile("Конфигурация.yaml"), externalFile("МодульПриложения.bsl")],
+        projectDir,
+        files: [workerFile("Конфигурация.yaml"), external],
         concurrency: 1,
         transfer,
       },
       recordingFileOperations(calls)
     )
 
-    expect(calls).toContain(expected)
+    expect(calls).toContain(`${operation} ${external.sourcePath} -> ${resolve(projectDir, "МодульПриложения.bsl")}`)
   })
 
   it("rejects an existing symlink directory that resolves outside the Project before copying", async () => {
     const calls: string[] = []
     const operations = recordingFileOperations(calls, {
-      "/project": "/real/project",
-      "/project/linked": "/outside",
+      [projectDir]: resolve("/real/project"),
+      [resolve(projectDir, "linked")]: resolve("/outside"),
     })
 
     await expect(
       transferXmlImportExternalFiles({
-        projectDir: "/project",
-        files: [{ sourceKind: "xml", sourcePath: "/xml/escaped.txt", targetProjectPath: "linked/escaped.txt" }],
+        projectDir,
+        files: [{ sourceKind: "xml", sourcePath: resolve("/xml/escaped.txt"), targetProjectPath: "linked/escaped.txt" }],
         concurrency: 1,
         transfer: "copy",
       }, operations)
@@ -74,11 +78,11 @@ describe("XML import result files", () => {
 })
 
 function workerFile(targetProjectPath: string): ImportResultFile {
-  return { sourceKind: "worker", sourcePath: `/worker/${targetProjectPath}`, targetProjectPath }
+  return { sourceKind: "worker", sourcePath: resolve("/worker", ...targetProjectPath.split("/")), targetProjectPath }
 }
 
 function externalFile(targetProjectPath: string): ImportResultFile {
-  return { sourceKind: "xml", sourcePath: `/xml/${targetProjectPath}`, targetProjectPath }
+  return { sourceKind: "xml", sourcePath: resolve("/xml", ...targetProjectPath.split("/")), targetProjectPath }
 }
 
 function recordingFileOperations(calls: string[], realpaths: Record<string, string> = {}) {

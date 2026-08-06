@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
+import { projectStateBinaryPath } from "./binary/persistence"
 import { trackTempProjectDirs } from "./tests/tempProjectDir"
 import {
   createProjectStateWriterHandle,
@@ -28,7 +29,7 @@ describe("владелец состояния проекта в главном �
     await handle.writeFragment(fragment("cf/a.bin", 1n))
 
     await expect(handle.commitAndScheduleCheckpoint()).resolves.toEqual({
-      snapshotPath: "/project/.nkdk/cache/project-state.bin",
+      snapshotPath: projectStateBinaryPath("/project"),
     })
     const next = handle.beginUpdate("/project").then(() => events.push("next"))
     await Promise.resolve()

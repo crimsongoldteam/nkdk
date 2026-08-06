@@ -1,11 +1,11 @@
-import { join } from "path"
+import { join, resolve } from "path"
 import { describe, expect, it, vi } from "vitest"
 import { discoverXmlImport } from "./discovery"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
 import type { MetadataItemRule } from "../orchestration/property/types"
 
-const xmlDir = "/xml-dump"
+const xmlDir = resolve("/xml-dump")
 const source = { kind: "itemRule" as const, description: "test" }
 const configurationRule = { itemType: "MetadataConfiguration", properties: {} } as MetadataItemRule
 const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataItemRule

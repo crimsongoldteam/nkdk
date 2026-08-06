@@ -28,6 +28,7 @@ import {
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../projectState/dependencyValidation"
 import { openProjectStateReadSession } from "../projectState/service"
+import { resolveProjectPath } from "../project/path"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
@@ -613,7 +614,7 @@ function serializePreparedYaml(
     () => serializeImportYaml({
       output: {
         sourceKind: "worker",
-        sourcePath: `${state.outputDir}/${targetProjectPath}`,
+        sourcePath: resolveProjectPath(state.outputDir, targetProjectPath),
         targetProjectPath,
       },
       yaml,

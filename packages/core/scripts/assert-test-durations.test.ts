@@ -51,6 +51,14 @@ describe("assert test durations", () => {
     expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
   })
 
+  it("учитывает системное замедление Windows для жёстких лимитов", () => {
+    expect(analyzeTestDurationReport(
+      report({ testMs: 200 }),
+      lifecycleReport(4_500, 14_500),
+      { platform: "win32" },
+    ).failures).toEqual([])
+  })
+
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
     const result = analyzeTestDurationReport({
       success: true,

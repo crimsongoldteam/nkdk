@@ -1,4 +1,4 @@
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { componentPath, parseComponentPath } from "./address"
 import { configurationIndexPath } from "../configurationIndex/fileIO"
@@ -19,7 +19,7 @@ describe("component address", () => {
   )
 
   it("places indexes under the addressed component", () => {
-    const projectDir = "/project"
+    const projectDir = resolve("/project")
 
     expect(configurationIndexPath(projectDir, { kind: "configuration" })).toBe(
       join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")

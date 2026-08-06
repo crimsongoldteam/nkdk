@@ -1,3 +1,4 @@
+import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
@@ -12,6 +13,7 @@ import {
 
 const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }
+const projectDir = resolve("/project")
 
 const topology = compileMetadataResourceTopology([
   {
@@ -68,8 +70,8 @@ describe("project resource topology projection", () => {
     let maxActive = 0
     const rootEntries = Array.from({ length: 40 }, (_unused, index) => directory(`dir-${index}`))
 
-    const files = await listProjectFiles("/project", async (path) => {
-      if (path === "/project") return rootEntries
+    const files = await listProjectFiles(projectDir, async (path) => {
+      if (path === projectDir) return rootEntries
       active += 1
       maxActive = Math.max(maxActive, active)
       await new Promise<void>((resolve) => setTimeout(resolve, 0))
@@ -83,31 +85,31 @@ describe("project resource topology projection", () => {
 
   it("выдаёт найденный файл до чтения следующего уровня каталогов", async () => {
     let nestedRead = false
-    const files = iterateProjectFiles("/project", async (path) => {
-      if (path === "/project") return [file("first.yaml"), directory("nested")]
+    const files = iterateProjectFiles(projectDir, async (path) => {
+      if (path === projectDir) return [file("first.yaml"), directory("nested")]
       nestedRead = true
       return [file("second.yaml")]
     })
 
-    await expect(files.next()).resolves.toMatchObject({ value: "/project/first.yaml", done: false })
+    await expect(files.next()).resolves.toMatchObject({ value: join(projectDir, "first.yaml"), done: false })
     expect(nestedRead).toBe(false)
-    await expect(files.next()).resolves.toMatchObject({ value: "/project/nested/second.yaml", done: false })
+    await expect(files.next()).resolves.toMatchObject({ value: join(projectDir, "nested", "second.yaml"), done: false })
     expect(nestedRead).toBe(true)
   })
 
   it("переносит курсор по каталогам и не читает недостижимую ветвь", async () => {
     const readDirectories: string[] = []
     const entries = new Map<string, ReturnType<typeof file>[]>([
-      ["/project", [directory("Объект"), directory(".service"), directory("НедостижимаяВетка")]],
-      ["/project/Объект", [directory("Первый")]],
-      ["/project/Объект/Первый", [file("Свойства.yaml"), file("Модуль.bsl"), file("Лишний.yaml")]],
-      ["/project/.service", [file("cache.bin")]],
+      [projectDir, [directory("Объект"), directory(".service"), directory("НедостижимаяВетка")]],
+      [join(projectDir, "Объект"), [directory("Первый")]],
+      [join(projectDir, "Объект", "Первый"), [file("Свойства.yaml"), file("Модуль.bsl"), file("Лишний.yaml")]],
+      [join(projectDir, ".service"), [file("cache.bin")]],
     ])
 
     const candidates = []
     for await (const candidate of iterateMetadataProjectPathCandidates({
       topology,
-      projectDir: "/project",
+      projectDir,
       readDirectory: async (path) => {
         readDirectories.push(path)
         return entries.get(path) ?? []
@@ -119,7 +121,7 @@ describe("project resource topology projection", () => {
       "Объект/Первый/Свойства.yaml",
       "Объект/Первый/Модуль.bsl",
     ]
-    expect(readDirectories).not.toContain("/project/НедостижимаяВетка")
+    expect(readDirectories).not.toContain(join(projectDir, "НедостижимаяВетка"))
     expect(candidates.map(({ projectPath }) => projectPath)).toEqual(expectedPaths)
     expect(candidates.map((candidate) => candidate.classify())).toEqual(
       expectedPaths.map((path) => classifyMetadataProjectPath(topology, path)),

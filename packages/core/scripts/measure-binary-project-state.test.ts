@@ -1,3 +1,4 @@
+import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { parseMeasureBinaryProjectStateArgs } from "./measure-binary-project-state"
 
@@ -8,6 +9,6 @@ describe("measure binary project state args", () => {
       "/tmp/project",
       "--lookups", "1000000",
       "--workers", "4",
-    ])).toEqual({ projectDir: "/tmp/project", lookups: 1_000_000, workers: 4 })
+    ])).toEqual({ projectDir: resolve("/tmp/project"), lookups: 1_000_000, workers: 4 })
   })
 })

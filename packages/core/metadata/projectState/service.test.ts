@@ -391,7 +391,7 @@ describe("ProjectStateService", () => {
     tempDirs.push(projectDir)
     const alias = `${projectDir}-alias`
     tempDirs.push(alias)
-    await symlink(projectDir, alias)
+    await symlink(projectDir, alias, process.platform === "win32" ? "junction" : "dir")
     const handle = testWriterHandle(1)
     let active = 0
     let maxActive = 0
@@ -902,7 +902,7 @@ describe("ProjectStateService", () => {
     tempDirs.push(projectDir)
     const alias = `${projectDir}-alias`
     tempDirs.push(alias)
-    await symlink(projectDir, alias)
+    await symlink(projectDir, alias, process.platform === "win32" ? "junction" : "dir")
     const writer = testWriterHandle(1)
     let tokenValid = true
     const resetWriter = writer.reset.bind(writer)

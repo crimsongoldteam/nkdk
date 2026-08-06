@@ -1,4 +1,6 @@
+import { join } from "node:path"
 import { describe, expect, it } from "vitest"
+import { recordedPath } from "../testing/recordedPath"
 import {
   parseProjectSettingsYaml,
   readProjectSettings,
@@ -119,7 +121,7 @@ describe("project settings file", () => {
     await expect(readProjectSettings("/alias", { fileSystem, platform: "darwin" })).resolves.toMatchObject({
       status: "ready",
       projectDir: "/project",
-      settingsPath: "/project/.nkdk/project.yaml",
+      settingsPath: join("/project", ".nkdk", "project.yaml"),
     })
     expect(calls).toEqual([
       "realpath /alias",
@@ -137,7 +139,7 @@ describe("project settings file", () => {
     expect(result).toEqual({
       status: "missing",
       projectDir: "/project",
-      settingsPath: "/project/.nkdk/project.yaml",
+      settingsPath: join("/project", ".nkdk", "project.yaml"),
     })
   })
 
@@ -197,15 +199,15 @@ function recordingFileSystem(
 ): ProjectSettingsFileSystem {
   return {
     async realpath(path) {
-      calls.push(`realpath ${path}`)
+      calls.push(`realpath ${recordedPath(path)}`)
       return path === "/alias" ? "/project" : path
     },
     async chmod(path, mode) {
-      calls.push(`chmod ${path} mode=${mode}`)
+      calls.push(`chmod ${recordedPath(path)} mode=${mode}`)
       if (options.chmodError !== undefined) throw options.chmodError
     },
     async readFile(path) {
-      calls.push(`read ${path}`)
+      calls.push(`read ${recordedPath(path)}`)
       return options.source ?? validSource
     },
   }

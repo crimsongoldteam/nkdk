@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdirSync, readFileSync } from "fs"
+import { existsSync, mkdirSync, readFileSync } from "fs"
 import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -392,8 +392,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       "  Артикул:",
       "    Тип: Строка",
     ])
-    mkdirSync(join(projectDir, "Миграции"))
-    chmodSync(join(projectDir, "Миграции"), 0o500)
+    mkdirSync(join(projectDir, "Миграции", "2026-08-01-100000.yaml"), { recursive: true })
     const calls: string[] = []
     const projectState = renameProjectState(calls, [[], [validationError]], () => {
       if (readFileSync(propertiesPath, "utf-8").includes("Код:")) calls.push("write-affected-yaml")

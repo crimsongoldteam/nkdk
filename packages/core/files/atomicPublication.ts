@@ -42,7 +42,7 @@ async function reserveTemporaryFile(directory: string, targetName: string): Prom
 }
 
 async function syncFile(path: string): Promise<void> {
-  const handle = await fs.promises.open(path, "r")
+  const handle = await fs.promises.open(path, "r+")
   try {
     await handle.sync()
   } finally {
