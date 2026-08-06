@@ -43,6 +43,14 @@ describe("assert test durations", () => {
     }])
   })
 
+  it("учитывает замедление стандартного CI runner для жёстких лимитов", () => {
+    const slowReport = report({ testMs: 80 })
+    const slowLifecycleReport = lifecycleReport(1_900, 5_700)
+
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(3)
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
+  })
+
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
     const result = analyzeTestDurationReport({
       success: true,
