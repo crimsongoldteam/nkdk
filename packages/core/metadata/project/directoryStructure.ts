@@ -1,8 +1,8 @@
-import { existsSync, statSync } from "fs"
-import { isAbsolute, relative, resolve, sep } from "path"
+import { resolve } from "path"
 import { CONFIGURATION_YAML_FILE } from "./constants"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
+import { projectPathFromFileSystem } from "./path"
 
 const PROPERTIES_FILE = "Свойства.yaml"
 
@@ -69,15 +69,11 @@ function normalizeDepth(depth: number | undefined): number | null {
 function normalizeProjectDirectoryPath(projectDir: string, directoryPath: string | undefined): string {
   if (directoryPath === undefined || directoryPath.trim() === "") return ""
 
-  const absolutePath = isAbsolute(directoryPath) ? resolve(directoryPath) : resolve(projectDir, directoryPath)
-  const projectPath = relative(projectDir, absolutePath)
-
-  if (projectPath === "" && isExistingDirectory(absolutePath)) return ""
-  if (projectPath.startsWith("..") || isAbsolute(projectPath)) {
+  try {
+    return projectPathFromFileSystem(projectDir, directoryPath, { allowRoot: true })
+  } catch {
     throw new Error("Каталог находится вне указанного YAML-проекта")
   }
-
-  return toProjectSeparators(projectPath).replace(/\/+$/, "")
 }
 
 function classifyDirectoryPosition(directoryPath: string): DirectoryPosition | undefined {
@@ -479,12 +475,4 @@ function file(
 function lastSegment(path: string): string {
   const parts = path.split("/")
   return parts[parts.length - 1] ?? ""
-}
-
-function toProjectSeparators(filePath: string): string {
-  return filePath.split(sep).join("/")
-}
-
-function isExistingDirectory(path: string): boolean {
-  return existsSync(path) && statSync(path).isDirectory()
 }

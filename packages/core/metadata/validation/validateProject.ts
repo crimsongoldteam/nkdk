@@ -1,6 +1,6 @@
 import { availableParallelism } from "node:os"
-import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
+import { projectPathFromFileSystem } from "../project/path"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
 import type { MetadataDiagnosticCollection } from "../diagnostics/collection"
@@ -45,11 +45,12 @@ function normalizeValidationConcurrency(value: number | undefined): number {
 }
 
 export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnostic): Diagnostic {
-  const relativePath = relative(resolve(projectDir), resolve(diagnostic.filePath))
-  if (relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
+  let rootProjectPath: string
+  try {
+    rootProjectPath = projectPathFromFileSystem(projectDir, diagnostic.filePath)
+  } catch {
     throw new Error(`Путь диагностики находится за пределами projectDir: ${diagnostic.filePath}`)
   }
-  const rootProjectPath = relativePath.split(sep).join("/")
   const componentProjectPath =
     rootProjectPath.startsWith("cf/") || /^cfe\/[^/]+\//.test(rootProjectPath)
       ? rootProjectPath

@@ -183,6 +183,17 @@ describe("metadata project directory structure", () => {
     ).toThrow("Каталог находится вне указанного YAML-проекта")
   })
 
+  it("классифицирует ..backup внутри проекта как неподдерживаемый каталог, а не выход за корень", () => {
+    const projectDir = createProject()
+
+    expect(() =>
+      describeMetadataProjectDirectoryStructure({
+        projectDir,
+        directoryPath: join(projectDir, "..backup"),
+      })
+    ).toThrow("Каталог не соответствует структуре metadata-проекта")
+  })
+
   it("rejects unsupported virtual directories and invalid depth", () => {
     const projectDir = createProject()
 
