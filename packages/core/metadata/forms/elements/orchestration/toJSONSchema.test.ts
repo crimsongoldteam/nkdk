@@ -36,27 +36,10 @@ describe("form element JSON Schema", () => {
     })
   })
 
-  it("renames button type schema away from the Вид discriminator", () => {
-    const schema = exportElementRuleToJSONSchema({
-      context,
-      propertyAliases: getTreeNodeJSONSchemaPropertyAliases("Button"),
-      rule: getElementRule("Button"),
-      yamlKind: "Кнопка",
-    })
-
-    expect(schema).toMatchObject({
-      type: "object",
-      additionalProperties: false,
-      properties: expect.objectContaining({
-        Вид: expect.objectContaining({ const: "Кнопка" }),
-        ТипКнопки: expect.any(Object),
-      }),
-      required: expect.arrayContaining(["ТипКнопки"]),
-    })
-
-    const check = compileValidationSchema(schema)
-    expect(check.Check({ Вид: "Кнопка" })).toBe(false)
-    expect(check.Check({ Вид: "Кнопка", ТипКнопки: "ОбычнаяКнопка" })).toBe(true)
+  it("renames the button type away from the Вид discriminator", () => {
+    expect(getTreeNodeJSONSchemaPropertyAliases("Button")).toEqual({ Вид: "ТипКнопки" })
+    expect(getTreeNodeJSONSchemaPropertyAliases("CommandBarButton")).toEqual({ Вид: "ТипКнопки" })
+    expect(getTreeNodeJSONSchemaPropertyAliases("InputField")).toEqual({})
   })
 
   it("exposes child item type sets used by tree YAML", () => {

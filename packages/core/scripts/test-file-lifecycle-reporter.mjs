@@ -11,7 +11,7 @@ export function createTestFileLifecycleReporter(outputPath) {
       packageSetupDuration += diagnostic.setupDuration
       testFiles.set(testModule.moduleId, {
         file: testModule.moduleId,
-        duration: diagnostic.collectDuration + diagnostic.duration,
+        duration: diagnostic.duration,
       })
     },
     onTestRunEnd() {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 
-import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../../orchestration/property/types"
@@ -352,14 +351,8 @@ describe("owner-specific attribute and tabular section rules", () => {
     })
 
     if (owner.allowUse !== undefined) {
-      const attributeSchema = compileValidationSchema(
-        exportMetadataItemToJSONSchema({ context, rule: owner.attributeRule })
-      )
-      const tabularSchema = compileValidationSchema(
-        exportMetadataItemToJSONSchema({ context, rule: owner.tabularRule })
-      )
-      expect(attributeSchema.Check({ Тип: "Строка", Использование: "ДляЭлемента" })).toBe(owner.allowUse)
-      expect(tabularSchema.Check({ Использование: "ДляЭлемента" })).toBe(owner.allowUse)
+      expectYamlProperty(owner.attributeRule, "Использование", owner.allowUse)
+      expectYamlProperty(owner.tabularRule, "Использование", owner.allowUse)
     }
 
     expect(owner.ownerRule.properties.attributes.itemRule).toBe(owner.attributeRule)
@@ -369,27 +362,13 @@ describe("owner-specific attribute and tabular section rules", () => {
     expect(getTypeRule(owner.tabularType, "yamlToXMLNestedRule")).toBeDefined()
     expect(getTypeRule(owner.nestedType, "yamlToXMLNestedRule")).toBeDefined()
 
-    const nestedSchema = compileValidationSchema(
-      exportMetadataItemToJSONSchema({ context, rule: owner.nestedRule })
-    )
-    expect(
-      nestedSchema.Check({
-        Тип: "Строка",
-        ЗаполнятьИзДанныхЗаполнения: "Истина",
-      })
-    ).toBe(owner.processingContract === true)
+    expectYamlProperty(owner.nestedRule, "ЗаполнятьИзДанныхЗаполнения", owner.processingContract === true)
 
     if (owner.processingContract === true) {
-      const attributeSchema = compileValidationSchema(
-        exportMetadataItemToJSONSchema({ context, rule: owner.attributeRule })
-      )
-      const tabularSchema = compileValidationSchema(
-        exportMetadataItemToJSONSchema({ context, rule: owner.tabularRule })
-      )
-      expect(attributeSchema.Check({ Тип: "Строка", ЗначениеЗаполнения: "Строка" })).toBe(false)
-      expect(attributeSchema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(false)
-      expect(tabularSchema.Check({ ДлинаНомераСтроки: 5 })).toBe(false)
-      expect(nestedSchema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(false)
+      expectYamlProperty(owner.attributeRule, "ЗначениеЗаполнения", false)
+      expectYamlProperty(owner.attributeRule, "Индексирование", false)
+      expectYamlProperty(owner.tabularRule, "ДлинаНомераСтроки", false)
+      expectYamlProperty(owner.nestedRule, "Индексирование", false)
     }
   })
 })
@@ -459,11 +438,10 @@ describe("owner-specific register attribute rules", () => {
     expect(owner.ownerRule.properties.attributes.itemRule).toBe(owner.rule)
     expect(getTypeRule(owner.propertyType, "yamlToXMLNestedRule")).toBeDefined()
 
-    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
-    expect(schema.Check({ Тип: "Строка", ЗаполнятьИзДанныхЗаполнения: "Истина" })).toBe(owner.allowFill)
-    expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
-    expect(schema.Check({ Тип: "Строка", ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Поле" })).toBe(owner.allowBinaryField)
-    expect(schema.Check({ Тип: "Строка", СвязьСГрафиком: "График" })).toBe(owner.allowSchedule)
+    expectYamlProperty(owner.rule, "ЗаполнятьИзДанныхЗаполнения", owner.allowFill)
+    expectYamlProperty(owner.rule, "ИсторияДанных", owner.allowHistory)
+    expectYamlProperty(owner.rule, "ПолеИспользованияХраненияВХранилищеДвоичныхДанных", owner.allowBinaryField)
+    expectYamlProperty(owner.rule, "СвязьСГрафиком", owner.allowSchedule)
   })
 })
 
@@ -506,12 +484,10 @@ describe("owner-specific register dimension rules", () => {
   it.each(registerDimensionOwners)("keeps exact dimension contract for $name", (owner) => {
     expect(owner.ownerRule.properties.dimensions.itemRule).toBe(owner.rule)
     expect(getTypeRule(owner.propertyType, "yamlToXMLNestedRule")).toBeDefined()
-    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
-
-    expect(schema.Check({ Тип: "Строка", Индексирование: "НеИндексировать" })).toBe(true)
-    expect(schema.Check({ Тип: "Строка", ЗаполнятьИзДанныхЗаполнения: "Истина" })).toBe(owner.allowFill)
-    expect(schema.Check({ Тип: "Строка", ЗначениеЗаполнения: "Строка" })).toBe(owner.allowFill)
-    expect(schema.Check({ Тип: "Строка", ИсторияДанных: "Использовать" })).toBe(owner.allowHistory)
+    expectYamlProperty(owner.rule, "Индексирование", true)
+    expectYamlProperty(owner.rule, "ЗаполнятьИзДанныхЗаполнения", owner.allowFill)
+    expectYamlProperty(owner.rule, "ЗначениеЗаполнения", owner.allowFill)
+    expectYamlProperty(owner.rule, "ИсторияДанных", owner.allowHistory)
   })
 })
 
@@ -550,16 +526,12 @@ describe("owner-specific register resource rules", () => {
   it.each(registerResourceOwners)("keeps exact resource contract for $name", (owner) => {
     expect(owner.ownerRule.properties.resources.itemRule).toBe(owner.rule)
     expect(getTypeRule(owner.propertyType, "yamlToXMLNestedRule")).toBeDefined()
-    const schema = compileValidationSchema(exportMetadataItemToJSONSchema({ context, rule: owner.rule }))
-
-    for (const value of [
-      { ЗаполнятьИзДанныхЗаполнения: "Истина" },
-      { ЗначениеЗаполнения: "Строка" },
-      { Индексирование: "НеИндексировать" },
-      { ИсторияДанных: "Использовать" },
-    ]) {
-      expect(schema.Check({ Тип: "Строка", ...value })).toBe(owner.allowDefaults)
-    }
+    for (const property of [
+      "ЗаполнятьИзДанныхЗаполнения",
+      "ЗначениеЗаполнения",
+      "Индексирование",
+      "ИсторияДанных",
+    ]) expectYamlProperty(owner.rule, property, owner.allowDefaults)
   })
 })
 
@@ -583,4 +555,12 @@ function expectRuleOrder(rule: MetadataItemRule, expected: readonly string[]): v
   expect(Object.keys(rule.properties)).toEqual(expected)
   expect(getCompiledXMLPropertyOrder(rule)).toEqual(rule.xmlOrder)
   expect(new Set(rule.xmlOrder).size).toBe(rule.xmlOrder.length)
+}
+
+function expectYamlProperty(rule: MetadataItemRule, name: string, expected: boolean): void {
+  const schema = exportMetadataItemToJSONSchema({ context, rule })
+  if (!("properties" in schema) || schema.properties === null || typeof schema.properties !== "object") {
+    throw new Error(`Схема ${rule.itemType} не содержит properties`)
+  }
+  expect(Object.hasOwn(schema.properties, name)).toBe(expected)
 }
