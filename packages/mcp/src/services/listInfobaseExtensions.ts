@@ -5,14 +5,10 @@ import {
   type PlatformSessionManager,
   type PlatformSessionMode,
 } from "@nkdk/platform"
-import {
-  toolError,
-  toolSuccess,
-  type ToolErrorCode,
-  type ToolPayload,
-} from "../contracts/common"
+import { toolError, toolSuccess, type ToolErrorCode, type ToolPayload } from "../contracts/common"
 import type { ListInfobaseExtensionsInput } from "../contracts/listInfobaseExtensions"
 import { getPlatformSessionManager } from "./platformSessionHandle"
+import { projectSettingsFailure } from "./projectSettingsFailure"
 
 export interface ListInfobaseExtensionsDependencies {
   readSettings: typeof readProjectSettings
@@ -32,23 +28,17 @@ export async function listInfobaseExtensions(
 ): Promise<ListInfobaseExtensionsPayload> {
   const dependencies = providedDependencies ?? defaultDependencies()
   try {
-    const settings = await dependencies.readSettings(input.projectDir)
-    if (settings === undefined) {
-      return toolError(
-        "invalid_project_settings",
-        "Не найдены настройки подключения проекта"
-      )
-    }
-    return toolSuccess(
-      await dependencies.platformManager.listExtensions({
-        projectDir: input.projectDir,
-        ...settings.infobase,
-        ...(signal === undefined ? {} : { signal }),
-      })
-    )
+    const settingsRead = await dependencies.readSettings(input.projectDir)
+    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+    const { operations, ...connectionSettings } = settingsRead.settings.infobase
+    return toolSuccess(await dependencies.platformManager.listExtensions({
+      projectDir: settingsRead.projectDir,
+      ...connectionSettings,
+      mode: operations.import.mode,
+      ...(signal === undefined ? {} : { signal }),
+    }))
   } catch (caught) {
-    const code: ToolErrorCode =
-      caught instanceof PlatformSessionError ? caught.code : "core_error"
+    const code: ToolErrorCode = caught instanceof PlatformSessionError ? caught.code : "core_error"
     return toolError(code, safeOperationError(code))
   }
 }

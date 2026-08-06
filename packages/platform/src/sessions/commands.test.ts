@@ -4,6 +4,7 @@ import {
   buildDesignerAgentLaunch,
   buildDumpConfigurationCommand,
   buildListDesignerExtensionsCommand,
+  buildStandaloneConfigExport,
   buildStandaloneConfigInit,
   buildStandaloneListExtensions,
   buildStandaloneLaunch,
@@ -55,6 +56,19 @@ describe("platform session commands", () => {
         port: 1543,
       }).args[1]
     ).toBe("/Sserver\\reference")
+  })
+
+  it("does not pass infobase credentials to the Designer process", () => {
+    const args = buildDesignerAgentLaunch({
+      enterprisePath: "1cv8",
+      connection: { type: "file", path: "/bases/demo" },
+      hostKeyPath: "/agent/host.key",
+      baseDir: "/agent",
+      logPath: "/agent/process.log",
+      port: 1543,
+    }).args
+    expect(args).not.toContain(expect.stringMatching(/^\/N/u))
+    expect(args).not.toContain(expect.stringMatching(/^\/P/u))
   })
 
   it("builds standalone process arguments as arrays", () => {
@@ -123,11 +137,41 @@ describe("platform session commands", () => {
     ).not.toContain(expect.stringContaining("--database-password"))
   })
 
+  it("omits MSSQL credentials when OS authentication is selected", () => {
+    const args = buildStandaloneConfigInit({
+      ibcmdPath: "ibcmd",
+      database: {
+        dbms: "MSSQLServer",
+        server: "db.example.local",
+        name: "production",
+      },
+    }).args
+
+    expect(args).not.toContain(expect.stringContaining("--database-user"))
+    expect(args).not.toContain(expect.stringContaining("--database-password"))
+  })
+
+  it.each([
+    ["include", false],
+    ["omit", true],
+  ] as const)("maps unresolved references %s", (value, expectedFlag) => {
+    const designer = buildDumpConfigurationCommand("/xml", value)
+    const standalone = buildStandaloneConfigExport({
+      ibcmdPath: "ibcmd",
+      configPath: "/session/config.yaml",
+      outputDir: "/xml",
+      unresolvedReferences: value,
+    }).args
+
+    expect(designer.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
+    expect(standalone.includes("--ignore-unresolved-refs")).toBe(expectedFlag)
+  })
+
   it("quotes a dump directory for the interactive 1C shell", () => {
-    expect(buildDumpConfigurationCommand("/project/.nkdk/tmp/op/xml")).toBe(
+    expect(buildDumpConfigurationCommand("/project/.nkdk/tmp/op/xml", "include")).toBe(
       'config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical'
     )
-    expect(buildDumpConfigurationCommand('/project/a"b')).toContain('--dir="/project/a""b"')
+    expect(buildDumpConfigurationCommand('/project/a"b', "include")).toContain('--dir="/project/a""b"')
   })
 
   it("builds list extension commands for both platform modes", () => {
@@ -171,7 +215,7 @@ describe("platform session commands", () => {
   })
 
   it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {
-    expect(() => buildDumpConfigurationCommand(path)).toThrowError(
+    expect(() => buildDumpConfigurationCommand(path, "include")).toThrowError(
       expect.objectContaining<Partial<PlatformSessionError>>({ code: "platform_command_failed" })
     )
   })

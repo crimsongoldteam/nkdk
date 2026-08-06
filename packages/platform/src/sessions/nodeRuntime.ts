@@ -9,6 +9,7 @@ import { createDesignerAgentSession } from "./designerAgent"
 import { openPlatformCommandSession } from "./sshProtocol"
 import { createSsh2Transport } from "./ssh2Transport"
 import { createStandaloneServerSession } from "./standaloneServer"
+import { createPlatformOperationLog } from "./operationLog"
 import type {
   OwnedProcess,
   ProcessRunOptions,
@@ -26,6 +27,9 @@ const fileSystem: SessionFileSystem = {
   async writeFile(path, content, options) {
     await fs.promises.writeFile(path, content, options)
   },
+  async appendFile(path, content) {
+    await fs.promises.appendFile(path, content)
+  },
   async readFile(path) {
     return fs.promises.readFile(path, "utf8")
   },
@@ -38,11 +42,12 @@ const fileSystem: SessionFileSystem = {
 }
 
 export const nodeProcessRuntime: SessionProcessRuntime = {
-  spawn(command, args) {
+  spawn(command, args, options) {
     return wrapOwnedProcess(
       spawnChild(command, [...args], {
         shell: false,
         stdio: ["ignore", "pipe", "pipe"],
+        cwd: options?.cwd,
       })
     )
   },
@@ -222,6 +227,11 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
     clearTimer(timer) {
       clearTimeout(timer as ReturnType<typeof setTimeout>)
     },
+    createOperationLog: (params) => createPlatformOperationLog(params, {
+      fileSystem,
+      platform: process.platform,
+      now: () => new Date(),
+    }),
   }
 }
 

@@ -3,7 +3,11 @@ import { jsonToolResult } from "../contracts/common"
 import { describeProjectStructureInputShape } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape, importFromXmlSuccessOutputShape } from "../contracts/importFromXml"
-import { importFromInfobaseInputShape } from "../contracts/importFromInfobase"
+import {
+  importFromInfobaseInputShape,
+  importFromInfobaseOutputShape,
+  type ImportFromInfobaseOutput,
+} from "../contracts/importFromInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
 import {
@@ -21,6 +25,7 @@ import {
 } from "../contracts/platformConnections"
 import { guideDefinitions } from "../guides"
 import { promptDefinitions } from "../prompts"
+import { registerProjectSettingsSchemaResource } from "../resources/projectSettingsSchema"
 import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
@@ -41,6 +46,8 @@ import {
 type RegisterableServer = Pick<McpServer, "registerTool" | "registerResource" | "registerPrompt">
 
 export function registerNkdkCapabilities(server: RegisterableServer): void {
+  registerProjectSettingsSchemaResource(server)
+
   server.registerTool(
     "nkdk.get_schema",
     {
@@ -137,8 +144,9 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C infobase to NKDK YAML",
       description:
-        "Запускает 1С и импортирует основную конфигурацию базы только в отсутствующий или пустой cf проекта. Агент и offline-режим ibcmd поддерживают File и Srvr/Ref; для offline Srvr/Ref нужны параметры СУБД. Пишет файлы и сохраняет настройки только при allowWrite=true.",
+        "Импортирует основную конфигурацию информационной базы только в отсутствующий или пустой cf проекта. Перед операцией нужно создать .nkdk/project.yaml по опубликованной схеме, вручную внести нужные пароли, а затем повторить импорт. Запускает 1С и пишет файлы только при allowWrite=true.",
       inputSchema: importFromInfobaseInputShape,
+      outputSchema: importFromInfobaseOutputShape,
     },
     createImportFromInfobaseHandler()
   )
@@ -269,7 +277,13 @@ export function metadataToolResult(payload: ToolPayload, operation: string) {
   ) {
     return jsonToolResult(payload, {
       text: `${operation}: ошибок ${summary.errors}, предупреждений ${summary.warnings}; показано ${summary.shown}, скрыто ${summary.omitted}.`,
-      ...(isDiagnosticReport(report) ? { resource: report } : {}),
+      ...(isDiagnosticReport(report) ? {
+        resource: {
+          uri: report.uri,
+          name: "Полный отчёт diagnostics",
+          mimeType: report.format,
+        },
+      } : {}),
     })
   }
   return jsonToolResult(payload)
@@ -307,7 +321,41 @@ export function createImportFromInfobaseHandler(
   return async (
     input: Parameters<typeof importFromInfobase>[0],
     extra: { signal: AbortSignal }
-  ) => jsonToolResult(await service(input, undefined, extra.signal))
+  ) => importFromInfobaseToolResult(
+    await service(input, undefined, extra.signal) as ImportFromInfobaseOutput
+  )
+}
+
+export function importFromInfobaseToolResult(payload: ImportFromInfobaseOutput) {
+  if (payload.ok) return jsonToolResult(payload)
+  const details = payload.details
+  const reference = isRecord(details) && isResourceReference(details["schema"])
+    ? {
+        uri: details["schema"].uri,
+        name: "Схема настроек проекта",
+        mimeType: details["schema"].format,
+      }
+    : isRecord(details) && isResourceReference(details["log"])
+      ? {
+          uri: details["log"].uri,
+          name: "Журнал импорта из информационной базы",
+          mimeType: details["log"].format,
+        }
+      : undefined
+  return jsonToolResult(payload, {
+    text: payload.message,
+    ...(reference === undefined ? {} : { resource: reference }),
+  })
+}
+
+function isResourceReference(value: unknown): value is { uri: string; format: string } {
+  return isRecord(value)
+    && typeof value["uri"] === "string"
+    && typeof value["format"] === "string"
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 export function createListInfobaseExtensionsHandler(

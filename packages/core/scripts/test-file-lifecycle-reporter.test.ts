@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 describe("test file lifecycle reporter", () => {
-  it("отделяет общий setup от import и исполнения test file", async () => {
+  it("отделяет общие setup и collect от исполнения test file", async () => {
     const outputPath = join(os.tmpdir(), `test-file-lifecycle-${crypto.randomUUID()}.json`)
     reportPaths.push(outputPath)
     const reporter = createTestFileLifecycleReporter(outputPath)
@@ -32,8 +32,8 @@ describe("test file lifecycle reporter", () => {
     expect(JSON.parse(fs.readFileSync(outputPath, "utf8"))).toEqual({
       packageSetupDuration: 450,
       testFiles: [
-        { file: "/project/expensive-setup.test.ts", duration: 800 },
-        { file: "/project/second.test.ts", duration: 50 },
+        { file: "/project/expensive-setup.test.ts", duration: 500 },
+        { file: "/project/second.test.ts", duration: 30 },
       ],
     })
   })

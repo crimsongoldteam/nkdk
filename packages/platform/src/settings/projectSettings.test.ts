@@ -1,252 +1,212 @@
 import { describe, expect, it } from "vitest"
-import { PlatformSessionError } from "../sessions/errors"
 import {
-  normalizePlatformConnectionSettings,
-  parseProjectSettings,
+  parseProjectSettingsYaml,
   readProjectSettings,
-  writeProjectSettings,
+  validateProjectSettings,
   type ProjectSettingsFileSystem,
 } from "./projectSettings"
 
-describe("project platform settings", () => {
-  it("applies defaults and permits a file connection without a user", () => {
-    expect(
-      parseProjectSettings(`
-version: 1
+const fileInfobase = {
+  connectionString: 'File="/bases/demo";',
+  operations: { import: { mode: "designer-agent" } },
+}
+
+const settingsWithDefaults = validateProjectSettings(parseProjectSettingsYaml(`
 infobase:
-  connectionString: 'File="/Users/nikita/Базы 1С/all";'
-`)
-    ).toEqual({
-      version: 1,
-      infobase: {
-        connectionString: 'File="/Users/nikita/Базы 1С/all";',
-        useStandaloneServer: false,
-        sessionIdleTimeout: 900,
-      },
-    })
-  })
+  connectionString: 'File="/bases/demo";'
+  operations:
+    import:
+      mode: designer-agent
+`))
 
-  it("accepts database credentials for an offline client-server connection", () => {
-    expect(
-      parseProjectSettings(`
-version: 1
-infobase:
-  connectionString: 'Srvr="cluster";Ref="production";'
-  useStandaloneServer: true
-  database:
-    dbms: PostgreSQL
-    server: db.example.local
-    name: production
-    user: dbuser
-    password: dbsecret
-`)
-    ).toEqual({
-      version: 1,
-      infobase: {
-        connectionString: 'Srvr="cluster";Ref="production";',
-        useStandaloneServer: true,
-        sessionIdleTimeout: 900,
-        database: {
-          dbms: "PostgreSQL",
-          server: "db.example.local",
-          name: "production",
-          user: "dbuser",
-          password: "dbsecret",
+describe("project settings validation", () => {
+  it("applies import defaults", () => {
+    expect(settingsWithDefaults).toEqual({
+      ok: true,
+      settings: {
+        infobase: {
+          connectionString: 'File="/bases/demo";',
+          sessionIdleTimeout: 900,
+          operations: {
+            import: {
+              mode: "designer-agent",
+              unresolvedReferences: "include",
+            },
+          },
         },
       },
     })
   })
 
-  it.each(["MSSQLServer", "PostgreSQL", "IBMDB2", "OracleDatabase"] as const)(
-    "accepts the supported %s DBMS",
-    (dbms) => {
-      expect(
-        normalizePlatformConnectionSettings({
-          connectionString: 'Srvr="cluster";Ref="production";',
-          useStandaloneServer: true,
-          database: {
-            dbms,
-            server: "db",
-            name: "base",
-            user: "dbuser",
-          },
-        }).database?.dbms
-      ).toBe(dbms)
-    }
-  )
-
   it.each([
-    ["version: 2\ninfobase:\n  connectionString: 'File=\"/bases/test\";'", "version"],
-    ["version: 1\ninfobase:\n  connectionString: 'ws=\"https://example.test\";'", "connection"],
-    ["version: 1\ninfobase:\n  connectionString: 'Foo=\"bar\";'", "connection"],
-    ["version: 1\ninfobase:\n  connectionString: 'File=\"/bases/test\";'\n  sessionIdleTimeout: 0", "timeout"],
-    ["version: 1\ninfobase:\n  connectionString: 'File=\"/bases/test\";'\n  sessionIdleTimeout: 1.5", "timeout"],
-    [
-      "version: 1\ninfobase:\n  connectionString: 'Srvr=\"server\";Ref=\"base\";'\n  useStandaloneServer: true",
-      "standalone server connection without database credentials",
-    ],
-    [
-      "version: 1\ninfobase:\n  connectionString: 'File=\"/bases/test\";'\n  database:\n    dbms: PostgreSQL\n    server: db\n    name: base\n    user: dbuser",
-      "database credentials for a file connection",
-    ],
-    [
-      "version: 1\ninfobase:\n  connectionString: 'Srvr=\"server\";Ref=\"base\";'\n  database:\n    dbms: Unsupported\n    server: db\n    name: base\n    user: dbuser",
-      "DBMS",
-    ],
-    [
-      "version: 1\ninfobase:\n  connectionString: 'Srvr=\"server\";Ref=\"base\";'\n  database:\n    dbms: PostgreSQL\n    server: db\n    name: base\n    user: dbuser\n    passwrod: secret",
-      "unknown database field",
-    ],
-  ])("rejects invalid %s settings without exposing values", (source) => {
-    expect(() => parseProjectSettings(source)).toThrowError(
-      expect.objectContaining<Partial<PlatformSessionError>>({ code: "invalid_project_settings" })
-    )
+    ["version", { version: 1, infobase: fileInfobase }, "version"],
+    ["legacy mode", { infobase: { ...fileInfobase, useStandaloneServer: true } }, "infobase.useStandaloneServer"],
+    ["missing mode", { infobase: { connectionString: 'File="/bases/demo";', operations: { import: {} } } }, "infobase.operations.import.mode"],
+  ])("rejects %s", (_name, value, path) => {
+    expectInvalidSettingsAt(value, path)
   })
 
-  it("returns undefined when the settings file does not exist", async () => {
-    const fileSystem = recordingFileSystem([], {
-      readError: Object.assign(new Error("missing"), { code: "ENOENT" }),
-    })
-
-    await expect(readProjectSettings("/project", { fileSystem, platform: "linux" })).resolves.toBeUndefined()
-  })
-
-  it("writes ignored project settings with private Unix permissions", async () => {
-    const calls: string[] = []
-    const writes = new Map<string, string>()
-    const fileSystem = recordingFileSystem(calls, { writes })
-
-    await expect(
-      writeProjectSettings(
-        {
-          projectDir: "/project",
-          infobase: {
-            connectionString: 'File="/Users/nikita/Базы 1С/all";',
-            sessionIdleTimeout: 120,
-          },
-        },
-        { fileSystem, platform: "darwin" }
-      )
-    ).resolves.toEqual({ settingsPath: "/project/.nkdk/project.yaml" })
-
-    expect(calls).toEqual([
-      "mkdir /project/.nkdk",
-      "write /project/.nkdk/.gitignore",
-      "write /project/.nkdk/project.yaml mode=384",
-      "chmod /project/.nkdk/project.yaml mode=384",
-    ])
-    expect(writes.get("/project/.nkdk/.gitignore")).toBe("*\n!.gitignore\n")
-    expect(parseProjectSettings(writes.get("/project/.nkdk/project.yaml") ?? "")).toEqual({
-      version: 1,
+  it("permits MSSQL OS authentication for a standalone server", () => {
+    expect(validateProjectSettings({
       infobase: {
-        connectionString: 'File="/Users/nikita/Базы 1С/all";',
-        useStandaloneServer: false,
-        sessionIdleTimeout: 120,
+        connectionString: 'Srvr="cluster";Ref="base";',
+        database: { dbms: "MSSQLServer", server: "db", name: "base" },
+        operations: { import: { mode: "standalone-server" } },
       },
-    })
-  })
-
-  it("never exposes a password through validation or write errors", async () => {
-    const password = "secret-password"
-    const fileSystem = recordingFileSystem([], { writeError: new Error(`write failed: ${password}`) })
-
-    await expect(
-      writeProjectSettings(
-        {
-          projectDir: "/project",
-          infobase: {
-            connectionString: 'File="/bases/test";',
-            password,
-          },
-        },
-        { fileSystem, platform: "linux" }
-      )
-    ).rejects.not.toThrow(password)
-  })
-
-  it("never exposes a database password through validation errors", () => {
-    const password = "database-secret"
-
-    expect(() =>
-      normalizePlatformConnectionSettings({
-        connectionString: 'File="/bases/test";',
-        database: {
-          dbms: "PostgreSQL",
-          server: "db",
-          name: "base",
-          user: "dbuser",
-          password,
-        },
-      })
-    ).toThrowError(expect.not.stringContaining(password))
+    })).toMatchObject({ ok: true })
   })
 
   it.each([
-    ["user", "admin\ncommon shutdown"],
-    ["password", "secret\rcommon shutdown"],
-    ["password", "secret\0common shutdown"],
-  ])("rejects control characters in %s", (field, value) => {
-    expect(() =>
-      normalizePlatformConnectionSettings({
-        connectionString: 'Srvr="server";Ref="base";',
-        [field]: value,
-      })
-    ).toThrowError(
-      expect.objectContaining<Partial<PlatformSessionError>>({
-        code: "invalid_project_settings",
-      })
-    )
-  })
-
-  it.each([
-    ["server", ""],
-    ["name", "base\n--database-password=exposed"],
-    ["user", "dbuser\0--database-name=other"],
-    ["password", "secret\r--database-user=other"],
-  ])("rejects an invalid database %s", (field, value) => {
-    expect(() =>
-      normalizePlatformConnectionSettings({
-        connectionString: 'Srvr="server";Ref="base";',
-        useStandaloneServer: true,
-        database: {
-          dbms: "PostgreSQL",
-          server: "db",
-          name: "base",
-          user: "dbuser",
-          [field]: value,
+    [
+      "PostgreSQL without credentials",
+      {
+        infobase: {
+          connectionString: 'Srvr="cluster";Ref="base";',
+          database: { dbms: "PostgreSQL", server: "db", name: "base" },
+          operations: { import: { mode: "standalone-server" } },
         },
-      })
-    ).toThrowError(
-      expect.objectContaining<Partial<PlatformSessionError>>({
-        code: "invalid_project_settings",
-      })
-    )
+      },
+      "infobase.database.user",
+    ],
+    [
+      "a password without a user",
+      {
+        infobase: {
+          connectionString: 'Srvr="cluster";Ref="base";',
+          database: { dbms: "MSSQLServer", server: "db", name: "base", password: "db-password" },
+          operations: { import: { mode: "standalone-server" } },
+        },
+      },
+      "infobase.database.user",
+    ],
+    [
+      "database settings for a file infobase",
+      {
+        infobase: {
+          ...fileInfobase,
+          database: { dbms: "PostgreSQL", server: "db", name: "base", user: "dbuser" },
+        },
+      },
+      "infobase.database",
+    ],
+    [
+      "a standalone server database without DBMS settings",
+      {
+        infobase: {
+          connectionString: 'Srvr="cluster";Ref="base";',
+          operations: { import: { mode: "standalone-server" } },
+        },
+      },
+      "infobase.database",
+    ],
+  ])("rejects %s", (_name, value, path) => {
+    expectInvalidSettingsAt(value, path)
   })
 })
 
+function expectInvalidSettingsAt(value: unknown, path: string): void {
+  expect(validateProjectSettings(value)).toMatchObject({
+    ok: false,
+    diagnostics: expect.arrayContaining([expect.objectContaining({ code: expect.any(String), path })]),
+  })
+}
+
+describe("project settings file", () => {
+  it("canonicalizes, secures and reads the settings file in order", async () => {
+    const calls: string[] = []
+    const fileSystem = recordingFileSystem(calls, { source: validSource })
+
+    await expect(readProjectSettings("/alias", { fileSystem, platform: "darwin" })).resolves.toMatchObject({
+      status: "ready",
+      projectDir: "/project",
+      settingsPath: "/project/.nkdk/project.yaml",
+    })
+    expect(calls).toEqual([
+      "realpath /alias",
+      "chmod /project/.nkdk/project.yaml mode=384",
+      "read /project/.nkdk/project.yaml",
+    ])
+  })
+
+  it("returns missing when the settings file does not exist", async () => {
+    const missing = Object.assign(new Error("missing secret"), { code: "ENOENT" })
+    const result = await readProjectSettings("/project", {
+      fileSystem: recordingFileSystem([], { chmodError: missing }),
+      platform: "linux",
+    })
+    expect(result).toEqual({
+      status: "missing",
+      projectDir: "/project",
+      settingsPath: "/project/.nkdk/project.yaml",
+    })
+  })
+
+  it.each([
+    ["invalid YAML", { source: "infobase: [" }],
+    ["invalid structure", { source: "infobase: {}" }],
+    ["chmod failure", { chmodError: new Error("permission secret") }],
+  ])("returns safe diagnostics for %s", async (_name, options) => {
+    const result = await readProjectSettings("/project", {
+      fileSystem: recordingFileSystem([], options),
+      platform: "linux",
+    })
+    expect(result).toMatchObject({
+      status: "invalid",
+      diagnostics: expect.arrayContaining([
+        expect.objectContaining({ code: expect.any(String), path: expect.any(String), message: expect.any(String) }),
+      ]),
+    })
+    expect(JSON.stringify(result)).not.toContain("secret")
+  })
+
+  it("uses the root path for invalid YAML", async () => {
+    const result = await readProjectSettings("/project", {
+      fileSystem: recordingFileSystem([], { source: "infobase: [" }),
+      platform: "win32",
+    })
+    expect(result).toMatchObject({
+      status: "invalid",
+      diagnostics: [expect.objectContaining({ path: "$" })],
+    })
+  })
+
+  it("does not change ACL on Windows", async () => {
+    const calls: string[] = []
+    await readProjectSettings("/project", {
+      fileSystem: recordingFileSystem(calls, { source: validSource }),
+      platform: "win32",
+    })
+    expect(calls).toEqual([
+      "realpath /project",
+      "read /project/.nkdk/project.yaml",
+    ])
+  })
+})
+
+const validSource = `
+infobase:
+  connectionString: 'File="/bases/demo";'
+  operations:
+    import:
+      mode: designer-agent
+`
+
 function recordingFileSystem(
   calls: string[],
-  options: {
-    writes?: Map<string, string>
-    readError?: Error
-    writeError?: Error
-  } = {}
+  options: { source?: string; chmodError?: Error } = {}
 ): ProjectSettingsFileSystem {
   return {
-    async readFile(): Promise<string> {
-      if (options.readError !== undefined) throw options.readError
-      return ""
+    async realpath(path) {
+      calls.push(`realpath ${path}`)
+      return path === "/alias" ? "/project" : path
     },
-    async mkdir(path): Promise<void> {
-      calls.push(`mkdir ${path}`)
-    },
-    async writeFile(path, content, writeOptions): Promise<void> {
-      calls.push(`write ${path}${writeOptions?.mode === undefined ? "" : ` mode=${writeOptions.mode}`}`)
-      options.writes?.set(path, content)
-      if (options.writeError !== undefined) throw options.writeError
-    },
-    async chmod(path, mode): Promise<void> {
+    async chmod(path, mode) {
       calls.push(`chmod ${path} mode=${mode}`)
+      if (options.chmodError !== undefined) throw options.chmodError
+    },
+    async readFile(path) {
+      calls.push(`read ${path}`)
+      return options.source ?? validSource
     },
   }
 }

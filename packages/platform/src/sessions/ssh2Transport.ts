@@ -11,8 +11,8 @@ type LoopbackConnectConfig = {
   host: "127.0.0.1"
   port: number
   readyTimeout: number
-  username: ""
-  password: ""
+  username: string
+  password: string
   hostHash: "sha256"
   hostVerifier: (fingerprint: string) => boolean
 }
@@ -53,12 +53,14 @@ export function createSsh2Transport(
           client.destroy()
           reject(new PlatformSessionError("session_start_failed", "Не удалось открыть локальный SSH-сеанс"))
         }, params.timeoutMs)
-        const rejectStartup = () => {
+        const rejectStartup = (cause?: unknown) => {
           if (settled) return
           settled = true
           clock.clearTimeout(timer)
           client.destroy()
-          reject(new PlatformSessionError("session_start_failed", "Не удалось открыть локальный SSH-сеанс"))
+          reject(isAuthenticationFailure(cause)
+            ? new PlatformSessionError("authentication_failed", "Не удалось пройти авторизацию в информационной базе")
+            : new PlatformSessionError("session_start_failed", "Не удалось открыть локальный SSH-сеанс"))
         }
         client
           .on("error", rejectStartup)
@@ -83,14 +85,21 @@ export function createSsh2Transport(
           host: "127.0.0.1",
           port: params.port,
           readyTimeout: params.timeoutMs,
-          username: "",
-          password: "",
+          username: params.user ?? "",
+          password: params.password ?? "",
           hostHash: "sha256",
           hostVerifier: (fingerprint) => fingerprint === params.expectedHostKeyHash,
         })
       })
     },
   }
+}
+
+function isAuthenticationFailure(value: unknown): boolean {
+  return typeof value === "object"
+    && value !== null
+    && "level" in value
+    && value.level === "client-authentication"
 }
 
 function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell {

@@ -37,6 +37,7 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.find_references",
     ])
     expect(calls.resources).toEqual([
+      "project-settings-schema",
       "config-edit-yaml",
       "config-import-from-xml",
       "config-sync-to-xml",
@@ -70,9 +71,22 @@ describe("registerNkdkCapabilities", () => {
       ([name]) => name === "nkdk.import_from_infobase"
     )?.[1] as { description: string } | undefined
     expect(infobaseImportTool?.description).toContain("allowWrite=true")
+    expect(infobaseImportTool?.description).toContain(".nkdk/project.yaml")
     expect(infobaseImportTool?.description).toContain("пустой cf")
     expect(infobaseImportTool?.description).toContain("Запускает 1С")
-    expect(infobaseImportTool?.description).toContain("параметры СУБД")
+    expect(infobaseImportTool?.description).toContain("повторить импорт")
+    const infobaseImportOptions = server.registerTool.mock.calls.find(
+      ([name]) => name === "nkdk.import_from_infobase"
+    )?.[1] as { inputSchema: Record<string, z.ZodType>; outputSchema?: z.ZodType } | undefined
+    expect(z.strictObject(infobaseImportOptions?.inputSchema ?? {}).safeParse({
+      projectDir: "/project",
+      allowWrite: true,
+    }).success).toBe(true)
+    expect(z.strictObject(infobaseImportOptions?.inputSchema ?? {}).safeParse({
+      projectDir: "/project",
+      connectionString: 'File="/base";',
+    }).success).toBe(false)
+    expect(infobaseImportOptions?.outputSchema).toBeDefined()
 
     for (const name of [
       "nkdk.close_platform_connection",
@@ -201,7 +215,6 @@ describe("registerNkdkCapabilities", () => {
     )(service)
     const input = {
       projectDir: "/project",
-      connectionString: 'File="/bases/demo";',
       allowWrite: true,
     }
     const controller = new AbortController()
@@ -209,6 +222,58 @@ describe("registerNkdkCapabilities", () => {
     await handler(input, { signal: controller.signal })
 
     expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
+  })
+
+  it("presents a platform failure as concise text and a log link", () => {
+    const payload = {
+      ok: false as const,
+      code: "authentication_failed" as const,
+      message: "Access denied",
+      details: {
+        stage: "authentication",
+        mode: "designer-agent",
+        log: {
+          uri: "file:///project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+          format: "text/plain" as const,
+        },
+      },
+    }
+
+    expect(registerToolsModule.importFromInfobaseToolResult(payload).content).toEqual([
+      { type: "text", text: "Access denied" },
+      {
+        type: "resource_link",
+        uri: payload.details.log.uri,
+        name: "Журнал импорта из информационной базы",
+        mimeType: "text/plain",
+      },
+    ])
+  })
+
+  it("presents settings errors with the schema link and omits unavailable logs", () => {
+    const schemaFailure = {
+      ok: false as const,
+      code: "project_settings_required" as const,
+      message: "Создайте файл настроек проекта и повторите импорт.",
+      details: {
+        settingsPath: "/project/.nkdk/project.yaml",
+        schema: { uri: "nkdk://project-settings/schema/v1", format: "application/schema+json" as const },
+      },
+    }
+    expect(registerToolsModule.importFromInfobaseToolResult(schemaFailure).content.at(1)).toEqual({
+      type: "resource_link",
+      uri: schemaFailure.details.schema.uri,
+      name: "Схема настроек проекта",
+      mimeType: "application/schema+json",
+    })
+
+    const noLog = registerToolsModule.importFromInfobaseToolResult({
+      ok: false,
+      code: "platform_command_failed",
+      message: "Журнал недоступен",
+      details: { stage: "platform-log", mode: "designer-agent" },
+    })
+    expect(noLog.content).toEqual([{ type: "text", text: "Журнал недоступен" }])
   })
 
   it("passes the MCP cancellation signal to extension listing", async () => {

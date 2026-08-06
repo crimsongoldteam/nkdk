@@ -36,15 +36,16 @@ describe("platform SSH command protocol", () => {
     expect(JSON.stringify(diagnostics)).not.toContain("Администратор")
   })
 
-  it("maps a rejected login to authentication_failed", async () => {
+  it("preserves the platform message for a rejected login", async () => {
     const shell = scriptedShell([
       "designer> ",
       '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
-      '[{"type":"error","message":"Access denied"}]\ndesigner> ',
+      '[{"type":"error","message":"Неверное имя пользователя или пароль"}]\ndesigner> ',
     ])
 
     await expect(openPlatformCommandSession({ shell, timeoutMs: 100 })).rejects.toMatchObject({
       code: "authentication_failed",
+      message: "Неверное имя пользователя или пароль",
     })
   })
 

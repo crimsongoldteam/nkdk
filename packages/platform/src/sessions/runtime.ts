@@ -1,3 +1,27 @@
+export type ProcessLaunch = {
+  command: string
+  args: string[]
+}
+
+export type PlatformFailureStage =
+  | "platform-discovery"
+  | "session-start"
+  | "authentication"
+  | "configuration-export"
+  | "platform-log"
+
+export interface PlatformOperationLog {
+  readonly path: string
+  readonly available: boolean
+  append(message: string): Promise<boolean>
+  process(
+    stage: PlatformFailureStage,
+    launch: ProcessLaunch,
+    result: ProcessRunResult
+  ): Promise<boolean>
+  sanitize(value: string): string
+}
+
 export interface SshShell {
   write(value: string): void
   onData(listener: (chunk: string) => void): () => void
@@ -11,13 +35,15 @@ export interface SshTransport {
     port: number
     timeoutMs: number
     expectedHostKeyHash: string
+    user?: string
+    password?: string
   }): Promise<SshShell>
 }
 
 export interface PlatformCommandSession {
   run(
     command: string,
-    options?: { signal?: AbortSignal; timeoutMs?: number }
+    options?: { signal?: AbortSignal; timeoutMs?: number; operationLog?: PlatformOperationLog }
   ): Promise<PlatformCommandResult>
   isAlive(): boolean
   close(): Promise<void>
@@ -42,7 +68,7 @@ export interface OwnedProcess {
 }
 
 export interface SessionProcessRuntime {
-  spawn(command: string, args: readonly string[]): OwnedProcess
+  spawn(command: string, args: readonly string[], options?: { cwd?: string }): OwnedProcess
   run(
     command: string,
     args: readonly string[],
@@ -68,6 +94,7 @@ export type ProcessRunResult = {
 export interface SessionFileSystem {
   mkdir(path: string): Promise<void>
   writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
+  appendFile(path: string, content: string): Promise<void>
   readFile(path: string): Promise<string>
   rm(path: string): Promise<void>
   rename(from: string, to: string): Promise<void>

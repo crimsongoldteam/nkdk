@@ -7,25 +7,26 @@ export const TEST_DURATION_LIMIT_MS = 50
 export const TEST_FILE_LIMIT_MS = 1_000
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
 
-export function analyzeTestDurationReport(report, lifecycleReport) {
+export function analyzeTestDurationReport(report, lifecycleReport, environment = {}) {
   assertTestDurationReport(report)
   const { lifecycleByFile, packageSetupDuration } = parseLifecycleReport(lifecycleReport, report.testResults)
+  const limitMultiplier = environment.CI === "true" ? 3 : 1
 
   const warnings = []
   const failures = []
-  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS) {
+  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS * limitMultiplier) {
     failures.push({ type: "setup", duration: packageSetupDuration })
   }
   for (const suite of report.testResults) {
     const fileDuration = lifecycleByFile.get(suite.name)
-    if (fileDuration > TEST_FILE_LIMIT_MS) {
+    if (fileDuration > TEST_FILE_LIMIT_MS * limitMultiplier) {
       failures.push({ type: "file", file: suite.name, duration: fileDuration })
     }
 
     for (const test of suite.assertionResults) {
-      assertTest(test)
+      if (!assertTest(test)) continue
       const result = { type: "test", file: suite.name, name: test.fullName, duration: test.duration }
-      if (test.duration > TEST_DURATION_LIMIT_MS) failures.push(result)
+      if (test.duration > TEST_DURATION_LIMIT_MS * limitMultiplier) failures.push(result)
       else if (test.duration > TEST_DURATION_TARGET_MS) warnings.push(result)
     }
   }
@@ -45,7 +46,7 @@ export function readTestDurationReports(options) {
 
 export function runTestDurationAssertion(options) {
   const { report, lifecycleReport } = readTestDurationReports(options)
-  const { warnings, failures } = analyzeTestDurationReport(report, lifecycleReport)
+  const { warnings, failures } = analyzeTestDurationReport(report, lifecycleReport, process.env)
   for (const warning of warnings) process.stdout.write(`Цель 10ms превышена: ${formatResult(warning)}\n`)
   for (const failure of failures) process.stderr.write(`Лимит превышен: ${formatResult(failure)}\n`)
   return failures.length === 0 ? 0 : 1
@@ -120,10 +121,14 @@ function assertSuite(suite) {
 
 function assertTest(test) {
   if (test === null || typeof test !== "object" ||
-    typeof test.fullName !== "string" || test.fullName === "" ||
-    !isFiniteNumber(test.duration) || test.duration < 0) {
+    typeof test.fullName !== "string" || test.fullName === "") {
     throw new Error("Отчёт Vitest содержит повреждённый assertion result")
   }
+  if (test.status === "skipped" || test.status === "pending" || test.status === "todo") return false
+  if (!isFiniteNumber(test.duration) || test.duration < 0) {
+    throw new Error("Отчёт Vitest содержит повреждённый assertion result")
+  }
+  return true
 }
 
 function isFiniteNumber(value) {

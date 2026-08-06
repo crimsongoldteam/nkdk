@@ -1,7 +1,15 @@
 import type { PlatformInstallation } from "../platform/findPlatform"
 import type { ConfigurationExtensionInfo } from "../extensions/types"
+import type { PlatformOperationLog } from "./runtime"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
+
+export type UnresolvedReferencesMode = "include" | "omit"
+
+export type InfobaseImportSettings = {
+  mode: PlatformSessionMode
+  unresolvedReferences: UnresolvedReferencesMode
+}
 
 export type DatabaseManagementSystem = "MSSQLServer" | "PostgreSQL" | "IBMDB2" | "OracleDatabase"
 
@@ -9,28 +17,24 @@ export type DatabaseConnectionSettings = {
   dbms: DatabaseManagementSystem
   server: string
   name: string
-  user: string
+  user?: string
   password?: string
 }
 
-export type PlatformConnectionSettings = {
+export type NormalizedPlatformConnectionSettings = {
   connectionString: string
   user?: string
   password?: string
-  useStandaloneServer?: boolean
-  sessionIdleTimeout?: number
+  sessionIdleTimeout: number
   database?: DatabaseConnectionSettings
 }
 
-export type NormalizedPlatformConnectionSettings = Required<
-  Pick<PlatformConnectionSettings, "connectionString" | "useStandaloneServer" | "sessionIdleTimeout">
-> &
-  Pick<PlatformConnectionSettings, "user" | "password" | "database">
-
-export type ExportConfigurationParams = PlatformConnectionSettings & {
+export type ExportConfigurationParams = NormalizedPlatformConnectionSettings & {
   projectDir: string
   outputDir: string
   logPath: string
+  mode: PlatformSessionMode
+  unresolvedReferences: UnresolvedReferencesMode
   signal?: AbortSignal
 }
 
@@ -39,8 +43,9 @@ export type ExportConfigurationResult = {
   reusedConnection: boolean
 }
 
-export type ListConfigurationExtensionsParams = PlatformConnectionSettings & {
+export type ListConfigurationExtensionsParams = NormalizedPlatformConnectionSettings & {
   projectDir: string
+  mode: PlatformSessionMode
   signal?: AbortSignal
 }
 
@@ -61,14 +66,20 @@ export type CloseAllConnectionsResult = {
 }
 
 export type ProjectSettings = {
-  version: 1
-  infobase: NormalizedPlatformConnectionSettings
+  infobase: NormalizedPlatformConnectionSettings & {
+    operations: { import: InfobaseImportSettings }
+  }
 }
 
 export interface PlatformSession {
   mode: PlatformSessionMode
   ownedProcess: boolean
-  exportConfiguration(outputDir: string, operationLogPath: string, signal?: AbortSignal): Promise<void>
+  exportConfiguration(
+    outputDir: string,
+    operationLog: PlatformOperationLog,
+    unresolvedReferences: UnresolvedReferencesMode,
+    signal?: AbortSignal
+  ): Promise<void>
   listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
@@ -80,6 +91,7 @@ export type CreatePlatformSessionParams = {
   sessionDir: string
   installation: PlatformInstallation
   settings: NormalizedPlatformConnectionSettings
+  operationLog?: PlatformOperationLog
 }
 
 export interface PlatformSessionManager {

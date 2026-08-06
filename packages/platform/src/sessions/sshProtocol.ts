@@ -1,4 +1,5 @@
 import { PlatformSessionError, type PlatformSessionErrorCode } from "./errors"
+import { redactPlatformText, type PlatformOperationLog } from "./operationLog"
 import {
   systemSessionClock,
   type PlatformCommandSession,
@@ -15,6 +16,7 @@ type PendingExchange = {
   extensionInfo?: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
+  operationLog?: PlatformOperationLog
   resolve(result: PlatformCommandResult): void
   reject(error: PlatformSessionError): void
 }
@@ -22,6 +24,7 @@ type PendingExchange = {
 type ExchangeOptions = {
   timeoutMs?: number
   signal?: AbortSignal
+  operationLog?: PlatformOperationLog
 }
 
 export async function openPlatformCommandSession(params: {
@@ -31,6 +34,7 @@ export async function openPlatformCommandSession(params: {
   timeoutMs: number
   clock?: SessionClock
   diagnostic?: (message: string) => void
+  operationLog?: PlatformOperationLog
 }): Promise<PlatformCommandSession> {
   if (!params.shell.isOpen()) {
     throw new PlatformSessionError("session_start_failed", "SSH-сеанс платформы закрыт")
@@ -50,13 +54,13 @@ export async function openPlatformCommandSession(params: {
       "options set --output-format=json",
       "session_start_failed",
       false,
-      { timeoutMs: params.timeoutMs }
+      { timeoutMs: params.timeoutMs, operationLog: params.operationLog }
     )
     await protocol.execute(
       "common connect-ib",
       "authentication_failed",
       true,
-      { timeoutMs: params.timeoutMs }
+      { timeoutMs: params.timeoutMs, operationLog: params.operationLog }
     )
     return protocol
   } catch (caught) {
@@ -104,7 +108,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
 
   async run(
     command: string,
-    options?: { signal?: AbortSignal; timeoutMs?: number }
+    options?: { signal?: AbortSignal; timeoutMs?: number; operationLog?: PlatformOperationLog }
   ): Promise<PlatformCommandResult> {
     return this.execute(command, "platform_command_failed", false, options)
   }
@@ -167,6 +171,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
         allowQuestions,
         initialPrompt,
         sawSuccess: false,
+        ...(options.operationLog === undefined ? {} : { operationLog: options.operationLog }),
         resolve,
         reject,
       }
@@ -288,7 +293,13 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       return
     }
     if (type === "error" || type === "cancel") {
-      this.failPending(pending.errorCode, safeFailureMessage(pending.errorCode))
+      const platformMessage = extractFailureMessage(message)
+      const fallback = safeFailureMessage(pending.errorCode)
+      const passwordSafe = redactPlatformText(platformMessage ?? fallback, [this.password])
+      this.failPending(
+        pending.errorCode,
+        pending.operationLog?.sanitize(passwordSafe) ?? passwordSafe
+      )
       return
     }
     if (type !== "question" || !pending.allowQuestions || typeof message["message"] !== "string") {
@@ -365,6 +376,15 @@ function safeFailureMessage(code: PlatformSessionErrorCode): string {
   return code === "authentication_failed"
     ? "Платформа отклонила подключение к информационной базе"
     : "Команда платформы завершилась с ошибкой"
+}
+
+function extractFailureMessage(message: Record<string, unknown>): string | undefined {
+  if (typeof message["message"] === "string" && message["message"].trim() !== "") {
+    return message["message"]
+  }
+  return typeof message["body"] === "string" && message["body"].trim() !== ""
+    ? message["body"]
+    : undefined
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

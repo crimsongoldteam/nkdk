@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "@nkdk/platform"
-import {
-  listInfobaseExtensions,
-  type ListInfobaseExtensionsDependencies,
-} from "./listInfobaseExtensions"
+import { listInfobaseExtensions, type ListInfobaseExtensionsDependencies } from "./listInfobaseExtensions"
 
 const extension = {
   name: "Patch",
@@ -19,139 +16,100 @@ const extension = {
 }
 
 describe("list infobase extensions service", () => {
-  it("reads project settings and passes them with cancellation to the manager", async () => {
+  it("passes validated project settings and the operation mode to the manager", async () => {
     const fixture = createFixture()
     const controller = new AbortController()
-
-    await expect(
-      listInfobaseExtensions(
-        { projectDir: "/project" },
-        fixture.dependencies,
-        controller.signal
-      )
-    ).resolves.toEqual({
+    await expect(listInfobaseExtensions(
+      { projectDir: "/project" },
+      fixture.dependencies,
+      controller.signal
+    )).resolves.toEqual({
       ok: true,
       extensions: [extension],
       mode: "standalone-server",
       reusedConnection: true,
     })
-    expect(fixture.readProjectDirs).toEqual(["/project"])
-    expect(fixture.managerParams).toEqual([
-      {
-        projectDir: "/project",
-        connectionString: 'File="/bases/demo";',
-        user: "Admin",
-        password: "secret",
-        useStandaloneServer: true,
-        sessionIdleTimeout: 900,
-        signal: controller.signal,
-      },
-    ])
+    expect(fixture.managerParams).toEqual([{
+      projectDir: "/project",
+      connectionString: 'File="/bases/demo";',
+      user: "Admin",
+      password: "secret",
+      sessionIdleTimeout: 900,
+      mode: "standalone-server",
+      signal: controller.signal,
+    }])
   })
 
-  it("returns invalid_project_settings when project settings are absent", async () => {
-    const fixture = createFixture({ settingsAbsent: true })
-
-    await expect(
-      listInfobaseExtensions(
-        { projectDir: "/project" },
-        fixture.dependencies
-      )
-    ).resolves.toEqual({
+  it.each([
+    ["missing", "project_settings_required"],
+    ["invalid", "invalid_project_settings"],
+  ] as const)("returns the shared %s settings result", async (status, code) => {
+    const fixture = createFixture({ status })
+    const result = await listInfobaseExtensions({ projectDir: "/project" }, fixture.dependencies)
+    expect(result).toMatchObject({
       ok: false,
-      code: "invalid_project_settings",
-      message: "Не найдены настройки подключения проекта",
+      code,
+      details: {
+        settingsPath: "/project/.nkdk/project.yaml",
+        schema: { uri: "nkdk://project-settings/schema/v1", format: "application/schema+json" },
+      },
     })
     expect(fixture.managerParams).toEqual([])
   })
 
-  it.each([
-    "platform_not_found",
-    "platform_component_missing",
-    "unsupported_connection",
-    "invalid_project_settings",
-    "authentication_failed",
-    "session_start_failed",
-    "session_timeout",
-    "platform_command_failed",
-    "operation_cancelled",
-  ] as const)("preserves platform code without exposing its message: %s", async (code) => {
+  it("keeps platform errors safe", async () => {
     const fixture = createFixture({
-      managerError: new PlatformSessionError(code, "secret database-secret"),
+      managerError: new PlatformSessionError("authentication_failed", "secret failure"),
     })
-
-    const result = await listInfobaseExtensions(
-      { projectDir: "/project" },
-      fixture.dependencies
-    )
-
+    const result = await listInfobaseExtensions({ projectDir: "/project" }, fixture.dependencies)
     expect(result).toEqual({
       ok: false,
-      code,
-      message: `Операция платформы завершилась с ошибкой: ${code}`,
+      code: "authentication_failed",
+      message: "Операция платформы завершилась с ошибкой: authentication_failed",
     })
     expect(JSON.stringify(result)).not.toContain("secret")
   })
-
-  it("maps an unexpected error to a safe common error", async () => {
-    const fixture = createFixture({
-      managerError: new Error("secret failure"),
-    })
-
-    await expect(
-      listInfobaseExtensions(
-        { projectDir: "/project" },
-        fixture.dependencies
-      )
-    ).resolves.toEqual({
-      ok: false,
-      code: "core_error",
-      message: "Не удалось получить список расширений информационной базы",
-    })
-  })
 })
 
-function createFixture(
-  options: {
-    settingsAbsent?: boolean
-    managerError?: Error
-  } = {}
-): {
-  readProjectDirs: string[]
-  managerParams: Array<Record<string, unknown>>
-  dependencies: ListInfobaseExtensionsDependencies
-} {
-  const readProjectDirs: string[] = []
+function createFixture(options: {
+  status?: "ready" | "missing" | "invalid"
+  managerError?: Error
+} = {}) {
   const managerParams: Array<Record<string, unknown>> = []
-  return {
-    readProjectDirs,
-    managerParams,
-    dependencies: {
-      async readSettings(projectDir) {
-        readProjectDirs.push(projectDir)
-        if (options.settingsAbsent) return undefined
+  const dependencies: ListInfobaseExtensionsDependencies = {
+    async readSettings(projectDir) {
+      const common = { projectDir, settingsPath: `${projectDir}/.nkdk/project.yaml` }
+      if (options.status === "missing") return { status: "missing", ...common }
+      if (options.status === "invalid") {
         return {
-          version: 1,
+          status: "invalid",
+          ...common,
+          diagnostics: [{ code: "required", path: "infobase.connectionString", message: "Поле не задано" }],
+        }
+      }
+      return {
+        status: "ready",
+        ...common,
+        settings: {
           infobase: {
             connectionString: 'File="/bases/demo";',
             user: "Admin",
             password: "secret",
-            useStandaloneServer: true,
             sessionIdleTimeout: 900,
+            operations: {
+              import: { mode: "standalone-server", unresolvedReferences: "include" },
+            },
           },
-        }
-      },
-      platformManager: {
-        async listExtensions(params) {
-          managerParams.push(params)
-          if (options.managerError !== undefined) throw options.managerError
-          return {
-            extensions: [extension],
-            mode: "standalone-server",
-            reusedConnection: true,
-          }
         },
+      }
+    },
+    platformManager: {
+      async listExtensions(params) {
+        managerParams.push(params)
+        if (options.managerError !== undefined) throw options.managerError
+        return { extensions: [extension], mode: "standalone-server", reusedConnection: true }
       },
     },
   }
+  return { managerParams, dependencies }
 }

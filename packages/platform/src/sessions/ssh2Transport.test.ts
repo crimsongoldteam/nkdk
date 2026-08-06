@@ -7,7 +7,7 @@ import {
 } from "./ssh2Transport"
 
 describe("ssh2 loopback transport", () => {
-  it("opens an unauthenticated interactive shell only on loopback", async () => {
+  it("opens an authenticated interactive shell only on loopback", async () => {
     const client = fakeClient()
     const transport = createSsh2Transport({ createClient: () => client })
     const pending = transport.connect({
@@ -15,14 +15,16 @@ describe("ssh2 loopback transport", () => {
       port: 58248,
       timeoutMs: 1_000,
       expectedHostKeyHash: "trusted",
+      user: "Администратор",
+      password: "secret",
     })
 
     expect(client.connectConfig).toMatchObject({
       host: "127.0.0.1",
       port: 58248,
       readyTimeout: 1_000,
-      username: "",
-      password: "",
+      username: "Администратор",
+      password: "secret",
       hostHash: "sha256",
     })
     expect(client.connectConfig?.["hostVerifier"]?.("trusted")).toBe(true)
@@ -58,6 +60,23 @@ describe("ssh2 loopback transport", () => {
     clock.expire()
 
     await expect(pending).rejects.toMatchObject({ code: "session_start_failed" })
+    expect(client.destroyed).toBe(true)
+  })
+
+  it("reports rejected SSH credentials as an authentication failure", async () => {
+    const client = fakeClient()
+    const pending = createSsh2Transport({ createClient: () => client }).connect({
+      host: "127.0.0.1",
+      port: 58248,
+      timeoutMs: 1_000,
+      expectedHostKeyHash: "trusted",
+      user: "Администратор",
+      password: "wrong",
+    })
+
+    client.emit("error", { level: "client-authentication" })
+
+    await expect(pending).rejects.toMatchObject({ code: "authentication_failed" })
     expect(client.destroyed).toBe(true)
   })
 })

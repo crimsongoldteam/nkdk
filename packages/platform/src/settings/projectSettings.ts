@@ -1,37 +1,34 @@
 import fs from "node:fs"
 import { join } from "node:path"
-import { parse, stringify } from "yaml"
+import { parse } from "yaml"
+import type { z } from "zod"
 import { parseConnection } from "../infobases/parseConnection"
-import { PlatformSessionError } from "../sessions/errors"
 import type {
-  DatabaseConnectionSettings,
-  DatabaseManagementSystem,
-  NormalizedPlatformConnectionSettings,
-  PlatformConnectionSettings,
   ProjectSettings,
 } from "../sessions/types"
+import { projectSettingsStructuralSchema } from "./projectSettingsSchema"
 
-const DEFAULT_SESSION_IDLE_TIMEOUT = 900
 const PRIVATE_FILE_MODE = 0o600
-const DATABASE_MANAGEMENT_SYSTEMS: ReadonlySet<string> = new Set([
-  "MSSQLServer",
-  "PostgreSQL",
-  "IBMDB2",
-  "OracleDatabase",
-])
-const DATABASE_FIELDS: ReadonlySet<string> = new Set([
-  "dbms",
-  "server",
-  "name",
-  "user",
-  "password",
-])
+
+export type ProjectSettingsDiagnostic = {
+  code: string
+  path: string
+  message: string
+}
+
+export type ProjectSettingsValidationResult =
+  | { ok: true; settings: ProjectSettings }
+  | { ok: false; diagnostics: ProjectSettingsDiagnostic[] }
+
+export type ProjectSettingsReadResult =
+  | { status: "ready"; projectDir: string; settingsPath: string; settings: ProjectSettings }
+  | { status: "missing"; projectDir: string; settingsPath: string }
+  | { status: "invalid"; projectDir: string; settingsPath: string; diagnostics: ProjectSettingsDiagnostic[] }
 
 export interface ProjectSettingsFileSystem {
-  readFile(path: string): Promise<string>
-  mkdir(path: string): Promise<void>
-  writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
+  realpath(path: string): Promise<string>
   chmod(path: string, mode: number): Promise<void>
+  readFile(path: string): Promise<string>
 }
 
 export interface ProjectSettingsDependencies {
@@ -40,16 +37,11 @@ export interface ProjectSettingsDependencies {
 }
 
 const defaultFileSystem: ProjectSettingsFileSystem = {
+  realpath: fs.promises.realpath,
+  chmod: fs.promises.chmod,
   async readFile(path) {
     return fs.promises.readFile(path, "utf8")
   },
-  async mkdir(path) {
-    await fs.promises.mkdir(path, { recursive: true })
-  },
-  async writeFile(path, content, options) {
-    await fs.promises.writeFile(path, content, options)
-  },
-  chmod: fs.promises.chmod,
 }
 
 const defaultDependencies: ProjectSettingsDependencies = {
@@ -57,165 +49,127 @@ const defaultDependencies: ProjectSettingsDependencies = {
   platform: process.platform,
 }
 
-export function parseProjectSettings(source: string): ProjectSettings {
-  let parsed: unknown
+class ProjectSettingsYamlSyntaxError extends Error {}
+
+export function parseProjectSettingsYaml(source: string): unknown {
   try {
-    parsed = parse(source)
-  } catch (caught) {
-    throw invalidSettings("Некорректный YAML файла настроек", caught)
+    return parse(source)
+  } catch (cause) {
+    throw new ProjectSettingsYamlSyntaxError("Некорректный YAML файла настроек", { cause })
   }
-  if (!isRecord(parsed) || parsed["version"] !== 1 || !isRecord(parsed["infobase"])) {
-    throw invalidSettings("Поддерживается только версия 1 файла настроек")
+}
+
+export function validateProjectSettings(value: unknown): ProjectSettingsValidationResult {
+  const parsed = projectSettingsStructuralSchema.safeParse(value)
+  if (!parsed.success) {
+    return { ok: false, diagnostics: zodDiagnostics(parsed.error.issues) }
   }
-  return {
-    version: 1,
-    infobase: normalizePlatformConnectionSettings(parsed["infobase"]),
-  }
+
+  const settings = parsed.data as ProjectSettings
+  const diagnostics = semanticDiagnostics(settings)
+  return diagnostics.length === 0 ? { ok: true, settings } : { ok: false, diagnostics }
 }
 
 export async function readProjectSettings(
   projectDir: string,
   dependencies: ProjectSettingsDependencies = defaultDependencies
-): Promise<ProjectSettings | undefined> {
-  const settingsPath = projectSettingsPath(projectDir)
+): Promise<ProjectSettingsReadResult> {
+  let canonicalProjectDir: string
   try {
-    return parseProjectSettings(await dependencies.fileSystem.readFile(settingsPath))
-  } catch (caught) {
-    if (isFileSystemError(caught, "ENOENT")) return undefined
-    throw caught
-  }
-}
-
-export async function writeProjectSettings(
-  params: { projectDir: string; infobase: PlatformConnectionSettings },
-  dependencies: ProjectSettingsDependencies = defaultDependencies
-): Promise<{ settingsPath: string }> {
-  const infobase = normalizePlatformConnectionSettings(params.infobase)
-  const nkdkDir = join(params.projectDir, ".nkdk")
-  const settingsPath = projectSettingsPath(params.projectDir)
-  try {
-    await dependencies.fileSystem.mkdir(nkdkDir)
-    await dependencies.fileSystem.writeFile(join(nkdkDir, ".gitignore"), "*\n!.gitignore\n")
-    await dependencies.fileSystem.writeFile(
-      settingsPath,
-      stringify({ version: 1, infobase }),
-      { mode: PRIVATE_FILE_MODE }
-    )
-    if (dependencies.platform !== "win32") {
-      await dependencies.fileSystem.chmod(settingsPath, PRIVATE_FILE_MODE)
-    }
+    canonicalProjectDir = await dependencies.fileSystem.realpath(projectDir)
   } catch {
-    throw invalidSettings("Не удалось безопасно записать файл настроек проекта")
+    const settingsPath = projectSettingsPath(projectDir)
+    return invalidRead(projectDir, settingsPath, "project_access_failed", "$", "Не удалось открыть каталог проекта")
   }
-  return { settingsPath }
+  const settingsPath = projectSettingsPath(canonicalProjectDir)
+
+  if (dependencies.platform !== "win32") {
+    try {
+      await dependencies.fileSystem.chmod(settingsPath, PRIVATE_FILE_MODE)
+    } catch (error) {
+      if (isFileSystemError(error, "ENOENT")) return { status: "missing", projectDir: canonicalProjectDir, settingsPath }
+      return invalidRead(canonicalProjectDir, settingsPath, "project_settings_access_failed", "$", "Не удалось защитить файл настроек проекта")
+    }
+  }
+
+  let source: string
+  try {
+    source = await dependencies.fileSystem.readFile(settingsPath)
+  } catch (error) {
+    if (isFileSystemError(error, "ENOENT")) return { status: "missing", projectDir: canonicalProjectDir, settingsPath }
+    return invalidRead(canonicalProjectDir, settingsPath, "project_settings_access_failed", "$", "Не удалось прочитать файл настроек проекта")
+  }
+
+  let value: unknown
+  try {
+    value = parseProjectSettingsYaml(source)
+  } catch (error) {
+    if (error instanceof ProjectSettingsYamlSyntaxError) {
+      return invalidRead(canonicalProjectDir, settingsPath, "invalid_yaml", "$", error.message)
+    }
+    throw error
+  }
+
+  const validation = validateProjectSettings(value)
+  return validation.ok
+    ? { status: "ready", projectDir: canonicalProjectDir, settingsPath, settings: validation.settings }
+    : { status: "invalid", projectDir: canonicalProjectDir, settingsPath, diagnostics: validation.diagnostics }
 }
 
-export function normalizePlatformConnectionSettings(
-  value: unknown
-): NormalizedPlatformConnectionSettings {
-  if (!isRecord(value) || typeof value["connectionString"] !== "string" || value["connectionString"].trim() === "") {
-    throw invalidSettings("Не задана строка подключения к информационной базе")
+function semanticDiagnostics(settings: ProjectSettings): ProjectSettingsDiagnostic[] {
+  const diagnostics: ProjectSettingsDiagnostic[] = []
+  let connection: ReturnType<typeof parseConnection>
+  try {
+    connection = parseConnection(settings.infobase.connectionString)
+  } catch {
+    return [diagnostic("unsupported_connection", "infobase.connectionString", "Строка подключения не поддерживается")]
   }
-  const connectionString = value["connectionString"]
-  const connection = parseConnection(connectionString)
   if (connection.type !== "file" && connection.type !== "server") {
-    throw invalidSettings("Поддерживаются только файловые и клиент-серверные информационные базы")
+    diagnostics.push(diagnostic("unsupported_connection", "infobase.connectionString", "Поддерживаются только файловые и клиент-серверные базы"))
+    return diagnostics
   }
 
-  const user = optionalString(value["user"], "Имя пользователя")
-  const password = optionalString(value["password"], "Пароль")
-  const useStandaloneServer = optionalBoolean(value["useStandaloneServer"], false)
-  const sessionIdleTimeout = optionalPositiveInteger(
-    value["sessionIdleTimeout"],
-    DEFAULT_SESSION_IDLE_TIMEOUT
-  )
-  const database = optionalDatabase(value["database"])
+  const { database, operations } = settings.infobase
   if (connection.type === "file" && database !== undefined) {
-    throw invalidSettings("Параметры СУБД нельзя задавать для файловой информационной базы")
+    diagnostics.push(diagnostic("database_not_allowed", "infobase.database", "Параметры СУБД нельзя задавать для файловой базы"))
   }
-  if (useStandaloneServer && connection.type === "server" && database === undefined) {
-    throw invalidSettings("Для offline-доступа к клиент-серверной базе нужны параметры СУБД")
+  if (connection.type === "server" && operations.import.mode === "standalone-server" && database === undefined) {
+    diagnostics.push(diagnostic("database_required", "infobase.database", "Для автономного сервера клиент-серверной базы нужны параметры СУБД"))
   }
-
-  return {
-    connectionString,
-    ...(user === undefined ? {} : { user }),
-    ...(password === undefined ? {} : { password }),
-    useStandaloneServer,
-    sessionIdleTimeout,
-    ...(database === undefined ? {} : { database }),
+  if (database?.password !== undefined && database.user === undefined) {
+    diagnostics.push(diagnostic("database_user_required", "infobase.database.user", "Для пароля СУБД нужно указать пользователя"))
   }
+  if (database !== undefined && database.dbms !== "MSSQLServer" && database.user === undefined) {
+    diagnostics.push(diagnostic("database_user_required", "infobase.database.user", "Для выбранной СУБД нужно указать пользователя"))
+  }
+  return diagnostics
 }
 
-function optionalDatabase(value: unknown): DatabaseConnectionSettings | undefined {
-  if (value === undefined) return undefined
-  if (!isRecord(value)) throw invalidSettings("Параметры СУБД должны быть объектом")
-  if (Object.keys(value).some((key) => !DATABASE_FIELDS.has(key))) {
-    throw invalidSettings("Параметры СУБД содержат неизвестное поле")
-  }
-
-  const dbms = value["dbms"]
-  if (typeof dbms !== "string" || !DATABASE_MANAGEMENT_SYSTEMS.has(dbms)) {
-    throw invalidSettings("Указана неподдерживаемая СУБД")
-  }
-  const server = requiredDatabaseString(value["server"], "Сервер СУБД")
-  const name = requiredDatabaseString(value["name"], "Имя базы данных")
-  const user = requiredDatabaseString(value["user"], "Пользователь СУБД")
-  const password = optionalString(value["password"], "Пароль СУБД")
-  return {
-    dbms: dbms as DatabaseManagementSystem,
-    server,
-    name,
-    user,
-    ...(password === undefined ? {} : { password }),
-  }
+function zodDiagnostics(issues: z.core.$ZodIssue[]): ProjectSettingsDiagnostic[] {
+  return issues.flatMap((issue) => {
+    if (issue.code === "unrecognized_keys") {
+      return issue.keys.map((key) => diagnostic("unknown_field", [...issue.path, key].join("."), "Неизвестное поле настроек"))
+    }
+    return [diagnostic("invalid_project_settings", issue.path.join(".") || "$", issue.message)]
+  })
 }
 
-function requiredDatabaseString(value: unknown, fieldName: string): string {
-  const result = optionalString(value, fieldName)
-  if (result === undefined || result.trim() === "") {
-    throw invalidSettings(`${fieldName} не задан`)
-  }
-  return result
+function diagnostic(code: string, path: string, message: string): ProjectSettingsDiagnostic {
+  return { code, path, message }
 }
 
-function optionalString(value: unknown, fieldName: string): string | undefined {
-  if (value === undefined) return undefined
-  if (typeof value !== "string") throw invalidSettings(`${fieldName} должен быть строкой`)
-  if (/[\0\r\n]/.test(value)) {
-    throw invalidSettings(`${fieldName} содержит недопустимые управляющие символы`)
-  }
-  return value
-}
-
-function optionalBoolean(value: unknown, fallback: boolean): boolean {
-  if (value === undefined) return fallback
-  if (typeof value !== "boolean") throw invalidSettings("useStandaloneServer должен быть логическим значением")
-  return value
-}
-
-function optionalPositiveInteger(value: unknown, fallback: number): number {
-  if (value === undefined) return fallback
-  if (!Number.isSafeInteger(value) || (value as number) <= 0) {
-    throw invalidSettings("sessionIdleTimeout должен быть положительным целым числом секунд")
-  }
-  return value as number
+function invalidRead(
+  projectDir: string,
+  settingsPath: string,
+  code: string,
+  path: string,
+  message: string
+): ProjectSettingsReadResult {
+  return { status: "invalid", projectDir, settingsPath, diagnostics: [diagnostic(code, path, message)] }
 }
 
 function projectSettingsPath(projectDir: string): string {
   return join(projectDir, ".nkdk", "project.yaml")
-}
-
-function invalidSettings(message: string, cause?: unknown): PlatformSessionError {
-  return new PlatformSessionError(
-    "invalid_project_settings",
-    message,
-    cause === undefined ? undefined : { cause }
-  )
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 function isFileSystemError(error: unknown, code: string): error is NodeJS.ErrnoException {

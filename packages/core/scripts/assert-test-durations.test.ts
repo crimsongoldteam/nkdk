@@ -43,6 +43,14 @@ describe("assert test durations", () => {
     }])
   })
 
+  it("учитывает замедление стандартного CI runner для жёстких лимитов", () => {
+    const slowReport = report({ testMs: 80 })
+    const slowLifecycleReport = lifecycleReport(1_900, 5_700)
+
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(3)
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
+  })
+
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
     const result = analyzeTestDurationReport({
       success: true,
@@ -81,6 +89,26 @@ describe("assert test durations", () => {
 
   it("отклоняет повреждённый JSON-отчёт", () => {
     expect(() => analyzeTestDurationReport({ testResults: [{ assertionResults: [] }] }, lifecycleReport(1))).toThrow()
+  })
+
+  it("не требует длительность у пропущенного теста", () => {
+    const skippedReport = {
+      success: true,
+      numTotalTests: 1,
+      numPassedTests: 0,
+      numFailedTests: 0,
+      numPendingTests: 1,
+      numTodoTests: 0,
+      testResults: [{
+        name: "/project/packages/core/example.test.ts",
+        assertionResults: [{ fullName: "optional integration", status: "skipped" }],
+      }],
+    }
+
+    expect(analyzeTestDurationReport(skippedReport, lifecycleReport(1))).toEqual({
+      warnings: [],
+      failures: [],
+    })
   })
 
   it("отклоняет неполный отчёт и отсутствие файла", () => {
