@@ -3,13 +3,20 @@ import type { ConfigurationExtensionInfo } from "../extensions/types"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
+export type UnresolvedReferencesMode = "include" | "omit"
+
+export type InfobaseImportSettings = {
+  mode: PlatformSessionMode
+  unresolvedReferences: UnresolvedReferencesMode
+}
+
 export type DatabaseManagementSystem = "MSSQLServer" | "PostgreSQL" | "IBMDB2" | "OracleDatabase"
 
 export type DatabaseConnectionSettings = {
   dbms: DatabaseManagementSystem
   server: string
   name: string
-  user: string
+  user?: string
   password?: string
 }
 
@@ -23,7 +30,7 @@ export type PlatformConnectionSettings = {
 }
 
 export type NormalizedPlatformConnectionSettings = Required<
-  Pick<PlatformConnectionSettings, "connectionString" | "useStandaloneServer" | "sessionIdleTimeout">
+  Pick<PlatformConnectionSettings, "connectionString" | "sessionIdleTimeout">
 > &
   Pick<PlatformConnectionSettings, "user" | "password" | "database">
 
@@ -61,8 +68,9 @@ export type CloseAllConnectionsResult = {
 }
 
 export type ProjectSettings = {
-  version: 1
-  infobase: NormalizedPlatformConnectionSettings
+  infobase: NormalizedPlatformConnectionSettings & {
+    operations: { import: InfobaseImportSettings }
+  }
 }
 
 export interface PlatformSession {

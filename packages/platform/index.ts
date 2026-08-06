@@ -8,6 +8,7 @@ export type {
   DatabaseManagementSystem,
   ExportConfigurationParams,
   ExportConfigurationResult,
+  InfobaseImportSettings,
   ListConfigurationExtensionsParams,
   ListConfigurationExtensionsResult,
   NormalizedPlatformConnectionSettings,
@@ -16,14 +17,22 @@ export type {
   PlatformSessionManager,
   PlatformSessionMode,
   ProjectSettings,
+  UnresolvedReferencesMode,
 } from "./src/sessions/types"
 export {
-  parseProjectSettings,
+  parseProjectSettingsYaml,
   readProjectSettings,
-  writeProjectSettings,
+  validateProjectSettings,
   type ProjectSettingsDependencies,
+  type ProjectSettingsDiagnostic,
   type ProjectSettingsFileSystem,
+  type ProjectSettingsReadResult,
+  type ProjectSettingsValidationResult,
 } from "./src/settings/projectSettings"
+export {
+  PROJECT_SETTINGS_SCHEMA_URI,
+  projectSettingsJsonSchema,
+} from "./src/settings/projectSettingsSchema"
 export { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./src/sessions/manager"
 export {
   listInfobases,

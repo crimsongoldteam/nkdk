@@ -399,7 +399,6 @@ function createParams(
     settings: {
       connectionString: 'Srvr="server";Ref="reference";',
       password: "secret",
-      useStandaloneServer: false,
       sessionIdleTimeout: 900,
       ...settings,
     },

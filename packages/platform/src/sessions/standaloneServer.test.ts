@@ -236,7 +236,6 @@ function createParams(
     settings: {
       connectionString: 'File="/bases/demo";',
       password: "secret",
-      useStandaloneServer: true,
       sessionIdleTimeout: 900,
       ...settings,
     },
