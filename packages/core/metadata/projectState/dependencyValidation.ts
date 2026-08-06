@@ -29,6 +29,7 @@ import type {
   ProjectStateQueryPort,
 } from "./readSession"
 import type { ProjectStatePendingDependencyCheck } from "./fileUpdate"
+import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
 
 export interface ProjectStateDataPathReferenceCheck {
   readonly requestId: string
@@ -142,7 +143,7 @@ export function readProjectStateDependencyReadiness(params: {
       projectDir: "",
       hasConfiguration,
       blockedComponentPaths: [...blockedComponentPaths],
-    }),
+    }).map((diagnostic) => ({ ...diagnostic, filePath: parseProjectPath(diagnostic.filePath) })),
   }
 }
 
@@ -170,7 +171,10 @@ export function validateProjectStateReferenceBatch(params: {
             target: check.reference.target,
           })?.filePath
         : undefined
-      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status, objectFilePath).diagnostics)
+      const objectProjectPath = objectFilePath === undefined
+        ? undefined
+        : projectPathFromFileSystem(params.projectDir, objectFilePath)
+      diagnostics.push(...unresolvedProjectReferenceResult(check.reference, result.status, objectProjectPath).diagnostics)
     }
   })
   return diagnostics
