@@ -45,6 +45,7 @@ export {
 } from "./src/settings/projectSettings"
 export {
   PROJECT_SETTINGS_SCHEMA_URI,
+  projectSettingsExamples,
   projectSettingsJsonSchema,
 } from "./src/settings/projectSettingsSchema"
 export { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./src/sessions/manager"

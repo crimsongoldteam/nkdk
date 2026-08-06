@@ -1,22 +1,19 @@
 import fs from "node:fs"
 import { randomUUID } from "node:crypto"
 import { join } from "node:path"
+import { pathToFileURL } from "node:url"
 import {
   PlatformSessionError,
-  writeProjectSettings,
+  readProjectSettings,
   type PlatformSessionManager,
   type PlatformSessionMode,
 } from "@nkdk/platform"
 import { loadCoreApi, type CoreApi } from "../coreApi"
-import {
-  toolError,
-  toolSuccess,
-  type ToolErrorCode,
-  type ToolPayload,
-} from "../contracts/common"
+import { toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import type { ImportFromInfobaseInput } from "../contracts/importFromInfobase"
 import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
 import { getPlatformSessionManager } from "./platformSessionHandle"
+import { projectSettingsFailure } from "./projectSettingsFailure"
 
 type CoreImportDiagnostic = {
   severity: "error" | "warning"
@@ -28,7 +25,7 @@ type CoreImportDiagnostic = {
 export interface ImportFromInfobaseDependencies {
   platformManager: Pick<PlatformSessionManager, "exportConfiguration">
   importXml: CoreApi["syncConfigurationFromXML"]
-  writeSettings: typeof writeProjectSettings
+  readSettings: typeof readProjectSettings
   resolveTarget: typeof resolveComponent
   assertTargetEmpty: typeof assertImportTargetEmpty
   fs: {
@@ -65,8 +62,11 @@ export async function importFromInfobase(
   const dependencies = providedDependencies ?? defaultDependencies()
   let temporaryDirectory: string | undefined
   try {
+    const settingsRead = await dependencies.readSettings(input.projectDir)
+    if (settingsRead.status !== "ready") return projectSettingsFailure(settingsRead)!
+
     const component = dependencies.resolveTarget({
-      projectDir: input.projectDir,
+      projectDir: settingsRead.projectDir,
       componentPath: "cf",
       createIfMissing: true,
     })
@@ -84,21 +84,15 @@ export async function importFromInfobase(
     const xmlDirectory = join(temporaryDirectory, "xml")
     await dependencies.fs.mkdir(xmlDirectory)
     throwIfCancelled(signal)
+    const { operations, ...connectionSettings } = settingsRead.settings.infobase
     const connection = await dependencies.platformManager.exportConfiguration({
-      projectDir: component.projectDir,
+      projectDir: settingsRead.projectDir,
       outputDir: xmlDirectory,
       logPath: join(temporaryDirectory, "platform.log"),
-      connectionString: input.connectionString,
-      ...(input.user === undefined ? {} : { user: input.user }),
-      ...(input.password === undefined ? {} : { password: input.password }),
-      ...(input.useStandaloneServer === undefined
-        ? {}
-        : { useStandaloneServer: input.useStandaloneServer }),
-      ...(input.sessionIdleTimeout === undefined
-        ? {}
-        : { sessionIdleTimeout: input.sessionIdleTimeout }),
-      ...(input.database === undefined ? {} : { database: input.database }),
-      signal,
+      ...connectionSettings,
+      mode: operations.import.mode,
+      unresolvedReferences: operations.import.unresolvedReferences,
+      ...(signal === undefined ? {} : { signal }),
     })
     throwIfCancelled(signal)
     const result = await dependencies.importXml({
@@ -120,6 +114,7 @@ export async function importFromInfobase(
       ...(result.configurationIndexPath === undefined
         ? {}
         : { configurationIndexPath: result.configurationIndexPath }),
+      settingsPath: settingsRead.settingsPath,
       mode: connection.mode,
       reusedConnection: connection.reusedConnection,
     }
@@ -127,38 +122,41 @@ export async function importFromInfobase(
       return toolSuccess({ ...payload, temporaryDirectory })
     }
 
-    const settings = await dependencies.writeSettings({
-      projectDir: component.projectDir,
-      infobase: {
-        connectionString: input.connectionString,
-        ...(input.user === undefined ? {} : { user: input.user }),
-        ...(input.password === undefined ? {} : { password: input.password }),
-        ...(input.useStandaloneServer === undefined
-          ? {}
-          : { useStandaloneServer: input.useStandaloneServer }),
-        ...(input.sessionIdleTimeout === undefined
-          ? {}
-          : { sessionIdleTimeout: input.sessionIdleTimeout }),
-        ...(input.database === undefined ? {} : { database: input.database }),
-      },
-    })
     await dependencies.fs.rm(temporaryDirectory)
-    return toolSuccess({ ...payload, settingsPath: settings.settingsPath })
+    return toolSuccess(payload)
   } catch (caught) {
-    const code: ToolErrorCode =
-      caught instanceof PlatformSessionError ? caught.code : "core_error"
-    return toolError(code, safeOperationError(code), {
-      ...(temporaryDirectory === undefined ? {} : { temporaryDirectory }),
-    })
+    if (caught instanceof PlatformSessionError) {
+      return toolError(caught.code, caught.message, platformErrorDetails(caught, temporaryDirectory))
+    }
+    return toolError(
+      "core_error",
+      "Не удалось импортировать конфигурацию из информационной базы",
+      temporaryDirectory === undefined ? undefined : { temporaryDirectory }
+    )
+  }
+}
+
+function platformErrorDetails(
+  error: PlatformSessionError,
+  temporaryDirectory?: string
+): Record<string, unknown> | undefined {
+  const details = error.details
+  if (temporaryDirectory === undefined && details === undefined) return undefined
+  return {
+    ...(temporaryDirectory === undefined ? {} : { temporaryDirectory }),
+    ...(details === undefined ? {} : {
+      stage: details.stage,
+      ...(details.mode === undefined ? {} : { mode: details.mode }),
+      ...(details.logPath === undefined ? {} : {
+        log: { uri: pathToFileURL(details.logPath).href, format: "text/plain" },
+      }),
+    }),
   }
 }
 
 function throwIfCancelled(signal?: AbortSignal): void {
   if (signal?.aborted !== true) return
-  throw new PlatformSessionError(
-    "operation_cancelled",
-    "Импорт конфигурации отменён"
-  )
+  throw new PlatformSessionError("operation_cancelled", "Импорт конфигурации отменён")
 }
 
 function defaultDependencies(): ImportFromInfobaseDependencies {
@@ -167,7 +165,7 @@ function defaultDependencies(): ImportFromInfobaseDependencies {
     async importXml(params) {
       return (await loadCoreApi()).syncConfigurationFromXML(params)
     },
-    writeSettings: writeProjectSettings,
+    readSettings: readProjectSettings,
     resolveTarget: resolveComponent,
     assertTargetEmpty: assertImportTargetEmpty,
     fs: {
@@ -189,9 +187,7 @@ function mapFailure(
     severity: "error",
     code: failure.code,
     message: failure.message,
-    ...(failure.targetProjectPath.length === 0
-      ? {}
-      : { targetProjectPath: failure.targetProjectPath }),
+    ...(failure.targetProjectPath.length === 0 ? {} : { targetProjectPath: failure.targetProjectPath }),
   }
 }
 
@@ -203,14 +199,6 @@ function mapWarning(warning: CoreImportDiagnostic): {
   return {
     code: warning.code,
     message: warning.message,
-    ...(warning.targetProjectPath.length === 0
-      ? {}
-      : { targetProjectPath: warning.targetProjectPath }),
+    ...(warning.targetProjectPath.length === 0 ? {} : { targetProjectPath: warning.targetProjectPath }),
   }
-}
-
-function safeOperationError(code: ToolErrorCode): string {
-  return code === "core_error"
-    ? "Не удалось импортировать конфигурацию из информационной базы"
-    : `Операция платформы завершилась с ошибкой: ${code}`
 }

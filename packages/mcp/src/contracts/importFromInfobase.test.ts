@@ -8,105 +8,84 @@ import {
 describe("import_from_infobase contract", () => {
   const inputSchema = z.strictObject(importFromInfobaseInputShape)
 
-  it("accepts a file connection without a user", () => {
-    expect(
-      inputSchema.parse({
-        projectDir: "/project",
-        connectionString: 'File="/Users/nikita/Базы 1С/all";',
-        useStandaloneServer: false,
-        sessionIdleTimeout: 900,
-        allowWrite: true,
-      })
-    ).toEqual({
-      projectDir: "/project",
-      connectionString: 'File="/Users/nikita/Базы 1С/all";',
-      useStandaloneServer: false,
-      sessionIdleTimeout: 900,
-      allowWrite: true,
-    })
-  })
-
-  it("accepts database credentials for an offline client-server connection", () => {
-    expect(
-      inputSchema.parse({
-        projectDir: "/project",
-        connectionString: 'Srvr="cluster";Ref="production";',
-        useStandaloneServer: true,
-        database: {
-          dbms: "PostgreSQL",
-          server: "db.example.local",
-          name: "production",
-          user: "dbuser",
-          password: "dbsecret",
-        },
-        allowWrite: true,
-      })
-    ).toEqual({
-      projectDir: "/project",
-      connectionString: 'Srvr="cluster";Ref="production";',
-      useStandaloneServer: true,
-      database: {
-        dbms: "PostgreSQL",
-        server: "db.example.local",
-        name: "production",
-        user: "dbuser",
-        password: "dbsecret",
-      },
-      allowWrite: true,
-    })
+  it("accepts only the project and write confirmation", () => {
+    expect(inputSchema.parse({ projectDir: "/project", allowWrite: true }))
+      .toEqual({ projectDir: "/project", allowWrite: true })
   })
 
   it.each([
-    { dbms: "Unsupported", server: "db", name: "base", user: "dbuser" },
-    { dbms: "PostgreSQL", server: "", name: "base", user: "dbuser" },
-    { dbms: "PostgreSQL", server: "db", name: "", user: "dbuser" },
-    { dbms: "PostgreSQL", server: "db", name: "base", user: "" },
-  ])("rejects invalid database credentials: %j", (database) => {
-    expect(() =>
-      inputSchema.parse({
-        projectDir: "/project",
-        connectionString: 'Srvr="cluster";Ref="production";',
-        database,
-      })
-    ).toThrow()
+    "connectionString",
+    "user",
+    "password",
+    "database",
+    "useStandaloneServer",
+  ])("rejects the connection field %s", (forbidden) => {
+    expect(inputSchema.safeParse({ projectDir: "/project", [forbidden]: "x" }).success)
+      .toBe(false)
   })
 
-  it.each([0, -1, 1.5])("rejects an invalid timeout: %s", (sessionIdleTimeout) => {
-    expect(() =>
-      inputSchema.parse({
-        projectDir: "/project",
-        connectionString: 'File="/bases/demo";',
-        sessionIdleTimeout,
-      })
-    ).toThrow()
+  it("parses a missing settings result with a schema reference", () => {
+    expect(importFromInfobaseOutputShape.parse({
+      ok: false,
+      code: "project_settings_required",
+      message: "Создайте файл настроек проекта и повторите импорт.",
+      details: {
+        settingsPath: "/project/.nkdk/project.yaml",
+        schema: {
+          uri: "nkdk://project-settings/schema/v1",
+          format: "application/schema+json",
+        },
+      },
+    })).toMatchObject({ code: "project_settings_required" })
   })
 
-  it("rejects extra fields", () => {
-    expect(() =>
-      inputSchema.parse({
-        projectDir: "/project",
-        connectionString: 'File="/bases/demo";',
-        componentPath: "cf",
-      })
-    ).toThrow()
+  it("parses invalid settings diagnostics", () => {
+    expect(importFromInfobaseOutputShape.parse({
+      ok: false,
+      code: "invalid_project_settings",
+      message: "Исправьте файл настроек проекта и повторите импорт.",
+      details: {
+        settingsPath: "/project/.nkdk/project.yaml",
+        diagnostics: [{ code: "required", path: "infobase.connectionString", message: "Поле не задано" }],
+        schema: {
+          uri: "nkdk://project-settings/schema/v1",
+          format: "application/schema+json",
+        },
+      },
+    })).toMatchObject({ code: "invalid_project_settings" })
+  })
+
+  it("parses typed platform failure details", () => {
+    expect(importFromInfobaseOutputShape.parse({
+      ok: false,
+      code: "authentication_failed",
+      message: "Access denied",
+      details: {
+        stage: "authentication",
+        mode: "designer-agent",
+        temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+        log: {
+          uri: "file:///project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+          format: "text/plain",
+        },
+      },
+    })).toMatchObject({ code: "authentication_failed" })
   })
 
   it("accepts a preserved temporary directory in a successful partial import", () => {
-    expect(
-      importFromInfobaseOutputShape.parse({
-        ok: true,
-        succeeded: 1,
-        failed: [{
-          severity: "error",
-          code: "failed",
-          targetProjectPath: "Catalogs/Test.xml",
-          message: "failed",
-        }],
-        warnings: [],
-        mode: "designer-agent",
-        reusedConnection: false,
-        temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
-      })
-    ).toMatchObject({ ok: true })
+    expect(importFromInfobaseOutputShape.parse({
+      ok: true,
+      succeeded: 1,
+      failed: [{
+        severity: "error",
+        code: "failed",
+        targetProjectPath: "Catalogs/Test.xml",
+        message: "failed",
+      }],
+      warnings: [],
+      mode: "designer-agent",
+      reusedConnection: false,
+      temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+    })).toMatchObject({ ok: true })
   })
 })

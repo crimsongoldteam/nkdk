@@ -33,6 +33,8 @@ vi.mock("./services/platformSessionHandle", () => ({
 vi.mock("@nkdk/platform", () => ({
   listInfobases,
   readProjectSettings: vi.fn(),
+  PROJECT_SETTINGS_SCHEMA_URI: "nkdk://project-settings/schema/v1",
+  projectSettingsJsonSchema: { type: "object", examples: [] },
 }))
 
 vi.mock("./services/listInfobaseExtensions", () => ({

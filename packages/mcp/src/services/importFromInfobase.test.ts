@@ -3,33 +3,24 @@ import { PlatformSessionError } from "@nkdk/platform"
 import { importFromInfobase, type ImportFromInfobaseDependencies } from "./importFromInfobase"
 
 describe("import from infobase", () => {
-  it("requires explicit write confirmation before any dependency call", async () => {
+  it("requires explicit write confirmation before reading settings", async () => {
     const fixture = createFixture()
-
-    const result = await importFromInfobase(
-      {
-        projectDir: "/project",
-        connectionString: 'File="/bases/demo";',
-      },
-      fixture.dependencies
-    )
-
+    const result = await importFromInfobase({ projectDir: "/project" }, fixture.dependencies)
     expect(result).toMatchObject({ ok: false, code: "confirmation_required" })
     expect(fixture.calls).toEqual([])
   })
 
-  it("exports into .nkdk, moves external files, saves settings, and removes a successful dump", async () => {
+  it("reads settings before resolving the target and removes a successful dump", async () => {
     const fixture = createFixture()
-
     const result = await importFromInfobase(input(), fixture.dependencies)
 
     expect(fixture.calls).toEqual([
+      "readProjectSettings /project",
       "resolveTarget /project cf",
       "assertTargetEmpty /project/cf",
       "mkdir /project/.nkdk/tmp/import-from-infobase/op-1/xml",
       "exportConfiguration",
       "syncConfigurationFromXML move",
-      "writeProjectSettings",
       "rm /project/.nkdk/tmp/import-from-infobase/op-1",
     ])
     expect(result).toEqual({
@@ -42,252 +33,219 @@ describe("import from infobase", () => {
       mode: "designer-agent",
       reusedConnection: false,
     })
-    expect(JSON.stringify(result)).not.toContain("secret")
-  })
-
-  it("passes database credentials to the platform and project settings", async () => {
-    const fixture = createFixture()
-    const database = {
-      dbms: "PostgreSQL" as const,
-      server: "db.example.local",
-      name: "production",
-      user: "dbuser",
-      password: "dbsecret",
-    }
-
-    await importFromInfobase(
-      {
-        ...input(),
-        connectionString: 'Srvr="cluster";Ref="production";',
-        useStandaloneServer: true,
-        database,
-      },
-      fixture.dependencies
-    )
-
-    expect(fixture.exportedSettings).toMatchObject({ database })
-    expect(fixture.writtenSettings).toMatchObject({ infobase: { database } })
-  })
-
-  it("preserves the dump and does not save settings after object failures", async () => {
-    const fixture = createFixture({
-      importResult: {
-        succeeded: 1,
-        failed: [
-          {
-            severity: "error",
-            code: "xml_failed",
-            message: "failed",
-            targetProjectPath: "Catalogs/Test.xml",
-          },
-        ],
-        warnings: [],
-      },
+    expect(fixture.exportedSettings).toMatchObject({
+      connectionString: 'File="/bases/demo";',
+      user: "Администратор",
+      password: "secret",
+      sessionIdleTimeout: 900,
+      mode: "designer-agent",
+      unresolvedReferences: "include",
     })
-
-    const result = await importFromInfobase(input(), fixture.dependencies)
-
-    expect(result).toMatchObject({
-      ok: true,
-      failed: [{
-        severity: "error",
-        code: "xml_failed",
-        targetProjectPath: "Catalogs/Test.xml",
-        message: "failed",
-      }],
-      temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
-    })
-    expect(fixture.calls).not.toContain("writeProjectSettings")
-    expect(fixture.calls).not.toContain(expect.stringMatching(/^rm /))
+    expect(fixture.exportedSettings).not.toHaveProperty("operations")
   })
 
   it.each([
     [
-      new PlatformSessionError("platform_not_found", "secret platform failure"),
-      "platform_not_found",
+      "missing",
+      {
+        status: "missing" as const,
+        projectDir: "/project",
+        settingsPath: "/project/.nkdk/project.yaml",
+      },
+      "project_settings_required",
     ],
-    [new Error("secret core failure"), "core_error"],
-  ] as const)("returns a safe error and preserves the dump: %s", async (failure, code) => {
-    const fixture = createFixture({ exportError: failure })
-
+    [
+      "invalid",
+      {
+        status: "invalid" as const,
+        projectDir: "/project",
+        settingsPath: "/project/.nkdk/project.yaml",
+        diagnostics: [{ code: "required", path: "infobase.connectionString", message: "Поле не задано" }],
+      },
+      "invalid_project_settings",
+    ],
+  ])("returns %s settings diagnostics before touching the target", async (_name, settingsResult, code) => {
+    const fixture = createFixture({ settingsResult })
     const result = await importFromInfobase(input(), fixture.dependencies)
 
     expect(result).toMatchObject({
       ok: false,
       code,
-      details: { temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1" },
-    })
-    expect(JSON.stringify(result)).not.toContain("secret")
-    expect(fixture.calls).not.toContain("writeProjectSettings")
-    expect(fixture.calls).not.toContain(expect.stringMatching(/^rm /))
-  })
-
-  it("does not expose infobase or database passwords in an error result", async () => {
-    const fixture = createFixture({
-      exportError: new PlatformSessionError(
-        "session_start_failed",
-        "secret database-secret"
-      ),
-    })
-
-    const result = await importFromInfobase(
-      {
-        ...input(),
-        connectionString: 'Srvr="cluster";Ref="production";',
-        useStandaloneServer: true,
-        database: {
-          dbms: "PostgreSQL",
-          server: "db",
-          name: "base",
-          user: "dbuser",
-          password: "database-secret",
-        },
+      details: {
+        settingsPath: "/project/.nkdk/project.yaml",
+        schema: { uri: "nkdk://project-settings/schema/v1", format: "application/schema+json" },
       },
-      fixture.dependencies
-    )
-
-    expect(JSON.stringify(result)).not.toContain("secret")
-    expect(JSON.stringify(result)).not.toContain("database-secret")
+    })
+    expect(fixture.calls).toEqual(["readProjectSettings /project"])
   })
 
-  it("passes cancellation to the platform and returns a safe error", async () => {
-    const controller = new AbortController()
+  it("preserves platform text, stage, mode, log URI and the temporary directory", async () => {
     const fixture = createFixture({
-      exportError: new PlatformSessionError(
-        "operation_cancelled",
-        "secret cancellation"
-      ),
+      exportError: new PlatformSessionError("authentication_failed", "Access denied", {
+        details: {
+          stage: "authentication",
+          mode: "designer-agent",
+          logPath: "/project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+        },
+      }),
     })
 
-    const result = await callCancellableImport(
-      input(),
-      fixture.dependencies,
-      controller.signal
-    )
+    const result = await importFromInfobase(input(), fixture.dependencies)
 
-    expect(fixture.exportedSettings["signal"]).toBe(controller.signal)
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       ok: false,
-      code: "operation_cancelled",
+      code: "authentication_failed",
+      message: "Access denied",
       details: {
         temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+        stage: "authentication",
+        mode: "designer-agent",
+        log: {
+          uri: "file:///project/.nkdk/tmp/import-from-infobase/op-1/platform.log",
+          format: "text/plain",
+        },
       },
     })
-    expect(JSON.stringify(result)).not.toContain("secret")
   })
 
-  it("does not start XML import when cancellation arrives after export", async () => {
-    const controller = new AbortController()
+  it("omits log details when the platform log is unavailable", async () => {
     const fixture = createFixture({
-      afterExport: () => controller.abort(),
+      exportError: new PlatformSessionError("platform_command_failed", "Журнал недоступен", {
+        details: { stage: "platform-log", mode: "designer-agent" },
+      }),
     })
+    const result = await importFromInfobase(input(), fixture.dependencies)
+    expect(result).toMatchObject({
+      ok: false,
+      message: "Журнал недоступен",
+      details: { stage: "platform-log", mode: "designer-agent" },
+    })
+    expect(result.details).not.toHaveProperty("log")
+  })
 
-    const result = await callCancellableImport(
-      input(),
-      fixture.dependencies,
-      controller.signal
-    )
+  it("keeps a partial XML import and its temporary directory", async () => {
+    const fixture = createFixture({
+      importResult: {
+        succeeded: 1,
+        failed: [{
+          severity: "error",
+          code: "xml_failed",
+          message: "failed",
+          targetProjectPath: "Catalogs/Test.xml",
+        }],
+        warnings: [],
+      },
+    })
+    const result = await importFromInfobase(input(), fixture.dependencies)
+    expect(result).toMatchObject({
+      ok: true,
+      failed: [expect.objectContaining({ code: "xml_failed" })],
+      temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+    })
+    expect(fixture.calls).not.toContain(expect.stringMatching(/^rm /u))
+  })
 
+  it("passes cancellation to the platform and stops before XML import", async () => {
+    const controller = new AbortController()
+    const fixture = createFixture({ afterExport: () => controller.abort() })
+    const result = await importFromInfobase(input(), fixture.dependencies, controller.signal)
+    expect(fixture.exportedSettings["signal"]).toBe(controller.signal)
     expect(result).toMatchObject({ ok: false, code: "operation_cancelled" })
     expect(fixture.calls).not.toContain("syncConfigurationFromXML move")
   })
+
+  it("maps an unexpected error to a stable message without deleting the dump", async () => {
+    const fixture = createFixture({ exportError: new Error("secret failure") })
+    const result = await importFromInfobase(input(), fixture.dependencies)
+    expect(result).toMatchObject({
+      ok: false,
+      code: "core_error",
+      message: "Не удалось импортировать конфигурацию из информационной базы",
+      details: { temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1" },
+    })
+    expect(JSON.stringify(result)).not.toContain("secret")
+  })
 })
 
-const callCancellableImport = importFromInfobase as (
-  importInput: ReturnType<typeof input>,
-  dependencies: ImportFromInfobaseDependencies,
-  signal: AbortSignal
-) => ReturnType<typeof importFromInfobase>
-
 function input() {
-  return {
-    projectDir: "/project",
-    connectionString: 'File="/bases/demo";',
-    user: "Администратор",
-    password: "secret",
-    useStandaloneServer: false,
-    sessionIdleTimeout: 900,
-    allowWrite: true,
-  }
+  return { projectDir: "/project", allowWrite: true as const }
 }
 
-function createFixture(
-  options: {
-    exportError?: Error
-    afterExport?: () => void
-    importResult?: {
-      succeeded: number
-      failed: Array<{
-        severity: "error"
-        code: string
-        message: string
-        targetProjectPath: string
-      }>
-      warnings: []
-    }
-  } = {}
-): {
-  calls: string[]
-  exportedSettings: Record<string, unknown>
-  writtenSettings: Record<string, unknown>
-  dependencies: ImportFromInfobaseDependencies
-} {
+const readySettings = {
+  status: "ready" as const,
+  projectDir: "/project",
+  settingsPath: "/project/.nkdk/project.yaml",
+  settings: {
+    infobase: {
+      connectionString: 'File="/bases/demo";',
+      user: "Администратор",
+      password: "secret",
+      sessionIdleTimeout: 900,
+      operations: {
+        import: { mode: "designer-agent" as const, unresolvedReferences: "include" as const },
+      },
+    },
+  },
+}
+
+function createFixture(options: {
+  settingsResult?: Awaited<ReturnType<ImportFromInfobaseDependencies["readSettings"]>>
+  exportError?: Error
+  afterExport?: () => void
+  importResult?: {
+    succeeded: number
+    failed: Array<{ severity: "error"; code: string; message: string; targetProjectPath: string }>
+    warnings: []
+  }
+} = {}) {
   const calls: string[] = []
   const exportedSettings: Record<string, unknown> = {}
-  const writtenSettings: Record<string, unknown> = {}
-  return {
-    calls,
-    exportedSettings,
-    writtenSettings,
-    dependencies: {
-      platformManager: {
-        async exportConfiguration(params) {
-          calls.push("exportConfiguration")
-          Object.assign(exportedSettings, params)
-          if (options.exportError !== undefined) throw options.exportError
-          options.afterExport?.()
-          return { mode: "designer-agent", reusedConnection: false }
-        },
-      },
-      async importXml(params) {
-        calls.push(`syncConfigurationFromXML ${params.externalFileTransfer}`)
-        return (
-          options.importResult ?? {
-            succeeded: 2,
-            failed: [],
-            warnings: [],
-            configurationIndexPath: "/project/.nkdk/configuration-index/default.bin",
-          }
-        )
-      },
-      async writeSettings(params) {
-        calls.push("writeProjectSettings")
-        Object.assign(writtenSettings, params)
-        return { settingsPath: "/project/.nkdk/project.yaml" }
-      },
-      resolveTarget({ projectDir, componentPath }) {
-        calls.push(`resolveTarget ${projectDir} ${componentPath ?? "cf"}`)
-        return {
-          ok: true as const,
-          projectDir,
-          componentDir: `${projectDir}/cf`,
-          componentPath: "cf",
-          nkdkDir: `${projectDir}/.nkdk`,
-        }
-      },
-      assertTargetEmpty(componentDir) {
-        calls.push(`assertTargetEmpty ${componentDir}`)
-        return undefined
-      },
-      fs: {
-        async mkdir(path) {
-          calls.push(`mkdir ${path}`)
-        },
-        async rm(path) {
-          calls.push(`rm ${path}`)
-        },
-      },
-      operationId: () => "op-1",
+  const dependencies: ImportFromInfobaseDependencies = {
+    async readSettings(projectDir) {
+      calls.push(`readProjectSettings ${projectDir}`)
+      return options.settingsResult ?? readySettings
     },
+    platformManager: {
+      async exportConfiguration(params) {
+        calls.push("exportConfiguration")
+        Object.assign(exportedSettings, params)
+        if (options.exportError !== undefined) throw options.exportError
+        options.afterExport?.()
+        return { mode: "designer-agent", reusedConnection: false }
+      },
+    },
+    async importXml(params) {
+      calls.push(`syncConfigurationFromXML ${params.externalFileTransfer}`)
+      return options.importResult ?? {
+        succeeded: 2,
+        failed: [],
+        warnings: [],
+        configurationIndexPath: "/project/.nkdk/configuration-index/default.bin",
+      }
+    },
+    resolveTarget({ projectDir, componentPath }) {
+      calls.push(`resolveTarget ${projectDir} ${componentPath ?? "cf"}`)
+      return {
+        ok: true,
+        projectDir,
+        componentDir: `${projectDir}/cf`,
+        componentPath: "cf",
+        nkdkDir: `${projectDir}/.nkdk`,
+      }
+    },
+    assertTargetEmpty(componentDir) {
+      calls.push(`assertTargetEmpty ${componentDir}`)
+      return undefined
+    },
+    fs: {
+      async mkdir(path) {
+        calls.push(`mkdir ${path}`)
+      },
+      async rm(path) {
+        calls.push(`rm ${path}`)
+      },
+    },
+    operationId: () => "op-1",
   }
+  return { calls, exportedSettings, dependencies }
 }

@@ -1,6 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { z } from "zod/v4"
-import type { DiagnosticReportReference } from "./diagnostics"
 
 export const errorCodeSchema = z.enum([
   "confirmation_required",
@@ -8,6 +7,7 @@ export const errorCodeSchema = z.enum([
   "not_found",
   "sync_state_required",
   "core_error",
+  "project_settings_required",
   "platform_not_found",
   "platform_component_missing",
   "unsupported_connection",
@@ -51,7 +51,7 @@ export function toolError(code: ToolErrorCode, message: string, details?: unknow
 
 export function jsonToolResult(
   payload: ToolPayload,
-  presentation?: { readonly text: string; readonly resource?: DiagnosticReportReference },
+  presentation?: { readonly text: string; readonly resource?: ToolResourcePresentation },
 ): CallToolResult {
   const isValidationResult = !payload.ok
     && "code" in payload
@@ -62,13 +62,19 @@ export function jsonToolResult(
       ...(presentation?.resource === undefined ? [] : [{
         type: "resource_link" as const,
         uri: presentation.resource.uri,
-        name: "Полный отчёт diagnostics",
-        mimeType: presentation.resource.format,
+        name: presentation.resource.name,
+        mimeType: presentation.resource.mimeType,
       }]),
     ],
     structuredContent: payload,
     ...(payload.ok || isValidationResult ? {} : { isError: true }),
   }
+}
+
+export type ToolResourcePresentation = {
+  uri: string
+  name: string
+  mimeType: string
 }
 
 export function errorMessage(caught: unknown): string {
