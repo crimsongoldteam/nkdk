@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
 import { findNewDuplicates } from "./check-new-duplicates.mjs"
+import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 
 const clone = (fingerprint) => ({
   fingerprint,
@@ -55,5 +56,13 @@ describe("findNewDuplicates", () => {
     ]
 
     assert.deepEqual(findNewDuplicates(base, current), [current[1]])
+  })
+})
+
+describe("resolveNodePackageBinary", () => {
+  it("находит JavaScript-точку входа CLI без платформенного shell-файла", () => {
+    const binaryPath = resolveNodePackageBinary("jscpd", import.meta.url)
+
+    assert.match(binaryPath.replaceAll("\\", "/"), /\/jscpd\/run-jscpd\.js$/)
   })
 })
