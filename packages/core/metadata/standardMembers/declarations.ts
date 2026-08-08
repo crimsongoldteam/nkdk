@@ -20,6 +20,14 @@ export type StandardMemberFillValuePolicy =
     }
   | { readonly policy: "notSpecified" }
 
+const commonStandardAttributeFillValuePolicies: Readonly<Record<string, StandardMemberFillValuePolicy | undefined>> = {
+  Ref: { policy: "forbidden" },
+  IsFolder: { policy: "forbidden" },
+  Predefined: { policy: "forbidden" },
+  PredefinedDataName: { policy: "forbidden" },
+  DeletionMark: { policy: "byEffectiveType", implicitValue: false },
+}
+
 export interface StandardMemberNames {
   internal: string
   yaml: string
@@ -165,8 +173,14 @@ let standardMembersRevision = 0
 
 export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
   const existing = membersByOwnerKind.get(ownerKind) ?? []
-  membersByOwnerKind.set(ownerKind, [...existing, ...members])
+  membersByOwnerKind.set(ownerKind, [...existing, ...members.map(withCommonFillValuePolicy)])
   standardMembersRevision += 1
+}
+
+function withCommonFillValuePolicy(member: StandardMemberDeclaration): StandardMemberDeclaration {
+  if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
+  const fillValue = commonStandardAttributeFillValuePolicies[member.names.internal]
+  return fillValue === undefined ? member : { ...member, fillValue }
 }
 
 export function getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[] {
