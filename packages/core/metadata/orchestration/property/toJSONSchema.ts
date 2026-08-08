@@ -9,9 +9,7 @@ import {
 } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
-import * as SE from "../../systemEnumerations/types"
-
-const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
+import { getSystemEnumeration } from "./systemEnumerationRegistry"
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -40,7 +38,7 @@ function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (rule.type === "SystemEnumeration" && typeof v === "string") {
     const typeSE = (rule as { typeSE?: string }).typeSE
     if (typeSE === undefined) return v
-    return systemEnumerationTables[`${typeSE}ToYAML`]?.[v] ?? v
+    return getSystemEnumeration(typeSE)?.toYAML[v] ?? v
   }
   return undefined
 }

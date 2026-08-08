@@ -315,8 +315,10 @@ describe("metadata import boundaries", () => {
 
     expect(globalRegistry).not.toMatch(/^\s+I8nText: \{/m)
     expect(globalRegistry).not.toMatch(/^\s+I8nText: "I8nText",/m)
-    expect(localRegistry).toContain("interface PropertyTypeRegistry")
-    expect(localRegistry).toContain("I8nText: {")
+    expect(localRegistry).toContain("interface PropertyMetadataTypeMap")
+    expect(localRegistry).toContain("interface PropertyEnterpriseTypeMap")
+    expect(localRegistry).toContain("interface PropertyYAMLTypeMap")
+    expect(localRegistry).toContain("I8nText: I8nText")
   })
 
   it("orchestration property registry is no longer a concrete metadata type list", () => {

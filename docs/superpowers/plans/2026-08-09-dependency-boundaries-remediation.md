@@ -176,22 +176,24 @@ git commit -m "refactor: :recycle: отделить расширения metadat
 - Modify: `packages/core/metadata/orchestration/metadataItem/element.ts`
 - Modify: `packages/core/metadata/orchestration/metadataItem/yaml.ts`
 - Modify: `packages/core/metadata/orchestration/property/toJSONSchema.ts`
-- Create: `packages/core/metadata/systemEnumerations/registry.ts`
 - Create: `packages/core/metadata/systemEnumerations/registry.types.ts`
 - Create: `packages/core/metadata/commonObjects/userVisible/registry.types.ts`
+- Modify: `packages/core/metadata/commonObjects/i8nText/registry.types.ts`
+- Create: `packages/core/metadata/commonObjects/formattedI8nText/registry.types.ts`
 - Create: `packages/core/metadata/systemEnumerations/registry.types.test.ts`
 - Create: `packages/core/metadata/commonObjects/userVisible/registry.types.test.ts`
 - Modify: `packages/core/metadata/systemEnumerations/index.ts`
 - Modify: `packages/core/metadata/commonObjects/index.ts`
 - Create: `packages/core/metadata/orchestration/property/systemEnumerationRegistry.test.ts`
 - Modify: `packages/core/metadata/commonObjects/formattedI8nText/types.test.ts`
+- Modify: `packages/core/metadata/importBoundaries.test.ts`
 
 **Interfaces:**
 - Produces: расширяемые `PropertyMetadataTypeMap`, `PropertyYAMLTypeMap`, `SystemEnumerationTypeMap`.
 - Produces: `registerSystemEnumeration(name, { fromYAML, toYAML })` и `getSystemEnumeration(name)`.
 - Removes direct dependencies from `metadataItem/element.ts`, `metadataItem/yaml.ts`, `property/toJSONSchema.ts` and `validation/yamlFactExtractor.ts` to `systemEnumerations`/`userVisible`.
 
-- [ ] **Step 1: Добавить падающие проверки строгого вывода типов**
+- [x] **Step 1: Добавить падающие проверки строгого вывода типов**
 
 ```ts
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends
@@ -210,13 +212,13 @@ type _UserVisibleYAML = Assert<Equal<
 
 Добавить эти compile-time проверки в `registry.types.test.ts` рядом с конкретными владельцами типов.
 
-- [ ] **Step 2: Запустить TypeScript и подтвердить, что новая карта отсутствует**
+- [x] **Step 2: Запустить TypeScript и подтвердить, что новая карта отсутствует**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
 Expected: FAIL на отсутствующих `PropertyMetadataTypeMap`, `PropertyYAMLTypeMap` и `SystemEnumerationTypeMap`.
 
-- [ ] **Step 3: Заменить `Key & any` расширяемыми картами**
+- [x] **Step 3: Добавить расширяемые карты поверх существующего запасного типа**
 
 ```ts
 export interface PropertyMetadataTypeMap {}
@@ -224,20 +226,20 @@ export interface PropertyYAMLTypeMap {}
 export interface PropertyEnterpriseTypeMap {}
 
 export type PropertyToMetadata<Key extends PropertyRuleType> =
-  Key extends keyof PropertyMetadataTypeMap ? PropertyMetadataTypeMap[Key] : unknown
+  Key extends keyof PropertyMetadataTypeMap ? PropertyMetadataTypeMap[Key] : Key & any
 export type PropertyToYAML<Key extends PropertyRuleType> =
-  Key extends keyof PropertyYAMLTypeMap ? PropertyYAMLTypeMap[Key] : unknown
+  Key extends keyof PropertyYAMLTypeMap ? PropertyYAMLTypeMap[Key] : Key & any
 export type PropertyToEnterprise<Key extends PropertyRuleType> =
-  Key extends keyof PropertyEnterpriseTypeMap ? PropertyEnterpriseTypeMap[Key] : unknown
+  Key extends keyof PropertyEnterpriseTypeMap ? PropertyEnterpriseTypeMap[Key] : Key & any
 ```
 
-Concrete property modules дополняют карты через declaration merging. `userVisible/registry.types.ts` владеет записью `UserVisible`, не `metadataItem/yaml.ts`.
+Concrete property modules дополняют карты через declaration merging. `userVisible/registry.types.ts` владеет записью `UserVisible`, не `metadataItem/yaml.ts`. Запасной `Key & any` временно сохраняется только для ещё не перенесённых property-типов: немедленная замена на `unknown` потребовала бы описать все существующие типы и выходит за границы пяти исправляемых связей.
 
-- [ ] **Step 4: Добавить типизированный каталог системных перечислений**
+- [x] **Step 4: Добавить типизированный каталог системных перечислений**
 
 `systemEnumerations/registry.types.ts` формирует `RegisteredSystemEnumerationTypeMap` из пар экспортов `*FromYAML`/`*ToYAML` и дополняет нейтральный `SystemEnumerationTypeMap`. Тест сравнивает множество имён зарегистрированных таблиц с множеством `typeSE`, найденных в rules.ts; пропущенное имя должно падать с его названием.
 
-- [ ] **Step 5: Добавить runtime-регистрацию и убрать прямые таблицы из orchestration**
+- [x] **Step 5: Добавить runtime-регистрацию и убрать прямые таблицы из orchestration**
 
 ```ts
 export interface RegisteredSystemEnumeration {
@@ -255,9 +257,9 @@ export function getSystemEnumeration(
 ): RegisteredSystemEnumeration | undefined
 ```
 
-`systemEnumerations/registry.ts` регистрирует существующие пары. `property/toJSONSchema.ts` преобразует implicit value через `getSystemEnumeration(typeSE)?.toYAML`, а не через `import * as SE`. `yamlFactExtractor.ts` использует зарегистрированный property-handler для `PictureLib`, не импортирует таблицу.
+Существующий composition-файл `systemEnumerations/index.ts` регистрирует пары: отдельный concrete `registry.ts` не подключается, потому что добавляет новый модуль в существующую циклическую компоненту. `property/toJSONSchema.ts` преобразует implicit value через `getSystemEnumeration(typeSE)?.toYAML`, а не через `import * as SE`. `yamlFactExtractor.ts` использует зарегистрированную таблицу `PictureLib`, не импортирует concrete-типы.
 
-- [ ] **Step 6: Проверить вывод типов и JSON Schema**
+- [x] **Step 6: Проверить вывод типов и JSON Schema**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -265,7 +267,7 @@ Run: `pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/t
 
 Expected: PASS; literal system-enumeration defaults по-прежнему исключаются из JSON Schema, а типы rules.ts не расширяются до `string` или `unknown`.
 
-- [ ] **Step 7: Проверить исчезновение пяти прямых нарушений**
+- [x] **Step 7: Проверить исчезновение пяти прямых нарушений**
 
 Run: `pnpm test:architecture`
 
@@ -277,10 +279,10 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 8: Зафиксировать изменение**
+- [x] **Step 8: Зафиксировать изменение**
 
 ```bash
-git add packages/core/metadata/orchestration/property packages/core/metadata/orchestration/metadataItem packages/core/metadata/systemEnumerations packages/core/metadata/commonObjects/userVisible packages/core/metadata/validation/yamlFactExtractor.ts .dependency-cruiser-known-violations.json
+git add packages/core/metadata/orchestration/property packages/core/metadata/orchestration/metadataItem packages/core/metadata/systemEnumerations packages/core/metadata/commonObjects/userVisible packages/core/metadata/commonObjects/i8nText packages/core/metadata/commonObjects/formattedI8nText packages/core/metadata/validation/yamlFactExtractor.ts packages/core/metadata/importBoundaries.test.ts .dependency-cruiser-known-violations.json docs/superpowers/plans/2026-08-09-dependency-boundaries-remediation.md
 git commit -m "refactor: :recycle: расширить каталог property-типов"
 ```
 

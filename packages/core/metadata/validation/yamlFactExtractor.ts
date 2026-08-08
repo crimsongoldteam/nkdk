@@ -13,9 +13,9 @@ import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
 import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { getSystemEnumeration } from "../orchestration/property/systemEnumerationRegistry"
 import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
-import { PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { createFormDataPathIndexCollector } from "./dataPath/formYamlIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
@@ -520,7 +520,7 @@ function pendingPictureReferenceFromYamlValue(params: {
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference | undefined {
-  if (params.value in PictureLibFromYAML) return undefined
+  if (params.value in (getSystemEnumeration("PictureLib")?.fromYAML ?? {})) return undefined
   if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
 
   return pendingReferenceFromYamlValue({

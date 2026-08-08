@@ -99,65 +99,9 @@
   },
   {
     "type": "dependency",
-    "from": "packages/core/metadata/orchestration/metadataItem/element.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
-    "unresolvedTo": "../../systemEnumerations/types",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
     "from": "packages/core/metadata/orchestration/metadataItem/fromXMLToYAML.ts",
     "to": "packages/core/metadata/importFromXml/metadataItemAugmenter.ts",
     "unresolvedTo": "../../importFromXml/metadataItemAugmenter",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/orchestration/metadataItem/yaml.ts",
-    "to": "packages/core/metadata/commonObjects/userVisible/types.ts",
-    "unresolvedTo": "../../commonObjects/userVisible/types",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/orchestration/metadataItem/yaml.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
-    "unresolvedTo": "../../systemEnumerations/types",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
-    "unresolvedTo": "../../systemEnumerations/types",
     "dependencyTypes": [
       "local",
       "import"
@@ -460,20 +404,6 @@
     "from": "packages/core/metadata/validation/yamlFactExtractor.ts",
     "to": "packages/core/metadata/forms/elements/orchestration/types.ts",
     "unresolvedTo": "../forms/elements/orchestration/types",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/yamlFactExtractor.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
-    "unresolvedTo": "../systemEnumerations/types",
     "dependencyTypes": [
       "local",
       "import"
@@ -1113,16 +1043,48 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/orchestration/metadataItem/element.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/orchestration/property/types.ts",
         "dependencyTypes": [
           "local",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/property/fn.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/property/importYamlTypes.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
           "import"
         ]
       }
@@ -1259,24 +1221,38 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/orchestration/metadataItem/toJSONSchema.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
+        "name": "packages/core/metadata/context/types.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/orchestration/index.ts",
         "dependencyTypes": [
           "local",
           "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/formElement/ruleFactory.ts",
+        "dependencyTypes": [
+          "local",
+          "export"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
+        "dependencyTypes": [
+          "local",
+          "export"
         ]
       }
     ]
@@ -1284,16 +1260,48 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/orchestration/metadataItem/yaml.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/orchestration/property/types.ts",
         "dependencyTypes": [
           "local",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/property/fn.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/property/importYamlTypes.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
           "import"
         ]
       }
@@ -1903,16 +1911,40 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/orchestration/property/typeRuleRegistry.ts",
         "dependencyTypes": [
           "local",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/property/importYamlTypes.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
           "import"
         ]
       }
@@ -2798,31 +2830,39 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/project/projectSpecHelpers.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/orchestration/metadataItem/toJSONSchema.ts",
+        "name": "packages/core/metadata/context/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/index.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
+        "name": "packages/core/metadata/orchestration/formElement/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       },
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       }
     ]
@@ -2897,31 +2937,39 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/project/schemaRegistry.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/orchestration/metadataItem/toJSONSchema.ts",
+        "name": "packages/core/metadata/context/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/index.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
+        "name": "packages/core/metadata/orchestration/formElement/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       },
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       }
     ]
@@ -4140,7 +4188,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/schemaRegistry.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -4154,24 +4202,32 @@
         ]
       },
       {
-        "name": "packages/core/metadata/orchestration/metadataItem/toJSONSchema.ts",
+        "name": "packages/core/metadata/context/types.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/orchestration/index.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/orchestration/property/toJSONSchema.ts",
+        "name": "packages/core/metadata/orchestration/formElement/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       },
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/ruleFactory.ts",
         "dependencyTypes": [
           "local",
-          "import"
+          "export"
         ]
       }
     ]
@@ -4373,14 +4429,14 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/yamlFactExtractor.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/systemEnumerations/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/types.ts",
         "dependencyTypes": [
           "local",
           "import"
