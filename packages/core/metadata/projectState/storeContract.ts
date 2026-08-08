@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
 import type { ProjectStateReadToken } from "./contracts"
-import type { ProjectStateFileIdentity, ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
+import {
+  createProjectStateFileUpdateBatch,
+  type ProjectStateFileIdentity,
+  type ProjectStateFileUpdate,
+  type ProjectStateYamlFileUpdate,
+} from "./fileUpdate"
 import type {
   ProjectStateImportFinalFileState,
   ProjectStateImportFinalFileStateBatch,
@@ -66,6 +71,113 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(baseline.knownHashBits).toEqual(Uint8Array.of(0b0000_0001))
       expect(baseline.hashBytes).toEqual(Uint8Array.from([...firstHash, ...new Uint8Array(8)]))
       expect(baseline.deleted).toEqual([identity(second)])
+    })
+
+    it("разрешает файловую цель из resource-update и возвращает её проектные пути", () => {
+      const { store, openReadSession } = factory()
+      const target = fileTargetUpdate("cf/Макеты/Печать/Template.xml")
+      store.beginUpdate()
+      replaceFiles(store, fileBatch([target]))
+      store.commitUpdate()
+
+      const session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("target")])).toEqual([{
+        requestId: "target",
+        status: "found",
+        target: target.targets[0],
+        source: {
+          projectPath: target.projectPath,
+          componentPath: "cf",
+          itemProjectPath: "cf/Макеты/Печать",
+          ownerProjectPath: "cf/Свойства.yaml",
+        },
+      }])
+      expect(session.readComponentTargetPage({ componentPath: "cf" }).entries).toContainEqual({
+        logicalAddress: "Document.Заказ.Template.Печать",
+        sourceProjectPath: target.projectPath,
+        itemProjectPath: "cf/Макеты/Печать",
+        ownerProjectPath: "cf/Свойства.yaml",
+      })
+      session.close()
+    })
+
+    it("объединяет совместимые доказательства файловой цели, но не разные пути", () => {
+      const { store, openReadSession } = factory()
+      const first = fileTargetUpdate("cf/Макеты/Печать/Template.xml")
+      const second = fileTargetUpdate("cf/Макеты/Печать/Ext/logo.png")
+      commitFileTargets(store, [first, second])
+
+      let session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("same")])[0]).toMatchObject({ status: "found" })
+      session.close()
+
+      store.beginUpdate()
+      replaceFiles(store, fileBatch([fileTargetUpdate(
+        "cf/ДругиеМакеты/Печать/Template.xml",
+        "cf/ДругиеМакеты/Печать",
+      )]))
+      store.commitUpdate()
+      session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("different")])).toEqual([{
+        requestId: "different",
+        status: "ambiguous",
+      }])
+      session.close()
+    })
+
+    it("удаляет файловую цель только вместе с последним доказательством", () => {
+      const { store, openReadSession } = factory()
+      const first = fileTargetUpdate("cf/Макеты/Печать/Template.xml")
+      const second = fileTargetUpdate("cf/Макеты/Печать/Ext/logo.png")
+      commitFileTargets(store, [first, second])
+
+      store.beginUpdate()
+      store.deleteFiles([first.projectPath])
+      store.commitUpdate()
+      let session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("one-left")])[0]).toMatchObject({ status: "found" })
+      session.close()
+
+      store.beginUpdate()
+      store.deleteFiles([second.projectPath])
+      store.commitUpdate()
+      session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("none-left")])).toEqual([{
+        requestId: "none-left",
+        status: "missing",
+      }])
+      session.close()
+    })
+
+    it("для расширения выбирает собственную файловую цель, иначе цель основной конфигурации", () => {
+      const { store, openReadSession } = factory()
+      const base = fileTargetUpdate("cf/Макеты/Печать/Template.xml")
+      store.beginUpdate()
+      replaceFiles(store, fileBatch([base]))
+      store.commitUpdate()
+
+      let session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("base", "cfe/Цены")])[0]).toMatchObject({
+        status: "found",
+        source: { projectPath: base.projectPath, componentPath: "cf" },
+      })
+      session.close()
+
+      const own = fileTargetUpdate(
+        "cfe/Цены/Макеты/Печать/Template.xml",
+        "cfe/Цены/Макеты/Печать",
+        "cfe/Цены",
+      )
+      store.beginUpdate()
+      replaceFiles(store, fileBatch([own]))
+      store.commitUpdate()
+
+      session = openReadSession(store.createReadToken())
+      expect(session.resolveTargets([targetLookup("own", "cfe/Цены")])[0]).toMatchObject({
+        status: "found",
+        source: { projectPath: own.projectPath, componentPath: "cfe/Цены" },
+      })
+      session.close()
     })
 
     it.each([
@@ -420,6 +532,38 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       expect(() => openReadSession(token)).toThrow()
     })
   })
+}
+
+function targetLookup(requestId: string, componentPath = "cf") {
+  return { requestId, componentPath, canonicalTarget: "Document.Заказ.Template.Печать" }
+}
+
+function fileTargetUpdate(
+  projectPath: string,
+  itemProjectPath = "cf/Макеты/Печать",
+  componentPath = "cf",
+) {
+  return {
+    ...resourceUpdate(projectPath, componentPath),
+    targets: [{
+      kind: "member" as const,
+      canonical: "Document.Заказ.Template.Печать",
+      fileBacked: { itemProjectPath, ownerProjectPath: `${componentPath}/Свойства.yaml` },
+    }],
+  }
+}
+
+function fileBatch(updates: readonly ProjectStateFileUpdate[]) {
+  return createProjectStateFileUpdateBatch(updates.map((update, index) => ({
+    update,
+    hash: BigInt(index + 1),
+  })))
+}
+
+function commitFileTargets(store: ProjectStateStore, updates: readonly ProjectStateFileUpdate[]): void {
+  store.beginUpdate()
+  replaceFiles(store, fileBatch(updates))
+  store.commitUpdate()
 }
 
 function importIndex(

@@ -129,13 +129,13 @@ function resolveTargets(
       cache.set(cacheKey, result)
       return { requestId, ...result }
     }
-    if (candidates.length > 1) {
+    const candidate = coalesceTargetCandidates(candidates)
+    if (candidate === undefined) {
       const result = { status: "ambiguous" as const }
       cache.set(cacheKey, result)
       return { requestId, ...result }
     }
 
-    const candidate = candidates[0]
     const details = readReferenceDetails(candidate.sourceFileId, candidate.kind, candidate.canonical)
     const result = {
       status: "found" as const,
@@ -143,12 +143,45 @@ function resolveTargets(
         kind: candidate.kind,
         canonical: candidate.canonical,
         ...(details === undefined ? {} : { details }),
+        ...(candidate.itemProjectPath === undefined || candidate.ownerProjectPath === undefined
+          ? {}
+          : {
+              fileBacked: {
+                itemProjectPath: candidate.itemProjectPath,
+                ownerProjectPath: candidate.ownerProjectPath,
+              },
+            }),
       },
-      source: { projectPath: candidate.projectPath, componentPath: candidate.componentPath },
+      source: {
+        projectPath: candidate.projectPath,
+        componentPath: candidate.componentPath,
+        ...(candidate.itemProjectPath === undefined ? {} : { itemProjectPath: candidate.itemProjectPath }),
+        ...(candidate.ownerProjectPath === undefined ? {} : { ownerProjectPath: candidate.ownerProjectPath }),
+      },
     }
     cache.set(cacheKey, result)
     return { requestId, ...result }
   })
+}
+
+function coalesceTargetCandidates<T extends {
+  readonly componentPath: string
+  readonly canonical: string
+  readonly kind: string
+  readonly itemProjectPath?: string
+  readonly ownerProjectPath?: string
+}>(candidates: readonly T[]): T | undefined {
+  const first = candidates[0]
+  if (first === undefined) return undefined
+  if (candidates.length === 1) return first
+  if (first.itemProjectPath === undefined || first.ownerProjectPath === undefined) return undefined
+  return candidates.every((candidate) =>
+    candidate.componentPath === first.componentPath
+    && candidate.canonical === first.canonical
+    && candidate.kind === first.kind
+    && candidate.itemProjectPath === first.itemProjectPath
+    && candidate.ownerProjectPath === first.ownerProjectPath
+  ) ? first : undefined
 }
 
 function readOwner(
@@ -334,23 +367,32 @@ function readComponentTargetPage(
   query: { readonly componentPath: string; readonly cursor?: string },
   pageSize: number,
 ): ProjectComponentTargetPage {
-  const rows: { readonly canonical: string; readonly sourceFileId: number }[] = []
+  const rows: {
+    readonly canonical: string
+    readonly sourceFileId: number
+    readonly itemProjectPath?: string
+    readonly ownerProjectPath?: string
+  }[] = []
   for (let rangeId = 0; rangeId < snapshot.targetRangeCount && rows.length <= pageSize; rangeId += 1) {
     const range = snapshot.targetRange(rangeId)
     if (snapshot.stringValue(range.componentPathId) !== query.componentPath) continue
     const canonical = snapshot.stringValue(range.canonicalId)
     if (canonical <= (query.cursor ?? "")) continue
-    const files = new Set<number>()
-    for (let index = 0; index < range.count; index += 1) {
-      files.add(snapshot.targetEntry(range.start + index).sourceFileId)
-    }
-    if (files.size === 1) rows.push({ canonical, sourceFileId: files.values().next().value! })
+    const target = coalesceTargetCandidates(snapshot.lookupTarget(query.componentPath, canonical))
+    if (target !== undefined) rows.push({
+      canonical,
+      sourceFileId: target.sourceFileId,
+      ...(target.itemProjectPath === undefined ? {} : { itemProjectPath: target.itemProjectPath }),
+      ...(target.ownerProjectPath === undefined ? {} : { ownerProjectPath: target.ownerProjectPath }),
+    })
   }
   const page = rows.slice(0, pageSize)
   return {
-    entries: page.map(({ canonical, sourceFileId }) => ({
+    entries: page.map(({ canonical, sourceFileId, itemProjectPath, ownerProjectPath }) => ({
       logicalAddress: canonical,
       sourceProjectPath: snapshot.filePath(sourceFileId),
+      ...(itemProjectPath === undefined ? {} : { itemProjectPath }),
+      ...(ownerProjectPath === undefined ? {} : { ownerProjectPath }),
     })),
     ...(rows.length <= pageSize ? {} : { nextCursor: page.at(-1)!.canonical }),
   }

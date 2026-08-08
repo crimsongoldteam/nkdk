@@ -19,7 +19,12 @@ export type ProjectTargetLookupResult =
       readonly requestId: string
       readonly status: "found"
       readonly target: ProjectStateTargetEntry
-      readonly source: { readonly projectPath: string; readonly componentPath: string }
+      readonly source: {
+        readonly projectPath: string
+        readonly componentPath: string
+        readonly itemProjectPath?: string
+        readonly ownerProjectPath?: string
+      }
     }
   | { readonly requestId: string; readonly status: "ambiguous" }
   | { readonly requestId: string; readonly status: "missing" }
@@ -124,6 +129,8 @@ export interface ProjectComponentTargetPage {
   readonly entries: readonly {
     readonly logicalAddress: string
     readonly sourceProjectPath: string
+    readonly itemProjectPath?: string
+    readonly ownerProjectPath?: string
   }[]
   readonly nextCursor?: string
 }

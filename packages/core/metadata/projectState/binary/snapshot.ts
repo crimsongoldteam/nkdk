@@ -47,6 +47,8 @@ export interface ProjectStateSnapshotTarget {
   readonly sourceFileId: number
   readonly projectPath: string
   readonly componentPath: string
+  readonly itemProjectPath?: string
+  readonly ownerProjectPath?: string
 }
 
 export interface ProjectStateHashIndexStats {
@@ -64,6 +66,7 @@ const SECTION_ORDER: readonly ProjectStateSectionKind[] = [
 ]
 
 const TARGET_KINDS = ["object", "member", "value"] as const
+const NONE = 0xffff_ffff
 const textEncoder = new TextEncoder()
 
 export function hashProjectStateTargetKey(componentPath: string, canonical: string): bigint {
@@ -385,6 +388,12 @@ export class ProjectStateSnapshotView {
         sourceFileId: entry.sourceFileId,
         projectPath: this.filePath(entry.sourceFileId),
         componentPath: this.stringValue(entry.componentPathId),
+        ...(entry.itemProjectPathId === NONE
+          ? {}
+          : { itemProjectPath: this.stringValue(entry.itemProjectPathId) }),
+        ...(entry.ownerProjectPathId === NONE
+          ? {}
+          : { ownerProjectPath: this.stringValue(entry.ownerProjectPathId) }),
       }
     })
   }

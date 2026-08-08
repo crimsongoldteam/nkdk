@@ -30,7 +30,7 @@ it("накапливает несколько файлов в одном тип�
   expect(view.fileRecord(1)).toMatchObject({ hash: 10n, updateKind: 2 })
   expect(Array.from({ length: view.stringCount }, (_, id) => view.stringValue(id)).filter((value) => value === "cf"))
     .toHaveLength(1)
-  expect(view.tableRange("references")?.records).toBe(1)
+  expect(view.tableRange("targets")?.records).toBe(1)
   expect(view.tableRange("fields")?.records).toBe(3)
   expect(view.tableRange("pendingChecks")?.records).toBe(1)
   expect(view.diagnosticCount).toBe(2)
@@ -97,7 +97,7 @@ it("собирает оба вида import-фрагментов тем же ф�
   indexWriter.appendImportIndex(contribution)
 
   const indexView = openProjectStateFragment(indexWriter.finish())
-  expect(indexView.tableRange("references")?.records).toBe(1)
+  expect(indexView.tableRange("targets")?.records).toBe(1)
 
   const finalWriter = createProjectStateFragmentWriter()
   const finalBatch: ProjectStateImportFinalFileStateBatch = {
@@ -130,7 +130,7 @@ it("собирает оба вида import-фрагментов тем же ф�
   combinedWriter.appendImportFinal(finalBatch)
   const combined = openProjectStateFragment(combinedWriter.finish())
   expect(combined.fileCount).toBe(1)
-  expect(combined.tableRange("references")?.records).toBe(1)
+  expect(combined.tableRange("targets")?.records).toBe(1)
   expect(combined.tableRange("validationStatus")?.records).toBe(1)
 })
 

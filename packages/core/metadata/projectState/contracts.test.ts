@@ -16,17 +16,14 @@ import {
   ProjectStateReadSessionClosedError,
   type ProjectStateReadSession,
 } from "./readSession"
-import {
-  projectStateDataPathReferenceLocation,
-  resolveProjectStateDataPathReferenceBatch,
-} from "./dependencyValidation"
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
 import { buildProjectStateSnapshot } from "./binary/builder"
-import { openProjectStateFragment } from "./binary/fragment"
+import { createProjectStateFragmentWriter, openProjectStateFragment } from "./binary/fragment"
 import { ProjectStateSnapshotView } from "./binary/snapshot"
 import { createTypedProjectStateReader } from "./binary/typedReader"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
+import { openBinaryProjectStateReadSession } from "./binary/readSession"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
 
 describe("ProjectStateFileHashBatch", () => {
@@ -222,7 +219,6 @@ function createTestStoreContractFixture() {
   const committedIdentities = new Map<string, ProjectStateFileIdentity>()
   let staged: Map<string, StoredUpdate> | undefined
   let stagedIdentities: Map<string, ProjectStateFileIdentity> | undefined
-  const tokens = new Set<SharedArrayBuffer>()
 
   function current(): Map<string, StoredUpdate> {
     return staged ?? committed
@@ -300,7 +296,7 @@ function createTestStoreContractFixture() {
           componentPath: snapshot.componentPath(fileId),
           resourceKind: record.resourceKind === 1 ? "yaml" as const : "resource" as const,
         }
-        if (record.updateKind === 2) return { ...base, kind: "resource", targets: [] }
+        if (record.updateKind === 2) return reader.fileUpdate(fileId)
         const yamlRole = ([undefined, "configuration", "properties", "form"] as const)[record.yamlRole]
         const facts = reader.yamlFacts(fileId)
         if (yamlRole === undefined || facts === undefined) throw new Error("Неполный индекс YAML")
@@ -372,9 +368,7 @@ function createTestStoreContractFixture() {
       }
     },
     createReadToken() {
-      const token = createBinaryProjectStateReadToken(buildProjectStateSnapshot({ fragments: [], deletions: [] }))
-      tokens.add(tokenKey(token))
-      return token
+      return createBinaryProjectStateReadToken(snapshotFromStored(committed))
     },
     commitUpdate() {
       if (staged === undefined) throw new Error("Нет активного обновления")
@@ -397,161 +391,26 @@ function createTestStoreContractFixture() {
   return {
     store,
     openReadSession(token: ProjectStateReadToken): ProjectStateReadSession {
-      if (!tokens.has(tokenKey(token))) throw new Error("Неизвестный token чтения")
-      return testStoreReadSession(token, committed, () => tokens.delete(tokenKey(token)))
+      return openBinaryProjectStateReadSession(token)
     },
   }
+}
+
+function snapshotFromStored(stored: ReadonlyMap<string, StoredUpdate>) {
+  const writer = createProjectStateFragmentWriter()
+  for (const { update, hashBytes: bytes } of stored.values()) {
+    writer.appendFile(update, new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, false))
+  }
+  return buildProjectStateSnapshot({
+    fragments: stored.size === 0 ? [] : [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  })
 }
 
 function hashBytes(hash: bigint): Uint8Array {
   const bytes = new Uint8Array(8)
   new DataView(bytes.buffer).setBigUint64(0, hash, false)
   return bytes
-}
-
-function testStoreReadSession(
-  token: ProjectStateReadToken,
-  updates: Map<string, StoredUpdate>,
-  onClose?: () => void
-): ProjectStateReadSession {
-  let closed = false
-  const assertOpen = (): void => {
-    if (closed) throw new ProjectStateReadSessionClosedError(token)
-  }
-  const visibleYamlUpdatesForSession = (componentPath: string) => visibleYamlUpdates(updates, componentPath)
-
-  let session!: ProjectStateReadSession
-  session = {
-    resolveTargets(requests) {
-      assertOpen()
-      return requests.map(({ requestId, componentPath, canonicalTarget }) => {
-        const targets = visibleYamlUpdatesForSession(componentPath)
-          .flatMap((update) => update.targets
-            .filter((reference) => reference.canonical === canonicalTarget)
-            .map((target) => ({
-              target,
-              source: { projectPath: update.projectPath, componentPath: update.componentPath },
-            })))
-        if (targets.length === 1) return { requestId, status: "found" as const, ...targets[0]! }
-        return targets.length > 1
-          ? { requestId, status: "ambiguous" as const }
-          : { requestId, status: "missing" as const }
-      })
-    },
-    readOwners(requests) {
-      assertOpen()
-      return requests.map(({ requestId, componentPath, owner }) => {
-        const matches = visibleYamlUpdatesForSession(componentPath)
-          .flatMap((update) => update.owners)
-          .filter(({ owner: candidate }) => candidate.kind === owner.kind && candidate.name === owner.name)
-        if (matches.length === 1) return { requestId, status: "found" as const, facts: matches[0]!.facts }
-        return matches.length > 1
-          ? { requestId, status: "ambiguous" as const }
-          : { requestId, status: "missing" as const }
-      })
-    },
-    findReferences(requests) {
-      assertOpen()
-      return requests.map(({ requestId, componentPath, canonical, match, dataPathTarget }, requestIndex) => {
-        const visible = visibleYamlUpdatesForSession(componentPath)
-        const metadataReferences = visible
-          .flatMap((update) => update.pendingReferences
-            .filter((reference) => reference.canonical === canonical
-              || (match === "prefix" && reference.canonical.startsWith(`${canonical}.`)))
-            .map((reference) => ({
-              kind: "metadataTarget" as const,
-              projectPath: update.projectPath,
-              componentPath: update.componentPath,
-              yamlPath: reference.yamlPath,
-              canonical: reference.canonical,
-            })))
-        if (dataPathTarget === undefined) return { requestId, references: metadataReferences }
-        const checks = visible.flatMap((update, checkIndex) => update.pendingChecks.map((check) => ({
-          requestId: `data-path:${requestIndex}:${checkIndex}:${update.projectPath}`,
-          componentPath: update.componentPath,
-          projectPath: update.projectPath,
-          check,
-        })))
-        const dataPathReferences = resolveProjectStateDataPathReferenceBatch({
-          checks,
-          projectDir: "",
-          queryPort: session,
-        }).flatMap((reference) => {
-          if (reference.target.source.kind !== "objectField") return []
-          if (!sameOwner(reference.target.source.owner, dataPathTarget.owner)) return []
-          if (dataPathTarget.fieldName !== undefined && reference.target.source.name !== dataPathTarget.fieldName) return []
-          return [projectStateDataPathReferenceLocation(reference)]
-        })
-        return { requestId, references: [...metadataReferences, ...dataPathReferences] }
-      })
-    },
-    readDependencyInputs(requests) {
-      assertOpen()
-      return requests.map(({ requestId, componentPath, projectPath, check }) => {
-        const visible = visibleYamlUpdatesForSession(componentPath)
-        const input = dependencyInput(visible, componentPath, projectPath, check.owner)
-        return input === undefined
-          ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, input }
-      })
-    },
-    readDependencyOwnerInputs(requests) {
-      assertOpen()
-      return requests.map(({ requestId, componentPath, owner }) => {
-        const input = dependencyOwnerInput(visibleYamlUpdatesForSession(componentPath), componentPath, owner)
-        return input === undefined
-          ? { requestId, status: "missing" as const }
-          : { requestId, status: "found" as const, input }
-      })
-    },
-    readOwnerRefPage({ componentPath, kind, cursor }) {
-      assertOpen()
-      const refs = visibleOwnerRefs(visibleYamlUpdatesForSession(componentPath), componentPath, kind)
-      const start = cursor === undefined ? 0 : refs.findIndex((ref) => ownerRefKey(ref) === cursor) + 1
-      const page = refs.slice(start, start + 2_001)
-      return {
-        refs: page.slice(0, 2_000),
-        ...(page.length <= 2_000 ? {} : { nextCursor: ownerRefKey(page[1_999]!) }),
-      }
-    },
-    readComponentTargetPage({ componentPath, cursor }) {
-      assertOpen()
-      const entries = new Map<string, Array<{ logicalAddress: string; sourceProjectPath: string }>>()
-      for (const { update } of updates.values()) {
-        if (update.kind !== "yaml" || update.componentPath !== componentPath) continue
-        for (const reference of update.targets) {
-          const values = entries.get(reference.canonical) ?? []
-          values.push({ logicalAddress: reference.canonical, sourceProjectPath: update.projectPath })
-          entries.set(reference.canonical, values)
-        }
-      }
-      return {
-        entries: [...entries.entries()]
-          .filter(([logicalAddress, values]) => logicalAddress > (cursor ?? "") && values.length === 1)
-          .sort(([left], [right]) => left.localeCompare(right))
-          .map(([, values]) => values[0]!),
-      }
-    },
-    readValidationStatus({ offset, batchSize }) {
-      assertOpen()
-      return [...updates.values()].slice(offset, offset + batchSize).map(({ update }) => ({
-        projectPath: update.projectPath,
-        componentPath: update.componentPath,
-        ...(update.kind === "resource"
-          ? {}
-          : {
-              schemaReady: update.localValidation.schemaDiagnostics.length === 0,
-              contributedFacts: update.localValidation.contributedFacts,
-            }),
-      }))
-    },
-    close() {
-      if (closed) return
-      closed = true
-      onClose?.()
-    },
-  }
-  return session
 }
 
 function visibleYamlUpdates(
@@ -599,30 +458,11 @@ function dependencyOwnerInput(
   }
 }
 
-function visibleOwnerRefs(
-  updates: readonly ProjectStateYamlFileUpdate[],
-  componentPath: string,
-  kind: string,
-) {
-  const refs = new Map<string, { kind: string; name?: string }>()
-  for (const update of updates) {
-    for (const { owner } of update.owners) {
-      if (owner.kind !== kind || dependencyOwnerInput(updates, componentPath, owner) === undefined) continue
-      refs.set(ownerRefKey(owner), owner)
-    }
-  }
-  return [...refs.values()].sort((left, right) => ownerRefKey(left).localeCompare(ownerRefKey(right)))
-}
-
 function sameOwner(
   left: { readonly kind: string; readonly name?: string },
   right: { readonly kind: string; readonly name?: string },
 ): boolean {
   return left.kind === right.kind && left.name === right.name
-}
-
-function ownerRefKey(owner: { readonly kind: string; readonly name?: string }): string {
-  return `${owner.kind}:${owner.name ?? ""}`
 }
 
 interface StoredUpdate {
@@ -651,8 +491,4 @@ function identity(update: ProjectStateFileIdentity) {
   return yamlRole === undefined
     ? { projectPath, componentPath, resourceKind }
     : { projectPath, componentPath, resourceKind, yamlRole }
-}
-
-function tokenKey(token: ProjectStateReadToken): SharedArrayBuffer {
-  return token.claim
 }

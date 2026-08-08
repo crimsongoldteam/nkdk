@@ -114,7 +114,9 @@ export function createProjectStateFragmentWriter(options: {
     appendImportIndex(update) {
       assertOpen()
       assertProjectStateImportIndexContribution(update, "importIndex")
-      appendIndexFacts(update, appendYamlIdentity(update, 0n))
+      const fileId = appendYamlIdentity(update, 0n)
+      appendTargetFacts(update.targets, fileId)
+      appendIndexFacts(update, fileId)
     },
     appendImportFinal(batch) {
       assertOpen()
@@ -128,7 +130,10 @@ export function createProjectStateFragmentWriter(options: {
           const fileId = appendYamlIdentity(update, hash)
           appendValidation(update, fileId)
           appendFinalFacts(update, fileId)
-        } else appendFileIdentity(update, hash)
+        } else {
+          const fileId = appendFileIdentity(update, hash)
+          appendTargetFacts(update.targets, fileId)
+        }
       })
     },
     finish() {
@@ -164,6 +169,7 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendCompleteFile(update: ProjectStateFileUpdate, hash: bigint): void {
     const fileId = appendFileIdentity(update, hash)
+    appendTargetFacts(update.targets, fileId)
     if (update.kind !== "yaml") return
     appendValidation(update, fileId)
     appendIndexFacts(update, fileId)
@@ -241,35 +247,9 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendIndexFacts(
-    update: Pick<ProjectStateImportIndexContribution, "targets" | "owners" | "fields" | "forms">,
+    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms">,
     fileId: number,
   ): void {
-    for (const reference of update.targets) {
-      const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
-      if (reference.details !== undefined) {
-        rows.referenceDetails.push({
-          typeInfoId: reference.details.typeInfo === undefined ? NONE : appendTypeInfo({
-            kinds: reference.details.typeInfo.kinds,
-            nextTypes: [],
-            definedTypes: reference.details.typeInfo.definedTypes,
-            sourceText: reference.details.typeInfo.sourceText,
-          }),
-          sourceTextId: optionalString(reference.details.typeInfo?.sourceText),
-          kind: reference.details.kind === "attribute" ? 1 : reference.details.kind === "standardAttribute" ? 2 : 0,
-          styleItemType: reference.details.styleItemType === "Color" ? 1 : reference.details.styleItemType === "Font" ? 2
-            : reference.details.styleItemType === "Border" ? 3 : 0,
-          reserved: 0,
-        })
-      }
-      rows.references.push({
-        sourceFileId: fileId,
-        canonicalId: strings.intern(reference.canonical),
-        detailsId,
-        kind: REFERENCE_KIND_IDS[reference.kind],
-        reserved8: 0,
-        reserved16: 0,
-      })
-    }
     for (const entry of update.owners) {
       const ownerId = appendOwnerType(entry.owner)
       const factsStart = rows.ownerFacts.length
@@ -297,7 +277,42 @@ export function createProjectStateFragmentWriter(options: {
         reserved: 0,
       })
     }
-    for (const form of update.forms) {
+    appendForms(update.forms, fileId)
+  }
+
+  function appendTargetFacts(targets: ProjectStateFileUpdate["targets"], fileId: number): void {
+    for (const reference of targets) {
+      const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
+      if (reference.details !== undefined) {
+        rows.referenceDetails.push({
+          typeInfoId: reference.details.typeInfo === undefined ? NONE : appendTypeInfo({
+            kinds: reference.details.typeInfo.kinds,
+            nextTypes: [],
+            definedTypes: reference.details.typeInfo.definedTypes,
+            sourceText: reference.details.typeInfo.sourceText,
+          }),
+          sourceTextId: optionalString(reference.details.typeInfo?.sourceText),
+          kind: reference.details.kind === "attribute" ? 1 : reference.details.kind === "standardAttribute" ? 2 : 0,
+          styleItemType: reference.details.styleItemType === "Color" ? 1 : reference.details.styleItemType === "Font" ? 2
+            : reference.details.styleItemType === "Border" ? 3 : 0,
+          reserved: 0,
+        })
+      }
+      rows.targets.push({
+        sourceFileId: fileId,
+        canonicalId: strings.intern(reference.canonical),
+        detailsId,
+        itemProjectPathId: optionalString(reference.fileBacked?.itemProjectPath),
+        ownerProjectPathId: optionalString(reference.fileBacked?.ownerProjectPath),
+        kind: REFERENCE_KIND_IDS[reference.kind],
+        reserved8: 0,
+        reserved16: 0,
+      })
+    }
+  }
+
+  function appendForms(forms: ProjectStateImportIndexContribution["forms"], fileId: number): void {
+    for (const form of forms) {
       if (form.kind === "tableDataPath") {
         rows.formColumns.push({
           sourceFileId: fileId,
@@ -674,7 +689,7 @@ class LocalStringTable {
 
 function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]> {
   return {
-    validationStatus: [], references: [], referenceDetails: [], pendingReferences: [],
+    validationStatus: [], targets: [], referenceDetails: [], pendingReferences: [],
     owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
     ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
     allowedKinds: [], dependencies: [], yamlPaths: [], yamlPathSegments: [],
