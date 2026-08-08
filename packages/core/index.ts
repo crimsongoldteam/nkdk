@@ -112,7 +112,6 @@ export type {
   DiagnosticSource,
   DiagnosticSeverity,
   MetadataDiagnostic,
-  MetadataKind,
 } from "./metadata/validation/types"
 export {
   createDiagnosticBatchWriter,

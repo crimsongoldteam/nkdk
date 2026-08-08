@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import type { ProjectStateService } from "../projectState/service"
-import { completeOperationProjectState, completeOperationReadSession } from "./operationTestSupport"
+import { completeOperationProjectState, completeOperationReadSession } from "./tests/operationTestSupport"
 import { readIndexedOperationReferences } from "./indexReferences"
 
 describe("readIndexedOperationReferences", () => {

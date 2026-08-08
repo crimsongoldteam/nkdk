@@ -1,13 +1,13 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
-import type { ProjectReferenceLocation } from "../projectState/readSession"
-import type { ProjectStateReadSession } from "../projectState/readSession"
-import type { ProjectStateService } from "../projectState/service"
-import type { Diagnostic } from "../validation/types"
-import { runProjectQuery } from "../workerPool/projectQueries"
+import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "../../diagnostics/collection"
+import type { ProjectReferenceLocation } from "../../projectState/readSession"
+import type { ProjectStateReadSession } from "../../projectState/readSession"
+import type { ProjectStateService } from "../../projectState/service"
+import type { Diagnostic } from "../../validation/types"
+import { runProjectQuery } from "../../workerPool/projectQueries"
 
 export const operationValidationError = {
   filePath: "cf/Справочник/Товары/Свойства.yaml",

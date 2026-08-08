@@ -1,4 +1,12 @@
-import type { MetadataFileItemRole, MetadataNamedChildKind } from "../../operations/types"
+export type MetadataNamedChildKind =
+  | "attribute"
+  | "tabularSection"
+  | "dimension"
+  | "resource"
+  | "addressingAttribute"
+  | "command"
+
+export type MetadataFileItemRole = "form" | "template" | "command"
 
 export type PropertyOperationTargetDeclaration =
   | NamedCollectionOperationTargetDeclaration

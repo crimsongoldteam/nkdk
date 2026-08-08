@@ -1,6 +1,5 @@
 import { SettingsParameterValuePropertyRule } from "../../commonObjects/dataCompositionSystem/parameterValue/types"
 import type { MetadataRootName, MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
-import type { TypeDescriptionAllowedTypes } from "../../commonObjects/typeDescription/types"
 import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
 import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
@@ -281,13 +280,6 @@ export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
   additionalSourceType: TableAdditionalSourceTypes
   forSingleElement?: true
-}
-
-export interface TypeDescriptionPropertyRule extends BasePropertyRule {
-  type: "TypeDescription"
-  addTypeDescriptionAttributeToXML?: true
-  declareTypeNamespaceXML?: boolean
-  allowedTypes?: TypeDescriptionAllowedTypes
 }
 
 export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "scalar" | "object" | "tableSource"
