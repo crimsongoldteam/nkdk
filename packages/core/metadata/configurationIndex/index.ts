@@ -20,7 +20,7 @@ export {
 export {
   configurationIndexPath,
   readConfigurationIndex,
-  writeConfigurationIndexAtomically,
+  writeConfigurationIndex,
 } from "./fileIO"
 export {
   createConfigurationIndexFragmentBuilder,

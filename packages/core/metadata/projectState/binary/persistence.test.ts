@@ -1,6 +1,6 @@
 import fs from "node:fs"
-import { basename, dirname, join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { basename } from "node:path"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { trackTempProjectDirs } from "../tests/tempProjectDir"
 import { buildProjectStateSnapshot } from "./builder"
 import {
@@ -15,7 +15,20 @@ import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fr
 describe("двоичный файл состояния проекта", () => {
   const projects = trackTempProjectDirs("nkdk-binary-state-")
 
-  afterEach(() => projects.removeAll())
+  afterEach(async () => {
+    vi.restoreAllMocks()
+    await projects.removeAll()
+  })
+
+  it("записывает непосредственно в целевой файл", async () => {
+    const projectDir = await projects.create()
+    const target = projectStateBinaryPath(projectDir)
+    const open = vi.spyOn(fs.promises, "open")
+
+    await saveBinaryProjectState(projectDir, resourceSnapshot())
+
+    expect(open).toHaveBeenCalledWith(target, "w")
+  })
 
   it("записывает все общие буферы одним файлом и загружает их обратно", async () => {
     const projectDir = await projects.create()
@@ -45,16 +58,6 @@ describe("двоичный файл состояния проекта", () => {
     await expect(fs.promises.access(target)).rejects.toMatchObject({ code: "ENOENT" })
   })
 
-  it("удаляет оставшиеся временные файлы", async () => {
-    const projectDir = await projects.create()
-    const target = projectStateBinaryPath(projectDir)
-    const temporary = join(dirname(target), ".project-state.bin.stale.tmp")
-    await fs.promises.mkdir(dirname(target), { recursive: true })
-    await fs.promises.writeFile(temporary, "stale")
-
-    await expect(loadBinaryProjectState(projectDir)).resolves.toBeUndefined()
-    await expect(fs.promises.access(temporary)).rejects.toMatchObject({ code: "ENOENT" })
-  })
 })
 
 function resourceSnapshot() {

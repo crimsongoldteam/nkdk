@@ -6,7 +6,7 @@ import {
   configurationIndexPath,
   createConfigurationIndexFragmentBuilder,
   hashConfigurationProjectFileList,
-  writeConfigurationIndexAtomically,
+  writeConfigurationIndex,
   type ComponentAddress,
   type ConfigurationIndexFragmentBuilder,
   type ConfigurationSnapshot,
@@ -104,7 +104,7 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   mergeFiles: mergeImportResultFiles,
   transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
-  writeIndex: writeConfigurationIndexAtomically,
+  writeIndex: writeConfigurationIndex,
 }
 
 export async function importConfigurationFromXml(

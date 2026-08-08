@@ -4,7 +4,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import {
   configurationIndexPath,
-  writeConfigurationIndexAtomically,
+  writeConfigurationIndex,
 } from "../configurationIndex/fileIO"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { entity } from "../configurationIndex/testData"
@@ -416,7 +416,7 @@ function failureDeps(
     validateWrittenFiles() {
       return []
     },
-    writeIndex: writeConfigurationIndexAtomically,
+    writeIndex: writeConfigurationIndex,
   }
   return deps
 }

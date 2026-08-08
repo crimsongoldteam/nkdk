@@ -1,6 +1,5 @@
 import fs from "fs"
-import { join, resolve } from "path"
-import { publishFileAtomically } from "../../files/atomicPublication"
+import { dirname, join, resolve } from "path"
 import { componentPath, type ComponentAddress } from "../components/address"
 import { decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
@@ -19,7 +18,7 @@ export async function readConfigurationIndex(params: {
   return decodeConfigurationIndex(encoded, { expectedComponentPath })
 }
 
-export async function writeConfigurationIndexAtomically(params: {
+export async function writeConfigurationIndex(params: {
   projectDir: string
   address: ComponentAddress
   data: ConfigurationSnapshot
@@ -29,9 +28,6 @@ export async function writeConfigurationIndexAtomically(params: {
     throw new Error(`Ожидалась привязка ${expectedComponentPath}, получена ${params.data.componentPath}`)
   }
   const target = configurationIndexPath(params.projectDir, params.address)
-  await publishFileAtomically({
-    target,
-    writeTemporary: async (temporary) => fs.promises.writeFile(temporary, encodeConfigurationIndex(params.data)),
-    verifyTemporary: async () => undefined,
-  })
+  await fs.promises.mkdir(dirname(target), { recursive: true })
+  await fs.promises.writeFile(target, encodeConfigurationIndex(params.data))
 }
