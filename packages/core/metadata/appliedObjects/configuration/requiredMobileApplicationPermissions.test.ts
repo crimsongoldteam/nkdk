@@ -98,6 +98,12 @@ describe("RequiredMobileApplicationPermissions", () => {
     expect(exportRequiredMobileApplicationPermissionsToXML(mockContext, undefined, [])).toBe("")
   })
 
+  it("uses the canonical empty collection when YAML is missing", () => {
+    expect(importRequiredMobileApplicationPermissionsFromYAML(mockContext, undefined, undefined)).toBe(
+      EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS
+    )
+  })
+
   it("exports a strict JSON Schema", () => {
     const schema = exportRequiredMobileApplicationPermissionsToJSONSchema({
       context: mockContext,

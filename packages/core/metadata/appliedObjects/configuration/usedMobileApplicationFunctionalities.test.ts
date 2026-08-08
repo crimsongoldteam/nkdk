@@ -91,6 +91,9 @@ describe("UsedMobileApplicationFunctionalities", () => {
   })
 
   it("normalizes missing nested fields to their implicit values", () => {
+    expect(importUsedMobileApplicationFunctionalitiesFromYAML(mockContext, undefined, undefined)).toBe(
+      IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES
+    )
     expect(importUsedMobileApplicationFunctionalitiesFromYAML(mockContext, undefined, {})).toEqual(
       IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES
     )

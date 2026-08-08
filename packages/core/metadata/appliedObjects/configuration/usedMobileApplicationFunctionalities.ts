@@ -249,7 +249,7 @@ export const importUsedMobileApplicationFunctionalitiesFromYAML = (
   _rule: PropertyRule | undefined,
   yaml: UsedMobileApplicationFunctionalitiesYAML | undefined
 ): UsedMobileApplicationFunctionalities | undefined => {
-  if (yaml === undefined) return undefined
+  if (yaml === undefined) return IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES
 
   const result: UsedMobileApplicationFunctionalities = {
     functionalities: importFunctionalitiesFromYAML(context, yaml.Функциональности ?? []),

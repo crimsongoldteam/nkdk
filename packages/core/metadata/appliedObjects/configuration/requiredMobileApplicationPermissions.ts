@@ -96,7 +96,7 @@ export const importRequiredMobileApplicationPermissionsFromYAML = (
   _rule: PropertyRule | undefined,
   yaml: RequiredMobileApplicationPermissionCollectionYAML | undefined
 ): RequiredMobileApplicationPermissionCollection | undefined => {
-  if (yaml === undefined) return undefined
+  if (yaml === undefined) return EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS
 
   return yaml.map((item) => ({
     permission: RequiredMobileApplicationPermissionsFromYAML[item.Разрешение],
