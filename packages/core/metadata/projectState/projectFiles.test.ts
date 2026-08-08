@@ -33,3 +33,53 @@ it.each([1, 2])("выдаёт ленивые пути пачками по %s б�
     await rm(projectDir, { recursive: true, force: true })
   }
 })
+
+it("проецирует цели формы и всех файлов макета для конфигурации и расширения", async () => {
+  const projectDir = await mkdtemp(join(tmpdir(), "nkdk-project-file-targets-"))
+  try {
+    for (const componentPath of ["cf", "cfe/Цены"]) {
+      const ownerDir = join(projectDir, componentPath, "Документ", "Заказ")
+      await mkdir(join(ownerDir, "Формы", "Основная"), { recursive: true })
+      await writeFile(join(ownerDir, "Формы", "Основная", "Форма.yaml"), "{}\n")
+      await writeFile(join(ownerDir, "Формы", "Основная", "Модуль.bsl"), "")
+      await mkdir(join(ownerDir, "Шаблоны", "Печать", "Ext"), { recursive: true })
+      for (const relativePath of ["Template.xml", "Template.txt", "Template.bin", "Ext/Картинка.png"]) {
+        await writeFile(join(ownerDir, "Шаблоны", "Печать", relativePath), "")
+      }
+    }
+
+    const files = []
+    for await (const batch of discoverProjectStateValidationFileBatches(projectDir, 256)) {
+      files.push(...batch.paths.map((path) => path.classify()).filter((file) => file !== undefined))
+    }
+
+    for (const componentPath of ["cf", "cfe/Цены"]) {
+      const prefix = `${componentPath}/Документ/Заказ`
+      const form = files.find(({ identity }) => identity.projectPath === `${prefix}/Формы/Основная/Форма.yaml`)
+      expect(form?.targets).toEqual([{
+        kind: "member",
+        canonical: "Document.Заказ.Form.Основная",
+        fileBacked: {
+          itemProjectPath: `${prefix}/Формы/Основная`,
+          ownerProjectPath: `${prefix}/Свойства.yaml`,
+        },
+      }])
+      expect(files.find(({ identity }) => identity.projectPath === `${prefix}/Формы/Основная/Модуль.bsl`)?.targets)
+        .toEqual([])
+
+      for (const relativePath of ["Template.xml", "Template.txt", "Template.bin", "Ext/Картинка.png"]) {
+        expect(files.find(({ identity }) =>
+          identity.projectPath === `${prefix}/Шаблоны/Печать/${relativePath}`)?.targets).toEqual([{
+          kind: "member",
+          canonical: "Document.Заказ.Template.Печать",
+          fileBacked: {
+            itemProjectPath: `${prefix}/Шаблоны/Печать`,
+            ownerProjectPath: `${prefix}/Свойства.yaml`,
+          },
+        }])
+      }
+    }
+  } finally {
+    await rm(projectDir, { recursive: true, force: true })
+  }
+})

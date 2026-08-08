@@ -31,7 +31,6 @@ export type ProjectFileValidator = (params: { filePath: string; parsed: ParsedYa
 export type ProjectReferenceMemberIndexContributor = (params: {
   projectDir: string
   owner: OwnerMetadata
-  hasFile: (filePath: string) => boolean
 }) => Iterable<ProjectMemberIndexEntry>
 
 const objectPathContributors = new Map<MetadataRootName, ProjectReferenceObjectPathContributor>()

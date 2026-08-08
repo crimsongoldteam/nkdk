@@ -23,7 +23,7 @@ import type {
   ProjectValidationGraph,
   ValidationObjectRecord,
 } from "../validation/projectValidationTypes"
-import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
+import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { createBinaryProjectStateQueryPort } from "./binary/readSession"
@@ -640,6 +640,62 @@ describe("dependency validation из ProjectState", () => {
     },
   )
 
+  it("Б5 проверяет ссылку по файловым целям и удаляет её с последним подтверждением", () => {
+    const parsed = parseMetadataTargetFromYAML({
+      value: "Отчет.Продажи.Макет.Схема",
+      constraint: { kind: "member", owner: "explicit", memberKinds: ["Template"] },
+    })
+    if (!parsed.ok || parsed.target.kind !== "member") throw new Error("Некорректная ссылка на макет")
+    const templateCanonical = "Report.Продажи.Template.Схема"
+    const source = {
+      ...yamlUpdate("cf/Отчет/Продажи/Свойства.yaml", "cf", false),
+      targets: [],
+      pendingReferences: [{
+        yamlPath: ["ОсновнаяСхемаКомпоновкиДанных"],
+        canonical: templateCanonical,
+        target: parsed.target,
+        constraint: { kind: "member" as const, owner: "explicit" as const, memberKinds: ["Template" as const] },
+      }],
+    }
+    const target = {
+      kind: "member" as const,
+      canonical: templateCanonical,
+      fileBacked: {
+        itemProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема",
+        ownerProjectPath: source.projectPath,
+      },
+    }
+    const first = {
+      kind: "resource" as const,
+      projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Template.xml",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+      targets: [target],
+    }
+    const second = {
+      ...first,
+      projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Ext/schema.bin",
+    }
+    const { store } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    replaceFiles(store, [source, first, second, configurationUpdate(true)])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+
+    store.deleteFiles([first.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+
+    store.deleteFiles([second.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      filePath: source.projectPath,
+      source: "reference",
+      message: `Не найдена ссылка "${templateCanonical}"`,
+    })])
+
+    replaceFiles(store, [{ ...source, pendingReferences: [] }])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+    store.rollbackUpdate()
+  })
+
   it("даёт одинаковую reference-диагностику в writer-транзакции и read-only session после commit", () => {
     const source = yamlUpdate("cf/ИсточникСеанса.yaml", "cf", true)
     const configuration = configurationUpdate(true)
@@ -677,7 +733,7 @@ function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
 
 function replaceFiles(
   store: ReturnType<typeof createBinaryProjectStateTestFixture>["store"],
-  updates: readonly ProjectStateYamlFileUpdate[],
+  updates: readonly ProjectStateFileUpdate[],
 ): void {
   const writer = createProjectStateFragmentWriter()
   updates.forEach((update) => writer.appendFile(update, 0n))

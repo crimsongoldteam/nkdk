@@ -2,14 +2,17 @@ import { toPreparedYamlProjectFileDescriptor, type PreparedYamlProjectFileDescri
 import {
   discoverMetadataProjectResources,
   iterateMetadataProjectResourceCandidates,
+  projectStateFileBackedTargets,
   type MetadataProjectResourceRef,
 } from "../project/resources"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import type { ProjectStateFileIdentity } from "./fileUpdate"
+import type { ProjectStateTargetEntry } from "./fileUpdate"
 
 export interface ProjectStateValidationFile {
   readonly identity: ProjectStateFileIdentity
   readonly absolutePath: string
+  readonly targets: readonly ProjectStateTargetEntry[]
   readonly descriptor?: PreparedYamlProjectFileDescriptor
 }
 
@@ -30,6 +33,7 @@ export interface ProjectStateValidationFileTask {
   readonly absolutePath: string
   readonly identity?: ProjectStateFileIdentity
   readonly descriptor?: PreparedYamlProjectFileDescriptor
+  readonly targets?: readonly ProjectStateTargetEntry[]
 }
 
 export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 256
@@ -99,6 +103,7 @@ function toValidationFile(
   return {
     identity,
     absolutePath: resource.absolutePath!,
+    targets: projectStateFileBackedTargets(componentPath, resource.fileBackedTargets),
     ...(resource.kind === "yaml"
       ? { descriptor: toPreparedYamlProjectFileDescriptor(resource, component) }
       : {}),

@@ -1,7 +1,7 @@
 import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
-import { dirname, join, resolve } from "path"
+import { resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
@@ -301,11 +301,10 @@ export function extractProjectValidationFileFacts(params: {
   const yamlFacts = measuredYamlFacts.value
 
   if (params.file.kind === "form") {
-    const measuredMemberIndex = measureValidationPhase(() => buildFormFileMemberIndexEntries(params.file))
     return {
       objectRecords: [],
       objectIndexEntries: yamlFacts.objectIndexEntries,
-      memberIndexEntries: measuredMemberIndex.value,
+      memberIndexEntries: [],
       valueIndexEntries: yamlFacts.valueIndexEntries,
       pendingReferences: yamlFacts.pendingReferences,
       pendingChecks: yamlFacts.pendingChecks,
@@ -326,7 +325,7 @@ export function extractProjectValidationFileFacts(params: {
         yamlFactsMs: measuredYamlFacts.timeMs,
         localValueValidationProfile: yamlFacts.localValueValidationProfile,
         fieldIndexMs: 0,
-        memberIndexMs: measuredMemberIndex.timeMs,
+        memberIndexMs: 0,
         propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
       },
     }
@@ -357,7 +356,6 @@ export function extractProjectValidationFileFacts(params: {
     buildMemberIndexEntries({
       projectDir: params.projectDir,
       owner: measuredOwner.value.owner,
-      hasFile: fs.existsSync,
     })
   )
   const memberIndexEntries = measuredMemberIndex.value
@@ -716,32 +714,9 @@ function validationFirstPassProfileKey(file: ValidationProjectFile): string {
   return `properties:${file.owner.dir}`
 }
 
-function buildFormFileMemberIndexEntries(file: ValidationProjectFile): ProjectMemberIndexEntry[] {
-  if (file.kind !== "form" || !file.formName) return []
-
-  const root = rootFromYAML[file.owner.dir]
-  if (!root) return []
-
-  const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
-    kind: "member",
-    root: root as never,
-    objectName: file.owner.name,
-    segments: [{ kind: "Form", name: file.formName }],
-  }
-
-  return [
-    {
-      canonical: projectMemberIndexKey(target),
-      target,
-      result: { ok: true, filePath: file.absolutePath, details: { kind: "Form", name: file.formName } },
-    },
-  ]
-}
-
 function buildMemberIndexEntries(params: {
   projectDir: string
   owner: OwnerMetadata
-  hasFile: (filePath: string) => boolean
 }): ProjectMemberIndexEntry[] {
   const entries: ProjectMemberIndexEntry[] = []
   const seen = new Set<string>()
@@ -770,8 +745,6 @@ function buildMemberIndexEntries(params: {
     for (const entry of contributor(params)) addMemberIndexEntry(entries, seen, entry)
   }
 
-  for (const entry of buildTemplateFileMemberIndexEntries(params.owner)) addMemberIndexEntry(entries, seen, entry)
-
   return entries
 }
 
@@ -783,52 +756,6 @@ function addMemberIndexEntry(
   if (seen.has(entry.canonical)) return
   seen.add(entry.canonical)
   entries.push(entry)
-}
-
-function buildTemplateFileMemberIndexEntries(owner: OwnerMetadata): ProjectMemberIndexEntry[] {
-  const root = rootFromYAML[owner.ref.kind]
-  if (!root || !owner.ref.name) return []
-
-  const entries: ProjectMemberIndexEntry[] = []
-  for (const folderName of ["Шаблоны", "Макеты"]) {
-    const templatesDir = join(dirname(owner.filePath), folderName)
-    if (!isDirectory(templatesDir)) continue
-
-    for (const entry of fs.readdirSync(templatesDir, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue
-      const templateDir = join(templatesDir, entry.name)
-      if (!hasTemplateContent(templateDir)) continue
-
-      const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
-        kind: "member",
-        root: root as never,
-        objectName: owner.ref.name,
-        segments: [{ kind: "Template", name: entry.name }],
-      }
-      entries.push({
-        canonical: projectMemberIndexKey(target),
-        target,
-        result: { ok: true, filePath: templateDir, details: { kind: "Template", name: entry.name } },
-      })
-    }
-  }
-  return entries
-}
-
-function hasTemplateContent(templateDir: string): boolean {
-  if (["Template.xml", "Template.txt", "Template.bin"].some((fileName) => fs.existsSync(join(templateDir, fileName)))) {
-    return true
-  }
-  const extDir = join(templateDir, "Ext")
-  return isDirectory(extDir) && fs.readdirSync(extDir).length > 0
-}
-
-function isDirectory(path: string): boolean {
-  try {
-    return fs.statSync(path).isDirectory()
-  } catch {
-    return false
-  }
 }
 
 function fieldTarget(owner: OwnerMetadata, field: ObjectField): Extract<ParsedMetadataTarget, { kind: "member" }> {
