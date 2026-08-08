@@ -26,7 +26,7 @@ const ownerRoots: readonly MetadataRootName[] = [
 
 export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
-  const value = importFillValue(params.item[fillValueYamlKey])
+  const value = parseFillValueYaml(params.item[fillValueYamlKey])
   if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
 
   const type = importTypeDescriptionFromYAML(
@@ -43,7 +43,7 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
 
 export function analyzeStandardAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
-  const value = importFillValue(params.item[fillValueYamlKey])
+  const value = parseFillValueYaml(params.item[fillValueYamlKey])
   if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
   if (params.itemName === undefined) return unresolvedAnalysis(params, "не определено имя стандартного реквизита")
 
@@ -62,10 +62,10 @@ export function analyzeStandardAttributeFillValue(params: DependentYamlItemParam
 
 function withValueReference(
   params: DependentYamlItemParams,
-  value: NonNullable<ReturnType<typeof importFillValue>>,
+  value: NonNullable<ReturnType<typeof parseFillValueYaml>>,
   analysis: DependentYamlItemAnalysis
 ): DependentYamlItemAnalysis {
-  const constraint = inferredReferenceConstraint(value)
+  const constraint = inferFillValueReferenceConstraint(value)
   if (constraint === undefined) return analysis
   const reference = materializeMetadataValueReference({
     value,
@@ -80,8 +80,8 @@ function withValueReference(
   }
 }
 
-function inferredReferenceConstraint(
-  value: NonNullable<ReturnType<typeof importFillValue>>
+export function inferFillValueReferenceConstraint(
+  value: NonNullable<ReturnType<typeof parseFillValueYaml>>
 ): Extract<MetadataTargetConstraint, { kind: "value" }> | undefined {
   if (value.type !== "ref" || value.value === "") return undefined
   const root = value.value.split(".", 1)[0]
@@ -139,7 +139,7 @@ function emptyAnalysis(): DependentYamlItemAnalysis {
   return { diagnostics: [], references: [] }
 }
 
-function importFillValue(value: unknown) {
+export function parseFillValueYaml(value: unknown) {
   return importMetadataValueFromYAML(validationContext, undefined, value as MetadataValueYAML | undefined)
 }
 

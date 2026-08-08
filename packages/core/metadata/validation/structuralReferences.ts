@@ -9,6 +9,7 @@ import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import { collectDependentStructuralItemReferences } from "../orchestration/property/dependentItemRegistry"
 
 export interface StructuralYamlReference extends StructuralReferenceCandidate {
   readonly filePath: string
@@ -34,6 +35,8 @@ export function collectStructuralYamlReferences(params: {
     ...params,
     value: params.yaml,
     yamlPath: [],
+    rootYaml: params.yaml,
+    rootRule: params.rule,
   })
 }
 
@@ -45,11 +48,47 @@ function collectObjectReferences(params: {
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
   context: ConfigurationContext
+  itemName?: string
+  rootYaml: unknown
+  rootRule: MetadataItemRule
 }): StructuralYamlReferenceCollectionResult {
   const record = asRecord(params.value)
   if (record === undefined) return { ok: true, references: [] }
 
   const references: StructuralYamlReference[] = []
+  const dependentReferences = collectDependentStructuralItemReferences({
+    itemType: params.rule.itemType,
+    ...(params.itemName === undefined ? {} : { itemName: params.itemName }),
+    item: record,
+    itemYamlPath: params.yamlPath,
+    rootYaml: params.rootYaml,
+    rootRule: params.rootRule,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    owner: { dir: params.owner?.root ?? "", name: params.owner?.objectName ?? "" },
+    context: params.context,
+    metadataTargetOwner: params.owner,
+  })
+  for (const candidate of dependentReferences) {
+    let staged = false
+    references.push({
+      ...candidate,
+      filePath: params.filePath,
+      stageCanonical(nextCanonical: string) {
+        candidate.setCanonical(nextCanonical)
+        staged = true
+      },
+      commitStaged() {
+        if (!staged) return
+        candidate.commitValue()
+        staged = false
+      },
+      setCanonical(nextCanonical: string) {
+        candidate.setCanonical(nextCanonical)
+        candidate.commitValue()
+      },
+    })
+  }
   for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
@@ -155,6 +194,8 @@ function collectNestedReferences(params: {
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
   context: ConfigurationContext
+  rootYaml: unknown
+  rootRule: MetadataItemRule
 }): StructuralYamlReferenceCollectionResult | undefined {
   const descriptor = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
   if (descriptor === undefined || descriptor.kind === "externalFile") return undefined
@@ -183,6 +224,7 @@ function collectNestedReferences(params: {
           propertyRule: params.propertyRule,
         }) ?? descriptor.itemRule,
         yamlPath: [...params.yamlPath, index],
+        itemName: undefined,
       })
       if (!result.ok) return result
       references.push(...result.references)
@@ -204,6 +246,7 @@ function collectNestedReferences(params: {
         propertyRule: params.propertyRule,
       }) ?? descriptor.itemRule,
       yamlPath: [...params.yamlPath, key],
+      itemName: key,
     })
     if (!result.ok) return result
     references.push(...result.references)

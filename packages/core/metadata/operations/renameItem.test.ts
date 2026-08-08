@@ -337,6 +337,38 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
   })
 
+  it("переписывает ссылку в значении заполнения при переименовании объекта", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", "{}")
+    const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Получатель:",
+      "    Тип: Справочник.Контрагенты",
+      "    ЗначениеЗаполнения: Справочник.Контрагенты.Поставщик",
+    ])
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
+        "Catalog.Контрагенты.Поставщик",
+      )],
+    })
+
+    const result = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Контрагенты",
+      newName: "Клиенты",
+      allowWrite: true,
+      projectState,
+      ignoreValidationErrors: true,
+    })
+
+    expect(result).toMatchObject({ ok: true })
+    expect(readFileSync(propertiesPath, "utf-8")).toContain(
+      "ЗначениеЗаполнения: Справочник.Клиенты.Поставщик",
+    )
+  })
+
   it("rewrites resolvable form DataPath when an attribute is renamed", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])

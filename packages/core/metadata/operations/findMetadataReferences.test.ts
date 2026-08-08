@@ -85,6 +85,32 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     })
   })
 
+  it("учитывает ссылку из значения заполнения", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", ["{}"])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Получатель:",
+      "    Тип: Справочник.Контрагенты",
+      "    ЗначениеЗаполнения: Справочник.Контрагенты.Поставщик",
+    ])
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
+        "Catalog.Контрагенты.Поставщик",
+      )],
+    })
+
+    const result = await findInValidProject(projectDir, "Справочник.Контрагенты")
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [expect.objectContaining({ value: "Catalog.Контрагенты.Поставщик" })],
+    })
+  })
+
   it("ignores references inside the deleted object subtree", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", operationLockFieldYaml)
