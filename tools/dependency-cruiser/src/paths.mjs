@@ -12,3 +12,7 @@ export const baselinePath = resolve(
   projectRoot,
   ".dependency-cruiser-known-violations.json"
 )
+export const cycleBaselinePath = resolve(
+  projectRoot,
+  ".dependency-cruiser-cycle-baseline.json"
+)
