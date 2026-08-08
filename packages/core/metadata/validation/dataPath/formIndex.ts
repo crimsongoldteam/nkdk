@@ -21,6 +21,12 @@ export interface FormDataPathIndex {
   getRoot(name: string): FormDataPathSource | undefined
 }
 
+declare module "../../context/types" {
+  interface FormimportFromYAMLContext {
+    formDataPathIndex?: FormDataPathIndex
+  }
+}
+
 export interface BuildFormDataPathIndexParams {
   filePath: string
   parsed: ParsedYaml

@@ -18,6 +18,12 @@ export interface DataPathFormatDiagnosticSink {
   append(diagnostic: DataPathFormatDiagnostic): void
 }
 
+declare module "../../context/types" {
+  interface FormExportToYAMLContext {
+    readonly dataPathDiagnosticSink?: DataPathFormatDiagnosticSink
+  }
+}
+
 export interface FormatDataPathStandardMembersParams {
   value: string
   direction: DataPathFormatDirection

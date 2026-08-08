@@ -18,6 +18,16 @@ export interface OwnerMetadataCache {
   listRefs(kind: OwnerTypeRef["kind"]): Iterable<OwnerTypeRef>
 }
 
+declare module "../../context/types" {
+  interface FormExportToYAMLContext {
+    readonly ownerMetadataCache?: OwnerMetadataCache
+  }
+
+  interface FormimportFromYAMLContext {
+    readonly ownerMetadataCache?: OwnerMetadataCache
+  }
+}
+
 export type OwnerMetadataResult =
   | { status: "ok"; owner: OwnerMetadata }
   | { status: "not-found"; diagnostics: Diagnostic[] }

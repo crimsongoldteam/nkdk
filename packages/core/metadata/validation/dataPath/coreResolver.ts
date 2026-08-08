@@ -90,6 +90,16 @@ export type ResolveDataPathCoreResult =
       issues: ResolveDataPathCoreIssue[]
     }
 
+declare module "../../context/types" {
+  interface FormimportFromYAMLContext {
+    readonly resolveDataPath?: (params: {
+      value: string
+      index: FormDataPathIndex
+      ownerCache: OwnerMetadataCache
+    }) => ResolveDataPathCoreResult
+  }
+}
+
 interface TraversalState {
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource

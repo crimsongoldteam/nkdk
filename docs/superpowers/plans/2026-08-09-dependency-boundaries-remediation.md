@@ -46,8 +46,10 @@
 **Files:**
 - Modify: `packages/core/metadata/context/types.ts`
 - Create: `packages/core/metadata/forms/clientApplicationForm/context.types.ts`
-- Create: `packages/core/metadata/validation/dataPath/context.types.ts`
-- Modify: `packages/core/metadata/forms/index.ts`
+- Modify: `packages/core/metadata/validation/dataPath/formIndex.ts`
+- Modify: `packages/core/metadata/validation/dataPath/ownerCache.ts`
+- Modify: `packages/core/metadata/validation/dataPath/formatter.ts`
+- Modify: `packages/core/metadata/validation/dataPath/coreResolver.ts`
 - Create: `tools/dependency-cruiser/test/context-boundary.test.mjs`
 
 **Interfaces:**
@@ -55,7 +57,7 @@
 - Produces: module augmentation формы для `allElements`, `enterprise`, `formAttributes` и form-specific YAML trees.
 - Produces: module augmentation validation для `FormDataPathIndex`, `OwnerMetadataCache`, `DataPathFormatDiagnosticSink` и resolver-функций.
 
-- [ ] **Step 1: Добавить падающий тест нейтральности контекста**
+- [x] **Step 1: Добавить падающий тест нейтральности контекста**
 
 ```js
 import assert from "node:assert/strict"
@@ -68,13 +70,13 @@ test("configuration context does not own form or validation implementations", ()
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить исходное падение**
+- [x] **Step 2: Запустить тест и подтвердить исходное падение**
 
 Run: `node --test tools/dependency-cruiser/test/context-boundary.test.mjs`
 
 Expected: FAIL на импортах `forms/clientApplicationForm/types`, `forms/commonObjects/*` и `validation/dataPath/*`.
 
-- [ ] **Step 3: Оставить в `context/types.ts` только базовый договор**
+- [x] **Step 3: Оставить в `context/types.ts` только базовый договор**
 
 Базовые интерфейсы сохраняют общие поля и точки расширения, но не называют конкретную форму или validation-реализацию:
 
@@ -111,7 +113,7 @@ export interface FormimportFromYAMLContext {
 }
 ```
 
-- [ ] **Step 4: Подключить поля формы через declaration merging**
+- [x] **Step 4: Подключить поля формы через declaration merging**
 
 `forms/clientApplicationForm/context.types.ts` импортирует конкретные типы и расширяет базовые интерфейсы в обратном направлении:
 
@@ -133,13 +135,13 @@ declare module "../../context/types" {
 }
 ```
 
-В этом же файле определить `EnterpriseContext` и рекурсивную проекцию enterprise-атрибута рядом с формой. `forms/index.ts` обязан импортировать `./clientApplicationForm/context.types` при регистрации форм.
+В этом же файле дополнить `EnterpriseContext` и определить рекурсивную проекцию enterprise-атрибута рядом с формой. Файл входит в TypeScript project через `tsconfig`; отдельный runtime-import не добавляется, чтобы не расширять существующую циклическую компоненту.
 
-- [ ] **Step 5: Подключить validation-поля через отдельное расширение**
+- [x] **Step 5: Подключить validation-поля через отдельное расширение**
 
-`validation/dataPath/context.types.ts` расширяет контекст типами `FormDataPathIndex`, `OwnerMetadataCache` и `DataPathFormatDiagnosticSink`. Файл входит в TypeScript project и содержит только type-level module augmentation; `context/types.ts` больше не импортирует validation.
+Расширения размещаются рядом с владельцами конкретных типов: `formIndex.ts` объявляет `formDataPathIndex`, `ownerCache.ts` — `ownerMetadataCache`, `formatter.ts` — `dataPathDiagnosticSink`, `coreResolver.ts` — `resolveDataPath`. Отдельный общий validation-файл не создаётся: его импорты образуют новый путь к конкретной форме через `formIndex.ts`. `context/types.ts` больше не импортирует validation.
 
-- [ ] **Step 6: Проверить типы и поведение контекста**
+- [x] **Step 6: Проверить типы и поведение контекста**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -147,7 +149,7 @@ Run: `pnpm --filter @nkdk/core test -- metadata/context/helpers.test.ts metadata
 
 Expected: PASS; существующие объекты `ConfigurationContext` продолжают структурно принимать form/validation-поля.
 
-- [ ] **Step 7: Проверить архитектуру и сократить baseline**
+- [x] **Step 7: Проверить архитектуру и сократить baseline**
 
 Run: `pnpm test:architecture`
 
@@ -159,10 +161,10 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 8: Зафиксировать изменение**
+- [x] **Step 8: Зафиксировать изменение**
 
 ```bash
-git add packages/core/metadata/context packages/core/metadata/forms/clientApplicationForm/context.types.ts packages/core/metadata/forms/index.ts packages/core/metadata/validation/dataPath tools/dependency-cruiser/test/context-boundary.test.mjs .dependency-cruiser-known-violations.json
+git add packages/core/metadata/context packages/core/metadata/forms/clientApplicationForm/context.types.ts packages/core/metadata/validation/dataPath tools/dependency-cruiser/test/context-boundary.test.mjs .dependency-cruiser-known-violations.json docs/superpowers/plans/2026-08-09-dependency-boundaries-remediation.md
 git commit -m "refactor: :recycle: отделить расширения metadata-контекста"
 ```
 

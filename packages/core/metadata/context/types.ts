@@ -1,7 +1,4 @@
 import type { TSchema } from "typebox"
-import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
-import type { FormAttribute } from "../forms/commonObjects/formAttribute/types"
-import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { MetadataTargetOwner } from "../orchestration/metadataTarget/types"
@@ -9,9 +6,6 @@ import type { PropertyRuleType } from "../orchestration/property/registry"
 import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
 import type { ConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
 import type { ConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
-import type { DataPathFormatDiagnosticSink } from "../validation/dataPath/formatter"
-import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
-import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
 export type ContextElementToXML = {
   name: string
@@ -45,9 +39,6 @@ export interface ConfigurationContext {
   defaultLanguage: string
   version: string
   context?: object
-  allElements?: FormElementsYAML
-  enterprise?: EnterpriseContext
-
   exportToYAML?: FormExportToYAMLContext
   importFromYAML?: FormimportFromYAMLContext
   exportToXML?: ToXMLConfigurationContext
@@ -121,28 +112,28 @@ export interface MetadataTargetOwnerContext {
   owner?: MetadataTargetOwner
 }
 
-export type FormDataPathAttributeContext = FormAttribute
+export interface MetadataContextTypeMap {}
+
+type MetadataContextType<Name extends PropertyKey> = Name extends keyof MetadataContextTypeMap
+  ? MetadataContextTypeMap[Name]
+  : never
+
+export type FormDataPathAttributeContext = MetadataContextType<"formDataPathAttribute">
+export interface EnterpriseContext {}
 
 export interface FormExportToYAMLContext {
   toTyped: boolean
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
   projectDir?: string
-  /** Готовый неизменяемый индекс владельцев DataPath, не требующий чтения YAML-проекта. */
-  readonly ownerMetadataCache?: OwnerMetadataCache
-  /** Приёмник предупреждений о путях к данным, которые нельзя преобразовать. */
-  readonly dataPathDiagnosticSink?: DataPathFormatDiagnosticSink
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
   parent?: { name: string }
   /** Сборник внешних файлов, формируемых при экспорте. */
   externalFilesCollector?: ExternalFileEntry[]
   /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
   metadataTargetOwners?: MetadataTargetOwnerContext[]
-  /** Реквизиты текущей формы для разбора ПутьКДанным. */
-  formAttributes?: readonly FormDataPathAttributeContext[]
 }
 
 export interface FormimportFromYAMLContext {
-  allElements?: FormChildItemsPartialYAML
   /** Диагностический контекст текущего YAML-импорта для человекочитаемых ошибок. */
   diagnostics?: YAMLImportDiagnosticContext
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
@@ -153,41 +144,9 @@ export interface FormimportFromYAMLContext {
   parent?: { name: string }
   /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
   metadataTargetOwners?: MetadataTargetOwnerContext[]
-  /** Реквизиты текущей формы для разбора ПутьКДанным. */
-  formAttributes?: readonly FormDataPathAttributeContext[]
-  /** Компактный индекс реквизитов формы, построенный прямо из YAML без metadata-модели. */
-  formDataPathIndex?: FormDataPathIndex
-  /** Готовый неизменяемый индекс владельцев DataPath для YAML → XML. */
-  readonly ownerMetadataCache?: OwnerMetadataCache
-  /** Общий resolver ПутьКДанным, переданный границей операции. */
-  readonly resolveDataPath?: (params: {
-    value: string
-    index: FormDataPathIndex
-    ownerCache: OwnerMetadataCache
-  }) => {
-    status: "ok" | "warning" | "error"
-    target?: {
-      segments: readonly string[]
-      source: { kind: string }
-      typeInfo: {
-        isComposite?: boolean
-        nextTypes: readonly unknown[]
-        table?: { kind: string }
-      }
-    }
-  }
-  /** Вычисленный профиль конечного источника таблицы формы. */
-  readonly resolveTableSourceProfile?: (dataPath: unknown) => "dynamicList" | "rowFilter" | "none"
   /** Сопоставление текущих и reference-путей для вложенных metadata-коллекций. */
   referenceRemap?: {
     readonly currentPath: string
     readonly referencePathByCurrentPath: ReadonlyMap<string, string>
   }
-}
-
-export interface EnterpriseContext {
-  prefix: string
-  attributes: Record<string, EnterpriseAttributeMapItem>
-  elementsTree: Array<ContextElementToEnterprise>
-  allElementsNames: string[]
 }
