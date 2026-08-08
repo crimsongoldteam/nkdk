@@ -1,4 +1,4 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../validation/dataPath/registry"
+import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 
 registerStandardMembers("РегистрРасчета", [
   { memberKind: "standardAttribute", names: { internal: "RegistrationPeriod", yaml: "ПериодРегистрации" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "dateTime" },

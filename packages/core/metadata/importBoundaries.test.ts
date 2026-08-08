@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs"
+import { existsSync, readFileSync, readdirSync } from "fs"
 import { dirname, join, relative, resolve } from "path"
 import { beforeAll, describe, expect, it } from "vitest"
 import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnapshot"
@@ -307,6 +307,20 @@ describe("metadata import boundaries", () => {
   it("standardMembers declarations live with applied objects", () => {
     expect(existsSync(join(METADATA_DIR, "appliedObjects", "metadataCatalog", "standardMembers.ts"))).toBe(true)
     expect(existsSync(join(METADATA_DIR, "appliedObjects", "metadataTask", "standardMembers.ts"))).toBe(true)
+  })
+
+  it("standardMembers registry is independent from DataPath", () => {
+    const declarations = readFileSync(join(METADATA_DIR, "standardMembers", "declarations.ts"), "utf-8")
+    expect(declarations).not.toContain("validation/dataPath")
+
+    const appliedFiles = readdirSync(join(METADATA_DIR, "appliedObjects"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(METADATA_DIR, "appliedObjects", entry.name, "standardMembers.ts"))
+      .filter(existsSync)
+
+    for (const file of appliedFiles) {
+      expect(readFileSync(file, "utf-8")).toContain('from "../../standardMembers/declarations"')
+    }
   })
 
   it("I8nText registry entry живёт рядом с владельцем", () => {

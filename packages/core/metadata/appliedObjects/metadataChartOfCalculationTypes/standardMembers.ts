@@ -1,4 +1,4 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../validation/dataPath/registry"
+import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 
 const tableColumns = [
   { memberKind: "standardTabularSectionColumn", names: { internal: "CalculationType", yaml: "ВидРасчета" }, family: "sameOwnerObject" },

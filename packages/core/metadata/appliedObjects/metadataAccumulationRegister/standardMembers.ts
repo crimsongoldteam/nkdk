@@ -1,4 +1,4 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../validation/dataPath/registry"
+import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 
 registerStandardMembers("РегистрНакопления", [
   { memberKind: "standardAttribute", names: { internal: "RecordType", yaml: "ВидДвижения" }, family: "standardEnum", phase: "index-time", sourceScope: "self", name: "ВидДвиженияНакопления" },
