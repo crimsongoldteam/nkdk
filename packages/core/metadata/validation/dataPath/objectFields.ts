@@ -1,6 +1,6 @@
-import { MetadataTabularSectionRules } from "../../commonObjects/metadataTabularSection/rules"
-import { StandartAttributeNameToYAML } from "../../commonObjects/standardAttributeDescription/standartAttributeNames"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import { standardMemberInternalToYaml } from "../../orchestration/metadataTarget/standardMemberAliases"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
+import { resolvePropertyItemRule } from "../../orchestration/property/typeRuleRegistry"
 import type {
   PropertyRule,
   StandardAttributeDescriptionsPropertyRule,
@@ -48,7 +48,7 @@ type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "facts" | "rule">
 
 interface NamedTypedItem {
   name?: unknown
-  type?: TypeDescription
+  type?: TypeDescriptionView
   attributes?: NamedTypedItem[]
   standardAttributes?: NamedTypedItem[]
 }
@@ -94,7 +94,7 @@ export function resolveObjectFieldSegment(params: {
 }
 
 export function standardAttributeAliasToYAML(segment: string): string | undefined {
-  return StandartAttributeNameToYAML[segment as keyof typeof StandartAttributeNameToYAML]
+  return standardMemberInternalToYaml(segment)
 }
 
 function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields: Map<string, ObjectField> }): void {
@@ -154,6 +154,8 @@ function buildTabularSectionField(
   tabularSection: NamedTypedItem,
   sourceCollection: string
 ): ObjectField {
+  const collectionRule = owner.rule.properties[sourceCollection]
+  const tabularSectionRule = collectionRule === undefined ? undefined : resolvePropertyItemRule(collectionRule)
   const tabularSectionOwner = {
     ...owner,
     facts: {
@@ -161,7 +163,7 @@ function buildTabularSectionField(
       attributes: compactNamedItems(tabularSection.attributes),
       standardAttributes: compactNamedItems(tabularSection.standardAttributes),
     },
-    rule: MetadataTabularSectionRules,
+    rule: tabularSectionRule ?? owner.rule,
   }
   const table: DataPathTableInfo = {
     kind: "TabularSection",
@@ -185,7 +187,7 @@ function buildTabularSectionField(
     owner: tabularSectionOwner,
     fields: columns,
     standardAttributeAliases: new Map(),
-    propertyRule: MetadataTabularSectionRules.properties.standardAttributes,
+    propertyRule: tabularSectionRule?.properties.standardAttributes,
     sourceCollection: "standardAttributes",
   })
 
@@ -206,7 +208,7 @@ function buildTabularSectionField(
   }
 }
 
-function compactNamedItems(items: NamedTypedItem[] | undefined): Array<{ name: string; type?: TypeDescription }> {
+function compactNamedItems(items: NamedTypedItem[] | undefined): Array<{ name: string; type?: TypeDescriptionView }> {
   return (items ?? []).flatMap((item) =>
     typeof item.name === "string" ? [{ name: item.name, ...(item.type === undefined ? {} : { type: item.type }) }] : []
   )

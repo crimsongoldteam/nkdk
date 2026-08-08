@@ -290,21 +290,20 @@ git commit -m "refactor: :recycle: расширить каталог property-т
 
 **Files:**
 - Create: `packages/core/metadata/orchestration/property/typeDescriptionView.ts`
+- Modify: `packages/core/metadata/orchestration/metadataTarget/standardMemberAliases.ts`
 - Modify: `packages/core/metadata/validation/dataPath/typeDescription.ts`
 - Modify: `packages/core/metadata/validation/dataPath/formYamlIndex.ts`
 - Modify: `packages/core/metadata/validation/dataPath/ownerFacts.ts`
 - Modify: `packages/core/metadata/validation/dataPath/objectFields.ts`
 - Modify: `packages/core/metadata/validation/rulesSnapshot.ts`
-- Modify: `packages/core/metadata/validation/projectValidationPasses.ts`
 - Create: `packages/core/metadata/validation/rulesSnapshot.ownerFacts.test.ts`
-- Modify: `packages/core/metadata/validation/dataPath/typeDescription.test.ts`
 
 **Interfaces:**
 - Produces: `TypeDescriptionView = { type?: readonly string[]; typeId?: readonly string[] }`.
 - Extends: `ValidationRulesPropertySnapshot` with nested field declarations and compiled standard-member aliases already available from rules.
 - Removes: direct imports of `typeDescription/types`, `MetadataTabularSectionRules`, `StandartAttributeNameToYAML` and `CommonAttributeUseFromYAML` from validation.
 
-- [ ] **Step 1: Добавить тест snapshot для табличной части и псевдонимов**
+- [x] **Step 1: Добавить тест snapshot для табличной части и псевдонимов**
 
 ```ts
 it("compiles tabular-section fields and standard aliases into the rules snapshot", () => {
@@ -315,13 +314,13 @@ it("compiles tabular-section fields and standard aliases into the rules snapshot
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить отсутствие данных в snapshot**
+- [x] **Step 2: Запустить тест и подтвердить отсутствие данных в snapshot**
 
 Run: `pnpm --filter @nkdk/core exec vitest run metadata/validation/rulesSnapshot.ownerFacts.test.ts --no-isolate`
 
 Expected: FAIL на отсутствующем `standardMemberAliases` или неполных `children`.
 
-- [ ] **Step 3: Ввести минимальную проекцию описания типа**
+- [x] **Step 3: Ввести минимальную проекцию описания типа**
 
 ```ts
 export interface TypeDescriptionView {
@@ -332,7 +331,7 @@ export interface TypeDescriptionView {
 
 `typeDescriptionToDataPathTypeInfo`, owner facts и object-field builders принимают эту проекцию. YAML преобразуется через зарегистрированный `TypeDescription` property-handler; validation не импортирует helper или конкретный тип.
 
-- [ ] **Step 4: Компилировать owner facts в rules snapshot**
+- [x] **Step 4: Компилировать owner facts в rules snapshot**
 
 `createValidationRulesSnapshot` должен сохранить для каждого `ownerFactRole`:
 
@@ -359,13 +358,13 @@ export interface ValidationRulesSpecSnapshot {
 }
 ```
 
-Псевдонимы берутся из нейтрального `metadataTarget/standardMemberAliases`, а вложенные правила — через `resolvePropertyItemRule`. `objectFields.ts` получает готовый snapshot/facts и не импортирует конкретные rules.ts.
+Псевдонимы берутся из нейтрального `metadataTarget/standardMemberAliases`, а вложенные правила — через `resolvePropertyItemRule`. `objectFields.ts` использует эти нейтральные каталоги и owner facts, не импортируя конкретные rules.ts.
 
-- [ ] **Step 5: Перевести CommonAttributeUse на property-handler**
+- [x] **Step 5: Перевести CommonAttributeUse на property-handler**
 
 `ownerFacts.ts` разбирает значение `CommonAttributeUse` через каталог системных перечислений из Task 2. Никаких таблиц `systemEnumerations/types.ts` в validation не остаётся.
 
-- [ ] **Step 6: Проверить восемь целевых файлов**
+- [x] **Step 6: Проверить восемь целевых файлов**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -381,7 +380,7 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 7: Зафиксировать изменение**
+- [x] **Step 7: Зафиксировать изменение**
 
 ```bash
 git add packages/core/metadata/orchestration/property/typeDescriptionView.ts packages/core/metadata/validation .dependency-cruiser-known-violations.json

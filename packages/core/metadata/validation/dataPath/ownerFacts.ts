@@ -1,18 +1,18 @@
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import type { MetadataItem } from "../../orchestration/property/types"
 import type { ObjectFieldIndex } from "./objectFields"
 import type { OwnerTypeRef } from "./types"
 import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import type { OwnerFactRole } from "../../orchestration/property/types"
 import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
-import { CommonAttributeUseFromYAML, type CommonAttributeUseYAML } from "../../systemEnumerations/types"
+import { getSystemEnumeration } from "../../orchestration/property/systemEnumerationRegistry"
 import { typeDescriptionFromYAML } from "./formYamlIndex"
 
 export interface ValidationOwnerFacts {
   ref: OwnerTypeRef
   filePath: string
   fieldIndex: ObjectFieldIndex
-  type?: TypeDescription
+  type?: TypeDescriptionView
   commonAttributeOwnerLinks?: string[]
   owners?: string[]
   task?: string
@@ -51,7 +51,7 @@ type ValidationOwnerFactsModel = MetadataItem & {
   commands?: unknown
 }
 
-type NamedTypeItems = Array<{ name: string; type?: TypeDescription }>
+type NamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
 
 export function createValidationOwnerFacts(params: {
   ref: OwnerTypeRef
@@ -180,9 +180,7 @@ function commonAttributeOwnerLinksFromYaml(value: unknown): string[] {
     if (typeof record["Объект"] !== "string") return []
     const rawUse = record["Использование"]
     const use =
-      typeof rawUse === "string" && rawUse in CommonAttributeUseFromYAML
-        ? CommonAttributeUseFromYAML[rawUse as CommonAttributeUseYAML]
-        : "Use"
+      typeof rawUse === "string" ? (getSystemEnumeration("CommonAttributeUse")?.fromYAML[rawUse] ?? "Use") : "Use"
     return use === "Use" ? [metadataLinkFromYaml(record["Объект"])] : []
   })
 }
@@ -232,8 +230,8 @@ function commonAttributeOwnerLinksFromModel(model: MetadataItem): string[] {
     .filter((value): value is string => value !== undefined)
 }
 
-function isTypeDescription(value: unknown): value is TypeDescription {
-  return typeof value === "object" && value !== null && "type" in value
+function isTypeDescription(value: unknown): value is TypeDescriptionView {
+  return typeof value === "object" && value !== null && ("type" in value || "typeId" in value)
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

@@ -1,13 +1,13 @@
-import { getTypeFromYAML } from "../../commonObjects/typeDescription/helper"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
+import { callAtomicFromYAML } from "../../orchestration/property/fromYAMLToXML"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import type { Diagnostic } from "../types"
 import type { FormDataPathIndex } from "./formIndex"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type { FormDataPathColumnSource, FormDataPathSource } from "./types"
 
 interface PendingFormAttribute {
-  type?: TypeDescription
+  type?: TypeDescriptionView
   dynamicList?: true
   columns: Map<string, FormDataPathColumnSource>
 }
@@ -172,27 +172,19 @@ function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColum
   }
 }
 
-export function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
-  const values = Array.isArray(value) ? value : [value]
-  const types = values
-    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-    .map((item) => {
-      const dotIndex = item.indexOf(".")
-      const base = dotIndex === -1 ? item : item.slice(0, dotIndex)
-      const detail = dotIndex === -1 ? undefined : item.slice(dotIndex + 1)
-      const type = getTypeFromYAML(base)
-      return type === undefined ? primitiveTypeFromYaml(item) : detail === undefined ? type : `${type}.${detail}`
-    })
-  return types.length === 0 ? undefined : { type: types }
+export function typeDescriptionFromYAML(value: unknown): TypeDescriptionView | undefined {
+  const imported = callAtomicFromYAML({
+    context: { version: "", defaultLanguage: "" },
+    rule: { type: "TypeDescription" },
+    value,
+  })
+  return isTypeDescriptionView(imported) ? imported : undefined
 }
 
-function primitiveTypeFromYaml(value: string): string {
-  const base = value.replace(/\(.+\)$/, "")
-  if (base === "Строка" || base === "ФиксированнаяСтрока") return "string"
-  if (base === "Число" || base === "ПоложительноеЧисло") return "decimal"
-  if (value === "Булево") return "boolean"
-  if (value === "Дата" || value === "Время" || value === "ДатаВремя") return "dateTime"
-  return value
+function isTypeDescriptionView(value: unknown): value is TypeDescriptionView {
+  if (typeof value !== "object" || value === null) return false
+  const record = value as Record<string, unknown>
+  return Array.isArray(record.type) || Array.isArray(record.typeId)
 }
 
 function normalizeIndexedPath(path: string): string {

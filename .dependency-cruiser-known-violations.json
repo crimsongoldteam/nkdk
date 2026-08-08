@@ -229,122 +229,6 @@
   },
   {
     "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/formYamlIndex.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/helper.ts",
-    "unresolvedTo": "../../commonObjects/typeDescription/helper",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/formYamlIndex.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
-    "unresolvedTo": "../../commonObjects/typeDescription/types",
-    "dependencyTypes": [
-      "local",
-      "type-only",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/objectFields.ts",
-    "to": "packages/core/metadata/commonObjects/metadataTabularSection/rules.ts",
-    "unresolvedTo": "../../commonObjects/metadataTabularSection/rules",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/objectFields.ts",
-    "to": "packages/core/metadata/commonObjects/standardAttributeDescription/standartAttributeNames.ts",
-    "unresolvedTo": "../../commonObjects/standardAttributeDescription/standartAttributeNames",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/objectFields.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
-    "unresolvedTo": "../../commonObjects/typeDescription/types",
-    "dependencyTypes": [
-      "local",
-      "type-only",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/ownerFacts.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
-    "unresolvedTo": "../../commonObjects/typeDescription/types",
-    "dependencyTypes": [
-      "local",
-      "type-only",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/ownerFacts.ts",
-    "to": "packages/core/metadata/systemEnumerations/types.ts",
-    "unresolvedTo": "../../systemEnumerations/types",
-    "dependencyTypes": [
-      "local",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
-    "from": "packages/core/metadata/validation/dataPath/typeDescription.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
-    "unresolvedTo": "../../commonObjects/typeDescription/types",
-    "dependencyTypes": [
-      "local",
-      "type-only",
-      "import"
-    ],
-    "rule": {
-      "severity": "error",
-      "name": "not-in-allowed"
-    }
-  },
-  {
-    "type": "dependency",
     "from": "packages/core/metadata/validation/projectComponents.ts",
     "to": "packages/core/metadata/register.ts",
     "unresolvedTo": "../register",
@@ -3139,14 +3023,22 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/dataPath/formYamlIndex.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3185,14 +3077,29 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/dataPath/objectFields.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
+        "dependencyTypes": [
+          "local",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3204,21 +3111,29 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/dataPath/ownerCache.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3230,14 +3145,30 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/dataPath/ownerFacts.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/orchestration/property/importYamlTypes.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3372,14 +3303,29 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/dataPath/typeDescription.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
+        "dependencyTypes": [
+          "local",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3484,7 +3430,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/formValidationRegistry.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -3499,14 +3445,22 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3753,7 +3707,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/projectReferenceIndexRegistry.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -3768,14 +3722,22 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -3931,24 +3893,23 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/projectValidationPasses.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/yamlFactExtractor.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/types.ts",
         "dependencyTypes": [
           "local",
-          "type-only",
           "import"
         ]
       }
@@ -3984,7 +3945,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/projectValidationStandaloneLoader.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -3999,17 +3960,16 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/yamlFactExtractor.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/types.ts",
         "dependencyTypes": [
           "local",
-          "type-only",
           "import"
         ]
       }
@@ -4077,7 +4037,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/projectValidationWorkerSchemaCache.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/elements/orchestration/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -4091,17 +4051,16 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/yamlFactExtractor.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/forms/elements/orchestration/types.ts",
         "dependencyTypes": [
           "local",
-          "type-only",
           "import"
         ]
       }
@@ -4162,24 +4121,30 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/rulesSnapshot.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/register.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
     },
     "via": [
       {
-        "name": "packages/core/metadata/validation/dataPath/ownerFacts.ts",
+        "name": "packages/core/metadata/validation/projectSpecs.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/project/specs.ts",
         "dependencyTypes": [
           "local",
-          "type-only",
+          "export"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/register.ts",
+        "dependencyTypes": [
+          "local",
           "import"
         ]
       }
@@ -4286,7 +4251,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/validateForm.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -4308,14 +4273,22 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
@@ -4327,7 +4300,7 @@
   {
     "type": "reachability",
     "from": "packages/core/metadata/validation/validateItem.ts",
-    "to": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+    "to": "packages/core/metadata/forms/clientApplicationForm/types.ts",
     "rule": {
       "severity": "error",
       "name": "neutral-not-reach-implementations"
@@ -4341,14 +4314,22 @@
         ]
       },
       {
-        "name": "packages/core/metadata/validation/dataPath/objectFields.ts",
+        "name": "packages/core/metadata/validation/dataPath/registry.ts",
         "dependencyTypes": [
           "local",
           "import"
         ]
       },
       {
-        "name": "packages/core/metadata/commonObjects/typeDescription/types.ts",
+        "name": "packages/core/metadata/validation/dataPath/formIndex.ts",
+        "dependencyTypes": [
+          "local",
+          "type-only",
+          "import"
+        ]
+      },
+      {
+        "name": "packages/core/metadata/forms/clientApplicationForm/types.ts",
         "dependencyTypes": [
           "local",
           "type-only",
