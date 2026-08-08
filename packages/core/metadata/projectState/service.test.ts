@@ -866,8 +866,8 @@ describe("ProjectStateService", () => {
     writer.readComponentProjection = async (componentPath) => ({
       componentPath,
       updates: [
-        { kind: "resource", projectPath: "cf/a.bin", componentPath, resourceKind: "resource" },
-        { kind: "resource", projectPath: "cf/b.bin", componentPath, resourceKind: "resource" },
+        { kind: "resource", projectPath: "cf/a.bin", componentPath, resourceKind: "resource", targets: [] },
+        { kind: "resource", projectPath: "cf/b.bin", componentPath, resourceKind: "resource", targets: [] },
       ],
       hashBytes: source,
     })
@@ -972,7 +972,7 @@ function testWriterHandle(id: number): TestWriter {
     async readComponentProjection(componentPath) {
       return {
         componentPath,
-        updates: [{ kind: "resource", projectPath: `old-${id}`, componentPath, resourceKind: "resource" }],
+        updates: [{ kind: "resource", projectPath: `old-${id}`, componentPath, resourceKind: "resource", targets: [] }],
         hashBytes: new Uint8Array(8),
       }
     },

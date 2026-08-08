@@ -6,6 +6,7 @@ import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "../importSession"
+import { assertProjectStateImportIndexContribution } from "../fileUpdateValidation"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {
@@ -112,6 +113,7 @@ export function createProjectStateFragmentWriter(options: {
     },
     appendImportIndex(update) {
       assertOpen()
+      assertProjectStateImportIndexContribution(update, "importIndex")
       appendIndexFacts(update, appendYamlIdentity(update, 0n))
     },
     appendImportFinal(batch) {
@@ -239,10 +241,10 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendIndexFacts(
-    update: Pick<ProjectStateImportIndexContribution, "references" | "owners" | "fields" | "forms">,
+    update: Pick<ProjectStateImportIndexContribution, "targets" | "owners" | "fields" | "forms">,
     fileId: number,
   ): void {
-    for (const reference of update.references) {
+    for (const reference of update.targets) {
       const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
       if (reference.details !== undefined) {
         rows.referenceDetails.push({

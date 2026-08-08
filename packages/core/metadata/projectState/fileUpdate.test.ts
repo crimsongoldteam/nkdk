@@ -9,6 +9,51 @@ import {
 } from "./fileUpdate"
 
 describe("ProjectStateFileUpdateBatch", () => {
+  it("переносит одну файловую цель через YAML- и resource-update", () => {
+    const target = {
+      kind: "member",
+      canonical: "Document.Заказ.Template.Печать",
+      fileBacked: {
+        itemProjectPath: "cf/Документ/Заказ/Макеты/Печать",
+        ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml",
+      },
+    }
+    const batch = {
+      updates: [
+        { ...resourceUpdate("cf/Документ/Заказ/Макеты/Печать/Template.xml"), targets: [target] },
+        { ...yamlUpdate("cf/Документ/Заказ/Свойства.yaml"), targets: [target] },
+      ],
+      hashBytes: new Uint8Array(16),
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch(batch)).not.toThrow()
+    expect(structuredClone(batch)).toEqual(batch)
+  })
+
+  it("требует targets у resource-update", () => {
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{ kind: "resource", projectPath: "cf/file.bin", componentPath: "cf", resourceKind: "resource" }],
+      hashBytes: new Uint8Array(8),
+    })).toThrow("targets")
+  })
+
+  it.each([
+    "/absolute/item",
+    "../outside/item",
+    "cf\\item",
+  ])("отклоняет непереносимый путь файловой цели %s", (itemProjectPath) => {
+    const update = {
+      ...resourceUpdate("cf/file.bin"),
+      targets: [{
+        kind: "member",
+        canonical: "Document.Заказ.Template.Печать",
+        fileBacked: { itemProjectPath, ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml" },
+      }],
+    }
+
+    expect(() => assertProjectStateFileUpdateBatch({ updates: [update], hashBytes: new Uint8Array(8) })).toThrow()
+  })
+
   it("keeps only the portable DataPath policy fields", () => {
     const rule = {
       yaml: "ПутьКДанным",
@@ -82,7 +127,7 @@ describe("ProjectStateFileUpdateBatch", () => {
   })
 
   it.each([
-    ["reference type", { references: [{ kind: "object", canonical: 7 }] }],
+    ["target type", { targets: [{ kind: "object", canonical: 7 }] }],
     ["owner type", { owners: [{ owner: { kind: 7 }, facts: {} }] }],
     [
       "form source type",
@@ -292,7 +337,7 @@ describe("ProjectStateFileUpdateBatch", () => {
 
   it.each([
     ["unknown YAML role", { yamlRole: "unknown" }],
-    ["unknown reference kind", { references: [{ kind: "unknown", canonical: "Catalog.Товары" }] }],
+    ["unknown target kind", { targets: [{ kind: "unknown", canonical: "Catalog.Товары" }] }],
     [
       "unknown field kind",
       {
@@ -334,6 +379,7 @@ function resourceUpdate(projectPath: string): ProjectStateFileUpdate {
     projectPath,
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }
 }
 
@@ -345,7 +391,7 @@ function yamlUpdate(projectPath: string): ProjectStateFileUpdate {
     resourceKind: "yaml",
     yamlRole: "configuration",
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [],
+    targets: [],
     pendingReferences: [],
     owners: [],
     fields: [],

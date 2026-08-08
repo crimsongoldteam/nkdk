@@ -531,6 +531,7 @@ function externalFileStateBatch(
       projectPath: `${selectedComponentPath}/${file.projectPath}`,
       componentPath: selectedComponentPath,
       resourceKind: "resource" as const,
+      targets: [],
     },
     hash: file.contentHash,
   }))

@@ -8,7 +8,7 @@ import type {
   ProjectStateOwnerFact,
   ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
-  ProjectStateReferenceEntry,
+  ProjectStateTargetEntry,
 } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
@@ -41,14 +41,18 @@ export interface ProjectStateImportProfileOptions {
 export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
   readonly resourceKind: "yaml"
   readonly yamlRole: NonNullable<ProjectStateFileIdentity["yamlRole"]>
-  readonly references: readonly ProjectStateReferenceEntry[]
+  readonly targets: readonly ProjectStateTargetEntry[]
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
 }
 
 export type ProjectStateImportFinalFileState =
-  | (ProjectStateFileIdentity & { readonly kind: "resource"; readonly resourceKind: "resource" })
+  | (ProjectStateFileIdentity & {
+      readonly kind: "resource"
+      readonly resourceKind: "resource"
+      readonly targets: readonly ProjectStateTargetEntry[]
+    })
   | (ProjectStateFileIdentity & {
       readonly kind: "yaml"
       readonly resourceKind: "yaml"

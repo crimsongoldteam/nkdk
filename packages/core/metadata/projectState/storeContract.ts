@@ -3,6 +3,7 @@ import { createProjectStateFragmentWriter } from "./binary/fragment"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "./fileUpdate"
 import type {
+  ProjectStateImportFinalFileState,
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "./importSession"
@@ -115,9 +116,14 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
             componentPath: contribution.componentPath,
             resourceKind: "resource" as const,
             kind: "resource" as const,
+            targets: [],
           }
         : { ...importFinal(contribution), ...override }
-      expect(() => appendImportFinal(store, contribution, importFinalBatch(finalState)))
+      expect(() => appendImportFinal(
+        store,
+        contribution,
+        importFinalBatch(finalState as ProjectStateImportFinalFileState),
+      ))
         .toThrow(/identity|идентич/iu)
       store.rollbackUpdate()
 
@@ -356,7 +362,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       store.beginUpdate()
       replaceFiles(store, {
         updates: [
-          { ...extension, references: [...extension.references, { kind: "member", canonical: nested }] },
+          { ...extension, targets: [...extension.targets, { kind: "member", canonical: nested }] },
           base,
         ],
         hashBytes: new Uint8Array(16),
@@ -427,7 +433,7 @@ function importIndex(
     componentPath,
     resourceKind: "yaml",
     yamlRole: update.yamlRole!,
-    references: update.references,
+    targets: update.targets,
     owners: update.owners,
     fields: update.fields,
     forms: update.forms,
@@ -448,8 +454,8 @@ function importFinal(identity: ProjectStateFileIdentity) {
   }
 }
 
-function importFinalBatch(update: ReturnType<typeof importFinal> | ProjectStateFileUpdate): ProjectStateImportFinalFileStateBatch {
-  return { updates: [update as never], hashBytes: new Uint8Array(8) }
+function importFinalBatch(update: ProjectStateImportFinalFileState): ProjectStateImportFinalFileStateBatch {
+  return { updates: [update], hashBytes: new Uint8Array(8) }
 }
 
 function owner(canonical: string) {
@@ -486,7 +492,7 @@ function readFileContributions(session: ProjectStateReadSession, update: Project
   const referenceResult = session.findReferences([{
     requestId: "reference",
     componentPath: update.componentPath,
-    canonical: update.pendingReferences[0]?.canonical ?? update.references[0]!.canonical,
+    canonical: update.pendingReferences[0]?.canonical ?? update.targets[0]!.canonical,
   }])
   const dependencyResult = session.readDependencyInputs([
     dependencyQuery("dependency", update.componentPath, update.projectPath, update.owners[0]!.owner.name ?? ""),

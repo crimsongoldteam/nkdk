@@ -31,6 +31,7 @@ export interface ProjectStateFileIdentity {
 
 export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
   readonly kind: "resource"
+  readonly targets: readonly ProjectStateTargetEntry[]
 }
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
@@ -41,10 +42,16 @@ export interface ProjectStateLocalValidationResult {
   readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
 }
 
-export interface ProjectStateReferenceEntry {
+export interface ProjectStateFileBackedTargetLocation {
+  readonly itemProjectPath: string
+  readonly ownerProjectPath: string
+}
+
+export interface ProjectStateTargetEntry {
   readonly kind: "object" | "member" | "value"
   readonly canonical: string
   readonly details?: ProjectMetadataReferenceDetails
+  readonly fileBacked?: ProjectStateFileBackedTargetLocation
 }
 
 export interface ProjectStatePendingReference {
@@ -118,7 +125,7 @@ export interface ProjectStatePendingDependencyCheck {
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
   readonly localValidation: ProjectStateLocalValidationResult
-  readonly references: readonly ProjectStateReferenceEntry[]
+  readonly targets: readonly ProjectStateTargetEntry[]
   readonly pendingReferences: readonly ProjectStatePendingReference[]
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
@@ -167,7 +174,8 @@ export function createProjectStateFileUpdateBatch(
 
 export function toProjectStateFileUpdate(
   firstPassResult: ProjectValidationFirstPassResult,
-  identity: ProjectStateFileIdentity
+  identity: ProjectStateFileIdentity,
+  fileBackedTargets: readonly ProjectStateTargetEntry[] = []
 ): ProjectStateYamlFileUpdate {
   if (identity.resourceKind !== "yaml" || identity.yamlRole === undefined) {
     throw new Error("Результат первого прохода можно связать только с YAML-файлом")
@@ -181,10 +189,11 @@ export function toProjectStateFileUpdate(
       diagnostics: firstPassResult.diagnostics.map(withoutDiagnosticFilePath),
       schemaDiagnostics: firstPassResult.schemaDiagnostics.map(withoutDiagnosticFilePath),
     },
-    references: [
-      ...firstPassResult.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
-      ...firstPassResult.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
-      ...firstPassResult.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
+    targets: [
+      ...firstPassResult.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
+      ...firstPassResult.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
+      ...firstPassResult.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...fileBackedTargets,
     ],
     pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
     owners: firstPassResult.objectRecords.flatMap(projectStateOwnerFacts),
@@ -198,10 +207,10 @@ export function toProjectStateFileUpdate(
   }
 }
 
-export function projectStateReferenceEntry(
-  kind: ProjectStateReferenceEntry["kind"],
+export function projectStateTargetEntry(
+  kind: ProjectStateTargetEntry["kind"],
   entry: { readonly canonical: string; readonly result: { readonly ok: boolean; readonly details?: unknown } },
-): ProjectStateReferenceEntry {
+): ProjectStateTargetEntry {
   const details = entry.result.ok ? projectMetadataReferenceDetails(entry.result.details) : undefined
   return { kind, canonical: entry.canonical, ...(details === undefined ? {} : { details }) }
 }

@@ -749,6 +749,7 @@ function stateBatch(
       projectPath: `${componentPath}/${file.targetProjectPath}`,
       componentPath,
       resourceKind: "resource" as const,
+      targets: [],
     },
     hash: BigInt(firstHash + index),
   }))
@@ -763,7 +764,7 @@ function indexStateFragment(projectPath: string) {
     componentPath: "cf",
     resourceKind: "yaml",
     yamlRole: "properties",
-    references: [],
+    targets: [],
     owners: [],
     fields: [],
     forms: [],

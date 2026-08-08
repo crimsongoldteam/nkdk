@@ -22,7 +22,7 @@ import {
   createProjectStateFileUpdateBatch,
   projectStateFieldEntries,
   projectStateOwnerFacts,
-  projectStateReferenceEntry,
+  projectStateTargetEntry,
   toProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
@@ -444,6 +444,7 @@ async function processFirstPass(
             projectPath: `${state.componentPath}/${file.targetProjectPath}`,
             componentPath: state.componentPath,
             resourceKind: "resource" as const,
+            targets: [],
           },
           hash: hashGeneratedContent(generatedFiles[index]?.content ?? ""),
         }))
@@ -717,10 +718,10 @@ function splitImportYamlUpdate(
     resourceKind: "yaml" as const,
     yamlRole: update.yamlRole,
   }
-  const { references, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
+  const { targets, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
   const batch = createProjectStateFileUpdateBatch([{ update, hash }])
   return {
-    index: { ...identity, references, owners, fields, forms },
+    index: { ...identity, targets, owners, fields, forms },
     final: {
       updates: [{ ...identity, localValidation, pendingReferences, pendingChecks, dependencies }],
       hashBytes: batch.hashBytes,
@@ -741,10 +742,10 @@ function importIndexContribution(
   const validation = contribution.validationContribution
   return {
     ...identity,
-    references: [
-      ...validation.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
-      ...validation.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
-      ...validation.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
+    targets: [
+      ...validation.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
+      ...validation.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
+      ...validation.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
     ],
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),

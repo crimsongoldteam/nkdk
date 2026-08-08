@@ -38,7 +38,7 @@ import {
 
 type DecodedYamlFacts = Pick<
   ProjectStateYamlFileUpdate,
-  "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"
+  "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"
 >
 type ReadYamlFacts = (fileId: number) => DecodedYamlFacts | undefined
 type ReadReferenceDetails = TypedProjectStateReader["referenceDetails"]
@@ -66,7 +66,7 @@ export function createBinaryProjectStateQueryPort(
   )
   const readYamlFacts = createYamlFactsReader(snapshot, typedReader)
   const readReferenceDetails: ReadReferenceDetails = typedReader === undefined
-    ? (fileId, kind, canonical) => readYamlFacts(fileId)?.references.find(
+    ? (fileId, kind, canonical) => readYamlFacts(fileId)?.targets.find(
         (reference) => reference.kind === kind && reference.canonical === canonical,
       )?.details
     : (fileId, kind, canonical) => typedReader.referenceDetails(fileId, kind, canonical)

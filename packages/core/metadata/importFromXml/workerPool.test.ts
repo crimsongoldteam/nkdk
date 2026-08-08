@@ -614,7 +614,7 @@ function createFakePools() {
           componentPath: "cf",
           resourceKind: "yaml" as const,
           yamlRole: "properties" as const,
-          references: [], owners: [], fields: [], forms: [],
+          targets: [], owners: [], fields: [], forms: [],
         }))
         const finalFileStateBatches = task.assignments.map((item) => fakeFinalBatch(`cf/${item.targetProjectPath}`))
         return createImportBinaryResult({
@@ -745,7 +745,7 @@ function fakeFinalBatch(projectPath: string) {
     pendingReferences: [], pendingChecks: [], dependencies: [],
   }
   const encoded = createProjectStateFileUpdateBatch([{
-    update: { ...update, references: [], owners: [], fields: [], forms: [] },
+    update: { ...update, targets: [], owners: [], fields: [], forms: [] },
     hash: 1n,
   }])
   return { updates: [update], hashBytes: encoded.hashBytes }

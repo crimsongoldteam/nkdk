@@ -82,7 +82,7 @@ describe("владелец состояния проекта в главном �
     const handle = createHandle(async () => undefined)
     const writer = createProjectStateFragmentWriter()
     writer.appendFile({
-      kind: "resource", projectPath: "cf/a.bin", componentPath: "cf", resourceKind: "resource",
+      kind: "resource", projectPath: "cf/a.bin", componentPath: "cf", resourceKind: "resource", targets: [],
     }, 1n)
     await handle.beginUpdate("/project")
 
@@ -139,6 +139,6 @@ describe("владелец состояния проекта в главном �
 
 function fragment(projectPath: string, hash: bigint) {
   const writer = createProjectStateFragmentWriter()
-  writer.appendFile({ kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource" }, hash)
+  writer.appendFile({ kind: "resource", projectPath, componentPath: "cf", resourceKind: "resource", targets: [] }, hash)
   return writer.finish()
 }

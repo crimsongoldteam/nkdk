@@ -136,7 +136,7 @@ describe("dependency validation из ProjectState", () => {
   it("привязывает отсутствующий объект к ожидаемому Свойства.yaml", () => {
     const source: ProjectStateYamlFileUpdate = {
       ...yamlUpdate("cf/ИсточникОбъекта.yaml", "cf", false),
-      references: [],
+      targets: [],
       pendingReferences: [{
         yamlPath: ["Ссылка"],
         canonical: "Catalog.НетТакого",
@@ -161,7 +161,7 @@ describe("dependency validation из ProjectState", () => {
   it("сохраняет префикс компонента в пути отсутствующего объекта расширения", () => {
     const source: ProjectStateYamlFileUpdate = {
       ...yamlUpdate("cfe/Продажи/ИсточникОбъекта.yaml", "cfe/Продажи", false),
-      references: [],
+      targets: [],
       pendingReferences: [{
         yamlPath: ["Ссылка"],
         canonical: "Catalog.НетТакого",
@@ -632,7 +632,7 @@ describe("dependency validation из ProjectState", () => {
       store.beginUpdate()
       if (change === "deleted") store.deleteFiles([target.projectPath])
       else {
-        replaceFiles(store, [{ ...target, references: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }])
+        replaceFiles(store, [{ ...target, targets: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }])
       }
 
       expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
@@ -781,7 +781,7 @@ function emptyYamlUpdate(
   return {
     ...yamlUpdate(projectPath, componentPath, false),
     yamlRole,
-    references: [],
+    targets: [],
   }
 }
 
@@ -879,7 +879,7 @@ function configurationUpdate(
         ? []
         : [{ line: 1, col: 1, severity: "error", source: "structure", message: "invalid cf" }],
     },
-    references: [],
+    targets: [],
     pendingReferences: [],
     owners: [],
     fields: [],
@@ -1021,7 +1021,7 @@ function referenceCase(
   sourceComponent: string,
   targetComponents: readonly string[],
   constraint: PendingMetadataTargetReference["constraint"] = { kind: "member", owner: "explicit" },
-  details?: ProjectStateYamlFileUpdate["references"][number]["details"],
+  details?: ProjectStateYamlFileUpdate["targets"][number]["details"],
 ) {
   const source = yamlUpdate(`${sourceComponent}/Источник.yaml`, sourceComponent, true, constraint)
   const targets = targetComponents.map((componentPath, index) =>
@@ -1032,7 +1032,7 @@ function referenceCase(
   for (const update of [source, ...targets, ...readiness]) {
     const layer = byComponent.get(update.componentPath) ?? { updates: [], entries: [] }
     layer.updates.push(update)
-    if (update.references.length > 0) {
+    if (update.targets.length > 0) {
       layer.entries.push({
         canonical,
         target: memberTarget,
@@ -1061,7 +1061,7 @@ function yamlUpdate(
   componentPath: string,
   pending: boolean,
   constraint: PendingMetadataTargetReference["constraint"] = { kind: "member", owner: "explicit" },
-  details?: ProjectStateYamlFileUpdate["references"][number]["details"],
+  details?: ProjectStateYamlFileUpdate["targets"][number]["details"],
 ): ProjectStateYamlFileUpdate {
   return {
     kind: "yaml",
@@ -1070,7 +1070,7 @@ function yamlUpdate(
     resourceKind: "yaml",
     yamlRole: "configuration",
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: pending ? [] : [{ kind: "member", canonical, ...(details === undefined ? {} : { details }) }],
+    targets: pending ? [] : [{ kind: "member", canonical, ...(details === undefined ? {} : { details }) }],
     pendingReferences: pending
       ? [{ yamlPath: ["Ссылка"], canonical, target: memberTarget, constraint }]
       : [],

@@ -286,7 +286,7 @@ async function refreshProjectStateFiles(
           changedFiles += 1
           continue
         }
-        writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
+        writer.appendFile({ ...classified.identity, kind: "resource", targets: [] }, currentHash)
         changedFiles += 1
       } catch (caught) {
         if (!isMissingFile(caught)) throw caught

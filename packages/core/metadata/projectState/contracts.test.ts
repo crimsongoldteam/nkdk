@@ -100,6 +100,7 @@ describe("переносимый ProjectStateFileUpdateBatch", () => {
       projectPath: "cf/Модуль.bsl",
       componentPath: "cf",
       resourceKind: "resource" as const,
+      targets: [],
     }
     const batch = { updates: [update], hashBytes: new Uint8Array(8) }
 
@@ -299,7 +300,7 @@ function createTestStoreContractFixture() {
           componentPath: snapshot.componentPath(fileId),
           resourceKind: record.resourceKind === 1 ? "yaml" as const : "resource" as const,
         }
-        if (record.updateKind === 2) return { ...base, kind: "resource" }
+        if (record.updateKind === 2) return { ...base, kind: "resource", targets: [] }
         const yamlRole = ([undefined, "configuration", "properties", "form"] as const)[record.yamlRole]
         const facts = reader.yamlFacts(fileId)
         if (yamlRole === undefined || facts === undefined) throw new Error("Неполный индекс YAML")
@@ -425,7 +426,7 @@ function testStoreReadSession(
       assertOpen()
       return requests.map(({ requestId, componentPath, canonicalTarget }) => {
         const targets = visibleYamlUpdatesForSession(componentPath)
-          .flatMap((update) => update.references
+          .flatMap((update) => update.targets
             .filter((reference) => reference.canonical === canonicalTarget)
             .map((target) => ({
               target,
@@ -518,7 +519,7 @@ function testStoreReadSession(
       const entries = new Map<string, Array<{ logicalAddress: string; sourceProjectPath: string }>>()
       for (const { update } of updates.values()) {
         if (update.kind !== "yaml" || update.componentPath !== componentPath) continue
-        for (const reference of update.references) {
+        for (const reference of update.targets) {
           const values = entries.get(reference.canonical) ?? []
           values.push({ logicalAddress: reference.canonical, sourceProjectPath: update.projectPath })
           entries.set(reference.canonical, values)

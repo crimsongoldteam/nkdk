@@ -413,7 +413,7 @@ function yamlUpdate(file: ProjectStateFileIdentity): ProjectStateFileUpdate {
     fields: [],
     owners: [],
     pendingReferences: [],
-    references: [],
+    targets: [],
     dependencies: [],
   }
 }

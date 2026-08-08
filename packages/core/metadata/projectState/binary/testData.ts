@@ -4,7 +4,7 @@ export function resourceUpdate(
   projectPath: string,
   componentPath = "cf",
 ): ProjectStateFileUpdate {
-  return { kind: "resource", projectPath, componentPath, resourceKind: "resource" }
+  return { kind: "resource", projectPath, componentPath, resourceKind: "resource", targets: [] }
 }
 
 export function yamlUpdate(
@@ -19,7 +19,7 @@ export function yamlUpdate(
     resourceKind: "yaml",
     yamlRole: "configuration",
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: [{ kind: "object", canonical }],
+    targets: [{ kind: "object", canonical }],
     pendingReferences: [],
     owners: [{ owner: { kind: "Справочник", name: canonical }, facts: {} }],
     fields: [],

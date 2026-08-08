@@ -1136,7 +1136,7 @@ function successfulRefreshResult(
   const fragmentWriter = createProjectStateFragmentWriter()
   task.files.forEach(({ identity }) => {
     if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
-    fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
+    fragmentWriter.appendFile({ ...identity, kind: "resource", targets: [] }, 1n)
   })
   return createProjectStateRefreshBinaryResult({
     fragment: fragmentWriter.finish(),

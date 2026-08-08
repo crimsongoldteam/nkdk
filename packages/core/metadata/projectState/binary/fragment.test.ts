@@ -19,6 +19,7 @@ it("накапливает несколько файлов в одном тип�
     projectPath: "cf/ОбщийМодуль.bsl",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 10n)
 
   const fragment = writer.finish()
@@ -42,6 +43,7 @@ it("передаёт пять буферов фрагмента без копи�
     projectPath: "cf/a.bin",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 1n)
   const fragment = writer.finish()
   const transferred = structuredClone(fragment, {
@@ -87,7 +89,7 @@ it("собирает оба вида import-фрагментов тем же ф�
     componentPath: "cf",
     resourceKind: "yaml",
     yamlRole: "properties",
-    references: [{ kind: "object", canonical: "Catalog.Товары" }],
+    targets: [{ kind: "object", canonical: "Catalog.Товары" }],
     owners: [],
     fields: [],
     forms: [],
@@ -183,6 +185,7 @@ function validFragment() {
     projectPath: "cf/a.bin",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 1n)
   return writer.finish()
 }
