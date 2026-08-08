@@ -43,6 +43,8 @@ import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../project/localIndexes"
 import type { LocalIndexesCollector } from "../project/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+import { analyzeDependentYamlItem } from "../orchestration/property/dependentItemRegistry"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -111,6 +113,8 @@ export function extractValidationYamlFacts(params: {
           collector: localIndexesCollector,
           fileOwner: params.file.owner,
           rulePath: [],
+          rootYaml: params.parsed.data,
+          rootRule: params.file.owner.spec.rule,
           validationDiagnostics,
         })
   const localIndexes = localIndexesCollector.finish()
@@ -338,6 +342,8 @@ function collectPendingReferences(params: {
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
+  rootYaml: unknown
+  rootRule: MetadataItemRule
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
@@ -406,6 +412,9 @@ function collectPendingReferences(params: {
           collector: params.collector,
           fileOwner: params.fileOwner,
           rulePath,
+          rootYaml: params.rootYaml,
+          rootRule: params.rootRule,
+          nestedItemType: property.nestedItemType,
           validationDiagnostics: params.validationDiagnostics,
         })
       )
@@ -428,20 +437,53 @@ function collectNestedReferences(params: {
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
+  rootYaml: unknown
+  rootRule: MetadataItemRule
+  nestedItemType?: string
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      collectPendingReferences({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
-    )
+    return params.value.flatMap((item, index) => collectNestedItem({ ...params, item, itemKey: index }))
   }
 
   const record = asRecord(params.value)
   if (record === undefined) return []
 
-  return Object.entries(record).flatMap(([key, item]) =>
-    collectPendingReferences({ ...params, value: item, yamlPath: [...params.yamlPath, key] })
+  return Object.entries(record).flatMap(([key, item]) => collectNestedItem({ ...params, item, itemKey: key }))
+}
+
+function collectNestedItem(
+  params: Parameters<typeof collectNestedReferences>[0] & { item: unknown; itemKey: string | number }
+): PendingMetadataTargetReference[] {
+  const itemYamlPath = [...params.yamlPath, params.itemKey]
+  const item = asRecord(params.item)
+  const references: PendingMetadataTargetReference[] = []
+  if (item !== undefined && params.nestedItemType !== undefined) {
+    const analysis = analyzeDependentYamlItem({
+      itemType: params.nestedItemType,
+      ...(typeof params.itemKey === "string" ? { itemName: params.itemKey } : {}),
+      item,
+      itemYamlPath,
+      rootYaml: params.rootYaml,
+      rootRule: params.rootRule,
+      filePath: params.filePath,
+      parsed: params.parsed,
+      owner: { dir: params.fileOwner.dir, name: params.fileOwner.name },
+    })
+    if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
+    references.push(
+      ...analysis.references.map((reference) => ({ ...reference, filePath: params.filePath }))
+    )
+  }
+
+  references.push(
+    ...collectPendingReferences({
+      ...params,
+      value: params.item,
+      yamlPath: itemYamlPath,
+    })
   )
+  return references
 }
 
 function collectTargetValues(params: {

@@ -2,6 +2,7 @@ import { registerCoreMetadata } from "../register"
 import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import { registerFillValueValidation } from "../commonObjects/fillValue/register"
 
 let registered = false
 let ownerFactCollectorsRegistered = false
@@ -10,6 +11,7 @@ export function registerValidationMetadata(): void {
   if (registered) return
   registered = true
   registerCoreMetadata()
+  registerFillValueValidation()
   registerOwnerFactCollectors()
 }
 

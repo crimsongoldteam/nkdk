@@ -2,6 +2,7 @@ import type { ValidationSchemaValidator } from "./compileValidationSchema"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { Diagnostic } from "./types"
+import { structuralYamlValue } from "./structuralYamlValue"
 
 export interface ValidateFileParams {
   filePath: string
@@ -35,7 +36,7 @@ export function validateParsedFile({ filePath, parsed, schema }: ValidateParsedF
   }
 
   // Структурная валидация
-  const [valid, errors] = schema.Errors(parsed.data)
+  const [valid, errors] = schema.Errors(structuralYamlValue(parsed.data))
   if (!valid) return typeboxErrorsToDiagnostics(errors, parsed, filePath)
 
   return []
