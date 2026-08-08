@@ -11,7 +11,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/logicalAddress"
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
+import { buildExternalFileEntry } from "./externalFile"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import type { DeferredRulePathSegment, DirectImportProfile, DirectImportXMLSource } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"

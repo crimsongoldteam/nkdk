@@ -34,7 +34,7 @@ import type {
 import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
-import { readExternalFile } from "../../forms/commonObjects/dynamicList/externalFile"
+import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { assertAllowedExplicitXMLTags } from "./explicitXMLPropertyRegistry"

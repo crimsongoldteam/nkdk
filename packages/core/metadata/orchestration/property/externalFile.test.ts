@@ -1,6 +1,6 @@
-import fs from "fs"
-import os from "os"
-import { join } from "path"
+import fs from "node:fs"
+import os from "node:os"
+import { join } from "node:path"
 import { describe, expect, it } from "vitest"
 import { buildExternalFileEntry, readExternalFile } from "./externalFile"
 

@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { ExternalFileEntry } from "../../../context/types"
-import type { BasePropertyRule } from "../../../orchestration/property/types"
+import { ExternalFileEntry } from "../../context/types"
+import type { BasePropertyRule } from "./types"
 
 type ExternalFileRule = Required<Pick<BasePropertyRule, "externalFile">>["externalFile"]
 
