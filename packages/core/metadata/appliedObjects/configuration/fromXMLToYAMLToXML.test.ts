@@ -18,6 +18,23 @@ const cleanFixture = () =>
     }
   }>(CLEAN_CONFIGURATION_XML)
 
+const roundTripConfigurationFromYAML = (yaml: Record<string, unknown>) => {
+  const exported = testMetadataItemFromYAMLToXML({
+    rule: MetadataConfigurationRules,
+    yaml,
+    name: "Конфигурация",
+  })
+  const properties = (exported.xml.MetaDataObject as { Configuration: { Properties: Record<string, unknown> } })
+    .Configuration.Properties
+  const imported = testMetadataItemFromXMLToYAML({
+    rule: MetadataConfigurationRules,
+    xml: exported.xml.MetaDataObject,
+    name: "Конфигурация",
+  })
+
+  return { imported, properties }
+}
+
 describe("Configuration: единые XML → YAML и YAML → XML обходы", () => {
   it("преобразует clean Configuration без скрытых значений и восстанавливает XML defaults", () => {
     const referenceXML = cleanFixture()
@@ -91,6 +108,30 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     ).toHaveLength(38)
   })
 
+  it("преобразует требуемые разрешения мобильного приложения", () => {
+    const yaml = {
+      Имя: "Конфигурация",
+      ОсновнойЯзык: "Русский",
+      ТребуемыеРазрешенияМобильногоПриложения: [
+        { Разрешение: "Камера", Использовать: "Истина", Описание: "Доступ к камере" },
+      ],
+    }
+    const { imported, properties } = roundTripConfigurationFromYAML(yaml)
+
+    expect(properties.RequiredMobileApplicationPermissions).toEqual({
+      "app:permission": [
+        {
+          "app:permission": "Camera",
+          "app:use": true,
+          "app:description": {
+            "v8:item": [{ "v8:lang": "ru", "v8:content": "Доступ к камере" }],
+          },
+        },
+      ],
+    })
+    expect(imported.yaml).toMatchObject(yaml)
+  })
+
   it("преобразует различия мобильной функциональности с русскими boolean-значениями", () => {
     const yaml = {
       Имя: "Конфигурация",
@@ -99,18 +140,7 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
         { Функциональность: "РезервноеКопированиеСредствамиОС", Использовать: "Ложь" },
       ],
     }
-    const exported = testMetadataItemFromYAMLToXML({
-      rule: MetadataConfigurationRules,
-      yaml,
-      name: "Конфигурация",
-    })
-    const properties = (exported.xml.MetaDataObject as { Configuration: { Properties: Record<string, unknown> } })
-      .Configuration.Properties
-    const imported = testMetadataItemFromXMLToYAML({
-      rule: MetadataConfigurationRules,
-      xml: exported.xml.MetaDataObject,
-      name: "Конфигурация",
-    })
+    const { imported, properties } = roundTripConfigurationFromYAML(yaml)
 
     expect(properties.UsedMobileApplicationFunctionalities).toBeDefined()
     expect(imported.yaml).toMatchObject({
@@ -141,16 +171,7 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
         },
       ],
     }
-    const exported = testMetadataItemFromYAMLToXML({
-      rule: MetadataConfigurationRules,
-      yaml,
-      name: "Конфигурация",
-    })
-    const imported = testMetadataItemFromXMLToYAML({
-      rule: MetadataConfigurationRules,
-      xml: exported.xml.MetaDataObject,
-      name: "Конфигурация",
-    })
+    const { imported } = roundTripConfigurationFromYAML(yaml)
 
     expect(imported.yaml).toMatchObject(yaml)
   })

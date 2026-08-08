@@ -4,6 +4,7 @@ import {
   configurationChildObjectsRule,
   homePageWorkAreaRule,
   mobileApplicationURLsRule,
+  requiredMobileApplicationPermissionsRule,
   rootCommandInterfaceRule,
   usedMobileApplicationFunctionalitiesRule,
 } from "./builders"
@@ -22,6 +23,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
 import "./mobileApplicationURLs"
+import { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./requiredMobileApplicationPermissions"
 import { CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES } from "./usedMobileApplicationFunctionalities"
 import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
@@ -338,12 +340,14 @@ export const MetadataConfigurationRules = {
       defaultValueXML: "",
       defaultValueXMLRaw: "",
     }),
-    requiredMobileApplicationPermissions: stringRule({
+    requiredMobileApplicationPermissions: requiredMobileApplicationPermissionsRule({
+      yaml: "ТребуемыеРазрешенияМобильногоПриложения",
       xml: "RequiredMobileApplicationPermissions",
-      defaultValueXML: "",
+      implicitValueYAML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
+      evaluateWhenYAMLMissing: true,
+      preserveUnknownReferenceXML: false,
+      defaultValueXML: EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
       defaultValueXMLRaw: "",
-      toYAML: false,
-      fromYAML: false,
       xmlParents: configurationProperties,
     }),
     usedMobileApplicationFunctionalities: usedMobileApplicationFunctionalitiesRule({

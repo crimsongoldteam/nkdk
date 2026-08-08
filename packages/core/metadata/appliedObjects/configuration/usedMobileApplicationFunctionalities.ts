@@ -11,6 +11,7 @@ import {
   MobileApplicationFunctionalitiesToYAML,
   MobileApplicationFunctionalitiesYAML,
 } from "../../systemEnumerations/types"
+import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
 
 export interface UsedMobileApplicationFunctionality {
   functionality: MobileApplicationFunctionalities
@@ -35,13 +36,7 @@ interface UsedMobileApplicationFunctionalitiesXML {
 
 export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Array(
   Type.Object({
-    Функциональность: Type.Union(
-      Object.keys(MobileApplicationFunctionalitiesFromYAML).map((value) => Type.Literal(value)) as [
-        ReturnType<typeof Type.Literal>,
-        ReturnType<typeof Type.Literal>,
-        ...ReturnType<typeof Type.Literal>[],
-      ]
-    ),
+    Функциональность: literalUnionJSONSchema(Object.keys(MobileApplicationFunctionalitiesFromYAML)),
     Использовать: BooleanJSONSchema,
   })
 )
