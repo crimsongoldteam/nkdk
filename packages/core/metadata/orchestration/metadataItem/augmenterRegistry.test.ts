@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../tests/mockContext"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import type { MetadataItemRule } from "../property/types"
 import {
   applyMetadataItemXmlImportAugmenter,
   registerMetadataItemXmlImportAugmenter,
-} from "./metadataItemAugmenter"
+} from "./augmenterRegistry"
 
 const rule = {
   itemType: "MetadataItemAugmenterTest",

@@ -1,0 +1,44 @@
+import type { TypeDescriptionView } from "../orchestration/property/typeDescriptionView"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { Diagnostic } from "./types"
+import type { YamlPath } from "./yamlLocations"
+import type { ElementType } from "../orchestration/formElement/types"
+
+export interface FormAttributeColumnView {
+  readonly name: string
+  readonly type?: TypeDescriptionView
+}
+
+export interface FormAttributeView extends FormAttributeColumnView {
+  readonly dynamicList?: unknown
+  readonly columns?: readonly FormAttributeColumnView[]
+  readonly additionalColumns?: readonly {
+    table: string
+    columns: readonly FormAttributeColumnView[]
+  }[]
+}
+
+export interface FormValidationView {
+  readonly itemType: string
+  readonly attributes?: readonly FormAttributeView[]
+  readonly childItems?: unknown
+}
+
+export interface FormElementNameCollectorView {
+  acceptExplicit(params: { name: string; path: YamlPath }): void
+  acceptReserved(params: {
+    name: string
+    path: YamlPath
+    ownerName?: string
+    propertyName?: string
+  }): void
+  finish(): Diagnostic[]
+}
+
+export interface FormValidationAdapter {
+  readonly formRule: MetadataItemRule
+  readonly elementNamesProfileSubstep: string
+  elementTypeFromYAML(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined
+  createElementNameCollector(params: { filePath: string; parsed: ParsedYaml }): FormElementNameCollectorView
+}

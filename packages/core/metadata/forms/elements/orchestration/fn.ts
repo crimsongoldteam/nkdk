@@ -1,10 +1,1 @@
-import { ExportToEnterpriseFunction } from "../../../orchestration/property/fn"
-
-// #endregion
-// #region factory
-
-type fnPairs = ["ExportToEnterprise", ExportToEnterpriseFunction]
-
-export type ItemOperationType = fnPairs extends infer T ? (T extends [infer Op, any] ? Op : never) : never
-
-export type OperationFunction<Type extends ItemOperationType> = Extract<fnPairs, [Type, any]>[1]
+export * from "../../../orchestration/formElement/fn"

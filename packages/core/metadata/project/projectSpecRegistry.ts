@@ -44,6 +44,12 @@ export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {
   return [...specsByDir.values()].sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
 }
 
+export function assertCoreMetadataRegistered(operation: string): void {
+  if (specsByDir.size === 0) {
+    throw new Error(`Metadata не зарегистрирована перед операцией ${operation}`)
+  }
+}
+
 export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpec | undefined {
   return specsByDir.get(dir)
 }

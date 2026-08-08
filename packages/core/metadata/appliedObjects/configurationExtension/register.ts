@@ -1,5 +1,5 @@
 import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
-import { registerMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import { registerMetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"

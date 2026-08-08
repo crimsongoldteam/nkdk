@@ -1,5 +1,5 @@
-import type { ConfigurationContextFromXML } from "../context/types"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import type { MetadataItemRule } from "../property/types"
 
 export interface MetadataItemXmlImportAugmenter {
   augment(params: {

@@ -1,5 +1,6 @@
 import type { TSchema } from "typebox"
-import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
+import type { ElementType, ElementXMLWithoutId } from "../orchestration/formElement/types"
+import type { MetadataItemType, ToMetadata } from "../orchestration/metadataItem/registry"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { MetadataTargetOwner } from "../orchestration/metadataTarget/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"

@@ -1,10 +1,8 @@
-import "../../forms"
-import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
-import type { ChildItem } from "../../forms/commonObjects/childItems/types"
-import type { ElementRule, ElementType } from "../../orchestration"
+import type { ElementRule, ElementType } from "../../orchestration/formElement/types"
 import { getElementRule } from "../../orchestration/formElement/ruleFactory"
 import type { DataPathPropertyRule, PropertyRule } from "../../orchestration/property/types"
-import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import type { FormValidationView } from "../formContracts"
+import { requireFormValidationAdapter } from "../formValidationRegistry"
 import type { YamlPath } from "../yamlLocations"
 import type { TableContext } from "./resolver"
 
@@ -19,27 +17,28 @@ export interface FormDataPathOccurrence {
   tableContext?: TableContext
 }
 
-export function collectFormDataPathOccurrences(form: ClientApplicationForm): FormDataPathOccurrence[] {
+export function collectFormDataPathOccurrences(form: FormValidationView): FormDataPathOccurrence[] {
+  const formRule = requireFormValidationAdapter().formRule
   return [
     ...collectDataPathProperties({
       owner: form,
-      properties: ClientApplicationFormRules.properties,
+      properties: formRule.properties,
       yamlPath: [],
     }),
     ...collectSingletonElementProperties({
       owner: form,
-      properties: ClientApplicationFormRules.properties,
+      properties: formRule.properties,
       yamlPath: [],
     }),
     ...collectChildItems({
-      childItems: form.childItems,
+      childItems: childItemsOf(form),
       yamlPath: ["Элементы"],
     }),
   ]
 }
 
 function collectChildItems(params: {
-  childItems: readonly ChildItem[] | undefined
+  childItems: readonly NamedElementRecord[] | undefined
   yamlPath: YamlPath
   tableContext?: TableContext
 }): FormDataPathOccurrence[] {
@@ -58,7 +57,7 @@ function collectChildItems(params: {
 }
 
 function collectElementOccurrences(params: {
-  element: ChildItem | ElementRecord
+  element: ElementRecord
   yamlPath: YamlPath
   tableContext?: TableContext
 }): FormDataPathOccurrence[] {
@@ -174,13 +173,17 @@ function tableContextForChildren(params: {
   return tableDataPath === undefined ? params.currentContext : { dataPath: tableDataPath }
 }
 
-function childItemsOf(item: unknown): readonly ChildItem[] | undefined {
+function childItemsOf(item: unknown): readonly NamedElementRecord[] | undefined {
   const childItems = asRecord(item)?.childItems
-  return Array.isArray(childItems) ? (childItems as ChildItem[]) : undefined
+  return Array.isArray(childItems) ? childItems.filter(isNamedElementRecord) : undefined
 }
 
 interface ElementRecord extends Record<string, unknown> {
   itemType: ElementType
+}
+
+interface NamedElementRecord extends ElementRecord {
+  name: string
 }
 
 function getElementRecord(value: unknown): ElementRecord | undefined {
@@ -188,6 +191,11 @@ function getElementRecord(value: unknown): ElementRecord | undefined {
   if (record === undefined || typeof record.itemType !== "string") return undefined
 
   return getElementRuleIfKnown(record.itemType) === undefined ? undefined : (record as ElementRecord)
+}
+
+function isNamedElementRecord(value: unknown): value is NamedElementRecord {
+  const element = getElementRecord(value)
+  return element !== undefined && typeof element.name === "string"
 }
 
 function getElementRuleIfKnown(itemType: string): ElementRule | undefined {

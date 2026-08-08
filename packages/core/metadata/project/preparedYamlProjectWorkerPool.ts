@@ -635,8 +635,8 @@ function redistributeDependenciesBySourceFile(
 function createWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "preparedYamlProjectWorker.ts")
-    : join(dirname(currentFile), "preparedYamlProjectWorker.js")
+    ? join(dirname(currentFile), "../workerPool/preparedYamlProjectEntry.ts")
+    : join(dirname(currentFile), "../workerPool/preparedYamlProjectEntry.js")
   const validationRegisterUrl = pathToFileURL(
     join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")
   ).href

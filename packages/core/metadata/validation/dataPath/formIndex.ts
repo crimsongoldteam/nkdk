@@ -1,6 +1,6 @@
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
-import type { FormAttribute, FormAttributeColumn } from "../../forms/commonObjects/formAttribute/types"
+import type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
+import type { FormAttributeColumnView, FormAttributeView, FormValidationView } from "../formContracts"
 import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath } from "../yamlLocations"
@@ -13,13 +13,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 
-export interface FormDataPathIndex {
-  roots: Map<string, FormDataPathSource>
-  additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
-  tableDataPathByElementName: ReadonlyMap<string, string>
-  duplicateDiagnostics: Diagnostic[]
-  getRoot(name: string): FormDataPathSource | undefined
-}
+export type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
 
 declare module "../../context/types" {
   interface FormimportFromYAMLContext {
@@ -30,7 +24,7 @@ declare module "../../context/types" {
 export interface BuildFormDataPathIndexParams {
   filePath: string
   parsed: ParsedYaml
-  form: ClientApplicationForm
+  form: FormValidationView
   tableDataPathByElementName?: ReadonlyMap<string, string>
 }
 
@@ -82,7 +76,7 @@ export function getKnownPlatformFormSource(path: string): KnownPlatformFormSourc
   return matchRegisteredFormPlatformSource(path)
 }
 
-function formAttributeToSource(attribute: FormAttribute): FormDataPathSource {
+function formAttributeToSource(attribute: FormAttributeView): FormDataPathSource {
   const typeInfo = attribute.dynamicList ? dynamicListTypeInfo() : typeDescriptionToDataPathTypeInfo(attribute.type)
   const tableSource = tableSourceFromAttribute(attribute, typeInfo)
 
@@ -95,7 +89,7 @@ function formAttributeToSource(attribute: FormAttribute): FormDataPathSource {
 }
 
 function tableSourceFromAttribute(
-  attribute: FormAttribute,
+  attribute: FormAttributeView,
   typeInfo: DataPathTypeInfo
 ): FormDataPathSource["tableSource"] {
   if (typeInfo.table === undefined) return undefined
@@ -112,12 +106,12 @@ function tableSourceFromAttribute(
   }
 }
 
-function tableColumns(attribute: FormAttribute, table: DataPathTableInfo): FormAttributeColumn[] {
+function tableColumns(attribute: FormAttributeView, table: DataPathTableInfo): readonly FormAttributeColumnView[] {
   if (table.kind !== "ValueTable" && table.kind !== "ValueTree" && table.kind !== "RegisterRecordSet") return []
   return attribute.columns ?? []
 }
 
-function columnsToMap(columns: readonly FormAttributeColumn[]): Map<string, FormDataPathColumnSource> {
+function columnsToMap(columns: readonly FormAttributeColumnView[]): Map<string, FormDataPathColumnSource> {
   const result = new Map<string, FormDataPathColumnSource>()
   for (const column of columns) {
     result.set(column.name, {
@@ -130,7 +124,7 @@ function columnsToMap(columns: readonly FormAttributeColumn[]): Map<string, Form
 
 function addAdditionalColumns(params: {
   additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
-  attribute: FormAttribute
+  attribute: FormAttributeView
 }): void {
   for (const additionalColumnGroup of params.attribute.additionalColumns ?? []) {
     params.additionalColumnsByTablePath.set(

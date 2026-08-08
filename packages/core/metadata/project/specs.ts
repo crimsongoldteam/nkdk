@@ -1,14 +1,14 @@
 import { Type } from "typebox"
-import { registerCoreMetadata } from "../register"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import {
   getRegisteredProjectSpecByDir,
   getRegisteredProjectSpecs,
+  assertCoreMetadataRegistered,
   type RegisteredProjectSpec,
 } from "./projectSpecRegistry"
 import { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter } from "./projectSpecHelpers"
 
-registerCoreMetadata()
+assertCoreMetadataRegistered("project/specs")
 
 export { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter }
 

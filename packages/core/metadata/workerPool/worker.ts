@@ -1,3 +1,4 @@
+import { registerCoreMetadata } from "../register"
 import type {
   MetadataWorkerCommand,
   MetadataWorkerCommandResult,
@@ -13,6 +14,8 @@ import { runImportWorkerCommand } from "../importFromXml/worker"
 import { runFullXmlSyncWorkerCommand } from "../fullSyncToXml/worker"
 import { runProjectQuery } from "./projectQueries"
 import { createMovableBinaryResult } from "./binaryResult"
+
+registerCoreMetadata()
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState

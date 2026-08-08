@@ -1,6 +1,6 @@
 import type { LocalMetadataFactsWriter, LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
+import type { FormDataPathIndex } from "../orchestration/dataPath/formIndex"
 
 export interface LocalMetadataEvent {
   kind: "property" | "complete"

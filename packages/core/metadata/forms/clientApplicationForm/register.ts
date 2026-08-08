@@ -1,5 +1,6 @@
 import {
   registerFormPlatformSourceMatcher,
+  registerFormValidationAdapter,
   registerFormValidationPasses,
   registerFormValidator,
   registerFormWarningProvider,
@@ -16,6 +17,9 @@ import {
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
   validateFormElementNames,
 } from "./validateElementNames"
+import { clientApplicationFormValidationAdapter } from "./validationAdapter"
+
+registerFormValidationAdapter(clientApplicationFormValidationAdapter)
 
 registerLocalYamlValueValidator({
   type: "ClientApplicationForm",

@@ -34,6 +34,22 @@ test("принимает уменьшение известной компоне�
   )
 })
 
+test("принимает разбиение известной компоненты на меньшие циклы", () => {
+  const baseline = {
+    version: 1,
+    components: [baselineComponent(["a.ts", "b.ts", "c.ts", "d.ts"], 6)],
+  }
+  const result = {
+    modules: [
+      ...resultWithCycle(["a.ts", "b.ts"], 2).modules,
+      ...resultWithCycle(["c.ts", "d.ts"], 2).modules,
+    ],
+  }
+
+  assert.doesNotThrow(() => assertCyclesNotWorse(result, baseline))
+  assert.doesNotThrow(() => assertCycleRewriteNotWorse(result, baseline))
+})
+
 test("отклоняет новый модуль и рост числа зависимостей", () => {
   const baseline = {
     version: 1,

@@ -1,13 +1,7 @@
 import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
 import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
-import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
-import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import {
-  createFormElementNameCollector,
-  FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
-  type FormElementNameCollector,
-} from "../forms/clientApplicationForm/validateElementNames"
+import type { ElementType } from "../orchestration/formElement/types"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
 import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
@@ -49,6 +43,8 @@ import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../project/localIndexes"
 import type { LocalIndexesCollector } from "../project/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+import type { FormElementNameCollectorView } from "./formContracts"
+import { requireFormValidationAdapter } from "./formValidationRegistry"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -579,6 +575,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   if (data === undefined) return emptyFacts()
 
   const index = buildFormDataPathIndexFromYaml({ filePath: file.absolutePath, parsed })
+  const adapter = requireFormValidationAdapter()
   const collected = collectFormPendingChecks({
     file,
     parsed,
@@ -590,7 +587,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const structuralReferences = collectStructuralYamlReferences({
     filePath: file.absolutePath,
     parsed,
-    rule: ClientApplicationFormRules,
+    rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
     context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
@@ -610,7 +607,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {
-      [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
+      [adapter.elementNamesProfileSubstep]: {
         items: 1,
         timeMs: collected.formElementNamesMs,
       },
@@ -619,7 +616,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
       ...validateExcludedEqualNameYAML({
         filePath: file.absolutePath,
         parsed,
-        rule: ClientApplicationFormRules,
+        rule: adapter.formRule,
         context: { version: "2.20", defaultLanguage: "ru" },
         name: file.formName,
       }),
@@ -701,7 +698,8 @@ function collectFormPendingChecks(params: {
   formElementNameDiagnostics: Diagnostic[]
   formElementNamesMs: number
 } {
-  const nameCollector = createFormElementNameCollector({
+  const adapter = requireFormValidationAdapter()
+  const nameCollector = adapter.createElementNameCollector({
     filePath: params.file.absolutePath,
     parsed: params.parsed,
   })
@@ -709,7 +707,7 @@ function collectFormPendingChecks(params: {
     file: params.file,
     parsed: params.parsed,
     owner: params.value,
-    properties: ClientApplicationFormRules.properties,
+    properties: adapter.formRule.properties,
     index: params.index,
     cursor: { yamlPath: params.yamlPath, rulePath: [] },
     tableContext: params.tableContext,
@@ -733,7 +731,7 @@ function collectNestedFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
-  nameCollector?: FormElementNameCollector
+  nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
@@ -855,7 +853,7 @@ function collectFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
-  nameCollector?: FormElementNameCollector
+  nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
@@ -934,14 +932,7 @@ function tableContextForChildren(
 }
 
 function elementTypeFromYaml(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined {
-  if (typeof value !== "string") return undefined
-  if (tableContext !== undefined) {
-    if (value === "ПолеВвода") return "TableInputField"
-    if (value === "ПолеНадписи") return "TableLabelField"
-    if (value === "ПолеРисунка") return "TablePictureField"
-    if (value === "ПолеФлажок") return "TableCheckBoxField"
-  }
-  return CollectableElementTypeFromYAML[value as keyof typeof CollectableElementTypeFromYAML]
+  return requireFormValidationAdapter().elementTypeFromYAML(value, tableContext)
 }
 
 function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {

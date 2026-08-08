@@ -4,10 +4,10 @@ import {
   createDirectRoundTripContexts,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
-} from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+} from "../../../tests/directConversion"
+import type { MetadataItemRule } from "../property/types"
 
-import "../index"
+import "../../forms/elements/index"
 
 describe("одиночный элемент формы", () => {
   it("восстанавливает имя и id перед остальными XML-атрибутами без reference XML", () => {

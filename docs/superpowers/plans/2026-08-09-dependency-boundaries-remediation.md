@@ -10,6 +10,8 @@
 
 **Tech Stack:** TypeScript 7, Node.js 26, Vitest 4, dependency-cruiser 18, pnpm 10.
 
+**Implementation result:** прямые и транзитивные нарушения устранены (`0 / 0`), baseline границ удалён. Большая циклическая компонента разделена: в циклах осталось 158 модулей и 370 внутренних зависимостей вместо 1079 и 5622.
+
 ## Global Constraints
 
 - Исходная точка плана: commit `97037f1817915d774a6e445220e710e9efd88bc0`.
@@ -410,7 +412,7 @@ git commit -m "refactor: :recycle: компилировать owner facts в val
 - Produces: `registerFormElementAdapter({ type, yamlName, rule, enterpriseDataPath })` for concrete forms.
 - Keeps: concrete element rules and form-specific enterprise conversion under `forms/elements`.
 
-- [ ] **Step 1: Добавить архитектурный тест направления зависимости**
+- [x] **Step 1: Добавить архитектурный тест направления зависимости**
 
 ```js
 test("form element orchestration owns the generic implementation", () => {
@@ -421,13 +423,13 @@ test("form element orchestration owns the generic implementation", () => {
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить семь реэкспортов**
+- [x] **Step 2: Запустить тест и подтвердить семь реэкспортов**
 
 Run: `node --test tools/dependency-cruiser/test/form-element-boundary.test.mjs`
 
 Expected: FAIL для всех семи файлов, которые сейчас реэкспортируют `forms/elements/orchestration`.
 
-- [ ] **Step 3: Перенести нейтральные типы и registry**
+- [x] **Step 3: Перенести нейтральные типы и registry**
 
 `ElementType` выводится из расширяемой карты:
 
@@ -448,15 +450,15 @@ export interface RegisteredFormElementAdapter {
 
 Concrete form modules дополняют `FormElementTypeMap` и регистрируют правила/имена. Literal map `CollectableElementTypeToYAML` больше не живёт в нейтральном слое; нейтральный код обращается к registry.
 
-- [ ] **Step 4: Перенести traversal и singleton helpers**
+- [x] **Step 4: Перенести traversal и singleton helpers**
 
 Переместить generic реализацию `fromXMLToYAML`, `fromYAMLToXML`, `singletonName`, JSON Schema traversal и empty-item checks в `orchestration/formElement`. Заменить `BaseElement`/`NamedElement` локальными проекциями `{ itemType: string; name?: string; [key: string]: unknown }`.
 
-- [ ] **Step 5: Оставить forms-совместимость в правильном направлении**
+- [x] **Step 5: Оставить forms-совместимость в правильном направлении**
 
 Старые файлы `forms/elements/orchestration/*` становятся временными реэкспортами из `orchestration/formElement`, чтобы внутренние consumers мигрировали без изменения поведения. Concrete registration выполняется из `forms/elements/index.ts`.
 
-- [ ] **Step 6: Проверить форму, schema и round-trip**
+- [x] **Step 6: Проверить форму, schema и round-trip**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -474,7 +476,7 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 7: Зафиксировать изменение**
+- [x] **Step 7: Зафиксировать изменение**
 
 ```bash
 git add packages/core/metadata/orchestration/formElement packages/core/metadata/forms/elements tools/dependency-cruiser/test/form-element-boundary.test.mjs .dependency-cruiser-known-violations.json .dependency-cruiser-cycle-baseline.json
@@ -500,7 +502,7 @@ git commit -m "refactor: :recycle: перенести общий механиз�
 - Produces: minimal `FormAttributeView`, `FormAttributeColumnView`, `FormValidationView` structural contracts.
 - Removes: all imports from `validation` to `clientApplicationForm`, `forms/commonObjects/*`, `forms/index.ts` and concrete element types.
 
-- [ ] **Step 1: Добавить тест отсутствующего адаптера**
+- [x] **Step 1: Добавить тест отсутствующего адаптера**
 
 ```ts
 it("fails clearly when form validation adapter is not registered", () => {
@@ -511,13 +513,13 @@ it("fails clearly when form validation adapter is not registered", () => {
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить отсутствие обязательного договора**
+- [x] **Step 2: Запустить тест и подтвердить отсутствие обязательного договора**
 
 Run: `pnpm --filter @nkdk/core exec vitest run metadata/validation/formValidationRegistry.test.ts --no-isolate`
 
 Expected: FAIL, потому что registry сейчас хранит только platform sources и не имеет обязательного form adapter.
 
-- [ ] **Step 3: Ввести структурные проекции**
+- [x] **Step 3: Ввести структурные проекции**
 
 ```ts
 export interface FormAttributeView {
@@ -540,7 +542,7 @@ export interface FormValidationView {
 
 `formIndex.ts` принимает `FormValidationView`; конкретная `ClientApplicationForm` структурно совместима и не импортируется.
 
-- [ ] **Step 4: Зарегистрировать полный form adapter**
+- [x] **Step 4: Зарегистрировать полный form adapter**
 
 ```ts
 export interface FormValidationAdapter {
@@ -553,11 +555,11 @@ export interface FormValidationAdapter {
 
 `clientApplicationForm/validationAdapter.ts` связывает этот договор с `ClientApplicationFormRules`, element registry и `validateElementNames`. `clientApplicationForm/register.ts` регистрирует адаптер после регистрации element rules.
 
-- [ ] **Step 5: Перевести validation consumers на adapter**
+- [x] **Step 5: Перевести validation consumers на adapter**
 
 `formTraversal.ts` удаляет side-effect `import "../../forms"` и работает через `requireFormValidationAdapter()`. `yamlFactExtractor.ts` получает form rule, element type mapping и name collector из adapter. `formIndex.ts` использует только structural views.
 
-- [ ] **Step 6: Проверить девять прямых нарушений формы**
+- [x] **Step 6: Проверить девять прямых нарушений формы**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -573,7 +575,7 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 7: Зафиксировать изменение**
+- [x] **Step 7: Зафиксировать изменение**
 
 ```bash
 git add packages/core/metadata/validation packages/core/metadata/forms/clientApplicationForm .dependency-cruiser-known-violations.json
@@ -600,7 +602,7 @@ git commit -m "refactor: :recycle: подключить form-validation чере
 - Produces: `assertCoreMetadataRegistered(operation)` in a neutral registry module; it checks state and never imports `metadata/register.ts`.
 - Removes: every import/call of `registerCoreMetadata` from `project` and `validation` production modules.
 
-- [ ] **Step 1: Добавить тест порядка и понятной ошибки**
+- [x] **Step 1: Добавить тест порядка и понятной ошибки**
 
 ```ts
 it("requires registration before a neutral project operation", () => {
@@ -633,13 +635,13 @@ it("registers validation adapters after concrete metadata", () => {
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить скрытую саморегистрацию**
+- [x] **Step 2: Запустить тест и подтвердить скрытую саморегистрацию**
 
 Run: `pnpm --filter @nkdk/core exec vitest run metadata/register.test.ts metadata/project/specs.test.ts --no-isolate`
 
 Expected: FAIL: нейтральные модули сейчас сами вызывают `registerCoreMetadata`, а порядок validation adapters не принадлежит composition root.
 
-- [ ] **Step 3: Зафиксировать состояние регистрации в нейтральном registry**
+- [x] **Step 3: Зафиксировать состояние регистрации в нейтральном registry**
 
 ```ts
 export function assertCoreMetadataRegistered(operation: string): void {
@@ -667,15 +669,15 @@ export function registerMetadataLayers(layers: MetadataRegistrationLayers): void
 }
 ```
 
-- [ ] **Step 4: Перенести validation registration во внешний порядок**
+- [x] **Step 4: Перенести validation registration во внешний порядок**
 
 `registerCoreMetadata()` вызывает `registerValidationMetadataAdapters()` после common objects, forms и applied objects. `registerValidationMetadata.ts` больше не вызывает `registerCoreMetadata()` и регистрирует только owner-fact collectors/form adapters, используя уже заполненные registries.
 
-- [ ] **Step 5: Явно подготовить тесты и worker boundaries**
+- [x] **Step 5: Явно подготовить тесты и worker boundaries**
 
 Тесты, импортирующие `project`/`validation` напрямую, вызывают `registerCoreMetadata()` в setup. Worker entrypoint получает подготовленный rules snapshot или вызывает composition root до входа в нейтральную функцию; сам `preparedYamlProjectWorker.ts` не импортирует `register.ts`.
 
-- [ ] **Step 6: Проверить четыре прямых нарушения регистрации**
+- [x] **Step 6: Проверить четыре прямых нарушения регистрации**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -691,7 +693,7 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 7: Зафиксировать изменение**
+- [x] **Step 7: Зафиксировать изменение**
 
 ```bash
 git add packages/core/index.ts packages/core/metadata/register.ts packages/core/metadata/project packages/core/metadata/validation .dependency-cruiser-known-violations.json
@@ -713,7 +715,7 @@ git commit -m "refactor: :recycle: вынести регистрацию metadat
 - Produces: `registerMetadataItemXmlImportAugmenter`, `applyMetadataItemXmlImportAugmenter` and test reset next to `orchestration/metadataItem`.
 - Keeps: concrete configuration-extension augmenter under `appliedObjects/configurationExtension`.
 
-- [ ] **Step 1: Добавить архитектурную проверку нового владельца**
+- [x] **Step 1: Добавить архитектурную проверку нового владельца**
 
 ```js
 test("metadata item augmenter registry belongs to orchestration", () => {
@@ -722,17 +724,17 @@ test("metadata item augmenter registry belongs to orchestration", () => {
 })
 ```
 
-- [ ] **Step 2: Запустить тест и подтвердить старое размещение**
+- [x] **Step 2: Запустить тест и подтвердить старое размещение**
 
 Run: `node --test tools/dependency-cruiser/test/metadata-item-augmenter-boundary.test.mjs`
 
 Expected: FAIL: registry ещё находится в `importFromXml`.
 
-- [ ] **Step 3: Переместить registry без изменения поведения**
+- [x] **Step 3: Переместить registry без изменения поведения**
 
 Перенести интерфейс, Map, duplicate guard, lookup и сообщения ошибок без функциональных изменений. Обновить импорты consumers и concrete registration.
 
-- [ ] **Step 4: Проверить XML import и последнее прямое нарушение**
+- [x] **Step 4: Проверить XML import и последнее прямое нарушение**
 
 Run: `pnpm --filter @nkdk/core type-check`
 
@@ -750,7 +752,7 @@ Run: `pnpm test`
 
 Run: `pnpm duplicates -- --base 97037f181`
 
-- [ ] **Step 5: Зафиксировать изменение**
+- [x] **Step 5: Зафиксировать изменение**
 
 ```bash
 git add packages/core/metadata/importFromXml packages/core/metadata/orchestration/metadataItem packages/core/metadata/forms/clientApplicationForm packages/core/metadata/appliedObjects/configurationExtension tools/dependency-cruiser/test/metadata-item-augmenter-boundary.test.mjs .dependency-cruiser-known-violations.json .dependency-cruiser-cycle-baseline.json
@@ -767,13 +769,13 @@ git commit -m "refactor: :recycle: перенести registry metadata-item aug
 **Interfaces:**
 - Produces: полный production-граф с `not-in-allowed = 0` и `neutral-not-reach-implementations = 0` без baseline границ.
 
-- [ ] **Step 1: Снять строгий отчёт без смягчения baseline**
+- [x] **Step 1: Снять строгий отчёт без смягчения baseline**
 
 Run: `pnpm architecture:baseline`
 
 Expected: команда удаляет `.dependency-cruiser-known-violations.json`, потому что сериализованный список пуст.
 
-- [ ] **Step 2: Проверить отсутствие всех 34 исходных источников**
+- [x] **Step 2: Проверить отсутствие всех 34 исходных источников**
 
 Добавить в `quick-boundary-fixes.test.mjs` явный список всех 22 production-файлов, на которые приходятся 34 прямых нарушения:
 
@@ -806,7 +808,7 @@ const remediatedBoundarySources = [
 
 Для каждого файла проверить отсутствие запрещённых исходящих зависимостей, а затем проверить, что `.dependency-cruiser-known-violations.json` отсутствует. Отдельно проверить отсутствие импортов `metadata/register.ts` в `project`/`validation`, `forms` в `orchestration/formElement` и `validation`, `systemEnumerations/types.ts` в `orchestration`, `importFromXml/metadataItemAugmenter.ts` во всём дереве.
 
-- [ ] **Step 3: Выполнить полную архитектурную проверку**
+- [x] **Step 3: Выполнить полную архитектурную проверку**
 
 Run: `pnpm test:architecture:rules`
 
@@ -814,7 +816,7 @@ Run: `pnpm test:architecture`
 
 Expected: PASS; вывод сообщает `0 нарушений границ`, cycle metrics не превышают 4 компоненты, 1079 модулей и 5628 зависимостей.
 
-- [ ] **Step 4: Выполнить полную проверку проекта**
+- [x] **Step 4: Выполнить полную проверку проекта**
 
 Run: `pnpm test`
 
@@ -822,7 +824,7 @@ Run: `pnpm duplicates -- --base 97037f181`
 
 Expected: все тесты проходят; новых дубликатов нет.
 
-- [ ] **Step 5: Проверить рабочее дерево и итоговую разницу**
+- [x] **Step 5: Проверить рабочее дерево и итоговую разницу**
 
 Run: `git diff --check 97037f181..HEAD`
 
@@ -832,7 +834,7 @@ Run: `git status --short`
 
 Expected: `git diff --check` не печатает ошибок; перед финальным коммитом status содержит только ожидаемое удаление baseline и итоговые тестовые уточнения.
 
-- [ ] **Step 6: Зафиксировать нулевой baseline**
+- [x] **Step 6: Зафиксировать нулевой baseline**
 
 ```bash
 git add -A .dependency-cruiser-known-violations.json .dependency-cruiser-cycle-baseline.json tools/dependency-cruiser/test/quick-boundary-fixes.test.mjs

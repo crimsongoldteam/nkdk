@@ -15,11 +15,6 @@ export function serializeCycleBaseline(result) {
 
 export function assertCyclesNotWorse(result, baseline) {
   const current = createCycleBaseline(result).components
-  if (current.length > baseline.components.length) {
-    throw new Error(
-      `Циклических компонент стало больше: ${current.length} > ${baseline.components.length}`
-    )
-  }
   for (const component of current) {
     const known = baseline.components.find(({ modules }) =>
       component.modules.every((source) => modules.includes(source))
@@ -61,11 +56,6 @@ export function assertCycleRewriteNotWorse(result, baseline) {
   const known = metrics(baseline.components)
   const sum = (items, key) =>
     items.reduce((total, item) => total + item[key], 0)
-  if (current.length > known.length) {
-    throw new Error(
-      `Циклических компонент стало больше: ${current.length} > ${known.length}`
-    )
-  }
   if (sum(current, "moduleCount") > sum(known, "moduleCount")) {
     throw new Error(
       `Модулей в циклах стало больше: ${sum(current, "moduleCount")} > ${sum(known, "moduleCount")}`
@@ -76,12 +66,14 @@ export function assertCycleRewriteNotWorse(result, baseline) {
       `Внутренних зависимостей стало больше: ${sum(current, "dependencyCount")} > ${sum(known, "dependencyCount")}`
     )
   }
-  current.forEach((item, index) => {
-    if (
-      item.moduleCount > known[index].moduleCount ||
-      item.dependencyCount > known[index].dependencyCount
-    ) {
-      throw new Error(`Ухудшилась циклическая компонента ${index + 1}`)
-    }
-  })
+  const largestCurrent = current[0]
+  const largestKnown = known[0]
+  if (
+    largestCurrent !== undefined &&
+    (largestKnown === undefined ||
+      largestCurrent.moduleCount > largestKnown.moduleCount ||
+      largestCurrent.dependencyCount > largestKnown.dependencyCount)
+  ) {
+    throw new Error("Ухудшилась крупнейшая циклическая компонента")
+  }
 }

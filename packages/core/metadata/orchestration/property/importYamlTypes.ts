@@ -1,6 +1,6 @@
 import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
-import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
+import type { FormDataPathIndex } from "../dataPath/formIndex"
 import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
 import type { LocalIndexes, LocalIndexesCollector, LocalMetadataIndex } from "../../project/localIndexes"
 import type { MetadataItemRule, PropertyRule } from "./types"

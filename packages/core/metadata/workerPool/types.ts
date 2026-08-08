@@ -4,7 +4,7 @@ import type {
   PreparedYamlProjectWorkerTask,
   PreparedYamlProjectWorkerTaskResult,
 } from "../project/preparedYamlProjectWorker"
-import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
+import type { ImportWorkerCommand, ImportWorkerCommandResult } from "./importContracts"
 import type { FullXmlSyncWorkerCommand, FullXmlSyncWorkerCommandResult } from "../fullSyncToXml/types"
 import type { ProjectQueryCommand, ProjectQueryResult } from "./projectQueries"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"

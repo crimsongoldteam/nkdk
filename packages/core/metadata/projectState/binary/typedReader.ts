@@ -5,7 +5,7 @@ import type {
   MetadataRootName,
   ParsedMetadataTarget,
 } from "../../orchestration/metadataTarget/types"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
 import type {
   ProjectStateFileIdentity,
@@ -195,11 +195,11 @@ export function createTypedProjectStateReader(
       .map((segment) => segment.kind === 1 ? string(segment.stringId) : segment.numericValue)
   }
 
-  function typeDescription(id: number): TypeDescription {
+  function typeDescription(id: number): TypeDescriptionView {
     const value = row("typeDescriptions", id)
     const typeId = stringValues("typeDescriptionValues", value.typeIdsStart, value.typeIdsCount)
     return {
-      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount) as TypeDescription["type"],
+      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount),
       ...(typeId.length === 0 ? {} : { typeId }),
       ...(value.stringLength === NONE ? {} : { stringQualifiers: {
         length: value.stringLength,

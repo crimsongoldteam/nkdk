@@ -1,14 +1,14 @@
-import "../button/rules"
-import "../inputField/rules"
-import "../table/rules"
-import "../usualGroup/rules"
+import "../../forms/elements/button/rules"
+import "../../forms/elements/inputField/rules"
+import "../../forms/elements/table/rules"
+import "../../forms/elements/usualGroup/rules"
 import { describe, expect, it } from "vitest"
 import {
   getChildItemTypesByPropertyType,
   getTreeNodeJSONSchemaPropertyAliases,
-} from "../../commonObjects/childItems/treeYAML"
-import { compileValidationSchema } from "../../../validation/compileValidationSchema"
-import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+} from "../../forms/commonObjects/childItems/treeYAML"
+import { compileValidationSchema } from "../../validation/compileValidationSchema"
+import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
 
