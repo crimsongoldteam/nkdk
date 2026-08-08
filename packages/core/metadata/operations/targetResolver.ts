@@ -1,4 +1,3 @@
-import { existsSync, readdirSync } from "fs"
 import { join } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import {
@@ -51,6 +50,13 @@ export type MetadataOperationCanonicalTargetResult =
     }
   | ResolveMetadataOperationPathFailure
 
+export interface IndexedMetadataOperationTarget {
+  readonly sourceProjectPath: string
+  readonly itemProjectPath?: string
+  readonly ownerProjectPath?: string
+  readonly collectionNames: readonly string[]
+}
+
 export function resolveMetadataOperationCanonicalTarget(
   path: ParsedMetadataOperationPath,
 ): MetadataOperationCanonicalTargetResult {
@@ -98,10 +104,11 @@ export function resolveMetadataOperationCanonicalTarget(
 
 export function resolveMetadataOperationPath(
   snapshot: MetadataOperationSnapshot,
-  path: ParsedMetadataOperationPath
+  path: ParsedMetadataOperationPath,
+  indexed?: IndexedMetadataOperationTarget,
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   if (path.chain.length === 0) return resolveObjectTarget(snapshot, path)
-  return resolveChainedTarget(snapshot, path)
+  return resolveChainedTarget(snapshot, path, indexed)
 }
 
 function resolveObjectTarget(
@@ -134,7 +141,8 @@ function resolveObjectTarget(
 
 function resolveChainedTarget(
   snapshot: MetadataOperationSnapshot,
-  path: ParsedMetadataOperationPath
+  path: ParsedMetadataOperationPath,
+  indexed?: IndexedMetadataOperationTarget,
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Владелец не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
@@ -163,6 +171,7 @@ function resolveChainedTarget(
         segment,
         displayParts,
         canonicalParts,
+        indexed,
       })
     }
     if (descriptor.declaration.kind !== "namedCollectionTarget") {
@@ -220,16 +229,13 @@ function resolveFileItemTarget(params: {
   segment: ParsedMetadataOperationPathSegment
   displayParts: string[]
   canonicalParts: string[]
+  indexed?: IndexedMetadataOperationTarget
 }): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
-  const folderPath = join(
-    params.item.resource.componentDir,
-    params.path.owner.itemTypePrefix,
-    params.path.owner.name,
-    params.descriptor.declaration.folderName
-  )
-  const itemDir = join(folderPath, params.segment.name)
-  const yamlPath = join(itemDir, params.descriptor.declaration.yamlFileName)
-  if (!existsSync(yamlPath)) return targetNotFound(`Файловый элемент не найден: ${params.segment.name}`)
+  if (params.indexed?.itemProjectPath === undefined || params.indexed.ownerProjectPath === undefined) {
+    return targetNotFound(`Файловый элемент не найден в индексе: ${params.segment.name}`)
+  }
+  const itemDir = join(params.snapshot.projectDir, ...params.indexed.itemProjectPath.split("/"))
+  const evidencePath = join(params.snapshot.projectDir, ...params.indexed.sourceProjectPath.split("/"))
 
   const displayPath = [
     ...params.displayParts,
@@ -244,10 +250,10 @@ function resolveFileItemTarget(params: {
     renameYaml: () => undefined,
     currentName: params.segment.name,
     collectionProperty: params.descriptor.propertyName,
-    collectionNames: fileItemNames(folderPath, params.descriptor.declaration.yamlFileName),
-    projectPath: `${params.path.owner.itemTypePrefix}/${params.path.owner.name}/${params.descriptor.declaration.folderName}/${params.segment.name}/${params.descriptor.declaration.yamlFileName}`,
-    absolutePath: yamlPath,
-    resources: [itemDir, yamlPath],
+    collectionNames: [...params.indexed.collectionNames],
+    projectPath: params.indexed.sourceProjectPath,
+    absolutePath: evidencePath,
+    resources: [itemDir, evidencePath],
     requiresMigration: false,
     targetPrefix: [
       ...params.canonicalParts,
@@ -351,14 +357,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function nestedItemRule(propRule: MetadataItemRule["properties"][string] | undefined): MetadataItemRule | undefined {
   if (!propRule) return undefined
   return resolvePropertyItemRule(propRule)
-}
-
-function fileItemNames(folderPath: string, yamlFileName: string): string[] {
-  if (!existsSync(folderPath)) return []
-  return readdirSync(folderPath, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .filter((entry) => existsSync(join(folderPath, entry.name, yamlFileName)))
-    .map((entry) => entry.name)
 }
 
 function canonicalObjectPrefix(itemTypePrefix: string, name: string): string {

@@ -59,22 +59,36 @@ export function createOperationTestProjectHarness(prefix: string) {
       }
     },
     openReadSession() {
-      return completeOperationReadSession({
+      const session = completeOperationReadSession({
         resolveTargets(requests) {
-          return requests.map(({ requestId, canonicalTarget }) => ({
-            requestId,
-            status: "found" as const,
-            target: { kind: "object" as const, canonical: canonicalTarget },
-            source: {
-              projectPath: index.targetProjectPath ?? operationTargetProjectPath(canonicalTarget),
-              componentPath: "cf",
-            },
-          }))
+          return requests.map(({ requestId, canonicalTarget }) => {
+            const projectPath = index.targetProjectPath ?? operationTargetProjectPath(canonicalTarget)
+            const inferred = operationFileBackedPaths(canonicalTarget, projectPath)
+            const fileBacked = inferred === undefined ? undefined : {
+              itemProjectPath: index.itemProjectPath ?? inferred.itemProjectPath,
+              ownerProjectPath: index.ownerProjectPath ?? inferred.ownerProjectPath,
+            }
+            return {
+              requestId,
+              status: "found" as const,
+              target: { kind: fileBacked === undefined ? "object" as const : "member" as const, canonical: canonicalTarget },
+              source: { projectPath, componentPath: "cf", ...fileBacked },
+            }
+          })
         },
         findReferences(requests) {
           return requests.map(({ requestId }) => ({ requestId, references: index.references ?? [] }))
         },
       })
+      return {
+        ...session,
+        readComponentTargetPage() {
+          return { entries: (index.collectionNames ?? []).map((name) => ({
+            logicalAddress: `${index.collectionCanonicalPrefix}.${name}`,
+            sourceProjectPath: "ignored",
+          })) }
+        },
+      }
     },
   })
   return {
@@ -104,8 +118,12 @@ export function createOperationTestProjectHarness(prefix: string) {
 
 export interface OperationTestIndex {
   readonly targetProjectPath?: string
+  readonly itemProjectPath?: string
+  readonly ownerProjectPath?: string
   readonly references?: readonly ProjectReferenceLocation[]
   readonly diagnostics?: readonly Diagnostic[]
+  readonly collectionCanonicalPrefix?: string
+  readonly collectionNames?: readonly string[]
 }
 
 function operationTargetProjectPath(canonical: string): string {
@@ -121,6 +139,25 @@ function operationTargetProjectPath(canonical: string): string {
     return `cf/${yamlDir}/${objectName}/Формы/${memberName}/Форма.yaml`
   }
   return `cf/${yamlDir}/${objectName}/Свойства.yaml`
+}
+
+function operationFileBackedPaths(
+  canonical: string,
+  projectPath: string,
+): { readonly itemProjectPath: string; readonly ownerProjectPath: string } | undefined {
+  const [root, objectName, memberKind] = canonical.split(".")
+  if (memberKind !== "Form" && memberKind !== "Template") return undefined
+  const yamlDir = root === "Catalog"
+    ? "Справочник"
+    : root === "Document"
+      ? "Документ"
+      : root === "Report"
+        ? "Отчет"
+        : root
+  return {
+    itemProjectPath: projectPath.split("/").slice(0, -1).join("/"),
+    ownerProjectPath: `cf/${yamlDir}/${objectName}/Свойства.yaml`,
+  }
 }
 
 export function completeOperationReadSession(

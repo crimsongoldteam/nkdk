@@ -38,7 +38,12 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
   })
   if (!indexed.ok) return metadataOperationFailure("target_not_found", indexed.message, resultDiagnostics)
   const blockedReferences = indexed.references.flatMap((reference): MetadataOperationBlockedReference[] => {
-    if (isInsideTargetTree(reference.projectPath, indexed.source.projectPath, canonical.targetKind)) return []
+    if (isInsideTargetTree(
+      reference.projectPath,
+      indexed.source.projectPath,
+      indexed.source.itemProjectPath,
+      canonical.targetKind,
+    )) return []
     return [{
       filePath: join(params.projectDir, ...reference.projectPath.split("/")),
       yamlPath: reference.yamlPath,
@@ -70,10 +75,13 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
 function isInsideTargetTree(
   sourceProjectPath: string,
   targetProjectPath: string,
+  itemProjectPath: string | undefined,
   targetKind: "object" | "namedCollection" | "fileItem",
 ): boolean {
   if (targetKind === "namedCollection") return false
-  const root = dirname(targetProjectPath)
+  const root = targetKind === "fileItem" && itemProjectPath !== undefined
+    ? itemProjectPath
+    : dirname(targetProjectPath)
   return sourceProjectPath === root || sourceProjectPath.startsWith(`${root}/`)
 }
 
