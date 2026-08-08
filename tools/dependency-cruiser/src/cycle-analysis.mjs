@@ -17,6 +17,7 @@ function stronglyConnectedComponents(modulesBySource) {
   const onStack = new Set()
   const componentBySource = new Map()
   const componentSizes = new Map()
+  const componentMembers = new Map()
   let nextIndex = 0
   let nextComponent = 0
 
@@ -53,6 +54,7 @@ function stronglyConnectedComponents(modulesBySource) {
       componentBySource.set(member, nextComponent)
     } while (member !== source)
     componentSizes.set(nextComponent, members.length)
+    componentMembers.set(nextComponent, members)
     nextComponent += 1
   }
 
@@ -60,7 +62,65 @@ function stronglyConnectedComponents(modulesBySource) {
     if (!indexes.has(source)) visit(source)
   }
 
-  return { componentBySource, componentSizes }
+  return { componentBySource, componentSizes, componentMembers }
+}
+
+export function findProductionCycleComponents(result) {
+  const modulesBySource = new Map(
+    result.modules.map((module) => [module.source, module])
+  )
+  const { componentBySource, componentSizes, componentMembers } =
+    stronglyConnectedComponents(modulesBySource)
+
+  return [...componentMembers.entries()]
+    .flatMap(([component, members]) => {
+      const modules = members
+        .filter(
+          (source) =>
+            productionSource.test(source) && !testModule.test(source)
+        )
+        .sort((left, right) => left.localeCompare(right))
+      if (modules.length === 0) return []
+
+      const moduleSet = new Set(modules)
+      const internalDegrees = new Map(modules.map((source) => [source, 0]))
+      let dependencyCount = 0
+      for (const source of modules) {
+        for (const { resolved } of modulesBySource.get(source).dependencies) {
+          if (
+            !moduleSet.has(resolved) ||
+            componentBySource.get(resolved) !== component
+          ) {
+            continue
+          }
+          dependencyCount += 1
+          internalDegrees.set(source, internalDegrees.get(source) + 1)
+          internalDegrees.set(resolved, internalDegrees.get(resolved) + 1)
+        }
+      }
+      const keyModules = [...modules]
+        .sort(
+          (left, right) =>
+            internalDegrees.get(right) - internalDegrees.get(left) ||
+            left.localeCompare(right)
+        )
+        .slice(0, 3)
+      const hasCycle =
+        componentSizes.get(component) > 1 ||
+        modules.some((source) =>
+          modulesBySource
+            .get(source)
+            .dependencies.some(({ resolved }) => resolved === source)
+        )
+      return hasCycle && dependencyCount > 0
+        ? [{ modules, dependencyCount, keyModules }]
+        : []
+    })
+    .sort(
+      (left, right) =>
+        right.modules.length - left.modules.length ||
+        left.modules[0].localeCompare(right.modules[0])
+    )
 }
 
 export function findProductionCycleViolations(result) {
