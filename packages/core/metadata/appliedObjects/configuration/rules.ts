@@ -24,7 +24,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
 import "./mobileApplicationURLs"
 import { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./requiredMobileApplicationPermissions"
-import { CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES } from "./usedMobileApplicationFunctionalities"
+import { IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES } from "./usedMobileApplicationFunctionalities"
 import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
@@ -353,7 +353,9 @@ export const MetadataConfigurationRules = {
     usedMobileApplicationFunctionalities: usedMobileApplicationFunctionalitiesRule({
       yaml: "ИспользуемаяФункциональностьМобильногоПриложения",
       xmlParents: configurationProperties,
-      defaultValue: () => CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.map((item) => ({ ...item })),
+      implicitValueYAML: IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+      evaluateWhenYAMLMissing: true,
+      preserveUnknownReferenceXML: false,
     }),
     standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",

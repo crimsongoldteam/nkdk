@@ -3,13 +3,8 @@ import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, type StringboolXML, type StringboolYAML } from "../../commonObjects/boolean/types"
-import { importI8nTextFromXML } from "../../commonObjects/i8nText/fromXML"
-import { importI8nTextFromYAML } from "../../commonObjects/i8nText/fromYAML"
-import { exportI8nTextToXML } from "../../commonObjects/i8nText/toXML"
-import { exportI8nTextToYAML } from "../../commonObjects/i8nText/toYAML"
 import {
   I8nTextJSONSchema,
-  i8nTextRule,
   type I8nText,
   type I8nTextXML,
   type I8nTextYAML,
@@ -24,6 +19,12 @@ import {
   type RequiredMobileApplicationPermissionsYAML,
 } from "../../systemEnumerations/types"
 import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
+import {
+  exportMobileApplicationPermissionDescriptionToXML,
+  exportMobileApplicationPermissionDescriptionToYAML,
+  importMobileApplicationPermissionDescriptionFromXML,
+  importMobileApplicationPermissionDescriptionFromYAML,
+} from "./mobileApplicationPermissionDescription"
 
 export interface RequiredMobileApplicationPermission {
   permission: RequiredMobileApplicationPermissions
@@ -53,24 +54,10 @@ interface RequiredMobileApplicationPermissionsXML {
   "app:permission"?: RequiredMobileApplicationPermissionXML | RequiredMobileApplicationPermissionXML[]
 }
 
-const descriptionRule = i8nTextRule({ preserveEmptyXML: true })
-
 const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
   if (value === undefined) return []
   return Array.isArray(value) ? value : [value]
 }
-
-const importDescriptionFromXML = (context: ConfigurationContext, value: I8nTextXML | ""): I8nText =>
-  importI8nTextFromXML(context, descriptionRule, value) ?? { items: {} }
-
-const exportDescriptionToXML = (context: ConfigurationContext, value: I8nText): I8nTextXML =>
-  exportI8nTextToXML(context, descriptionRule, value) ?? {}
-
-const importDescriptionFromYAML = (context: ConfigurationContext, value: I8nTextYAML): I8nText =>
-  importI8nTextFromYAML({ context, rule: descriptionRule, value }) ?? { items: {} }
-
-const exportDescriptionToYAML = (context: ConfigurationContext, value: I8nText): I8nTextYAML =>
-  exportI8nTextToYAML({ context, rule: descriptionRule, value }) ?? ""
 
 export const importRequiredMobileApplicationPermissionsFromXML = (
   context: ConfigurationContext,
@@ -83,7 +70,7 @@ export const importRequiredMobileApplicationPermissionsFromXML = (
   return normalizeArray(xml["app:permission"]).map((item) => ({
     permission: item["app:permission"],
     use: importBooleanFromXML(context, undefined, item["app:use"]) ?? false,
-    description: importDescriptionFromXML(context, item["app:description"]),
+    description: importMobileApplicationPermissionDescriptionFromXML(context, item["app:description"]),
   }))
 }
 
@@ -99,7 +86,7 @@ export const exportRequiredMobileApplicationPermissionsToXML = (
     "app:permission": data.map((item) => ({
       "app:permission": item.permission,
       "app:use": item.use,
-      "app:description": exportDescriptionToXML(context, item.description),
+      "app:description": exportMobileApplicationPermissionDescriptionToXML(context, item.description),
     })),
   }
 }
@@ -114,7 +101,7 @@ export const importRequiredMobileApplicationPermissionsFromYAML = (
   return yaml.map((item) => ({
     permission: RequiredMobileApplicationPermissionsFromYAML[item.Разрешение],
     use: importBooleanFromYAML(context, undefined, item.Использовать) ?? false,
-    description: importDescriptionFromYAML(context, item.Описание),
+    description: importMobileApplicationPermissionDescriptionFromYAML(context, item.Описание),
   }))
 }
 
@@ -128,7 +115,7 @@ export const exportRequiredMobileApplicationPermissionsToYAML = (
   return data.map((item) => ({
     Разрешение: RequiredMobileApplicationPermissionsToYAML[item.permission],
     Использовать: exportBooleanToYAML(context, undefined, item.use) ?? "Ложь",
-    Описание: exportDescriptionToYAML(context, item.description),
+    Описание: exportMobileApplicationPermissionDescriptionToYAML(context, item.description),
   }))
 }
 

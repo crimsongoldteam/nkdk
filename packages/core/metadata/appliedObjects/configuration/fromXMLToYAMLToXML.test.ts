@@ -66,8 +66,8 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     expect(properties.CompatibilityMode).toBe("Version8_3_27")
     expect(functionalities["app:functionality"]).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ "app:functionality": "Biometrics", "app:use": "true" }),
-        expect.objectContaining({ "app:functionality": "OSBackup", "app:use": "true" }),
+        expect.objectContaining({ "app:functionality": "Biometrics", "app:use": true }),
+        expect.objectContaining({ "app:functionality": "OSBackup", "app:use": true }),
       ])
     )
   })
@@ -136,17 +136,21 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     const yaml = {
       Имя: "Конфигурация",
       ОсновнойЯзык: "Русский",
-      ИспользуемаяФункциональностьМобильногоПриложения: [
-        { Функциональность: "РезервноеКопированиеСредствамиОС", Использовать: "Ложь" },
-      ],
+      ИспользуемаяФункциональностьМобильногоПриложения: {
+        Функциональности: [
+          { Функциональность: "РезервноеКопированиеСредствамиОС", Использовать: "Ложь" },
+        ],
+      },
     }
     const { imported, properties } = roundTripConfigurationFromYAML(yaml)
 
     expect(properties.UsedMobileApplicationFunctionalities).toBeDefined()
     expect(imported.yaml).toMatchObject({
-      ИспользуемаяФункциональностьМобильногоПриложения: [
-        { Функциональность: "РезервноеКопированиеСредствамиОС", Использовать: "Ложь" },
-      ],
+      ИспользуемаяФункциональностьМобильногоПриложения: {
+        Функциональности: [
+          { Функциональность: "РезервноеКопированиеСредствамиОС", Использовать: "Ложь" },
+        ],
+      },
     })
   })
 
