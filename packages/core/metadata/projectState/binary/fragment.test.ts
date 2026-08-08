@@ -65,6 +65,7 @@ it("нормализует составные owner facts в отдельные 
         type: { type: ["string"], stringQualifiers: { length: 20, allowedLength: "Variable" } },
         owners: ["Catalog.Владелец"],
         attributes: [{ name: "Код", type: { type: ["string"] } }],
+        enumValues: [{ name: "Высокая" }, { name: "Обычная" }],
         tabularSections: [{
           name: "Строки",
           attributes: [{ name: "Количество", type: { type: ["decimal"] } }],
@@ -76,8 +77,8 @@ it("нормализует составные owner facts в отдельные 
 
   const view = openProjectStateFragment(writer.finish())
 
-  expect(view.tableRange("ownerFacts")?.records).toBe(4)
-  expect(view.tableRange("ownerFactItems")?.records).toBe(4)
+  expect(view.tableRange("ownerFacts")?.records).toBe(5)
+  expect(view.tableRange("ownerFactItems")?.records).toBe(6)
   expect(view.tableRange("typeDescriptions")?.records).toBe(3)
   expect(view.tableRange("typeDescriptionValues")?.records).toBe(3)
 })

@@ -447,6 +447,7 @@ export const MetadataCatalogRules = {
     }),
     predefined: predefinedRule({
       yaml: "Предопределенные",
+      ownerFactRole: "predefined",
       filePath: "Ext/Predefined.xml",
     }),
     help: helpRule({

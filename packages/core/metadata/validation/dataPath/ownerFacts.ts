@@ -29,6 +29,8 @@ export interface ValidationOwnerFacts {
   tabularSections?: Array<{ name: string; attributes: NamedTypeItems; standardAttributes?: NamedTypeItems }>
   standardAttributes?: NamedTypeItems
   commands?: NamedTypeItems
+  predefined?: NamedTypeItems
+  enumValues?: NamedTypeItems
 }
 
 type ValidationOwnerFactsModel = MetadataItem & {
@@ -49,6 +51,8 @@ type ValidationOwnerFactsModel = MetadataItem & {
   standardAttributes?: unknown
   registerType?: unknown
   commands?: unknown
+  predefined?: unknown
+  enumValues?: unknown
 }
 
 type NamedTypeItems = Array<{ name: string; type?: TypeDescription }>
@@ -76,6 +80,8 @@ export function createValidationOwnerFacts(params: {
   const standardAttributes = namedTypeItems(metadataRecord(params.model)["standardAttributes"])
   const tabularSections = namedTabularSections(metadataRecord(params.model)["tabularSections"])
   const commands = namedTypeItems(metadataRecord(params.model)["commands"])
+  const predefined = namedValueItems(metadataRecord(params.model)["predefined"])
+  const enumValues = namedValueItems(metadataRecord(params.model)["enumValues"])
 
   return {
     ref: params.ref,
@@ -98,6 +104,8 @@ export function createValidationOwnerFacts(params: {
     ...(standardAttributes.length === 0 ? {} : { standardAttributes }),
     ...(tabularSections.length === 0 ? {} : { tabularSections }),
     ...(commands.length === 0 ? {} : { commands }),
+    ...(predefined.length === 0 ? {} : { predefined }),
+    ...(enumValues.length === 0 ? {} : { enumValues }),
   }
 }
 
@@ -122,6 +130,7 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
   if (role === "commonAttributeOwnerLinks") return commonAttributeOwnerLinksFromYaml(value)
   if (role === "registerType") return typeof value === "string" ? value : undefined
   if (role === "commands") return namedTypedItemsFromYaml(value)
+  if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value)
   return undefined
 }
 
@@ -134,6 +143,13 @@ function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
     const type = typeDescriptionFromYAML(metadataRecord(item)["Тип"])
     return { name, ...(type === undefined ? {} : { type }) }
   })
+}
+
+function namedValueItemsFromYaml(value: unknown): NamedTypeItems {
+  return Object.entries(metadataRecord(value)).flatMap(([name, item]) => [
+    { name },
+    ...namedValueItemsFromYaml(metadataRecord(item)["Элементы"]),
+  ])
 }
 
 function tabularSectionsFromYaml(
@@ -205,6 +221,27 @@ function namedTypeItems(value: unknown): NamedTypeItems {
       },
     ]
   })
+}
+
+function namedValueItems(value: unknown): NamedTypeItems {
+  if (typeof value !== "object" || value === null) return []
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const record = metadataRecord(item)
+      return [
+        ...(typeof record["name"] === "string" ? [{ name: record["name"] }] : []),
+        ...namedValueItems(record["items"]),
+        ...namedValueItems(record["childItems"]),
+        ...namedValueItems(record["enumValues"]),
+      ]
+    })
+  }
+  const record = metadataRecord(value)
+  return [
+    ...namedValueItems(record["items"]),
+    ...namedValueItems(record["childItems"]),
+    ...namedValueItems(record["enumValues"]),
+  ]
 }
 
 function namedTabularSections(

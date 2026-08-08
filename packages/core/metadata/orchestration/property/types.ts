@@ -33,6 +33,8 @@ export type OwnerFactRole =
   | "commonAttributeOwnerLinks"
   | "registerType"
   | "commands"
+  | "predefined"
+  | "enumValues"
 
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =

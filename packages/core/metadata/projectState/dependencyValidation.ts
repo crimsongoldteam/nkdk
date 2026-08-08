@@ -4,7 +4,10 @@ import {
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "../validation/projectReferenceIndex"
-import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
+import {
+  getProjectReferenceObjectPathContributor,
+  getProjectReferenceValueContributor,
+} from "../validation/projectReferenceIndexRegistry"
 import type { Diagnostic } from "../validation/types"
 import {
   ownerMetadataFromFacts,
@@ -16,7 +19,11 @@ import type { ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { resolveDataPath } from "../validation/dataPath/resolver"
 import type { ObjectField, ObjectFieldIndex } from "../validation/dataPath/objectFields"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import { getDataPathOwnerKind, getDataPathOwnerKindByItemType } from "../validation/dataPath/registry"
+import {
+  getDataPathOwnerKind,
+  getDataPathOwnerKindByItemType,
+  getOwnerKindByMetadataLinkPrefix,
+} from "../validation/dataPath/registry"
 import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
 import { createProjectDegradationDiagnostics } from "../validation/projectFirstPassReadiness"
 import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "./fileUpdate"
@@ -150,7 +157,7 @@ export function readProjectStateDependencyReadiness(params: {
 export function validateProjectStateReferenceBatch(params: {
   readonly checks: readonly ProjectStatePendingReferenceCheck[]
   readonly projectDir: string
-  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
+  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets" | "readOwners">
 }): readonly Diagnostic[] {
   const results = params.queryPort.resolveTargets(
     params.checks.map(({ requestId, componentPath, reference }) => ({
@@ -159,12 +166,54 @@ export function validateProjectStateReferenceBatch(params: {
       canonicalTarget: reference.canonical,
     })),
   )
+  const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
+  const valueOwnerChecks = params.checks.filter(({ requestId, reference }) =>
+    resultByRequestId.get(requestId)?.status === "missing" && reference.target.kind === "value"
+  )
+  const valueOwnerResults = params.queryPort.readOwners(
+    valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
+      if (reference.target.kind !== "value") throw new Error("Ожидалась ссылка на значение")
+      return {
+        requestId,
+        componentPath,
+        owner: valueTargetOwner(reference.target),
+      }
+    }),
+  )
+  const valueOwnerResultByRequestId = new Map(valueOwnerResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = []
   forEachDependencyResult(params.checks, results, (check, result) => {
     if (result.status === "found") {
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {
+      if (result.status === "missing" && check.reference.target.kind === "value") {
+        const ownerResult = valueOwnerResultByRequestId.get(check.requestId)
+        if (ownerResult?.status === "found") {
+          if (check.reference.target.valueKind === "emptyRef") return
+          const ownerRef = valueTargetOwner(check.reference.target)
+          const owner = ownerMetadataFromFacts({
+            projectDir: join(params.projectDir, check.componentPath),
+            ref: ownerRef,
+            facts: ownerResult.facts,
+            fieldIndex: projectStateFieldIndex(ownerRef, []),
+          })
+          if (owner.status === "ok") {
+            const contributed = getProjectReferenceValueContributor(check.reference.target.root)?.({
+              owner: owner.owner,
+              target: check.reference.target,
+            })
+            if (contributed?.ok === true) return
+            if (contributed?.ok === false) {
+              diagnostics.push(...contributed.diagnostics)
+              return
+            }
+          }
+        } else if (ownerResult?.status === "ambiguous") {
+          diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
+          return
+        }
+      }
       const objectFilePath = check.reference.target.kind === "object"
         ? getProjectReferenceObjectPathContributor(check.reference.target.root)?.({
             projectDir: join(params.projectDir, check.componentPath),
@@ -178,6 +227,13 @@ export function validateProjectStateReferenceBatch(params: {
     }
   })
   return diagnostics
+}
+
+function valueTargetOwner(target: Extract<PendingMetadataTargetReference["target"], { kind: "value" }>): OwnerTypeRef {
+  return {
+    kind: getOwnerKindByMetadataLinkPrefix(target.root) ?? target.root,
+    name: target.objectName,
+  }
 }
 
 export function validateProjectStateOwnerBatch(params: {

@@ -419,6 +419,8 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "tabularSections",
     "standardAttributes",
     "commands",
+    "predefined",
+    "enumValues",
   ], path)
   if (facts["type"] !== undefined) assertTypeDescription(facts["type"], `${path}.type`)
   for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords"] as const) {
@@ -436,6 +438,8 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "addressingAttributes",
     "standardAttributes",
     "commands",
+    "predefined",
+    "enumValues",
   ] as const) {
     assertOptionalNamedTypeItems(facts[key], `${path}.${key}`)
   }

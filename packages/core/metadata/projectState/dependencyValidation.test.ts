@@ -17,6 +17,11 @@ import {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
 } from "../validation/projectReferenceIndex"
+import {
+  registerProjectReferenceValueContributor,
+  restoreProjectReferenceIndexRegistryForTests,
+  snapshotProjectReferenceIndexRegistryForTests,
+} from "../validation/projectReferenceIndexRegistry"
 import { createValidationObjectTable } from "../validation/projectValidationObjectTable"
 import type {
   ComponentValidationLayer,
@@ -53,6 +58,73 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("Б5 принимает пустую ссылку, если владелец существует", () => {
+    const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
+      roots: ["Catalog"],
+      valueKinds: ["emptyRef"],
+      allowEmptyRef: true,
+    })
+
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "empty-ref", componentPath: "cf", reference }],
+      queryPort: missingValueQueryPort({}),
+    })
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("Б5 проверяет предопределённое значение общим поставщиком по сведениям владельца", () => {
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
+        if (target.valueKind === "emptyRef") return undefined
+        const predefined = owner.facts.predefined as readonly { name: string }[] | undefined
+        return predefined?.some(({ name }) => name === target.valueName) === true
+          ? { ok: true, filePath: owner.filePath }
+          : undefined
+      })
+      const reference = valueReference("Справочник.Товары.Основной", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      })
+
+      const diagnostics = validateProjectStateReferenceBatch({
+        projectDir: "/project",
+        checks: [{ requestId: "predefined", componentPath: "cf", reference }],
+        queryPort: missingValueQueryPort({ predefined: [{ name: "Основной" }] }),
+      })
+
+      expect(diagnostics).toEqual([])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
+
+  it("Б5 сообщает об отсутствующем предопределённом значении существующего владельца", () => {
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectReferenceValueContributor("Catalog", () => undefined)
+      const reference = valueReference("Справочник.Товары.НетТакого", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      })
+
+      const diagnostics = validateProjectStateReferenceBatch({
+        projectDir: "/project",
+        checks: [{ requestId: "missing-predefined", componentPath: "cf", reference }],
+        queryPort: missingValueQueryPort({ predefined: [] }),
+      })
+
+      expect(diagnostics).toEqual([expect.objectContaining({
+        source: "reference",
+        message: 'Не найдена ссылка "Catalog.Товары.НетТакого"',
+      })])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
+
   it("проверяет одинакового владельца компонента один раз", () => {
     const owner = { kind: "Справочник", name: "Товары" }
     const requestBatchSizes: number[] = []
@@ -723,6 +795,36 @@ describe("dependency validation из ProjectState", () => {
     session.close()
   })
 })
+
+function valueReference(
+  value: string,
+  constraint: {
+    roots: readonly ["Catalog"]
+    valueKinds: readonly ["emptyRef"] | readonly ["predefinedValue"]
+    allowEmptyRef?: true
+  },
+): PendingMetadataTargetReference {
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "value", ...constraint } })
+  if (!parsed.ok || parsed.target.kind !== "value") throw new Error(`Некорректная тестовая ссылка ${value}`)
+  return {
+    filePath: "cf/Справочник/Источник/Свойства.yaml",
+    yamlPath: ["ЗначениеЗаполнения"],
+    canonical: parsed.canonical,
+    target: parsed.target,
+    constraint: { kind: "value", ...constraint },
+  }
+}
+
+function missingValueQueryPort(facts: Record<string, unknown>) {
+  return {
+    resolveTargets(requests: readonly { requestId: string }[]) {
+      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+    },
+    readOwners(requests: readonly { requestId: string }[]) {
+      return requests.map(({ requestId }) => ({ requestId, status: "found" as const, facts }))
+    },
+  }
+}
 
 function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
   const { store } = createBinaryProjectStateTestFixture()

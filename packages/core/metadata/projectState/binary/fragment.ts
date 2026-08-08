@@ -92,6 +92,7 @@ const STRING_LIST_OWNER_FACT_ROLES = new Set([
 const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",
   "addressingAttributes", "standardAttributes", "commands",
+  "predefined", "enumValues",
 ])
 
 export function createProjectStateFragmentWriter(options: {

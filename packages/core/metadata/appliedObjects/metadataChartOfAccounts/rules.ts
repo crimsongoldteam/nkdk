@@ -450,6 +450,7 @@ export const MetadataChartOfAccountsRules = {
     }),
     predefined: predefinedRule({
       yaml: "Предопределенные",
+      ownerFactRole: "predefined",
       filePath: "Ext/Predefined.xml",
       itemRule: ChartOfAccountsPredefinedRules,
     }),

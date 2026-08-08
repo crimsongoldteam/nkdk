@@ -43,7 +43,10 @@ import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../project/localIndexes"
 import type { LocalIndexesCollector } from "../project/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
-import { analyzeDependentYamlItem } from "../orchestration/property/dependentItemRegistry"
+import {
+  analyzeDependentYamlItem,
+  type DependentReferenceCandidate,
+} from "../orchestration/property/dependentItemRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
@@ -472,7 +475,10 @@ function collectNestedItem(
     })
     if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
     references.push(
-      ...analysis.references.map((reference) => ({ ...reference, filePath: params.filePath }))
+      ...analysis.references.map((reference) => ({
+        ...dependentPendingReference(reference),
+        filePath: params.filePath,
+      }))
     )
   }
 
@@ -484,6 +490,12 @@ function collectNestedItem(
     })
   )
   return references
+}
+
+function dependentPendingReference(
+  reference: DependentReferenceCandidate,
+): Omit<PendingMetadataTargetReference, "filePath"> {
+  return reference as Omit<PendingMetadataTargetReference, "filePath">
 }
 
 function collectTargetValues(params: {

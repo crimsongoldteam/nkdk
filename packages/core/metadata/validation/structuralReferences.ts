@@ -9,7 +9,10 @@ import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { collectDependentStructuralItemReferences } from "../orchestration/property/dependentItemRegistry"
+import {
+  collectDependentStructuralItemReferences,
+  type DependentStructuralItemReference,
+} from "../orchestration/property/dependentItemRegistry"
 
 export interface StructuralYamlReference extends StructuralReferenceCandidate {
   readonly filePath: string
@@ -73,6 +76,8 @@ function collectObjectReferences(params: {
     let staged = false
     references.push({
       ...candidate,
+      target: dependentStructuralTarget(candidate.target),
+      constraint: dependentStructuralConstraint(candidate.constraint),
       filePath: params.filePath,
       stageCanonical(nextCanonical: string) {
         candidate.setCanonical(nextCanonical)
@@ -184,6 +189,18 @@ function collectObjectReferences(params: {
     references.push(...nested.references)
   }
   return { ok: true, references }
+}
+
+function dependentStructuralTarget(
+  target: DependentStructuralItemReference["target"],
+): StructuralYamlReference["target"] {
+  return target as StructuralYamlReference["target"]
+}
+
+function dependentStructuralConstraint(
+  constraint: DependentStructuralItemReference["constraint"],
+): StructuralYamlReference["constraint"] {
+  return constraint as StructuralYamlReference["constraint"]
 }
 
 function collectNestedReferences(params: {

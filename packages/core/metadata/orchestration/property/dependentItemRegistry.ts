@@ -1,46 +1,63 @@
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { PendingMetadataTargetReferenceCandidate } from "./fn"
-import type { MetadataItemRule } from "./types"
-import type { Diagnostic } from "../../validation/types"
-import type { YamlPath } from "../../validation/yamlLocations"
-import type { ConfigurationContext } from "../../context/types"
-import type { MetadataTargetConstraint, MetadataTargetOwner, ParsedMetadataTarget } from "../../commonObjects/metadataTargets/types"
-import type { ImportedDependentPropertyCandidate } from "./importYamlTypes"
+type DependentYamlPath = readonly (string | number)[]
+
+interface DependentDiagnostic {
+  readonly filePath: string
+  readonly line: number
+  readonly col: number
+  readonly message: string
+  readonly severity: "error" | "warning"
+  readonly source: "syntax" | "structure" | "external-file" | "cross-file" | "reference"
+  readonly path?: string
+}
+
+export interface DependentReferenceCandidate {
+  readonly yamlPath: DependentYamlPath
+  readonly canonical: string
+  readonly target: unknown
+  readonly constraint: unknown
+}
+
+export interface DependentImportedPropertyCandidate {
+  readonly itemType: string
+  readonly itemYamlPath: DependentYamlPath
+  readonly itemName?: string
+  readonly propertyKey: string
+  readonly yamlPath: DependentYamlPath
+  readonly logicalAddress?: string
+  readonly xmlValue: unknown
+  readonly presentInXML: boolean
+}
 
 export interface DependentItemParams {
   readonly itemType: string
   readonly itemName?: string
   readonly item: Record<string, unknown>
-  readonly itemYamlPath: YamlPath
+  readonly itemYamlPath: DependentYamlPath
   readonly rootYaml: unknown
-  readonly rootRule: MetadataItemRule
+  readonly rootRule: unknown
   readonly owner: { readonly dir: string; readonly name: string }
 }
 
 export interface DependentYamlItemAnalysis {
-  readonly diagnostics: readonly Diagnostic[]
-  readonly references: readonly PendingMetadataTargetReferenceCandidate[]
+  readonly diagnostics: readonly DependentDiagnostic[]
+  readonly references: readonly DependentReferenceCandidate[]
 }
 
 export interface DependentYamlItemParams extends DependentItemParams {
   readonly filePath: string
-  readonly parsed: ParsedYaml
+  readonly parsed: unknown
 }
 
 export type DependentYamlItemHandler = (params: DependentYamlItemParams) => DependentYamlItemAnalysis
 
-export interface DependentStructuralItemReference {
-  readonly yamlPath: YamlPath
-  readonly canonical: string
-  readonly target: ParsedMetadataTarget
-  readonly constraint: MetadataTargetConstraint
+export interface DependentStructuralItemReference extends DependentReferenceCandidate {
   setCanonical(nextCanonical: string): void
   commitValue(): void
 }
 
 export interface DependentStructuralItemParams extends DependentYamlItemParams {
-  readonly context: ConfigurationContext
-  readonly metadataTargetOwner?: MetadataTargetOwner
+  readonly context: unknown
+  readonly metadataTargetOwner?: { readonly root: string; readonly objectName: string }
 }
 
 export type DependentStructuralItemHandler = (
@@ -49,24 +66,25 @@ export type DependentStructuralItemHandler = (
 
 export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
-  shouldRemove(params: DependentItemParams & { readonly candidate: ImportedDependentPropertyCandidate }): boolean
+  shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
+
 export interface DependentItemRegistrySnapshot {
   readonly yaml: Map<string, DependentYamlItemHandler>
   readonly structural: Map<string, DependentStructuralItemHandler>
   readonly imported: Map<string, DependentImportItemHandler>
 }
 
-const handlers = new Map<string, DependentYamlItemHandler>()
+const yamlHandlers = new Map<string, DependentYamlItemHandler>()
 const structuralHandlers = new Map<string, DependentStructuralItemHandler>()
 const importHandlers = new Map<string, DependentImportItemHandler>()
 
 export function registerDependentYamlItemHandler(itemType: string, handler: DependentYamlItemHandler): void {
-  handlers.set(itemType, handler)
+  yamlHandlers.set(itemType, handler)
 }
 
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {
-  return handlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [] }
+  return yamlHandlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [] }
 }
 
 export function registerDependentStructuralItemHandler(itemType: string, handler: DependentStructuralItemHandler): void {
@@ -88,20 +106,20 @@ export function isDependentImportProperty(itemType: string, propertyKey: string)
 }
 
 export function shouldRemoveImportedDependentProperty(
-  params: DependentItemParams & { readonly candidate: ImportedDependentPropertyCandidate }
+  params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
   return importHandlers.get(params.itemType)?.shouldRemove(params) === true
 }
 
 export function snapshotDependentItemRegistryForTests(): DependentItemRegistrySnapshot {
-  return { yaml: new Map(handlers), structural: new Map(structuralHandlers), imported: new Map(importHandlers) }
+  return { yaml: new Map(yamlHandlers), structural: new Map(structuralHandlers), imported: new Map(importHandlers) }
 }
 
 export function restoreDependentItemRegistryForTests(snapshot: DependentItemRegistrySnapshot): void {
-  handlers.clear()
+  yamlHandlers.clear()
   structuralHandlers.clear()
   importHandlers.clear()
-  for (const [itemType, handler] of snapshot.yaml) handlers.set(itemType, handler)
+  for (const [itemType, handler] of snapshot.yaml) yamlHandlers.set(itemType, handler)
   for (const [itemType, handler] of snapshot.structural) structuralHandlers.set(itemType, handler)
   for (const [itemType, handler] of snapshot.imported) importHandlers.set(itemType, handler)
 }

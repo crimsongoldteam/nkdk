@@ -1,4 +1,6 @@
 import type { ConfigurationContext } from "../../context/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type {
   DependentItemParams,
   DependentYamlItemAnalysis,
@@ -81,7 +83,7 @@ function withValueReference(
     value,
     constraint,
     filePath: params.filePath,
-    parsed: params.parsed,
+    parsed: dependentParsedYaml(params.parsed),
     yamlPath: [...params.itemYamlPath, fillValueYamlKey],
   })
   return {
@@ -130,7 +132,7 @@ function diagnosticAnalysis(
     diagnostics: [
       diagnosticAtYamlPath({
         filePath: params.filePath,
-        parsed: params.parsed,
+        parsed: dependentParsedYaml(params.parsed),
         path: [...params.itemYamlPath, fillValueYamlKey],
         source: "structure",
         severity,
@@ -156,13 +158,21 @@ export function parseFillValueYaml(value: unknown) {
 function ownerProperties(params: DependentItemParams): Record<string, unknown> {
   const root = asRecord(params.rootYaml)
   const result: Record<string, unknown> = {}
-  for (const [modelKey, rule] of Object.entries(params.rootRule.properties)) {
+  for (const [modelKey, rule] of Object.entries(dependentRootRule(params.rootRule).properties)) {
     if (rule.yaml === undefined) continue
     const raw = root[rule.yaml]
     if (raw === undefined) continue
     result[modelKey] = modelKey === "owners" ? normalizeOwners(raw) : raw
   }
   return result
+}
+
+function dependentParsedYaml(parsed: unknown): ParsedYaml {
+  return parsed as ParsedYaml
+}
+
+function dependentRootRule(rule: unknown): MetadataItemRule {
+  return rule as MetadataItemRule
 }
 
 function normalizeOwners(value: unknown): unknown {

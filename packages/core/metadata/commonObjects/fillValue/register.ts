@@ -13,6 +13,10 @@ import {
   parseFillValueYaml,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
+import { isMetadataRootName } from "../metadataTargets/roots"
+import type { MetadataTargetOwner } from "../metadataTargets/types"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
 let validationRegistered = false
@@ -56,9 +60,9 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
   const materialized = materializeMetadataValueReference({
     value,
     constraint,
-    owner: params.metadataTargetOwner,
+    owner: fillValueTargetOwner(params.metadataTargetOwner),
     filePath: params.filePath,
-    parsed: params.parsed,
+    parsed: dependentParsedYaml(params.parsed),
     yamlPath: [...params.itemYamlPath, "ЗначениеЗаполнения"],
   })
   return materialized.references.map((reference) => ({
@@ -67,7 +71,28 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
       currentValue = { type: "ref", value: nextCanonical }
     },
     commitValue() {
-      params.item["ЗначениеЗаполнения"] = exportMetadataValueToYAML(params.context, undefined, currentValue)
+      params.item["ЗначениеЗаполнения"] = exportMetadataValueToYAML(
+        dependentContext(params.context),
+        undefined,
+        currentValue,
+      )
     },
   }))
+}
+
+function fillValueTargetOwner(
+  owner: DependentParametersOwner,
+): MetadataTargetOwner | undefined {
+  if (owner === undefined || !isMetadataRootName(owner.root)) return undefined
+  return { root: owner.root, objectName: owner.objectName }
+}
+
+type DependentParametersOwner = Parameters<DependentStructuralItemHandler>[0]["metadataTargetOwner"]
+
+function dependentParsedYaml(parsed: unknown): ParsedYaml {
+  return parsed as ParsedYaml
+}
+
+function dependentContext(context: unknown): ConfigurationContext {
+  return context as ConfigurationContext
 }
