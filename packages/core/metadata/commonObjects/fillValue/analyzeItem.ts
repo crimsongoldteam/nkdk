@@ -4,7 +4,9 @@ import { getStandardMembers } from "../../standardMembers/declarations"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import type { MetadataValueYAML } from "../metadataValue/types"
 import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../metadataTargets"
-import type { MetadataRootName } from "../metadataTargets/types"
+import { isMetadataRootName } from "../metadataTargets/roots"
+import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTargets/types"
+import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
 import { importTypeDescriptionFromYAML } from "../typeDescription/fromYAML"
 import type { TypeDescriptionYAML } from "../typeDescription/types"
 import { classifyFillValue } from "./classify"
@@ -32,7 +34,11 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
     undefined,
     params.item[typeYamlKey] as TypeDescriptionYAML | undefined
   )
-  return analysisFromClassification(params, classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value }))
+  return withValueReference(
+    params,
+    value,
+    analysisFromClassification(params, classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value }))
+  )
 }
 
 export function analyzeStandardAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
@@ -43,14 +49,49 @@ export function analyzeStandardAttributeFillValue(params: DependentYamlItemParam
 
   const declaration = getStandardMembers(params.owner.dir).find((member) => member.names.yaml === params.itemName)
   if (declaration === undefined) return emptyAnalysis()
-  return analysisFromClassification(
+  return withValueReference(
     params,
-    classifyStandardMemberFillValue({
+    value,
+    analysisFromClassification(params, classifyStandardMemberFillValue({
       declaration,
       value,
       ownerProperties: ownerProperties(params),
-    })
+    }))
   )
+}
+
+function withValueReference(
+  params: DependentYamlItemParams,
+  value: NonNullable<ReturnType<typeof importFillValue>>,
+  analysis: DependentYamlItemAnalysis
+): DependentYamlItemAnalysis {
+  const constraint = inferredReferenceConstraint(value)
+  if (constraint === undefined) return analysis
+  const reference = materializeMetadataValueReference({
+    value,
+    constraint,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    yamlPath: [...params.itemYamlPath, fillValueYamlKey],
+  })
+  return {
+    diagnostics: [...analysis.diagnostics, ...reference.diagnostics],
+    references: reference.references,
+  }
+}
+
+function inferredReferenceConstraint(
+  value: NonNullable<ReturnType<typeof importFillValue>>
+): Extract<MetadataTargetConstraint, { kind: "value" }> | undefined {
+  if (value.type !== "ref" || value.value === "") return undefined
+  const root = value.value.split(".", 1)[0]
+  if (root === undefined || !isMetadataRootName(root)) return undefined
+  return {
+    kind: "value",
+    roots: [root],
+    valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
+    allowEmptyRef: true,
+  }
 }
 
 function analysisFromClassification(

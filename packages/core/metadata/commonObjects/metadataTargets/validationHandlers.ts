@@ -11,6 +11,7 @@ import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { parseMetadataTargetFromModel } from "./parse"
 import type { StyleItemTargetType } from "./types"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
+import { materializeCanonicalMetadataReference, materializeMetadataValueReference } from "./referenceMaterializer"
 
 const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
@@ -126,9 +127,16 @@ const collectMetadataValueTargetForValidation: CollectMetadataTargetReferencesFu
   if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") {
     return { references: [], diagnostics: [] }
   }
-  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return { references: [], diagnostics: [] }
-
-  return collectCanonicalTarget(params, params.value.value)
+  const constraint = params.propRule.metadataTarget
+  if (constraint === undefined) return { references: [], diagnostics: [] }
+  return materializeMetadataValueReference({
+    value: { type: "ref", value: params.value.value },
+    constraint,
+    owner: params.owner,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    yamlPath: params.yamlPath,
+  })
 }
 
 const collectColorTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
@@ -269,35 +277,14 @@ function collectCanonicalTargetWithConstraint(
   value: string,
   constraint: MetadataTargetConstraint
 ): ReturnType<CollectMetadataTargetReferencesFunction> {
-
-  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
-  if (!parsed.ok) {
-    return {
-      references: [],
-      diagnostics: [
-        diagnosticAtYamlPath({
-          filePath: params.filePath,
-          parsed: params.parsed,
-          path: params.yamlPath,
-          source: "structure",
-          severity: "error",
-          message: parsed.message,
-        }),
-      ],
-    }
-  }
-
-  return {
-    references: [
-      {
-        yamlPath: params.yamlPath,
-        canonical: parsed.canonical,
-        target: parsed.target,
-        constraint,
-      },
-    ],
-    diagnostics: [],
-  }
+  return materializeCanonicalMetadataReference({
+    canonical: value,
+    constraint,
+    owner: params.owner,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    yamlPath: params.yamlPath,
+  })
 }
 
 function resolveParsedTarget(params: {
