@@ -8,6 +8,9 @@ import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import { buildProjectStateSnapshot } from "../projectState/binary/builder"
+import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
+import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -418,6 +421,23 @@ describe("XML import worker second pass", () => {
     expect(formFile).toMatchObject({ sourceKind: "worker" })
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    const snapshot = buildProjectStateSnapshot({
+      fragments: second.stateFragments.map(openProjectStateFragment),
+      deletions: [],
+    })
+    expect(createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot)).resolveTargets([{
+      requestId: "imported-form",
+      componentPath: "cf",
+      canonicalTarget: "Catalog.Товары.Form.ФормаЭлемента",
+    }])[0]).toMatchObject({
+      status: "found",
+      target: {
+        fileBacked: {
+          itemProjectPath: "cf/Справочник/Товары/Формы/ФормаЭлемента",
+          ownerProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+        },
+      },
+    })
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
@@ -578,6 +598,7 @@ async function runCatalogAndFormSecondPass(
     diagnostics: secondResults.flatMap(({ diagnostics }) => diagnostics),
     warnings: secondResults.flatMap(({ warnings }) => warnings),
     files: secondResults.flatMap(({ files }) => files),
+    stateFragments: secondResults.flatMap(({ stateFragment }) => stateFragment === undefined ? [] : [stateFragment]),
   }
   return { assignments, first, second }
 }

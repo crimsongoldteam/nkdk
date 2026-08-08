@@ -20,10 +20,12 @@ import type {
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import {
+  externalFileStateBatch,
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
+import { createValidationProjectComponent } from "../validation/projectComponents"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
 
@@ -88,6 +90,32 @@ const projectFiles = resultFiles.map((file, index) => ({
 }))
 
 const tempDirs: string[] = []
+
+it.each([
+  [{ kind: "configuration" as const }, "cf"],
+  [{ kind: "configurationExtension" as const, name: "Цены" }, "cfe/Цены"],
+])("создаёт файловую цель переданного макета для компонента %s", (address, componentPath) => {
+  const component = createValidationProjectComponent("/project", address)
+  const batch = externalFileStateBatch(component, [{
+    projectPath: "Отчет/Продажи/Шаблоны/Схема/Template.xml",
+    contentHash: 9n,
+  }])
+
+  expect(batch.updates).toEqual([{
+    kind: "resource",
+    projectPath: `${componentPath}/Отчет/Продажи/Шаблоны/Схема/Template.xml`,
+    componentPath,
+    resourceKind: "resource",
+    targets: [{
+      kind: "member",
+      canonical: "Report.Продажи.Template.Схема",
+      fileBacked: {
+        itemProjectPath: `${componentPath}/Отчет/Продажи/Шаблоны/Схема`,
+        ownerProjectPath: `${componentPath}/Отчет/Продажи/Свойства.yaml`,
+      },
+    }],
+  }])
+})
 
 afterEach(async () => {
   await Promise.all(tempDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true })))
