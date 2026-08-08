@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { registerCoreMetadata } from "../register"
 import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./capabilities"
-import { classifyMetadataProjectPath } from "./projectProjection"
+import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "./registry"
 import { mockContextToXML } from "../../tests/mockContext"
 import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
@@ -91,5 +91,22 @@ describe("registered metadata resource topology contracts", () => {
       kind: "content",
       role,
     })
+  })
+
+  it("проецирует владельца вложенной формы через общий resolver", () => {
+    const projectPath =
+      "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Формы/Основная/Форма.yaml"
+    const match = classifyMetadataProjectPath(topology, projectPath)
+
+    expect(match).toBeDefined()
+    expect(projectMetadataFileBackedTargets(topology, match!)).toEqual([{
+      kind: "member",
+      memberKind: "Form",
+      owner: { root: "ExternalDataSource", objectName: "Источник.Table.Таблица" },
+      itemName: "Основная",
+      evidenceProjectPath: projectPath,
+      itemProjectPath: "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Формы/Основная",
+      ownerProjectPath: "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Свойства.yaml",
+    }])
   })
 })

@@ -6,6 +6,7 @@ import {
   exportStringMetadataTargetToYAML,
   importStringMetadataTargetFromYAML,
   metadataTargetOwnerFromRule,
+  metadataTargetOwnerFromFrames,
 } from "./metadataTargetString"
 import type { MetadataItemRule } from "./types"
 
@@ -50,6 +51,21 @@ const documentRuleWithNumerator = {
 const documentOwner = { root: "Document", objectName: "АвансовыйОтчет" } as const
 
 describe("metadataTargetOwnerFromRule", () => {
+  it("разрешает владельца из явно переданной цепочки без ConfigurationContext", () => {
+    expect(metadataTargetOwnerFromFrames({
+      itemRule: {
+        itemType: "Nested",
+        properties: {},
+        metadataTargetOwner: { kind: "inherit" },
+      } as MetadataItemRule,
+      name: "Вложенный",
+      frames: [{
+        itemType: "Document",
+        name: "Заказ",
+        owner: { root: "Document", objectName: "Заказ" },
+      }],
+    })).toEqual({ root: "Document", objectName: "Заказ" })
+  })
   it("uses self declaration for simple root objects", () => {
     expect(metadataTargetOwnerFromRule({ itemRule: documentRule, name: "Заказ" })).toEqual({
       root: "Document",

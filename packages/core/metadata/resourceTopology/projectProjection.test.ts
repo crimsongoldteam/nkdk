@@ -9,6 +9,7 @@ import {
   iterateMetadataProjectPathCandidates,
   iterateProjectFiles,
   listProjectFiles,
+  projectMetadataFileBackedTargets,
 } from "./projectProjection"
 
 const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
@@ -53,6 +54,41 @@ const topology = compileMetadataResourceTopology([
 ])
 
 describe("project resource topology projection", () => {
+  it.each([
+    ["Объект/Заказ/Формы/Основная/Форма.yaml", "Form"],
+    ["Объект/Заказ/Макеты/Печать/Template.xml", "Template"],
+    ["Объект/Заказ/Макеты/Печать/Template.txt", "Template"],
+    ["Объект/Заказ/Макеты/Печать/Template.bin", "Template"],
+    ["Объект/Заказ/Макеты/Печать/Ext/Картинка.png", "Template"],
+  ] as const)("проецирует файловую цель из %s", (projectPath, memberKind) => {
+    const targetTopology = fileBackedTargetTopology()
+    const match = classifyMetadataProjectPath(targetTopology, projectPath)
+
+    expect(match).toBeDefined()
+    expect(projectMetadataFileBackedTargets(targetTopology, match!)).toEqual([{
+      kind: "member",
+      memberKind,
+      owner: { root: "Document", objectName: "Заказ" },
+      itemName: memberKind === "Form" ? "Основная" : "Печать",
+      evidenceProjectPath: projectPath,
+      itemProjectPath: memberKind === "Form"
+        ? "Объект/Заказ/Формы/Основная"
+        : "Объект/Заказ/Макеты/Печать",
+      ownerProjectPath: "Объект/Заказ/Свойства.yaml",
+    }])
+  })
+
+  it.each([
+    "Объект/Заказ/Формы/Основная/Модуль.bsl",
+    "Объект/Заказ/Формы/Основная/Справка/index.html",
+  ])("не создаёт файловую цель из %s", (projectPath) => {
+    const targetTopology = fileBackedTargetTopology()
+    const match = classifyMetadataProjectPath(targetTopology, projectPath)
+
+    expect(match).toBeDefined()
+    expect(projectMetadataFileBackedTargets(targetTopology, match!)).toEqual([])
+  })
+
   it("переиспользуемый классификатор сохраняет результат точечной классификации", () => {
     const classify = createMetadataProjectPathClassifier(topology)
     for (const path of [
@@ -173,6 +209,90 @@ describe("project resource topology projection", () => {
     expect(classifyMetadataProjectPath(topology, "Объект/Первый/Лишний.yaml")).toBeUndefined()
   })
 })
+
+function fileBackedTargetTopology() {
+  const ownerRule = {
+    itemType: "Document",
+    metadataTargetOwner: { kind: "self", root: "Document" },
+    properties: {},
+  } as MetadataItemRule
+  const formRule = { itemType: "Form", properties: {} } as MetadataItemRule
+  const targetSource = { kind: "itemRule" as const, description: "file-backed target test" }
+  const templateTarget = {
+    kind: "member" as const,
+    memberKind: "Template" as const,
+    itemNameParameter: "itemName",
+    itemProjectPattern: "Объект/{ownerName}/Макеты/{itemName}",
+    owner: "assignment" as const,
+  }
+
+  return compileMetadataResourceTopology([projectSpec(ownerRule, [
+      {
+        kind: "content",
+        projectPattern: "Объект/{ownerName}/Свойства.yaml",
+        role: "properties",
+        required: true,
+        repeatable: true,
+        compositionImpact: "configurationComposition",
+        itemRule: ownerRule,
+        source: targetSource,
+      },
+      {
+        kind: "content",
+        projectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+        ownerProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+        role: "fileItem",
+        required: true,
+        repeatable: true,
+        compositionImpact: "none",
+        itemRule: formRule,
+        fileBackedTarget: {
+          kind: "member",
+          memberKind: "Form",
+          itemNameParameter: "itemName",
+          itemProjectPattern: "Объект/{ownerName}/Формы/{itemName}",
+          owner: "assignmentOwner",
+        },
+        source: targetSource,
+      },
+      ...["Template.xml", "Template.txt", "Template.bin", "Ext/{relativePath...}"].map((tail) => ({
+        kind: "externalFile" as const,
+        assignmentProjectPattern: "Объект/{ownerName}/Свойства.yaml",
+        projectPattern: `Объект/{ownerName}/Макеты/{itemName}/${tail}`,
+        xmlPattern: `Objects/{ownerName}/Templates/{itemName}/${tail}`,
+        direction: "both" as const,
+        transferCapabilityId: "copy",
+        fallback: tail.startsWith("Ext/") || undefined,
+        compositionImpact: "none" as const,
+        fileBackedTarget: templateTarget,
+        source: targetSource,
+      })),
+      {
+        kind: "externalFile",
+        assignmentProjectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+        projectPattern: "Объект/{ownerName}/Формы/{itemName}/Модуль.bsl",
+        xmlPattern: "Objects/{ownerName}/Forms/{itemName}/Module.bsl",
+        direction: "both",
+        transferCapabilityId: "copy",
+        compositionImpact: "none",
+        source: targetSource,
+      },
+      {
+        kind: "externalFile",
+        assignmentProjectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+        projectPattern: "Объект/{ownerName}/Формы/{itemName}/Справка/{relativePath...}",
+        xmlPattern: "Objects/{ownerName}/Forms/{itemName}/Help/{relativePath...}",
+        direction: "both",
+        transferCapabilityId: "copy",
+        compositionImpact: "none",
+        source: targetSource,
+      },
+  ])])
+}
+
+function projectSpec(itemRule: MetadataItemRule, resources: RegisteredProjectSpec["resources"]): RegisteredProjectSpec {
+  return { dir: "Объект", kind: "test", rule: itemRule, exportSchema: () => ({}) as never, resources }
+}
 
 function directory(name: string) {
   return { name, isDirectory: () => true, isFile: () => false }

@@ -1,4 +1,5 @@
 import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataMemberKind } from "../commonObjects/metadataTargets"
 
 export type MetadataResourceRole =
   | "configuration"
@@ -29,6 +30,21 @@ export interface MetadataContentDeclaration {
   readonly ownerProjectPattern?: string
   readonly dumpInfoNamePatterns?: readonly string[]
   readonly source: MetadataResourceSource
+  readonly fileBackedTarget?: MetadataFileBackedMemberTargetDeclaration
+}
+
+export interface MetadataFileBackedMemberTargetDeclaration {
+  readonly kind: "member"
+  readonly memberKind: MetadataMemberKind
+  readonly itemNameParameter: string
+  readonly itemProjectPattern: string
+  readonly owner: "assignment" | "assignmentOwner"
+}
+
+export interface CompiledMetadataFileBackedMemberTargetDeclaration
+  extends MetadataFileBackedMemberTargetDeclaration {
+  readonly ownerProjectPattern: string
+  readonly ownerAssignmentNodeId: string
 }
 
 export interface MetadataXmlDocumentDeclaration {
@@ -67,6 +83,7 @@ export interface MetadataExternalFileDeclaration {
   readonly dumpInfoNamePatterns?: readonly string[]
   readonly compositionImpact: "none" | "configurationComposition"
   readonly source: MetadataResourceSource
+  readonly fileBackedTarget?: MetadataFileBackedMemberTargetDeclaration
 }
 
 export interface MetadataIgnoredPathDeclaration {
@@ -99,15 +116,19 @@ export interface CompiledMetadataXmlDocumentNode extends MetadataXmlDocumentDecl
   readonly id: string
 }
 
-export interface CompiledMetadataExternalFileNode extends MetadataExternalFileDeclaration {
+export interface CompiledMetadataExternalFileNode
+  extends Omit<MetadataExternalFileDeclaration, "fileBackedTarget"> {
   readonly id: string
   readonly projectPattern: string
   readonly xmlPattern: string
+  readonly fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
 }
 
-export interface CompiledMetadataAssignmentNode extends MetadataContentDeclaration {
+export interface CompiledMetadataAssignmentNode
+  extends Omit<MetadataContentDeclaration, "fileBackedTarget"> {
   readonly id: string
   readonly ownerProjectPattern?: string
+  readonly fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: readonly CompiledMetadataXmlDocumentNode[]
   readonly externalFiles: readonly CompiledMetadataExternalFileNode[]
 }

@@ -1,6 +1,10 @@
 import { readdir } from "fs/promises"
 import { join, resolve } from "path"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataMemberKind, MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import { metadataTargetOwnerFromFrames } from "../orchestration/property/metadataTargetString"
+import type { MetadataTargetOwnerFrame } from "../orchestration/property/metadataTargetOwnerRegistry"
+import { expandMetadataPathPattern } from "./patterns"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataExternalFileNode,
@@ -34,6 +38,78 @@ export interface MetadataProjectPathCandidate {
   readonly absolutePath: string
   readonly projectPath: string
   classify(): MetadataProjectResourceMatch | undefined
+}
+
+export interface MetadataFileBackedTargetContribution {
+  readonly kind: "member"
+  readonly memberKind: MetadataMemberKind
+  readonly owner: MetadataTargetOwner
+  readonly itemName: string
+  readonly evidenceProjectPath: string
+  readonly itemProjectPath: string
+  readonly ownerProjectPath: string
+}
+
+export function projectMetadataFileBackedTargets(
+  topology: CompiledMetadataResourceTopology,
+  match: MetadataProjectResourceMatch
+): readonly MetadataFileBackedTargetContribution[] {
+  const declaration = match.kind === "content"
+    ? match.assignment?.fileBackedTarget
+    : match.kind === "externalFile"
+      ? match.externalFile?.fileBackedTarget
+      : undefined
+  if (declaration === undefined) return []
+
+  const itemName = match.values[declaration.itemNameParameter]
+  const owner = resolveFileBackedTargetOwner(topology, declaration.ownerAssignmentNodeId, match.values)
+  if (itemName === undefined || owner === undefined) {
+    throw new Error(`Не удалось спроецировать файловую цель из ${match.projectPath}`)
+  }
+  return [{
+    kind: "member",
+    memberKind: declaration.memberKind,
+    owner,
+    itemName,
+    evidenceProjectPath: match.projectPath,
+    itemProjectPath: expandMetadataPathPattern(declaration.itemProjectPattern, match.values),
+    ownerProjectPath: expandMetadataPathPattern(declaration.ownerProjectPattern, match.values),
+  }]
+}
+
+function resolveFileBackedTargetOwner(
+  topology: CompiledMetadataResourceTopology,
+  ownerAssignmentNodeId: string,
+  values: Readonly<Record<string, string>>
+): MetadataTargetOwner | undefined {
+  const assignmentsById = new Map(topology.assignments.map((assignment) => [assignment.id, assignment]))
+  const assignmentsByPattern = new Map(topology.assignments.map((assignment) => [assignment.projectPattern, assignment]))
+  const chain: CompiledMetadataAssignmentNode[] = []
+  let assignment = assignmentsById.get(ownerAssignmentNodeId)
+  while (assignment !== undefined) {
+    chain.push(assignment)
+    assignment = assignment.ownerProjectPattern === undefined
+      ? undefined
+      : assignmentsByPattern.get(assignment.ownerProjectPattern)
+  }
+
+  const frames: MetadataTargetOwnerFrame[] = []
+  for (const current of chain.reverse()) {
+    const nameParameter = patternParameters(current.projectPattern).at(-1)
+    const name = nameParameter === undefined ? undefined : values[nameParameter]
+    if (name === undefined) return undefined
+    const owner = metadataTargetOwnerFromFrames({ itemRule: current.itemRule, name, frames })
+    frames.push({
+      itemType: current.itemRule.itemType,
+      name,
+      ...(owner === undefined ? {} : { owner }),
+    })
+  }
+  return frames.at(-1)?.owner
+}
+
+function patternParameters(pattern: string): string[] {
+  return [...pattern.matchAll(/\{([^}]+?)(?:\.\.\.)?\}/g)].map((match) => match[1]!)
 }
 
 export function classifyMetadataProjectPath(
