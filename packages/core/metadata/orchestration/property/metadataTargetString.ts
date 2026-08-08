@@ -1,7 +1,8 @@
 import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../../commonObjects/metadataTargets"
 import type { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
-import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
+import type { MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
+import { resolveTopologyMetadataTargetOwner } from "../../resourceTopology/metadataTargetOwner"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 export function metadataTargetOwnerFromRule(params: {
@@ -19,24 +20,7 @@ export function metadataTargetOwnerFromFrames(params: {
   frames: readonly MetadataTargetOwnerFrame[]
   context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
-  const frames = params.frames
-  const currentFrame = frames.at(-1)
-  if (currentFrame?.itemType === params.itemRule.itemType && currentFrame.name === params.name) {
-    return currentFrame.owner
-  }
-  const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType)
-  if (resolver) {
-    const resolved = resolver({ itemRule: params.itemRule, name: params.name, frames, context: params.context })
-    if (resolved) return resolved
-  }
-
-  const declaration = params.itemRule.metadataTargetOwner
-  if (declaration?.kind === "inherit") return lastResolvedOwner(frames)
-  if (declaration?.kind === "self") {
-    return params.name ? { root: declaration.root, objectName: params.name } : undefined
-  }
-
-  return undefined
+  return resolveTopologyMetadataTargetOwner(params) as MetadataTargetOwner | undefined
 }
 
 export function exportStringMetadataTargetToYAML(params: {
@@ -75,14 +59,6 @@ export function importStringMetadataTargetFromYAML(params: {
 
 function metadataTargetOwnerFrames(context: ConfigurationContext | undefined): readonly MetadataTargetOwnerFrame[] {
   return context?.importFromYAML?.metadataTargetOwners ?? context?.exportToYAML?.metadataTargetOwners ?? []
-}
-
-function lastResolvedOwner(frames: readonly MetadataTargetOwnerFrame[]): MetadataTargetOwner | undefined {
-  for (let index = frames.length - 1; index >= 0; index--) {
-    const owner = frames[index].owner
-    if (owner) return owner
-  }
-  return undefined
 }
 
 function isSupportedStringMetadataTarget(

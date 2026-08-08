@@ -6,7 +6,6 @@ import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
 } from "../importSession"
-import { assertProjectStateImportIndexContribution } from "../fileUpdateValidation"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {
@@ -113,7 +112,6 @@ export function createProjectStateFragmentWriter(options: {
     },
     appendImportIndex(update) {
       assertOpen()
-      assertProjectStateImportIndexContribution(update, "importIndex")
       const fileId = appendYamlIdentity(update, 0n)
       appendTargetFacts(update.targets, fileId)
       appendIndexFacts(update, fileId)

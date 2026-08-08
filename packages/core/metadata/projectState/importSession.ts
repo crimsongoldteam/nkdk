@@ -1,15 +1,13 @@
 import { performance } from "node:perf_hooks"
 import type { ProjectStateReadToken } from "./contracts"
 import type {
-  ProjectStateFieldEntry,
   ProjectStateFileIdentity,
-  ProjectStateFormEntry,
   ProjectStateLocalValidationResult,
-  ProjectStateOwnerFact,
   ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
   ProjectStateTargetEntry,
 } from "./fileUpdate"
+export type { ProjectStateImportIndexContribution } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { openProjectStateFragment, type ProjectStateFragment } from "./binary/fragment"
@@ -36,15 +34,6 @@ export type ProjectStateImportProfilePhase =
 
 export interface ProjectStateImportProfileOptions {
   readonly onPhase?: (event: { readonly phase: ProjectStateImportProfilePhase; readonly elapsedMs: number }) => void
-}
-
-export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
-  readonly resourceKind: "yaml"
-  readonly yamlRole: NonNullable<ProjectStateFileIdentity["yamlRole"]>
-  readonly targets: readonly ProjectStateTargetEntry[]
-  readonly owners: readonly ProjectStateOwnerFact[]
-  readonly fields: readonly ProjectStateFieldEntry[]
-  readonly forms: readonly ProjectStateFormEntry[]
 }
 
 export type ProjectStateImportFinalFileState =

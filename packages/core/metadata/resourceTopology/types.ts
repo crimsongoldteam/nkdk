@@ -1,5 +1,4 @@
 import type { MetadataItemRule } from "../orchestration/property/types"
-import type { MetadataMemberKind } from "../commonObjects/metadataTargets"
 
 export type MetadataResourceRole =
   | "configuration"
@@ -35,7 +34,7 @@ export interface MetadataContentDeclaration {
 
 export interface MetadataFileBackedMemberTargetDeclaration {
   readonly kind: "member"
-  readonly memberKind: MetadataMemberKind
+  readonly memberKind: "Form" | "Template"
   readonly itemNameParameter: string
   readonly itemProjectPattern: string
   readonly owner: "assignment" | "assignmentOwner"

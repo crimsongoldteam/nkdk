@@ -34,6 +34,15 @@ export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
   readonly targets: readonly ProjectStateTargetEntry[]
 }
 
+export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
+  readonly resourceKind: "yaml"
+  readonly yamlRole: NonNullable<ProjectStateFileIdentity["yamlRole"]>
+  readonly targets: readonly ProjectStateTargetEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+}
+
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
 
 export interface ProjectStateLocalValidationResult {
