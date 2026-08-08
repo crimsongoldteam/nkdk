@@ -1,7 +1,6 @@
 import fs from "node:fs"
 import { dirname, resolve } from "node:path"
 import { xxh3 } from "@node-rs/xxhash"
-import { publishFileAtomically } from "../../../files/atomicPublication"
 import { decodeProjectStateHeader, encodeProjectStateHeader } from "./format"
 import { ProjectStateHeaderRecordView, ProjectStateSectionRecordView } from "./layouts"
 import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snapshot"
@@ -9,7 +8,6 @@ import { ProjectStateSnapshotView, type ProjectStateSharedBuffers } from "./snap
 const SECTION_NAMES = ["strings", "files", "facts", "lookups", "diagnostics"] as const
 const HEADER_BYTE_LENGTH =
   ProjectStateHeaderRecordView.viewLength + SECTION_NAMES.length * ProjectStateSectionRecordView.viewLength
-const TEMPORARY_PREFIX = ".project-state.bin."
 
 export function projectStateBinaryPath(projectDir: string): string {
   return resolve(projectDir, ".nkdk", "cache", "project-state.bin")
@@ -25,32 +23,23 @@ export async function saveBinaryProjectState(
   const header = encodeProjectStateHeader({ sections: previousHeader.sections, payloadHash })
   const target = projectStateBinaryPath(projectDir)
 
-  await publishFileAtomically({
-    target,
-    async writeTemporary(temporary) {
-      const handle = await fs.promises.open(temporary, "r+")
-      try {
-        await handle.truncate(0)
-        const chunks = [
-          Buffer.from(header.buffer, header.byteOffset, header.byteLength),
-          ...SECTION_NAMES.map((name) => Buffer.from(buffers[name])),
-        ]
-        await writeVectorExactly(handle, chunks)
-      } finally {
-        await handle.close()
-      }
-    },
-    async verifyTemporary(temporary) {
-      await verifyBinaryProjectStateFile(temporary)
-    },
-  })
+  await fs.promises.mkdir(dirname(target), { recursive: true })
+  const handle = await fs.promises.open(target, "w")
+  try {
+    const chunks = [
+      Buffer.from(header.buffer, header.byteOffset, header.byteLength),
+      ...SECTION_NAMES.map((name) => Buffer.from(buffers[name])),
+    ]
+    await writeVectorExactly(handle, chunks)
+  } finally {
+    await handle.close()
+  }
 }
 
 export async function loadBinaryProjectState(
   projectDir: string,
 ): Promise<ProjectStateSharedBuffers | undefined> {
   const target = projectStateBinaryPath(projectDir)
-  await removeTemporaryFiles(dirname(target))
   try {
     return await readBinaryProjectStateFile(target)
   } catch (caught) {
@@ -90,28 +79,6 @@ async function readBinaryProjectStateFile(path: string): Promise<ProjectStateSha
   }
 }
 
-async function verifyBinaryProjectStateFile(path: string): Promise<void> {
-  const handle = await fs.promises.open(path, "r")
-  try {
-    const { decoded, fileSize } = await readValidatedHeader(handle)
-    const hasher = xxh3.Xxh3.withSeed()
-    const chunk = Buffer.allocUnsafe(Math.min(1024 * 1024, fileSize - HEADER_BYTE_LENGTH))
-    let position = HEADER_BYTE_LENGTH
-    while (position < fileSize) {
-      const length = Math.min(chunk.byteLength, fileSize - position)
-      const { bytesRead } = await handle.read(chunk, 0, length, position)
-      if (bytesRead === 0) throw new Error("Двоичный файл состояния проекта оборван")
-      hasher.update(chunk.subarray(0, bytesRead))
-      position += bytesRead
-    }
-    if (hasher.digest() !== decoded.payloadHash) {
-      throw new Error("Контрольная сумма двоичного состояния проекта не совпадает")
-    }
-  } finally {
-    await handle.close()
-  }
-}
-
 async function readValidatedHeader(handle: fs.promises.FileHandle) {
   const fileSize = (await handle.stat()).size
   if (fileSize < HEADER_BYTE_LENGTH) throw new Error("Двоичный файл состояния проекта оборван")
@@ -134,7 +101,7 @@ async function readValidatedHeader(handle: fs.promises.FileHandle) {
     expectedOffset += section.byteLength
   }
   if (expectedOffset !== fileSize) throw new Error("Размер двоичного состояния проекта не совпадает с каталогом")
-  return { decoded, fileSize, headerBytes }
+  return { decoded, headerBytes }
 }
 
 function hashPayload(buffers: ProjectStateSharedBuffers): bigint {
@@ -173,19 +140,6 @@ async function writeVectorExactly(
     }
     if (consumed > 0) remaining[0] = remaining[0]!.subarray(consumed)
   }
-}
-
-async function removeTemporaryFiles(directory: string): Promise<void> {
-  let names: string[]
-  try {
-    names = await fs.promises.readdir(directory)
-  } catch (caught) {
-    if (hasErrorCode(caught, "ENOENT")) return
-    throw caught
-  }
-  await Promise.all(names
-    .filter((name) => name.startsWith(TEMPORARY_PREFIX) && name.endsWith(".tmp"))
-    .map((name) => fs.promises.unlink(resolve(directory, name)).catch(() => undefined)))
 }
 
 function hasErrorCode(caught: unknown, code: string): boolean {
