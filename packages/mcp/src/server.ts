@@ -1,4 +1,5 @@
-import { realpathSync } from "fs"
+import { spawn } from "node:child_process"
+import { realpathSync, unwatchFile, watchFile } from "node:fs"
 import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
@@ -6,6 +7,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerNkdkCapabilities } from "./tools/registerTools"
 import { projectStateHandle } from "./services/projectStateHandle"
 import { closePlatformSessionManager } from "./services/platformSessionHandle"
+import { createMcpWatchHost } from "./watchHost"
 
 declare const __NKDK_MCP_VERSION__: string | undefined
 
@@ -25,6 +27,46 @@ export async function runStdioServer(): Promise<void> {
   const server = createNkdkMcpServer()
   const transport = new StdioServerTransport()
   await runServerUntilTransportCloses(server, transport)
+}
+
+export function runWatchServer(entrypoint: string): void {
+  const host = createMcpWatchHost({
+    createWorker() {
+      const child = spawn(process.execPath, [entrypoint, "--worker"], {
+        stdio: ["pipe", "pipe", "inherit"],
+      })
+      return {
+        stdout: child.stdout,
+        write(message) {
+          child.stdin.write(message)
+        },
+        kill() {
+          child.kill()
+        },
+      }
+    },
+    writeOutput(message) {
+      process.stdout.write(`${message}\n`)
+    },
+  })
+  host.start()
+
+  let input = ""
+  process.stdin.setEncoding("utf8")
+  process.stdin.on("data", (chunk: string) => {
+    input += chunk
+    const lines = input.split(/\r?\n/)
+    input = lines.pop() ?? ""
+    for (const line of lines) {
+      if (line.length > 0) host.receive(line)
+    }
+  })
+
+  const onBuild = (current: { size: number; mtimeMs: number }, previous: { mtimeMs: number }) => {
+    if (current.size > 0 && current.mtimeMs !== previous.mtimeMs) host.reload()
+  }
+  watchFile(entrypoint, { interval: 500 }, onBuild)
+  process.stdin.once("end", () => unwatchFile(entrypoint, onBuild))
 }
 
 export async function runServerUntilTransportCloses(
@@ -69,11 +111,15 @@ function isMainEntrypoint(): boolean {
 
 if (isMainEntrypoint()) {
   installShutdownHooks()
-  runStdioServer().catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err)
-    process.stderr.write(`${message}\n`)
-    process.exitCode = 1
-  })
+  if (process.argv.includes("--watch")) {
+    runWatchServer(process.argv[1]!)
+  } else {
+    runStdioServer().catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err)
+      process.stderr.write(`${message}\n`)
+      process.exitCode = 1
+    })
+  }
 }
 
 function installShutdownHooks(): void {
