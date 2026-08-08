@@ -145,7 +145,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
       bufferedCollector?.flush(targetYamlPath)
       bufferedDeferred?.flush(targetYamlPath)
-      bufferedDependent?.flush(targetYamlPath)
+      bufferedDependent?.flush(targetYamlPath, yamlKey)
     }
     return [{ yaml: itemYaml, name, yamlKey }]
   })
@@ -172,10 +172,11 @@ function createBufferedDependentCollector(
       accept: (candidate) => candidates.push(candidate),
       finish: () => candidates,
     } satisfies ImportedDependentPropertyCollector,
-    flush(itemYamlPath: readonly (string | number)[]) {
+    flush(itemYamlPath: readonly (string | number)[], itemName: string) {
       for (const candidate of candidates) {
         parent.accept({
           ...candidate,
+          itemName,
           itemYamlPath: [...itemYamlPath, ...candidate.itemYamlPath.slice(sourceItemYamlPath.length)],
           yamlPath: [...itemYamlPath, ...candidate.yamlPath.slice(sourceItemYamlPath.length)],
         })

@@ -29,6 +29,9 @@ describe("fill value XML import", () => {
       expect(prepared.yaml).not.toHaveProperty(
         "Реквизиты.СтроковыйРеквизитСИндексом.ЗначениеЗаполнения",
       )
+      expect(prepared.yaml).not.toHaveProperty(
+        "СтандартныеРеквизиты.ПометкаУдаления.ЗначениеЗаполнения",
+      )
       expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ xml: expect.objectContaining({ xsiType: "xs:string" }) }),
