@@ -1,6 +1,6 @@
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
+import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import type { MetadataTargetOwner, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import {
@@ -9,6 +9,8 @@ import {
   type FormElementNameCollector,
 } from "../forms/clientApplicationForm/validateElementNames"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
+import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
+import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/property/yamlRuleCursor"
@@ -36,7 +38,11 @@ import {
   type ValidationRulesSnapshot,
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
-import { collectStructuralYamlReferences } from "./structuralReferences"
+import {
+  collectStructuralYamlReferences,
+  type StructuralReferenceNestedRule,
+  type StructuralReferenceRuntime,
+} from "./structuralReferences"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
@@ -588,6 +594,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
     context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    runtime: createPropertyStructuralReferenceRuntime(),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
   const pendingReferences = structuralReferences.references.map(({
@@ -619,6 +626,31 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
       ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],
+  }
+}
+
+function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime {
+  return {
+    valueFromYAML: (params) => callAtomicFromYAML(
+      params as Parameters<typeof callAtomicFromYAML>[0]
+    ),
+    valueToYAML: (params) => exportPropertyValueToYAML(
+      params as Parameters<typeof exportPropertyValueToYAML>[0]
+    ),
+    collectStructuralReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "structuralReferences")
+      return handler?.({ ...params, propRule: propertyRule })
+    },
+    collectIndexedReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+      return handler?.({ ...params, propRule: propertyRule }).references ?? []
+    },
+    nestedRule: (rule) => getTypeRule(
+      (rule as PropertyRule).type,
+      "yamlToXMLNestedRule"
+    ) as unknown as StructuralReferenceNestedRule | undefined,
   }
 }
 

@@ -1,8 +1,8 @@
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import type {
   MetadataRootName,
   MetadataTargetConstraint,
-} from "../commonObjects/metadataTargets/types"
+} from "../orchestration/metadataTarget/types"
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
 import type { OwnerFactRole } from "../orchestration/property/types"

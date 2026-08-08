@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { mockContext } from "../../../tests/mockContext"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../metadataTarget/types"
 import {
   exportStringMetadataTargetToYAML,
   importStringMetadataTargetFromYAML,

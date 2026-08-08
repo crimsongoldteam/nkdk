@@ -1,10 +1,10 @@
-import { isMetadataRootName } from "../../commonObjects/metadataTargets/roots"
+import { isMetadataRootName } from "../../orchestration/metadataTarget/roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
   MetadataRootName,
   ParsedMetadataTarget,
-} from "../../commonObjects/metadataTargets/types"
+} from "../../orchestration/metadataTarget/types"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
 import type {

@@ -1,11 +1,8 @@
 import { xxh3 } from "@node-rs/xxhash"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
-import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../fileUpdate"
 import type {
-  ProjectStateImportFinalFileStateBatch,
-  ProjectStateImportIndexContribution,
-} from "../importSession"
+  MetadataTargetConstraint,
+  ParsedMetadataTarget,
+} from "../../orchestration/metadataTarget/types"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {
@@ -93,6 +90,184 @@ const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",
   "addressingAttributes", "standardAttributes", "commands",
 ])
+
+interface ProjectStateTypeDescription {
+  readonly type: readonly string[]
+  readonly typeId?: readonly string[]
+  readonly stringQualifiers?: {
+    readonly length: number
+    readonly allowedLength: "Variable" | "Fixed"
+  }
+  readonly numberQualifiers?: {
+    readonly digits: number
+    readonly fractionDigits: number
+    readonly allowedSign: "Any" | "Nonnegative"
+  }
+  readonly dateQualifiers?: {
+    readonly dateFractions?: "Date" | "Time" | "DateTime"
+  }
+}
+
+interface OwnerTypeRef {
+  readonly kind: string
+  readonly name?: string
+}
+
+type DataPathTableInfo =
+  | { readonly kind: "ValueTable" | "ValueTree" | "ValueList" | "GanttChart" | "DynamicList" }
+  | { readonly kind: "RegisterRecordSet"; readonly owner: OwnerTypeRef }
+  | { readonly kind: "TabularSection"; readonly owner: OwnerTypeRef; readonly name: string }
+
+interface DataPathTypeInfo {
+  readonly kinds: readonly string[]
+  readonly nextTypes: readonly OwnerTypeRef[]
+  readonly definedTypes?: readonly string[]
+  readonly table?: DataPathTableInfo
+  readonly isComposite?: boolean
+  readonly sourceText?: string
+}
+
+interface ProjectStateFileIdentity {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly resourceKind: "yaml" | "resource"
+  readonly yamlRole?: "configuration" | "properties" | "form"
+}
+
+interface ProjectStateDiagnostic {
+  readonly line: number
+  readonly col: number
+  readonly message: string
+  readonly path?: string
+  readonly severity: "error" | "warning"
+  readonly source: "syntax" | "structure" | "external-file" | "cross-file" | "reference"
+}
+
+interface ProjectStateLocalValidation {
+  readonly contributedFacts: boolean
+  readonly diagnostics: readonly ProjectStateDiagnostic[]
+  readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
+}
+
+interface ProjectStateReferenceEntry {
+  readonly kind: "object" | "member" | "value"
+  readonly canonical: string
+  readonly details?: {
+    readonly typeInfo?: Pick<DataPathTypeInfo, "kinds" | "definedTypes" | "sourceText">
+    readonly kind?: "attribute" | "standardAttribute"
+    readonly styleItemType?: "Color" | "Font" | "Border"
+  }
+}
+
+interface ProjectStateOwnerFact {
+  readonly owner: OwnerTypeRef
+  readonly facts: Readonly<Record<string, unknown>>
+}
+
+interface ProjectStateFieldEntry {
+  readonly owner: OwnerTypeRef
+  readonly name: string
+  readonly kind: "attribute" | "standardAttribute" | "tabularSection" | "dimension" | "resource" | "addressingAttribute"
+  readonly typeInfo: DataPathTypeInfo
+  readonly targetName?: string
+  readonly sourceCollection?: string
+  readonly parentName?: string
+  readonly table?: DataPathTableInfo
+  readonly tableHasColumns?: boolean
+}
+
+type ProjectStateFormEntry =
+  | {
+      readonly kind: "root"
+      readonly owner: OwnerTypeRef
+      readonly name: string
+      readonly source: {
+        readonly typeInfo: DataPathTypeInfo
+        readonly table?: DataPathTableInfo
+        readonly tableHasColumns?: boolean
+      }
+    }
+  | {
+      readonly kind: "additionalColumn"
+      readonly owner: OwnerTypeRef
+      readonly tablePath: string
+      readonly name: string
+      readonly source: {
+        readonly typeInfo: DataPathTypeInfo
+        readonly table?: DataPathTableInfo
+        readonly tableHasColumns?: boolean
+      }
+    }
+  | {
+      readonly kind: "tableDataPath"
+      readonly owner: OwnerTypeRef
+      readonly name: string
+      readonly dataPath: string
+    }
+
+interface ProjectStatePendingReference {
+  readonly yamlPath: readonly (string | number)[]
+  readonly canonical: string
+  readonly target: ParsedMetadataTarget
+  readonly constraint: MetadataTargetConstraint
+}
+
+interface ProjectStatePendingCheck {
+  readonly yamlPath: readonly (string | number)[]
+  readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+  readonly owner: OwnerTypeRef
+  readonly value: string
+  readonly policyInput: {
+    readonly yaml: string
+    readonly allowedKinds?: readonly string[]
+    readonly allowComposite?: boolean
+  }
+  readonly elementType?: string
+  readonly hasValuesPicture?: boolean
+  readonly tableContext?: { readonly dataPath: string }
+}
+
+interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
+  readonly kind: "yaml"
+  readonly localValidation: ProjectStateLocalValidation
+  readonly references: readonly ProjectStateReferenceEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+  readonly pendingReferences: readonly ProjectStatePendingReference[]
+  readonly pendingChecks: readonly ProjectStatePendingCheck[]
+  readonly dependencies: readonly string[]
+}
+
+type ProjectStateFileUpdate =
+  | (ProjectStateFileIdentity & { readonly kind: "resource" })
+  | ProjectStateYamlFileUpdate
+
+interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
+  readonly resourceKind: "yaml"
+  readonly yamlRole: "configuration" | "properties" | "form"
+  readonly references: readonly ProjectStateReferenceEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+}
+
+type ProjectStateImportFinalFileState =
+  | (ProjectStateFileIdentity & { readonly kind: "resource"; readonly resourceKind: "resource" })
+  | (ProjectStateFileIdentity & {
+      readonly kind: "yaml"
+      readonly resourceKind: "yaml"
+      readonly yamlRole: "configuration" | "properties" | "form"
+      readonly localValidation: ProjectStateLocalValidation
+      readonly pendingReferences: readonly ProjectStatePendingReference[]
+      readonly pendingChecks: readonly ProjectStatePendingCheck[]
+      readonly dependencies: readonly string[]
+    })
+
+interface ProjectStateImportFinalFileStateBatch {
+  readonly updates: readonly ProjectStateImportFinalFileState[]
+  readonly hashBytes: Uint8Array
+}
 
 export function createProjectStateFragmentWriter(options: {
   readonly hashString?: (bytes: Uint8Array) => bigint
@@ -426,7 +601,7 @@ export function createProjectStateFragmentWriter(options: {
   function appendOwnerFactItem(
     ownerFactId: number,
     parentItemId: number,
-    item: { readonly name: string; readonly type?: TypeDescription },
+    item: { readonly name: string; readonly type?: ProjectStateTypeDescription },
     kind: number,
   ): number {
     const id = rows.ownerFactItems.length
@@ -442,7 +617,7 @@ export function createProjectStateFragmentWriter(options: {
     return id
   }
 
-  function appendTypeDescription(type: TypeDescription): number {
+  function appendTypeDescription(type: ProjectStateTypeDescription): number {
     const typesStart = rows.typeDescriptionValues.length
     type.type.forEach((value) => rows.typeDescriptionValues.push({ valueId: strings.intern(value) }))
     const typeIdsStart = rows.typeDescriptionValues.length
@@ -793,11 +968,11 @@ function booleanFlag(value: boolean | undefined): number {
   return value === undefined ? 0 : value ? 1 : 2
 }
 
-function isTypeDescription(value: unknown): value is TypeDescription {
+function isTypeDescription(value: unknown): value is ProjectStateTypeDescription {
   return typeof value === "object" && value !== null && Array.isArray((value as { type?: unknown }).type)
 }
 
-function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?: TypeDescription }> {
+function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?: ProjectStateTypeDescription }> {
   return Array.isArray(value) && value.every((item) => {
     if (typeof item !== "object" || item === null) return false
     const record = item as Record<string, unknown>
@@ -808,8 +983,8 @@ function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?:
 
 function isTabularSections(value: unknown): value is Array<{
   name: string
-  attributes: Array<{ name: string; type?: TypeDescription }>
-  standardAttributes?: Array<{ name: string; type?: TypeDescription }>
+  attributes: Array<{ name: string; type?: ProjectStateTypeDescription }>
+  standardAttributes?: Array<{ name: string; type?: ProjectStateTypeDescription }>
 }> {
   return Array.isArray(value) && value.every((item) => {
     if (typeof item !== "object" || item === null) return false

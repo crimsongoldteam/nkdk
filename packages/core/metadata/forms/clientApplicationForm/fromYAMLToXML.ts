@@ -18,7 +18,7 @@ import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import type { MetadataItemRule } from "../../orchestration"
-import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 import { classifyTableSource } from "./tableSourceProfile"
 
 const emptyOwnerMetadataCache = {

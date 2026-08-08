@@ -1,13 +1,13 @@
 import { parsedYamlFromKnownData } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
-import type { ValidationProjectFile } from "./projectFiles"
-import { createProjectYamlCacheFromEntries } from "./projectYamlCache"
+import type { ValidationProjectFile } from "../validation/projectFiles"
+import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import {
   validateProjectFileFirstPass,
   type ProjectValidationFirstPassResult,
   type ValidationSchemaCache,
-} from "./projectValidationPasses"
-import type { ValidationRulesSnapshot } from "./rulesSnapshot"
+} from "../validation/projectValidationPasses"
+import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 
 export function validateKnownProjectYaml(params: {
   readonly projectDir: string

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
 import { validationComponentLayers } from "../validation/componentVisibility"
 import {
   createOwnerMetadataCacheFromValidationTable,

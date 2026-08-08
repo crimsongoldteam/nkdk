@@ -1,15 +1,24 @@
-export function collectFormTableDataPathsFromYAML(yaml: unknown): ReadonlyMap<string, string> {
+export function collectFormTableDataPathsFromYAML(
+  yaml: unknown
+): ReadonlyMap<string, string> {
   const result = new Map<string, string>()
   collectTableDataPaths(asRecord(yaml)?.["Элементы"], result)
   return result
 }
 
-function collectTableDataPaths(value: unknown, result: Map<string, string>): void {
+function collectTableDataPaths(
+  value: unknown,
+  result: Map<string, string>
+): void {
   for (const [name, rawElement] of Object.entries(asRecord(value) ?? {})) {
     const element = asRecord(rawElement)
     if (element?.["Вид"] === "ТаблицаФормы") {
       const dataPath = element["ПутьКДанным"]
-      if (typeof dataPath === "string" && dataPath.trim().length > 0 && !result.has(name)) {
+      if (
+        typeof dataPath === "string" &&
+        dataPath.trim().length > 0 &&
+        !result.has(name)
+      ) {
         result.set(name, dataPath)
       }
     }

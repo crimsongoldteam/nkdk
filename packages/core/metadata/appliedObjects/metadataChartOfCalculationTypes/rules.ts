@@ -24,7 +24,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { ChartOfCalculationTypesPredefinedRules } from "./predefinedRules"
-import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
+import { commonBasedOnObjectPaths } from "../../orchestration/metadataTarget"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]

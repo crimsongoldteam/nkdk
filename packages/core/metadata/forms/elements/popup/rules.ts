@@ -1,5 +1,5 @@
 import { colorRule } from "../../../commonObjects/color/types"
-import { pictureRule } from "../../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../../commonObjects/picture/types"
 import { commandBarChildItemsRule } from "../../commonObjects/childItems/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"

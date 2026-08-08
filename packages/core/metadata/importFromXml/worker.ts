@@ -16,7 +16,7 @@ import {
   createValidationSchemaCache,
   type ValidationSchemaCache,
 } from "../validation/projectValidationPasses"
-import { validateKnownProjectYaml } from "../validation/knownYamlValidation"
+import { validateKnownProjectYaml } from "./knownYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,

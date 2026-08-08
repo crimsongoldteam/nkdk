@@ -9,7 +9,7 @@ import type {
   MetadataTargetOwner,
   ParsedMetadataTarget,
   StyleItemTargetType,
-} from "../../commonObjects/metadataTargets"
+} from "../metadataTarget"
 import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"

@@ -1,11 +1,9 @@
-import { SettingsParameterValuePropertyRule } from "../../commonObjects/dataCompositionSystem/parameterValue/types"
-import type { MetadataRootName, MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
+import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTarget/types"
 import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
 import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
-import { TableAdditionalSourceTypes } from "../../forms/commonObjects/tableAdditionalSource/types"
 import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
@@ -278,9 +276,14 @@ export interface EventsPropertyRule extends BasePropertyRule {
 
 export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
-  additionalSourceType: TableAdditionalSourceTypes
+  additionalSourceType: TableAdditionalSourceType
   forSingleElement?: true
 }
+
+export type TableAdditionalSourceType =
+  | "SearchStringRepresentation"
+  | "SearchControl"
+  | "ViewStatusRepresentation"
 
 export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "scalar" | "object" | "tableSource"
 
@@ -388,10 +391,17 @@ export interface CleanPropertyRule extends BasePropertyRule {
 export interface SettingsParameterValueCollectionPropertyRule extends BasePropertyRule {
   type: "SettingsParameterValueCollection"
   /** Правило для параметра, если нет в `parameterRules` */
-  defaultItemRule?: SettingsParameterValuePropertyRule
+  defaultItemRule?: SettingsParameterValueExtensionRule
   /** Переопределения по имени параметра (`dcscor:parameter` / ключ YAML) */
-  parameterRules?: Partial<Record<string, SettingsParameterValuePropertyRule>>
+  parameterRules?: Partial<Record<string, SettingsParameterValueExtensionRule>>
 }
+
+export interface PropertyRuleExtensionMap {}
+
+type SettingsParameterValueExtensionRule = Extract<
+  PropertyRuleExtensionMap[keyof PropertyRuleExtensionMap],
+  { type: "SettingsParameterValue" }
+>
 
 // export interface CustomExportPropertyRule extends BasePropertyRule {
 //   type?: never

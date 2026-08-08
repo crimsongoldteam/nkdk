@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "fs"
 import { join } from "path"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import {
   getTypeRule,
   resolvePropertyItemRule,

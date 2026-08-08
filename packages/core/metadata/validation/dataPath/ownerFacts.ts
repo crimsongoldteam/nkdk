@@ -4,7 +4,7 @@ import type { ObjectFieldIndex } from "./objectFields"
 import type { OwnerTypeRef } from "./types"
 import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import type { OwnerFactRole } from "../../orchestration/property/types"
-import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
 import { CommonAttributeUseFromYAML, type CommonAttributeUseYAML } from "../../systemEnumerations/types"
 import { typeDescriptionFromYAML } from "./formYamlIndex"
 

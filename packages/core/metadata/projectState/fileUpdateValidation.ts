@@ -1,6 +1,6 @@
 import { CollectableElementTypeToYAML } from "../orchestration/formElement/types"
 import type { MetadataProjectResourceKind } from "../project/resources"
-import { memberKindToYAML, rootToYAML } from "../commonObjects/metadataTargets/roots"
+import { memberKindToYAML, rootToYAML } from "../orchestration/metadataTarget/roots"
 import type { ProjectStateFileUpdateBatch } from "./fileUpdate"
 
 export const PROJECT_STATE_HASH_BYTE_LENGTH = 8

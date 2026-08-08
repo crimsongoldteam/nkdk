@@ -6,7 +6,7 @@ import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
+import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
 import {
   openProjectStateFileUpdateBatch,

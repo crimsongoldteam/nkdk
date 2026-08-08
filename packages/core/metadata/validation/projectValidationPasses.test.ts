@@ -13,7 +13,7 @@ import {
 } from "./projectReferenceIndexRegistry"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
-import { createTestValidationSchemaCache } from "./testing/testValidationSchemaCache"
+import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []

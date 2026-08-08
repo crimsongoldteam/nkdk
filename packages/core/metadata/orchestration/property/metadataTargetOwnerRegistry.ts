@@ -1,4 +1,4 @@
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../metadataTarget/types"
 import type { ConfigurationContext } from "../../context/types"
 import type { MetadataItemRule } from "./types"
 

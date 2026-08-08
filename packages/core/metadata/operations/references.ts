@@ -1,7 +1,13 @@
-import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import type { MetadataTargetOwner } from "../orchestration/metadataTarget"
 import type { ConfigurationContext } from "../context/types"
+import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../orchestration/property/types"
+import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import {
   collectStructuralYamlReferences,
+  type StructuralReferenceNestedRule,
+  type StructuralReferenceRuntime,
   type StructuralYamlReference,
 } from "../validation/structuralReferences"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
@@ -67,10 +73,36 @@ export function collectStructuralReferencesForItem(params: {
     yaml: params.item.yaml,
     owner: params.owner,
     context: params.context ?? defaultMetadataOperationsContext(),
+    runtime: createPropertyStructuralReferenceRuntime(),
   })
   return collected.ok
     ? collected
     : { ok: false, code: "rule_contract_violation", message: collected.message }
+}
+
+export function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime {
+  return {
+    valueFromYAML: (params) => callAtomicFromYAML(
+      params as Parameters<typeof callAtomicFromYAML>[0]
+    ),
+    valueToYAML: (params) => exportPropertyValueToYAML(
+      params as Parameters<typeof exportPropertyValueToYAML>[0]
+    ),
+    collectStructuralReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "structuralReferences")
+      return handler?.({ ...params, propRule: propertyRule })
+    },
+    collectIndexedReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+      return handler?.({ ...params, propRule: propertyRule }).references ?? []
+    },
+    nestedRule: (rule) => getTypeRule(
+      (rule as PropertyRule).type,
+      "yamlToXMLNestedRule"
+    ) as unknown as StructuralReferenceNestedRule | undefined,
+  }
 }
 
 function canonicalMatchesPrefix(value: string, prefix: string): boolean {

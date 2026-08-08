@@ -1,4 +1,4 @@
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
 import type { ProjectLocalDependency } from "../project/componentIndexFacts"
 import type { LocalMetadataTargetFact } from "../project/localIndexes"
 import {

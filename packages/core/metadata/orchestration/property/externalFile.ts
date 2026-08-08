@@ -1,9 +1,15 @@
 import fs from "fs"
 import { join } from "path"
-import { ExternalFileEntry } from "../../context/types"
-import type { BasePropertyRule } from "./types"
 
-type ExternalFileRule = Required<Pick<BasePropertyRule, "externalFile">>["externalFile"]
+interface ExternalFileRule {
+  readonly dir: string
+  readonly extension: string
+}
+
+interface ExternalFileEntry {
+  readonly relativePath: string
+  readonly content: string
+}
 
 /**
  * Строит запись внешнего файла для свойства с опцией `externalFile`.

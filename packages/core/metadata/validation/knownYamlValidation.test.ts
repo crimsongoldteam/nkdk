@@ -8,8 +8,8 @@ import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { validateProjectFileFirstPass } from "./projectValidationPasses"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
-import { createTestValidationSchemaCache } from "./testing/testValidationSchemaCache"
-import { validateKnownProjectYaml } from "./knownYamlValidation"
+import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
+import { validateKnownProjectYaml } from "../importFromXml/knownYamlValidation"
 
 const tempDirs: string[] = []
 

@@ -1,5 +1,5 @@
 import { join } from "path"
-import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
 import type { ConfigurationContext } from "../../context/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
@@ -21,7 +21,7 @@ import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
-import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])

@@ -9,7 +9,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
+import type { MetadataTargetOwner } from "../metadataTarget"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
