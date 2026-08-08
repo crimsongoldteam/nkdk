@@ -1,5 +1,9 @@
 import type { ConfigurationContext } from "../../context/types"
-import type { DependentYamlItemAnalysis, DependentYamlItemParams } from "../../orchestration/property/dependentItemRegistry"
+import type {
+  DependentItemParams,
+  DependentYamlItemAnalysis,
+  DependentYamlItemParams,
+} from "../../orchestration/property/dependentItemRegistry"
 import { getStandardMembers } from "../../standardMembers/declarations"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import type { MetadataValueYAML } from "../metadataValue/types"
@@ -25,39 +29,45 @@ const ownerRoots: readonly MetadataRootName[] = [
 ]
 
 export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
+  return analyzeFillValue(params, classifyMetadataAttributeFillValue)
+}
+
+export function analyzeStandardAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
+  return analyzeFillValue(params, classifyStandardAttributeFillValue)
+}
+
+function analyzeFillValue(
+  params: DependentYamlItemParams,
+  classify: (params: DependentItemParams, value: NonNullable<ReturnType<typeof parseFillValueYaml>>) => FillValueClassification,
+): DependentYamlItemAnalysis {
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
   const value = parseFillValueYaml(params.item[fillValueYamlKey])
   if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  return withValueReference(params, value, analysisFromClassification(params, classify(params, value)))
+}
 
+export function classifyMetadataAttributeFillValue(
+  params: DependentItemParams,
+  value = parseFillValueYaml(params.item[fillValueYamlKey])
+): FillValueClassification {
+  if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
   const type = importTypeDescriptionFromYAML(
     validationContext,
     undefined,
     params.item[typeYamlKey] as TypeDescriptionYAML | undefined
   )
-  return withValueReference(
-    params,
-    value,
-    analysisFromClassification(params, classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value }))
-  )
+  return classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value })
 }
 
-export function analyzeStandardAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
-  if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
-  const value = parseFillValueYaml(params.item[fillValueYamlKey])
-  if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
-  if (params.itemName === undefined) return unresolvedAnalysis(params, "не определено имя стандартного реквизита")
-
+export function classifyStandardAttributeFillValue(
+  params: DependentItemParams,
+  value = parseFillValueYaml(params.item[fillValueYamlKey])
+): FillValueClassification {
+  if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
+  if (params.itemName === undefined) return { kind: "unresolved", reason: "не определено имя стандартного реквизита" }
   const declaration = getStandardMembers(params.owner.dir).find((member) => member.names.yaml === params.itemName)
-  if (declaration === undefined) return emptyAnalysis()
-  return withValueReference(
-    params,
-    value,
-    analysisFromClassification(params, classifyStandardMemberFillValue({
-      declaration,
-      value,
-      ownerProperties: ownerProperties(params),
-    }))
-  )
+  if (declaration === undefined) return { kind: "notSpecified" }
+  return classifyStandardMemberFillValue({ declaration, value, ownerProperties: ownerProperties(params) })
 }
 
 function withValueReference(
@@ -143,7 +153,7 @@ export function parseFillValueYaml(value: unknown) {
   return importMetadataValueFromYAML(validationContext, undefined, value as MetadataValueYAML | undefined)
 }
 
-function ownerProperties(params: DependentYamlItemParams): Record<string, unknown> {
+function ownerProperties(params: DependentItemParams): Record<string, unknown> {
   const root = asRecord(params.rootYaml)
   const result: Record<string, unknown> = {}
   for (const [modelKey, rule] of Object.entries(params.rootRule.properties)) {

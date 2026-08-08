@@ -1,11 +1,14 @@
 import {
   registerDependentStructuralItemHandler,
+  registerDependentImportItemHandler,
   registerDependentYamlItemHandler,
   type DependentStructuralItemHandler,
 } from "../../orchestration/property/dependentItemRegistry"
 import {
   analyzeMetadataAttributeFillValue,
   analyzeStandardAttributeFillValue,
+  classifyMetadataAttributeFillValue,
+  classifyStandardAttributeFillValue,
   inferFillValueReferenceConstraint,
   parseFillValueYaml,
 } from "./analyzeItem"
@@ -14,6 +17,7 @@ import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 
 let validationRegistered = false
 let structuralReferencesRegistered = false
+let importRegistered = false
 
 export function registerFillValueValidation(): void {
   registerFillValueStructuralReferences()
@@ -28,6 +32,19 @@ export function registerFillValueStructuralReferences(): void {
   structuralReferencesRegistered = true
   registerDependentStructuralItemHandler("MetadataAttribute", collectFillValueStructuralReference)
   registerDependentStructuralItemHandler("StandardAttributeDescription", collectFillValueStructuralReference)
+}
+
+export function registerFillValueImport(): void {
+  if (importRegistered) return
+  importRegistered = true
+  registerDependentImportItemHandler("MetadataAttribute", {
+    propertyKeys: ["fillValue"],
+    shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
+  })
+  registerDependentImportItemHandler("StandardAttributeDescription", {
+    propertyKeys: ["fillValue"],
+    shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
+  })
 }
 
 const collectFillValueStructuralReference: DependentStructuralItemHandler = (params) => {

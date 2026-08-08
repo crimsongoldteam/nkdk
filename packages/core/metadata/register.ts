@@ -3,7 +3,7 @@ import "./appliedObjects/configurationExtension/register"
 import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
-import { registerFillValueStructuralReferences } from "./commonObjects/fillValue/register"
+import { registerFillValueImport, registerFillValueStructuralReferences } from "./commonObjects/fillValue/register"
 import "./orchestration/appliedObject/syncToXML"
 
 let coreMetadataRegistered = false
@@ -14,6 +14,7 @@ export function registerCoreMetadata(): void {
 
   registerCommonObjects()
   registerFillValueStructuralReferences()
+  registerFillValueImport()
   registerForms()
   registerAppliedObjects()
 }

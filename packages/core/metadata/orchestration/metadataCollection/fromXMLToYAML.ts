@@ -3,6 +3,8 @@ import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
   DirectImportTraversal,
+  ImportedDependentPropertyCollector,
+  ImportedDependentPropertyCandidate,
   LocalIndexesCollector,
   LocalYamlFact,
 } from "../property/importYamlTypes"
@@ -108,6 +110,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector === undefined || params.traversal.deferred === undefined
         ? undefined
         : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
+    const bufferedDependent =
+      bufferedCollector === undefined || params.traversal.dependent === undefined
+        ? undefined
+        : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
@@ -119,6 +125,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           yamlPath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
+          dependent: bufferedDependent?.collector ?? params.traversal.dependent,
         },
         itemRule.itemType
       ),
@@ -138,6 +145,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
       bufferedCollector?.flush(targetYamlPath)
       bufferedDeferred?.flush(targetYamlPath)
+      bufferedDependent?.flush(targetYamlPath)
     }
     return [{ yaml: itemYaml, name, yamlKey }]
   })
@@ -152,6 +160,28 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function createBufferedDependentCollector(
+  parent: ImportedDependentPropertyCollector,
+  sourceItemYamlPath: readonly (string | number)[]
+) {
+  const candidates: ImportedDependentPropertyCandidate[] = []
+  return {
+    collector: {
+      accept: (candidate) => candidates.push(candidate),
+      finish: () => candidates,
+    } satisfies ImportedDependentPropertyCollector,
+    flush(itemYamlPath: readonly (string | number)[]) {
+      for (const candidate of candidates) {
+        parent.accept({
+          ...candidate,
+          itemYamlPath: [...itemYamlPath, ...candidate.itemYamlPath.slice(sourceItemYamlPath.length)],
+          yamlPath: [...itemYamlPath, ...candidate.yamlPath.slice(sourceItemYamlPath.length)],
+        })
+      }
+    },
+  }
 }
 
 function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {

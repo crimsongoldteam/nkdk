@@ -15,7 +15,10 @@ import {
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
-import { createDeferredValuePathCollector } from "../orchestration/property/importYamlTypes"
+import {
+  createDeferredValuePathCollector,
+  createImportedDependentPropertyCollector,
+} from "../orchestration/property/importYamlTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
@@ -24,6 +27,7 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
+import { normalizeImportedDependentItems } from "./dependentItems"
 
 registerOwnerFactCollectors()
 
@@ -102,6 +106,7 @@ export async function prepareImportYaml(params: {
 
       const collector = createLocalIndexesCollector()
       const deferred = createDeferredValuePathCollector()
+      const dependent = createImportedDependentPropertyCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
@@ -113,11 +118,22 @@ export async function prepareImportYaml(params: {
           rulePath: [],
           collector,
           deferred,
+          dependent,
           profile: importProfile,
         },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
+      normalizeImportedDependentItems({
+        yaml,
+        rule,
+        candidates: dependent.finish(),
+        collector: params.collector,
+        owner: {
+          dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+          name: params.assignment.owner?.name ?? params.assignment.itemName,
+        },
+      })
       return { yaml, localIndexes: collector.finish(), deferred: deferred.finish(), generatedFiles }
     })
     recordDirectImportProfile(params.profiler, importProfile)

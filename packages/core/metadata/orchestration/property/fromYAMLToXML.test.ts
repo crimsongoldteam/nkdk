@@ -26,6 +26,9 @@ import {
   registeredExplicitXMLTestRule,
   registeredMissingExplicitXMLTestRule,
 } from "../../../tests/property/explicitXMLPropertyRegistry"
+import { registerCoreMetadata } from "../../register"
+
+registerCoreMetadata()
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
@@ -41,6 +44,15 @@ const context = (): ConfigurationContextWithExportToXML => ({
 
 const testRule = (properties: Record<string, PropertyRule>, xmlOrder?: readonly string[]): MetadataItemRule =>
   ({ itemType: "Catalog", properties, xmlOrder }) as MetadataItemRule
+
+const fillValueTestRule = (): MetadataItemRule => testRule({
+  fillValue: {
+    type: "MetadataValue",
+    yaml: "ЗначениеЗаполнения",
+    xml: "FillValue",
+    defaultValueXMLRaw: { "_xsi:nil": true },
+  },
+})
 
 const contextWithXMLDefaultVariant = (
   variant: "full" | "adopted" | "indexed",
@@ -667,6 +679,46 @@ describe("convertPropertiesFromYAMLToXML", () => {
         },
       ])
     )
+  })
+
+  it.each([
+    [{ xsiNil: true as const }, { "_xsi:nil": true }],
+    [{ xsiType: "xr:DesignTimeRef" }, { "_xsi:type": "xr:DesignTimeRef" }],
+    [{ xsiType: "xs:string", xmlText: "   " }, { "_xsi:type": "xs:string", "#text": "   " }],
+  ])("восстанавливает удалённое значение заполнения из снимка %#", (xmlState, expected) => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant(
+        "indexed",
+        [],
+        false,
+        DEFAULT_TEST_LOGICAL_ADDRESS,
+        [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, ...xmlState }],
+      ),
+      yaml: {},
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ FillValue: expected })
+  })
+
+  it("явное YAML-значение заполнения имеет приоритет над снимком", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant(
+        "indexed",
+        [],
+        false,
+        DEFAULT_TEST_LOGICAL_ADDRESS,
+        [{ logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`, xsiType: "xr:DesignTimeRef" }],
+      ),
+      yaml: { ЗначениеЗаполнения: "Новое" },
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xs:string", "#text": "Новое" },
+    })
   })
 
   it("не восстанавливает значение пустого XML-default из старого present", () => {
