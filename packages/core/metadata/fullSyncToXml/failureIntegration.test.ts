@@ -10,6 +10,7 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { entity } from "../configurationIndex/testData"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
+import type { Diagnostic } from "../validation/types"
 import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
@@ -158,6 +159,55 @@ describe("full XML sync failure integration", () => {
     expect(transferred).toBe(false)
     expect(written).toBe(false)
     expect(fs.readFileSync(state.indexPath)).toEqual(before)
+  })
+
+  it("использует reference-диагностику ProjectState после удаления последнего файла макета", async () => {
+    const state = await createIndexedProject()
+    const missingTemplate: Diagnostic = {
+      filePath: join(state.projectDir, "cf/Отчет/Продажи/Свойства.yaml"),
+      line: 3,
+      col: 28,
+      severity: "error",
+      source: "reference",
+      message: 'Не найдена ссылка "Report.Продажи.Template.Схема"',
+    }
+    const deps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+
+    const blocked = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous, [missingTemplate]),
+    }, deps)
+    expect(blocked.failed).toEqual([expect.objectContaining({
+      code: "project_validation",
+      source: "reference",
+      message: missingTemplate.message,
+    })])
+
+    const ignored = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+      ignoreValidationErrors: true,
+      projectState: testProjectState(state.previous, [missingTemplate]),
+    }, deps)
+    expect(ignored.diagnostics).toContainEqual(expect.objectContaining({
+      code: "project_validation",
+      source: "reference",
+      message: missingTemplate.message,
+    }))
+
+    const unrelatedMissing = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+      projectState: testProjectState(state.previous),
+    }, deps)
+    expect(unrelatedMissing.failed).not.toContainEqual(expect.objectContaining({ code: "project_validation" }))
   })
 
   it("rejects an incomplete selection before creating XML or confirming the snapshot", async () => {
@@ -421,14 +471,17 @@ function failureDeps(
   return deps
 }
 
-function testProjectState(snapshot?: ConfigurationSnapshot): ProjectStateService {
+function testProjectState(
+  snapshot?: ConfigurationSnapshot,
+  diagnostics: readonly Diagnostic[] = [],
+): ProjectStateService {
   const readToken = createTestProjectStateReadToken()
   return {
     workers: createUnusedMetadataWorkerPool(),
     async beginImport() { throw new Error("not used") },
     async refreshAndValidate() {
       return {
-        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics([]),
+        diagnostics: createMetadataDiagnosticCollectionFromDiagnostics(diagnostics),
         readToken,
         stats: { hashedFiles: 0, parsedYamlFiles: 0, changedFiles: 0, deletedFiles: 0 },
       }
