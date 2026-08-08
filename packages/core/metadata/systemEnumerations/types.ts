@@ -2552,6 +2552,146 @@ export const MessageStatusFromYAML = {
 export type MessageStatus = keyof typeof MessageStatusToYAML
 export type MessageStatusYAML = keyof typeof MessageStatusFromYAML
 
+export const RequiredMobileApplicationPermissionMessagesToYAML = {
+  Biometrics: "Биометрия",
+  Location: "Геопозиционирование",
+  BackgroundLocation: "ГеопозиционированиеВФоновомРежиме",
+  BluetoothPrinters: "BluetoothПринтеры",
+  Contacts: "Контакты",
+  Calendars: "Календари",
+  NumberDialing: "НаборНомера",
+  CallProcessing: "ОбработкаЗвонков",
+  CallLog: "ЖурналЗвонков",
+  AutoSendSMS: "АвтоматическаяОтправкаSMSСообщений",
+  ReceiveSMS: "ПолучениеSMS",
+  SMSLog: "ЖурналSMS",
+  Camera: "Камера",
+  Microphone: "Микрофон",
+  MusicLibrary: "БиблиотекаМузыки",
+  PictureAndVideoLibraries: "БиблиотекиКартинокИВидео",
+  AudioPlaybackAndVibration: "ВоспроизведениеАудиоИВибрация",
+  PermissionGroupPhone: "PermissionGroupPhone",
+  PermissionGroupCallLog: "PermissionGroupCallLog",
+  PermissionGroupSMS: "PermissionGroupSMS",
+  PostNotifications: "PostNotifications",
+} as const
+
+export const RequiredMobileApplicationPermissionMessagesFromYAML = {
+  Биометрия: "Biometrics",
+  Геопозиционирование: "Location",
+  ГеопозиционированиеВФоновомРежиме: "BackgroundLocation",
+  BluetoothПринтеры: "BluetoothPrinters",
+  Контакты: "Contacts",
+  Календари: "Calendars",
+  НаборНомера: "NumberDialing",
+  ОбработкаЗвонков: "CallProcessing",
+  ЖурналЗвонков: "CallLog",
+  АвтоматическаяОтправкаSMSСообщений: "AutoSendSMS",
+  ПолучениеSMS: "ReceiveSMS",
+  ЖурналSMS: "SMSLog",
+  Камера: "Camera",
+  Микрофон: "Microphone",
+  БиблиотекаМузыки: "MusicLibrary",
+  БиблиотекиКартинокИВидео: "PictureAndVideoLibraries",
+  ВоспроизведениеАудиоИВибрация: "AudioPlaybackAndVibration",
+  PermissionGroupPhone: "PermissionGroupPhone",
+  PermissionGroupCallLog: "PermissionGroupCallLog",
+  PermissionGroupSMS: "PermissionGroupSMS",
+  PostNotifications: "PostNotifications",
+} as const
+
+export type RequiredMobileApplicationPermissionMessages =
+  keyof typeof RequiredMobileApplicationPermissionMessagesToYAML
+export type RequiredMobileApplicationPermissionMessagesYAML =
+  keyof typeof RequiredMobileApplicationPermissionMessagesFromYAML
+
+export const RequiredMobileApplicationPermissionsToYAML = {
+  Multimedia: "Мультимедиа",
+  Location: "Геопозиционирование",
+  Contacts: "Контакты",
+  Calendars: "Календари",
+  Telephony: "Телефония",
+  PushNotification: "PushУведомления",
+  LocalNotification: "ЛокальныеУведомления",
+  Print: "Печать",
+  InAppPurchases: "ВстроенныеПокупки",
+  Ads: "Реклама",
+  BackgroundLocation: "ГеопозиционированиеВФоновомРежиме",
+  BackgroundAudioPlayback: "ВоспроизведениеАудиоИВибрацияВФоновомРежиме",
+  FileExchangeWithPersonalComputer: "ОбменФайламиСПерсональнымКомпьютером",
+  CallPhone: "НаборНомера",
+  HandlePhoneCalls: "ОбработкаЗвонков",
+  CallLog: "ЖурналЗвонков",
+  SendSMS: "АвтоматическаяОтправкаSMSСообщений",
+  ReceiveSMS: "ПолучениеSMS",
+  SMSLog: "ЖурналSMS",
+  Camera: "Камера",
+  Microphone: "Микрофон",
+  MusicLibrary: "БиблиотекаМузыки",
+  PicturesAndVideoLibraries: "БиблиотекиКартинокИВидео",
+  AudioAndVibrationPlayback: "ВоспроизведениеАудиоИВибрация",
+  PermissionGroupPhone: "PermissionGroupPhone",
+  PermissionGroupCallLog: "PermissionGroupCallLog",
+  PermissionGroupSMS: "PermissionGroupSMS",
+  InstallPackages: "УстановкаПриложений",
+  AllowOSBackup: "РезервноеКопированиеСредствамиОС",
+  Biometrics: "Биометрия",
+  BluetoothPrinters: "BluetoothПринтеры",
+  WiFiPrinters: "WiFiПринтеры",
+  AllFilesAccess: "ДоступКоВсемФайлам",
+  Videoconferences: "Видеоконференции",
+  NFC: "NFC",
+  PostNotifications: "PostNotifications",
+  Geofences: "Геозоны",
+  IncomingShareRequests: "ВходящиеЗапросыПоделиться",
+  AllIncomingShareRequestsTypesProcessing: "ОбработкаВсехТиповВходящихЗапросовПоделиться",
+} as const
+
+export const RequiredMobileApplicationPermissionsFromYAML = {
+  Мультимедиа: "Multimedia",
+  Геопозиционирование: "Location",
+  Контакты: "Contacts",
+  Календари: "Calendars",
+  Телефония: "Telephony",
+  PushУведомления: "PushNotification",
+  ЛокальныеУведомления: "LocalNotification",
+  Печать: "Print",
+  ВстроенныеПокупки: "InAppPurchases",
+  Реклама: "Ads",
+  ГеопозиционированиеВФоновомРежиме: "BackgroundLocation",
+  ВоспроизведениеАудиоИВибрацияВФоновомРежиме: "BackgroundAudioPlayback",
+  ОбменФайламиСПерсональнымКомпьютером: "FileExchangeWithPersonalComputer",
+  НаборНомера: "CallPhone",
+  ОбработкаЗвонков: "HandlePhoneCalls",
+  ЖурналЗвонков: "CallLog",
+  АвтоматическаяОтправкаSMSСообщений: "SendSMS",
+  ПолучениеSMS: "ReceiveSMS",
+  ЖурналSMS: "SMSLog",
+  Камера: "Camera",
+  Микрофон: "Microphone",
+  БиблиотекаМузыки: "MusicLibrary",
+  БиблиотекиКартинокИВидео: "PicturesAndVideoLibraries",
+  ВоспроизведениеАудиоИВибрация: "AudioAndVibrationPlayback",
+  PermissionGroupPhone: "PermissionGroupPhone",
+  PermissionGroupCallLog: "PermissionGroupCallLog",
+  PermissionGroupSMS: "PermissionGroupSMS",
+  УстановкаПриложений: "InstallPackages",
+  РезервноеКопированиеСредствамиОС: "AllowOSBackup",
+  Биометрия: "Biometrics",
+  BluetoothПринтеры: "BluetoothPrinters",
+  WiFiПринтеры: "WiFiPrinters",
+  ДоступКоВсемФайлам: "AllFilesAccess",
+  Видеоконференции: "Videoconferences",
+  NFC: "NFC",
+  PostNotifications: "PostNotifications",
+  Геозоны: "Geofences",
+  ВходящиеЗапросыПоделиться: "IncomingShareRequests",
+  ОбработкаВсехТиповВходящихЗапросовПоделиться: "AllIncomingShareRequestsTypesProcessing",
+} as const
+
+export type RequiredMobileApplicationPermissions = keyof typeof RequiredMobileApplicationPermissionsToYAML
+export type RequiredMobileApplicationPermissionsYAML = keyof typeof RequiredMobileApplicationPermissionsFromYAML
+
 export const MobileApplicationFunctionalitiesToYAML = {
   BluetoothPrinters: "BluetoothПринтеры",
   NFC: "NFC",
@@ -13160,6 +13300,8 @@ export type SystemEnumerationTypeMap = {
   Key: Key
   LocationRelativeToGeofence: LocationRelativeToGeofence
   MessageStatus: MessageStatus
+  RequiredMobileApplicationPermissionMessages: RequiredMobileApplicationPermissionMessages
+  RequiredMobileApplicationPermissions: RequiredMobileApplicationPermissions
   MobileApplicationFunctionalities: MobileApplicationFunctionalities
   NumericValueType: NumericValueType
   PasswordPolicyComplianceCheckResult: PasswordPolicyComplianceCheckResult
