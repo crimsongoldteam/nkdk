@@ -12,6 +12,10 @@ import { createProjectStateFragmentWriter, openProjectStateFragment } from "../p
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { createProjectYamlCache } from "../validation/projectYamlCache"
+import { createValidationSchemaCache, validateProjectFileFirstPass } from "../validation/projectValidationPasses"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -95,6 +99,7 @@ describe("XML import worker first pass", () => {
 
   it("writes ready YAML and returns the complete local validation contribution", async () => {
     const outputDir = createTempDir("first-pass-ready")
+    setImportWorkerSchemaCacheForTests(undefined)
     await initializeWorker(outputDir)
     const assignment = catalogAssignment({
       itemName: "СправочникПолный",
@@ -104,6 +109,34 @@ describe("XML import worker first pass", () => {
     })
 
     const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+
+    createReadToken(result)
+    const fixture = sharedStateFixture
+    if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+    const importDiagnostics = fixture.store.readLocalDiagnostics()
+      .filter(({ filePath }) => filePath.endsWith(assignment.targetProjectPath))
+    const context = mockXmlImportContext()
+    const file = resolveValidationProjectFile(outputDir, join(outputDir, assignment.targetProjectPath))
+    if (file === undefined) throw new Error("Не удалось классифицировать импортированный YAML")
+    const fromFile = validateProjectFileFirstPass({
+      projectDir: outputDir,
+      file,
+      cache: createProjectYamlCache(),
+      context,
+      schemaCache: createValidationSchemaCache(context),
+      rulesSnapshot: createValidationRulesSnapshot(context),
+    })
+    const fileDiagnostics = fromFile.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      filePath: `cf/${assignment.targetProjectPath}`,
+    }))
+
+    expect(importDiagnostics.map(({ message }) => message)).not.toEqual(expect.arrayContaining([
+      "Expected string",
+      "Expected union value",
+      'Отсутствует обязательное свойство "Тип"',
+    ]))
+    expect(importDiagnostics).toEqual(fileDiagnostics)
 
     expect(result.diagnostics).toEqual([])
     const fragments = result.configurationFragments
