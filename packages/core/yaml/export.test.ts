@@ -8,6 +8,20 @@ import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "./scala
 
 describe("exportToYAML", () => {
   it.each([
+    ["корень", {}, ""],
+    ["свойство", { Поле: {} }, "Поле:"],
+    ["вложенное свойство", { Внешний: { Поле: {} } }, "Внешний:\n  Поле:"],
+    ["элемент последовательности", { Элементы: [{}] }, "Элементы:\n  -"],
+  ] as const)("выводит пустой объект как пустое YAML-значение: %s", (_name, source, expected) => {
+    const serialized = serializeYAMLDocument(source)
+
+    expect(serialized.text).toBe(expected)
+    expect(serialized.text).not.toContain("{}")
+    expect(serialized.data).toEqual(source)
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
+  it.each([
     ["явная строка", { Значение: explicitYAMLString("001") }],
     ["пустая строка", { Значение: explicitYAMLString("") }],
     ["undefined в объекте", { Значение: undefined }],
@@ -140,5 +154,9 @@ describe("exportToYAML", () => {
   it("does not wrap long scalar lines", () => {
     const longValue = "x".repeat(160)
     expect(exportToYAML({ Поле: longValue })).toBe(`Поле: ${longValue}`)
+  })
+
+  it("не принимает окончание обычной строки за пустое отображение", () => {
+    expect(exportToYAML({ Поле: "Текст {}" })).toBe("Поле: Текст {}")
   })
 })

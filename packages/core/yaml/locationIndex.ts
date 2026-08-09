@@ -49,7 +49,7 @@ export function buildYamlLocationIndex(text: string): YamlLocationIndex {
     const lineNumber = index + 1
     const content = line.slice(indent)
 
-    if (content.startsWith("- ")) {
+    if (content === "-" || content.startsWith("- ")) {
       readSequenceItem({
         content,
         indent,

@@ -70,7 +70,9 @@ function prepareForDump(
     return { dumpValue, data }
   }
   if (value !== null && typeof value === "object") {
-    const prepared = Object.entries(value).map(([key, item]) => [
+    const entries = Object.entries(value)
+    if (entries.length === 0) return { dumpValue: value, data: value }
+    const prepared = entries.map(([key, item]) => [
       key,
       prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
     ] as const)
@@ -95,7 +97,7 @@ function prepareChildForDump(
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
-    return { dumpValue: marker, data: undefined }
+    return { dumpValue: marker, data: {} }
   }
   const prepared = value === undefined
     ? { dumpValue: null, data: null }
@@ -135,6 +137,11 @@ function normalizeEmptyXMLTags(yaml: string): string {
   return yaml.replace(/!xml ""(?=[ \t]*(?:#.*)?$)/gm, "!xml")
 }
 
+function normalizeEmptyMappings(yaml: string): string {
+  if (yaml === "{}\n") return ""
+  return yaml.replace(/^(\s*(?:-|.+:)) \{\}$/gm, "$1")
+}
+
 function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>): string {
   let result = yaml
   for (const [marker, value] of explicitStrings) {
@@ -158,9 +165,11 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     quoteStyle: "double",
   })
   const text = removeDocumentFinalLineEnding(
-    normalizeEmptyXMLTags(
-      normalizeQuotedTypeLinkValues(
-        quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+    normalizeEmptyMappings(
+      normalizeEmptyXMLTags(
+        normalizeQuotedTypeLinkValues(
+          quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+        )
       )
     )
   )
