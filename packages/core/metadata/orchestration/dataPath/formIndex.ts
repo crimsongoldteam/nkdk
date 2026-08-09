@@ -20,3 +20,9 @@ export interface FormDataPathIndex {
   duplicateDiagnostics: FormDataPathDiagnostic[]
   getRoot(name: string): FormDataPathSource | undefined
 }
+
+declare module "../property/localFacts" {
+  interface LocalMetadataIndex {
+    formDataPathIndex?: FormDataPathIndex
+  }
+}

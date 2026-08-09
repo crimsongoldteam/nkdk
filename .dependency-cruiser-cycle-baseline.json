@@ -63,13 +63,9 @@
     },
     {
       "modules": [
-        "packages/core/metadata/configurationIndex/collector/context.ts",
-        "packages/core/metadata/configurationIndex/exportRuntime.ts",
-        "packages/core/metadata/context/types.ts",
         "packages/core/metadata/orchestration/appliedObject/xmlAreas.ts",
         "packages/core/metadata/orchestration/dataPath/formIndex.ts",
         "packages/core/metadata/orchestration/dataPath/types.ts",
-        "packages/core/metadata/orchestration/formElement/types.ts",
         "packages/core/metadata/orchestration/jsonSchemaRefs.ts",
         "packages/core/metadata/orchestration/property/deferredObjectValues.ts",
         "packages/core/metadata/orchestration/property/fn.ts",
@@ -77,8 +73,6 @@
         "packages/core/metadata/orchestration/property/importYamlTypes.ts",
         "packages/core/metadata/orchestration/property/typeRuleRegistry.ts",
         "packages/core/metadata/orchestration/property/types.ts",
-        "packages/core/metadata/orchestration/yamlImportError.ts",
-        "packages/core/metadata/project/localIndexes.ts",
         "packages/core/metadata/project/projectSpecRegistry.ts",
         "packages/core/metadata/resourceTopology/compiler.ts",
         "packages/core/metadata/resourceTopology/pathIndex.ts",
@@ -87,7 +81,7 @@
         "packages/core/metadata/resourceTopology/types.ts",
         "packages/core/metadata/resourceTopology/xmlExportProjection.ts"
       ],
-      "dependencyCount": 64
+      "dependencyCount": 45
     },
     {
       "modules": [

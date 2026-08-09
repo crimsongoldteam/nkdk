@@ -32,6 +32,12 @@ export interface ConfigurationIndexExportRuntime {
   ): ConfigurationIndexExportRuntime
 }
 
+declare module "../context/types" {
+  interface ToXMLConfigurationContext {
+    readonly configurationIndex?: ConfigurationIndexExportRuntime
+  }
+}
+
 export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly source: ConfigurationIndexReader
   readonly collector: ConfigurationIndexCollector

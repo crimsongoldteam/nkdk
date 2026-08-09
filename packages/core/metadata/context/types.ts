@@ -1,12 +1,8 @@
 import type { TSchema } from "typebox"
-import type { ElementType, ElementXMLWithoutId } from "../orchestration/formElement/types"
 import type { MetadataItemType, ToMetadata } from "../orchestration/metadataItem/registry"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { MetadataTargetOwner } from "../orchestration/metadataTarget/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
-import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
-import type { ConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
-import type { ConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 
 export type ContextElementToXML = {
   name: string
@@ -16,6 +12,15 @@ export type ContextElementToXML = {
 }
 
 export type JSONSchemaExportMode = "externalRefs" | "inline"
+
+export interface MetadataContextTypeMap {}
+
+type MetadataContextType<Name extends PropertyKey> = Name extends keyof MetadataContextTypeMap
+  ? MetadataContextTypeMap[Name]
+  : never
+
+type FormElementType = MetadataContextType<"formElementType">
+type FormElementXML = MetadataContextType<"formElementXML">
 
 export interface JSONSchemaExportContext {
   mode: JSONSchemaExportMode
@@ -29,11 +34,11 @@ export interface JSONSchemaExportContext {
 
 export type ContextElementToEnterprise =
   | {
-      itemType: ElementType
+      itemType: FormElementType
       dataPath: string
       dataPathEnterprise: string
     }
-  | { itemType: ElementType; dataPath: undefined; dataPathEnterprise: undefined }
+  | { itemType: FormElementType; dataPath: undefined; dataPathEnterprise: undefined }
 
 export interface ConfigurationContext {
   testMode?: boolean
@@ -60,12 +65,11 @@ export type XMLDefaultVariant = "full" | "adopted" | "indexed"
 type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
   referenceElement?: ToMetadata<Type> | undefined
-  xmlElement: ElementXMLWithoutId
+  xmlElement: FormElementXML
   numberingScope?: unknown
 }
 
-export type ToXMLConfigurationContext = {
-  readonly configurationIndex?: ConfigurationIndexExportRuntime
+export interface ToXMLConfigurationContext {
   /** Запрещает создавать заново идентификаторы, объявленные nested rule обязательными. */
   readonly requireExistingConfigurationIdentities?: true
   readonly componentKind?: string
@@ -78,16 +82,17 @@ export type ToXMLConfigurationContext = {
     forms: string[]
     templates: string[]
     parentName: string
-    metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
+    metadataForNumbering: ToXMLContextElement<
+      FormElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand"
+    >[]
     currentXMLPath?: string
     /** Стек текущего ItemXML для ElementId и нумерации _id. */
     propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }
 
-export type FromXMLConfigurationContext = {
+export interface FromXMLConfigurationContext {
   forReference: boolean
-  configurationIndex?: ConfigurationIndexCollectionContext
 }
 
 export type XmlImportFromXMLConfigurationContext = FromXMLConfigurationContext & {
@@ -113,12 +118,6 @@ export interface MetadataTargetOwnerContext {
   owner?: MetadataTargetOwner
 }
 
-export interface MetadataContextTypeMap {}
-
-type MetadataContextType<Name extends PropertyKey> = Name extends keyof MetadataContextTypeMap
-  ? MetadataContextTypeMap[Name]
-  : never
-
 export type FormDataPathAttributeContext = MetadataContextType<"formDataPathAttribute">
 export interface EnterpriseContext {}
 
@@ -135,8 +134,6 @@ export interface FormExportToYAMLContext {
 }
 
 export interface FormimportFromYAMLContext {
-  /** Диагностический контекст текущего YAML-импорта для человекочитаемых ошибок. */
-  diagnostics?: YAMLImportDiagnosticContext
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
   projectDir?: string
   /** Путь к каталогу формы для чтения внешних файлов (externalFile). */

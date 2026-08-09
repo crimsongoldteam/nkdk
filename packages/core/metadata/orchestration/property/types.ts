@@ -2,6 +2,9 @@ import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTarg
 import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
 import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
+import type { OwnerFactRole } from "./ownerFactRole"
+
+export type { OwnerFactRole } from "./ownerFactRole"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
@@ -11,25 +14,6 @@ import { PropertyRuleType } from "./registry"
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
 export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
-
-export type OwnerFactRole =
-  | "type"
-  | "attributes"
-  | "dimensions"
-  | "resources"
-  | "addressingAttributes"
-  | "tabularSections"
-  | "standardAttributes"
-  | "owners"
-  | "task"
-  | "registerRecords"
-  | "chartOfAccounts"
-  | "extDimensionTypes"
-  | "accountingFlags"
-  | "extDimensionAccountingFlags"
-  | "commonAttributeOwnerLinks"
-  | "registerType"
-  | "commands"
 
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =

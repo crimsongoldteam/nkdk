@@ -54,6 +54,13 @@ export interface ElementXMLWithoutId {
   _name: string
   [key: string]: any
 }
+
+declare module "../../context/types" {
+  interface MetadataContextTypeMap {
+    formElementType: ElementType
+    formElementXML: ElementXMLWithoutId
+  }
+}
 export type ElementXML = ElementXMLWithoutId & { _id: string }
 
 //#endregion
