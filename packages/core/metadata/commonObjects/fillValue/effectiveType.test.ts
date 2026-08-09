@@ -2,6 +2,27 @@ import { describe, expect, it } from "vitest"
 import { effectiveTypeFromTypeDescription } from "./effectiveType"
 
 describe("effectiveTypeFromTypeDescription", () => {
+  it.each(["Date", "Time", "DateTime"] as const)("maps %s qualifier", (dateFractions) => {
+    expect(
+      effectiveTypeFromTypeDescription({
+        type: ["dateTime"],
+        dateQualifiers: { dateFractions },
+      })
+    ).toEqual({
+      status: "known",
+      alternatives: [{ kind: "dateTime", dateFractions }],
+      composite: false,
+    })
+  })
+
+  it("defaults dateTime to DateTime", () => {
+    expect(effectiveTypeFromTypeDescription({ type: ["dateTime"] })).toEqual({
+      status: "known",
+      alternatives: [{ kind: "dateTime", dateFractions: "DateTime" }],
+      composite: false,
+    })
+  })
+
   it("preserves primitive qualifiers", () => {
     expect(
       effectiveTypeFromTypeDescription({
