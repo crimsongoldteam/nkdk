@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { serializeYAMLDocument } from "../../yaml/export"
@@ -16,6 +16,15 @@ import {
 } from "./projectReferenceIndex"
 
 registerCoreMetadata()
+
+const schemaCache = createValidationSchemaCache(mockContext)
+const rulesSnapshot = createValidationRulesSnapshot(mockContext)
+
+beforeAll(() => {
+  const file = catalogFile()
+  if (file.kind !== "properties") throw new Error("properties file expected")
+  schemaCache.properties(file.owner.spec.rule)
+})
 
 describe("fill value references", () => {
   it("indexes an ordinary attribute reference but not a primitive fill value", () => {
@@ -129,8 +138,8 @@ describe("fill value references", () => {
       file,
       document,
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      schemaCache,
+      rulesSnapshot,
     })
     const update = toProjectStateFileUpdate(firstPass, {
       projectPath: "Справочник/Товары/Свойства.yaml",
@@ -152,7 +161,7 @@ function extract(text: string) {
   return extractValidationYamlFacts({
     file: catalogFile(),
     parsed: parseMetadataYaml(text),
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
 }
 
