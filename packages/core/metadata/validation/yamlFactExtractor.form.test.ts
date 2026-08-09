@@ -218,6 +218,27 @@ describe("extractValidationYamlFacts form", () => {
     expect(facts.pendingChecks).toEqual([])
     expect(facts.diagnostics).toEqual([])
   })
+
+  it("публикует нейтральную структуру формы", () => {
+    const facts = extractFormFacts([
+      "Реквизиты:",
+      "  Объект: {}",
+      "Команды:",
+      "  Записать: {}",
+      "Параметры:",
+      "  Режим: {}",
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+    ].join("\n"))
+
+    expect(facts.structuredComponents).toEqual([
+      { componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"] },
+      { componentKind: "attribute", name: "Объект", yamlPath: ["Реквизиты", "Объект"] },
+      { componentKind: "command", name: "Записать", yamlPath: ["Команды", "Записать"] },
+      { componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] },
+    ])
+  })
 })
 
 function extractFormFacts(yaml: string): ReturnType<typeof extractValidationYamlFacts> {

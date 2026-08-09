@@ -13,6 +13,7 @@ import type {
   ProjectStateFormEntry,
   ProjectStateOwnerFact,
   ProjectStatePendingDependencyCheck,
+  ProjectStateStructuredDocumentEntry,
   ProjectStateTargetEntry,
   ProjectStateYamlFileUpdate,
 } from "./contracts/fileUpdate"
@@ -49,7 +50,8 @@ export function createProjectStateFileUpdateBatch(
 export function toProjectStateFileUpdate(
   firstPassResult: ProjectValidationFirstPassResult,
   identity: ProjectStateFileIdentity,
-  fileBackedTargets: readonly ProjectStateTargetEntry[] = []
+  fileBackedTargets: readonly ProjectStateTargetEntry[] = [],
+  structuredDocuments: readonly ProjectStateStructuredDocumentEntry[] = [],
 ): ProjectStateYamlFileUpdate {
   if (identity.resourceKind !== "yaml" || identity.yamlRole === undefined) {
     throw new Error("Результат первого прохода можно связать только с YAML-файлом")
@@ -78,6 +80,7 @@ export function toProjectStateFileUpdate(
         ? firstPassResult.state.pendingChecks.map(projectStatePendingCheck)
         : [],
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
+    ...(structuredDocuments.length === 0 ? {} : { structuredDocuments }),
   }
 }
 
@@ -87,6 +90,26 @@ export function projectStateTargetEntry(
 ): ProjectStateTargetEntry {
   const details = entry.result.ok ? projectMetadataReferenceDetails(entry.result.details) : undefined
   return { kind, canonical: entry.canonical, ...(details === undefined ? {} : { details }) }
+}
+
+export function isolateProjectStateYamlUpdate(
+  update: ProjectStateYamlFileUpdate,
+): ProjectStateYamlFileUpdate {
+  return {
+    ...update,
+    localValidation: {
+      contributedFacts: false,
+      diagnostics: update.localValidation.schemaDiagnostics,
+      schemaDiagnostics: update.localValidation.schemaDiagnostics,
+    },
+    targets: [],
+    owners: [],
+    fields: [],
+    forms: [],
+    pendingReferences: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
 }
 
 function withoutDiagnosticFilePath({ filePath: _filePath, ...diagnostic }: Diagnostic): ProjectStateDiagnostic {

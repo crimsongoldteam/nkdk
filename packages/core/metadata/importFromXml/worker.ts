@@ -20,12 +20,14 @@ import { validateSerializedProjectYaml } from "./serializedYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
+  isolateProjectStateYamlUpdate,
   projectStateFieldEntries,
   projectStateOwnerFacts,
   projectStateTargetEntry,
   toProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
+export { isolateProjectStateYamlUpdate } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
 import { openProjectStateReadSession } from "../composition/projectState"
 import { resolveProjectPath } from "../projectDefinition/path"
@@ -857,24 +859,6 @@ function measureSerializedImportYamlValidation(
     { items: 1 },
     () => validateSerializedImportYaml(prepared, serialized, state, profiler, indexContribution),
   )
-}
-
-export function isolateProjectStateYamlUpdate(update: ProjectStateYamlFileUpdate): ProjectStateYamlFileUpdate {
-  return {
-    ...update,
-    localValidation: {
-      contributedFacts: false,
-      diagnostics: update.localValidation.schemaDiagnostics,
-      schemaDiagnostics: update.localValidation.schemaDiagnostics,
-    },
-    targets: [],
-    owners: [],
-    fields: [],
-    forms: [],
-    pendingReferences: [],
-    pendingChecks: [],
-    dependencies: [],
-  }
 }
 
 function splitImportYamlUpdate(
