@@ -67,7 +67,6 @@ function createBaseFormDataPathRootIndex(attributeNames: ReadonlySet<string>): {
       roots,
       additionalColumnsByTablePath: new Map(),
       tabularElementsByName: new Map(),
-      tableDataPathByElementName: new Map(),
       duplicateDiagnostics: [],
       getRoot(name) {
         const root = roots.get(name)

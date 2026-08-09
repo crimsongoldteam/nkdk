@@ -2415,15 +2415,8 @@ describe("resolveDataPath", () => {
     const value = "Items.Таблица.CurrentData.ВложеннаяТаблица"
     const result = resolveDataPathCore({
       value,
-      nameMode: "yaml",
-      index: indexWithForm({
-        attributes: [
-          attribute("ТаблицаЗначений", { type: ["ValueTable"] }, [
-            column("ВложеннаяТаблица", { type: ["ValueTable"] }),
-          ]),
-        ],
-        tableDataPathByElementName: new Map([["Таблица", "ТаблицаЗначений"]]),
-      }),
+      nameMode: "internal",
+      index: currentDataValueTableIndex(),
       ownerCache: ownerCache([]),
     })
 
@@ -2438,14 +2431,40 @@ describe("resolveDataPath", () => {
     })
   })
 
+  it("сравнивает контекст вложенной колонки до раскрытия CurrentData", () => {
+    const value = "Items.ВходящиеСообщения.CurrentData.Вложения.ИндексКартинки"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "internal",
+      index: indexWithForm({
+        attributes: [
+          attribute("ВходящиеСообщения", { type: ["ValueTable"] }, [
+            column("Вложения", { type: ["ValueTable"] }),
+          ]),
+        ],
+        tabularElementsByName: tabularElements([["ВходящиеСообщения", "ВходящиеСообщения"]]),
+      }),
+      ownerCache: ownerCache([]),
+      tableContext: { dataPath: "Items.ВходящиеСообщения.CurrentData.Вложения" },
+    })
+
+    expect(result).toMatchObject({
+      status: "warning",
+      issues: [expect.objectContaining({ code: "unknown_column" })],
+    })
+    expect(result.issues).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "table_context_mismatch" }),
+    ]))
+  })
+
   it("keeps a CurrentData SettingsComposer collection as a known target-less path", () => {
     const value = "Items.Настройки.CurrentData.Filter"
     const result = resolveDataPathCore({
       value,
-      nameMode: "yaml",
+      nameMode: "internal",
       index: indexWithForm({
         attributes: [attribute("Компоновщик", { type: ["SettingsComposer"] })],
-        tableDataPathByElementName: new Map([["Настройки", "Компоновщик.Settings"]]),
+        tabularElementsByName: tabularElements([["Настройки", "Компоновщик.Settings"]]),
       }),
       ownerCache: ownerCache([]),
     })
@@ -2458,10 +2477,10 @@ describe("resolveDataPath", () => {
     const value = "Items.Таблица.CurrentData.Поле"
     const result = resolveDataPathCore({
       value,
-      nameMode: "yaml",
+      nameMode: "internal",
       index: indexWithForm({
         attributes: [],
-        tableDataPathByElementName: new Map([
+        tabularElementsByName: tabularElements([
           ["Таблица", "Items.Таблица.CurrentData.ВложеннаяТаблица"],
         ]),
       }),
@@ -2476,6 +2495,31 @@ describe("resolveDataPath", () => {
           code: "current_data_unsupported",
           message: expect.stringContaining("обнаружен цикл CurrentData"),
         }),
+      ],
+    })
+  })
+
+  it("разрешает канонический YAML-путь текущей строки", () => {
+    const value = "Элементы.Таблица.ТекущиеДанные.ВложеннаяТаблица"
+    const result = resolveDataPathCore({
+      value,
+      nameMode: "yaml",
+      index: currentDataValueTableIndex(),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      internalValue: "Items.Таблица.CurrentData.ВложеннаяТаблица",
+      yamlValue: "Элементы.Таблица.ТекущиеДанные.ВложеннаяТаблица",
+      replacements: [
+        { segmentIndex: 0, from: "Элементы", to: "Items", reason: "serviceRoot" },
+        { segmentIndex: 2, from: "ТекущиеДанные", to: "CurrentData", reason: "currentRow" },
+      ],
+      target: { source: { kind: "tableColumn", name: "ВложеннаяТаблица" } },
+      targets: [
+        { segmentIndex: 1, source: { kind: "formElement", name: "Таблица" } },
+        { segmentIndex: 3, source: { kind: "tableColumn", name: "ВложеннаяТаблица" } },
       ],
     })
   })
@@ -2758,7 +2802,6 @@ function indexWithTypeInfo(name: string, typeInfo: DataPathTypeInfo): FormDataPa
     roots,
     additionalColumnsByTablePath: new Map(),
     tabularElementsByName: new Map(),
-    tableDataPathByElementName: new Map(),
     duplicateDiagnostics: [],
     getRoot: (rootName) => roots.get(rootName),
   }
@@ -2766,16 +2809,42 @@ function indexWithTypeInfo(name: string, typeInfo: DataPathTypeInfo): FormDataPa
 
 function indexWithForm(params: {
   attributes: FormAttribute[]
-  tableDataPathByElementName?: ReadonlyMap<string, string>
+  tabularElementsByName?: ReadonlyMap<string, {
+    readonly kind: "tabularFormElement"
+    readonly dataPath?: string
+  }>
 }): FormDataPathIndex {
-  return buildFormDataPathIndex({
+  return {
+    ...buildFormDataPathIndex({
     filePath: "/tmp/form.yaml",
     parsed: parseMetadataYaml("Реквизиты: {}\n"),
-    tableDataPathByElementName: params.tableDataPathByElementName,
+    tabularElementsByName: params.tabularElementsByName,
     form: {
       itemType: "ClientApplicationForm",
       attributes: params.attributes,
     } as ClientApplicationForm,
+    }),
+    dialect: {
+      serviceRoot: { internal: "Items", yaml: "Элементы" },
+      currentRow: { internal: "CurrentData", yaml: "ТекущиеДанные" },
+    },
+  }
+}
+
+function tabularElements(
+  entries: readonly (readonly [string, string])[]
+): ReadonlyMap<string, { readonly kind: "tabularFormElement"; readonly dataPath: string }> {
+  return new Map(entries.map(([name, dataPath]) => [name, { kind: "tabularFormElement", dataPath }]))
+}
+
+function currentDataValueTableIndex(): FormDataPathIndex {
+  return indexWithForm({
+    attributes: [
+      attribute("ТаблицаЗначений", { type: ["ValueTable"] }, [
+        column("ВложеннаяТаблица", { type: ["ValueTable"] }),
+      ]),
+    ],
+    tabularElementsByName: tabularElements([["Таблица", "ТаблицаЗначений"]]),
   })
 }
 

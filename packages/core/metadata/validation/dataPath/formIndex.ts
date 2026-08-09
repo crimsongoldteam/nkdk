@@ -1,5 +1,8 @@
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
+import type {
+  FormDataPathIndex,
+  FormDataPathTabularElementDeclaration,
+} from "../../orchestration/dataPath/formIndex"
 import type { FormAttributeColumnView, FormAttributeView, FormValidationView } from "../formContracts"
 import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
@@ -25,7 +28,7 @@ export interface BuildFormDataPathIndexParams {
   filePath: string
   parsed: ParsedYaml
   form: FormValidationView
-  tableDataPathByElementName?: ReadonlyMap<string, string>
+  tabularElementsByName?: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
 }
 
 export interface KnownPlatformFormSource {
@@ -39,17 +42,11 @@ export function buildFormDataPathIndex({
   filePath,
   parsed,
   form,
-  tableDataPathByElementName: suppliedTableDataPaths,
+  tabularElementsByName: suppliedTabularElements,
 }: BuildFormDataPathIndexParams): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
   const additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath = new Map()
-  const tableDataPathByElementName = new Map(suppliedTableDataPaths)
-  const tabularElementsByName = new Map(
-    [...tableDataPathByElementName].map(([name, dataPath]) => [
-      name,
-      { kind: "tabularFormElement" as const, dataPath },
-    ])
-  )
+  const tabularElementsByName = new Map(suppliedTabularElements)
   const duplicateDiagnostics: Diagnostic[] = []
   const seenNames = new Map<string, number>()
 
@@ -71,7 +68,6 @@ export function buildFormDataPathIndex({
     roots,
     additionalColumnsByTablePath,
     tabularElementsByName,
-    tableDataPathByElementName,
     duplicateDiagnostics,
     getRoot(name: string): FormDataPathSource | undefined {
       return roots.get(name)

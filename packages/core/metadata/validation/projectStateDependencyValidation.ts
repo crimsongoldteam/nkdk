@@ -38,6 +38,7 @@ import type {
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
 import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
+import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 
 export function createProjectStateDependencyValidator(): ProjectStateDependencyValidator {
   return {
@@ -561,16 +562,12 @@ function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDat
     if (!columns.has(entry.name)) columns.set(entry.name, entry.source)
     additionalColumnsByTablePath.set(entry.tablePath, columns)
   }
+  const dialect = getRegisteredFormDataPathMetadataProjection()?.dataPathDialect
   return {
     roots,
     additionalColumnsByTablePath,
     tabularElementsByName,
-    tableDataPathByElementName: new Map(
-      [...tabularElementsByName]
-        .filter((entry): entry is [string, { readonly kind: "tabularFormElement"; readonly dataPath: string }] =>
-          entry[1].dataPath !== undefined)
-        .map(([name, declaration]) => [name, declaration.dataPath])
-    ),
+    ...(dialect === undefined ? {} : { dialect }),
     duplicateDiagnostics: [],
     getRoot(name) {
       return roots.get(name)

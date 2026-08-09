@@ -39,7 +39,6 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
 } {
   const attributes = new Map<string, PendingFormAttribute>()
   const additionalColumnsByTablePath = new Map<string, Map<string, FormDataPathColumnSource>>()
-  const tableDataPathByElementName = new Map<string, string>()
   const tabularElementsByName = new Map<string, FormDataPathTabularElementDeclaration>()
 
   const pendingAttribute = (name: string): PendingFormAttribute => {
@@ -89,9 +88,6 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
           ...(normalizedDataPath === undefined ? {} : { dataPath: normalizedDataPath }),
         })
       }
-      if (normalizedDataPath !== undefined && !tableDataPathByElementName.has(name)) {
-        tableDataPathByElementName.set(name, normalizedDataPath)
-      }
     },
     acceptTableDataPath({ name, dataPath }) {
       this.declareTabularElement({ name, dataPath })
@@ -119,7 +115,6 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
         roots,
         additionalColumnsByTablePath,
         tabularElementsByName,
-        tableDataPathByElementName,
         duplicateDiagnostics,
         getRoot(name) {
           return roots.get(name)
@@ -185,7 +180,9 @@ export function createFormDataPathMetadataCollector(params: {
     completeValue: acceptProperty,
     declareTabularElement: index.declareTabularElement,
     acceptTableDataPath: index.acceptTableDataPath,
-    finish: index.finish,
+    finish() {
+      return { ...index.finish(), ...(projection.dataPathDialect === undefined ? {} : { dialect: projection.dataPathDialect }) }
+    },
   }
 }
 

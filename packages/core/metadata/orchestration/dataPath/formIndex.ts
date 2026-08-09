@@ -2,6 +2,7 @@ import type {
   FormDataPathAdditionalColumnsByTablePath,
   FormDataPathSource,
 } from "./types"
+import type { DataPathDialect } from "./dialect"
 
 export interface FormDataPathDiagnostic {
   filePath: string
@@ -22,8 +23,7 @@ export interface FormDataPathIndex {
   roots: Map<string, FormDataPathSource>
   additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
   tabularElementsByName: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
-  /** @deprecated До перевода resolver и project state на декларации элементов. */
-  tableDataPathByElementName: ReadonlyMap<string, string>
+  dialect?: DataPathDialect
   duplicateDiagnostics: FormDataPathDiagnostic[]
   getRoot(name: string): FormDataPathSource | undefined
 }

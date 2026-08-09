@@ -9,12 +9,16 @@ describe("buildFormDataPathIndex", () => {
   it("indexes table element data paths by element name", () => {
     const index = buildIndex({
       attributes: [],
-      tableDataPathByElementName: new Map([["ТаблицаТоваров", "Объект.Товары"]]),
+      tabularElementsByName: new Map([[
+        "ТаблицаТоваров",
+        { kind: "tabularFormElement", dataPath: "Объект.Товары" },
+      ]]),
     })
 
-    expect(index.tableDataPathByElementName).toEqual(
-      new Map([["ТаблицаТоваров", "Объект.Товары"]])
-    )
+    expect(index.tabularElementsByName).toEqual(new Map([[
+      "ТаблицаТоваров",
+      { kind: "tabularFormElement", dataPath: "Объект.Товары" },
+    ]]))
   })
 
   it("indexes normal form attributes by exact name", () => {
@@ -252,13 +256,16 @@ describe("getKnownPlatformFormSource", () => {
 
 function buildIndex(params: {
   attributes: FormAttribute[]
-  tableDataPathByElementName?: ReadonlyMap<string, string>
+  tabularElementsByName?: ReadonlyMap<string, {
+    readonly kind: "tabularFormElement"
+    readonly dataPath?: string
+  }>
   parsed?: ReturnType<typeof parseMetadataYaml>
 }) {
   return buildFormDataPathIndex({
     filePath: "/tmp/form.yaml",
     parsed: params.parsed ?? parseMetadataYaml("Реквизиты: {}\n"),
-    tableDataPathByElementName: params.tableDataPathByElementName,
+    tabularElementsByName: params.tabularElementsByName,
     form: {
       itemType: "ClientApplicationForm",
       attributes: params.attributes,

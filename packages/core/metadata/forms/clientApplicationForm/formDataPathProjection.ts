@@ -14,4 +14,8 @@ export const clientApplicationFormDataPathProjection = {
   additionalColumnsPropertyKey: "additionalColumns",
   tableDataPathPropertyKey: "dataPath",
   collectTabularElementsFromYAML: collectFormTabularElementsFromYAML,
+  dataPathDialect: {
+    serviceRoot: { internal: "Items", yaml: "Элементы" },
+    currentRow: { internal: "CurrentData", yaml: "ТекущиеДанные" },
+  },
 } as const
