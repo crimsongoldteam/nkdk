@@ -47,11 +47,11 @@ export function taggedScalarForDump(parent: object, key: YAMLScalarTagKey, value
   return tag === undefined || typeof value !== "string" ? value : taggedYAMLScalar(tag, value)
 }
 
-function xmlTaggedValue(payload: string): string {
+export function xmlScalarTagValue(payload: string): string {
   return payload === "" ? EMPTY_XML_TAG_VALUE : `${EMPTY_XML_TAG_VALUE} ${payload}`
 }
 
-function xmlTagPayload(value: string): string {
+export function xmlScalarTagPayload(value: string): string {
   if (value === EMPTY_XML_TAG_VALUE) return ""
   return value.startsWith(`${EMPTY_XML_TAG_VALUE} `)
     ? value.slice(EMPTY_XML_TAG_VALUE.length + 1)
@@ -60,13 +60,13 @@ function xmlTagPayload(value: string): string {
 
 const explicitXmlTag = defineScalarTag("!xml", {
   resolve(value) {
-    return taggedYAMLScalar("xml", xmlTaggedValue(value))
+    return taggedYAMLScalar("xml", xmlScalarTagValue(value))
   },
   identify(value) {
     return isTaggedYAMLScalar(value) && value.tag === "xml"
   },
   represent(value) {
-    return xmlTagPayload((value as TaggedYAMLScalar).value)
+    return xmlScalarTagPayload((value as TaggedYAMLScalar).value)
   },
 })
 

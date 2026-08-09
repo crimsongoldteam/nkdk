@@ -4,7 +4,7 @@ import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "./scalarTags"
 
 describe("exportToYAML", () => {
   it.each([
@@ -35,9 +35,11 @@ describe("exportToYAML", () => {
 
   it("сохраняет текст непустого локального тега", () => {
     const parsed = parseMetadataYaml("Комментарий: !xml Текст")
+    const data = parsed.data as { Комментарий: string }
 
-    expect(exportToYAML(parsed.data)).toBe("Комментарий: !xml Текст")
-    expect(parsed.data).toEqual({ Комментарий: "!xml Текст" })
+    expect(exportToYAML(data)).toBe("Комментарий: !xml Текст")
+    expect(data).toEqual({ Комментарий: "!xml Текст" })
+    expect(xmlScalarTagPayload(data.Комментарий)).toBe("Текст")
   })
 
   it("exports a marked scalar with the local xml tag", () => {

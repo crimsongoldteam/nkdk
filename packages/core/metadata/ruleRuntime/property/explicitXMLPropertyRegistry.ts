@@ -1,4 +1,8 @@
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import {
+  EMPTY_XML_TAG_VALUE,
+  xmlScalarTagPayload,
+  yamlScalarTagAt,
+} from "../../../yaml/scalarTags"
 
 export type ExplicitXMLPropertyRegistration =
   | {
@@ -14,10 +18,16 @@ export type ExplicitXMLPropertyRegistration =
       readonly propertyKey: string
       readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
     }
+  | {
+      readonly action: "transportScalar"
+      readonly itemType: string
+      readonly propertyKey: string
+    }
 
 export type ExplicitXMLPropertyAction =
   | { readonly kind: "emit"; readonly xmlValue: unknown }
   | { readonly kind: "omit" }
+  | { readonly kind: "useYamlValue"; readonly yamlValue: string }
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 
@@ -39,8 +49,9 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly propertyKey: string
   readonly presentInXML: boolean
   readonly xmlValue: unknown
-}): ExplicitXMLPropertyRegistration | undefined {
+}): Exclude<ExplicitXMLPropertyRegistration, { readonly action: "transportScalar" }> | undefined {
   const registration = registrations.get(registrationKey(params.itemType, params.propertyKey))
+  if (registration?.action === "transportScalar") return undefined
   if (registration?.action === "omit") return params.presentInXML ? undefined : registration
   return registration !== undefined && params.presentInXML && Object.is(registration.xmlValue, params.xmlValue)
     ? registration
@@ -60,6 +71,13 @@ export function collectExplicitXMLPropertyActions(params: {
     if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
     const registration = registrations.get(registrationKey(params.itemType, propertyKey))
     if (registration === undefined) continue
+    if (registration.action === "transportScalar") {
+      const rawValue = yaml[rule.yaml]
+      if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
+        actions.set(propertyKey, { kind: "useYamlValue", yamlValue: xmlScalarTagPayload(rawValue) })
+      }
+      continue
+    }
     if (!Object.is(yaml[rule.yaml], registration.yamlValue)) continue
     actions.set(
       propertyKey,
@@ -75,13 +93,26 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
   return registrations.has(registrationKey(itemType, propertyKey))
 }
 
+export function explicitXMLPropertyValidationMode(
+  itemType: string,
+  propertyKey: string
+): "empty" | "scalar" | undefined {
+  const registration = registrations.get(registrationKey(itemType, propertyKey))
+  if (registration === undefined) return undefined
+  return registration.action === "transportScalar" ? "scalar" : "empty"
+}
+
 function sameRegistration(
   left: ExplicitXMLPropertyRegistration,
   right: ExplicitXMLPropertyRegistration
 ): boolean {
+  if (left.action === "transportScalar" || right.action === "transportScalar") {
+    return left.action === "transportScalar" && right.action === "transportScalar"
+  }
   const leftAction = left.action ?? "emit"
   const rightAction = right.action ?? "emit"
-  if (leftAction !== rightAction || !Object.is(left.yamlValue, right.yamlValue)) return false
+  if (leftAction !== rightAction) return false
+  if (!Object.is(left.yamlValue, right.yamlValue)) return false
   return leftAction === "omit" ||
     ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }

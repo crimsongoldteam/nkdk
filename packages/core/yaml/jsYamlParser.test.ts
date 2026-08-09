@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { parseWithJsYaml } from "./jsYamlParser"
-import { yamlScalarTagAt } from "./scalarTags"
+import { xmlScalarTagPayload, xmlScalarTagValue, yamlScalarTagAt } from "./scalarTags"
 
 describe("parseWithJsYaml", () => {
   it("parses a local xml tag as an ordinary scalar value", () => {
@@ -23,6 +23,14 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.data).toEqual({ Поле: value })
     expect(yamlScalarTagAt(parsed.data, "Поле")).toBe(tag)
+  })
+
+  it.each([
+    ["", "!xml"],
+    ["Справочник.Товары.ПустаяСсылка", "!xml Справочник.Товары.ПустаяСсылка"],
+  ] as const)("упаковывает и распаковывает payload !xml %#", (payload, stored) => {
+    expect(xmlScalarTagValue(payload)).toBe(stored)
+    expect(xmlScalarTagPayload(stored)).toBe(payload)
   })
 
   it("parses data and exposes location index", () => {
