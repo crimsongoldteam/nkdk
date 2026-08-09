@@ -28,6 +28,8 @@ import type {
   FullXmlSyncDiagnostic,
   FullXmlSyncExecutionAssignment,
   FullXmlSyncExecutionResult,
+  FullXmlSyncGeneratedDocument,
+  FullXmlSyncOutputTarget,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
@@ -70,7 +72,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
   readonly componentPath: string
   readonly componentDir: string
-  readonly outputDir: string
+  readonly outputTarget: FullXmlSyncOutputTarget
   readonly context: ConfigurationContext
   readonly index: AssignmentScopedConfigurationIndexReader
   readonly baseIndex?: ConfigurationIndexReader
@@ -108,7 +110,7 @@ export async function runFullXmlSyncWorkerCommand(
         workerIndex: command.workerIndex,
         componentPath: command.componentPath,
         componentDir: command.componentDir,
-        outputDir: command.outputDir,
+        outputTarget: command.outputTarget,
         context: {
           ...command.context,
           importFromYAML: {
@@ -163,6 +165,7 @@ export async function runFullXmlSyncWorkerCommand(
       warnings: result.warnings,
       writtenFiles: result.writtenFiles,
       expectedOutputs: result.expectedOutputs,
+      generatedDocuments: result.generatedDocuments,
       fragmentBuffer: result.fragmentBuffer,
     })
   }
@@ -203,6 +206,7 @@ async function executeAssignments(
   const warnings: FullXmlSyncDiagnostic[] = []
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
+  const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
   const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
@@ -266,10 +270,11 @@ async function executeAssignments(
       const result = await writeFullXmlSyncAssignment({
         prepared,
         context: exportContext(state),
-        outputDir: state.outputDir,
+        outputTarget: state.outputTarget,
       })
       diagnostics.push(...result.diagnostics)
       writtenFiles.push(...result.writtenFiles)
+      generatedDocuments.push(...result.generatedDocuments)
       if (result.fragment !== undefined) fragments.push(result.fragment)
     } catch (caught) {
       diagnostics.push(
@@ -291,6 +296,7 @@ async function executeAssignments(
     warnings,
     writtenFiles,
     expectedOutputs,
+    generatedDocuments,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
 }
@@ -462,7 +468,9 @@ export function fullXmlSyncWorkerStateForTests(): {
     workerIndex: initializedState.workerIndex,
     componentDir: initializedState.componentDir,
     importProjectDir: initializedState.context.importFromYAML?.projectDir,
-    outputDir: initializedState.outputDir,
+    ...(initializedState.outputTarget.kind === "directory"
+      ? { outputDir: initializedState.outputTarget.outputDir }
+      : {}),
     ...(initializedState.baseIndex === undefined ? {} : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
     ...(initializedState.activeAssignmentId === undefined
       ? {}
@@ -477,7 +485,14 @@ export function resetFullXmlSyncWorkerStateForTests(): void {
 export function createExecutionTransferable(result: FullXmlSyncExecutionResult) {
   return {
     get [transferableSymbol]() {
-      return [result.fragmentBuffer]
+      return [
+        result.fragmentBuffer,
+        ...result.generatedDocuments.map(({ content }) =>
+          content.byteOffset === 0 && content.byteLength === content.buffer.byteLength
+            ? content.buffer
+            : content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength)
+        ),
+      ]
     },
     get [valueSymbol]() {
       return result

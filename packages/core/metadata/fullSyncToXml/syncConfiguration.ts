@@ -189,7 +189,7 @@ export async function syncComponentToXml(
     await pool.initialize({
       componentPath: target.structure.componentPath,
       componentDir: target.structure.componentDir,
-      outputDir: xmlDir,
+      outputTarget: { kind: "directory", outputDir: xmlDir },
       context: params.context,
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),

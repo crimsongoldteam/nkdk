@@ -71,6 +71,20 @@ export interface FullXmlSyncWrittenFile {
   readonly targetXmlPath: string
 }
 
+export interface FullXmlSyncGeneratedDocument {
+  readonly assignmentId: string
+  readonly declarationId: string
+  readonly targetXmlPath: string
+  readonly content: Uint8Array
+}
+
+export type FullXmlSyncOutputTarget =
+  | { readonly kind: "directory"; readonly outputDir: string }
+  | {
+      readonly kind: "memory"
+      readonly documentIdsByAssignment: Readonly<Record<string, readonly string[]>>
+    }
+
 export interface PreparedXMLDocument {
   readonly declarationId?: string
   readonly targetXmlPath: string
@@ -92,7 +106,7 @@ export type FullXmlSyncWorkerCommand =
       readonly workerIndex: number
       readonly componentPath: string
       readonly componentDir: string
-      readonly outputDir: string
+      readonly outputTarget: FullXmlSyncOutputTarget
       readonly context: ConfigurationContext
       readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
@@ -121,6 +135,7 @@ export interface FullXmlSyncExecutionResult {
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
+  readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
   readonly fragmentBuffer: ArrayBuffer
 }
 

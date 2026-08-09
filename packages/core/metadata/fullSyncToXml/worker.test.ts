@@ -19,7 +19,11 @@ import {
   createFullXmlSyncCompositionSnapshot,
 } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
-import type { FullXmlSyncAssignment, FullXmlSyncExecutionAssignment } from "./types"
+import type {
+  FullXmlSyncAssignment,
+  FullXmlSyncExecutionAssignment,
+  FullXmlSyncOutputTarget,
+} from "./types"
 import { emptyProjectStateReadSession } from "./testHelpers"
 import { openFullXmlSyncBinaryResult } from "./binaryResult"
 import {
@@ -87,6 +91,55 @@ describe("full XML sync worker", () => {
     expect(await runFullXmlSyncWorkerCommand({ kind: "finishExecution" })).toBeUndefined()
   })
 
+  it("возвращает запрошенный XML точными UTF-8 байтами без записи файлов", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    const declarationId = assigned.potentialOutputs[0]!.declarationId
+    await initialize(projectDir, [assigned], context, undefined, undefined, undefined, undefined, {
+      kind: "memory",
+      documentIdsByAssignment: { [assigned.id]: [declarationId] },
+    })
+
+    const batch = openFullXmlSyncBinaryResult(await runFullXmlSyncWorkerCommand({
+      kind: "executeBatch",
+      assignments: [assigned],
+    }))
+
+    expect(batch.writtenFiles.count).toBe(0)
+    expect(batch.generatedDocuments.count).toBe(1)
+    const document = batch.generatedDocuments.document(0)
+    expect(document).toMatchObject({
+      assignmentId: assigned.id,
+      declarationId,
+      targetXmlPath: "Catalogs/Товары.xml",
+    })
+    const xml = new TextDecoder("utf-8", { fatal: true }).decode(document.content)
+    expect(document.content).toEqual(Uint8Array.from([0xef, 0xbb, 0xbf, ...new TextEncoder().encode(xml)]))
+    expect(xml).toContain("<Name>Товары</Name>")
+    expect(fs.existsSync(join(projectDir, ".out"))).toBe(false)
+  })
+
+  it("сообщает об отсутствующем запрошенном XML-документе", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned], context, undefined, undefined, undefined, undefined, {
+      kind: "memory",
+      documentIdsByAssignment: { [assigned.id]: ["missing-document"] },
+    })
+
+    const batch = openFullXmlSyncBinaryResult(await runFullXmlSyncWorkerCommand({
+      kind: "executeBatch",
+      assignments: [assigned],
+    }))
+
+    expect(batch.generatedDocuments.count).toBe(0)
+    expect(batch.diagnostics.diagnostic(0)).toMatchObject({
+      code: "full_xml_sync_assignment_failed",
+      assignmentId: assigned.id,
+      message: expect.stringContaining("missing-document"),
+    })
+  })
+
   it("строит каталог типов один раз при initialize и переиспользует между пачками", async () => {
     const projectDir = createProject(["Первый", "Второй"])
     const assignments = [assignment(projectDir, "Первый"), assignment(projectDir, "Второй")]
@@ -98,7 +151,7 @@ describe("full XML sync worker", () => {
       workerIndex: 0,
       componentPath: "cf",
       componentDir: projectDir,
-      outputDir: join(projectDir, ".out"),
+      outputTarget: { kind: "directory", outputDir: join(projectDir, ".out") },
       context,
       profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
       composition,
@@ -231,20 +284,15 @@ describe("full XML sync worker", () => {
     const assigned = assignment(projectDir, "Товары")
     let closeCalls = 0
 
-    await expect(runFullXmlSyncWorkerCommand({
-      kind: "initialize",
-      workerIndex: 0,
-      componentPath: "cf",
-      componentDir: projectDir,
-      outputDir: join(projectDir, ".out"),
+    await expect(initialize(
+      projectDir,
+      [assigned],
       context,
-      profile: { kind: "configuration", componentKind: "configuration", adoptedUuids: {} },
-      composition: createFullXmlSyncCompositionSnapshot([assigned]),
-      targetIndex: {} as never,
-      projectStateReadToken: readToken,
-    }, {
-      openReadSession: () => emptyReadSession({ close() { closeCalls += 1 } }),
-    })).rejects.toBeInstanceOf(Error)
+      undefined,
+      () => emptyReadSession({ close() { closeCalls += 1 } }),
+      undefined,
+      {} as never,
+    )).rejects.toBeInstanceOf(Error)
 
     expect(closeCalls).toBe(1)
     expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
@@ -399,7 +447,7 @@ describe("full XML sync worker", () => {
         workerIndex: 0,
         componentPath: "cfe/Продажи",
         componentDir,
-        outputDir: join(projectDir, ".out"),
+        outputTarget: { kind: "directory", outputDir: join(projectDir, ".out") },
         context,
         profile: {
           kind: "configurationExtension",
@@ -492,13 +540,14 @@ describe("full XML sync worker", () => {
     targetSnapshot: SharedConfigurationIndexSnapshot = snapshotConfigurationIndex(
       encodeConfigurationIndex(sampleSnapshot())
     ),
+    outputTarget: FullXmlSyncOutputTarget = { kind: "directory", outputDir: join(projectDir, ".out") },
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
       componentPath: "cf",
       componentDir: projectDir,
-      outputDir: join(projectDir, ".out"),
+      outputTarget,
       context: workerContext,
       profile: {
         kind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
