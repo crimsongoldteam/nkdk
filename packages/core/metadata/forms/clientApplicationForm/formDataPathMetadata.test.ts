@@ -31,4 +31,17 @@ describe("createFormDataPathIndexFromYAML", () => {
       ]),
     })
   })
+
+  it("индексирует путь к данным табличного элемента без отдельного прохода вызывающего кода", () => {
+    const index = createFormDataPathIndexFromYAML({
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          ПутьКДанным: "Объект.Товары",
+        },
+      },
+    })
+
+    expect(index.tableDataPathByElementName).toEqual(new Map([["Таблица", "Объект.Товары"]]))
+  })
 })

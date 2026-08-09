@@ -2,7 +2,7 @@ import { join } from "path"
 import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "../../context/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
-import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
+import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
@@ -21,7 +21,7 @@ import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
-import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
@@ -58,7 +58,7 @@ export function validateClientApplicationFormFirstPass(
   const context = params.context ?? defaultValidationContext()
   const index = createFormDataPathIndexFromYAML(
     entry.parsed.data,
-    collectFormTableDataPathsFromYAML(entry.parsed.data)
+    clientApplicationFormDataPathProjection
   )
   const localDiagnostics: Diagnostic[] = []
   const occurrences = collectFormDataPathOccurrencesFromYAML({

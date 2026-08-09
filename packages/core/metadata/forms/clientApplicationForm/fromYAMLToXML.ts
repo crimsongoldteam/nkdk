@@ -13,13 +13,13 @@ import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../orchestrati
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./types"
-import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
+import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import type { MetadataItemRule } from "../../orchestration"
-import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
 import { classifyTableSource } from "./tableSourceProfile"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -51,7 +51,7 @@ export function convertClientApplicationFormFromYAMLToXML(
   const rule = params.rule ?? ClientApplicationFormRules
   const formDataPathIndex = createFormDataPathIndexFromYAML(
     params.dataPathYaml ?? params.yaml,
-    collectFormTableDataPathsFromYAML(params.dataPathYaml ?? params.yaml)
+    clientApplicationFormDataPathProjection
   )
   const ownerMetadataCache =
     params.context.importFromYAML?.ownerMetadataCache ??

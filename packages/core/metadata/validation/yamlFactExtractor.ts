@@ -3,8 +3,6 @@ import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import { createFormDataPathIndexFromYAML } from "../forms/clientApplicationForm/formDataPathMetadata"
-import { collectFormTableDataPathsFromYAML } from "../forms/clientApplicationForm/formTableDataPaths"
 import {
   createFormElementNameCollector,
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
@@ -49,6 +47,8 @@ import {
   type DependentReferenceCandidate,
 } from "../orchestration/property/dependentItemRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
+import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -627,7 +627,9 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const data = asRecord(parsed.data)
   if (data === undefined) return emptyFacts()
 
-  const index = createFormDataPathIndexFromYAML(parsed.data, collectFormTableDataPathsFromYAML(parsed.data))
+  const projection = getRegisteredFormDataPathMetadataProjection()
+  if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
+  const index = createFormDataPathIndexFromYAML(parsed.data, projection)
   const collected = collectFormPendingChecks({
     file,
     parsed,

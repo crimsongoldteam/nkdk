@@ -7,7 +7,8 @@ import {
   type DirectImportResult,
 } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
-import { createFormDataPathMetadataCollector } from "./formDataPathMetadata"
+import { createFormDataPathMetadataCollector } from "../../validation/dataPath/formYamlIndex"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
@@ -30,6 +31,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   const deferred = createDeferredValuePathCollector()
   const formDataPathMetadataCollector = createFormDataPathMetadataCollector({
     filePath: `Формы/${params.formName}/Форма.yaml`,
+    projection: clientApplicationFormDataPathProjection,
   })
   const collector = {
     acceptItem(fact: Parameters<typeof localIndexesCollector.acceptItem>[0]) {

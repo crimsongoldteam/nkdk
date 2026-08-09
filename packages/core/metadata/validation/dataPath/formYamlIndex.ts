@@ -1,9 +1,18 @@
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
-import type { FormDataPathIndex } from "./formIndex"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
-import type { DataPathTypeInfo, FormDataPathColumnSource, FormDataPathSource } from "./types"
+import type {
+  DataPathTypeInfo,
+  FormDataPathColumnSource,
+  FormDataPathSource,
+} from "./types"
+import type { FormDataPathIndex } from "./formIndex"
+import type {
+  FormDataPathItemFact,
+  FormDataPathMetadataProjection,
+  FormDataPathPropertyFact,
+} from "../formDataPathProjection"
 
 interface PendingFormAttribute {
   typeInfo: DataPathTypeInfo
@@ -103,6 +112,151 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
       }
     },
   }
+}
+
+export function createFormDataPathMetadataCollector(params: {
+  filePath: string
+  projection: FormDataPathMetadataProjection
+}) {
+  const index = createFormDataPathIndexCollector(params)
+  const projection = params.projection
+
+  const acceptItem = (fact: FormDataPathItemFact): void => {
+    if (fact.itemType === projection.attributeItemType) {
+      const name = fact.name ?? stringSegment(fact.yamlPath.at(-1))
+      if (name !== undefined) index.declareAttribute(name)
+      return
+    }
+    if (fact.itemType !== projection.columnItemType) return
+    const attributeName = stringSegment(fact.yamlPath.at(-3))
+    const columnName = fact.name ?? stringSegment(fact.yamlPath.at(-1))
+    if (attributeName !== undefined && columnName !== undefined) index.declareColumn(attributeName, columnName)
+  }
+
+  const acceptProperty = (fact: FormDataPathPropertyFact): void => {
+    const property = fact.rulePath.at(-1)?.propertyKey
+    const ownerType = fact.rulePath.at(-2)?.nestedItemType
+    if (property === projection.tableDataPathPropertyKey && ownerType === projection.tableItemType) {
+      const name = stringSegment(fact.yamlPath.at(-2))
+      if (name !== undefined && typeof fact.value === "string") {
+        index.acceptTableDataPath({ name, dataPath: fact.value })
+      }
+      return
+    }
+    if (ownerType === projection.attributeItemType) {
+      const name = stringSegment(fact.yamlPath.at(-2))
+      if (name === undefined) return
+      if (property === projection.typePropertyKey) index.setAttributeType(name, typeDescriptionFromYAML(fact.value))
+      else if (property === projection.dynamicListPropertyKey) index.setDynamicList(name)
+      else if (property === projection.additionalColumnsPropertyKey) index.setAdditionalColumns(fact.value)
+      return
+    }
+    if (ownerType !== projection.columnItemType || property !== projection.typePropertyKey) return
+    const attributeName = stringSegment(fact.yamlPath.at(-4))
+    const columnName = stringSegment(fact.yamlPath.at(-2))
+    if (attributeName !== undefined && columnName !== undefined) {
+      index.setColumnType(attributeName, columnName, typeDescriptionFromYAML(fact.value))
+    }
+  }
+
+  return {
+    acceptItem,
+    acceptProperty,
+    completeValue: acceptProperty,
+    acceptTableDataPath: index.acceptTableDataPath,
+    finish: index.finish,
+  }
+}
+
+export function createFormDataPathIndexFromYAML(
+  yaml: unknown,
+  projection: FormDataPathMetadataProjection,
+  tableDataPathByElementName?: ReadonlyMap<string, string>
+): FormDataPathIndex {
+  const collector = createFormDataPathMetadataCollector({ filePath: "", projection })
+  const attributes = asRecord(asRecord(yaml)?.[projection.attributesYaml])
+  for (const [attributeName, rawAttribute] of Object.entries(attributes ?? {})) {
+    const attributePath = [projection.attributesYaml, attributeName] as const
+    collector.acceptItem({
+      itemType: projection.attributeItemType,
+      name: attributeName,
+      yamlPath: attributePath,
+      rulePath: [{ propertyKey: "attributes", nestedItemType: projection.attributeItemType }],
+    })
+    const attribute = asRecord(rawAttribute)
+    acceptPresentProperty(
+      collector,
+      attribute,
+      projection.typeYaml,
+      [...attributePath, projection.typeYaml],
+      projection.attributeItemType,
+      projection.typePropertyKey
+    )
+    acceptPresentProperty(
+      collector,
+      attribute,
+      projection.dynamicListYaml,
+      [...attributePath, projection.dynamicListYaml],
+      projection.attributeItemType,
+      projection.dynamicListPropertyKey
+    )
+    acceptPresentProperty(
+      collector,
+      attribute,
+      projection.additionalColumnsYaml,
+      [...attributePath, projection.additionalColumnsYaml],
+      projection.attributeItemType,
+      projection.additionalColumnsPropertyKey
+    )
+    for (const [columnName, rawColumn] of Object.entries(asRecord(attribute?.[projection.columnsYaml]) ?? {})) {
+      const columnPath = [...attributePath, projection.columnsYaml, columnName]
+      collector.acceptItem({
+        itemType: projection.columnItemType,
+        name: columnName,
+        yamlPath: columnPath,
+        rulePath: [
+          { propertyKey: "attributes", nestedItemType: projection.attributeItemType },
+          { propertyKey: "columns", nestedItemType: projection.columnItemType },
+        ],
+      })
+      acceptPresentProperty(
+        collector,
+        asRecord(rawColumn),
+        projection.typeYaml,
+        [...columnPath, projection.typeYaml],
+        projection.columnItemType,
+        projection.typePropertyKey
+      )
+    }
+  }
+  const tableDataPaths =
+    tableDataPathByElementName ?? projection.collectTableDataPathsFromYAML?.(yaml) ?? new Map<string, string>()
+  for (const [name, dataPath] of tableDataPaths) collector.acceptTableDataPath({ name, dataPath })
+  return collector.finish()
+}
+
+function acceptPresentProperty(
+  collector: ReturnType<typeof createFormDataPathMetadataCollector>,
+  owner: Record<string, unknown> | undefined,
+  yamlProperty: string,
+  yamlPath: readonly (string | number)[],
+  ownerType: string,
+  propertyKey: string
+): void {
+  if (!Object.prototype.hasOwnProperty.call(owner ?? {}, yamlProperty)) return
+  collector.acceptProperty({
+    yamlPath,
+    rulePath: [{ propertyKey: "owner", nestedItemType: ownerType }, { propertyKey }],
+    value: owner?.[yamlProperty],
+  })
+}
+
+function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
+  return indexValueFromYAML<TypeDescription>("TypeDescription", value)
+}
+
+function stringSegment(value: string | number | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined
 }
 
 function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColumnSource>>, value: unknown): void {

@@ -4,6 +4,7 @@ import {
   registerFormValidator,
   registerFormWarningProvider,
 } from "../../validation/formValidationRegistry"
+import { registerFormDataPathMetadataProjection } from "../../validation/formDataPathProjectionRegistry"
 import { registerLocalYamlValueValidator } from "../../validation/yamlValueValidationRegistry"
 import {
   collectDynamicListTypeValueWarnings,
@@ -16,6 +17,7 @@ import {
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
   validateFormElementNames,
 } from "./validateElementNames"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 
 registerLocalYamlValueValidator({
   type: "ClientApplicationForm",
@@ -28,6 +30,7 @@ registerLocalYamlValueValidator({
 })
 
 registerFormValidator(validateClientApplicationForm)
+registerFormDataPathMetadataProjection(clientApplicationFormDataPathProjection)
 registerFormValidationPasses({
   firstPass: validateClientApplicationFormFirstPass,
   secondPass: ({ state, ownerCache }) =>
