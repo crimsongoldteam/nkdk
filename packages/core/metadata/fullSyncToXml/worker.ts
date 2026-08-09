@@ -14,12 +14,14 @@ import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
 import {
-  createProjectStateOwnerMetadataCache,
   openProjectStateReadSession,
-  type ProjectStateOwnerMetadataCache,
   type ProjectStateReadSession,
   type ProjectStateReadToken,
 } from "../projectState"
+import {
+  createProjectStateOwnerMetadataCache,
+  type ProjectStateOwnerMetadataCache,
+} from "../validation/projectStateDependencyValidation"
 import type { OwnerTypeRef } from "../validation/dataPath/types"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader } from "./sharedMetadata"

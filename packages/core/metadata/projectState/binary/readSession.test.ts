@@ -3,6 +3,7 @@ import type { ProjectTargetLookup } from "../readSession"
 import { ProjectStateReadSessionClosedError } from "../readSession"
 import { buildProjectStateSnapshot } from "./builder"
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
+import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
@@ -162,7 +163,9 @@ it("не обращается к прежнему предметному дек�
   const buffers = typedSnapshot([richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")])
   const snapshot = new ProjectStateSnapshotView(buffers)
   vi.spyOn(snapshot, "decodeFacts").mockImplementation(() => { throw new Error("старый декодер вызван") })
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   queryPort.resolveTargets([
     lookup("first", "cf", "Catalog.Source"),
@@ -180,7 +183,10 @@ it("использует переданный типизированный чи�
   const snapshot = new ProjectStateSnapshotView(buffers)
   const reader = createTypedProjectStateReader(snapshot)
   const localValidation = vi.spyOn(reader, "localValidation")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   queryPort.readValidationStatus({ offset: 0, batchSize: 1 })
   queryPort.readValidationStatus({ offset: 1, batchSize: 1 })
@@ -194,7 +200,9 @@ it("разрешает одинаковую цель один раз для вс
   ])
   const snapshot = new ProjectStateSnapshotView(buffers)
   const lookupTarget = vi.spyOn(snapshot, "lookupTarget")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.resolveTargets([
     lookup("first", "cf", "Catalog.Source"),
@@ -211,7 +219,10 @@ it("читает сведения цели без восстановления �
   const snapshot = new ProjectStateSnapshotView(buffers)
   const reader = createTypedProjectStateReader(snapshot)
   const yamlFacts = vi.spyOn(reader, "yamlFacts")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.resolveTargets([
     lookup("target", "cf", "Catalog.Source"),
@@ -225,7 +236,10 @@ it("читает входы DataPath без восстановления все�
   const snapshot = new ProjectStateSnapshotView(typedSnapshot([update]))
   const reader = createTypedProjectStateReader(snapshot)
   const yamlFacts = vi.spyOn(reader, "yamlFacts")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.readDependencyInputs([{
     requestId: "dependency",
@@ -299,7 +313,10 @@ it("восстанавливает вложенную цель отложенн�
 
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
   const buffers = typedSnapshot(updates)
-  return openBinaryProjectStateReadSession(createBinaryProjectStateReadToken(buffers))
+  return openBinaryProjectStateReadSession(
+    createBinaryProjectStateReadToken(buffers),
+    createProjectStateDependencyValidator(),
+  )
 }
 
 function typedSnapshot(updates: ReturnType<typeof richYamlUpdate>[]) {

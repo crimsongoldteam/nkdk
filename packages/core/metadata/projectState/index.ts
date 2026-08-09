@@ -35,7 +35,6 @@ export {
   type ProjectStateComponentProjection,
   type ProjectStateService,
 } from "./service"
-export { createProjectStateOwnerMetadataCache, type ProjectStateOwnerMetadataCache } from "./dependencyValidation"
 export type {
   ProjectStateRefreshParams,
   ProjectStateRefreshProfile,

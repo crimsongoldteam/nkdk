@@ -12,13 +12,10 @@
         "packages/core/metadata/projectState/binary/readSession.ts",
         "packages/core/metadata/projectState/binary/store.ts",
         "packages/core/metadata/projectState/binary/typedReader.ts",
-        "packages/core/metadata/projectState/contracts.ts",
-        "packages/core/metadata/projectState/dependencyValidation.ts",
         "packages/core/metadata/projectState/fileUpdate.ts",
         "packages/core/metadata/projectState/fileUpdateValidation.ts",
         "packages/core/metadata/projectState/importSession.ts",
         "packages/core/metadata/projectState/projectFiles.ts",
-        "packages/core/metadata/projectState/readSession.ts",
         "packages/core/metadata/projectState/refresh.ts",
         "packages/core/metadata/projectState/store.ts",
         "packages/core/metadata/projectState/writerHandle.ts",
@@ -36,6 +33,7 @@
         "packages/core/metadata/validation/formValidationRegistry.ts",
         "packages/core/metadata/validation/projectFirstPassReadiness.ts",
         "packages/core/metadata/validation/projectReferenceIndexRegistry.ts",
+        "packages/core/metadata/validation/projectStateDependencyValidation.ts",
         "packages/core/metadata/validation/projectValidationObjectTable.ts",
         "packages/core/metadata/validation/projectValidationPasses.ts",
         "packages/core/metadata/validation/projectValidationPendingChecks.ts",
@@ -46,11 +44,9 @@
         "packages/core/metadata/validation/registerValidationMetadata.ts",
         "packages/core/metadata/validation/rulesSnapshot.ts",
         "packages/core/metadata/validation/validationWorkerPoolTypes.ts",
-        "packages/core/metadata/validation/yamlFactExtractor.ts",
-        "packages/core/metadata/workerPool/operationQueue.ts",
-        "packages/core/metadata/workerPool/types.ts"
+        "packages/core/metadata/validation/yamlFactExtractor.ts"
       ],
-      "dependencyCount": 159
+      "dependencyCount": 136
     },
     {
       "modules": [

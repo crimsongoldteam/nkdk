@@ -6,6 +6,7 @@ import { createBinaryProjectStateStore } from "../metadata/projectState/binary/s
 import type { ProjectStateSharedBuffers } from "../metadata/projectState/binary/snapshot"
 import { createProjectStateWriterHandle } from "../metadata/projectState/writerHandle"
 import type { ValidationSchemaCache } from "../metadata/validation/projectValidationPasses"
+import { createProjectStateDependencyValidator } from "../metadata/validation/projectStateDependencyValidation"
 import { createMockWorkerThreadPoolFactory } from "./mockWorkerThreadPool"
 
 const validSchema = {
@@ -27,6 +28,7 @@ export function createImportProjectStateTestService(
     ...options,
     createWriter: () => createProjectStateWriterHandle({
       openStore: async (projectDir) => createBinaryProjectStateStore({
+        dependencyValidator: createProjectStateDependencyValidator(),
         projectDir,
         initial: snapshots.get(projectDir),
       }).store,

@@ -19,7 +19,7 @@ import {
 import {
   projectStateDataPathReferenceLocation,
   resolveProjectStateDataPathReferenceBatch,
-} from "./dependencyValidation"
+} from "../validation/projectStateDependencyValidation"
 import { runProjectStateStoreContract } from "./storeContract"
 import type { ProjectStateStore } from "./store"
 import { buildProjectStateSnapshot } from "./binary/builder"

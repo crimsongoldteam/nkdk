@@ -1,38 +1,39 @@
 import { describe, expect, it } from "vitest"
 import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
-import { validationComponentLayers } from "../validation/componentVisibility"
+import { validationComponentLayers } from "./componentVisibility"
 import {
   createOwnerMetadataCacheFromValidationTable,
   type OwnerMetadataCache,
-} from "../validation/dataPath/ownerCache"
-import { createProjectValidationGraph } from "../validation/projectValidationGraph"
-import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import type { FormDataPathColumnSource, OwnerTypeRef } from "../validation/dataPath/types"
-import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
-import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
+} from "./dataPath/ownerCache"
+import { createProjectValidationGraph } from "./projectValidationGraph"
+import type { FormDataPathIndex } from "./dataPath/formIndex"
+import type { FormDataPathColumnSource, OwnerTypeRef } from "./dataPath/types"
+import type { ObjectFieldIndex } from "./dataPath/objectFields"
+import { validatePendingChecks } from "./projectValidationPendingChecks"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,
   validatePendingReferencesWithIndex,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
-} from "../validation/projectReferenceIndex"
-import { createValidationObjectTable } from "../validation/projectValidationObjectTable"
+} from "./projectReferenceIndex"
+import { createValidationObjectTable } from "./projectValidationObjectTable"
 import type {
   ComponentValidationLayer,
   ProjectValidationGraph,
   ValidationObjectRecord,
-} from "../validation/projectValidationTypes"
-import type { ProjectStateYamlFileUpdate } from "./fileUpdate"
-import { createProjectStateFragmentWriter } from "./binary/fragment"
-import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
-import { createBinaryProjectStateQueryPort } from "./binary/readSession"
-import { ProjectStateSnapshotView } from "./binary/snapshot"
+} from "./projectValidationTypes"
+import type { ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
+import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
+import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
+import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
+import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import {
+  createProjectStateDependencyValidator,
   validateProjectStateDependencyBatch,
   validateProjectStateOwnerBatch,
   validateProjectStateReferenceBatch,
-} from "./dependencyValidation"
+} from "./projectStateDependencyValidation"
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -368,7 +369,7 @@ describe("dependency validation из ProjectState", () => {
     store.commitUpdate()
     const session = createBinaryProjectStateQueryPort(
       new ProjectStateSnapshotView(store.createReadToken().buffers),
-      { pageSize: 2 },
+      { pageSize: 2, dependencyValidator: createProjectStateDependencyValidator() },
     )
     const inputs = session.readDependencyInputs([
       dependencyQuery("input-x", sourceX),

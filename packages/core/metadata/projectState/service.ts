@@ -11,6 +11,7 @@ import {
   type ProjectStateImportSession,
 } from "./importSession"
 import { openBinaryProjectStateReadSession } from "./binary/readSession"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
@@ -68,7 +69,8 @@ export interface ProjectStateService {
   close(): Promise<void>
 }
 
-export const openProjectStateReadSession = openBinaryProjectStateReadSession
+export const openProjectStateReadSession = (token: ProjectStateReadToken): ProjectStateReadSession =>
+  openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator())
 
 export interface CreateProjectStateServiceOptions {
   readonly createWriter?: () => ProjectStateWriterHandle
@@ -88,7 +90,7 @@ export function createProjectStateService(
   const createPool = options.createPool
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
   const refresh = options.refresh ?? refreshProjectState
-  const openReadSession = options.openReadSession ?? openBinaryProjectStateReadSession
+  const openReadSession = options.openReadSession ?? openProjectStateReadSession
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
   const retiredWriters = new Set<ProjectStateWriterHandle>()
   let sequence = Promise.resolve()

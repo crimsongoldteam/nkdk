@@ -3,23 +3,23 @@ import {
   resolvedProjectReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
-} from "../validation/projectReferenceIndex"
-import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
-import type { Diagnostic } from "../validation/types"
+} from "./projectReferenceIndex"
+import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
+import type { Diagnostic } from "../diagnostics/types"
 import {
   ownerMetadataFromFacts,
   ownerMetadataNotFound,
   type OwnerMetadataCache,
-} from "../validation/dataPath/ownerCache"
-import type { FormDataPathSource, OwnerTypeRef } from "../validation/dataPath/types"
-import type { ResolvedDataPathTarget } from "../validation/dataPath/resolver"
-import { resolveDataPath } from "../validation/dataPath/resolver"
-import type { ObjectField, ObjectFieldIndex } from "../validation/dataPath/objectFields"
-import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import { getDataPathOwnerKind, getDataPathOwnerKindByItemType } from "../validation/dataPath/registry"
-import { validatePendingChecks } from "../validation/projectValidationPendingChecks"
-import { createProjectDegradationDiagnostics } from "../validation/projectFirstPassReadiness"
-import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "./fileUpdate"
+} from "./dataPath/ownerCache"
+import type { FormDataPathSource, OwnerTypeRef } from "./dataPath/types"
+import type { ResolvedDataPathTarget } from "./dataPath/resolver"
+import { resolveDataPath } from "./dataPath/resolver"
+import type { ObjectField, ObjectFieldIndex } from "./dataPath/objectFields"
+import type { FormDataPathIndex } from "./dataPath/formIndex"
+import { getDataPathOwnerKind, getDataPathOwnerKindByItemType } from "./dataPath/registry"
+import { validatePendingChecks } from "./projectValidationPendingChecks"
+import { createProjectDegradationDiagnostics } from "./projectFirstPassReadiness"
+import type { ProjectStateFieldEntry, ProjectStateFormEntry } from "../projectState/contracts/fileUpdate"
 import type {
   ProjectDependencyInput,
   ProjectDependencyInputQuery,
@@ -27,9 +27,29 @@ import type {
   ProjectDependencyInputResult,
   ProjectDataPathReferenceLocation,
   ProjectStateQueryPort,
-} from "./readSession"
-import type { ProjectStatePendingDependencyCheck } from "./fileUpdate"
+} from "../projectState/contracts/dependencyValidation"
+import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
 import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
+import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
+
+export function createProjectStateDependencyValidator(): ProjectStateDependencyValidator {
+  return {
+    readReadiness: readProjectStateDependencyReadiness,
+    resolveDataPaths: (params) => resolveProjectStateDataPathReferenceBatch(params)
+      .filter((reference) => reference.target.source.kind === "objectField")
+      .map((reference) => ({
+        requestId: reference.requestId,
+        componentPath: reference.componentPath,
+        projectPath: reference.projectPath,
+        resolvedSegments: reference.target.segments,
+        sourceOwner: reference.target.source.kind === "objectField" ? reference.target.source.owner : { kind: "" },
+        ...(reference.target.source.kind === "objectField" ? { sourceFieldName: reference.target.source.name } : {}),
+      })),
+    validateReferences: validateProjectStateReferenceBatch,
+    validateOwners: validateProjectStateOwnerBatch,
+    validateDependencies: validateProjectStateDependencyBatch,
+  }
+}
 
 export interface ProjectStateDataPathReferenceCheck {
   readonly requestId: string

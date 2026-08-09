@@ -3,16 +3,13 @@ import {
   type DiagnosticBatchView,
   type EncodedDiagnosticBatch,
 } from "../../diagnostics/binaryBatch"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../validation/types"
-import {
-  readProjectStateDependencyReadiness,
-  validateProjectStateDependencyBatch,
-  validateProjectStateOwnerBatch,
-  validateProjectStateReferenceBatch,
-  type ProjectStatePendingOwnerCheck,
-  type ProjectStatePendingReferenceCheck,
-} from "../dependencyValidation"
-import type { ProjectDependencyInputQuery } from "../readSession"
+import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
+import type {
+  ProjectStateDependencyValidator,
+  ProjectStatePendingOwnerCheck,
+  ProjectStatePendingReferenceCheck,
+} from "../contracts/dependencyValidation"
+import type { ProjectDependencyInputQuery } from "../contracts/dependencyValidation"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 import {
   ProjectStateDiagnosticRecordView,
@@ -28,11 +25,12 @@ const SOURCES = [undefined, "syntax", "structure", "external-file", "cross-file"
 export function readLocalDiagnosticBatch(
   snapshot: ProjectStateSnapshotView,
   publishedMode: boolean,
+  dependencyValidator: ProjectStateDependencyValidator,
 ): DiagnosticBatchView {
   const typed = createTypedProjectStateReader(snapshot)
   const blocked = publishedMode
-    ? readProjectStateDependencyReadiness({
-        queryPort: createBinaryProjectStateQueryPort(snapshot, { typedReader: typed }),
+    ? dependencyValidator.readReadiness({
+        queryPort: createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator }),
       }).blockedComponentPaths
     : new Set<string>()
   const statusRange = snapshot.factTableCatalog().get("validationStatus")
@@ -80,19 +78,20 @@ export function readLocalDiagnosticBatch(
 export function validateDependencyDiagnosticBatch(
   snapshot: ProjectStateSnapshotView,
   projectDir: string,
+  dependencyValidator: ProjectStateDependencyValidator,
   typed: TypedProjectStateReader = createTypedProjectStateReader(snapshot),
 ): EncodedDiagnosticBatch {
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed })
-  const readiness = readProjectStateDependencyReadiness({ queryPort })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
+  const readiness = dependencyValidator.readReadiness({ queryPort })
   const { references, dependencies, owners } = collectDependencyChecks(
     snapshot,
     typed,
     readiness.blockedComponentPaths,
   )
   const writer = createDiagnosticBatchWriter()
-  append(writer, validateProjectStateReferenceBatch({ checks: references, projectDir, queryPort }))
-  append(writer, validateProjectStateOwnerBatch({ checks: owners, projectDir, queryPort }))
-  append(writer, validateProjectStateDependencyBatch({ checks: dependencies, projectDir, queryPort }))
+  append(writer, dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }))
+  append(writer, dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }))
+  append(writer, dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }))
   append(writer, readiness.diagnostics)
   return writer.finish()
 }
