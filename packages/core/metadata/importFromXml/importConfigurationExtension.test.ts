@@ -48,11 +48,26 @@ describe("configuration extension XML import", () => {
         {
           severity: "error",
           code: "project_validation",
-          message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
+          message: "Не найден владелец СправочникОбъект.БазовыйСправочник",
+          targetProjectPath: join(
+            fs.realpathSync(projectDir),
+            "cfe/РасширениеКонтроль/Справочник/БазовыйСправочник/Свойства.yaml",
+          ),
+        },
+        {
+          severity: "error",
+          code: "project_validation",
+          message: 'Ссылка "Language.БазовыйЯзык" не включена в расширение',
           targetProjectPath: "cfe/РасширениеКонтроль/Конфигурация.yaml",
         },
       ],
-      warnings: [],
+      warnings: [{
+        severity: "warning",
+        code: "unresolved_data_path",
+        message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
+        targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
+        value: "БазовыйОбъект.БазовыйРеквизит.Description",
+      }],
       configurationIndexPath: configurationIndexPath(projectDir, {
         kind: "configurationExtension",
         name: "РасширениеКонтроль",
@@ -102,7 +117,7 @@ describe("configuration extension XML import", () => {
         },
         ПолеБазовогоРеквизита: {
           Вид: "ПолеНадписи",
-          ПутьКДанным: "БазовыйОбъект.БазовыйРеквизит.Наименование",
+          ПутьКДанным: "БазовыйОбъект.БазовыйРеквизит.Description",
         },
       },
     })
@@ -160,6 +175,7 @@ async function importExtension() {
   )
   writeBaseLanguage(projectDir)
   writeBaseCatalog(projectDir)
+  writeBaseConfiguration(projectDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
@@ -202,9 +218,15 @@ function temporaryDirectory(): string {
 }
 
 function writeBaseLanguage(projectDir: string): void {
-  const path = join(projectDir, "cf", "Язык", "БазовыйЯзык.yaml")
+  const path = join(projectDir, "cf", "Язык", "БазовыйЯзык", "Свойства.yaml")
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, "КодЯзыка: ru\n")
+}
+
+function writeBaseConfiguration(projectDir: string): void {
+  const path = join(projectDir, "cf", "Конфигурация.yaml")
+  fs.mkdirSync(dirname(path), { recursive: true })
+  fs.writeFileSync(path, "Имя: Основная\nОсновнойЯзык: БазовыйЯзык\n")
 }
 
 function writeBaseCatalog(projectDir: string): void {
