@@ -12,6 +12,10 @@ import { serializeYAMLDocument } from "../../yaml/export"
 registerCoreMetadata()
 
 const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
+const adoptedExtensionFixture = join(
+  import.meta.dirname,
+  "__fixtures__/configurationExtension/Catalogs/СправочникПолный.xml",
+)
 const tempDirs: string[] = []
 
 afterEach(() => {
@@ -113,6 +117,18 @@ describe("fill value XML import", () => {
     expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
       expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.СтандартныйРеквизит.Владелец.fillValue" }),
     )
+  })
+
+  it("не синтезирует стандартные реквизиты заимствованного справочника расширения", async () => {
+    const prepared = await prepareImportYaml({
+      assignment: assignment(adoptedExtensionFixture),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.yaml).not.toHaveProperty("СтандартныеРеквизиты")
+    expect(prepared.yaml).not.toHaveProperty("Владельцы")
+    expect(prepared.dependentDeferred).toEqual([])
   })
 })
 

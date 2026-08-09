@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import { mockContext } from "../../tests/mockContext"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {
@@ -10,6 +12,10 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { FormDataPathColumnSource, OwnerTypeRef } from "./dataPath/types"
 import type { ObjectFieldIndex } from "./dataPath/objectFields"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { resolveValidationProjectFile } from "./projectFiles"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { createValidationProjectComponent } from "./projectComponents"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,
@@ -59,6 +65,31 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("не наследует стандартный реквизит владельца заимствованного справочника из cf", () => {
+    const file = resolveValidationProjectFile(
+      "/project/cfe/Продажи",
+      "Справочник/Товары/Свойства.yaml",
+      createValidationProjectComponent("/project", { kind: "configurationExtension", name: "Продажи" }),
+    )
+    if (file === undefined) throw new Error("Не определён файл заимствованного справочника")
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(`Реквизиты:
+  Дополнительный:
+    Тип: Строка(10)
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const get = vi.fn<OwnerMetadataCache["get"]>(() => {
+      throw new Error("Стандартные реквизиты заимствованного объекта не должны читаться из cf")
+    })
+    const ownerCache = { get, listRefs: () => [] } satisfies OwnerMetadataCache
+
+    expect(facts.pendingChecks).toEqual([])
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({ diagnostics: [] })
+    expect(get).not.toHaveBeenCalled()
+  })
+
   it("Б5 принимает пустую ссылку, если владелец существует", () => {
     const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
       roots: ["Catalog"],
