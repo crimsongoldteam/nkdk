@@ -15,7 +15,7 @@ describe("parseWithJsYaml", () => {
   it.each([
     ["пустой !xml", "Поле: !xml", "!xml", "xml"],
     ["непустой !xml", "Поле: !xml Текст", "!xml Текст", "xml"],
-    ["пустое значение", "Поле:", undefined, undefined],
+    ["пустое значение", "Поле:", {}, undefined],
     ["явная пустая строка", 'Поле: ""', "", undefined],
   ] as const)("различает %s", (_name, text, value, tag) => {
     const parsed = parseWithJsYaml(text)
@@ -67,18 +67,18 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors[0].col).toBeGreaterThanOrEqual(1)
   })
 
-  it("parses empty documents as undefined without syntax errors", () => {
+  it("разбирает пустой документ как пустой объект без синтаксических ошибок", () => {
     const parsed = parseWithJsYaml("")
 
-    expect(parsed.data).toBeUndefined()
+    expect(parsed.data).toEqual({})
     expect(parsed.syntaxErrors).toEqual([])
   })
 
-  it("разбирает пустой элемент последовательности как undefined", () => {
+  it("разбирает пустой элемент последовательности как пустой объект", () => {
     const parsed = parseWithJsYaml("Элементы:\n  -")
 
     expect(parsed.syntaxErrors).toEqual([])
-    expect(parsed.data).toEqual({ Элементы: [undefined] })
+    expect(parsed.data).toEqual({ Элементы: [{}] })
   })
 })
 

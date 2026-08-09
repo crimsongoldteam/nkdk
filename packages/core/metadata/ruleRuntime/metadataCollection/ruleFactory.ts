@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "typebox"
+import { Type } from "typebox"
 import {
   arrayOfSchemaRef,
   recordOfSchemaRef,
@@ -107,20 +107,13 @@ export const registerMetadataItemCollectionRule = <
 
   registerJSONSchemaPropertyRef(propertyType, ({ context, rule }) => {
     const resolvedItemRule = resolvePropertyItemRule(rule, itemRule)
-    const refOptions = metadataItemRuleAllowsEmptyYAML(resolvedItemRule)
-      ? { allowUndefinedValue: true as const }
-      : undefined
     if (resolvedItemRule === itemRule) {
       if (schemaShape === "schema") return schemaRef(schemaName)
-      return schemaShape === "array"
-        ? arrayOfSchemaRef(schemaName, refOptions)
-        : recordOfSchemaRef(schemaName, refOptions)
+      return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
     if (resolvedItemRule === declaredMetadataItemRule(propertyType)) {
       if (schemaShape === "schema") return schemaRef(schemaName)
-      return schemaShape === "array"
-        ? arrayOfSchemaRef(schemaName, refOptions)
-        : recordOfSchemaRef(schemaName, refOptions)
+      return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
     return exportCollectionSchema({ context, propertyRule: rule, resolvedItemRule })
   })
@@ -196,9 +189,8 @@ export const registerMetadataItemCollectionRule = <
       rule: resolvedItemRule,
     })
     if (schemaShape === "schema") return itemSchema
-    const valueSchema = allowUndefinedEmptyItem(itemSchema)
-    if (schemaShape === "array") return Type.Array(valueSchema)
-    return Type.Record(Type.String(), valueSchema)
+    if (schemaShape === "array") return Type.Array(itemSchema)
+    return Type.Record(Type.String(), itemSchema)
   }
 
   const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context, rule }) =>
@@ -224,18 +216,6 @@ export const registerMetadataItemCollectionRule = <
       itemRule: itemRule as unknown as MetadataItemRule,
     })
   }
-}
-
-function allowUndefinedEmptyItem(schema: TSchema): TSchema {
-  const constraints = schema as TSchema & { required?: unknown; minProperties?: unknown }
-  if (Array.isArray(constraints.required) && constraints.required.length > 0) return schema
-  if (typeof constraints.minProperties === "number" && constraints.minProperties > 0) return schema
-  return Type.Union([schema, Type.Undefined()])
-}
-
-function metadataItemRuleAllowsEmptyYAML(rule: MetadataItemRule | undefined): boolean {
-  if (rule === undefined) return false
-  return !Object.values(rule.properties).some((property) => property.required === true)
 }
 
 function declaredMetadataItemRule(propertyType: PropertyRuleType): MetadataItemRule | undefined {

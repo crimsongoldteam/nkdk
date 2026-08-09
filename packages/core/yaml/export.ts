@@ -71,7 +71,7 @@ function prepareForDump(
   }
   if (value !== null && typeof value === "object") {
     const entries = Object.entries(value)
-    if (entries.length === 0) return { dumpValue: value, data: undefined }
+    if (entries.length === 0) return { dumpValue: value, data: value }
     const prepared = entries.map(([key, item]) => [
       key,
       prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
@@ -97,7 +97,7 @@ function prepareChildForDump(
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
-    return { dumpValue: marker, data: undefined }
+    return { dumpValue: marker, data: {} }
   }
   const prepared = value === undefined
     ? { dumpValue: null, data: null }

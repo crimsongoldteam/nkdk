@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "typebox"
+import { type TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
@@ -33,28 +33,17 @@ export function schemaRef(name: string): TSchema {
   return rawJSONSchema({ $ref: createSchemaRef(name) })
 }
 
-interface CollectionSchemaRefOptions {
-  allowUndefinedValue?: true
-}
-
-function schemaRefValue(name: string, options: CollectionSchemaRefOptions): TSchema {
-  const value = schemaRef(name)
-  return options.allowUndefinedValue === true
-    ? Type.Union([value, Type.Undefined()])
-    : value
-}
-
-export function recordOfSchemaRef(name: string, options: CollectionSchemaRefOptions = {}): TSchema {
+export function recordOfSchemaRef(name: string): TSchema {
   return rawJSONSchema({
     type: "object",
-    additionalProperties: schemaRefValue(name, options),
+    additionalProperties: schemaRef(name),
   })
 }
 
-export function arrayOfSchemaRef(name: string, options: CollectionSchemaRefOptions = {}): TSchema {
+export function arrayOfSchemaRef(name: string): TSchema {
   return rawJSONSchema({
     type: "array",
-    items: schemaRefValue(name, options),
+    items: schemaRef(name),
   })
 }
 

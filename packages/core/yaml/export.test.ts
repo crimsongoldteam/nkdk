@@ -17,6 +17,7 @@ describe("exportToYAML", () => {
 
     expect(serialized.text).toBe(expected)
     expect(serialized.text).not.toContain("{}")
+    expect(serialized.data).toEqual(source)
     expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
   })
 
