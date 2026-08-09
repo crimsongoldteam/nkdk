@@ -17,12 +17,14 @@ import {
 } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
+import type { BaseFormSourceResult } from "./baseFormSource"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
   preparedYamlFile: PreparedYamlFile
-  basePreparedYamlFile?: PreparedYamlFile
+  baseFormSource?: BaseFormSourceResult
   baseConfigurationIndex?: ConfigurationIndexReader
+  baseFormConfigurationIndex?: ConfigurationIndexReader
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
   composition: MetadataXmlPrepareComposition
@@ -45,14 +47,42 @@ export function prepareFullXmlSyncAssignment(params: {
     ...params.context,
     exportToXML: { ...params.context.exportToXML, configurationIndex: runtime },
   }
+  const baseFormCollector = params.baseFormSource?.kind === "saved"
+    ? createConfigurationIndexCollector()
+    : undefined
+  const baseFormContext = baseFormCollector === undefined || params.baseFormSource === undefined
+    ? undefined
+    : {
+        ...context,
+        exportToXML: {
+          ...context.exportToXML,
+          configurationIndex: createConfigurationIndexExportRuntime({
+            source: params.baseFormConfigurationIndex ?? params.index,
+            collector: baseFormCollector,
+            targetProjectPath: params.baseFormSource.projectPath,
+            logicalAddress: `${params.assignment.logicalAddress}.ОсноваФормы`,
+          }),
+        },
+      }
   const profile = createYAMLToXMLProfile()
   const documents = prepareTopologyAssignmentDocuments({
     ...params,
     context,
+    ...(baseFormContext === undefined ? {} : { baseFormContext }),
     profile,
     topology: params.topology ?? compileRegisteredMetadataResourceTopology(),
   })
-  return { assignment: params.assignment, documents, indexCollector, profile }
+  return {
+    assignment: params.assignment,
+    documents,
+    indexCollectors: [
+      { collector: indexCollector, targetProjectPath: params.assignment.sourceProjectPath },
+      ...(baseFormCollector === undefined || params.baseFormSource === undefined
+        ? []
+        : [{ collector: baseFormCollector, targetProjectPath: params.baseFormSource.projectPath }]),
+    ],
+    profile,
+  }
 }
 
 function prepareTopologyAssignmentDocuments(
@@ -60,6 +90,7 @@ function prepareTopologyAssignmentDocuments(
     context: ConfigurationContextWithExportToXML
     profile: ReturnType<typeof createYAMLToXMLProfile>
     topology: CompiledMetadataResourceTopology
+    baseFormContext?: ConfigurationContextWithExportToXML
   }
 ): readonly PreparedXMLDocument[] {
   const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
@@ -82,15 +113,18 @@ function prepareTopologyAssignmentDocuments(
     return capability.run({
       context,
       preparedYamlFile: params.preparedYamlFile,
-      ...(params.basePreparedYamlFile === undefined
+      ...(params.baseFormSource === undefined
         ? {}
-        : { basePreparedYamlFile: params.basePreparedYamlFile }),
+        : { basePreparedYamlFile: params.baseFormSource.prepared }),
       ...(params.baseConfigurationIndex === undefined
         ? {}
         : {
             baseConfigurationIndex:
               params.baseConfigurationIndex,
-          }),
+        }),
+      ...(params.baseFormSource?.kind !== "saved" || params.baseFormContext === undefined
+        ? {}
+        : { baseFormContext: params.baseFormContext }),
       assignment: effectiveAssignmentNode,
       itemName: params.assignment.itemName,
       logicalAddress: params.assignment.logicalAddress,

@@ -27,13 +27,14 @@ describe("verified base form source", () => {
       baseHashes: state.hashes,
     })
 
-    const prepared = await source.read({
+    const result = await source.read({
       extensionAssignment: assignment(state.projectPath, "/extension/Форма.yaml"),
       baseProjectPath: state.projectPath,
     })
 
-    expect(prepared.projectPath).toBe(state.projectPath)
-    expect(prepared.data).toMatchObject({ Заголовок: "Основная форма" })
+    expect(result.kind).toBe("projected")
+    expect(result.projectPath).toBe(state.projectPath)
+    expect(result.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
   })
 
   it("rejects a base YAML changed after hashes were received", async () => {
@@ -67,7 +68,7 @@ describe("verified base form source", () => {
       baseHashes: state.hashes,
     })
 
-    const prepared = await source.read({
+    const result = await source.read({
       extensionAssignment: assignment(
         state.projectPath,
         "/extension/Свойства.yaml"
@@ -75,10 +76,66 @@ describe("verified base form source", () => {
       baseProjectPath: state.projectPath,
     })
 
-    expect(prepared.role).toBe("properties")
-    expect(prepared.data).toMatchObject({
+    expect(result.kind).toBe("projected")
+    expect(result.prepared.role).toBe("properties")
+    expect(result.prepared.data).toMatchObject({
       Форма: { Заголовок: "Основная форма" },
     })
+  })
+
+  it("prefers a confirmed saved base form companion", async () => {
+    const base = await createBase()
+    const saved = await createBase(
+      "Справочник/СправочникПолный/Формы/ФормаЭлемента/БазоваяФорма.yaml",
+      "Заголовок: Сохранённая основа\n"
+    )
+    const source = createVerifiedBaseFormSource({
+      baseStructure: base.structure,
+      baseHashes: base.hashes,
+      savedStructure: saved.structure,
+      savedHashes: saved.hashes,
+    })
+
+    const result = await source.read({
+      extensionAssignment: assignment(base.projectPath, "/extension/Форма.yaml"),
+      baseProjectPath: base.projectPath,
+      savedProjectPath: saved.projectPath,
+    })
+
+    expect(result.kind).toBe("saved")
+    expect(result.projectPath).toBe(saved.projectPath)
+    expect(result.prepared.data).toMatchObject({ Заголовок: "Сохранённая основа" })
+  })
+
+  it("reads the changed current form after confirmation without creating a companion", async () => {
+    const state = await createBase()
+    const companionPath = join(state.sourcePath, "..", "БазоваяФорма.yaml")
+    const first = await createVerifiedBaseFormSource({
+      baseStructure: state.structure,
+      baseHashes: state.hashes,
+    }).read({
+      extensionAssignment: assignment(state.projectPath, "/extension/Форма.yaml"),
+      baseProjectPath: state.projectPath,
+    })
+    fs.writeFileSync(state.sourcePath, "Заголовок: Обновлённая форма\n")
+    const refreshedHashes = {
+      componentPath: state.structure.componentPath,
+      projectFiles: await hashConfigurationProjectFileList(
+        state.structure.componentDir,
+        state.structure.projectPaths,
+      ),
+    }
+    const second = await createVerifiedBaseFormSource({
+      baseStructure: state.structure,
+      baseHashes: refreshedHashes,
+    }).read({
+      extensionAssignment: assignment(state.projectPath, "/extension/Форма.yaml"),
+      baseProjectPath: state.projectPath,
+    })
+
+    expect(first.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
+    expect(second.prepared.data).toMatchObject({ Заголовок: "Обновлённая форма" })
+    expect(fs.existsSync(companionPath)).toBe(false)
   })
 
   async function createBase(

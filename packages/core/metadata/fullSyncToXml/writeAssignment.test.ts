@@ -69,8 +69,8 @@ describe("writeFullXmlSyncAssignment", () => {
     expect(result.writtenFiles).toEqual([
       { assignmentId: assignment.id, targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" },
     ])
-    expect(result.fragment).toMatchObject({ targetProjectPath: sourceProjectPath })
-    expect(result.fragment?.entities).toEqual(
+    expect(result.fragments[0]).toMatchObject({ targetProjectPath: sourceProjectPath })
+    expect(result.fragments[0]?.entities).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           logicalAddress: "Обработка.ОбработкаВсеСвойства",
@@ -180,7 +180,7 @@ describe("writeFullXmlSyncAssignment", () => {
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
   })
 
-  it("возвращает пустой фрагмент с путём успешно обработанного задания", async () => {
+  it("возвращает отдельные фрагменты рабочей и сохранённой формы", async () => {
     const projectDir = tempDir()
     const assignment = dataProcessorAssignment(projectDir)
 
@@ -188,7 +188,13 @@ describe("writeFullXmlSyncAssignment", () => {
       prepared: {
         assignment,
         documents: [],
-        indexCollector: createConfigurationIndexCollector(),
+        indexCollectors: [{
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath: assignment.sourceProjectPath,
+        }, {
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath: "Обработка/ОбработкаВсеСвойства/БазоваяФорма.yaml",
+        }],
         profile: createYAMLToXMLProfile(),
       },
       context: mockContextToXML(),
@@ -197,10 +203,13 @@ describe("writeFullXmlSyncAssignment", () => {
 
     expect(result).toMatchObject({
       diagnostics: [],
-      fragment: {
+      fragments: [{
         targetProjectPath: assignment.sourceProjectPath,
         entities: [],
-      },
+      }, {
+        targetProjectPath: "Обработка/ОбработкаВсеСвойства/БазоваяФорма.yaml",
+        entities: [],
+      }],
     })
   })
 })

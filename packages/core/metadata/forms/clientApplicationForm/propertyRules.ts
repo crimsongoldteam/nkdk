@@ -82,6 +82,7 @@ registerMetadataXmlPrepareCapability({
     preparedYamlFile,
     basePreparedYamlFile,
     baseConfigurationIndex,
+    baseFormContext,
     assignment,
     itemName,
     outputs,
@@ -99,6 +100,7 @@ registerMetadataXmlPrepareCapability({
       ...(baseConfigurationIndex === undefined
         ? {}
         : { baseConfigurationIndex }),
+      ...(baseFormContext === undefined ? {} : { baseFormContext }),
     })
     return prepared.flatMap((document) => {
       const output = byRole.get(document.targetKind)

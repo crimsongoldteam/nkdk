@@ -174,11 +174,31 @@ export async function syncComponentToXml(
       runtime: confirmedRuntime,
       readFile: deps.readFile ?? defaultDependencies.readFile!,
     })
-    const plan = deps.buildPlan({
+    const basePlan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
       selection,
     })
+    const borrowedFormsByAddress = new Map(
+      (runtime.borrowedForms ?? []).map((form) => [form.logicalAddress, form])
+    )
+    const plan: FullXmlSyncPlan = {
+      ...basePlan,
+      assignments: basePlan.assignments.map((assignment) => {
+        const borrowed = borrowedFormsByAddress.get(assignment.logicalAddress)
+        return borrowed === undefined
+          ? assignment
+          : {
+              ...assignment,
+              baseFormPaths: {
+                baseProjectPath: borrowed.baseProjectPath,
+                ...(borrowed.savedProjectPath === undefined
+                  ? {}
+                  : { savedProjectPath: borrowed.savedProjectPath }),
+              },
+            }
+      }),
+    }
 
     const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
     const usesUniversalWorkers = deps.createWorkerPool === undefined
