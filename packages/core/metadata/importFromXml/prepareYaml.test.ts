@@ -26,6 +26,7 @@ const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/co
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
 const catalogSyncFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/sync/xml")
 const subsystemFixturePath = join(import.meta.dirname, "../appliedObjects/metadataSubsystem/__fixtures__/full.xml")
+const extensionFixtureDir = join(import.meta.dirname, "__fixtures__/configurationExtension")
 const AlternateComponentRootRule = { itemType: "MetadataAlternateComponent", properties: {} } as MetadataItemRule
 
 afterEach(() => {
@@ -509,6 +510,57 @@ describe("prepareImportYaml", () => {
     expect(readFile).toHaveBeenCalledWith(bodyPath, "utf-8")
     expect(readFile).not.toHaveBeenCalledWith(ownerPath, expect.anything())
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("удерживает BaseForm как изолированный YAML-кандидат", async () => {
+    const topologyNode = compileRegisteredMetadataResourceTopology().assignments.find(
+      ({ projectPattern }) => projectPattern === "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+    )
+    if (topologyNode === undefined) throw new Error("Не найдено задание формы справочника")
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: {
+        id: "extension-form",
+        topologyNodeId: topologyNode.id,
+        role: "fileItem",
+        targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
+        itemType: "ClientApplicationForm",
+        itemName: "ФормаОтчета",
+        logicalAddress: "Справочник.СправочникПолный.Форма.ФормаОтчета",
+        owner: {
+          itemType: "MetadataCatalog",
+          name: "СправочникПолный",
+          logicalAddress: "Справочник.СправочникПолный",
+        },
+        xmlFiles: [
+          {
+            role: "metadata",
+            sourcePath: join(extensionFixtureDir, "Catalogs/СправочникПолный/Forms/ФормаОтчета.xml"),
+          },
+          {
+            role: "body",
+            sourcePath: join(extensionFixtureDir, "Catalogs/СправочникПолный/Forms/ФормаОтчета/Ext/Form.xml"),
+          },
+        ],
+        externalFiles: [],
+      },
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(prepared.baseFormCandidate).toMatchObject({
+      targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
+      yaml: {
+        Реквизиты: { БазовыйРеквизитФормы: { Тип: "Дата" } },
+        Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+      },
+    })
+    expect(prepared.baseFormCandidate?.configurationFragment.entities.every(({ logicalAddress }) =>
+      logicalAddress.startsWith("Справочник.СправочникПолный.Форма.ФормаОтчета.ОсноваФормы")
+    )).toBe(true)
+    expect(collector.fragment(prepared.targetProjectPath).entities.some(({ logicalAddress }) =>
+      logicalAddress.includes("ОсноваФормы")
+    )).toBe(false)
   })
 
   it("prepares an ordinary form whose assignment has no body XML", async () => {

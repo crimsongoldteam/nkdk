@@ -1,5 +1,5 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { posix } from "node:path"
+import { join, posix } from "node:path"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
@@ -55,6 +55,10 @@ import {
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
 import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+import { prepareYamlFiles } from "../project/prepareYamlFiles"
+import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
+import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
+import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -98,6 +102,7 @@ interface DeferredImportYaml {
   formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
   deferred: PreparedImportYaml["deferred"]
   indexContribution: ProjectStateImportIndexContribution
+  baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
 }
 
 interface ActiveSecondPass {
@@ -126,6 +131,7 @@ interface SecondPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
   readonly warnings: ImportDiagnostic[]
   readonly files: ImportResultFile[]
+  readonly configurationFragments: ConfigurationSnapshotFragment[]
   readonly fragmentWriter: ReturnType<typeof createProjectStateFragmentWriter>
   readonly profiler: ValidationProfiler
   stateEntries: number
@@ -219,6 +225,7 @@ export async function runImportWorkerCommand(
       diagnostics: result.diagnostics,
       warnings: result.warnings,
       files: result.files,
+      configurationFragments: result.configurationFragments,
       ...(result.stateFragment === undefined ? {} : { stateFragment: result.stateFragment }),
     })
   }
@@ -274,10 +281,11 @@ async function processSecondPass(
         accumulator.warnings,
         profiler,
       )
-      accumulator.files.push(written.file)
-      accumulator.fragmentWriter.appendImportIndex(written.indexContribution)
-      accumulator.fragmentWriter.appendImportFinal(written.finalState)
-      accumulator.stateEntries += 2
+      accumulator.files.push(...written.files)
+      for (const index of written.indexContributions) accumulator.fragmentWriter.appendImportIndex(index)
+      for (const final of written.finalStates) accumulator.fragmentWriter.appendImportFinal(final)
+      accumulator.configurationFragments.push(...written.configurationFragments)
+      accumulator.stateEntries += written.indexContributions.length + written.finalStates.length
     } catch (caught) {
       accumulator.diagnostics.push(
         importAssignmentDiagnostic(prepared.diagnosticAssignment, caught, "xml_import_yaml_failed"),
@@ -298,6 +306,7 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
     diagnostics: [],
     warnings: [],
     files: [],
+    configurationFragments: [],
     fragmentWriter: createProjectStateFragmentWriter(),
     profiler,
     stateEntries: 0,
@@ -305,15 +314,10 @@ function createSecondPassAccumulator(workerIndex: number, profiler = createImpor
 }
 
 function finishSecondPass(accumulator: SecondPassAccumulator, flushProfile = true): ImportSecondPassResult {
-  if (flushProfile) accumulator.profiler.flush()
   return {
     kind: "secondPassResult",
-    diagnostics: accumulator.diagnostics,
     warnings: accumulator.warnings,
-    files: accumulator.files,
-    ...(accumulator.stateEntries === 0
-      ? (accumulator.fragmentWriter.discard(), {})
-      : { stateFragment: accumulator.fragmentWriter.finish() }),
+    ...finishImportPass(accumulator, flushProfile),
   }
 }
 
@@ -345,9 +349,10 @@ async function writePreparedYamlToOutput(
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
 ): Promise<{
-  file: ImportResultFile
-  indexContribution: ProjectStateImportIndexContribution
-  finalState: ProjectStateImportFinalFileStateBatch
+  files: ImportResultFile[]
+  indexContributions: ProjectStateImportIndexContribution[]
+  finalStates: ProjectStateImportFinalFileStateBatch[]
+  configurationFragments: ConfigurationSnapshotFragment[]
 }> {
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
@@ -379,7 +384,97 @@ async function writePreparedYamlToOutput(
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  return { file: main.file, indexContribution: validated.index, finalState: validated.final }
+  const baseFormCandidate = prepared.baseFormCandidate
+  const baseForm = baseFormCandidate === undefined
+    ? undefined
+    : await writeBaseFormCandidate({
+        candidate: baseFormCandidate,
+        extensionYaml: prepared.yaml,
+        contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
+        state,
+        profiler,
+      })
+  return {
+    files: [main.file, ...(baseForm === undefined ? [] : [baseForm.file])],
+    indexContributions: [validated.index, ...(baseForm === undefined ? [] : [baseForm.indexContribution])],
+    finalStates: [validated.final, ...(baseForm === undefined ? [] : [baseForm.finalState])],
+    configurationFragments: baseForm === undefined ? [] : [baseForm.configurationFragment],
+  }
+}
+
+async function writeBaseFormCandidate(params: {
+  candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
+  extensionYaml: unknown
+  contextWithOwners: ConfigurationContext
+  state: InitializedImportWorkerState
+  profiler: ValidationProfiler
+}): Promise<{
+  file: ImportResultFile
+  indexContribution: ProjectStateImportIndexContribution
+  finalState: ProjectStateImportFinalFileStateBatch
+  configurationFragment: ConfigurationSnapshotFragment
+} | undefined> {
+  finalizeImportedYamlValues({
+    yaml: params.candidate.yaml,
+    rootRule: params.candidate.rule,
+    deferred: params.candidate.deferred,
+    context: params.contextWithOwners,
+    formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
+  })
+  const baseFilePath = join(params.state.projectDir, "cf", ...params.candidate.baseProjectPath.split("/"))
+  const base = prepareYamlFiles({
+    files: [{
+      projectPath: params.candidate.baseProjectPath,
+      filePath: baseFilePath,
+      role: "form",
+      owner: params.candidate.owner,
+      itemType: params.candidate.rule.itemType,
+    }],
+    itemTypeByYamlDir: {},
+  })
+  if (base.diagnostics.length > 0 || base.yamlFiles[0]?.syntaxDiagnostics.length !== 0) {
+    throw new Error(`Не удалось подготовить основную форму ${params.candidate.baseProjectPath}`)
+  }
+  const projection = projectClientApplicationBaseForm({
+    baseYaml: clientApplicationFormYaml(base.yamlFiles[0]?.data, params.candidate.baseProjectPath),
+    extensionYaml: clientApplicationFormYaml(params.extensionYaml, params.candidate.targetProjectPath),
+    rule: params.candidate.rule,
+  })
+  if (equalBaseFormYaml(params.candidate.yaml, projection.yaml)) return undefined
+
+  const serialized = serializePreparedYaml(
+    params.candidate.targetProjectPath,
+    params.candidate.yaml,
+    params.state,
+    params.profiler,
+  )
+  const written = await writeMainImportYaml({ serialized, profiler: params.profiler })
+  const validated = measureSerializedImportYamlValidation(
+    { targetProjectPath: params.candidate.targetProjectPath },
+    serialized,
+    params.state,
+    params.profiler,
+    "isolated",
+  )
+  return {
+    file: written.file,
+    indexContribution: validated.index,
+    finalState: validated.final,
+    configurationFragment: params.candidate.configurationFragment,
+  }
+}
+
+function withoutDataPathDiagnosticSink(context: ConfigurationContext): ConfigurationContext {
+  if (context.exportToYAML === undefined) return context
+  const { dataPathDiagnosticSink: _sink, ...exportToYAML } = context.exportToYAML
+  return { ...context, exportToYAML }
+}
+
+function clientApplicationFormYaml(value: unknown, projectPath: string): ClientApplicationFormYAML {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`YAML формы не является объектом: ${projectPath}`)
+  }
+  return value as ClientApplicationFormYAML
 }
 
 function secondPassExportContext(params: {
@@ -485,7 +580,7 @@ async function processFirstPass(
           accumulator.stateEntries += generatedStateEntries.length
         }
         assignmentFiles.push(...externalFiles)
-        if (prepared.deferred.length === 0) {
+        if (prepared.deferred.length === 0 && prepared.baseFormCandidate === undefined) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })
           const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
@@ -511,6 +606,9 @@ async function processFirstPass(
             formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
             deferred: prepared.deferred,
             indexContribution,
+            ...(prepared.baseFormCandidate === undefined
+              ? {}
+              : { baseFormCandidate: prepared.baseFormCandidate }),
           })
           retainedYamlCount += 1
           deferredValueCount += prepared.deferred.length
@@ -567,9 +665,18 @@ function requireSecondPassAccumulator(): SecondPassAccumulator {
 }
 
 function finishFirstPass(accumulator: FirstPassAccumulator, flushProfile = true): ImportFirstPassResult {
-  if (flushProfile) accumulator.profiler.flush()
   return {
     kind: "firstPassResult",
+    ...finishImportPass(accumulator, flushProfile),
+  }
+}
+
+function finishImportPass(
+  accumulator: FirstPassAccumulator | SecondPassAccumulator,
+  flushProfile: boolean,
+) {
+  if (flushProfile) accumulator.profiler.flush()
+  return {
     diagnostics: accumulator.diagnostics,
     files: accumulator.files,
     configurationFragments: accumulator.configurationFragments,
@@ -655,6 +762,7 @@ function validateSerializedImportYaml(
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
+  indexContribution: "shared" | "isolated" = "shared",
 ): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
   const component = validationProjectComponentFromAddress(state.projectDir, {
     componentPath: state.componentPath,
@@ -717,7 +825,10 @@ function validateSerializedImportYaml(
       importFileBackedTargets(state, prepared.targetProjectPath),
     ),
   )
-  return splitImportYamlUpdate(full, serialized.localHash)
+  return splitImportYamlUpdate(
+    indexContribution === "isolated" ? isolateProjectStateYamlUpdate(full) : full,
+    serialized.localHash,
+  )
 }
 
 function importFileBackedTargets(
@@ -738,13 +849,32 @@ function measureSerializedImportYamlValidation(
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
+  indexContribution: "shared" | "isolated" = "shared",
 ): { index: ProjectStateImportIndexContribution; final: ProjectStateImportFinalFileStateBatch } {
   return profiler.measure(
     "Подготовка импорта конфигурации",
     "Локальная валидация готового YAML",
     { items: 1 },
-    () => validateSerializedImportYaml(prepared, serialized, state, profiler),
+    () => validateSerializedImportYaml(prepared, serialized, state, profiler, indexContribution),
   )
+}
+
+export function isolateProjectStateYamlUpdate(update: ProjectStateYamlFileUpdate): ProjectStateYamlFileUpdate {
+  return {
+    ...update,
+    localValidation: {
+      contributedFacts: false,
+      diagnostics: update.localValidation.schemaDiagnostics,
+      schemaDiagnostics: update.localValidation.schemaDiagnostics,
+    },
+    targets: [],
+    owners: [],
+    fields: [],
+    forms: [],
+    pendingReferences: [],
+    pendingChecks: [],
+    dependencies: [],
+  }
 }
 
 function splitImportYamlUpdate(
