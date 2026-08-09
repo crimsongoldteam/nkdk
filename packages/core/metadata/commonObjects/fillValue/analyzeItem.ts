@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../context/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type {
   DependentItemParams,
@@ -178,12 +178,17 @@ function ownerProperties(params: DependentItemParams): Record<string, unknown> {
   const root = asRecord(params.rootYaml)
   const result: Record<string, unknown> = {}
   for (const [modelKey, rule] of Object.entries(dependentRootRule(params.rootRule).properties)) {
-    if (rule.yaml === undefined) continue
-    const raw = root[rule.yaml]
+    const raw = effectiveOwnerPropertyValue(root, rule)
     if (raw === undefined) continue
     result[modelKey] = modelKey === "owners" ? normalizeOwners(raw) : raw
   }
   return result
+}
+
+function effectiveOwnerPropertyValue(root: Record<string, unknown>, rule: PropertyRule): unknown {
+  if (typeof rule.yaml !== "string") return undefined
+  if (Object.prototype.hasOwnProperty.call(root, rule.yaml)) return root[rule.yaml]
+  return typeof rule.implicitValueYAML === "function" ? undefined : rule.implicitValueYAML
 }
 
 function dependentParsedYaml(parsed: unknown): ParsedYaml {

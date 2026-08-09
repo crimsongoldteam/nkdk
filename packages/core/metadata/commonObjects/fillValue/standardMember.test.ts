@@ -1,8 +1,11 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import "../../appliedObjects/metadataCatalog/standardMembers"
 import "../../appliedObjects/metadataTask/standardMembers"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { getStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import type { MetadataTypedValue } from "../metadataValue/types"
+import { classifyStandardAttributeFillValue } from "./analyzeItem"
 import { classifyStandardMemberFillValue } from "./effectiveType"
 
 const catalogMember = (name: string): StandardMemberDeclaration => {
@@ -16,6 +19,20 @@ const classify = (
   value: MetadataTypedValue,
   ownerProperties: Readonly<Record<string, unknown>> = {}
 ) => classifyStandardMemberFillValue({ declaration: member, value, ownerProperties })
+
+const classifyCatalogCode = (
+  value: MetadataTypedValue,
+  rootYaml: Record<string, unknown>,
+  rootRule: MetadataItemRule = MetadataCatalogRules
+) => classifyStandardAttributeFillValue({
+  itemType: "StandardAttributeDescription",
+  itemName: "Код",
+  item: {},
+  itemYamlPath: ["СтандартныеРеквизиты", "Код"],
+  rootYaml,
+  rootRule,
+  owner: { dir: "Справочник", name: "Товары" },
+}, value)
 
 describe("standard member fill value", () => {
   it("checks task Date as DateTime", () => {
@@ -48,6 +65,34 @@ describe("standard member fill value", () => {
     expect(classify(member, { type: "decimal", value: 0 }, numberOwner).kind).toBe("implicit")
     expect(classify(member, { type: "decimal", value: 1234 }, numberOwner).kind).toBe("invalid")
     expect(classify(member, { type: "decimal", value: 1.2 }, numberOwner).kind).toBe("invalid")
+  })
+
+  it("uses static implicit YAML properties of the catalog", () => {
+    expect(classifyCatalogCode({ type: "string", value: "" }, {})).toMatchObject({ kind: "implicit" })
+    expect(classifyCatalogCode({ type: "string", value: "123456789" }, {})).toMatchObject({ kind: "valid" })
+    expect(classifyCatalogCode({ type: "string", value: "1234567890" }, {})).toMatchObject({ kind: "invalid" })
+  })
+
+  it("prefers explicit YAML and ignores XML defaults and computed implicit values", () => {
+    const computedImplicit = vi.fn(() => 3)
+    const probeRule = {
+      itemType: "FillValueOwnerDefaultsProbe",
+      properties: {
+        codeType: { type: "String", yaml: "ТипКода", implicitValueYAML: "String" },
+        codeLength: { type: "Number", yaml: "ДлинаКода", defaultValueXML: 7 },
+        codeAllowedLength: {
+          type: "String",
+          yaml: "ДопустимаяДлинаКода",
+          implicitValueYAML: computedImplicit,
+        },
+      },
+    } as const satisfies MetadataItemRule
+
+    expect(classifyCatalogCode({ type: "decimal", value: 12 }, { ТипКода: "Number" }, probeRule)).toMatchObject({
+      kind: "unresolved",
+      reason: "не определена длина кода",
+    })
+    expect(computedImplicit).not.toHaveBeenCalled()
   })
 
   it("checks owner values against configured owners", () => {
