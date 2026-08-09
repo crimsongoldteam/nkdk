@@ -1,4 +1,9 @@
 import type { MetadataTargetConstraint, MetadataRootName } from "../metadataTargets/types"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+
+export type DefinedTypeLookup = (name: string) =>
+  | { readonly status: "ok"; readonly type?: TypeDescriptionView }
+  | { readonly status: "unresolved"; readonly reason: string }
 
 export type FillValueAlternative =
   | { readonly kind: "string"; readonly length?: number; readonly allowedLength?: "Variable" | "Fixed" }
