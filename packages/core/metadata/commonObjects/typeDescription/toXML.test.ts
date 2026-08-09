@@ -1,17 +1,28 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { mockContext, mockContextFromXML, mockContextToXML, mockRule } from "../../../tests/mockContext"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { xmlExport } from "../../../xml/export/exporter"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
-import { TypeDescriptionXML } from "./types"
+import { TYPE_DESCRIPTION_SOURCE_TYPES, TypeDescription, TypeDescriptionXML } from "./types"
 
 const typeDescriptionRule = { type: "TypeDescription" } as const
 const typeDescriptionRuleWithLocalNamespace = {
   type: "TypeDescription",
   declareTypeNamespaceXML: true,
 } as const
+
+const contextWithTypeNamePolicy = (xmlName: "AnyRef" | "AnyIBRef") => {
+  const context = mockContextToXML()
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      typeDescriptionXMLNameByType: { AnyIBRef: xmlName },
+    },
+  }
+}
 
 describe("exportTypeDescriptionToXML", () => {
   it("should export undefined type description to XML", () => {
@@ -25,6 +36,31 @@ describe("exportTypeDescriptionToXML", () => {
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
     expect(result).toEqual(xml)
+  })
+
+  it.each([
+    ["AnyRef", "cfg:AnyRef"],
+    ["AnyIBRef", "cfg:AnyIBRef"],
+  ] as const)("exports AnyIBRef through %s policy", (xmlName, expected) => {
+    expect(
+      exportTypeDescriptionToXML(contextWithTypeNamePolicy(xmlName), mockRule, { type: ["AnyIBRef"] })
+    ).toEqual({ "v8:TypeSet": expected })
+  })
+
+  it("gives the XML name policy priority over the reference spelling", () => {
+    const reference: TypeDescription = { type: ["AnyIBRef"] }
+    Object.defineProperty(reference, TYPE_DESCRIPTION_SOURCE_TYPES, {
+      value: { AnyIBRef: { value: "cfg:AnyRef" } },
+    })
+
+    expect(
+      exportTypeDescriptionToXML(
+        contextWithTypeNamePolicy("AnyIBRef"),
+        mockRule,
+        { type: ["AnyIBRef"] },
+        reference
+      )
+    ).toEqual({ "v8:TypeSet": "cfg:AnyIBRef" })
   })
 
   it.each([

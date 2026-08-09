@@ -74,6 +74,7 @@ export interface ToXMLConfigurationContext {
   readonly requireExistingConfigurationIdentities?: true
   readonly componentKind?: string
   readonly adoptedUuids?: Readonly<Record<string, string>>
+  readonly typeDescriptionXMLNameByType?: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
