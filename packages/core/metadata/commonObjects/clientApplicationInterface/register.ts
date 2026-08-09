@@ -38,8 +38,10 @@ import {
   ClientApplicationInterfacePanelDefs,
   ClientApplicationInterfacePanelDefXML,
   ClientApplicationInterfacePanelXML,
-  ClientApplicationInterfaceItemsYAMLSchema,
+  ClientApplicationInterfaceItemsHintYAMLSchema,
+  ClientApplicationInterfaceItemsValidationYAMLSchema,
 } from "./types"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 
 const standardPanelsByUuid = {
   "b553047f-c9aa-4157-978d-448ecad24248": "ПанельИстории",
@@ -552,6 +554,9 @@ const importPanelFromYAML = (
 
   const uuid =
     yaml.UUID ?? (yaml.Имя !== undefined ? standardPanelUuidByName[yaml.Имя] : undefined) ?? sourcePanel?.uuid
+  if (uuid === EMPTY_XML_TAG_VALUE || uuid?.startsWith(`${EMPTY_XML_TAG_VALUE} `) === true) {
+    throw new Error("UUID панели не допускает !xml")
+  }
   if (uuid !== undefined) result.uuid = uuid
   if (yaml.Имя !== undefined && standardPanelUuidByName[yaml.Имя] === undefined) result.name = yaml.Имя
   if (yaml.Высота !== undefined) result.height = yaml.Высота
@@ -886,7 +891,10 @@ registerTypeRule("ClientApplicationInterfaceItems", "exportToYAML", exportItemsP
 registerTypeRule(
   "ClientApplicationInterfaceItems",
   "exportToJSONSchema",
-  () => ClientApplicationInterfaceItemsYAMLSchema
+  ({ context }) =>
+    context.exportToJSONSchema?.validationPropertyRefs === true
+      ? ClientApplicationInterfaceItemsValidationYAMLSchema
+      : ClientApplicationInterfaceItemsHintYAMLSchema
 )
 
 registerTypeRule("ClientApplicationInterfacePanelDefs", "importFromXML", importPanelDefsFromXML)

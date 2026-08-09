@@ -1,14 +1,13 @@
-import { markYAMLScalarTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag } from "../../../yaml/scalarTags"
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
 
-export function markExplicitEmptyPanelDefinition(panel: object): void {
-  markYAMLScalarTag(panel, "UUID", "xml")
-}
-
-export function hasExplicitEmptyPanelDefinition(panel: unknown): boolean {
-  return isRecord(panel) && yamlScalarTagAt(panel, "UUID") === "xml"
+export function markExplicitEmptyPanelDefinition(
+  panel: { ПустоеОпределение?: typeof EMPTY_XML_TAG_VALUE }
+): void {
+  panel.ПустоеОпределение = EMPTY_XML_TAG_VALUE
+  markYAMLScalarTag(panel, "ПустоеОпределение", "xml")
 }
 
 export function collectExplicitEmptyPanelDefinitionUUIDs(
@@ -17,40 +16,37 @@ export function collectExplicitEmptyPanelDefinitionUUIDs(
 ): Set<string> {
   const result = new Set<string>()
 
-  const visit = (value: unknown, isPanel = false): void => {
+  const visit = (value: unknown): void => {
     if (Array.isArray(value)) {
-      value.forEach((entry, index) => {
-        rejectUnexpectedTag(value, index)
-        visit(entry)
-      })
+      value.forEach(visit)
       return
     }
     if (!isRecord(value)) return
 
-    for (const [key, entry] of Object.entries(value)) {
-      if (yamlScalarTagAt(value, key) === "xml") {
-        if (!isPanel || key !== "UUID") {
-          throw new Error(`Тег !xml не допускается у поля панели ${key}`)
-        }
-        if (typeof entry !== "string" || standardPanelUUIDs.has(entry)) {
-          throw new Error("Тег !xml допускается только у UUID нестандартной панели")
-        }
-        if (value.Имя !== undefined || value.Представление !== undefined) {
-          throw new Error("Тег !xml допускается только для пустого определения нестандартной панели")
-        }
-        result.add(entry)
-      }
-
-      visit(entry, key === "Панель" && isRecord(entry))
+    if (isRecord(value.Панель)) {
+      collectPanel(value.Панель, standardPanelUUIDs, result)
     }
+    Object.values(value).forEach(visit)
   }
 
   visit(yaml)
   return result
 }
 
-function rejectUnexpectedTag(parent: unknown[], key: number): void {
-  if (yamlScalarTagAt(parent, key) === "xml") {
-    throw new Error("Тег !xml не допускается у элемента списка интерфейса")
+function collectPanel(
+  panel: Record<string, unknown>,
+  standardPanelUUIDs: ReadonlySet<string>,
+  result: Set<string>
+): void {
+  if (!Object.prototype.hasOwnProperty.call(panel, "ПустоеОпределение")) return
+  if (panel.ПустоеОпределение !== EMPTY_XML_TAG_VALUE) {
+    throw new Error("ПустоеОпределение допускает только !xml")
   }
+  if (typeof panel.UUID !== "string" || standardPanelUUIDs.has(panel.UUID)) {
+    throw new Error("ПустоеОпределение допускается только у нестандартной панели с UUID")
+  }
+  if (panel.Имя !== undefined || panel.Представление !== undefined) {
+    throw new Error("ПустоеОпределение допускается только для пустого определения нестандартной панели")
+  }
+  result.add(panel.UUID)
 }

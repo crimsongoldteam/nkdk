@@ -69,8 +69,10 @@ describe("ClientApplicationInterface XML → YAML", () => {
     const withEmptyPanelDef = convertXML(interfaceXML(uuid, `<panelDef id="${uuid}"/>`))
 
     expect(exportToYAML(withoutPanelDef)).toContain(`UUID: ${uuid}`)
-    expect(exportToYAML(withoutPanelDef)).not.toContain(`UUID: !xml ${uuid}`)
-    expect(exportToYAML(withEmptyPanelDef)).toContain(`UUID: !xml ${uuid}`)
+    expect(exportToYAML(withoutPanelDef)).not.toContain("ПустоеОпределение")
+    expect(exportToYAML(withEmptyPanelDef)).toContain(`UUID: ${uuid}`)
+    expect(exportToYAML(withEmptyPanelDef)).toContain("ПустоеОпределение: !xml")
+    expect(exportToYAML(withEmptyPanelDef)).not.toContain("UUID: !xml")
   })
 })
 

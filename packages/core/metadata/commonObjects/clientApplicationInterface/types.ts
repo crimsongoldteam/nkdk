@@ -1,10 +1,10 @@
 import { Type } from "typebox"
-import type { Static } from "typebox"
 import { MetadataItem } from "../../orchestration"
 import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 
 export type ClientApplicationInterfaceStandardPanel =
   | "ПанельИстории"
@@ -67,34 +67,52 @@ export interface ClientApplicationInterfacePanelDefXML {
   spr?: SectionsPanelRepresentation
 }
 
-export const ClientApplicationInterfacePanelYAMLSchema = Type.Object({
-  Имя: Type.Optional(Type.String()),
-  UUID: Type.Optional(Type.String()),
-  Высота: Type.Optional(Type.Number()),
-  Представление: Type.Optional(Type.String()),
-})
+const clientApplicationInterfacePanelYAMLSchema = (includeXMLTransport: boolean) =>
+  Type.Object({
+    Имя: Type.Optional(Type.String()),
+    UUID: Type.Optional(includeXMLTransport ? Type.String({ format: "uuid" }) : Type.String()),
+    Высота: Type.Optional(Type.Number()),
+    Представление: Type.Optional(Type.String()),
+    ...(includeXMLTransport
+      ? { ПустоеОпределение: Type.Optional(Type.Literal(EMPTY_XML_TAG_VALUE)) }
+      : {}),
+  })
 
-export const ClientApplicationInterfaceItemYAMLSchema = Type.Cyclic(
-  {
-    ClientApplicationInterfaceItem: Type.Union([
-      Type.Object({
-        Панель: Type.Union([Type.String(), ClientApplicationInterfacePanelYAMLSchema]),
-      }),
-      Type.Object({
-        Группа: Type.Object({
-          Элементы: Type.Optional(Type.Array(Type.Ref("ClientApplicationInterfaceItem"))),
+const clientApplicationInterfaceItemsYAMLSchema = (includeXMLTransport: boolean) => {
+  const panel = clientApplicationInterfacePanelYAMLSchema(includeXMLTransport)
+  const item = Type.Cyclic(
+    {
+      ClientApplicationInterfaceItem: Type.Union([
+        Type.Object({ Панель: Type.Union([Type.String(), panel]) }),
+        Type.Object({
+          Группа: Type.Object({
+            Элементы: Type.Optional(Type.Array(Type.Ref("ClientApplicationInterfaceItem"))),
+          }),
         }),
-      }),
-    ]),
-  },
-  "ClientApplicationInterfaceItem"
-)
+      ]),
+    },
+    "ClientApplicationInterfaceItem"
+  )
+  return Type.Array(item)
+}
 
-export const ClientApplicationInterfaceItemsYAMLSchema = Type.Array(ClientApplicationInterfaceItemYAMLSchema)
+export const ClientApplicationInterfaceItemsValidationYAMLSchema =
+  clientApplicationInterfaceItemsYAMLSchema(true)
+export const ClientApplicationInterfaceItemsHintYAMLSchema =
+  clientApplicationInterfaceItemsYAMLSchema(false)
 
-export type ClientApplicationInterfacePanelYAML = Static<typeof ClientApplicationInterfacePanelYAMLSchema>
-export type ClientApplicationInterfaceItemYAML = Static<typeof ClientApplicationInterfaceItemYAMLSchema>
-export type ClientApplicationInterfaceItemsYAML = Static<typeof ClientApplicationInterfaceItemsYAMLSchema>
+export interface ClientApplicationInterfacePanelYAML {
+  Имя?: string
+  UUID?: string
+  Высота?: number
+  Представление?: string
+  ПустоеОпределение?: typeof EMPTY_XML_TAG_VALUE
+}
+
+export type ClientApplicationInterfaceItemYAML =
+  | { Панель: string | ClientApplicationInterfacePanelYAML }
+  | { Группа: { Элементы?: ClientApplicationInterfaceItemsYAML } }
+export type ClientApplicationInterfaceItemsYAML = ClientApplicationInterfaceItemYAML[]
 
 export type ClientApplicationInterface = MetadataTypeByRule<typeof ClientApplicationInterfaceRules> & MetadataItem
 export type ClientApplicationInterfaceYAML = YAMLTypeByRule<typeof ClientApplicationInterfaceRules>
