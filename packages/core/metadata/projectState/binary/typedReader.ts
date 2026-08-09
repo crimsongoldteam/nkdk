@@ -6,6 +6,7 @@ import type {
   ParsedMetadataTarget,
 } from "../../ruleRuntime/metadataTarget/types"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
 import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFileIdentity,
@@ -417,9 +418,22 @@ export function createTypedProjectStateReader(
   }
 
   function pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"] {
-    return fileRows("pendingChecks", fileId).map((value) => ({
+    return fileRows("pendingChecks", fileId).map((value) => {
+      const kind = string(value.kindId)
+      const location = { line: value.line, col: value.col, ...optionalField("path", value.pathId) }
+      if (kind === "fillValue") {
+        const payload = decodeFillValuePayload(string(value.payloadId))
+        return {
+          kind: "fillValue" as const,
+          yamlPath: yamlPath(value.yamlPathId),
+          location,
+          ...payload,
+        }
+      }
+      if (kind !== "dataPath") throw new Error(`Неизвестный вид project-state проверки: ${kind}`)
+      return {
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
-        location: { line: value.line, col: value.col, ...optionalField("path", value.pathId) },
+        location,
         owner: ownerType(value.ownerTypeId), value: string(value.valueId),
         policyInput: { yaml: string(value.policyYamlId),
           ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues("allowedKinds", value.allowedKindsStart, value.allowedKindsCount) }),
@@ -428,7 +442,33 @@ export function createTypedProjectStateReader(
         ...(value.hasValuesPicture === 0 ? {} : { hasValuesPicture: value.hasValuesPicture === 1 }),
         ...(value.tableContextId === NONE ? {} : { tableContext: { dataPath: string(value.tableContextId) } }),
         policy: "formDataPath" as const,
-      })) as ProjectStateYamlFileUpdate["pendingChecks"]
+      }
+    }) as ProjectStateYamlFileUpdate["pendingChecks"]
+  }
+
+  function decodeFillValuePayload(payload: string): {
+    itemType: string
+    type: TypeDescriptionView
+    value: FillValueTypedValue
+    tagged: boolean
+  } {
+    let decoded: unknown
+    try {
+      decoded = JSON.parse(payload)
+    } catch {
+      throw new Error("Повреждён JSON project-state проверки fillValue")
+    }
+    if (typeof decoded !== "object" || decoded === null || Array.isArray(decoded)) {
+      throw new Error("Повреждена project-state проверка fillValue")
+    }
+    const value = decoded as Record<string, unknown>
+    if (value.version !== 1 || typeof value.itemType !== "string" || typeof value.tagged !== "boolean") {
+      throw new Error("Неподдерживаемая project-state проверка fillValue")
+    }
+    if (!isTypeDescriptionView(value.type) || !isMetadataTypedValue(value.value)) {
+      throw new Error("Повреждён payload project-state проверки fillValue")
+    }
+    return { itemType: value.itemType, type: value.type, value: value.value, tagged: value.tagged }
   }
 
   function optionalName(id: number): { readonly name?: string } {
@@ -481,6 +521,24 @@ export function createTypedProjectStateReader(
     if (facts === undefined || validation === undefined || yamlRole === undefined) throw new Error("Неполное состояние YAML-файла")
     return { ...identity, kind: "yaml", yamlRole, localValidation: validation, ...facts }
   }
+}
+
+function isTypeDescriptionView(value: unknown): value is TypeDescriptionView {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+  const type = value as Record<string, unknown>
+  return (type.type === undefined || isStringArray(type.type)) &&
+    (type.typeId === undefined || isStringArray(type.typeId))
+}
+
+function isMetadataTypedValue(value: unknown): value is FillValueTypedValue {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+  const typed = value as Record<string, unknown>
+  if (typeof typed.type !== "string") return false
+  return typed.type === "valueList" || Object.prototype.hasOwnProperty.call(typed, "value")
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string")
 }
 
 export function hasTypedProjectStateFacts(snapshot: ProjectStateSnapshotView): boolean {

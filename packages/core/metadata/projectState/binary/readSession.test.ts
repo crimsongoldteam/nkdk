@@ -6,7 +6,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
-import { richYamlUpdate } from "./testData"
+import { fillValuePendingCheck, richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 import {
@@ -274,6 +274,14 @@ it("использует переданный типизированный чи�
   queryPort.readValidationStatus({ offset: 1, batchSize: 1 })
 
   expect(localValidation).toHaveBeenCalledTimes(2)
+})
+
+it("читает fillValue-проверку из двоичного состояния без потери payload", () => {
+  const expected = fillValuePendingCheck()
+  const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
+
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
 })
 
 it("разрешает одинаковую цель один раз для всей серии запросов", () => {

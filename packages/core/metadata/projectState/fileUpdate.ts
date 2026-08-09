@@ -191,6 +191,17 @@ function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"])
 
 function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePendingDependencyCheck {
   const { filePath: _filePath, ...location } = check.location
+  if (check.kind === "fillValue") {
+    return {
+      kind: "fillValue",
+      yamlPath: check.yamlPath,
+      location,
+      itemType: check.itemType,
+      type: check.type,
+      value: check.value,
+      tagged: check.tagged,
+    }
+  }
   return {
     kind: "dataPath",
     yamlPath: check.yamlPath,

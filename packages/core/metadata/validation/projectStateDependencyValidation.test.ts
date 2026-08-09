@@ -176,6 +176,34 @@ describe("dependency validation из ProjectState", () => {
     expect(requestBatchSizes).toEqual([1])
   })
 
+  it("проверяет fillValue через сохранённые сведения DefinedType", () => {
+    const check = {
+      kind: "fillValue" as const,
+      yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+      location: { line: 4, col: 5 },
+      itemType: "MetadataAttribute",
+      type: { type: ["DefinedType.АвторДействия"] },
+      value: { type: "ref" as const, value: "Catalog.Пользователи.Администратор" },
+      tagged: false,
+    }
+    const query = { requestId: "fill", componentPath: "cf", projectPath: "cf/Справочник/Товары/Свойства.yaml", check }
+    const definedType = { kind: "ОпределяемыйТип", name: "АвторДействия" }
+
+    expect(validateProjectStateDependencyBatch({
+      projectDir: "/project",
+      checks: [query],
+      queryPort: {
+        readDependencyInputs: () => [{
+          requestId: "fill",
+          status: "found",
+          input: { owners: [{ owner: definedType, facts: { type: { type: ["CatalogRef.Пользователи"] } } }], fields: [], forms: [] },
+        }],
+        readDependencyOwnerInputs: () => [],
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+    })).toEqual([])
+  })
+
   it.each([
     referenceCase("missing", "cf", []),
     referenceCase("found / cf -> cf", "cf", ["cf"]),
@@ -861,7 +889,9 @@ function pagedDependencyQueryPort(params: {
   ownerFacts: ReadonlyMap<string, ProjectStateYamlFileUpdate["owners"][number]["facts"]>
   readPage: PagedDependencyQueryPort["readOwnerRefPage"]
 }) {
-  const currentOwner = params.source.pendingChecks[0]!.owner
+  const currentCheck = params.source.pendingChecks[0]!
+  if (currentCheck.kind !== "dataPath") throw new Error("Ожидалась DataPath-проверка")
+  const currentOwner = currentCheck.owner
   return {
     readDependencyInputs: (requests: readonly { readonly requestId: string }[]) =>
       requests.map(({ requestId }) => currentOwnerInput(requestId, currentOwner, params.source)),
@@ -1143,7 +1173,7 @@ function ownerUpdate(
 
 function ownerDependencySource(
   componentPath = "cf",
-  owner: ProjectStateYamlFileUpdate["pendingChecks"][number]["owner"] = { kind: "Справочник", name: "Товары" },
+  owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
 ): ProjectStateYamlFileUpdate {

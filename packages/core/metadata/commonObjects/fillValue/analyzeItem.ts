@@ -22,6 +22,7 @@ import type { FillValueClassification } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
+import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 
 const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
 const fillValueYamlKey = "ЗначениеЗаполнения"
@@ -34,6 +35,24 @@ const ownerRoots: readonly MetadataRootName[] = [
 ]
 
 export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParams): DependentYamlItemAnalysis {
+  if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
+  const parsed = parseFillValueItem(params.item)
+  if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  const type = metadataAttributeType(params.item)
+  if (type?.type.some((sourceType) => sourceType.startsWith("DefinedType.")) === true) {
+    return withValueReference(params, parsed.value, {
+      diagnostics: [],
+      references: [],
+      projectChecks: [{
+        kind: "fillValue",
+        yamlPath: [...params.itemYamlPath, fillValueYamlKey],
+        itemType: params.itemType,
+        type,
+        value: parsed.value,
+        tagged: parsed.tagged,
+      }],
+    })
+  }
   return analyzeFillValue(params, classifyMetadataAttributeFillValue)
 }
 
@@ -49,11 +68,10 @@ function analyzeFillValue(
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
   const classification = classify(params, parsed.value)
-  const analysis = parsed.tagged
-    ? classification.kind === "invalid"
-      ? emptyAnalysis()
-      : diagnosticAnalysis(params, "!xml допустим только для несовместимого XML-значения", "error")
-    : analysisFromClassification(params, classification)
+  const diagnostic = fillValueDiagnostic(classification, parsed.tagged)
+  const analysis = diagnostic === undefined
+    ? emptyAnalysis()
+    : diagnosticAnalysis(params, diagnostic.message, diagnostic.severity)
   return withValueReference(params, parsed.value, analysis)
 }
 
@@ -75,12 +93,16 @@ export function classifyMetadataAttributeFillValue(
   value = parseFillValueItem(params.item)?.value
 ): FillValueClassification {
   if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
-  const type = importTypeDescriptionFromYAML(
+  const type = metadataAttributeType(params.item)
+  return classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value })
+}
+
+function metadataAttributeType(item: Readonly<Record<string, unknown>>) {
+  return importTypeDescriptionFromYAML(
     validationContext,
     undefined,
-    params.item[typeYamlKey] as TypeDescriptionYAML | undefined
+    item[typeYamlKey] as TypeDescriptionYAML | undefined
   )
-  return classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value })
 }
 
 export function classifyStandardAttributeFillValue(
@@ -111,6 +133,7 @@ function withValueReference(
   return {
     diagnostics: [...analysis.diagnostics, ...reference.diagnostics],
     references: reference.references,
+    projectChecks: analysis.projectChecks,
   }
 }
 
@@ -125,23 +148,6 @@ export function inferFillValueReferenceConstraint(
     roots: [root],
     valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
     allowEmptyRef: true,
-  }
-}
-
-function analysisFromClassification(
-  params: DependentYamlItemParams,
-  classification: FillValueClassification
-): DependentYamlItemAnalysis {
-  switch (classification.kind) {
-    case "valid":
-    case "notSpecified":
-      return emptyAnalysis()
-    case "implicit":
-      return diagnosticAnalysis(params, "поле содержит неявное значение; удалите ЗначениеЗаполнения", "error")
-    case "invalid":
-      return diagnosticAnalysis(params, classification.reason, "error")
-    case "unresolved":
-      return diagnosticAnalysis(params, classification.reason, "warning")
   }
 }
 
@@ -162,6 +168,7 @@ function diagnosticAnalysis(
       }),
     ],
     references: [],
+    projectChecks: [],
   }
 }
 
@@ -170,7 +177,7 @@ function unresolvedAnalysis(params: DependentYamlItemParams, message: string): D
 }
 
 function emptyAnalysis(): DependentYamlItemAnalysis {
-  return { diagnostics: [], references: [] }
+  return { diagnostics: [], references: [], projectChecks: [] }
 }
 
 export function parseFillValueYaml(value: unknown) {

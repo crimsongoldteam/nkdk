@@ -350,7 +350,7 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
     case "ownerTypes": string("kindId", "nameId"); break
     case "tableInfo": ref("ownerTypeId", "ownerTypes"); string("nameId"); break
     case "forms": case "formColumns": file(); ref("ownerTypeId", "ownerTypes"); string("nameId", "tablePathId"); ref("typeInfoId", "typeInfo"); ref("tableInfoId", "tableInfo"); break
-    case "pendingChecks": file(); ref("yamlPathId", "yamlPaths"); string("pathId", "valueId", "policyYamlId", "elementTypeId", "tableContextId"); ref("ownerTypeId", "ownerTypes"); range("allowedKindsStart", "allowedKindsCount", "allowedKinds"); break
+    case "pendingChecks": file(); ref("yamlPathId", "yamlPaths"); string("kindId", "payloadId", "pathId", "valueId", "policyYamlId", "elementTypeId", "tableContextId"); ref("ownerTypeId", "ownerTypes"); range("allowedKindsStart", "allowedKindsCount", "allowedKinds"); break
     case "dependencies": file(); string("projectPathId"); break
     case "yamlPaths": range("segmentsStart", "segmentsCount", "yamlPathSegments"); break
     case "yamlPathSegments": if (row.kind === 1) string("stringId"); break

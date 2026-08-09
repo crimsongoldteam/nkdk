@@ -1,3 +1,6 @@
+import type { TypeDescriptionView } from "./typeDescriptionView"
+import type { FillValueTypedValue } from "./fillValueSemantics"
+
 type DependentYamlPath = readonly (string | number)[]
 
 interface DependentDiagnostic {
@@ -41,6 +44,16 @@ export interface DependentItemParams {
 export interface DependentYamlItemAnalysis {
   readonly diagnostics: readonly DependentDiagnostic[]
   readonly references: readonly DependentReferenceCandidate[]
+  readonly projectChecks: readonly DependentProjectCheckCandidate[]
+}
+
+export interface DependentProjectCheckCandidate {
+  readonly kind: "fillValue"
+  readonly yamlPath: DependentYamlPath
+  readonly itemType: string
+  readonly type: TypeDescriptionView
+  readonly value: FillValueTypedValue
+  readonly tagged: boolean
 }
 
 export interface DependentYamlItemParams extends DependentItemParams {
@@ -85,7 +98,7 @@ export function registerDependentYamlItemHandler(itemType: string, handler: Depe
 }
 
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {
-  return yamlHandlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [] }
+  return yamlHandlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [], projectChecks: [] }
 }
 
 export function registerDependentStructuralItemHandler(itemType: string, handler: DependentStructuralItemHandler): void {

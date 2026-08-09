@@ -25,7 +25,7 @@ describe("dependent fill value validation", () => {
   afterEach(() => restoreDependentItemRegistryForTests(registry))
 
   it("visits each nested item with its name, paths and root values", () => {
-    const analyze = vi.fn((_params: DependentYamlItemParams) => ({ diagnostics: [], references: [] }))
+    const analyze = vi.fn((_params: DependentYamlItemParams) => ({ diagnostics: [], references: [], projectChecks: [] }))
     registerDependentYamlItemHandler("MetadataAttribute", analyze)
     const parsed = parseMetadataYaml("Реквизиты:\n  Артикул:\n    Тип: Строка\n")
 
@@ -153,6 +153,31 @@ describe("dependent fill value validation", () => {
         severity: "error",
       }),
     ]))
+  })
+
+  it("откладывает проверку DefinedType без локального предупреждения", () => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(`Реквизиты:
+  Автор:
+    Тип: ОпределяемыйТип.АвторДействия
+    ЗначениеЗаполнения: Справочник.Пользователи.ПустаяСсылка
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Автор/ЗначениеЗаполнения")).toEqual([])
+    expect(facts.pendingChecks).toEqual([
+      expect.objectContaining({
+        kind: "fillValue",
+        yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+        itemType: "MetadataAttribute",
+        type: { type: ["DefinedType.АвторДействия"] },
+        value: { type: "ref", value: "Catalog.Пользователи.EmptyRef" },
+        tagged: false,
+      }),
+    ])
+    expect(facts.pendingChecks[0]).not.toHaveProperty("parsed")
   })
 })
 
