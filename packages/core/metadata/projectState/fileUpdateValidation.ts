@@ -564,11 +564,11 @@ function assertFormRows(value: unknown, path: string): void {
       assertString(source["name"], `${path}[${index}].source.name`)
       assertOptionalString(source["targetName"], `${path}[${index}].source.targetName`)
       assertTypeInfo(source["typeInfo"], `${path}[${index}].source.typeInfo`)
-    } else if (row["kind"] === "tableDataPath") {
+    } else if (row["kind"] === "tabularElement") {
       assertExactKeys(row, ["kind", "owner", "name", "dataPath"], `${path}[${index}]`)
       assertOwnerRef(row["owner"], `${path}[${index}].owner`)
       assertString(row["name"], `${path}[${index}].name`)
-      assertString(row["dataPath"], `${path}[${index}].dataPath`)
+      assertOptionalString(row["dataPath"], `${path}[${index}].dataPath`)
     } else {
       throw new Error(`${path}[${index}].kind имеет неизвестное значение`)
     }

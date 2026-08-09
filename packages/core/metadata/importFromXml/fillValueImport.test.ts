@@ -6,6 +6,9 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
+import { registerCoreMetadata } from "../composition/coreMetadata"
+
+registerCoreMetadata()
 
 const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
 const tempDirs: string[] = []

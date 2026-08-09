@@ -414,11 +414,11 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           Строки: { Вид: "ТаблицаФормы", ПутьКДанным: "Строки" },
           ВложеннаяТаблица: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Строки.CurrentData.ВложеннаяТаблица",
+            ПутьКДанным: "Элементы.Строки.ТекущиеДанные.ВложеннаяТаблица",
           },
           ВложенноеДерево: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Строки.CurrentData.ВложенноеДерево",
+            ПутьКДанным: "Элементы.Строки.ТекущиеДанные.ВложенноеДерево",
           },
         },
       } as ClientApplicationFormYAML,
@@ -441,7 +441,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           },
           ПараметрыДанных: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Настройки.CurrentData.ItemDataParameters",
+            ПутьКДанным: "Элементы.Настройки.ТекущиеДанные.ItemDataParameters",
           },
         },
       } as ClientApplicationFormYAML,

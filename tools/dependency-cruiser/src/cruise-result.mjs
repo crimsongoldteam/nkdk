@@ -12,22 +12,17 @@ import { metadataReachabilityRules } from "./reachability-rules.mjs"
 
 export const MIN_MODULES = 1800
 
-function hasRelevantWorkingTreeChanges() {
-  const result = runDepcruise(
-    "git",
-    [
-      "status",
-      "--porcelain=v1",
-      "--untracked-files=normal",
-      "--",
-      "packages",
-      ".dependency-cruiser.mjs",
-      "tsconfig.dependency-cruiser.json",
-      "tools/dependency-cruiser/src",
-    ],
-    { cwd: projectRoot }
-  )
-  return result.stdout.trim().length > 0
+export function dependencyCruiseArgs(outputPath) {
+  return [
+    "--config",
+    ".dependency-cruiser.mjs",
+    "--output-type",
+    "json",
+    "--output-to",
+    outputPath,
+    "--no-cache",
+    "packages",
+  ]
 }
 
 export function assertCompleteCruiseResult(result) {
@@ -88,17 +83,7 @@ export function createCruiseResult({
   writeEnhanced = true,
 } = {}) {
   mkdirSync(reportsDir, { recursive: true })
-  const args = [
-    "--config",
-    ".dependency-cruiser.mjs",
-    "--output-type",
-    "json",
-    "--output-to",
-    outputPath,
-    ...(hasRelevantWorkingTreeChanges() ? ["--no-cache"] : []),
-    "packages",
-  ]
-  runDepcruise("dependency-cruise", args, {
+  runDepcruise("dependency-cruise", dependencyCruiseArgs(outputPath), {
     cwd: projectRoot,
     capture: false,
   })

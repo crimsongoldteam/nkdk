@@ -72,20 +72,23 @@ export function collectFormDataPathReferencesForItem(params: {
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
     })
 
-    if (result.status === "error" || result.target === undefined) continue
+    if (result.status === "error") continue
 
-    const match = dataPathTargetMatchesCanonicalPrefix(result.target, params.targetPrefix)
-    if (match === undefined) continue
+    const formLogicalAddress = operationFormLogicalAddress(params.item)
+    for (const target of result.targets) {
+      const match = dataPathTargetMatchesCanonicalPrefix(target, params.targetPrefix, formLogicalAddress)
+      if (match === undefined) continue
 
-    references.push({
-      item: params.item,
-      filePath: params.item.filePath,
-      yamlPath: occurrence.yamlPath,
-      value: occurrence.value,
-      target: result.target,
-      segmentIndex: match.segmentIndex,
-      setValue: occurrence.setValue,
-    })
+      references.push({
+        item: params.item,
+        filePath: params.item.filePath,
+        yamlPath: occurrence.yamlPath,
+        value: occurrence.value,
+        target,
+        segmentIndex: match.segmentIndex,
+        setValue: occurrence.setValue,
+      })
+    }
   }
 
   return references
@@ -93,8 +96,16 @@ export function collectFormDataPathReferencesForItem(params: {
 
 export function dataPathTargetMatchesCanonicalPrefix(
   target: ResolvedDataPathTarget,
-  canonicalPrefix: string
+  canonicalPrefix: string,
+  formLogicalAddress?: string,
 ): { segmentIndex: number } | undefined {
+  if (target.source.kind === "formElement") {
+    if (formLogicalAddress === undefined) return undefined
+    const canonical = `${formLogicalAddress}.Element.${target.source.name}`
+    return canonical === canonicalPrefix || canonical.startsWith(`${canonicalPrefix}.`)
+      ? { segmentIndex: target.segmentIndex }
+      : undefined
+  }
   if (target.source.kind !== "objectField") return undefined
   const ownerRoot = rootFromYAML[target.source.owner.kind] ?? target.source.owner.kind
   const ownerName = target.source.owner.name
@@ -102,7 +113,13 @@ export function dataPathTargetMatchesCanonicalPrefix(
 
   const canonical = `${ownerRoot}.${ownerName}.Attribute.${target.source.name}`
   if (canonical === canonicalPrefix || canonical.startsWith(`${canonicalPrefix}.`)) {
-    return { segmentIndex: target.segments.length - 1 }
+    return { segmentIndex: target.segmentIndex }
   }
   return undefined
+}
+
+function operationFormLogicalAddress(item: OperationSnapshotItem): string | undefined {
+  if (item.kind !== "form" || item.resource.formName === undefined) return undefined
+  const ownerRoot = rootFromYAML[item.resource.owner.dir] ?? item.resource.owner.dir
+  return `${ownerRoot}.${item.resource.owner.name}.Form.${item.resource.formName}`
 }

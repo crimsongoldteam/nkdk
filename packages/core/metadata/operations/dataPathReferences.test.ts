@@ -17,6 +17,7 @@ describe("rewriteDataPathSegments", () => {
     const target: ResolvedDataPathTarget = {
       value: "Объект.Артикул",
       segments: ["Объект", "Артикул"],
+      segmentIndex: 1,
       typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "string" },
       source: { kind: "objectField", owner: { kind: "Catalog", name: "Товары" }, name: "Артикул" },
     }
@@ -24,5 +25,21 @@ describe("rewriteDataPathSegments", () => {
     expect(dataPathTargetMatchesCanonicalPrefix(target, "Catalog.Товары.Attribute.Артикул")).toEqual({
       segmentIndex: 1,
     })
+  })
+
+  it("сопоставляет цель элемента формы с его логическим адресом", () => {
+    const target: ResolvedDataPathTarget = {
+      value: "Элементы.Таблица.ТекущиеДанные.Код",
+      segments: ["Элементы", "Таблица", "ТекущиеДанные", "Код"],
+      segmentIndex: 1,
+      typeInfo: { kinds: ["tableSource"], nextTypes: [] },
+      source: { kind: "formElement", name: "Таблица" },
+    }
+
+    expect(dataPathTargetMatchesCanonicalPrefix(
+      target,
+      "Catalog.Товары.Form.ФормаСписка.Element.Таблица",
+      "Catalog.Товары.Form.ФормаСписка",
+    )).toEqual({ segmentIndex: 1 })
   })
 })

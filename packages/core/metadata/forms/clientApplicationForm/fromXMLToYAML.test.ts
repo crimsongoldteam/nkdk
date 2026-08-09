@@ -16,6 +16,59 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
+import { bindDeferredObjectValues } from "../../ruleRuntime/property/deferredObjectValues"
+import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
+import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
+
+const emptyOwnerMetadataCache = {
+  listRefs: () => [],
+  get: () => ({ status: "not-found" as const, diagnostics: [] }),
+}
+
+function currentDataImportContext() {
+  return {
+    ...mockContextFromXML(),
+    exportToYAML: { toTyped: false, ownerMetadataCache: emptyOwnerMetadataCache },
+  }
+}
+
+function finalizeImportedFormDataPaths(result: ReturnType<typeof importClientApplicationFormFromXMLToYAML>): void {
+  finalizeImportedYamlValues({
+    yaml: result.yaml,
+    rootRule: ClientApplicationFormRules,
+    deferred: bindDeferredObjectValues(result.yaml, result.deferred),
+    context: currentDataImportContext(),
+    formDataPathIndex: result.localIndexes.metadata.formDataPathIndex,
+  })
+}
+
+function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, columnName: string) {
+  return importClientApplicationFormFromXMLToYAML({
+    context: currentDataImportContext(),
+    formName: "Форма",
+    formXML: {
+      Attributes: {
+        Attribute: [{
+          _name: "Строки",
+          _id: "1",
+          Type: { "v8:Type": "v8:ValueTable" },
+          Columns: columns,
+        }],
+      },
+      ChildItems: [
+        { Table: { _name: "Строки", _id: "1", DataPath: "Строки" } },
+        {
+          InputField: {
+            _name: "Поле",
+            _id: "2",
+            DataPath: `Items.Строки.CurrentData.${columnName}`,
+          },
+        },
+      ],
+    },
+    metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+  })
+}
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
   it("индексирует произвольные реквизиты и колонки при прямом импорте", () => {
@@ -46,6 +99,46 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         ?.getRoot("Таблица")
         ?.tableSource?.columns.get("Значение")?.typeInfo.kinds
     ).toEqual(["any"])
+  })
+
+  it("уточняет служебный путь CurrentData после построения индекса элементов", () => {
+    const result = importValueTableCurrentDataForm(
+      { Column: { _name: "Значение", _id: "1", Type: { "v8:Type": "xs:string" } } },
+      "Значение"
+    )
+
+    finalizeImportedFormDataPaths(result)
+
+    expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
+    expect(JSON.stringify(result.yaml)).not.toContain("Items.Строки.CurrentData.Значение")
+  })
+
+  it("индексирует дополнительные колонки до уточнения CurrentData", () => {
+    const result = importValueTableCurrentDataForm(
+      {
+        AdditionalColumns: {
+          _table: "Строки",
+          Column: [{
+            _name: "Дополнительная",
+            _id: "1",
+            Type: { "v8:Type": "xs:string" },
+          }],
+        },
+      },
+      "Дополнительная"
+    )
+
+    expect(
+      result.localIndexes.metadata.formDataPathIndex
+        ?.additionalColumnsByTablePath.get("Строки")
+        ?.get("Дополнительная")
+    ).toMatchObject({ name: "Дополнительная" })
+
+    finalizeImportedFormDataPaths(result)
+
+    expect(JSON.stringify(result.yaml)).toContain(
+      "Элементы.Строки.ТекущиеДанные.Дополнительная"
+    )
   })
 
   it.each([

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { assertCompleteCruiseResult } from "../src/cruise-result.mjs"
+import {
+  assertCompleteCruiseResult,
+  dependencyCruiseArgs,
+} from "../src/cruise-result.mjs"
 
 const typescriptEnvironment = {
   transpilersFound: [
@@ -16,6 +19,19 @@ const typescriptEnvironment = {
     { extension: ".d.ts", available: true },
   ],
 }
+
+test("всегда строит dependency-граф без кэша", () => {
+  assert.deepEqual(dependencyCruiseArgs("/tmp/current.json"), [
+    "--config",
+    ".dependency-cruiser.mjs",
+    "--output-type",
+    "json",
+    "--output-to",
+    "/tmp/current.json",
+    "--no-cache",
+    "packages",
+  ])
+})
 
 test("принимает полный TypeScript-граф", () => {
   assert.doesNotThrow(() =>

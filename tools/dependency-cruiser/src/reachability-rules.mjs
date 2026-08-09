@@ -76,7 +76,7 @@ export const metadataCompositionReachabilityRule = {
   comment: "Обычные metadata-модули не зависят от composition roots.",
   fromPatterns: ["^packages/core/metadata/(?!composition/)"],
   fromNotPatterns: [
-    "^packages/core/metadata/workerPool/(?:worker|preparedYamlProjectEntry)\\.ts$",
+    "^packages/core/metadata/workerPool/(?:worker|preparedYamlProjectEntry|generateProjectValidationAjvStandaloneEntry)\\.ts$",
     "^packages/core/metadata/(?:importFromXml|fullSyncToXml)/worker\\.ts$",
   ],
   toPatterns: ["^packages/core/metadata/composition/"],

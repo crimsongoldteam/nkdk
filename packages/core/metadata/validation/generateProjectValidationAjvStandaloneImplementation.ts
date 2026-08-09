@@ -11,7 +11,9 @@ import {
 
 const undefinedKeyword = "x-nkdk-undefined"
 
-export async function generateProjectValidationAjvStandalone(params: { outfile: string }): Promise<void> {
+export async function generateProjectValidationAjvStandaloneImplementation(
+  params: { outfile: string }
+): Promise<void> {
   const schemaSet = createProjectValidationStandaloneSchemaSet(defaultStandaloneValidationContext)
   const refs = Object.fromEntries(
     Object.entries(schemaSet.refs).map(([id, sourceSchema]) => [id, withSchemaId(prepareSchemaForAjv(sourceSchema), id)])

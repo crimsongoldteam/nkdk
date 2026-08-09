@@ -9,6 +9,7 @@ import { formatDataPathStandardMembers } from "./formatter"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import { createValidationOwnerFacts } from "./ownerFacts"
+import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 
 describe("formatDataPathStandardMembers", () => {
   it("keeps a single local segment without resolving it", () => {
@@ -100,6 +101,37 @@ describe("formatDataPathStandardMembers", () => {
         ownerCache: owners,
       })
     ).toBe("Объект.Код")
+  })
+
+  it("преобразует служебные сегменты текущей строки в обе стороны", () => {
+    const index = createFormDataPathIndexFromYAML({
+      Реквизиты: {
+        Строки: {
+          Тип: "ТаблицаЗначений",
+          Колонки: { Значение: { Тип: "Строка" } },
+        },
+      },
+      Элементы: {
+        Таблица: {
+          Вид: "ТаблицаФормы",
+          ПутьКДанным: "Строки",
+        },
+      },
+    })
+
+    expect(formatDataPathStandardMembers({
+      value: "Items.Таблица.CurrentData.Значение",
+      direction: "internal-to-yaml",
+      index,
+      ownerCache: ownerCache([]),
+    })).toBe("Элементы.Таблица.ТекущиеДанные.Значение")
+
+    expect(formatDataPathStandardMembers({
+      value: "Элементы.Таблица.ТекущиеДанные.Значение",
+      direction: "yaml-to-internal",
+      index,
+      ownerCache: ownerCache([]),
+    })).toBe("Items.Таблица.CurrentData.Значение")
   })
 
   it("preserves an unresolved user data path without an import warning", () => {

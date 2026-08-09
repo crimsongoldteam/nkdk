@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks"
 import { resolve } from "node:path"
-import { registerCoreMetadata } from "../metadata/register.ts"
+import { registerCoreMetadata } from "../metadata/composition/coreMetadata.ts"
 import { exportJSONSchemaGraph } from "../metadata/validation/projectFileSchema.ts"
 import { discoverValidationProjectFiles } from "../metadata/validation/projectFiles.ts"
 import { createValidationSchemaCache } from "../metadata/validation/projectValidationPasses.ts"

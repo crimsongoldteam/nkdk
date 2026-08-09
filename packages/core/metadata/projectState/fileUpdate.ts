@@ -178,8 +178,13 @@ function projectStateFormEntries(form: ProjectValidationFirstPassResult["form"])
       entries.push({ kind: "additionalColumn", owner, tablePath, name: column.name, source: column })
     }
   }
-  for (const [name, dataPath] of index.tableDataPathByElementName) {
-    entries.push({ kind: "tableDataPath", owner, name, dataPath })
+  for (const [name, declaration] of index.tabularElementsByName) {
+    entries.push({
+      kind: "tabularElement",
+      owner,
+      name,
+      ...(declaration.dataPath === undefined ? {} : { dataPath: declaration.dataPath }),
+    })
   }
   return entries
 }
