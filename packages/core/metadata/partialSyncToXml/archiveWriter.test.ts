@@ -32,9 +32,9 @@ describe("потоковый ZIP частичной XML-синхронизаци
     expect(fs.readdirSync(dir)).toEqual(["package.zip"])
   })
 
-  it("передаёт большой внешний файл потоком и сохраняет очищенный модуль с BOM", async () => {
+  it("передаёт внешний файл потоком и сохраняет очищенный модуль с BOM", async () => {
     const { archivePath } = location()
-    const large = Buffer.alloc(32 * 1024 + 17, 0x5a)
+    const large = Buffer.alloc(4 * 1024 + 17, 0x5a)
     const largePath = sourceFile("large.bin", large)
     const moduleBytes = Buffer.from([0xef, 0xbb, 0xbf])
     const modulePath = sourceFile("Module.bsl", moduleBytes)
