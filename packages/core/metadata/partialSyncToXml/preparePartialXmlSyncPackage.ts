@@ -154,13 +154,12 @@ async function prepareValidatedPackage(
     componentPath: params.componentPath,
     componentDir: runtime.target.structure.componentDir,
   })
-  if (isEmptyChanges(changes) && migration.pending.length === 0) {
-    return { ok: true, status: "unchanged", diagnostics: params.diagnostics }
-  }
-
   const borrowedDiagnostics = await validateBorrowedExtensionForms({ runtime })
   const diagnostics = [...params.diagnostics, ...borrowedDiagnostics]
   if (hasErrors(borrowedDiagnostics)) return { ok: false, diagnostics }
+  if (isEmptyChanges(changes) && migration.pending.length === 0) {
+    return { ok: true, status: "unchanged", diagnostics }
+  }
 
   const policies = resolvePartialXmlPackagePolicy(runtime.target.structure.topology)
   const references = readCompanionReferences(params, runtime, policies)
