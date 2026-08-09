@@ -3,7 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { describeMetadataProjectDirectoryStructure } from "./directoryStructure"
-import { metadataProjectSpecs } from "./specs"
+import { metadataProjectSpecs } from "../projectDefinition/specs"
 
 describe("metadata project directory structure", () => {
   const tempDirs: string[] = []

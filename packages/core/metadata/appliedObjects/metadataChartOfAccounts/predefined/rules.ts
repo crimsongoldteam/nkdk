@@ -2,8 +2,8 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { PredefinedRules } from "../../../commonObjects/predefined/rules"
 import { PredefinedItemRules } from "../../../commonObjects/predefinedItem/rules"
 import { stringRule } from "../../../commonObjects/string/types"
-import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { registerMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import {
   chartOfAccountsPredefinedAccountingFlagsRule,

@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { DateTimePropertyRule } from "./types"
 
 export const exportDateTimeToXML = (

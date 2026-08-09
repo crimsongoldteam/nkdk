@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks"
 import { pathToFileURL } from "node:url"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import {
   createValidationSchemaFromAjvFunction,
   type ValidationSchemaValidator,

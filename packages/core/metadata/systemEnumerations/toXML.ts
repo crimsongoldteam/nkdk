@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
-import type { PropertyRule } from "../orchestration/property/types"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../ruleRuntime/property/types"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>

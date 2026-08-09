@@ -8,8 +8,8 @@ import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const MetadataSequenceRules = {
   itemType: "MetadataSequence",
   metadataTargetOwner: { kind: "self", root: "Sequence" },

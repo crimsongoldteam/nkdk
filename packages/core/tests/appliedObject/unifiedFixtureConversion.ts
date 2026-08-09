@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../../metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../metadata/ruleRuntime/property/types"
 import { testAppliedObjectFromXMLToYAML, testAppliedObjectFromYAMLToXML } from "../directConversion"
 import { withKnownXMLDefaults } from "../knownXMLDefaults"
 

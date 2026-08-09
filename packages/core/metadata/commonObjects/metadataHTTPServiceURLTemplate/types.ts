@@ -5,8 +5,8 @@ import {
   MetadataHTTPServiceMethodsYAML,
 } from "../metadataHTTPServiceMethod/types"
 import { MetadataNameYAML } from "../metadataName/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataHTTPServiceURLTemplateRules } from "./rules"
 

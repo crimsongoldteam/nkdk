@@ -2,10 +2,10 @@ import { StringboolYAML } from "../../commonObjects/boolean/types"
 import { I8nTextXML, I8nTextYAML } from "../../commonObjects/i8nText/types"
 import { PictureXML, PictureYAML } from "../../commonObjects/picture/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "../../commonObjects/typeDescription/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
-import { MetadataCommandRules } from "./rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 
 export type MetadataCommand = MetadataTypeByRule<typeof MetadataCommandRules>
 

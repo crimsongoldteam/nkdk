@@ -1,7 +1,7 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { ExchangePlanContentRules } from "./rules"
 
 import "./register"

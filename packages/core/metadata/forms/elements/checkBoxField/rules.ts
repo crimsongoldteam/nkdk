@@ -1,7 +1,7 @@
 import { booleanRule } from "../../../commonObjects/boolean/types"
-import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
-import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }

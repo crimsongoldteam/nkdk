@@ -1,6 +1,6 @@
-import { importMetadataItemFromXMLToYAML } from "../../../../../orchestration/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../../../orchestration/property/importYamlTypes"
-import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
+import { importMetadataItemFromXMLToYAML } from "../../../../../ruleRuntime/metadataItem/fromXMLToYAML"
+import type { ImportFromXMLToYAMLFunction } from "../../../../../ruleRuntime/property/importYamlTypes"
+import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemFieldRules } from "./rules"
 
 export const importGroupItemFieldFromXMLToYAML: ImportFromXMLToYAMLFunction = ({

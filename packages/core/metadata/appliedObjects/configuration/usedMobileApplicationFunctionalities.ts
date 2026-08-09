@@ -8,7 +8,7 @@ import {
   type MobileApplicationFunctionalitiesYAML,
   type RequiredMobileApplicationPermissionMessages,
   type RequiredMobileApplicationPermissionMessagesYAML,
-} from "./mobileApplicationPermissionsEnumerations"
+} from "../../systemEnumerations/mobileApplicationPermissions"
 import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
 import {
   MobileApplicationPermissionBooleanJSONSchema,

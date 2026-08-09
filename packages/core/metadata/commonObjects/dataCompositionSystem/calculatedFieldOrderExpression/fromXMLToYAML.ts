@@ -1,6 +1,6 @@
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
-import { importMetadataItemFromXMLToYAML } from "../../../orchestration/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
+import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
+import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
 import { CalculatedFieldOrderExpressionRules } from "./rules"
 
 export const importCalculatedFieldOrderExpressionFromXMLToYAML: ImportFromXMLToYAMLFunction = ({

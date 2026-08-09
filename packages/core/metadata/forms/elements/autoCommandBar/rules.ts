@@ -3,10 +3,10 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
-import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getAutoCommandBarName } from "./helper"
 export type { ElementRule, PropertyRule }
 export const AutoCommandBarRules = {

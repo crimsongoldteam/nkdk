@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import { registerCoreMetadata } from "../register"
-import type { ImportedDependentPropertyCandidate } from "../orchestration/property/importYamlTypes"
+import { registerCoreMetadata } from "../composition/coreMetadata"
+import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
 import { normalizeImportedDependentItems } from "./dependentItems"
 
 registerCoreMetadata()

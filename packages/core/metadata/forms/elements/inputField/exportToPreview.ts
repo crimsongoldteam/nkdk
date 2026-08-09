@@ -1,5 +1,5 @@
 // import { ConfigurationContext } from "../../../context/types"
-// import { exportElementToEnterprise } from "../../../orchestration"
+// import { exportElementToEnterprise } from "../../../ruleRuntime"
 // import { InputField } from "./types"
 
 // export function exportInputFieldToPreview(

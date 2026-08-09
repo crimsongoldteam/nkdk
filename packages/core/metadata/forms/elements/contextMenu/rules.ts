@@ -4,8 +4,8 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }
 export const ContextMenuRules = {

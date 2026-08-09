@@ -3,8 +3,8 @@ import type {
   PendingMetadataTargetReferenceCandidate,
   StructuralReferencesFunction,
   ValidateMetadataTargetFunction,
-} from "../../orchestration/property/fn"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+} from "../../ruleRuntime/property/fn"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"

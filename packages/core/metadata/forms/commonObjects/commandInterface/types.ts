@@ -2,13 +2,13 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 import { Type } from "typebox"
 import type { Static } from "typebox"
 import { StringboolXML } from "../../../commonObjects/boolean/types"
 import { DataPath, DataPathXML, DataPathYAML } from "../dataPath/types"
 import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "../../../commonObjects/userVisible/types"
-import { MetadataItem } from "../../../orchestration"
+import { MetadataItem } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 
 type RawCommandGroup = string

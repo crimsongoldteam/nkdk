@@ -16,7 +16,7 @@ test("operation test support lives in a test-only directory", () => {
 
 test("operation target declarations own their target kind types", () => {
   const operationTargets = readFileSync(
-    "packages/core/metadata/orchestration/property/operationTargets.ts",
+    "packages/core/metadata/ruleRuntime/property/operationTargets.ts",
     "utf8"
   )
 
@@ -51,7 +51,7 @@ test("unused validation schema cache is removed", () => {
   assert.doesNotMatch(coreIndex, /MetadataKind/u)
 })
 
-test("generic external file handling belongs to property orchestration", () => {
+test("generic external file handling belongs to property ruleRuntime", () => {
   assert.equal(
     existsSync(
       "packages/core/metadata/forms/commonObjects/dynamicList/externalFile.ts"
@@ -60,7 +60,7 @@ test("generic external file handling belongs to property orchestration", () => {
   )
   assert.equal(
     existsSync(
-      "packages/core/metadata/orchestration/property/externalFile.ts"
+      "packages/core/metadata/ruleRuntime/property/externalFile.ts"
     ),
     true
   )

@@ -160,7 +160,7 @@ describe("export <MetadataName> to XML", () => {
 
 ### `fromYAML.test.ts` (applied)
 
-Подходит, если объект работает через общий orchestration-путь
+Подходит, если объект работает через общий ruleRuntime-путь
 `importMetadataItemFromYAML`. Если у объекта своя пара функций
 (`importMetadata<Name>FromYAML`/`exportMetadata<Name>ToYAML`) — пиши тесты на
 прямых вызовах этих функций (см. `metadataCatalog/fromYAML.test.ts`).
@@ -237,7 +237,7 @@ Helper'ы: `~/tests/property/`. Используется `PropertyRule` с яв�
 import { describe, expect, it } from "vitest"
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
-import { PropertyRule } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/ruleRuntime"
 import { full } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
 import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
@@ -282,7 +282,7 @@ describe("import <PropertyType> from XML", () => {
 ```typescript
 import { describe, expect, it } from "vitest"
 import { full } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
-import { PropertyRule } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/ruleRuntime"
 import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
 
 describe("export<PropertyType>ToXML", () => {
@@ -308,7 +308,7 @@ describe("export<PropertyType>ToXML", () => {
 import { parse } from "yaml"
 import { describe, expect, it } from "vitest"
 import { full, fullYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
-import { PropertyRule } from "~/metadata/orchestration"
+import { PropertyRule } from "~/metadata/ruleRuntime"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
@@ -339,7 +339,7 @@ describe("import<PropertyType>FromYAML", () => {
 ```typescript
 import { describe, expect, it } from "vitest"
 import { full, fullYAML } from "~/metadata/commonObjects/<objectDir>/__fixtures__/full"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { PropertyRule } from "~/metadata/ruleRuntime/property/types"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {

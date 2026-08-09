@@ -1,7 +1,7 @@
 import { TSchema } from "typebox"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import "../predefinedItem/toJSONSchema"
 import { PredefinedRules } from "./rules"
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { serializeDirectXML, testPropertyFixtureThroughYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 import { MetadataInformationRegisterResourceRules } from "../../appliedObjects/metadataInformationRegister/childRules"
 import { MetadataAccountingRegisterResourceRules } from "../../appliedObjects/metadataAccountingRegister/childRules"

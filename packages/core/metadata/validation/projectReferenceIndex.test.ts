@@ -1,7 +1,7 @@
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
-import type { ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
+import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
+import type { ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,

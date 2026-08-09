@@ -1,14 +1,13 @@
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import type { Diagnostic, DiagnosticSeverity, DiagnosticSource } from "./types"
+import type {
+  Diagnostic,
+  DiagnosticSeverity,
+  DiagnosticSource,
+  YamlDiagnosticLocation,
+  YamlPath,
+} from "../diagnostics/types"
 
-export type YamlPath = readonly (string | number)[]
-
-export interface YamlDiagnosticLocation {
-  filePath: string
-  line: number
-  col: number
-  path?: string
-}
+export type { YamlDiagnosticLocation, YamlPath } from "../diagnostics/types"
 
 export interface DiagnosticAtYamlPathParams {
   filePath: string

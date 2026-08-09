@@ -1,0 +1,125 @@
+import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
+import type { ConfigurationSnapshotFragment } from "../../configurationIndex/types"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { DeferredObjectValue } from "../../ruleRuntime/property/deferredObjectValues"
+import type { YAMLToXMLProfile } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { PreparedYamlFile } from "../../project/preparedYamlProject"
+import type {
+  CompiledMetadataAssignmentNode,
+  MetadataXmlBaseInputDeclaration,
+} from "../core/types"
+
+export interface MetadataXmlPrepareOutput {
+  readonly declarationId: string
+  readonly targetXmlPath: string
+  readonly role: "metadata" | "body" | "property"
+  readonly propertyName?: string
+  readonly baseInput?: MetadataXmlBaseInputDeclaration
+}
+
+export interface MetadataXmlPrepareCompositionEntry {
+  readonly sourceProjectPath: string
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+  readonly assignmentRole: "configuration" | "properties" | "fileItem"
+  readonly ownerLogicalAddress?: string
+}
+
+export interface MetadataXmlPrepareComposition {
+  children(ownerLogicalAddress: string): readonly MetadataXmlPrepareCompositionEntry[]
+}
+
+export interface PreparedMetadataXmlDocument {
+  readonly declarationId: string
+  readonly targetXmlPath: string
+  readonly xml: Record<string, unknown>
+  readonly deferred: readonly DeferredObjectValue[]
+  readonly rootRule: MetadataItemRule
+}
+
+export interface MetadataXmlPrepareCapability {
+  readonly id: string
+  readonly run: (params: {
+    readonly context: ConfigurationContextWithExportToXML
+    readonly preparedYamlFile: PreparedYamlFile
+    readonly basePreparedYamlFile?: PreparedYamlFile
+    readonly baseConfigurationIndex?: ConfigurationIndexReader
+    readonly assignment: CompiledMetadataAssignmentNode
+    readonly itemName: string
+    readonly logicalAddress: string
+    readonly outputs: readonly MetadataXmlPrepareOutput[]
+    readonly index: ConfigurationIndexReader
+    readonly composition: MetadataXmlPrepareComposition
+    readonly profile: YAMLToXMLProfile
+  }) => readonly PreparedMetadataXmlDocument[]
+}
+
+const prepareCapabilities = new Map<string, MetadataXmlPrepareCapability>()
+
+export interface MetadataExternalTransferCapability {
+  readonly id: string
+  readonly projectToXml: (params: {
+    readonly sourcePath: string
+    readonly targetPath: string
+  }) => { readonly sourcePath: string; readonly targetPath: string }
+}
+
+const externalTransferCapabilities = new Map<string, MetadataExternalTransferCapability>()
+
+export interface MetadataSnapshotImportCapability {
+  readonly id: string
+  readonly run: (params: {
+    readonly context: ConfigurationContextFromXML
+    readonly sourcePath: string
+    readonly targetProjectPath: string
+  }) => Promise<ConfigurationSnapshotFragment>
+}
+
+const snapshotImportCapabilities = new Map<string, MetadataSnapshotImportCapability>()
+
+export function registerMetadataXmlPrepareCapability(capability: MetadataXmlPrepareCapability): void {
+  const previous = prepareCapabilities.get(capability.id)
+  if (previous !== undefined && previous.run !== capability.run) {
+    throw new Error(`Возможность подготовки XML уже зарегистрирована: ${capability.id}`)
+  }
+  prepareCapabilities.set(capability.id, capability)
+}
+
+export function getMetadataXmlPrepareCapability(id: string): MetadataXmlPrepareCapability | undefined {
+  return prepareCapabilities.get(id)
+}
+
+export function clearMetadataXmlPrepareCapabilitiesForTests(): void {
+  prepareCapabilities.clear()
+}
+
+export function registerMetadataExternalTransferCapability(
+  capability: MetadataExternalTransferCapability
+): void {
+  const previous = externalTransferCapabilities.get(capability.id)
+  if (previous !== undefined && previous.projectToXml !== capability.projectToXml) {
+    throw new Error(`Возможность переноса внешнего файла уже зарегистрирована: ${capability.id}`)
+  }
+  externalTransferCapabilities.set(capability.id, capability)
+}
+
+export function getMetadataExternalTransferCapability(
+  id: string
+): MetadataExternalTransferCapability | undefined {
+  return externalTransferCapabilities.get(id)
+}
+
+export function registerMetadataSnapshotImportCapability(capability: MetadataSnapshotImportCapability): void {
+  const previous = snapshotImportCapabilities.get(capability.id)
+  if (previous !== undefined && previous.run !== capability.run) {
+    throw new Error(`Возможность дополнения снимка уже зарегистрирована: ${capability.id}`)
+  }
+  snapshotImportCapabilities.set(capability.id, capability)
+}
+
+export function getMetadataSnapshotImportCapability(id: string): MetadataSnapshotImportCapability | undefined {
+  return snapshotImportCapabilities.get(id)
+}

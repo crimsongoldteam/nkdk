@@ -2,8 +2,8 @@ import { conditionalAppearanceItemsRule } from "./builders"
 import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { userSettingsIDRule } from "../../userSettingsID/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { MetadataItemRule } from "../../../orchestration"
-import type { TypeRulesOperations } from "../../../orchestration/property/fn"
+import { MetadataItemRule } from "../../../ruleRuntime"
+import type { TypeRulesOperations } from "../../../ruleRuntime/property/fn"
 const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
   operation === "importFromXML" || operation === "importFromXMLToYAML" || operation === "importFromYAML"
     ? undefined

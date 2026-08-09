@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../orchestration"
+import { PropertyRule } from "../../ruleRuntime"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { fixtureUserSettingsIDFull, fixtureUserSettingsIDRefFull } from "./__fixtures__/data"
 

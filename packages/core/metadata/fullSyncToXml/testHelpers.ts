@@ -5,7 +5,7 @@ import type { ComponentAddress } from "../components/address"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "../project/componentState"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import {
   createFullXmlSyncDiagnosticCollectionFromDiagnostics,
@@ -40,6 +40,10 @@ export function emptyProjectStateReadSession(
     readOwnerRefPage: () => ({ refs: [] }),
     readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
+    readFileMetadataTargetReferences: (requests) => requests.map((request) => ({
+      requestId: request.requestId,
+      status: "missing" as const,
+    })),
     close() {},
     ...overrides,
   }

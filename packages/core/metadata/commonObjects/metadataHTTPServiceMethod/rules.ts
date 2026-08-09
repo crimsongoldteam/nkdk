@@ -1,5 +1,5 @@
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 
 const propertiesParents = ["Properties"]
 

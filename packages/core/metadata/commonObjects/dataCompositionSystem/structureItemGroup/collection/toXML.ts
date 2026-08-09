@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../../context/types"
-import { callAtomicToXML, PropertyRule, registerTypeRule } from "../../../../orchestration"
+import { callAtomicToXML, PropertyRule, registerTypeRule } from "../../../../ruleRuntime"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection, StructureItemGroupCollectionItem } from "./types"
 

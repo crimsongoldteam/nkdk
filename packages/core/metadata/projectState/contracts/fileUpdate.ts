@@ -1,15 +1,15 @@
 import type { Diagnostic } from "../../diagnostics/types"
-import type { OwnerFactRole } from "../../orchestration/property/ownerFactRole"
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import type { ElementType } from "../../orchestration/formElement/types"
+import type { OwnerFactRole } from "../../ruleRuntime/property/ownerFactRole"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type {
   DataPathTableInfo,
   DataPathTypeInfo,
   FormDataPathColumnSource,
   OwnerTypeRef,
-} from "../../orchestration/dataPath/types"
-import type { DataPathAllowedKind } from "../../orchestration/property/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../orchestration/metadataTarget/types"
+} from "../../ruleRuntime/dataPath/types"
+import type { DataPathAllowedKind } from "../../ruleRuntime/property/types"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
 import type { ProjectStateFileIdentity } from "./fileIdentity"
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
@@ -90,7 +90,7 @@ export interface ProjectStateFormSource {
 export type ProjectStateFormEntry =
   | { readonly kind: "root"; readonly owner: OwnerTypeRef; readonly name: string; readonly source: ProjectStateFormSource }
   | { readonly kind: "additionalColumn"; readonly owner: OwnerTypeRef; readonly tablePath: string; readonly name: string; readonly source: FormDataPathColumnSource }
-  | { readonly kind: "tableDataPath"; readonly owner: OwnerTypeRef; readonly name: string; readonly dataPath: string }
+  | { readonly kind: "tabularElement"; readonly owner: OwnerTypeRef; readonly name: string; readonly dataPath?: string }
 export interface ProjectStatePendingDependencyCheck {
   readonly kind: "dataPath"
   readonly yamlPath: ProjectStateYamlPath

@@ -19,7 +19,8 @@ describe("configuration index export runtime", () => {
 
   function createRuntime(
     logicalAddress = "Документ.Заказ",
-    source: ConfigurationIndexReader = createReader(sampleSnapshot())
+    source: ConfigurationIndexReader = createReader(sampleSnapshot()),
+    referencePathByCurrentPath?: ReadonlyMap<string, string>,
   ) {
     const collector = createConfigurationIndexCollector()
     const runtime = createConfigurationIndexExportRuntime({
@@ -27,6 +28,7 @@ describe("configuration index export runtime", () => {
       collector,
       targetProjectPath: "Документы/Заказ.yaml",
       logicalAddress,
+      ...(referencePathByCurrentPath === undefined ? {} : { referencePathByCurrentPath }),
     })
     return { collector, runtime }
   }
@@ -44,6 +46,20 @@ describe("configuration index export runtime", () => {
         identities: { uuid: value },
       },
     ])
+  })
+
+  it("читает identity по проверенному пути до переименования и записывает по текущему", () => {
+    const { collector, runtime } = createRuntime(
+      "Документ.НовыйЗаказ",
+      createReader(sampleSnapshot()),
+      new Map([["Документ.НовыйЗаказ", "Документ.Заказ"]]),
+    )
+
+    expect(runtime.identityOrCreate("uuid")).toBe(TEST_UUID)
+    expect(collector.fragment("Документы/Заказ.yaml").entities).toEqual([
+      expect.objectContaining({ logicalAddress: "Документ.НовыйЗаказ", identities: { uuid: TEST_UUID } }),
+    ])
+    expect(runtime.xml()).toBeUndefined()
   })
 
   it("creates deterministic identities and config versions independent of call order", () => {

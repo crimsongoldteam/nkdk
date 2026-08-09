@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import type { ParameterValueXML } from "../parameterValue/types"
 import { exportSettingsParameterValueDcscorItemsToXML, getDcscorItemExportValueForXmlParents } from "./dcscorItemsXML"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionXML } from "./types"

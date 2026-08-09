@@ -122,6 +122,20 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it("останавливается до создания выходных файлов при ожидающем частичном пакете", async () => {
+    const calls: string[] = []
+    const params = createParams("configuration")
+
+    const result = await importConfigurationFromXml(params, {
+      ...fakeDependencies({ calls }),
+      assertNoPending() { throw new Error("существует ожидающий пакет") },
+    })
+
+    expect(result.failed).toEqual([expect.objectContaining({ message: "существует ожидающий пакет" })])
+    expect(calls).toEqual([])
+    expect(fs.readdirSync(params.projectDir)).toEqual([])
+  })
+
   it("detects the main configuration and writes it to cf", async () => {
     const calls: string[] = []
     const params = createParams("configuration")

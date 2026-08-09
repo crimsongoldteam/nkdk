@@ -1,35 +1,43 @@
 import { describe, expect, it } from "vitest"
 import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 import { createFormDataPathIndexCollector } from "./formYamlIndex"
-import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
+import { collectFormTabularElementsFromYAML } from "../../ruleRuntime/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
-  it("собирает пути табличных элементов при прямом обходе YAML по rules", () => {
+  it("собирает объявления таблиц и деревьев с путём и без пути", () => {
     const yaml = {
         Элементы: {
           ТаблицаТоваров: {
             Вид: "ТаблицаФормы",
             ПутьКДанным: "Объект.Товары",
           },
+          ДеревоГрупп: {
+            Вид: "ДеревоФормы",
+          },
+          ПолеВвода: {
+            Вид: "ПолеВвода",
+          },
         },
       }
     const index = createFormDataPathIndexFromYAML(
       yaml,
-      collectFormTableDataPathsFromYAML(yaml)
+      collectFormTabularElementsFromYAML(yaml)
     )
 
-    expect(index.tableDataPathByElementName).toEqual(
-      new Map([["ТаблицаТоваров", "Объект.Товары"]])
-    )
+    expect(index.tabularElementsByName).toEqual(new Map([
+      ["ТаблицаТоваров", { kind: "tabularFormElement", dataPath: "Объект.Товары" }],
+      ["ДеревоГрупп", { kind: "tabularFormElement" }],
+    ]))
   })
 
-  it("собирает путь к данным табличного элемента", () => {
+  it("дополняет объявленный табличный элемент путём независимо от порядка фактов", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
-    collector.acceptTableDataPath({ name: "ТаблицаТоваров", dataPath: "Объект.Товары" })
+    collector.declareTabularElement({ name: "ТаблицаТоваров" })
+    collector.declareTabularElement({ name: "ТаблицаТоваров", dataPath: "Объект.Товары" })
 
-    expect(collector.finish().tableDataPathByElementName).toEqual(
-      new Map([["ТаблицаТоваров", "Объект.Товары"]])
-    )
+    expect(collector.finish().tabularElementsByName).toEqual(new Map([
+      ["ТаблицаТоваров", { kind: "tabularFormElement", dataPath: "Объект.Товары" }],
+    ]))
   })
 
   it("собирает объявленные реквизиты и колонки", () => {

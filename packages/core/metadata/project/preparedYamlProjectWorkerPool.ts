@@ -24,7 +24,7 @@ import type {
   PreparedMetadataDeclaration,
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
-} from "./preparedYamlContracts"
+} from "../projectDefinition/preparedYamlContracts"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { runMetadataWorkerOperationQueue } from "../workerPool/operationQueue"
 import type {

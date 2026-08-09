@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { UserVisiblePropertyRule } from "../../orchestration/property/types"
+import type { UserVisiblePropertyRule } from "../../ruleRuntime/property/types"
 import { mockContext } from "../../../tests/mockContext"
 import { exportUserVisibleToYAML } from "./toYAML"
 import { UserVisibleKeysYAML, type UserVisible } from "./types"

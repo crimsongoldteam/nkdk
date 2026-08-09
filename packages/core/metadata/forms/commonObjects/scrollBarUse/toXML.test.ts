@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { PropertyRule, callAtomicToXML } from "../../../orchestration"
+import { PropertyRule, callAtomicToXML } from "../../../ruleRuntime"
 
 describe("exportScrollBarUseToXML (ScrollBarUseBoolean)", () => {
   const context = {} as unknown as ConfigurationContextWithExportToXML

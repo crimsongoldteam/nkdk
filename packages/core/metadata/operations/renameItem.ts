@@ -5,8 +5,8 @@ import {
   MIGRATIONS_DIR,
   nextMigrationFileName,
 } from "../appliedObjects/configuration/migrations"
-import { rootFromYAML } from "../orchestration/metadataTarget/roots"
-import type { MetadataTargetOwner } from "../orchestration/metadataTarget"
+import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
+import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { readIndexedOperationReferences } from "./indexReferences"

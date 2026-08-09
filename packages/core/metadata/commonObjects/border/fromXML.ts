@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../orchestration/property/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ControlBorderType } from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import type { Border, BorderXML } from "./types"

@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../ruleRuntime"
 import * as SE from "./types"
 import { SystemEnumerationPropertyRule } from "./types"
 

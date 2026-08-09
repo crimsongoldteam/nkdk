@@ -1,4 +1,4 @@
-import type { OwnerTypeRef } from "../../orchestration/dataPath/types"
+import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 import type { ProjectStateDependencyValidator } from "../contracts/dependencyValidation"
 import type {
   ProjectStateLocalValidationResult,
@@ -13,6 +13,8 @@ import {
   type ProjectDependencyInput,
   type ProjectDependencyInputQuery,
   type ProjectDependencyOwnerInputQuery,
+  type ProjectFileMetadataTargetReferencesQuery,
+  type ProjectFileMetadataTargetReferencesResult,
   type ProjectOwnerLookup,
   type ProjectOwnerLookupResult,
   type ProjectOwnerRefPage,
@@ -102,8 +104,30 @@ export function createBinaryProjectStateQueryPort(
     readOwnerRefPage: (query) => readOwnerRefPage(snapshot, query, pageSize),
     readComponentTargetPage: (query) => readComponentTargetPage(snapshot, query, pageSize),
     readValidationStatus: (query) => readValidationStatus(snapshot, typedReader, query),
+    readFileMetadataTargetReferences: (requests) =>
+      readFileMetadataTargetReferences(snapshot, readYamlFacts, requests),
   }
   return queryPort
+}
+
+function readFileMetadataTargetReferences(
+  snapshot: ProjectStateSnapshotView,
+  readYamlFacts: ReadYamlFacts,
+  requests: readonly ProjectFileMetadataTargetReferencesQuery[],
+): readonly ProjectFileMetadataTargetReferencesResult[] {
+  return requests.map(({ requestId, componentPath, projectPath }) => {
+    const fileId = snapshot.findFile(projectPath)
+    if (fileId === undefined || snapshot.componentPath(fileId) !== componentPath) {
+      return { requestId, status: "missing" as const }
+    }
+    const facts = readYamlFacts(fileId)
+    if (facts === undefined) return { requestId, status: "missing" as const }
+    return {
+      requestId,
+      status: "found" as const,
+      references: facts.pendingReferences.map(({ yamlPath, canonical }) => ({ yamlPath, canonical })),
+    }
+  })
 }
 
 export function openBinaryProjectStateReadSession(

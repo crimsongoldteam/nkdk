@@ -10,7 +10,7 @@ import {
   registerMetadataItemRule,
   registerTypeRule,
   type PropertyRule,
-} from "../../orchestration"
+} from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { HomePageWorkAreaRules } from "./rules"
 import {

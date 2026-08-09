@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { type PropertyRule } from "../../../orchestration"
+import { type PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import { calculatedFields, calculatedFieldsYAML } from "./__fixtures__/data"
 import "./types"

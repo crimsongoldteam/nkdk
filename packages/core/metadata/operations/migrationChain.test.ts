@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { prepareMetadataMigrationChain } from "./migrationChain"
+import { evaluateMigrationChain, prepareMetadataMigrationChain } from "./migrationChain"
 
 describe("prepareMetadataMigrationChain", () => {
   const tempDirs: string[] = []
@@ -173,5 +173,43 @@ describe("prepareMetadataMigrationChain", () => {
       ok: false,
       migrationErrors: [expect.objectContaining({ code: "invalid_migration_file" })],
     })
+  })
+})
+
+describe("evaluateMigrationChain", () => {
+  it("пропускает применённую migration и сохраняет identity проверенного переименования", () => {
+    const result = evaluateMigrationChain({
+      migrations: [
+        { fileName: "2026-06-30-120000.yaml", path: "Справочник.Старое", value: "Текущее" },
+        { fileName: "2026-06-30-120001.yaml", path: "Справочник.Текущее", value: "Новое" },
+      ],
+      appliedNames: new Set(["2026-06-30-120000.yaml"]),
+    })
+
+    expect(result.pending.map(({ fileName }) => fileName)).toEqual(["2026-06-30-120001.yaml"])
+    expect(result.referencePathByCurrentPath.get("Справочник.Новое")).toBe("Справочник.Текущее")
+    expect(result.candidateAppliedNames).toEqual([
+      "2026-06-30-120000.yaml",
+      "2026-06-30-120001.yaml",
+    ])
+  })
+
+  it("связывает последовательные новые переименования и отклоняет конфликт целей", () => {
+    const chained = evaluateMigrationChain({
+      migrations: [
+        { fileName: "2026-06-30-120000.yaml", path: "Справочник.Старое", value: "Среднее" },
+        { fileName: "2026-06-30-120001.yaml", path: "Справочник.Среднее", value: "Новое" },
+      ],
+      appliedNames: new Set(),
+    })
+    expect(chained.referencePathByCurrentPath.get("Справочник.Новое")).toBe("Справочник.Старое")
+
+    expect(() => evaluateMigrationChain({
+      migrations: [
+        { fileName: "2026-06-30-120000.yaml", path: "Справочник.Первый", value: "Общий" },
+        { fileName: "2026-06-30-120001.yaml", path: "Справочник.Второй", value: "Общий" },
+      ],
+      appliedNames: new Set(),
+    })).toThrow(/целев.*путь/i)
   })
 })

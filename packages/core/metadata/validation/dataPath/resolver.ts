@@ -25,8 +25,8 @@ export type ResolveDataPathParams = {
 } & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
 
 export type ResolveDataPathResult =
-  | { status: "ok"; target?: ResolvedDataPathTarget; diagnostics: Diagnostic[] }
-  | { status: "warning"; target?: ResolvedDataPathTarget; diagnostics: Diagnostic[] }
+  | { status: "ok"; target?: ResolvedDataPathTarget; targets: readonly ResolvedDataPathTarget[]; diagnostics: Diagnostic[] }
+  | { status: "warning"; target?: ResolvedDataPathTarget; targets: readonly ResolvedDataPathTarget[]; diagnostics: Diagnostic[] }
   | { status: "error"; diagnostics: Diagnostic[] }
 
 export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathResult {
@@ -40,8 +40,8 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
 
   const diagnostics = diagnosticsFromCore({ params, core })
 
-  if (core.status === "ok") return { status: "ok", target: core.target, diagnostics }
-  if (core.status === "warning") return { status: "warning", target: core.target, diagnostics }
+  if (core.status === "ok") return { status: "ok", target: core.target, targets: core.targets, diagnostics }
+  if (core.status === "warning") return { status: "warning", target: core.target, targets: core.targets, diagnostics }
   return { status: "error", diagnostics }
 }
 

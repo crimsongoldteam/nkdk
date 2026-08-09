@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
 
 const exportItem = (context: ConfigurationContextWithExportToXML, item: AvailableFieldItem): AvailableFieldXML => {

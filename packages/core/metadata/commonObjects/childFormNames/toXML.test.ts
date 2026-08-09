@@ -5,7 +5,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 import "./fromXML"
 import { exportChildFormNamesToXML } from "./toXML"
 

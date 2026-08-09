@@ -1,5 +1,5 @@
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetYAML } from "./types"
 

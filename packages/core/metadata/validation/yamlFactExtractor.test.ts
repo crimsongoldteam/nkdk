@@ -7,6 +7,7 @@ import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { registerValidationMetadata } from "./registerValidationMetadata"
+import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import {
   registerLocalYamlValueValidator,
   restoreLocalYamlValueValidationRegistryForTests,
@@ -15,7 +16,7 @@ import {
 } from "./yamlValueValidationRegistry"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 
-registerValidationMetadata()
+registerValidationMetadata(getRegisteredProjectSpecs())
 
 describe("extractValidationYamlFacts", () => {
   let valueValidationRegistry: LocalYamlValueValidationRegistrySnapshot

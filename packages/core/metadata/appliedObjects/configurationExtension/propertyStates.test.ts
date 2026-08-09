@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 

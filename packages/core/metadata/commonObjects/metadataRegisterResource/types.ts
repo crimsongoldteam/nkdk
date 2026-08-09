@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import { StringboolXML, StringboolYAML } from "../boolean/types"
 import { MetadataNameYAML } from "../metadataName/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import {
   MetadataRegisterFieldFullYAML,
   MetadataRegisterFieldYAML,

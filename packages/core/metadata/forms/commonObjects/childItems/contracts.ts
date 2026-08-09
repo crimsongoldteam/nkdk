@@ -1,7 +1,7 @@
 import type {
   CollectableElementToYAML,
   CollectableElementType,
-} from "../../../orchestration/formElement/types"
+} from "../../../ruleRuntime/formElement/types"
 
 export type FormElementTreeYAML = Record<string, FormElementTreeNodeYAML>
 

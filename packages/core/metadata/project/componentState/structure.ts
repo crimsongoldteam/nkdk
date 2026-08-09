@@ -1,8 +1,8 @@
 import { resolve } from "path"
 import { componentPath, type ComponentAddress } from "../../components/address"
-import { discoverMetadataProjectResources } from "../../resourceTopology/projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
+import { discoverMetadataProjectResources } from "../../resourceTopology/core/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
 import type { ComponentProjectStructure } from "./types"
 
 export async function readComponentProjectStructure(params: {

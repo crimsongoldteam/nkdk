@@ -1,5 +1,13 @@
 export type DiagnosticSource = "syntax" | "structure" | "external-file" | "cross-file" | "reference"
 export type DiagnosticSeverity = "error" | "warning"
+export type YamlPath = readonly (string | number)[]
+
+export interface YamlDiagnosticLocation {
+  filePath: string
+  line: number
+  col: number
+  path?: string
+}
 
 export interface Diagnostic {
   filePath: string

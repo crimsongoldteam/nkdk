@@ -1,11 +1,17 @@
 import { commonRules } from "./src/common-rules.mjs"
 import {
   allowedNeutralRules,
-  metadataForbiddenRules,
 } from "./src/metadata-rules.mjs"
+import {
+  fixtureReachabilityRules,
+  toDependencyCruiserRule,
+} from "./src/reachability-rules.mjs"
 
 export default {
-  forbidden: [...commonRules, ...metadataForbiddenRules],
+  forbidden: [
+    ...commonRules,
+    ...fixtureReachabilityRules.map(toDependencyCruiserRule),
+  ],
   allowed: allowedNeutralRules,
   allowedSeverity: "error",
   options: {

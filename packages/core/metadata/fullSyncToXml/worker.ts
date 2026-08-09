@@ -12,8 +12,8 @@ import {
 } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
-import { openProjectStateReadSession } from "../projectState/createDefaultService"
+import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
+import { openProjectStateReadSession } from "../composition/projectState"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import {
@@ -28,6 +28,8 @@ import type {
   FullXmlSyncDiagnostic,
   FullXmlSyncExecutionAssignment,
   FullXmlSyncExecutionResult,
+  FullXmlSyncGeneratedDocument,
+  FullXmlSyncOutputTarget,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
@@ -35,8 +37,8 @@ import type {
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 import { createFullXmlSyncBinaryResult } from "./binaryResult"
@@ -70,7 +72,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
   readonly componentPath: string
   readonly componentDir: string
-  readonly outputDir: string
+  readonly outputTarget: FullXmlSyncOutputTarget
   readonly context: ConfigurationContext
   readonly index: AssignmentScopedConfigurationIndexReader
   readonly baseIndex?: ConfigurationIndexReader
@@ -108,7 +110,7 @@ export async function runFullXmlSyncWorkerCommand(
         workerIndex: command.workerIndex,
         componentPath: command.componentPath,
         componentDir: command.componentDir,
-        outputDir: command.outputDir,
+        outputTarget: command.outputTarget,
         context: {
           ...command.context,
           importFromYAML: {
@@ -163,6 +165,7 @@ export async function runFullXmlSyncWorkerCommand(
       warnings: result.warnings,
       writtenFiles: result.writtenFiles,
       expectedOutputs: result.expectedOutputs,
+      generatedDocuments: result.generatedDocuments,
       fragmentBuffer: result.fragmentBuffer,
     })
   }
@@ -203,6 +206,7 @@ async function executeAssignments(
   const warnings: FullXmlSyncDiagnostic[] = []
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
+  const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
   const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
@@ -253,7 +257,7 @@ async function executeAssignments(
               basePreparedYamlFile,
               ...(state.baseIndex === undefined ? {} : { baseConfigurationIndex: state.baseIndex }),
             }),
-        context: exportContext(state),
+        context: exportContext(state, assignment.logicalAddress),
         index: assignmentIndex,
         composition: state.composition,
       })
@@ -265,11 +269,12 @@ async function executeAssignments(
       )
       const result = await writeFullXmlSyncAssignment({
         prepared,
-        context: exportContext(state),
-        outputDir: state.outputDir,
+        context: exportContext(state, assignment.logicalAddress),
+        outputTarget: state.outputTarget,
       })
       diagnostics.push(...result.diagnostics)
       writtenFiles.push(...result.writtenFiles)
+      generatedDocuments.push(...result.generatedDocuments)
       if (result.fragment !== undefined) fragments.push(result.fragment)
     } catch (caught) {
       diagnostics.push(
@@ -291,6 +296,7 @@ async function executeAssignments(
     warnings,
     writtenFiles,
     expectedOutputs,
+    generatedDocuments,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
 }
@@ -375,11 +381,22 @@ function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "i
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 
-function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
+function exportContext(
+  state: InitializedFullXmlSyncWorkerState,
+  currentPath: string,
+): ConfigurationContextWithExportToXML {
   return {
     ...state.context,
     importFromYAML: {
       ...state.context.importFromYAML,
+      ...(state.profile.referencePathByCurrentPath === undefined
+        ? {}
+        : {
+            referenceRemap: {
+              currentPath,
+              referencePathByCurrentPath: state.profile.referencePathByCurrentPath,
+            },
+          }),
       ownerMetadataCache: state.ownerMetadataCache,
       resolveDataPath: ({ value, index, ownerCache }) =>
         resolveDataPathCore({ value, nameMode: "yaml", index, ownerCache }),
@@ -463,7 +480,9 @@ export function fullXmlSyncWorkerStateForTests(): {
     workerIndex: initializedState.workerIndex,
     componentDir: initializedState.componentDir,
     importProjectDir: initializedState.context.importFromYAML?.projectDir,
-    outputDir: initializedState.outputDir,
+    ...(initializedState.outputTarget.kind === "directory"
+      ? { outputDir: initializedState.outputTarget.outputDir }
+      : {}),
     ...(initializedState.baseIndex === undefined ? {} : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
     ...(initializedState.activeAssignmentId === undefined
       ? {}
@@ -478,7 +497,14 @@ export function resetFullXmlSyncWorkerStateForTests(): void {
 export function createExecutionTransferable(result: FullXmlSyncExecutionResult) {
   return {
     get [transferableSymbol]() {
-      return [result.fragmentBuffer]
+      return [
+        result.fragmentBuffer,
+        ...result.generatedDocuments.map(({ content }) =>
+          content.byteOffset === 0 && content.byteLength === content.buffer.byteLength
+            ? content.buffer
+            : content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength)
+        ),
+      ]
     },
     get [valueSymbol]() {
       return result

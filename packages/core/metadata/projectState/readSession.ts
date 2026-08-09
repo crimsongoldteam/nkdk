@@ -1,10 +1,11 @@
-import type { OwnerTypeRef } from "../orchestration/dataPath/types"
+import type { OwnerTypeRef } from "../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,
   ProjectStateOwnerFacts,
   ProjectStatePendingDependencyCheck,
   ProjectStateTargetEntry,
+  ProjectStateYamlPath,
 } from "./fileUpdate"
 import type { ProjectStateReadToken } from "./contracts/readToken"
 
@@ -147,6 +148,23 @@ export interface ProjectValidationStatusRow {
   readonly contributedFacts?: boolean
 }
 
+export interface ProjectFileMetadataTargetReferencesQuery {
+  readonly requestId: string
+  readonly componentPath: string
+  readonly projectPath: string
+}
+
+export type ProjectFileMetadataTargetReferencesResult =
+  | {
+      readonly requestId: string
+      readonly status: "found"
+      readonly references: readonly {
+        readonly yamlPath: ProjectStateYamlPath
+        readonly canonical: string
+      }[]
+    }
+  | { readonly requestId: string; readonly status: "missing" }
+
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
   readOwners(requests: readonly ProjectOwnerLookup[]): readonly ProjectOwnerLookupResult[]
@@ -158,6 +176,9 @@ export interface ProjectStateQueryPort {
   readOwnerRefPage(query: ProjectOwnerRefPageQuery): ProjectOwnerRefPage
   readComponentTargetPage(query: ProjectComponentTargetPageQuery): ProjectComponentTargetPage
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
+  readFileMetadataTargetReferences(
+    requests: readonly ProjectFileMetadataTargetReferencesQuery[]
+  ): readonly ProjectFileMetadataTargetReferencesResult[]
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort {
@@ -192,6 +213,8 @@ export function createProjectStateReadSession(params: {
     readOwnerRefPage: (query) => read(() => params.queryPort.readOwnerRefPage(query)),
     readComponentTargetPage: (query) => read(() => params.queryPort.readComponentTargetPage(query)),
     readValidationStatus: (query) => read(() => params.queryPort.readValidationStatus(query)),
+    readFileMetadataTargetReferences: (requests) =>
+      read(() => params.queryPort.readFileMetadataTargetReferences(requests)),
     close() {
       if (closed) return
       closed = true

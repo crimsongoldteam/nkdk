@@ -2,13 +2,13 @@ import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationIndexEntityRange } from "../configurationIndex/sharedSnapshot"
 import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadataTypes"
-import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { DeferredObjectValue } from "../ruleRuntime/property/deferredObjectValues"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
-import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/types"
+import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/core/types"
 import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 
 export interface FullXmlSyncPotentialOutput {
@@ -71,6 +71,20 @@ export interface FullXmlSyncWrittenFile {
   readonly targetXmlPath: string
 }
 
+export interface FullXmlSyncGeneratedDocument {
+  readonly assignmentId: string
+  readonly declarationId: string
+  readonly targetXmlPath: string
+  readonly content: Uint8Array
+}
+
+export type FullXmlSyncOutputTarget =
+  | { readonly kind: "directory"; readonly outputDir: string }
+  | {
+      readonly kind: "memory"
+      readonly documentIdsByAssignment: Readonly<Record<string, readonly string[]>>
+    }
+
 export interface PreparedXMLDocument {
   readonly declarationId?: string
   readonly targetXmlPath: string
@@ -92,7 +106,7 @@ export type FullXmlSyncWorkerCommand =
       readonly workerIndex: number
       readonly componentPath: string
       readonly componentDir: string
-      readonly outputDir: string
+      readonly outputTarget: FullXmlSyncOutputTarget
       readonly context: ConfigurationContext
       readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
@@ -121,6 +135,7 @@ export interface FullXmlSyncExecutionResult {
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
+  readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
   readonly fragmentBuffer: ArrayBuffer
 }
 

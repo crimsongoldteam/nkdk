@@ -5,7 +5,7 @@ import {
   typeLinkYamlCatalogWithLinkItem,
   typeLinkYamlCatalogWithoutLinkItem,
 } from "./__fixtures__/data"
-import { PropertyRule } from "../../orchestration"
+import { PropertyRule } from "../../ruleRuntime"
 import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
 
 const rule: PropertyRule = {

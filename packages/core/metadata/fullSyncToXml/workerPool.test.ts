@@ -25,7 +25,7 @@ describe("full XML sync worker pool", () => {
   const initialization = {
     componentPath: "cf",
     componentDir: "/project",
-    outputDir: "/out",
+    outputTarget: { kind: "directory", outputDir: "/out" },
     context: {
       version: "2.20",
       defaultLanguage: "ru",
@@ -170,6 +170,45 @@ describe("full XML sync worker pool", () => {
       sourceProjectPaths: ["one.yaml", "two.yaml"],
       entities: [entity("Справочник.two", "two.yaml")],
     })
+    await pool.close()
+  })
+
+  it("передаёт XML-документы обработчику пачек и не включает их в итог", async () => {
+    const pools = createMockWorkerThreadPoolFactory<FullXmlSyncWorkerCommand, unknown>(async (task) => {
+      if (task.kind !== "executeBatch") return undefined
+      return createFullXmlSyncBinaryResult({
+        diagnostics: [],
+        warnings: [],
+        writtenFiles: [],
+        expectedOutputs: [],
+        generatedDocuments: task.assignments.map(({ id }) => ({
+          assignmentId: id,
+          declarationId: "test-document",
+          targetXmlPath: `${id}.xml`,
+          content: new TextEncoder().encode(`<item>${id}</item>`),
+        })),
+        configurationFragments: [],
+      })
+    })
+    const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const batches: string[][] = []
+    await pool.initialize({
+      ...initialization,
+      outputTarget: {
+        kind: "memory",
+        documentIdsByAssignment: { one: ["test-document"], two: ["test-document"] },
+      },
+    })
+
+    const result = await pool.execute([assignment("one"), assignment("two")], {
+      maxBufferedBatches: 1,
+      async onBatch(batch) {
+        batches.push(batch.generatedDocuments.map(({ content }) => new TextDecoder().decode(content)))
+      },
+    })
+
+    expect(batches).toEqual([["<item>one</item>"], ["<item>two</item>"]])
+    expect(result.expectedOutputs.count).toBe(0)
     await pool.close()
   })
 

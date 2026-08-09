@@ -17,8 +17,8 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
-import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import { registerMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 
 const formAttributeTitleRule = i8nTextRule({

@@ -1,7 +1,7 @@
 import { uuidPropertyRule } from "../uuid/rule"
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 import { internalInfoRule } from "../internalInfo/types"
 
 const propertiesParents = ["Properties"]

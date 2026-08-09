@@ -10,9 +10,9 @@ test("childItems rules не знает конкретные элементы", (
   assert.doesNotMatch(source, /forms\/elements|\.\.\/\.\.\/elements/u)
 })
 
-test("context helper не импортирует orchestration barrel", () => {
+test("context helper не импортирует ruleRuntime barrel", () => {
   const source = readFileSync("packages/core/metadata/context/helpers.ts", "utf8")
-  assert.doesNotMatch(source, /from "\.\.\/orchestration"/u)
+  assert.doesNotMatch(source, /from "\.\.\/ruleRuntime"/u)
 })
 
 test("типы элементов импортируют дерево YAML из leaf contract", () => {

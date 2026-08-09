@@ -1,4 +1,4 @@
-import { MetadataTypeByRule } from "../../../../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../../../../ruleRuntime/metadataItem/element"
 import { GroupItemAutoRules } from "./rules"
 
 export type GroupItemAuto = MetadataTypeByRule<typeof GroupItemAutoRules>

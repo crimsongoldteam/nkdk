@@ -1,6 +1,6 @@
 import { metadataValueRule } from "../metadataValue/types"
 import { stringRule } from "../string/types"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
   xmlOrder: [

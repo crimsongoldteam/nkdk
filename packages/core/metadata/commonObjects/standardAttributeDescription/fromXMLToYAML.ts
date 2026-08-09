@@ -1,6 +1,6 @@
-import { importMetadataItemCollectionFromXMLToYAML } from "../../orchestration/metadataCollection/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../orchestration/property/importYamlTypes"
-import type { StandardAttributeDescriptionsPropertyRule } from "../../orchestration/property/types"
+import { importMetadataItemCollectionFromXMLToYAML } from "../../ruleRuntime/metadataCollection/fromXMLToYAML"
+import type { ImportFromXMLToYAMLFunction } from "../../ruleRuntime/property/importYamlTypes"
+import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML, type StandartAttributeName } from "./standartAttributeNames"
 

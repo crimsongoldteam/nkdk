@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { DcsMetadataValuePropertyRule } from "../dataCompositionSystem/dcsMetadataValue/types"
-import type { PropertyRule } from "../../orchestration"
+import type { PropertyRule } from "../../ruleRuntime"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { dcsTypeLink } from "./__fixtures__/data"
 

@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../ruleRuntime"
 import { mergeOmittedNames, readOmittedNames } from "../omittedChildren"
 import { setChildTemplateNamesOmittedChildren } from "./fromXML"
 

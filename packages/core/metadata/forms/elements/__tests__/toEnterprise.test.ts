@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { ConfigurationContext } from "../../../context/types"
-import type { CollectableElement } from "../../../orchestration"
-import { exportElementToEnterprise } from "../../../orchestration/formElement/toEnterprise"
+import type { CollectableElement } from "../../../ruleRuntime"
+import { exportElementToEnterprise } from "../../../ruleRuntime/formElement/toEnterprise"
 import { mockContextToEnterprise } from "../../../../tests/mockContext"
 import { groupedFixtures } from "./fixtures"
 

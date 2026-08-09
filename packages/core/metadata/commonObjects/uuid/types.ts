@@ -1,5 +1,5 @@
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import type { BasePropertyRule } from "../../orchestration/property/types"
+import type { BasePropertyRule } from "../../ruleRuntime/property/types"
 
 export interface UuidPropertyRule extends BasePropertyRule {
   type: "uuid"

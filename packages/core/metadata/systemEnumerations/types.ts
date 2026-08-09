@@ -1,12 +1,12 @@
 // #region SystemEnumerations
 
 import { definePropertyRule, type ExactRuleParams } from "../commonObjects/ruleBuilder"
-import type { BasePropertyRule } from "../orchestration/property/types"
+import type { BasePropertyRule } from "../ruleRuntime/property/types"
 import type {
   MobileApplicationFunctionalities,
   RequiredMobileApplicationPermissionMessages,
   RequiredMobileApplicationPermissions,
-} from "../appliedObjects/configuration/mobileApplicationPermissionsEnumerations"
+} from "./mobileApplicationPermissions"
 
 export const DynamicListSearchStringViewModeToYAML = {
   Auto: "Авто",
@@ -2557,7 +2557,7 @@ export const MessageStatusFromYAML = {
 export type MessageStatus = keyof typeof MessageStatusToYAML
 export type MessageStatusYAML = keyof typeof MessageStatusFromYAML
 
-export * from "../appliedObjects/configuration/mobileApplicationPermissionsEnumerations"
+export * from "./mobileApplicationPermissions"
 
 export const NumericValueTypeToYAML = {
   Cardinal: "Количественное",

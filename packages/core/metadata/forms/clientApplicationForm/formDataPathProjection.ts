@@ -1,9 +1,9 @@
-import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
+import { collectFormTabularElementsFromYAML } from "../../ruleRuntime/formElement/formTableDataPaths"
 
 export const clientApplicationFormDataPathProjection = {
   attributeItemType: "FormAttribute",
   columnItemType: "FormAttributeColumn",
-  tableItemType: "Table",
+  tabularElementItemTypes: ["Table"],
   attributesYaml: "Реквизиты",
   columnsYaml: "Колонки",
   typeYaml: "Тип",
@@ -13,5 +13,9 @@ export const clientApplicationFormDataPathProjection = {
   dynamicListPropertyKey: "dynamicList",
   additionalColumnsPropertyKey: "additionalColumns",
   tableDataPathPropertyKey: "dataPath",
-  collectTableDataPathsFromYAML: collectFormTableDataPathsFromYAML,
+  collectTabularElementsFromYAML: collectFormTabularElementsFromYAML,
+  dataPathDialect: {
+    serviceRoot: { internal: "Items", yaml: "Элементы" },
+    currentRow: { internal: "CurrentData", yaml: "ТекущиеДанные" },
+  },
 } as const

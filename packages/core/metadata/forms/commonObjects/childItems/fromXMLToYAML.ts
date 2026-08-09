@@ -3,19 +3,19 @@ import {
   getConfigurationIndexFormElementLogicalAddress,
   withConfigurationIndexLogicalAddress,
 } from "../../../configurationIndex/collector/context"
-import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
+import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type {
   CollectableElementType,
   ElementRule,
   ElementType,
   ElementXML,
-} from "../../../orchestration/formElement/types"
-import { CollectableElementTypeToYAML } from "../../elements/orchestration/types"
-import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import { importFormElementPropertiesFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
+} from "../../../ruleRuntime/formElement/types"
+import { CollectableElementTypeToYAML } from "../../elements/ruleRuntime/types"
+import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { importFormElementPropertiesFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import type { TableChildItem } from "./types"
 import { copyYAMLScalarTags } from "../../../../yaml/scalarTags"
 

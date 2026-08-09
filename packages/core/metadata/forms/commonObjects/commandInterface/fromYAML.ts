@@ -1,6 +1,6 @@
 import { importUserVisibleFromYAML } from "../../../commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { StandardCommandsGroupFromYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroupYAML } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

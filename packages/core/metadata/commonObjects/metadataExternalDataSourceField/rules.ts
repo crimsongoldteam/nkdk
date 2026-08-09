@@ -1,4 +1,4 @@
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 import { booleanRule } from "../boolean/types"
 import {
   attributeChoiceFragment,

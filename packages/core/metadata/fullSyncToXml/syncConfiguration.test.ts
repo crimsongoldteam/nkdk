@@ -13,8 +13,8 @@ import type {
   ComponentHashState,
   ComponentProjectStructure,
 } from "../project/componentState"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import type { MetadataProjectResourceMatch } from "../resourceTopology/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
@@ -89,6 +89,25 @@ describe("shared full XML sync coordinator", () => {
       { projectPath: "Конфигурация.yaml", contentHash: 10n },
     ])
     expect(harness.writtenIndex?.entities).toEqual([])
+  })
+
+  it("останавливается до refresh и записи XML при ожидающем частичном пакете", async () => {
+    const harness = createHarness()
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, {
+      ...harness.deps,
+      assertNoPending() { throw new Error("существует ожидающий пакет") },
+    })
+
+    expect(result.failed).toEqual([expect.objectContaining({ message: "существует ожидающий пакет" })])
+    expect(harness.events).toEqual([])
+    expect(harness.workerPoolCreations).toBe(0)
   })
 
   it.each([

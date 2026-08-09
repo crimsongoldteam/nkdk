@@ -2,9 +2,9 @@ import type { ComponentAddress } from "../../components/address"
 import type { ConfigurationProjectFile } from "../../configurationIndex"
 import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
 import type { ProjectStateReadToken } from "../../projectState"
-import type { ProjectLogicalAddressEntry } from "../componentIndexFacts"
-import type { MetadataProjectResourceMatch } from "../../resourceTopology/projectProjection"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
+import type { ProjectLogicalAddressEntry } from "../../projectDefinition/componentIndexFacts"
+import type { MetadataProjectResourceMatch } from "../../resourceTopology/core/projectProjection"
+import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
 
 export interface ComponentProjectStructure {
   readonly address: ComponentAddress

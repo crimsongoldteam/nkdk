@@ -1,6 +1,6 @@
-import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
-import { EnterpriseType } from "../../../orchestration/metadataItem/enterprise"
-import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { EnterpriseType } from "../../../ruleRuntime/metadataItem/enterprise"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { PeriodFieldRules } from "./rules"
 
 export type PeriodField = FormTypeByRule<typeof PeriodFieldRules>

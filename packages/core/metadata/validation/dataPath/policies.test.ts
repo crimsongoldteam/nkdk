@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathPropertyRule } from "../../orchestration/property/types"
+import type { DataPathPropertyRule } from "../../ruleRuntime/property/types"
 import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import type { ResolvedDataPathTarget } from "./resolver"
 import { evaluateDataPathPolicy, toDataPathPolicyInput, validateResolvedDataPathPolicy } from "./policies"
@@ -243,6 +243,7 @@ function validatePolicy(params: {
     target: {
       value: "Значение",
       segments: ["Значение"],
+      segmentIndex: 0,
       source: { kind: "formAttribute", name: "Значение" },
       typeInfo: {
         kinds: params.kinds,
@@ -270,6 +271,7 @@ function resolvedTarget(
   return {
     value,
     segments: [value],
+    segmentIndex: 0,
     source: { kind: "formAttribute", name: value },
     typeInfo: { kinds, nextTypes: [] },
   }

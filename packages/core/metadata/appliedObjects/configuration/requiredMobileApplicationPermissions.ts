@@ -12,7 +12,7 @@ import {
   RequiredMobileApplicationPermissionsToYAML,
   type RequiredMobileApplicationPermissions,
   type RequiredMobileApplicationPermissionsYAML,
-} from "./mobileApplicationPermissionsEnumerations"
+} from "../../systemEnumerations/mobileApplicationPermissions"
 import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
 import { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./mobileApplicationPermissionsDefaults"
 import {

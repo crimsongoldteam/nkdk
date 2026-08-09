@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importCommonAttributeContentPathFromYAML } from "./metadataPath"

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { registerCoreMetadata } from "../../register"
-import { getValidationSchemaRef } from "../../orchestration/jsonSchemaRefs"
-import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
+import { getValidationSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
+import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import "./register"
 
 registerCoreMetadata()

@@ -1,3 +1,3 @@
-import { registerPropertyRuleTypes } from "../../orchestration/property/propertyTypeKeys"
+import { registerPropertyRuleTypes } from "../../ruleRuntime/property/propertyTypeKeys"
 
 registerPropertyRuleTypes(["I8nText"])

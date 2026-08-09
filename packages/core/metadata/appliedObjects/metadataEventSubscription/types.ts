@@ -1,8 +1,8 @@
 import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import { TypeDescriptionXML } from "../../commonObjects/typeDescription/types"
-import { registerMetadataItemRule } from "../../orchestration"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { registerMetadataItemRule } from "../../ruleRuntime"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataEventSubscriptionRules } from "./rules"
 

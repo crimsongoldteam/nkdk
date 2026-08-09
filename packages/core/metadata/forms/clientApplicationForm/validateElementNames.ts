@@ -1,9 +1,9 @@
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
-import { resolveFormElementRule } from "../elements/orchestration/fromYAMLToXML"
+import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 
 export const FORM_ELEMENT_NAMES_PROFILE_SUBSTEP = "Проверка уникальности имён элементов формы"
 

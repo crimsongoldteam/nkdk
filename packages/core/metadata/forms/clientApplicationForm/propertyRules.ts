@@ -1,6 +1,6 @@
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
 import {
   copyFormItemExternalFilesFromXML,
   describeFormExternalResourceDeclarations,
@@ -13,7 +13,7 @@ import { prepareFormXML } from "./syncToXML"
 import {
   registerMetadataExternalTransferCapability,
   registerMetadataXmlPrepareCapability,
-} from "../../resourceTopology/capabilities"
+} from "../../resourceTopology/adapters/capabilities"
 
 const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
   join(params.baseDir, dirname(params.rule.filePath ?? ""))

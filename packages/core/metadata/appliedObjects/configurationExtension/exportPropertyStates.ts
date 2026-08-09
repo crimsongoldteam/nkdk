@@ -1,9 +1,9 @@
 import { capitalize } from "../../../helpers/capitalize"
 import { childSegmentUid } from "../../configurationIndex/logicalAddress"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { MetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
+import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"

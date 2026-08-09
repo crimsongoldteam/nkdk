@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../orchestration/property/types"
-import { registerTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../ruleRuntime"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinkXML } from "./types"
 

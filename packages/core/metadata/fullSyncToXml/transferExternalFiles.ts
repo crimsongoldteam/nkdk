@@ -8,7 +8,7 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { FullXmlSyncExternalFile } from "./types"
 import type { FullXmlSyncCopiedFile } from "./types"
-import { getMetadataExternalTransferCapability } from "../resourceTopology/capabilities"
+import { getMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
 
 const DEFAULT_TRANSFER_CONCURRENCY = 16
 

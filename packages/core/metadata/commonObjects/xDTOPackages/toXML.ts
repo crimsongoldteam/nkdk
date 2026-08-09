@@ -1,5 +1,5 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { ExportToXMLFunction } from "../../orchestration/property/fn"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 
 const getXDTOPackageXMLType = (value: string): "xr:MDObjectRef" | "xs:string" =>

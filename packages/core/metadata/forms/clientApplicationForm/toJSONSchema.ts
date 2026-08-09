@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
-import type { ExportToJSONSchemaFn } from "../../orchestration"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import type { ExportToJSONSchemaFn } from "../../ruleRuntime"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { ClientApplicationFormRules } from "./rules"
 
 export const exportClientApplicationFormToJSONSchema: ExportToJSONSchemaFn = ({ context }): TSchema =>

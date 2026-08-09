@@ -1,7 +1,7 @@
 import { importTypeDescriptionFromYAML } from "../../../commonObjects/typeDescription/fromYAML"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormParameter, FormParameters, FormParametersYAML } from "./types"
 
 export const importFormParametersFromYAML = (

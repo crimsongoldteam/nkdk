@@ -2,18 +2,19 @@ import { readdir, stat } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { componentPath, type ComponentAddress } from "../components/address"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { createMetadataItemProjectSchemaExporter, type MetadataProjectSpec } from "../project/specs"
-import { assertCoreMetadataRegistered } from "../project/projectSpecRegistry"
-import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/registry"
-import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
+import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecContracts"
+import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 
 export interface ValidationProjectComponent {
   componentPath: string
   componentDir: string
   kind: ComponentAddress["kind"]
   rootRule: MetadataItemRule
-  rootSpec: MetadataProjectSpec
+  rootSpec: RegisteredProjectSpec
   topology: CompiledMetadataResourceTopology
 }
 
@@ -25,7 +26,6 @@ export interface ValidationProjectComponentDiscovery {
 export async function discoverValidationProjectComponents(
   projectDir: string
 ): Promise<ValidationProjectComponentDiscovery> {
-  assertCoreMetadataRegistered("validation/projectComponents")
   const root = resolve(projectDir)
   const components: ValidationProjectComponent[] = []
 
@@ -51,7 +51,7 @@ export function createValidationProjectComponent(
   address: ComponentAddress,
 ): ValidationProjectComponent {
   const descriptor = getMetadataComponentDescriptor(address.kind)
-  const rootSpec: MetadataProjectSpec = {
+  const rootSpec: RegisteredProjectSpec = {
     dir: "",
     kind: descriptor.kind,
     rule: descriptor.rootRule,
@@ -64,7 +64,10 @@ export function createValidationProjectComponent(
     kind: address.kind,
     rootRule: descriptor.rootRule,
     rootSpec,
-    topology: compileMetadataResourceTopologyForRootRule(descriptor.rootRule),
+    topology: compileMetadataResourceTopologyForRootRule(
+      descriptor.rootRule,
+      [configurationValidationProjectSpec, ...validationProjectSpecs],
+    ),
   }
 }
 

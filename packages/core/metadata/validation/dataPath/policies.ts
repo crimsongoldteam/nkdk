@@ -1,5 +1,5 @@
-import type { DataPathAllowedKind, DataPathPropertyRule } from "../../orchestration/property/types"
-import type { ElementType } from "../../orchestration"
+import type { DataPathAllowedKind, DataPathPropertyRule } from "../../ruleRuntime/property/types"
+import type { ElementType } from "../../ruleRuntime"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import {

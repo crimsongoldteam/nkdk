@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { isRawPictureRefValue, type Picture, type PictureXML } from "./types"
 

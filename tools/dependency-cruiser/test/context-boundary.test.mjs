@@ -10,12 +10,12 @@ test("configuration context does not own form or validation implementations", ()
 test("configuration context не импортирует владельцев расширений", () => {
   const source = readFileSync("packages/core/metadata/context/types.ts", "utf8")
   assert.doesNotMatch(source, /configurationIndex\/(?:collector\/context|exportRuntime)/u)
-  assert.doesNotMatch(source, /orchestration\/(?:formElement\/types|yamlImportError)/u)
+  assert.doesNotMatch(source, /ruleRuntime\/(?:formElement\/types|yamlImportError)/u)
 })
 
 test("property import contracts не импортирует project localIndexes", () => {
   const source = readFileSync(
-    "packages/core/metadata/orchestration/property/importYamlTypes.ts",
+    "packages/core/metadata/ruleRuntime/property/importYamlTypes.ts",
     "utf8"
   )
   assert.doesNotMatch(source, /project\/localIndexes/u)

@@ -1,7 +1,7 @@
 export * as Attribute from "../commonObjects/metadataAttribute/fragments"
 export { composeMetadataItemRule } from "../commonObjects/metadataRuleFragment"
 export * as Tabular from "../commonObjects/metadataTabularSection/fragments"
-import { declarePropertyItemRule } from "../orchestration/property/propertyItemRuleDeclarations"
+import { declarePropertyItemRule } from "../ruleRuntime/property/propertyItemRuleDeclarations"
 
 interface OwnerChildExportContext {
   exportToXML: {

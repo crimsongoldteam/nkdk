@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "../../../commonObjects/userVisible/toXML"
-import { registerTypeRule } from "../../../orchestration"
+import { registerTypeRule } from "../../../ruleRuntime"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"

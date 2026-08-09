@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { Color, ColorEnterprise, isRawColorRef } from "./types"
 
 export const exportColorToEnterprise = (params: { value: Color | undefined }): ColorEnterprise | undefined => {

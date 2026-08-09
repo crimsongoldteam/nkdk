@@ -1,4 +1,4 @@
-import { CollectableElementType } from "../../../orchestration"
+import { CollectableElementType } from "../../../ruleRuntime"
 import { copyYAMLScalarTags } from "../../../../yaml/scalarTags"
 
 export const childItemsTreePropertyTypes = [

@@ -2,7 +2,7 @@ import { accumulationRegisterAggregateCollectionRule, accumulationRegisterAggreg
 import { xmlRootRule } from "../xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const AccumulationRegisterAggregateRules = {
   itemType: "AccumulationRegisterAggregate",
   xmlOrder: [

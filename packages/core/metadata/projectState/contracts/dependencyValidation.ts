@@ -1,6 +1,6 @@
 import type { Diagnostic } from "../../diagnostics/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../orchestration/metadataTarget/types"
-import type { OwnerTypeRef } from "../../orchestration/dataPath/types"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
+import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,
@@ -42,6 +42,10 @@ export interface ProjectComponentTargetPageQuery { readonly componentPath: strin
 export interface ProjectComponentTargetPage { readonly entries: readonly { readonly logicalAddress: string; readonly sourceProjectPath: string }[]; readonly nextCursor?: string }
 export interface ProjectValidationStatusQuery { readonly offset: number; readonly batchSize: number }
 export interface ProjectValidationStatusRow { readonly projectPath: string; readonly componentPath: string; readonly schemaReady?: boolean; readonly contributedFacts?: boolean }
+export interface ProjectFileMetadataTargetReferencesQuery { readonly requestId: string; readonly componentPath: string; readonly projectPath: string }
+export type ProjectFileMetadataTargetReferencesResult =
+  | { readonly requestId: string; readonly status: "found"; readonly references: readonly { readonly yamlPath: ProjectStateYamlPath; readonly canonical: string }[] }
+  | { readonly requestId: string; readonly status: "missing" }
 
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
@@ -52,6 +56,7 @@ export interface ProjectStateQueryPort {
   readOwnerRefPage(query: ProjectOwnerRefPageQuery): ProjectOwnerRefPage
   readComponentTargetPage(query: ProjectComponentTargetPageQuery): ProjectComponentTargetPage
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
+  readFileMetadataTargetReferences(requests: readonly ProjectFileMetadataTargetReferencesQuery[]): readonly ProjectFileMetadataTargetReferencesResult[]
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort { close(): void }

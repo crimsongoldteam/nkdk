@@ -2,7 +2,7 @@ import type {
   DiagnosticSource,
   DiagnosticSeverity,
   MetadataDiagnostic,
-} from "../validation/types"
+} from "./types"
 export interface EncodedDiagnosticBatch {
   readonly bytes: Uint8Array<ArrayBuffer>
 }

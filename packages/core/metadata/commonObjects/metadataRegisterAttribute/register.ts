@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { MetadataRegisterAttributeRules } from "./rules"
 
 const propertyTypes = [

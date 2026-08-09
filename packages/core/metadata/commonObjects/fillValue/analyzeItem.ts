@@ -1,11 +1,11 @@
 import type { ConfigurationContext } from "../../context/types"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type {
   DependentItemParams,
   DependentYamlItemAnalysis,
   DependentYamlItemParams,
-} from "../../orchestration/property/dependentItemRegistry"
+} from "../../ruleRuntime/property/dependentItemRegistry"
 import { getStandardMembers } from "../../standardMembers/declarations"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import type { MetadataValueYAML } from "../metadataValue/types"

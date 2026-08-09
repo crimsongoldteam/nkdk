@@ -1,5 +1,5 @@
-import { recordCurrentExternalMetadataUuid } from "../../orchestration/externalMetadata/record"
-import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
+import { recordCurrentExternalMetadataUuid } from "../../ruleRuntime/externalMetadata/record"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../ruleRuntime"
 import { getUUID } from "../../helpers/uuid"
 
 export const exportUUIDToXML: ExportToXMLFunctionNew = (params): string => {

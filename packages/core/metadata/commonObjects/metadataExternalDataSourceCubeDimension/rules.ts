@@ -7,8 +7,8 @@ import {
   externalDataSourceFieldBaseProperties,
   externalDataSourceObjectServiceProperties,
 } from "../metadataExternalDataSourceField/rules"
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { YAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>

@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { UserSettingsID, UserSettingsIDXML } from "./types"
 
 export const importUserSettingsIDFromXML = (

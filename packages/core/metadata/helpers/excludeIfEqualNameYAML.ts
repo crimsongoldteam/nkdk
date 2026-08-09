@@ -1,6 +1,6 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
-import type { PropertyRule } from "../orchestration/property/types"
+import type { PropertyRule } from "../ruleRuntime/property/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 type YamlPath = readonly (string | number)[]

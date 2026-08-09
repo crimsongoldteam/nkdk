@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataAccountingRegisterRules } from "../metadataAccountingRegister/rules"
 import { readAccountingRegisterYAML } from "../metadataAccountingRegister/__fixtures__/sync/data"
 import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"

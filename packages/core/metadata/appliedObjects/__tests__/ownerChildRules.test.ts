@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import {
   MetadataCatalogAttributeRules,
   MetadataCatalogTabularSectionAttributeRules,

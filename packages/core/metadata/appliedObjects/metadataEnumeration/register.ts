@@ -1,7 +1,7 @@
-import { registerMetadataItemRule } from "../../orchestration"
-import { registerProjectSpec } from "../../project/projectSpecRegistry"
-import { createProjectSchemaExporter } from "../../project/projectSpecHelpers"
-import { registerProjectJSONSchema } from "../../project/schemaRegistry"
+import { registerMetadataItemRule } from "../../ruleRuntime"
+import { registerProjectSpec } from "../../projectDefinition/projectSpecRegistry"
+import { createProjectSchemaExporter } from "../../projectDefinition/projectSpecHelpers"
+import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {

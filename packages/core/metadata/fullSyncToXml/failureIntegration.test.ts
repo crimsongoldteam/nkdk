@@ -15,7 +15,7 @@ import type { ProjectStateReadSession, ProjectStateService } from "../projectSta
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import {
   syncComponentToXml,
   type FullXmlSyncCoordinatorDependencies,

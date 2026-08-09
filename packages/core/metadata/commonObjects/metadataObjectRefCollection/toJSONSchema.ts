@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import type { MetadataTargetConstraint } from "../metadataTargets/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 

@@ -1,9 +1,9 @@
-import type { MetadataTargetOwner } from "../orchestration/metadataTarget"
+import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
 import type { ConfigurationContext } from "../context/types"
-import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../orchestration/property/types"
-import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
+import { callAtomicFromYAML } from "../ruleRuntime/property/fromYAMLToXML"
+import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../ruleRuntime/property/types"
+import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import {
   collectStructuralYamlReferences,
   type StructuralReferenceNestedRule,

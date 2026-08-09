@@ -1,7 +1,7 @@
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML } from "../../../orchestration"
+import { importPropertyFromXML } from "../../../ruleRuntime"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../../xml/import/importer"

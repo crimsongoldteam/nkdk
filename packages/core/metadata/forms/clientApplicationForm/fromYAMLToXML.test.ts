@@ -13,7 +13,7 @@ import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredO
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import {
   createConfigurationIndexReader,
@@ -414,11 +414,11 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           Строки: { Вид: "ТаблицаФормы", ПутьКДанным: "Строки" },
           ВложеннаяТаблица: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Строки.CurrentData.ВложеннаяТаблица",
+            ПутьКДанным: "Элементы.Строки.ТекущиеДанные.ВложеннаяТаблица",
           },
           ВложенноеДерево: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Строки.CurrentData.ВложенноеДерево",
+            ПутьКДанным: "Элементы.Строки.ТекущиеДанные.ВложенноеДерево",
           },
         },
       } as ClientApplicationFormYAML,
@@ -441,7 +441,7 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
           },
           ПараметрыДанных: {
             Вид: "ТаблицаФормы",
-            ПутьКДанным: "Items.Настройки.CurrentData.ItemDataParameters",
+            ПутьКДанным: "Элементы.Настройки.ТекущиеДанные.ItemDataParameters",
           },
         },
       } as ClientApplicationFormYAML,

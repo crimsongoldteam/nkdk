@@ -4,7 +4,7 @@ import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "../standardAttributeDescription/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataNameYAML } from "../metadataName/types"

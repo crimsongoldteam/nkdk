@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD = "ПолеНабораДанныхСхемыКомпоновкиДанных"
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER = "ПапкаПолейНабораДанныхСхемыКомпоновкиДанных"

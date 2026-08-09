@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
+import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {
   createOwnerMetadataCacheFromValidationTable,
@@ -270,7 +270,7 @@ describe("dependency validation из ProjectState", () => {
     const index = {
       roots: new Map(source.forms.filter((entry) => entry.kind === "root").map((entry) => [entry.name, entry.source])),
       additionalColumnsByTablePath: new Map(),
-      tableDataPathByElementName: new Map(),
+      tabularElementsByName: new Map(),
       duplicateDiagnostics: [],
       getRoot(name: string) {
         return this.roots.get(name)
@@ -316,7 +316,7 @@ describe("dependency validation из ProjectState", () => {
     const index = {
       roots,
       additionalColumnsByTablePath: new Map(),
-      tableDataPathByElementName: new Map(),
+      tabularElementsByName: new Map(),
       duplicateDiagnostics: [],
       getRoot(name: string) {
         return roots.get(name)
@@ -372,7 +372,7 @@ describe("dependency validation из ProjectState", () => {
       index: {
         roots,
         additionalColumnsByTablePath: new Map(),
-        tableDataPathByElementName: new Map(),
+        tabularElementsByName: new Map(),
         duplicateDiagnostics: [],
         getRoot(name: string) {
           return roots.get(name)
@@ -555,7 +555,7 @@ describe("dependency validation из ProjectState", () => {
       index: {
         roots,
         additionalColumnsByTablePath: new Map([["Таблица", new Map([["Значение", additionalColumn]])]]),
-        tableDataPathByElementName: new Map(),
+        tabularElementsByName: new Map(),
         duplicateDiagnostics: [],
         getRoot(name: string) {
           return roots.get(name)

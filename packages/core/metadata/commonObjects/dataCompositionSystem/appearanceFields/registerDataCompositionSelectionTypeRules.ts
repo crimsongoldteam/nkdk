@@ -1,8 +1,8 @@
 import type { ConfigurationContext } from "../../../context/types"
 import type { ConfigurationContextFromXML } from "../../../context/types"
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../ruleRuntime"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields } from "./types"
 

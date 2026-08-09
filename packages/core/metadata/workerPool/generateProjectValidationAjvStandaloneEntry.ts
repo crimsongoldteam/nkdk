@@ -1,4 +1,4 @@
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 
 interface GeneratorDependencies {
   register(): void

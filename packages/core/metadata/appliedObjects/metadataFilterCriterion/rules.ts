@@ -10,9 +10,9 @@ import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { MetadataCommandRules } from "../metadataCommand/rules"
-import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataFilterCriterionRules = {

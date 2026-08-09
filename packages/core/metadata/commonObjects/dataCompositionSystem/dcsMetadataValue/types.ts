@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 import type { Color, ColorYAML } from "../../color/types"
 import type { Font, FontYAML } from "../../font/types"
 import type { FormattedI8nText, FormattedI8nTextValueYAML } from "../../formattedI8nText/types"
@@ -12,7 +12,7 @@ import type { MetadataValue, MetadataValueYAML } from "../../metadataValue/types
 import type { TypeLink, TypeLinkYAML } from "../../typeLink/types"
 import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "../../сhoiceParameterLinks/types"
 import type { ChoiceParameter, ChoiceParametersYAML } from "../../сhoiceParameters/types"
-import { BasePropertyRule } from "../../../orchestration"
+import { BasePropertyRule } from "../../../ruleRuntime"
 import type { SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 
 export type DcsMetadataValueValueType =

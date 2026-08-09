@@ -2,8 +2,8 @@ import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
-import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 
 const properties = ["Properties"]

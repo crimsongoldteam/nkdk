@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { serializeYAMLDocument } from "../../yaml/export"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
@@ -84,6 +84,7 @@ describe("fill value references", () => {
     expect(update.pendingChecks).toEqual([])
     expect(update.dependencies).toEqual([])
   })
+
 })
 
 function extract(text: string) {

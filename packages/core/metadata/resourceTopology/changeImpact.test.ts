@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { compileMetadataResourceTopology } from "./compiler"
-import { resolveMetadataProjectChangeImpact } from "./xmlExportProjection"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { compileMetadataResourceTopology } from "./core/compiler"
+import { resolveMetadataProjectChangeImpact } from "./core/xmlExportProjection"
 
 const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }
@@ -39,9 +39,15 @@ const topology = compileMetadataResourceTopology([
         direction: "both",
         transferCapabilityId: "copy",
         compositionImpact: "none",
-        source,
-      },
-    ],
+      source,
+    },
+    {
+      kind: "ignore",
+      side: "project",
+      pattern: "Служебное/{relativePath...}",
+      source,
+    },
+  ],
   },
 ])
 
@@ -57,5 +63,12 @@ describe("metadata project change impact", () => {
       externalFile: expect.objectContaining({ xmlPattern: "Objects/{ownerName}/Ext/Module.bsl" }),
       compositionImpact: "none",
     })
+  })
+
+  it("отличает удалённый классифицируемый путь от игнорируемого и неизвестного", () => {
+    expect(resolveMetadataProjectChangeImpact(topology, "Объект/Удалённый/Свойства.yaml"))
+      .toMatchObject({ assignment: expect.objectContaining({ projectPattern: "Объект/{ownerName}/Свойства.yaml" }) })
+    expect(resolveMetadataProjectChangeImpact(topology, "Служебное/state.bin")).toBeUndefined()
+    expect(resolveMetadataProjectChangeImpact(topology, "Неизвестно.bin")).toBeUndefined()
   })
 })

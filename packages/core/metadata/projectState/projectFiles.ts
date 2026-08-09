@@ -1,12 +1,13 @@
-import { toPreparedYamlProjectFileDescriptor } from "../project/preparedYamlDescriptor"
-import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlDescriptor"
+import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
 import {
   discoverMetadataProjectResources,
   iterateMetadataProjectResourceCandidates,
   projectStateFileBackedTargets,
   type MetadataProjectResourceRef,
-} from "../project/resources"
+} from "../projectDefinition/resources"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
+import { assertCoreMetadataRegistered } from "../projectDefinition/projectSpecRegistry"
 import type { ProjectStateFileIdentity } from "./fileUpdate"
 import type { ProjectStateTargetEntry } from "./fileUpdate"
 
@@ -44,6 +45,7 @@ export async function* discoverProjectStateValidationFileBatches(
   batchSize = PROJECT_STATE_VALIDATION_BATCH_SIZE,
 ): AsyncGenerator<ProjectStateDiscoveredFileBatch> {
   if (!Number.isSafeInteger(batchSize) || batchSize < 1) throw new Error("Размер пачки должен быть положительным целым")
+  assertCoreMetadataRegistered("validation/projectComponents")
   const { components } = await discoverValidationProjectComponents(projectDir)
   let batch: ProjectStateDiscoveredPath[] = []
   for (const component of components) {
@@ -78,6 +80,7 @@ export async function* discoverProjectStateValidationFileBatches(
 export async function discoverProjectStateValidationFiles(
   projectDir: string,
 ): Promise<readonly ProjectStateValidationFile[]> {
+  assertCoreMetadataRegistered("validation/projectComponents")
   const { components } = await discoverValidationProjectComponents(projectDir)
   const files = await Promise.all(components.map(async (component) => {
     const resources = await discoverMetadataProjectResources(component.componentDir, { include: "all" }, component)

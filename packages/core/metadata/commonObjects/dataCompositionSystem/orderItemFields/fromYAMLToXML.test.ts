@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../orchestration"
+import { PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import { dcsOrderItemFieldsFixture } from "./__fixtures__/data"
 import "./index"

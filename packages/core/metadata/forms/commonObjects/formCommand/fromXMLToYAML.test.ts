@@ -9,7 +9,7 @@ import {
 } from "../../../../tests/directConversion"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 
 import "./types"
 

@@ -2,7 +2,7 @@ import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const importFormParametersFromXML = (

@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import type { YAMLTypeByRule } from "../orchestration/metadataItem/yaml"
+import type { YAMLTypeByRule } from "../ruleRuntime/metadataItem/yaml"
 import {
   getRegisteredSystemEnumerationNames,
   getSystemEnumeration,
-} from "../orchestration/property/systemEnumerationRegistry"
+} from "../ruleRuntime/property/systemEnumerationRegistry"
 import type {
   SystemEnumerationToMetadata,
   SystemEnumerationToYAML,
-} from "../orchestration/property/systemEnumerationRegistry"
+} from "../ruleRuntime/property/systemEnumerationRegistry"
 import "./index"
 import * as systemEnumerationExports from "./types"
 import type { PictureLib, PictureLibYAML } from "./types"

@@ -1,7 +1,7 @@
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../../context/types"
 import { importStringFromXML } from "../../../string/fromXML"
-import { registerTypeRule } from "../../../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../../orchestration/property/types"
+import { registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../../ruleRuntime/property/types"
 
 const exportDcsFieldToXML = (
   _context: ConfigurationContext,

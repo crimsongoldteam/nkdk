@@ -1,5 +1,5 @@
-import type { MetadataItemType } from "../orchestration/metadataItem/registry"
-import type { ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
+import type { MetadataItemType } from "../ruleRuntime/metadataItem/registry"
+import type { ExternalMetadataItemRule } from "../ruleRuntime/externalMetadata/types"
 import {
   ConfigurationContext,
   ConfigurationContextWithExportToXML,

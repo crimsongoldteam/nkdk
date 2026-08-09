@@ -1,5 +1,5 @@
-import { registerExplicitXMLProperty } from "../../metadata/orchestration/property/explicitXMLPropertyRegistry"
-import type { MetadataItemRule } from "../../metadata/orchestration/property/types"
+import { registerExplicitXMLProperty } from "../../metadata/ruleRuntime/property/explicitXMLPropertyRegistry"
+import type { MetadataItemRule } from "../../metadata/ruleRuntime/property/types"
 import { EMPTY_XML_TAG_VALUE } from "../../yaml/scalarTags"
 
 export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRule {

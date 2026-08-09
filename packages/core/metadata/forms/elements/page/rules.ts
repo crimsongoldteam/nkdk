@@ -6,10 +6,10 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
-import type { PropertyRule } from "../../../orchestration/property/types"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 export type { ElementRule, PropertyRule }
 export const PageRules = {
   itemType: "Page",

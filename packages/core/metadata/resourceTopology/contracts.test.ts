@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../register"
-import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./capabilities"
-import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "./registry"
+import { registerCoreMetadata } from "../composition/coreMetadata"
+import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./adapters/capabilities"
+import { compileRegisteredMetadataResourceTopology } from "./adapters/registeredRules"
+import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"
+import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./core/projectProjection"
 import { mockContextToXML } from "../../tests/mockContext"
-import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { sampleSnapshot } from "../configurationIndex/testData"
+import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
 
 registerCoreMetadata()
 
@@ -36,6 +38,12 @@ describe("registered metadata resource topology contracts", () => {
         expect(getMetadataExternalTransferCapability(file.transferCapabilityId), file.xmlPattern).toBeDefined()
       }
     }
+  })
+
+  it("разрешает все зарегистрированные политики частичного XML-пакета", () => {
+    const policies = resolvePartialXmlPackagePolicy(topology)
+
+    expect(policies.assignments.size).toBeGreaterThan(0)
   })
 
   it("prepares a required external XML property even when it is omitted from YAML", () => {
@@ -99,7 +107,11 @@ describe("registered metadata resource topology contracts", () => {
     const match = classifyMetadataProjectPath(topology, projectPath)
 
     expect(match).toBeDefined()
-    expect(projectMetadataFileBackedTargets(topology, match!)).toEqual([{
+    expect(projectMetadataFileBackedTargets(
+      topology,
+      match!,
+      resolveTopologyMetadataTargetOwner,
+    )).toEqual([{
       kind: "member",
       memberKind: "Form",
       owner: { root: "ExternalDataSource", objectName: "Источник.Table.Таблица" },

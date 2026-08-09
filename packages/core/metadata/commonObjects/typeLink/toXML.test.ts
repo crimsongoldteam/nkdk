@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { catalogTabularAttributeTypeLink } from "./__fixtures__/data"
 import { exportTypeLinkWithXSITypeToXML } from "./toXML"
-import { PropertyRule } from "../../orchestration"
+import { PropertyRule } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"

@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { isRawPictureRef, Picture, PictureEnterprise } from "./types"
 
 export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {
