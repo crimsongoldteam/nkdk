@@ -20,6 +20,8 @@ import type {
   FullXmlSyncDiagnostic,
   FullXmlSyncExecutionAssignment,
   FullXmlSyncExpectedOutput,
+  FullXmlSyncGeneratedDocument,
+  FullXmlSyncOutputTarget,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
@@ -30,7 +32,7 @@ import { openFullXmlSyncBinaryResult, type FullXmlSyncBinaryBatchView } from "./
 export interface FullXmlSyncWorkerInitialization {
   readonly componentPath: string
   readonly componentDir: string
-  readonly outputDir: string
+  readonly outputTarget: FullXmlSyncOutputTarget
   readonly context: ConfigurationContext
   readonly profile: FullXmlSyncWorkerProfileRuntime
   readonly composition: FullXmlSyncSharedCompositionSnapshot
@@ -44,6 +46,17 @@ export interface FullXmlSyncExecutionPoolResult {
   readonly writtenFiles: FullXmlSyncFileCollection<FullXmlSyncWrittenFile>
   readonly expectedOutputs: FullXmlSyncFileCollection<FullXmlSyncExpectedOutput>
   readonly fragmentData: MergedConfigurationSnapshotFragments
+}
+
+export type FullXmlSyncExecutionSummary = FullXmlSyncExecutionPoolResult
+
+export interface FullXmlSyncExecutionBatch {
+  readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
+}
+
+export interface FullXmlSyncExecutionOptions {
+  readonly onBatch?: (batch: FullXmlSyncExecutionBatch) => Promise<void>
+  readonly maxBufferedBatches?: number
 }
 
 export interface FullXmlSyncDiagnosticCollection extends Iterable<FullXmlSyncDiagnostic> {
@@ -86,7 +99,10 @@ export function createFullXmlSyncFileCollectionFromFiles<T>(files: readonly T[])
 
 export interface FullXmlSyncWorkerPool {
   initialize(params: FullXmlSyncWorkerInitialization): Promise<void>
-  execute(assignments: readonly FullXmlSyncAssignment[]): Promise<FullXmlSyncExecutionPoolResult>
+  execute(
+    assignments: readonly FullXmlSyncAssignment[],
+    options?: FullXmlSyncExecutionOptions,
+  ): Promise<FullXmlSyncExecutionSummary>
   close(): Promise<void>
 }
 
@@ -119,13 +135,16 @@ export function createFullXmlSyncWorkerPool(params: {
       phase = "initialized"
     },
 
-    async execute(assignments) {
+    async execute(assignments, options = {}) {
       assertUsable(phase, fatalError)
       assertPhase(phase, "initialized", "Выполнение full XML sync уже было запущено")
       if (initialization === undefined) {
         throw new Error("Full XML sync worker pool не инициализирован")
       }
+      const maxBufferedBatches = normalizeMaxBufferedBatches(options.maxBufferedBatches, concurrency)
       phase = "executing"
+      const batchSlots = createAsyncSlots(maxBufferedBatches)
+      let consumerTail = Promise.resolve()
       const indexReader = targetIndexReader
       if (indexReader === undefined) {
         throw new Error("Full XML sync worker pool не получил target index")
@@ -153,11 +172,31 @@ export function createFullXmlSyncWorkerPool(params: {
           }
           const batches: FullXmlSyncBinaryBatchView[] = []
           for (let offset = 0; offset < partition.length; offset += 256) {
-            const response = await runCommand(workerIndex, {
-              kind: "executeBatch",
-              assignments: partition.slice(offset, offset + 256),
-            })
-            batches.push(openFullXmlSyncBinaryResult(response))
+            const releaseSlot = await batchSlots.acquire()
+            let batch: FullXmlSyncBinaryBatchView | undefined
+            try {
+              const response = await runCommand(workerIndex, {
+                kind: "executeBatch",
+                assignments: partition.slice(offset, offset + 256),
+              })
+              batch = openFullXmlSyncBinaryResult(response)
+              batches.push(batch)
+              const documents = Array.from(
+                { length: batch.generatedDocuments.count },
+                (_unused, index) => batch!.generatedDocuments.document(index),
+              )
+              if (documents.length > 0 && options.onBatch === undefined) {
+                throw new Error("Получены XML-документы без обработчика пачки")
+              }
+              const consume = consumerTail.then(() => options.onBatch?.({ generatedDocuments: documents }))
+              consumerTail = consume.then(() => undefined, () => undefined)
+              await consume
+            } catch (caught) {
+              return failWorker(caught)
+            } finally {
+              batch?.generatedDocuments.release()
+              releaseSlot()
+            }
           }
           const finishResponse = await runCommand(workerIndex, { kind: "finishExecution" })
           if (finishResponse !== undefined) {
@@ -257,6 +296,34 @@ export function createFullXmlSyncWorkerPool(params: {
       failures.push(...flattenFailures(caught))
     }
     return failures
+  }
+}
+
+function normalizeMaxBufferedBatches(value: number | undefined, defaultValue: number): number {
+  if (value === undefined) return defaultValue
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw new Error("maxBufferedBatches должен быть положительным целым числом")
+  }
+  return value
+}
+
+function createAsyncSlots(capacity: number): { acquire(): Promise<() => void> } {
+  let available = capacity
+  const waiters: Array<(release: () => void) => void> = []
+  return {
+    acquire() {
+      if (available > 0) {
+        available -= 1
+        return Promise.resolve(release)
+      }
+      return new Promise((resolve) => waiters.push(resolve))
+    },
+  }
+
+  function release(): void {
+    const waiter = waiters.shift()
+    if (waiter !== undefined) waiter(release)
+    else available += 1
   }
 }
 

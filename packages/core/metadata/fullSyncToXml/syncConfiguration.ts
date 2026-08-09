@@ -5,8 +5,6 @@ import { configurationIndexPath, writeConfigurationIndex } from "../configuratio
 import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
 import type {
   ConfigurationSnapshot,
-  ConfigurationSnapshotEntity,
-  MergedConfigurationSnapshotFragments,
 } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import {
@@ -19,13 +17,21 @@ import {
 import { createValidationProfiler } from "../validation/profile"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateComponentProjection, ProjectStateReadToken, ProjectStateService } from "../projectState"
-import { resolveFullXmlSyncComponentProfile, type FullXmlSyncComponentProfile } from "./componentProfile"
+import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, normalizeFullXmlSyncConcurrency, type FullXmlSyncWorkerPool } from "./workerPool"
 import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
+import { buildXmlSyncConfigurationSnapshot } from "./snapshotBuilder"
+import {
+  readProfileComponentStates,
+  type FullXmlSyncComponentRuntimeDependencies,
+} from "./componentRuntime"
+import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
+
+export { replaceSnapshotEntities } from "./snapshotBuilder"
 
 export interface SyncComponentToXmlParams {
   readonly context: ConfigurationContext
@@ -74,20 +80,11 @@ export type FullXmlSyncPlanResult =
       readonly diagnostics: readonly FullXmlSyncDiagnostic[]
     }
 
-type ReadStructure = typeof readComponentProjectStructure
-type ReadSnapshot = typeof readConfigurationIndexSnapshot
-type ReadHashes = typeof readComponentHashState
-type ReadIndexes = typeof readComponentIndexes
-
-export interface FullXmlSyncCoordinatorDependencies {
+export interface FullXmlSyncCoordinatorDependencies extends FullXmlSyncComponentRuntimeDependencies {
+  readonly assertNoPending?: (projectDir: string, componentPath: string) => void
   readonly exists: (path: string) => Promise<boolean>
   readonly isDirectoryEmpty: (path: string) => Promise<boolean>
   readonly mkdir: (path: string) => Promise<void>
-  readonly readStructure: ReadStructure
-  readonly readSnapshot: ReadSnapshot
-  readonly readHashes: ReadHashes
-  readonly readIndexes: ReadIndexes
-  readonly confirmState: typeof confirmComponentState
   readonly resolveProfile: typeof resolveFullXmlSyncComponentProfile
   readonly buildPlan: typeof buildXmlSyncPlan
   readonly createWorkerPool?: (params: { concurrency: number }) => FullXmlSyncWorkerPool
@@ -137,6 +134,10 @@ export async function syncComponentToXml(
   const profiler = createValidationProfiler({ scope: "main" })
 
   try {
+    if (params.componentPath === "cf" || params.componentPath.startsWith("cfe/")) {
+      const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
+      assertNoPending(projectDir, params.componentPath)
+    }
     const refreshed = await refreshSyncProject({ ...params, projectDir })
     diagnostics = refreshed.diagnostics
     const refreshErrors = diagnostics.filter(({ severity }) => severity === "error")
@@ -194,7 +195,7 @@ export async function syncComponentToXml(
     await pool.initialize({
       componentPath: target.structure.componentPath,
       componentDir: target.structure.componentDir,
-      outputDir: xmlDir,
+      outputTarget: { kind: "directory", outputDir: xmlDir },
       context: params.context,
       profile: runtime.workerProfile,
       composition: createFullXmlSyncCompositionSnapshot(plan.assignments),
@@ -231,9 +232,10 @@ export async function syncComponentToXml(
     if (hasErrors(outputDiagnostics)) return await complete(failedResult(outputDiagnostics, warnings, diagnostics))
 
     const previous = decodeSnapshot(target.snapshot)
-    const indexData = buildFullXmlSyncConfigurationSnapshot({
+    const indexData = buildXmlSyncConfigurationSnapshot({
       previous,
-      target,
+      currentFiles: target.hashes.projectFiles,
+      currentLogicalAddresses: target.indexes.logicalAddresses,
       fragmentData: execution.fragmentData,
     })
     await deps.writeIndex({ projectDir, address, data: indexData })
@@ -340,44 +342,6 @@ export async function planSyncConfigurationToXml(
   }
 }
 
-async function readProfileComponentStates(params: {
-  readonly projectDir: string
-  readonly address: ComponentAddress
-  readonly profile: FullXmlSyncComponentProfile
-  readonly context: ConfigurationContext
-  readonly concurrency?: number
-  readonly projectState: ProjectStateService
-  readonly projectStateReadToken: ProjectStateReadToken
-  readonly projectStateIndexReadToken: ProjectStateReadToken
-  readonly targetProjection: ProjectStateComponentProjection
-  readonly deps: FullXmlSyncCoordinatorDependencies
-}): Promise<{ readonly target: ConfirmedComponentState; readonly base?: ConfirmedComponentState }> {
-  const projectStateReadSession = params.projectState.openReadSession(params.projectStateIndexReadToken)
-  const common = {
-    projectDir: params.projectDir,
-    context: params.context,
-    concurrency: params.concurrency,
-    projectState: params.projectState,
-    projectStateReadToken: params.projectStateReadToken,
-    projectStateReadSession,
-    deps: params.deps,
-  }
-  try {
-    const target = await readConfirmedComponentState({
-      ...common,
-      address: params.address,
-      projection: params.targetProjection,
-    })
-    const baseAddress = params.profile.baseAddress(params.address)
-    const base = baseAddress === undefined
-      ? undefined
-      : await readConfirmedComponentState({ ...common, address: baseAddress })
-    return { target, ...(base === undefined ? {} : { base }) }
-  } finally {
-    projectStateReadSession.close()
-  }
-}
-
 async function refreshSyncProject(params: {
   readonly projectState: ProjectStateService
   readonly projectDir: string
@@ -392,40 +356,6 @@ async function refreshSyncProject(params: {
   const diagnostics = [...result.diagnostics].map(projectValidationDiagnostic)
   result.diagnostics.release()
   return { diagnostics, readToken: result.readToken }
-}
-
-async function readConfirmedComponentState(params: {
-  readonly projectDir: string
-  readonly address: ComponentAddress
-  readonly context: ConfigurationContext
-  readonly concurrency?: number
-  readonly projectState: ProjectStateService
-  readonly projectStateReadToken: ProjectStateReadToken
-  readonly projectStateReadSession: Pick<import("../projectState").ProjectStateReadSession, "readComponentTargetPage">
-  readonly projection?: ProjectStateComponentProjection
-  readonly deps: FullXmlSyncCoordinatorDependencies
-}): Promise<ConfirmedComponentState> {
-  const structure = await params.deps.readStructure({
-    projectDir: params.projectDir,
-    address: params.address,
-  })
-  const snapshot = await params.deps.readSnapshot({
-    projectDir: params.projectDir,
-    address: params.address,
-  })
-  const projection = params.projection ?? await params.projectState.readComponentProjection({
-    projectDir: params.projectDir,
-    componentPath: structure.componentPath,
-  })
-  const hashes = await params.deps.readHashes({ structure, projection })
-  const indexes = await params.deps.readIndexes({ structure, hashes, projectStateReadSession: params.projectStateReadSession })
-  return params.deps.confirmState({
-    structure,
-    snapshot,
-    hashes,
-    indexes,
-    projectStateReadToken: params.projectStateReadToken,
-  })
 }
 
 async function preflightFullXmlSync(params: {
@@ -452,46 +382,6 @@ async function preflightFullXmlSync(params: {
     return { targetExists: true }
   }
   return { targetExists: false }
-}
-
-function buildFullXmlSyncConfigurationSnapshot(params: {
-  readonly previous: ConfigurationSnapshot
-  readonly target: ConfirmedComponentState
-  readonly fragmentData: MergedConfigurationSnapshotFragments
-}): ConfigurationSnapshot {
-  const files = [...params.target.hashes.projectFiles]
-  const currentProjectPaths = new Set(files.map(({ projectPath }) => projectPath))
-  return {
-    specificationVersion: "1.3",
-    indexGeneration: params.previous.indexGeneration + 1n,
-    componentPath: params.previous.componentPath,
-    files,
-    entities: replaceSnapshotEntities({
-      previous: params.previous.entities.filter(({ sourceProjectPath }) =>
-        currentProjectPaths.has(sourceProjectPath)
-      ),
-      replacements: params.fragmentData,
-    }),
-  }
-}
-
-export function replaceSnapshotEntities(params: {
-  readonly previous: readonly ConfigurationSnapshotEntity[]
-  readonly replacements: MergedConfigurationSnapshotFragments
-}): ConfigurationSnapshotEntity[] {
-  const replacedPaths = new Set(params.replacements.sourceProjectPaths)
-  const entities = [
-    ...params.previous.filter(({ sourceProjectPath }) => !replacedPaths.has(sourceProjectPath)),
-    ...params.replacements.entities,
-  ]
-  const logicalAddresses = new Set<string>()
-  for (const entity of entities) {
-    if (logicalAddresses.has(entity.logicalAddress)) {
-      throw new Error(`Повторный logicalAddress в снимке конфигурации: ${entity.logicalAddress}`)
-    }
-    logicalAddresses.add(entity.logicalAddress)
-  }
-  return entities.sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
 }
 
 function decodeSnapshot(snapshot: ConfirmedComponentState["snapshot"]): ConfigurationSnapshot {
@@ -604,10 +494,6 @@ function hasErrors(diagnostics: readonly FullXmlSyncDiagnostic[]): boolean {
 
 function operationDiagnostic(code: string, message: string): FullXmlSyncDiagnostic {
   return { severity: "error", code, message }
-}
-
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left), Buffer.from(right))
 }
 
 function errorMessage(error: unknown): string {

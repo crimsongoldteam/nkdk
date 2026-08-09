@@ -56,6 +56,11 @@ export {
   type SyncConfigurationToXmlParams,
 } from "./metadata/fullSyncToXml"
 export {
+  preparePartialXmlSyncPackage,
+  type PreparePartialXmlSyncPackageParams,
+  type PreparePartialXmlSyncPackageResult,
+} from "./metadata/partialSyncToXml"
+export {
   SYNC_STATE_FILE,
   diffSyncState,
   hashProjectFiles,

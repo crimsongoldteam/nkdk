@@ -8,6 +8,8 @@ import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLType
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
+  FullXmlSyncGeneratedDocument,
+  FullXmlSyncOutputTarget,
   FullXmlSyncWrittenFile,
   PreparedXMLAssignment,
 } from "./types"
@@ -15,12 +17,13 @@ import type {
 interface PreparedWriteParams {
   readonly prepared: PreparedXMLAssignment
   readonly context: ConfigurationContext
-  readonly outputDir: string
+  readonly outputTarget: FullXmlSyncOutputTarget
 }
 
 export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+  readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
   readonly fragment?: ConfigurationSnapshotFragment
   readonly profile?: YAMLToXMLProfile
 }
@@ -35,7 +38,10 @@ async function writePreparedAssignment(
   params: PreparedWriteParams
 ): Promise<WriteFullXmlSyncAssignmentResult> {
   const writtenFiles: FullXmlSyncWrittenFile[] = []
+  const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
   try {
+    const requestedDocumentIds = requestedIds(params)
+    const foundDocumentIds = new Set<string>()
     for (const document of params.prepared.documents) {
       finalizeExportedXmlValues({
         xml: document.xml,
@@ -43,17 +49,34 @@ async function writePreparedAssignment(
         deferred: document.deferred,
         context: params.context,
       })
-      const target = join(params.outputDir, ...document.targetXmlPath.split("/"))
-      await fs.promises.mkdir(dirname(target), { recursive: true })
-      await fs.promises.writeFile(target, xmlExport(document.xml), "utf-8")
-      writtenFiles.push({
-        assignmentId: params.prepared.assignment.id,
-        targetXmlPath: document.targetXmlPath,
-      })
+      const content = new TextEncoder().encode(xmlExport(document.xml))
+      if (params.outputTarget.kind === "directory") {
+        const target = join(params.outputTarget.outputDir, ...document.targetXmlPath.split("/"))
+        await fs.promises.mkdir(dirname(target), { recursive: true })
+        await fs.promises.writeFile(target, content)
+        writtenFiles.push({
+          assignmentId: params.prepared.assignment.id,
+          targetXmlPath: document.targetXmlPath,
+        })
+      } else if (document.declarationId !== undefined && requestedDocumentIds.has(document.declarationId)) {
+        foundDocumentIds.add(document.declarationId)
+        generatedDocuments.push({
+          assignmentId: params.prepared.assignment.id,
+          declarationId: document.declarationId,
+          targetXmlPath: document.targetXmlPath,
+          content,
+        })
+      }
+    }
+    for (const declarationId of requestedDocumentIds) {
+      if (!foundDocumentIds.has(declarationId)) {
+        throw new Error(`Не сформирован запрошенный XML-документ: ${declarationId}`)
+      }
     }
     return {
       diagnostics: [],
       writtenFiles,
+      generatedDocuments,
       fragment: params.prepared.indexCollector.fragment(params.prepared.assignment.sourceProjectPath),
       profile: params.prepared.profile,
     }
@@ -76,7 +99,13 @@ function failedResult(
       ),
     ],
     writtenFiles,
+    generatedDocuments: [],
   }
+}
+
+function requestedIds(params: PreparedWriteParams): ReadonlySet<string> {
+  if (params.outputTarget.kind === "directory") return new Set()
+  return new Set(params.outputTarget.documentIdsByAssignment[params.prepared.assignment.id] ?? [])
 }
 
 function assignmentDiagnostic(

@@ -192,6 +192,30 @@ it("находит точные и префиксные metadata-ссылки", 
   ])
 })
 
+it("возвращает сохранённые канонические ссылки указанного файла", () => {
+  const source = richYamlUpdate("cf/Конфигурация.yaml", "cf", "Configuration.Основная")
+  const session = openSessionWithUpdates([{
+    ...source,
+    pendingReferences: [{
+      ...source.pendingReferences[0]!,
+      yamlPath: ["ОсновнойЯзык"],
+      canonical: "Language.Русский",
+    }],
+  }])
+
+  expect(session.readFileMetadataTargetReferences([
+    { requestId: "root", componentPath: "cf", projectPath: "cf/Конфигурация.yaml" },
+    { requestId: "missing", componentPath: "cf", projectPath: "cf/Отсутствует.yaml" },
+  ])).toEqual([
+    {
+      requestId: "root",
+      status: "found",
+      references: [{ yamlPath: ["ОсновнойЯзык"], canonical: "Language.Русский" }],
+    },
+    { requestId: "missing", status: "missing" },
+  ])
+})
+
 it("возвращает страницы целей, владельцев и состояние локальной проверки", () => {
   const session = openSessionWithUpdates([
     richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),

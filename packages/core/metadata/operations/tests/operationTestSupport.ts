@@ -171,6 +171,9 @@ export function completeOperationReadSession(
     readOwnerRefPage: () => ({ refs: [] }),
     readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
+    readFileMetadataTargetReferences(requests) {
+      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+    },
     close() {},
   }
 }

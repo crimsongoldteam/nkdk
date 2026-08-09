@@ -138,6 +138,15 @@ describe("ProjectStateReadSession", () => {
         sourceProjectPath: "cf/Справочник/Товары/Свойства.yaml",
       }],
     })
+    expect(session.readFileMetadataTargetReferences([{
+      requestId: "references",
+      componentPath: "cf",
+      projectPath: "cf/Справочник/Товары/Свойства.yaml",
+    }])).toEqual([{
+      requestId: "references",
+      status: "found",
+      references: [{ yamlPath: ["Ссылка"], canonical: "Catalog.Поставщики" }],
+    }])
 
     session.close()
     expect(() => session.readOwners([])).toThrow(ProjectStateReadSessionClosedError)
@@ -207,6 +216,14 @@ function testReadSession(): ProjectStateReadSession {
     readValidationStatus() {
       assertOpen()
       return []
+    },
+    readFileMetadataTargetReferences(requests) {
+      assertOpen()
+      return requests.map(({ requestId }) => ({
+        requestId,
+        status: "found" as const,
+        references: [{ yamlPath: ["Ссылка"], canonical: "Catalog.Поставщики" }],
+      }))
     },
     close() {
       closed = true

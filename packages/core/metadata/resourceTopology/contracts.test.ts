@@ -9,6 +9,7 @@ import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTyp
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { sampleSnapshot } from "../configurationIndex/testData"
+import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
 
 registerCoreMetadata()
 
@@ -37,6 +38,12 @@ describe("registered metadata resource topology contracts", () => {
         expect(getMetadataExternalTransferCapability(file.transferCapabilityId), file.xmlPattern).toBeDefined()
       }
     }
+  })
+
+  it("разрешает все зарегистрированные политики частичного XML-пакета", () => {
+    const policies = resolvePartialXmlPackagePolicy(topology)
+
+    expect(policies.assignments.size).toBeGreaterThan(0)
   })
 
   it("prepares a required external XML property even when it is omitted from YAML", () => {

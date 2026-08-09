@@ -21,6 +21,7 @@ import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/compone
 import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
 import { registerMetadataComponentDescriptor } from "../../components/descriptor"
 import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
+import "./registerPartialXmlPackage"
 
 registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
 registerMetadataComponentDescriptor({

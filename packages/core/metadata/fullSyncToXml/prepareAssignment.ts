@@ -34,6 +34,12 @@ export function prepareFullXmlSyncAssignment(params: {
     collector: indexCollector,
     targetProjectPath: params.assignment.sourceProjectPath,
     logicalAddress: params.assignment.logicalAddress,
+    ...(params.context.importFromYAML?.referenceRemap === undefined
+      ? {}
+      : {
+          referencePathByCurrentPath:
+            params.context.importFromYAML.referenceRemap.referencePathByCurrentPath,
+        }),
   })
   const context: ConfigurationContextWithExportToXML = {
     ...params.context,

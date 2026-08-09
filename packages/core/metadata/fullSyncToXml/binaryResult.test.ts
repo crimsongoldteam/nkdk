@@ -23,6 +23,12 @@ describe("двоичный результат полной синхрониза�
       warnings: [{ severity: "warning", code: "warning", message: "Предупреждение" }],
       writtenFiles: [{ assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" }],
       expectedOutputs: [{ assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" }],
+      generatedDocuments: [{
+        assignmentId: "catalog",
+        declarationId: "catalog-metadata",
+        targetXmlPath: "Catalogs/Товары.xml",
+        content: new TextEncoder().encode("<Catalog>Товары</Catalog>"),
+      }],
       configurationFragments: [fragment("Справочник/Товары.yaml")],
     })
 
@@ -42,12 +48,18 @@ describe("двоичный результат полной синхрониза�
     expect(view.warnings.diagnostic(0)).toMatchObject({ severity: "warning", code: "warning" })
     expect(view.writtenFiles.file(0)).toEqual({ assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" })
     expect(view.expectedOutputs.file(0)).toEqual({ assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" })
+    expect(view.generatedDocuments.document(0)).toEqual({
+      assignmentId: "catalog",
+      declarationId: "catalog-metadata",
+      targetXmlPath: "Catalogs/Товары.xml",
+      content: new TextEncoder().encode("<Catalog>Товары</Catalog>"),
+    })
     expect(decodeConfigurationIndexFragments(view.fragmentBuffer)).toEqual([fragment("Справочник/Товары.yaml")])
 
     const transferables = (createMovableBinaryResult(result) as unknown as {
       readonly [transferableSymbol]: readonly ArrayBuffer[]
     })[transferableSymbol]
-    expect(transferables).toHaveLength(2)
+    expect(transferables).toHaveLength(3)
     expect(result.buffers.every(({ buffer }) => transferables.includes(buffer))).toBe(true)
   })
 
@@ -59,5 +71,28 @@ describe("двоичный результат полной синхрониза�
     new DataView(payload.buffer).setUint32(24, 0, true)
 
     expect(() => openFullXmlSyncBinaryResult(result)).toThrow(/двоичн.*результат sync/)
+  })
+
+  it("отклоняет неверную длину и повтор документа", () => {
+    const document = {
+      assignmentId: "catalog",
+      declarationId: "metadata",
+      targetXmlPath: "Catalogs/Товары.xml",
+      content: Uint8Array.of(1, 2, 3),
+    }
+    const damaged = createFullXmlSyncBinaryResult({
+      diagnostics: [], warnings: [], writtenFiles: [], expectedOutputs: [],
+      generatedDocuments: [document], configurationFragments: [],
+    })
+    const content = damaged.buffers.find(({ name }) => name === "document:0")!
+    Object.assign(content, { buffer: new ArrayBuffer(2) })
+    expect(() => openFullXmlSyncBinaryResult(damaged)).toThrow(/двоичн.*результат sync/)
+
+    const duplicate = createFullXmlSyncBinaryResult({
+      diagnostics: [], warnings: [], writtenFiles: [], expectedOutputs: [],
+      generatedDocuments: [document, { ...document, content: Uint8Array.of(4) }],
+      configurationFragments: [],
+    })
+    expect(() => openFullXmlSyncBinaryResult(duplicate)).toThrow("повтор документа")
   })
 })

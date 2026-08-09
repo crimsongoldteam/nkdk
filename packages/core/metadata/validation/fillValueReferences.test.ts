@@ -84,6 +84,7 @@ describe("fill value references", () => {
     expect(update.pendingChecks).toEqual([])
     expect(update.dependencies).toEqual([])
   })
+
 })
 
 function extract(text: string) {
