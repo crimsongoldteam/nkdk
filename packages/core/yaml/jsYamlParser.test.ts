@@ -73,6 +73,13 @@ describe("parseWithJsYaml", () => {
     expect(parsed.data).toBeUndefined()
     expect(parsed.syntaxErrors).toEqual([])
   })
+
+  it("разбирает пустой элемент последовательности как undefined", () => {
+    const parsed = parseWithJsYaml("Элементы:\n  -")
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Элементы: [undefined] })
+  })
 })
 
 describe("parseMetadataYaml", () => {
