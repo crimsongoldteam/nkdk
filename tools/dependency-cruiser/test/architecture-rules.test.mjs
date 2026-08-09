@@ -42,6 +42,32 @@ test("обнаруживает общие нарушения production-граф
   for (const name of expected) assert.equal(names.has(name), true, name)
 })
 
+test("закрепляет направления зависимостей workspace-пакетов", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  assert.deepEqual(
+    namesFor("packages/mcp/src/core-deep.ts"),
+    new Set(["mcp-no-workspace-deep-imports"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/forbidden-mcp.ts"),
+    new Set(["core-not-reach-workspace-apps"])
+  )
+  assert.deepEqual(
+    namesFor("packages/platform/src/forbidden-core.ts"),
+    new Set(["platform-is-independent"])
+  )
+  assert.deepEqual(
+    namesFor("packages/mcp/src/allowed.ts"),
+    new Set()
+  )
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(
