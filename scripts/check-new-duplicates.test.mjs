@@ -47,6 +47,33 @@ describe("findNewDuplicates", () => {
     assert.deepEqual(findNewDuplicates(base, current), [])
   })
 
+  it("не считает дубль новым после переноса импортируемых модулей", () => {
+    const baseFragment = [
+      'import { booleanRule } from "../commonObjects/boolean"',
+      'import { numberRule } from "../commonObjects/number"',
+      'import { registerRule } from "../orchestration/ruleFactory"',
+      'import type { Rule } from "../orchestration/types"',
+      'import { shared } from "../old/shared"',
+      'const properties = ["Properties"]',
+      'const children = ["Children"]',
+      'export const rules = { properties, children }',
+    ].join("\n")
+    const currentFragment = [
+      'import { booleanRule } from "../commonObjects/boolean"',
+      'import { numberRule } from "../commonObjects/number"',
+      'import { registerRule } from "../ruleRuntime/ruleFactory"',
+      'import type { Rule } from "../ruleRuntime/types"',
+      'import { shared } from "../new/shared"',
+      'const properties = ["Properties"]',
+      'const children = ["Children"]',
+      'export const rules = { properties, children }',
+    ].join("\n")
+    const base = [{ fingerprint: "base", fragments: [baseFragment, baseFragment] }]
+    const current = [{ fingerprint: "current", fragments: [currentFragment, currentFragment] }]
+
+    assert.deepEqual(findNewDuplicates(base, current), [])
+  })
+
   it("считает дополнительную копию новым дублем после сопоставления старой", () => {
     const shared = "one\ntwo\nthree\nfour\nfive"
     const base = [{ fingerprint: "base", fragments: [shared, shared] }]
