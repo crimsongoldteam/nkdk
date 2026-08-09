@@ -17,6 +17,7 @@ export interface ConfigurationIndexExportRuntime {
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
+  readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   identity(kind: IdentityKind, address?: string): string | undefined
   identityOrCreate(kind: "uuid" | "xmlId", address?: string): string
   xml(address?: string): ConfigurationSnapshotXml | undefined
@@ -47,6 +48,7 @@ export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
+  readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
 }
 
 interface InternalConfigurationIndexExportRuntimeOptions extends CreateConfigurationIndexExportRuntimeOptions {
@@ -72,6 +74,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
+  readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   private readonly seed: Buffer
   private readonly generated = new Map<string, string>()
 
@@ -84,11 +87,12 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.formElementRootLogicalAddress = options.formElementRootLogicalAddress
     this.childCollectionUidSegment = options.childCollectionUidSegment
     this.yamlPathAddressing = options.yamlPathAddressing
+    this.referencePathByCurrentPath = options.referencePathByCurrentPath
     this.seed = options.seed
   }
 
   identity(kind: IdentityKind, address = this.logicalAddress): string | undefined {
-    return this.source.entity(address)?.identities?.[kind]
+    return this.source.entity(this.referencePathByCurrentPath?.get(address) ?? address)?.identities?.[kind]
   }
 
   identityOrCreate(kind: "uuid" | "xmlId", address = this.logicalAddress): string {
@@ -112,52 +116,22 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
 
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime {
     return new DefaultConfigurationIndexExportRuntime({
-      source: this.source,
-      collector: this.collector,
-      targetProjectPath: this.targetProjectPath,
-      logicalAddress,
-      seed: this.seed,
-      ...(this.formElementRootLogicalAddress === undefined
-        ? {}
-        : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
-      ...(this.childCollectionUidSegment === undefined
-        ? {}
-        : { childCollectionUidSegment: this.childCollectionUidSegment }),
-      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
+      ...this.inheritedOptions(logicalAddress),
     })
   }
 
   withXmlNodeLogicalAddress(xmlNodeLogicalAddress: string): ConfigurationIndexExportRuntime {
     return new DefaultConfigurationIndexExportRuntime({
-      source: this.source,
-      collector: this.collector,
-      targetProjectPath: this.targetProjectPath,
-      logicalAddress: this.logicalAddress,
+      ...this.inheritedOptions(this.logicalAddress),
       xmlNodeLogicalAddress,
-      seed: this.seed,
-      ...(this.formElementRootLogicalAddress === undefined
-        ? {}
-        : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
-      ...(this.childCollectionUidSegment === undefined
-        ? {}
-        : { childCollectionUidSegment: this.childCollectionUidSegment }),
-      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
     })
   }
 
   withFormElementRootLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime {
     return new DefaultConfigurationIndexExportRuntime({
-      source: this.source,
-      collector: this.collector,
-      targetProjectPath: this.targetProjectPath,
-      logicalAddress: this.logicalAddress,
-      seed: this.seed,
+      ...this.inheritedOptions(this.logicalAddress),
       formElementRootLogicalAddress: logicalAddress,
       ...(this.xmlNodeLogicalAddress === undefined ? {} : { xmlNodeLogicalAddress: this.xmlNodeLogicalAddress }),
-      ...(this.childCollectionUidSegment === undefined
-        ? {}
-        : { childCollectionUidSegment: this.childCollectionUidSegment }),
-      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
     })
   }
 
@@ -171,18 +145,31 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       ? yamlPropertyUid(this.logicalAddress, propertyName)
       : childUid(this.logicalAddress, "Свойство", propertyName)
     return new DefaultConfigurationIndexExportRuntime({
+      ...this.inheritedOptions(useYamlPath ? propertyAddress : this.logicalAddress),
+      xmlNodeLogicalAddress: propertyAddress,
+      childCollectionUidSegment,
+      ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
+    })
+  }
+
+  private inheritedOptions(logicalAddress: string): InternalConfigurationIndexExportRuntimeOptions {
+    return {
       source: this.source,
       collector: this.collector,
       targetProjectPath: this.targetProjectPath,
-      logicalAddress: useYamlPath ? propertyAddress : this.logicalAddress,
-      xmlNodeLogicalAddress: propertyAddress,
+      logicalAddress,
       seed: this.seed,
       ...(this.formElementRootLogicalAddress === undefined
         ? {}
         : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
-      ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
-      ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
-    })
+      ...(this.childCollectionUidSegment === undefined
+        ? {}
+        : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
+      ...(this.referencePathByCurrentPath === undefined
+        ? {}
+        : { referencePathByCurrentPath: this.referencePathByCurrentPath }),
+    }
   }
 
   private generatedIdentity(kind: "uuid" | "xmlId", address: string): string {

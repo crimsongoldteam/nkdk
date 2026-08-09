@@ -257,7 +257,7 @@ async function executeAssignments(
               basePreparedYamlFile,
               ...(state.baseIndex === undefined ? {} : { baseConfigurationIndex: state.baseIndex }),
             }),
-        context: exportContext(state),
+        context: exportContext(state, assignment.logicalAddress),
         index: assignmentIndex,
         composition: state.composition,
       })
@@ -269,7 +269,7 @@ async function executeAssignments(
       )
       const result = await writeFullXmlSyncAssignment({
         prepared,
-        context: exportContext(state),
+        context: exportContext(state, assignment.logicalAddress),
         outputTarget: state.outputTarget,
       })
       diagnostics.push(...result.diagnostics)
@@ -381,11 +381,22 @@ function ownerFromAssignment(assignment: Pick<FullXmlSyncAssignment, "role" | "i
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 
-function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
+function exportContext(
+  state: InitializedFullXmlSyncWorkerState,
+  currentPath: string,
+): ConfigurationContextWithExportToXML {
   return {
     ...state.context,
     importFromYAML: {
       ...state.context.importFromYAML,
+      ...(state.profile.referencePathByCurrentPath === undefined
+        ? {}
+        : {
+            referenceRemap: {
+              currentPath,
+              referencePathByCurrentPath: state.profile.referencePathByCurrentPath,
+            },
+          }),
       ownerMetadataCache: state.ownerMetadataCache,
       resolveDataPath: ({ value, index, ownerCache }) =>
         resolveDataPathCore({ value, nameMode: "yaml", index, ownerCache }),

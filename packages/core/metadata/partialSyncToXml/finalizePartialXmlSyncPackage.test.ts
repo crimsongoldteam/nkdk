@@ -9,6 +9,7 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import { parseComponentPath } from "../components/address"
 import { finalizePartialXmlSyncPackage } from "./finalizePartialXmlSyncPackage"
+import { readPartialXmlSyncAppliedMigrations } from "./migrationState"
 import {
   partialXmlSyncArchiveProjectPath,
   pendingPartialXmlSyncPaths,
@@ -66,6 +67,20 @@ describe("фиксация частичной XML-синхронизации", (
     ))).indexGeneration).toBe(2n)
   })
 
+  it("публикует проверенный список migration только при фиксации", async () => {
+    const migrationName = "2026-06-30-120000.yaml"
+    const prepared = await prepare("cf", [migrationName])
+    expect(await readPartialXmlSyncAppliedMigrations(prepared.projectDir, "cf")).toEqual([])
+
+    await finalizePartialXmlSyncPackage({
+      projectDir: prepared.projectDir,
+      componentPath: "cf",
+      packageId: "package-1",
+    })
+
+    expect(await readPartialXmlSyncAppliedMigrations(prepared.projectDir, "cf")).toEqual([migrationName])
+  })
+
   it.each([
     ["another-package", undefined, /идентификатор/i],
     ["package-1", "archive", /архив/i],
@@ -104,7 +119,7 @@ describe("фиксация частичной XML-синхронизации", (
     expect(fs.existsSync(prepared.paths.pendingPath)).toBe(true)
   })
 
-  async function prepare(componentPath = "cf") {
+  async function prepare(componentPath = "cf", candidateAppliedMigrations: readonly string[] = []) {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-finalize-partial-"))
     tempDirs.push(projectDir)
     const sourceBytes = encodeConfigurationIndex(snapshot(1n, componentPath))
@@ -134,7 +149,7 @@ describe("фиксация частичной XML-синхронизации", (
       sourceSnapshotGeneration: "1",
       candidateSnapshotHash: hashHex(candidateBytes),
       ...baseIdentity,
-      candidateAppliedMigrations: [],
+      candidateAppliedMigrations,
     }
     await writePendingPartialXmlSync({ projectDir, state, candidateBytes })
     return { projectDir, archivePath, paths: pendingPartialXmlSyncPaths(projectDir, componentPath) }

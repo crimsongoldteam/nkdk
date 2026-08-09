@@ -1,7 +1,6 @@
 import fs from "node:fs"
-import { join, resolve } from "node:path"
+import { resolve } from "node:path"
 import { xxh3 } from "@node-rs/xxhash"
-import { exportToYAML } from "../../yaml/export"
 import { parseComponentPath } from "../components/address"
 import { decodeConfigurationIndex } from "../configurationIndex/decode"
 import { configurationIndexPath, writeConfigurationIndex } from "../configurationIndex/fileIO"
@@ -10,9 +9,9 @@ import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,
-  writeFileAtomic,
   type PendingPartialXmlSyncStateV1,
 } from "./pendingStore"
+import { publishPartialXmlSyncAppliedMigrations } from "./migrationState"
 
 export interface FinalizePartialXmlSyncDependencies {
   readonly writeIndex?: (params: {
@@ -68,7 +67,7 @@ export async function finalizePartialXmlSyncPackage(
     await (dependencies.writeIndex ?? writeConfigurationIndex)({ projectDir, address, data: candidate })
   }
 
-  await (dependencies.publishMigrations ?? publishAppliedMigrations)({
+  await (dependencies.publishMigrations ?? publishPartialXmlSyncAppliedMigrations)({
     projectDir,
     componentPath: params.componentPath,
     applied: pending.candidateAppliedMigrations,
@@ -116,21 +115,6 @@ function assertSnapshotIdentity(params: {
   if (params.actualHash !== params.expectedHash || params.actualGeneration.toString() !== params.expectedGeneration) {
     throw new Error(`Изменён ${params.name} после подготовки частичного пакета`)
   }
-}
-
-async function publishAppliedMigrations(params: {
-  readonly projectDir: string
-  readonly componentPath: string
-  readonly applied: readonly string[]
-}): Promise<void> {
-  const path = join(
-    params.projectDir,
-    ".nkdk",
-    "components",
-    ...params.componentPath.split("/"),
-    "applied-migrations.yaml",
-  )
-  await writeFileAtomic(path, new TextEncoder().encode(`${exportToYAML({ applied: [...params.applied] })}\n`))
 }
 
 async function removePublishedPendingFiles(
