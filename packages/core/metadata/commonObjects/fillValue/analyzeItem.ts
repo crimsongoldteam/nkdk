@@ -9,6 +9,7 @@ import type {
 import { getStandardMembers } from "../../standardMembers/declarations"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import type { MetadataValueYAML } from "../metadataValue/types"
+import type { MetadataTypedValue } from "../metadataValue/types"
 import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTargets/types"
@@ -44,24 +45,31 @@ function analyzeFillValue(
   classify: (params: DependentItemParams, value: NonNullable<ReturnType<typeof parseFillValueYaml>>) => FillValueClassification,
 ): DependentYamlItemAnalysis {
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
-  const tagged = yamlScalarTagAt(params.item, fillValueYamlKey) === "xml"
-  const rawValue = params.item[fillValueYamlKey]
-  const value = parseFillValueYaml(
-    tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : rawValue
-  )
-  if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
-  const classification = classify(params, value)
-  const analysis = tagged
+  const parsed = parseFillValueItem(params.item)
+  if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  const classification = classify(params, parsed.value)
+  const analysis = parsed.tagged
     ? classification.kind === "invalid"
       ? emptyAnalysis()
       : diagnosticAnalysis(params, "!xml допустим только для несовместимого XML-значения", "error")
     : analysisFromClassification(params, classification)
-  return withValueReference(params, value, analysis)
+  return withValueReference(params, parsed.value, analysis)
+}
+
+export function parseFillValueItem(
+  item: Readonly<Record<string, unknown>>
+): { readonly tagged: boolean; readonly value: MetadataTypedValue } | undefined {
+  const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
+  const rawValue = item[fillValueYamlKey]
+  const value = parseFillValueYaml(
+    tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : rawValue
+  )
+  return value === undefined ? undefined : { tagged, value }
 }
 
 export function classifyMetadataAttributeFillValue(
   params: DependentItemParams,
-  value = parseFillValueYaml(params.item[fillValueYamlKey])
+  value = parseFillValueItem(params.item)?.value
 ): FillValueClassification {
   if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
   const type = importTypeDescriptionFromYAML(
@@ -74,7 +82,7 @@ export function classifyMetadataAttributeFillValue(
 
 export function classifyStandardAttributeFillValue(
   params: DependentItemParams,
-  value = parseFillValueYaml(params.item[fillValueYamlKey])
+  value = parseFillValueItem(params.item)?.value
 ): FillValueClassification {
   if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
   if (params.itemName === undefined) return { kind: "unresolved", reason: "не определено имя стандартного реквизита" }

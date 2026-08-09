@@ -49,6 +49,27 @@ describe("fill value references", () => {
     expect(facts.pendingReferences).toHaveLength(2)
   })
 
+  it("indexes a tagged incompatible reference without a local type error", () => {
+    const facts = extract(`Реквизиты:
+  Исполнитель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "Исполнитель", "ЗначениеЗаполнения"],
+        canonical: "Catalog.РолиИсполнителей.EmptyRef",
+        target: expect.objectContaining({
+          kind: "value",
+          root: "Catalog",
+          objectName: "РолиИсполнителей",
+        }),
+      }),
+    ])
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Исполнитель/ЗначениеЗаполнения")).toEqual([])
+  })
+
   it("stores only the reference in project state", () => {
     const document = serializeYAMLDocument({
       Реквизиты: {

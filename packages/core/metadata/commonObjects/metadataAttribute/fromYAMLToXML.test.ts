@@ -22,6 +22,7 @@ import {
   MetadataDataProcessorTabularSectionAttributeRules,
 } from "../../appliedObjects/metadataDataProcessor/childRules"
 import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
+import { importFromYAML } from "../../../yaml/import"
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
@@ -169,6 +170,19 @@ describe("MetadataAttributes YAML → XML", () => {
 
     expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
     expect(result).toContain('<FillValue xsi:nil="true"/>')
+  })
+
+  it("exports a tagged incompatible reference through MetadataValue", () => {
+    const yaml = importFromYAML(`Значение:
+  Исполнитель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    expect(result).toContain(
+      '<FillValue xsi:type="xr:DesignTimeRef">Catalog.РолиИсполнителей.EmptyRef</FillValue>'
+    )
   })
 
   it("exports explicit empty Synonym as empty XML tag", () => {

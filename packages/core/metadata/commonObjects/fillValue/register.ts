@@ -10,7 +10,7 @@ import {
   classifyMetadataAttributeFillValue,
   classifyStandardAttributeFillValue,
   inferFillValueReferenceConstraint,
-  parseFillValueYaml,
+  parseFillValueItem,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
 import { isMetadataRootName } from "../metadataTargets/roots"
@@ -19,6 +19,7 @@ import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
+import { markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
 
 let validationRegistered = false
 let structuralReferencesRegistered = false
@@ -73,8 +74,9 @@ export function registerFillValueImport(): void {
 }
 
 const collectFillValueStructuralReference: DependentStructuralItemHandler = (params) => {
-  const value = parseFillValueYaml(params.item["ЗначениеЗаполнения"])
-  if (value === undefined || value.type !== "ref") return []
+  const parsed = parseFillValueItem(params.item)
+  if (parsed === undefined || parsed.value.type !== "ref") return []
+  const value = parsed.value
   const constraint = inferFillValueReferenceConstraint(value)
   if (constraint === undefined) return []
   let currentValue = value
@@ -92,11 +94,17 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
       currentValue = { type: "ref", value: nextCanonical }
     },
     commitValue() {
-      params.item["ЗначениеЗаполнения"] = exportMetadataValueToYAML(
+      const yamlValue = exportMetadataValueToYAML(
         dependentContext(params.context),
         undefined,
         currentValue,
       )
+      if (parsed.tagged) {
+        params.item["ЗначениеЗаполнения"] = xmlScalarTagValue(String(yamlValue))
+        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
+      } else {
+        params.item["ЗначениеЗаполнения"] = yamlValue
+      }
     },
   }))
 }

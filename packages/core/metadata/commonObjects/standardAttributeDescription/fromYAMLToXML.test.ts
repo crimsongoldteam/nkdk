@@ -18,6 +18,7 @@ import {
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
+import { importFromYAML } from "../../../yaml/import"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
@@ -175,6 +176,35 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports a tagged forbidden boolean through MetadataValue", () => {
+    const collectionRule = {
+      itemType: "StandardAttributeXMLTransportProbe",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: { Predefined: "Предопределенный" },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: importFromYAML(`СтандартныеРеквизиты:
+  Предопределенный:
+    ЗначениеЗаполнения: !xml Ложь
+`),
+      rule: collectionRule,
+      outputs: [{ key: "owner" }],
+    })
+    const rawItem = (result.outputs.get("owner")?.StandardAttributes as {
+      "xr:StandardAttribute": Record<string, unknown> | Record<string, unknown>[]
+    })["xr:StandardAttribute"]
+    const item = Array.isArray(rawItem) ? rawItem[0]! : rawItem
+
+    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
   })
 
   it("preserves maxValue xsi type from reference", () => {
