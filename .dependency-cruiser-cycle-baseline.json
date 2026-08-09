@@ -66,22 +66,13 @@
         "packages/core/metadata/orchestration/appliedObject/xmlAreas.ts",
         "packages/core/metadata/orchestration/dataPath/formIndex.ts",
         "packages/core/metadata/orchestration/dataPath/types.ts",
-        "packages/core/metadata/orchestration/jsonSchemaRefs.ts",
         "packages/core/metadata/orchestration/property/deferredObjectValues.ts",
         "packages/core/metadata/orchestration/property/fn.ts",
         "packages/core/metadata/orchestration/property/fromYAMLToXMLTypes.ts",
         "packages/core/metadata/orchestration/property/importYamlTypes.ts",
-        "packages/core/metadata/orchestration/property/typeRuleRegistry.ts",
-        "packages/core/metadata/orchestration/property/types.ts",
-        "packages/core/metadata/project/projectSpecRegistry.ts",
-        "packages/core/metadata/resourceTopology/compiler.ts",
-        "packages/core/metadata/resourceTopology/pathIndex.ts",
-        "packages/core/metadata/resourceTopology/projectProjection.ts",
-        "packages/core/metadata/resourceTopology/registry.ts",
-        "packages/core/metadata/resourceTopology/types.ts",
-        "packages/core/metadata/resourceTopology/xmlExportProjection.ts"
+        "packages/core/metadata/orchestration/property/types.ts"
       ],
-      "dependencyCount": 45
+      "dependencyCount": 17
     },
     {
       "modules": [

@@ -1,6 +1,5 @@
 import { readdir } from "fs/promises"
 import { join, resolve } from "path"
-import type { MetadataItemRule } from "../orchestration/property/types"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataExternalFileNode,
@@ -9,12 +8,13 @@ import type {
   CompiledMetadataPathMatch,
   CompiledMetadataResourceTopology,
   MetadataResourceRole,
+  MetadataResourceItemRule,
 } from "./types"
 
 export interface MetadataProjectResourceOwner {
   readonly assignmentNodeId: string
   readonly projectPattern: string
-  readonly itemRule: MetadataItemRule
+  readonly itemRule: MetadataResourceItemRule
 }
 
 export interface MetadataProjectResourceMatch {
@@ -25,7 +25,7 @@ export interface MetadataProjectResourceMatch {
   readonly ignoredPath?: CompiledMetadataIgnoredPathNode
   readonly values: Readonly<Record<string, string>>
   readonly role: MetadataResourceRole
-  readonly rule: MetadataItemRule | undefined
+  readonly rule: MetadataResourceItemRule | undefined
   readonly owner: MetadataProjectResourceOwner | undefined
   readonly compositionImpact: "none" | "configurationComposition"
 }

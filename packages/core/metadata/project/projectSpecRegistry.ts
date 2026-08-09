@@ -3,16 +3,14 @@ import type { ConfigurationContext, JSONSchemaExportMode } from "../context/type
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
-import type { MetadataResourceDeclaration } from "../resourceTopology/types"
+import type { MetadataResourceTopologySpec } from "../resourceTopology/types"
 
-export interface RegisteredProjectSpec {
+export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
   dir: string
   kind: string
   rule: MetadataItemRule
   exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
   nesting?: ProjectSpecNesting
-  /** Нейтральное описание файлов Проекта и связанных с ними XML-ресурсов. */
-  resources?: readonly MetadataResourceDeclaration[]
 }
 
 export type ProjectSpecNesting = {
