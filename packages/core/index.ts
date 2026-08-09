@@ -1,4 +1,10 @@
 import { registerCoreMetadata } from "./metadata/register"
+import type {} from "./metadata/forms/clientApplicationForm/context.types"
+import type {} from "./metadata/fullSyncToXml/worker"
+import type {} from "./metadata/importFromXml/worker"
+import type {} from "./metadata/project/workerOperation.types"
+import type {} from "./metadata/systemEnumerations/registry.types"
+import type {} from "./metadata/workerPool/projectQueries"
 
 registerCoreMetadata()
 
