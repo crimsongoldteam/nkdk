@@ -7,12 +7,11 @@ import {
   type DirectImportResult,
 } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
-import { createFormDataPathMetadataCollector } from "../../validation/dataPath/formYamlIndex"
-import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
 import type { MetadataItemRule } from "../../orchestration"
+import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
@@ -29,25 +28,6 @@ export function importClientApplicationFormFromXMLToYAML(params: {
 
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
-  const formDataPathMetadataCollector = createFormDataPathMetadataCollector({
-    filePath: `Формы/${params.formName}/Форма.yaml`,
-    projection: clientApplicationFormDataPathProjection,
-  })
-  const collector = {
-    acceptItem(fact: Parameters<typeof localIndexesCollector.acceptItem>[0]) {
-      localIndexesCollector.acceptItem(fact)
-      formDataPathMetadataCollector.acceptItem(fact)
-    },
-    acceptProperty(fact: Parameters<typeof localIndexesCollector.acceptProperty>[0]) {
-      localIndexesCollector.acceptProperty(fact)
-      formDataPathMetadataCollector.acceptProperty(fact)
-    },
-    completeValue(fact: Parameters<typeof localIndexesCollector.completeValue>[0]) {
-      localIndexesCollector.completeValue(fact)
-      formDataPathMetadataCollector.completeValue(fact)
-    },
-    finish: () => localIndexesCollector.finish(),
-  }
   const generatedFiles: ExternalFileEntry[] = []
   const context =
     params.context.exportToYAML === undefined
@@ -71,7 +51,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     itemName: params.formName,
     yamlPath: [],
     rulePath: [],
-    collector,
+    collector: localIndexesCollector,
     deferred,
     profile: params.profile,
   })
@@ -85,8 +65,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   }
 
   const localIndexes = localIndexesCollector.finish()
-  const formDataPathIndex = formDataPathMetadataCollector.finish()
-  localIndexes.metadata.formDataPathIndex = formDataPathIndex
+  localIndexes.metadata.formDataPathIndex = createFormDataPathIndexFromYAML(yaml)
   return {
     yaml,
     localIndexes,
