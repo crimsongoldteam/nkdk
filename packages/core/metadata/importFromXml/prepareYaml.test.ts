@@ -599,6 +599,7 @@ describe("prepareImportYaml", () => {
       })
 
       expect(prepared.yaml).toEqual({})
+      expect(prepared).not.toHaveProperty("baseFormCandidate")
       expect(prepared).not.toHaveProperty("model")
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })

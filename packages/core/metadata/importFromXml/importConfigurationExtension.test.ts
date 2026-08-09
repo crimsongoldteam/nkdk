@@ -164,21 +164,9 @@ describe("configuration extension XML import", () => {
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
 
-  it("не сохраняет BaseForm, совпадающую с актуальной проекцией cf", async () => {
-    const imported = await importExtension("equal")
-
-    expect(fs.existsSync(baseFormPath(imported.projectDir))).toBe(false)
-  })
-
-  it("не создаёт файл и сообщение при отсутствии XML-узла BaseForm", async () => {
-    const imported = await importExtension("absent")
-
-    expect(fs.existsSync(baseFormPath(imported.projectDir))).toBe(false)
-    expect(JSON.stringify(imported.result)).not.toContain("BaseForm")
-  })
 })
 
-async function importExtension(baseForm: "different" | "equal" | "absent" = "different") {
+async function importExtension() {
   const projectDir = temporaryDirectory()
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
@@ -188,25 +176,6 @@ async function importExtension(baseForm: "different" | "equal" | "absent" = "dif
     "\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_20</ConfigurationExtensionCompatibilityMode>\n" +
       "\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>"
   )
-  const formPath = join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml")
-  if (baseForm === "equal") {
-    replaceExactlyOnce(formPath, "\n\t\t\t\t<Width>99</Width>", "")
-    replaceExactlyOnce(
-      formPath,
-      [
-        "\n\t\t<Attributes>",
-        "\n\t\t\t<Attribute name=\"БазовыйРеквизитФормы\" id=\"4\">",
-        "\n\t\t\t\t<Type>",
-        "\n\t\t\t\t\t<v8:Type>xs:dateTime</v8:Type>",
-        "\n\t\t\t\t</Type>",
-        "\n\t\t\t</Attribute>",
-        "\n\t\t</Attributes>",
-      ].join(""),
-      "\n\t\t<Attributes/>",
-    )
-  } else if (baseForm === "absent") {
-    removeBaseForm(formPath)
-  }
   replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "<v8:Type>xs:dateTime</v8:Type>",
@@ -249,26 +218,6 @@ async function importExtension(baseForm: "different" | "equal" | "absent" = "dif
   })
 
   return { projectDir, result, configuration, catalog, form, yamlText, snapshot }
-}
-
-function removeBaseForm(path: string): void {
-  const content = fs.readFileSync(path, "utf8")
-  const next = content.replace(/\n\t<BaseForm[\s\S]*?<\/BaseForm>/u, "")
-  if (next === content) throw new Error(`Не найден BaseForm в ${path}`)
-  fs.writeFileSync(path, next)
-}
-
-function baseFormPath(projectDir: string): string {
-  return join(
-    projectDir,
-    "cfe",
-    "РасширениеКонтроль",
-    "Справочник",
-    "СправочникПолный",
-    "Формы",
-    "ФормаОтчета",
-    "БазоваяФорма.yaml",
-  )
 }
 
 function replaceExactlyOnce(path: string, source: string, replacement: string): void {
