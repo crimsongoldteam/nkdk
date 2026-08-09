@@ -59,6 +59,8 @@ function alternativeFromType(sourceType: string, type: TypeDescription): FillVal
       }
     case "boolean":
       return { kind: "boolean" }
+    case "dateTime":
+      return { kind: "dateTime", dateFractions: type.dateQualifiers?.dateFractions ?? "DateTime" }
   }
 
   const [baseType, objectName] = splitType(sourceType)
