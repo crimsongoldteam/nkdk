@@ -8,10 +8,10 @@ import type { MergedConfigurationSnapshotFragments } from "../configurationIndex
 import type { ConfigurationContext } from "../context/types"
 import type { Diagnostic } from "../diagnostics/types"
 import {
-  attachBorrowedFormPaths,
   resolveFullXmlSyncComponentProfile,
   type FullXmlSyncProfileRuntime,
 } from "../fullSyncToXml/componentProfile"
+import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import { readProfileComponentStates } from "../fullSyncToXml/componentRuntime"
 import { buildXmlSyncPlan } from "../fullSyncToXml/selection"
 import { createFullXmlSyncCompositionSnapshot } from "../fullSyncToXml/sharedMetadata"

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "../diagnostics/types"
 import type { ProjectStateService } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { attachBorrowedFormPaths } from "../fullSyncToXml/componentProfile"
+import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
 import {
   preparePartialXmlSyncPackage,
