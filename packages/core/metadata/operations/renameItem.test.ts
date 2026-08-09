@@ -3,6 +3,7 @@ import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { registerCoreMetadata } from "../register"
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import {
@@ -18,6 +19,8 @@ import {
   operationValidationError,
 } from "./tests/operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
+
+registerCoreMetadata()
 
 const validationError = operationValidationError
 

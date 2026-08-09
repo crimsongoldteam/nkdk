@@ -3,10 +3,10 @@ import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
-import { registerValidationMetadata } from "./registerValidationMetadata"
+import { registerCoreMetadata } from "../register"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
-registerValidationMetadata()
+registerCoreMetadata()
 
 describe("fill value structural references", () => {
   it("uses the indexed canonical and rewrites only the fill value", () => {
