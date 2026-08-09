@@ -126,6 +126,45 @@ describe("dependent fill value validation", () => {
     ])
   })
 
+  it.each(["", "Владельцы: []\n"])(
+    "отклоняет обычное значение владельца при пустом списке владельцев",
+    (ownersYaml) => {
+      for (const fillValue of [".", "Справочник.ПапкиФайлов.ПустаяСсылка"]) {
+        const diagnostics = extractDiagnostics(`${ownersYaml}СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: ${fillValue}
+`)
+        expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Владелец/ЗначениеЗаполнения")).toEqual([
+          expect.objectContaining({
+            severity: "error",
+            message: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
+          }),
+        ])
+      }
+    }
+  )
+
+  it.each(["", "Владельцы: []\n"])(
+    "разрешает XML-исключения и отсутствие значения владельца при пустом списке",
+    (ownersYaml) => {
+      for (const fillValue of ["!xml DesignTimeRef", "!xml Справочник.ПапкиФайлов.ПустаяСсылка"]) {
+        const facts = extractFacts(`${ownersYaml}СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: ${fillValue}
+`)
+        expect(facts.diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Владелец/ЗначениеЗаполнения")).toEqual([])
+        expect(facts.pendingReferences.some(({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения")).toBe(
+          fillValue.includes("ПустаяСсылка")
+        )
+      }
+
+      const diagnostics = extractDiagnostics(`${ownersYaml}СтандартныеРеквизиты:
+  Владелец: {}
+`)
+      expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Владелец/ЗначениеЗаполнения")).toEqual([])
+    }
+  )
+
   it.each([
     ["неявные свойства справочника", `СтандартныеРеквизиты:
   Код:
@@ -206,11 +245,15 @@ function extractAttributeDiagnostics(body: string) {
 }
 
 function extractDiagnostics(yaml: string) {
+  return extractFacts(yaml).diagnostics
+}
+
+function extractFacts(yaml: string) {
   return extractValidationYamlFacts({
     file: catalogFile(),
     parsed: parseMetadataYaml(yaml),
     rulesSnapshot: createValidationRulesSnapshot(mockContext),
-  }).diagnostics
+  })
 }
 
 function catalogFile() {

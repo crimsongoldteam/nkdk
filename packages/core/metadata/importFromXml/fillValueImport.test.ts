@@ -94,6 +94,26 @@ describe("fill value XML import", () => {
       xml: { xsiType: "xr:DesignTimeRef", xmlText: "Catalog.Пользователи.EmptyRef" },
     })
   })
+
+  it.each([
+    ["typed", "Справочник.ПапкиФайлов.ПустаяСсылка"],
+    ["empty", "DesignTimeRef"],
+  ] as const)("импортирует %s XML-исключение владельца без snapshot", async (kind, expected) => {
+    const sourcePath = copiedEmptyOwnerFixture(kind)
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(prepared.yaml).not.toHaveProperty("Владельцы")
+    expect(prepared.yaml).toHaveProperty("СтандартныеРеквизиты.Владелец.ЗначениеЗаполнения", `!xml ${expected}`)
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain(`ЗначениеЗаполнения: !xml ${expected}`)
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).not.toContainEqual(
+      expect.objectContaining({ logicalAddress: "Справочник.СправочникПолный.СтандартныйРеквизит.Владелец.fillValue" }),
+    )
+  })
 })
 
 function copiedBeginningDateFixture(): string {
@@ -159,6 +179,24 @@ function copiedDefinedTypeFixture(): string {
     .replace("<Name>РеквизитСправочника</Name>", "<Name>АвторДействия</Name>")
     .replace(sourceType, "<Type><v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet></Type>")
     .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>')
+  fs.writeFileSync(sourcePath, xml)
+  return sourcePath
+}
+
+function copiedEmptyOwnerFixture(kind: "typed" | "empty"): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-empty-owner-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const sourceOwners = `<Owners>
+\t\t\t\t<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникВладелец</xr:Item>
+\t\t\t</Owners>`
+  const sourceFill = '<xr:FillValue xsi:type="xr:DesignTimeRef">447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231</xr:FillValue>'
+  const targetFill = kind === "typed"
+    ? '<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.ПапкиФайлов.EmptyRef</xr:FillValue>'
+    : '<xr:FillValue xsi:type="xr:DesignTimeRef"/>'
+  const xml = fs.readFileSync(fixture, "utf8")
+    .replace(sourceOwners, "<Owners/>")
+    .replace(sourceFill, targetFill)
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

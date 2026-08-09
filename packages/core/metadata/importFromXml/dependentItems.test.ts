@@ -247,6 +247,38 @@ describe("normalizeImportedDependentItems", () => {
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
+
+  it.each([
+    [
+      "типизированную пустую ссылку",
+      "Справочник.ПапкиФайлов.ПустаяСсылка",
+      { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+      "Справочник.ПапкиФайлов.ПустаяСсылка",
+    ],
+    ["пустой DesignTimeRef", ".", { "_xsi:type": "xr:DesignTimeRef" }, "DesignTimeRef"],
+  ] as const)("маркирует %s владельца без владельцев и не создаёт snapshot", (_name, fillValue, xmlValue, expected) => {
+    const attribute: Record<string, unknown> = { ЗначениеЗаполнения: fillValue }
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Товары.StandardAttribute.Owner.Property.fillValue"
+
+    expect(normalizeImportedDependentItems({
+      yaml: { Владельцы: [], СтандартныеРеквизиты: { Владелец: attribute } },
+      rule: MetadataCatalogRules,
+      candidates: [{
+        ...candidate("StandardAttributeDescription", ["СтандартныеРеквизиты", "Владелец"], "Владелец"),
+        logicalAddress,
+        xmlValue,
+      }],
+      collector,
+      owner: { dir: "Справочник", name: "Товары" },
+    })).toBe(0)
+
+    expect(attribute.ЗначениеЗаполнения).toBe(`!xml ${expected}`)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).not.toContainEqual(
+      expect.objectContaining({ logicalAddress }),
+    )
+  })
 })
 
 function candidate(
