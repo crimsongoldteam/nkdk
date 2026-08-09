@@ -1,9 +1,18 @@
 import { spawnSync } from "node:child_process"
-import { delimiter } from "node:path"
+import { existsSync } from "node:fs"
+import { delimiter, resolve } from "node:path"
 import { projectRoot, toolBinDir } from "./paths.mjs"
 
 export function runDepcruise(command, args, options = {}) {
-  const result = spawnSync(command, args, {
+  const localEntryPoint = resolve(
+    toolBinDir,
+    `../dependency-cruiser/bin/${command}.mjs`
+  )
+  const useLocalEntryPoint = existsSync(localEntryPoint)
+  const result = spawnSync(
+    useLocalEntryPoint ? process.execPath : command,
+    useLocalEntryPoint ? [localEntryPoint, ...args] : args,
+    {
     cwd: options.cwd ?? projectRoot,
     encoding: "utf8",
     stdio: options.capture === false ? "inherit" : "pipe",

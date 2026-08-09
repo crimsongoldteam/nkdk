@@ -8,7 +8,7 @@ import type {
   PreparedMetadataDependency,
   PreparedYamlFile,
   PreparedYamlProjectFileInput,
-} from "./preparedYamlProject"
+} from "./preparedYamlContracts"
 
 export interface PrepareYamlFilesOptions {
   files: readonly PreparedYamlProjectFileInput[]

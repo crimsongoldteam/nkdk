@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import type { ProjectStateRefreshDependencies, ProjectStateRefreshResult } from "./refresh"
 import { createProjectStateService, type CreateProjectStateServiceOptions } from "./service"
+import { openProjectStateReadSession } from "./createDefaultService"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import type { ProjectStateReadToken } from "./contracts"
 import { buildProjectStateSnapshot } from "./binary/builder"
@@ -1019,7 +1020,7 @@ async function beginImportLeaseTest(
     readonly candidate: TestWriter
     readonly next: TestWriter
   }) => void | Promise<void>,
-  options: Pick<CreateProjectStateServiceOptions, "refresh"> = {},
+  options: Pick<CreateProjectStateServiceOptions, "refresh" | "openReadSession"> = {},
 ) {
   const projectDir = await mkdtemp(join(tmpdir(), prefix))
   tempDirs.push(projectDir)
@@ -1029,6 +1030,7 @@ async function beginImportLeaseTest(
   const writers = [candidate, next]
   const service = createProjectStateService({
     ...options,
+    openReadSession: options.openReadSession ?? openProjectStateReadSession,
     createWriter: () => writers.shift()!,
     createPool: () => testPool(),
   })

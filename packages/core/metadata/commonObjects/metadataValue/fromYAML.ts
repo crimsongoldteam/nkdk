@@ -2,11 +2,17 @@ import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ExplicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
-import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
-import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
 import { primitiveValueHandlers } from "./handlers"
 import { importStandardPeriodFromYAML, isStandardPeriodYAML } from "../standardPeriod/fromYAML"
+import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
+import { isMetadataRootName, rootFromYAML } from "../metadataTargets"
+import { DataCompositionComparisonTypeFromYAML } from "../../systemEnumerations/types"
+import type { I8nText } from "../i8nText/types"
+import { importI8nTextFromYAML } from "../i8nText/fromYAML"
+import { restoreExplicitMetadataValueYAMLString } from "./explicitYAMLString"
 import {
+  MetadataExplicitFormChoiceListValueYAML,
+  MetadataFixedArrayValue,
   MetadataFixedArrayValueYAMLInput,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueYAML,
@@ -95,6 +101,111 @@ export const importMetadataValueFromYAML = (
   }
 
   return result
+}
+
+const isExplicitFormChoiceListValueYAML = (
+  value: Exclude<MetadataFixedArrayValueYAMLInput[number], null | undefined>
+): value is MetadataExplicitFormChoiceListValueYAML =>
+  typeof value === "object" &&
+  !Array.isArray(value) &&
+  value !== null &&
+  (value as Record<string, unknown>).Тип === "ЗначениеСпискаВыбора"
+
+export const importFixedArrayFromYAML = (
+  context: ConfigurationContext,
+  data: MetadataFixedArrayValueYAMLInput
+): MetadataFixedArrayValue => ({
+  type: "fixedArray",
+  value: data.map((item, index) => {
+    if (item === undefined || item === null) return undefined
+    const value = asExplicitYAMLStringIfMarked(data, index, item) as Exclude<
+      MetadataFixedArrayValueYAMLInput[number],
+      null | undefined
+    >
+    if (isExplicitFormChoiceListValueYAML(value)) {
+      const { Тип: _type, ...formChoiceListValue } = value
+      return importFormChoiceListFromYAML(
+        context,
+        formChoiceListValue as MetadataFormChoiceListValueYAML
+      )
+    }
+    return importMetadataValueFromYAML(context, undefined, value)!
+  }),
+})
+
+const importPresentationFromYAML = (
+  context: ConfigurationContext,
+  value: MetadataFormChoiceListValueYAML["Представление"]
+): I8nText | undefined => {
+  if (value === "") return undefined
+  return importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value })
+}
+
+const importExplicitChoiceListValueFromYAML = (
+  value: unknown
+): MetadataFormChoiceListValue["value"] | undefined => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
+  const data = value as Record<string, unknown>
+  if (data.Тип !== "ВидСравненияКомпоновкиДанных" || typeof data.Значение !== "string") {
+    return undefined
+  }
+  const enumValue =
+    DataCompositionComparisonTypeFromYAML[
+      data.Значение as keyof typeof DataCompositionComparisonTypeFromYAML
+    ]
+  if (enumValue === undefined) return undefined
+  return { type: "DataCompositionComparisonType", value: enumValue }
+}
+
+export const importFormChoiceListFromYAML = (
+  context: ConfigurationContext,
+  data: MetadataFormChoiceListValueYAML
+): MetadataFormChoiceListValue => {
+  const presentation = importPresentationFromYAML(context, data.Представление)
+  const value =
+    data.Значение === undefined
+      ? undefined
+      : (importExplicitChoiceListValueFromYAML(data.Значение) ??
+        importChoiceListValueFromYAML(
+          context,
+          restoreExplicitMetadataValueYAMLString(
+            data,
+            "Значение",
+            data.Значение
+          ) as MetadataFormChoiceListValueYAML["Значение"]
+        ))
+  const result: MetadataFormChoiceListValue = { type: "formChoiceListDesTimeValue" }
+  if (presentation !== undefined) result.presentation = presentation
+  if (value !== undefined) result.value = value
+  return result
+}
+
+const importChoiceListValueFromYAML = (
+  context: ConfigurationContext,
+  value: MetadataFormChoiceListValueYAML["Значение"]
+): MetadataFormChoiceListValue["value"] | undefined => {
+  if (typeof value === "string" && isMetadataObjectTargetOnly(value)) {
+    return { type: "string", value } satisfies MetadataStringValue
+  }
+  try {
+    return importMetadataValueFromYAML(context, undefined, value)
+  } catch (caught) {
+    if (typeof value !== "string" || isFullYAMLMetadataTarget(value)) throw caught
+    return { type: "string", value } satisfies MetadataStringValue
+  }
+}
+
+function isMetadataObjectTargetOnly(value: string): boolean {
+  const parts = value.split(".")
+  if (parts.length !== 2) return false
+  const [root] = parts
+  return rootFromYAML[root] !== undefined || isMetadataRootName(root)
+}
+
+function isFullYAMLMetadataTarget(value: string): boolean {
+  const parts = value.split(".")
+  const [root] = parts
+  return parts.length > 1 && (rootFromYAML[root] !== undefined || isMetadataRootName(root))
 }
 
 /**

@@ -2,8 +2,8 @@ import { compileValidationSchema, type ValidationSchemaValidator } from "./compi
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
 import type { ConfigurationContext } from "../context/types"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "../orchestration/property/types"
@@ -38,7 +38,7 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { collectFormTableDataPathsFromYAML } from "../forms/clientApplicationForm/formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../orchestration/formElement/formTableDataPaths"
 
 type CompiledSchema = ValidationSchemaValidator
 const formSchemaCache = new WeakMap<

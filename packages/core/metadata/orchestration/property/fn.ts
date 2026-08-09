@@ -9,7 +9,7 @@ import type {
   MetadataTargetOwner,
   ParsedMetadataTarget,
   StyleItemTargetType,
-} from "../../commonObjects/metadataTargets"
+} from "../metadataTarget"
 import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
@@ -27,6 +27,8 @@ import type {
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
+import type { TypeRulesOperations } from "./ruleContracts"
+export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -45,8 +47,6 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   referenceMetadata?: any
   value: any
 }) => any | undefined
-
-export type YAMLToXMLCondition = (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) => boolean
 
 export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
@@ -269,33 +269,6 @@ export interface TypeRule {
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
 }
 
-export type TypeRulesOperations =
-  | "importFromXML"
-  | "importFromXMLToYAML"
-  | "exportToXML"
-  | "importFromYAML"
-  | "exportToYAML"
-  | "exportToEnterprise"
-  | "exportToJSONSchema"
-  | "validationSchemaRef"
-  | "collectionItemRule"
-  | "syncExternalFromXML"
-  | "validateMetadataTarget"
-  | "collectMetadataTargetReferences"
-  | "structuralReferences"
-  | "resourceTopology"
-  | "fileChildNamesDescriptor"
-  | "configurationIndexValueFromXML"
-  | "collectConfigurationIndexFromXML"
-  | "xmlImportPropertyBehavior"
-  | "nestedItemIdentity"
-  | "nestedItemRule"
-  | "resolveNestedImportXMLSources"
-  | "finalizeImportedYAML"
-  | "requiresImportedYAMLFinalization"
-  | "finalizeExportedXML"
-  | "collectLocalFactsFromYAML"
-  | "yamlToXMLNestedRule"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {

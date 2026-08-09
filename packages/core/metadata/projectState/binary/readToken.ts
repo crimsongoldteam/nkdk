@@ -5,6 +5,12 @@ export interface BinaryProjectStateReadToken {
   readonly buffers: ProjectStateSharedBuffers
 }
 
+declare module "../contracts/readToken" {
+  interface ProjectStateReadTokenTypeMap {
+    token: BinaryProjectStateReadToken
+  }
+}
+
 export function createBinaryProjectStateReadToken(
   buffers: ProjectStateSharedBuffers,
 ): BinaryProjectStateReadToken {

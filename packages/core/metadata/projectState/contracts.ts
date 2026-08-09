@@ -1,31 +1,19 @@
-import type { ProjectStateFileIdentity } from "./fileUpdate"
-import type { BinaryProjectStateReadToken } from "./binary/readToken"
+import type {
+  ProjectStateFileBaseline,
+  ProjectStateFileBaselinePage,
+  ProjectStateFileBaselinePathPage,
+  ProjectStateFileHashBatch,
+  ProjectStateFileIdentity,
+} from "./contracts/fileIdentity"
+import { PROJECT_STATE_HASH_BYTE_LENGTH } from "./contracts/fileIdentity"
 
-export const PROJECT_STATE_HASH_BYTE_LENGTH = 8
+export * from "./contracts/fileIdentity"
+export * from "./contracts/readToken"
+export * from "./contracts/fileUpdate"
+export * from "./contracts/dependencyValidation"
 
-export interface ProjectStateFileHashBatch {
-  readonly files: readonly ProjectStateFileIdentity[]
-  readonly hashBytes: Uint8Array
-}
+export { PROJECT_STATE_HASH_BYTE_LENGTH } from "./contracts/fileIdentity"
 
-export interface ProjectStateFileBaseline {
-  readonly knownHashBits: Uint8Array
-  readonly hashBytes: Uint8Array
-  readonly deleted: readonly ProjectStateFileIdentity[]
-}
-
-export interface ProjectStateFileBaselinePage {
-  readonly knownHashBits: Uint8Array
-  readonly hashBytes: Uint8Array
-  /** `-1` означает, что файла не было в сохранённом состоянии. */
-  readonly previousFileIds: Int32Array
-  readonly storedFileCount: number
-}
-
-export type ProjectStateFileBaselinePathPage = ProjectStateFileBaselinePage
-
-/** Непрозрачное разрешение на чтение снимка состояния проекта. */
-export type ProjectStateReadToken = BinaryProjectStateReadToken
 
 export function assertProjectStateFileHashBatch(value: unknown): asserts value is ProjectStateFileHashBatch {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {

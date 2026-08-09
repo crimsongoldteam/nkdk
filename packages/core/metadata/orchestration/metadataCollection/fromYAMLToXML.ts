@@ -20,6 +20,8 @@ import { assertRequiredConfigurationIdentity } from "../property/requiredIdentit
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
 export interface ConvertMetadataCollectionFromYAMLToXMLParams {
+  readonly convertItem: typeof convertMetadataItemFromYAMLToXML
+  readonly convertProperties: Parameters<typeof convertMetadataItemFromYAMLToXML>[0]["convertProperties"]
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly descriptor: CollectionDescriptor
@@ -118,7 +120,8 @@ export function convertMetadataCollectionFromYAMLToXML(
         index,
       }),
     }))
-    const converted = convertMetadataItemFromYAMLToXML({
+    const converted = params.convertItem({
+      convertProperties: params.convertProperties,
       context: itemContextWithReferenceRemap,
       yaml: normalizedYAML,
       rule: itemRule,

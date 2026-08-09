@@ -1,19 +1,14 @@
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateService } from "../projectState/service"
 
+export type {
+  MetadataFileItemRole,
+  MetadataNamedChildKind,
+} from "../orchestration/property/operationTargets"
+
 export interface MetadataOperationDiagnostic extends Diagnostic {
   code?: string
 }
-
-export type MetadataNamedChildKind =
-  | "attribute"
-  | "tabularSection"
-  | "dimension"
-  | "resource"
-  | "addressingAttribute"
-  | "command"
-
-export type MetadataFileItemRole = "form" | "template" | "command"
 
 export type MetadataOperationMode = "plan" | "applied"
 

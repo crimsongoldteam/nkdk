@@ -4,7 +4,7 @@ import type {
   ContextElementToXML,
   MetadataTargetOwnerContext,
 } from "../../context/types"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../metadataTarget/types"
 import type { MetadataItemType } from "../metadataItem/registry"
 
 export interface MetadataItemOwnerContextEntry {

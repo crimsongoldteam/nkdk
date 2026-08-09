@@ -1,6 +1,10 @@
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
+import {
+  clearStandardMemberAliasesForTests,
+  registerStandardMemberAlias,
+} from "../../orchestration/metadataTarget/standardMemberAliases"
+import type { OwnerMetadata, OwnerMetadataCache } from "./contracts"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./ownerKindRegistry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
@@ -195,6 +199,7 @@ let standardMembersRevision = 0
 export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
   const existing = membersByOwnerKind.get(ownerKind) ?? []
   membersByOwnerKind.set(ownerKind, [...existing, ...members])
+  registerMetadataTargetAliases(members)
   standardMembersRevision += 1
 }
 
@@ -204,6 +209,7 @@ export function getStandardMembers(ownerKind: string): readonly StandardMemberDe
 
 export function clearStandardMembersForTests(): void {
   membersByOwnerKind.clear()
+  clearStandardMemberAliasesForTests()
   standardMembersRevision += 1
 }
 
@@ -213,8 +219,25 @@ export function snapshotStandardMembersForTests(): Map<string, StandardMemberDec
 
 export function restoreStandardMembersForTests(snapshot: Map<string, StandardMemberDeclaration[]>): void {
   membersByOwnerKind.clear()
-  for (const [kind, members] of snapshot) membersByOwnerKind.set(kind, [...members])
+  clearStandardMemberAliasesForTests()
+  for (const [kind, members] of snapshot) {
+    membersByOwnerKind.set(kind, [...members])
+    registerMetadataTargetAliases(members)
+  }
   standardMembersRevision += 1
+}
+
+function registerMetadataTargetAliases(
+  members: readonly StandardMemberDeclaration[]
+): void {
+  for (const member of members) {
+    registerStandardMemberAlias(member.names.yaml, member.names.internal)
+    if (member.memberKind === "standardTabularSection") {
+      for (const column of member.columns) {
+        registerStandardMemberAlias(column.names.yaml, column.names.internal)
+      }
+    }
+  }
 }
 
 export function standardMemberNamePairs(): readonly StandardMemberNames[] {

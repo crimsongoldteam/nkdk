@@ -1,3 +1,4 @@
+import "./fromXML"
 import "./fromXMLToYAML"
 import "./fromYAML"
 import "./toYAML"

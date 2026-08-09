@@ -1,9 +1,9 @@
-import { registerCoreMetadata } from "../register"
+import { assertCoreMetadataRegistered } from "./projectSpecRegistry"
 import { discoverMetadataProjectResources } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 
 export async function collectSyncStateFilePaths(projectDir: string): Promise<string[]> {
-  registerCoreMetadata()
+  assertCoreMetadataRegistered("project/syncStateFiles")
   const resources = await discoverMetadataProjectResources({
     topology: compileRegisteredMetadataResourceTopology(),
     projectDir,

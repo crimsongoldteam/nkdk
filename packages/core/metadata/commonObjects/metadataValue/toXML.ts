@@ -1,10 +1,9 @@
 import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { exportFixedArrayToXML } from "./fixedArray/toXML"
-import { exportFormChoiceListToXML } from "./formChoiceList/toXML"
 import { primitiveValueHandlers } from "./handlers"
 import { exportStandardPeriodToXML } from "../standardPeriod/toXML"
+import { exportI8nTextToXML } from "../i8nText/toXML"
 import {
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
@@ -104,6 +103,37 @@ export const exportMetadataValueToXML = (params: {
     throw new Error(`MetadataValue: отсутствует toXML-обработчик для типа ${value.type} (rule.type: ${rule.type})`)
   }
   return handler.toXML(value)
+}
+
+export const exportFixedArrayToXML = (
+  context: ConfigurationContext,
+  data: MetadataFixedArrayValue
+): import("./types").MetadataFixedArrayValueXML => {
+  const rule: MetadataValuePropertyRule = { type: "MetadataValue" }
+  const values = data.value.map((value) =>
+    value === undefined ? { "_xsi:nil": true } : exportMetadataValueToXML({ context, rule, value })
+  )
+  return {
+    "_xsi:type": "v8:FixedArray",
+    "v8:Value": values.length === 1 ? values[0] : values,
+  } as import("./types").MetadataFixedArrayValueXML
+}
+
+export const exportFormChoiceListToXML = (
+  context: ConfigurationContext,
+  data: MetadataFormChoiceListValue
+): MetadataFormChoiceListValueXML => {
+  const rule: MetadataValuePropertyRule = { type: "MetadataValue", exportNilValue: true }
+  const value = exportMetadataValueToXML({
+    context,
+    rule,
+    value: data.value as MetadataTypedValue | undefined,
+  })
+  return {
+    "_xsi:type": "FormChoiceListDesTimeValue",
+    Presentation: exportI8nTextToXML(context, { type: "I8nText" }, data.presentation) ?? {},
+    Value: value ?? { "_xsi:nil": true },
+  } as MetadataFormChoiceListValueXML
 }
 
 /** @deprecated Используй exportFormChoiceListToXML из submodule formChoiceList/toXML */

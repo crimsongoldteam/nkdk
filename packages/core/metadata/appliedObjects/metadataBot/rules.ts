@@ -1,4 +1,4 @@
-import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../commonObjects/picture/types"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { moduleRule } from "../../commonObjects/module/types"

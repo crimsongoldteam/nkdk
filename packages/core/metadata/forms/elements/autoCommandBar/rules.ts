@@ -1,4 +1,4 @@
-import { commandBarChildItemsRule } from "../../commonObjects/childItems/types"
+import { commandBarChildItemsRule } from "../../commonObjects/childItems/rules"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"

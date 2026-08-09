@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "architecture:baseline": "node tools/dependency-cruiser/src/baseline.mjs",
+    "architecture:cycle-baseline": "node tools/dependency-cruiser/src/cycle-baseline-update.mjs",
     "architecture:graph": "node tools/dependency-cruiser/src/graph.mjs",
     "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
     "check:duplicates": "node scripts/check-new-duplicates.mjs",

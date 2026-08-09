@@ -1,4 +1,4 @@
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import type { ConfigurationContext } from "../context/types"
 import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
@@ -6,7 +6,7 @@ import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation
 import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import type { OperationSnapshotItem } from "./projectSnapshot"
-import { collectFormTableDataPathsFromYAML } from "../forms/clientApplicationForm/formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../orchestration/formElement/formTableDataPaths"
 
 export interface DataPathReferenceInput {
   item: OperationSnapshotItem

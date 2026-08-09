@@ -10,7 +10,7 @@ import type {
   OwnerTypeRef,
 } from "../validation/dataPath/types"
 import type { DataPathPolicyInput } from "../validation/dataPath/policies"
-import type { ParsedMetadataTarget, MetadataTargetConstraint } from "../commonObjects/metadataTargets/types"
+import type { ParsedMetadataTarget, MetadataTargetConstraint } from "../orchestration/metadataTarget/types"
 import type { Diagnostic } from "../validation/types"
 import type { YamlDiagnosticLocation, YamlPath } from "../validation/yamlLocations"
 import type { ProjectValidationFirstPassResult } from "../validation/projectValidationPasses"

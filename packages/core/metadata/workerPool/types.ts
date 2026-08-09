@@ -1,13 +1,5 @@
 import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import type {
-  PreparedYamlProjectWorkerTask,
-  PreparedYamlProjectWorkerTaskResult,
-} from "../project/preparedYamlProjectWorker"
-import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../importFromXml/types"
-import type { FullXmlSyncWorkerCommand, FullXmlSyncWorkerCommandResult } from "../fullSyncToXml/types"
-import type { ProjectQueryCommand, ProjectQueryResult } from "./projectQueries"
-import type { MetadataWorkerBinaryResult } from "./binaryResult"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"
 
@@ -16,47 +8,26 @@ export interface MetadataWorkerProbeCommand {
   readonly value: string
 }
 
-export type MetadataWorkerOperationCommand =
-  | MetadataWorkerProbeCommand
-  | {
-      readonly kind: "validation"
-      readonly task: PreparedYamlProjectWorkerTask
-    }
-  | {
-      readonly kind: "import"
-      readonly command: ImportWorkerCommand
-    }
-  | {
-      readonly kind: "fullSync"
-      readonly command: FullXmlSyncWorkerCommand
-    }
-  | {
-      readonly kind: "projectQuery"
-      readonly command: ProjectQueryCommand
-    }
-
 export interface MetadataWorkerProbeResult {
   readonly kind: "probeResult"
   readonly value: string
 }
 
-export interface MetadataWorkerImportResult {
-  readonly kind: "importResult"
-  readonly result: ImportWorkerCommandResult
+export interface MetadataWorkerOperationTypeMap {
+  probe: {
+    command: MetadataWorkerProbeCommand
+    result: MetadataWorkerProbeResult
+  }
 }
 
-export interface MetadataWorkerFullSyncResult {
-  readonly kind: "fullSyncResult"
-  readonly result: FullXmlSyncWorkerCommandResult
-}
+export type MetadataWorkerOperationCommand =
+  MetadataWorkerOperationTypeMap[keyof MetadataWorkerOperationTypeMap]["command"]
 
 export type MetadataWorkerOperationResult =
-  | MetadataWorkerProbeResult
-  | MetadataWorkerBinaryResult
-  | PreparedYamlProjectWorkerTaskResult
-  | MetadataWorkerImportResult
-  | MetadataWorkerFullSyncResult
-  | ProjectQueryResult
+  MetadataWorkerOperationTypeMap[keyof MetadataWorkerOperationTypeMap]["result"]
+
+export type MetadataWorkerImportResult = Extract<MetadataWorkerOperationResult, { readonly kind: "importResult" }>
+export type MetadataWorkerFullSyncResult = Extract<MetadataWorkerOperationResult, { readonly kind: "fullSyncResult" }>
 
 export type MetadataWorkerCommand =
   | {

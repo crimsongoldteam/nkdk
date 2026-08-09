@@ -1,7 +1,7 @@
 import { capitalize } from "../../../helpers/capitalize"
 import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import { childSegmentUid } from "../../configurationIndex/logicalAddress"
-import type { MetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import type { MetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {

@@ -2,7 +2,7 @@ import fs from "fs"
 import { join } from "path"
 import { importContentFromXML } from "../../../xml/import/importer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { CONFIGURATION_XML_FILE } from "./rootIO"
+import { CONFIGURATION_XML_FILE } from "./constants"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 export type ConfigurationChildObjectsXML = Record<string, string | string[]>

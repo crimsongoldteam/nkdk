@@ -1,7 +1,5 @@
-import { UserVisibleYAML } from "../../commonObjects/userVisible/types"
 import { MetadataItemType } from "./registry"
-import { PropertyRuleType, PropertyToYAML } from "../property/registry"
-import * as SE from "../../systemEnumerations/types"
+import { PropertyRuleType, PropertyToYAML, SystemEnumerationToYAML } from "../property/registry"
 import { PropertyRule } from "../property/types"
 
 /**
@@ -31,7 +29,7 @@ type ValueTypeWithImplicit<Base, P, PropertyType extends PropertyRuleType> = P e
   : Base
 
 type SystemEnumerationYAMLValueTypeByRule<P, TypeSE extends string> = ValueTypeWithImplicit<
-  SETypeByName<TypeSE>,
+  SystemEnumerationToYAML<TypeSE>,
   P,
   "SystemEnumeration"
 >
@@ -84,10 +82,6 @@ type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }>
       }
     : never
 
-type SETypeByName<Name extends string> = `${Name}FromYAML` extends keyof typeof SE
-  ? keyof (typeof SE)[`${Name}FromYAML`]
-  : unknown
-
 type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRule> }> = {
   [K in Rule["properties"][keyof Rule["properties"]] extends infer P
     ? P extends { type: "UserVisible"; yaml?: infer Y }
@@ -95,7 +89,7 @@ type UserVisibleByRule<Rule extends { properties: Record<string, PropertyRule> }
         ? Y
         : never
       : never
-    : never]?: UserVisibleYAML
+    : never]?: PropertyToYAML<"UserVisible">
 }
 
 type EventsByRule<Rule extends { events?: Record<string, string> }> = "events" extends keyof Rule

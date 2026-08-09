@@ -4,21 +4,12 @@ import { xxh3 } from "@node-rs/xxhash"
 import pLimit from "p-limit"
 import { importFromYAML } from "../../../yaml/import"
 import { BINARY_SYNC_STATE_FILE, readBinaryXmlSyncState, writeBinaryXmlSyncState } from "./syncStateBinary"
+import type { XmlSyncState, XmlSyncStateDiff } from "./syncStateContracts"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
 export { BINARY_SYNC_STATE_FILE }
+export type { XmlSyncState, XmlSyncStateDiff } from "./syncStateContracts"
 const DEFAULT_HASH_CONCURRENCY = 16
-
-export interface XmlSyncState {
-  version: 1
-  files: Record<string, string>
-}
-
-export interface XmlSyncStateDiff {
-  added: string[]
-  changed: string[]
-  deleted: string[]
-}
 
 export interface InitializeXmlSyncStateParams {
   yamlDir: string

@@ -7,30 +7,21 @@ import type { ValidationObjectTable } from "../projectValidationObjectTable"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
-import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
-import type { ValidationOwnerFacts } from "./ownerFacts"
-import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./registry"
+import { buildObjectFieldIndex } from "./objectFields"
+import type { ObjectFieldIndex, OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult, ValidationOwnerFacts } from "./contracts"
+export type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./contracts"
+import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./ownerKindRegistry"
 import type { OwnerTypeRef } from "./types"
 import { ownerFactFromYAML } from "./ownerFacts"
 
-export interface OwnerMetadataCache {
-  get(ref: OwnerTypeRef): OwnerMetadataResult
-  listRefs(kind: OwnerTypeRef["kind"]): Iterable<OwnerTypeRef>
-}
+declare module "../../context/types" {
+  interface FormExportToYAMLContext {
+    readonly ownerMetadataCache?: OwnerMetadataCache
+  }
 
-export type OwnerMetadataResult =
-  | { status: "ok"; owner: OwnerMetadata }
-  | { status: "not-found"; diagnostics: Diagnostic[] }
-  | { status: "import-error"; diagnostics: Diagnostic[] }
-  | { status: "ambiguous"; diagnostics: Diagnostic[] }
-
-export interface OwnerMetadata {
-  ref: OwnerTypeRef
-  filePath: string
-  facts: ValidationOwnerFacts
-  rule: MetadataItemRule
-  spec: ValidationProjectSpec
-  fieldIndex: ObjectFieldIndex
+  interface FormimportFromYAMLContext {
+    readonly ownerMetadataCache?: OwnerMetadataCache
+  }
 }
 
 export interface CreateOwnerMetadataCacheParams {

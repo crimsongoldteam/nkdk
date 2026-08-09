@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fromYAMLToXML"
 import { mockContext, mockContextToXML } from "../../../tests/mockContext"
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
 import { MetadataCommandRules } from "./rules"
@@ -36,6 +37,7 @@ describe("MetadataCommands YAML → XML", () => {
 
     expect(() =>
       convertMetadataItemFromYAMLToXML({
+        convertProperties: convertPropertiesFromYAMLToXML,
         context: mockContextToXML(),
         rule: MetadataCommandRules,
         name: "Команда1",

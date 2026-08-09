@@ -19,7 +19,7 @@ import type {
   SessionPortRuntime,
   SessionProcessRuntime,
 } from "./runtime"
-import type { PlatformSessionManagerDependencies } from "./manager"
+import type { PlatformSessionManagerDependencies } from "./contracts"
 
 const fileSystem: SessionFileSystem = {
   async mkdir(path) {

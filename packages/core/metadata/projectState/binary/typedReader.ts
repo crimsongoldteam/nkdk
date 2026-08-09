@@ -1,12 +1,12 @@
-import { isMetadataRootName } from "../../commonObjects/metadataTargets/roots"
+import { isMetadataRootName } from "../../orchestration/metadataTarget/roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
   MetadataRootName,
   ParsedMetadataTarget,
-} from "../../commonObjects/metadataTargets/types"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
+} from "../../orchestration/metadataTarget/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
+import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../orchestration/dataPath/types"
 import type {
   ProjectStateFileIdentity,
   ProjectStateFileUpdate,
@@ -16,7 +16,7 @@ import type {
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import { decodeMetadataTargetConstraint } from "./constraintCodec"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../validation/types"
+import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
 import { PROJECT_STATE_FACT_RECORD_VIEWS, PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
 import {
   ProjectStateDiagnosticRecordView,
@@ -195,11 +195,11 @@ export function createTypedProjectStateReader(
       .map((segment) => segment.kind === 1 ? string(segment.stringId) : segment.numericValue)
   }
 
-  function typeDescription(id: number): TypeDescription {
+  function typeDescription(id: number): TypeDescriptionView {
     const value = row("typeDescriptions", id)
     const typeId = stringValues("typeDescriptionValues", value.typeIdsStart, value.typeIdsCount)
     return {
-      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount) as TypeDescription["type"],
+      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount),
       ...(typeId.length === 0 ? {} : { typeId }),
       ...(value.stringLength === NONE ? {} : { stringQualifiers: {
         length: value.stringLength,

@@ -1,38 +1,19 @@
-import type { LocalMetadataFactsWriter, LocalYamlFact } from "../orchestration/property/importYamlTypes"
+import type {
+  LocalIndexesCollector,
+  LocalMetadataEvent,
+  LocalMetadataFactsWriter,
+  LocalMetadataTargetFact,
+  LocalYamlFact,
+} from "../orchestration/property/localFacts"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
-export interface LocalMetadataEvent {
-  kind: "property" | "complete"
-  yamlPath: readonly (string | number)[]
-  rulePath: LocalYamlFact["rulePath"]
-  propertyType: string
-  source?: LocalYamlFact["source"]
-}
-
-export interface LocalMetadataIndex {
-  events: LocalMetadataEvent[]
-  ownerFacts?: Readonly<Record<string, unknown>>
-  metadataTargets?: LocalMetadataTargetFact[]
-  formDataPathIndex?: FormDataPathIndex
-}
-
-export interface LocalMetadataTargetFact {
-  yamlPath: readonly (string | number)[]
-  value: string
-  constraint: NonNullable<LocalYamlFact["rule"]["metadataTarget"]>
-  owner?: NonNullable<LocalYamlFact["metadataTargetOwner"]>
-  rulePath: LocalYamlFact["rulePath"]
-}
-export interface LocalIndexes {
-  metadata: LocalMetadataIndex
-}
-
-export interface LocalIndexesCollector {
-  acceptProperty(fact: LocalYamlFact): void
-  completeValue(fact: LocalYamlFact): void
-  finish(): LocalIndexes
-}
+export type {
+  LocalIndexes,
+  LocalIndexesCollector,
+  LocalMetadataEvent,
+  LocalMetadataIndex,
+  LocalMetadataTargetFact,
+} from "../orchestration/property/localFacts"
 
 export function createLocalIndexesCollector(options?: { recordEvents?: boolean }): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []

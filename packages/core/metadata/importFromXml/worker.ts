@@ -16,7 +16,7 @@ import {
   createValidationSchemaCache,
   type ValidationSchemaCache,
 } from "../validation/projectValidationPasses"
-import { validateKnownProjectYaml } from "../validation/knownYamlValidation"
+import { validateKnownProjectYaml } from "./knownYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
@@ -26,8 +26,8 @@ import {
   toProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
-import { createProjectStateOwnerMetadataCache } from "../projectState/dependencyValidation"
-import { openProjectStateReadSession } from "../projectState/service"
+import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
+import { openProjectStateReadSession } from "../projectState/createDefaultService"
 import { resolveProjectPath } from "../project/path"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
@@ -53,6 +53,29 @@ import {
   type SerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
+import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+
+declare module "../workerPool/types" {
+  interface MetadataWorkerOperationTypeMap {
+    import: {
+      command: { readonly kind: "import"; readonly command: ImportWorkerCommand }
+      result: { readonly kind: "importResult"; readonly result: ImportWorkerCommandResult }
+    }
+  }
+}
+
+export function registerImportWorkerOperation(): void {
+  registerMetadataWorkerOperation(
+    "import",
+    async (operation, state) => ({
+      kind: "importResult",
+      result: await runImportWorkerCommand(operation.command, {
+        persistentValidationState: { schemaCache: state.schemaCache, rulesSnapshot: state.rulesSnapshot },
+      }),
+    }),
+    async () => { await runImportWorkerCommand({ kind: "dispose" }) },
+  )
+}
 
 interface InitializedImportWorkerState {
   operationId: string

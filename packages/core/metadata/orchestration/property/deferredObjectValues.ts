@@ -1,4 +1,4 @@
-import type { DeferredRulePathSegment } from "./importYamlTypes"
+import type { DeferredRulePathSegment } from "./localFacts"
 
 export interface DeferredValuePath {
   readonly valuePath: readonly (string | number)[]

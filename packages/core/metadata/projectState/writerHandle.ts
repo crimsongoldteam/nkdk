@@ -6,6 +6,8 @@ import {
   type DiagnosticBatchView,
 } from "../diagnostics/binaryBatch"
 import { createBinaryProjectStateStore } from "./binary/store"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
+import type { ProjectStateDependencyValidator } from "./contracts/dependencyValidation"
 import { loadBinaryProjectState, projectStateBinaryPath, saveBinaryProjectState } from "./binary/persistence"
 import type { ProjectStateSharedBuffers } from "./binary/snapshot"
 import type { ProjectStateFragment } from "./binary/fragment"
@@ -39,6 +41,7 @@ export class ProjectStateWriterClosedError extends Error {
 }
 
 export interface CreateProjectStateWriterHandleOptions {
+  readonly dependencyValidator?: ProjectStateDependencyValidator
   readonly openStore?: (projectDir: string) => Promise<ProjectStateStore>
   readonly save?: (projectDir: string, buffers: ProjectStateSharedBuffers) => Promise<void>
 }
@@ -72,6 +75,7 @@ export interface ProjectStateWriterHandle {
 export function createProjectStateWriterHandle(
   options: CreateProjectStateWriterHandleOptions = {},
 ): ProjectStateWriterHandle {
+  const dependencyValidator = options.dependencyValidator ?? createProjectStateDependencyValidator()
   const save = options.save ?? saveBinaryProjectState
   let projectDir: string | undefined
   let store: ProjectStateStore | undefined
@@ -90,6 +94,7 @@ export function createProjectStateWriterHandle(
       projectDir = nextProjectDir
       store = options.openStore === undefined
         ? createBinaryProjectStateStore({
+            dependencyValidator,
             initial: await loadBinaryProjectState(nextProjectDir),
             projectDir: nextProjectDir,
           }).store
@@ -201,7 +206,7 @@ export function createProjectStateWriterHandle(
       requireStore().close()
       await fs.promises.unlink(projectStateBinaryPath(nextProjectDir)).catch(() => undefined)
       store = options.openStore === undefined
-        ? createBinaryProjectStateStore({ projectDir: nextProjectDir }).store
+        ? createBinaryProjectStateStore({ projectDir: nextProjectDir, dependencyValidator }).store
         : await options.openStore(nextProjectDir)
       pendingSave = undefined
       saveFailure = undefined

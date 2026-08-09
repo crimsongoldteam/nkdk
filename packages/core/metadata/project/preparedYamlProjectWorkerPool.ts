@@ -14,14 +14,17 @@ import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import { assertProjectStateFileBaselinePage } from "../projectState/contracts"
-import type { ProjectStateValidationFileBatch } from "../projectState/refresh"
+import type {
+  ProjectStateRefreshExecutor,
+  ProjectStateValidationFileBatch,
+} from "../projectState/refreshExecutor"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
   PreparedMetadataDeclaration,
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
-} from "./preparedYamlProject"
+} from "./preparedYamlContracts"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { runMetadataWorkerOperationQueue } from "../workerPool/operationQueue"
 import type {
@@ -89,6 +92,24 @@ export interface PreparedYamlProjectWorkerPoolResult {
   diagnostics: Diagnostic[]
   metadataIndex: PreparedGlobalMetadataIndex
   workers: PreparedYamlWorkerPartition[]
+}
+
+export function createPreparedYamlProjectRefreshExecutor(
+  pool: PreparedYamlProjectWorkerPool,
+  context: ConfigurationContext,
+): ProjectStateRefreshExecutor {
+  return {
+    begin: createPreparedYamlValidationOperation,
+    processFiles(batches, producer, operation, projectDir) {
+      return pool.runProjectStateRefresh({
+        projectDir,
+        context,
+        source: { batches },
+        operation,
+      }, producer)
+    },
+    close: () => pool.close(),
+  }
 }
 
 type PreparedMetadataDeclarationMergeResult =
@@ -635,8 +656,8 @@ function redistributeDependenciesBySourceFile(
 function createWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "preparedYamlProjectWorker.ts")
-    : join(dirname(currentFile), "preparedYamlProjectWorker.js")
+    ? join(dirname(currentFile), "../workerPool/preparedYamlProjectEntry.ts")
+    : join(dirname(currentFile), "../workerPool/preparedYamlProjectEntry.js")
   const validationRegisterUrl = pathToFileURL(
     join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")
   ).href

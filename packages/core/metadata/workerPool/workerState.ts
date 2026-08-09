@@ -2,6 +2,7 @@ import type { ConfigurationContext } from "../context/types"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import { openBinaryProjectStateReadSession } from "../projectState/binary/readSession"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import {
   createProjectValidationWorkerSchemaCache,
 } from "../validation/projectValidationWorkerSchemaCache"
@@ -37,7 +38,8 @@ export async function createMetadataWorkerPersistentState(
     context: params.context,
   })
   const rulesSnapshot = (dependencies.createRulesSnapshot ?? createValidationRulesSnapshot)(params.context)
-  const openReadSession = dependencies.openReadSession ?? openBinaryProjectStateReadSession
+  const openReadSession = dependencies.openReadSession
+    ?? ((token) => openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator()))
   let projectState: ProjectStateReadSession | undefined
   let activeOperationId: string | undefined
 

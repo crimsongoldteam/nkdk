@@ -19,9 +19,20 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
+import { commonBasedOnObjectPaths } from "../../orchestration/metadataTarget"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-import { MetadataCatalogStandardAttributeNames } from "./types"
+export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
+  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Predefined: "Предопределенный",
+  Ref: "Ссылка",
+  DeletionMark: "ПометкаУдаления",
+  IsFolder: "ЭтоГруппа",
+  Owner: "Владелец",
+  Parent: "Родитель",
+  Description: "Наименование",
+  Code: "Код",
+}
+
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   metadataTargetOwner: { kind: "self", root: "Catalog" },

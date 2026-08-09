@@ -6,6 +6,7 @@ import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import {
@@ -39,6 +40,7 @@ let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undef
 
 beforeAll(() => {
   sharedStateFixture = createBinaryProjectStateStore({
+    dependencyValidator: createProjectStateDependencyValidator(),
     projectDir: "/project",
   })
   stateStores.push(sharedStateFixture.store)

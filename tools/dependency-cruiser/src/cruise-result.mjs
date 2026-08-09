@@ -6,7 +6,6 @@ import {
   reportsDir,
 } from "./paths.mjs"
 import { runDepcruise } from "./run-depcruise.mjs"
-import { addProductionCycleViolations } from "./cycle-analysis.mjs"
 import { softenKnownViolations } from "./known-violations.mjs"
 import { addImplementationReachabilityViolations } from "./reachability.mjs"
 
@@ -58,6 +57,22 @@ export function assertCompleteCruiseResult(result) {
   }
 }
 
+export function analyzeCruiseResult(rawResult, knownViolations = []) {
+  const withoutCycleViolations = {
+    ...rawResult,
+    summary: {
+      ...rawResult.summary,
+      violations: rawResult.summary.violations.filter(
+        ({ rule }) => rule.name !== "no-circular-production"
+      ),
+    },
+  }
+  return softenKnownViolations(
+    addImplementationReachabilityViolations(withoutCycleViolations),
+    knownViolations
+  )
+}
+
 export function createCruiseResult({
   ignoreKnown = false,
   outputPath = cruiseResultPath,
@@ -83,12 +98,10 @@ export function createCruiseResult({
     ignoreKnown && existsSync(baselinePath)
       ? JSON.parse(readFileSync(baselinePath, "utf8"))
       : []
-  const analyzedResult = addImplementationReachabilityViolations(
-    addProductionCycleViolations(rawResult)
+  const result = analyzeCruiseResult(
+    rawResult,
+    ignoreKnown ? knownViolations : []
   )
-  const result = ignoreKnown
-    ? softenKnownViolations(analyzedResult, knownViolations)
-    : analyzedResult
   assertCompleteCruiseResult(result)
   if (writeEnhanced) {
     writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`)

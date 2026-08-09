@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
 import { createFormDataPathIndexCollector, createFormDataPathIndexFromYAML } from "./formYamlIndex"
-import { collectFormTableDataPathsFromYAML } from "../../forms/clientApplicationForm/formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
   it("собирает пути табличных элементов при прямом обходе YAML по rules", () => {

@@ -1,7 +1,7 @@
 import { borderRule } from "../../../commonObjects/border/types"
 import { colorRule } from "../../../commonObjects/color/types"
 import { formattedI8nTextRule } from "../../../commonObjects/formattedI8nText/types"
-import { pictureRule } from "../../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../../commonObjects/picture/types"
 import { eventsRule } from "../../commonObjects/event/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
