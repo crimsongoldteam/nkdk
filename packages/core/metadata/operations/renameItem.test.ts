@@ -3,7 +3,7 @@ import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import {

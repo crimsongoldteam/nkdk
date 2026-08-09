@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 import { createFormDataPathIndexCollector } from "./formYamlIndex"
-import { collectFormTabularElementsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
+import { collectFormTabularElementsFromYAML } from "../../ruleRuntime/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
   it("собирает объявления таблиц и деревьев с путём и без пути", () => {

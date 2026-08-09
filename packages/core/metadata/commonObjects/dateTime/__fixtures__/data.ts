@@ -1,4 +1,4 @@
-import type { PropertyRule } from "../../../orchestration"
+import type { PropertyRule } from "../../../ruleRuntime"
 
 export const typedDateTimeRule = {
   type: "dateTime",

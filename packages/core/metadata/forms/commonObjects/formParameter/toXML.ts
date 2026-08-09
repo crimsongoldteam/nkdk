@@ -1,7 +1,7 @@
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"
 
 export const exportFormParametersToXML = (

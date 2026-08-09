@@ -7,7 +7,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
 import { fixtureDynamicListStructureItemGroupYAML } from "./__fixtures__/data"
-import type { MetadataItemRule } from "../../../orchestration"
+import type { MetadataItemRule } from "../../../ruleRuntime"
 
 import "./types"
 

@@ -1,1 +1,1 @@
-export * from "../../orchestration/dataPath/types"
+export * from "../../ruleRuntime/dataPath/types"

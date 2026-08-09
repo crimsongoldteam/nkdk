@@ -2,7 +2,7 @@ import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { MetadataItemLinksXML, MetadataItemLinksYAML } from "../metadataRef/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "../typeDescription/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataDocumentJournalColumnRules } from "./rules"
 

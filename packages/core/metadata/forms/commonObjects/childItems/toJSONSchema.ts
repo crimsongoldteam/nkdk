@@ -1,14 +1,14 @@
 import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
-import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import {
   exportElementRuleToJSONSchema,
   exportElementToJSONSchema,
-} from "../../../orchestration/formElement/toJSONSchema"
-import { ElementRule, CollectableElementTypeToYAML } from "../../../orchestration/formElement/types"
-import { createJSONSchemaPropertyOverrideContext } from "../../../orchestration/jsonSchemaRefs"
-import type { PropertyRuleType } from "../../../orchestration/property/registry"
+} from "../../../ruleRuntime/formElement/toJSONSchema"
+import { ElementRule, CollectableElementTypeToYAML } from "../../../ruleRuntime/formElement/types"
+import { createJSONSchemaPropertyOverrideContext } from "../../../ruleRuntime/jsonSchemaRefs"
+import type { PropertyRuleType } from "../../../ruleRuntime/property/registry"
 import {
   childItemsTreePropertyTypes,
   ChildItemsTreePropertyType,

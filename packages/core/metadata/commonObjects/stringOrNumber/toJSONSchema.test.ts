@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../orchestration"
-import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { PropertyRule } from "../../ruleRuntime"
+import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import "./toJSONSchema"
 

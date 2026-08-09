@@ -3,7 +3,7 @@ import type { ConfigurationIndexCollector } from "./collector/writer"
 import type { SharedConfigurationIndexSnapshot } from "./sharedSnapshot"
 import type { ConfigurationIndexReader } from "./sharedSnapshot"
 import type { ConfigurationSnapshotXml, OmittedChildren } from "./types"
-import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import type { ConfigurationIndexAddressingMode } from "../ruleRuntime/property/types"
 import { childUid, yamlPropertyUid } from "./logicalAddress"
 
 type IdentityKind = "uuid" | "xmlId" | "xmlName"

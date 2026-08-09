@@ -6,7 +6,7 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 
 registerCoreMetadata()
 

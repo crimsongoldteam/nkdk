@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { classifyMetadataProjectPath, type MetadataProjectResourceMatch } from "../resourceTopology/projectProjection"
-import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { classifyMetadataProjectPath, type MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import { createPartialXmlPackagePolicyRegistry } from "./packagePolicy"
 import { buildPartialXmlImpactPlan } from "./impactPlanner"
 import type { PartialXmlChanges, PartialXmlFileVersion } from "./types"
-import { childFormPartialXmlPackagePolicy } from "../commonObjects/childFormNames/partialXmlPackage"
+import { childFormPartialXmlPackagePolicy } from "../forms/clientApplicationForm/partialXmlPackage"
 
 const source = { kind: "itemRule" as const, description: "test" }
 const configurationRule = { itemType: "Configuration", properties: {} } as MetadataItemRule

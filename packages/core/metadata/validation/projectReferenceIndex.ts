@@ -6,8 +6,8 @@ import type {
   MetadataTypeFilterValue,
   MetadataObjectSegment,
   ParsedMetadataTarget,
-} from "../orchestration/metadataTarget"
-import { objectPathKindToYAML, rootToYAML } from "../orchestration/metadataTarget/roots"
+} from "../ruleRuntime/metadataTarget"
+import { objectPathKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 

@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "../../context/types"
 import { Type, type TSchema } from "typebox"
-import { registerMetadataItemCollectionRule, registerTypeRule } from "../../orchestration"
-import { recordOfSchemaRef } from "../../orchestration/jsonSchemaRefs"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../project/schemaRegistry"
+import { registerMetadataItemCollectionRule, registerTypeRule } from "../../ruleRuntime"
+import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../projectDefinition/schemaRegistry"
 import { MetadataEnumerationValueRules } from "./rules"
 
 registerMetadataItemCollectionRule({

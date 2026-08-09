@@ -1,5 +1,5 @@
-import type { PropertyOperationTargetDeclaration } from "../orchestration/property/operationTargets"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { PropertyOperationTargetDeclaration } from "../ruleRuntime/property/operationTargets"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 
 export interface MetadataRuleOperationTargetDescriptor {
   propertyName: string

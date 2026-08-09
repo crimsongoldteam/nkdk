@@ -1,5 +1,5 @@
 import type { ComponentAddress } from "./address"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 
 export interface MetadataComponentDescriptor {
   readonly kind: ComponentAddress["kind"]

@@ -4,7 +4,7 @@ import { validateResolvedDataPathPolicy } from "./dataPath/policies"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { DataPathPolicyInput } from "./dataPath/policies"
-import type { ElementType } from "../orchestration/formElement/types"
+import type { ElementType } from "../ruleRuntime/formElement/types"
 import type { Diagnostic } from "./types"
 import type { YamlDiagnosticLocation, YamlPath } from "./yamlLocations"
 

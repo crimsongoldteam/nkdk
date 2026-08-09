@@ -1,5 +1,5 @@
-import { registerTypeRule } from "../../../orchestration"
-import type { PropertyRuleType } from "../../../orchestration/property/registry"
+import { registerTypeRule } from "../../../ruleRuntime"
+import type { PropertyRuleType } from "../../../ruleRuntime/property/registry"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
 

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import type { DcsAvailableValues, DcsAvailableValuesYAML } from "./types"

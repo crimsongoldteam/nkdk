@@ -1,6 +1,6 @@
 import type { UserVisible, UserVisibleYAML } from "./types"
 
-declare module "../../orchestration/property/registry" {
+declare module "../../ruleRuntime/property/registry" {
   interface PropertyMetadataTypeMap {
     UserVisible: UserVisible
   }

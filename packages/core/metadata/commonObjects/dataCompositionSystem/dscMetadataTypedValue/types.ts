@@ -2,9 +2,9 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 import { Type } from "typebox"
-import { BasePropertyRule } from "../../../orchestration"
+import { BasePropertyRule } from "../../../ruleRuntime"
 import { BooleanJSONSchema } from "../../boolean/types"
 import {
   StandartBeginningDate,

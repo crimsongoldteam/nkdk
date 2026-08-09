@@ -1,6 +1,6 @@
 import type { Diagnostic } from "../../diagnostics/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../orchestration/metadataTarget/types"
-import type { OwnerTypeRef } from "../../orchestration/dataPath/types"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
+import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,

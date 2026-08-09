@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { PropertyRule } from "../../orchestration"
+import type { PropertyRule } from "../../ruleRuntime"
 import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"

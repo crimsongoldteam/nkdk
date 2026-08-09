@@ -1,5 +1,5 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
-import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import type { ConfigurationIndexAddressingMode } from "../ruleRuntime/property/types"
 import type { ConfigurationIndexExportRuntime } from "./exportRuntime"
 import type { OmittedChildren } from "./types"
 import {

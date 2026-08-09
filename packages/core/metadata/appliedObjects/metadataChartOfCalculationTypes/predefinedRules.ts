@@ -2,7 +2,7 @@ import { booleanRule } from "../../commonObjects/boolean/types"
 import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
 import { PredefinedRules } from "../../commonObjects/predefined/rules"
 import { PredefinedItemRules } from "../../commonObjects/predefinedItem/rules"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 const predefinedCalculationTypeTarget = {
   kind: "value",

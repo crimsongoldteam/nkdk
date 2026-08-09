@@ -1,4 +1,4 @@
-import { projectXmlExportAssignment } from "../../resourceTopology/xmlExportProjection"
+import { projectXmlExportAssignment } from "../../resourceTopology/core/xmlExportProjection"
 import type { ProjectStateReadSession } from "../../projectState"
 import type { ComponentHashState, ComponentIndexes, ComponentProjectStructure } from "./types"
 

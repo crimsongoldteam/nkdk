@@ -1,8 +1,8 @@
 import { resolve } from "path"
 import { CONFIGURATION_YAML_FILE } from "./constants"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
-import { projectPathFromFileSystem } from "./path"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "../projectDefinition/specs"
+import { projectPathFromFileSystem } from "../projectDefinition/path"
 
 const PROPERTIES_FILE = "Свойства.yaml"
 

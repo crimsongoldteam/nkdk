@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
 import { CommandInterfaceJSONSchema } from "./types"
 export const exportCommandInterfaceToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   return CommandInterfaceJSONSchema

@@ -36,7 +36,7 @@ import "./formAttribute/toJSONSchema"
 import "./childItems/fromXMLToYAML"
 import "./childItems/toEnterprise"
 import "./childItems/toJSONSchema"
-import { registerDirectFormElementCollections } from "../elements/orchestration/fromYAMLToXML"
+import { registerDirectFormElementCollections } from "../elements/ruleRuntime/fromYAMLToXML"
 
 registerDirectFormElementCollections()
 

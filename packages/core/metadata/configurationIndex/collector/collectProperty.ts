@@ -1,8 +1,8 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { isDeepStrictEqual } from "node:util"
 import { configurationIndexPropertyXmlStateUid } from "../logicalAddress"
-import type { ConfigurationIndexValueFromXMLDescriptor } from "../../orchestration/property/fn"
-import type { PropertyRule } from "../../orchestration/property/types"
+import type { ConfigurationIndexValueFromXMLDescriptor } from "../../ruleRuntime/property/fn"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { getConfigurationIndexCollectionContext } from "./context"
 
 export function collectConfigurationIndexIdentityFromXML(params: {

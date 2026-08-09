@@ -1,5 +1,5 @@
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import type { Diagnostic } from "../types"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "./types"

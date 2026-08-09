@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 import type { StringboolYAML } from "../../boolean/types"
 import type { I8nText, I8nTextXML, I8nTextYAML } from "../../i8nText/types"
 import type * as SE from "../../../systemEnumerations/types"

@@ -3,8 +3,8 @@ import { dirname, join } from "node:path"
 import { xmlExport } from "../../xml/export/exporter"
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import { finalizeExportedXmlValues } from "../orchestration/property/finalizeExportedXML"
-import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { finalizeExportedXmlValues } from "../ruleRuntime/property/finalizeExportedXML"
+import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,

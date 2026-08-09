@@ -5,7 +5,7 @@ import {
   withConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationContextFromXML } from "../../context/types"
-import type { DirectImportXMLSource } from "../../orchestration/property/importYamlTypes"
+import type { DirectImportXMLSource } from "../../ruleRuntime/property/importYamlTypes"
 import { FormRulesTags } from "./rules"
 
 export function createClientApplicationFormBodyImportSource(params: {

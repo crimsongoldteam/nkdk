@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../../orchestration/property/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { toDcsMetadataValueRule } from "./dcsValueRule"

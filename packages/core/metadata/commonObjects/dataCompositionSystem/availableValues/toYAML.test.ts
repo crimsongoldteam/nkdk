@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToYAML } from "../../../orchestration"
+import { exportPropertyToYAML } from "../../../ruleRuntime"
 import { mockContext } from "../../../../tests/mockContext"
 import {
   nilAndBooleanAvailableValues,

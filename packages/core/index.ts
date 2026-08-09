@@ -1,4 +1,4 @@
-import { registerCoreMetadata } from "./metadata/register"
+import { registerCoreMetadata } from "./metadata/composition/coreMetadata"
 import type {} from "./metadata/forms/clientApplicationForm/context.types"
 import type {} from "./metadata/fullSyncToXml/worker"
 import type {} from "./metadata/importFromXml/worker"
@@ -8,11 +8,10 @@ import type {} from "./metadata/workerPool/projectQueries"
 
 registerCoreMetadata()
 
-export { registerCoreMetadata } from "./metadata/register"
+export { registerCoreMetadata } from "./metadata/composition/coreMetadata"
 export {
   ProjectStateReadSessionClosedError,
   createProjectStateFileUpdateBatch,
-  createDefaultProjectStateService as createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,
@@ -32,6 +31,7 @@ export {
   type ProjectStateService,
   type ProjectStateWriterHandle,
 } from "./metadata/projectState"
+export { createDefaultProjectStateService as createProjectStateService } from "./metadata/composition/projectState"
 export * from "./metadata/configurationIndex"
 export { componentPath, type ComponentAddress } from "./metadata/components/address"
 export { NKDK_CORE_VERSION } from "./version"
@@ -139,7 +139,7 @@ export {
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
-} from "./metadata/validation/validateProject"
+} from "./metadata/project/validateProject"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
 export {
   createValidationProfileResult,
@@ -164,7 +164,7 @@ export {
   projectPathFromFileSystem,
   resolveProjectPath,
   type ProjectPathOptions,
-} from "./metadata/project/path"
+} from "./metadata/projectDefinition/path"
 export {
   describeMetadataRuleOperationTargets,
   type MetadataRuleOperationTargetDescriptor,
@@ -175,7 +175,7 @@ export {
   metadataProjectSpecByDir,
   metadataProjectSpecs,
   type MetadataProjectSpec,
-} from "./metadata/project/specs"
+} from "./metadata/projectDefinition/specs"
 export {
   assertMetadataProjectPathInside,
   classifyMetadataProjectPath,
@@ -189,7 +189,7 @@ export {
   type MetadataProjectResourceOwner,
   type MetadataProjectResourceRef,
   type MetadataProjectYamlRole,
-} from "./metadata/project/resources"
+} from "./metadata/projectDefinition/resources"
 export {
   listSchemaSummaryKeys,
   summarizeJSONSchema,

@@ -1,4 +1,4 @@
-import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItem, MetadataItemRule } from "../ruleRuntime/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 

@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../../context/types"
-import { callAtomicFromYAML, type PropertyRule, registerTypeRule } from "../../../orchestration"
+import { callAtomicFromYAML, type PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import type { StructureItemGroupCollection } from "./collection/types"
 import type { StructureItemGroup } from "./types"
 

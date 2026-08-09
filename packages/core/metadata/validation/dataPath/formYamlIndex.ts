@@ -1,5 +1,5 @@
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import { indexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {
@@ -8,7 +8,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 import type { FormDataPathIndex } from "./formIndex"
-import type { FormDataPathTabularElementDeclaration } from "../../orchestration/dataPath/formIndex"
+import type { FormDataPathTabularElementDeclaration } from "../../ruleRuntime/dataPath/formIndex"
 import type {
   FormDataPathItemFact,
   FormDataPathMetadataProjection,

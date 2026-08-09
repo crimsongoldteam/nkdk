@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, AvailableFieldsYAML } from "./types"
 

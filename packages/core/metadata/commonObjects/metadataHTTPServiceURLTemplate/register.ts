@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import "../metadataHTTPServiceMethod/register"
 import { MetadataHTTPServiceURLTemplateRules } from "./rules"
 

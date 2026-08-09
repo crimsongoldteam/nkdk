@@ -6,30 +6,30 @@ import type { ExternalFileEntry, XmlImportConfigurationContext } from "../contex
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
-import { importMetadataItemFromXMLToYAML } from "../orchestration/metadataItem/fromXMLToYAML"
+import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
 import {
   appendMetadataItemOwner,
   type MetadataItemOwnerContextEntry,
   withExportMetadataTargetOwners,
-} from "../orchestration/appliedObject/metadataItemOwnerContext"
-import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
-import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
-import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
+} from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
+import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
+import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
+import type { DirectImportProfile } from "../ruleRuntime/property/importYamlTypes"
 import {
   createDeferredValuePathCollector,
   createImportedDependentPropertyCollector,
-} from "../orchestration/property/importYamlTypes"
-import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
-import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
-import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
+} from "../ruleRuntime/property/importYamlTypes"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "../ruleRuntime/property/deferredObjectValues"
+import { createLocalIndexesCollector, type LocalIndexes } from "../projectDefinition/localIndexes"
+import { findRegisteredProjectRule, getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import { normalizeImportedDependentItems } from "./dependentItems"
 
-registerOwnerFactCollectors()
+registerOwnerFactCollectors(getRegisteredProjectSpecs())
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment

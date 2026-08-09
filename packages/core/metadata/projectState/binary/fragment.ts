@@ -2,7 +2,7 @@ import { xxh3 } from "@node-rs/xxhash"
 import type {
   MetadataTargetConstraint,
   ParsedMetadataTarget,
-} from "../../orchestration/metadataTarget/types"
+} from "../../ruleRuntime/metadataTarget/types"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {

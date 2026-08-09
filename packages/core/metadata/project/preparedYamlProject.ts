@@ -14,12 +14,12 @@ export type {
   PreparedYamlProjectResourceDescriptor,
   PreparedYamlProjectResult,
   PreparedYamlWorkerPartition,
-} from "./preparedYamlContracts"
+} from "../projectDefinition/preparedYamlContracts"
 import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlProjectResourceDescriptor,
   PreparedYamlProjectResult,
-} from "./preparedYamlContracts"
+} from "../projectDefinition/preparedYamlContracts"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
@@ -28,7 +28,7 @@ import {
   discoverMetadataProjectResources,
   type MetadataProjectResourceInclude,
   type MetadataProjectResourceRef,
-} from "./resources"
+} from "../projectDefinition/resources"
 
 export async function prepareYamlProject(params: {
   projectDir: string

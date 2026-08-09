@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathPropertyRule } from "../orchestration/property/types"
+import type { DataPathPropertyRule } from "../ruleRuntime/property/types"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import {
   assertProjectStateFileUpdateBatch,

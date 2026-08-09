@@ -2,7 +2,7 @@ import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type {
   FormDataPathIndex,
   FormDataPathTabularElementDeclaration,
-} from "../../orchestration/dataPath/formIndex"
+} from "../../ruleRuntime/dataPath/formIndex"
 import type { FormAttributeColumnView, FormAttributeView, FormValidationView } from "../formContracts"
 import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
@@ -16,7 +16,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 
-export type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
+export type { FormDataPathIndex } from "../../ruleRuntime/dataPath/formIndex"
 
 declare module "../../context/types" {
   interface FormimportFromYAMLContext {

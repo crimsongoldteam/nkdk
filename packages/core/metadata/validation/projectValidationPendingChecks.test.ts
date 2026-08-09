@@ -7,7 +7,7 @@ import { validatePendingChecks } from "./projectValidationPendingChecks"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { toDataPathPolicyInput } from "./dataPath/policies"
-import type { DataPathPropertyRule } from "../orchestration/property/types"
+import type { DataPathPropertyRule } from "../ruleRuntime/property/types"
 
 const ownerCache: OwnerMetadataCache = {
   get: () => ({ status: "not-found", diagnostics: [] }),

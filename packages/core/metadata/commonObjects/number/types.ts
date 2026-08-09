@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import type { BasePropertyRule } from "../../orchestration"
+import type { BasePropertyRule } from "../../ruleRuntime"
 
 export const NumberJSONSchema = Type.Number()
 

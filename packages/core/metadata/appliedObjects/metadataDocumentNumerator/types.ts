@@ -1,7 +1,7 @@
 import { I8nTextXML } from "../../commonObjects/i8nText/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
-import { registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
+import { registerMetadataItemRule } from "../../ruleRuntime"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataDocumentNumeratorRules } from "./rules"
 

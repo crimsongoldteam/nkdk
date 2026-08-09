@@ -3,7 +3,7 @@ import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataResourceTopology,
   MetadataResourceRole,
-} from "../resourceTopology/types"
+} from "../resourceTopology/core/types"
 
 type XmlDocumentRole = Extract<MetadataResourceRole, "metadata" | "body" | "property">
 

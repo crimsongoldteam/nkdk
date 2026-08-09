@@ -1,6 +1,6 @@
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { UserVisiblePropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { UserVisiblePropertyRule } from "../../ruleRuntime/property/types"
 import { ConfigurationContext } from "../../context/types"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 

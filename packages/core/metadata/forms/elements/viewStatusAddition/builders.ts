@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 
 export interface ContextMenuWidePropertyRule extends WidePropertyRuleBase {
   type: "ContextMenu"

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "../commonObjects/metadataTargets/validationHandlers"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
 

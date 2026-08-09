@@ -1,6 +1,6 @@
 import { StringboolYAML } from "../../../commonObjects/boolean/types"
-import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
-import { EnterpriseType } from "../../../orchestration/metadataItem/enterprise"
+import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { EnterpriseType } from "../../../ruleRuntime/metadataItem/enterprise"
 import * as SE from "../../../systemEnumerations/types"
 import type { FormElementTreeYAML } from "../../commonObjects/childItems/contracts"
 import { ContextMenuRules } from "./rules"

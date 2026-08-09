@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "../../metadata/context/types"
-import { callAtomicToXML } from "../../metadata/orchestration/property/fromYAMLToXML"
-import { importPropertyFromXML, type ElementXML, type PropertyRule } from "../../metadata/orchestration"
+import { callAtomicToXML } from "../../metadata/ruleRuntime/property/fromYAMLToXML"
+import { importPropertyFromXML, type ElementXML, type PropertyRule } from "../../metadata/ruleRuntime"
 import { xmlExport } from "../../xml/export/exporter"
 import { mockContextFromXML, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"

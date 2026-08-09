@@ -17,8 +17,8 @@ import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { numberRule } from "../../commonObjects/number/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { MetadataItemRule, PropertyRule } from "../../orchestration"
-import { ElementRule } from "../../orchestration/formElement/types"
+import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"
+import { ElementRule } from "../../ruleRuntime/formElement/types"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
 export type { ElementRule, PropertyRule }
 

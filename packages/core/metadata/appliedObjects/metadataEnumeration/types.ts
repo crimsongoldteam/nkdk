@@ -3,8 +3,8 @@ import { CharacteristicsDescriptionsXML } from "../../commonObjects/characterist
 import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { StandardAttributeDescriptionsXML } from "../../commonObjects/standardAttributeDescription/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "./rules"
 

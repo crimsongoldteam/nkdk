@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { ExportToXMLFunctionNew } from "../../../orchestration/property/fn"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { ExportToXMLFunctionNew } from "../../../ruleRuntime/property/fn"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import {
   DcsMetadataTypedValue,

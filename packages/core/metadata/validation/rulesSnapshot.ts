@@ -1,17 +1,17 @@
-import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
 import type {
   MetadataRootName,
   MetadataTargetConstraint,
-} from "../orchestration/metadataTarget/types"
+} from "../ruleRuntime/metadataTarget/types"
 import type { ConfigurationContext } from "../context/types"
-import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
-import type { OwnerFactRole } from "../orchestration/property/types"
-import { registeredStandardMemberAliases } from "../orchestration/metadataTarget/standardMemberAliases"
+import type { MetadataTargetOwnerDeclaration } from "../ruleRuntime/property/types"
+import type { OwnerFactRole } from "../ruleRuntime/property/types"
+import { registeredStandardMemberAliases } from "../ruleRuntime/metadataTarget/standardMemberAliases"
 import {
   getTypeRule,
   registerTypeRule,
   resolvePropertyItemRule,
-} from "../orchestration/property/typeRuleRegistry"
+} from "../ruleRuntime/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
   configurationValidationProjectSpec,

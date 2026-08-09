@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import {
   createPartialXmlPackagePolicyRegistry,
   type PartialXmlPackagePolicyRegistration,

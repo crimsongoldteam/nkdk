@@ -13,7 +13,7 @@ import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredO
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
 import {
   createConfigurationIndexReader,

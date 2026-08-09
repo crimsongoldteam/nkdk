@@ -80,8 +80,6 @@ import "./color/toJSONSchema"
 import "./color/toXML"
 import "./color/toYAML"
 
-import "../forms/commonObjects/dynamicList/types"
-
 import "./fieldsList/fromXML"
 import "./fieldsList/fromYAML"
 import "./fieldsList/toJSONSchema"
@@ -140,7 +138,6 @@ import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
-import "./childFormNames/resourceTopology"
 
 import "./childFileItemNames/fromXML"
 import "./childFileItemNames/toXML"
@@ -185,7 +182,6 @@ import "./webSocketClientHeaders/toYAML"
 
 import "./metadataValue/associatedTableToJSONSchema"
 
-import "./recalculation/register"
 import "./accountingFlag/register"
 import "./standardAttributeDescription/registerCollectionRule"
 import "./standardPeriod"
@@ -220,8 +216,6 @@ import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"
 import "./metadataTargetProjectResolvers/register"
-
-import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
@@ -312,6 +306,7 @@ import "./internalInfo/fromXML"
 import "./internalInfo/toXML"
 
 import "./dataCompositionSystem"
+import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 
 import "./dateTime"
 

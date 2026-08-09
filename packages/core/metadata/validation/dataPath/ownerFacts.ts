@@ -1,13 +1,13 @@
-import type { MetadataItem } from "../../orchestration/property/types"
+import type { MetadataItem } from "../../ruleRuntime/property/types"
 import type { ObjectFieldIndex, ValidationOwnerFacts, ValidationNamedTypeItems } from "./contracts"
 export type { ValidationOwnerFacts } from "./contracts"
 import type { OwnerTypeRef } from "./types"
-import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
-import type { OwnerFactRole } from "../../orchestration/property/types"
-import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
-import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
-import { getSystemEnumeration } from "../../orchestration/property/systemEnumerationRegistry"
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
+import type { CollectLocalFactsFromYAMLFunction } from "../../ruleRuntime/property/importYamlTypes"
+import type { OwnerFactRole } from "../../ruleRuntime/property/types"
+import { indexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
+import { rootFromYAML } from "../../ruleRuntime/metadataTarget/roots"
+import { getSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
   content?: unknown

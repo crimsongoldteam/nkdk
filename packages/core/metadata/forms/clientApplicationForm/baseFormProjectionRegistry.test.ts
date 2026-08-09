@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../../register"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
 import type { BaseFormProjectionContext } from "./baseFormProjectionRegistry"
 import {
   createStructuredBaseFormPropertyProjector,

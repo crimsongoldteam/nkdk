@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../../orchestration/property/types"
-import { registerTypeRule } from "../../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { detectGroupItemAutoYAML } from "../items/groupItemAuto/detectYAML"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"

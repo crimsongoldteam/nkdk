@@ -8,8 +8,8 @@ import {
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import {
   AccumulationRegisterAggregateDimensionXML,
   AccumulationRegisterAggregateDimensions,

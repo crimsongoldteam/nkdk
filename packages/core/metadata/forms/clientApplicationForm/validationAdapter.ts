@@ -1,4 +1,4 @@
-import { CollectableElementTypeFromYAML, type ElementType } from "../../orchestration/formElement/types"
+import { CollectableElementTypeFromYAML, type ElementType } from "../../ruleRuntime/formElement/types"
 import type { FormValidationAdapter } from "../../validation/formContracts"
 import { ClientApplicationFormRules } from "./rules"
 import {

@@ -1,5 +1,5 @@
 import { booleanRule } from "../../../../boolean/types"
-import { MetadataItemRule } from "../../../../../orchestration"
+import { MetadataItemRule } from "../../../../../ruleRuntime"
 export const GroupItemAutoRules = {
   itemType: "GroupItemAuto",
   xsiType: "dcsset:GroupItemAuto",

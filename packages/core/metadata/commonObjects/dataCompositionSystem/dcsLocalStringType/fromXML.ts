@@ -1,7 +1,7 @@
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { I8nText, I8nTextXML } from "../../i8nText/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,

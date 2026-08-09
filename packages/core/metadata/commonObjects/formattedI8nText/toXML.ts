@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { exportI8nTextToXML } from "../i8nText/toXML"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextXML } from "./types"

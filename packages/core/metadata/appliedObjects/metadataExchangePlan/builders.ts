@@ -4,7 +4,7 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
 import { createOwnerTabularSectionCollectionRuleBuilder } from "../ownerChildRules"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
 import {
   MetadataExchangePlanAttributeRules,
   MetadataExchangePlanTabularSectionRules,

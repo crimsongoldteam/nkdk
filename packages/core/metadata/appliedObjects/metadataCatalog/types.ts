@@ -23,7 +23,7 @@ import {
   MetadataObjectRefCollectionXML,
   MetadataObjectRefCollectionYAML,
 } from "../../commonObjects/metadataObjectRefCollection/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
 

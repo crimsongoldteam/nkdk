@@ -3,9 +3,9 @@ import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
 import type { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../orchestration/property/types"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 
 export interface AllowedIncomingShareRequestType {
   mime: string

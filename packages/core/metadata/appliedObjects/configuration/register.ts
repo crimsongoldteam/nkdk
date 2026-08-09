@@ -1,8 +1,8 @@
-import { registerProjectSpec } from "../../project/projectSpecRegistry"
-import { registerProjectJSONSchema } from "../../project/schemaRegistry"
+import { registerProjectSpec } from "../../projectDefinition/projectSpecRegistry"
+import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
-import { createMetadataItemProjectSchemaExporter } from "../../project/projectSpecHelpers"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { createMetadataItemProjectSchemaExporter } from "../../projectDefinition/projectSpecHelpers"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
   registerProjectReferenceObjectPathContributor,
@@ -13,7 +13,7 @@ import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"

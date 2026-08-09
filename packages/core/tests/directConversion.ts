@@ -8,18 +8,18 @@ import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
 } from "../metadata/configurationIndex/sharedSnapshot"
-import { importMetadataItemFromXMLToYAML } from "../metadata/orchestration/metadataItem/fromXMLToYAML"
-import { convertMetadataItemFromYAMLToXML } from "../metadata/orchestration/metadataItem/fromYAMLToXML"
-import { convertPropertiesFromYAMLToXML } from "../metadata/orchestration/property/fromYAMLToXML"
-import { importPropertiesFromXMLToYAML } from "../metadata/orchestration/property/fromXMLToYAML"
-import { getTypeRule } from "../metadata/orchestration/property/typeRuleRegistry"
+import { importMetadataItemFromXMLToYAML } from "../metadata/ruleRuntime/metadataItem/fromXMLToYAML"
+import { convertMetadataItemFromYAMLToXML } from "../metadata/ruleRuntime/metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../metadata/ruleRuntime/property/fromYAMLToXML"
+import { importPropertiesFromXMLToYAML } from "../metadata/ruleRuntime/property/fromXMLToYAML"
+import { getTypeRule } from "../metadata/ruleRuntime/property/typeRuleRegistry"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
-} from "../metadata/orchestration/property/fromYAMLToXMLTypes"
-import type { MetadataItemRule } from "../metadata/orchestration/property/types"
-import type { PropertyRule } from "../metadata/orchestration/property/types"
-import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/project/localIndexes"
+} from "../metadata/ruleRuntime/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule } from "../metadata/ruleRuntime/property/types"
+import type { PropertyRule } from "../metadata/ruleRuntime/property/types"
+import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "../xml/export/exporter"

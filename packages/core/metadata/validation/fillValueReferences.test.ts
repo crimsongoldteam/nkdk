@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import { registerCoreMetadata } from "../register"
+import { serializeYAMLDocument } from "../../yaml/export"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { createValidationSchemaCache } from "./projectValidationPasses"
+import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
+import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 registerCoreMetadata()
 
@@ -43,6 +47,42 @@ describe("fill value references", () => {
       }),
     ]))
     expect(facts.pendingReferences).toHaveLength(2)
+  })
+
+  it("stores only the reference in project state", () => {
+    const document = serializeYAMLDocument({
+      Реквизиты: {
+        Получатель: {
+          Тип: "Справочник.Контрагенты",
+          ЗначениеЗаполнения: "Справочник.Контрагенты.Поставщик",
+        },
+        Комментарий: {
+          Тип: "Строка(20)",
+          ЗначениеЗаполнения: "текст",
+        },
+      },
+    })
+    const file = catalogFile()
+    const firstPass = validateSerializedProjectYaml({
+      projectDir: "/project",
+      file,
+      document,
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const update = toProjectStateFileUpdate(firstPass, {
+      projectPath: "Справочник/Товары/Свойства.yaml",
+      componentPath: "",
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    })
+
+    expect(update.pendingReferences).toEqual([
+      expect.objectContaining({ canonical: "Catalog.Контрагенты.Поставщик" }),
+    ])
+    expect(update.pendingChecks).toEqual([])
+    expect(update.dependencies).toEqual([])
   })
 
 })

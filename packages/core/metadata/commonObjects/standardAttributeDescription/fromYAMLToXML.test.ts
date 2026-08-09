@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fromYAMLToXML"
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import type { PropertyRule } from "../../orchestration"
+import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
   createDirectRoundTripContexts,

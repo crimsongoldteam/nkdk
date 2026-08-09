@@ -1,17 +1,17 @@
 import { posix } from "node:path"
 import type { XmlSyncSelection } from "../fullSyncToXml/selection"
 import type { ProjectStateYamlPath } from "../projectState/fileUpdate"
-import { expandMetadataPathPattern } from "../resourceTopology/patterns"
+import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import {
   classifyMetadataProjectPath,
   type MetadataProjectResourceMatch,
-} from "../resourceTopology/projectProjection"
+} from "../resourceTopology/core/projectProjection"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
-} from "../resourceTopology/types"
-import { resolveMetadataProjectChangeImpact } from "../resourceTopology/xmlExportProjection"
+} from "../resourceTopology/core/types"
+import { resolveMetadataProjectChangeImpact } from "../resourceTopology/core/xmlExportProjection"
 import type { PartialXmlChanges } from "./types"
 import type {
   ResolvedPartialXmlAssignmentPolicy,

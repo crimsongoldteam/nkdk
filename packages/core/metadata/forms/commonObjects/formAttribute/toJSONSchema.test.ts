@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest"
 
 import { mockContext } from "../../../../tests/mockContext"
 import { compileValidationSchema } from "../../../validation/compileValidationSchema"
-import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 
 import "./rules"
 

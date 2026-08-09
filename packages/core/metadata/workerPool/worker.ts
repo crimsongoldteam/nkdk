@@ -1,4 +1,4 @@
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import type {
   MetadataWorkerCommand,
   MetadataWorkerCommandResult,
@@ -15,7 +15,7 @@ import {
   resetRegisteredMetadataWorkerOperations,
   runRegisteredMetadataWorkerOperation,
 } from "./operationRegistry"
-import { registerMetadataWorkerOperations } from "./registerOperations"
+import { registerMetadataWorkerOperations } from "../composition/workerOperations"
 
 registerCoreMetadata()
 registerMetadataWorkerOperations()

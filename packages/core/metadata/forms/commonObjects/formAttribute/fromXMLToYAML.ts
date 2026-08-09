@@ -3,10 +3,10 @@ import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../../configurationIndex/collector/context"
-import { importMetadataItemFromXMLToYAML } from "../../../orchestration/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
-import { enterNestedYamlRule } from "../../../orchestration/property/yamlRuleCursor"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
+import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {

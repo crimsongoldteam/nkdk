@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import { importDcsLocalStringTypeFromXML } from "../dcsLocalStringType/fromXML"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import type { DcsMetadataValuePropertyRule, MetadataDcsMetadataValueDcsRootXML } from "../dcsMetadataValue/types"

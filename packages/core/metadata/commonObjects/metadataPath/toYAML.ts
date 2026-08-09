@@ -2,9 +2,9 @@ import { formatMetadataTargetToYAML } from "../metadataTargets"
 import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { ExportToYAMLFunctionNew } from "../../ruleRuntime/property/fn"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { requiresDataPathStandardMemberFormatting } from "../../validation/dataPath/finalizationPredicate"
 import {
   exportDataPathStandardMembersToYAML,

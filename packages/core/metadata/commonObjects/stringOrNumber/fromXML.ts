@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule } from "../../orchestration"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { PropertyRule } from "../../ruleRuntime"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])

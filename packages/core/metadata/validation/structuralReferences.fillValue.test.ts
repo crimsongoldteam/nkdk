@@ -3,7 +3,7 @@ import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
 registerCoreMetadata()

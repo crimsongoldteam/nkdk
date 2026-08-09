@@ -1,4 +1,4 @@
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 

@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import * as SE from "../../../systemEnumerations/types"
 import {

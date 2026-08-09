@@ -1,4 +1,4 @@
-import type { PropertyRule } from "../../orchestration/property/types"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { ChoiceParameter, ChoiceParameterDcsItemXML, ChoiceParameterDcsValueRootXML } from "./types"

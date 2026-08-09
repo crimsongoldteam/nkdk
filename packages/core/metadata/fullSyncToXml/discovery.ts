@@ -3,8 +3,8 @@ import type {
   ComponentProjectStructure,
 } from "../project/componentState/types"
 import { hashConfigurationProjectFileList } from "../configurationIndex"
-import { discoverMetadataProjectResources } from "../resourceTopology/projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { discoverMetadataProjectResources } from "../resourceTopology/core/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { buildXmlSyncPlan } from "./selection"
 import type { FullXmlSyncPlan } from "./types"
 

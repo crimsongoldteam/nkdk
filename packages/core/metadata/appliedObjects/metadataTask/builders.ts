@@ -7,8 +7,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { namedCollectionTarget } from "../../ruleRuntime/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
 
 export interface MetadataTaskAddressingAttributesWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataTaskAddressingAttributes"

@@ -1,8 +1,8 @@
 import { I8nTextXML } from "../i8nText/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { XDTOTypeName, XDTOTypeNameXML } from "../xdtoTypeName/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } from "./rules"
 

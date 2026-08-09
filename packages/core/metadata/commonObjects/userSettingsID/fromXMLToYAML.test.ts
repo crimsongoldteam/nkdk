@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"

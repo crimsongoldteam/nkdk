@@ -1,4 +1,4 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../orchestration"
+import { registerTypeRule } from "../../ruleRuntime"
 
 registerTypeRule("MinMaxValue", "exportToJSONSchema", () => Type.Number())

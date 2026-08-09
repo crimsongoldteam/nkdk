@@ -4,7 +4,7 @@ import type {
   ConfigurationSnapshotEntity,
   MergedConfigurationSnapshotFragments,
 } from "../configurationIndex/types"
-import type { ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
+import type { ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
 
 export function buildXmlSyncConfigurationSnapshot(params: {
   readonly previous: ConfigurationSnapshot

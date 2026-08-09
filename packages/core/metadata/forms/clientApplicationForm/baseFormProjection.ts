@@ -1,6 +1,6 @@
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { resolveFormElementRule } from "../elements/orchestration/fromYAMLToXML"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
 import { getTreeNodeJSONSchemaPropertyAliases } from "../commonObjects/childItems/treeYAML"
 import {

@@ -6,7 +6,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { MetadataExternalDataSourceTableRules } from "./rules"
 import "./register"
 

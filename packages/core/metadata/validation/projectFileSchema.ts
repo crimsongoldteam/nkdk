@@ -1,7 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
-import { classifyMetadataProjectPath } from "../project/resources"
-import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
+import { classifyMetadataProjectPath } from "../projectDefinition/resources"
+import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForMetadataItemRule,
@@ -15,7 +15,7 @@ export {
   schemaNameFromRef,
   type JSONSchemaGraph,
   type JSONSchemaGraphRoot,
-} from "../project/schemaRegistry"
+} from "../projectDefinition/schemaRegistry"
 
 export interface ExportJSONSchemaForProjectFileParams {
   context: ConfigurationContext

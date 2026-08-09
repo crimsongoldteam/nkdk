@@ -2,14 +2,14 @@ import fs from "fs"
 import { dirname, join } from "path"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import type { ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
+import type { ExternalMetadataContextItem } from "../../ruleRuntime/externalMetadata/types"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { xmlExport } from "../../../xml/export/exporter"
-import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
-import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "../../ruleRuntime/property/deferredObjectValues"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { ClientApplicationFormRules } from "./rules"
 import { buildClientApplicationBaseForm } from "./baseForm"
 
@@ -21,7 +21,7 @@ export const prepareFormXML = (params: {
   referenceFormXML?: ClientApplicationFormXML
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
-  profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+  profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   basePreparedYamlFile?: PreparedYamlFile
   baseConfigurationIndex?: ConfigurationIndexReader
   rule?: MetadataItemRule
@@ -118,7 +118,7 @@ export const writePreparedFormToXML = async (params: {
   referenceFormXML?: ClientApplicationFormXML
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
-  profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+  profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   rule?: MetadataItemRule
 }): Promise<void> => {
   const prepared = prepareFormXML(params)

@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
-import type { YAMLPropertySource } from "../../../orchestration/property/fromYAMLToXMLTypes"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { YAMLPropertySource } from "../../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"

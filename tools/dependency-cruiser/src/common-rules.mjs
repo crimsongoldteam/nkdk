@@ -41,6 +41,36 @@ export const commonRules = [
     from: productionFrom,
     to: { dependencyTypes: ["npm-dev"] },
   },
+  {
+    name: "core-not-reach-workspace-apps",
+    severity: "error",
+    comment: "Core не зависит от прикладных workspace-пакетов.",
+    from: {
+      path: "^packages/core/",
+      pathNot: testModulePattern,
+    },
+    to: { path: "^packages/(?:mcp|platform)/" },
+  },
+  {
+    name: "platform-is-independent",
+    severity: "error",
+    comment: "Platform не зависит от core и MCP.",
+    from: {
+      path: "^packages/platform/",
+      pathNot: testModulePattern,
+    },
+    to: { path: "^packages/(?:core|mcp)/" },
+  },
+  {
+    name: "mcp-no-workspace-deep-imports",
+    severity: "error",
+    comment: "MCP импортирует core и platform только через public entrypoints.",
+    from: {
+      path: "^packages/mcp/src/",
+      pathNot: testModulePattern,
+    },
+    to: { path: "^packages/(?:core|platform)/(?!index\\.ts$)" },
+  },
 ]
 
 export const projectCommonRules = commonRules.filter(

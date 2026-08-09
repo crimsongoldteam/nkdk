@@ -10,14 +10,14 @@ import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import * as propertyImporter from "../../orchestration/property/fromXMLToYAML"
+import * as propertyImporter from "../../ruleRuntime/property/fromXMLToYAML"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
-import { bindDeferredObjectValues } from "../../orchestration/property/deferredObjectValues"
-import { finalizeImportedYamlValues } from "../../orchestration/property/finalizeImportedYAML"
+import { bindDeferredObjectValues } from "../../ruleRuntime/property/deferredObjectValues"
+import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 
 const emptyOwnerMetadataCache = {

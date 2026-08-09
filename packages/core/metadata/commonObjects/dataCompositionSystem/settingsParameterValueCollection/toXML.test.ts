@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../orchestration"
+import { PropertyRule } from "../../../ruleRuntime"
 import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { settingsParameterValueCollectionFixture } from "./__fixtures__/data"
 import {
@@ -7,7 +7,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "../../../orchestration"
+import type { MetadataItemRule } from "../../../ruleRuntime"
 
 const rule: PropertyRule = {
   type: "SettingsParameterValueCollection",

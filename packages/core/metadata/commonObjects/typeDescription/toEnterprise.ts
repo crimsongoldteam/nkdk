@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionEnterprise } from "./types"
 

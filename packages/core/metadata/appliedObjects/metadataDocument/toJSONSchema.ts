@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
 import { ConfigurationContext } from "../../context/types"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataDocumentRules } from "./rules"
 
 export const exportMetadataDocumentToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {

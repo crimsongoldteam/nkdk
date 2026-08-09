@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../context/types"
-import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "../../orchestration"
+import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { getUUID } from "../../helpers/uuid"
 import {
   internalInfoContainedObjectIdAddress,

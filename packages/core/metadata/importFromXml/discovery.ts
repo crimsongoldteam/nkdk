@@ -2,14 +2,14 @@ import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
 import importContentFromXML from "../../xml/import/importer"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
-import { expandMetadataPathPattern } from "../resourceTopology/patterns"
+import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import type { ImportAssignment, ImportExternalFile, ImportSnapshotFile } from "./types"
 import {
   matchXmlImportResource,
   projectXmlImportTopology,
   type CompiledXmlResourceMatch,
-} from "../resourceTopology/xmlImportProjection"
-import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
+} from "../resourceTopology/core/xmlImportProjection"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 export interface XmlImportDiscoveryFileSystem {
   listFiles: (xmlDir: string) => Promise<readonly string[]>

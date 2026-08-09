@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 
 export const exportScrollBarUseToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

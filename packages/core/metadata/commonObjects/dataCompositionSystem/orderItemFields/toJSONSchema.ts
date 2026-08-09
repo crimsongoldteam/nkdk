@@ -1,6 +1,6 @@
 import { Type } from "typebox"
-import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
-import { ExportToJSONSchemaFn } from "../../../orchestration/property/fn"
+import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime/property/fn"
 import { OrderItemFieldRules } from "./rules"
 
 export const exportOrderItemFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>

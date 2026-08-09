@@ -10,7 +10,11 @@ import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 const SOURCE_PATHS = ["packages", "scripts"]
 
 function normalizeFragment(fragment) {
-  return fragment.replaceAll("\r\n", "\n").replaceAll(/\s+$/gm, "")
+  return fragment
+    .replaceAll("\r\n", "\n")
+    .replaceAll(/^(\s*(?:import|export)\b[^\r\n]*?\bfrom\s*)(["'])[^"'\r\n]+\2/gmu, '$1"<module>"')
+    .replaceAll(/^(\s*import\s*)(["'])[^"'\r\n]+\2/gmu, '$1"<module>"')
+    .replaceAll(/\s+$/gm, "")
 }
 
 function fileRange(file) {

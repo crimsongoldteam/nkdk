@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { XDTOTypeName, XDTOTypeNameYAML } from "./types"
 
 export const exportXDTOTypeNameToYAML = (

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { MetadataStringValue } from "../metadataValue/types"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"

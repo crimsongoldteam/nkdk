@@ -4,7 +4,7 @@ import {
   registerFormElementAdapter,
   registerFormElementCollection,
   registerFormElementDataPathExporter,
-} from "../../orchestration/formElement/registry"
+} from "../../ruleRuntime/formElement/registry"
 
 const formElementTypeToYAML = {
   Button: "Кнопка",
@@ -50,7 +50,7 @@ const formElementTypeToYAML = {
 
 type RegisteredFormElementTypeMap = typeof formElementTypeToYAML
 
-declare module "../../orchestration/formElement/types" {
+declare module "../../ruleRuntime/formElement/types" {
   interface FormElementTypeMap extends RegisteredFormElementTypeMap {}
   interface SingleFormElementTypeMap {
     SingleSearchControlAddition: true

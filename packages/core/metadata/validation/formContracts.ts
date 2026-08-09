@@ -1,9 +1,9 @@
-import type { TypeDescriptionView } from "../orchestration/property/typeDescriptionView"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
-import type { ElementType } from "../orchestration/formElement/types"
+import type { ElementType } from "../ruleRuntime/formElement/types"
 
 export interface FormAttributeColumnView {
   readonly name: string

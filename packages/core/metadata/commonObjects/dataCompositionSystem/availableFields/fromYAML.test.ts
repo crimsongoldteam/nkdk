@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../orchestration"
+import { PropertyRule } from "../../../ruleRuntime"
 import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import {
   fullAvailableFields,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { callAtomicToXML } from "../../../orchestration"
+import { callAtomicToXML } from "../../../ruleRuntime"
 import { mockContextToXML } from "../../../../tests/mockContext"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
 

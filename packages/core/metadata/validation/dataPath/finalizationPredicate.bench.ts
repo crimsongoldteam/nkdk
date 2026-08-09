@@ -1,5 +1,5 @@
 import { bench, describe } from "vitest"
-import { registerCoreMetadata } from "../../register"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { requiresDataPathStandardMemberFormatting } from "./finalizationPredicate"
 import { standardMemberNamePairs } from "./registry"
 

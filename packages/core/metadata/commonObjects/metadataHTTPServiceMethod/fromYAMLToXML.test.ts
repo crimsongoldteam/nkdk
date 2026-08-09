@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { serializeDirectXML, testPropertyFixtureThroughYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { methodsYAML } from "./__fixtures__/data"
 
 import "./register"

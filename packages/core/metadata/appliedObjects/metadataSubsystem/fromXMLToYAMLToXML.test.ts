@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataSubsystemRules } from "./rules"
 
 const rule = {

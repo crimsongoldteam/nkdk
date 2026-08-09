@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "../../context/types"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
-import { ExportToYAMLFunctionNew, PropertyRule } from "../../orchestration"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ExportToYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {

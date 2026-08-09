@@ -36,7 +36,7 @@ import type {
   ProjectStateQueryPort,
 } from "../projectState/contracts/dependencyValidation"
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
-import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
+import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 

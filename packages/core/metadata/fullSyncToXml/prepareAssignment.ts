@@ -2,20 +2,20 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
-import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import type { FullXmlSyncAssignment, PreparedXMLAssignment, PreparedXMLDocument } from "./types"
-import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { getMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
-import type { MetadataXmlPrepareComposition } from "../resourceTopology/capabilities"
-import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
-import { projectXmlExportOwnerChain } from "../resourceTopology/xmlExportProjection"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { getMetadataXmlPrepareCapability } from "../resourceTopology/adapters/capabilities"
+import type { MetadataXmlPrepareComposition } from "../resourceTopology/adapters/capabilities"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
+import { projectXmlExportOwnerChain } from "../resourceTopology/core/xmlExportProjection"
 import {
   withImportMetadataTargetOwners,
   withExportToXMLItemsTree,
-} from "../orchestration/appliedObject/metadataItemOwnerContext"
-import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
+} from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
+import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 
 export function prepareFullXmlSyncAssignment(params: {

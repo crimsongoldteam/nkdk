@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "./types"
 import { normalizeAppearanceFieldsStringYAML } from "./stringValues"

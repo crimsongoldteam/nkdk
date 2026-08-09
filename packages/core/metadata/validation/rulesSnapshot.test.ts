@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { createValidationRulesSnapshot, findValidationRulesSpec } from "./rulesSnapshot"
 import { registerValidationMetadata } from "./registerValidationMetadata"
+import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 
-registerValidationMetadata()
+registerValidationMetadata(getRegisteredProjectSpecs())
 
 describe("ValidationRulesSnapshot", () => {
   it("is JSON-compatible", () => {

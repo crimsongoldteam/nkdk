@@ -1,4 +1,4 @@
-import type { DataPathDialect } from "../orchestration/dataPath/dialect"
+import type { DataPathDialect } from "../ruleRuntime/dataPath/dialect"
 
 export interface FormDataPathMetadataProjection {
   attributeItemType: string

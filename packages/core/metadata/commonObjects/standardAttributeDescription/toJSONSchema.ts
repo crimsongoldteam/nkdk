@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { StandardAttributeDescriptionRules } from "./rules"
 
 export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaFn = (params: {

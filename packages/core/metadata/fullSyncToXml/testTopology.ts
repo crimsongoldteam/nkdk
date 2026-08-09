@@ -1,6 +1,6 @@
-import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { projectXmlExportAssignment } from "../resourceTopology/xmlExportProjection"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
 import type { FullXmlSyncAssignment } from "./types"
 
 export function fullXmlSyncTestTopologyFields(

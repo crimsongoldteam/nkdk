@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } from "./rules"
 import "../xdtoTypeName/toJSONSchema"

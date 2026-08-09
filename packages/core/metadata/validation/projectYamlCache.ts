@@ -2,7 +2,7 @@ import fs from "fs"
 import { resolve } from "path"
 import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
-import type { PreparedYamlFile } from "../project/preparedYamlContracts"
+import type { PreparedYamlFile } from "../projectDefinition/preparedYamlContracts"
 
 export interface ProjectYamlEntry {
   filePath: string

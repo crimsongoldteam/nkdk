@@ -1,8 +1,8 @@
 import { Type } from "typebox"
 import type { Static } from "typebox"
-import { MetadataItem } from "../../orchestration"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { MetadataItem } from "../../ruleRuntime"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
 

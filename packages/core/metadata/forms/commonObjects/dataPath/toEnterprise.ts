@@ -1,7 +1,7 @@
 import { getCurrentTableFromContext } from "../../../context/helpers"
 import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
-import { DataPathPropertyRule, PropertyRule } from "../../../orchestration"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { DataPathPropertyRule, PropertyRule } from "../../../ruleRuntime"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 
 export const exportDataPathToEnterprise = (params: {

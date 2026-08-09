@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
 import { InternalInfo, InternalInfoRootXML } from "./types"
 

@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../../../context/types"
-import { importPropertyFromXML } from "../../../../../orchestration/property/fromXML"
-import type { PropertyRule } from "../../../../../orchestration/property/types"
-import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
+import { importPropertyFromXML } from "../../../../../ruleRuntime/property/fromXML"
+import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"
 

@@ -1,5 +1,5 @@
-import { callAtomicFromYAML } from "../../metadata/orchestration/property/fromYAMLToXML"
-import type { PropertyRule } from "../../metadata/orchestration"
+import { callAtomicFromYAML } from "../../metadata/ruleRuntime/property/fromYAMLToXML"
+import type { PropertyRule } from "../../metadata/ruleRuntime"
 import { mockContext } from "../mockContext"
 
 export const testAtomicFromYAML = (params: {

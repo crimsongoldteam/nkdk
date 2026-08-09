@@ -4,7 +4,7 @@ import type { ProjectStateService } from "../projectState/service"
 export type {
   MetadataFileItemRole,
   MetadataNamedChildKind,
-} from "../orchestration/property/operationTargets"
+} from "../ruleRuntime/property/operationTargets"
 
 export interface MetadataOperationDiagnostic extends Diagnostic {
   code?: string

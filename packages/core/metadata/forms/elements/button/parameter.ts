@@ -10,8 +10,8 @@ import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescrip
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
 import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "../../../commonObjects/typeDescription/types"
 import type { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 
 export type ButtonParameter =
   | string

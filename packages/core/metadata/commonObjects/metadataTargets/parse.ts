@@ -1,1 +1,1 @@
-export * from "../../orchestration/metadataTarget/parse"
+export * from "../../ruleRuntime/metadataTarget/parse"

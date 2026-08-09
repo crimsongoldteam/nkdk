@@ -54,19 +54,23 @@ import type {
   PreparedMetadataDependency,
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
-} from "./preparedYamlContracts"
-import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
-import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "./resources"
+} from "../projectDefinition/preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlDescriptor"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
 import {
   createMovableBinaryResult,
   type MetadataWorkerBinaryResult,
 } from "../workerPool/binaryResult"
 import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
+import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
+import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
-registerValidationMetadata()
+const projectSpecs = getRegisteredProjectSpecs()
+registerMetadataProjectSpecs(projectSpecs)
+registerValidationMetadata(projectSpecs)
 
 export type PreparedYamlProjectWorkerTask =
   | {

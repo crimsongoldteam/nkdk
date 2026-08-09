@@ -5,7 +5,7 @@ import {
   withConfigurationIndexYamlCollectionItemContext,
 } from "../../../configurationIndex/collector/context"
 import { withConfigurationIndexExportYamlCollectionItemContext } from "../../../configurationIndex/referenceView"
-import { callAtomicToXML, importPropertyFromXML } from "../../../orchestration"
+import { callAtomicToXML, importPropertyFromXML } from "../../../ruleRuntime"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollectionXML, SettingsParameterValueRuleSet } from "./types"

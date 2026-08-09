@@ -1,7 +1,7 @@
 import {
   clearStandardMemberAliasesForTests,
   registerStandardMemberAlias,
-} from "../orchestration/metadataTarget/standardMemberAliases"
+} from "../ruleRuntime/metadataTarget/standardMemberAliases"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
 export type StandardMemberPhase = "index-time" | "traversal-time" | "deferred"

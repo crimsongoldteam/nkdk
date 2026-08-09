@@ -1,6 +1,6 @@
 import { resolve } from "path"
-import { expandMetadataPathPattern } from "../resourceTopology/patterns"
-import { projectXmlExportAssignment } from "../resourceTopology/xmlExportProjection"
+import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
+import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
 import type {
   ComponentHashState,
   ComponentProjectStructure,

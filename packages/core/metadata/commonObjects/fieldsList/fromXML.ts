@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { FieldsList, FieldsListPropertyRule, FieldsListXML } from "./types"
 
 export const importFieldsListFromXML = (

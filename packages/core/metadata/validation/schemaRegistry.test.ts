@@ -5,7 +5,7 @@ import type { TSchema } from "typebox"
 import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
-import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,

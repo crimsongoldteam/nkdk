@@ -2,11 +2,11 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
 import { Type } from "typebox"
 import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import { BasePropertyRule } from "../../orchestration"
+import { BasePropertyRule } from "../../ruleRuntime"
 import type { ExplicitYAMLString } from "../../../yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
 import {

@@ -1,4 +1,4 @@
-import { registerExplicitXMLProperty } from "../../orchestration/property/explicitXMLPropertyRegistry"
+import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 const omittedCharacteristicDefaultKeys = [
   "dataPathField",

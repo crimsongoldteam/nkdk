@@ -7,9 +7,14 @@ import {
 import { analyzeCruiseResult } from "../src/cruise-result.mjs"
 import { cruiseFixture } from "../src/fixture-cruise.mjs"
 import {
-  addImplementationReachabilityViolations,
-  findImplementationReachabilityViolations,
+  addReachabilityViolations,
+  findReachabilityViolations,
 } from "../src/reachability.mjs"
+import {
+  fixtureReachabilityRules,
+  metadataImplementationReachabilityRule,
+  metadataReachabilityRules,
+} from "../src/reachability-rules.mjs"
 
 const result = cruiseFixture()
 
@@ -38,11 +43,132 @@ test("обнаруживает общие нарушения production-граф
   for (const name of expected) assert.equal(names.has(name), true, name)
 })
 
+test("закрепляет направления зависимостей workspace-пакетов", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  assert.deepEqual(
+    namesFor("packages/mcp/src/core-deep.ts"),
+    new Set(["mcp-no-workspace-deep-imports"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/forbidden-mcp.ts"),
+    new Set(["core-not-reach-workspace-apps"])
+  )
+  assert.deepEqual(
+    namesFor("packages/platform/src/forbidden-core.ts"),
+    new Set(["platform-is-independent"])
+  )
+  assert.deepEqual(
+    namesFor("packages/mcp/src/allowed.ts"),
+    new Set()
+  )
+})
+
+test("diagnostics не достигает validation", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/diagnostics/forbidden.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["diagnostics-not-reach-validation"]))
+})
+
+test("validation не достигает project", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/validation/forbidden-project.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["validation-not-reach-project"]))
+})
+
+test("metadata core не достигает composition roots", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/ruleRuntime/forbidden-composition.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["metadata-core-not-reach-composition"]))
+})
+
+test("все нейтральные слои не достигают concrete-реализаций", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  for (const source of [
+    "packages/core/metadata/diagnostics/forbidden-implementation.ts",
+    "packages/core/metadata/projectState/forbidden-implementation.ts",
+    "packages/core/metadata/resourceTopology/core/forbidden-implementation.ts",
+  ]) {
+    assert.equal(namesFor(source).has("neutral-not-reach-implementations"), true, source)
+  }
+})
+
+test("projectDefinition не достигает координационных слоёв", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/projectDefinition/forbidden-project.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["project-definition-is-leaf"]))
+})
+
+test("закрепляет concrete-матрицу metadata-слоёв", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  assert.deepEqual(
+    namesFor("packages/core/metadata/systemEnumerations/forbidden-forms.ts"),
+    new Set(["system-enumerations-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/commonObjects/forbidden-applied.ts"),
+    new Set(["common-objects-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/commonObjects/transitive-forms.ts"),
+    new Set(["common-objects-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/forms/forbidden-applied.ts"),
+    new Set(["forms-stay-lower"])
+  )
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(
       ({ from }) =>
-        from === "packages/core/metadata/orchestration/allowed.ts"
+        from === "packages/core/metadata/ruleRuntime/allowed.ts"
     ),
     false
   )
@@ -57,39 +183,68 @@ test("запрещает runtime, type-only и транзитивное знан
     )
 
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/direct-runtime.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/direct-runtime.ts"),
     new Set(["not-in-allowed", "neutral-not-reach-implementations"])
   )
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/direct-type.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/direct-type.ts"),
     new Set(["not-in-allowed", "neutral-not-reach-implementations"])
   )
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/transitive.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/transitive.ts"),
     new Set(["neutral-not-reach-implementations"])
   )
 })
 
 test("линейный обход сохраняет runtime, type-only и транзитивный договор", () => {
-  const violations = findImplementationReachabilityViolations(result)
+  const violations = findReachabilityViolations(
+    result,
+    [metadataImplementationReachabilityRule]
+  )
 
   assert.deepEqual(
-    violations.map(({ from, to }) => [from, to]),
+    violations
+      .filter(({ from }) => from.startsWith("packages/core/metadata/ruleRuntime/"))
+      .map(({ from, to }) => [from, to]),
     [
       [
-        "packages/core/metadata/orchestration/direct-runtime.ts",
+        "packages/core/metadata/ruleRuntime/direct-runtime.ts",
         "packages/core/metadata/appliedObjects/example/runtime.ts",
       ],
       [
-        "packages/core/metadata/orchestration/direct-type.ts",
+        "packages/core/metadata/ruleRuntime/direct-type.ts",
         "packages/core/metadata/appliedObjects/example/types.ts",
       ],
       [
-        "packages/core/metadata/orchestration/transitive.ts",
+        "packages/core/metadata/ruleRuntime/transitive.ts",
         "packages/core/metadata/appliedObjects/example/runtime.ts",
       ],
     ]
   )
+})
+
+test("нижние зоны не достигают адаптеров напрямую или транзитивно", () => {
+  const violations = findReachabilityViolations(
+    result,
+    fixtureReachabilityRules
+  )
+  const namesFor = (source) =>
+    new Set(
+      violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  for (const source of [
+    "packages/core/metadata/example/contracts/direct.ts",
+    "packages/core/metadata/example/core/transitive.ts",
+  ]) {
+    assert.equal(
+      namesFor(source).has("example-core-not-reach-adapters"),
+      true,
+      source
+    )
+  }
 })
 
 test("линейный обход находит production-рёбра внутри цикла", () => {
@@ -120,19 +275,20 @@ test("смягчает известное reachable-нарушение по ис
       ),
     },
   }
-  const checked = addImplementationReachabilityViolations(
+  const checked = addReachabilityViolations(
     withoutNativeReachability,
+    metadataReachabilityRules,
     [
       {
         type: "reachability",
-        from: "packages/core/metadata/orchestration/transitive.ts",
+        from: "packages/core/metadata/ruleRuntime/transitive.ts",
         rule: { name: "neutral-not-reach-implementations" },
       },
     ]
   )
   const transitive = checked.summary.violations.find(
     ({ from, rule }) =>
-      from === "packages/core/metadata/orchestration/transitive.ts" &&
+      from === "packages/core/metadata/ruleRuntime/transitive.ts" &&
       rule.name === "neutral-not-reach-implementations"
   )
 

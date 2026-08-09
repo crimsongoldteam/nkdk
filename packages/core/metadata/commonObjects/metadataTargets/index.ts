@@ -1,2 +1,2 @@
-export * from "../../orchestration/metadataTarget"
+export * from "../../ruleRuntime/metadataTarget"
 export * from "../picture/types"

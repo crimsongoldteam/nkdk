@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
-import { registerCoreMetadata } from "../../register"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { resolvePartialXmlPackagePolicy } from "../../partialSyncToXml/packagePolicy"
-import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 
 registerCoreMetadata()
 

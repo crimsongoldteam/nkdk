@@ -4,7 +4,7 @@ import { calculatedFieldOrderExpressionRule, calculatedFieldUseRestrictionRule }
 import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { typeDescriptionRule } from "../../typeDescription/types"
 import { stringRule } from "../../string/types"
-import { MetadataItemRule } from "../../../orchestration"
+import { MetadataItemRule } from "../../../ruleRuntime"
 export const CalculatedFieldRules = {
   itemType: "CalculatedField",
   xmlOrder: [

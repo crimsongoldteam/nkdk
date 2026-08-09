@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { exportI8nTextDefaultToYAML } from "../i8nText/toYAML"
 import { FormattedI8nText } from "./types"
 

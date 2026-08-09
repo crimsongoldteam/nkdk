@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { exportToYAML } from "../../../yaml/export"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
 
 import "./registerCollectionRule"

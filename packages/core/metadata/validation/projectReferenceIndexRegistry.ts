@@ -1,4 +1,4 @@
-import type { MetadataMemberKind, MetadataRootName, ParsedMetadataTarget } from "../orchestration/metadataTarget"
+import type { MetadataMemberKind, MetadataRootName, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget"
 import type { OwnerMetadata, OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ProjectMemberIndexEntry, MetadataReferenceResolveResult } from "./projectReferenceIndex"
 import type { ProjectYamlCache } from "./projectYamlCache"

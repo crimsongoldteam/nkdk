@@ -4,12 +4,12 @@ import type {
   ExportToXMLFunctionNew,
   ExportToYAMLFunctionNew,
   ImportFromYAMLFunctionNew,
-} from "../metadata/orchestration/property/fn"
+} from "../metadata/ruleRuntime/property/fn"
 import { minimalYAML } from "../metadata/appliedObjects/metadataCatalog/__fixtures__/minimal"
 import { MetadataCatalogRules } from "../metadata/appliedObjects/metadataCatalog/rules"
-import { PropertyRuleType } from "../metadata/orchestration/property/registry"
-import { registerTypeRule } from "../metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../metadata/orchestration/property/types"
+import { PropertyRuleType } from "../metadata/ruleRuntime/property/registry"
+import { registerTypeRule } from "../metadata/ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../metadata/ruleRuntime/property/types"
 import {
   testAppliedObjectFromXMLToYAML,
   testAppliedObjectFromYAMLToXML,

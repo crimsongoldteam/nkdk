@@ -4,7 +4,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 import { fullYAML } from "./__fixtures__/full"
 import { minimalYAML } from "./__fixtures__/minimal"
 import { MetadataCatalogRules } from "./rules"

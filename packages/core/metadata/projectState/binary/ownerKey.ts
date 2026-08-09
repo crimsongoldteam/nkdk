@@ -1,4 +1,4 @@
-import type { OwnerTypeRef } from "../../orchestration/dataPath/types"
+import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 
 export function encodeBinaryOwnerKey(owner: OwnerTypeRef): string {
   return `${owner.kind.length}:${owner.kind}${owner.name === undefined ? "-:" : `${owner.name.length}:${owner.name}`}`

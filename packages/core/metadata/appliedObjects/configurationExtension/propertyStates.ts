@@ -1,8 +1,8 @@
 import { capitalize } from "../../../helpers/capitalize"
 import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import { childSegmentUid } from "../../configurationIndex/logicalAddress"
-import type { MetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",

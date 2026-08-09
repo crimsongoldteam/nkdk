@@ -10,8 +10,8 @@ import { FlowchartContextXML, FlowchartContextYAML } from "../flowchartContext/t
 import { GanttChartXML, GanttChartYAML } from "../ganttChart/types"
 import { PlannerXML, PlannerYAML } from "../planner/types"
 import { SpreadsheetDocumentXML, SpreadsheetDocumentYAML } from "../spreadsheetDocument/types"
-import { ElementXML } from "../../../orchestration"
-import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
+import { ElementXML } from "../../../ruleRuntime"
+import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { FillCheckingYAML } from "../../../systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 

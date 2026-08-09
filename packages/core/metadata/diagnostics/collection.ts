@@ -1,4 +1,4 @@
-import type { MetadataDiagnostic } from "../validation/types"
+import type { MetadataDiagnostic } from "./types"
 import type { DiagnosticBatchView } from "./binaryBatch"
 import { encodeDiagnosticBatch, openDiagnosticBatch } from "./binaryBatch"
 

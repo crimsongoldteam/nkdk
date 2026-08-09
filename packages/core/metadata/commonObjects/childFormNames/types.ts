@@ -2,10 +2,10 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import type { BasePropertyRule } from "../../orchestration/property/types"
-import { fileItemCollectionTarget } from "../../orchestration/property/operationTargets"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import type { BasePropertyRule } from "../../ruleRuntime/property/types"
+import { fileItemCollectionTarget } from "../../ruleRuntime/property/operationTargets"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 /** Правило property-типа ChildFormNames — список имён форм в ChildObjects XML.
  *

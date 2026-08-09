@@ -1,8 +1,8 @@
 import { expect, it } from "vitest"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import type { StructuralReferenceCandidate } from "../orchestration/property/fn"
-import { getTypeRule, registerTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { StructuralReferenceCandidate } from "../ruleRuntime/property/fn"
+import { getTypeRule, registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 

@@ -1,6 +1,6 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../orchestration/property/types"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import type { UsePurposes, UsePurposesXML } from "./types"
 

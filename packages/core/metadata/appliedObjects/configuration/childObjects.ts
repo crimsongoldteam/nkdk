@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { CONFIGURATION_XML_FILE } from "./constants"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 

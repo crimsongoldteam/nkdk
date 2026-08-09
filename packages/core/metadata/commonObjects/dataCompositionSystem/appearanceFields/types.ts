@@ -1,5 +1,5 @@
-import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import type { ParameterValueXML } from "../parameterValue/types"
 import { AppearanceFieldsRules } from "./rules"
 

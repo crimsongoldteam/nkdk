@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, importPropertyFromXML } from "../../../orchestration"
+import { PropertyRule, importPropertyFromXML } from "../../../ruleRuntime"
 
 describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {
   const context = {

@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
 import { BorderJSONSchema } from "./types"
 
 export const exportBorderToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

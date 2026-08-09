@@ -1,9 +1,9 @@
 import { Type } from "typebox"
 import type { ConfigurationContextFromXML } from "../../../context/types"
-import { registerMetadataItemRule, registerTypeRule } from "../../../orchestration"
-import type { PropertyRule } from "../../../orchestration/property/types"
-import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import { registerMetadataItemRule, registerTypeRule } from "../../../ruleRuntime"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import "../../../commonObjects/dataCompositionSystem/index"
 import { DynamicListRules } from "./rules"
 

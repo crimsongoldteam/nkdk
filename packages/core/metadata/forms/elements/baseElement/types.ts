@@ -1,4 +1,4 @@
-import { ElementType, MetadataItem } from "../../../orchestration"
+import { ElementType, MetadataItem } from "../../../ruleRuntime"
 
 export interface BaseElement extends MetadataItem {
   itemType: ElementType

@@ -10,7 +10,7 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../.
 import { sampleSnapshot } from "../../../configurationIndex/testData"
 import { importEventsFromXML } from "./fromXML"
 import { exportEventsToXML } from "./toXML"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 
 const eventRule = ClientApplicationFormRules.properties.events
 

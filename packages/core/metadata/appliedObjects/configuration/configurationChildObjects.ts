@@ -4,7 +4,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
 import { readOmittedTypedNames } from "../../commonObjects/omittedChildren"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 
 const PROPERTY_KEY = "childObjects"

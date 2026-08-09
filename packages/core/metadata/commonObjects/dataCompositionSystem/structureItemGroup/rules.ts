@@ -1,6 +1,6 @@
 import { structureItemGroupCollectionRule } from "./collection/types"
 import { structureItemGroupRule } from "./builders"
-import { MetadataItemRule } from "../../../orchestration"
+import { MetadataItemRule } from "../../../ruleRuntime"
 export const StructureItemGroupRules = {
   itemType: "StructureItemGroup",
   xsiType: "dcsset:StructureItemGroup",
