@@ -67,6 +67,7 @@ export type DependentStructuralItemHandler = (
 export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
   shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
+  shouldTagXML?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
 
 export interface DependentItemRegistrySnapshot {
@@ -109,6 +110,12 @@ export function shouldRemoveImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
   return importHandlers.get(params.itemType)?.shouldRemove(params) === true
+}
+
+export function shouldTagImportedDependentProperty(
+  params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
+): boolean {
+  return importHandlers.get(params.itemType)?.shouldTagXML?.(params) === true
 }
 
 export function snapshotDependentItemRegistryForTests(): DependentItemRegistrySnapshot {

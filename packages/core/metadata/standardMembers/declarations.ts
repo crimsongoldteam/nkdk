@@ -33,6 +33,12 @@ const commonStandardAttributeFillValuePolicies: Readonly<Record<string, Standard
   DeletionMark: { policy: "byEffectiveType", implicitValue: false },
 }
 
+export function commonStandardMemberFillValuePolicy(
+  internalName: string,
+): StandardMemberFillValuePolicy | undefined {
+  return commonStandardAttributeFillValuePolicies[internalName]
+}
+
 export interface StandardMemberNames {
   internal: string
   yaml: string
@@ -186,7 +192,7 @@ export function registerStandardMembers(ownerKind: string, members: readonly Sta
 
 function withCommonFillValuePolicy(member: StandardMemberDeclaration): StandardMemberDeclaration {
   if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
-  const fillValue = commonStandardAttributeFillValuePolicies[member.names.internal]
+  const fillValue = commonStandardMemberFillValuePolicy(member.names.internal)
   return fillValue === undefined ? member : { ...member, fillValue }
 }
 

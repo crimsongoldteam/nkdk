@@ -7,6 +7,7 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { registerCoreMetadata } from "../composition/coreMetadata"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
 
 registerCoreMetadata()
 
@@ -42,7 +43,72 @@ describe("fill value XML import", () => {
       )
     },
   )
+
+  it("удаляет начальную дату после import и сохраняет её XML-состояние", async () => {
+    const sourcePath = copiedDateFixture()
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(prepared.yaml).not.toHaveProperty(
+      "Реквизиты.СтроковыйРеквизитСИндексом.ЗначениеЗаполнения",
+    )
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
+      logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",
+      sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      xml: { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+    })
+  })
+
+  it("помечает несовместимое значение заполнения тегом !xml", async () => {
+    const sourcePath = copiedInvalidFixture()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    const yaml = prepared.yaml as Record<string, unknown>
+    const attributes = yaml.Реквизиты as Record<string, Record<string, unknown>>
+    const attribute = attributes.СтроковыйРеквизитСИндексом
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml 1")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+  })
 })
+
+function copiedInvalidFixture(): string {
+  return copiedTransformedFixture("invalid", (attribute) => attribute.replace(
+    '<FillValue xsi:type="xs:string"/>',
+    '<FillValue xsi:type="xs:decimal">1</FillValue>',
+  ))
+}
+
+function copiedDateFixture(): string {
+  return copiedTransformedFixture("date", (attribute) => attribute
+    .replace(/<Type>[\s\S]*?<\/Type>/, "<Type><v8:Type>xs:dateTime</v8:Type></Type>")
+    .replace(
+      '<FillValue xsi:type="xs:string"/>',
+      '<FillValue xsi:type="xs:dateTime">0001-01-01T00:00:00</FillValue>',
+    ))
+}
+
+function copiedTransformedFixture(
+  name: string,
+  transformAttribute: (attribute: string) => string,
+): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), `nkdk-fill-value-${name}-import-`))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const xml = fs.readFileSync(fixture, "utf8")
+  const start = xml.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
+  const end = xml.indexOf("</Attribute>", start)
+  const attribute = transformAttribute(xml.slice(start, end))
+  fs.writeFileSync(sourcePath, `${xml.slice(0, start)}${attribute}${xml.slice(end)}`)
+  return sourcePath
+}
 
 function copiedFixture(order: "type-before" | "fill-before"): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-import-"))

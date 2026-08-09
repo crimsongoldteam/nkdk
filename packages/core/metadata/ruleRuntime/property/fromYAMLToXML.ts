@@ -143,11 +143,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     itemType: params.rule.itemType,
     properties: params.rule.properties,
   })
+  const propertyValues = new Map(params.propertyValues)
+  for (const [propertyKey, action] of explicitXMLActions) {
+    if (action.kind === "useYamlValue") propertyValues.set(propertyKey, action.yamlValue)
+  }
   const source = createYAMLPropertySource({
     yaml,
     rule: params.rule,
     itemName: params.sourceItemName ?? params.name,
-    propertyValues: params.propertyValues,
+    propertyValues,
     context: params.context,
   })
   const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {}, deferred: [] }))
@@ -533,7 +537,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const rawSourceValue =
       planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
         ? params.name
-        : params.propertyValues?.has(propertyKey)
+        : propertyValues.has(propertyKey)
           ? source.raw(propertyKey)
           : hasYAMLValue
             ? restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })

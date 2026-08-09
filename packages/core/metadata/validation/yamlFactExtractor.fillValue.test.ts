@@ -60,7 +60,80 @@ describe("dependent fill value validation", () => {
       }),
     ])
   })
+
+  it.each([
+    ["01.01.0001 00:00:00", true],
+    ["09.08.2026 12:30:00", false],
+  ] as const)("проверяет явно записанную дату %s", (value, expectsError) => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(`Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: ${value}\n`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    const diagnostics = facts.diagnostics.filter(
+      ({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения",
+    )
+    if (expectsError) {
+      expect(diagnostics).toEqual([
+        expect.objectContaining({ severity: "error", message: expect.stringContaining("неявное значение") }),
+      ])
+    } else {
+      expect(diagnostics).toEqual([])
+    }
+  })
+
+  it.each([
+    ["invalid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml 1", false],
+    ["valid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml текст", true],
+    ["implicit ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml", true],
+    ["unresolved ordinary", "Тип: НеизвестныйТип\n    ЗначениеЗаполнения: !xml текст", true],
+  ] as const)("checks %s", (_name, body, expectsTagError) => {
+    const diagnostics = extractAttributeDiagnostics(body)
+    expect(diagnostics.some(({ message }) => message.includes("!xml"))).toBe(expectsTagError)
+  })
+
+  it.each(["!xml", "!xml Ложь", "!xml произвольный-текст"])(
+    "разрешает forbidden-значение %s только как XML-исключение",
+    (value) => {
+      expect(extractStandardAttributeDiagnostics("Предопределенный", value)).toEqual([])
+    },
+  )
+
+  it("отклоняет forbidden-значение без XML-тега", () => {
+    expect(extractStandardAttributeDiagnostics("Предопределенный", "Ложь")).toEqual([
+      expect.objectContaining({ severity: "error", message: expect.stringContaining("запрещено") }),
+    ])
+  })
+
+  it("отклоняет !xml для стандартного реквизита без политики", () => {
+    expect(extractStandardAttributeDiagnostics("Наименование", "!xml текст")).toEqual([
+      expect.objectContaining({ severity: "error", message: expect.stringContaining("!xml") }),
+    ])
+  })
 })
+
+function extractAttributeDiagnostics(body: string) {
+  const facts = extractValidationYamlFacts({
+    file: catalogFile(),
+    parsed: parseMetadataYaml(`Реквизиты:\n  Тест:\n    ${body}\n`),
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  })
+  return facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Тест/ЗначениеЗаполнения")
+}
+
+function extractStandardAttributeDiagnostics(name: string, value: string) {
+  const facts = extractValidationYamlFacts({
+    file: catalogFile(),
+    parsed: parseMetadataYaml(
+      `СтандартныеРеквизиты:\n  ${name}:\n    ЗначениеЗаполнения: ${value}\n`,
+    ),
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  })
+  return facts.diagnostics.filter(
+    ({ path }) => path === `/СтандартныеРеквизиты/${name}/ЗначениеЗаполнения`,
+  )
+}
 
 function catalogFile() {
   const file = resolveValidationProjectFile("/project", "/project/Справочник/Товары/Свойства.yaml")

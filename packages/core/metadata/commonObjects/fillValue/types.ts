@@ -9,6 +9,7 @@ export type FillValueAlternative =
       readonly allowedSign?: "Any" | "Nonnegative"
     }
   | { readonly kind: "boolean" }
+  | { readonly kind: "dateTime"; readonly dateFractions: "Date" | "Time" | "DateTime" }
   | {
       readonly kind: "reference"
       readonly constraint: Extract<MetadataTargetConstraint, { kind: "value" }>

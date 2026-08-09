@@ -4,9 +4,22 @@ import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, xmlScalarTagPayload, xmlScalarTagValue, yamlScalarTagAt } from "./scalarTags"
 
 describe("exportToYAML", () => {
+  it.each([
+    ["Поле: !xml", "!xml", ""],
+    ["Поле: !xml Справочник.Товары.ПустаяСсылка", "!xml Справочник.Товары.ПустаяСсылка", "Справочник.Товары.ПустаяСсылка"],
+  ] as const)("round-trips %s", (text, stored, payload) => {
+    const parsed = parseWithJsYaml(text)
+
+    expect(parsed.data).toEqual({ Поле: stored })
+    expect(yamlScalarTagAt(parsed.data, "Поле")).toBe("xml")
+    expect(xmlScalarTagPayload(stored)).toBe(payload)
+    expect(xmlScalarTagValue(payload)).toBe(stored)
+    expect(serializeYAMLDocument(parsed.data).text).toBe(text)
+  })
+
   it.each([
     ["явная строка", { Значение: explicitYAMLString("001") }],
     ["пустая строка", { Значение: explicitYAMLString("") }],

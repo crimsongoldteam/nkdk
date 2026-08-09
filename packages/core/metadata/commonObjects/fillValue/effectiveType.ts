@@ -59,6 +59,8 @@ function alternativeFromType(sourceType: string, type: TypeDescription): FillVal
       }
     case "boolean":
       return { kind: "boolean" }
+    case "dateTime":
+      return { kind: "dateTime", dateFractions: type.dateQualifiers?.dateFractions ?? "DateTime" }
   }
 
   const [baseType, objectName] = splitType(sourceType)
@@ -115,7 +117,11 @@ function effectiveTypeFromDeclaration(declaration: StandardMemberDeclaration): F
     case "boolean":
       return { status: "known", alternatives: [{ kind: "boolean" }], composite: false }
     case "dateTime":
-      return { status: "unresolved", reason: "проверка значения даты стандартного реквизита не поддержана" }
+      return {
+        status: "known",
+        alternatives: [{ kind: "dateTime", dateFractions: "DateTime" }],
+        composite: false,
+      }
   }
 }
 

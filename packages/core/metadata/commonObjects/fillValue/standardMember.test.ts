@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "../../appliedObjects/metadataCatalog/standardMembers"
+import "../../appliedObjects/metadataTask/standardMembers"
 import { getStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 import type { MetadataTypedValue } from "../metadataValue/types"
 import { classifyStandardMemberFillValue } from "./effectiveType"
@@ -17,6 +18,13 @@ const classify = (
 ) => classifyStandardMemberFillValue({ declaration: member, value, ownerProperties })
 
 describe("standard member fill value", () => {
+  it("checks task Date as DateTime", () => {
+    const member = getStandardMembers("Задача").find(({ names }) => names.yaml === "Дата")
+    if (member === undefined) throw new Error("Не найден стандартный реквизит Дата задачи")
+    expect(classify(member, { type: "dateTime", value: "2026-08-09T12:30:00" }).kind).toBe("valid")
+    expect(classify(member, { type: "dateTime", value: "0001-01-01T00:00:00" }).kind).toBe("implicit")
+  })
+
   it.each(["Ссылка", "ЭтоГруппа", "Предопределенный", "ИмяПредопределенныхДанных"])(
     "forbids a fill value for %s",
     (name) => expect(classify(catalogMember(name), { type: "boolean", value: true }).kind).toBe("invalid")

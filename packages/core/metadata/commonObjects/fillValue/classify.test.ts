@@ -23,6 +23,44 @@ describe("classifyFillValue", () => {
     expect(classify(type, value).kind).toBe(expected)
   })
 
+  it.each([
+    ["Date", "2026-08-09T00:00:00", "valid"],
+    ["Date", "2026-08-09T12:30:00", "invalid"],
+    ["Time", "0001-01-01T12:30:59", "valid"],
+    ["Time", "2026-08-09T12:30:00", "invalid"],
+    ["DateTime", "2026-08-09T12:30:00", "valid"],
+    ["DateTime", "2025-02-29T00:00:00", "invalid"],
+    ["DateTime", "2024-02-29T00:00:00", "valid"],
+    ["DateTime", "2026-13-01T00:00:00", "invalid"],
+    ["DateTime", "2026-08-09T24:00:00", "invalid"],
+    ["DateTime", "09.08.2026 12:30:00", "invalid"],
+  ] as const)("classifies %s %s as %s", (dateFractions, value, expected) => {
+    expect(
+      classify(
+        { type: ["dateTime"], dateQualifiers: { dateFractions } },
+        { type: "dateTime", value }
+      ).kind
+    ).toBe(expected)
+  })
+
+  it.each(["Date", "Time", "DateTime"] as const)("makes beginning %s implicit", (dateFractions) => {
+    expect(
+      classify(
+        { type: ["dateTime"], dateQualifiers: { dateFractions } },
+        { type: "dateTime", value: "0001-01-01T00:00:00" }
+      ).kind
+    ).toBe("implicit")
+  })
+
+  it("keeps beginning date as a composite branch", () => {
+    expect(
+      classify(
+        { type: ["string", "dateTime"], dateQualifiers: { dateFractions: "Date" } },
+        { type: "dateTime", value: "0001-01-01T00:00:00" }
+      ).kind
+    ).toBe("valid")
+  })
+
   it("checks variable and fixed string length", () => {
     expect(
       classify(

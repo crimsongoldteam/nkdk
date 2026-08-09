@@ -18,6 +18,10 @@ import {
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
+import { importFromYAML } from "../../../yaml/import"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
+
+registerCoreMetadata()
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
@@ -175,6 +179,22 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("exports a forbidden tagged fill value as XML", () => {
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: { Predefined: "Предопределенный" },
+      },
+      value: undefined,
+      yaml: importFromYAML(`Предопределенный:
+  ЗначениеЗаполнения: !xml Ложь
+`),
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:FillValue xsi:type="xs:boolean">false</xr:FillValue>')
   })
 
   it("preserves maxValue xsi type from reference", () => {
