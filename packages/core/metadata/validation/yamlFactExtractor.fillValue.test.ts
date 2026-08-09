@@ -60,6 +60,35 @@ describe("dependent fill value validation", () => {
       }),
     ])
   })
+
+  it("rejects an explicitly stored beginning date", () => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(
+        "Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: 01.01.0001 00:00:00\n"
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения")).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        message: expect.stringContaining("неявное значение"),
+      }),
+    ])
+  })
+
+  it("accepts an explicitly stored meaningful date", () => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(
+        "Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: 09.08.2026 12:30:00\n"
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения")).toEqual([])
+  })
 })
 
 function catalogFile() {
