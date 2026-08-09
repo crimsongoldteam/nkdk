@@ -63,39 +63,6 @@
     },
     {
       "modules": [
-        "packages/core/metadata/forms/commonObjects/childItems/types.ts",
-        "packages/core/metadata/forms/elements/autoCommandBar/helper.ts",
-        "packages/core/metadata/forms/elements/autoCommandBar/rules.ts",
-        "packages/core/metadata/forms/elements/autoCommandBar/types.ts",
-        "packages/core/metadata/forms/elements/buttonGroup/rules.ts",
-        "packages/core/metadata/forms/elements/buttonGroup/types.ts",
-        "packages/core/metadata/forms/elements/columnGroup/rules.ts",
-        "packages/core/metadata/forms/elements/columnGroup/types.ts",
-        "packages/core/metadata/forms/elements/commandBar/rules.ts",
-        "packages/core/metadata/forms/elements/commandBar/types.ts",
-        "packages/core/metadata/forms/elements/contextMenu/helper.ts",
-        "packages/core/metadata/forms/elements/contextMenu/rules.ts",
-        "packages/core/metadata/forms/elements/contextMenu/types.ts",
-        "packages/core/metadata/forms/elements/page/rules.ts",
-        "packages/core/metadata/forms/elements/page/types.ts",
-        "packages/core/metadata/forms/elements/pages/rules.ts",
-        "packages/core/metadata/forms/elements/pages/types.ts",
-        "packages/core/metadata/forms/elements/popup/rules.ts",
-        "packages/core/metadata/forms/elements/popup/types.ts",
-        "packages/core/metadata/forms/elements/searchControlAddition/helper.ts",
-        "packages/core/metadata/forms/elements/searchControlAddition/rules.ts",
-        "packages/core/metadata/forms/elements/searchControlAddition/types.ts",
-        "packages/core/metadata/forms/elements/searchStringAddition/types.ts",
-        "packages/core/metadata/forms/elements/usualGroup/rules.ts",
-        "packages/core/metadata/forms/elements/usualGroup/types.ts",
-        "packages/core/metadata/forms/elements/viewStatusAddition/helper.ts",
-        "packages/core/metadata/forms/elements/viewStatusAddition/rules.ts",
-        "packages/core/metadata/forms/elements/viewStatusAddition/types.ts"
-      ],
-      "dependencyCount": 45
-    },
-    {
-      "modules": [
         "packages/core/metadata/configurationIndex/collector/context.ts",
         "packages/core/metadata/configurationIndex/exportRuntime.ts",
         "packages/core/metadata/context/types.ts",
@@ -121,6 +88,33 @@
         "packages/core/metadata/resourceTopology/xmlExportProjection.ts"
       ],
       "dependencyCount": 64
+    },
+    {
+      "modules": [
+        "packages/core/metadata/forms/commonObjects/childItems/types.ts",
+        "packages/core/metadata/forms/elements/autoCommandBar/rules.ts",
+        "packages/core/metadata/forms/elements/autoCommandBar/types.ts",
+        "packages/core/metadata/forms/elements/buttonGroup/rules.ts",
+        "packages/core/metadata/forms/elements/buttonGroup/types.ts",
+        "packages/core/metadata/forms/elements/columnGroup/rules.ts",
+        "packages/core/metadata/forms/elements/columnGroup/types.ts",
+        "packages/core/metadata/forms/elements/commandBar/rules.ts",
+        "packages/core/metadata/forms/elements/commandBar/types.ts",
+        "packages/core/metadata/forms/elements/contextMenu/rules.ts",
+        "packages/core/metadata/forms/elements/contextMenu/types.ts",
+        "packages/core/metadata/forms/elements/page/rules.ts",
+        "packages/core/metadata/forms/elements/page/types.ts",
+        "packages/core/metadata/forms/elements/pages/rules.ts",
+        "packages/core/metadata/forms/elements/pages/types.ts",
+        "packages/core/metadata/forms/elements/popup/rules.ts",
+        "packages/core/metadata/forms/elements/popup/types.ts",
+        "packages/core/metadata/forms/elements/searchControlAddition/types.ts",
+        "packages/core/metadata/forms/elements/searchStringAddition/types.ts",
+        "packages/core/metadata/forms/elements/usualGroup/rules.ts",
+        "packages/core/metadata/forms/elements/usualGroup/types.ts",
+        "packages/core/metadata/forms/elements/viewStatusAddition/types.ts"
+      ],
+      "dependencyCount": 35
     },
     {
       "modules": [
@@ -184,21 +178,6 @@
         "packages/core/metadata/commonObjects/metadataValue/toYAML.ts"
       ],
       "dependencyCount": 5
-    },
-    {
-      "modules": [
-        "packages/core/metadata/forms/elements/extendedTooltip/helper.ts",
-        "packages/core/metadata/forms/elements/extendedTooltip/rules.ts",
-        "packages/core/metadata/forms/elements/extendedTooltip/types.ts"
-      ],
-      "dependencyCount": 3
-    },
-    {
-      "modules": [
-        "packages/core/metadata/forms/clientApplicationForm/baseForm.ts",
-        "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.ts"
-      ],
-      "dependencyCount": 2
     }
   ]
 }
