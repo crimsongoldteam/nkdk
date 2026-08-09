@@ -1,6 +1,9 @@
-import { registerPartialXmlPackagePolicy } from "../../partialSyncToXml/packagePolicy"
+import {
+  registerPartialXmlPackagePolicy,
+  type PartialXmlPackagePolicyRegistration,
+} from "../../partialSyncToXml/packagePolicy"
 
-registerPartialXmlPackagePolicy({
+export const childFormPartialXmlPackagePolicy = {
   assignment: {
     assignmentPattern: "{ownerPath...}/Формы/{itemName}/Форма.yaml",
     loadDocumentRoles: ["metadata"],
@@ -14,4 +17,6 @@ registerPartialXmlPackagePolicy({
     projectPattern: "{ownerPath...}/Формы/{itemName}/{relativePath...}",
     loadTarget: true,
   }],
-})
+} as const satisfies PartialXmlPackagePolicyRegistration
+
+registerPartialXmlPackagePolicy(childFormPartialXmlPackagePolicy)
