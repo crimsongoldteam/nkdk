@@ -8,7 +8,10 @@ import { withConfigurationIndexCollector } from "../../configurationIndex/collec
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types"
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
-import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
+import {
+  importClientApplicationFormBodyFromXML,
+  importClientApplicationFormFromXMLToYAML,
+} from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
 import * as propertyImporter from "../../ruleRuntime/property/fromXMLToYAML"
 import {
@@ -19,6 +22,8 @@ import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataX
 import { bindDeferredObjectValues } from "../../ruleRuntime/property/deferredObjectValues"
 import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
+import { createDeferredValuePathCollector } from "../../ruleRuntime/property/importYamlTypes"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -71,6 +76,24 @@ function importValueTableCurrentDataForm(columns: FormAttributeColumnsXML, colum
 }
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("импортирует только тело формы через отдельные накопители", () => {
+    const collector = createLocalIndexesCollector()
+    const deferred = createDeferredValuePathCollector()
+    const result = importClientApplicationFormBodyFromXML({
+      context: mockContextFromXML(),
+      formName: "Форма",
+      formXML: { Width: 12, Properties: { Comment: "Не часть тела" } },
+      rule: ClientApplicationFormRules,
+      collector,
+      deferred,
+    })
+
+    expect(result.yaml).toMatchObject({ Ширина: 12 })
+    expect(result.yaml).not.toHaveProperty("Комментарий")
+    expect(collector.finish().metadata.events.length).toBeGreaterThan(0)
+    expect(deferred.finish()).toEqual([])
+  })
+
   it("индексирует произвольные реквизиты и колонки при прямом импорте", () => {
     const result = importClientApplicationFormFromXMLToYAML({
       context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
