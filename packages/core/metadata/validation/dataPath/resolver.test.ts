@@ -2757,6 +2757,7 @@ function indexWithTypeInfo(name: string, typeInfo: DataPathTypeInfo): FormDataPa
   return {
     roots,
     additionalColumnsByTablePath: new Map(),
+    tabularElementsByName: new Map(),
     tableDataPathByElementName: new Map(),
     duplicateDiagnostics: [],
     getRoot: (rootName) => roots.get(rootName),

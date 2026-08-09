@@ -556,6 +556,12 @@ function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDat
   return {
     roots,
     additionalColumnsByTablePath,
+    tabularElementsByName: new Map(
+      [...tableDataPathByElementName].map(([name, dataPath]) => [
+        name,
+        { kind: "tabularFormElement" as const, dataPath },
+      ])
+    ),
     tableDataPathByElementName,
     duplicateDiagnostics: [],
     getRoot(name) {

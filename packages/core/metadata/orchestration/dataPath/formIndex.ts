@@ -13,9 +13,16 @@ export interface FormDataPathDiagnostic {
   path?: string
 }
 
+export interface FormDataPathTabularElementDeclaration {
+  readonly kind: "tabularFormElement"
+  readonly dataPath?: string
+}
+
 export interface FormDataPathIndex {
   roots: Map<string, FormDataPathSource>
   additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath
+  tabularElementsByName: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
+  /** @deprecated До перевода resolver и project state на декларации элементов. */
   tableDataPathByElementName: ReadonlyMap<string, string>
   duplicateDiagnostics: FormDataPathDiagnostic[]
   getRoot(name: string): FormDataPathSource | undefined

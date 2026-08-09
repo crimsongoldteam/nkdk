@@ -270,6 +270,7 @@ describe("dependency validation из ProjectState", () => {
     const index = {
       roots: new Map(source.forms.filter((entry) => entry.kind === "root").map((entry) => [entry.name, entry.source])),
       additionalColumnsByTablePath: new Map(),
+      tabularElementsByName: new Map(),
       tableDataPathByElementName: new Map(),
       duplicateDiagnostics: [],
       getRoot(name: string) {
@@ -316,6 +317,7 @@ describe("dependency validation из ProjectState", () => {
     const index = {
       roots,
       additionalColumnsByTablePath: new Map(),
+      tabularElementsByName: new Map(),
       tableDataPathByElementName: new Map(),
       duplicateDiagnostics: [],
       getRoot(name: string) {
@@ -372,6 +374,7 @@ describe("dependency validation из ProjectState", () => {
       index: {
         roots,
         additionalColumnsByTablePath: new Map(),
+        tabularElementsByName: new Map(),
         tableDataPathByElementName: new Map(),
         duplicateDiagnostics: [],
         getRoot(name: string) {
@@ -555,6 +558,7 @@ describe("dependency validation из ProjectState", () => {
       index: {
         roots,
         additionalColumnsByTablePath: new Map([["Таблица", new Map([["Значение", additionalColumn]])]]),
+        tabularElementsByName: new Map(),
         tableDataPathByElementName: new Map(),
         duplicateDiagnostics: [],
         getRoot(name: string) {

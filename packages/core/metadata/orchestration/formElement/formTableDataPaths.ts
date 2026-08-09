@@ -1,28 +1,29 @@
-export function collectFormTableDataPathsFromYAML(
+import type { FormDataPathTabularElementDeclaration } from "../dataPath/formIndex"
+
+export function collectFormTabularElementsFromYAML(
   yaml: unknown
-): ReadonlyMap<string, string> {
-  const result = new Map<string, string>()
-  collectTableDataPaths(asRecord(yaml)?.["Элементы"], result)
+): ReadonlyMap<string, FormDataPathTabularElementDeclaration> {
+  const result = new Map<string, FormDataPathTabularElementDeclaration>()
+  collectTabularElements(asRecord(yaml)?.["Элементы"], result)
   return result
 }
 
-function collectTableDataPaths(
+function collectTabularElements(
   value: unknown,
-  result: Map<string, string>
+  result: Map<string, FormDataPathTabularElementDeclaration>
 ): void {
   for (const [name, rawElement] of Object.entries(asRecord(value) ?? {})) {
     const element = asRecord(rawElement)
-    if (element?.["Вид"] === "ТаблицаФормы") {
+    if (element?.["Вид"] === "ТаблицаФормы" || element?.["Вид"] === "ДеревоФормы") {
       const dataPath = element["ПутьКДанным"]
-      if (
-        typeof dataPath === "string" &&
-        dataPath.trim().length > 0 &&
-        !result.has(name)
-      ) {
-        result.set(name, dataPath)
+      if (!result.has(name)) {
+        result.set(name, {
+          kind: "tabularFormElement",
+          ...(typeof dataPath === "string" && dataPath.trim().length > 0 ? { dataPath } : {}),
+        })
       }
     }
-    collectTableDataPaths(element?.["Элементы"], result)
+    collectTabularElements(element?.["Элементы"], result)
   }
 }
 

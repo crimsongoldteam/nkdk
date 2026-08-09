@@ -1,9 +1,9 @@
-import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
+import { collectFormTabularElementsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 
 export const clientApplicationFormDataPathProjection = {
   attributeItemType: "FormAttribute",
   columnItemType: "FormAttributeColumn",
-  tableItemType: "Table",
+  tabularElementItemTypes: ["Table"],
   attributesYaml: "Реквизиты",
   columnsYaml: "Колонки",
   typeYaml: "Тип",
@@ -13,5 +13,5 @@ export const clientApplicationFormDataPathProjection = {
   dynamicListPropertyKey: "dynamicList",
   additionalColumnsPropertyKey: "additionalColumns",
   tableDataPathPropertyKey: "dataPath",
-  collectTableDataPathsFromYAML: collectFormTableDataPathsFromYAML,
+  collectTabularElementsFromYAML: collectFormTabularElementsFromYAML,
 } as const

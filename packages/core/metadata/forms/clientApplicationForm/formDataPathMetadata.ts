@@ -13,11 +13,14 @@ export function createFormDataPathMetadataCollector(params: { filePath: string }
 
 export function createFormDataPathIndexFromYAML(
   yaml: unknown,
-  tableDataPathByElementName?: ReadonlyMap<string, string>
+  tabularElementsByName?: ReadonlyMap<string, {
+    readonly kind: "tabularFormElement"
+    readonly dataPath?: string
+  }>
 ) {
   return createProjectedFormDataPathIndexFromYAML(
     yaml,
     clientApplicationFormDataPathProjection,
-    tableDataPathByElementName
+    tabularElementsByName
   )
 }

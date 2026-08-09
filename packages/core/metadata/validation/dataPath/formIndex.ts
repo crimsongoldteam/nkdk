@@ -44,6 +44,12 @@ export function buildFormDataPathIndex({
   const roots = new Map<string, FormDataPathSource>()
   const additionalColumnsByTablePath: FormDataPathAdditionalColumnsByTablePath = new Map()
   const tableDataPathByElementName = new Map(suppliedTableDataPaths)
+  const tabularElementsByName = new Map(
+    [...tableDataPathByElementName].map(([name, dataPath]) => [
+      name,
+      { kind: "tabularFormElement" as const, dataPath },
+    ])
+  )
   const duplicateDiagnostics: Diagnostic[] = []
   const seenNames = new Map<string, number>()
 
@@ -64,6 +70,7 @@ export function buildFormDataPathIndex({
   return {
     roots,
     additionalColumnsByTablePath,
+    tabularElementsByName,
     tableDataPathByElementName,
     duplicateDiagnostics,
     getRoot(name: string): FormDataPathSource | undefined {

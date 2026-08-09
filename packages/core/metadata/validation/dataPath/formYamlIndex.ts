@@ -8,6 +8,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 import type { FormDataPathIndex } from "./formIndex"
+import type { FormDataPathTabularElementDeclaration } from "../../orchestration/dataPath/formIndex"
 import type {
   FormDataPathItemFact,
   FormDataPathMetadataProjection,
@@ -32,12 +33,14 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
   declareColumn(attributeName: string, columnName: string): void
   setColumnType(attributeName: string, columnName: string, type: TypeDescriptionView | undefined): void
   setAdditionalColumns(value: unknown): void
+  declareTabularElement(params: { name: string; dataPath?: string }): void
   acceptTableDataPath(params: { name: string; dataPath: string }): void
   finish(): FormDataPathIndex
 } {
   const attributes = new Map<string, PendingFormAttribute>()
   const additionalColumnsByTablePath = new Map<string, Map<string, FormDataPathColumnSource>>()
   const tableDataPathByElementName = new Map<string, string>()
+  const tabularElementsByName = new Map<string, FormDataPathTabularElementDeclaration>()
 
   const pendingAttribute = (name: string): PendingFormAttribute => {
     const existing = attributes.get(name)
@@ -77,10 +80,21 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
     setAdditionalColumns(value) {
       copyAdditionalColumns(additionalColumnsByTablePath, value)
     },
-    acceptTableDataPath({ name, dataPath }) {
-      if (dataPath.trim().length > 0 && !tableDataPathByElementName.has(name)) {
-        tableDataPathByElementName.set(name, dataPath)
+    declareTabularElement({ name, dataPath }) {
+      const normalizedDataPath = dataPath?.trim().length ? dataPath : undefined
+      const existing = tabularElementsByName.get(name)
+      if (existing === undefined || (existing.dataPath === undefined && normalizedDataPath !== undefined)) {
+        tabularElementsByName.set(name, {
+          kind: "tabularFormElement",
+          ...(normalizedDataPath === undefined ? {} : { dataPath: normalizedDataPath }),
+        })
       }
+      if (normalizedDataPath !== undefined && !tableDataPathByElementName.has(name)) {
+        tableDataPathByElementName.set(name, normalizedDataPath)
+      }
+    },
+    acceptTableDataPath({ name, dataPath }) {
+      this.declareTabularElement({ name, dataPath })
     },
     finish() {
       const roots = new Map<string, FormDataPathSource>()
@@ -104,6 +118,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
       return {
         roots,
         additionalColumnsByTablePath,
+        tabularElementsByName,
         tableDataPathByElementName,
         duplicateDiagnostics,
         getRoot(name) {
@@ -127,6 +142,11 @@ export function createFormDataPathMetadataCollector(params: {
       if (name !== undefined) index.declareAttribute(name)
       return
     }
+    if (projection.tabularElementItemTypes.includes(fact.itemType)) {
+      const name = fact.name ?? stringSegment(fact.yamlPath.at(-1))
+      if (name !== undefined) index.declareTabularElement({ name })
+      return
+    }
     if (fact.itemType !== projection.columnItemType) return
     const attributeName = stringSegment(fact.yamlPath.at(-3))
     const columnName = fact.name ?? stringSegment(fact.yamlPath.at(-1))
@@ -136,10 +156,10 @@ export function createFormDataPathMetadataCollector(params: {
   const acceptProperty = (fact: FormDataPathPropertyFact): void => {
     const property = fact.rulePath.at(-1)?.propertyKey
     const ownerType = fact.rulePath.at(-2)?.nestedItemType
-    if (property === projection.tableDataPathPropertyKey && ownerType === projection.tableItemType) {
+    if (property === projection.tableDataPathPropertyKey && projection.tabularElementItemTypes.includes(ownerType ?? "")) {
       const name = stringSegment(fact.yamlPath.at(-2))
       if (name !== undefined && typeof fact.value === "string") {
-        index.acceptTableDataPath({ name, dataPath: fact.value })
+        index.declareTabularElement({ name, dataPath: fact.value })
       }
       return
     }
@@ -163,6 +183,7 @@ export function createFormDataPathMetadataCollector(params: {
     acceptItem,
     acceptProperty,
     completeValue: acceptProperty,
+    declareTabularElement: index.declareTabularElement,
     acceptTableDataPath: index.acceptTableDataPath,
     finish: index.finish,
   }
@@ -171,7 +192,7 @@ export function createFormDataPathMetadataCollector(params: {
 export function createFormDataPathIndexFromYAML(
   yaml: unknown,
   projection: FormDataPathMetadataProjection,
-  tableDataPathByElementName?: ReadonlyMap<string, string>
+  tabularElementsByName?: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
 ): FormDataPathIndex {
   const collector = createFormDataPathMetadataCollector({ filePath: "", projection })
   const attributes = asRecord(asRecord(yaml)?.[projection.attributesYaml])
@@ -229,9 +250,12 @@ export function createFormDataPathIndexFromYAML(
       )
     }
   }
-  const tableDataPaths =
-    tableDataPathByElementName ?? projection.collectTableDataPathsFromYAML?.(yaml) ?? new Map<string, string>()
-  for (const [name, dataPath] of tableDataPaths) collector.acceptTableDataPath({ name, dataPath })
+  const tabularElements =
+    tabularElementsByName ?? projection.collectTabularElementsFromYAML?.(yaml) ??
+    new Map<string, FormDataPathTabularElementDeclaration>()
+  for (const [name, declaration] of tabularElements) {
+    collector.declareTabularElement({ name, ...(declaration.dataPath === undefined ? {} : { dataPath: declaration.dataPath }) })
+  }
   return collector.finish()
 }
 
