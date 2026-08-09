@@ -34,6 +34,7 @@ export type ValidationPendingCheck =
       type: TypeDescriptionView
       value: FillValueTypedValue
       tagged: boolean
+      transport?: "DesignTimeRef"
     }
 
 export type DataPathValidationPendingCheck = Extract<ValidationPendingCheck, { kind: "dataPath" }>
@@ -90,7 +91,13 @@ function validateFillValueCheck(
     return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
   })
   const classification = classifyFillValue({ effectiveType, value: check.value })
-  const problem = fillValueDiagnostic(classification, effectiveType.status === "unresolved" ? false : check.tagged)
+  const problem = check.transport === "DesignTimeRef"
+    ? effectiveType.status === "unresolved"
+      ? fillValueDiagnostic(classification, false)
+      : effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")
+        ? undefined
+        : { message: "DesignTimeRef допустим только для ссылочного типа", severity: "error" as const }
+    : fillValueDiagnostic(classification, effectiveType.status === "unresolved" ? false : check.tagged)
   return problem === undefined
     ? []
     : [diagnosticAtYamlLocation({

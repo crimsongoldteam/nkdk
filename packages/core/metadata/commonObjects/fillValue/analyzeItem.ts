@@ -23,6 +23,7 @@ import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
+import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
 
 const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
 const fillValueYamlKey = "ЗначениеЗаполнения"
@@ -50,6 +51,7 @@ export function analyzeMetadataAttributeFillValue(params: DependentYamlItemParam
         type,
         value: parsed.value,
         tagged: parsed.tagged,
+        ...(parsed.transport === undefined ? {} : { transport: parsed.transport }),
       }],
     })
   }
@@ -68,7 +70,9 @@ function analyzeFillValue(
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
   const classification = classify(params, parsed.value)
-  const diagnostic = fillValueDiagnostic(classification, parsed.tagged)
+  const diagnostic = parsed.transport === "DesignTimeRef"
+    ? designTimeRefDiagnostic(params, classification)
+    : fillValueDiagnostic(classification, parsed.tagged)
   const analysis = diagnostic === undefined
     ? emptyAnalysis()
     : diagnosticAnalysis(params, diagnostic.message, diagnostic.severity)
@@ -77,9 +81,12 @@ function analyzeFillValue(
 
 export function parseFillValueItem(
   item: Readonly<Record<string, unknown>>
-): { readonly tagged: boolean; readonly value: MetadataTypedValue } | undefined {
+): { readonly tagged: boolean; readonly value: MetadataTypedValue; readonly transport?: "DesignTimeRef" } | undefined {
   const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
   const rawValue = item[fillValueYamlKey]
+  if (tagged && rawValue === "!xml DesignTimeRef") {
+    return { tagged: true, value: { type: "ref", value: "" }, transport: "DesignTimeRef" }
+  }
   const value = parseFillValueYaml(
     tagged && typeof rawValue === "string"
       ? xmlScalarTagPayload(rawValue)
@@ -88,13 +95,42 @@ export function parseFillValueItem(
   return value === undefined ? undefined : { tagged, value }
 }
 
+function designTimeRefDiagnostic(
+  params: DependentYamlItemParams,
+  fallback: FillValueClassification,
+): { readonly message: string; readonly severity: "error" | "warning" } | undefined {
+  if (params.itemType === "MetadataAttribute") {
+    const effectiveType = effectiveFillValueType(metadataAttributeType(params.item), params.definedTypeLookup)
+    if (effectiveType.status === "unresolved") return { message: effectiveType.reason, severity: "warning" }
+    if (effectiveType.status === "known" && effectiveType.alternatives.some(({ kind }) => kind === "reference")) {
+      return undefined
+    }
+    return { message: "DesignTimeRef допустим только для ссылочного типа", severity: "error" }
+  }
+  if (params.itemName !== undefined) {
+    const declaration = getStandardMembers(params.owner.dir).find(({ names }) => names.yaml === params.itemName)
+    const policy = declaration?.memberKind === "standardAttribute" ? declaration.fillValue?.policy : undefined
+    if (policy === "forbidden" || policy === "ownerReference") return undefined
+  }
+  return fillValueDiagnostic(fallback, true)
+}
+
 export function classifyMetadataAttributeFillValue(
   params: DependentItemParams,
   value = parseFillValueItem(params.item)?.value
 ): FillValueClassification {
   if (value === undefined) return { kind: "unresolved", reason: "не удалось разобрать значение заполнения" }
   const type = metadataAttributeType(params.item)
-  return classifyFillValue({ effectiveType: effectiveTypeFromTypeDescription(type), value })
+  return classifyFillValue({
+    effectiveType: params.definedTypeLookup === undefined
+      ? effectiveTypeFromTypeDescription(type)
+      : effectiveFillValueType(type, params.definedTypeLookup),
+    value,
+  })
+}
+
+export function metadataAttributeUsesDefinedType(item: Readonly<Record<string, unknown>>): boolean {
+  return metadataAttributeType(item)?.type.some((sourceType) => sourceType.startsWith("DefinedType.")) === true
 }
 
 function metadataAttributeType(item: Readonly<Record<string, unknown>>) {

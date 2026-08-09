@@ -163,6 +163,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     "itemType",
     "type",
     "tagged",
+    "transport",
   ], assertPendingCheck)
   if (!Array.isArray(update["dependencies"]) || !update["dependencies"].every((item) => typeof item === "string")) {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
@@ -606,6 +607,9 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     assertTypeDescriptionView(row["type"], `${path}.type`)
     assertMetadataTypedValue(row["value"], `${path}.value`)
     if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
+    if (row["transport"] !== undefined && row["transport"] !== "DesignTimeRef") {
+      throw new Error(`${path}.transport имеет неизвестное значение`)
+    }
     return
   }
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)

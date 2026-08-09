@@ -200,6 +200,7 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
       type: check.type,
       value: check.value,
       tagged: check.tagged,
+      ...(check.transport === undefined ? {} : { transport: check.transport }),
     }
   }
   return {

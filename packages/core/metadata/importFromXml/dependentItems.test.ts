@@ -4,7 +4,11 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { registerCoreMetadata } from "../composition/coreMetadata"
 import { yamlScalarTagAt } from "../../yaml/scalarTags"
 import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
-import { normalizeImportedDependentItems } from "./dependentItems"
+import {
+  normalizeImportedDependentItems,
+  partitionImportedDependentItems,
+  preserveDeferredDependentRawXML,
+} from "./dependentItems"
 
 registerCoreMetadata()
 
@@ -25,6 +29,58 @@ describe("normalizeImportedDependentItems", () => {
 
     expect(removed).toBe(1)
     expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
+  })
+
+  it("откладывает DefinedType и удаляет одиночную пустую ссылку после lookup", () => {
+    const attribute = {
+      Тип: "ОпределяемыйТип.АвторДействия",
+      ЗначениеЗаполнения: "Справочник.Пользователи.ПустаяСсылка",
+    }
+    const yaml = { Реквизиты: { Автор: attribute } }
+    const imported = {
+      ...candidate("MetadataAttribute", ["Реквизиты", "Автор"], "Автор"),
+      logicalAddress: "Справочник.Товары.Attribute.Автор.Property.fillValue",
+      xmlValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Пользователи.EmptyRef" },
+    }
+    const collector = createConfigurationIndexCollector()
+    const partitioned = partitionImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [imported],
+      owner: { dir: "Справочник", name: "Товары" },
+    })
+
+    expect(partitioned.immediate).toEqual([])
+    expect(partitioned.deferred).toEqual([imported])
+    preserveDeferredDependentRawXML({ candidates: partitioned.deferred, collector })
+    expect(normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: partitioned.deferred,
+      owner: { dir: "Справочник", name: "Товары" },
+      definedTypeLookup: () => ({ status: "ok", type: { type: ["CatalogRef.Пользователи"] } }),
+      preserveRawXML: false,
+    })).toBe(1)
+    expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual(
+      expect.objectContaining({ logicalAddress: imported.logicalAddress }),
+    )
+  })
+
+  it.each([
+    ["несовместимую ссылку", "Справочник.Пользователи.ПустаяСсылка", "CatalogRef.Сотрудники", true],
+    ["содержательную ссылку", "Справочник.Пользователи.Администратор", "CatalogRef.Пользователи", false],
+  ] as const)("нормализует %s после DefinedType lookup", (_name, fillValue, sourceType, tagged) => {
+    const attribute = normalizeDefinedTypeAttribute(fillValue, () => ({ status: "ok", type: { type: [sourceType] } }))
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения") === "xml").toBe(tagged)
+  })
+
+  it("не маркирует неразрешимый DefinedType автоматически", () => {
+    const attribute = normalizeDefinedTypeAttribute(
+      "Справочник.Пользователи.ПустаяСсылка",
+      () => ({ status: "unresolved", reason: "не найден определяемый тип" }),
+    )
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
   })
 
   it("сохраняет непустое допустимое значение для последующей локальной валидации", () => {
@@ -143,13 +199,6 @@ describe("normalizeImportedDependentItems", () => {
       { "_xsi:nil": true },
       { xsiNil: true },
     ],
-    [
-      "пустой DesignTimeRef",
-      "Справочник.Контрагенты",
-      ".",
-      { "_xsi:type": "xr:DesignTimeRef" },
-      { xsiType: "xr:DesignTimeRef" },
-    ],
     ["явный пустой узел", "Строка(10)", "", {}, { explicitEmpty: true }],
   ])("сохраняет XML-форму %s только при удалении", (_name, type, fillValue, xmlValue, expectedXml) => {
     const attribute = { Тип: type, ЗначениеЗаполнения: fillValue }
@@ -174,6 +223,29 @@ describe("normalizeImportedDependentItems", () => {
       sourceProjectPath: "Справочник/Товары/Свойства.yaml",
       xml: expectedXml,
     })
+  })
+
+  it("представляет пустой DesignTimeRef точным !xml sentinel без snapshot", () => {
+    const attribute: Record<string, unknown> = {
+      Тип: "Справочник.Контрагенты",
+      ЗначениеЗаполнения: ".",
+    }
+    const collector = createConfigurationIndexCollector()
+    normalizeImportedDependentItems({
+      yaml: { Реквизиты: { Получатель: attribute } },
+      rule: MetadataCatalogRules,
+      candidates: [{
+        ...candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель"),
+        logicalAddress: "Справочник.Товары.Attribute.Получатель.Property.fillValue",
+        xmlValue: { "_xsi:type": "xr:DesignTimeRef" },
+      }],
+      collector,
+      owner: { dir: "Справочник", name: "Товары" },
+    })
+
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml DesignTimeRef")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toEqual([])
   })
 })
 
@@ -201,4 +273,23 @@ function normalizeMetadataAttribute(attribute: Record<string, unknown>): number 
     collector: createConfigurationIndexCollector(),
     owner: { dir: "Справочник", name: "Товары" },
   })
+}
+
+function normalizeDefinedTypeAttribute(
+  fillValue: string,
+  definedTypeLookup: NonNullable<Parameters<typeof normalizeImportedDependentItems>[0]["definedTypeLookup"]>,
+): Record<string, unknown> {
+  const attribute: Record<string, unknown> = {
+    Тип: "ОпределяемыйТип.АвторДействия",
+    ЗначениеЗаполнения: fillValue,
+  }
+  normalizeImportedDependentItems({
+    yaml: { Реквизиты: { Автор: attribute } },
+    rule: MetadataCatalogRules,
+    candidates: [candidate("MetadataAttribute", ["Реквизиты", "Автор"], "Автор")],
+    owner: { dir: "Справочник", name: "Товары" },
+    definedTypeLookup,
+    preserveRawXML: false,
+  })
+  return attribute
 }

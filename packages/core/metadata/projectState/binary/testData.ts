@@ -96,7 +96,8 @@ export function fillValuePendingCheck(): ProjectStateYamlFileUpdate["pendingChec
     location: { line: 4, col: 5, path: "/Реквизиты/Автор/ЗначениеЗаполнения" },
     itemType: "MetadataAttribute",
     type: { type: ["DefinedType.АвторДействия", "string"] },
-    value: { type: "ref", value: "Catalog.Пользователи.EmptyRef" },
+    value: { type: "ref", value: "" },
     tagged: true,
+    transport: "DesignTimeRef",
   }
 }

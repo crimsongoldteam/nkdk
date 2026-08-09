@@ -1,5 +1,6 @@
 import type { TypeDescriptionView } from "./typeDescriptionView"
 import type { FillValueTypedValue } from "./fillValueSemantics"
+import type { DefinedTypeLookup } from "./fillValueSemantics"
 
 type DependentYamlPath = readonly (string | number)[]
 
@@ -39,6 +40,7 @@ export interface DependentItemParams {
   readonly rootYaml: unknown
   readonly rootRule: unknown
   readonly owner: { readonly dir: string; readonly name: string }
+  readonly definedTypeLookup?: DefinedTypeLookup
 }
 
 export interface DependentYamlItemAnalysis {
@@ -54,6 +56,7 @@ export interface DependentProjectCheckCandidate {
   readonly type: TypeDescriptionView
   readonly value: FillValueTypedValue
   readonly tagged: boolean
+  readonly transport?: "DesignTimeRef"
 }
 
 export interface DependentYamlItemParams extends DependentItemParams {
@@ -81,6 +84,7 @@ export interface DependentImportItemHandler {
   readonly propertyKeys: readonly string[]
   shouldRemove(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
   shouldTagXML?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
+  shouldDefer?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
 
 export interface DependentItemRegistrySnapshot {
@@ -129,6 +133,12 @@ export function shouldTagImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
   return importHandlers.get(params.itemType)?.shouldTagXML?.(params) === true
+}
+
+export function shouldDeferImportedDependentProperty(
+  params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
+): boolean {
+  return importHandlers.get(params.itemType)?.shouldDefer?.(params) === true
 }
 
 export function snapshotDependentItemRegistryForTests(): DependentItemRegistrySnapshot {

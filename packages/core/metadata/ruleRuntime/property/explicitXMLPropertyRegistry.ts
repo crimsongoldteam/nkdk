@@ -22,6 +22,7 @@ export type ExplicitXMLPropertyRegistration =
       readonly action: "transportScalar"
       readonly itemType: string
       readonly propertyKey: string
+      readonly overrides?: Readonly<Record<string, unknown>>
     }
 
 export type ExplicitXMLPropertyAction =
@@ -74,7 +75,11 @@ export function collectExplicitXMLPropertyActions(params: {
     if (registration.action === "transportScalar") {
       const rawValue = yaml[rule.yaml]
       if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
-        actions.set(propertyKey, { kind: "useYamlValue", yamlValue: xmlScalarTagPayload(rawValue) })
+        const payload = xmlScalarTagPayload(rawValue)
+        const override = registration.overrides?.[payload]
+        actions.set(propertyKey, override === undefined
+          ? { kind: "useYamlValue", yamlValue: payload }
+          : { kind: "emit", xmlValue: override })
       }
       continue
     }
@@ -107,7 +112,8 @@ function sameRegistration(
   right: ExplicitXMLPropertyRegistration
 ): boolean {
   if (left.action === "transportScalar" || right.action === "transportScalar") {
-    return left.action === "transportScalar" && right.action === "transportScalar"
+    return left.action === "transportScalar" && right.action === "transportScalar" &&
+      JSON.stringify(left.overrides) === JSON.stringify(right.overrides)
   }
   const leftAction = left.action ?? "emit"
   const rightAction = right.action ?? "emit"

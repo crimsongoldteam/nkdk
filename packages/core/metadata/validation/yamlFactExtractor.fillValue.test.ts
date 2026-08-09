@@ -179,6 +179,25 @@ describe("dependent fill value validation", () => {
     ])
     expect(facts.pendingChecks[0]).not.toHaveProperty("parsed")
   })
+
+  it("разрешает точный DesignTimeRef только для ссылочного типа и не индексирует его", () => {
+    const referenceFacts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(`Реквизиты:
+  Получатель:
+    Тип: Справочник.Контрагенты
+    ЗначениеЗаполнения: !xml DesignTimeRef
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    expect(referenceFacts.diagnostics.filter(({ path }) => path === "/Реквизиты/Получатель/ЗначениеЗаполнения")).toEqual([])
+    expect(referenceFacts.pendingReferences.filter(({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения")).toEqual([])
+
+    const stringDiagnostics = extractAttributeDiagnostics("Тип: Строка\n    ЗначениеЗаполнения: !xml DesignTimeRef")
+    expect(stringDiagnostics).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("только для ссылочного типа") }),
+    ])
+  })
 })
 
 function extractAttributeDiagnostics(body: string) {

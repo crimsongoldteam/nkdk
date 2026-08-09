@@ -7,6 +7,8 @@ export interface FillValueTypedValue {
   readonly value?: unknown
 }
 
+export type FillValueTransport = "DesignTimeRef"
+
 export type FillValueAlternative =
   | { readonly kind: "string"; readonly length?: number; readonly allowedLength?: "Variable" | "Fixed" }
   | { readonly kind: "number"; readonly digits?: number; readonly fractionDigits?: number; readonly allowedSign?: "Any" | "Nonnegative" }

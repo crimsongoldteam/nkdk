@@ -451,6 +451,7 @@ export function createTypedProjectStateReader(
     type: TypeDescriptionView
     value: FillValueTypedValue
     tagged: boolean
+    transport?: "DesignTimeRef"
   } {
     let decoded: unknown
     try {
@@ -462,13 +463,20 @@ export function createTypedProjectStateReader(
       throw new Error("Повреждена project-state проверка fillValue")
     }
     const value = decoded as Record<string, unknown>
-    if (value.version !== 1 || typeof value.itemType !== "string" || typeof value.tagged !== "boolean") {
+    if (value.version !== 1 || typeof value.itemType !== "string" || typeof value.tagged !== "boolean" ||
+      (value.transport !== undefined && value.transport !== "DesignTimeRef")) {
       throw new Error("Неподдерживаемая project-state проверка fillValue")
     }
     if (!isTypeDescriptionView(value.type) || !isMetadataTypedValue(value.value)) {
       throw new Error("Повреждён payload project-state проверки fillValue")
     }
-    return { itemType: value.itemType, type: value.type, value: value.value, tagged: value.tagged }
+    return {
+      itemType: value.itemType,
+      type: value.type,
+      value: value.value,
+      tagged: value.tagged,
+      ...(value.transport === undefined ? {} : { transport: value.transport }),
+    }
   }
 
   function optionalName(id: number): { readonly name?: string } {

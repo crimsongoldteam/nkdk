@@ -179,6 +179,27 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
   })
 
   it("exports a tagged forbidden boolean through MetadataValue", () => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Предопределенный:
+    ЗначениеЗаполнения: !xml Ложь
+`, { Predefined: "Предопределенный" })
+
+    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
+  })
+
+  it("exports !xml DesignTimeRef without a text payload", () => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml DesignTimeRef
+`, { Owner: "Владелец" })
+
+    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xr:DesignTimeRef" })
+  })
+
+  function standardAttributeFillValueXML(
+    yaml: string,
+    standartAttributeNames: Record<string, string>,
+  ): Record<string, unknown> {
     const collectionRule = {
       itemType: "StandardAttributeXMLTransportProbe",
       properties: {
@@ -186,26 +207,21 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
           type: "StandardAttributeDescriptions",
           yaml: "СтандартныеРеквизиты",
           xml: "StandardAttributes",
-          standartAttributeNames: { Predefined: "Предопределенный" },
+          standartAttributeNames,
         },
       },
     } as const satisfies MetadataItemRule
     const result = convertPropertiesFromYAMLToXML({
       context,
-      yaml: importFromYAML(`СтандартныеРеквизиты:
-  Предопределенный:
-    ЗначениеЗаполнения: !xml Ложь
-`),
+      yaml: importFromYAML(yaml),
       rule: collectionRule,
       outputs: [{ key: "owner" }],
     })
     const rawItem = (result.outputs.get("owner")?.StandardAttributes as {
       "xr:StandardAttribute": Record<string, unknown> | Record<string, unknown>[]
     })["xr:StandardAttribute"]
-    const item = Array.isArray(rawItem) ? rawItem[0]! : rawItem
-
-    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
-  })
+    return Array.isArray(rawItem) ? rawItem[0]! : rawItem
+  }
 
   it("preserves maxValue xsi type from reference", () => {
     const xmlString = '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>'

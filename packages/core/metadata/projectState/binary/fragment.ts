@@ -241,6 +241,7 @@ type ProjectStatePendingCheck =
       readonly type: unknown
       readonly value: unknown
       readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
     }
 
 interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
@@ -566,6 +567,7 @@ export function createProjectStateFragmentWriter(options: {
             type: check.type,
             value: check.value,
             tagged: check.tagged,
+            ...(check.transport === undefined ? {} : { transport: check.transport }),
           })),
           line: check.location.line,
           col: check.location.col,

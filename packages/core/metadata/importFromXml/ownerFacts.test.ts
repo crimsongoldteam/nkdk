@@ -70,6 +70,8 @@ function preparedYaml(params: {
     ownerContext: [],
     localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts } },
     deferred: [],
+    dependentDeferred: [],
+    dependentOwner: { dir: "Справочник", name: params.assignment.itemName },
     generatedFiles: [],
   }
 }

@@ -73,6 +73,27 @@ describe("fill value XML import", () => {
     expect(prepared.yaml).toHaveProperty("ДлинаКода", 3)
     expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
   })
+
+  it("откладывает DefinedType и заранее сохраняет исходный XML", async () => {
+    const sourcePath = copiedDefinedTypeFixture()
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(prepared.dependentDeferred).toHaveLength(1)
+    expect(prepared.yaml).toHaveProperty(
+      "Реквизиты.АвторДействия.ЗначениеЗаполнения",
+      "Справочник.Пользователи.ПустаяСсылка",
+    )
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
+      logicalAddress: "Справочник.СправочникПолный.Реквизит.АвторДействия.fillValue",
+      sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      xml: { xsiType: "xr:DesignTimeRef", xmlText: "Catalog.Пользователи.EmptyRef" },
+    })
+  })
 })
 
 function copiedBeginningDateFixture(): string {
@@ -120,6 +141,24 @@ function copiedCatalogCodeFixture(): string {
   if (codeStart === -1 || fillStart === -1) throw new Error("Не найден стандартный реквизит Code")
   const emptyFill = '<xr:FillValue xsi:nil="true"/>'
   xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">--</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
+  fs.writeFileSync(sourcePath, xml)
+  return sourcePath
+}
+
+function copiedDefinedTypeFixture(): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-defined-type-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const sourceType = `<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>`
+  const xml = fs.readFileSync(fixture, "utf8")
+    .replace("<Name>РеквизитСправочника</Name>", "<Name>АвторДействия</Name>")
+    .replace(sourceType, "<Type><v8:TypeSet>cfg:DefinedType.АвторДействия</v8:TypeSet></Type>")
+    .replace('<FillValue xsi:nil="true"/>', '<FillValue xsi:type="xr:DesignTimeRef">Catalog.Пользователи.EmptyRef</FillValue>')
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

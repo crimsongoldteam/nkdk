@@ -107,6 +107,20 @@ describe("validatePendingChecks", () => {
     const diagnostics = validatePendingChecks({ ownerCache: cache, checks: [fillValueCheck(true)] }).diagnostics
     expect(diagnostics).toEqual([expect.objectContaining({ source: "cross-file", message: expect.stringContaining(message) })])
   })
+
+  it("разрешает DesignTimeRef для ссылочного DefinedType и отклоняет для строкового", () => {
+    const check = { ...fillValueCheck(true), value: { type: "ref", value: "" }, transport: "DesignTimeRef" as const }
+    expect(validatePendingChecks({
+      ownerCache: definedTypeCache({ АвторДействия: { type: ["CatalogRef.Пользователи"] } }),
+      checks: [check],
+    }).diagnostics).toEqual([])
+    expect(validatePendingChecks({
+      ownerCache: definedTypeCache({ АвторДействия: { type: ["string"] } }),
+      checks: [check],
+    }).diagnostics).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("только для ссылочного типа") }),
+    ])
+  })
 })
 
 function fillValueCheck(tagged: boolean): Extract<ValidationPendingCheck, { kind: "fillValue" }> {

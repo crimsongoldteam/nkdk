@@ -113,6 +113,7 @@ export type ProjectStatePendingDependencyCheck =
       readonly type: TypeDescriptionView
       readonly value: FillValueTypedValue
       readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
     }
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"

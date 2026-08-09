@@ -185,6 +185,17 @@ describe("MetadataAttributes YAML → XML", () => {
     )
   })
 
+  it("exports !xml DesignTimeRef as an empty typed reference", () => {
+    const yaml = importFromYAML(`Значение:
+  Получатель:
+    Тип: Справочник.Контрагенты
+    ЗначениеЗаполнения: !xml DesignTimeRef
+`)
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    expect(result).toContain('<FillValue xsi:type="xr:DesignTimeRef"/>')
+  })
+
   it("exports explicit empty Synonym as empty XML tag", () => {
     const result = convertYAML({ ПравилаОтправкиДокументов: { Тип: "Строка", Синоним: "" } })
     expect(result).toContain("<Synonym/>")

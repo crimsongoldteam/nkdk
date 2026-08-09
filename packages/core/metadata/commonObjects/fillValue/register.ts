@@ -10,6 +10,7 @@ import {
   classifyMetadataAttributeFillValue,
   classifyStandardAttributeFillValue,
   inferFillValueReferenceConstraint,
+  metadataAttributeUsesDefinedType,
   parseFillValueItem,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
@@ -33,11 +34,13 @@ function registerFillValueXMLTransport(): void {
     action: "transportScalar",
     itemType: "MetadataAttribute",
     propertyKey: "fillValue",
+    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
   })
   registerExplicitXMLProperty({
     action: "transportScalar",
     itemType: "StandardAttributeDescription",
     propertyKey: "fillValue",
+    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
   })
 }
 
@@ -65,6 +68,7 @@ export function registerFillValueImport(): void {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
     shouldTagXML: (params) => classifyMetadataAttributeFillValue(params).kind === "invalid",
+    shouldDefer: (params) => params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item),
   })
   registerDependentImportItemHandler("StandardAttributeDescription", {
     propertyKeys: ["fillValue"],
