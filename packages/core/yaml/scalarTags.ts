@@ -3,6 +3,8 @@ import { JSON_SCHEMA, defineScalarTag } from "js-yaml"
 export type YAMLScalarTag = "xml"
 export type YAMLScalarTagKey = string | number
 
+export const EMPTY_XML_TAG_SCHEMA_MARKER = "\u0000nkdk:empty-xml-tag" as const
+
 const taggedScalarKind = Symbol("taggedYamlScalar")
 const scalarTags = new WeakMap<object, Map<YAMLScalarTagKey, YAMLScalarTag>>()
 

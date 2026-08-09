@@ -1,6 +1,6 @@
 import { dump } from "js-yaml"
 import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString"
-import { NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
+import { copyYAMLScalarTags, NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
@@ -60,20 +60,20 @@ function prepareForDump(
     const prepared = value.map((item, index) =>
       prepareChildForDump(value, index, item, explicitStrings, undefinedValues)
     )
-    return {
-      dumpValue: prepared.map(({ dumpValue }) => dumpValue),
-      data: prepared.map(({ data }) => data),
-    }
+    const dumpValue = prepared.map(({ dumpValue }) => dumpValue)
+    const data = prepared.map(({ data }) => data)
+    copyYAMLScalarTags(value, data)
+    return { dumpValue, data }
   }
   if (value !== null && typeof value === "object") {
     const prepared = Object.entries(value).map(([key, item]) => [
       key,
       prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
     ] as const)
-    return {
-      dumpValue: Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue])),
-      data: Object.fromEntries(prepared.map(([key, item]) => [key, item.data])),
-    }
+    const dumpValue = Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue]))
+    const data = Object.fromEntries(prepared.map(([key, item]) => [key, item.data]))
+    copyYAMLScalarTags(value, data)
+    return { dumpValue, data }
   }
   return { dumpValue: value, data: value }
 }
@@ -123,6 +123,10 @@ function normalizeQuotedTypeLinkValues(yaml: string): string {
   return yaml.replace(/(: )"(-?\d+\(\d+\))"$/gm, "$1$2")
 }
 
+function normalizeEmptyXMLTags(yaml: string): string {
+  return yaml.replace(/!xml ""(?=[ \t]*(?:#.*)?$)/gm, "!xml")
+}
+
 function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>): string {
   let result = yaml
   for (const [marker, value] of explicitStrings) {
@@ -146,7 +150,11 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     quoteStyle: "double",
   })
   const text = removeDocumentFinalLineEnding(
-    normalizeQuotedTypeLinkValues(quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings))
+    normalizeEmptyXMLTags(
+      normalizeQuotedTypeLinkValues(
+        quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+      )
+    )
   )
   return { text, data: prepared.data }
 }

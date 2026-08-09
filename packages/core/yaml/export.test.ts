@@ -4,7 +4,7 @@ import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag } from "./scalarTags"
+import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
 
 describe("exportToYAML", () => {
   it.each([
@@ -19,14 +19,18 @@ describe("exportToYAML", () => {
     expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
   })
 
-  it("не переносит служебную пометку тега в смысловые данные", () => {
-    const source = { Значение: "Авто" }
+  it("сериализует пустой !xml без строкового значения и сохраняет пометку в данных", () => {
+    const source = { Значение: "" }
     markYAMLScalarTag(source, "Значение", "xml")
 
     const serialized = serializeYAMLDocument(source)
+    const reparsed = parseMetadataYaml(serialized.text)
 
-    expect(serialized.text).toBe("Значение: !xml Авто")
-    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+    expect(serialized.text).toBe("Значение: !xml")
+    expect(serialized.data).toEqual({ Значение: "" })
+    expect(yamlScalarTagAt(serialized.data, "Значение")).toBe("xml")
+    expect(serialized.data).toEqual(reparsed.data)
+    expect(yamlScalarTagAt(reparsed.data, "Значение")).toBe("xml")
   })
 
   it("exports a marked scalar with the local xml tag", () => {

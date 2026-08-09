@@ -12,6 +12,18 @@ describe("parseWithJsYaml", () => {
     expect(yamlScalarTagAt(parsed.data, "Поле")).toBe("xml")
   })
 
+  it.each([
+    ["пустой !xml", "Поле: !xml", "", "xml"],
+    ["пустое значение", "Поле:", undefined, undefined],
+    ["явная пустая строка", 'Поле: ""', "", undefined],
+  ] as const)("различает %s", (_name, text, value, tag) => {
+    const parsed = parseWithJsYaml(text)
+
+    expect(parsed.syntaxErrors).toEqual([])
+    expect(parsed.data).toEqual({ Поле: value })
+    expect(yamlScalarTagAt(parsed.data, "Поле")).toBe(tag)
+  })
+
   it("parses data and exposes location index", () => {
     const parsed = parseWithJsYaml("Имя: Тест\nРеквизиты:\n  - Имя: Первый\n")
 
