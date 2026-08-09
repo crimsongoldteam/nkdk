@@ -132,6 +132,7 @@ describe("importChildItemsFromXMLToYAML", () => {
       },
     })
 
-    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml Авто")
+    expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml")
+    expect(exportToYAML(yaml)).not.toContain("!xml Авто")
   })
 })

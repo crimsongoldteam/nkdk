@@ -8,6 +8,9 @@ import {
   getTreeNodeJSONSchemaPropertyAliases,
 } from "../../forms/commonObjects/childItems/treeYAML"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
+import { structuralYamlValue } from "../../validation/structuralYamlValue"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { getValidationSchemaRef } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
@@ -67,6 +70,44 @@ describe("form element JSON Schema", () => {
     expect(check.Check("Ложь")).toBe(true)
     expect(check.Check("Истина")).toBe(false)
     expect(check.Check("Авто")).toBe(false)
+  })
+
+  it("разрешает !xml для HeaderHorizontalAlign табличного поля только в validation", () => {
+    const refs = new Set<string>()
+    const schema = exportElementRuleToJSONSchema({
+      context: {
+        ...context,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs,
+          excludeImplicitValueYAML: true,
+          validationPropertyRefs: true,
+        },
+      },
+      rule: getElementRule("TableInputField"),
+      yamlKind: "ПолеВвода",
+    })
+    const schemaContext = Object.fromEntries([...refs].map((name) => {
+      const registered = getValidationSchemaRef(name)
+      if (registered === undefined) throw new Error(`Expected validation schema ${name}`)
+      return [name, registered]
+    }))
+    const check = compileValidationSchema(schemaContext, schema)
+    const marker = structuralYamlValue(parseMetadataYaml([
+      "Вид: ПолеВвода",
+      "ГоризонтальноеПоложениеВШапке: !xml",
+    ].join("\n")).data)
+
+    expect(check.Check(marker)).toBe(true)
+    expect(check.Check({ Вид: "ПолеВвода", ГоризонтальноеПоложениеВШапке: "Авто" })).toBe(false)
+    expect(check.Check({ Вид: "ПолеВвода", ГоризонтальноеПоложениеВШапке: "!xml Авто" })).toBe(false)
+
+    const hint = exportElementRuleToJSONSchema({
+      context,
+      rule: getElementRule("TableInputField"),
+      yamlKind: "ПолеВвода",
+    })
+    expect(JSON.stringify(hint)).not.toContain('"const":"!xml"')
   })
 
   it.each([

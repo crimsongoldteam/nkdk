@@ -390,7 +390,8 @@ describe("элементы формы XML → YAML → XML", () => {
         xml: { _name: "Колонка", DataPath: "Таблица.Поле", HeaderHorizontalAlign: "Auto" },
         name: "Колонка",
       }).yaml
-      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml Авто")
+      expect(exportToYAML(yaml)).toContain("ГоризонтальноеПоложениеВШапке: !xml")
+      expect(exportToYAML(yaml)).not.toContain("!xml Авто")
       expect(testMetadataItemFromYAMLToXML({ rule, yaml, name: "Колонка" }).xml).toHaveProperty(
         "HeaderHorizontalAlign",
         "Auto"
