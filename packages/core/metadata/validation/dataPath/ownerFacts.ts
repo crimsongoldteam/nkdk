@@ -1,35 +1,12 @@
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import type { MetadataItem } from "../../orchestration/property/types"
-import type { ObjectFieldIndex } from "./objectFields"
+import type { ObjectFieldIndex, ValidationOwnerFacts, ValidationNamedTypeItems } from "./contracts"
+export type { ValidationOwnerFacts } from "./contracts"
 import type { OwnerTypeRef } from "./types"
 import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import type { OwnerFactRole } from "../../orchestration/property/types"
 import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
 import { getSystemEnumeration } from "../../orchestration/property/systemEnumerationRegistry"
 import { typeDescriptionFromYAML } from "./formYamlIndex"
-
-export interface ValidationOwnerFacts {
-  ref: OwnerTypeRef
-  filePath: string
-  fieldIndex: ObjectFieldIndex
-  type?: TypeDescriptionView
-  commonAttributeOwnerLinks?: string[]
-  owners?: string[]
-  task?: string
-  registerRecords?: string[]
-  chartOfAccounts?: string
-  extDimensionTypes?: string
-  accountingFlags?: NamedTypeItems
-  extDimensionAccountingFlags?: NamedTypeItems
-  registerType?: string
-  attributes?: NamedTypeItems
-  dimensions?: NamedTypeItems
-  resources?: NamedTypeItems
-  addressingAttributes?: NamedTypeItems
-  tabularSections?: Array<{ name: string; attributes: NamedTypeItems; standardAttributes?: NamedTypeItems }>
-  standardAttributes?: NamedTypeItems
-  commands?: NamedTypeItems
-}
 
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
@@ -51,7 +28,7 @@ type ValidationOwnerFactsModel = MetadataItem & {
   commands?: unknown
 }
 
-type NamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
+type NamedTypeItems = ValidationNamedTypeItems
 
 export function createValidationOwnerFacts(params: {
   ref: OwnerTypeRef
@@ -237,3 +214,4 @@ function isTypeDescription(value: unknown): value is TypeDescriptionView {
 function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"

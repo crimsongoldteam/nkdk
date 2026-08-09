@@ -30,11 +30,14 @@ export {
 } from "./writerHandle"
 export {
   createProjectStateService,
-  openProjectStateReadSession,
   type CreateProjectStateServiceOptions,
   type ProjectStateComponentProjection,
   type ProjectStateService,
 } from "./service"
+export {
+  createDefaultProjectStateService,
+  openProjectStateReadSession,
+} from "./createDefaultService"
 export type {
   ProjectStateRefreshParams,
   ProjectStateRefreshProfile,

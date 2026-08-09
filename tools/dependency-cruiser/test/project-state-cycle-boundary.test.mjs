@@ -9,3 +9,14 @@ test("projectState leaf contracts не импортируют реализаци
     assert.doesNotMatch(source, /\.\.\/\.\.\/validation/u)
   }
 })
+
+test("projectState service не импортирует project worker или worker handle", () => {
+  const source = readFileSync("packages/core/metadata/projectState/service.ts", "utf8")
+  assert.doesNotMatch(source, /\.\.\/project\/preparedYamlProjectWorkerPool/u)
+  assert.doesNotMatch(source, /\.\.\/workerPool\/handle/u)
+})
+
+test("production graph не содержит циклов", () => {
+  const baseline = JSON.parse(readFileSync(".dependency-cruiser-cycle-baseline.json", "utf8"))
+  assert.deepEqual(baseline, { version: 1, components: [] })
+})

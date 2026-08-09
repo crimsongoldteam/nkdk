@@ -27,7 +27,7 @@ import {
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
-import { openProjectStateReadSession } from "../projectState/service"
+import { openProjectStateReadSession } from "../projectState/createDefaultService"
 import { resolveProjectPath } from "../project/path"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"

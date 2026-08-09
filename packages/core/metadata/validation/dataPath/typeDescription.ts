@@ -2,8 +2,8 @@ import type { TypeDescriptionView } from "../../orchestration/property/typeDescr
 import {
   getOwnerKindByRegisterRecordSetBase,
   getOwnerKindByTypeDescriptionBase,
-  resolveRegisteredDataPathType,
-} from "./registry"
+} from "./ownerKindRegistry"
+import { resolveRegisteredDataPathType } from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./types"
 
 export interface TypeDescriptionToDataPathTypeInfoOptions {

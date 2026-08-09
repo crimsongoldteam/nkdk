@@ -4,6 +4,7 @@ import type { CompiledMetadataResourceTopology } from "../../resourceTopology/ty
 import { getMetadataResourceTopology } from "../../resourceTopology/providerRegistry"
 import { expandMetadataPathPattern } from "../../resourceTopology/patterns"
 import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/xmlExportProjection"
+export type { SyncAreaDeclaration } from "../property/ruleContracts"
 
 export type XmlSyncArea =
   | {
@@ -39,13 +40,6 @@ export type XmlSyncArea =
       deleteParentAreaBeforeWrite?: boolean
       dumpInfoNames: string[]
     }
-
-export type SyncAreaDeclaration =
-  | { kind: "objectModule"; yamlFile: string; xmlPath: string }
-  | { kind: "formModule"; yamlFile: string; xmlPath: string }
-  | { kind: "formHelp"; yamlDir: string; xmlBasePath: string }
-  | { kind: "templateContent"; yamlFile: string; xmlPath: string }
-  | { kind: "commandModule"; yamlFile: string; xmlPath: string }
 
 export function resolveXmlSyncAreaForProjectPath(
   projectPath: string,

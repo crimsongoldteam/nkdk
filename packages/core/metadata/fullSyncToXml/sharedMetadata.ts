@@ -4,55 +4,30 @@ import {
   findBinaryHashIndex,
   forEachBinaryHashIndexEntry,
   openBinaryHashIndex,
-  type BinaryHashIndex,
 } from "../binary/hashIndex"
 import {
   createSharedStringPool,
   createSharedStringPoolView,
-  type SharedStringPool,
 } from "../validation/sharedStringPool"
 import type { FullXmlSyncAssignment } from "./types"
+import type {
+  FullXmlSyncCompositionChild,
+  FullXmlSyncCompositionEntry,
+  FullXmlSyncCompositionReader,
+  FullXmlSyncSharedCompositionSnapshot,
+} from "./sharedMetadataTypes"
+export type {
+  FullXmlSyncCompositionChild,
+  FullXmlSyncCompositionEntry,
+  FullXmlSyncCompositionReader,
+  FullXmlSyncSharedCompositionSnapshot,
+} from "./sharedMetadataTypes"
 
 const COMPOSITION_MAGIC = 0x4e4b434d
 const COMPOSITION_VERSION = 2
 const HEADER_INTS = 6
 const ENTRY_INTS = 7
 const EMPTY = ""
-
-export interface FullXmlSyncSharedCompositionSnapshot {
-  readonly strings: Pick<SharedStringPool, "buffer" | "count" | "bytes">
-  readonly table: SharedArrayBuffer
-  readonly childEntryIds: SharedArrayBuffer
-  readonly ownerRanges: SharedArrayBuffer
-  readonly ownerLookup: BinaryHashIndex
-  readonly bytes: number
-  readonly assignments: number
-}
-
-export interface FullXmlSyncCompositionEntry {
-  readonly id: string
-  readonly sourceProjectPath: string
-  readonly role: FullXmlSyncAssignment["role"]
-  readonly itemType: string
-  readonly itemName: string
-  readonly logicalAddress: string
-  readonly ownerLogicalAddress?: string
-}
-
-export interface FullXmlSyncCompositionChild {
-  readonly sourceProjectPath: string
-  readonly itemType: string
-  readonly itemName: string
-  readonly logicalAddress: string
-  readonly assignmentRole: "configuration" | "properties" | "fileItem"
-  readonly ownerLogicalAddress?: string
-}
-
-export interface FullXmlSyncCompositionReader {
-  assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  children(ownerLogicalAddress: string): readonly FullXmlSyncCompositionChild[]
-  itemTypeByYamlDir(): Readonly<Record<string, string>>
-}
 
 interface FullXmlSyncCompositionHashOptions {
   readonly hashOwner?: (ownerLogicalAddress: string) => bigint

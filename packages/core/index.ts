@@ -6,7 +6,7 @@ export { registerCoreMetadata } from "./metadata/register"
 export {
   ProjectStateReadSessionClosedError,
   createProjectStateFileUpdateBatch,
-  createProjectStateService,
+  createDefaultProjectStateService as createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,

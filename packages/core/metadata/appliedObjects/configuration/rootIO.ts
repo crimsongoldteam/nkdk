@@ -9,6 +9,7 @@ import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fromYAMLToXML"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
@@ -57,6 +58,7 @@ export const prepareConfigurationXML = (params: {
   }
   const rootRule = params.rootRule ?? MetadataConfigurationRules
   const converted = convertMetadataItemFromYAMLToXML({
+    convertProperties: convertPropertiesFromYAMLToXML,
     context: params.context,
     yaml,
     rule: rootRule,

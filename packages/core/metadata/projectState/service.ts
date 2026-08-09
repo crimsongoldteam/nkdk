@@ -10,12 +10,6 @@ import {
   type ProjectStateImportParams,
   type ProjectStateImportSession,
 } from "./importSession"
-import { openBinaryProjectStateReadSession } from "./binary/readSession"
-import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
-import {
-  createPreparedYamlProjectWorkerPool,
-  type PreparedYamlProjectWorkerPool,
-} from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateWriterHandle, type ProjectStateWriterHandle } from "./writerHandle"
 import { projectStateBinaryPath } from "./binary/persistence"
 import {
@@ -25,10 +19,8 @@ import {
   type ProjectStateRefreshParams,
   type ProjectStateRefreshResult,
 } from "./refresh"
-import {
-  createMetadataWorkerPoolHandle,
-} from "../workerPool/handle"
-import type { MetadataWorkerPoolHandle } from "../workerPool/types"
+import type { MetadataWorkerOperation, MetadataWorkerPoolHandle } from "../workerPool/types"
+import { createProjectStateRefreshOperation, type ProjectStateRefreshExecutor } from "./refreshExecutor"
 
 export interface ProjectStateComponentProjection {
   readonly componentPath: string
@@ -69,13 +61,33 @@ export interface ProjectStateService {
   close(): Promise<void>
 }
 
-export const openProjectStateReadSession = (token: ProjectStateReadToken): ProjectStateReadSession =>
-  openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator())
+export interface ProjectStateServiceRefreshExecutor extends ProjectStateRefreshExecutor {
+  initValidation(context: ConfigurationContext): Promise<unknown>
+}
+
+export interface ProjectStateServiceRefreshPool {
+  initValidation(context: ConfigurationContext): Promise<unknown>
+  runProjectStateRefresh(
+    params: {
+      projectDir: string
+      context: ConfigurationContext
+      source: { readonly batches: AsyncIterable<import("./refreshExecutor").ProjectStateValidationFileBatch> }
+      operation: import("./refreshExecutor").ProjectStateRefreshOperation
+    },
+    producer: Parameters<ProjectStateRefreshExecutor["processFiles"]>[1],
+  ): ReturnType<ProjectStateRefreshExecutor["processFiles"]>
+  close(): Promise<void>
+}
 
 export interface CreateProjectStateServiceOptions {
   readonly createWriter?: () => ProjectStateWriterHandle
-  readonly createPool?: (concurrency: number) => PreparedYamlProjectWorkerPool
+  readonly createPool?: (
+    concurrency: number,
+    operation?: MetadataWorkerOperation,
+    context?: ConfigurationContext,
+  ) => ProjectStateServiceRefreshExecutor | ProjectStateServiceRefreshPool
   readonly workerPool?: MetadataWorkerPoolHandle
+  readonly useWorkerOperation?: boolean
   readonly refresh?: (
     params: ProjectStateRefreshParams,
     dependencies: ProjectStateRefreshDependencies,
@@ -88,9 +100,12 @@ export function createProjectStateService(
 ): ProjectStateService {
   const createWriter = options.createWriter ?? (() => createProjectStateWriterHandle())
   const createPool = options.createPool
-  const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
+  const useWorkerOperation = options.useWorkerOperation ?? createPool === undefined
+  const workers = options.workerPool ?? createIdleMetadataWorkerPoolHandle()
   const refresh = options.refresh ?? refreshProjectState
-  const openReadSession = options.openReadSession ?? openProjectStateReadSession
+  const openReadSession = options.openReadSession ?? (() => {
+    throw new Error("ProjectState read session factory is not configured")
+  })
   let active: { readonly projectDir: string; readonly writer: ProjectStateWriterHandle } | undefined
   const retiredWriters = new Set<ProjectStateWriterHandle>()
   let sequence = Promise.resolve()
@@ -339,7 +354,7 @@ export function createProjectStateService(
     const concurrency = normalizeConcurrency(params.concurrency)
     const poolStart = performance.now()
     const previousWorkerCount = workers.size()
-    const workerOperation = createPool === undefined
+    const workerOperation = useWorkerOperation
       ? await workers.beginOperation({
           id: `project-state-refresh-${Date.now()}-${Math.random()}`,
           concurrency,
@@ -349,7 +364,7 @@ export function createProjectStateService(
       : undefined
     let workerPoolCreateMs = 0
     let workerReuseMs = 0
-    if (createPool === undefined) {
+    if (useWorkerOperation) {
       const elapsedMs = performance.now() - poolStart
       if (workers.size() > previousWorkerCount) {
         workerPoolCreateMs = elapsedMs
@@ -359,10 +374,10 @@ export function createProjectStateService(
         options.onPhase?.({ phase: "workerReuse", elapsedMs })
       }
     }
-    const pool = createPool?.(concurrency) ?? createPreparedYamlProjectWorkerPool({
-      concurrency,
-      operation: workerOperation!,
-    })
+    const pool = createPool === undefined
+      ? createOperationOnlyRefreshExecutor(workerOperation)
+      : createPool(concurrency, workerOperation, context)
+    const executor = asRefreshExecutor(pool, context)
     let poolCloseStarted = false
     let poolClosePromise: Promise<void> | undefined
     const closePool = () => {
@@ -430,8 +445,7 @@ export function createProjectStateService(
     try {
       const dependencies = createProjectStateRefreshDependencies({
         handle: refreshHandle,
-        pool,
-        context,
+        executor,
         afterProcessFiles: closePool,
         ...(options.closePoolBeforeCheckpoint === true ? { beforeCheckpoint: closePool } : {}),
       })
@@ -549,4 +563,48 @@ function normalizeConcurrency(value: number | undefined): number {
 
 function defaultContext(): ConfigurationContext {
   return { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } }
+}
+
+function createIdleMetadataWorkerPoolHandle(): MetadataWorkerPoolHandle {
+  return {
+    async beginOperation() {
+      throw new Error("Metadata worker pool is not configured")
+    },
+    async installProjectState() {},
+    async clearProjectState() {},
+    size: () => 0,
+    async close() {},
+  }
+}
+
+function asRefreshExecutor(
+  pool: ProjectStateServiceRefreshExecutor | ProjectStateServiceRefreshPool,
+  context: ConfigurationContext,
+): ProjectStateServiceRefreshExecutor {
+  if ("processFiles" in pool) return pool
+  return {
+    begin: createProjectStateRefreshOperation,
+    initValidation: (validationContext) => pool.initValidation(validationContext),
+    processFiles: (batches, producer, operation, projectDir) => pool.runProjectStateRefresh({
+      projectDir,
+      context,
+      source: { batches },
+      operation,
+    }, producer),
+    close: () => pool.close(),
+  }
+}
+
+function createOperationOnlyRefreshExecutor(
+  operation: MetadataWorkerOperation | undefined,
+): ProjectStateServiceRefreshExecutor {
+  if (operation === undefined) throw new Error("ProjectState refresh executor factory is not configured")
+  return {
+    begin: createProjectStateRefreshOperation,
+    async initValidation() {},
+    async processFiles() {
+      throw new Error("ProjectState refresh processFiles is not configured")
+    },
+    close: () => operation.finish("success"),
+  }
 }

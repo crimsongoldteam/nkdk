@@ -3,8 +3,8 @@ import {
   clearStandardMemberAliasesForTests,
   registerStandardMemberAlias,
 } from "../../orchestration/metadataTarget/standardMemberAliases"
-import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
+import type { OwnerMetadata, OwnerMetadataCache } from "./contracts"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./ownerKindRegistry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"

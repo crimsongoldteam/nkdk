@@ -5,8 +5,9 @@ import type {
   PropertyRule,
   StandardAttributeDescriptionsPropertyRule,
 } from "../../orchestration/property/types"
+import type { ObjectField, ObjectFieldIndex, OwnerMetadata } from "./contracts"
 import type { Diagnostic } from "../types"
-import type { OwnerMetadata } from "./ownerCache"
+export type { ObjectField, ObjectFieldIndex, ObjectFieldKind, ObjectFieldTableSource } from "./contracts"
 import {
   getObjectFieldCollectionDescriptors,
   resolveIndexTimeStandardMember,
@@ -14,35 +15,6 @@ import {
 } from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import { type DataPathTableInfo, type DataPathTypeInfo, unknownDataPathTypeInfo } from "./types"
-
-export type ObjectFieldKind =
-  | "attribute"
-  | "standardAttribute"
-  | "tabularSection"
-  | "dimension"
-  | "resource"
-  | "addressingAttribute"
-
-export interface ObjectField {
-  name: string
-  targetName?: string
-  kind: ObjectFieldKind
-  typeInfo: DataPathTypeInfo
-  tableSource?: ObjectFieldTableSource
-  sourceCollection?: string
-}
-
-export interface ObjectFieldTableSource {
-  table: DataPathTableInfo
-  columns: Map<string, ObjectField>
-  hasColumns: boolean
-}
-
-export interface ObjectFieldIndex {
-  fields: Map<string, ObjectField>
-  standardAttributeAliases: Map<string, string>
-  diagnostics: Diagnostic[]
-}
 
 type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "facts" | "rule">
 

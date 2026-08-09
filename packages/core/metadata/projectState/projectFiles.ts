@@ -1,4 +1,5 @@
-import { toPreparedYamlProjectFileDescriptor, type PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
+import { toPreparedYamlProjectFileDescriptor } from "../project/preparedYamlDescriptor"
+import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
 import {
   discoverMetadataProjectResources,
   iterateMetadataProjectResourceCandidates,

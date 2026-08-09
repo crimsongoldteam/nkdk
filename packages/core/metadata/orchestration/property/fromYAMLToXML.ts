@@ -437,6 +437,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nested =
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
+              convertItem: convertMetadataItemFromYAMLToXML,
+              convertProperties: convertPropertiesFromYAMLToXML,
               context: nestedContext,
               yaml: nestedYAML,
               descriptor: effectiveNestedRule,
@@ -449,6 +451,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
           : convertMetadataItemFromYAMLToXML({
+              convertProperties: convertPropertiesFromYAMLToXML,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,
               rule:

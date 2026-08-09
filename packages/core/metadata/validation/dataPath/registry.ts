@@ -1,7 +1,5 @@
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import type { FormDataPathIndex } from "./formIndex"
-import type { ObjectField } from "./objectFields"
-import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
+import type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
+import type { ObjectField, OwnerMetadata, OwnerMetadataCache } from "./contracts"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 import {
   clearStandardMembersForTests,
@@ -9,16 +7,22 @@ import {
   snapshotStandardMembersForTests,
   type StandardMemberDeclaration as SnapshotStandardMemberDeclaration,
 } from "./standardMembers"
-
-export interface DataPathOwnerKindRegistration {
-  kind: OwnerTypeRef["kind"]
-  projectDir: string
-  rule: MetadataItemRule
-  typeDescriptionBases?: readonly string[]
-  registerRecordSetBases?: readonly string[]
-  metadataLinkPrefixes?: readonly string[]
-  aliases?: readonly OwnerTypeRef["kind"][]
-}
+import {
+  clearOwnerKindRegistryForTests,
+  restoreOwnerKindRegistryForTests,
+  snapshotOwnerKindRegistryForTests,
+  type OwnerKindRegistrySnapshot,
+} from "./ownerKindRegistry"
+export {
+  getDataPathOwnerKind,
+  getDataPathOwnerKindByItemType,
+  getMetadataLinkPrefixesByOwnerKind,
+  getOwnerKindByMetadataLinkPrefix,
+  getOwnerKindByRegisterRecordSetBase,
+  getOwnerKindByTypeDescriptionBase,
+  registerDataPathOwnerKind,
+  type DataPathOwnerKindRegistration,
+} from "./ownerKindRegistry"
 
 export type DataPathTypeResolver = (params: { baseType: string; name?: string }) => DataPathTypeInfo | undefined
 
@@ -97,10 +101,6 @@ export type RegisterRecordsItemResolver = (params: { owner: OwnerMetadata; segme
     }
   | undefined
 
-const ownerKinds = new Map<string, DataPathOwnerKindRegistration>()
-const ownerKindByTypeBase = new Map<string, string>()
-const ownerKindByRegisterRecordSetBase = new Map<string, string>()
-const ownerKindByMetadataLinkPrefix = new Map<string, string>()
 const typeResolvers: DataPathTypeResolver[] = []
 const objectFieldCollectionProviders: ObjectFieldCollectionProvider[] = []
 const standardAttributeTypeResolvers: StandardAttributeTypeResolver[] = []
@@ -111,10 +111,7 @@ const opaqueTraversalResolvers: OpaqueTraversalResolver[] = []
 const registerRecordsItemResolvers: RegisterRecordsItemResolver[] = []
 
 export interface DataPathResolverRegistrySnapshot {
-  ownerKinds: Map<string, DataPathOwnerKindRegistration>
-  ownerKindByTypeBase: Map<string, string>
-  ownerKindByRegisterRecordSetBase: Map<string, string>
-  ownerKindByMetadataLinkPrefix: Map<string, string>
+  ownerKinds: OwnerKindRegistrySnapshot
   typeResolvers: DataPathTypeResolver[]
   objectFieldCollectionProviders: ObjectFieldCollectionProvider[]
   standardAttributeTypeResolvers: StandardAttributeTypeResolver[]
@@ -124,44 +121,6 @@ export interface DataPathResolverRegistrySnapshot {
   opaqueTraversalResolvers: OpaqueTraversalResolver[]
   registerRecordsItemResolvers: RegisterRecordsItemResolver[]
   standardMembers: Map<string, SnapshotStandardMemberDeclaration[]>
-}
-
-export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistration): void {
-  ownerKinds.set(registration.kind, registration)
-  for (const alias of registration.aliases ?? []) ownerKinds.set(alias, registration)
-  for (const base of registration.typeDescriptionBases ?? []) ownerKindByTypeBase.set(base, registration.kind)
-  for (const base of registration.registerRecordSetBases ?? [])
-    ownerKindByRegisterRecordSetBase.set(base, registration.kind)
-  for (const prefix of registration.metadataLinkPrefixes ?? []) {
-    if (!ownerKindByMetadataLinkPrefix.has(prefix)) ownerKindByMetadataLinkPrefix.set(prefix, registration.kind)
-  }
-}
-
-export function getDataPathOwnerKind(kind: string): DataPathOwnerKindRegistration | undefined {
-  return ownerKinds.get(kind)
-}
-
-export function getDataPathOwnerKindByItemType(itemType: string): DataPathOwnerKindRegistration | undefined {
-  for (const registration of ownerKinds.values()) {
-    if (registration.rule.itemType === itemType) return registration
-  }
-  return undefined
-}
-
-export function getOwnerKindByTypeDescriptionBase(baseType: string): string | undefined {
-  return ownerKindByTypeBase.get(baseType)
-}
-
-export function getOwnerKindByRegisterRecordSetBase(baseType: string): string | undefined {
-  return ownerKindByRegisterRecordSetBase.get(baseType)
-}
-
-export function getOwnerKindByMetadataLinkPrefix(prefix: string): string | undefined {
-  return ownerKindByMetadataLinkPrefix.get(prefix)
-}
-
-export function getMetadataLinkPrefixesByOwnerKind(kind: string): readonly string[] {
-  return ownerKinds.get(kind)?.metadataLinkPrefixes ?? []
 }
 
 export function registerDataPathTypeResolver(resolver: DataPathTypeResolver): void {
@@ -272,10 +231,7 @@ export function resolveMovementItem(
 }
 
 export function clearDataPathResolverRegistryForTests(): void {
-  ownerKinds.clear()
-  ownerKindByTypeBase.clear()
-  ownerKindByRegisterRecordSetBase.clear()
-  ownerKindByMetadataLinkPrefix.clear()
+  clearOwnerKindRegistryForTests()
   typeResolvers.length = 0
   objectFieldCollectionProviders.length = 0
   standardAttributeTypeResolvers.length = 0
@@ -289,10 +245,7 @@ export function clearDataPathResolverRegistryForTests(): void {
 
 export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegistrySnapshot {
   return {
-    ownerKinds: new Map(ownerKinds),
-    ownerKindByTypeBase: new Map(ownerKindByTypeBase),
-    ownerKindByRegisterRecordSetBase: new Map(ownerKindByRegisterRecordSetBase),
-    ownerKindByMetadataLinkPrefix: new Map(ownerKindByMetadataLinkPrefix),
+    ownerKinds: snapshotOwnerKindRegistryForTests(),
     typeResolvers: [...typeResolvers],
     objectFieldCollectionProviders: [...objectFieldCollectionProviders],
     standardAttributeTypeResolvers: [...standardAttributeTypeResolvers],
@@ -307,10 +260,7 @@ export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegi
 
 export function restoreDataPathResolverRegistryForTests(snapshot: DataPathResolverRegistrySnapshot): void {
   clearDataPathResolverRegistryForTests()
-  for (const [key, value] of snapshot.ownerKinds) ownerKinds.set(key, value)
-  for (const [key, value] of snapshot.ownerKindByTypeBase) ownerKindByTypeBase.set(key, value)
-  for (const [key, value] of snapshot.ownerKindByRegisterRecordSetBase) ownerKindByRegisterRecordSetBase.set(key, value)
-  for (const [key, value] of snapshot.ownerKindByMetadataLinkPrefix) ownerKindByMetadataLinkPrefix.set(key, value)
+  restoreOwnerKindRegistryForTests(snapshot.ownerKinds)
   typeResolvers.push(...snapshot.typeResolvers)
   objectFieldCollectionProviders.push(...snapshot.objectFieldCollectionProviders)
   standardAttributeTypeResolvers.push(...snapshot.standardAttributeTypeResolvers)

@@ -106,6 +106,7 @@ export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
 }
 export type ProjectStateFileUpdate = ProjectStateResourceUpdate | ProjectStateYamlFileUpdate
 export interface ProjectStateFileUpdateBatch { readonly updates: readonly ProjectStateFileUpdate[]; readonly hashBytes: Uint8Array }
+export interface ProjectStateEncodedFileUpdateBatch { readonly bytes: Uint8Array<ArrayBuffer> }
 export type ProjectStateFileUpdateBatchEntry =
   | { readonly update: ProjectStateFileUpdate; readonly hash: bigint; readonly hashBytes?: never }
   | { readonly update: ProjectStateFileUpdate; readonly hash?: never; readonly hashBytes: Uint8Array }

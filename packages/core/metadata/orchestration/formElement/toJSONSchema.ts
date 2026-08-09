@@ -1,7 +1,7 @@
 import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
 import { exportPropertiesToJSONSchema } from "../property/toJSONSchema"
-import { getElementRule } from "./ruleFactory"
+import { getElementRule } from "./ruleRegistry"
 import { ElementRule, type ElementType } from "./types"
 
 export const exportElementRuleToJSONSchema = (params: {

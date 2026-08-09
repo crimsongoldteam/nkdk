@@ -12,10 +12,8 @@ import { assertProjectStateImportFinalFileStateBatch } from "../importSession"
 import { assertProjectStatePortableData } from "../fileUpdateValidation"
 import { BinaryStringPoolBuilder, openBinaryStringPool, packBinaryStringPool, readBinaryString } from "./stringPool"
 import { decodeBinaryValue, encodeBinaryValue } from "./valueCodec"
-
-export interface ProjectStateEncodedFileUpdateBatch {
-  readonly bytes: Uint8Array<ArrayBuffer>
-}
+import type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
+export type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
 
 export interface ProjectStateEncodedImportIndexBatch {
   readonly bytes: Uint8Array<ArrayBuffer>

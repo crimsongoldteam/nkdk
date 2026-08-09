@@ -53,8 +53,8 @@ import type {
   PreparedMetadataDependency,
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
-} from "./preparedYamlProject"
-import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
+} from "./preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
 import { classifyMetadataProjectPath } from "./resources"
 import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
 import {

@@ -3,6 +3,7 @@ import { dirname, join } from "path"
 import { getChildContextToXML } from "../../context/helpers"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { createYAMLPropertySource } from "../property/fromYAMLToXML"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { FileChildNamesDescriptor } from "../property/fn"
@@ -79,6 +80,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
   }
 
   const converted = convertMetadataItemFromYAMLToXML({
+    convertProperties: convertPropertiesFromYAMLToXML,
     context: contextWithOwner,
     rule: withFileItemCollectionReferenceExportRules(params.rule),
     yaml: yamlObj,
@@ -212,6 +214,7 @@ registerMetadataXmlPrepareCapability({
       const nestedItemContext =
         nestedRule.resolveItemContext?.({ context: nestedContext, name: itemName, propertyRule }) ?? nestedContext
       const converted = convertMetadataItemFromYAMLToXML({
+        convertProperties: convertPropertiesFromYAMLToXML,
         context: nestedItemContext,
         yaml: normalizedYAML,
         rule: itemRule,

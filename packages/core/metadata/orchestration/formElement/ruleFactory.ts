@@ -13,30 +13,13 @@ import {
   withConfigurationIndexExportLogicalAddress,
 } from "../../configurationIndex/referenceView"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
-import type { ElementRule, ElementType, ElementXML, SingleElementType } from "./types"
-
-export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
-  const rule = elementRulesRegistry.get(itemType)
-  if (!rule) {
-    throw new Error(`Unknown element type: ${itemType}`)
-  }
-  return rule as Rule
-}
-
-export const getElementXMLTagName = <Rule extends ElementRule>(itemType: Rule["itemType"]): string => {
-  const rule = getElementRule(itemType)
-  return rule.xmlTag ?? rule.itemType
-}
-
-export function registerElementRule(itemType: ElementType, elementRule: ElementRule): void {
-  elementRulesRegistry.set(itemType, elementRule)
-
-  // registerAsTypeRegistry(itemType, elementRule)
-}
-
-export const clearElementRulesRegistry = (): void => {
-  elementRulesRegistry.clear()
-}
+import type { ElementRule, ElementXML, SingleElementType } from "./types"
+export {
+  clearElementRulesRegistry,
+  getElementRule,
+  getElementXMLTagName,
+  registerElementRule,
+} from "./ruleRegistry"
 
 type ToXMLFn<T extends object> = (params: {
   context: ConfigurationContextWithExportToXML
@@ -152,5 +135,3 @@ const registerExportToJSONSchema = <Rule extends ElementRule>(params: {
     })
   )
 }
-
-const elementRulesRegistry = new Map<ElementType, ElementRule>()

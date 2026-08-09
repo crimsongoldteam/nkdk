@@ -1,6 +1,6 @@
 import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTarget/types"
-import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
-import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
+import type { SyncAreaDeclaration, TypeRulesOperations, YAMLPropertySource, YAMLToXMLCondition } from "./ruleContracts"
+export type { ConfigurationIndexAddressingMode } from "./ruleContracts"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 import type { OwnerFactRole } from "./ownerFactRole"
 
@@ -13,7 +13,7 @@ import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
-export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
+import type { ConfigurationIndexAddressingMode } from "./ruleContracts"
 
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
@@ -245,7 +245,7 @@ export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyR
   type: "StandardAttributeDescriptions"
   standartAttributeNames: Record<string, string>
   standartAttributeNamesXML?: (
-    source: import("./fromYAMLToXMLTypes").YAMLPropertySource | unknown
+    source: YAMLPropertySource | unknown
   ) => Record<string, string>
 }
 

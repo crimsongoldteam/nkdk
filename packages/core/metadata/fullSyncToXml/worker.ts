@@ -12,12 +12,10 @@ import {
 } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import {
-  openProjectStateReadSession,
-  type ProjectStateReadSession,
-  type ProjectStateReadToken,
-} from "../projectState"
+import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
+import { openProjectStateReadSession } from "../projectState/createDefaultService"
+import type { ProjectStateReadSession } from "../projectState/readSession"
+import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import {
   createProjectStateOwnerMetadataCache,
   type ProjectStateOwnerMetadataCache,
