@@ -7,7 +7,11 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { Diagnostic } from "../diagnostics/types"
-import { resolveFullXmlSyncComponentProfile, type FullXmlSyncProfileRuntime } from "../fullSyncToXml/componentProfile"
+import {
+  attachBorrowedFormPaths,
+  resolveFullXmlSyncComponentProfile,
+  type FullXmlSyncProfileRuntime,
+} from "../fullSyncToXml/componentProfile"
 import { readProfileComponentStates } from "../fullSyncToXml/componentRuntime"
 import { buildXmlSyncPlan } from "../fullSyncToXml/selection"
 import { createFullXmlSyncCompositionSnapshot } from "../fullSyncToXml/sharedMetadata"
@@ -171,11 +175,11 @@ async function prepareValidatedPackage(
     referencesFor: (sourceProjectPath) => references.bySource.get(sourceProjectPath) ?? [],
     resolveCanonicalTarget: (canonical) => references.targetByCanonical.get(canonical),
   })
-  const plan = buildXmlSyncPlan({
+  const plan = attachBorrowedFormPaths(buildXmlSyncPlan({
     structure: runtime.target.structure,
     hashes: runtime.target.hashes,
     selection: impact.selection,
-  })
+  }), runtime)
   return writePreparedPackage({ ...params, runtime, plan, impact, migration, previous, diagnostics })
 }
 

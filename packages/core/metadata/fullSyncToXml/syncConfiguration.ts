@@ -17,7 +17,7 @@ import {
 import { createValidationProfiler } from "../validation/profile"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateComponentProjection, ProjectStateReadToken, ProjectStateService } from "../projectState"
-import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
+import { attachBorrowedFormPaths, resolveFullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
@@ -179,26 +179,7 @@ export async function syncComponentToXml(
       hashes: target.hashes,
       selection,
     })
-    const borrowedFormsByAddress = new Map(
-      (runtime.borrowedForms ?? []).map((form) => [form.logicalAddress, form])
-    )
-    const plan: FullXmlSyncPlan = {
-      ...basePlan,
-      assignments: basePlan.assignments.map((assignment) => {
-        const borrowed = borrowedFormsByAddress.get(assignment.logicalAddress)
-        return borrowed === undefined
-          ? assignment
-          : {
-              ...assignment,
-              baseFormPaths: {
-                baseProjectPath: borrowed.baseProjectPath,
-                ...(borrowed.savedProjectPath === undefined
-                  ? {}
-                  : { savedProjectPath: borrowed.savedProjectPath }),
-              },
-            }
-      }),
-    }
+    const plan = attachBorrowedFormPaths(basePlan, runtime)
 
     const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
     const usesUniversalWorkers = deps.createWorkerPool === undefined

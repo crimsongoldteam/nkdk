@@ -47,6 +47,17 @@ const topology = compileMetadataResourceTopology([{
     document("", "Objects/{ownerName}/Forms/{itemName}.xml", "metadata", true),
     document("", "Objects/{ownerName}/Forms/{itemName}/Ext/Form.xml", "body", true),
     {
+      kind: "yamlCompanion" as const,
+      assignmentProjectPattern: "Объект/{ownerName}/Формы/{itemName}/Форма.yaml",
+      projectPattern: "Объект/{ownerName}/Формы/{itemName}/БазоваяФорма.yaml",
+      required: false,
+      itemRule: formRule,
+      projectRole: "form" as const,
+      indexContribution: "isolated" as const,
+      logicalAddressSegment: "ОсноваФормы",
+      source,
+    },
+    {
       kind: "externalFile" as const,
       assignmentProjectPattern: "",
       projectPattern: "Объект/{ownerName}/Формы/{itemName}/Модуль.bsl",
@@ -87,6 +98,7 @@ const language = "Язык/Русский/Свойства.yaml"
 const owner = "Объект/Товары/Свойства.yaml"
 const firstForm = "Объект/Товары/Формы/Первая/Форма.yaml"
 const firstModule = "Объект/Товары/Формы/Первая/Модуль.bsl"
+const firstBaseForm = "Объект/Товары/Формы/Первая/БазоваяФорма.yaml"
 const secondForm = "Объект/Товары/Формы/Вторая/Форма.yaml"
 const secondModule = "Объект/Товары/Формы/Вторая/Модуль.bsl"
 
@@ -109,6 +121,28 @@ describe("partial XML impact planner", () => {
       "Objects/Товары/Forms/Первая/Ext/Form.xml",
     ])
     expect(result.loadTargets).toEqual(["Objects/Товары/Forms/Первая.xml"])
+  })
+
+  it.each(["changed", "added"] as const)("включает задание формы при %s её сохранённой основы", (kind) => {
+    const result = plan(
+      [root, language, owner, firstForm, firstBaseForm],
+      changes({ [kind]: [firstBaseForm] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
+    expect(documentPaths(result)).toEqual([
+      "Objects/Товары/Forms/Первая.xml",
+      "Objects/Товары/Forms/Первая/Ext/Form.xml",
+    ])
+  })
+
+  it("включает задание формы при удалении сохранённой основы", () => {
+    const result = plan(
+      [root, language, owner, firstForm],
+      changes({ deleted: [firstBaseForm] }),
+    )
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [firstForm] })
   })
 
   it("выбирает только изменённый модуль и загружает его", () => {
