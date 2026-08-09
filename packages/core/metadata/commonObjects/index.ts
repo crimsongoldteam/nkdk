@@ -140,7 +140,6 @@ import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
-import "./childFormNames/syncExternalFromXML"
 import "./childFormNames/resourceTopology"
 
 import "./childFileItemNames/fromXML"

@@ -132,23 +132,6 @@
     },
     {
       "modules": [
-        "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromXML.ts",
-        "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromYAML.ts",
-        "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/toYAML.ts",
-        "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/types.ts"
-      ],
-      "dependencyCount": 6
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.ts",
-        "packages/core/metadata/commonObjects/index.ts",
-        "packages/core/metadata/forms/clientApplicationForm/convertFromXML.ts"
-      ],
-      "dependencyCount": 3
-    },
-    {
-      "modules": [
         "packages/core/metadata/commonObjects/metadataValue/fixedArray/fromXML.ts",
         "packages/core/metadata/commonObjects/metadataValue/formChoiceList/fromXML.ts",
         "packages/core/metadata/commonObjects/metadataValue/fromXML.ts"

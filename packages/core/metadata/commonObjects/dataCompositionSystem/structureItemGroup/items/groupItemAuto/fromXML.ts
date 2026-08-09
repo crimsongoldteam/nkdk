@@ -1,6 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../../../context/types"
 import { importPropertyFromXML } from "../../../../../orchestration/property/fromXML"
 import type { PropertyRule } from "../../../../../orchestration/property/types"
+import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"
 
@@ -16,3 +17,5 @@ export const importGroupItemAutoFromXML = (
     use: importPropertyFromXML({ context, rule: GroupItemAutoRules.properties.use, value: source["dcsset:use"] }),
   } as GroupItemAuto
 }
+
+registerTypeRule("GroupItemAuto", "importFromXML", importGroupItemAutoFromXML as any)
