@@ -88,7 +88,7 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/validation/generateProjectValidationAjvStandalone.ts")],
+  entryPoints: [join(repoRoot, "packages/core/metadata/workerPool/generateProjectValidationAjvStandaloneEntry.ts")],
   outfile: join(distDir, "generateProjectValidationAjvStandalone.js"),
 })
 
