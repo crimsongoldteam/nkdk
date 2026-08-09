@@ -187,13 +187,20 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
   })
 
-  it("exports !xml DesignTimeRef without a text payload", () => {
+  it.each([
+    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }],
+    [
+      "Справочник.ПапкиФайлов.ПустаяСсылка",
+      { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+    ],
+  ] as const)("exports !xml %s as exact DesignTimeRef XML", (fillValue, expected) => {
     const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
   Владелец:
-    ЗначениеЗаполнения: !xml DesignTimeRef
+    ЗначениеЗаполнения: !xml ${fillValue}
 `, { Owner: "Владелец" })
 
-    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xr:DesignTimeRef" })
+    expect(item["xr:FillValue"]).toEqual(expected)
+    expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
   })
 
   function standardAttributeFillValueXML(
