@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import { registerValidationMetadata } from "./registerValidationMetadata"
+import { registerCoreMetadata } from "../register"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
@@ -9,7 +9,7 @@ import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateKnownProjectYaml } from "../importFromXml/knownYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
-registerValidationMetadata()
+registerCoreMetadata()
 
 describe("fill value references", () => {
   it("indexes an ordinary attribute reference but not a primitive fill value", () => {
