@@ -113,6 +113,44 @@ describe("standard member fill value", () => {
     )
   })
 
+  it.each([undefined, []])("rejects fill value without catalog owners", (owners) => {
+    expect(
+      classify(
+        catalogMember("Владелец"),
+        { type: "ref", value: "Catalog.ПапкиФайлов.EmptyRef" },
+        { owners }
+      )
+    ).toEqual({
+      kind: "invalid",
+      reason: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
+    })
+  })
+
+  it("distinguishes configured, malformed, and incompatible catalog owners", () => {
+    const member = catalogMember("Владелец")
+
+    expect(
+      classify(member, { type: "ref", value: "Catalog.ПапкиФайлов.EmptyRef" }, { owners: ["Catalog.ПапкиФайлов"] })
+    ).toMatchObject({ kind: "implicit" })
+    expect(
+      classify(member, { type: "ref", value: "Catalog.ПапкиФайлов.EmptyRef" }, {
+        owners: ["Catalog.ПапкиФайлов", "Catalog.КаталогиФайлов"],
+      })
+    ).toMatchObject({ kind: "valid" })
+    expect(classify(member, { type: "ref", value: "Catalog.ПапкиФайлов.EmptyRef" }, { owners: [42] })).toEqual({
+      kind: "unresolved",
+      reason: "не удалось определить тип одного из владельцев",
+    })
+    expect(
+      classify(member, { type: "ref", value: "Catalog.ПапкиФайлов.EmptyRef" }, { owners: ["сломано"] })
+    ).toEqual({ kind: "unresolved", reason: "не удалось определить тип одного из владельцев" })
+    expect(
+      classify(member, { type: "ref", value: "Catalog.ДругойСправочник.EmptyRef" }, {
+        owners: ["Catalog.ПапкиФайлов"],
+      })
+    ).toMatchObject({ kind: "invalid" })
+  })
+
   it("does not diagnose an undeclared policy", () => {
     expect(classify(catalogMember("Наименование"), { type: "string", value: "" }).kind).toBe("notSpecified")
   })

@@ -99,8 +99,14 @@ function classifyCode(
 }
 
 function classifyOwnerReference(value: MetadataTypedValue, ownersValue: unknown): FillValueClassification {
-  if (!Array.isArray(ownersValue) || ownersValue.length === 0) {
-    return { kind: "unresolved", reason: "не определены владельцы справочника" }
+  if (ownersValue === undefined || (Array.isArray(ownersValue) && ownersValue.length === 0)) {
+    return {
+      kind: "invalid",
+      reason: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
+    }
+  }
+  if (!Array.isArray(ownersValue)) {
+    return { kind: "unresolved", reason: "не удалось определить владельцев справочника" }
   }
 
   const alternatives = ownersValue.flatMap((owner): FillValueAlternative[] => {
