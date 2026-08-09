@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import { testMetadataItemFromXMLToYAML } from "../../../../tests/directConversion"
 import { RecalculationRules } from "./rules"
 
 import "./register"

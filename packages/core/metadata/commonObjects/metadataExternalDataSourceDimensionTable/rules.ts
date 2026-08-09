@@ -1,6 +1,6 @@
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { MetadataCommandRules } from "../../appliedObjects/metadataCommand/rules"
+import { MetadataCommandRules } from "../metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"

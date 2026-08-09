@@ -21,7 +21,7 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import type { YAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
-import { MetadataCommandRules } from "../metadataCommand/rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataAccumulationRegisterStandardAttributeNames: Record<string, string> = {

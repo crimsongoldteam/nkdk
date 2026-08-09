@@ -5,7 +5,7 @@ import { TypeDescriptionXML, TypeDescriptionYAML } from "../../commonObjects/typ
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataItemLinkYAML } from "../../commonObjects/metadataRef/types"
-import { MetadataCommandRules } from "./rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 
 export type MetadataCommand = MetadataTypeByRule<typeof MetadataCommandRules>
 

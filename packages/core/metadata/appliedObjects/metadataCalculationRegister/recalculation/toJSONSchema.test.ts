@@ -1,7 +1,7 @@
-import { compileValidationSchema } from "./../../validation/compileValidationSchema"
+import { compileValidationSchema } from "../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { mockContext } from "../../../tests/mockContext"
+import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { mockContext } from "../../../../tests/mockContext"
 
 const compileSchema = () => {
   const exportToJSONSchema = getTypeRule("Recalculations", "exportToJSONSchema")

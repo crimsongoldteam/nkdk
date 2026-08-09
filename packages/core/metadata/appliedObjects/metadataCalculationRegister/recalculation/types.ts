@@ -1,7 +1,7 @@
 import { Type } from "typebox"
-import { MetadataNameYAML } from "../metadataName/types"
-import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
-import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
+import { MetadataNameYAML } from "../../../commonObjects/metadataName/types"
+import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { RecalculationRules } from "./rules"
 
 export type Recalculation = MetadataTypeByRule<typeof RecalculationRules>

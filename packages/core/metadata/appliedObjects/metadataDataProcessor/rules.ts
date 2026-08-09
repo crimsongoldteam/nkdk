@@ -13,7 +13,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
-import { MetadataCommandRules } from "../metadataCommand/rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { ClientApplicationFormWithExtendedPresentationRules } from "../../forms/clientApplicationForm/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]

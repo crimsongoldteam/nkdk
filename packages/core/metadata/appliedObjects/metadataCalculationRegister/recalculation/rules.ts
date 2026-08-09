@@ -1,12 +1,12 @@
-import { metadataCalculationRegisterDimensionsRule } from "../../appliedObjects/metadataAccountingRegister/builders"
-import { internalInfoRule } from "../internalInfo/types"
-import { booleanRule } from "../boolean/types"
-import { i8nTextRule } from "../i8nText/types"
-import { moduleRule } from "../module/types"
-import { stringRule } from "../string/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
-import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { metadataCalculationRegisterDimensionsRule } from "../../metadataAccountingRegister/builders"
+import { internalInfoRule } from "../../../commonObjects/internalInfo/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../../commonObjects/i8nText/types"
+import { moduleRule } from "../../../commonObjects/module/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { uuidPropertyRule } from "../../../commonObjects/uuid/rule"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {

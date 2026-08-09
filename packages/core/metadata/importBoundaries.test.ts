@@ -163,6 +163,16 @@ describe("metadata import boundaries", () => {
     }
   })
 
+  it("commonObjects production не импортирует appliedObjects", () => {
+    const offenders = listTypeScriptFilesOnDisk(COMMON_OBJECTS_DIR)
+      .filter((filePath) => !filePath.endsWith(".test.ts"))
+      .flatMap((filePath) => extractModuleSpecifiers(readFileSync(filePath, "utf8"))
+        .filter((specifier) => specifier.includes("appliedObjects/"))
+        .map((specifier) => ({ filePath: relative(process.cwd(), filePath), specifier })))
+
+    expect(offenders).toEqual([])
+  })
+
   it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {
     expect(
       findImportOffenders(ORCHESTRATION_APPLIED_OBJECT_DIR, FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS)
@@ -620,6 +630,14 @@ function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = 
         (options.includeTests || !file.absolutePath.endsWith(".test.ts"))
     )
     .map((file) => file.absolutePath)
+}
+
+function listTypeScriptFilesOnDisk(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) return listTypeScriptFilesOnDisk(path)
+    return entry.isFile() && entry.name.endsWith(".ts") ? [path] : []
+  })
 }
 
 function readSource(filePath: string): string {

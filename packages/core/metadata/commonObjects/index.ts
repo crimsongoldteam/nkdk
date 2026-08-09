@@ -182,7 +182,6 @@ import "./webSocketClientHeaders/toYAML"
 
 import "./metadataValue/associatedTableToJSONSchema"
 
-import "./recalculation/register"
 import "./accountingFlag/register"
 import "./standardAttributeDescription/registerCollectionRule"
 import "./standardPeriod"

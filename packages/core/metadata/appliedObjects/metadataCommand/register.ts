@@ -1,5 +1,7 @@
 import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
-import { MetadataCommandRules } from "./rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
+import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCommands",
@@ -7,3 +9,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Command",
   keyField: "name",
 })
+
+registerProjectJSONSchema("MetadataCommand", ({ context }) =>
+  exportMetadataItemToJSONSchema({ context, rule: MetadataCommandRules })
+)

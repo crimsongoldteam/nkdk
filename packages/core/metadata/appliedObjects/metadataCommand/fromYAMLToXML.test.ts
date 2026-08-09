@@ -5,7 +5,7 @@ import { convertMetadataItemFromYAMLToXML } from "../../ruleRuntime/metadataItem
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
 import { mockContext, mockContextToXML } from "../../../tests/mockContext"
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
-import { MetadataCommandRules } from "./rules"
+import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 
 const normalizeXML = (value: string) =>
   value

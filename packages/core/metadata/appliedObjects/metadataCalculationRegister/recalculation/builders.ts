@@ -1,8 +1,8 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 
 export interface RecalculationsWidePropertyRule extends WidePropertyRuleBase {
   type: "Recalculations"
