@@ -227,7 +227,7 @@ describe("validateProjectFileFirstPass references", () => {
     ])
 
     expect(update.forms).toContainEqual({
-      kind: "tableDataPath",
+      kind: "tabularElement",
       owner: { kind: "Справочник", name: "Товары" },
       name: "ТаблицаТоваров",
       dataPath: "Объект.Товары",

@@ -90,7 +90,7 @@ export interface ProjectStateFormSource {
 export type ProjectStateFormEntry =
   | { readonly kind: "root"; readonly owner: OwnerTypeRef; readonly name: string; readonly source: ProjectStateFormSource }
   | { readonly kind: "additionalColumn"; readonly owner: OwnerTypeRef; readonly tablePath: string; readonly name: string; readonly source: FormDataPathColumnSource }
-  | { readonly kind: "tableDataPath"; readonly owner: OwnerTypeRef; readonly name: string; readonly dataPath: string }
+  | { readonly kind: "tabularElement"; readonly owner: OwnerTypeRef; readonly name: string; readonly dataPath?: string }
 export interface ProjectStatePendingDependencyCheck {
   readonly kind: "dataPath"
   readonly yamlPath: ProjectStateYamlPath
