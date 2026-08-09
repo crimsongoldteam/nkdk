@@ -24,11 +24,19 @@ export function projectClientApplicationFormStructure(params: {
   readonly logicalAddress: string
   readonly workingProjectPath: string
 }): readonly ProjectStateStructuredDocumentEntry[] {
-  return params.components.map((component) => ({
+  const document = {
     documentKind: "clientApplicationForm",
     representation: params.representation,
     logicalAddress: params.logicalAddress,
     workingProjectPath: params.workingProjectPath,
+  }
+  return [{
+    ...document,
+    componentKind: "document",
+    name: "",
+    yamlPath: [],
+  }, ...params.components.map((component) => ({
+    ...document,
     ...component,
-  }))
+  }))]
 }

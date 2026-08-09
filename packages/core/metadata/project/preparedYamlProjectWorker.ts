@@ -702,7 +702,7 @@ function processValidationFirstPassFile(
     }, input.fileBackedTargets, projectFormStructureDocuments({
       projectDir: input.projectDir,
       descriptor,
-      components: first.structuredComponents ?? [],
+      components: first.structuredComponents,
     })), descriptor.indexContribution),
     hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
   })
@@ -715,9 +715,9 @@ function processValidationFirstPassFile(
 export function projectFormStructureDocuments(params: {
   readonly projectDir: string
   readonly descriptor: PreparedYamlProjectFileDescriptor
-  readonly components: NonNullable<import("../validation/projectValidationPasses").ProjectValidationFirstPassResult["structuredComponents"]>
+  readonly components: import("../validation/projectValidationPasses").ProjectValidationFirstPassResult["structuredComponents"]
 }): readonly ProjectStateStructuredDocumentEntry[] {
-  if (params.components.length === 0) return []
+  if (params.components === undefined) return []
   const component = validationProjectComponentFromAddress(params.projectDir, params.descriptor)
   const match = classifyTopologyProjectPath(component.topology, params.descriptor.projectPath)
   if (match === undefined || match.assignment === undefined) return []

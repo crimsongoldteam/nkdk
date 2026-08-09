@@ -9,20 +9,27 @@ import {
   type CreateProjectStateServiceOptions,
   type ProjectStateService,
 } from "../projectState/service"
+import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
+
+function dependencyValidator() {
+  return createProjectStateDependencyValidator({
+    structuredDocumentValidators: [validateBorrowedClientApplicationForms],
+  })
+}
 
 export const openProjectStateReadSession = (token: ProjectStateReadToken) =>
-  openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator())
+  openBinaryProjectStateReadSession(token, dependencyValidator())
 
 export function createDefaultProjectStateService(
   options: CreateProjectStateServiceOptions = {},
 ): ProjectStateService {
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
-  const dependencyValidator = createProjectStateDependencyValidator()
+  const validator = dependencyValidator()
   return createProjectStateService({
     ...options,
     workerPool: workers,
     useWorkerOperation: options.createPool === undefined ? true : options.useWorkerOperation,
-    createWriter: options.createWriter ?? (() => createProjectStateWriterHandle({ dependencyValidator })),
+    createWriter: options.createWriter ?? (() => createProjectStateWriterHandle({ dependencyValidator: validator })),
     openReadSession: options.openReadSession ?? openProjectStateReadSession,
     createPool: options.createPool ?? ((concurrency, operation, context) => {
       if (operation === undefined || context === undefined) {

@@ -48,6 +48,11 @@ export type ProjectFileMetadataTargetReferencesResult =
   | { readonly requestId: string; readonly status: "found"; readonly references: readonly { readonly yamlPath: ProjectStateYamlPath; readonly canonical: string }[] }
   | { readonly requestId: string; readonly status: "missing" }
 export interface ProjectStructuredDocumentQuery { readonly componentPath: string; readonly logicalAddress: string }
+export interface ProjectStateStructuredDocumentFact {
+  readonly componentPath: string
+  readonly projectPath: string
+  readonly entry: ProjectStateStructuredDocumentEntry
+}
 
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
@@ -83,6 +88,14 @@ export interface ProjectStateResolveDataPathsParams { readonly checks: readonly 
 export interface ProjectStateReferenceValidationParams { readonly checks: readonly ProjectStatePendingReferenceCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
 export interface ProjectStateOwnerValidationParams { readonly checks: readonly ProjectStatePendingOwnerCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readOwners"> }
 export interface ProjectStateDependencyValidationParams { readonly checks: readonly ProjectDependencyInputQuery[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"> }
+export interface ProjectStateStructuredDocumentValidationParams {
+  readonly facts: readonly ProjectStateStructuredDocumentFact[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "readStructuredDocumentEntries">
+}
+export type ProjectStateStructuredDocumentValidator = (
+  params: ProjectStateStructuredDocumentValidationParams,
+) => readonly Diagnostic[]
 
 export interface ProjectStateDependencyValidator {
   readReadiness(params: ProjectStateReadinessParams): ProjectStateDependencyReadiness
@@ -90,4 +103,5 @@ export interface ProjectStateDependencyValidator {
   validateReferences(params: ProjectStateReferenceValidationParams): readonly Diagnostic[]
   validateOwners(params: ProjectStateOwnerValidationParams): readonly Diagnostic[]
   validateDependencies(params: ProjectStateDependencyValidationParams): readonly Diagnostic[]
+  validateStructuredDocuments(params: ProjectStateStructuredDocumentValidationParams): readonly Diagnostic[]
 }

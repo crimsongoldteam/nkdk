@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {
@@ -39,6 +39,7 @@ import {
   validateProjectStateOwnerBatch,
   validateProjectStateReferenceBatch,
 } from "./projectStateDependencyValidation"
+import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -59,6 +60,33 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("Б5 вызывает зарегистрированную проверку структуры формы", () => {
+    const structuredValidator = vi.fn(validateBorrowedClientApplicationForms)
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [structuredValidator],
+    })
+    const cf = structuredFormUpdate("cf", "ПолеCF")
+    const extension = structuredFormUpdate("cfe/X", "Собственное")
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [cf, extension, configurationUpdate(true)])
+
+    const diagnostics = store.validateDependencies({ requests: [] })
+    expect(structuredValidator).toHaveBeenCalledWith(expect.objectContaining({
+      facts: expect.arrayContaining([
+        expect.objectContaining({ componentPath: "cf" }),
+        expect.objectContaining({ componentPath: "cfe/X" }),
+      ]),
+    }))
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: `/project/${extension.projectPath}`,
+        message: expect.stringContaining("ПолеCF"),
+      }),
+    ])
+    store.rollbackUpdate()
+  })
+
   it("Б5 принимает пустую ссылку, если владелец существует", () => {
     const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
       roots: ["Catalog"],
@@ -1023,6 +1051,22 @@ function emptyYamlUpdate(
     ...yamlUpdate(projectPath, componentPath, false),
     yamlRole,
     targets: [],
+  }
+}
+
+function structuredFormUpdate(componentPath: string, name: string): ProjectStateYamlFileUpdate {
+  const projectPath = `${componentPath}/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml`
+  return {
+    ...emptyYamlUpdate(projectPath, componentPath, "form"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm",
+      representation: "working",
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      workingProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      componentKind: "element",
+      name,
+      yamlPath: ["Элементы", name],
+    }],
   }
 }
 

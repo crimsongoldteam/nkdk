@@ -39,9 +39,12 @@ import type {
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
+import type { ProjectStateStructuredDocumentValidator } from "../projectState/contracts/dependencyValidation"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 
-export function createProjectStateDependencyValidator(): ProjectStateDependencyValidator {
+export function createProjectStateDependencyValidator(params: {
+  readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
+} = {}): ProjectStateDependencyValidator {
   return {
     readReadiness: readProjectStateDependencyReadiness,
     resolveDataPaths: (params) => resolveProjectStateDataPathReferenceBatch(params)
@@ -57,6 +60,8 @@ export function createProjectStateDependencyValidator(): ProjectStateDependencyV
     validateReferences: validateProjectStateReferenceBatch,
     validateOwners: validateProjectStateOwnerBatch,
     validateDependencies: validateProjectStateDependencyBatch,
+    validateStructuredDocuments: (validationParams) =>
+      (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
   }
 }
 

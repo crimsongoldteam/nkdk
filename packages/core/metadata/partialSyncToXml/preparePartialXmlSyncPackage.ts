@@ -40,7 +40,6 @@ import {
   type PendingPartialXmlSyncStateV1,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
-import { validateBorrowedExtensionForms } from "./borrowedFormValidation"
 
 export interface PreparePartialXmlSyncPackageParams {
   readonly context: ConfigurationContext
@@ -158,9 +157,7 @@ async function prepareValidatedPackage(
     componentPath: params.componentPath,
     componentDir: runtime.target.structure.componentDir,
   })
-  const borrowedDiagnostics = await validateBorrowedExtensionForms({ runtime })
-  const diagnostics = [...params.diagnostics, ...borrowedDiagnostics]
-  if (hasErrors(borrowedDiagnostics)) return { ok: false, diagnostics }
+  const diagnostics = params.diagnostics
   if (isEmptyChanges(changes) && migration.pending.length === 0) {
     return { ok: true, status: "unchanged", diagnostics }
   }
