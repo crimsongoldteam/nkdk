@@ -44,6 +44,17 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
   const xmlFormDir = dirname(filePath).replace(/\\/g, "/")
   return [
     {
+      kind: "yamlCompanion",
+      assignmentProjectPattern: "",
+      projectPattern: "БазоваяФорма.yaml",
+      required: false,
+      itemRule: ClientApplicationFormRules,
+      projectRole: "form",
+      indexContribution: "isolated",
+      logicalAddressSegment: "ОсноваФормы",
+      source: { kind: "property", description: "ClientApplicationForm" },
+    },
+    {
       kind: "xmlDocument",
       assignmentProjectPattern: "",
       xmlPattern: filePath,
