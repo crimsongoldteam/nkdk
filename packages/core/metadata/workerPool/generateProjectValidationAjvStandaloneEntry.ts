@@ -10,7 +10,7 @@ interface GeneratorDependencies {
 const defaultDependencies: GeneratorDependencies = {
   register: registerCoreMetadata,
   async loadImplementation() {
-    const implementation = await import("./generateProjectValidationAjvStandaloneImplementation")
+    const implementation = await import("../validation/generateProjectValidationAjvStandaloneImplementation")
     return { generate: implementation.generateProjectValidationAjvStandaloneImplementation }
   },
 }
