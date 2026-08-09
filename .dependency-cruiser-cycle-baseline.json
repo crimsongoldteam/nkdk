@@ -129,38 +129,6 @@
         "packages/core/metadata/orchestration/property/toEnterprise.ts"
       ],
       "dependencyCount": 17
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/metadataValue/fixedArray/fromXML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/formChoiceList/fromXML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/fromXML.ts"
-      ],
-      "dependencyCount": 4
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/metadataValue/fixedArray/fromYAML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/formChoiceList/fromYAML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/fromYAML.ts"
-      ],
-      "dependencyCount": 5
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/metadataValue/fixedArray/toXML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/formChoiceList/toXML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/toXML.ts"
-      ],
-      "dependencyCount": 4
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/metadataValue/fixedArray/toYAML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/formChoiceList/toYAML.ts",
-        "packages/core/metadata/commonObjects/metadataValue/toYAML.ts"
-      ],
-      "dependencyCount": 5
     }
   ]
 }
