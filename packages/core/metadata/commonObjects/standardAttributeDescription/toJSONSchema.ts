@@ -12,7 +12,10 @@ export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaF
     context: context,
     rule: StandardAttributeDescriptionRules,
   })
-  if (context.exportToJSONSchema?.validationPropertyRefs === true) {
+  if (
+    context.exportToJSONSchema?.validationPropertyRefs === true ||
+    context.exportToJSONSchema?.mode === "inline"
+  ) {
     return Type.Record(Type.String(), attributeSchema)
   }
 
