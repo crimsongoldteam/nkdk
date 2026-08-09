@@ -188,7 +188,6 @@ describe("dependency validation из ProjectState", () => {
       { kind: "attribute", typeInfo: { kinds: ["decimal"], sourceText: "decimal" } },
     ),
     referenceCase("cfe/x -> cfe/x", "cfe/x", ["cfe/x"]),
-    referenceCase("forbidden cfe/x -> cf", "cfe/x", ["cf"]),
     referenceCase("forbidden cfe/x -> cfe/y", "cfe/x", ["cfe/y"]),
   ])("полностью совпадает с чистым validation-графом: $name", ({ sourceComponent, updates, graph }) => {
     const graphDiagnostics = validatePendingReferencesWithIndex({
@@ -203,6 +202,50 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(storeDiagnostics).toEqual(graphDiagnostics)
+    store.rollbackUpdate()
+  })
+
+  it("отличает незаимствованную цель cf от отсутствующей цели", () => {
+    const source = yamlUpdate("cfe/x/Источник.yaml", "cfe/x", true)
+    const baseTarget = yamlUpdate("cf/Цель.yaml", "cf", false)
+    const store = storeWithUpdates([source, baseTarget, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      filePath: source.projectPath,
+      source: "reference",
+      message: `Ссылка "${canonical}" не включена в расширение`,
+    })])
+
+    store.deleteFiles([baseTarget.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
+
+    replaceFiles(store, [
+      yamlUpdate("cf/ПерваяЦель.yaml", "cf", false),
+      yamlUpdate("cf/ВтораяЦель.yaml", "cf", false),
+    ])
+    expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
+    store.rollbackUpdate()
+  })
+
+  it("не применяет фильтр к уточняющей цели cf", () => {
+    const constraint = {
+      kind: "member" as const,
+      owner: "explicit" as const,
+      filters: [{ kind: "hasType" as const, type: "string" as const }],
+    }
+    const source = yamlUpdate("cfe/x/ИсточникФильтра.yaml", "cfe/x", true, constraint)
+    const baseTarget = yamlUpdate(
+      "cf/ЦельФильтра.yaml",
+      "cf",
+      false,
+      undefined,
+      { kind: "attribute", typeInfo: { kinds: ["decimal"], sourceText: "decimal" } },
+    )
+    const store = storeWithUpdates([source, baseTarget, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      message: `Ссылка "${canonical}" не включена в расширение`,
+    })])
     store.rollbackUpdate()
   })
 

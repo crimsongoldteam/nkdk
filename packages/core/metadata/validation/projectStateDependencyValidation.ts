@@ -1,5 +1,6 @@
 import { join } from "node:path"
 import {
+  referenceNotIncludedInExtensionResult,
   resolvedProjectReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
@@ -188,6 +189,21 @@ export function validateProjectStateReferenceBatch(params: {
     })),
   )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
+  const basePresenceChecks = params.checks.filter(({ requestId, componentPath }) =>
+    componentPath.startsWith("cfe/")
+    && componentPath.length > "cfe/".length
+    && resultByRequestId.get(requestId)?.status === "missing"
+  )
+  const basePresenceResults = params.queryPort.resolveTargets(
+    basePresenceChecks.map(({ requestId, reference }) => ({
+      requestId,
+      componentPath: "cf",
+      canonicalTarget: reference.canonical,
+    })),
+  )
+  const basePresenceByRequestId = new Map(
+    basePresenceResults.map((result) => [result.requestId, result]),
+  )
   const valueOwnerChecks = params.checks.filter(({ requestId, reference }) =>
     resultByRequestId.get(requestId)?.status === "missing" && reference.target.kind === "value"
   )
@@ -208,6 +224,10 @@ export function validateProjectStateReferenceBatch(params: {
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)
     } else {
+      if (result.status === "missing" && basePresenceByRequestId.get(check.requestId)?.status === "found") {
+        diagnostics.push(...referenceNotIncludedInExtensionResult(check.reference).diagnostics)
+        return
+      }
       if (result.status === "missing" && check.reference.target.kind === "value") {
         const ownerResult = valueOwnerResultByRequestId.get(check.requestId)
         if (ownerResult?.status === "found") {
