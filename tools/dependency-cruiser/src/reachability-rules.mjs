@@ -1,5 +1,5 @@
 export const neutralProductionPattern =
-  "^packages/core/metadata/(?:ruleRuntime|validation|project|standardMembers)/"
+  "^packages/core/metadata/(?:ruleRuntime|validation|project|projectDefinition|standardMembers)/"
 
 export const implementationTargetPatterns = [
   "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",

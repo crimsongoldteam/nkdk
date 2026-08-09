@@ -7,7 +7,7 @@ import {
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"
-import { getMetadataProjectSpecByDir } from "../project/specs"
+import { getMetadataProjectSpecByDir } from "../projectDefinition/specs"
 import type { OwnerTypeRef } from "../validation/dataPath/types"
 import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } from "./operationPath"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"

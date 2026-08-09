@@ -6,7 +6,7 @@ import {
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
 import { createDeferredValuePathCollector } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"

@@ -1,6 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import type { ProjectLocalDependency } from "../project/componentIndexFacts"
-import type { LocalMetadataTargetFact } from "../project/localIndexes"
+import type { ProjectLocalDependency } from "../projectDefinition/componentIndexFacts"
+import type { LocalMetadataTargetFact } from "../projectDefinition/localIndexes"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,

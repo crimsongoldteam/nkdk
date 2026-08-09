@@ -28,8 +28,8 @@ import {
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
 import { openProjectStateReadSession } from "../projectState/createDefaultService"
-import { resolveProjectPath } from "../project/path"
-import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../project/resources"
+import { resolveProjectPath } from "../projectDefinition/path"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {

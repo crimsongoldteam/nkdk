@@ -8,7 +8,7 @@ import { registerMetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/proper
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { registerMetadataComponentDescriptor } from "../../components/descriptor"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema } from "../../project/schemaRegistry"
+import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 
 registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
 registerMetadataComponentDescriptor({

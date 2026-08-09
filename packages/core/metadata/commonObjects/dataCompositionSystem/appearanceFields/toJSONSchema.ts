@@ -6,7 +6,7 @@ import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema } from "../../../project/schemaRegistry"
+import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import {
   StandardPeriodVariantFromYAML,

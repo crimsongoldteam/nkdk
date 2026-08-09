@@ -5,7 +5,7 @@ import {
   getRegisteredProjectSpecs,
   projectSpecRegistryRevision,
   type RegisteredProjectSpec,
-} from "../../project/projectSpecRegistry"
+} from "../../projectDefinition/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "../core/compiler"
 import { joinMetadataPathPatterns } from "../core/patterns"
 import type { MetadataResourceDeclaration } from "../core/types"

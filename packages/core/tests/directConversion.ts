@@ -19,7 +19,7 @@ import type {
 } from "../metadata/ruleRuntime/property/fromYAMLToXMLTypes"
 import type { MetadataItemRule } from "../metadata/ruleRuntime/property/types"
 import type { PropertyRule } from "../metadata/ruleRuntime/property/types"
-import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/project/localIndexes"
+import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "../xml/export/exporter"

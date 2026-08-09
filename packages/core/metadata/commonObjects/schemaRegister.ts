@@ -1,5 +1,5 @@
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema } from "../project/schemaRegistry"
+import { registerProjectJSONSchema } from "../projectDefinition/schemaRegistry"
 import { MetadataCommandRules } from "../appliedObjects/metadataCommand/rules"
 import { MetadataTaskAddressingAttributeRules } from "./metadataTaskAddressingAttribute/rules"
 

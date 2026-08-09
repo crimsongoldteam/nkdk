@@ -1,6 +1,6 @@
 import { availableParallelism } from "node:os"
 import type { ConfigurationContext } from "../context/types"
-import { projectPathFromFileSystem } from "../project/path"
+import { projectPathFromFileSystem } from "../projectDefinition/path"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "./types"
 import type { MetadataDiagnosticCollection } from "../diagnostics/collection"

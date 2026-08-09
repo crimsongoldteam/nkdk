@@ -15,7 +15,7 @@ import {
 } from "../validation/projectReferenceIndex"
 import { resolveValidationProjectFile, type ValidationProjectFile } from "../validation/projectFiles"
 import type { ValidationIndexContribution, ValidationObjectRecord } from "../validation/projectValidationTypes"
-import type { ProjectLocalDependency } from "../project/componentIndexFacts"
+import type { ProjectLocalDependency } from "../projectDefinition/componentIndexFacts"
 import type { PreparedImportYaml } from "./prepareYaml"
 import { extractImportOwnerFacts } from "./ownerFacts"
 

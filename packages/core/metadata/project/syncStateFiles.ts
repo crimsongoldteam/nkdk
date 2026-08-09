@@ -1,4 +1,4 @@
-import { assertCoreMetadataRegistered } from "./projectSpecRegistry"
+import { assertCoreMetadataRegistered } from "../projectDefinition/projectSpecRegistry"
 import { discoverMetadataProjectResources } from "../resourceTopology/core/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 

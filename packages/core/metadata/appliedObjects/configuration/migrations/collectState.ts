@@ -6,7 +6,7 @@ import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/proper
 import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { importFromYAML } from "../../../../yaml/import"
-import { createLocalIndexesCollector } from "../../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
 import type { StructuralNode, StructuralState } from "./types"
 

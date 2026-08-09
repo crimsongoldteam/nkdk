@@ -2,7 +2,7 @@ import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 import { resolveTopologyMetadataTargetOwner } from "../adapters/metadataTargetOwner"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
-import type { RegisteredProjectSpec } from "../../project/projectSpecRegistry"
+import type { RegisteredProjectSpec } from "../../projectDefinition/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "./compiler"
 import {
   classifyMetadataProjectPath,

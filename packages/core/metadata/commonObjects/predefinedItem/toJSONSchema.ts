@@ -7,7 +7,7 @@ import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import {
   registerProjectJSONSchema,
   registerProjectJSONSchemaPropertyRefFactory,
-} from "../../project/schemaRegistry"
+} from "../../projectDefinition/schemaRegistry"
 import { PredefinedItemRules } from "./rules"
 
 export const exportPredefinedItemCollectionToJSONSchema = (context: ConfigurationContext): TSchema => {

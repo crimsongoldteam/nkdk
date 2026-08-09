@@ -31,7 +31,7 @@ import {
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/adapters/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
-import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../project/resources"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
 import { discoverXmlImport, readXmlImportComponentRoot } from "./discovery"
 import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"

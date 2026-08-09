@@ -4,7 +4,7 @@ import {
   withConfigurationIndexCollector,
   withConfigurationIndexFormElementRootLogicalAddress,
 } from "../../../configurationIndex/collector/context"
-import { createLocalIndexesCollector } from "../../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { exportToYAML } from "../../../../yaml/export"
 import "../../elements"

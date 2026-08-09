@@ -8,4 +8,4 @@ export {
   schemaNameFromRef,
   type JSONSchemaGraph,
   type JSONSchemaGraphRoot,
-} from "../project/schemaRegistry"
+} from "../projectDefinition/schemaRegistry"

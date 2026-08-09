@@ -3,7 +3,7 @@ import { Type, type TSchema } from "typebox"
 import { registerMetadataItemCollectionRule, registerTypeRule } from "../../ruleRuntime"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../project/schemaRegistry"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../projectDefinition/schemaRegistry"
 import { MetadataEnumerationValueRules } from "./rules"
 
 registerMetadataItemCollectionRule({

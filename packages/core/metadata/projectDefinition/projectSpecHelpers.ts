@@ -3,7 +3,7 @@ import type { ConfigurationContext } from "../context/types"
 import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../ruleRuntime/jsonSchemaRefs"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { RegisteredProjectSpec } from "./projectSpecRegistry"
+import type { RegisteredProjectSpec } from "./projectSpecContracts"
 
 export function createMetadataItemProjectSchemaExporter(rule: MetadataItemRule): RegisteredProjectSpec["exportSchema"] {
   return createProjectSchemaExporter(({ context }) => exportMetadataItemToJSONSchema({ context, rule }))

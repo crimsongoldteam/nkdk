@@ -1,25 +1,12 @@
-import type { TSchema } from "typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { MetadataResourceTopologySpec } from "../resourceTopology/core/types"
+import type { RegisteredProjectSpec } from "./projectSpecContracts"
 
-export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
-  dir: string
-  kind: string
-  rule: MetadataItemRule
-  exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
-  nesting?: ProjectSpecNesting
-}
-
-export type ProjectSpecNesting = {
-  kind: "recursiveChildDir"
-  childDir: string
-  itemRole: string
-  collectionRole: string
-  logicalAddressSegment: string
-}
+export type {
+  ProjectSpecNesting,
+  RegisteredProjectSpec,
+} from "./projectSpecContracts"
 
 const specsByDir = new Map<string, RegisteredProjectSpec>()
 let registryRevision = 0

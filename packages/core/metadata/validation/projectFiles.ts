@@ -4,7 +4,7 @@ import {
   discoverMetadataProjectResources,
   resolveMetadataProjectResource,
   type MetadataProjectResourceRef,
-} from "../project/resources"
+} from "../projectDefinition/resources"
 import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"

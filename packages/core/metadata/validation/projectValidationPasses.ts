@@ -114,7 +114,7 @@ export interface ProjectValidationFileFacts {
   pendingReferences: PendingMetadataTargetReference[]
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
-  localDependencies: import("../project/componentIndexFacts").ProjectLocalDependency[]
+  localDependencies: import("../projectDefinition/componentIndexFacts").ProjectLocalDependency[]
   form?: ValidationFormIndexContribution
   profile: {
     yamlFactsMs: number

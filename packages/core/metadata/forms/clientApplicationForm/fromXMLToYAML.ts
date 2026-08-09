@@ -6,7 +6,7 @@ import {
   type DirectImportProfile,
   type DirectImportResult,
 } from "../../ruleRuntime/property/importYamlTypes"
-import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createFormDataPathMetadataCollector } from "../../validation/dataPath/formYamlIndex"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { ClientApplicationFormRules } from "./rules"

@@ -1,5 +1,5 @@
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import { getRegisteredProjectSpecs } from "../project/projectSpecRegistry"
+import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 
 let registered = false

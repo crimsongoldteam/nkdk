@@ -39,8 +39,8 @@ import {
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
-import { createLocalIndexesCollector } from "../project/localIndexes"
-import type { LocalIndexesCollector } from "../project/localIndexes"
+import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
+import type { LocalIndexesCollector } from "../projectDefinition/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
 import {
   analyzeDependentYamlItem,

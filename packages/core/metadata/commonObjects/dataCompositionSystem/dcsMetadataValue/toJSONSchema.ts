@@ -11,7 +11,7 @@ import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../project/schemaRegistry"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import * as SE from "../../../systemEnumerations/types"
 import {

@@ -20,8 +20,8 @@ import {
   createImportedDependentPropertyCollector,
 } from "../ruleRuntime/property/importYamlTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../ruleRuntime/property/deferredObjectValues"
-import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
-import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
+import { createLocalIndexesCollector, type LocalIndexes } from "../projectDefinition/localIndexes"
+import { findRegisteredProjectRule } from "../projectDefinition/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ValidationProfiler } from "../validation/profile"

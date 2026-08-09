@@ -1,11 +1,11 @@
-import { toPreparedYamlProjectFileDescriptor } from "../project/preparedYamlDescriptor"
-import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlDescriptor"
+import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
 import {
   discoverMetadataProjectResources,
   iterateMetadataProjectResourceCandidates,
   projectStateFileBackedTargets,
   type MetadataProjectResourceRef,
-} from "../project/resources"
+} from "../projectDefinition/resources"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import type { ProjectStateFileIdentity } from "./fileUpdate"
 import type { ProjectStateTargetEntry } from "./fileUpdate"

@@ -1,5 +1,5 @@
 import { CollectableElementTypeToYAML } from "../ruleRuntime/formElement/types"
-import type { MetadataProjectResourceKind } from "../project/resources"
+import type { MetadataProjectResourceKind } from "../projectDefinition/resources"
 import { memberKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
 import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
 

@@ -54,9 +54,9 @@ import type {
   PreparedMetadataDependency,
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
-} from "./preparedYamlContracts"
-import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
-import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "./resources"
+} from "../projectDefinition/preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlDescriptor"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
 import {
   createMovableBinaryResult,

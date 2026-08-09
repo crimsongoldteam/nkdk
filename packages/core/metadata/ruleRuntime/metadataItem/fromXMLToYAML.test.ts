@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
-import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { registerMetadataItemCollectionRule } from "../metadataCollection/ruleFactory"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import { PropertyRuleType } from "../property/registry"

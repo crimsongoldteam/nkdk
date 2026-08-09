@@ -159,7 +159,7 @@ export {
   projectPathFromFileSystem,
   resolveProjectPath,
   type ProjectPathOptions,
-} from "./metadata/project/path"
+} from "./metadata/projectDefinition/path"
 export {
   describeMetadataRuleOperationTargets,
   type MetadataRuleOperationTargetDescriptor,
@@ -170,7 +170,7 @@ export {
   metadataProjectSpecByDir,
   metadataProjectSpecs,
   type MetadataProjectSpec,
-} from "./metadata/project/specs"
+} from "./metadata/projectDefinition/specs"
 export {
   assertMetadataProjectPathInside,
   classifyMetadataProjectPath,
@@ -184,7 +184,7 @@ export {
   type MetadataProjectResourceOwner,
   type MetadataProjectResourceRef,
   type MetadataProjectYamlRole,
-} from "./metadata/project/resources"
+} from "./metadata/projectDefinition/resources"
 export {
   listSchemaSummaryKeys,
   summarizeJSONSchema,

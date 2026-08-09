@@ -37,9 +37,9 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/register.ts",
   "metadata/register.test.ts",
   "tests/setupTests.ts",
-  "metadata/project/schemaRegistry.ts",
-  "metadata/project/specs.ts",
-  "metadata/project/specs.test.ts",
+  "metadata/projectDefinition/schemaRegistry.ts",
+  "metadata/projectDefinition/specs.ts",
+  "metadata/projectDefinition/specs.test.ts",
   "metadata/validation/validateForm.ts",
   "metadata/validation/dataPath/formTraversal.ts",
   "metadata/forms/clientApplicationForm/convertFromXML.ts",
@@ -166,6 +166,19 @@ describe("metadata import boundaries", () => {
     )
 
     expect(offenders).toEqual([])
+  })
+
+  it("project coordination does not own shared project definitions", () => {
+    for (const file of [
+      "path.ts",
+      "resources.ts",
+      "specs.ts",
+      "projectSpecRegistry.ts",
+      "schemaRegistry.ts",
+    ]) {
+      expect(existsSync(join(METADATA_DIR, "project", file))).toBe(false)
+      expect(existsSync(join(METADATA_DIR, "projectDefinition", file))).toBe(true)
+    }
   })
 
   it("XML import discovery не знает конкретные объекты и папки", () => {

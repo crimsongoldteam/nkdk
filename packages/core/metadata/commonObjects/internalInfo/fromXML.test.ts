@@ -12,7 +12,7 @@ import { withConfigurationIndexCollector } from "../../configurationIndex/collec
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import { MetadataItemRule, PropertyRule } from "../../ruleRuntime"
 import { importInternalInfoFromXML } from "./fromXML"

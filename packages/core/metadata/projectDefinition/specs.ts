@@ -4,11 +4,11 @@ import {
   getRegisteredProjectSpecByDir,
   getRegisteredProjectSpecs,
   assertCoreMetadataRegistered,
-  type RegisteredProjectSpec,
 } from "./projectSpecRegistry"
+import type { RegisteredProjectSpec } from "./projectSpecContracts"
 import { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter } from "./projectSpecHelpers"
 
-assertCoreMetadataRegistered("project/specs")
+assertCoreMetadataRegistered("projectDefinition/specs")
 
 export { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter }
 
