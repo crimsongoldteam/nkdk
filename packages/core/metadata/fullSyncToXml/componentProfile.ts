@@ -26,6 +26,11 @@ export interface FullXmlSyncProfileRuntime {
   readonly target: ConfirmedComponentState
   readonly base?: ConfirmedComponentState
   readonly workerProfile: FullXmlSyncWorkerProfileRuntime
+  readonly borrowedForms?: readonly {
+    readonly logicalAddress: string
+    readonly extensionProjectPath: string
+    readonly baseProjectPath: string
+  }[]
 }
 
 export interface FullXmlSyncComponentProfile {

@@ -45,11 +45,26 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       }
       adoptedUuids["Конфигурация"] = uuid
     }
+    const baseProjectPathByLogicalAddress = new Map(
+      base.indexes.logicalAddresses.map(({ logicalAddress, sourceProjectPath }) => [logicalAddress, sourceProjectPath]),
+    )
+    const extensionFormPaths = new Set(target.structure.resources.flatMap((resource) =>
+      resource.kind === "content" && resource.rule?.itemType === "ClientApplicationForm"
+        ? [resource.projectPath]
+        : []
+    ))
+    const borrowedForms = target.indexes.logicalAddresses.flatMap(({ logicalAddress, sourceProjectPath }) => {
+      const baseProjectPath = baseProjectPathByLogicalAddress.get(logicalAddress)
+      return baseProjectPath === undefined || !extensionFormPaths.has(sourceProjectPath)
+        ? []
+        : [{ logicalAddress, extensionProjectPath: sourceProjectPath, baseProjectPath }]
+    })
 
     return {
       kind: "configurationExtension",
       target,
       base,
+      ...(borrowedForms.length === 0 ? {} : { borrowedForms }),
       workerProfile: {
         kind: "configurationExtension",
         componentKind: "configurationExtension",
