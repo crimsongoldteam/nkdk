@@ -1,8 +1,8 @@
 import { registerFullSyncWorkerOperation } from "../fullSyncToXml/worker"
 import { registerImportWorkerOperation } from "../importFromXml/worker"
 import { registerValidationWorkerOperation } from "../project/registerWorkerOperation"
-import { registerMetadataWorkerOperation } from "./operationRegistry"
-import { registerProjectQueryWorkerOperation } from "./projectQueries"
+import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+import { registerProjectQueryWorkerOperation } from "../workerPool/projectQueries"
 
 let operationsRegistered = false
 

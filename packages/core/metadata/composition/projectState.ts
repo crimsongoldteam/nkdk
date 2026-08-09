@@ -1,14 +1,14 @@
 import { createPreparedYamlProjectRefreshExecutor, createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
-import { openBinaryProjectStateReadSession } from "./binary/readSession"
-import type { ProjectStateReadToken } from "./contracts"
-import { createProjectStateWriterHandle } from "./writerHandle"
+import { openBinaryProjectStateReadSession } from "../projectState/binary/readSession"
+import type { ProjectStateReadToken } from "../projectState/contracts"
+import { createProjectStateWriterHandle } from "../projectState/writerHandle"
 import {
   createProjectStateService,
   type CreateProjectStateServiceOptions,
   type ProjectStateService,
-} from "./service"
+} from "../projectState/service"
 
 export const openProjectStateReadSession = (token: ProjectStateReadToken) =>
   openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator())

@@ -7,7 +7,7 @@ import {
 import {
   registerMetadataWorkerOperations,
   resetMetadataWorkerOperationsRegistrationForTests,
-} from "./registerOperations"
+} from "../composition/workerOperations"
 import type { MetadataWorkerPersistentState } from "./workerState"
 
 const state = {} as MetadataWorkerPersistentState

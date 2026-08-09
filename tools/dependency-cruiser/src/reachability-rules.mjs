@@ -59,6 +59,19 @@ export const validationProjectReachabilityRule = {
 }
 
 /** @type {ReachabilityRule} */
+export const metadataCompositionReachabilityRule = {
+  name: "metadata-core-not-reach-composition",
+  severity: "error",
+  comment: "Обычные metadata-модули не зависят от composition roots.",
+  fromPatterns: ["^packages/core/metadata/(?!composition/)"],
+  fromNotPatterns: [
+    "^packages/core/metadata/workerPool/(?:worker|preparedYamlProjectEntry)\\.ts$",
+    "^packages/core/metadata/(?:importFromXml|fullSyncToXml)/worker\\.ts$",
+  ],
+  toPatterns: ["^packages/core/metadata/composition/"],
+}
+
+/** @type {ReachabilityRule} */
 export const exampleCoreReachabilityRule = {
   name: "example-core-not-reach-adapters",
   severity: "error",
@@ -74,6 +87,7 @@ export const metadataReachabilityRules = [
   diagnosticsValidationReachabilityRule,
   resourceTopologyCoreReachabilityRule,
   validationProjectReachabilityRule,
+  metadataCompositionReachabilityRule,
 ]
 
 export const fixtureReachabilityRules = [

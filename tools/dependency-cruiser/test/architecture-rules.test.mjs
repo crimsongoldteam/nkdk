@@ -95,6 +95,19 @@ test("validation не достигает project", () => {
   assert.deepEqual(names, new Set(["validation-not-reach-project"]))
 })
 
+test("metadata core не достигает composition roots", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/ruleRuntime/forbidden-composition.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["metadata-core-not-reach-composition"]))
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(

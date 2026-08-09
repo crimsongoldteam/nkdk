@@ -26,7 +26,7 @@ import {
   registeredExplicitXMLTestRule,
   registeredMissingExplicitXMLTestRule,
 } from "../../../tests/property/explicitXMLPropertyRegistry"
-import { registerCoreMetadata } from "../../register"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
 
 registerCoreMetadata()
 

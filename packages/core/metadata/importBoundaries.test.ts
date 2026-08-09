@@ -34,8 +34,8 @@ const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = [
 ] as const
 const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "index.ts",
-  "metadata/register.ts",
-  "metadata/register.test.ts",
+  "metadata/composition/coreMetadata.ts",
+  "metadata/composition/coreMetadata.test.ts",
   "tests/setupTests.ts",
   "metadata/projectDefinition/schemaRegistry.ts",
   "metadata/projectDefinition/specs.ts",
@@ -131,6 +131,12 @@ describe("metadata import boundaries", () => {
       importOffenders: [],
       configOffenders: [],
     })
+  })
+
+  it("composition roots own runtime assembly", () => {
+    expect(existsSync(join(METADATA_DIR, "register.ts"))).toBe(false)
+    expect(existsSync(join(METADATA_DIR, "projectState", "createDefaultService.ts"))).toBe(false)
+    expect(existsSync(join(METADATA_DIR, "workerPool", "registerOperations.ts"))).toBe(false)
   })
 
   it("commonObjects не импортирует конкретные элементы формы", () => {
@@ -378,7 +384,7 @@ describe("metadata import boundaries", () => {
     expect(metadataItemRegistry).not.toContain("interface MetadataItemTypeRegistry")
   })
 
-  it("новые широкие metadata-регистрации идут через metadata/register", () => {
+  it("новые широкие metadata-регистрации идут через composition/coreMetadata", () => {
     expect(broadRegistrationOffenders).toEqual([])
   })
 

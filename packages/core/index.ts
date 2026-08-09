@@ -1,4 +1,4 @@
-import { registerCoreMetadata } from "./metadata/register"
+import { registerCoreMetadata } from "./metadata/composition/coreMetadata"
 import type {} from "./metadata/forms/clientApplicationForm/context.types"
 import type {} from "./metadata/fullSyncToXml/worker"
 import type {} from "./metadata/importFromXml/worker"
@@ -8,11 +8,10 @@ import type {} from "./metadata/workerPool/projectQueries"
 
 registerCoreMetadata()
 
-export { registerCoreMetadata } from "./metadata/register"
+export { registerCoreMetadata } from "./metadata/composition/coreMetadata"
 export {
   ProjectStateReadSessionClosedError,
   createProjectStateFileUpdateBatch,
-  createDefaultProjectStateService as createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,
@@ -32,6 +31,7 @@ export {
   type ProjectStateService,
   type ProjectStateWriterHandle,
 } from "./metadata/projectState"
+export { createDefaultProjectStateService as createProjectStateService } from "./metadata/composition/projectState"
 export * from "./metadata/configurationIndex"
 export { componentPath, type ComponentAddress } from "./metadata/components/address"
 export { NKDK_CORE_VERSION } from "./version"

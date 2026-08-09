@@ -1,5 +1,5 @@
 import { beforeEach } from "vitest"
-import "../metadata/register"
+import "../metadata/composition/coreMetadata"
 import "../metadata/appliedObjects"
 import "../metadata/commonObjects"
 import "../metadata/forms/commonObjects/index"

@@ -13,7 +13,7 @@ import {
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
-import { openProjectStateReadSession } from "../projectState/createDefaultService"
+import { openProjectStateReadSession } from "../composition/projectState"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import {

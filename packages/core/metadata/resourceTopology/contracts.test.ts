@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./adapters/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "./adapters/registeredRules"
 import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"

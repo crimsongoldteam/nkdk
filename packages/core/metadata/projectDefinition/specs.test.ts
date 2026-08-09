@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import "../register"
+import "../composition/coreMetadata"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import {

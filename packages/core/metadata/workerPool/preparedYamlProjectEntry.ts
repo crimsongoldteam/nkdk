@@ -1,4 +1,4 @@
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import preparedYamlProjectWorkerEntryPoint, {
   type PreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTaskResult,

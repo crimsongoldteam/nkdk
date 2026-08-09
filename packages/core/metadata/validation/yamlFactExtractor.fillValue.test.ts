@@ -8,7 +8,7 @@ import {
   type DependentItemRegistrySnapshot,
   type DependentYamlItemParams,
 } from "../ruleRuntime/property/dependentItemRegistry"
-import { registerCoreMetadata } from "../register"
+import { registerCoreMetadata } from "../composition/coreMetadata"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"

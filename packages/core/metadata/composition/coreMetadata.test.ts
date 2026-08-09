@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata, registerMetadataLayers } from "./register"
-import { getTypeRule } from "./ruleRuntime"
+import { registerCoreMetadata, registerMetadataLayers } from "./coreMetadata"
+import { getTypeRule } from "../ruleRuntime"
 
 describe("registerCoreMetadata", () => {
   it("registers validation adapters after concrete metadata", () => {

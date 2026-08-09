@@ -6,7 +6,7 @@ import { createProjectStateFileUpdateBatch } from "./fileUpdate"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { assertProjectStateFileUpdateBatch } from "./fileUpdateValidation"
-import { createDefaultProjectStateService as createProjectStateService } from "./createDefaultService"
+import { createDefaultProjectStateService as createProjectStateService } from "../composition/projectState"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
