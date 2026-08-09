@@ -80,8 +80,6 @@ import "./color/toJSONSchema"
 import "./color/toXML"
 import "./color/toYAML"
 
-import "../forms/commonObjects/dynamicList/types"
-
 import "./fieldsList/fromXML"
 import "./fieldsList/fromYAML"
 import "./fieldsList/toJSONSchema"

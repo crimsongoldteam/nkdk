@@ -5,6 +5,7 @@ export type { ElementRule } from "./elements/ruleRuntime/types"
 
 import "./elements"
 import "./commonObjects/index"
+import "./commonObjects/dynamicList/types"
 import "./schemaRegister"
 import "./clientApplicationForm/register"
 import { registerChildFormNamesAdapter } from "./clientApplicationForm/registerChildFormNames"

@@ -8,6 +8,7 @@ const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
 const ORCHESTRATION_DIR = join(METADATA_DIR, "ruleRuntime")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "ruleRuntime", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "ruleRuntime", "formElement")
+const SYSTEM_ENUMERATIONS_DIR = join(METADATA_DIR, "systemEnumerations")
 const PROJECT_DIR = join(METADATA_DIR, "project")
 const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
 const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
@@ -141,6 +142,17 @@ describe("metadata import boundaries", () => {
 
   it("commonObjects не импортирует конкретные элементы формы", () => {
     expect(findImportOffenders(COMMON_OBJECTS_DIR, FORBIDDEN_COMMON_OBJECT_IMPORTS)).toEqual([])
+  })
+
+  it("systemEnumerations не импортирует forms и appliedObjects", () => {
+    expect(findImportOffenders(SYSTEM_ENUMERATIONS_DIR, ["../forms/", "../appliedObjects/"])).toEqual([])
+  })
+
+  it("commonObjects/index не импортирует forms", () => {
+    const specifiers = extractModuleSpecifiers(readSource(join(COMMON_OBJECTS_DIR, "index.ts")))
+      .filter((specifier) => specifier.startsWith("../forms/"))
+
+    expect(specifiers).toEqual([])
   })
 
   it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {

@@ -1,6 +1,6 @@
 import * as SE from "./types"
 import { ConfigurationContext } from "../context/types"
-import { PropertyRule } from "../forms/elements/calendarField/rules"
+import type { PropertyRule } from "../ruleRuntime/property/types"
 import { ExportToYAMLFunction } from "../ruleRuntime"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 

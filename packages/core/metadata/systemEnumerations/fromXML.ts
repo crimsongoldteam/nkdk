@@ -3,7 +3,7 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
 } from "../configurationIndex/collector/context"
-import { PropertyRule } from "../forms/elements/calendarField/rules"
+import type { PropertyRule } from "../ruleRuntime/property/types"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 
