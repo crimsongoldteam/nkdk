@@ -4,9 +4,9 @@
 
 **Goal:** Подготовить для одного компонента `cf` или `cfe/<Имя>` потоковый ZIP только с XML-ресурсами, затронутыми после последней подтверждённой синхронизации, и отдельно предоставить внутреннюю фиксацию успешной передачи.
 
-**Architecture:** Частичная sync переиспользует подтверждение ProjectState, компонентные профили, XML-задания и workers полной sync. Новые чистые слои определяют изменения и их влияние по ресурсной топологии; исполнитель возвращает XML-байты главному процессу, а один `ZipWriter` последовательно пишет их и внешние файлы в архив. Кандидат компонентного снимка публикуется только внутренней операцией после успешной передачи в 1С; MCP предоставляет только подготовку.
+**Architecture:** Частичная sync переиспользует подтверждение ProjectState, компонентные профили, XML-задания и workers полной sync. Новые чистые слои определяют изменения и их влияние по ресурсной топологии; исполнитель возвращает XML-байты главному процессу, а один `ZipWriter` последовательно пишет их и внешние файлы в архив. Кандидат компонентного снимка публикуется только внутренней операцией после успешной передачи в 1С; MCP на этом этапе не изменяется.
 
-**Tech Stack:** TypeScript, Vitest, Node.js streams/Web Streams, `@zip.js/zip.js`, бинарные ProjectState и configuration-index snapshots, MCP SDK/Zod.
+**Tech Stack:** TypeScript, Vitest, Node.js streams/Web Streams, `@zip.js/zip.js`, бинарные ProjectState и configuration-index snapshots.
 
 ## Global Constraints
 
@@ -57,10 +57,8 @@
 
 ### MCP
 
-- `packages/mcp/src/contracts/preparePartialSync.ts` — вход и структурированный ответ `nkdk.prepare_partial_sync`.
-- `packages/mcp/src/services/preparePartialSync.ts` — разрешение компонента, режим подтверждения записи и вызов core.
-- `packages/mcp/src/tools/registerTools.ts` — регистрация только подготовки.
-- `packages/mcp/src/coreApi.ts` — загрузка `preparePartialXmlSyncPackage`; фиксацию сюда не добавлять.
+Публичные MCP-контракты и инструменты на этом этапе не добавляются. Подготовку и
+фиксацию позднее вызовет внутренний полный цикл NKDK вокруг передачи в 1С.
 
 ---
 
@@ -708,7 +706,7 @@ If no changes exist, return before creating workers or ZIP. Use one `try/finally
 
 - [ ] **Step 4: Export only preparation publicly**
 
-Export `preparePartialXmlSyncPackage` from core’s public index for MCP loading. Do not export `finalizePartialXmlSyncPackage` there; future full-cycle NKDK code will import it from the internal module when the 1C stage is implemented.
+Export `preparePartialXmlSyncPackage` from core’s public index for use by the future full-cycle NKDK code. Do not export `finalizePartialXmlSyncPackage` there; that code will import it from the internal module when the 1C stage is implemented.
 
 - [ ] **Step 5: Run core partial/full tests and commit**
 
@@ -720,47 +718,11 @@ Expected: PASS.
 
 Commit: `feat: :package: подготовить частичный XML-пакет`
 
-## Task 12: Add the Public MCP Prepare Operation
+## Task 12: Keep the MCP Surface Unchanged
 
-**Files:**
-- Create: `packages/mcp/src/contracts/preparePartialSync.ts`
-- Create: `packages/mcp/src/services/preparePartialSync.ts`
-- Test: `packages/mcp/src/services/preparePartialSync.test.ts`
-- Modify: `packages/mcp/src/coreApi.ts`
-- Modify: `packages/mcp/src/tools/registerTools.ts`
-- Modify: `packages/mcp/src/tools/registerTools.test.ts`
-- Modify: `packages/mcp/src/guides/index.ts`
-- Modify: `packages/mcp/src/prompts/index.ts`
-- Test: `packages/mcp/src/prompts/index.test.ts`
-
-- [ ] **Step 1: Write failing service and registration tests**
-
-Assert component normalization, `cfe` without name rejection, dry confirmation behavior, write invocation, structured diagnostics, and that no finalize/confirm/discard MCP tool exists.
-
-- [ ] **Step 2: Define the contract**
-
-```ts
-export const preparePartialSyncInputShape = {
-  projectDir: z.string().min(1),
-  componentPath: z.string().min(1).optional(),
-  concurrency: z.number().int().positive().optional(),
-  allowWrite: z.boolean().optional(),
-}
-```
-
-When `allowWrite !== true`, return a confirmation-required plan describing component and destination root without mutating state. There is no `ignoreValidationErrors`: partial package creation is blocked by validation errors. With `allowWrite: true`, call core and return `status`, package path/hash, entry/load-target counts and the standard diagnostic report.
-
-- [ ] **Step 3: Implement and register one MCP tool**
-
-Register `nkdk.prepare_partial_sync`. Add its preparation function to dynamic `CoreApi`. Do not add public operations named `finalize`, `confirm`, `discard`, or equivalents. Guides must state that 1C transfer and internal fixation are outside this stage.
-
-- [ ] **Step 4: Run MCP tests and commit**
-
-Run: `pnpm --filter @nkdk/mcp exec vitest run src/services/preparePartialSync.test.ts src/tools/registerTools.test.ts src/prompts/index.test.ts --no-isolate`
-
-Expected: PASS.
-
-Commit: `feat: :sparkles: открыть подготовку частичного пакета в MCP`
+По уточнённому решению разработчика операция подготовки не является публичной
+MCP-операцией. На этом этапе в `packages/mcp` ничего не добавляется. Подготовка,
+передача в 1С и внутренняя фиксация позднее войдут в один полный цикл NKDK.
 
 ## Task 13: Add End-to-End Package Matrix Tests
 
@@ -804,8 +766,6 @@ Commit: `test: :white_check_mark: покрыть матрицу частично
 - [ ] **Step 1: Run focused tests once more**
 
 Run: `pnpm --filter @nkdk/core exec vitest run metadata/partialSyncToXml metadata/fullSyncToXml metadata/forms/clientApplicationForm/baseFormCompatibility.test.ts --no-isolate`
-
-Run: `pnpm --filter @nkdk/mcp exec vitest run src/services/preparePartialSync.test.ts src/tools/registerTools.test.ts --no-isolate`
 
 Expected: PASS.
 
