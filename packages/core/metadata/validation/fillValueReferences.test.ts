@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { serializeYAMLDocument } from "../../yaml/export"
 import { registerCoreMetadata } from "../register"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { createValidationSchemaCache } from "./projectValidationPasses"
-import { validateKnownProjectYaml } from "../importFromXml/knownYamlValidation"
+import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 registerCoreMetadata()
@@ -49,20 +50,23 @@ describe("fill value references", () => {
   })
 
   it("stores only the reference in project state", () => {
-    const text = `Реквизиты:
-  Получатель:
-    Тип: Справочник.Контрагенты
-    ЗначениеЗаполнения: Справочник.Контрагенты.Поставщик
-  Комментарий:
-    Тип: Строка(20)
-    ЗначениеЗаполнения: текст
-`
+    const document = serializeYAMLDocument({
+      Реквизиты: {
+        Получатель: {
+          Тип: "Справочник.Контрагенты",
+          ЗначениеЗаполнения: "Справочник.Контрагенты.Поставщик",
+        },
+        Комментарий: {
+          Тип: "Строка(20)",
+          ЗначениеЗаполнения: "текст",
+        },
+      },
+    })
     const file = catalogFile()
-    const firstPass = validateKnownProjectYaml({
+    const firstPass = validateSerializedProjectYaml({
       projectDir: "/project",
       file,
-      text,
-      yaml: parseMetadataYaml(text).data,
+      document,
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),

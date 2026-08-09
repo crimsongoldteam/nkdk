@@ -2,6 +2,8 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
+import { explicitYAMLString } from "../../yaml/explicitString"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { createOperationProfiler } from "../validation/profile"
 import type { ImportAssignment } from "./types"
 import {
@@ -22,6 +24,21 @@ afterEach(() => {
 })
 
 describe("XML import output", () => {
+  it("возвращает смысловые данные тех же YAML-байтов", () => {
+    const serialized = serializeImportYaml({
+      output: {
+        sourceKind: "worker",
+        sourcePath: "/project/cf/Справочник/Товары/Свойства.yaml",
+        targetProjectPath: "Справочник/Товары/Свойства.yaml",
+      },
+      yaml: { ЗначениеЗаполнения: explicitYAMLString("001") },
+    })
+
+    expect(serialized.text).toBe('ЗначениеЗаполнения: "001"')
+    expect(serialized.data).toEqual({ ЗначениеЗаполнения: "001" })
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
   it("writes generated files relative to the main YAML directory", async () => {
     const outputDir = createTempDir()
 

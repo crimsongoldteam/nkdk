@@ -12,6 +12,10 @@ import { createProjectStateFragmentWriter, openProjectStateFragment } from "../p
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { createProjectYamlCache } from "../validation/projectYamlCache"
+import { createValidationSchemaCache, validateProjectFileFirstPass } from "../validation/projectValidationPasses"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -37,16 +41,25 @@ const withDynamicListXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/withDynamicList.xml"
 )
+const fullValidationSchemaCache = createValidationSchemaCache(mockXmlImportContext())
+const catalogValidationFile = resolveValidationProjectFile(
+  "/project",
+  "/project/Справочник/Товары/Свойства.yaml",
+)
+if (catalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
+fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
 let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
+let readyYamlValidationScenario: Awaited<ReturnType<typeof prepareReadyYamlValidationScenario>> | undefined
 
-beforeAll(() => {
+beforeAll(async () => {
   sharedStateFixture = createBinaryProjectStateStore({
     dependencyValidator: createProjectStateDependencyValidator(),
     projectDir: "/project",
   })
   stateStores.push(sharedStateFixture.store)
+  readyYamlValidationScenario = await prepareReadyYamlValidationScenario()
 })
 
 beforeEach(async () => {
@@ -83,27 +96,26 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
-  it("сохраняет сериализованный текст вместе с байтами без обратного декодирования", () => {
-    const serialized = serializeImportYaml({
-      output: { sourceKind: "worker", sourcePath: "/tmp/test.yaml", targetProjectPath: "test.yaml" },
-      yaml: { Имя: "Тест" },
-    })
+  it("writes ready YAML and returns the complete local validation contribution", () => {
+    const scenario = readyYamlValidationScenario
+    if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
+    const {
+      assignment,
+      fileDiagnostics,
+      importDiagnostics,
+      outputDir,
+      result,
+      state,
+      workerState,
+      writtenFileExists,
+    } = scenario
 
-    expect(serialized.text).toBe("Имя: Тест")
-    expect(new TextDecoder().decode(serialized.bytes)).toBe(serialized.text)
-  })
-
-  it("writes ready YAML and returns the complete local validation contribution", async () => {
-    const outputDir = createTempDir("first-pass-ready")
-    await initializeWorker(outputDir)
-    const assignment = catalogAssignment({
-      itemName: "СправочникПолный",
-      targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      logicalAddress: "Справочник.СправочникПолный",
-      xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
-    })
-
-    const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+    expect(importDiagnostics.map(({ message }) => message)).not.toEqual(expect.arrayContaining([
+      "Expected string",
+      "Expected union value",
+      'Отсутствует обязательное свойство "Тип"',
+    ]))
+    expect(importDiagnostics).toEqual(fileDiagnostics)
 
     expect(result.diagnostics).toEqual([])
     const fragments = result.configurationFragments
@@ -120,7 +132,6 @@ describe("XML import worker first pass", () => {
     ])
     expect(fragments[0]).not.toHaveProperty("localDependencies")
     expect(result.stateFragment).toBeDefined()
-    const state = openProjectStateFragment(result.stateFragment!)
     const imported = Array.from({ length: state.fileCount }, (_, fileId) => state.fileRecord(fileId))
       .find((file) => state.stringValue(file.projectPathId).endsWith(assignment.targetProjectPath))
     expect(imported?.hash).not.toBe(0n)
@@ -131,14 +142,29 @@ describe("XML import worker first pass", () => {
       "kind",
       "stateFragment",
     ])
-    expect(workerStateForTests()).toMatchObject({
+    expect(workerState).toMatchObject({
       operationId: "second-pass-test",
       workerIndex: 0,
       preparedYamlIds: [],
     })
-    expectWrittenImportFile(result, outputDir, assignment)
-    expect(workerStateForTests()).not.toHaveProperty("preparedModels")
-    expect(workerStateForTests()).not.toHaveProperty("preparedXml")
+    expect(result.files).toContainEqual({
+      sourceKind: "worker",
+      sourcePath: join(outputDir, assignment.targetProjectPath),
+      targetProjectPath: assignment.targetProjectPath,
+    })
+    expect(writtenFileExists).toBe(true)
+    expect(workerState).not.toHaveProperty("preparedModels")
+    expect(workerState).not.toHaveProperty("preparedXml")
+  })
+
+  it("сохраняет сериализованный текст вместе с байтами без обратного декодирования", () => {
+    const serialized = serializeImportYaml({
+      output: { sourceKind: "worker", sourcePath: "/tmp/test.yaml", targetProjectPath: "test.yaml" },
+      yaml: { Имя: "Тест" },
+    })
+
+    expect(serialized.text).toBe("Имя: Тест")
+    expect(new TextDecoder().decode(serialized.bytes)).toBe(serialized.text)
   })
 
   it("continues first pass after a task error and blocks no other parsing", async () => {
@@ -442,6 +468,8 @@ describe("XML import worker second pass", () => {
         },
       },
     })
+    appendSharedStateFragments(second.stateFragments)
+    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.Товары.НомерСтроки")
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
@@ -459,6 +487,7 @@ describe("XML import worker second pass", () => {
     const formFile = first.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
+    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
     expect(second.files).toEqual([])
   })
 
@@ -572,6 +601,87 @@ function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
   if (first.stateFragment !== undefined) fixture.store.appendFragment(first.stateFragment)
   fixture.store.commitUpdate()
   return fixture.store.createReadToken()
+}
+
+async function prepareReadyYamlValidationScenario() {
+  const outputDir = createTempDir("first-pass-ready")
+  setImportWorkerSchemaCacheForTests(fullValidationSchemaCache)
+  await initializeWorker(outputDir)
+  const assignment = catalogAssignment({
+    itemName: "СправочникПолный",
+    targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+    logicalAddress: "Справочник.СправочникПолный",
+    xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
+  })
+  const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+
+  createReadToken(result)
+  const fixture = sharedStateFixture
+  if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+  const importDiagnostics = fixture.store.readLocalDiagnostics()
+    .filter(({ filePath }) => filePath.endsWith(assignment.targetProjectPath))
+  const context = mockXmlImportContext()
+  const file = resolveValidationProjectFile(outputDir, join(outputDir, assignment.targetProjectPath))
+  if (file === undefined) throw new Error("Не удалось классифицировать импортированный YAML")
+  const fromFile = validateProjectFileFirstPass({
+    projectDir: outputDir,
+    file,
+    cache: createProjectYamlCache(),
+    context,
+    schemaCache: createValidationSchemaCache(context),
+    rulesSnapshot: createValidationRulesSnapshot(context),
+  })
+  const fileDiagnostics = fromFile.diagnostics.map((diagnostic) => ({
+    ...diagnostic,
+    filePath: `cf/${assignment.targetProjectPath}`,
+  }))
+  if (result.stateFragment === undefined) throw new Error("Ожидался вклад состояния импортированного YAML")
+
+  return {
+    assignment,
+    fileDiagnostics,
+    importDiagnostics,
+    outputDir,
+    result,
+    state: openProjectStateFragment(result.stateFragment),
+    workerState: workerStateForTests(),
+    writtenFileExists: existsSync(join(outputDir, assignment.targetProjectPath)),
+  }
+}
+
+function appendSharedStateFragments(stateFragments: ImportFirstPassResult["stateFragment"][]): void {
+  const fixture = sharedStateFixture
+  if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+  fixture.store.beginUpdate()
+  for (const stateFragment of stateFragments) {
+    if (stateFragment !== undefined) fixture.store.appendFragment(stateFragment)
+  }
+  fixture.store.commitUpdate()
+}
+
+function expectSharedFormRoot(targetProjectPath: string, value: string): void {
+  const fixture = sharedStateFixture
+  if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+  const session = fixture.openReadSession(fixture.store.createReadToken())
+  const dependency = session.readDependencyInputs([{
+    requestId: "form-index",
+    componentPath: "cf",
+    projectPath: `cf/${targetProjectPath}`,
+    check: {
+      kind: "dataPath",
+      yamlPath: ["ПутьКДанным"],
+      location: { line: 1, col: 1 },
+      owner: { kind: "Справочник", name: "Товары" },
+      value,
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
+    },
+  }])[0]
+  session.close()
+  expect(dependency).toMatchObject({
+    status: "found",
+    input: { forms: expect.arrayContaining([expect.objectContaining({ kind: "root", name: "Объект" })]) },
+  })
 }
 
 async function runCatalogAndFormSecondPass(

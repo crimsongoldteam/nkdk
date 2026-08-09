@@ -16,7 +16,7 @@ import {
   createValidationSchemaCache,
   type ValidationSchemaCache,
 } from "../validation/projectValidationPasses"
-import { validateKnownProjectYaml } from "./knownYamlValidation"
+import { validateSerializedProjectYaml } from "./serializedYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
@@ -651,7 +651,7 @@ function serializePreparedYaml(
 }
 
 function validateSerializedImportYaml(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "yaml">,
+  prepared: Pick<DeferredImportYaml, "targetProjectPath">,
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
@@ -666,11 +666,10 @@ function validateSerializedImportYaml(
     "Локальная валидация готового YAML",
     "Подготовка снимка и локальная проверка",
     { items: 1 },
-    () => validateKnownProjectYaml({
+    () => validateSerializedProjectYaml({
       projectDir: state.projectDir,
       file,
-      text: serialized.text,
-      yaml: prepared.yaml,
+      document: serialized,
       context: state.context,
       schemaCache: state.schemaCache,
       rulesSnapshot: state.rulesSnapshot,
@@ -735,7 +734,7 @@ function importFileBackedTargets(
 }
 
 function measureSerializedImportYamlValidation(
-  prepared: Pick<DeferredImportYaml, "targetProjectPath" | "yaml">,
+  prepared: Pick<DeferredImportYaml, "targetProjectPath">,
   serialized: SerializedImportYaml,
   state: InitializedImportWorkerState,
   profiler: ValidationProfiler,
