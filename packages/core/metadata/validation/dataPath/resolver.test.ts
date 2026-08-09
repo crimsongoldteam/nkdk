@@ -30,6 +30,7 @@ import type {
   ResolveDataPathCoreResult,
 } from "./coreResolver"
 import { resolveDataPath } from "./resolver"
+import type { DataPathTypeInfo } from "./types"
 
 describe("resolveDataPath", () => {
   it("exposes a YAML-position-free core resolver contract", () => {
@@ -480,6 +481,29 @@ describe("resolveDataPath", () => {
       diagnostics: [
         expect.objectContaining({
           message: 'ПутьКДанным "Реквизит.Поле": промежуточный реквизит "Реквизит" имеет неизвестный тип',
+        }),
+      ],
+    })
+  })
+
+  it("запрещает продолжение после произвольного типа", () => {
+    const result = resolveDataPathCore({
+      value: "Реквизит.Поле",
+      nameMode: "yaml",
+      index: indexWithTypeInfo("Реквизит", {
+        kinds: ["any"],
+        nextTypes: [],
+        sourceText: "Произвольный",
+      }),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      issues: [
+        expect.objectContaining({
+          code: "arbitrary_intermediate",
+          message: 'ПутьКДанным "Реквизит.Поле": промежуточный реквизит "Реквизит" имеет произвольный тип',
         }),
       ],
     })
@@ -2725,6 +2749,18 @@ function chartOfCalculationTypesOwners(): OwnerMetadataCache {
 
 function indexWithAttributes(attributes: FormAttribute[]): FormDataPathIndex {
   return indexWithForm({ attributes })
+}
+
+function indexWithTypeInfo(name: string, typeInfo: DataPathTypeInfo): FormDataPathIndex {
+  const source = { kind: "formAttribute" as const, name, typeInfo }
+  const roots = new Map([[name, source]])
+  return {
+    roots,
+    additionalColumnsByTablePath: new Map(),
+    tableDataPathByElementName: new Map(),
+    duplicateDiagnostics: [],
+    getRoot: (rootName) => roots.get(rootName),
+  }
 }
 
 function indexWithForm(params: {

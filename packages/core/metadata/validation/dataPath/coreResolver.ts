@@ -60,6 +60,7 @@ export type ResolveDataPathCoreIssueCode =
   | "unknown_column"
   | "unknown_field"
   | "unknown_type"
+  | "arbitrary_intermediate"
   | "unsupported_intermediate"
   | "scalar_intermediate"
   | "composite_intermediate"
@@ -940,7 +941,15 @@ function validateIntermediateType(params: {
   if (typeInfo.kinds.includes("standardPeriod")) return undefined
   if ((typeInfo.definedTypes?.length ?? 0) > 0) return undefined
 
-  if (typeInfo.kinds.includes("unknown") || typeInfo.kinds.includes("any") || typeInfo.nextTypes.length === 0) {
+  if (typeInfo.kinds.includes("any")) {
+    return diagnostic(
+      "error",
+      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет произвольный тип`,
+      "arbitrary_intermediate"
+    )
+  }
+
+  if (typeInfo.kinds.includes("unknown") || typeInfo.nextTypes.length === 0) {
     if (typeInfo.kinds.includes("unsupportedIntermediate")) {
       return diagnostic(
         "error",
