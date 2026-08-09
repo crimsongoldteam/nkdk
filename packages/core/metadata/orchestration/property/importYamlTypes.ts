@@ -18,7 +18,38 @@ export interface DirectImportTraversal {
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
+  dependent?: ImportedDependentPropertyCollector
   profile?: DirectImportProfile
+}
+
+export interface ImportedDependentPropertyCandidate {
+  readonly itemType: string
+  readonly itemYamlPath: YamlPath
+  readonly itemName?: string
+  readonly propertyKey: string
+  readonly yamlPath: YamlPath
+  readonly logicalAddress?: string
+  readonly xmlValue: unknown
+  readonly presentInXML: boolean
+}
+
+export interface ImportedDependentPropertyCollector {
+  accept(candidate: ImportedDependentPropertyCandidate): void
+  finish(): readonly ImportedDependentPropertyCandidate[]
+}
+
+export function createImportedDependentPropertyCollector(): ImportedDependentPropertyCollector {
+  const candidates: ImportedDependentPropertyCandidate[] = []
+  return {
+    accept(candidate) {
+      candidates.push({
+        ...candidate,
+        itemYamlPath: [...candidate.itemYamlPath],
+        yamlPath: [...candidate.yamlPath],
+      })
+    },
+    finish: () => candidates,
+  }
 }
 
 export interface DeferredValuePathCollector {

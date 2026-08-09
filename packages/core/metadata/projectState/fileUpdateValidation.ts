@@ -1,7 +1,7 @@
 import { CollectableElementTypeToYAML } from "../orchestration/formElement/types"
 import type { MetadataProjectResourceKind } from "../project/resources"
 import { memberKindToYAML, rootToYAML } from "../orchestration/metadataTarget/roots"
-import type { ProjectStateFileUpdateBatch } from "./contracts/fileUpdate"
+import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
 
 export const PROJECT_STATE_HASH_BYTE_LENGTH = 8
 const HASH_BYTE_LENGTH = PROJECT_STATE_HASH_BYTE_LENGTH
@@ -25,7 +25,7 @@ export function assertProjectStateImportFinalFileState(value: unknown, path: str
   const update = requiredRecord(value, path)
   assertPortableData(update, path)
   if (update["kind"] === "resource") {
-    assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind"], path)
+    assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind", "targets"], path)
     assertProjectStateFileUpdate(update, path)
     assertPortableData(update, path)
     return
@@ -44,10 +44,35 @@ export function assertProjectStateImportFinalFileState(value: unknown, path: str
   ], path)
   assertProjectStateFileUpdate({
     ...update,
-    references: [],
+    targets: [],
     owners: [],
     fields: [],
     forms: [],
+  }, path)
+}
+
+export function assertProjectStateImportIndexContribution(
+  value: unknown,
+  path: string,
+): asserts value is ProjectStateImportIndexContribution {
+  const contribution = requiredRecord(value, path)
+  assertExactKeys(contribution, [
+    "projectPath",
+    "componentPath",
+    "resourceKind",
+    "yamlRole",
+    "targets",
+    "owners",
+    "fields",
+    "forms",
+  ], path)
+  assertProjectStateFileUpdate({
+    ...contribution,
+    kind: "yaml",
+    localValidation: { contributedFacts: false, diagnostics: [], schemaDiagnostics: [] },
+    pendingReferences: [],
+    pendingChecks: [],
+    dependencies: [],
   }, path)
 }
 
@@ -56,8 +81,9 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertPortableData(update, path)
   assertString(update["kind"], `${path}.kind`)
   if (update["kind"] === "resource") {
-    assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind", "yamlRole"], path)
+    assertExactKeys(update, ["kind", "projectPath", "componentPath", "resourceKind", "yamlRole", "targets"], path)
     assertIdentity(update, path, "resource")
+    assertTargets(update["targets"], `${path}.targets`)
     return
   }
   if (update["kind"] !== "yaml") throw new Error(`${path}.kind имеет неизвестное значение`)
@@ -71,7 +97,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
       "resourceKind",
       "yamlRole",
       "localValidation",
-      "references",
+      "targets",
       "pendingReferences",
       "owners",
       "fields",
@@ -83,11 +109,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   )
   assertIdentity(update, path, "yaml")
   assertLocalValidation(update["localValidation"], `${path}.localValidation`)
-  assertRows(update["references"], `${path}.references`, ["kind", "canonical", "details"], (row, rowPath) => {
-    if (!["object", "member", "value"].includes(String(row["kind"]))) throw new Error(`${rowPath}.kind неизвестен`)
-    assertString(row["canonical"], `${rowPath}.canonical`)
-    if (row["details"] !== undefined) assertReferenceDetails(row["details"], `${rowPath}.details`)
-  })
+  assertTargets(update["targets"], `${path}.targets`)
   assertRows(
     update["pendingReferences"],
     `${path}.pendingReferences`,
@@ -143,6 +165,29 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
   }
   assertPortableData(update, path)
+}
+
+function assertTargets(value: unknown, path: string): void {
+  assertRows(value, path, ["kind", "canonical", "details", "fileBacked"], (row, rowPath) => {
+    if (!["object", "member", "value"].includes(String(row["kind"]))) throw new Error(`${rowPath}.kind неизвестен`)
+    assertString(row["canonical"], `${rowPath}.canonical`)
+    if (row["details"] !== undefined) assertReferenceDetails(row["details"], `${rowPath}.details`)
+    if (row["fileBacked"] !== undefined) assertFileBackedTargetLocation(row["fileBacked"], `${rowPath}.fileBacked`)
+  })
+}
+
+function assertFileBackedTargetLocation(value: unknown, path: string): void {
+  const location = requiredRecord(value, path)
+  assertExactKeys(location, ["itemProjectPath", "ownerProjectPath"], path)
+  assertRelativeProjectPath(location["itemProjectPath"], `${path}.itemProjectPath`)
+  assertRelativeProjectPath(location["ownerProjectPath"], `${path}.ownerProjectPath`)
+}
+
+function assertRelativeProjectPath(value: unknown, path: string): void {
+  assertString(value, path)
+  if (value.startsWith("/") || value.includes("\\") || value.split("/").includes("..")) {
+    throw new Error(`${path} должен быть нормализованным относительным путём`)
+  }
 }
 
 function assertReferenceDetails(value: unknown, path: string): void {
@@ -374,6 +419,8 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "tabularSections",
     "standardAttributes",
     "commands",
+    "predefined",
+    "enumValues",
   ], path)
   if (facts["type"] !== undefined) assertTypeDescription(facts["type"], `${path}.type`)
   for (const key of ["commonAttributeOwnerLinks", "owners", "registerRecords"] as const) {
@@ -391,6 +438,8 @@ function assertOwnerFacts(value: unknown, path: string): void {
     "addressingAttributes",
     "standardAttributes",
     "commands",
+    "predefined",
+    "enumValues",
   ] as const) {
     assertOptionalNamedTypeItems(facts[key], `${path}.${key}`)
   }

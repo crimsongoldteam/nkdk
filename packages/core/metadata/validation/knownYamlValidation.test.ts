@@ -6,12 +6,24 @@ import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
-import { validateProjectFileFirstPass } from "./projectValidationPasses"
+import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
 import { validateKnownProjectYaml } from "../importFromXml/knownYamlValidation"
+import { registerCoreMetadata } from "../register"
+
+registerCoreMetadata()
 
 const tempDirs: string[] = []
+const fillValueProjectDir = "/project"
+const fillValueFile = resolveValidationProjectFile(
+  fillValueProjectDir,
+  "/project/Справочник/Товары/Свойства.yaml",
+)
+if (fillValueFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
+const fullSchemaCache = createValidationSchemaCache(mockContext)
+fullSchemaCache.properties(fillValueFile.owner.spec.rule)
+const fullRulesSnapshot = createValidationRulesSnapshot(mockContext)
 
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -52,6 +64,27 @@ describe("validateKnownProjectYaml", () => {
 
     expect(withoutProfile(fromKnown)).toEqual(withoutProfile(fromFile))
     expect(yaml).toEqual({ Реквизиты: { Артикул: { Тип: "Строка" } } })
+  })
+
+  it("returns one dependent diagnostic for an implicit fill value", () => {
+    const text = 'Реквизиты:\n  Артикул:\n    Тип: Строка(250)\n    ЗначениеЗаполнения: ""\n'
+
+    const result = validateKnownProjectYaml({
+      projectDir: fillValueProjectDir,
+      file: fillValueFile,
+      text,
+      yaml: parseMetadataYaml(text).data,
+      context: mockContext,
+      schemaCache: fullSchemaCache,
+      rulesSnapshot: fullRulesSnapshot,
+    })
+
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        path: "/Реквизиты/Артикул/ЗначениеЗаполнения",
+        message: expect.stringContaining("неявное значение"),
+      }),
+    ])
   })
 })
 

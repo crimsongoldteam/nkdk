@@ -248,6 +248,7 @@ function selectValidationFiles(
       absolutePath: discovered.absolutePath,
       identity: discovered.identity,
       ...(discovered.descriptor === undefined ? {} : { descriptor: discovered.descriptor }),
+      targets: discovered.targets,
     })
     known.push(false)
     hashes.push(new Uint8Array(8))

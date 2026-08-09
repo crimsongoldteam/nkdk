@@ -227,7 +227,7 @@ function ownerMemberIndexEntries(params: {
     spec: params.file.owner.spec,
   }
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor({ projectDir: params.projectDir, owner, hasFile: () => false })) {
+    for (const entry of contributor({ projectDir: params.projectDir, owner })) {
       appendMember(entries, seen, entry)
     }
   }

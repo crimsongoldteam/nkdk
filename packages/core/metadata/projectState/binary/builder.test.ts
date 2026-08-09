@@ -111,6 +111,7 @@ it("находит каждый файл при смешанном латинс�
       projectPath: path,
       componentPath: "cf",
       resourceKind: "resource",
+      targets: [],
     }, BigInt(index + 1))),
     deletions: [],
   }))

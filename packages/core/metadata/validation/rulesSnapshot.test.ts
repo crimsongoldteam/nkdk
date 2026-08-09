@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { createValidationRulesSnapshot, findValidationRulesSpec } from "./rulesSnapshot"
+import { registerValidationMetadata } from "./registerValidationMetadata"
+
+registerValidationMetadata()
 
 describe("ValidationRulesSnapshot", () => {
   it("is JSON-compatible", () => {
@@ -40,5 +43,14 @@ describe("ValidationRulesSnapshot", () => {
         }),
       ])
     )
+  })
+
+  it("preserves nested item types for dependent validation", () => {
+    const catalog = findValidationRulesSpec(createValidationRulesSnapshot(mockContext), "Справочник")
+    const attributes = catalog?.properties.find(({ modelKey }) => modelKey === "attributes")
+    const standardAttributes = catalog?.properties.find(({ modelKey }) => modelKey === "standardAttributes")
+
+    expect(attributes?.nestedItemType).toBe("MetadataAttribute")
+    expect(standardAttributes?.nestedItemType).toBe("StandardAttributeDescription")
   })
 })

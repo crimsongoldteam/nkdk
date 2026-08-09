@@ -4,10 +4,10 @@ export type { ValidationOwnerFacts } from "./contracts"
 import type { OwnerTypeRef } from "./types"
 import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import type { OwnerFactRole } from "../../orchestration/property/types"
+import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
 import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
 import { getSystemEnumeration } from "../../orchestration/property/systemEnumerationRegistry"
-import { typeDescriptionFromYAML } from "./formYamlIndex"
-
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
   content?: unknown
@@ -26,6 +26,8 @@ type ValidationOwnerFactsModel = MetadataItem & {
   standardAttributes?: unknown
   registerType?: unknown
   commands?: unknown
+  predefined?: unknown
+  enumValues?: unknown
 }
 
 type NamedTypeItems = ValidationNamedTypeItems
@@ -53,6 +55,8 @@ export function createValidationOwnerFacts(params: {
   const standardAttributes = namedTypeItems(metadataRecord(params.model)["standardAttributes"])
   const tabularSections = namedTabularSections(metadataRecord(params.model)["tabularSections"])
   const commands = namedTypeItems(metadataRecord(params.model)["commands"])
+  const predefined = namedValueItems(metadataRecord(params.model)["predefined"])
+  const enumValues = namedValueItems(metadataRecord(params.model)["enumValues"])
 
   return {
     ref: params.ref,
@@ -75,6 +79,8 @@ export function createValidationOwnerFacts(params: {
     ...(standardAttributes.length === 0 ? {} : { standardAttributes }),
     ...(tabularSections.length === 0 ? {} : { tabularSections }),
     ...(commands.length === 0 ? {} : { commands }),
+    ...(predefined.length === 0 ? {} : { predefined }),
+    ...(enumValues.length === 0 ? {} : { enumValues }),
   }
 }
 
@@ -86,7 +92,7 @@ export const collectOwnerFactFromYAML: CollectLocalFactsFromYAMLFunction = ({ fa
 }
 
 function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
-  if (role === "type") return typeDescriptionFromYAML(value)
+  if (role === "type") return indexValueFromYAML<TypeDescriptionView>("TypeDescription", value)
   if (role === "attributes" || role === "dimensions" || role === "resources" || role === "addressingAttributes")
     return namedTypedItemsFromYaml(value)
   if (role === "tabularSections") return tabularSectionsFromYaml(value)
@@ -99,6 +105,7 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
   if (role === "commonAttributeOwnerLinks") return commonAttributeOwnerLinksFromYaml(value)
   if (role === "registerType") return typeof value === "string" ? value : undefined
   if (role === "commands") return namedTypedItemsFromYaml(value)
+  if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value)
   return undefined
 }
 
@@ -108,9 +115,16 @@ export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown 
 
 function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
   return Object.entries(metadataRecord(value)).map(([name, item]) => {
-    const type = typeDescriptionFromYAML(metadataRecord(item)["Тип"])
+    const type = indexValueFromYAML<TypeDescriptionView>("TypeDescription", metadataRecord(item)["Тип"])
     return { name, ...(type === undefined ? {} : { type }) }
   })
+}
+
+function namedValueItemsFromYaml(value: unknown): NamedTypeItems {
+  return Object.entries(metadataRecord(value)).flatMap(([name, item]) => [
+    { name },
+    ...namedValueItemsFromYaml(metadataRecord(item)["Элементы"]),
+  ])
 }
 
 function tabularSectionsFromYaml(
@@ -182,6 +196,27 @@ function namedTypeItems(value: unknown): NamedTypeItems {
   })
 }
 
+function namedValueItems(value: unknown): NamedTypeItems {
+  if (typeof value !== "object" || value === null) return []
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const record = metadataRecord(item)
+      return [
+        ...(typeof record["name"] === "string" ? [{ name: record["name"] }] : []),
+        ...namedValueItems(record["items"]),
+        ...namedValueItems(record["childItems"]),
+        ...namedValueItems(record["enumValues"]),
+      ]
+    })
+  }
+  const record = metadataRecord(value)
+  return [
+    ...namedValueItems(record["items"]),
+    ...namedValueItems(record["childItems"]),
+    ...namedValueItems(record["enumValues"]),
+  ]
+}
+
 function namedTabularSections(
   value: unknown
 ): Array<{ name: string; attributes: NamedTypeItems; standardAttributes?: NamedTypeItems }> {
@@ -214,4 +249,3 @@ function isTypeDescription(value: unknown): value is TypeDescriptionView {
 function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"

@@ -28,13 +28,28 @@ export interface LocalMetadataFactsWriter {
   setMetadataTargetValues(values: readonly { value: string; yamlPath: YamlPath }[]): void
 }
 
-export interface LocalMetadataEvent {
-  kind: "property" | "complete"
-  yamlPath: readonly (string | number)[]
-  rulePath: LocalYamlFact["rulePath"]
-  propertyType: string
-  source?: LocalYamlFact["source"]
+export interface LocalYamlItemFact {
+  readonly itemType: string
+  readonly name?: string
+  readonly yamlPath: LocalYamlFact["yamlPath"]
+  readonly rulePath: LocalYamlFact["rulePath"]
 }
+
+export type LocalMetadataEvent =
+  | {
+      kind: "item"
+      itemType: string
+      name?: string
+      yamlPath: readonly (string | number)[]
+      rulePath: LocalYamlFact["rulePath"]
+    }
+  | {
+      kind: "property" | "complete"
+      yamlPath: readonly (string | number)[]
+      rulePath: LocalYamlFact["rulePath"]
+      propertyType: string
+      source?: LocalYamlFact["source"]
+    }
 
 export interface LocalMetadataTargetFact {
   yamlPath: readonly (string | number)[]
@@ -55,6 +70,7 @@ export interface LocalIndexes {
 }
 
 export interface LocalIndexesCollector {
+  acceptItem(fact: LocalYamlItemFact): void
   acceptProperty(fact: LocalYamlFact): void
   completeValue(fact: LocalYamlFact): void
   finish(): LocalIndexes

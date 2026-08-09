@@ -3,6 +3,7 @@ import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { registerCoreMetadata } from "../register"
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import {
@@ -18,6 +19,8 @@ import {
   operationValidationError,
 } from "./tests/operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
+
+registerCoreMetadata()
 
 const validationError = operationValidationError
 
@@ -268,6 +271,45 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     expect(readFileSync(propertiesPath, "utf-8")).toContain("ОсновнаяФормаОбъекта: ФормаКарточки")
   })
 
+  it("переименовывает весь каталог макета по путям индекса без Template.xml", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", ["{}"])
+    const evidencePath = writeProjectFile(
+      projectDir,
+      "Отчет/Продажи/Шаблоны/Схема/Ext/Картинка.png",
+      "image",
+    )
+    harness.setIndex({
+      targetProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Ext/Картинка.png",
+      itemProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема",
+      ownerProjectPath: "cf/Отчет/Продажи/Свойства.yaml",
+      collectionCanonicalPrefix: "Report.Продажи.Template",
+      collectionNames: ["Схема", "Занято"],
+    })
+
+    const conflict = await renameMetadataItem({
+      projectDir,
+      path: "Отчет.Продажи.Макет.Схема",
+      newName: "занято",
+      projectState,
+      ignoreValidationErrors: true,
+    })
+    expect(conflict).toMatchObject({ ok: false, code: "name_conflict" })
+
+    const result = await renameMetadataItem({
+      projectDir,
+      path: "Отчет.Продажи.Макет.Схема",
+      newName: "НоваяСхема",
+      allowWrite: true,
+      projectState,
+      ignoreValidationErrors: true,
+    })
+
+    expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
+    expect(existsSync(evidencePath)).toBe(false)
+    expect(existsSync(join(projectDir, "cf/Отчет/Продажи/Шаблоны/НоваяСхема/Ext/Картинка.png"))).toBe(true)
+  })
+
   it("rewrites form structural references when a referenced object is renamed", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
@@ -296,6 +338,38 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
 
     expect(result.ok).toBe(true)
     expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
+  })
+
+  it("переписывает ссылку в значении заполнения при переименовании объекта", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", "{}")
+    const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Получатель:",
+      "    Тип: Справочник.Контрагенты",
+      "    ЗначениеЗаполнения: Справочник.Контрагенты.Поставщик",
+    ])
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
+        "Catalog.Контрагенты.Поставщик",
+      )],
+    })
+
+    const result = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Контрагенты",
+      newName: "Клиенты",
+      allowWrite: true,
+      projectState,
+      ignoreValidationErrors: true,
+    })
+
+    expect(result).toMatchObject({ ok: true })
+    expect(readFileSync(propertiesPath, "utf-8")).toContain(
+      "ЗначениеЗаполнения: Справочник.Клиенты.Поставщик",
+    )
   })
 
   it("rewrites resolvable form DataPath when an attribute is renamed", async () => {

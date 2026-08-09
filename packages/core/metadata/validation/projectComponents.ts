@@ -1,6 +1,6 @@
 import { readdir, stat } from "node:fs/promises"
 import { join, resolve } from "node:path"
-import { componentPath } from "../components/address"
+import { componentPath, type ComponentAddress } from "../components/address"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { createMetadataItemProjectSchemaExporter, type MetadataProjectSpec } from "../project/specs"
@@ -11,7 +11,7 @@ import type { CompiledMetadataResourceTopology } from "../resourceTopology/types
 export interface ValidationProjectComponent {
   componentPath: string
   componentDir: string
-  kind: "configuration" | "configurationExtension"
+  kind: ComponentAddress["kind"]
   rootRule: MetadataItemRule
   rootSpec: MetadataProjectSpec
   topology: CompiledMetadataResourceTopology
@@ -48,7 +48,7 @@ export async function discoverValidationProjectComponents(
 
 export function createValidationProjectComponent(
   projectDir: string,
-  address: { kind: "configuration" } | { kind: "configurationExtension"; name: string }
+  address: ComponentAddress,
 ): ValidationProjectComponent {
   const descriptor = getMetadataComponentDescriptor(address.kind)
   const rootSpec: MetadataProjectSpec = {

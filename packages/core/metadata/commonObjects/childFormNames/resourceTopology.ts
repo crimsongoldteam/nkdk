@@ -28,6 +28,13 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       projectRole: "form",
       itemRule: childFormRule,
       logicalAddressSegment: "Форма",
+      fileBackedTarget: {
+        kind: "member",
+        memberKind: "Form",
+        itemNameParameter: "itemName",
+        itemProjectPattern: `${folderName}/{itemName}`,
+        owner: "assignmentOwner",
+      },
       dumpInfoNamePatterns: [
         "{dumpRoot}.{ownerName}.Form.{itemName}",
         "{dumpRoot}.{ownerName}.Form.{itemName}.Form",

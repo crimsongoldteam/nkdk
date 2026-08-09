@@ -35,6 +35,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
+    dependent: params.traversal.dependent,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
   })

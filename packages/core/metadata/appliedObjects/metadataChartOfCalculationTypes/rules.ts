@@ -436,6 +436,7 @@ export const MetadataChartOfCalculationTypesRules = {
     }),
     predefined: predefinedRule({
       yaml: "Предопределенные",
+      ownerFactRole: "predefined",
       filePath: "Ext/Predefined.xml",
       itemRule: ChartOfCalculationTypesPredefinedRules,
     }),

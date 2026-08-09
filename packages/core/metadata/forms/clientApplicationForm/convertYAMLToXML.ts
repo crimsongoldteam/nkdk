@@ -15,8 +15,8 @@ import { FormRulesTags } from "./rules"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../orchestration"
-import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 import { classifyTableSource } from "./tableSourceProfile"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -48,7 +48,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   const rule = params.rule ?? ClientApplicationFormRules
   const formDataPathIndex = createFormDataPathIndexFromYAML(
     params.dataPathYaml ?? params.yaml,
-    collectFormTableDataPathsFromYAML(params.dataPathYaml ?? params.yaml)
+    clientApplicationFormDataPathProjection
   )
   const ownerMetadataCache =
     params.context.importFromYAML?.ownerMetadataCache ??

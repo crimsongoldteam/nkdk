@@ -3,6 +3,7 @@ import { joinMetadataPathPatterns } from "./patterns"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataExternalFileNode,
+  CompiledMetadataFileBackedMemberTargetDeclaration,
   CompiledMetadataIgnoredPathNode,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
@@ -17,9 +18,10 @@ interface CompileContext {
   readonly ownerProjectPattern?: string
 }
 
-interface MutableAssignment extends MetadataContentDeclaration {
+interface MutableAssignment extends Omit<MetadataContentDeclaration, "fileBackedTarget"> {
   readonly id: string
   readonly ownerProjectPattern?: string
+  fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: CompiledMetadataXmlDocumentNode[]
   readonly externalFiles: CompiledMetadataExternalFileNode[]
 }
@@ -80,6 +82,7 @@ function compileDeclarations(
       const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
       currentAssignment = {
         ...declaration,
+        fileBackedTarget: undefined,
         id: stableId("assignment", projectPattern, declaration.role, declaration.source.description),
         projectPattern,
         ...(declaration.ownerProjectPattern === undefined && context.ownerProjectPattern === undefined
@@ -89,6 +92,13 @@ function compileDeclarations(
         externalFiles: [],
       }
       assignments.push(currentAssignment)
+      currentAssignment.fileBackedTarget = compileFileBackedTarget({
+        declaration: declaration.fileBackedTarget,
+        resourceProjectPattern: projectPattern,
+        projectBasePattern: context.projectBasePattern,
+        assignment: currentAssignment,
+        assignments,
+      })
       continue
     }
 
@@ -135,13 +145,78 @@ function compileDeclarations(
       continue
     }
 
+    const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
     assignment.externalFiles.push({
       ...declaration,
       id: stableId("external", assignment.projectPattern, declaration.projectPattern, declaration.xmlPattern),
-      projectPattern: joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern),
+      projectPattern,
       xmlPattern: joinMetadataPathPatterns(context.xmlBasePattern, declaration.xmlPattern),
+      fileBackedTarget: compileFileBackedTarget({
+        declaration: declaration.fileBackedTarget,
+        resourceProjectPattern: projectPattern,
+        projectBasePattern: context.projectBasePattern,
+        assignment,
+        assignments,
+      }),
     })
   }
+}
+
+function compileFileBackedTarget(params: {
+  readonly declaration: MetadataContentDeclaration["fileBackedTarget"]
+  readonly resourceProjectPattern: string
+  readonly projectBasePattern: string
+  readonly assignment: MutableAssignment
+  readonly assignments: readonly MutableAssignment[]
+}): CompiledMetadataFileBackedMemberTargetDeclaration | undefined {
+  const declaration = params.declaration
+  if (declaration === undefined) return undefined
+
+  const resourceParameters = new Set(patternParameters(params.resourceProjectPattern))
+  if (!resourceParameters.has(declaration.itemNameParameter)) {
+    throw new Error(
+      `Файловая цель ${params.resourceProjectPattern}: параметр имени ${declaration.itemNameParameter} отсутствует в пути ресурса`
+    )
+  }
+
+  const itemProjectPattern = joinMetadataPathPatterns(params.projectBasePattern, declaration.itemProjectPattern)
+  for (const parameter of patternParameters(itemProjectPattern)) {
+    if (!resourceParameters.has(parameter)) {
+      throw new Error(`Файловая цель ${params.resourceProjectPattern}: параметр пути ${parameter} недоступен`)
+    }
+  }
+
+  const ownerAssignment = declaration.owner === "assignment"
+    ? params.assignment
+    : params.assignment.ownerProjectPattern === undefined
+      ? undefined
+      : params.assignments.find((candidate) => candidate.projectPattern === params.assignment.ownerProjectPattern)
+  if (ownerAssignment === undefined) {
+    throw new Error(`Файловая цель ${params.resourceProjectPattern}: assignment не имеет владельца`)
+  }
+  const ownerDeclaration = ownerAssignment.itemRule.metadataTargetOwner
+  if (ownerDeclaration === undefined) {
+    throw new Error(
+      `Файловая цель ${params.resourceProjectPattern}: владелец не имеет metadataTargetOwner`
+    )
+  }
+  const ownerParameters = patternParameters(ownerAssignment.projectPattern)
+  for (const parameter of ownerParameters) {
+    if (!resourceParameters.has(parameter)) {
+      throw new Error(`Файловая цель ${params.resourceProjectPattern}: параметр пути владельца ${parameter} недоступен`)
+    }
+  }
+
+  return {
+    ...declaration,
+    itemProjectPattern,
+    ownerProjectPattern: ownerAssignment.projectPattern,
+    ownerAssignmentNodeId: ownerAssignment.id,
+  }
+}
+
+function patternParameters(pattern: string): string[] {
+  return [...pattern.matchAll(/\{([^}]+?)(?:\.\.\.)?\}/g)].map((match) => match[1]!)
 }
 
 function resolveAssignment(

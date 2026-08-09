@@ -1,4 +1,4 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../validation/dataPath/registry"
+import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
 
 const extDimensions = Array.from({ length: 50 }, (_, index): StandardMemberDeclaration[] => {
   const number = index + 1

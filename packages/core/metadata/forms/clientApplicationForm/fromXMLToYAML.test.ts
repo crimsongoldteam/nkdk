@@ -18,6 +18,36 @@ import {
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
+  it("индексирует произвольные реквизиты и колонки при прямом импорте", () => {
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      formName: "Форма",
+      formXML: {
+        Attributes: {
+          Attribute: [
+            { _name: "ПроизвольныйРеквизит", _id: "1", Type: {} },
+            {
+              _name: "Таблица",
+              _id: "2",
+              Type: { "v8:Type": "v8:ValueTable" },
+              Columns: { Column: { _name: "Значение", _id: "1", Type: {} } },
+            },
+          ],
+        },
+      },
+      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    })
+
+    expect(result.localIndexes.metadata.formDataPathIndex?.getRoot("ПроизвольныйРеквизит")?.typeInfo.kinds).toEqual([
+      "any",
+    ])
+    expect(
+      result.localIndexes.metadata.formDataPathIndex
+        ?.getRoot("Таблица")
+        ?.tableSource?.columns.get("Значение")?.typeInfo.kinds
+    ).toEqual(["any"])
+  })
+
   it.each([
     ["PlatformApplication", undefined],
     ["MobilePlatformApplication", "МобильноеПриложение"],

@@ -48,7 +48,13 @@ export type ProjectQueryResult =
     }
 
 export interface IndexedReferencesBinaryView {
-  readonly source: { readonly projectPath: string; readonly componentPath: string }
+  readonly source: {
+    readonly projectPath: string
+    readonly componentPath: string
+    readonly itemProjectPath?: string
+    readonly ownerProjectPath?: string
+  }
+  readonly collectionNames: readonly string[]
   readonly references: {
     readonly count: number
     reference(index: number): ProjectReferenceLocation
@@ -56,7 +62,7 @@ export interface IndexedReferencesBinaryView {
 }
 
 const PAYLOAD_KIND = "projectQuery.indexedReferences"
-const RECORD_HEADER_BYTES = 16
+const RECORD_HEADER_BYTES = 32
 const RECORD_BYTES = 36
 const YAML_SEGMENT_BYTES = 8
 const NONE = 0xffff_ffff
@@ -84,7 +90,11 @@ export function runProjectQuery(
   if (found === undefined || found.requestId !== "references") {
     throw new Error("Ответ поиска ссылок не соответствует запросу")
   }
-  return encodeIndexedReferencesResult(resolved.source, found.references)
+  return encodeIndexedReferencesResult(
+    resolved.source,
+    found.references,
+    indexedCollectionNames(session, resolved.source.componentPath, command.canonical),
+  )
 }
 
 export function openIndexedReferencesResult(value: unknown): IndexedReferencesBinaryView {
@@ -93,31 +103,52 @@ export function openIndexedReferencesResult(value: unknown): IndexedReferencesBi
     throw new Error("Worker вернул неожиданный двоичный результат поиска ссылок")
   }
   const buffers = new Map(value.buffers.map(({ name, buffer }) => [name, buffer]))
-  if (buffers.size !== 4 || ["records", "yamlPath", "resolvedSegments", "strings"].some((name) => !buffers.has(name))) {
+  if (buffers.size !== 5
+    || ["records", "yamlPath", "resolvedSegments", "collectionNames", "strings"].some((name) => !buffers.has(name))) {
     throw new Error("Повреждён состав двоичного результата поиска ссылок")
   }
   const recordsBuffer = buffers.get("records")!
   const yamlBuffer = buffers.get("yamlPath")!
   const resolvedBuffer = buffers.get("resolvedSegments")!
+  const collectionNamesBuffer = buffers.get("collectionNames")!
   if (recordsBuffer.byteLength < RECORD_HEADER_BYTES
     || yamlBuffer.byteLength % YAML_SEGMENT_BYTES !== 0
-    || resolvedBuffer.byteLength % 4 !== 0) {
+    || resolvedBuffer.byteLength % 4 !== 0
+    || collectionNamesBuffer.byteLength % 4 !== 0) {
     throw new Error("Повреждены секции двоичного результата поиска ссылок")
   }
   const records = new DataView(recordsBuffer)
-  const count = records.getUint32(8, true)
-  if (records.getUint32(12, true) !== 0 || recordsBuffer.byteLength !== RECORD_HEADER_BYTES + count * RECORD_BYTES) {
+  const count = records.getUint32(16, true)
+  const collectionNameCount = records.getUint32(20, true)
+  if (records.getUint32(24, true) !== 0 || records.getUint32(28, true) !== 0
+    || recordsBuffer.byteLength !== RECORD_HEADER_BYTES + count * RECORD_BYTES
+    || collectionNamesBuffer.byteLength !== collectionNameCount * 4) {
     throw new Error("Повреждена таблица ссылок")
   }
   const yaml = new DataView(yamlBuffer)
   const resolved = new DataView(resolvedBuffer)
+  const collectionNames = new DataView(collectionNamesBuffer)
   const strings = openBinaryStringPool(buffers.get("strings")!, 0, buffers.get("strings")!.byteLength)
   const source = {
     projectPath: readBinaryString(strings, records.getUint32(0, true)),
     componentPath: readBinaryString(strings, records.getUint32(4, true)),
+    ...optionalSourcePath("itemProjectPath", records.getUint32(8, true)),
+    ...optionalSourcePath("ownerProjectPath", records.getUint32(12, true)),
   }
   for (let index = 0; index < count; index += 1) validateRecord(index)
-  return { source, references: { count, reference: decodeRecord } }
+  return {
+    source,
+    collectionNames: Array.from({ length: collectionNameCount }, (_unused, index) =>
+      readBinaryString(strings, collectionNames.getUint32(index * 4, true))),
+    references: { count, reference: decodeRecord },
+  }
+
+  function optionalSourcePath<Key extends "itemProjectPath" | "ownerProjectPath">(
+    key: Key,
+    stringId: number,
+  ): { readonly [K in Key]?: string } {
+    return stringId === NONE ? {} : { [key]: readBinaryString(strings, stringId) } as { readonly [K in Key]: string }
+  }
 
   function validateRecord(index: number): void {
     const offset = recordOffset(index, count)
@@ -179,8 +210,14 @@ export function openIndexedReferencesResult(value: unknown): IndexedReferencesBi
 }
 
 function encodeIndexedReferencesResult(
-  source: { readonly projectPath: string; readonly componentPath: string },
+  source: {
+    readonly projectPath: string
+    readonly componentPath: string
+    readonly itemProjectPath?: string
+    readonly ownerProjectPath?: string
+  },
   references: readonly ProjectReferenceLocation[],
+  collectionNames: readonly string[],
 ): MetadataWorkerBinaryResult {
   const strings = new BinaryStringPoolBuilder()
   const yamlSegments: number[] = []
@@ -189,7 +226,10 @@ function encodeIndexedReferencesResult(
   const view = new DataView(records)
   view.setUint32(0, strings.intern(source.projectPath), true)
   view.setUint32(4, strings.intern(source.componentPath), true)
-  view.setUint32(8, references.length, true)
+  view.setUint32(8, source.itemProjectPath === undefined ? NONE : strings.intern(source.itemProjectPath), true)
+  view.setUint32(12, source.ownerProjectPath === undefined ? NONE : strings.intern(source.ownerProjectPath), true)
+  view.setUint32(16, references.length, true)
+  view.setUint32(20, collectionNames.length, true)
   references.forEach((reference, index) => {
     const offset = RECORD_HEADER_BYTES + index * RECORD_BYTES
     const yamlStart = yamlSegments.length / 2
@@ -212,6 +252,7 @@ function encodeIndexedReferencesResult(
   })
   const yamlPath = Uint32Array.from(yamlSegments).buffer
   const resolved = Uint32Array.from(resolvedSegments).buffer
+  const encodedCollectionNames = Uint32Array.from(collectionNames.map((name) => strings.intern(name))).buffer
   const packedStrings = packBinaryStringPool(strings.finish())
   const stringBuffer = new ArrayBuffer(packedStrings.byteLength)
   new Uint8Array(stringBuffer).set(new Uint8Array(packedStrings))
@@ -223,9 +264,31 @@ function encodeIndexedReferencesResult(
       { name: "records", buffer: records },
       { name: "yamlPath", buffer: yamlPath },
       { name: "resolvedSegments", buffer: resolved },
+      { name: "collectionNames", buffer: encodedCollectionNames },
       { name: "strings", buffer: stringBuffer },
     ],
   }
+}
+
+function indexedCollectionNames(
+  session: ProjectStateReadSession,
+  componentPath: string,
+  canonical: string,
+): string[] {
+  const prefix = canonical.slice(0, canonical.lastIndexOf(".") + 1)
+  if (prefix.length === 0) return []
+  const names = new Set<string>()
+  let cursor: string | undefined
+  do {
+    const page = session.readComponentTargetPage({ componentPath, ...(cursor === undefined ? {} : { cursor }) })
+    for (const entry of page.entries) {
+      if (!entry.logicalAddress.startsWith(prefix)) continue
+      const suffix = entry.logicalAddress.slice(prefix.length)
+      if (suffix.length > 0 && !suffix.includes(".")) names.add(suffix)
+    }
+    cursor = page.nextCursor
+  } while (cursor !== undefined)
+  return [...names]
 }
 
 function recordOffset(index: number, count: number): number {

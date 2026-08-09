@@ -5,7 +5,7 @@ import {
   encodeProjectStateHeader,
 } from "./format"
 
-it("восстанавливает заголовок 0.4.2 и отвергает прежнюю patch-версию", () => {
+it("восстанавливает заголовок 0.5.0 и отвергает другую версию", () => {
   const bytes = encodeProjectStateHeader({
     sections: [{ kind: "strings", offset: 128, byteLength: 64, records: 2 }],
     payloadHash: 7n,
@@ -19,7 +19,7 @@ it("восстанавливает заголовок 0.4.2 и отвергае�
 
   new DataView(bytes.buffer).setUint16(12, 1, true)
 
-  expect(() => decodeProjectStateHeader(bytes)).toThrow(/0\.4\.2/iu)
+  expect(() => decodeProjectStateHeader(bytes)).toThrow(/0\.5\.0/iu)
 })
 
 it.each([

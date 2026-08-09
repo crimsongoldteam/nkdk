@@ -16,3 +16,5 @@ export type OwnerFactRole =
   | "commonAttributeOwnerLinks"
   | "registerType"
   | "commands"
+  | "predefined"
+  | "enumValues"

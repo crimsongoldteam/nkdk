@@ -24,6 +24,7 @@ describe("refreshProjectState", () => {
       identity: yaml,
       absolutePath: "/project/cf/Конфигурация.yaml",
       descriptor: {} as never,
+      targets: [],
     }]
 
     const result = await refreshProjectState({ projectDir: "/project" }, {
@@ -82,6 +83,7 @@ describe("refreshProjectState", () => {
       identity: freshIdentity,
       absolutePath: "/project/cf/Новый.yaml",
       descriptor: {} as never,
+      targets: [],
     }))
     const handle = new TrackingRefreshHandle([], { knownProjectPaths: ["cf/Известный.yaml"] })
     let selected: readonly { readonly projectPath: string; readonly identity?: ProjectStateFileIdentity }[] = []
@@ -94,7 +96,12 @@ describe("refreshProjectState", () => {
             projectPath: "cf/Известный.yaml",
             componentPath: "cf",
             absolutePath: "/project/cf/Известный.yaml",
-            classify: () => ({ identity: known(), absolutePath: "/project/cf/Известный.yaml", descriptor: {} as never }),
+            classify: () => ({
+              identity: known(),
+              absolutePath: "/project/cf/Известный.yaml",
+              descriptor: {} as never,
+              targets: [],
+            }),
           },
           {
             projectPath: freshIdentity.projectPath,
@@ -131,7 +138,12 @@ describe("refreshProjectState", () => {
           projectPath: fresh.projectPath,
           componentPath: fresh.componentPath,
           absolutePath: "/project/cf/НовоеИмя.yaml",
-          classify: () => ({ identity: fresh, absolutePath: "/project/cf/НовоеИмя.yaml", descriptor: {} as never }),
+          classify: () => ({
+            identity: fresh,
+            absolutePath: "/project/cf/НовоеИмя.yaml",
+            descriptor: {} as never,
+            targets: [],
+          }),
         }] }
       },
       processFiles: async (batches) => {
@@ -413,7 +425,7 @@ function yamlUpdate(file: ProjectStateFileIdentity): ProjectStateFileUpdate {
     fields: [],
     owners: [],
     pendingReferences: [],
-    references: [],
+    targets: [],
     dependencies: [],
   }
 }

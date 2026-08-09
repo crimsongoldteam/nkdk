@@ -209,6 +209,7 @@ function collectRuleDeclarations(
           ...declaration,
           projectPattern,
           ownerProjectPattern: context.assignmentProjectPattern,
+          fileBackedTarget: projectFileBackedTargetDeclaration(declaration.fileBackedTarget, context),
         })
         continue
       }
@@ -241,6 +242,7 @@ function collectRuleDeclarations(
             substituteLocalParameters(declaration.projectPattern, context)
           ),
           xmlPattern: joinWithOverlap(context.xmlBase, substituteLocalParameters(declaration.xmlPattern, context)),
+          fileBackedTarget: projectFileBackedTargetDeclaration(declaration.fileBackedTarget, context),
           ...(declaration.selection === undefined
             ? {}
             : {
@@ -318,6 +320,26 @@ function collectRuleDeclarations(
       nextNameIndex: context.nextNameIndex + 1,
     })
   }
+}
+
+function projectFileBackedTargetDeclaration(
+  declaration: Extract<MetadataResourceDeclaration, { kind: "content" | "externalFile" }>["fileBackedTarget"],
+  context: RuleTopologyContext
+) {
+  return declaration === undefined
+    ? undefined
+    : {
+        ...declaration,
+        itemNameParameter: substituteLocalParameterName(declaration.itemNameParameter, context),
+        itemProjectPattern: joinMetadataPathPatterns(
+          context.projectBase,
+          substituteLocalParameters(declaration.itemProjectPattern, context)
+        ),
+      }
+}
+
+function substituteLocalParameterName(parameter: string, context: RuleTopologyContext): string {
+  return substituteLocalParameters(`{${parameter}}`, context).slice(1, -1)
 }
 
 function contentDeclaration(params: {

@@ -78,10 +78,18 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
 
   const snapshot = buildMetadataOperationSnapshotFromProjectPaths({
     projectDir: params.projectDir,
-    projectPaths: [indexed.source.projectPath, ...indexed.references.map(({ projectPath }) => projectPath)],
+    projectPaths: [
+      indexed.source.ownerProjectPath ?? indexed.source.projectPath,
+      ...indexed.references.map(({ projectPath }) => projectPath),
+    ],
   })
   if (!snapshot.ok) return snapshot
-  const resolved = resolveMetadataOperationPath(snapshot, parsedPath)
+  const resolved = resolveMetadataOperationPath(snapshot, parsedPath, {
+    sourceProjectPath: indexed.source.projectPath,
+    ...(indexed.source.itemProjectPath === undefined ? {} : { itemProjectPath: indexed.source.itemProjectPath }),
+    ...(indexed.source.ownerProjectPath === undefined ? {} : { ownerProjectPath: indexed.source.ownerProjectPath }),
+    collectionNames: indexed.collectionNames,
+  })
   if (!resolved.ok) return metadataOperationFailure(resolved.code, resolved.message, beforeDiagnostics)
   if (hasNameConflict(resolved, params.newName)) {
     return metadataOperationFailure("name_conflict", `Имя "${params.newName}" уже занято в этой области имен`, beforeDiagnostics)
@@ -198,7 +206,7 @@ function buildRenamePlan(params: {
       to: join(dirname(params.resolved.item.ownerDirPath), params.newName),
     })
   } else if (params.resolved.targetKind === "fileItem") {
-    const from = dirname(params.resolved.absolutePath)
+    const from = params.resolved.resources[0]!
     steps.push({ kind: "renamePath", from, to: join(dirname(from), params.newName) })
   }
 

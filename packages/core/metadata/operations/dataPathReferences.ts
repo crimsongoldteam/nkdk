@@ -6,7 +6,7 @@ import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation
 import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import type { OperationSnapshotItem } from "./projectSnapshot"
-import { collectFormTableDataPathsFromYAML } from "../orchestration/formElement/formTableDataPaths"
+import { getRegisteredFormDataPathMetadataProjection } from "../validation/formDataPathProjectionRegistry"
 
 export interface DataPathReferenceInput {
   item: OperationSnapshotItem
@@ -53,10 +53,9 @@ export function collectFormDataPathReferencesForItem(params: {
 }): DataPathReferenceInput[] {
   if (params.item.kind !== "form") return []
 
-  const index = createFormDataPathIndexFromYAML(
-    params.item.yaml,
-    collectFormTableDataPathsFromYAML(params.item.yaml)
-  )
+  const projection = getRegisteredFormDataPathMetadataProjection()
+  if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
+  const index = createFormDataPathIndexFromYAML(params.item.yaml, projection)
 
   const references: DataPathReferenceInput[] = []
   for (const occurrence of collectFormDataPathOccurrencesFromYAML({

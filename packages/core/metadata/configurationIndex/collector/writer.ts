@@ -13,6 +13,7 @@ export interface ConfigurationIndexCollector {
   setOmittedChildren(address: string, value: OmittedChildren): void
   setXmlFlag(address: string, field: XmlFlag): void
   setXmlValue(address: string, field: XmlValue, value: string): void
+  preserveRawXmlState(address: string, value: unknown, presentInXML: boolean): void
   fragment(targetProjectPath: string): ConfigurationSnapshotFragment
 }
 
@@ -74,6 +75,18 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
     xml[field] = value
   }
 
+  preserveRawXmlState(address: string, value: unknown, presentInXML: boolean): void {
+    if (!presentInXML) return
+    if (isRecord(value)) {
+      if (value["_xsi:nil"] === true || value["_xsi:nil"] === "true") this.setXmlFlag(address, "xsiNil")
+      if (typeof value["_xsi:type"] === "string") this.setXmlValue(address, "xsiType", value["_xsi:type"])
+      if (typeof value["#text"] === "string") this.setXmlValue(address, "xmlText", value["#text"])
+      if (Object.keys(value).length === 0) this.setXmlFlag(address, "explicitEmpty")
+      return
+    }
+    if (value === undefined || value === "") this.setXmlFlag(address, "explicitEmpty")
+  }
+
   fragment(targetProjectPath: string): ConfigurationSnapshotFragment {
     const entities = [...this.entities.values()]
       .flatMap((entity) => {
@@ -105,10 +118,15 @@ export function createDiscardingConfigurationIndexCollector(): ConfigurationInde
     setOmittedChildren: discard,
     setXmlFlag: discard,
     setXmlValue: discard,
+    preserveRawXmlState: discard,
     fragment(targetProjectPath) {
       return { targetProjectPath, entities: [] }
     },
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 function normalizeEntity(entity: MutableEntity, sourceProjectPath: string): ConfigurationSnapshotEntity | undefined {

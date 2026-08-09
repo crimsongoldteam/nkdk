@@ -56,6 +56,8 @@ export interface ValidationOwnerFacts {
   tabularSections?: Array<{ name: string; attributes: ValidationNamedTypeItems; standardAttributes?: ValidationNamedTypeItems }>
   standardAttributes?: ValidationNamedTypeItems
   commands?: ValidationNamedTypeItems
+  predefined?: ValidationNamedTypeItems
+  enumValues?: ValidationNamedTypeItems
 }
 
 export interface OwnerMetadataCache {

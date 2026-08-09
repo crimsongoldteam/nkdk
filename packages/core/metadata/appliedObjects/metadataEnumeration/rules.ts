@@ -226,6 +226,7 @@ export const MetadataEnumerationRules = {
     }),
     enumValues: metadataEnumerationValuesRule({
       yaml: "Значения",
+      ownerFactRole: "enumValues",
       xmlParents: enumChildObjects,
       xml: "EnumValue",
       configurationIndexUidSegment: "Значение",

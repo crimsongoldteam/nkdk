@@ -6,7 +6,13 @@ import { openIndexedReferencesResult } from "../workerPool/projectQueries"
 export type IndexedOperationReferencesResult =
   | {
       readonly ok: true
-      readonly source: { readonly projectPath: string; readonly componentPath: string }
+      readonly source: {
+        readonly projectPath: string
+        readonly componentPath: string
+        readonly itemProjectPath?: string
+        readonly ownerProjectPath?: string
+      }
+      readonly collectionNames: readonly string[]
       readonly references: readonly ProjectReferenceLocation[]
     }
   | { readonly ok: false; readonly message: string }
@@ -39,6 +45,7 @@ export async function readIndexedOperationReferences(params: {
       return {
         ok: true,
         source: opened.source,
+        collectionNames: opened.collectionNames,
         references: Array.from(
           { length: opened.references.count },
           (_unused, index) => opened.references.reference(index),

@@ -4,8 +4,8 @@ import type {
   ProjectStateFormEntry,
   ProjectStateOwnerFacts,
   ProjectStatePendingDependencyCheck,
-  ProjectStateReferenceEntry,
-} from "./contracts/fileUpdate"
+  ProjectStateTargetEntry,
+} from "./fileUpdate"
 import type { ProjectStateReadToken } from "./contracts/readToken"
 
 export interface ProjectTargetLookup {
@@ -18,8 +18,13 @@ export type ProjectTargetLookupResult =
   | {
       readonly requestId: string
       readonly status: "found"
-      readonly target: ProjectStateReferenceEntry
-      readonly source: { readonly projectPath: string; readonly componentPath: string }
+      readonly target: ProjectStateTargetEntry
+      readonly source: {
+        readonly projectPath: string
+        readonly componentPath: string
+        readonly itemProjectPath?: string
+        readonly ownerProjectPath?: string
+      }
     }
   | { readonly requestId: string; readonly status: "ambiguous" }
   | { readonly requestId: string; readonly status: "missing" }
@@ -124,6 +129,8 @@ export interface ProjectComponentTargetPage {
   readonly entries: readonly {
     readonly logicalAddress: string
     readonly sourceProjectPath: string
+    readonly itemProjectPath?: string
+    readonly ownerProjectPath?: string
   }[]
   readonly nextCursor?: string
 }

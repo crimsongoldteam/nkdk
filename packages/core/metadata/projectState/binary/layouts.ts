@@ -75,6 +75,8 @@ export interface ProjectStateTargetEntryRecord {
   readonly componentPathId: number
   readonly canonicalId: number
   readonly sourceFileId: number
+  readonly itemProjectPathId: number
+  readonly ownerProjectPathId: number
   readonly kind: number
   readonly reserved8: number
   readonly reserved16: number
@@ -123,10 +125,12 @@ export interface ProjectStateValidationStatusRecord {
   readonly schemaDiagnosticsCount: number
 }
 
-export interface ProjectStateReferenceRecord {
+export interface ProjectStateTargetRecord {
   readonly sourceFileId: number
   readonly canonicalId: number
   readonly detailsId: number
+  readonly itemProjectPathId: number
+  readonly ownerProjectPathId: number
   readonly kind: number
   readonly reserved8: number
   readonly reserved16: number
@@ -455,6 +459,8 @@ export const ProjectStateTargetEntryRecordView =
       componentPathId: { type: "integer", btype: "uint32" },
       canonicalId: { type: "integer", btype: "uint32" },
       sourceFileId: { type: "integer", btype: "uint32" },
+      itemProjectPathId: { type: "integer", btype: "uint32" },
+      ownerProjectPathId: { type: "integer", btype: "uint32" },
       kind: { type: "integer", btype: "uint8" },
       reserved8: { type: "integer", btype: "uint8" },
       reserved16: { type: "integer", btype: "uint16" },
@@ -534,11 +540,12 @@ export const ProjectStateValidationStatusRecordView =
     },
   })
 
-export const ProjectStateReferenceRecordView = projectStateView.create<ProjectStateReferenceRecord>({
-  $id: "ProjectStateReferenceRecord",
+export const ProjectStateTargetRecordView = projectStateView.create<ProjectStateTargetRecord>({
+  $id: "ProjectStateTargetRecord",
   type: "object",
   properties: {
     sourceFileId: uint32Field, canonicalId: uint32Field, detailsId: uint32Field,
+    itemProjectPathId: uint32Field, ownerProjectPathId: uint32Field,
     kind: uint8Field, reserved8: uint8Field, reserved16: uint16Field,
   },
 })

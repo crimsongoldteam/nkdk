@@ -20,7 +20,7 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
   const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
 
-  const recordEvent = (kind: LocalMetadataEvent["kind"], fact: LocalYamlFact): void => {
+  const recordEvent = (kind: "property" | "complete", fact: LocalYamlFact): void => {
     if (options?.recordEvents === false) return
     events.push({
       kind,
@@ -52,6 +52,16 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
   }
 
   return {
+    acceptItem(fact) {
+      if (options?.recordEvents === false) return
+      events.push({
+        kind: "item",
+        itemType: fact.itemType,
+        ...(fact.name === undefined ? {} : { name: fact.name }),
+        yamlPath: [...fact.yamlPath],
+        rulePath: fact.rulePath.map((segment) => ({ ...segment })),
+      })
+    },
     acceptProperty,
     completeValue: (fact) => recordEvent("complete", fact),
     finish: () => ({

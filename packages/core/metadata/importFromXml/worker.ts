@@ -22,13 +22,14 @@ import {
   createProjectStateFileUpdateBatch,
   projectStateFieldEntries,
   projectStateOwnerFacts,
-  projectStateReferenceEntry,
+  projectStateTargetEntry,
   toProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
 import { openProjectStateReadSession } from "../projectState/createDefaultService"
 import { resolveProjectPath } from "../project/path"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../project/resources"
 import type { ProjectStateImportFinalFileStateBatch, ProjectStateImportIndexContribution } from "../projectState/importSession"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import {
@@ -274,7 +275,7 @@ async function processSecondPass(
         profiler,
       )
       accumulator.files.push(written.file)
-      accumulator.fragmentWriter.appendImportIndex(prepared.indexContribution)
+      accumulator.fragmentWriter.appendImportIndex(written.indexContribution)
       accumulator.fragmentWriter.appendImportFinal(written.finalState)
       accumulator.stateEntries += 2
     } catch (caught) {
@@ -343,7 +344,11 @@ async function writePreparedYamlToOutput(
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
-): Promise<{ file: ImportResultFile; finalState: ProjectStateImportFinalFileStateBatch }> {
+): Promise<{
+  file: ImportResultFile
+  indexContribution: ProjectStateImportIndexContribution
+  finalState: ProjectStateImportFinalFileStateBatch
+}> {
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
     "Подготовка контекста YAML",
@@ -374,7 +379,7 @@ async function writePreparedYamlToOutput(
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  return { file: main.file, finalState: validated.final }
+  return { file: main.file, indexContribution: validated.index, finalState: validated.final }
 }
 
 function secondPassExportContext(params: {
@@ -467,6 +472,7 @@ async function processFirstPass(
             projectPath: `${state.componentPath}/${file.targetProjectPath}`,
             componentPath: state.componentPath,
             resourceKind: "resource" as const,
+            targets: importFileBackedTargets(state, file.targetProjectPath),
           },
           hash: hashGeneratedContent(generatedFiles[index]?.content ?? ""),
         }))
@@ -484,8 +490,7 @@ async function processFirstPass(
           const main = await writeMainImportYaml({ serialized, profiler })
           const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
           assignmentFiles.push(main.file)
-          const indexContribution = importIndexContribution(prepared, validationContribution, state)
-          accumulator.fragmentWriter.appendImportIndex(indexContribution)
+          accumulator.fragmentWriter.appendImportIndex(validated.index)
           accumulator.fragmentWriter.appendImportFinal(validated.final)
           accumulator.stateEntries += 2
           earlyYamlCount += 1
@@ -707,9 +712,26 @@ function validateSerializedImportYaml(
     "Локальная валидация готового YAML",
     "Преобразование результата в состояние проекта",
     { items: 1 },
-    () => toProjectStateFileUpdate(first, importFileIdentity(state, prepared.targetProjectPath, file.kind)),
+    () => toProjectStateFileUpdate(
+      first,
+      importFileIdentity(state, prepared.targetProjectPath, file.kind),
+      importFileBackedTargets(state, prepared.targetProjectPath),
+    ),
   )
   return splitImportYamlUpdate(full, serialized.localHash)
+}
+
+function importFileBackedTargets(
+  state: InitializedImportWorkerState,
+  targetProjectPath: string,
+) {
+  const component = validationProjectComponentFromAddress(state.projectDir, {
+    componentPath: state.componentPath,
+    componentDir: state.outputDir,
+  })
+  const resource = classifyMetadataProjectPath(targetProjectPath, component)
+  if (resource === undefined) return []
+  return projectStateFileBackedTargets(state.componentPath, resource.fileBackedTargets)
 }
 
 function measureSerializedImportYamlValidation(
@@ -734,18 +756,17 @@ function splitImportYamlUpdate(
     throw new Error("Import validation вернула не YAML identity")
   }
   const identity = {
-    kind: "yaml" as const,
     projectPath: update.projectPath,
     componentPath: update.componentPath,
     resourceKind: "yaml" as const,
     yamlRole: update.yamlRole,
   }
-  const { references, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
+  const { targets, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
   const batch = createProjectStateFileUpdateBatch([{ update, hash }])
   return {
-    index: { ...identity, references, owners, fields, forms },
+    index: { ...identity, targets, owners, fields, forms },
     final: {
-      updates: [{ ...identity, localValidation, pendingReferences, pendingChecks, dependencies }],
+      updates: [{ ...identity, kind: "yaml", localValidation, pendingReferences, pendingChecks, dependencies }],
       hashBytes: batch.hashBytes,
     },
   }
@@ -764,10 +785,10 @@ function importIndexContribution(
   const validation = contribution.validationContribution
   return {
     ...identity,
-    references: [
-      ...validation.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
-      ...validation.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
-      ...validation.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
+    targets: [
+      ...validation.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
+      ...validation.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
+      ...validation.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
     ],
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),

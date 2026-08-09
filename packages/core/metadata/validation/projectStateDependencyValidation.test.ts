@@ -17,13 +17,18 @@ import {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
 } from "./projectReferenceIndex"
+import {
+  registerProjectReferenceValueContributor,
+  restoreProjectReferenceIndexRegistryForTests,
+  snapshotProjectReferenceIndexRegistryForTests,
+} from "./projectReferenceIndexRegistry"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 import type {
   ComponentValidationLayer,
   ProjectValidationGraph,
   ValidationObjectRecord,
 } from "./projectValidationTypes"
-import type { ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
+import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../projectState/fileUpdate"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"
 import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
@@ -54,6 +59,73 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("Б5 принимает пустую ссылку, если владелец существует", () => {
+    const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
+      roots: ["Catalog"],
+      valueKinds: ["emptyRef"],
+      allowEmptyRef: true,
+    })
+
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "empty-ref", componentPath: "cf", reference }],
+      queryPort: missingValueQueryPort({}),
+    })
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("Б5 проверяет предопределённое значение общим поставщиком по сведениям владельца", () => {
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
+        if (target.valueKind === "emptyRef") return undefined
+        const predefined = owner.facts.predefined as readonly { name: string }[] | undefined
+        return predefined?.some(({ name }) => name === target.valueName) === true
+          ? { ok: true, filePath: owner.filePath }
+          : undefined
+      })
+      const reference = valueReference("Справочник.Товары.Основной", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      })
+
+      const diagnostics = validateProjectStateReferenceBatch({
+        projectDir: "/project",
+        checks: [{ requestId: "predefined", componentPath: "cf", reference }],
+        queryPort: missingValueQueryPort({ predefined: [{ name: "Основной" }] }),
+      })
+
+      expect(diagnostics).toEqual([])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
+
+  it("Б5 сообщает об отсутствующем предопределённом значении существующего владельца", () => {
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectReferenceValueContributor("Catalog", () => undefined)
+      const reference = valueReference("Справочник.Товары.НетТакого", {
+        roots: ["Catalog"],
+        valueKinds: ["predefinedValue"],
+      })
+
+      const diagnostics = validateProjectStateReferenceBatch({
+        projectDir: "/project",
+        checks: [{ requestId: "missing-predefined", componentPath: "cf", reference }],
+        queryPort: missingValueQueryPort({ predefined: [] }),
+      })
+
+      expect(diagnostics).toEqual([expect.objectContaining({
+        source: "reference",
+        message: 'Не найдена ссылка "Catalog.Товары.НетТакого"',
+      })])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
+
   it("проверяет одинакового владельца компонента один раз", () => {
     const owner = { kind: "Справочник", name: "Товары" }
     const requestBatchSizes: number[] = []
@@ -137,7 +209,7 @@ describe("dependency validation из ProjectState", () => {
   it("привязывает отсутствующий объект к ожидаемому Свойства.yaml", () => {
     const source: ProjectStateYamlFileUpdate = {
       ...yamlUpdate("cf/ИсточникОбъекта.yaml", "cf", false),
-      references: [],
+      targets: [],
       pendingReferences: [{
         yamlPath: ["Ссылка"],
         canonical: "Catalog.НетТакого",
@@ -162,7 +234,7 @@ describe("dependency validation из ProjectState", () => {
   it("сохраняет префикс компонента в пути отсутствующего объекта расширения", () => {
     const source: ProjectStateYamlFileUpdate = {
       ...yamlUpdate("cfe/Продажи/ИсточникОбъекта.yaml", "cfe/Продажи", false),
-      references: [],
+      targets: [],
       pendingReferences: [{
         yamlPath: ["Ссылка"],
         canonical: "Catalog.НетТакого",
@@ -633,13 +705,69 @@ describe("dependency validation из ProjectState", () => {
       store.beginUpdate()
       if (change === "deleted") store.deleteFiles([target.projectPath])
       else {
-        replaceFiles(store, [{ ...target, references: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }])
+        replaceFiles(store, [{ ...target, targets: [{ kind: "member", canonical: "Catalog.Другая.Attribute.Ссылка" }] }])
       }
 
       expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
       store.rollbackUpdate()
     },
   )
+
+  it("Б5 проверяет ссылку по файловым целям и удаляет её с последним подтверждением", () => {
+    const parsed = parseMetadataTargetFromYAML({
+      value: "Отчет.Продажи.Макет.Схема",
+      constraint: { kind: "member", owner: "explicit", memberKinds: ["Template"] },
+    })
+    if (!parsed.ok || parsed.target.kind !== "member") throw new Error("Некорректная ссылка на макет")
+    const templateCanonical = "Report.Продажи.Template.Схема"
+    const source = {
+      ...yamlUpdate("cf/Отчет/Продажи/Свойства.yaml", "cf", false),
+      targets: [],
+      pendingReferences: [{
+        yamlPath: ["ОсновнаяСхемаКомпоновкиДанных"],
+        canonical: templateCanonical,
+        target: parsed.target,
+        constraint: { kind: "member" as const, owner: "explicit" as const, memberKinds: ["Template" as const] },
+      }],
+    }
+    const target = {
+      kind: "member" as const,
+      canonical: templateCanonical,
+      fileBacked: {
+        itemProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема",
+        ownerProjectPath: source.projectPath,
+      },
+    }
+    const first = {
+      kind: "resource" as const,
+      projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Template.xml",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+      targets: [target],
+    }
+    const second = {
+      ...first,
+      projectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Ext/schema.bin",
+    }
+    const { store } = createBinaryProjectStateTestFixture()
+    store.beginUpdate()
+    replaceFiles(store, [source, first, second, configurationUpdate(true)])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+
+    store.deleteFiles([first.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+
+    store.deleteFiles([second.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      filePath: source.projectPath,
+      source: "reference",
+      message: `Не найдена ссылка "${templateCanonical}"`,
+    })])
+
+    replaceFiles(store, [{ ...source, pendingReferences: [] }])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+    store.rollbackUpdate()
+  })
 
   it("даёт одинаковую reference-диагностику в writer-транзакции и read-only session после commit", () => {
     const source = yamlUpdate("cf/ИсточникСеанса.yaml", "cf", true)
@@ -669,6 +797,36 @@ describe("dependency validation из ProjectState", () => {
   })
 })
 
+function valueReference(
+  value: string,
+  constraint: {
+    roots: readonly ["Catalog"]
+    valueKinds: readonly ["emptyRef"] | readonly ["predefinedValue"]
+    allowEmptyRef?: true
+  },
+): PendingMetadataTargetReference {
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "value", ...constraint } })
+  if (!parsed.ok || parsed.target.kind !== "value") throw new Error(`Некорректная тестовая ссылка ${value}`)
+  return {
+    filePath: "cf/Справочник/Источник/Свойства.yaml",
+    yamlPath: ["ЗначениеЗаполнения"],
+    canonical: parsed.canonical,
+    target: parsed.target,
+    constraint: { kind: "value", ...constraint },
+  }
+}
+
+function missingValueQueryPort(facts: Record<string, unknown>) {
+  return {
+    resolveTargets(requests: readonly { requestId: string }[]) {
+      return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+    },
+    readOwners(requests: readonly { requestId: string }[]) {
+      return requests.map(({ requestId }) => ({ requestId, status: "found" as const, facts }))
+    },
+  }
+}
+
 function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
   const { store } = createBinaryProjectStateTestFixture()
   store.beginUpdate()
@@ -678,7 +836,7 @@ function storeWithUpdates(updates: readonly ProjectStateYamlFileUpdate[]) {
 
 function replaceFiles(
   store: ReturnType<typeof createBinaryProjectStateTestFixture>["store"],
-  updates: readonly ProjectStateYamlFileUpdate[],
+  updates: readonly ProjectStateFileUpdate[],
 ): void {
   const writer = createProjectStateFragmentWriter()
   updates.forEach((update) => writer.appendFile(update, 0n))
@@ -782,7 +940,7 @@ function emptyYamlUpdate(
   return {
     ...yamlUpdate(projectPath, componentPath, false),
     yamlRole,
-    references: [],
+    targets: [],
   }
 }
 
@@ -880,7 +1038,7 @@ function configurationUpdate(
         ? []
         : [{ line: 1, col: 1, severity: "error", source: "structure", message: "invalid cf" }],
     },
-    references: [],
+    targets: [],
     pendingReferences: [],
     owners: [],
     fields: [],
@@ -1022,7 +1180,7 @@ function referenceCase(
   sourceComponent: string,
   targetComponents: readonly string[],
   constraint: PendingMetadataTargetReference["constraint"] = { kind: "member", owner: "explicit" },
-  details?: ProjectStateYamlFileUpdate["references"][number]["details"],
+  details?: ProjectStateYamlFileUpdate["targets"][number]["details"],
 ) {
   const source = yamlUpdate(`${sourceComponent}/Источник.yaml`, sourceComponent, true, constraint)
   const targets = targetComponents.map((componentPath, index) =>
@@ -1033,7 +1191,7 @@ function referenceCase(
   for (const update of [source, ...targets, ...readiness]) {
     const layer = byComponent.get(update.componentPath) ?? { updates: [], entries: [] }
     layer.updates.push(update)
-    if (update.references.length > 0) {
+    if (update.targets.length > 0) {
       layer.entries.push({
         canonical,
         target: memberTarget,
@@ -1062,7 +1220,7 @@ function yamlUpdate(
   componentPath: string,
   pending: boolean,
   constraint: PendingMetadataTargetReference["constraint"] = { kind: "member", owner: "explicit" },
-  details?: ProjectStateYamlFileUpdate["references"][number]["details"],
+  details?: ProjectStateYamlFileUpdate["targets"][number]["details"],
 ): ProjectStateYamlFileUpdate {
   return {
     kind: "yaml",
@@ -1071,7 +1229,7 @@ function yamlUpdate(
     resourceKind: "yaml",
     yamlRole: "configuration",
     localValidation: { contributedFacts: true, diagnostics: [], schemaDiagnostics: [] },
-    references: pending ? [] : [{ kind: "member", canonical, ...(details === undefined ? {} : { details }) }],
+    targets: pending ? [] : [{ kind: "member", canonical, ...(details === undefined ? {} : { details }) }],
     pendingReferences: pending
       ? [{ yamlPath: ["Ссылка"], canonical, target: memberTarget, constraint }]
       : [],

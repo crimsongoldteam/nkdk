@@ -4,6 +4,10 @@ import type {
   ParsedMetadataTarget,
 } from "../orchestration/metadataTarget"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import {
+  collectDependentStructuralItemReferences,
+  type DependentStructuralItemReference,
+} from "../orchestration/property/dependentItemRegistry"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string
@@ -15,6 +19,7 @@ export interface StructuralReferencePropertyRule {
 }
 
 export interface StructuralReferenceItemRule {
+  readonly itemType: string
   readonly properties: Readonly<Record<string, StructuralReferencePropertyRule>>
 }
 
@@ -109,6 +114,8 @@ export function collectStructuralYamlReferences(params: {
     ...params,
     value: params.yaml,
     yamlPath: [],
+    rootYaml: params.yaml,
+    rootRule: params.rule,
   })
 }
 
@@ -121,11 +128,49 @@ function collectObjectReferences(params: {
   owner?: MetadataTargetOwner
   context: unknown
   runtime: StructuralReferenceRuntime
+  itemName?: string
+  rootYaml: unknown
+  rootRule: StructuralReferenceItemRule
 }): StructuralYamlReferenceCollectionResult {
   const record = asRecord(params.value)
   if (record === undefined) return { ok: true, references: [] }
 
   const references: StructuralYamlReference[] = []
+  const dependentReferences = collectDependentStructuralItemReferences({
+    itemType: params.rule.itemType,
+    ...(params.itemName === undefined ? {} : { itemName: params.itemName }),
+    item: record,
+    itemYamlPath: params.yamlPath,
+    rootYaml: params.rootYaml,
+    rootRule: params.rootRule,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    owner: { dir: params.owner?.root ?? "", name: params.owner?.objectName ?? "" },
+    context: params.context,
+    metadataTargetOwner: params.owner,
+  })
+  for (const candidate of dependentReferences) {
+    let staged = false
+    references.push({
+      ...candidate,
+      target: dependentStructuralTarget(candidate.target),
+      constraint: dependentStructuralConstraint(candidate.constraint),
+      filePath: params.filePath,
+      stageCanonical(nextCanonical: string) {
+        candidate.setCanonical(nextCanonical)
+        staged = true
+      },
+      commitStaged() {
+        if (!staged) return
+        candidate.commitValue()
+        staged = false
+      },
+      setCanonical(nextCanonical: string) {
+        candidate.setCanonical(nextCanonical)
+        candidate.commitValue()
+      },
+    })
+  }
   for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
@@ -219,6 +264,18 @@ function collectObjectReferences(params: {
   return { ok: true, references }
 }
 
+function dependentStructuralTarget(
+  target: DependentStructuralItemReference["target"],
+): StructuralYamlReference["target"] {
+  return target as StructuralYamlReference["target"]
+}
+
+function dependentStructuralConstraint(
+  constraint: DependentStructuralItemReference["constraint"],
+): StructuralYamlReference["constraint"] {
+  return constraint as StructuralYamlReference["constraint"]
+}
+
 function collectNestedReferences(params: {
   filePath: string
   parsed: ParsedYaml
@@ -228,6 +285,8 @@ function collectNestedReferences(params: {
   owner?: MetadataTargetOwner
   context: unknown
   runtime: StructuralReferenceRuntime
+  rootYaml: unknown
+  rootRule: StructuralReferenceItemRule
 }): StructuralYamlReferenceCollectionResult | undefined {
   const descriptor = params.runtime.nestedRule(params.propertyRule)
   if (descriptor === undefined || descriptor.kind === "externalFile") return undefined
@@ -256,6 +315,7 @@ function collectNestedReferences(params: {
           propertyRule: params.propertyRule,
         }) ?? descriptor.itemRule,
         yamlPath: [...params.yamlPath, index],
+        itemName: undefined,
       })
       if (!result.ok) return result
       references.push(...result.references)
@@ -277,6 +337,7 @@ function collectNestedReferences(params: {
         propertyRule: params.propertyRule,
       }) ?? descriptor.itemRule,
       yamlPath: [...params.yamlPath, key],
+      itemName: key,
     })
     if (!result.ok) return result
     references.push(...result.references)

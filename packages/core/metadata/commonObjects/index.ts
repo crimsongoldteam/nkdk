@@ -319,10 +319,16 @@ import "./help/fromXML"
 import "./help/toXML"
 
 import "./module/fromXML"
+import {
+  registerFillValueImport,
+  registerFillValueValidation,
+} from "./fillValue/register"
 
 let commonObjectsRegistered = false
 
 export function registerCommonObjects(): void {
   if (commonObjectsRegistered) return
   commonObjectsRegistered = true
+  registerFillValueImport()
+  registerFillValueValidation()
 }

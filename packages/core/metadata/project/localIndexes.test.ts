@@ -4,6 +4,27 @@ import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { createLocalIndexesCollector } from "./localIndexes"
 
 describe("createLocalIndexesCollector", () => {
+  it("сохраняет объявление metadata-item без его YAML-значения", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptItem({
+      itemType: "TestItem",
+      name: "Элемент",
+      yamlPath: ["Элементы", "Элемент"],
+      rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }],
+    })
+
+    expect(collector.finish().metadata.events).toEqual([
+      {
+        kind: "item",
+        itemType: "TestItem",
+        name: "Элемент",
+        yamlPath: ["Элементы", "Элемент"],
+        rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }],
+      },
+    ])
+  })
+
   it("stores only paths for properties finalized after the global index is built", () => {
     registerTypeRule("TestDeferredImport" as PropertyRuleType, "finalizeImportedYAML", ({ value }) => value)
     const collector = createLocalIndexesCollector()

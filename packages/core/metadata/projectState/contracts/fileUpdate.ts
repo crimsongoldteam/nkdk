@@ -15,7 +15,10 @@ import type { ProjectStateFileIdentity } from "./fileIdentity"
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
 export type ProjectStateYamlPath = readonly (string | number)[]
 
-export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity { readonly kind: "resource" }
+export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
+  readonly kind: "resource"
+  readonly targets: readonly ProjectStateTargetEntry[]
+}
 export interface ProjectStateLocalValidationResult {
   readonly contributedFacts: boolean
   readonly diagnostics: readonly ProjectStateDiagnostic[]
@@ -26,11 +29,17 @@ export interface ProjectStateReferenceDetails {
   readonly typeInfo?: { readonly kinds: readonly string[]; readonly sourceText?: string; readonly definedTypes?: readonly string[] }
   readonly styleItemType?: "Color" | "Font" | "Border"
 }
-export interface ProjectStateReferenceEntry {
+export interface ProjectStateFileBackedTargetLocation {
+  readonly itemProjectPath: string
+  readonly ownerProjectPath: string
+}
+export interface ProjectStateTargetEntry {
   readonly kind: "object" | "member" | "value"
   readonly canonical: string
   readonly details?: ProjectStateReferenceDetails
+  readonly fileBacked?: ProjectStateFileBackedTargetLocation
 }
+export type ProjectStateReferenceEntry = ProjectStateTargetEntry
 export interface ProjectStatePendingReference {
   readonly yamlPath: ProjectStateYamlPath
   readonly canonical: string
@@ -39,6 +48,7 @@ export interface ProjectStatePendingReference {
 }
 export type ProjectStateNamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
 export interface ProjectStateOwnerFacts {
+  readonly [key: string]: unknown
   type?: TypeDescriptionView
   commonAttributeOwnerLinks?: string[]
   owners?: string[]
@@ -96,13 +106,21 @@ export interface ProjectStatePendingDependencyCheck {
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
   readonly localValidation: ProjectStateLocalValidationResult
-  readonly references: readonly ProjectStateReferenceEntry[]
+  readonly targets: readonly ProjectStateTargetEntry[]
   readonly pendingReferences: readonly ProjectStatePendingReference[]
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
   readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
   readonly dependencies: readonly string[]
+}
+export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
+  readonly resourceKind: "yaml"
+  readonly yamlRole: NonNullable<ProjectStateFileIdentity["yamlRole"]>
+  readonly targets: readonly ProjectStateTargetEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
 }
 export type ProjectStateFileUpdate = ProjectStateResourceUpdate | ProjectStateYamlFileUpdate
 export interface ProjectStateFileUpdateBatch { readonly updates: readonly ProjectStateFileUpdate[]; readonly hashBytes: Uint8Array }
@@ -112,3 +130,4 @@ export type ProjectStateFileUpdateBatchEntry =
   | { readonly update: ProjectStateFileUpdate; readonly hash?: never; readonly hashBytes: Uint8Array }
 
 export type ProjectStateOwnerFactRole = OwnerFactRole
+export type { ProjectStateFileIdentity } from "./fileIdentity"

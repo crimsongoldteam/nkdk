@@ -115,12 +115,7 @@ function directImportDataPathContext(diagnostics?: DataPathFormatDiagnostic[]): 
 } {
   const projectDir = catalogProjectDir()
   const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
-  collector.acceptProperty({
-    yamlPath: ["Реквизиты", "Объект", "Тип"],
-    rulePath: [],
-    rule: { type: "TypeDescription", yaml: "Тип" },
-    value: "СправочникОбъект.Контрагенты",
-  })
+  collector.setAttributeType("Объект", { type: ["CatalogObject.Контрагенты"] })
   const context: ConfigurationContext = {
     ...mockContext,
     exportToYAML: {

@@ -103,6 +103,59 @@ it("сохраняет путь к данным табличного элеме�
   }])
 })
 
+it("сохраняет произвольный тип колонки в двоичном снимке", () => {
+  const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const owner = { kind: "Справочник", name: "Catalog.Source" }
+  const arbitrary = { kinds: ["any"] as const, nextTypes: [], sourceText: "Произвольный" }
+  const update = {
+    ...source,
+    forms: [
+      {
+        kind: "root" as const,
+        owner,
+        name: "Таблица",
+        source: {
+          kind: "formAttribute" as const,
+          name: "Таблица",
+          typeInfo: {
+            kinds: ["tableSource"] as const,
+            nextTypes: [],
+            table: { kind: "ValueTable" as const },
+          },
+          table: { kind: "ValueTable" as const },
+          tableHasColumns: true,
+        },
+      },
+      {
+        kind: "additionalColumn" as const,
+        owner,
+        tablePath: "Таблица",
+        name: "Значение",
+        source: { name: "Значение", typeInfo: arbitrary },
+      },
+    ],
+  }
+  const session = openSessionWithUpdates([update])
+
+  const response = session.readDependencyInputs([
+    {
+      requestId: "dependency",
+      componentPath: "cf",
+      projectPath: update.projectPath,
+      check: source.pendingChecks[0]!,
+    },
+  ])[0]
+
+  expect(response).toMatchObject({ status: "found" })
+  if (response?.status !== "found") throw new Error("Не прочитаны входы проверки зависимостей")
+  const column = response.input.forms.find(
+    (entry) => entry.kind === "additionalColumn" && entry.tablePath === "Таблица" && entry.name === "Значение"
+  )
+  expect(column).toMatchObject({ kind: "additionalColumn" })
+  if (column?.kind !== "additionalColumn") throw new Error("Не прочитана колонка формы")
+  expect(column.source.typeInfo).toEqual(arbitrary)
+})
+
 it("находит точные и префиксные metadata-ссылки", () => {
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const session = openSessionWithUpdates([update])

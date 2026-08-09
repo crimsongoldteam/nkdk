@@ -6,7 +6,7 @@ import {
   restoreStandardMembersForTests,
   snapshotStandardMembersForTests,
   type StandardMemberDeclaration as SnapshotStandardMemberDeclaration,
-} from "./standardMembers"
+} from "../../standardMembers/declarations"
 import {
   clearOwnerKindRegistryForTests,
   restoreOwnerKindRegistryForTests,
@@ -275,22 +275,27 @@ export function restoreDataPathResolverRegistryForTests(snapshot: DataPathResolv
 export {
   getStandardMembers,
   registerStandardMembers,
-  resolveIndexTimeStandardMember,
-  resolveStandardTableColumn,
-  resolveTraversalTimeStandardMember,
   standardMemberInternalToYaml,
   standardMemberInternalToYamlForOwnerKind,
   standardMemberNamePairs,
   standardMemberYamlToInternal,
   standardMemberYamlToInternalForOwnerKind,
   standardMembersRegistryRevision,
+} from "../../standardMembers/declarations"
+export {
+  resolveIndexTimeStandardMember,
+  resolveStandardTableColumn,
+  resolveTraversalTimeStandardMember,
 } from "./standardMembers"
 export type {
   PrimitiveKind,
   StandardMemberDeclaration,
-  StandardMemberError,
+  StandardMemberFillValuePolicy,
   StandardMemberKind,
   StandardMemberNames,
   StandardMemberPhase,
   StandardMemberSourceScope,
+} from "../../standardMembers/declarations"
+export type {
+  StandardMemberError,
 } from "./standardMembers"

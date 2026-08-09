@@ -19,6 +19,7 @@ it("накапливает несколько файлов в одном тип�
     projectPath: "cf/ОбщийМодуль.bsl",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 10n)
 
   const fragment = writer.finish()
@@ -29,7 +30,7 @@ it("накапливает несколько файлов в одном тип�
   expect(view.fileRecord(1)).toMatchObject({ hash: 10n, updateKind: 2 })
   expect(Array.from({ length: view.stringCount }, (_, id) => view.stringValue(id)).filter((value) => value === "cf"))
     .toHaveLength(1)
-  expect(view.tableRange("references")?.records).toBe(1)
+  expect(view.tableRange("targets")?.records).toBe(1)
   expect(view.tableRange("fields")?.records).toBe(3)
   expect(view.tableRange("pendingChecks")?.records).toBe(1)
   expect(view.diagnosticCount).toBe(2)
@@ -42,6 +43,7 @@ it("передаёт пять буферов фрагмента без копи�
     projectPath: "cf/a.bin",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 1n)
   const fragment = writer.finish()
   const transferred = structuredClone(fragment, {
@@ -63,6 +65,7 @@ it("нормализует составные owner facts в отдельные 
         type: { type: ["string"], stringQualifiers: { length: 20, allowedLength: "Variable" } },
         owners: ["Catalog.Владелец"],
         attributes: [{ name: "Код", type: { type: ["string"] } }],
+        enumValues: [{ name: "Высокая" }, { name: "Обычная" }],
         tabularSections: [{
           name: "Строки",
           attributes: [{ name: "Количество", type: { type: ["decimal"] } }],
@@ -74,8 +77,8 @@ it("нормализует составные owner facts в отдельные 
 
   const view = openProjectStateFragment(writer.finish())
 
-  expect(view.tableRange("ownerFacts")?.records).toBe(4)
-  expect(view.tableRange("ownerFactItems")?.records).toBe(4)
+  expect(view.tableRange("ownerFacts")?.records).toBe(5)
+  expect(view.tableRange("ownerFactItems")?.records).toBe(6)
   expect(view.tableRange("typeDescriptions")?.records).toBe(3)
   expect(view.tableRange("typeDescriptionValues")?.records).toBe(3)
 })
@@ -87,7 +90,7 @@ it("собирает оба вида import-фрагментов тем же ф�
     componentPath: "cf",
     resourceKind: "yaml",
     yamlRole: "properties",
-    references: [{ kind: "object", canonical: "Catalog.Товары" }],
+    targets: [{ kind: "object", canonical: "Catalog.Товары" }],
     owners: [],
     fields: [],
     forms: [],
@@ -95,7 +98,7 @@ it("собирает оба вида import-фрагментов тем же ф�
   indexWriter.appendImportIndex(contribution)
 
   const indexView = openProjectStateFragment(indexWriter.finish())
-  expect(indexView.tableRange("references")?.records).toBe(1)
+  expect(indexView.tableRange("targets")?.records).toBe(1)
 
   const finalWriter = createProjectStateFragmentWriter()
   const finalBatch: ProjectStateImportFinalFileStateBatch = {
@@ -128,7 +131,7 @@ it("собирает оба вида import-фрагментов тем же ф�
   combinedWriter.appendImportFinal(finalBatch)
   const combined = openProjectStateFragment(combinedWriter.finish())
   expect(combined.fileCount).toBe(1)
-  expect(combined.tableRange("references")?.records).toBe(1)
+  expect(combined.tableRange("targets")?.records).toBe(1)
   expect(combined.tableRange("validationStatus")?.records).toBe(1)
 })
 
@@ -183,6 +186,7 @@ function validFragment() {
     projectPath: "cf/a.bin",
     componentPath: "cf",
     resourceKind: "resource",
+    targets: [],
   }, 1n)
   return writer.finish()
 }
