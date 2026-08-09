@@ -16,6 +16,8 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
+import { bindDeferredObjectValues } from "../../orchestration/property/deferredObjectValues"
+import { finalizeImportedYamlValues } from "../../orchestration/property/finalizeImportedYAML"
 
 describe("importClientApplicationFormFromXMLToYAML", () => {
   it("индексирует произвольные реквизиты и колонки при прямом импорте", () => {
@@ -46,6 +48,55 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         ?.getRoot("Таблица")
         ?.tableSource?.columns.get("Значение")?.typeInfo.kinds
     ).toEqual(["any"])
+  })
+
+  it("уточняет служебный путь CurrentData после построения индекса элементов", () => {
+    const ownerMetadataCache = {
+      listRefs: () => [],
+      get: () => ({ status: "not-found" as const, diagnostics: [] }),
+    }
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: {
+        ...mockContextFromXML(),
+        exportToYAML: { toTyped: false, ownerMetadataCache },
+      },
+      formName: "Форма",
+      formXML: {
+        Attributes: {
+          Attribute: {
+            _name: "Строки",
+            _id: "1",
+            Type: { "v8:Type": "v8:ValueTable" },
+            Columns: {
+              Column: { _name: "Значение", _id: "1", Type: { "v8:Type": "xs:string" } },
+            },
+          },
+        },
+        ChildItems: [
+          { Table: { _name: "Строки", _id: "1", DataPath: "Строки" } },
+          { InputField: {
+            _name: "Поле",
+            _id: "2",
+            DataPath: "Items.Строки.CurrentData.Значение",
+          } },
+        ],
+      },
+      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    })
+
+    finalizeImportedYamlValues({
+      yaml: result.yaml,
+      rootRule: ClientApplicationFormRules,
+      deferred: bindDeferredObjectValues(result.yaml, result.deferred),
+      context: {
+        ...mockContextFromXML(),
+        exportToYAML: { toTyped: false, ownerMetadataCache },
+      },
+      formDataPathIndex: result.localIndexes.metadata.formDataPathIndex,
+    })
+
+    expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
+    expect(JSON.stringify(result.yaml)).not.toContain("Items.Строки.CurrentData.Значение")
   })
 
   it.each([
