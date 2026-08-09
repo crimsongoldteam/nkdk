@@ -1,11 +1,22 @@
 import { createConfigurationIndexReader } from "../../configurationIndex"
 import { formatCanonicalMetadataTargetToYAML } from "../../orchestration/metadataTarget"
 import type { FullXmlSyncComponentProfile } from "../componentProfile"
+import { configurationExtensionTypeDescriptionXMLNameByType } from "../../appliedObjects/configurationExtension/typeDescriptionPolicy"
 
 export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configurationExtension",
   supports: (address) => address.kind === "configurationExtension",
   baseAddress: () => ({ kind: "configuration" }),
+  prepareRuntime({ runtime, rootYaml }) {
+    return {
+      ...runtime,
+      workerProfile: {
+        ...runtime.workerProfile,
+        typeDescriptionXMLNameByType:
+          configurationExtensionTypeDescriptionXMLNameByType(rootYaml),
+      },
+    }
+  },
   confirm({ target, base }) {
     if (target.structure.address.kind !== "configurationExtension") {
       throw new Error("Профиль configurationExtension получил другой вид компонента")

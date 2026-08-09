@@ -401,6 +401,7 @@ function exportContext(state: InitializedFullXmlSyncWorkerState): ConfigurationC
       },
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
+      typeDescriptionXMLNameByType: state.profile.typeDescriptionXMLNameByType,
       xmlDefaultVariantByLogicalAddress: state.profile.xmlDefaultVariantByLogicalAddress,
     },
   }

@@ -26,6 +26,7 @@ import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, normalizeFullXmlSyncConcurrency, type FullXmlSyncWorkerPool } from "./workerPool"
 import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
+import { prepareFullXmlSyncProfileRuntime } from "./prepareProfileRuntime"
 
 export interface SyncComponentToXmlParams {
   readonly context: ConfigurationContext
@@ -83,6 +84,7 @@ export interface FullXmlSyncCoordinatorDependencies {
   readonly exists: (path: string) => Promise<boolean>
   readonly isDirectoryEmpty: (path: string) => Promise<boolean>
   readonly mkdir: (path: string) => Promise<void>
+  readonly readFile?: (path: string) => Promise<Uint8Array>
   readonly readStructure: ReadStructure
   readonly readSnapshot: ReadSnapshot
   readonly readHashes: ReadHashes
@@ -113,6 +115,7 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   async mkdir(path) {
     await fs.promises.mkdir(path, { recursive: true })
   },
+  readFile: fs.promises.readFile,
   readStructure: readComponentProjectStructure,
   readSnapshot: readConfigurationIndexSnapshot,
   readHashes: readComponentHashState,
@@ -164,7 +167,12 @@ export async function syncComponentToXml(
       targetProjection,
       deps,
     })
-    const runtime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const confirmedRuntime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const runtime = await prepareFullXmlSyncProfileRuntime({
+      profile,
+      runtime: confirmedRuntime,
+      readFile: deps.readFile ?? defaultDependencies.readFile!,
+    })
     const plan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
@@ -316,7 +324,12 @@ export async function planSyncConfigurationToXml(
       targetProjection,
       deps,
     })
-    profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    const confirmedRuntime = profile.confirm({ target, ...(base === undefined ? {} : { base }) })
+    await prepareFullXmlSyncProfileRuntime({
+      profile,
+      runtime: confirmedRuntime,
+      readFile: deps.readFile ?? defaultDependencies.readFile!,
+    })
     const plan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
