@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest"
 import { createValidationOwnerFacts, ownerFactFromYAML } from "./ownerFacts"
 
 describe("ValidationOwnerFacts", () => {
+  it("сохраняет дату через общий TypeDescription", () => {
+    expect(ownerFactFromYAML("type", "Дата")).toEqual({
+      type: ["dateTime"],
+      dateQualifiers: { dateFractions: "Date" },
+    })
+  })
+
   it("сохраняет имена значений перечисления и вложенных предопределённых элементов", () => {
     expect(ownerFactFromYAML("enumValues", { Высокая: {}, Обычная: {} })).toEqual([
       { name: "Высокая" },

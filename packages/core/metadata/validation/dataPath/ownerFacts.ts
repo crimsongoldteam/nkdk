@@ -6,7 +6,7 @@ import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/prop
 import type { OwnerFactRole } from "../../orchestration/property/types"
 import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
 import { CommonAttributeUseFromYAML, type CommonAttributeUseYAML } from "../../systemEnumerations/types"
-import { typeDescriptionFromYAML } from "./formYamlIndex"
+import { parseTypeDescriptionYAML } from "../../commonObjects/typeDescription/parseYAML"
 
 export interface ValidationOwnerFacts {
   ref: OwnerTypeRef
@@ -117,7 +117,7 @@ export const collectOwnerFactFromYAML: CollectLocalFactsFromYAMLFunction = ({ fa
 }
 
 function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
-  if (role === "type") return typeDescriptionFromYAML(value)
+  if (role === "type") return parseTypeDescriptionYAML(value)
   if (role === "attributes" || role === "dimensions" || role === "resources" || role === "addressingAttributes")
     return namedTypedItemsFromYaml(value)
   if (role === "tabularSections") return tabularSectionsFromYaml(value)
@@ -140,7 +140,7 @@ export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown 
 
 function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
   return Object.entries(metadataRecord(value)).map(([name, item]) => {
-    const type = typeDescriptionFromYAML(metadataRecord(item)["Тип"])
+    const type = parseTypeDescriptionYAML(metadataRecord(item)["Тип"])
     return { name, ...(type === undefined ? {} : { type }) }
   })
 }

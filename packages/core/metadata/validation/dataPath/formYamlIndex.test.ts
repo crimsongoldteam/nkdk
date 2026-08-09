@@ -59,6 +59,16 @@ describe("createFormDataPathIndexCollector", () => {
     })
   })
 
+  it.each(["Дата", "Время", "ДатаВремя"])("сводит %s к виду dateTime", (yamlType) => {
+    const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
+    collector.acceptProperty(fact(["Реквизиты", "Период", "Тип"], yamlType))
+
+    expect(collector.finish().getRoot("Период")?.typeInfo).toMatchObject({
+      kinds: ["dateTime"],
+      sourceText: "dateTime",
+    })
+  })
+
   it("не сохраняет переданные составные YAML-объекты", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
     const value = { nested: { large: true } }

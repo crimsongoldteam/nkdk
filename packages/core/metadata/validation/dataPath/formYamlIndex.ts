@@ -1,4 +1,4 @@
-import { getTypeFromYAML } from "../../commonObjects/typeDescription/helper"
+import { parseTypeDescriptionYAML } from "../../commonObjects/typeDescription/parseYAML"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
 import type { Diagnostic } from "../types"
@@ -50,7 +50,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
     const attribute = pendingAttribute(attributeName)
 
     if (property === "Тип" && fact.yamlPath.length === 3) {
-      attribute.type = typeDescriptionFromYAML(fact.value)
+      attribute.type = parseTypeDescriptionYAML(fact.value)
       return
     }
     if (property === "ДинамическийСписок" && fact.yamlPath.length === 3) {
@@ -65,7 +65,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
     ) {
       attribute.columns.set(nestedName, {
         name: nestedName,
-        typeInfo: typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(fact.value)),
+        typeInfo: typeDescriptionToDataPathTypeInfo(parseTypeDescriptionYAML(fact.value)),
       })
       return
     }
@@ -165,34 +165,11 @@ function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColum
     for (const [name, rawColumn] of Object.entries(asRecord(rawColumns) ?? {})) {
       columns.set(name, {
         name,
-        typeInfo: typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(asRecord(rawColumn)?.["Тип"])),
+        typeInfo: typeDescriptionToDataPathTypeInfo(parseTypeDescriptionYAML(asRecord(rawColumn)?.["Тип"])),
       })
     }
     target.set(normalizeIndexedPath(tablePath), columns)
   }
-}
-
-export function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
-  const values = Array.isArray(value) ? value : [value]
-  const types = values
-    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-    .map((item) => {
-      const dotIndex = item.indexOf(".")
-      const base = dotIndex === -1 ? item : item.slice(0, dotIndex)
-      const detail = dotIndex === -1 ? undefined : item.slice(dotIndex + 1)
-      const type = getTypeFromYAML(base)
-      return type === undefined ? primitiveTypeFromYaml(item) : detail === undefined ? type : `${type}.${detail}`
-    })
-  return types.length === 0 ? undefined : { type: types }
-}
-
-function primitiveTypeFromYaml(value: string): string {
-  const base = value.replace(/\(.+\)$/, "")
-  if (base === "Строка" || base === "ФиксированнаяСтрока") return "string"
-  if (base === "Число" || base === "ПоложительноеЧисло") return "decimal"
-  if (value === "Булево") return "boolean"
-  if (value === "Дата" || value === "Время" || value === "ДатаВремя") return "dateTime"
-  return value
 }
 
 function normalizeIndexedPath(path: string): string {
