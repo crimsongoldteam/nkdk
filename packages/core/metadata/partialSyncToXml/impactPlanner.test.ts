@@ -183,6 +183,13 @@ describe("partial XML impact planner", () => {
     ].sort(utf8))
   })
 
+  it("поглощает дочерние удаления удалённым верхним объектом", () => {
+    const result = plan([root, language], changes({ deleted: [owner, firstForm, firstModule] }))
+
+    expect(result.selection).toEqual({ kind: "selected", projectPaths: [root, language].sort(utf8) })
+    expect(result.loadTargets).toEqual(["Configuration.xml", "Languages/Русский.xml"].sort(utf8))
+  })
+
   it("не расширяет пакет по обычной канонической ссылке", () => {
     const result = plan([root, language, owner], changes({ changed: [owner] }), {
       [owner]: [{ yamlPath: ["ОбычнаяСсылка"], canonical: "Language.Русский" }],

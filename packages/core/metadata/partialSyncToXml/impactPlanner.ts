@@ -45,8 +45,19 @@ export function buildPartialXmlImpactPlan(params: {
   const assignmentStates = new Map<string, { payload: boolean; load: boolean }>()
   const structurallyDeletedCollections = new Set<string>()
   const handledDeletedContent = new Set<string>()
+  const deletedCompositionPaths = new Set(params.changes.deleted.flatMap((version) => {
+    const impact = resolveMetadataProjectChangeImpact(params.topology, version.projectPath)
+    return impact?.compositionImpact === "configurationComposition"
+      ? [version.projectPath]
+      : []
+  }))
+  const deletedCompositionDirectories = new Set([...deletedCompositionPaths].map(posix.dirname))
 
   for (const version of params.changes.deleted) {
+    if (isInsideDeletedComposition(version.projectPath)) {
+      handledDeletedContent.add(version.projectPath)
+      continue
+    }
     const match = classifyDeletedPath(version.projectPath)
     if (match?.kind !== "content" || match.assignment?.fileBackedTarget === undefined) continue
     const policy = params.policies.assignments.get(match.assignment.id)
@@ -119,6 +130,11 @@ export function buildPartialXmlImpactPlan(params: {
     const match = classifyMetadataProjectPath(params.topology, projectPath)
     if (match === undefined) throw new Error(`Изменённый путь не классифицирован топологией: ${projectPath}`)
     return match
+  }
+
+  function isInsideDeletedComposition(projectPath: string): boolean {
+    return !deletedCompositionPaths.has(projectPath)
+      && [...deletedCompositionDirectories].some((directory) => projectPath.startsWith(`${directory}/`))
   }
 
   function classifyDeletedPath(projectPath: string): MetadataProjectResourceMatch | undefined {

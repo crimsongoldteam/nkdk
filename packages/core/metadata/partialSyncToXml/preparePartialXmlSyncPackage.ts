@@ -308,7 +308,7 @@ function readCompanionReferences(
     const results = session.readFileMetadataTargetReferences(sources.map((projectPath, index) => ({
       requestId: String(index),
       componentPath: params.componentPath,
-      projectPath,
+      projectPath: `${params.componentPath}/${projectPath}`,
     })))
     const bySource = new Map<string, readonly { readonly yamlPath: readonly (string | number)[]; readonly canonical: string }[]>()
     const canonicals = new Set<string>()
@@ -325,7 +325,12 @@ function readCompanionReferences(
     })))
     const targetByCanonical = new Map<string, string>()
     resolved.forEach((result, index) => {
-      if (result.status === "found") targetByCanonical.set([...canonicals][index]!, result.source.projectPath)
+      if (result.status === "found") {
+        targetByCanonical.set(
+          [...canonicals][index]!,
+          componentRelativePath(params.componentPath, result.source.componentPath, result.source.projectPath),
+        )
+      }
     })
     return { bySource, targetByCanonical }
   } finally {
@@ -343,6 +348,12 @@ function sharedSnapshotBytes(snapshot: FullXmlSyncProfileRuntime["target"]["snap
 
 function isEmptyChanges(changes: ReturnType<typeof detectPartialXmlChanges>): boolean {
   return changes.added.length === 0 && changes.changed.length === 0 && changes.deleted.length === 0
+}
+
+function componentRelativePath(expected: string, actual: string, projectPath: string): string {
+  if (actual !== expected) return projectPath
+  const prefix = `${expected}/`
+  return projectPath.startsWith(prefix) ? projectPath.slice(prefix.length) : projectPath
 }
 
 function hasErrors(diagnostics: readonly Diagnostic[]): boolean {
