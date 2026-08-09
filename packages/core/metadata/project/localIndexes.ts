@@ -2,13 +2,28 @@ import type { LocalMetadataFactsWriter, LocalYamlFact } from "../orchestration/p
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
-export interface LocalMetadataEvent {
-  kind: "property" | "complete"
-  yamlPath: readonly (string | number)[]
-  rulePath: LocalYamlFact["rulePath"]
-  propertyType: string
-  source?: LocalYamlFact["source"]
+export interface LocalYamlItemFact {
+  readonly itemType: string
+  readonly name?: string
+  readonly yamlPath: LocalYamlFact["yamlPath"]
+  readonly rulePath: LocalYamlFact["rulePath"]
 }
+
+export type LocalMetadataEvent =
+  | {
+      kind: "item"
+      itemType: string
+      name?: string
+      yamlPath: readonly (string | number)[]
+      rulePath: LocalYamlFact["rulePath"]
+    }
+  | {
+      kind: "property" | "complete"
+      yamlPath: readonly (string | number)[]
+      rulePath: LocalYamlFact["rulePath"]
+      propertyType: string
+      source?: LocalYamlFact["source"]
+    }
 
 export interface LocalMetadataIndex {
   events: LocalMetadataEvent[]
@@ -29,6 +44,7 @@ export interface LocalIndexes {
 }
 
 export interface LocalIndexesCollector {
+  acceptItem(fact: LocalYamlItemFact): void
   acceptProperty(fact: LocalYamlFact): void
   completeValue(fact: LocalYamlFact): void
   finish(): LocalIndexes
@@ -39,7 +55,7 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
   const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
 
-  const recordEvent = (kind: LocalMetadataEvent["kind"], fact: LocalYamlFact): void => {
+  const recordEvent = (kind: "property" | "complete", fact: LocalYamlFact): void => {
     if (options?.recordEvents === false) return
     events.push({
       kind,
@@ -71,6 +87,16 @@ export function createLocalIndexesCollector(options?: { recordEvents?: boolean }
   }
 
   return {
+    acceptItem(fact) {
+      if (options?.recordEvents === false) return
+      events.push({
+        kind: "item",
+        itemType: fact.itemType,
+        ...(fact.name === undefined ? {} : { name: fact.name }),
+        yamlPath: [...fact.yamlPath],
+        rulePath: fact.rulePath.map((segment) => ({ ...segment })),
+      })
+    },
     acceptProperty,
     completeValue: (fact) => recordEvent("complete", fact),
     finish: () => ({

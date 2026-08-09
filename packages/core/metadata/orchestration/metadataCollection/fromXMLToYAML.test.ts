@@ -144,6 +144,13 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
       },
     ])
+    expect(arrayResult.localIndexes.metadata.events).toContainEqual({
+      kind: "item",
+      itemType: "TestItem",
+      name: "Первый",
+      yamlPath: ["Элементы", 0],
+      rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }],
+    })
   })
 
   it("uses per-item configuration index addresses for record and array YAML", () => {
@@ -286,6 +293,13 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
       },
     ])
+    expect(result.localIndexes.metadata.events).toContainEqual({
+      kind: "item",
+      itemType: "TestItem",
+      name: "Ключ-Первый",
+      yamlPath: ["Элементы", "Ключ-Первый"],
+      rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }],
+    })
   })
 })
 

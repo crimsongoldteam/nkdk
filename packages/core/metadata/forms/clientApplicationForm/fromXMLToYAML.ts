@@ -32,6 +32,9 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     filePath: `Формы/${params.formName}/Форма.yaml`,
   })
   const collector = {
+    acceptItem(fact: Parameters<typeof localIndexesCollector.acceptItem>[0]) {
+      localIndexesCollector.acceptItem(fact)
+    },
     acceptProperty(fact: Parameters<typeof localIndexesCollector.acceptProperty>[0]) {
       localIndexesCollector.acceptProperty(fact)
       formDataPathIndexCollector.acceptProperty(fact)
