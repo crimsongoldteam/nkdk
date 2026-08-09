@@ -12,6 +12,7 @@ import {
 } from "../src/reachability.mjs"
 import {
   fixtureReachabilityRules,
+  metadataImplementationReachabilityRule,
   metadataReachabilityRules,
 } from "../src/reachability-rules.mjs"
 
@@ -68,6 +69,19 @@ test("закрепляет направления зависимостей works
   )
 })
 
+test("diagnostics не достигает validation", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/diagnostics/forbidden.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["diagnostics-not-reach-validation"]))
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(
@@ -103,7 +117,7 @@ test("запрещает runtime, type-only и транзитивное знан
 test("линейный обход сохраняет runtime, type-only и транзитивный договор", () => {
   const violations = findReachabilityViolations(
     result,
-    metadataReachabilityRules
+    [metadataImplementationReachabilityRule]
   )
 
   assert.deepEqual(

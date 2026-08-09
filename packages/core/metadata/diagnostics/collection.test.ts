@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createDiagnosticBatchWriter, openDiagnosticBatch } from "./binaryBatch"
 import { createMetadataDiagnosticCollection } from "./collection"
-import type { MetadataDiagnostic } from "../validation/types"
+import type { MetadataDiagnostic } from "./types"
 
 describe("двоичная коллекция диагностик", () => {
   it("сортирует записи, удаляет полные дубли и считает важность", () => {

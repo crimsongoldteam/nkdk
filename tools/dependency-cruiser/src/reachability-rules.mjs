@@ -27,6 +27,15 @@ export const metadataImplementationReachabilityRule = {
 }
 
 /** @type {ReachabilityRule} */
+export const diagnosticsValidationReachabilityRule = {
+  name: "diagnostics-not-reach-validation",
+  severity: "error",
+  comment: "Diagnostics не зависит от реализации validation.",
+  fromPatterns: ["^packages/core/metadata/diagnostics/"],
+  toPatterns: ["^packages/core/metadata/validation/"],
+}
+
+/** @type {ReachabilityRule} */
 export const exampleCoreReachabilityRule = {
   name: "example-core-not-reach-adapters",
   severity: "error",
@@ -39,6 +48,7 @@ export const exampleCoreReachabilityRule = {
 
 export const metadataReachabilityRules = [
   metadataImplementationReachabilityRule,
+  diagnosticsValidationReachabilityRule,
 ]
 
 export const fixtureReachabilityRules = [
