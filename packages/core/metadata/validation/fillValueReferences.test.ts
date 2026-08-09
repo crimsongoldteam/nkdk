@@ -32,6 +32,22 @@ describe("fill value references", () => {
     ])
   })
 
+  it("indexes a tagged incompatible reference without a local fill value error", () => {
+    const facts = extract(`Реквизиты:
+  Получатель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
+        canonical: "Catalog.РолиИсполнителей.EmptyRef",
+      }),
+    ])
+    expect(facts.diagnostics).toEqual([])
+  })
+
   it("indexes an owner standard attribute reference", () => {
     const facts = extract(`Владельцы:
   - Справочник.Контрагенты

@@ -11,6 +11,7 @@ import {
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { importContentFromXML } from "../../../xml/import/importer"
+import { importFromYAML } from "../../../yaml/import"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
@@ -22,6 +23,9 @@ import {
   MetadataDataProcessorTabularSectionAttributeRules,
 } from "../../appliedObjects/metadataDataProcessor/childRules"
 import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
+
+registerCoreMetadata()
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
@@ -104,6 +108,17 @@ describe("MetadataAttributes YAML → XML", () => {
 
   it("should import object format", () => {
     expect(convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })).toContain("<Name>ТестовыйРеквизит</Name>")
+  })
+
+  it("exports an incompatible tagged empty reference as XML", () => {
+    const result = convertYAML(importFromYAML(`Получатель:
+  Тип: Справочник.ПолныеРоли
+  ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`))
+
+    expect(result).toContain(
+      '<FillValue xsi:type="xr:DesignTimeRef">Catalog.РолиИсполнителей.EmptyRef</FillValue>',
+    )
   })
 
   it("should reject scalar short format", () => {

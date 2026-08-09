@@ -10,7 +10,7 @@ import {
   classifyMetadataAttributeFillValue,
   classifyStandardAttributeFillValue,
   inferFillValueReferenceConstraint,
-  parseFillValueYaml,
+  parseFillValueItem,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
 import { isMetadataRootName } from "../metadataTargets/roots"
@@ -19,6 +19,7 @@ import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
+import { markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
 
 let validationRegistered = false
 let structuralReferencesRegistered = false
@@ -73,7 +74,7 @@ function registerFillValueXMLTransport(): void {
 }
 
 const collectFillValueStructuralReference: DependentStructuralItemHandler = (params) => {
-  const value = parseFillValueYaml(params.item["ЗначениеЗаполнения"])
+  const { tagged, value } = parseFillValueItem(params.item)
   if (value === undefined || value.type !== "ref") return []
   const constraint = inferFillValueReferenceConstraint(value)
   if (constraint === undefined) return []
@@ -92,11 +93,15 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
       currentValue = { type: "ref", value: nextCanonical }
     },
     commitValue() {
-      params.item["ЗначениеЗаполнения"] = exportMetadataValueToYAML(
+      const yamlValue = exportMetadataValueToYAML(
         dependentContext(params.context),
         undefined,
         currentValue,
       )
+      params.item["ЗначениеЗаполнения"] = tagged
+        ? xmlScalarTagValue(String(yamlValue))
+        : yamlValue
+      if (tagged) markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
     },
   }))
 }
