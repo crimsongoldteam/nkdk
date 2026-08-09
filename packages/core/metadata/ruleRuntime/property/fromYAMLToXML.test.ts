@@ -132,6 +132,51 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Comment: "!xml" })
   })
 
+  it("разворачивает scalar !xml только для зарегистрированной пары", () => {
+    const rule = {
+      itemType: "ExplicitXMLScalarProbe",
+      properties: {
+        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+      },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      action: "transportScalar",
+      itemType: rule.itemType,
+      propertyKey: "fillValue",
+    })
+
+    const yaml = importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка")
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml,
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
+    })
+  })
+
+  it("не разворачивает scalar !xml для незарегистрированной пары", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
+      rule: {
+        itemType: "UnregisteredExplicitXMLScalarProbe",
+        properties: {
+          fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+        },
+      } as MetadataItemRule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" },
+    })
+  })
+
   it("не применяет регистрацию к другому тексту", () => {
     const rule = {
       itemType: "TestExplicitXMLWrongValue",

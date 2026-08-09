@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { parseWithJsYaml } from "./jsYamlParser"
-import { yamlScalarTagAt } from "./scalarTags"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "./scalarTags"
 
 describe("parseWithJsYaml", () => {
   it("parses a local xml tag as an ordinary scalar value", () => {
@@ -13,16 +13,17 @@ describe("parseWithJsYaml", () => {
   })
 
   it.each([
-    ["пустой !xml", "Поле: !xml", "!xml", "xml"],
-    ["непустой !xml", "Поле: !xml Текст", "!xml Текст", "xml"],
-    ["пустое значение", "Поле:", undefined, undefined],
-    ["явная пустая строка", 'Поле: ""', "", undefined],
-  ] as const)("различает %s", (_name, text, value, tag) => {
+    ["пустой !xml", "Поле: !xml", "!xml", "xml", ""],
+    ["непустой !xml", "Поле: !xml Текст", "!xml Текст", "xml", "Текст"],
+    ["пустое значение", "Поле:", undefined, undefined, undefined],
+    ["явная пустая строка", 'Поле: ""', "", undefined, undefined],
+  ] as const)("различает %s", (_name, text, value, tag, payload) => {
     const parsed = parseWithJsYaml(text)
 
     expect(parsed.syntaxErrors).toEqual([])
     expect(parsed.data).toEqual({ Поле: value })
     expect(yamlScalarTagAt(parsed.data, "Поле")).toBe(tag)
+    if (payload !== undefined) expect(xmlScalarTagPayload(String(value))).toBe(payload)
   })
 
   it("parses data and exposes location index", () => {
