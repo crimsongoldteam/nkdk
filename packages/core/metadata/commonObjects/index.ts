@@ -217,8 +217,6 @@ import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"
 import "./metadataTargetProjectResolvers/register"
 
-import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
-
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
 import "./metadataRef/toJSONSchema"
@@ -308,6 +306,7 @@ import "./internalInfo/fromXML"
 import "./internalInfo/toXML"
 
 import "./dataCompositionSystem"
+import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 
 import "./dateTime"
 

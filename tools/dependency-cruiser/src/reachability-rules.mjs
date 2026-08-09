@@ -71,6 +71,48 @@ export const metadataCompositionReachabilityRule = {
   toPatterns: ["^packages/core/metadata/composition/"],
 }
 
+const layerReachabilityRule = (name, from, targets) => ({
+  name,
+  severity: "error",
+  comment: `Слой ${from} не достигает более конкретных реализаций.`,
+  fromPatterns: [`^packages/core/metadata/${from}/`],
+  toPatterns: [`^packages/core/metadata/(?:${targets.join("|")})/`],
+})
+
+export const concreteLayerReachabilityRules = [
+  layerReachabilityRule("system-enumerations-stay-lower", "systemEnumerations", ["forms", "appliedObjects"]),
+  layerReachabilityRule("common-objects-stay-lower", "commonObjects", ["forms", "appliedObjects"]),
+  layerReachabilityRule("forms-stay-lower", "forms", ["appliedObjects"]),
+]
+
+export const localLeafReachabilityRules = [
+  {
+    name: "project-state-contracts-are-leaf",
+    fromPatterns: ["^packages/core/metadata/projectState/contracts/"],
+    toPatterns: [
+      "^packages/core/metadata/projectState/(?:binary|fileUpdate|readSession|service|store)",
+      "^packages/core/metadata/validation/",
+    ],
+  },
+  {
+    name: "project-state-service-does-not-compose",
+    fromPatterns: ["^packages/core/metadata/projectState/service\\.ts$"],
+    toPatterns: [
+      "^packages/core/metadata/project/preparedYamlProjectWorkerPool\\.ts$",
+      "^packages/core/metadata/workerPool/handle\\.ts$",
+    ],
+  },
+  {
+    name: "worker-pool-types-are-leaf",
+    fromPatterns: ["^packages/core/metadata/workerPool/types\\.ts$"],
+    toPatterns: ["^packages/core/metadata/(?:project|fullSyncToXml|importFromXml)/"],
+  },
+].map((rule) => ({
+  ...rule,
+  severity: "error",
+  comment: "Нижний договор не достигает реализации.",
+}))
+
 /** @type {ReachabilityRule} */
 export const exampleCoreReachabilityRule = {
   name: "example-core-not-reach-adapters",
@@ -88,6 +130,8 @@ export const metadataReachabilityRules = [
   resourceTopologyCoreReachabilityRule,
   validationProjectReachabilityRule,
   metadataCompositionReachabilityRule,
+  ...concreteLayerReachabilityRules,
+  ...localLeafReachabilityRules,
 ]
 
 export const fixtureReachabilityRules = [

@@ -4,11 +4,9 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnapshot"
 
 const METADATA_DIR = join(process.cwd(), "metadata")
-const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
 const ORCHESTRATION_DIR = join(METADATA_DIR, "ruleRuntime")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "ruleRuntime", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "ruleRuntime", "formElement")
-const SYSTEM_ENUMERATIONS_DIR = join(METADATA_DIR, "systemEnumerations")
 const PROJECT_DIR = join(METADATA_DIR, "project")
 const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
 const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
@@ -22,7 +20,6 @@ const CONFIG_FILES_FOR_ALIAS_SCAN = [
   "packages/mcp/vitest.config.ts",
 ] as const
 
-const FORBIDDEN_COMMON_OBJECT_IMPORTS = ["../forms/elements/"] as const
 const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = ["../../appliedObjects/configuration/"] as const
 const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = ["../formElement/factory", "./formElement/factory"] as const
 const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = ["./factory"] as const
@@ -138,39 +135,6 @@ describe("metadata import boundaries", () => {
     expect(existsSync(join(METADATA_DIR, "register.ts"))).toBe(false)
     expect(existsSync(join(METADATA_DIR, "projectState", "createDefaultService.ts"))).toBe(false)
     expect(existsSync(join(METADATA_DIR, "workerPool", "registerOperations.ts"))).toBe(false)
-  })
-
-  it("commonObjects не импортирует конкретные элементы формы", () => {
-    expect(findImportOffenders(COMMON_OBJECTS_DIR, FORBIDDEN_COMMON_OBJECT_IMPORTS)).toEqual([])
-  })
-
-  it("systemEnumerations не импортирует forms и appliedObjects", () => {
-    expect(findImportOffenders(SYSTEM_ENUMERATIONS_DIR, ["../forms/", "../appliedObjects/"])).toEqual([])
-  })
-
-  it("commonObjects/index не импортирует forms", () => {
-    const specifiers = extractModuleSpecifiers(readSource(join(COMMON_OBJECTS_DIR, "index.ts")))
-      .filter((specifier) => specifier.startsWith("../forms/"))
-
-    expect(specifiers).toEqual([])
-  })
-
-  it("ChildFormNames core does not import forms", () => {
-    const directory = join(COMMON_OBJECTS_DIR, "childFormNames")
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      if (!entry.isFile() || !entry.name.endsWith(".ts") || entry.name.endsWith(".test.ts")) continue
-      expect(readFileSync(join(directory, entry.name), "utf8")).not.toMatch(/\.\.\/\.\.\/forms\//)
-    }
-  })
-
-  it("commonObjects production не импортирует appliedObjects", () => {
-    const offenders = listTypeScriptFilesOnDisk(COMMON_OBJECTS_DIR)
-      .filter((filePath) => !filePath.endsWith(".test.ts"))
-      .flatMap((filePath) => extractModuleSpecifiers(readFileSync(filePath, "utf8"))
-        .filter((specifier) => specifier.includes("appliedObjects/"))
-        .map((specifier) => ({ filePath: relative(process.cwd(), filePath), specifier })))
-
-    expect(offenders).toEqual([])
   })
 
   it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {
@@ -630,14 +594,6 @@ function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = 
         (options.includeTests || !file.absolutePath.endsWith(".test.ts"))
     )
     .map((file) => file.absolutePath)
-}
-
-function listTypeScriptFilesOnDisk(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(dir, entry.name)
-    if (entry.isDirectory()) return listTypeScriptFilesOnDisk(path)
-    return entry.isFile() && entry.name.endsWith(".ts") ? [path] : []
-  })
 }
 
 function readSource(filePath: string): string {

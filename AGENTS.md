@@ -43,4 +43,6 @@
 
 - при изменении общих metadata-операций сверяйся с [архитектурой metadata-операций](.agents/architecture.md); изменяй этот архитектурный план только с согласия разработчика и только на этапе планирования; если после реализации план расходится с кодом, сообщи об этом разработчику вместо самостоятельного изменения плана
 - существующие ограничения проекта собраны в [restrictions.md](.agents/restrictions.md)
-- `packages/core/metadata/ruleRuntime`, `packages/core/metadata/validation` и `packages/core/metadata/project` не знают про конкретные реализации метаданных: никаких частных условий по `itemType`, именам XML-корней, папкам вроде `Формы`/`Макеты` или типам вроде `ChildFormNames`
+- Нейтральные слои `ruleRuntime`, `diagnostics`, `validation`, `projectDefinition`, `project`, `projectState` и `resourceTopology/core` не знают про конкретные реализации метаданных: никаких частных условий по `itemType`, именам XML-корней, папкам вроде `Формы`/`Макеты` или типам вроде `ChildFormNames`
+- concrete-зависимости направлены к более общим слоям: `systemEnumerations` не зависит от `forms` и `appliedObjects`, `commonObjects` не зависит от `forms` и `appliedObjects`, `forms` не зависит от `appliedObjects`
+- runtime-сборка находится только в `metadata/composition`; обычные metadata-модули получают собранные зависимости через параметры или нейтральные регистрации

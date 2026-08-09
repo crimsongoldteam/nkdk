@@ -108,6 +108,32 @@ test("metadata core не достигает composition roots", () => {
   assert.deepEqual(names, new Set(["metadata-core-not-reach-composition"]))
 })
 
+test("закрепляет concrete-матрицу metadata-слоёв", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  assert.deepEqual(
+    namesFor("packages/core/metadata/systemEnumerations/forbidden-forms.ts"),
+    new Set(["system-enumerations-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/commonObjects/forbidden-applied.ts"),
+    new Set(["common-objects-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/commonObjects/transitive-forms.ts"),
+    new Set(["common-objects-stay-lower"])
+  )
+  assert.deepEqual(
+    namesFor("packages/core/metadata/forms/forbidden-applied.ts"),
+    new Set(["forms-stay-lower"])
+  )
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(
