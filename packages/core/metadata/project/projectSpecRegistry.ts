@@ -3,7 +3,7 @@ import type { ConfigurationContext, JSONSchemaExportMode } from "../context/type
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { MetadataResourceTopologySpec } from "../resourceTopology/types"
+import type { MetadataResourceTopologySpec } from "../resourceTopology/core/types"
 
 export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
   dir: string

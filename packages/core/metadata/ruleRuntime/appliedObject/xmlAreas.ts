@@ -1,9 +1,9 @@
 import type { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
-import { getMetadataResourceTopology } from "../../resourceTopology/providerRegistry"
-import { expandMetadataPathPattern } from "../../resourceTopology/patterns"
-import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/xmlExportProjection"
+import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
+import { getMetadataResourceTopology } from "../../resourceTopology/core/providerRegistry"
+import { expandMetadataPathPattern } from "../../resourceTopology/core/patterns"
+import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/core/xmlExportProjection"
 export type { SyncAreaDeclaration } from "../property/ruleContracts"
 
 export type XmlSyncArea =

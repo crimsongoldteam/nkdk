@@ -8,7 +8,7 @@ import type { ConfigurationIndexCollector } from "../configurationIndex/collecto
 import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
-import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/types"
+import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/core/types"
 import type { MetadataWorkerBinaryResult } from "../workerPool/binaryResult"
 
 export interface FullXmlSyncPotentialOutput {

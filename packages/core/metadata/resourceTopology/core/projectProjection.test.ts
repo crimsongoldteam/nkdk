@@ -1,7 +1,8 @@
 import { join, resolve } from "node:path"
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
+import { resolveTopologyMetadataTargetOwner } from "../adapters/metadataTargetOwner"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { RegisteredProjectSpec } from "../../project/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "./compiler"
 import {
   classifyMetadataProjectPath,
@@ -65,7 +66,11 @@ describe("project resource topology projection", () => {
     const match = classifyMetadataProjectPath(targetTopology, projectPath)
 
     expect(match).toBeDefined()
-    expect(projectMetadataFileBackedTargets(targetTopology, match!)).toEqual([{
+    expect(projectMetadataFileBackedTargets(
+      targetTopology,
+      match!,
+      resolveTopologyMetadataTargetOwner,
+    )).toEqual([{
       kind: "member",
       memberKind,
       owner: { root: "Document", objectName: "Заказ" },
@@ -86,7 +91,11 @@ describe("project resource topology projection", () => {
     const match = classifyMetadataProjectPath(targetTopology, projectPath)
 
     expect(match).toBeDefined()
-    expect(projectMetadataFileBackedTargets(targetTopology, match!)).toEqual([])
+    expect(projectMetadataFileBackedTargets(
+      targetTopology,
+      match!,
+      resolveTopologyMetadataTargetOwner,
+    )).toEqual([])
   })
 
   it("переиспользуемый классификатор сохраняет результат точечной классификации", () => {

@@ -8,7 +8,7 @@ import {
   validationProjectSpecs,
 } from "./projectSpecs"
 import type { ProjectValidationStandaloneModule } from "./projectValidationStandaloneTypes"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,

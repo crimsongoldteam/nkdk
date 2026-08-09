@@ -1,5 +1,5 @@
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 
 export interface ProjectValidationFormRule {
   readonly key: string

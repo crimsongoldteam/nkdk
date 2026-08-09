@@ -36,6 +36,17 @@ export const diagnosticsValidationReachabilityRule = {
 }
 
 /** @type {ReachabilityRule} */
+export const resourceTopologyCoreReachabilityRule = {
+  name: "resource-topology-core-is-leaf",
+  severity: "error",
+  comment: "Ядро resourceTopology не зависит от metadata-адаптеров.",
+  fromPatterns: ["^packages/core/metadata/resourceTopology/core/"],
+  toPatterns: [
+    "^packages/core/metadata/(?:ruleRuntime|project|configurationIndex|resourceTopology/adapters)/",
+  ],
+}
+
+/** @type {ReachabilityRule} */
 export const exampleCoreReachabilityRule = {
   name: "example-core-not-reach-adapters",
   severity: "error",
@@ -49,6 +60,7 @@ export const exampleCoreReachabilityRule = {
 export const metadataReachabilityRules = [
   metadataImplementationReachabilityRule,
   diagnosticsValidationReachabilityRule,
+  resourceTopologyCoreReachabilityRule,
 ]
 
 export const fixtureReachabilityRules = [

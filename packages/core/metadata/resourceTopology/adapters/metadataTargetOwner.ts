@@ -1,28 +1,16 @@
-export interface TopologyMetadataTargetOwnerRule {
-  readonly itemType: string
-  readonly metadataTargetOwner?:
-    | { readonly kind: "inherit" }
-    | { readonly kind: "self"; readonly root: string }
-    | { readonly kind: "resolver" }
-}
+import type {
+  TopologyMetadataTargetOwner,
+  TopologyMetadataTargetOwnerFrame,
+  TopologyMetadataTargetOwnerResolver,
+  TopologyMetadataTargetOwnerRule,
+} from "../core/types"
 
-export interface TopologyMetadataTargetOwner {
-  readonly root: string
-  readonly objectName: string
-}
-
-export interface TopologyMetadataTargetOwnerFrame {
-  readonly itemType: string
-  readonly name: string
-  readonly owner?: TopologyMetadataTargetOwner
-}
-
-export type TopologyMetadataTargetOwnerResolver = (params: {
-  readonly itemRule: TopologyMetadataTargetOwnerRule
-  readonly name: string | undefined
-  readonly frames: readonly TopologyMetadataTargetOwnerFrame[]
-  readonly context?: object
-}) => TopologyMetadataTargetOwner | undefined
+export type {
+  TopologyMetadataTargetOwner,
+  TopologyMetadataTargetOwnerFrame,
+  TopologyMetadataTargetOwnerResolver,
+  TopologyMetadataTargetOwnerRule,
+} from "../core/types"
 
 const resolvers = new Map<string, TopologyMetadataTargetOwnerResolver>()
 

@@ -1,8 +1,8 @@
 import { join, resolve } from "path"
 import { describe, expect, it, vi } from "vitest"
 import { discoverXmlImport } from "./discovery"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 
 const xmlDir = resolve("/xml-dump")

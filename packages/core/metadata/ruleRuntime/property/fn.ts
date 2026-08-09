@@ -13,7 +13,7 @@ import type {
 import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
 import { PropertyRuleType } from "./registry"
 import type {
   CollectLocalFactsFromYAMLFunction,

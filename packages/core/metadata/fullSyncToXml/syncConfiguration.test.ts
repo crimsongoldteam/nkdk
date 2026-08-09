@@ -13,7 +13,7 @@ import type {
   ComponentHashState,
   ComponentProjectStructure,
 } from "../project/componentState"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"

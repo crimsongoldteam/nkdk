@@ -5,8 +5,8 @@ import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { createMetadataItemProjectSchemaExporter, type MetadataProjectSpec } from "../project/specs"
 import { assertCoreMetadataRegistered } from "../project/projectSpecRegistry"
-import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/registry"
-import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
+import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 export interface ValidationProjectComponent {
   componentPath: string

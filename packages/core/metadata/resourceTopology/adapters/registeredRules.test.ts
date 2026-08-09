@@ -1,13 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
-import { registerCoreMetadata } from "../register"
-import { compileRegisteredMetadataResourceTopology, describePropertyResourceTopology } from "./registry"
-import type { CompiledMetadataResourceTopology } from "./types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import { registerCoreMetadata } from "../../register"
+import { compileRegisteredMetadataResourceTopology, describePropertyResourceTopology } from "./registeredRules"
+import type { CompiledMetadataResourceTopology } from "../core/types"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
-} from "../forms/clientApplicationForm/rules"
+} from "../../forms/clientApplicationForm/rules"
 
 const itemRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
 const propertyRule = { type: "TestChildFormNames" } as PropertyRule

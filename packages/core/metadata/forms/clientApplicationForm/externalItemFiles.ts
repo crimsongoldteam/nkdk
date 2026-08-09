@@ -3,7 +3,7 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 import type { PropertyRule } from "../../ruleRuntime"
 import { ClientApplicationFormRules } from "./rules"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
 
 type ExternalFormItemFileSpec = {
   propertyName: string

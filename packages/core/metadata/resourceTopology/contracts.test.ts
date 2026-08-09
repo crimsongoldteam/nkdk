@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { registerCoreMetadata } from "../register"
-import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./capabilities"
-import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "./registry"
+import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./adapters/capabilities"
+import { compileRegisteredMetadataResourceTopology } from "./adapters/registeredRules"
+import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"
+import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./core/projectProjection"
 import { mockContextToXML } from "../../tests/mockContext"
 import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
@@ -99,7 +100,11 @@ describe("registered metadata resource topology contracts", () => {
     const match = classifyMetadataProjectPath(topology, projectPath)
 
     expect(match).toBeDefined()
-    expect(projectMetadataFileBackedTargets(topology, match!)).toEqual([{
+    expect(projectMetadataFileBackedTargets(
+      topology,
+      match!,
+      resolveTopologyMetadataTargetOwner,
+    )).toEqual([{
       kind: "member",
       memberKind: "Form",
       owner: { root: "ExternalDataSource", objectName: "Источник.Table.Таблица" },

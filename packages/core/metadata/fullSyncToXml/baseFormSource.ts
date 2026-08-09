@@ -3,7 +3,7 @@ import { join } from "node:path"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
-import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
+import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import type {
   ComponentHashState,
   ComponentProjectStructure,

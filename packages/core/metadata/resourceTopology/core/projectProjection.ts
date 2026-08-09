@@ -1,10 +1,6 @@
 import { readdir } from "fs/promises"
 import { join, resolve } from "path"
 import { expandMetadataPathPattern } from "./patterns"
-import {
-  resolveTopologyMetadataTargetOwner,
-  type TopologyMetadataTargetOwnerFrame,
-} from "./metadataTargetOwner"
 import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataExternalFileNode,
@@ -14,6 +10,8 @@ import type {
   CompiledMetadataResourceTopology,
   MetadataResourceRole,
   MetadataResourceItemRule,
+  TopologyMetadataTargetOwnerFrame,
+  TopologyMetadataTargetOwnerResolver,
 } from "./types"
 
 export interface MetadataProjectResourceOwner {
@@ -54,6 +52,7 @@ export interface MetadataFileBackedTargetContribution {
 export function projectMetadataFileBackedTargets(
   topology: CompiledMetadataResourceTopology,
   match: MetadataProjectResourceMatch,
+  resolveMetadataTargetOwner: TopologyMetadataTargetOwnerResolver,
 ): readonly MetadataFileBackedTargetContribution[] {
   const declaration = match.kind === "content"
     ? match.assignment?.fileBackedTarget
@@ -63,7 +62,12 @@ export function projectMetadataFileBackedTargets(
   if (declaration === undefined) return []
 
   const itemName = match.values[declaration.itemNameParameter]
-  const owner = resolveFileBackedTargetOwner(topology, declaration.ownerAssignmentNodeId, match.values)
+  const owner = resolveFileBackedTargetOwner(
+    topology,
+    declaration.ownerAssignmentNodeId,
+    match.values,
+    resolveMetadataTargetOwner,
+  )
   if (itemName === undefined || owner === undefined) {
     throw new Error(`Не удалось спроецировать файловую цель из ${match.projectPath}`)
   }
@@ -82,6 +86,7 @@ function resolveFileBackedTargetOwner(
   topology: CompiledMetadataResourceTopology,
   ownerAssignmentNodeId: string,
   values: Readonly<Record<string, string>>,
+  resolveMetadataTargetOwner: TopologyMetadataTargetOwnerResolver,
 ): { readonly root: string; readonly objectName: string } | undefined {
   const assignmentsById = new Map(topology.assignments.map((assignment) => [assignment.id, assignment]))
   const assignmentsByPattern = new Map(topology.assignments.map((assignment) => [assignment.projectPattern, assignment]))
@@ -99,7 +104,11 @@ function resolveFileBackedTargetOwner(
     const nameParameter = patternParameters(current.projectPattern).at(-1)
     const name = nameParameter === undefined ? undefined : values[nameParameter]
     if (name === undefined) return undefined
-    const owner = resolveTopologyMetadataTargetOwner({ itemRule: current.itemRule, name, frames })
+    const owner = resolveMetadataTargetOwner({
+      itemRule: current.itemRule,
+      name,
+      frames,
+    })
     frames.push({
       itemType: current.itemRule.itemType,
       name,

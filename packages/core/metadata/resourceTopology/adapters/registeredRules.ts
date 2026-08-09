@@ -1,20 +1,20 @@
-import type { PropertyRule } from "../ruleRuntime/property/types"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { getTypeRule, typeRulesRegistryRevision } from "../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { getTypeRule, typeRulesRegistryRevision } from "../../ruleRuntime/property/typeRuleRegistry"
 import {
   getRegisteredProjectSpecs,
   projectSpecRegistryRevision,
   type RegisteredProjectSpec,
-} from "../project/projectSpecRegistry"
-import { compileMetadataResourceTopology } from "./compiler"
-import { joinMetadataPathPatterns } from "./patterns"
-import type { MetadataResourceDeclaration } from "./types"
-import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "./types"
+} from "../../project/projectSpecRegistry"
+import { compileMetadataResourceTopology } from "../core/compiler"
+import { joinMetadataPathPatterns } from "../core/patterns"
+import type { MetadataResourceDeclaration } from "../core/types"
+import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../core/types"
 
 export {
   getMetadataResourceTopology,
   registerMetadataResourceTopologyProvider,
-} from "./providerRegistry"
+} from "../core/providerRegistry"
 
 export function describePropertyResourceTopology(
   propertyName: string,

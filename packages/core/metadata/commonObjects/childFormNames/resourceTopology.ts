@@ -1,11 +1,11 @@
 import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
 import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ChildFormNamesPropertyRule } from "./types"
 import { describeFormExternalResourceDeclarations } from "../../forms/clientApplicationForm/externalItemFiles"
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {

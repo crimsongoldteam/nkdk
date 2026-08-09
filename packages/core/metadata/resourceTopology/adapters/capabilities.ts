@@ -1,15 +1,15 @@
-import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
-import type { ConfigurationContextFromXML } from "../context/types"
-import type { ConfigurationContextWithExportToXML } from "../context/types"
-import type { DeferredObjectValue } from "../ruleRuntime/property/deferredObjectValues"
-import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { PreparedYamlFile } from "../project/preparedYamlProject"
+import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
+import type { ConfigurationSnapshotFragment } from "../../configurationIndex/types"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { DeferredObjectValue } from "../../ruleRuntime/property/deferredObjectValues"
+import type { YAMLToXMLProfile } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import type {
   CompiledMetadataAssignmentNode,
   MetadataXmlBaseInputDeclaration,
-} from "./types"
+} from "../core/types"
 
 export interface MetadataXmlPrepareOutput {
   readonly declarationId: string

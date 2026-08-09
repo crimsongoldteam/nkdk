@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { RegisteredProjectSpec } from "../../project/projectSpecRegistry"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { compileMetadataResourceTopology } from "./compiler"
 import { matchXmlImportResource, projectXmlImportTopology } from "./xmlImportProjection"
 

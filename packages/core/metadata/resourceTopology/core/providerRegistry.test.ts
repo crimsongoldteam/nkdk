@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { metadataResourceTopologyProvider } from "./metadataProvider"
+import { metadataResourceTopologyProvider } from "../adapters/metadataProvider"
 import {
   getMetadataResourceTopology,
   registerMetadataResourceTopologyProvider,

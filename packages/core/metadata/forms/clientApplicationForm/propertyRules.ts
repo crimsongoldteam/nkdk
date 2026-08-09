@@ -13,7 +13,7 @@ import { prepareFormXML } from "./syncToXML"
 import {
   registerMetadataExternalTransferCapability,
   registerMetadataXmlPrepareCapability,
-} from "../../resourceTopology/capabilities"
+} from "../../resourceTopology/adapters/capabilities"
 
 const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
   join(params.baseDir, dirname(params.rule.filePath ?? ""))

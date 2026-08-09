@@ -14,9 +14,9 @@ import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../property/deferredObjectValues"
 import { withYAMLImportDiagnostics } from "../yamlImportError"
 import { getFileItemXMLRootContainer } from "./fileItemChildCollections"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import { withConfigurationIndexExportPropertyContext } from "../../configurationIndex/referenceView"
-import type { MetadataXmlPrepareComposition } from "../../resourceTopology/capabilities"
+import type { MetadataXmlPrepareComposition } from "../../resourceTopology/adapters/capabilities"
 
 export const prepareAppliedObjectOwnerXML = (params: {
   rule: MetadataItemRule

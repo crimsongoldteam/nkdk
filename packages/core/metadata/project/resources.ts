@@ -6,9 +6,10 @@ import {
   projectMetadataFileBackedTargets,
   type MetadataFileBackedTargetContribution,
   type MetadataProjectResourceMatch,
-} from "../resourceTopology/projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/types"
+} from "../resourceTopology/core/projectProjection"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { resolveTopologyMetadataTargetOwner } from "../resourceTopology/adapters/metadataTargetOwner"
+import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/core/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { projectPathFromFileSystem } from "./path"
@@ -210,7 +211,11 @@ function toLegacyResource(
   match: MetadataProjectResourceMatch,
   context: MetadataProjectResourceContext
 ): MetadataProjectResourceRef {
-  const fileBackedTargets = projectMetadataFileBackedTargets(context.topology, match)
+  const fileBackedTargets = projectMetadataFileBackedTargets(
+    context.topology,
+    match,
+    resolveTopologyMetadataTargetOwner,
+  )
   if (match.kind === "content" && match.assignment?.role === "configuration") {
     return {
       kind: "yaml",

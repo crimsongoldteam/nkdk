@@ -1,6 +1,6 @@
 import { resolve } from "path"
 import { CONFIGURATION_YAML_FILE } from "./constants"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
 import { projectPathFromFileSystem } from "./path"
 

@@ -23,7 +23,7 @@ import { bindDeferredObjectValues, type DeferredObjectValue } from "../ruleRunti
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { compileMetadataResourceTopology } from "./compiler"
-import { resolveMetadataProjectChangeImpact } from "./xmlExportProjection"
+import { compileMetadataResourceTopology } from "./core/compiler"
+import { resolveMetadataProjectChangeImpact } from "./core/xmlExportProjection"
 
 const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }

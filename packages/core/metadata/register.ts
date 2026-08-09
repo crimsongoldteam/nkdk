@@ -4,8 +4,8 @@ import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
 import { registerValidationMetadata } from "./validation/registerValidationMetadata"
-import { metadataResourceTopologyProvider } from "./resourceTopology/metadataProvider"
-import { registerMetadataResourceTopologyProvider } from "./resourceTopology/providerRegistry"
+import { metadataResourceTopologyProvider } from "./resourceTopology/adapters/metadataProvider"
+import { registerMetadataResourceTopologyProvider } from "./resourceTopology/core/providerRegistry"
 import "./ruleRuntime/appliedObject/syncToXML"
 
 let coreMetadataRegistered = false
