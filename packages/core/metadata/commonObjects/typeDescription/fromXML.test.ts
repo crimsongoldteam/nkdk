@@ -27,6 +27,17 @@ describe("importTypeDescriptionFromXML", () => {
     expect(result).toEqual(internal)
   })
 
+  it.each(["cfg:AnyRef", "cfg:AnyIBRef"])("imports %s as ЛюбаяСсылка", (xmlType) => {
+    const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
+      `<Type><v8:TypeSet>${xmlType}</v8:TypeSet></Type>`
+    )
+
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xmlData.Type)
+
+    expect(result).toEqual({ type: ["AnyIBRef"] })
+    expect(exportTypeDescriptionToYAML(mockContextFromXML(), mockRule, result)).toBe("ЛюбаяСсылка")
+  })
+
   it("should import ConditionalAppearance type from XML", () => {
     const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'
