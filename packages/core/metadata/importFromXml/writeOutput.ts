@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { dirname, join, posix } from "node:path"
-import { exportToYAML } from "../../yaml/export"
+import { serializeYAMLDocument, type SerializedYAMLDocument } from "../../yaml/export"
 import { hashFileBytes } from "../configurationIndex/hash"
 import type { ExternalFileEntry } from "../context/types"
 import type { ValidationProfiler } from "../validation/profile"
@@ -11,9 +11,8 @@ export interface PreparedImportYamlOutput {
   readonly yaml: unknown
 }
 
-export interface SerializedImportYaml {
+export interface SerializedImportYaml extends SerializedYAMLDocument {
   readonly file: ImportResultFile
-  readonly text: string
   readonly bytes: Uint8Array<ArrayBuffer>
   readonly localHash: bigint
 }
@@ -21,9 +20,11 @@ export interface SerializedImportYaml {
 const textEncoder = new TextEncoder()
 
 export function serializeImportYaml(file: PreparedImportYamlOutput): SerializedImportYaml {
-  const text = file.yaml === undefined ? "" : exportToYAML(file.yaml)
-  const bytes = textEncoder.encode(text)
-  return { file: file.output, text, bytes, localHash: hashFileBytes(bytes) }
+  const document = file.yaml === undefined
+    ? { text: "", data: undefined }
+    : serializeYAMLDocument(file.yaml)
+  const bytes = textEncoder.encode(document.text)
+  return { file: file.output, ...document, bytes, localHash: hashFileBytes(bytes) }
 }
 
 export async function writeMainImportYaml(params: ({

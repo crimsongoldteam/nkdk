@@ -1,3 +1,4 @@
+import type { SerializedYAMLDocument } from "../../yaml/export"
 import { parsedYamlFromKnownData } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
 import type { ValidationProjectFile } from "../validation/projectFiles"
@@ -9,19 +10,18 @@ import {
 } from "../validation/projectValidationPasses"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 
-export function validateKnownProjectYaml(params: {
+export function validateSerializedProjectYaml(params: {
   readonly projectDir: string
   readonly file: ValidationProjectFile
-  readonly text: string
-  readonly yaml: unknown
+  readonly document: SerializedYAMLDocument
   readonly context: ConfigurationContext
   readonly schemaCache: ValidationSchemaCache
   readonly rulesSnapshot: ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   const entry = {
     filePath: params.file.absolutePath,
-    text: params.text,
-    parsed: parsedYamlFromKnownData(params.text, params.yaml),
+    text: params.document.text,
+    parsed: parsedYamlFromKnownData(params.document.text, params.document.data),
   }
   return validateProjectFileFirstPass({
     projectDir: params.projectDir,
