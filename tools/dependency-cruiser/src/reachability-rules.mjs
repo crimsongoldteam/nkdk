@@ -47,6 +47,18 @@ export const resourceTopologyCoreReachabilityRule = {
 }
 
 /** @type {ReachabilityRule} */
+export const validationProjectReachabilityRule = {
+  name: "validation-not-reach-project",
+  severity: "error",
+  comment: "Validation не зависит от project-координаторов и изменяемого реестра projectDefinition.",
+  fromPatterns: ["^packages/core/metadata/validation/"],
+  toPatterns: [
+    "^packages/core/metadata/project/",
+    "^packages/core/metadata/projectDefinition/projectSpecRegistry\\.ts$",
+  ],
+}
+
+/** @type {ReachabilityRule} */
 export const exampleCoreReachabilityRule = {
   name: "example-core-not-reach-adapters",
   severity: "error",
@@ -61,6 +73,7 @@ export const metadataReachabilityRules = [
   metadataImplementationReachabilityRule,
   diagnosticsValidationReachabilityRule,
   resourceTopologyCoreReachabilityRule,
+  validationProjectReachabilityRule,
 ]
 
 export const fixtureReachabilityRules = [

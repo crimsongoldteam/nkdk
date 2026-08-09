@@ -82,6 +82,19 @@ test("diagnostics не достигает validation", () => {
   assert.deepEqual(names, new Set(["diagnostics-not-reach-validation"]))
 })
 
+test("validation не достигает project", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/validation/forbidden-project.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["validation-not-reach-project"]))
+})
+
 test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(

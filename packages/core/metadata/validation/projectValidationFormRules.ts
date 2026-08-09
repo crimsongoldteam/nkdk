@@ -1,5 +1,6 @@
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
+import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 
 export interface ProjectValidationFormRule {
   readonly key: string
@@ -8,7 +9,10 @@ export interface ProjectValidationFormRule {
 
 export function registeredProjectValidationFormRules(): ProjectValidationFormRule[] {
   const byRule = new Map<MetadataItemRule, ProjectValidationFormRule>()
-  for (const assignment of compileRegisteredMetadataResourceTopology()
+  for (const assignment of compileMetadataResourceTopologyForProjectSpecs([
+    configurationValidationProjectSpec,
+    ...validationProjectSpecs,
+  ])
     .assignments) {
     if (
       assignment.role !== "fileItem" ||

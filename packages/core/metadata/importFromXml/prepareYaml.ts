@@ -21,7 +21,7 @@ import {
 } from "../ruleRuntime/property/importYamlTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../ruleRuntime/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../projectDefinition/localIndexes"
-import { findRegisteredProjectRule } from "../projectDefinition/projectSpecRegistry"
+import { findRegisteredProjectRule, getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ValidationProfiler } from "../validation/profile"
@@ -29,7 +29,7 @@ import { registerOwnerFactCollectors } from "../validation/registerValidationMet
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import { normalizeImportedDependentItems } from "./dependentItems"
 
-registerOwnerFactCollectors()
+registerOwnerFactCollectors(getRegisteredProjectSpecs())
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment

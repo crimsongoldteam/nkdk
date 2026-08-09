@@ -2,7 +2,7 @@ import { availableParallelism } from "node:os"
 import type { ConfigurationContext } from "../context/types"
 import { projectPathFromFileSystem } from "../projectDefinition/path"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
-import type { Diagnostic } from "./types"
+import type { Diagnostic } from "../validation/types"
 import type { MetadataDiagnosticCollection } from "../diagnostics/collection"
 
 export interface ValidateProjectParams {

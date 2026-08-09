@@ -11,7 +11,6 @@ import {
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
-  metadataProjectSpecByDir,
   metadataProjectSpecs,
 } from "./specs"
 
@@ -45,12 +44,11 @@ describe("metadata project specs", () => {
     expect(getMetadataProjectSpecByDir("НетТакогоВида")).toBeUndefined()
   })
 
-  it("keeps validation compatibility aliases pointing to project specs", () => {
-    expect(validationProjectSpecByDir).toBe(metadataProjectSpecByDir)
+  it("registers validation specs from the project definition snapshot", () => {
     expect(validationProjectSpecByDir.get("Справочник")).toBe(getMetadataProjectSpecByDir("Справочник"))
-    expect(validationProjectSpecs).toBe(metadataProjectSpecs)
+    expect(validationProjectSpecs).toEqual(metadataProjectSpecs)
     expect(configurationValidationProjectSpec).toBe(configurationMetadataProjectSpec)
-    expect(getValidationProjectSpecByDir).toBe(getMetadataProjectSpecByDir)
+    expect(getValidationProjectSpecByDir("Справочник")).toBe(getMetadataProjectSpecByDir("Справочник"))
   })
 
   it("comes from object registrations, including custom import/export specs", () => {

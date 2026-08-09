@@ -7,10 +7,15 @@ import {
   type MetadataFileBackedTargetContribution,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/core/projectProjection"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
 import { resolveTopologyMetadataTargetOwner } from "../resourceTopology/adapters/metadataTargetOwner"
 import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/core/types"
-import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
+import {
+  configurationMetadataProjectSpec,
+  getMetadataProjectSpecByDir,
+  metadataProjectSpecs,
+  type MetadataProjectSpec,
+} from "./specs"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { projectPathFromFileSystem } from "./path"
 
@@ -289,7 +294,10 @@ function rootOwner(
 
 function defaultResourceContext(): MetadataProjectResourceContext {
   return {
-    topology: compileRegisteredMetadataResourceTopology(),
+    topology: compileMetadataResourceTopologyForProjectSpecs([
+      configurationMetadataProjectSpec,
+      ...metadataProjectSpecs,
+    ]),
     rootSpec: configurationMetadataProjectSpec,
   }
 }

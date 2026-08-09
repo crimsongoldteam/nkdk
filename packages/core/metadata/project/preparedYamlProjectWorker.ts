@@ -63,10 +63,14 @@ import {
   type MetadataWorkerBinaryResult,
 } from "../workerPool/binaryResult"
 import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
+import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
+import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
-registerValidationMetadata()
+const projectSpecs = getRegisteredProjectSpecs()
+registerMetadataProjectSpecs(projectSpecs)
+registerValidationMetadata(projectSpecs)
 
 export type PreparedYamlProjectWorkerTask =
   | {

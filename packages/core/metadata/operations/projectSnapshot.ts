@@ -7,7 +7,7 @@ import type { PreparedYamlFile, PreparedYamlProject } from "../project/preparedY
 import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createValidationProjectComponent } from "../validation/projectComponents"
-import { validateProject, type ValidationWorkerPoolHandle } from "../validation/validateProject"
+import { validateProject, type ValidationWorkerPoolHandle } from "../project/validateProject"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { defaultMetadataOperationsContext } from "./context"

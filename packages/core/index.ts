@@ -134,7 +134,7 @@ export {
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
-} from "./metadata/validation/validateProject"
+} from "./metadata/project/validateProject"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
 export {
   createValidationProfileResult,

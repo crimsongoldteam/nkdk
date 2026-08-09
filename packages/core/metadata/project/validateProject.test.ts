@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import type { ProjectStateRefreshParams, ProjectStateRefreshResult } from "../projectState/refresh"
 import type { ProjectStateService } from "../projectState/service"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import type { Diagnostic } from "./types"
+import type { Diagnostic } from "../validation/types"
 import {
   toRootProjectDiagnostic,
   validateProject,

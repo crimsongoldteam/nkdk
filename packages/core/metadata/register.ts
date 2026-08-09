@@ -4,6 +4,8 @@ import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
 import { registerValidationMetadata } from "./validation/registerValidationMetadata"
+import { getRegisteredProjectSpecs } from "./projectDefinition/projectSpecRegistry"
+import { registerMetadataProjectSpecs } from "./projectDefinition/specs"
 import { metadataResourceTopologyProvider } from "./resourceTopology/adapters/metadataProvider"
 import { registerMetadataResourceTopologyProvider } from "./resourceTopology/core/providerRegistry"
 import "./ruleRuntime/appliedObject/syncToXML"
@@ -32,7 +34,11 @@ export function registerCoreMetadata(): void {
     commonObjects: registerCommonObjects,
     forms: registerForms,
     appliedObjects: registerAppliedObjects,
-    validationAdapters: registerValidationMetadata,
+    validationAdapters: () => {
+      const projectSpecs = getRegisteredProjectSpecs()
+      registerMetadataProjectSpecs(projectSpecs)
+      registerValidationMetadata(projectSpecs)
+    },
   })
   registerMetadataResourceTopologyProvider(metadataResourceTopologyProvider)
 }
