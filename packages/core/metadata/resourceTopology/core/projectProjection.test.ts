@@ -35,6 +35,17 @@ const topology = compileMetadataResourceTopology([
         source,
       },
       {
+        kind: "yamlCompanion",
+        assignmentProjectPattern: "",
+        projectPattern: "Объект/{ownerName}/БазоваяФорма.yaml",
+        required: false,
+        itemRule: rule,
+        projectRole: "form",
+        indexContribution: "isolated",
+        logicalAddressSegment: "ОсноваФормы",
+        source,
+      },
+      {
         kind: "externalFile",
         assignmentProjectPattern: "",
         projectPattern: "Объект/{ownerName}/Модуль.bsl",
@@ -103,6 +114,7 @@ describe("project resource topology projection", () => {
     for (const path of [
       "Объект/Первый/Свойства.yaml",
       "Объект/Первый/Модуль.bsl",
+      "Объект/Первый/БазоваяФорма.yaml",
       ".service/cache.bin",
       "Объект/Первый/Лишний.yaml",
     ]) {
@@ -147,7 +159,12 @@ describe("project resource topology projection", () => {
     const entries = new Map<string, ReturnType<typeof file>[]>([
       [projectDir, [directory("Объект"), directory(".service"), directory("НедостижимаяВетка")]],
       [join(projectDir, "Объект"), [directory("Первый")]],
-      [join(projectDir, "Объект", "Первый"), [file("Свойства.yaml"), file("Модуль.bsl"), file("Лишний.yaml")]],
+      [join(projectDir, "Объект", "Первый"), [
+        file("Свойства.yaml"),
+        file("Модуль.bsl"),
+        file("БазоваяФорма.yaml"),
+        file("Лишний.yaml"),
+      ]],
       [join(projectDir, ".service"), [file("cache.bin")]],
     ])
 
@@ -165,6 +182,7 @@ describe("project resource topology projection", () => {
       ".service/cache.bin",
       "Объект/Первый/Свойства.yaml",
       "Объект/Первый/Модуль.bsl",
+      "Объект/Первый/БазоваяФорма.yaml",
     ]
     expect(readDirectories).not.toContain(join(projectDir, "НедостижимаяВетка"))
     expect(candidates.map(({ projectPath }) => projectPath)).toEqual(expectedPaths)
@@ -208,6 +226,7 @@ describe("project resource topology projection", () => {
 
   it.each([
     ["Объект/Первый/Свойства.yaml", "content", "properties"],
+    ["Объект/Первый/БазоваяФорма.yaml", "yamlCompanion", "form"],
     ["Объект/Первый/Модуль.bsl", "externalFile", "external"],
     [".service/cache.bin", "ignore", "external"],
   ] as const)("classifies %s", (path, kind, role) => {
@@ -216,6 +235,21 @@ describe("project resource topology projection", () => {
 
   it("rejects paths outside the topology", () => {
     expect(classifyMetadataProjectPath(topology, "Объект/Первый/Лишний.yaml")).toBeUndefined()
+  })
+
+  it("сохраняет за спутником задание-владелец, правило и параметры пути", () => {
+    expect(classifyMetadataProjectPath(topology, "Объект/Первый/БазоваяФорма.yaml")).toMatchObject({
+      kind: "yamlCompanion",
+      values: { ownerName: "Первый" },
+      rule,
+      assignment: {
+        projectPattern: "Объект/{ownerName}/Свойства.yaml",
+      },
+      yamlCompanion: {
+        logicalAddressSegment: "ОсноваФормы",
+        indexContribution: "isolated",
+      },
+    })
   })
 })
 

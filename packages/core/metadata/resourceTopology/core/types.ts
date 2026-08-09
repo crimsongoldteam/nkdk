@@ -13,6 +13,7 @@ export type MetadataResourceRole =
   | "metadata"
   | "body"
   | "property"
+  | "form"
   | "external"
 
 export interface TopologyMetadataTargetOwnerRule {
@@ -117,6 +118,18 @@ export interface MetadataExternalFileDeclaration {
   readonly fileBackedTarget?: MetadataFileBackedMemberTargetDeclaration
 }
 
+export interface MetadataYamlCompanionDeclaration {
+  readonly kind: "yamlCompanion"
+  readonly assignmentProjectPattern: string
+  readonly projectPattern: string
+  readonly required: boolean
+  readonly itemRule: MetadataResourceItemRule
+  readonly projectRole: "form"
+  readonly indexContribution: "isolated"
+  readonly logicalAddressSegment: string
+  readonly source: MetadataResourceSource
+}
+
 export interface MetadataIgnoredPathDeclaration {
   readonly kind: "ignore"
   readonly side: "project" | "xml"
@@ -139,6 +152,7 @@ export interface MetadataChildCollectionDeclaration {
 export type MetadataResourceDeclaration =
   | MetadataContentDeclaration
   | MetadataXmlDocumentDeclaration
+  | MetadataYamlCompanionDeclaration
   | MetadataExternalFileDeclaration
   | MetadataIgnoredPathDeclaration
   | MetadataChildCollectionDeclaration
@@ -159,12 +173,18 @@ export interface CompiledMetadataExternalFileNode
   readonly fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
 }
 
+export interface CompiledMetadataYamlCompanionNode extends MetadataYamlCompanionDeclaration {
+  readonly id: string
+  readonly projectPattern: string
+}
+
 export interface CompiledMetadataAssignmentNode
   extends Omit<MetadataContentDeclaration, "fileBackedTarget"> {
   readonly id: string
   readonly ownerProjectPattern?: string
   readonly fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: readonly CompiledMetadataXmlDocumentNode[]
+  readonly yamlCompanions: readonly CompiledMetadataYamlCompanionNode[]
   readonly externalFiles: readonly CompiledMetadataExternalFileNode[]
 }
 

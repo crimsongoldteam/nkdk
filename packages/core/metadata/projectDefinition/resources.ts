@@ -113,6 +113,7 @@ export interface MetadataProjectFormYamlRef extends MetadataProjectResourceTarge
   formName: string
   itemType: string
   itemRule: MetadataItemRule
+  indexContribution?: "isolated"
 }
 
 export interface MetadataProjectResourceOnlyRef extends MetadataProjectResourceTargetRef {
@@ -221,6 +222,19 @@ function toLegacyResource(
     match,
     resolveTopologyMetadataTargetOwner,
   )
+  if (match.kind === "yamlCompanion" && match.yamlCompanion !== undefined) {
+    return {
+      kind: "yaml",
+      role: "form",
+      projectPath: match.projectPath,
+      fileBackedTargets,
+      owner: rootOwner(match, context),
+      formName: lastItemName(match.values),
+      itemType: match.yamlCompanion.itemRule.itemType,
+      itemRule: match.yamlCompanion.itemRule,
+      indexContribution: match.yamlCompanion.indexContribution,
+    }
+  }
   if (match.kind === "content" && match.assignment?.role === "configuration") {
     return {
       kind: "yaml",

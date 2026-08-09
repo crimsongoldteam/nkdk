@@ -20,6 +20,7 @@ export interface PreparedYamlProjectFileDescriptor extends PreparedYamlProjectFi
   componentPath: string
   componentDir: string
   rootProjectPath: string
+  indexContribution?: "isolated"
 }
 
 export interface PreparedYamlProjectResourceDescriptor {
