@@ -1,7 +1,7 @@
 import { colorRule } from "../../../commonObjects/color/types"
 import { dataPathRule } from "../../../commonObjects/metadataPath/types"
 import { pictureRule } from "../../../commonObjects/picture/types"
-import { groupChildItemsRule } from "../../commonObjects/childItems/types"
+import { groupChildItemsRule } from "../../commonObjects/childItems/rules"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
