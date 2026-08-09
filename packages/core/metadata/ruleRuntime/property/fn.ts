@@ -10,8 +10,7 @@ import type {
   ParsedMetadataTarget,
   StyleItemTargetType,
 } from "../metadataTarget"
-import type { Diagnostic } from "../../validation/types"
-import type { YamlPath } from "../../validation/yamlLocations"
+import type { Diagnostic, YamlPath } from "../../diagnostics/types"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
 import { PropertyRuleType } from "./registry"

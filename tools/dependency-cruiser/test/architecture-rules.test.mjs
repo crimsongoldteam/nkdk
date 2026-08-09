@@ -108,6 +108,36 @@ test("metadata core не достигает composition roots", () => {
   assert.deepEqual(names, new Set(["metadata-core-not-reach-composition"]))
 })
 
+test("все нейтральные слои не достигают concrete-реализаций", () => {
+  const namesFor = (source) =>
+    new Set(
+      result.summary.violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  for (const source of [
+    "packages/core/metadata/diagnostics/forbidden-implementation.ts",
+    "packages/core/metadata/projectState/forbidden-implementation.ts",
+    "packages/core/metadata/resourceTopology/core/forbidden-implementation.ts",
+  ]) {
+    assert.equal(namesFor(source).has("neutral-not-reach-implementations"), true, source)
+  }
+})
+
+test("projectDefinition не достигает координационных слоёв", () => {
+  const names = new Set(
+    result.summary.violations
+      .filter(
+        ({ from }) =>
+          from === "packages/core/metadata/projectDefinition/forbidden-project.ts"
+      )
+      .map(({ rule }) => rule.name)
+  )
+
+  assert.deepEqual(names, new Set(["project-definition-is-leaf"]))
+})
+
 test("закрепляет concrete-матрицу metadata-слоёв", () => {
   const namesFor = (source) =>
     new Set(
@@ -173,7 +203,9 @@ test("линейный обход сохраняет runtime, type-only и тр�
   )
 
   assert.deepEqual(
-    violations.map(({ from, to }) => [from, to]),
+    violations
+      .filter(({ from }) => from.startsWith("packages/core/metadata/ruleRuntime/"))
+      .map(({ from, to }) => [from, to]),
     [
       [
         "packages/core/metadata/ruleRuntime/direct-runtime.ts",

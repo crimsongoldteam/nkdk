@@ -1,5 +1,5 @@
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
-import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
+import type { YamlDiagnosticLocation, YamlPath } from "../../diagnostics/types"
 import type { OwnerFactRole } from "./ownerFactRole"
 
 export interface LocalFactPropertyRule {

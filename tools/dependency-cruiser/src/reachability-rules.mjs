@@ -1,5 +1,5 @@
 export const neutralProductionPattern =
-  "^packages/core/metadata/(?:ruleRuntime|validation|project|projectDefinition|standardMembers)/"
+  "^packages/core/metadata/(?:ruleRuntime|diagnostics|validation|project|projectDefinition|projectState|resourceTopology/core|standardMembers)/"
 
 export const implementationTargetPatterns = [
   "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
@@ -55,6 +55,17 @@ export const validationProjectReachabilityRule = {
   toPatterns: [
     "^packages/core/metadata/project/",
     "^packages/core/metadata/projectDefinition/projectSpecRegistry\\.ts$",
+  ],
+}
+
+/** @type {ReachabilityRule} */
+export const projectDefinitionReachabilityRule = {
+  name: "project-definition-is-leaf",
+  severity: "error",
+  comment: "ProjectDefinition не зависит от координации project, validation, projectState и workerPool.",
+  fromPatterns: ["^packages/core/metadata/projectDefinition/"],
+  toPatterns: [
+    "^packages/core/metadata/(?:project|validation|projectState|workerPool)/",
   ],
 }
 
@@ -129,6 +140,7 @@ export const metadataReachabilityRules = [
   diagnosticsValidationReachabilityRule,
   resourceTopologyCoreReachabilityRule,
   validationProjectReachabilityRule,
+  projectDefinitionReachabilityRule,
   metadataCompositionReachabilityRule,
   ...concreteLayerReachabilityRules,
   ...localLeafReachabilityRules,

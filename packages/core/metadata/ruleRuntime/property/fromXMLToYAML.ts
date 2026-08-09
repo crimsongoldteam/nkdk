@@ -28,7 +28,7 @@ import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from ".
 import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import type { YamlPath } from "../../validation/yamlLocations"
+import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { markYAMLScalarTag } from "../../../yaml/scalarTags"
 import { matchExplicitXMLPropertyFromXML } from "./explicitXMLPropertyRegistry"
