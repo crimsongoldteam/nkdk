@@ -17,6 +17,7 @@ describe("двоичный результат import", () => {
         projectPath: "cf/Картинка.png",
         componentPath: "cf",
         resourceKind: "resource",
+        targets: [],
       }],
       hashBytes: new Uint8Array(8),
     })

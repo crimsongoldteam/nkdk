@@ -3,6 +3,8 @@ import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
   iterateMetadataProjectPathCandidates as iterateTopologyProjectPathCandidates,
+  projectMetadataFileBackedTargets,
+  type MetadataFileBackedTargetContribution,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
@@ -47,7 +49,39 @@ export type MetadataProjectResourceRef =
   | MetadataProjectFormYamlRef
   | MetadataProjectResourceOnlyRef
 
-export interface MetadataProjectConfigurationYamlRef {
+export interface MetadataProjectResourceTargetRef {
+  readonly fileBackedTargets: readonly MetadataFileBackedTargetContribution[]
+}
+
+export interface MetadataProjectStateTargetRef {
+  readonly kind: "member"
+  readonly canonical: string
+  readonly fileBacked: {
+    readonly itemProjectPath: string
+    readonly ownerProjectPath: string
+  }
+}
+
+export function projectStateFileBackedTargets(
+  componentPath: string,
+  contributions: readonly MetadataFileBackedTargetContribution[],
+): readonly MetadataProjectStateTargetRef[] {
+  return contributions.map((contribution) => ({
+    kind: contribution.kind,
+    canonical: [
+      contribution.owner.root,
+      contribution.owner.objectName,
+      contribution.memberKind,
+      contribution.itemName,
+    ].join("."),
+    fileBacked: {
+      itemProjectPath: `${componentPath}/${contribution.itemProjectPath}`,
+      ownerProjectPath: `${componentPath}/${contribution.ownerProjectPath}`,
+    },
+  }))
+}
+
+export interface MetadataProjectConfigurationYamlRef extends MetadataProjectResourceTargetRef {
   kind: "yaml"
   role: "configuration"
   projectPath: string
@@ -55,7 +89,7 @@ export interface MetadataProjectConfigurationYamlRef {
   owner: MetadataProjectResourceOwner
 }
 
-export interface MetadataProjectPropertiesYamlRef {
+export interface MetadataProjectPropertiesYamlRef extends MetadataProjectResourceTargetRef {
   kind: "yaml"
   role: "properties"
   projectPath: string
@@ -64,7 +98,7 @@ export interface MetadataProjectPropertiesYamlRef {
   nesting: MetadataProjectNestingSegment[]
 }
 
-export interface MetadataProjectFormYamlRef {
+export interface MetadataProjectFormYamlRef extends MetadataProjectResourceTargetRef {
   kind: "yaml"
   role: "form"
   projectPath: string
@@ -75,7 +109,7 @@ export interface MetadataProjectFormYamlRef {
   itemRule: MetadataItemRule
 }
 
-export interface MetadataProjectResourceOnlyRef {
+export interface MetadataProjectResourceOnlyRef extends MetadataProjectResourceTargetRef {
   kind: "resource"
   role: string
   projectPath: string
@@ -176,11 +210,13 @@ function toLegacyResource(
   match: MetadataProjectResourceMatch,
   context: MetadataProjectResourceContext
 ): MetadataProjectResourceRef {
+  const fileBackedTargets = projectMetadataFileBackedTargets(context.topology, match)
   if (match.kind === "content" && match.assignment?.role === "configuration") {
     return {
       kind: "yaml",
       role: "configuration",
       projectPath: match.projectPath,
+      fileBackedTargets,
       owner: { dir: "", name: "Конфигурация", spec: context.rootSpec },
     }
   }
@@ -191,6 +227,7 @@ function toLegacyResource(
       kind: "yaml",
       role: "properties",
       projectPath: match.projectPath,
+      fileBackedTargets,
       owner,
       nesting: nestingSegments(match, owner.dir),
     }
@@ -200,6 +237,7 @@ function toLegacyResource(
       kind: "yaml",
       role: "form",
       projectPath: match.projectPath,
+      fileBackedTargets,
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
       itemType: match.assignment.itemRule.itemType,
@@ -210,6 +248,7 @@ function toLegacyResource(
     kind: "resource",
     role: "resourceOnly",
     projectPath: match.projectPath,
+    fileBackedTargets,
     owner: rootOwner(match, context),
     descriptorKind: "externalFile",
     source: match.externalFile?.source ?? {

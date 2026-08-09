@@ -1,6 +1,5 @@
 import fs from "fs"
 import { join } from "path"
-import "../../commonObjects"
 import { ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
 import importContentFromXML from "../../../xml/import/importer"
 import { exportToYAML } from "../../../yaml/export"

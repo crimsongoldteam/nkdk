@@ -1,5 +1,5 @@
 import { SaxesParser, type SaxesTagPlain, type XMLDecl } from "saxes"
-import type { ImportContentFromXMLOptions } from "./importer"
+import type { ImportContentFromXMLOptions } from "./contracts"
 
 const XML_METADATA = Symbol.for("metadata")
 const PI_ATTRIBUTE = /([^\s=]+)\s*=\s*(["'])([\s\S]*?)\2/gu

@@ -1,24 +1,55 @@
 import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
-import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
-import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
-import type { LocalIndexes, LocalIndexesCollector, LocalMetadataIndex } from "../../project/localIndexes"
+import type { FormDataPathIndex } from "../dataPath/formIndex"
+import type { YamlPath } from "../../validation/yamlLocations"
+import type {
+  DeferredRulePathSegment,
+  LocalIndexes,
+  LocalIndexesCollector,
+  LocalMetadataFactsWriter,
+  LocalYamlFact,
+} from "./localFacts"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { DeferredValuePath } from "./deferredObjectValues"
 
 export type { DeferredValuePath } from "./deferredObjectValues"
-
-export interface DeferredRulePathSegment {
-  propertyKey: string
-  nestedItemType?: string
-}
 
 export interface DirectImportTraversal {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
+  dependent?: ImportedDependentPropertyCollector
   profile?: DirectImportProfile
+}
+
+export interface ImportedDependentPropertyCandidate {
+  readonly itemType: string
+  readonly itemYamlPath: YamlPath
+  readonly itemName?: string
+  readonly propertyKey: string
+  readonly yamlPath: YamlPath
+  readonly logicalAddress?: string
+  readonly xmlValue: unknown
+  readonly presentInXML: boolean
+}
+
+export interface ImportedDependentPropertyCollector {
+  accept(candidate: ImportedDependentPropertyCandidate): void
+  finish(): readonly ImportedDependentPropertyCandidate[]
+}
+
+export function createImportedDependentPropertyCollector(): ImportedDependentPropertyCollector {
+  const candidates: ImportedDependentPropertyCandidate[] = []
+  return {
+    accept(candidate) {
+      candidates.push({
+        ...candidate,
+        itemYamlPath: [...candidate.itemYamlPath],
+        yamlPath: [...candidate.yamlPath],
+      })
+    },
+    finish: () => candidates,
+  }
 }
 
 export interface DeferredValuePathCollector {
@@ -75,26 +106,19 @@ export interface DirectImportResult {
   generatedFiles: ExternalFileEntry[]
 }
 
-export interface LocalYamlFact {
-  yamlPath: YamlPath
-  rulePath: readonly DeferredRulePathSegment[]
-  rule: PropertyRule
-  value: unknown
-  source?: YamlDiagnosticLocation
-  metadataTargetOwner?: MetadataTargetOwner
-}
-
-export interface LocalMetadataFactsWriter {
-  setOwnerFact(role: string, value: unknown): void
-  setMetadataTargetValues(values: readonly { value: string; yamlPath: YamlPath }[]): void
-}
-
 export type CollectLocalFactsFromYAMLFunction = (params: {
   fact: LocalYamlFact
   writer: LocalMetadataFactsWriter
 }) => void
 
-export { type LocalIndexes, type LocalIndexesCollector, type LocalMetadataIndex }
+export type {
+  DeferredRulePathSegment,
+  LocalIndexes,
+  LocalIndexesCollector,
+  LocalMetadataFactsWriter,
+  LocalMetadataIndex,
+  LocalYamlFact,
+} from "./localFacts"
 
 export type ImportFromXMLToYAMLFunction = (params: {
   context: ConfigurationContextFromXML

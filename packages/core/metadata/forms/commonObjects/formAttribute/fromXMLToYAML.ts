@@ -59,6 +59,12 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       },
     })
     if (additionalColumns !== undefined) yaml.ДополнительныеКолонки = additionalColumns
+    traversal.collector.acceptItem({
+      itemType: FormAttributeRules.itemType,
+      name,
+      yamlPath: itemTraversal.yamlPath,
+      rulePath: itemTraversal.rulePath,
+    })
     result[name] = yaml
   }
 
@@ -126,17 +132,26 @@ function importColumnsFromXMLToYAML(params: {
     if (logicalAddress !== undefined && typeof item._id === "string") {
       collection?.collector.setIdentity(logicalAddress, "xmlId", item._id)
     }
+    const itemTraversal = enterNestedYamlRule(
+      { ...params.traversal, yamlPath: [...params.traversal.yamlPath, name] },
+      FormAttributeColumnRules.itemType
+    )
     const yaml = importMetadataItemFromXMLToYAML({
       context,
       rule: FormAttributeColumnRules,
       xml: item,
       name,
-      traversal: enterNestedYamlRule(
-        { ...params.traversal, yamlPath: [...params.traversal.yamlPath, name] },
-        FormAttributeColumnRules.itemType
-      ),
+      traversal: itemTraversal,
     })
-    if (yaml !== undefined) result[name] = yaml
+    if (yaml !== undefined) {
+      params.traversal.collector.acceptItem({
+        itemType: FormAttributeColumnRules.itemType,
+        name,
+        yamlPath: itemTraversal.yamlPath,
+        rulePath: itemTraversal.rulePath,
+      })
+      result[name] = yaml
+    }
   }
 
   return Object.keys(result).length === 0 ? undefined : result

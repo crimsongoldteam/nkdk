@@ -30,6 +30,8 @@ import {
 } from "../projectState"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../project/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
 import { discoverXmlImport, readXmlImportComponentRoot } from "./discovery"
 import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"
@@ -149,6 +151,7 @@ export async function importConfigurationFromXml(
     const descriptor = resolveXmlImportComponent(root)
     const address = descriptor.resolveAddress(root)
     const selectedComponentPath = componentPath(address)
+    const validationComponent = createValidationProjectComponent(params.projectDir, address)
     resolvedComponentPath = selectedComponentPath
     assertRequestedComponentPath(params.requestedComponentPath, selectedComponentPath)
 
@@ -299,7 +302,7 @@ export async function importConfigurationFromXml(
           }
         )
     )
-    const externalFinalState = externalFileStateBatch(selectedComponentPath, externalProjectFiles)
+    const externalFinalState = externalFileStateBatch(validationComponent, externalProjectFiles)
     if (externalFinalState.updates.length > 0) {
       rememberImportFileHashes(importFileHashes, selectedComponentPath, externalFinalState)
       const externalWriter = createProjectStateFragmentWriter()
@@ -521,19 +524,24 @@ function buildImportedConfigurationSnapshot(params: {
   }
 }
 
-function externalFileStateBatch(
-  selectedComponentPath: string,
+export function externalFileStateBatch(
+  component: ValidationProjectComponent,
   files: readonly ConfigurationSnapshotFile[],
 ): ProjectStateImportFinalFileStateBatch {
-  const entries = files.map((file) => ({
-    update: {
-      kind: "resource" as const,
-      projectPath: `${selectedComponentPath}/${file.projectPath}`,
-      componentPath: selectedComponentPath,
-      resourceKind: "resource" as const,
-    },
-    hash: file.contentHash,
-  }))
+  const entries = files.map((file) => {
+    const resource = classifyMetadataProjectPath(file.projectPath, component)
+    if (resource === undefined) throw new Error(`Переданный файл не принадлежит топологии: ${file.projectPath}`)
+    return {
+      update: {
+        kind: "resource" as const,
+        projectPath: `${component.componentPath}/${file.projectPath}`,
+        componentPath: component.componentPath,
+        resourceKind: "resource" as const,
+        targets: projectStateFileBackedTargets(component.componentPath, resource.fileBackedTargets),
+      },
+      hash: file.contentHash,
+    }
+  })
   const batch = createProjectStateFileUpdateBatch(entries)
   return { updates: entries.map(({ update }) => update), hashBytes: batch.hashBytes }
 }

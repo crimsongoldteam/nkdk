@@ -3,6 +3,8 @@ import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
   DirectImportTraversal,
+  ImportedDependentPropertyCollector,
+  ImportedDependentPropertyCandidate,
   LocalIndexesCollector,
   LocalYamlFact,
 } from "../property/importYamlTypes"
@@ -108,6 +110,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       bufferedCollector === undefined || params.traversal.deferred === undefined
         ? undefined
         : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
+    const bufferedDependent =
+      bufferedCollector === undefined || params.traversal.dependent === undefined
+        ? undefined
+        : createBufferedDependentCollector(params.traversal.dependent, yamlPath)
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: itemRule,
@@ -119,6 +125,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           yamlPath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
+          dependent: bufferedDependent?.collector ?? params.traversal.dependent,
         },
         itemRule.itemType
       ),
@@ -134,10 +141,27 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         ? undefined
         : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
           (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
+    const itemRulePath = enterNestedYamlRule(params.traversal, itemRule.itemType).rulePath
+    if (params.yamlAsArray === true) {
+      params.traversal.collector.acceptItem({
+        itemType: itemRule.itemType,
+        ...(itemName === undefined ? {} : { name: itemName }),
+        yamlPath,
+        rulePath: itemRulePath,
+      })
+    } else if (yamlKey !== undefined) {
+      params.traversal.collector.acceptItem({
+        itemType: itemRule.itemType,
+        name: yamlKey,
+        yamlPath: [...params.traversal.yamlPath, yamlKey],
+        rulePath: itemRulePath,
+      })
+    }
     if (yamlKey !== undefined) {
       const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
       bufferedCollector?.flush(targetYamlPath)
       bufferedDeferred?.flush(targetYamlPath)
+      bufferedDependent?.flush(targetYamlPath, yamlKey)
     }
     return [{ yaml: itemYaml, name, yamlKey }]
   })
@@ -152,6 +176,29 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function createBufferedDependentCollector(
+  parent: ImportedDependentPropertyCollector,
+  sourceItemYamlPath: readonly (string | number)[]
+) {
+  const candidates: ImportedDependentPropertyCandidate[] = []
+  return {
+    collector: {
+      accept: (candidate) => candidates.push(candidate),
+      finish: () => candidates,
+    } satisfies ImportedDependentPropertyCollector,
+    flush(itemYamlPath: readonly (string | number)[], itemName: string) {
+      for (const candidate of candidates) {
+        parent.accept({
+          ...candidate,
+          itemName,
+          itemYamlPath: [...itemYamlPath, ...candidate.itemYamlPath.slice(sourceItemYamlPath.length)],
+          yamlPath: [...itemYamlPath, ...candidate.yamlPath.slice(sourceItemYamlPath.length)],
+        })
+      }
+    },
+  }
 }
 
 function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {
@@ -188,8 +235,12 @@ function createBufferedDeferredCollector(
 }
 
 function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPath: readonly (string | number)[]) {
-  const facts: Array<{ kind: "property" | "complete"; fact: LocalYamlFact }> = []
+  const facts: Array<
+    | { kind: "item"; fact: Parameters<LocalIndexesCollector["acceptItem"]>[0] }
+    | { kind: "property" | "complete"; fact: LocalYamlFact }
+  > = []
   const collector: LocalIndexesCollector = {
+    acceptItem: (fact) => facts.push({ kind: "item", fact }),
     acceptProperty: (fact) => facts.push({ kind: "property", fact }),
     completeValue: (fact) => facts.push({ kind: "complete", fact }),
     finish: () => parent.finish(),
@@ -199,12 +250,10 @@ function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPa
     collector,
     flush(yamlPath: readonly (string | number)[]) {
       for (const { kind, fact } of facts) {
-        const nextFact = {
-          ...fact,
-          yamlPath: [...yamlPath, ...fact.yamlPath.slice(sourceYamlPath.length)],
-        }
-        if (kind === "property") parent.acceptProperty(nextFact)
-        else parent.completeValue(nextFact)
+        const nextYamlPath = [...yamlPath, ...fact.yamlPath.slice(sourceYamlPath.length)]
+        if (kind === "item") parent.acceptItem({ ...fact, yamlPath: nextYamlPath })
+        else if (kind === "property") parent.acceptProperty({ ...fact, yamlPath: nextYamlPath })
+        else parent.completeValue({ ...fact, yamlPath: nextYamlPath })
       }
     },
   }

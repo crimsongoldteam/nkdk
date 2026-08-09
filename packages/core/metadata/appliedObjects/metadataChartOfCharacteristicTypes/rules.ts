@@ -23,7 +23,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
+import { commonBasedOnObjectPaths } from "../../orchestration/metadataTarget"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -473,7 +473,11 @@ export const MetadataChartOfCharacteristicTypesRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    predefined: predefinedRule({
+      yaml: "Предопределенные",
+      ownerFactRole: "predefined",
+      filePath: "Ext/Predefined.xml",
+    }),
     additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
       filePath: "Ext/AdditionalIndexes.xml",

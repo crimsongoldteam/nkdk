@@ -1,6 +1,6 @@
-import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../../commonObjects/metadataTargets"
+import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../metadataTarget"
 import type { ConfigurationContext } from "../../context/types"
-import type { MetadataTargetConstraint, MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
@@ -10,22 +10,30 @@ export function metadataTargetOwnerFromRule(params: {
   context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
   const frames = metadataTargetOwnerFrames(params.context)
-  const currentFrame = frames.at(-1)
+  return metadataTargetOwnerFromFrames({ ...params, frames })
+}
+
+export function metadataTargetOwnerFromFrames(params: {
+  itemRule: MetadataItemRule
+  name: string | undefined
+  frames: readonly MetadataTargetOwnerFrame[]
+  context?: ConfigurationContext
+}): MetadataTargetOwner | undefined {
+  const currentFrame = params.frames.at(-1)
   if (currentFrame?.itemType === params.itemRule.itemType && currentFrame.name === params.name) {
     return currentFrame.owner
   }
   const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType)
   if (resolver) {
-    const resolved = resolver({ itemRule: params.itemRule, name: params.name, frames, context: params.context })
+    const resolved = resolver(params)
     if (resolved) return resolved
   }
 
   const declaration = params.itemRule.metadataTargetOwner
-  if (declaration?.kind === "inherit") return lastResolvedOwner(frames)
+  if (declaration?.kind === "inherit") return lastResolvedOwner(params.frames)
   if (declaration?.kind === "self") {
     return params.name ? { root: declaration.root, objectName: params.name } : undefined
   }
-
   return undefined
 }
 

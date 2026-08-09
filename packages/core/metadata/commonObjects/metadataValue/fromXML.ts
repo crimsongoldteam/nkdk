@@ -2,12 +2,13 @@ import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "../../orchestration/property/fn"
 import { ConfigurationContextFromXML } from "../../context/types"
-import { importFixedArrayFromXML } from "./fixedArray/fromXML"
-import { importFormChoiceListFromXML } from "./formChoiceList/fromXML"
 import { primitiveValueHandlers } from "./handlers"
 import { importStandardPeriodFromXML } from "../standardPeriod/fromXML"
 import { StandardPeriodXML } from "../standardPeriod/types"
+import { importI8nTextFromXML } from "../i8nText/fromXML"
 import {
+  MetadataFixedArrayValue,
+  MetadataFixedArrayValueXML,
   MetadataFormChoiceListValue,
   MetadataFormChoiceListValueXML,
   MetadataPrimitiveValueType,
@@ -91,6 +92,38 @@ export const importMetadataValueFromXML = (params: {
   const textValue = data["#text"] as string | boolean | number | undefined
   const handler = primitiveValueHandlers[resultedType as MetadataPrimitiveValueType]
   return handler.fromXML(context, textValue)
+}
+
+export const importFixedArrayFromXML = (
+  context: ConfigurationContextFromXML,
+  data: MetadataFixedArrayValueXML | { "v8:Value": unknown | unknown[] }
+): MetadataFixedArrayValue => {
+  const raw = data["v8:Value"]
+  const values = Array.isArray(raw) ? raw : [raw]
+  return {
+    type: "fixedArray",
+    value: values.map((value) =>
+      typeof value === "object" &&
+      value !== null &&
+      "_xsi:nil" in value &&
+      value["_xsi:nil"] === true
+        ? undefined
+        : importMetadataValueFromXML({ context, rule: undefined, value })!
+    ),
+  }
+}
+
+export const importFormChoiceListFromXML = (
+  context: ConfigurationContextFromXML,
+  data: MetadataFormChoiceListValueXML
+): MetadataFormChoiceListValue | undefined => {
+  if (!data) return undefined
+  const value = importMetadataValueFromXML({ context, rule: undefined, value: data.Value })
+  const presentation = importI8nTextFromXML(context, { type: "I8nText" }, data.Presentation)
+  const result: MetadataFormChoiceListValue = { type: "formChoiceListDesTimeValue" }
+  if (value !== undefined) result.value = value
+  if (presentation !== undefined) result.presentation = presentation
+  return result
 }
 
 export const importMetadataValuesFromXML = (

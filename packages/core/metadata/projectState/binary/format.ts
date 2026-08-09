@@ -1,6 +1,6 @@
 import { ProjectStateHeaderRecordView, ProjectStateSectionRecordView } from "./layouts"
 
-export const PROJECT_STATE_FORMAT_VERSION = Object.freeze({ major: 0, minor: 4, patch: 2 })
+export const PROJECT_STATE_FORMAT_VERSION = Object.freeze({ major: 0, minor: 5, patch: 0 })
 
 export type ProjectStateSectionKind =
   | "strings"

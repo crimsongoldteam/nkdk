@@ -181,7 +181,7 @@ function selectFiles(sources: readonly Source[], deletions: ReadonlySet<string>)
 
 function markReachableRows(source: Source): void {
   const roots: readonly ProjectStateFactTableKind[] = [
-    "validationStatus", "references", "pendingReferences", "owners", "fields",
+    "validationStatus", "targets", "pendingReferences", "owners", "fields",
     "forms", "formColumns", "pendingChecks", "dependencies",
   ]
   for (const kind of roots) {
@@ -211,7 +211,7 @@ function markRow(source: Source, kind: ProjectStateFactTableKind, id: number): v
       markDiagnostics(source, row.diagnosticsStart, row.diagnosticsCount)
       markDiagnostics(source, row.schemaDiagnosticsStart, row.schemaDiagnosticsCount)
       break
-    case "references": mark("referenceDetails", row.detailsId); break
+    case "targets": mark("referenceDetails", row.detailsId); break
     case "referenceDetails": mark("typeInfo", row.typeInfoId); break
     case "pendingReferences": mark("yamlPaths", row.yamlPathId); break
     case "owners": markRange("ownerFacts", row.factsStart, row.factsCount); break
@@ -328,7 +328,11 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
       row.schemaDiagnosticsStart = row.schemaDiagnosticsCount > 0
         ? source.diagnosticMap[original.schemaDiagnosticsStart] : 0
       break
-    case "references": file(); string("canonicalId"); ref("detailsId", "referenceDetails"); break
+    case "targets":
+      file()
+      string("canonicalId", "itemProjectPathId", "ownerProjectPathId")
+      ref("detailsId", "referenceDetails")
+      break
     case "referenceDetails": ref("typeInfoId", "typeInfo"); string("sourceTextId"); break
     case "pendingReferences": file(); ref("yamlPathId", "yamlPaths"); string("canonicalId", "targetKindId", "targetRootId", "targetNameId", "targetMemberId", "constraintKindId"); break
     case "owners": file(); string("kindId", "nameId"); range("factsStart", "factsCount", "ownerFacts"); break
@@ -425,9 +429,11 @@ function packLookups(
   const targetEntries: ProjectStateTargetEntryRecord[] = []
   const ownerEntries: ProjectStateOwnerEntryRecord[] = []
   for (const source of sources) {
-    forMarked(source, "references", (row) => targetEntries.push({
+    forMarked(source, "targets", (row) => targetEntries.push({
       componentPathId: source.stringMap[source.fileRecord(row.sourceFileId).componentPathId],
       canonicalId: source.stringMap[row.canonicalId], sourceFileId: source.fileMap[row.sourceFileId],
+      itemProjectPathId: row.itemProjectPathId === NONE ? NONE : source.stringMap[row.itemProjectPathId],
+      ownerProjectPathId: row.ownerProjectPathId === NONE ? NONE : source.stringMap[row.ownerProjectPathId],
       kind: row.kind, reserved8: 0, reserved16: 0,
     }))
     forMarked(source, "owners", (row, id) => {
@@ -452,6 +458,7 @@ function forMarked(
 function compareTarget(left: ProjectStateTargetEntryRecord, right: ProjectStateTargetEntryRecord, strings: ReturnType<BinaryStringPoolBuilder["finish"]>): number {
   return readBinaryString(strings, left.componentPathId).localeCompare(readBinaryString(strings, right.componentPathId)) ||
     readBinaryString(strings, left.canonicalId).localeCompare(readBinaryString(strings, right.canonicalId)) ||
+    left.itemProjectPathId - right.itemProjectPathId || left.ownerProjectPathId - right.ownerProjectPathId ||
     left.sourceFileId - right.sourceFileId || left.kind - right.kind
 }
 

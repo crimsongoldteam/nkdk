@@ -1,6 +1,7 @@
 import type { ProjectStateReadToken } from "../metadata/projectState/contracts"
 import { openBinaryProjectStateReadSession } from "../metadata/projectState/binary/readSession"
 import { ProjectStateSnapshotView } from "../metadata/projectState/binary/snapshot"
+import { createProjectStateDependencyValidator } from "../metadata/validation/projectStateDependencyValidation"
 
 export interface BinaryProjectStateLookupTask {
   readonly readToken: ProjectStateReadToken
@@ -24,7 +25,7 @@ export default function measureBinaryProjectStateLookups(
   if (snapshot.targetRangeCount === 0 && task.totalLookups > 0) {
     throw new Error("Двоичное состояние проекта не содержит целей для измерения")
   }
-  const session = openBinaryProjectStateReadSession(task.readToken)
+  const session = openBinaryProjectStateReadSession(task.readToken, createProjectStateDependencyValidator())
   const presentLookups = Math.floor(task.totalLookups * 0.9)
   let found = 0
   let missing = 0

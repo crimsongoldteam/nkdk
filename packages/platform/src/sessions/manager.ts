@@ -4,23 +4,15 @@ import { PlatformSessionError } from "./errors"
 import { createNodePlatformSessionManagerDependencies } from "./nodeRuntime"
 import { platformFailure, type PlatformOperationLog } from "./operationLog"
 import type {
-  CreatePlatformSessionParams,
   NormalizedPlatformConnectionSettings,
   PlatformSession,
   PlatformSessionManager,
   PlatformSessionMode,
 } from "./types"
 import type { PlatformInstallation } from "../platform/findPlatform"
+import type { PlatformSessionManagerDependencies } from "./contracts"
 
-export interface PlatformSessionManagerDependencies {
-  canonicalizeProjectDir(projectDir: string): Promise<string>
-  findPlatform(): Promise<PlatformInstallation | undefined>
-  createDesignerSession(params: CreatePlatformSessionParams): Promise<PlatformSession>
-  createStandaloneSession(params: CreatePlatformSessionParams): Promise<PlatformSession>
-  setTimer(callback: () => void, timeoutMs: number): unknown
-  clearTimer(timer: unknown): void
-  createOperationLog(params: { path: string; secrets: readonly string[] }): Promise<PlatformOperationLog>
-}
+export type { PlatformSessionManagerDependencies } from "./contracts"
 
 type SessionFingerprint = {
   connectionString: string

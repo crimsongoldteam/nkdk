@@ -3,6 +3,7 @@ import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import type { StructuralReferenceCandidate } from "../orchestration/property/fn"
 import { getTypeRule, registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
 it.each([
@@ -47,6 +48,7 @@ it.each([
       rule,
       yaml: parsed.data,
       context: { version: "2.20", defaultLanguage: "ru" },
+      runtime: createPropertyStructuralReferenceRuntime(),
     })).toThrow(message)
   } finally {
     registerTypeRule("string", "structuralReferences", originalStructural)

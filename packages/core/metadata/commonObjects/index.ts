@@ -140,7 +140,6 @@ import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
-import "./childFormNames/syncExternalFromXML"
 import "./childFormNames/resourceTopology"
 
 import "./childFileItemNames/fromXML"
@@ -320,10 +319,16 @@ import "./help/fromXML"
 import "./help/toXML"
 
 import "./module/fromXML"
+import {
+  registerFillValueImport,
+  registerFillValueValidation,
+} from "./fillValue/register"
 
 let commonObjectsRegistered = false
 
 export function registerCommonObjects(): void {
   if (commonObjectsRegistered) return
   commonObjectsRegistered = true
+  registerFillValueImport()
+  registerFillValueValidation()
 }

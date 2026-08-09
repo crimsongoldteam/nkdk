@@ -9,13 +9,14 @@ import type {
   ProjectStateImportIndexContribution,
 } from "../importSession"
 import { assertProjectStateImportFinalFileStateBatch } from "../importSession"
-import { assertProjectStatePortableData } from "../fileUpdateValidation"
+import {
+  assertProjectStateImportIndexContribution,
+  assertProjectStatePortableData,
+} from "../fileUpdateValidation"
 import { BinaryStringPoolBuilder, openBinaryStringPool, packBinaryStringPool, readBinaryString } from "./stringPool"
 import { decodeBinaryValue, encodeBinaryValue } from "./valueCodec"
-
-export interface ProjectStateEncodedFileUpdateBatch {
-  readonly bytes: Uint8Array<ArrayBuffer>
-}
+import type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
+export type { ProjectStateEncodedFileUpdateBatch } from "../contracts/fileUpdate"
 
 export interface ProjectStateEncodedImportIndexBatch {
   readonly bytes: Uint8Array<ArrayBuffer>
@@ -40,7 +41,7 @@ export interface ProjectStateFileUpdateBatchView {
   readonly fileCount: number
   projectPath(index: number): string
   hash(index: number): bigint
-  references(index: number): Extract<ProjectStateFileUpdate, { kind: "yaml" }>["references"]
+  targets(index: number): ProjectStateFileUpdate["targets"]
   update(index: number): ProjectStateFileUpdate
 }
 
@@ -56,6 +57,9 @@ export function encodeProjectStateImportIndexBatch(
   contributions: readonly ProjectStateImportIndexContribution[],
 ): ProjectStateEncodedImportIndexBatch {
   assertProjectStatePortableData(contributions, "contributions")
+  contributions.forEach((contribution, index) =>
+    assertProjectStateImportIndexContribution(contribution, `contributions[${index}]`)
+  )
   return encodeImportBatch(IMPORT_INDEX_MAGIC, contributions)
 }
 
@@ -268,9 +272,9 @@ export function openProjectStateFileUpdateBatch(
     hash(index) {
       return readRecordChecked(index).hash
     },
-    references(index) {
+    targets(index) {
       const update = decodeUpdate(index)
-      return update.kind === "yaml" ? update.references : []
+      return update.targets
     },
     update: decodeUpdate,
   }

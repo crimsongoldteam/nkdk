@@ -100,6 +100,75 @@ describe("metadata resource topology path patterns", () => {
 })
 
 describe("compileMetadataResourceTopology", () => {
+  it.each([
+    {
+      name: "параметр имени отсутствует в пути ресурса",
+      declaration: { itemNameParameter: "missing" },
+      message: "параметр имени",
+    },
+    {
+      name: "шаблон каталога требует недоступный параметр",
+      declaration: { itemProjectPattern: "Объект/{ownerName}/Макеты/{unknown}" },
+      message: "параметр пути",
+    },
+  ])("отклоняет файловую цель: $name", ({ declaration, message }) => {
+    const ownerRule = rule("Owner", { kind: "self", root: "Document" })
+    const target = {
+      kind: "member" as const,
+      memberKind: "Template" as const,
+      itemNameParameter: "itemName",
+      itemProjectPattern: "Объект/{ownerName}/Макеты/{itemName}",
+      owner: "assignment" as const,
+      ...declaration,
+    }
+
+    expect(() => compileMetadataResourceTopology([
+      spec("Объект", ownerRule, [
+        content("Объект/{ownerName}/Свойства.yaml", ownerRule),
+        external("Объект/{ownerName}/Свойства.yaml", "Объект/{ownerName}/Макеты/{itemName}/Template.xml", target),
+      ]),
+    ])).toThrow(message)
+  })
+
+  it("отклоняет assignmentOwner без владельца assignment", () => {
+    const formRule = rule("Form", { kind: "self", root: "CommonForm" })
+    const declaration = content("Формы/{itemName}/Форма.yaml", formRule) as Extract<
+      MetadataResourceDeclaration,
+      { kind: "content" }
+    >
+
+    expect(() => compileMetadataResourceTopology([
+      spec("", formRule, [{
+        ...declaration,
+        fileBackedTarget: {
+          kind: "member",
+          memberKind: "Form",
+          itemNameParameter: "itemName",
+          itemProjectPattern: "Формы/{itemName}",
+          owner: "assignmentOwner",
+        },
+      }]),
+    ])).toThrow("не имеет владельца")
+  })
+
+  it("отклоняет владельца без декларации metadataTargetOwner", () => {
+    const ownerRule = rule("Owner")
+    const target = {
+      kind: "member" as const,
+      memberKind: "Template" as const,
+      itemNameParameter: "itemName",
+      itemProjectPattern: "Объект/{ownerName}/Макеты/{itemName}",
+      owner: "assignment" as const,
+    }
+
+    expect(() => compileMetadataResourceTopology([
+      spec("Объект", ownerRule, [
+        content("Объект/{ownerName}/Свойства.yaml", ownerRule),
+        external("Объект/{ownerName}/Свойства.yaml", "Объект/{ownerName}/Макеты/{itemName}/Template.xml", target),
+      ]),
+    ])).toThrow("не имеет metadataTargetOwner")
+  })
+
   it("groups multiple XML documents around one content file", () => {
     const ownerRule = rule("Owner")
     const topology = compileMetadataResourceTopology([
@@ -245,8 +314,26 @@ function spec(
   }
 }
 
-function rule(itemType: string): MetadataItemRule {
-  return { itemType, properties: {} } as MetadataItemRule
+function rule(itemType: string, metadataTargetOwner?: MetadataItemRule["metadataTargetOwner"]): MetadataItemRule {
+  return { itemType, properties: {}, metadataTargetOwner } as MetadataItemRule
+}
+
+function external(
+  assignmentProjectPattern: string,
+  projectPattern: string,
+  fileBackedTarget: NonNullable<Extract<MetadataResourceDeclaration, { kind: "externalFile" }>["fileBackedTarget"]>
+): MetadataResourceDeclaration {
+  return {
+    kind: "externalFile",
+    assignmentProjectPattern,
+    projectPattern,
+    xmlPattern: "Objects/{ownerName}/Templates/{itemName}.xml",
+    direction: "both",
+    transferCapabilityId: "copy",
+    compositionImpact: "none",
+    fileBackedTarget,
+    source: source("external"),
+  }
 }
 
 function content(

@@ -1,11 +1,8 @@
 import { xxh3 } from "@node-rs/xxhash"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
-import type { ProjectStateFileUpdate, ProjectStateYamlFileUpdate } from "../fileUpdate"
 import type {
-  ProjectStateImportFinalFileStateBatch,
-  ProjectStateImportIndexContribution,
-} from "../importSession"
+  MetadataTargetConstraint,
+  ParsedMetadataTarget,
+} from "../../orchestration/metadataTarget/types"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {
@@ -92,7 +89,194 @@ const STRING_LIST_OWNER_FACT_ROLES = new Set([
 const NAMED_ITEMS_OWNER_FACT_ROLES = new Set([
   "accountingFlags", "extDimensionAccountingFlags", "attributes", "dimensions", "resources",
   "addressingAttributes", "standardAttributes", "commands",
+  "predefined", "enumValues",
 ])
+
+interface ProjectStateTypeDescription {
+  readonly type: readonly string[]
+  readonly typeId?: readonly string[]
+  readonly stringQualifiers?: {
+    readonly length: number
+    readonly allowedLength: "Variable" | "Fixed"
+  }
+  readonly numberQualifiers?: {
+    readonly digits: number
+    readonly fractionDigits: number
+    readonly allowedSign: "Any" | "Nonnegative"
+  }
+  readonly dateQualifiers?: {
+    readonly dateFractions?: "Date" | "Time" | "DateTime"
+  }
+}
+
+interface OwnerTypeRef {
+  readonly kind: string
+  readonly name?: string
+}
+
+type DataPathTableInfo =
+  | { readonly kind: "ValueTable" | "ValueTree" | "ValueList" | "GanttChart" | "DynamicList" }
+  | { readonly kind: "RegisterRecordSet"; readonly owner: OwnerTypeRef }
+  | { readonly kind: "TabularSection"; readonly owner: OwnerTypeRef; readonly name: string }
+
+interface DataPathTypeInfo {
+  readonly kinds: readonly string[]
+  readonly nextTypes: readonly OwnerTypeRef[]
+  readonly definedTypes?: readonly string[]
+  readonly table?: DataPathTableInfo
+  readonly isComposite?: boolean
+  readonly sourceText?: string
+}
+
+interface ProjectStateFileIdentity {
+  readonly projectPath: string
+  readonly componentPath: string
+  readonly resourceKind: "yaml" | "resource"
+  readonly yamlRole?: "configuration" | "properties" | "form"
+}
+
+interface ProjectStateDiagnostic {
+  readonly line: number
+  readonly col: number
+  readonly message: string
+  readonly path?: string
+  readonly severity: "error" | "warning"
+  readonly source: "syntax" | "structure" | "external-file" | "cross-file" | "reference"
+}
+
+interface ProjectStateLocalValidation {
+  readonly contributedFacts: boolean
+  readonly diagnostics: readonly ProjectStateDiagnostic[]
+  readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
+}
+
+interface ProjectStateReferenceEntry {
+  readonly kind: "object" | "member" | "value"
+  readonly canonical: string
+  readonly details?: {
+    readonly typeInfo?: Pick<DataPathTypeInfo, "kinds" | "definedTypes" | "sourceText">
+    readonly kind?: "attribute" | "standardAttribute"
+    readonly styleItemType?: "Color" | "Font" | "Border"
+  }
+  readonly fileBacked?: {
+    readonly itemProjectPath: string
+    readonly ownerProjectPath: string
+  }
+}
+
+interface ProjectStateOwnerFact {
+  readonly owner: OwnerTypeRef
+  readonly facts: Readonly<Record<string, unknown>>
+}
+
+interface ProjectStateFieldEntry {
+  readonly owner: OwnerTypeRef
+  readonly name: string
+  readonly kind: "attribute" | "standardAttribute" | "tabularSection" | "dimension" | "resource" | "addressingAttribute"
+  readonly typeInfo: DataPathTypeInfo
+  readonly targetName?: string
+  readonly sourceCollection?: string
+  readonly parentName?: string
+  readonly table?: DataPathTableInfo
+  readonly tableHasColumns?: boolean
+}
+
+type ProjectStateFormEntry =
+  | {
+      readonly kind: "root"
+      readonly owner: OwnerTypeRef
+      readonly name: string
+      readonly source: {
+        readonly typeInfo: DataPathTypeInfo
+        readonly table?: DataPathTableInfo
+        readonly tableHasColumns?: boolean
+      }
+    }
+  | {
+      readonly kind: "additionalColumn"
+      readonly owner: OwnerTypeRef
+      readonly tablePath: string
+      readonly name: string
+      readonly source: {
+        readonly typeInfo: DataPathTypeInfo
+        readonly table?: DataPathTableInfo
+        readonly tableHasColumns?: boolean
+      }
+    }
+  | {
+      readonly kind: "tableDataPath"
+      readonly owner: OwnerTypeRef
+      readonly name: string
+      readonly dataPath: string
+    }
+
+interface ProjectStatePendingReference {
+  readonly yamlPath: readonly (string | number)[]
+  readonly canonical: string
+  readonly target: ParsedMetadataTarget
+  readonly constraint: MetadataTargetConstraint
+}
+
+interface ProjectStatePendingCheck {
+  readonly yamlPath: readonly (string | number)[]
+  readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+  readonly owner: OwnerTypeRef
+  readonly value: string
+  readonly policyInput: {
+    readonly yaml: string
+    readonly allowedKinds?: readonly string[]
+    readonly allowComposite?: boolean
+  }
+  readonly elementType?: string
+  readonly hasValuesPicture?: boolean
+  readonly tableContext?: { readonly dataPath: string }
+}
+
+interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
+  readonly kind: "yaml"
+  readonly localValidation: ProjectStateLocalValidation
+  readonly targets: readonly ProjectStateReferenceEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+  readonly pendingReferences: readonly ProjectStatePendingReference[]
+  readonly pendingChecks: readonly ProjectStatePendingCheck[]
+  readonly dependencies: readonly string[]
+}
+
+type ProjectStateFileUpdate =
+  | (ProjectStateFileIdentity & { readonly kind: "resource"; readonly targets: readonly ProjectStateReferenceEntry[] })
+  | ProjectStateYamlFileUpdate
+
+interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
+  readonly resourceKind: "yaml"
+  readonly yamlRole: "configuration" | "properties" | "form"
+  readonly targets: readonly ProjectStateReferenceEntry[]
+  readonly owners: readonly ProjectStateOwnerFact[]
+  readonly fields: readonly ProjectStateFieldEntry[]
+  readonly forms: readonly ProjectStateFormEntry[]
+}
+
+type ProjectStateImportFinalFileState =
+  | (ProjectStateFileIdentity & {
+      readonly kind: "resource"
+      readonly resourceKind: "resource"
+      readonly targets: readonly ProjectStateReferenceEntry[]
+    })
+  | (ProjectStateFileIdentity & {
+      readonly kind: "yaml"
+      readonly resourceKind: "yaml"
+      readonly yamlRole: "configuration" | "properties" | "form"
+      readonly localValidation: ProjectStateLocalValidation
+      readonly pendingReferences: readonly ProjectStatePendingReference[]
+      readonly pendingChecks: readonly ProjectStatePendingCheck[]
+      readonly dependencies: readonly string[]
+    })
+
+interface ProjectStateImportFinalFileStateBatch {
+  readonly updates: readonly ProjectStateImportFinalFileState[]
+  readonly hashBytes: Uint8Array
+}
 
 export function createProjectStateFragmentWriter(options: {
   readonly hashString?: (bytes: Uint8Array) => bigint
@@ -112,7 +296,9 @@ export function createProjectStateFragmentWriter(options: {
     },
     appendImportIndex(update) {
       assertOpen()
-      appendIndexFacts(update, appendYamlIdentity(update, 0n))
+      const fileId = appendYamlIdentity(update, 0n)
+      appendTargetFacts(update.targets, fileId)
+      appendIndexFacts(update, fileId)
     },
     appendImportFinal(batch) {
       assertOpen()
@@ -126,7 +312,10 @@ export function createProjectStateFragmentWriter(options: {
           const fileId = appendYamlIdentity(update, hash)
           appendValidation(update, fileId)
           appendFinalFacts(update, fileId)
-        } else appendFileIdentity(update, hash)
+        } else {
+          const fileId = appendFileIdentity(update, hash)
+          appendTargetFacts(update.targets, fileId)
+        }
       })
     },
     finish() {
@@ -162,6 +351,7 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendCompleteFile(update: ProjectStateFileUpdate, hash: bigint): void {
     const fileId = appendFileIdentity(update, hash)
+    appendTargetFacts(update.targets, fileId)
     if (update.kind !== "yaml") return
     appendValidation(update, fileId)
     appendIndexFacts(update, fileId)
@@ -239,35 +429,9 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendIndexFacts(
-    update: Pick<ProjectStateImportIndexContribution, "references" | "owners" | "fields" | "forms">,
+    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms">,
     fileId: number,
   ): void {
-    for (const reference of update.references) {
-      const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
-      if (reference.details !== undefined) {
-        rows.referenceDetails.push({
-          typeInfoId: reference.details.typeInfo === undefined ? NONE : appendTypeInfo({
-            kinds: reference.details.typeInfo.kinds,
-            nextTypes: [],
-            definedTypes: reference.details.typeInfo.definedTypes,
-            sourceText: reference.details.typeInfo.sourceText,
-          }),
-          sourceTextId: optionalString(reference.details.typeInfo?.sourceText),
-          kind: reference.details.kind === "attribute" ? 1 : reference.details.kind === "standardAttribute" ? 2 : 0,
-          styleItemType: reference.details.styleItemType === "Color" ? 1 : reference.details.styleItemType === "Font" ? 2
-            : reference.details.styleItemType === "Border" ? 3 : 0,
-          reserved: 0,
-        })
-      }
-      rows.references.push({
-        sourceFileId: fileId,
-        canonicalId: strings.intern(reference.canonical),
-        detailsId,
-        kind: REFERENCE_KIND_IDS[reference.kind],
-        reserved8: 0,
-        reserved16: 0,
-      })
-    }
     for (const entry of update.owners) {
       const ownerId = appendOwnerType(entry.owner)
       const factsStart = rows.ownerFacts.length
@@ -295,7 +459,42 @@ export function createProjectStateFragmentWriter(options: {
         reserved: 0,
       })
     }
-    for (const form of update.forms) {
+    appendForms(update.forms, fileId)
+  }
+
+  function appendTargetFacts(targets: ProjectStateFileUpdate["targets"], fileId: number): void {
+    for (const reference of targets) {
+      const detailsId = reference.details === undefined ? NONE : rows.referenceDetails.length
+      if (reference.details !== undefined) {
+        rows.referenceDetails.push({
+          typeInfoId: reference.details.typeInfo === undefined ? NONE : appendTypeInfo({
+            kinds: reference.details.typeInfo.kinds,
+            nextTypes: [],
+            definedTypes: reference.details.typeInfo.definedTypes,
+            sourceText: reference.details.typeInfo.sourceText,
+          }),
+          sourceTextId: optionalString(reference.details.typeInfo?.sourceText),
+          kind: reference.details.kind === "attribute" ? 1 : reference.details.kind === "standardAttribute" ? 2 : 0,
+          styleItemType: reference.details.styleItemType === "Color" ? 1 : reference.details.styleItemType === "Font" ? 2
+            : reference.details.styleItemType === "Border" ? 3 : 0,
+          reserved: 0,
+        })
+      }
+      rows.targets.push({
+        sourceFileId: fileId,
+        canonicalId: strings.intern(reference.canonical),
+        detailsId,
+        itemProjectPathId: optionalString(reference.fileBacked?.itemProjectPath),
+        ownerProjectPathId: optionalString(reference.fileBacked?.ownerProjectPath),
+        kind: REFERENCE_KIND_IDS[reference.kind],
+        reserved8: 0,
+        reserved16: 0,
+      })
+    }
+  }
+
+  function appendForms(forms: ProjectStateImportIndexContribution["forms"], fileId: number): void {
+    for (const form of forms) {
       if (form.kind === "tableDataPath") {
         rows.formColumns.push({
           sourceFileId: fileId,
@@ -426,7 +625,7 @@ export function createProjectStateFragmentWriter(options: {
   function appendOwnerFactItem(
     ownerFactId: number,
     parentItemId: number,
-    item: { readonly name: string; readonly type?: TypeDescription },
+    item: { readonly name: string; readonly type?: ProjectStateTypeDescription },
     kind: number,
   ): number {
     const id = rows.ownerFactItems.length
@@ -442,7 +641,7 @@ export function createProjectStateFragmentWriter(options: {
     return id
   }
 
-  function appendTypeDescription(type: TypeDescription): number {
+  function appendTypeDescription(type: ProjectStateTypeDescription): number {
     const typesStart = rows.typeDescriptionValues.length
     type.type.forEach((value) => rows.typeDescriptionValues.push({ valueId: strings.intern(value) }))
     const typeIdsStart = rows.typeDescriptionValues.length
@@ -672,7 +871,7 @@ class LocalStringTable {
 
 function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]> {
   return {
-    validationStatus: [], references: [], referenceDetails: [], pendingReferences: [],
+    validationStatus: [], targets: [], referenceDetails: [], pendingReferences: [],
     owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
     ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
     allowedKinds: [], dependencies: [], yamlPaths: [], yamlPathSegments: [],
@@ -793,11 +992,11 @@ function booleanFlag(value: boolean | undefined): number {
   return value === undefined ? 0 : value ? 1 : 2
 }
 
-function isTypeDescription(value: unknown): value is TypeDescription {
+function isTypeDescription(value: unknown): value is ProjectStateTypeDescription {
   return typeof value === "object" && value !== null && Array.isArray((value as { type?: unknown }).type)
 }
 
-function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?: TypeDescription }> {
+function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?: ProjectStateTypeDescription }> {
   return Array.isArray(value) && value.every((item) => {
     if (typeof item !== "object" || item === null) return false
     const record = item as Record<string, unknown>
@@ -808,8 +1007,8 @@ function isNamedTypeItems(value: unknown): value is Array<{ name: string; type?:
 
 function isTabularSections(value: unknown): value is Array<{
   name: string
-  attributes: Array<{ name: string; type?: TypeDescription }>
-  standardAttributes?: Array<{ name: string; type?: TypeDescription }>
+  attributes: Array<{ name: string; type?: ProjectStateTypeDescription }>
+  standardAttributes?: Array<{ name: string; type?: ProjectStateTypeDescription }>
 }> {
   return Array.isArray(value) && value.every((item) => {
     if (typeof item !== "object" || item === null) return false

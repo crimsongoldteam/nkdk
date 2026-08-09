@@ -1,12 +1,12 @@
-import { isMetadataRootName } from "../../commonObjects/metadataTargets/roots"
+import { isMetadataRootName } from "../../orchestration/metadataTarget/roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
   MetadataRootName,
   ParsedMetadataTarget,
-} from "../../commonObjects/metadataTargets/types"
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../validation/dataPath/types"
+} from "../../orchestration/metadataTarget/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
+import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../orchestration/dataPath/types"
 import type {
   ProjectStateFileIdentity,
   ProjectStateFileUpdate,
@@ -16,7 +16,7 @@ import type {
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import { decodeMetadataTargetConstraint } from "./constraintCodec"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../validation/types"
+import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
 import { PROJECT_STATE_FACT_RECORD_VIEWS, PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
 import {
   ProjectStateDiagnosticRecordView,
@@ -44,12 +44,12 @@ function targetPairs(parts: readonly string[]): readonly (readonly [string, stri
 const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 export interface TypedProjectStateReader {
-  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "references" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"> | undefined
+  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"> | undefined
   referenceDetails(
     fileId: number,
-    kind: ProjectStateYamlFileUpdate["references"][number]["kind"],
+    kind: ProjectStateYamlFileUpdate["targets"][number]["kind"],
     canonical: string,
-  ): ProjectStateYamlFileUpdate["references"][number]["details"]
+  ): ProjectStateYamlFileUpdate["targets"][number]["details"]
   owners(fileId: number): ProjectStateYamlFileUpdate["owners"]
   fields(fileId: number): ProjectStateYamlFileUpdate["fields"]
   forms(fileId: number): ProjectStateYamlFileUpdate["forms"]
@@ -195,11 +195,11 @@ export function createTypedProjectStateReader(
       .map((segment) => segment.kind === 1 ? string(segment.stringId) : segment.numericValue)
   }
 
-  function typeDescription(id: number): TypeDescription {
+  function typeDescription(id: number): TypeDescriptionView {
     const value = row("typeDescriptions", id)
     const typeId = stringValues("typeDescriptionValues", value.typeIdsStart, value.typeIdsCount)
     return {
-      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount) as TypeDescription["type"],
+      type: stringValues("typeDescriptionValues", value.typesStart, value.typesCount),
       ...(typeId.length === 0 ? {} : { typeId }),
       ...(value.stringLength === NONE ? {} : { stringQualifiers: {
         length: value.stringLength,
@@ -310,7 +310,7 @@ export function createTypedProjectStateReader(
     if (yamlCache.has(fileId)) return yamlCache.get(fileId)
     if (snapshot.fileRecord(fileId).updateKind !== 1) return undefined
     const result: NonNullable<ReturnType<TypedProjectStateReader["yamlFacts"]>> = {
-      references: fileRows("references", fileId).map(reference),
+      targets: fileRows("targets", fileId).map(reference),
       pendingReferences: pendingReferences(fileId),
       owners: owners(fileId),
       fields: fields(fileId),
@@ -322,10 +322,22 @@ export function createTypedProjectStateReader(
     return result
   }
 
-  function reference(value: Record<string, number>): ProjectStateYamlFileUpdate["references"][number] {
+  function reference(value: Record<string, number>): ProjectStateYamlFileUpdate["targets"][number] {
     const kind = REFERENCE_KINDS[value.kind]
     if (kind === undefined) throw new Error(`Неизвестный вид ссылки: ${value.kind}`)
-    if (value.detailsId === NONE) return { kind, canonical: string(value.canonicalId) }
+    const fileBacked = value.itemProjectPathId === NONE || value.ownerProjectPathId === NONE
+      ? undefined
+      : {
+          itemProjectPath: string(value.itemProjectPathId),
+          ownerProjectPath: string(value.ownerProjectPathId),
+        }
+    if (value.detailsId === NONE) {
+      return {
+        kind,
+        canonical: string(value.canonicalId),
+        ...(fileBacked === undefined ? {} : { fileBacked }),
+      }
+    }
     const details = row("referenceDetails", value.detailsId)
     const decodedType = details.typeInfoId === NONE ? undefined : typeInfo(details.typeInfoId)
     const detailsKind = ([undefined, "attribute", "standardAttribute"] as const)[details.kind]
@@ -337,15 +349,15 @@ export function createTypedProjectStateReader(
         ...(decodedType.definedTypes === undefined ? {} : { definedTypes: decodedType.definedTypes }),
       } }),
       ...(styleItemType === undefined ? {} : { styleItemType }),
-    } }
+    }, ...(fileBacked === undefined ? {} : { fileBacked }) }
   }
 
   function referenceDetails(
     fileId: number,
-    kind: ProjectStateYamlFileUpdate["references"][number]["kind"],
+    kind: ProjectStateYamlFileUpdate["targets"][number]["kind"],
     canonical: string,
-  ): ProjectStateYamlFileUpdate["references"][number]["details"] {
-    const value = fileRows("references", fileId).find((candidate) =>
+  ): ProjectStateYamlFileUpdate["targets"][number]["details"] {
+    const value = fileRows("targets", fileId).find((candidate) =>
       REFERENCE_KINDS[candidate.kind] === kind && string(candidate.canonicalId) === canonical)
     return value === undefined ? undefined : reference(value).details
   }
@@ -458,7 +470,9 @@ export function createTypedProjectStateReader(
       resourceKind: record.resourceKind === 1 ? "yaml" : "resource",
       ...(yamlRole === undefined ? {} : { yamlRole }),
     }
-    if (record.updateKind === 2) return { ...identity, kind: "resource" }
+    if (record.updateKind === 2) {
+      return { ...identity, kind: "resource", targets: fileRows("targets", fileId).map(reference) }
+    }
     const facts = yamlFacts(fileId)
     const validation = localValidation(fileId)
     if (facts === undefined || validation === undefined || yamlRole === undefined) throw new Error("Неполное состояние YAML-файла")

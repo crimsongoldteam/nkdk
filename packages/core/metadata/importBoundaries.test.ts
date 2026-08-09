@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs"
+import { existsSync, readFileSync, readdirSync } from "fs"
 import { dirname, join, relative, resolve } from "path"
 import { beforeAll, describe, expect, it } from "vitest"
 import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnapshot"
@@ -309,14 +309,30 @@ describe("metadata import boundaries", () => {
     expect(existsSync(join(METADATA_DIR, "appliedObjects", "metadataTask", "standardMembers.ts"))).toBe(true)
   })
 
+  it("standardMembers registry is independent from DataPath", () => {
+    const declarations = readFileSync(join(METADATA_DIR, "standardMembers", "declarations.ts"), "utf-8")
+    expect(declarations).not.toContain("validation/dataPath")
+
+    const appliedFiles = readdirSync(join(METADATA_DIR, "appliedObjects"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(METADATA_DIR, "appliedObjects", entry.name, "standardMembers.ts"))
+      .filter(existsSync)
+
+    for (const file of appliedFiles) {
+      expect(readFileSync(file, "utf-8")).toContain('from "../../standardMembers/declarations"')
+    }
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
 
     expect(globalRegistry).not.toMatch(/^\s+I8nText: \{/m)
     expect(globalRegistry).not.toMatch(/^\s+I8nText: "I8nText",/m)
-    expect(localRegistry).toContain("interface PropertyTypeRegistry")
-    expect(localRegistry).toContain("I8nText: {")
+    expect(localRegistry).toContain("interface PropertyMetadataTypeMap")
+    expect(localRegistry).toContain("interface PropertyEnterpriseTypeMap")
+    expect(localRegistry).toContain("interface PropertyYAMLTypeMap")
+    expect(localRegistry).toContain("I8nText: I8nText")
   })
 
   it("orchestration property registry is no longer a concrete metadata type list", () => {

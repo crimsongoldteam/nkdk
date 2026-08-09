@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
-import { createFormDataPathIndexCollector, createFormDataPathIndexFromYAML } from "./formYamlIndex"
-import { collectFormTableDataPathsFromYAML } from "../../forms/clientApplicationForm/formTableDataPaths"
+import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
+import { createFormDataPathIndexCollector } from "./formYamlIndex"
+import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
   it("собирает пути табличных элементов при прямом обходе YAML по rules", () => {
@@ -23,30 +23,21 @@ describe("createFormDataPathIndexCollector", () => {
     )
   })
 
-  it("собирает путь к данным табличного элемента из rulePath", () => {
+  it("собирает путь к данным табличного элемента", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
-    collector.acceptProperty(
-      fact(
-        ["Элементы", "ТаблицаТоваров", "ПутьКДанным"],
-        "Объект.Товары",
-        [
-          { propertyKey: "childItems", nestedItemType: "Table" },
-          { propertyKey: "dataPath" },
-        ]
-      )
-    )
+    collector.acceptTableDataPath({ name: "ТаблицаТоваров", dataPath: "Объект.Товары" })
 
     expect(collector.finish().tableDataPathByElementName).toEqual(
       new Map([["ТаблицаТоваров", "Объект.Товары"]])
     )
   })
 
-  it("собирает реквизиты и колонки только из событий свойств", () => {
+  it("собирает объявленные реквизиты и колонки", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
 
-    collector.acceptProperty(fact(["Реквизиты", "Объект", "Тип"], "СправочникОбъект.Контрагенты"))
-    collector.acceptProperty(fact(["Реквизиты", "Таблица", "Тип"], "ТаблицаЗначений"))
-    collector.acceptProperty(fact(["Реквизиты", "Таблица", "Колонки", "Код", "Тип"], "Строка"))
+    collector.setAttributeType("Объект", { type: ["CatalogObject.Контрагенты"] })
+    collector.setAttributeType("Таблица", { type: ["ValueTable"] })
+    collector.setColumnType("Таблица", "Код", { type: ["string"] })
     const index = collector.finish()
 
     expect(index.getRoot("Объект")).toMatchObject({
@@ -59,27 +50,23 @@ describe("createFormDataPathIndexCollector", () => {
     })
   })
 
-  it("не сохраняет переданные составные YAML-объекты", () => {
+  it.each(["Дата", "Время", "ДатаВремя"])("сводит %s к виду dateTime", () => {
     const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
-    const value = { nested: { large: true } }
-    collector.acceptProperty(fact(["Реквизиты", "Список", "ДинамическийСписок"], value))
+    collector.setAttributeType("Период", { type: ["dateTime"] })
+
+    expect(collector.finish().getRoot("Период")?.typeInfo).toMatchObject({
+      kinds: ["dateTime"],
+      sourceText: "dateTime",
+    })
+  })
+
+  it("объявление после типа не заменяет уточнённый тип произвольным", () => {
+    const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
+    collector.setDynamicList("Список")
+    collector.declareAttribute("Список")
 
     const index = collector.finish()
-    value.nested.large = false
 
     expect(index.getRoot("Список")?.typeInfo).toMatchObject({ kinds: ["dynamicList", "tableSource"] })
   })
 })
-
-function fact(
-  yamlPath: readonly (string | number)[],
-  value: unknown,
-  rulePath: LocalYamlFact["rulePath"] = []
-): LocalYamlFact {
-  return {
-    yamlPath,
-    rulePath,
-    rule: { type: "TestFormYamlIndex" as never, yaml: String(yamlPath.at(-1)) },
-    value,
-  }
-}

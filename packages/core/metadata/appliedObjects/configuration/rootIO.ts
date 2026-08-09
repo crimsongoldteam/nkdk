@@ -9,6 +9,7 @@ import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fromYAMLToXML"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
@@ -16,8 +17,9 @@ import type {
 } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { CONFIGURATION_XML_FILE } from "./constants"
 
-export const CONFIGURATION_XML_FILE = "Configuration.xml"
+export { CONFIGURATION_XML_FILE } from "./constants"
 export { CONFIGURATION_YAML_FILE }
 
 type MetadataConfigurationXMLObject = {
@@ -56,6 +58,7 @@ export const prepareConfigurationXML = (params: {
   }
   const rootRule = params.rootRule ?? MetadataConfigurationRules
   const converted = convertMetadataItemFromYAMLToXML({
+    convertProperties: convertPropertiesFromYAMLToXML,
     context: params.context,
     yaml,
     rule: rootRule,

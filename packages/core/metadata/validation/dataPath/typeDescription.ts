@@ -1,9 +1,9 @@
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import {
   getOwnerKindByRegisterRecordSetBase,
   getOwnerKindByTypeDescriptionBase,
-  resolveRegisteredDataPathType,
-} from "./registry"
+} from "./ownerKindRegistry"
+import { resolveRegisteredDataPathType } from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./types"
 
 export interface TypeDescriptionToDataPathTypeInfoOptions {
@@ -13,7 +13,7 @@ export interface TypeDescriptionToDataPathTypeInfoOptions {
 const scalarTypes = new Set(["string", "decimal", "base64Binary", "date", "Null", "UUID"])
 
 export function typeDescriptionToDataPathTypeInfo(
-  typeDescription: TypeDescription | undefined,
+  typeDescription: TypeDescriptionView | undefined,
   _options: TypeDescriptionToDataPathTypeInfoOptions = {}
 ): DataPathTypeInfo {
   const types = typeDescription?.type
@@ -44,7 +44,7 @@ export function typeDescriptionToDataPathTypeInfo(
   }
 }
 
-function hasOnlyTypeId(typeDescription: TypeDescription | undefined): boolean {
+function hasOnlyTypeId(typeDescription: TypeDescriptionView | undefined): boolean {
   return (
     typeDescription !== undefined &&
     (!Array.isArray(typeDescription.type) || typeDescription.type.length === 0) &&

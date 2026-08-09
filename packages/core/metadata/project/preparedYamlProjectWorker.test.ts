@@ -6,7 +6,7 @@ import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { createTestValidationSchemaCache } from "../validation/testing/testValidationSchemaCache"
+import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
 import { hashFileBytes } from "../configurationIndex/hash"
 import {
   openProjectStateFileUpdateBatch,
@@ -124,6 +124,14 @@ describe("project-state refresh worker", () => {
   it("читает и хэширует изменённый resource внутри worker", async () => {
     const absolutePath = "/project/cf/Логотип.bin"
     const readCalls: string[] = []
+    const target = {
+      kind: "member" as const,
+      canonical: "Document.Заказ.Template.Печать",
+      fileBacked: {
+        itemProjectPath: "cf/Документ/Заказ/Шаблоны/Печать",
+        ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml",
+      },
+    }
 
     const result = await runPreparedYamlProjectWorkerTask({
       kind: "refreshProjectState",
@@ -135,6 +143,7 @@ describe("project-state refresh worker", () => {
         componentPath: "cf",
         identity: { projectPath: "cf/Логотип.bin", componentPath: "cf", resourceKind: "resource" },
         absolutePath,
+        targets: [target],
       }],
       knownHashBits: new Uint8Array(1),
       expectedHashBytes: new Uint8Array(8),
@@ -157,6 +166,7 @@ describe("project-state refresh worker", () => {
     const fragment = refresh.fragmentView
     expect(fragment.stringValue(fragment.fileRecord(0).projectPathId)).toBe("cf/Логотип.bin")
     expect(fragment.fileRecord(0).hash).toBe(0x0102030405060708n)
+    expect(fragment.tableRange("targets")?.records).toBe(1)
   })
 
   it("не классифицирует известный файл при совпадении хэша", async () => {
@@ -198,7 +208,7 @@ describe("project-state refresh worker", () => {
       yamlRole: "properties",
     }
     const bytes = new TextEncoder().encode("{}\n")
-    const classify = vi.fn(() => ({ identity, descriptor }))
+    const classify = vi.fn(() => ({ identity, descriptor, targets: [] }))
 
     const result = await runPreparedYamlProjectWorkerTask({
       kind: "refreshProjectState",
@@ -1136,7 +1146,7 @@ function successfulRefreshResult(
   const fragmentWriter = createProjectStateFragmentWriter()
   task.files.forEach(({ identity }) => {
     if (identity === undefined) throw new Error("test fake ожидает новый классифицированный файл")
-    fragmentWriter.appendFile({ ...identity, kind: "resource" }, 1n)
+    fragmentWriter.appendFile({ ...identity, kind: "resource", targets: [] }, 1n)
   })
   return createProjectStateRefreshBinaryResult({
     fragment: fragmentWriter.finish(),

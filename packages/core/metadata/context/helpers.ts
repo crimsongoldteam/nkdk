@@ -1,4 +1,4 @@
-import { MetadataItemType } from "../orchestration"
+import type { MetadataItemType } from "../orchestration/metadataItem/registry"
 import type { ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import {
   ConfigurationContext,

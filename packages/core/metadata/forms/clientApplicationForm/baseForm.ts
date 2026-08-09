@@ -7,7 +7,7 @@ import type {
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
 } from "./types"
-import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { MetadataItemRule } from "../../orchestration/property/types"
@@ -43,7 +43,7 @@ export function buildClientApplicationBaseForm(params: {
     params.context,
     projectedSource
   )
-  const converted = convertClientApplicationFormFromYAMLToXML({
+  const converted = convertClientApplicationFormYAMLToXMLCore({
     context,
     yaml: projected.yaml,
     dataPathYaml: projected.yaml,

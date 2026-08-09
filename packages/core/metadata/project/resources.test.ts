@@ -80,6 +80,29 @@ describe("metadata project resources", () => {
     })
   })
 
+  it("сохраняет проекцию файловой цели в общем описании ресурса", () => {
+    expect(classifyMetadataProjectPath(
+      "Документ/Заказ/Формы/Основная/Форма.yaml",
+    )?.fileBackedTargets).toEqual([{
+      kind: "member",
+      memberKind: "Form",
+      owner: { root: "Document", objectName: "Заказ" },
+      itemName: "Основная",
+      evidenceProjectPath: "Документ/Заказ/Формы/Основная/Форма.yaml",
+      itemProjectPath: "Документ/Заказ/Формы/Основная",
+      ownerProjectPath: "Документ/Заказ/Свойства.yaml",
+    }])
+    expect(classifyMetadataProjectPath(
+      "Документ/Заказ/Формы/Основная/Модуль.bsl",
+    )?.fileBackedTargets).toEqual([])
+    expect(classifyMetadataProjectPath(
+      "Документ/Заказ/Шаблоны/Печать/Template.xml",
+    )?.fileBackedTargets).toEqual([expect.objectContaining({
+      memberKind: "Template",
+      itemName: "Печать",
+    })])
+  })
+
   it("classifies virtual nested subsystem properties", () => {
     expect(
       classifyMetadataProjectPath(

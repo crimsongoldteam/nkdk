@@ -1,15 +1,13 @@
 import { performance } from "node:perf_hooks"
 import type { ProjectStateReadToken } from "./contracts"
 import type {
-  ProjectStateFieldEntry,
   ProjectStateFileIdentity,
-  ProjectStateFormEntry,
   ProjectStateLocalValidationResult,
-  ProjectStateOwnerFact,
   ProjectStatePendingDependencyCheck,
   ProjectStatePendingReference,
-  ProjectStateReferenceEntry,
+  ProjectStateTargetEntry,
 } from "./fileUpdate"
+export type { ProjectStateImportIndexContribution } from "./fileUpdate"
 import type { ProjectStateRefreshResult } from "./refresh"
 import type { ProjectStateWriterHandle } from "./writerHandle"
 import { openProjectStateFragment, type ProjectStateFragment } from "./binary/fragment"
@@ -38,17 +36,12 @@ export interface ProjectStateImportProfileOptions {
   readonly onPhase?: (event: { readonly phase: ProjectStateImportProfilePhase; readonly elapsedMs: number }) => void
 }
 
-export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
-  readonly resourceKind: "yaml"
-  readonly yamlRole: NonNullable<ProjectStateFileIdentity["yamlRole"]>
-  readonly references: readonly ProjectStateReferenceEntry[]
-  readonly owners: readonly ProjectStateOwnerFact[]
-  readonly fields: readonly ProjectStateFieldEntry[]
-  readonly forms: readonly ProjectStateFormEntry[]
-}
-
 export type ProjectStateImportFinalFileState =
-  | (ProjectStateFileIdentity & { readonly kind: "resource"; readonly resourceKind: "resource" })
+  | (ProjectStateFileIdentity & {
+      readonly kind: "resource"
+      readonly resourceKind: "resource"
+      readonly targets: readonly ProjectStateTargetEntry[]
+    })
   | (ProjectStateFileIdentity & {
       readonly kind: "yaml"
       readonly resourceKind: "yaml"

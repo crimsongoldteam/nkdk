@@ -6,7 +6,7 @@ import { createProjectStateFileUpdateBatch } from "./fileUpdate"
 import { createProjectStateFragmentWriter } from "./binary/fragment"
 import { createBinaryProjectStateTestFixture } from "./binary/testFixture"
 import { assertProjectStateFileUpdateBatch } from "./fileUpdateValidation"
-import { createProjectStateService } from "./service"
+import { createDefaultProjectStateService as createProjectStateService } from "./createDefaultService"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
@@ -17,6 +17,28 @@ import type { ProjectStateWriterHandle } from "./writerHandle"
 import { createProjectStateWriterHandle } from "./writerHandle"
 
 describe("ProjectState import session", () => {
+  it("принимает файловые цели в окончательном resource-state", () => {
+    const update = {
+      kind: "resource" as const,
+      projectPath: "cf/Документ/Заказ/Макеты/Печать/Template.xml",
+      componentPath: "cf",
+      resourceKind: "resource" as const,
+      targets: [{
+        kind: "member" as const,
+        canonical: "Document.Заказ.Template.Печать",
+        fileBacked: {
+          itemProjectPath: "cf/Документ/Заказ/Макеты/Печать",
+          ownerProjectPath: "cf/Документ/Заказ/Свойства.yaml",
+        },
+      }],
+    }
+
+    expect(() => assertProjectStateImportFinalFileStateBatch({
+      updates: [update],
+      hashBytes: new Uint8Array(8),
+    })).not.toThrow()
+  })
+
   const contribution = indexContribution("cf/Справочник/Товары/Свойства.yaml", "Товары")
   let projectDir: string
   let state: ReturnType<typeof createProjectStateService>
@@ -204,7 +226,7 @@ describe("ProjectState import session", () => {
   it("отклоняет null prototype во вложенном reference details", () => {
     const update = {
       ...fullUpdate(contribution.projectPath),
-      references: [{
+      targets: [{
         kind: "member" as const,
         canonical: "Catalog.Товары.Attribute.Код",
         details: recordWithPrototype({ kind: "attribute" }, null),
@@ -343,7 +365,7 @@ function indexContribution(projectPath: string, name: string): ProjectStateImpor
     componentPath: "cf",
     resourceKind: "yaml",
     yamlRole: "properties",
-    references: [],
+    targets: [],
     owners: [{
       owner: { kind: "Справочник", name },
       facts: {},
@@ -383,11 +405,17 @@ function finalState(projectPath: string) {
 }
 
 function fullUpdate(projectPath: string) {
-  return { ...finalState(projectPath), references: [], owners: [], fields: [], forms: [] }
+  return { ...finalState(projectPath), targets: [], owners: [], fields: [], forms: [] }
 }
 
 function resource(projectPath: string) {
-  return { projectPath, componentPath: "cf", resourceKind: "resource" as const, kind: "resource" as const }
+  return {
+    projectPath,
+    componentPath: "cf",
+    resourceKind: "resource" as const,
+    kind: "resource" as const,
+    targets: [],
+  }
 }
 
 function pendingCheck(yamlPath: unknown[]) {

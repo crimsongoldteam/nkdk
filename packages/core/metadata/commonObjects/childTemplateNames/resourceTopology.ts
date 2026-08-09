@@ -5,6 +5,13 @@ import type { ChildTemplateNamesPropertyRule } from "./types"
 registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) => {
   const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
   const source = { kind: "property" as const, description: "ChildTemplateNames" }
+  const fileBackedTarget = {
+    kind: "member" as const,
+    memberKind: "Template" as const,
+    itemNameParameter: "itemName",
+    itemProjectPattern: `${folderName}/{itemName}`,
+    owner: "assignment" as const,
+  }
   const declarations: MetadataResourceDeclaration[] = [
     {
       kind: "externalFile",
@@ -14,6 +21,7 @@ registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) =>
       direction: "both",
       transferCapabilityId: "ChildTemplateNames",
       compositionImpact: "none",
+      fileBackedTarget,
       source,
     },
     ...(["txt", "bin"] as const).map(
@@ -25,6 +33,7 @@ registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) =>
         direction: "both",
         transferCapabilityId: "ChildTemplateNames",
         compositionImpact: "none",
+        fileBackedTarget,
         source,
       })
     ),
@@ -37,6 +46,7 @@ registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) =>
       transferCapabilityId: "ChildTemplateNames",
       fallback: true,
       compositionImpact: "none",
+      fileBackedTarget,
       source,
     },
   ]

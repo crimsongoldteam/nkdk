@@ -1,5 +1,5 @@
 import { metadataCommandGroupRule } from "../../commonObjects/metadataCommandGroup/types"
-import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../commonObjects/picture/types"
 import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"

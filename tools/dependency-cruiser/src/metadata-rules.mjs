@@ -1,10 +1,10 @@
 import { testModulePattern } from "./common-rules.mjs"
 
 export const neutralProductionPattern =
-  "^packages/core/metadata/(?:orchestration|validation|project)/"
+  "^packages/core/metadata/(?:orchestration|validation|project|standardMembers)/"
 
 const allowedInternalTargets = [
-  "^packages/core/metadata/(?:orchestration|validation|project)/",
+  "^packages/core/metadata/(?:orchestration|validation|project|standardMembers)/",
   "^packages/core/metadata/(?:context|helpers|resourceTopology|configurationIndex|components|diagnostics|projectState|workerPool|sourceWorkerRuntime)(?:/|\\.ts$)",
   "^packages/core/(?:helpers|yaml|xml)/",
 ]

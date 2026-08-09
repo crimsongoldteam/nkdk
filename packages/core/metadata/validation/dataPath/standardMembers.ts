@@ -1,151 +1,17 @@
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
+import {
+  getStandardMembers,
+  type ClosedReverseLookupStandardMemberDeclaration,
+  type PrimitiveKind,
+  type ReverseLookupStandardMemberDeclaration,
+  type StandardMemberDeclaration,
+  type StandardMemberNames,
+  type StandardTableColumnDeclaration,
+  type StandardTableDeclaration,
+} from "../../standardMembers/declarations"
+import type { OwnerMetadata, OwnerMetadataCache } from "./contracts"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./ownerKindRegistry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
-
-export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
-export type StandardMemberPhase = "index-time" | "traversal-time" | "deferred"
-export type StandardMemberSourceScope = "self" | "ownerModel" | "rules" | "projectIndex"
-export type PrimitiveKind = "boolean" | "string" | "dateTime" | "number"
-
-export interface StandardMemberNames {
-  internal: string
-  yaml: string
-}
-
-interface BaseStandardMemberDeclaration {
-  memberKind: StandardMemberKind
-  names: StandardMemberNames
-  phase: StandardMemberPhase
-  sourceScope: StandardMemberSourceScope
-}
-
-export interface PrimitiveStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "primitive"
-  kind: PrimitiveKind
-  terminal?: true
-  allowNestedProperties?: false
-}
-
-export interface SameOwnerObjectStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "sameOwnerObject"
-}
-
-export interface ObjectRefsFromPropertyStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "objectRefsFromProperty"
-  property: string
-  compositePolicy: "errorOnTraversal"
-}
-
-export interface MetadataPropertyScalarStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "codeByProperty" | "numberByProperty"
-  property: string
-}
-
-export interface ObjectRefFromPropertyStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "objectRefFromProperty"
-  property: string
-}
-
-export interface StandardEnumStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "standardEnum"
-  name: string
-}
-
-export interface TypeDescriptionStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "typeDescription"
-  allowNestedProperties: false
-}
-
-export interface OpaqueStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "opaque"
-  allowNestedProperties: false
-}
-
-export interface UnsupportedStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "unsupported"
-  reason: string
-}
-
-export interface ReverseLookupStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "reverseLookup"
-  phase: "traversal-time"
-  sourceScope: "projectIndex"
-  target: string
-  property: string
-  emptyPolicy: "error"
-  compositePolicy: "errorOnTraversal"
-}
-
-export interface ClosedReverseLookupStandardMemberDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardAttribute"
-  family: "closedReverseLookup"
-  phase: "traversal-time"
-  sourceScope: "projectIndex"
-  target?: string
-  result: string
-  source: string
-  property?: string
-  emptyPolicy: "error"
-  allowNestedProperties: false
-}
-
-export interface StandardTableDeclaration extends BaseStandardMemberDeclaration {
-  memberKind: "standardTabularSection"
-  family: "standardTable"
-  tableKind: "ValueTable"
-  columns: readonly StandardTableColumnDeclaration[]
-}
-
-export type StandardTableColumnDeclaration =
-  | PrimitiveStandardTableColumnDeclaration
-  | SameOwnerObjectStandardTableColumnDeclaration
-  | ObjectRefFromOwnerPropertyStandardTableColumnDeclaration
-
-export interface PrimitiveStandardTableColumnDeclaration {
-  memberKind: "standardTabularSectionColumn"
-  names: StandardMemberNames
-  family: "primitive"
-  kind: PrimitiveKind
-  discoveredFrom?: string
-}
-
-export interface SameOwnerObjectStandardTableColumnDeclaration {
-  memberKind: "standardTabularSectionColumn"
-  names: StandardMemberNames
-  family: "sameOwnerObject"
-}
-
-export interface ObjectRefFromOwnerPropertyStandardTableColumnDeclaration {
-  memberKind: "standardTabularSectionColumn"
-  names: StandardMemberNames
-  family: "objectRefFromOwnerProperty"
-  property: string
-}
-
-export type StandardMemberDeclaration =
-  | PrimitiveStandardMemberDeclaration
-  | SameOwnerObjectStandardMemberDeclaration
-  | ObjectRefsFromPropertyStandardMemberDeclaration
-  | MetadataPropertyScalarStandardMemberDeclaration
-  | ObjectRefFromPropertyStandardMemberDeclaration
-  | StandardEnumStandardMemberDeclaration
-  | TypeDescriptionStandardMemberDeclaration
-  | OpaqueStandardMemberDeclaration
-  | UnsupportedStandardMemberDeclaration
-  | ReverseLookupStandardMemberDeclaration
-  | ClosedReverseLookupStandardMemberDeclaration
-  | StandardTableDeclaration
 
 export interface ResolveIndexTimeStandardMemberParams {
   owner: Pick<OwnerMetadata, "ref" | "facts" | "rule">
@@ -187,51 +53,6 @@ export interface ResolveStandardTableColumnParams {
   owner: OwnerMetadata
   table: DataPathTableInfo
   segment: string
-}
-
-const membersByOwnerKind = new Map<string, StandardMemberDeclaration[]>()
-let standardMembersRevision = 0
-
-export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
-  const existing = membersByOwnerKind.get(ownerKind) ?? []
-  membersByOwnerKind.set(ownerKind, [...existing, ...members])
-  standardMembersRevision += 1
-}
-
-export function getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[] {
-  return membersByOwnerKind.get(ownerKind) ?? []
-}
-
-export function clearStandardMembersForTests(): void {
-  membersByOwnerKind.clear()
-  standardMembersRevision += 1
-}
-
-export function snapshotStandardMembersForTests(): Map<string, StandardMemberDeclaration[]> {
-  return new Map([...membersByOwnerKind].map(([kind, members]) => [kind, [...members]]))
-}
-
-export function restoreStandardMembersForTests(snapshot: Map<string, StandardMemberDeclaration[]>): void {
-  membersByOwnerKind.clear()
-  for (const [kind, members] of snapshot) membersByOwnerKind.set(kind, [...members])
-  standardMembersRevision += 1
-}
-
-export function standardMemberNamePairs(): readonly StandardMemberNames[] {
-  const pairs = new Map<string, StandardMemberNames>()
-  for (const members of membersByOwnerKind.values()) {
-    for (const member of members) {
-      addStandardMemberNamePair(pairs, member.names)
-      if (member.memberKind === "standardTabularSection") {
-        for (const column of member.columns) addStandardMemberNamePair(pairs, column.names)
-      }
-    }
-  }
-  return [...pairs.values()]
-}
-
-export function standardMembersRegistryRevision(): number {
-  return standardMembersRevision
 }
 
 export function resolveIndexTimeStandardMember(
@@ -306,32 +127,6 @@ export function resolveStandardTableColumn(
     return columns.get(params.segment)
   }
   return undefined
-}
-
-export function standardMemberInternalToYaml(internalName: string): string | undefined {
-  for (const members of membersByOwnerKind.values()) {
-    const member = members.find((item) => item.names.internal === internalName)
-    if (member !== undefined) return member.names.yaml
-  }
-  return undefined
-}
-
-export function standardMemberInternalToYamlForOwnerKind(ownerKind: string, internalName: string): string | undefined {
-  const member = getStandardMembers(ownerKind).find((item) => item.names.internal === internalName)
-  return member?.names.yaml
-}
-
-export function standardMemberYamlToInternal(yamlName: string): string | undefined {
-  for (const members of membersByOwnerKind.values()) {
-    const member = members.find((item) => item.names.yaml === yamlName)
-    if (member !== undefined) return member.names.internal
-  }
-  return undefined
-}
-
-export function standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined {
-  const member = getStandardMembers(ownerKind).find((item) => item.names.yaml === yamlName)
-  return member?.names.internal
 }
 
 function indexTimeTypeInfo(
@@ -543,10 +338,6 @@ function matchesSegment(member: { names: StandardMemberNames }, segment: string)
   return member.names.internal === segment || member.names.yaml === segment
 }
 
-function addStandardMemberNamePair(pairs: Map<string, StandardMemberNames>, names: StandardMemberNames): void {
-  pairs.set(`${names.internal}\u0000${names.yaml}`, names)
-}
-
 function primitiveTypeInfo(kind: PrimitiveKind, sourceText: string): DataPathTypeInfo {
   const dataPathKind = kind === "string" || kind === "number" ? "scalar" : kind
   return { kinds: [dataPathKind], nextTypes: [], sourceText }
@@ -566,6 +357,26 @@ function objectRefsFromProperty(owner: Pick<OwnerMetadata, "facts">, property: s
     sourceText: links.filter((link): link is string => typeof link === "string").join(" | "),
   }
 }
+
+export {
+  getStandardMembers,
+  registerStandardMembers,
+  standardMemberInternalToYaml,
+  standardMemberInternalToYamlForOwnerKind,
+  standardMemberNamePairs,
+  standardMemberYamlToInternal,
+  standardMemberYamlToInternalForOwnerKind,
+  standardMembersRegistryRevision,
+} from "../../standardMembers/declarations"
+export type {
+  PrimitiveKind,
+  StandardMemberDeclaration,
+  StandardMemberFillValuePolicy,
+  StandardMemberKind,
+  StandardMemberNames,
+  StandardMemberPhase,
+  StandardMemberSourceScope,
+} from "../../standardMembers/declarations"
 
 function objectRefFromProperty(owner: Pick<OwnerMetadata, "facts">, property: string): DataPathTypeInfo | undefined {
   const value = metadataRecord(owner.facts)[property]

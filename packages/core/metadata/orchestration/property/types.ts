@@ -1,38 +1,19 @@
-import { SettingsParameterValuePropertyRule } from "../../commonObjects/dataCompositionSystem/parameterValue/types"
-import type { MetadataRootName, MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
-import type { TypeDescriptionAllowedTypes } from "../../commonObjects/typeDescription/types"
-import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
-import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
+import type { MetadataRootName, MetadataTargetConstraint } from "../metadataTarget/types"
+import type { SyncAreaDeclaration, TypeRulesOperations, YAMLPropertySource, YAMLToXMLCondition } from "./ruleContracts"
+export type { ConfigurationIndexAddressingMode } from "./ruleContracts"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
+import type { OwnerFactRole } from "./ownerFactRole"
+
+export type { OwnerFactRole } from "./ownerFactRole"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
-import { TableAdditionalSourceTypes } from "../../forms/commonObjects/tableAdditionalSource/types"
 import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
-export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
-
-export type OwnerFactRole =
-  | "type"
-  | "attributes"
-  | "dimensions"
-  | "resources"
-  | "addressingAttributes"
-  | "tabularSections"
-  | "standardAttributes"
-  | "owners"
-  | "task"
-  | "registerRecords"
-  | "chartOfAccounts"
-  | "extDimensionTypes"
-  | "accountingFlags"
-  | "extDimensionAccountingFlags"
-  | "commonAttributeOwnerLinks"
-  | "registerType"
-  | "commands"
+import type { ConfigurationIndexAddressingMode } from "./ruleContracts"
 
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
@@ -264,7 +245,7 @@ export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyR
   type: "StandardAttributeDescriptions"
   standartAttributeNames: Record<string, string>
   standartAttributeNamesXML?: (
-    source: import("./fromYAMLToXMLTypes").YAMLPropertySource | unknown
+    source: YAMLPropertySource | unknown
   ) => Record<string, string>
 }
 
@@ -279,16 +260,14 @@ export interface EventsPropertyRule extends BasePropertyRule {
 
 export interface TableAdditionalSourcePropertyRule extends BasePropertyRule {
   type: "TableAdditionalSource"
-  additionalSourceType: TableAdditionalSourceTypes
+  additionalSourceType: TableAdditionalSourceType
   forSingleElement?: true
 }
 
-export interface TypeDescriptionPropertyRule extends BasePropertyRule {
-  type: "TypeDescription"
-  addTypeDescriptionAttributeToXML?: true
-  declareTypeNamespaceXML?: boolean
-  allowedTypes?: TypeDescriptionAllowedTypes
-}
+export type TableAdditionalSourceType =
+  | "SearchStringRepresentation"
+  | "SearchControl"
+  | "ViewStatusRepresentation"
 
 export type DataPathAllowedKind = "boolean" | "dateTime" | "Picture" | "scalar" | "object" | "tableSource"
 
@@ -396,10 +375,17 @@ export interface CleanPropertyRule extends BasePropertyRule {
 export interface SettingsParameterValueCollectionPropertyRule extends BasePropertyRule {
   type: "SettingsParameterValueCollection"
   /** Правило для параметра, если нет в `parameterRules` */
-  defaultItemRule?: SettingsParameterValuePropertyRule
+  defaultItemRule?: SettingsParameterValueExtensionRule
   /** Переопределения по имени параметра (`dcscor:parameter` / ключ YAML) */
-  parameterRules?: Partial<Record<string, SettingsParameterValuePropertyRule>>
+  parameterRules?: Partial<Record<string, SettingsParameterValueExtensionRule>>
 }
+
+export interface PropertyRuleExtensionMap {}
+
+type SettingsParameterValueExtensionRule = Extract<
+  PropertyRuleExtensionMap[keyof PropertyRuleExtensionMap],
+  { type: "SettingsParameterValue" }
+>
 
 // export interface CustomExportPropertyRule extends BasePropertyRule {
 //   type?: never

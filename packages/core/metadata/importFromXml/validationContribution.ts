@@ -1,6 +1,6 @@
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
+import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
 import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -227,7 +227,7 @@ function ownerMemberIndexEntries(params: {
     spec: params.file.owner.spec,
   }
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor({ projectDir: params.projectDir, owner, hasFile: () => false })) {
+    for (const entry of contributor({ projectDir: params.projectDir, owner })) {
       appendMember(entries, seen, entry)
     }
   }

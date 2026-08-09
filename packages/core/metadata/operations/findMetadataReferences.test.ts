@@ -17,7 +17,7 @@ import {
   operationPictureFormYaml,
   operationTargetReadSession,
   operationValidationError,
-} from "./operationTestSupport"
+} from "./tests/operationTestSupport"
 
 const validationError = operationValidationError
 
@@ -85,6 +85,32 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     })
   })
 
+  it("учитывает ссылку из значения заполнения", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", ["{}"])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Получатель:",
+      "    Тип: Справочник.Контрагенты",
+      "    ЗначениеЗаполнения: Справочник.Контрагенты.Поставщик",
+    ])
+    harness.setIndex({
+      references: [operationMetadataReference(
+        "cf/Справочник/Товары/Свойства.yaml",
+        ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
+        "Catalog.Контрагенты.Поставщик",
+      )],
+    })
+
+    const result = await findInValidProject(projectDir, "Справочник.Контрагенты")
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [expect.objectContaining({ value: "Catalog.Контрагенты.Поставщик" })],
+    })
+  })
+
   it("ignores references inside the deleted object subtree", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", operationLockFieldYaml)
@@ -140,6 +166,35 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
     expect(existsSync(join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
+  })
+
+  it("определяет внутреннее дерево файловой цели по itemProjectPath, а не по файлу-доказательству", async () => {
+    const projectDir = createProject()
+    harness.setIndex({
+      targetProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема/Ext/Картинка.png",
+      itemProjectPath: "cf/Отчет/Продажи/Шаблоны/Схема",
+      ownerProjectPath: "cf/Отчет/Продажи/Свойства.yaml",
+      references: [
+        operationMetadataReference(
+          "cf/Отчет/Продажи/Шаблоны/Схема/Ext/Описание.yaml",
+          ["Макет"],
+          "Report.Продажи.Template.Схема",
+        ),
+        operationMetadataReference(
+          "cf/Отчет/Другой/Свойства.yaml",
+          ["Макет"],
+          "Report.Продажи.Template.Схема",
+        ),
+      ],
+    })
+
+    const result = await findInValidProject(projectDir, "Отчет.Продажи.Макет.Схема")
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [{ filePath: join(projectDir, "cf/Отчет/Другой/Свойства.yaml") }],
+    })
   })
 
   it("blocks delete when a form contains a structural reference", async () => {

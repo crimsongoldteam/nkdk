@@ -37,7 +37,12 @@ describe("resolveMetadataOperationPath", () => {
     const parsed = parseMetadataOperationPath(path)
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) throw new Error(parsed.message)
-    return resolveMetadataOperationPath(snapshot, parsed)
+    return resolveMetadataOperationPath(snapshot, parsed, path.includes(".Форма.") ? {
+      sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      itemProjectPath: "Справочник/Товары/Формы/ФормаЭлемента",
+      ownerProjectPath: "Справочник/Товары/Свойства.yaml",
+      collectionNames: ["ФормаЭлемента"],
+    } : undefined)
   }
 
   it("resolves object, child, nested child and file item targets", async () => {

@@ -13,7 +13,7 @@ import {
   ProjectStatePendingCheckRecordView,
   ProjectStatePendingReferenceRecordView,
   ProjectStateReferenceDetailsRecordView,
-  ProjectStateReferenceRecordView,
+  ProjectStateTargetRecordView,
   ProjectStateStringValueRecordView,
   ProjectStateTableInfoRecordView,
   ProjectStateTypeInfoRecordView,
@@ -25,7 +25,7 @@ import {
 
 export type ProjectStateFactTableKind =
   | "validationStatus"
-  | "references"
+  | "targets"
   | "referenceDetails"
   | "pendingReferences"
   | "owners"
@@ -49,7 +49,7 @@ export type ProjectStateFactTableKind =
 
 export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTableKind, number>> = {
   validationStatus: 1,
-  references: 2,
+  targets: 2,
   referenceDetails: 3,
   pendingReferences: 4,
   owners: 5,
@@ -90,7 +90,7 @@ export interface ProjectStateFactRecordView {
 
 export const PROJECT_STATE_FACT_RECORD_VIEWS = {
   validationStatus: ProjectStateValidationStatusRecordView,
-  references: ProjectStateReferenceRecordView,
+  targets: ProjectStateTargetRecordView,
   referenceDetails: ProjectStateReferenceDetailsRecordView,
   pendingReferences: ProjectStatePendingReferenceRecordView,
   owners: ProjectStateOwnerRecordView,
@@ -215,11 +215,16 @@ function validateFactRows(params: {
     assertRange(record.diagnosticsStart, record.diagnosticsCount, params.diagnosticCount, "diagnostics")
     assertRange(record.schemaDiagnosticsStart, record.schemaDiagnosticsCount, params.diagnosticCount, "schemaDiagnostics")
   })
-  forEachRecord(params.tables.get("references"), ProjectStateReferenceRecordView, view, (record) => {
-    assertFileId(record.sourceFileId, params.fileCount, "reference.sourceFileId")
-    assertStringId(record.canonicalId, params.stringCount, "reference.canonicalId")
-    assertOptionalRowId(record.detailsId, params.tables.get("referenceDetails")?.records ?? 0, "reference.detailsId")
-    if (record.kind < 1 || record.kind > 3) throw new Error("Неизвестный вид ссылки")
+  forEachRecord(params.tables.get("targets"), ProjectStateTargetRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "target.sourceFileId")
+    assertStringId(record.canonicalId, params.stringCount, "target.canonicalId")
+    assertOptionalStringId(record.itemProjectPathId, params.stringCount, "target.itemProjectPathId")
+    assertOptionalStringId(record.ownerProjectPathId, params.stringCount, "target.ownerProjectPathId")
+    if ((record.itemProjectPathId === NONE) !== (record.ownerProjectPathId === NONE)) {
+      throw new Error("Файловая цель должна содержать оба проектных пути")
+    }
+    assertOptionalRowId(record.detailsId, params.tables.get("referenceDetails")?.records ?? 0, "target.detailsId")
+    if (record.kind < 1 || record.kind > 3) throw new Error("Неизвестный вид цели")
   })
   forEachRecord(params.tables.get("referenceDetails"), ProjectStateReferenceDetailsRecordView, view, (record) => {
     assertOptionalRowId(record.typeInfoId, params.tables.get("typeInfo")?.records ?? 0, "referenceDetails.typeInfoId")

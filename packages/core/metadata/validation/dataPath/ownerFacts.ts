@@ -1,36 +1,13 @@
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { MetadataItem } from "../../orchestration/property/types"
-import type { ObjectFieldIndex } from "./objectFields"
+import type { ObjectFieldIndex, ValidationOwnerFacts, ValidationNamedTypeItems } from "./contracts"
+export type { ValidationOwnerFacts } from "./contracts"
 import type { OwnerTypeRef } from "./types"
 import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import type { OwnerFactRole } from "../../orchestration/property/types"
-import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
-import { CommonAttributeUseFromYAML, type CommonAttributeUseYAML } from "../../systemEnumerations/types"
-import { typeDescriptionFromYAML } from "./formYamlIndex"
-
-export interface ValidationOwnerFacts {
-  ref: OwnerTypeRef
-  filePath: string
-  fieldIndex: ObjectFieldIndex
-  type?: TypeDescription
-  commonAttributeOwnerLinks?: string[]
-  owners?: string[]
-  task?: string
-  registerRecords?: string[]
-  chartOfAccounts?: string
-  extDimensionTypes?: string
-  accountingFlags?: NamedTypeItems
-  extDimensionAccountingFlags?: NamedTypeItems
-  registerType?: string
-  attributes?: NamedTypeItems
-  dimensions?: NamedTypeItems
-  resources?: NamedTypeItems
-  addressingAttributes?: NamedTypeItems
-  tabularSections?: Array<{ name: string; attributes: NamedTypeItems; standardAttributes?: NamedTypeItems }>
-  standardAttributes?: NamedTypeItems
-  commands?: NamedTypeItems
-}
-
+import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
+import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
+import { getSystemEnumeration } from "../../orchestration/property/systemEnumerationRegistry"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
   content?: unknown
@@ -49,9 +26,11 @@ type ValidationOwnerFactsModel = MetadataItem & {
   standardAttributes?: unknown
   registerType?: unknown
   commands?: unknown
+  predefined?: unknown
+  enumValues?: unknown
 }
 
-type NamedTypeItems = Array<{ name: string; type?: TypeDescription }>
+type NamedTypeItems = ValidationNamedTypeItems
 
 export function createValidationOwnerFacts(params: {
   ref: OwnerTypeRef
@@ -76,6 +55,8 @@ export function createValidationOwnerFacts(params: {
   const standardAttributes = namedTypeItems(metadataRecord(params.model)["standardAttributes"])
   const tabularSections = namedTabularSections(metadataRecord(params.model)["tabularSections"])
   const commands = namedTypeItems(metadataRecord(params.model)["commands"])
+  const predefined = namedValueItems(metadataRecord(params.model)["predefined"])
+  const enumValues = namedValueItems(metadataRecord(params.model)["enumValues"])
 
   return {
     ref: params.ref,
@@ -98,6 +79,8 @@ export function createValidationOwnerFacts(params: {
     ...(standardAttributes.length === 0 ? {} : { standardAttributes }),
     ...(tabularSections.length === 0 ? {} : { tabularSections }),
     ...(commands.length === 0 ? {} : { commands }),
+    ...(predefined.length === 0 ? {} : { predefined }),
+    ...(enumValues.length === 0 ? {} : { enumValues }),
   }
 }
 
@@ -109,7 +92,7 @@ export const collectOwnerFactFromYAML: CollectLocalFactsFromYAMLFunction = ({ fa
 }
 
 function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
-  if (role === "type") return typeDescriptionFromYAML(value)
+  if (role === "type") return indexValueFromYAML<TypeDescriptionView>("TypeDescription", value)
   if (role === "attributes" || role === "dimensions" || role === "resources" || role === "addressingAttributes")
     return namedTypedItemsFromYaml(value)
   if (role === "tabularSections") return tabularSectionsFromYaml(value)
@@ -122,6 +105,7 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
   if (role === "commonAttributeOwnerLinks") return commonAttributeOwnerLinksFromYaml(value)
   if (role === "registerType") return typeof value === "string" ? value : undefined
   if (role === "commands") return namedTypedItemsFromYaml(value)
+  if (role === "predefined" || role === "enumValues") return namedValueItemsFromYaml(value)
   return undefined
 }
 
@@ -131,9 +115,16 @@ export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown 
 
 function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
   return Object.entries(metadataRecord(value)).map(([name, item]) => {
-    const type = typeDescriptionFromYAML(metadataRecord(item)["Тип"])
+    const type = indexValueFromYAML<TypeDescriptionView>("TypeDescription", metadataRecord(item)["Тип"])
     return { name, ...(type === undefined ? {} : { type }) }
   })
+}
+
+function namedValueItemsFromYaml(value: unknown): NamedTypeItems {
+  return Object.entries(metadataRecord(value)).flatMap(([name, item]) => [
+    { name },
+    ...namedValueItemsFromYaml(metadataRecord(item)["Элементы"]),
+  ])
 }
 
 function tabularSectionsFromYaml(
@@ -180,9 +171,7 @@ function commonAttributeOwnerLinksFromYaml(value: unknown): string[] {
     if (typeof record["Объект"] !== "string") return []
     const rawUse = record["Использование"]
     const use =
-      typeof rawUse === "string" && rawUse in CommonAttributeUseFromYAML
-        ? CommonAttributeUseFromYAML[rawUse as CommonAttributeUseYAML]
-        : "Use"
+      typeof rawUse === "string" ? (getSystemEnumeration("CommonAttributeUse")?.fromYAML[rawUse] ?? "Use") : "Use"
     return use === "Use" ? [metadataLinkFromYaml(record["Объект"])] : []
   })
 }
@@ -205,6 +194,27 @@ function namedTypeItems(value: unknown): NamedTypeItems {
       },
     ]
   })
+}
+
+function namedValueItems(value: unknown): NamedTypeItems {
+  if (typeof value !== "object" || value === null) return []
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const record = metadataRecord(item)
+      return [
+        ...(typeof record["name"] === "string" ? [{ name: record["name"] }] : []),
+        ...namedValueItems(record["items"]),
+        ...namedValueItems(record["childItems"]),
+        ...namedValueItems(record["enumValues"]),
+      ]
+    })
+  }
+  const record = metadataRecord(value)
+  return [
+    ...namedValueItems(record["items"]),
+    ...namedValueItems(record["childItems"]),
+    ...namedValueItems(record["enumValues"]),
+  ]
 }
 
 function namedTabularSections(
@@ -232,8 +242,8 @@ function commonAttributeOwnerLinksFromModel(model: MetadataItem): string[] {
     .filter((value): value is string => value !== undefined)
 }
 
-function isTypeDescription(value: unknown): value is TypeDescription {
-  return typeof value === "object" && value !== null && "type" in value
+function isTypeDescription(value: unknown): value is TypeDescriptionView {
+  return typeof value === "object" && value !== null && ("type" in value || "typeId" in value)
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

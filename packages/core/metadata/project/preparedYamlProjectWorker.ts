@@ -10,6 +10,7 @@ import {
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
+  type ProjectStateTargetEntry,
 } from "../projectState/fileUpdate"
 import {
   encodeProjectStateFileUpdateBatch,
@@ -53,9 +54,9 @@ import type {
   PreparedMetadataDependency,
   PreparedYamlFile,
   PreparedYamlProjectFileDescriptor,
-} from "./preparedYamlProject"
-import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
-import { classifyMetadataProjectPath } from "./resources"
+} from "./preparedYamlContracts"
+import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
+import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "./resources"
 import type { ProjectStateValidationFileTask } from "../projectState/projectFiles"
 import {
   createMovableBinaryResult,
@@ -269,7 +270,7 @@ async function refreshProjectStateFiles(
         if (unchanged) continue
         const classified = file.identity === undefined
           ? (dependencies.classifyProjectStateFile ?? classifyChangedProjectStateFile)(file, message.projectDir)
-          : { identity: file.identity, descriptor: file.descriptor }
+          : { identity: file.identity, descriptor: file.descriptor, targets: file.targets ?? [] }
         if (classified.identity.resourceKind === "yaml") {
           if (classified.descriptor === undefined) {
             throw new Error(`У YAML отсутствует descriptor: ${classified.identity.projectPath}`)
@@ -281,12 +282,13 @@ async function refreshProjectStateFiles(
             descriptor: classified.descriptor,
             bytes,
             hash: currentHash,
+            fileBackedTargets: classified.targets,
           })
           if (parsed) parsedYamlFiles += 1
           changedFiles += 1
           continue
         }
-        writer.appendFile({ ...classified.identity, kind: "resource" }, currentHash)
+        writer.appendFile({ ...classified.identity, kind: "resource", targets: classified.targets }, currentHash)
         changedFiles += 1
       } catch (caught) {
         if (!isMissingFile(caught)) throw caught
@@ -344,7 +346,11 @@ async function refreshProjectStateFiles(
 export function classifyChangedProjectStateFile(
   task: ProjectStateValidationFileTask,
   projectDir: string,
-): { identity: ProjectStateFileIdentity; descriptor?: PreparedYamlProjectFileDescriptor } {
+): {
+  identity: ProjectStateFileIdentity
+  descriptor?: PreparedYamlProjectFileDescriptor
+  targets: readonly ProjectStateTargetEntry[]
+} {
   const template = task.componentPath === "cf"
     ? requireProjectStateComponentTemplates().configuration
     : requireProjectStateComponentTemplates().configurationExtension
@@ -360,6 +366,7 @@ export function classifyChangedProjectStateFile(
   }
   return {
     identity,
+    targets: projectStateFileBackedTargets(component.componentPath, resource.fileBackedTargets),
     ...(resource.kind === "yaml"
       ? { descriptor: toPreparedYamlProjectFileDescriptor({ ...resource, absolutePath: task.absolutePath }, component) }
       : {}),
@@ -522,6 +529,7 @@ interface ValidationFirstPassInput {
     readonly descriptor: PreparedYamlProjectFileDescriptor
     readonly bytes?: Uint8Array
     readonly hash?: bigint
+    readonly fileBackedTargets?: readonly ProjectStateTargetEntry[]
   }>
 }
 
@@ -587,6 +595,7 @@ function processValidationFirstPassFile(
     readonly descriptor: PreparedYamlProjectFileDescriptor
     readonly bytes?: Uint8Array
     readonly hash?: bigint
+    readonly fileBackedTargets?: readonly ProjectStateTargetEntry[]
   },
 ): boolean {
   accumulator.processedFiles += 1
@@ -680,7 +689,7 @@ function processValidationFirstPassFile(
       componentPath: descriptor.componentPath,
       resourceKind: "yaml",
       yamlRole: descriptor.role,
-    }),
+    }, input.fileBackedTargets),
     hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
   })
   if (accumulator.detailedProfile.enabled) {

@@ -1,142 +1,23 @@
-import type { ElementType } from "../orchestration/formElement/types"
 import { assertProjectStateFileUpdateBatch, PROJECT_STATE_HASH_BYTE_LENGTH } from "./fileUpdateValidation"
-import type { MetadataProjectResourceKind, MetadataProjectYamlRole } from "../project/resources"
-import type { ObjectFieldKind } from "../validation/dataPath/objectFields"
-import type {
-  DataPathTableInfo,
-  DataPathTypeInfo,
-  FormDataPathColumnSource,
-  FormDataPathSource,
-  OwnerTypeRef,
-} from "../validation/dataPath/types"
-import type { DataPathPolicyInput } from "../validation/dataPath/policies"
-import type { ParsedMetadataTarget, MetadataTargetConstraint } from "../commonObjects/metadataTargets/types"
 import type { Diagnostic } from "../validation/types"
-import type { YamlDiagnosticLocation, YamlPath } from "../validation/yamlLocations"
 import type { ProjectValidationFirstPassResult } from "../validation/projectValidationPasses"
 import type { ValidationObjectRecord } from "../validation/projectValidationTypes"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationPendingCheck } from "../validation/projectValidationPendingChecks"
-import {
-  projectMetadataReferenceDetails,
-  type ProjectMetadataReferenceDetails,
-} from "../validation/projectMetadataReferences"
+import { projectMetadataReferenceDetails } from "../validation/projectMetadataReferences"
+import type {
+  ProjectStateDiagnostic,
+  ProjectStateFieldEntry,
+  ProjectStateFileIdentity,
+  ProjectStateFileUpdateBatch,
+  ProjectStateFileUpdateBatchEntry,
+  ProjectStateFormEntry,
+  ProjectStateOwnerFact,
+  ProjectStatePendingDependencyCheck,
+  ProjectStateTargetEntry,
+  ProjectStateYamlFileUpdate,
+} from "./contracts/fileUpdate"
 
-export interface ProjectStateFileIdentity {
-  readonly projectPath: string
-  readonly componentPath: string
-  readonly resourceKind: MetadataProjectResourceKind
-  readonly yamlRole?: MetadataProjectYamlRole
-}
-
-export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
-  readonly kind: "resource"
-}
-
-export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
-
-export interface ProjectStateLocalValidationResult {
-  readonly contributedFacts: boolean
-  readonly diagnostics: readonly ProjectStateDiagnostic[]
-  readonly schemaDiagnostics: readonly ProjectStateDiagnostic[]
-}
-
-export interface ProjectStateReferenceEntry {
-  readonly kind: "object" | "member" | "value"
-  readonly canonical: string
-  readonly details?: ProjectMetadataReferenceDetails
-}
-
-export interface ProjectStatePendingReference {
-  readonly yamlPath: YamlPath
-  readonly canonical: string
-  readonly target: ParsedMetadataTarget
-  readonly constraint: MetadataTargetConstraint
-}
-
-export interface ProjectStateOwnerFact {
-  readonly owner: OwnerTypeRef
-  readonly facts: ProjectStateOwnerFacts
-}
-
-export type ProjectStateOwnerFacts = Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">
-
-export interface ProjectStateFieldEntry {
-  readonly owner: OwnerTypeRef
-  readonly name: string
-  readonly kind: ObjectFieldKind
-  readonly typeInfo: DataPathTypeInfo
-  readonly targetName?: string
-  readonly sourceCollection?: string
-  readonly parentName?: string
-  readonly table?: DataPathTableInfo
-  readonly tableHasColumns?: boolean
-}
-
-export type ProjectStateFormEntry =
-  | {
-      readonly kind: "root"
-      readonly owner: OwnerTypeRef
-      readonly name: string
-      readonly source: ProjectStateFormSource
-    }
-  | {
-      readonly kind: "additionalColumn"
-      readonly owner: OwnerTypeRef
-      readonly tablePath: string
-      readonly name: string
-      readonly source: FormDataPathColumnSource
-    }
-  | {
-      readonly kind: "tableDataPath"
-      readonly owner: OwnerTypeRef
-      readonly name: string
-      readonly dataPath: string
-    }
-
-export interface ProjectStateFormSource {
-  readonly kind: FormDataPathSource["kind"]
-  readonly name: string
-  readonly typeInfo: DataPathTypeInfo
-  readonly table?: DataPathTableInfo
-  readonly tableHasColumns?: boolean
-}
-
-export interface ProjectStatePendingDependencyCheck {
-  readonly kind: "dataPath"
-  readonly yamlPath: YamlPath
-  readonly location: Omit<YamlDiagnosticLocation, "filePath">
-  readonly owner: OwnerTypeRef
-  readonly value: string
-  readonly policyInput: DataPathPolicyInput
-  readonly elementType?: ElementType
-  readonly hasValuesPicture?: boolean
-  readonly tableContext?: { readonly dataPath: string }
-  readonly policy: "formDataPath"
-}
-
-export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
-  readonly kind: "yaml"
-  readonly localValidation: ProjectStateLocalValidationResult
-  readonly references: readonly ProjectStateReferenceEntry[]
-  readonly pendingReferences: readonly ProjectStatePendingReference[]
-  readonly owners: readonly ProjectStateOwnerFact[]
-  readonly fields: readonly ProjectStateFieldEntry[]
-  readonly forms: readonly ProjectStateFormEntry[]
-  readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
-  readonly dependencies: readonly string[]
-}
-
-export type ProjectStateFileUpdate = ProjectStateResourceUpdate | ProjectStateYamlFileUpdate
-
-export interface ProjectStateFileUpdateBatch {
-  readonly updates: readonly ProjectStateFileUpdate[]
-  readonly hashBytes: Uint8Array
-}
-
-export type ProjectStateFileUpdateBatchEntry =
-  | { readonly update: ProjectStateFileUpdate; readonly hash: bigint; readonly hashBytes?: never }
-  | { readonly update: ProjectStateFileUpdate; readonly hash?: never; readonly hashBytes: Uint8Array }
+export type * from "./contracts/fileUpdate"
 
 const HASH_BYTE_LENGTH = PROJECT_STATE_HASH_BYTE_LENGTH
 const MAX_HASH = (1n << 64n) - 1n
@@ -167,7 +48,8 @@ export function createProjectStateFileUpdateBatch(
 
 export function toProjectStateFileUpdate(
   firstPassResult: ProjectValidationFirstPassResult,
-  identity: ProjectStateFileIdentity
+  identity: ProjectStateFileIdentity,
+  fileBackedTargets: readonly ProjectStateTargetEntry[] = []
 ): ProjectStateYamlFileUpdate {
   if (identity.resourceKind !== "yaml" || identity.yamlRole === undefined) {
     throw new Error("Результат первого прохода можно связать только с YAML-файлом")
@@ -181,10 +63,11 @@ export function toProjectStateFileUpdate(
       diagnostics: firstPassResult.diagnostics.map(withoutDiagnosticFilePath),
       schemaDiagnostics: firstPassResult.schemaDiagnostics.map(withoutDiagnosticFilePath),
     },
-    references: [
-      ...firstPassResult.objectIndexEntries.map((entry) => projectStateReferenceEntry("object", entry)),
-      ...firstPassResult.memberIndexEntries.map((entry) => projectStateReferenceEntry("member", entry)),
-      ...firstPassResult.valueIndexEntries.map((entry) => projectStateReferenceEntry("value", entry)),
+    targets: [
+      ...firstPassResult.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
+      ...firstPassResult.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
+      ...firstPassResult.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...fileBackedTargets,
     ],
     pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
     owners: firstPassResult.objectRecords.flatMap(projectStateOwnerFacts),
@@ -198,10 +81,10 @@ export function toProjectStateFileUpdate(
   }
 }
 
-export function projectStateReferenceEntry(
-  kind: ProjectStateReferenceEntry["kind"],
+export function projectStateTargetEntry(
+  kind: ProjectStateTargetEntry["kind"],
   entry: { readonly canonical: string; readonly result: { readonly ok: boolean; readonly details?: unknown } },
-): ProjectStateReferenceEntry {
+): ProjectStateTargetEntry {
   const details = entry.result.ok ? projectMetadataReferenceDetails(entry.result.details) : undefined
   return { kind, canonical: entry.canonical, ...(details === undefined ? {} : { details }) }
 }

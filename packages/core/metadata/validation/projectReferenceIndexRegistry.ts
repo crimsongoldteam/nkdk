@@ -1,4 +1,4 @@
-import type { MetadataMemberKind, MetadataRootName, ParsedMetadataTarget } from "../commonObjects/metadataTargets"
+import type { MetadataMemberKind, MetadataRootName, ParsedMetadataTarget } from "../orchestration/metadataTarget"
 import type { OwnerMetadata, OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ProjectMemberIndexEntry, MetadataReferenceResolveResult } from "./projectReferenceIndex"
 import type { ProjectYamlCache } from "./projectYamlCache"
@@ -31,7 +31,6 @@ export type ProjectFileValidator = (params: { filePath: string; parsed: ParsedYa
 export type ProjectReferenceMemberIndexContributor = (params: {
   projectDir: string
   owner: OwnerMetadata
-  hasFile: (filePath: string) => boolean
 }) => Iterable<ProjectMemberIndexEntry>
 
 const objectPathContributors = new Map<MetadataRootName, ProjectReferenceObjectPathContributor>()

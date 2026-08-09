@@ -1,21 +1,16 @@
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
-import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
-import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
-import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import {
-  createFormElementNameCollector,
-  FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
-  type FormElementNameCollector,
-} from "../forms/clientApplicationForm/validateElementNames"
+import { parseMetadataTargetFromYAML } from "../orchestration/metadataTarget"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import type { MetadataTargetOwner, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
+import type { ElementType } from "../orchestration/formElement/types"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
+import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
+import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { getSystemEnumeration } from "../orchestration/property/systemEnumerationRegistry"
 import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
-import { PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { createFormDataPathIndexCollector } from "./dataPath/formYamlIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -36,13 +31,26 @@ import {
   type ValidationRulesSnapshot,
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
-import { collectStructuralYamlReferences } from "./structuralReferences"
+import {
+  collectStructuralYamlReferences,
+  type StructuralReferenceNestedRule,
+  type StructuralReferenceRuntime,
+} from "./structuralReferences"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../project/localIndexes"
 import type { LocalIndexesCollector } from "../project/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+import {
+  analyzeDependentYamlItem,
+  type DependentReferenceCandidate,
+} from "../orchestration/property/dependentItemRegistry"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
+import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
+import type { FormElementNameCollectorView } from "./formContracts"
+import { requireFormValidationAdapter } from "./formValidationRegistry"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -111,6 +119,8 @@ export function extractValidationYamlFacts(params: {
           collector: localIndexesCollector,
           fileOwner: params.file.owner,
           rulePath: [],
+          rootYaml: params.parsed.data,
+          rootRule: params.file.owner.spec.rule,
           validationDiagnostics,
         })
   const localIndexes = localIndexesCollector.finish()
@@ -338,6 +348,8 @@ function collectPendingReferences(params: {
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
+  rootYaml: unknown
+  rootRule: MetadataItemRule
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
@@ -406,6 +418,9 @@ function collectPendingReferences(params: {
           collector: params.collector,
           fileOwner: params.fileOwner,
           rulePath,
+          rootYaml: params.rootYaml,
+          rootRule: params.rootRule,
+          nestedItemType: property.nestedItemType,
           validationDiagnostics: params.validationDiagnostics,
         })
       )
@@ -428,20 +443,62 @@ function collectNestedReferences(params: {
   collector: LocalIndexesCollector
   fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
+  rootYaml: unknown
+  rootRule: MetadataItemRule
+  nestedItemType?: string
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      collectPendingReferences({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
-    )
+    return params.value.flatMap((item, index) => collectNestedItem({ ...params, item, itemKey: index }))
   }
 
   const record = asRecord(params.value)
   if (record === undefined) return []
 
-  return Object.entries(record).flatMap(([key, item]) =>
-    collectPendingReferences({ ...params, value: item, yamlPath: [...params.yamlPath, key] })
+  return Object.entries(record).flatMap(([key, item]) => collectNestedItem({ ...params, item, itemKey: key }))
+}
+
+function collectNestedItem(
+  params: Parameters<typeof collectNestedReferences>[0] & { item: unknown; itemKey: string | number }
+): PendingMetadataTargetReference[] {
+  const itemYamlPath = [...params.yamlPath, params.itemKey]
+  const item = asRecord(params.item)
+  const references: PendingMetadataTargetReference[] = []
+  if (item !== undefined && params.nestedItemType !== undefined) {
+    const analysis = analyzeDependentYamlItem({
+      itemType: params.nestedItemType,
+      ...(typeof params.itemKey === "string" ? { itemName: params.itemKey } : {}),
+      item,
+      itemYamlPath,
+      rootYaml: params.rootYaml,
+      rootRule: params.rootRule,
+      filePath: params.filePath,
+      parsed: params.parsed,
+      owner: { dir: params.fileOwner.dir, name: params.fileOwner.name },
+    })
+    if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
+    references.push(
+      ...analysis.references.map((reference) => ({
+        ...dependentPendingReference(reference),
+        filePath: params.filePath,
+      }))
+    )
+  }
+
+  references.push(
+    ...collectPendingReferences({
+      ...params,
+      value: params.item,
+      yamlPath: itemYamlPath,
+    })
   )
+  return references
+}
+
+function dependentPendingReference(
+  reference: DependentReferenceCandidate,
+): Omit<PendingMetadataTargetReference, "filePath"> {
+  return reference as Omit<PendingMetadataTargetReference, "filePath">
 }
 
 function collectTargetValues(params: {
@@ -514,7 +571,7 @@ function pendingPictureReferenceFromYamlValue(params: {
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference | undefined {
-  if (params.value in PictureLibFromYAML) return undefined
+  if (params.value in (getSystemEnumeration("PictureLib")?.fromYAML ?? {})) return undefined
   if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
 
   return pendingReferenceFromYamlValue({
@@ -572,7 +629,10 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const data = asRecord(parsed.data)
   if (data === undefined) return emptyFacts()
 
-  const index = buildFormDataPathIndexFromYaml({ filePath: file.absolutePath, parsed })
+  const adapter = requireFormValidationAdapter()
+  const projection = getRegisteredFormDataPathMetadataProjection()
+  if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
+  const index = createFormDataPathIndexFromYAML(parsed.data, projection)
   const collected = collectFormPendingChecks({
     file,
     parsed,
@@ -584,10 +644,11 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const structuralReferences = collectStructuralYamlReferences({
     filePath: file.absolutePath,
     parsed,
-    rule: ClientApplicationFormRules,
+    rule: adapter.formRule,
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
     context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+    runtime: createPropertyStructuralReferenceRuntime(),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
   const pendingReferences = structuralReferences.references.map(({
@@ -603,7 +664,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {
-      [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
+      [adapter.elementNamesProfileSubstep]: {
         items: 1,
         timeMs: collected.formElementNamesMs,
       },
@@ -612,7 +673,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
       ...validateExcludedEqualNameYAML({
         filePath: file.absolutePath,
         parsed,
-        rule: ClientApplicationFormRules,
+        rule: adapter.formRule,
         context: { version: "2.20", defaultLanguage: "ru" },
         name: file.formName,
       }),
@@ -622,41 +683,30 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   }
 }
 
-function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: ParsedYaml }): FormDataPathIndex {
-  const collector = createFormDataPathIndexCollector({ filePath: params.filePath })
-  const attributes = asRecord(asRecord(params.parsed.data)?.["Реквизиты"])
-
-  for (const [name, value] of Object.entries(attributes ?? {})) {
-    const attribute = asRecord(value)
-    acceptFormIndexValue(collector, ["Реквизиты", name, "Тип"], attribute?.["Тип"])
-    if (attribute?.["ДинамическийСписок"] !== undefined) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "ДинамическийСписок"], true)
-    }
-    for (const [columnName, column] of Object.entries(asRecord(attribute?.["Колонки"]) ?? {})) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "Колонки", columnName, "Тип"], asRecord(column)?.["Тип"])
-    }
-    if (attribute?.["ДополнительныеКолонки"] !== undefined) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "ДополнительныеКолонки"], attribute["ДополнительныеКолонки"])
-    }
+function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime {
+  return {
+    valueFromYAML: (params) => callAtomicFromYAML(
+      params as Parameters<typeof callAtomicFromYAML>[0]
+    ),
+    valueToYAML: (params) => exportPropertyValueToYAML(
+      params as Parameters<typeof exportPropertyValueToYAML>[0]
+    ),
+    collectStructuralReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "structuralReferences")
+      return handler?.({ ...params, propRule: propertyRule })
+    },
+    collectIndexedReferences: (params) => {
+      const propertyRule = params.propRule as PropertyRule
+      const handler = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+      return handler?.({ ...params, propRule: propertyRule }).references ?? []
+    },
+    nestedRule: (rule) => getTypeRule(
+      (rule as PropertyRule).type,
+      "yamlToXMLNestedRule"
+    ) as unknown as StructuralReferenceNestedRule | undefined,
   }
-
-  return collector.finish()
 }
-
-function acceptFormIndexValue(
-  collector: ReturnType<typeof createFormDataPathIndexCollector>,
-  yamlPath: readonly (string | number)[],
-  value: unknown
-): void {
-  if (value === undefined) return
-  collector.acceptProperty({
-    yamlPath,
-    rulePath: [],
-    rule: { type: "ValidationFormIndex" as never, yaml: String(yamlPath.at(-1)) },
-    value,
-  })
-}
-
 function collectFormPendingChecks(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
@@ -669,7 +719,8 @@ function collectFormPendingChecks(params: {
   formElementNameDiagnostics: Diagnostic[]
   formElementNamesMs: number
 } {
-  const nameCollector = createFormElementNameCollector({
+  const adapter = requireFormValidationAdapter()
+  const nameCollector = adapter.createElementNameCollector({
     filePath: params.file.absolutePath,
     parsed: params.parsed,
   })
@@ -677,7 +728,7 @@ function collectFormPendingChecks(params: {
     file: params.file,
     parsed: params.parsed,
     owner: params.value,
-    properties: ClientApplicationFormRules.properties,
+    properties: adapter.formRule.properties,
     index: params.index,
     cursor: { yamlPath: params.yamlPath, rulePath: [] },
     tableContext: params.tableContext,
@@ -701,7 +752,7 @@ function collectNestedFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
-  nameCollector?: FormElementNameCollector
+  nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
@@ -823,7 +874,7 @@ function collectFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
-  nameCollector?: FormElementNameCollector
+  nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
@@ -902,14 +953,7 @@ function tableContextForChildren(
 }
 
 function elementTypeFromYaml(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined {
-  if (typeof value !== "string") return undefined
-  if (tableContext !== undefined) {
-    if (value === "ПолеВвода") return "TableInputField"
-    if (value === "ПолеНадписи") return "TableLabelField"
-    if (value === "ПолеРисунка") return "TablePictureField"
-    if (value === "ПолеФлажок") return "TableCheckBoxField"
-  }
-  return CollectableElementTypeFromYAML[value as keyof typeof CollectableElementTypeFromYAML]
+  return requireFormValidationAdapter().elementTypeFromYAML(value, tableContext)
 }
 
 function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {

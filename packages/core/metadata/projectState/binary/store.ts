@@ -1,14 +1,11 @@
-import type { Diagnostic } from "../../validation/types"
+import type { Diagnostic } from "../../diagnostics/types"
 import { openDiagnosticBatch } from "../../diagnostics/binaryBatch"
 import { readLocalDiagnosticBatch, validateDependencyDiagnosticBatch } from "./diagnosticBatches"
-import {
-  readProjectStateDependencyReadiness,
-  validateProjectStateDependencyBatch,
-  validateProjectStateOwnerBatch,
-  validateProjectStateReferenceBatch,
-  type ProjectStatePendingOwnerCheck,
-  type ProjectStatePendingReferenceCheck,
-} from "../dependencyValidation"
+import type {
+  ProjectStateDependencyValidator,
+  ProjectStatePendingOwnerCheck,
+  ProjectStatePendingReferenceCheck,
+} from "../contracts/dependencyValidation"
 import {
   assertProjectStateFileBaseline,
   assertProjectStateFileBaselinePage,
@@ -16,10 +13,10 @@ import {
   type ProjectStateReadToken,
 } from "../contracts"
 import {
-  type ProjectStateFileIdentity,
   type ProjectStateFileUpdate,
-} from "../fileUpdate"
-import type { ProjectDependencyInputQuery, ProjectStateReadSession } from "../readSession"
+} from "../contracts/fileUpdate"
+import type { ProjectStateFileIdentity } from "../contracts/fileIdentity"
+import type { ProjectDependencyInputQuery, ProjectStateReadSession } from "../contracts/dependencyValidation"
 import type {
   ProjectDependencyBatchQuery,
   ProjectDependencyValidationParams,
@@ -38,6 +35,7 @@ import {
 } from "./typedReader"
 
 export interface BinaryProjectStateStoreOptions {
+  readonly dependencyValidator: ProjectStateDependencyValidator
   readonly initial?: ProjectStateSharedBuffers
   readonly checkpoint?: (buffers: ProjectStateSharedBuffers) => Promise<void>
   readonly projectDir?: string
@@ -62,7 +60,7 @@ interface BinaryProjectStateReadContext {
 const YAML_ROLES = [undefined, "configuration", "properties", "form"] as const
 
 export function createBinaryProjectStateStore(
-  options: BinaryProjectStateStoreOptions = {},
+  options: BinaryProjectStateStoreOptions,
 ): BinaryProjectStateStoreFixture {
   let published = options.initial ?? buildProjectStateSnapshot({ fragments: [], deletions: [] })
   let active: ActiveUpdate | undefined
@@ -168,6 +166,7 @@ export function createBinaryProjectStateStore(
       return readDiagnostics(
         readContext(currentBuffers()),
         params?.mode === "published",
+        options.dependencyValidator,
       )
     },
     readLocalDiagnosticBatches(params) {
@@ -175,13 +174,17 @@ export function createBinaryProjectStateStore(
       return [readLocalDiagnosticBatch(
         new ProjectStateSnapshotView(currentBuffers()),
         params?.mode === "published",
+        options.dependencyValidator,
       )]
     },
     readDependencyCheckBatch(params: ProjectDependencyBatchQuery) {
       assertOpen()
       const context = readContext(currentBuffers())
       const typed = createTypedProjectStateReader(context.snapshot, context.readIndex)
-      const queryPort = createBinaryProjectStateQueryPort(context.snapshot, { typedReader: typed })
+      const queryPort = createBinaryProjectStateQueryPort(context.snapshot, {
+        typedReader: typed,
+        dependencyValidator: options.dependencyValidator,
+      })
       return { results: queryPort.readDependencyInputs(params.requests) }
     },
     validateDependencies(_params: ProjectDependencyValidationParams) {
@@ -189,6 +192,7 @@ export function createBinaryProjectStateStore(
       return validateSnapshotDependencies(
         readContext(currentBuffers()),
         options.projectDir ?? "",
+        options.dependencyValidator,
       )
     },
     validateDependencyDiagnosticBatches(_params: ProjectDependencyValidationParams) {
@@ -196,6 +200,7 @@ export function createBinaryProjectStateStore(
       return [openDiagnosticBatch(validateDependencyDiagnosticBatch(
         new ProjectStateSnapshotView(currentBuffers()),
         options.projectDir ?? "",
+        options.dependencyValidator,
       ))]
     },
     readComponentProjection(componentPath): ProjectStateComponentProjection {
@@ -243,7 +248,10 @@ export function createBinaryProjectStateStore(
     },
   }
 
-  return { store, openReadSession: openBinaryProjectStateReadSession }
+  return {
+    store,
+    openReadSession: (token) => openBinaryProjectStateReadSession(token, options.dependencyValidator),
+  }
 
   function assertOpen(): void {
     if (closed) throw new Error("Двоичное хранилище состояния проекта закрыто")
@@ -305,12 +313,16 @@ function sameIdentity(left: ProjectStateFileIdentity, right: ProjectStateFileIde
     && left.yamlRole === right.yamlRole
 }
 
-function readDiagnostics(context: BinaryProjectStateReadContext, publishedMode: boolean): Diagnostic[] {
+function readDiagnostics(
+  context: BinaryProjectStateReadContext,
+  publishedMode: boolean,
+  dependencyValidator: ProjectStateDependencyValidator,
+): Diagnostic[] {
   const { snapshot } = context
   const typed = createTypedProjectStateReader(snapshot, context.readIndex)
   const blocked = publishedMode
-    ? readProjectStateDependencyReadiness({
-        queryPort: createBinaryProjectStateQueryPort(snapshot, { typedReader: typed }),
+    ? dependencyValidator.readReadiness({
+        queryPort: createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator }),
       }).blockedComponentPaths
     : new Set<string>()
   const diagnostics: Diagnostic[] = []
@@ -325,11 +337,15 @@ function readDiagnostics(context: BinaryProjectStateReadContext, publishedMode: 
   return diagnostics
 }
 
-function validateSnapshotDependencies(context: BinaryProjectStateReadContext, projectDir: string): Diagnostic[] {
+function validateSnapshotDependencies(
+  context: BinaryProjectStateReadContext,
+  projectDir: string,
+  dependencyValidator: ProjectStateDependencyValidator,
+): Diagnostic[] {
   const { snapshot } = context
   const typed = createTypedProjectStateReader(snapshot, context.readIndex)
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed })
-  const readiness = readProjectStateDependencyReadiness({ queryPort })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
+  const readiness = dependencyValidator.readReadiness({ queryPort })
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
@@ -362,9 +378,9 @@ function validateSnapshotDependencies(context: BinaryProjectStateReadContext, pr
     })
   }
   return [
-    ...validateProjectStateReferenceBatch({ checks: references, projectDir, queryPort }),
-    ...validateProjectStateOwnerBatch({ checks: owners, projectDir, queryPort }),
-    ...validateProjectStateDependencyBatch({ checks: dependencies, projectDir, queryPort }),
+    ...dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }),
+    ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
+    ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
     ...readiness.diagnostics,
   ]
 }

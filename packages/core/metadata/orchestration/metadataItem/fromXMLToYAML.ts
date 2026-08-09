@@ -1,5 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { applyMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import { applyMetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
@@ -35,6 +35,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
+    dependent: params.traversal.dependent,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
   })

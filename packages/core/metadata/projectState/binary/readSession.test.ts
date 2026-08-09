@@ -3,6 +3,7 @@ import type { ProjectTargetLookup } from "../readSession"
 import { ProjectStateReadSessionClosedError } from "../readSession"
 import { buildProjectStateSnapshot } from "./builder"
 import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } from "./readSession"
+import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
 import { richYamlUpdate } from "./testData"
@@ -102,6 +103,59 @@ it("сохраняет путь к данным табличного элеме�
   }])
 })
 
+it("сохраняет произвольный тип колонки в двоичном снимке", () => {
+  const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const owner = { kind: "Справочник", name: "Catalog.Source" }
+  const arbitrary = { kinds: ["any"] as const, nextTypes: [], sourceText: "Произвольный" }
+  const update = {
+    ...source,
+    forms: [
+      {
+        kind: "root" as const,
+        owner,
+        name: "Таблица",
+        source: {
+          kind: "formAttribute" as const,
+          name: "Таблица",
+          typeInfo: {
+            kinds: ["tableSource"] as const,
+            nextTypes: [],
+            table: { kind: "ValueTable" as const },
+          },
+          table: { kind: "ValueTable" as const },
+          tableHasColumns: true,
+        },
+      },
+      {
+        kind: "additionalColumn" as const,
+        owner,
+        tablePath: "Таблица",
+        name: "Значение",
+        source: { name: "Значение", typeInfo: arbitrary },
+      },
+    ],
+  }
+  const session = openSessionWithUpdates([update])
+
+  const response = session.readDependencyInputs([
+    {
+      requestId: "dependency",
+      componentPath: "cf",
+      projectPath: update.projectPath,
+      check: source.pendingChecks[0]!,
+    },
+  ])[0]
+
+  expect(response).toMatchObject({ status: "found" })
+  if (response?.status !== "found") throw new Error("Не прочитаны входы проверки зависимостей")
+  const column = response.input.forms.find(
+    (entry) => entry.kind === "additionalColumn" && entry.tablePath === "Таблица" && entry.name === "Значение"
+  )
+  expect(column).toMatchObject({ kind: "additionalColumn" })
+  if (column?.kind !== "additionalColumn") throw new Error("Не прочитана колонка формы")
+  expect(column.source.typeInfo).toEqual(arbitrary)
+})
+
 it("находит точные и префиксные metadata-ссылки", () => {
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const session = openSessionWithUpdates([update])
@@ -162,7 +216,9 @@ it("не обращается к прежнему предметному дек�
   const buffers = typedSnapshot([richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")])
   const snapshot = new ProjectStateSnapshotView(buffers)
   vi.spyOn(snapshot, "decodeFacts").mockImplementation(() => { throw new Error("старый декодер вызван") })
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   queryPort.resolveTargets([
     lookup("first", "cf", "Catalog.Source"),
@@ -180,7 +236,10 @@ it("использует переданный типизированный чи�
   const snapshot = new ProjectStateSnapshotView(buffers)
   const reader = createTypedProjectStateReader(snapshot)
   const localValidation = vi.spyOn(reader, "localValidation")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   queryPort.readValidationStatus({ offset: 0, batchSize: 1 })
   queryPort.readValidationStatus({ offset: 1, batchSize: 1 })
@@ -194,7 +253,9 @@ it("разрешает одинаковую цель один раз для вс
   ])
   const snapshot = new ProjectStateSnapshotView(buffers)
   const lookupTarget = vi.spyOn(snapshot, "lookupTarget")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.resolveTargets([
     lookup("first", "cf", "Catalog.Source"),
@@ -211,7 +272,10 @@ it("читает сведения цели без восстановления �
   const snapshot = new ProjectStateSnapshotView(buffers)
   const reader = createTypedProjectStateReader(snapshot)
   const yamlFacts = vi.spyOn(reader, "yamlFacts")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.resolveTargets([
     lookup("target", "cf", "Catalog.Source"),
@@ -225,7 +289,10 @@ it("читает входы DataPath без восстановления все�
   const snapshot = new ProjectStateSnapshotView(typedSnapshot([update]))
   const reader = createTypedProjectStateReader(snapshot)
   const yamlFacts = vi.spyOn(reader, "yamlFacts")
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: reader })
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, {
+    typedReader: reader,
+    dependencyValidator: createProjectStateDependencyValidator(),
+  })
 
   expect(queryPort.readDependencyInputs([{
     requestId: "dependency",
@@ -299,7 +366,10 @@ it("восстанавливает вложенную цель отложенн�
 
 function openSessionWithUpdates(updates: ReturnType<typeof richYamlUpdate>[]) {
   const buffers = typedSnapshot(updates)
-  return openBinaryProjectStateReadSession(createBinaryProjectStateReadToken(buffers))
+  return openBinaryProjectStateReadSession(
+    createBinaryProjectStateReadToken(buffers),
+    createProjectStateDependencyValidator(),
+  )
 }
 
 function typedSnapshot(updates: ReturnType<typeof richYamlUpdate>[]) {

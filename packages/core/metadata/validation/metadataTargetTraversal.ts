@@ -2,7 +2,7 @@ import {
   getTypeRule,
   resolvePropertyItemRule,
 } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import type { MetadataTargetOwner } from "../orchestration/metadataTarget"
 import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/property/fn"
 import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"

@@ -1,7 +1,38 @@
 import { describe, expect, it } from "vitest"
-import { createValidationOwnerFacts } from "./ownerFacts"
+import { createValidationOwnerFacts, ownerFactFromYAML } from "./ownerFacts"
 
 describe("ValidationOwnerFacts", () => {
+  it("сохраняет дату через общий TypeDescription", () => {
+    expect(ownerFactFromYAML("type", "Дата")).toEqual({
+      type: ["dateTime"],
+      dateQualifiers: { dateFractions: "Date" },
+    })
+  })
+
+  it("сохраняет имена значений перечисления и вложенных предопределённых элементов", () => {
+    expect(ownerFactFromYAML("enumValues", { Высокая: {}, Обычная: {} })).toEqual([
+      { name: "Высокая" },
+      { name: "Обычная" },
+    ])
+    expect(ownerFactFromYAML("predefined", {
+      Группа: { Элементы: { Вложенное: {} } },
+    })).toEqual([{ name: "Группа" }, { name: "Вложенное" }])
+  })
+
+  it("сохраняет значения модели как сведения владельца", () => {
+    const facts = createValidationOwnerFacts({
+      ref: { kind: "Перечисление", name: "Важность" },
+      filePath: "/project/Перечисление/Важность/Свойства.yaml",
+      fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+      model: {
+        itemType: "MetadataEnumeration",
+        enumValues: [{ name: "Высокая" }, { name: "Обычная" }],
+      },
+    })
+
+    expect(facts.enumValues).toEqual([{ name: "Высокая" }, { name: "Обычная" }])
+  })
+
   it("сохраняет движения документа в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "Документ", name: "Операция" },

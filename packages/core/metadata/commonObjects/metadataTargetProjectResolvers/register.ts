@@ -1,5 +1,3 @@
-import { existsSync } from "fs"
-import { dirname, join } from "path"
 import { rootFromYAML } from "../metadataTargets/roots"
 import type { ParsedMetadataTarget } from "../metadataTargets/types"
 import {
@@ -10,34 +8,6 @@ import {
 } from "../../validation/projectReferenceIndexRegistry"
 import { projectMemberIndexKey, type ProjectMemberIndexEntry } from "../../validation/projectMetadataReferences"
 
-registerProjectReferenceMemberContributor("Form", ({ ownerFilePath, segment, target }) => {
-  if (target.segments.length !== 1) return undefined
-
-  const filePath = join(dirname(ownerFilePath), "Формы", segment.name, "Форма.yaml")
-  return existsSync(filePath)
-    ? { ok: true, filePath, details: { kind: "Form", name: segment.name, item: segment.name } }
-    : undefined
-})
-
-registerProjectReferenceMemberContributor("Template", ({ ownerFilePath, segment, target }) => {
-  if (target.segments.length !== 1) return undefined
-
-  const templateDir = join(dirname(ownerFilePath), "Шаблоны", segment.name)
-  for (const fileName of ["Template.xml", "Template.txt", "Template.bin"]) {
-    const filePath = join(templateDir, fileName)
-    if (existsSync(filePath)) {
-      return { ok: true, filePath, details: { kind: "Template", name: segment.name, item: segment.name } }
-    }
-  }
-
-  return undefined
-})
-
-registerProjectReferenceMemberContributor("Form", createCollectionMemberResolver({ modelName: "forms", yamlName: "Формы" }))
-registerProjectReferenceMemberContributor(
-  "Template",
-  createCollectionMemberResolver({ modelName: "templates", yamlName: "Макеты" })
-)
 registerProjectReferenceMemberContributor("Command", createCollectionMemberResolver({ modelName: "commands", yamlName: "Команды" }))
 registerProjectReferenceMemberContributor(
   "AccountingFlag",
@@ -56,8 +26,6 @@ registerProjectReferenceMemberContributor(
   "Resource",
   createCollectionMemberResolver({ modelName: "resources", yamlName: "Ресурсы" })
 )
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "forms", kind: "Form" }))
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "templates", kind: "Template" }))
 registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "commands", kind: "Command" }))
 registerProjectReferenceMemberIndexContributor(
   collectionMemberIndexContributor({ modelName: "accountingFlags", kind: "AccountingFlag" })

@@ -7,6 +7,7 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredOwnerMetadataCache"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
@@ -34,6 +35,18 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         Объект: { Тип: type, ОсновнойРеквизит: "Истина" },
       },
     }) as ClientApplicationFormYAML
+
+  it("public converter and BaseForm use the same conversion core", () => {
+    const params = {
+      context: mockContextToXML(),
+      yaml: {} as ClientApplicationFormYAML,
+      name: "Форма",
+    }
+
+    expect(convertClientApplicationFormFromYAMLToXML(params)).toEqual(
+      convertClientApplicationFormYAMLToXMLCore(params)
+    )
+  })
 
   it("восстанавливает платформенное назначение при отсутствии YAML-поля", () => {
     const result = convertClientApplicationFormFromYAMLToXML({

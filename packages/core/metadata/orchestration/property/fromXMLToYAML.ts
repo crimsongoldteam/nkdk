@@ -11,9 +11,14 @@ import {
 } from "../../configurationIndex/collector/context"
 import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/logicalAddress"
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
+import { buildExternalFileEntry } from "./externalFile"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
-import type { DeferredRulePathSegment, DirectImportProfile, DirectImportXMLSource } from "./importYamlTypes"
+import type {
+  DeferredRulePathSegment,
+  DirectImportProfile,
+  DirectImportXMLSource,
+  ImportedDependentPropertyCollector,
+} from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
@@ -27,6 +32,7 @@ import type { YamlPath } from "../../validation/yamlLocations"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { markYAMLScalarTag } from "../../../yaml/scalarTags"
 import { matchExplicitXMLPropertyFromXML } from "./explicitXMLPropertyRegistry"
+import { isDependentImportProperty } from "./dependentItemRegistry"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -52,6 +58,7 @@ export function importPropertiesFromXMLToYAML(params: {
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   deferred?: DeferredValuePathCollector
+  dependent?: ImportedDependentPropertyCollector
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
 }): Record<string, unknown> | undefined {
@@ -241,6 +248,7 @@ export function importPropertiesFromXMLToYAML(params: {
               rulePath: nestedTraversal.rulePath,
               collector,
               deferred,
+              dependent: params.dependent,
               profile: params.profile,
             }),
           { configurationIndexAddressing: nestedConfigurationIndexAddressing }
@@ -296,6 +304,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 rulePath: propertyRulePath,
                 collector,
                 deferred,
+                dependent: params.dependent,
                 profile: params.profile,
               },
             }),
@@ -401,6 +410,18 @@ export function importPropertiesFromXMLToYAML(params: {
           : { [propertyRule.yaml!]: exportedYamlValue }
       if (exportedValues === undefined) return
       Object.assign(result, exportedValues)
+      if (isDependentImportProperty(rule.itemType, key)) {
+        params.dependent?.accept({
+          itemType: rule.itemType,
+          ...(itemName === undefined ? {} : { itemName }),
+          itemYamlPath: yamlPath,
+          propertyKey: key,
+          yamlPath: propertyYamlPath,
+          ...(propertyLogicalAddress === undefined ? {} : { logicalAddress: propertyLogicalAddress }),
+          xmlValue: sourceXMLValue,
+          presentInXML,
+        })
+      }
       if (explicitXML !== undefined) markYAMLScalarTag(result, propertyRule.yaml!, "xml")
       const profile = params.profile
       if (profile !== undefined) profile.exportedCount++

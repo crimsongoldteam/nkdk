@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import type { XmlSyncState } from "./syncState"
+import type { XmlSyncState } from "./syncStateContracts"
 
 export const BINARY_SYNC_STATE_FILE = ".nkdk-sync.bin"
 

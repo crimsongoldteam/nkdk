@@ -102,7 +102,4 @@ export interface EnterpriseAttributeMapItem {
 
 export type EnterpriseAttributesMap = Record<string, EnterpriseAttributeMapItem>
 
-export const FormRulesTags = {
-  Form: "Form",
-  Metadata: "Metadata",
-} as const
+export { FormRulesTags } from "./rules"
