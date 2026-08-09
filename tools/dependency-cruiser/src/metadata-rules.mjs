@@ -1,17 +1,17 @@
 import { testModulePattern } from "./common-rules.mjs"
+import {
+  implementationTargetPatterns,
+  metadataReachabilityRules,
+  neutralProductionPattern,
+  toDependencyCruiserRule,
+} from "./reachability-rules.mjs"
 
-export const neutralProductionPattern =
-  "^packages/core/metadata/(?:ruleRuntime|validation|project|standardMembers)/"
+export { implementationTargetPatterns, neutralProductionPattern }
 
 const allowedInternalTargets = [
   "^packages/core/metadata/(?:ruleRuntime|validation|project|standardMembers)/",
   "^packages/core/metadata/(?:context|helpers|resourceTopology|configurationIndex|components|diagnostics|projectState|workerPool|sourceWorkerRuntime)(?:/|\\.ts$)",
   "^packages/core/(?:helpers|yaml|xml)/",
-]
-
-export const implementationTargetPatterns = [
-  "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
-  "^packages/core/metadata/register\\.ts$",
 ]
 
 export const allowedNeutralRules = [
@@ -27,13 +27,6 @@ export const allowedNeutralRules = [
   },
 ]
 
-export const metadataForbiddenRules = [
-  {
-    name: "neutral-not-reach-implementations",
-    severity: "error",
-    comment:
-      "Нейтральный metadata-слой не знает реализацию даже транзитивно; используйте rules.ts, регистрацию или нейтральный договор.",
-    from: { path: neutralProductionPattern, pathNot: testModulePattern },
-    to: { path: implementationTargetPatterns, reachable: true },
-  },
-]
+export const metadataForbiddenRules = metadataReachabilityRules.map(
+  toDependencyCruiserRule
+)

@@ -7,9 +7,13 @@ import {
 import { analyzeCruiseResult } from "../src/cruise-result.mjs"
 import { cruiseFixture } from "../src/fixture-cruise.mjs"
 import {
-  addImplementationReachabilityViolations,
-  findImplementationReachabilityViolations,
+  addReachabilityViolations,
+  findReachabilityViolations,
 } from "../src/reachability.mjs"
+import {
+  fixtureReachabilityRules,
+  metadataReachabilityRules,
+} from "../src/reachability-rules.mjs"
 
 const result = cruiseFixture()
 
@@ -71,7 +75,10 @@ test("запрещает runtime, type-only и транзитивное знан
 })
 
 test("линейный обход сохраняет runtime, type-only и транзитивный договор", () => {
-  const violations = findImplementationReachabilityViolations(result)
+  const violations = findReachabilityViolations(
+    result,
+    metadataReachabilityRules
+  )
 
   assert.deepEqual(
     violations.map(({ from, to }) => [from, to]),
@@ -90,6 +97,30 @@ test("линейный обход сохраняет runtime, type-only и тр�
       ],
     ]
   )
+})
+
+test("нижние зоны не достигают адаптеров напрямую или транзитивно", () => {
+  const violations = findReachabilityViolations(
+    result,
+    fixtureReachabilityRules
+  )
+  const namesFor = (source) =>
+    new Set(
+      violations
+        .filter(({ from }) => from === source)
+        .map(({ rule }) => rule.name)
+    )
+
+  for (const source of [
+    "packages/core/metadata/example/contracts/direct.ts",
+    "packages/core/metadata/example/core/transitive.ts",
+  ]) {
+    assert.equal(
+      namesFor(source).has("example-core-not-reach-adapters"),
+      true,
+      source
+    )
+  }
 })
 
 test("линейный обход находит production-рёбра внутри цикла", () => {
@@ -120,8 +151,9 @@ test("смягчает известное reachable-нарушение по ис
       ),
     },
   }
-  const checked = addImplementationReachabilityViolations(
+  const checked = addReachabilityViolations(
     withoutNativeReachability,
+    metadataReachabilityRules,
     [
       {
         type: "reachability",

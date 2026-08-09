@@ -7,7 +7,8 @@ import {
 } from "./paths.mjs"
 import { runDepcruise } from "./run-depcruise.mjs"
 import { softenKnownViolations } from "./known-violations.mjs"
-import { addImplementationReachabilityViolations } from "./reachability.mjs"
+import { addReachabilityViolations } from "./reachability.mjs"
+import { metadataReachabilityRules } from "./reachability-rules.mjs"
 
 export const MIN_MODULES = 1800
 
@@ -57,7 +58,11 @@ export function assertCompleteCruiseResult(result) {
   }
 }
 
-export function analyzeCruiseResult(rawResult, knownViolations = []) {
+export function analyzeCruiseResult(
+  rawResult,
+  knownViolations = [],
+  reachabilityRules = metadataReachabilityRules
+) {
   const withoutCycleViolations = {
     ...rawResult,
     summary: {
@@ -68,7 +73,11 @@ export function analyzeCruiseResult(rawResult, knownViolations = []) {
     },
   }
   return softenKnownViolations(
-    addImplementationReachabilityViolations(withoutCycleViolations),
+    addReachabilityViolations(
+      withoutCycleViolations,
+      reachabilityRules,
+      knownViolations
+    ),
     knownViolations
   )
 }

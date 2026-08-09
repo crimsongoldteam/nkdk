@@ -1,32 +1,45 @@
 import { testModulePattern } from "./common-rules.mjs"
-import {
-  implementationTargetPatterns,
-  metadataForbiddenRules,
-  neutralProductionPattern,
-} from "./metadata-rules.mjs"
+import { toDependencyCruiserRule } from "./reachability-rules.mjs"
 
-const neutralProduction = new RegExp(neutralProductionPattern, "u")
 const testModule = new RegExp(testModulePattern, "u")
-const implementationTargets = implementationTargetPatterns.map(
-  (pattern) => new RegExp(pattern, "u")
-)
 
-function isImplementation(source) {
-  return implementationTargets.some((pattern) => pattern.test(source))
+function compilePatterns(patterns = []) {
+  return patterns.map((pattern) => new RegExp(pattern, "u"))
 }
 
-function indexPathsToImplementations(result) {
+function matches(source, patterns, notPatterns) {
+  return (
+    patterns.some((pattern) => pattern.test(source)) &&
+    !notPatterns.some((pattern) => pattern.test(source))
+  )
+}
+
+function compileRule(rule) {
+  return {
+    ...rule,
+    fromPatterns: compilePatterns(rule.fromPatterns),
+    fromNotPatterns: compilePatterns(rule.fromNotPatterns),
+    toPatterns: compilePatterns(rule.toPatterns),
+    toNotPatterns: compilePatterns(rule.toNotPatterns),
+  }
+}
+
+function indexPathsToTargets(result, rule) {
   const reverseDependencies = new Map()
   const nextHop = new Map()
   const finalTarget = new Map()
   const queue = []
 
   for (const module of result.modules) {
-    if (isImplementation(module.source)) {
+    if (testModule.test(module.source)) continue
+    if (
+      matches(module.source, rule.toPatterns, rule.toNotPatterns)
+    ) {
       finalTarget.set(module.source, module.source)
       queue.push(module.source)
     }
     for (const dependency of module.dependencies) {
+      if (testModule.test(dependency.resolved)) continue
       const incoming = reverseDependencies.get(dependency.resolved) ?? []
       incoming.push({ source: module.source, dependency })
       reverseDependencies.set(dependency.resolved, incoming)
@@ -61,33 +74,42 @@ function restorePath(source, nextHop) {
   return via
 }
 
-export function findImplementationReachabilityViolations(result) {
-  const { finalTarget, nextHop } = indexPathsToImplementations(result)
+export function findReachabilityViolations(result, rules) {
+  return rules
+    .flatMap((sourceRule) => {
+      const rule = compileRule(sourceRule)
+      const { finalTarget, nextHop } = indexPathsToTargets(result, rule)
 
-  return result.modules
-    .filter(
-      ({ source }) =>
-        neutralProduction.test(source) && !testModule.test(source)
-    )
-    .flatMap(({ source }) => {
-      const target = finalTarget.get(source)
-      if (!target || target === source) return []
+      return result.modules
+        .filter(
+          ({ source }) =>
+            !testModule.test(source) &&
+            matches(source, rule.fromPatterns, rule.fromNotPatterns)
+        )
+        .flatMap(({ source }) => {
+          const target = finalTarget.get(source)
+          if (!target || target === source) return []
 
-      return [
-        {
-          type: "reachability",
-          from: source,
-          to: target,
-          rule: {
-            severity: "error",
-            name: "neutral-not-reach-implementations",
-          },
-          via: restorePath(source, nextHop),
-        },
-      ]
+          return [
+            {
+              type: "reachability",
+              from: source,
+              to: target,
+              rule: {
+                severity: sourceRule.severity,
+                name: sourceRule.name,
+                comment: sourceRule.comment,
+              },
+              via: restorePath(source, nextHop),
+            },
+          ]
+        })
     })
-    .sort((left, right) =>
-      left.from.localeCompare(right.from) || left.to.localeCompare(right.to)
+    .sort(
+      (left, right) =>
+        left.from.localeCompare(right.from) ||
+        left.to.localeCompare(right.to) ||
+        left.rule.name.localeCompare(right.rule.name)
     )
 }
 
@@ -100,17 +122,22 @@ function isKnownReachabilityViolation(violation, knownViolations) {
   )
 }
 
-export function addImplementationReachabilityViolations(
+export function addReachabilityViolations(
   result,
+  rules,
   knownViolations = []
 ) {
-  const reachableViolations = findImplementationReachabilityViolations(
-    result
+  const reachableViolations = findReachabilityViolations(
+    result,
+    rules
   ).map((violation) => ({
     ...violation,
     rule: {
       ...violation.rule,
-      severity: isKnownReachabilityViolation(violation, knownViolations)
+      severity: isKnownReachabilityViolation(
+        violation,
+        knownViolations
+      )
         ? "ignore"
         : violation.rule.severity,
     },
@@ -119,9 +146,10 @@ export function addImplementationReachabilityViolations(
   const count = (severity) =>
     violations.filter(({ rule }) => rule.severity === severity).length
   const forbidden = result.summary.ruleSetUsed?.forbidden ?? []
-  const hasReachabilityRule = forbidden.some(
-    ({ name }) => name === "neutral-not-reach-implementations"
-  )
+  const existingRuleNames = new Set(forbidden.map(({ name }) => name))
+  const missingRules = rules
+    .filter(({ name }) => !existingRuleNames.has(name))
+    .map(toDependencyCruiserRule)
 
   return {
     ...result,
@@ -134,9 +162,7 @@ export function addImplementationReachabilityViolations(
       ignore: count("ignore"),
       ruleSetUsed: {
         ...result.summary.ruleSetUsed,
-        forbidden: hasReachabilityRule
-          ? forbidden
-          : [...forbidden, ...metadataForbiddenRules],
+        forbidden: [...forbidden, ...missingRules],
       },
     },
   }
