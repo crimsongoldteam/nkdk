@@ -1,11 +1,34 @@
 import { describe, expect, it } from "vitest"
 import { explicitYAMLString } from "./explicitString"
-import { exportToYAML } from "./export"
+import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
+import { parseMetadataYaml } from "./parseMetadataYaml"
 import { markYAMLScalarTag } from "./scalarTags"
 
 describe("exportToYAML", () => {
+  it.each([
+    ["явная строка", { Значение: explicitYAMLString("001") }],
+    ["пустая строка", { Значение: explicitYAMLString("") }],
+    ["undefined в объекте", { Значение: undefined }],
+    ["undefined в массиве", { Значения: [undefined] }],
+    ["вложенное значение", { Внешний: { Значение: explicitYAMLString("456") } }],
+  ] as const)("строит смысловые данные как штатный parser: %s", (_name, source) => {
+    const serialized = serializeYAMLDocument(source)
+
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
+  it("не переносит служебную пометку тега в смысловые данные", () => {
+    const source = { Значение: "Авто" }
+    markYAMLScalarTag(source, "Значение", "xml")
+
+    const serialized = serializeYAMLDocument(source)
+
+    expect(serialized.text).toBe("Значение: !xml Авто")
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
   it("exports a marked scalar with the local xml tag", () => {
     const data = { Поле: "Авто" }
     markYAMLScalarTag(data, "Поле", "xml")

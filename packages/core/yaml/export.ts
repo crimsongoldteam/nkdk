@@ -5,6 +5,16 @@ import { NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 const UNDEFINED_VALUE_MARKER_PREFIX = "__NKDK_UNDEFINED_VALUE_"
 
+export interface SerializedYAMLDocument {
+  readonly text: string
+  readonly data: unknown
+}
+
+interface PreparedYAMLNode {
+  readonly dumpValue: unknown
+  readonly data: unknown
+}
+
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
 
 const isKeepChompingBlockScalarHeader = (line: string): boolean => {
@@ -38,23 +48,34 @@ function prepareForDump(
   value: unknown,
   explicitStrings: Map<string, string>,
   undefinedValues: Set<string>
-): unknown {
+): PreparedYAMLNode {
   if (isExplicitYAMLString(value)) {
-    return explicitStringMarker(String(unwrapExplicitYAMLString(value)), explicitStrings)
+    const data = String(unwrapExplicitYAMLString(value))
+    return { dumpValue: explicitStringMarker(data, explicitStrings), data }
   }
-  if (typeof value === "string" && shouldExportAsExplicitString(value)) return explicitStringMarker(value, explicitStrings)
+  if (typeof value === "string" && shouldExportAsExplicitString(value)) {
+    return { dumpValue: explicitStringMarker(value, explicitStrings), data: value }
+  }
   if (Array.isArray(value)) {
-    return value.map((item, index) => prepareChildForDump(value, index, item, explicitStrings, undefinedValues))
+    const prepared = value.map((item, index) =>
+      prepareChildForDump(value, index, item, explicitStrings, undefinedValues)
+    )
+    return {
+      dumpValue: prepared.map(({ dumpValue }) => dumpValue),
+      data: prepared.map(({ data }) => data),
+    }
   }
   if (value !== null && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [
-        key,
-        prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
-      ])
-    )
+    const prepared = Object.entries(value).map(([key, item]) => [
+      key,
+      prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
+    ] as const)
+    return {
+      dumpValue: Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue])),
+      data: Object.fromEntries(prepared.map(([key, item]) => [key, item.data])),
+    }
   }
-  return value
+  return { dumpValue: value, data: value }
 }
 
 function prepareChildForDump(
@@ -63,14 +84,19 @@ function prepareChildForDump(
   value: unknown,
   explicitStrings: Map<string, string>,
   undefinedValues: Set<string>
-): unknown {
+): PreparedYAMLNode {
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
-    return marker
+    return { dumpValue: marker, data: undefined }
   }
-  const prepared = value === undefined ? null : prepareForDump(value, explicitStrings, undefinedValues)
-  return taggedScalarForDump(parent, key, prepared)
+  const prepared = value === undefined
+    ? { dumpValue: null, data: null }
+    : prepareForDump(value, explicitStrings, undefinedValues)
+  return {
+    dumpValue: taggedScalarForDump(parent, key, prepared.dumpValue),
+    data: prepared.data,
+  }
 }
 
 function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {
@@ -105,10 +131,11 @@ function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>
   return result
 }
 
-export const exportToYAML = <T>(data: T): string => {
+export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
   const explicitStrings = new Map<string, string>()
   const undefinedValues = new Set<string>()
-  const yaml = dump(prepareForDump(data, explicitStrings, undefinedValues), {
+  const prepared = prepareForDump(source, explicitStrings, undefinedValues)
+  const yaml = dump(prepared.dumpValue, {
     schema: NKDK_YAML_SCHEMA,
     indent: 2,
     lineWidth: -1,
@@ -118,7 +145,10 @@ export const exportToYAML = <T>(data: T): string => {
     forceQuotes: false,
     quoteStyle: "double",
   })
-  return removeDocumentFinalLineEnding(
+  const text = removeDocumentFinalLineEnding(
     normalizeQuotedTypeLinkValues(quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings))
   )
+  return { text, data: prepared.data }
 }
+
+export const exportToYAML = <T>(data: T): string => serializeYAMLDocument(data).text
