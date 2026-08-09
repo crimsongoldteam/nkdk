@@ -90,6 +90,25 @@ describe("shared full XML sync coordinator", () => {
     expect(harness.writtenIndex?.entities).toEqual([])
   })
 
+  it("останавливается до refresh и записи XML при ожидающем частичном пакете", async () => {
+    const harness = createHarness()
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: "/project",
+      componentPath: "cf",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }, {
+      ...harness.deps,
+      assertNoPending() { throw new Error("существует ожидающий пакет") },
+    })
+
+    expect(result.failed).toEqual([expect.objectContaining({ message: "существует ожидающий пакет" })])
+    expect(harness.events).toEqual([])
+    expect(harness.workerPoolCreations).toBe(0)
+  })
+
   it.each([
     ["full", false, "blocked"],
     ["selected", false, "blocked"],

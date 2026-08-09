@@ -62,7 +62,7 @@ describe("writeFullXmlSyncAssignment", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
       context,
-      outputDir,
+      outputTarget: { kind: "directory", outputDir },
     })
 
     expect(result.diagnostics).toEqual([])
@@ -160,7 +160,11 @@ describe("writeFullXmlSyncAssignment", () => {
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       composition: emptyComposition,
     })
-    const result = await writeFullXmlSyncAssignment({ prepared: preparedAssignment, context, outputDir })
+    const result = await writeFullXmlSyncAssignment({
+      prepared: preparedAssignment,
+      context,
+      outputTarget: { kind: "directory", outputDir },
+    })
 
     expect(result.diagnostics).toEqual([])
     expect(result.writtenFiles.map((file) => file.targetXmlPath)).toEqual([
@@ -188,7 +192,7 @@ describe("writeFullXmlSyncAssignment", () => {
         profile: createYAMLToXMLProfile(),
       },
       context: mockContextToXML(),
-      outputDir: join(projectDir, "xml"),
+      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
     })
 
     expect(result).toMatchObject({

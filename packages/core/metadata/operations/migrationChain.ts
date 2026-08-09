@@ -35,6 +35,57 @@ interface PendingMigrationFile {
   value: string
 }
 
+export interface MetadataMigration {
+  readonly fileName: string
+  readonly path: string
+  readonly value: string
+}
+
+export function evaluateMigrationChain(params: {
+  readonly migrations: readonly MetadataMigration[]
+  readonly appliedNames: ReadonlySet<string>
+}): {
+  readonly pending: readonly MetadataMigration[]
+  readonly referencePathByCurrentPath: ReadonlyMap<string, string>
+  readonly candidateAppliedNames: readonly string[]
+} {
+  const fileNames = new Set<string>()
+  for (const migration of params.migrations) {
+    if (fileNames.has(migration.fileName)) throw new Error(`Повтор migration: ${migration.fileName}`)
+    fileNames.add(migration.fileName)
+  }
+  const pending = params.migrations.filter(({ fileName }) => !params.appliedNames.has(fileName))
+  const current = new Map<string, string>()
+  const consumedSources = new Set<string>()
+  for (const migration of pending) {
+    if (consumedSources.has(migration.path)) {
+      throw new Error(`Повторная migration исходного пути: ${migration.path}`)
+    }
+    if (!current.has(migration.path)) current.set(migration.path, migration.path)
+    const targetPath = buildRenameTargetPathFromOperationPath(migration.path, migration.value)
+    if (targetPath === migration.path) throw new Error(`Переименование в тот же путь: ${migration.path}`)
+    if (hasCaseInsensitivePathConflict({
+      currentPaths: current.keys(),
+      fromPath: migration.path,
+      targetPath,
+    }) || hasDescendantPathConflict({ currentPaths: current.keys(), fromPath: migration.path, targetPath })) {
+      throw new Error(`Целевой путь migration уже существует: ${targetPath}`)
+    }
+    movePathWithDescendants(current, migration.path, targetPath)
+    consumedSources.add(migration.path)
+  }
+  return {
+    pending,
+    referencePathByCurrentPath: new Map(
+      [...current].filter(([currentPath, referencePath]) => currentPath !== referencePath),
+    ),
+    candidateAppliedNames: [
+      ...params.appliedNames,
+      ...pending.map(({ fileName }) => fileName),
+    ],
+  }
+}
+
 export function prepareMetadataMigrationChain(
   params: PrepareMetadataMigrationChainParams
 ): PreparedMetadataMigrationChain | MigrationChainInvalidResult {

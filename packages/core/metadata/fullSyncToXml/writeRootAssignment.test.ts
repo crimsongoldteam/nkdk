@@ -66,7 +66,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     const result = await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
       context,
-      outputDir: join(projectDir, "xml"),
+      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
     })
 
     expect(result.diagnostics).toEqual([])
@@ -132,7 +132,7 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     await writeFullXmlSyncAssignment({
       prepared: preparedAssignment,
       context,
-      outputDir: join(projectDir, "xml"),
+      outputTarget: { kind: "directory", outputDir: join(projectDir, "xml") },
     })
 
     const xml = fs.readFileSync(join(projectDir, "xml", "Configuration.xml"), "utf-8")

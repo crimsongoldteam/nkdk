@@ -40,6 +40,10 @@ export function emptyProjectStateReadSession(
     readOwnerRefPage: () => ({ refs: [] }),
     readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
+    readFileMetadataTargetReferences: (requests) => requests.map((request) => ({
+      requestId: request.requestId,
+      status: "missing" as const,
+    })),
     close() {},
     ...overrides,
   }
