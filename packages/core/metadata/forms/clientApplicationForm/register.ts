@@ -20,6 +20,8 @@ import {
 } from "./validateElementNames"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { clientApplicationFormValidationAdapter } from "./validationAdapter"
+import "./childFormNamesImportAdapter"
+import "./childFormNamesResourceAdapter"
 
 registerFormValidationAdapter(clientApplicationFormValidationAdapter)
 

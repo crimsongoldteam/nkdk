@@ -155,6 +155,14 @@ describe("metadata import boundaries", () => {
     expect(specifiers).toEqual([])
   })
 
+  it("ChildFormNames core does not import forms", () => {
+    const directory = join(COMMON_OBJECTS_DIR, "childFormNames")
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith(".ts") || entry.name.endsWith(".test.ts")) continue
+      expect(readFileSync(join(directory, entry.name), "utf8")).not.toMatch(/\.\.\/\.\.\/forms\//)
+    }
+  })
+
   it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {
     expect(
       findImportOffenders(ORCHESTRATION_APPLIED_OBJECT_DIR, FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS)

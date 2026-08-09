@@ -1,7 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
+import { convertFormFromXML } from "./convertFromXML"
 import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 /**
@@ -31,6 +32,8 @@ export const syncChildFormNamesFromXML: SyncExternalFromXMLFunction = async (par
     await copyFormHelpFromXML({ formsDir, nkdkDir, formName })
   }
 }
+
+registerTypeRule("ChildFormNames", "syncExternalFromXML", syncChildFormNamesFromXML)
 
 async function copyFormModuleFromXML(params: { formsDir: string; nkdkDir: string; formName: string }): Promise<void> {
   const { formsDir, nkdkDir, formName } = params

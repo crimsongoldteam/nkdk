@@ -138,7 +138,6 @@ import "./xdtoTypeName/toYAML"
 
 import "./childFormNames/fromXML"
 import "./childFormNames/toXML"
-import "./childFormNames/resourceTopology"
 
 import "./childFileItemNames/fromXML"
 import "./childFileItemNames/toXML"

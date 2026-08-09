@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import "../../commonObjects/childFormNames/resourceTopology"
+import "../../forms/clientApplicationForm/childFormNamesResourceAdapter"
 import "../../commonObjects/childTemplateNames/resourceTopology"
 import { getTypeRule } from "../property/typeRuleRegistry"
 

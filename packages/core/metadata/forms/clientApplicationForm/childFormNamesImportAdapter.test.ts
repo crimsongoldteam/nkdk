@@ -7,8 +7,11 @@ import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { createXmlImportWorkerTestPool } from "../../../tests/xmlImportWorkerTestPool"
 import { importConfigurationFromXml } from "../../importFromXml/importConfiguration"
 import "../../appliedObjects/metadataCatalog/register"
-import { syncChildFormNamesFromXML } from "./syncExternalFromXML"
-import { childFormNamesRule } from "./types"
+import { syncChildFormNamesFromXML } from "./childFormNamesImportAdapter"
+import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
+import { registerCoreMetadata } from "../../composition/coreMetadata"
+
+registerCoreMetadata()
 
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
