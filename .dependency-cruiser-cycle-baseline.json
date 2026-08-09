@@ -195,36 +195,8 @@
     },
     {
       "modules": [
-        "packages/core/metadata/appliedObjects/configuration/syncState.ts",
-        "packages/core/metadata/appliedObjects/configuration/syncStateBinary.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
         "packages/core/metadata/forms/clientApplicationForm/baseForm.ts",
         "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
-        "packages/core/metadata/validation/dataPath/finalizationPredicate.ts",
-        "packages/core/metadata/validation/dataPath/formatter.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
-        "packages/core/xml/import/importer.ts",
-        "packages/core/xml/import/saxesParser.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
-        "packages/platform/src/sessions/manager.ts",
-        "packages/platform/src/sessions/nodeRuntime.ts"
       ],
       "dependencyCount": 2
     }

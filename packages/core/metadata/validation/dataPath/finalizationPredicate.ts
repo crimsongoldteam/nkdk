@@ -1,5 +1,5 @@
 import { standardMemberNamePairs, standardMembersRegistryRevision } from "./registry"
-import type { DataPathFormatDirection } from "./formatter"
+import type { DataPathFormatDirection } from "./formatContracts"
 
 interface CachedMatcher {
   revision: number

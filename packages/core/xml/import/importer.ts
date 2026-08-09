@@ -1,4 +1,5 @@
 import { parseXmlWithSaxes } from "./saxesParser"
+import type { ImportContentFromXMLOptions } from "./contracts"
 
 export const I8N_TEXT_FIELDS = [
   "Title",
@@ -18,10 +19,7 @@ export const I8N_TEXT_FIELDS = [
   "ExtendedObjectPresentation",
 ]
 
-export type ImportContentFromXMLOptions = {
-  preserveXsiNil?: true
-  preserveEmptyElements?: true
-}
+export type { ImportContentFromXMLOptions } from "./contracts"
 
 export const importContentFromXML = <T>(
   data: string,

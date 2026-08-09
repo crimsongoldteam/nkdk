@@ -22,3 +22,16 @@ test("локальные декларации не импортируются и
     /from "\.\/types"/u
   )
 })
+
+test("парные реализации зависят от leaf contracts", () => {
+  assert.doesNotMatch(
+    read("packages/core/metadata/appliedObjects/configuration/syncStateBinary.ts"),
+    /from "\.\/syncState"/u
+  )
+  assert.doesNotMatch(
+    read("packages/core/metadata/validation/dataPath/finalizationPredicate.ts"),
+    /from "\.\/formatter"/u
+  )
+  assert.doesNotMatch(read("packages/core/xml/import/saxesParser.ts"), /from "\.\/importer"/u)
+  assert.doesNotMatch(read("packages/platform/src/sessions/nodeRuntime.ts"), /from "\.\/manager"/u)
+})
