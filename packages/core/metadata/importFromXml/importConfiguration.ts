@@ -48,6 +48,7 @@ import {
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
+import { assertNoPendingPartialXmlSync } from "../partialSyncToXml/pendingStore"
 
 export interface ConfigurationImportResult {
   componentPath?: string
@@ -73,6 +74,7 @@ export interface ImportConfigurationFromXmlParams {
 }
 
 export interface ImportCoordinatorDependencies {
+  assertNoPending?(projectDir: string, componentPath: string): void
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
@@ -151,6 +153,8 @@ export async function importConfigurationFromXml(
     const descriptor = resolveXmlImportComponent(root)
     const address = descriptor.resolveAddress(root)
     const selectedComponentPath = componentPath(address)
+    const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
+    assertNoPending(params.projectDir, selectedComponentPath)
     const validationComponent = createValidationProjectComponent(params.projectDir, address)
     resolvedComponentPath = selectedComponentPath
     assertRequestedComponentPath(params.requestedComponentPath, selectedComponentPath)
