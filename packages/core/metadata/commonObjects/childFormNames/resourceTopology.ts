@@ -7,6 +7,7 @@ import fs from "fs"
 import { dirname, join } from "path"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import "./partialXmlPackage"
 
 registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
   const childFormPropertyRule = propertyRule as

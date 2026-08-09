@@ -13,7 +13,6 @@ import {
 } from "./workerPool"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { ProjectStateReadSession } from "../projectState"
-import { missingProjectFileMetadataTargetReferences } from "../projectState/tests/readSession"
 
 const tempDirs: string[] = []
 
@@ -41,7 +40,10 @@ export function emptyProjectStateReadSession(
     readOwnerRefPage: () => ({ refs: [] }),
     readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
-    readFileMetadataTargetReferences: missingProjectFileMetadataTargetReferences,
+    readFileMetadataTargetReferences: (requests) => requests.map((request) => ({
+      requestId: request.requestId,
+      status: "missing" as const,
+    })),
     close() {},
     ...overrides,
   }
