@@ -1,7 +1,9 @@
+import type { DataPathDialect } from "../orchestration/dataPath/dialect"
+
 export interface FormDataPathMetadataProjection {
   attributeItemType: string
   columnItemType: string
-  tableItemType: string
+  tabularElementItemTypes: readonly string[]
   attributesYaml: string
   columnsYaml: string
   typeYaml: string
@@ -11,7 +13,11 @@ export interface FormDataPathMetadataProjection {
   dynamicListPropertyKey: string
   additionalColumnsPropertyKey: string
   tableDataPathPropertyKey: string
-  collectTableDataPathsFromYAML?(yaml: unknown): ReadonlyMap<string, string>
+  dataPathDialect?: DataPathDialect
+  collectTabularElementsFromYAML?(yaml: unknown): ReadonlyMap<string, {
+    readonly kind: "tabularFormElement"
+    readonly dataPath?: string
+  }>
 }
 
 export interface FormDataPathItemFact {

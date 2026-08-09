@@ -38,7 +38,7 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { collectFormTableDataPathsFromYAML } from "../orchestration/formElement/formTableDataPaths"
+import { collectFormTabularElementsFromYAML } from "../orchestration/formElement/formTableDataPaths"
 
 type CompiledSchema = ValidationSchemaValidator
 const formSchemaCache = new WeakMap<
@@ -317,7 +317,7 @@ export function extractProjectValidationFileFacts(params: {
               owner: { kind: params.file.owner.dir, name: params.file.owner.name },
               index: {
                 ...yamlFacts.formDataPathIndex,
-                tableDataPathByElementName: collectFormTableDataPathsFromYAML(parsed.data),
+                tabularElementsByName: collectFormTabularElementsFromYAML(parsed.data),
               },
             },
           }),

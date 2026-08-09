@@ -1728,7 +1728,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("validates a terminal field after Items.*.CurrentData", () => {
+  it("validates a terminal field after Элементы.*.ТекущиеДанные", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -1743,12 +1743,12 @@ describe("validateForm", () => {
         "    ПутьКДанным: ТаблицаЗначений",
         "  Кнопка:",
         "    Вид: Кнопка",
-        "    Данные: Items.Таблица.CurrentData.НеизвестноеПоле",
+        "    Данные: Элементы.Таблица.ТекущиеДанные.НеизвестноеПоле",
       ],
     })
 
     expect(messages(runValidateForm(project))).toContain(
-      'ПутьКДанным "Items.Таблица.CurrentData.НеизвестноеПоле": неизвестная колонка "НеизвестноеПоле"'
+      'ПутьКДанным "Элементы.Таблица.ТекущиеДанные.НеизвестноеПоле": неизвестная колонка "НеизвестноеПоле"'
     )
   })
 

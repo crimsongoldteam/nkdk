@@ -392,8 +392,11 @@ export function createTypedProjectStateReader(
     const cached = formsCache.get(fileId)
     if (cached !== undefined) return cached
     const result = ([...fileRows("forms", fileId), ...fileRows("formColumns", fileId)]).map((value) => {
-      if (value.kind === 3) return { kind: "tableDataPath" as const, owner: ownerType(value.ownerTypeId),
-        name: string(value.nameId), dataPath: string(value.tablePathId) }
+      if (value.kind === 3) {
+        const dataPath = string(value.tablePathId)
+        return { kind: "tabularElement" as const, owner: ownerType(value.ownerTypeId),
+          name: string(value.nameId), ...(dataPath.length === 0 ? {} : { dataPath }) }
+      }
       const decodedType = typeInfo(value.typeInfoId)
       if (value.kind === 2) return { kind: "additionalColumn" as const, owner: ownerType(value.ownerTypeId),
         tablePath: string(value.tablePathId), name: string(value.nameId),
