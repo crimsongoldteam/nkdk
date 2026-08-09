@@ -53,6 +53,29 @@ import {
   type SerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
+import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+
+declare module "../workerPool/types" {
+  interface MetadataWorkerOperationTypeMap {
+    import: {
+      command: { readonly kind: "import"; readonly command: ImportWorkerCommand }
+      result: { readonly kind: "importResult"; readonly result: ImportWorkerCommandResult }
+    }
+  }
+}
+
+export function registerImportWorkerOperation(): void {
+  registerMetadataWorkerOperation(
+    "import",
+    async (operation, state) => ({
+      kind: "importResult",
+      result: await runImportWorkerCommand(operation.command, {
+        persistentValidationState: { schemaCache: state.schemaCache, rulesSnapshot: state.rulesSnapshot },
+      }),
+    }),
+    async () => { await runImportWorkerCommand({ kind: "dispose" }) },
+  )
+}
 
 interface InitializedImportWorkerState {
   operationId: string

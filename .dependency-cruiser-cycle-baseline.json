@@ -3,10 +3,6 @@
   "components": [
     {
       "modules": [
-        "packages/core/metadata/fullSyncToXml/componentProfile.ts",
-        "packages/core/metadata/fullSyncToXml/sharedMetadata.ts",
-        "packages/core/metadata/fullSyncToXml/types.ts",
-        "packages/core/metadata/project/componentState/types.ts",
         "packages/core/metadata/project/preparedYamlProject.ts",
         "packages/core/metadata/project/preparedYamlProjectWorker.ts",
         "packages/core/metadata/project/preparedYamlProjectWorkerPool.ts",
@@ -21,11 +17,9 @@
         "packages/core/metadata/projectState/fileUpdate.ts",
         "packages/core/metadata/projectState/fileUpdateValidation.ts",
         "packages/core/metadata/projectState/importSession.ts",
-        "packages/core/metadata/projectState/index.ts",
         "packages/core/metadata/projectState/projectFiles.ts",
         "packages/core/metadata/projectState/readSession.ts",
         "packages/core/metadata/projectState/refresh.ts",
-        "packages/core/metadata/projectState/service.ts",
         "packages/core/metadata/projectState/store.ts",
         "packages/core/metadata/projectState/writerHandle.ts",
         "packages/core/metadata/validation/dataPath/coreResolver.ts",
@@ -53,13 +47,10 @@
         "packages/core/metadata/validation/rulesSnapshot.ts",
         "packages/core/metadata/validation/validationWorkerPoolTypes.ts",
         "packages/core/metadata/validation/yamlFactExtractor.ts",
-        "packages/core/metadata/workerPool/handle.ts",
-        "packages/core/metadata/workerPool/importContracts.ts",
         "packages/core/metadata/workerPool/operationQueue.ts",
-        "packages/core/metadata/workerPool/projectQueries.ts",
         "packages/core/metadata/workerPool/types.ts"
       ],
-      "dependencyCount": 191
+      "dependencyCount": 159
     },
     {
       "modules": [
@@ -81,6 +72,13 @@
         "packages/core/metadata/orchestration/property/fromYAMLToXML.ts"
       ],
       "dependencyCount": 4
+    },
+    {
+      "modules": [
+        "packages/core/metadata/fullSyncToXml/sharedMetadata.ts",
+        "packages/core/metadata/fullSyncToXml/types.ts"
+      ],
+      "dependencyCount": 2
     },
     {
       "modules": [

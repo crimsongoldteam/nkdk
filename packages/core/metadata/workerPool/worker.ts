@@ -2,6 +2,7 @@ import { registerCoreMetadata } from "../register"
 import type {
   MetadataWorkerCommand,
   MetadataWorkerCommandResult,
+  MetadataWorkerOperationCommand,
   MetadataWorkerOperationResult,
 } from "./types"
 import { move, transferableSymbol, valueSymbol } from "piscina"
@@ -9,18 +10,36 @@ import {
   createMetadataWorkerPersistentState,
   type MetadataWorkerPersistentState,
 } from "./workerState"
-import { runPreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
-import { runImportWorkerCommand } from "../importFromXml/worker"
-import { runFullXmlSyncWorkerCommand } from "../fullSyncToXml/worker"
-import { runProjectQuery } from "./projectQueries"
 import { createMovableBinaryResult } from "./binaryResult"
+import {
+  resetRegisteredMetadataWorkerOperations,
+  runRegisteredMetadataWorkerOperation,
+} from "./operationRegistry"
+import { registerMetadataWorkerOperations } from "./registerOperations"
 
 registerCoreMetadata()
+registerMetadataWorkerOperations()
+
+type ImportOperationCommand = Extract<MetadataWorkerOperationCommand, { readonly kind: "import" }>
+type ImportOperationResult = Extract<MetadataWorkerOperationResult, { readonly kind: "importResult" }>
+type FullSyncOperationCommand = Extract<MetadataWorkerOperationCommand, { readonly kind: "fullSync" }>
+type FullSyncOperationResult = Extract<MetadataWorkerOperationResult, { readonly kind: "fullSyncResult" }>
 
 interface MetadataWorkerCommandHandlerDependencies {
   readonly createState?: typeof createMetadataWorkerPersistentState
-  readonly runImportCommand?: typeof runImportWorkerCommand
-  readonly runFullSyncCommand?: typeof runFullXmlSyncWorkerCommand
+  readonly runImportCommand?: (
+    command: ImportOperationCommand["command"],
+    dependencies?: {
+      readonly persistentValidationState: Pick<MetadataWorkerPersistentState, "schemaCache" | "rulesSnapshot">
+    },
+  ) => Promise<ImportOperationResult["result"]>
+  readonly runFullSyncCommand?: (
+    command: FullSyncOperationCommand["command"],
+    dependencies?: {
+      openReadSession(): never
+      readonly projectStateReadSession?: NonNullable<MetadataWorkerPersistentState["projectState"]>
+    },
+  ) => Promise<FullSyncOperationResult["result"]>
 }
 
 export function createMetadataWorkerCommandHandler(
@@ -48,8 +67,12 @@ export function createMetadataWorkerCommandHandler(
       return undefined
     }
     if (command.kind === "resetOperation") {
-      await (dependencies.runImportCommand ?? runImportWorkerCommand)({ kind: "dispose" })
-      await (dependencies.runFullSyncCommand ?? runFullXmlSyncWorkerCommand)({ kind: "dispose" })
+      if (dependencies.runImportCommand === undefined && dependencies.runFullSyncCommand === undefined) {
+        await resetRegisteredMetadataWorkerOperations(initialized, command.outcome)
+      } else {
+        await dependencies.runImportCommand?.({ kind: "dispose" })
+        await dependencies.runFullSyncCommand?.({ kind: "dispose" })
+      }
       initialized.resetOperation(command.operationId)
       return undefined
     }
@@ -58,20 +81,19 @@ export function createMetadataWorkerCommandHandler(
     let result: MetadataWorkerOperationResult
     switch (command.command.kind) {
       case "probe":
-        result = { kind: "probeResult", value: command.command.value }
+        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
         break
       case "validation":
-        result = await runPreparedYamlProjectWorkerTask(command.command.task, {
-          persistentValidationState: {
-            schemaCache: initialized.schemaCache,
-            rulesSnapshot: initialized.rulesSnapshot,
-          },
-        })
+        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
         break
       case "import":
+        if (dependencies.runImportCommand === undefined) {
+          result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+          break
+        }
         result = movableImportResult({
           kind: "importResult",
-          result: await (dependencies.runImportCommand ?? runImportWorkerCommand)(command.command.command, {
+          result: await dependencies.runImportCommand(command.command.command, {
             persistentValidationState: {
               schemaCache: initialized.schemaCache,
               rulesSnapshot: initialized.rulesSnapshot,
@@ -80,9 +102,13 @@ export function createMetadataWorkerCommandHandler(
         })
         break
       case "fullSync":
+        if (dependencies.runFullSyncCommand === undefined) {
+          result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+          break
+        }
         result = movableOperationResult({
           kind: "fullSyncResult",
-          result: await (dependencies.runFullSyncCommand ?? runFullXmlSyncWorkerCommand)(
+          result: await dependencies.runFullSyncCommand(
             command.command.command,
             {
               openReadSession() { throw new Error("Состояние проекта не установлено в универсальный worker") },
@@ -94,7 +120,7 @@ export function createMetadataWorkerCommandHandler(
         })
         break
       case "projectQuery":
-        result = await runProjectQuery(command.command.command, initialized.projectState)
+        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
         break
     }
     return movableBinaryResult(result)

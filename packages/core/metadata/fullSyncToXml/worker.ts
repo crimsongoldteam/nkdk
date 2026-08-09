@@ -41,6 +41,30 @@ import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 import { createFullXmlSyncBinaryResult } from "./binaryResult"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
+import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+
+declare module "../workerPool/types" {
+  interface MetadataWorkerOperationTypeMap {
+    fullSync: {
+      command: { readonly kind: "fullSync"; readonly command: FullXmlSyncWorkerCommand }
+      result: { readonly kind: "fullSyncResult"; readonly result: FullXmlSyncWorkerCommandResult }
+    }
+  }
+}
+
+export function registerFullSyncWorkerOperation(): void {
+  registerMetadataWorkerOperation(
+    "fullSync",
+    async (operation, state) => ({
+      kind: "fullSyncResult",
+      result: await runFullXmlSyncWorkerCommand(operation.command, {
+        openReadSession() { throw new Error("Состояние проекта не установлено в универсальный worker") },
+        ...(state.projectState === undefined ? {} : { projectStateReadSession: state.projectState }),
+      }),
+    }),
+    async () => { await runFullXmlSyncWorkerCommand({ kind: "dispose" }) },
+  )
+}
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
