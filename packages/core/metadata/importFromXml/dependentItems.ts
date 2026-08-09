@@ -1,10 +1,12 @@
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import {
   shouldRemoveImportedDependentProperty,
+  shouldTagImportedDependentProperty,
   type DependentItemParams,
 } from "../ruleRuntime/property/dependentItemRegistry"
 import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { markYAMLScalarTag, xmlScalarTagValue } from "../../yaml/scalarTags"
 
 export function normalizeImportedDependentItems(params: {
   readonly yaml: unknown
@@ -17,7 +19,7 @@ export function normalizeImportedDependentItems(params: {
   for (const candidate of params.candidates) {
     const item = recordAtPath(params.yaml, candidate.itemYamlPath)
     if (item === undefined) continue
-    const shouldRemove = shouldRemoveImportedDependentProperty({
+    const dependentParams = {
       itemType: candidate.itemType,
       ...(candidate.itemName === undefined ? {} : { itemName: candidate.itemName }),
       item,
@@ -26,18 +28,27 @@ export function normalizeImportedDependentItems(params: {
       rootRule: params.rule,
       owner: params.owner,
       candidate,
-    })
-    if (!shouldRemove) continue
+    }
+    const shouldRemove = shouldRemoveImportedDependentProperty(dependentParams)
     const yamlKey = candidate.yamlPath.at(-1)
     if (typeof yamlKey !== "string" || !Object.prototype.hasOwnProperty.call(item, yamlKey)) continue
-    delete item[yamlKey]
-    removed += 1
-    if (candidate.logicalAddress !== undefined) {
-      params.collector.preserveRawXmlState(
-        candidate.logicalAddress,
-        candidate.xmlValue,
-        candidate.presentInXML,
-      )
+    if (shouldRemove) {
+      delete item[yamlKey]
+      removed += 1
+      if (candidate.logicalAddress !== undefined) {
+        params.collector.preserveRawXmlState(
+          candidate.logicalAddress,
+          candidate.xmlValue,
+          candidate.presentInXML,
+        )
+      }
+      continue
+    }
+    const shouldTagXML = shouldTagImportedDependentProperty(dependentParams)
+    const value = item[yamlKey]
+    if (shouldTagXML && (typeof value === "string" || typeof value === "number")) {
+      item[yamlKey] = xmlScalarTagValue(String(value))
+      markYAMLScalarTag(item, yamlKey, "xml")
     }
   }
   return removed

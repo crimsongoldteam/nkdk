@@ -18,12 +18,30 @@ import type { MetadataTargetOwner } from "../metadataTargets/types"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
+import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
 
 let validationRegistered = false
 let structuralReferencesRegistered = false
 let importRegistered = false
+let xmlTransportRegistered = false
+
+function registerFillValueXMLTransport(): void {
+  if (xmlTransportRegistered) return
+  xmlTransportRegistered = true
+  registerExplicitXMLProperty({
+    action: "transportScalar",
+    itemType: "MetadataAttribute",
+    propertyKey: "fillValue",
+  })
+  registerExplicitXMLProperty({
+    action: "transportScalar",
+    itemType: "StandardAttributeDescription",
+    propertyKey: "fillValue",
+  })
+}
 
 export function registerFillValueValidation(): void {
+  registerFillValueXMLTransport()
   registerFillValueStructuralReferences()
   if (validationRegistered) return
   validationRegistered = true
@@ -39,15 +57,18 @@ export function registerFillValueStructuralReferences(): void {
 }
 
 export function registerFillValueImport(): void {
+  registerFillValueXMLTransport()
   if (importRegistered) return
   importRegistered = true
   registerDependentImportItemHandler("MetadataAttribute", {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
+    shouldTagXML: (params) => classifyMetadataAttributeFillValue(params).kind === "invalid",
   })
   registerDependentImportItemHandler("StandardAttributeDescription", {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
+    shouldTagXML: (params) => classifyStandardAttributeFillValue(params).kind === "invalid",
   })
 }
 

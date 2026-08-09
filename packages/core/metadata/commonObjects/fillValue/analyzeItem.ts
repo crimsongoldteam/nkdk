@@ -19,6 +19,7 @@ import { classifyFillValue } from "./classify"
 import { classifyStandardMemberFillValue, effectiveTypeFromTypeDescription } from "./effectiveType"
 import type { FillValueClassification } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
 const fillValueYamlKey = "ЗначениеЗаполнения"
@@ -43,9 +44,19 @@ function analyzeFillValue(
   classify: (params: DependentItemParams, value: NonNullable<ReturnType<typeof parseFillValueYaml>>) => FillValueClassification,
 ): DependentYamlItemAnalysis {
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
-  const value = parseFillValueYaml(params.item[fillValueYamlKey])
+  const tagged = yamlScalarTagAt(params.item, fillValueYamlKey) === "xml"
+  const rawValue = params.item[fillValueYamlKey]
+  const value = parseFillValueYaml(
+    tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : rawValue
+  )
   if (value === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
-  return withValueReference(params, value, analysisFromClassification(params, classify(params, value)))
+  const classification = classify(params, value)
+  const analysis = tagged
+    ? classification.kind === "invalid"
+      ? emptyAnalysis()
+      : diagnosticAnalysis(params, "!xml допустим только для несовместимого XML-значения", "error")
+    : analysisFromClassification(params, classification)
+  return withValueReference(params, value, analysis)
 }
 
 export function classifyMetadataAttributeFillValue(

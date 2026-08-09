@@ -89,7 +89,56 @@ describe("dependent fill value validation", () => {
 
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения")).toEqual([])
   })
+
+  it.each([
+    ["invalid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml 1", false],
+    ["valid ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml текст", true],
+    ["implicit ordinary", "Тип: Строка(10)\n    ЗначениеЗаполнения: !xml", true],
+    ["unresolved ordinary", "Тип: НеизвестныйТип\n    ЗначениеЗаполнения: !xml текст", true],
+  ] as const)("checks %s XML exception", (_name, body, expectsTagError) => {
+    const diagnostics = extractAttributeDiagnostics(body)
+    expect(diagnostics.some(({ message }) => message.includes("!xml"))).toBe(expectsTagError)
+  })
+
+  it.each(["!xml", "!xml Ложь", "!xml произвольный-текст"])(
+    "разрешает %s для запрещённого стандартного реквизита",
+    (fillValue) => {
+      const diagnostics = extractDiagnostics(
+        `СтандартныеРеквизиты:\n  Предопределенный:\n    ЗначениеЗаполнения: ${fillValue}\n`
+      )
+      expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Предопределенный/ЗначениеЗаполнения")).toEqual([])
+    }
+  )
+
+  it("отклоняет запрещённое значение без !xml", () => {
+    const diagnostics = extractDiagnostics(
+      "СтандартныеРеквизиты:\n  Предопределенный:\n    ЗначениеЗаполнения: Ложь\n"
+    )
+    expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Предопределенный/ЗначениеЗаполнения")).toHaveLength(1)
+  })
+
+  it("отклоняет !xml у стандартного реквизита без политики", () => {
+    const diagnostics = extractDiagnostics(
+      "СтандартныеРеквизиты:\n  Наименование:\n    ЗначениеЗаполнения: !xml текст\n"
+    )
+    expect(diagnostics.filter(({ path }) => path === "/СтандартныеРеквизиты/Наименование/ЗначениеЗаполнения")).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("!xml") }),
+    ])
+  })
 })
+
+function extractAttributeDiagnostics(body: string) {
+  return extractDiagnostics(`Реквизиты:\n  Артикул:\n    ${body}\n`)
+    .filter(({ path }) => path === "/Реквизиты/Артикул/ЗначениеЗаполнения")
+}
+
+function extractDiagnostics(yaml: string) {
+  return extractValidationYamlFacts({
+    file: catalogFile(),
+    parsed: parseMetadataYaml(yaml),
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  }).diagnostics
+}
 
 function catalogFile() {
   const file = resolveValidationProjectFile("/project", "/project/Справочник/Товары/Свойства.yaml")

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { registerCoreMetadata } from "../composition/coreMetadata"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
 import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
 import { normalizeImportedDependentItems } from "./dependentItems"
 
@@ -26,21 +27,58 @@ describe("normalizeImportedDependentItems", () => {
     expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
   })
 
-  it.each([
-    ["непустое допустимое", "А"],
-    ["несовместимое", 1],
-  ])("сохраняет %s значение для последующей локальной валидации", (_name, fillValue) => {
+  it("сохраняет непустое допустимое значение для последующей локальной валидации", () => {
+    const fillValue = "А"
     const attribute = { Тип: "Строка(10)", ЗначениеЗаполнения: fillValue }
-    const yaml = { Реквизиты: { Получатель: attribute } }
+
+    expect(normalizeMetadataAttribute(attribute)).toBe(0)
+    expect(attribute).toHaveProperty("ЗначениеЗаполнения", fillValue)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
+  })
+
+  it("маркирует несовместимое значение как XML-исключение", () => {
+    const attribute: Record<string, unknown> = { Тип: "Строка(10)", ЗначениеЗаполнения: 1 }
+
+    expect(normalizeMetadataAttribute(attribute)).toBe(0)
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml 1")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+  })
+
+  it("маркирует запрещённое значение стандартного реквизита", () => {
+    const attribute: Record<string, unknown> = { ЗначениеЗаполнения: "Ложь" }
+    const yaml = { СтандартныеРеквизиты: { Предопределенный: attribute } }
 
     expect(normalizeImportedDependentItems({
       yaml,
       rule: MetadataCatalogRules,
-      candidates: [candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель")],
+      candidates: [candidate(
+        "StandardAttributeDescription",
+        ["СтандартныеРеквизиты", "Предопределенный"],
+        "Предопределенный"
+      )],
       collector: createConfigurationIndexCollector(),
       owner: { dir: "Справочник", name: "Товары" },
     })).toBe(0)
-    expect(attribute).toHaveProperty("ЗначениеЗаполнения", fillValue)
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml Ложь")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+  })
+
+  it.each([
+    ["unresolved", "MetadataAttribute", "Получатель", { Тип: "НеизвестныйТип", ЗначениеЗаполнения: "текст" }],
+    ["notSpecified", "StandardAttributeDescription", "Наименование", { ЗначениеЗаполнения: "текст" }],
+  ] as const)("не маркирует %s значение автоматически", (_name, itemType, itemName, source) => {
+    const attribute: Record<string, unknown> = { ...source }
+    const collection = itemType === "MetadataAttribute" ? "Реквизиты" : "СтандартныеРеквизиты"
+    const yaml = { [collection]: { [itemName]: attribute } }
+
+    expect(normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [candidate(itemType, [collection, itemName], itemName)],
+      collector: createConfigurationIndexCollector(),
+      owner: { dir: "Справочник", name: "Товары" },
+    })).toBe(0)
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
   })
 
   it("сохраняет точный пробельный XML стандартного кода в снимке", () => {
@@ -154,4 +192,14 @@ function candidate(
     xmlValue: { "_xsi:type": "xs:string" },
     presentInXML: true,
   }
+}
+
+function normalizeMetadataAttribute(attribute: Record<string, unknown>): number {
+  return normalizeImportedDependentItems({
+    yaml: { Реквизиты: { Получатель: attribute } },
+    rule: MetadataCatalogRules,
+    candidates: [candidate("MetadataAttribute", ["Реквизиты", "Получатель"], "Получатель")],
+    collector: createConfigurationIndexCollector(),
+    owner: { dir: "Справочник", name: "Товары" },
+  })
 }
