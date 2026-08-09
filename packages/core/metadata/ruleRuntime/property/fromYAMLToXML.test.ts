@@ -685,6 +685,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
     [{ xsiNil: true as const }, { "_xsi:nil": true }],
     [{ xsiType: "xr:DesignTimeRef" }, { "_xsi:type": "xr:DesignTimeRef" }],
     [{ xsiType: "xs:string", xmlText: "   " }, { "_xsi:type": "xs:string", "#text": "   " }],
+    [
+      { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+      { "_xsi:type": "xs:dateTime", "#text": "0001-01-01T00:00:00" },
+    ],
   ])("восстанавливает удалённое значение заполнения из снимка %#", (xmlState, expected) => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant(
@@ -719,6 +723,40 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({
       FillValue: { "_xsi:type": "xs:string", "#text": "Новое" },
     })
+  })
+
+  it("явная содержательная дата имеет приоритет над начальной датой снимка", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant(
+        "indexed",
+        [],
+        false,
+        DEFAULT_TEST_LOGICAL_ADDRESS,
+        [{
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`,
+          xsiType: "xs:dateTime",
+          xmlText: "0001-01-01T00:00:00",
+        }],
+      ),
+      yaml: { ЗначениеЗаполнения: "09.08.2026 12:30:00" },
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xs:dateTime", "#text": "2026-08-09T12:30:00" },
+    })
+  })
+
+  it("без снимка сохраняет каноническое пустое значение заполнения", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
   })
 
   it("не восстанавливает значение пустого XML-default из старого present", () => {

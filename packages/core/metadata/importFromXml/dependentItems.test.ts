@@ -72,6 +72,32 @@ describe("normalizeImportedDependentItems", () => {
     })
   })
 
+  it("удаляет начальную дату и сохраняет её точный XML в снимке", () => {
+    const attribute = { Тип: "ДатаВремя", ЗначениеЗаполнения: "01.01.0001 00:00:00" }
+    const yaml = { Реквизиты: { Момент: attribute } }
+    const collector = createConfigurationIndexCollector()
+
+    const removed = normalizeImportedDependentItems({
+      yaml,
+      rule: MetadataCatalogRules,
+      candidates: [{
+        ...candidate("MetadataAttribute", ["Реквизиты", "Момент"], "Момент"),
+        logicalAddress: "Справочник.Товары.Attribute.Момент.Property.fillValue",
+        xmlValue: { "_xsi:type": "xs:dateTime", "#text": "0001-01-01T00:00:00" },
+      }],
+      collector,
+      owner: { dir: "Справочник", name: "Товары" },
+    })
+
+    expect(removed).toBe(1)
+    expect(attribute).not.toHaveProperty("ЗначениеЗаполнения")
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual({
+      logicalAddress: "Справочник.Товары.Attribute.Момент.Property.fillValue",
+      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      xml: { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+    })
+  })
+
   it.each([
     [
       "xsi:nil",

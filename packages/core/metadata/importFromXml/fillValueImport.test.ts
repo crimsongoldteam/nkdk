@@ -42,7 +42,43 @@ describe("fill value XML import", () => {
       )
     },
   )
+
+  it("удаляет начальную дату после import и сохраняет её XML-состояние", async () => {
+    const sourcePath = copiedDateFixture()
+    const collector = createConfigurationIndexCollector()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector,
+    })
+
+    expect(prepared.yaml).not.toHaveProperty(
+      "Реквизиты.СтроковыйРеквизитСИндексом.ЗначениеЗаполнения",
+    )
+    expect(collector.fragment("Справочник/СправочникПолный/Свойства.yaml").entities).toContainEqual({
+      logicalAddress: "Справочник.СправочникПолный.Реквизит.СтроковыйРеквизитСИндексом.fillValue",
+      sourceProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      xml: { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+    })
+  })
 })
+
+function copiedDateFixture(): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-date-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  const xml = fs.readFileSync(fixture, "utf8")
+  const start = xml.indexOf("<Name>СтроковыйРеквизитСИндексом</Name>")
+  const end = xml.indexOf("</Attribute>", start)
+  const attribute = xml.slice(start, end)
+    .replace(/<Type>[\s\S]*?<\/Type>/, "<Type><v8:Type>xs:dateTime</v8:Type></Type>")
+    .replace(
+      '<FillValue xsi:type="xs:string"/>',
+      '<FillValue xsi:type="xs:dateTime">0001-01-01T00:00:00</FillValue>',
+    )
+  fs.writeFileSync(sourcePath, `${xml.slice(0, start)}${attribute}${xml.slice(end)}`)
+  return sourcePath
+}
 
 function copiedFixture(order: "type-before" | "fill-before"): string {
   const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-import-"))

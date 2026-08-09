@@ -60,6 +60,28 @@ describe("dependent fill value validation", () => {
       }),
     ])
   })
+
+  it.each([
+    ["01.01.0001 00:00:00", true],
+    ["09.08.2026 12:30:00", false],
+  ] as const)("проверяет явно записанную дату %s", (value, expectsError) => {
+    const facts = extractValidationYamlFacts({
+      file: catalogFile(),
+      parsed: parseMetadataYaml(`Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: ${value}\n`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    const diagnostics = facts.diagnostics.filter(
+      ({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения",
+    )
+    if (expectsError) {
+      expect(diagnostics).toEqual([
+        expect.objectContaining({ severity: "error", message: expect.stringContaining("неявное значение") }),
+      ])
+    } else {
+      expect(diagnostics).toEqual([])
+    }
+  })
 })
 
 function catalogFile() {
