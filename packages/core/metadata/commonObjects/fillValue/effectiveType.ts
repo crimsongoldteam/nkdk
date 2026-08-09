@@ -11,6 +11,15 @@ export function effectiveTypeFromTypeDescription(type: TypeDescription | undefin
   return effectiveFillValueType(type)
 }
 
+export function isReferenceStandardMember(declaration: StandardMemberDeclaration): boolean {
+  if (declaration.memberKind !== "standardAttribute") return false
+  return declaration.family === "sameOwnerObject" ||
+    declaration.family === "objectRefsFromProperty" ||
+    declaration.family === "objectRefFromProperty" ||
+    declaration.family === "reverseLookup" ||
+    declaration.family === "closedReverseLookup"
+}
+
 export function classifyStandardMemberFillValue(params: {
   readonly declaration: StandardMemberDeclaration
   readonly value: MetadataTypedValue

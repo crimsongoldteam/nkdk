@@ -17,7 +17,11 @@ import { materializeMetadataValueReference } from "../metadataTargets/referenceM
 import { importTypeDescriptionFromYAML } from "../typeDescription/fromYAML"
 import type { TypeDescriptionYAML } from "../typeDescription/types"
 import { classifyFillValue } from "./classify"
-import { classifyStandardMemberFillValue, effectiveTypeFromTypeDescription } from "./effectiveType"
+import {
+  classifyStandardMemberFillValue,
+  effectiveTypeFromTypeDescription,
+  isReferenceStandardMember,
+} from "./effectiveType"
 import type { FillValueClassification } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
@@ -110,7 +114,13 @@ function designTimeRefDiagnostic(
   if (params.itemName !== undefined) {
     const declaration = getStandardMembers(params.owner.dir).find(({ names }) => names.yaml === params.itemName)
     const policy = declaration?.memberKind === "standardAttribute" ? declaration.fillValue?.policy : undefined
-    if (policy === "forbidden" || policy === "ownerReference") return undefined
+    if (
+      policy === "forbidden" ||
+      policy === "ownerReference" ||
+      (declaration !== undefined && isReferenceStandardMember(declaration))
+    ) {
+      return undefined
+    }
   }
   return fillValueDiagnostic(fallback, true)
 }

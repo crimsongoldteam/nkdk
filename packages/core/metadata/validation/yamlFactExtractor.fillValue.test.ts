@@ -237,6 +237,23 @@ describe("dependent fill value validation", () => {
       expect.objectContaining({ message: expect.stringContaining("только для ссылочного типа") }),
     ])
   })
+
+  it.each([
+    ["Родитель справочника", catalogFile(), "Родитель"],
+    ["БизнесПроцесс задачи", taskFile(), "БизнесПроцесс"],
+  ])("разрешает DesignTimeRef для ссылочного стандартного реквизита %s", (_name, file, member) => {
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(`СтандартныеРеквизиты:
+  ${member}:
+    ЗначениеЗаполнения: !xml DesignTimeRef
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
+    expect(facts.pendingReferences.filter(({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения")).toEqual([])
+  })
 })
 
 function extractAttributeDiagnostics(body: string) {
@@ -258,6 +275,12 @@ function extractFacts(yaml: string) {
 
 function catalogFile() {
   const file = resolveValidationProjectFile("/project", "/project/Справочник/Товары/Свойства.yaml")
+  if (file === undefined) throw new Error("file not resolved")
+  return file
+}
+
+function taskFile() {
+  const file = resolveValidationProjectFile("/project", "/project/Задача/ЗадачаИсполнителя/Свойства.yaml")
   if (file === undefined) throw new Error("file not resolved")
   return file
 }
