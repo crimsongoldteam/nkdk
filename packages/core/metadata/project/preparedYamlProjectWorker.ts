@@ -69,8 +69,8 @@ import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 import { classifyMetadataProjectPath as classifyTopologyProjectPath } from "../resourceTopology/core/projectProjection"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
-import { projectClientApplicationFormStructure } from "../forms/clientApplicationForm/formStructureProjection"
 import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
+import { getRegisteredFormStructureProjection } from "../validation/formStructureProjectionRegistry"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
@@ -740,7 +740,9 @@ export function projectFormStructureDocuments(params: {
   const workingMatch = classifyTopologyProjectPath(component.topology, workingProjectPath)
   if (workingMatch === undefined || workingMatch.kind !== "content") return []
   const logicalAddress = projectXmlExportAssignment(component.topology, workingMatch).logicalAddress
-  return projectClientApplicationFormStructure({
+  const projection = getRegisteredFormStructureProjection()
+  if (projection === undefined) throw new Error("Не зарегистрирована проекция структуры формы")
+  return projection({
     components: params.components,
     representation,
     logicalAddress,

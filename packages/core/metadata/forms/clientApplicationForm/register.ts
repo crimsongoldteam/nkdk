@@ -20,10 +20,13 @@ import {
 } from "./validateElementNames"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { clientApplicationFormValidationAdapter } from "./validationAdapter"
+import { registerFormStructureProjection } from "../../validation/formStructureProjectionRegistry"
+import { projectClientApplicationFormStructure } from "./formStructureProjection"
 import "./childFormNamesImportAdapter"
 import "./childFormNamesResourceAdapter"
 
 registerFormValidationAdapter(clientApplicationFormValidationAdapter)
+registerFormStructureProjection(projectClientApplicationFormStructure)
 
 registerLocalYamlValueValidator({
   type: "ClientApplicationForm",
