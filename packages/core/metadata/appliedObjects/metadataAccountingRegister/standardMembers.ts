@@ -62,6 +62,7 @@ const members = [
     phase: "index-time",
     sourceScope: "self",
     kind: "dateTime",
+    fillValue: { policy: "byEffectiveType" },
   },
   {
     memberKind: "standardAttribute",
