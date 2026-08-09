@@ -41,6 +41,13 @@ const withDynamicListXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/withDynamicList.xml"
 )
+const fullValidationSchemaCache = createValidationSchemaCache(mockXmlImportContext())
+const catalogValidationFile = resolveValidationProjectFile(
+  "/project",
+  "/project/Справочник/Товары/Свойства.yaml",
+)
+if (catalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
+fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
 let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
@@ -99,7 +106,7 @@ describe("XML import worker first pass", () => {
 
   it("writes ready YAML and returns the complete local validation contribution", async () => {
     const outputDir = createTempDir("first-pass-ready")
-    setImportWorkerSchemaCacheForTests(undefined)
+    setImportWorkerSchemaCacheForTests(fullValidationSchemaCache)
     await initializeWorker(outputDir)
     const assignment = catalogAssignment({
       itemName: "СправочникПолный",
