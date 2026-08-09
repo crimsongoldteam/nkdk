@@ -81,32 +81,31 @@ describe("normalizeImportedDependentItems", () => {
     expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBeUndefined()
   })
 
-  it("сохраняет точный пробельный XML стандартного кода в снимке", () => {
+  it.each(["", " ", "   "])("удаляет неявный код %j и сохраняет точный XML", (fillValue) => {
     const yaml = {
-      ТипКода: "Строка",
-      ДлинаКода: 3,
-      ДопустимаяДлинаКода: "Переменная",
-      СтандартныеРеквизиты: { Код: { ЗначениеЗаполнения: "   " } },
+      СтандартныеРеквизиты: { Код: { ЗначениеЗаполнения: fillValue } },
     }
     const collector = createConfigurationIndexCollector()
+    const logicalAddress = `Справочник.Товары.StandardAttribute.Code.Property.fillValue.${fillValue.length}`
 
-    normalizeImportedDependentItems({
+    const removed = normalizeImportedDependentItems({
       yaml,
       rule: MetadataCatalogRules,
       candidates: [{
         ...candidate("StandardAttributeDescription", ["СтандартныеРеквизиты", "Код"], "Код"),
-        logicalAddress: "Справочник.Товары.StandardAttribute.Code.Property.fillValue",
-        xmlValue: { "_xsi:type": "xs:string", "#text": "   " },
+        logicalAddress,
+        xmlValue: { "_xsi:type": "xs:string", "#text": fillValue },
       }],
       collector,
       owner: { dir: "Справочник", name: "Товары" },
     })
 
+    expect(removed).toBe(1)
     expect(yaml.СтандартныеРеквизиты.Код).not.toHaveProperty("ЗначениеЗаполнения")
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").entities).toContainEqual({
-      logicalAddress: "Справочник.Товары.StandardAttribute.Code.Property.fillValue",
+      logicalAddress,
       sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-      xml: { xsiType: "xs:string", xmlText: "   " },
+      xml: { xsiType: "xs:string", xmlText: fillValue },
     })
   })
 

@@ -7,6 +7,7 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { registerCoreMetadata } from "../composition/coreMetadata"
+import { serializeYAMLDocument } from "../../yaml/export"
 
 registerCoreMetadata()
 
@@ -59,6 +60,19 @@ describe("fill value XML import", () => {
       )
     },
   )
+
+  it("сохраняет содержательный код при неявном строковом типе", async () => {
+    const sourcePath = copiedCatalogCodeFixture()
+    const prepared = await prepareImportYaml({
+      assignment: assignment(sourcePath),
+      context: mockXmlImportContext(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.yaml).not.toHaveProperty("ТипКода")
+    expect(prepared.yaml).toHaveProperty("ДлинаКода", 3)
+    expect(serializeYAMLDocument(prepared.yaml).text).toContain('ЗначениеЗаполнения: "--"')
+  })
 })
 
 function copiedBeginningDateFixture(): string {
@@ -90,6 +104,22 @@ function copiedFixture(order: "type-before" | "fill-before"): string {
     const typeLineStart = xml.lastIndexOf("\n", adjustedType) + 1
     xml = `${xml.slice(0, typeLineStart)}${fillLine}${xml.slice(typeLineStart)}`
   }
+  fs.writeFileSync(sourcePath, xml)
+  return sourcePath
+}
+
+function copiedCatalogCodeFixture(): string {
+  const dir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-fill-value-code-import-"))
+  tempDirs.push(dir)
+  const sourcePath = join(dir, "СправочникПолный.xml")
+  let xml = fs.readFileSync(fixture, "utf8")
+    .replace("<CodeLength>11</CodeLength>", "<CodeLength>3</CodeLength>")
+    .replace("\n\t\t\t<CodeType>Number</CodeType>", "")
+  const codeStart = xml.indexOf('<xr:StandardAttribute name="Code">')
+  const fillStart = xml.indexOf('<xr:FillValue xsi:nil="true"/>', codeStart)
+  if (codeStart === -1 || fillStart === -1) throw new Error("Не найден стандартный реквизит Code")
+  const emptyFill = '<xr:FillValue xsi:nil="true"/>'
+  xml = `${xml.slice(0, fillStart)}<xr:FillValue xsi:type="xs:string">--</xr:FillValue>${xml.slice(fillStart + emptyFill.length)}`
   fs.writeFileSync(sourcePath, xml)
   return sourcePath
 }

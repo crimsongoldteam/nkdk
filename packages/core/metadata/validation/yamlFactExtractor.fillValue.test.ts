@@ -125,6 +125,35 @@ describe("dependent fill value validation", () => {
       expect.objectContaining({ message: expect.stringContaining("!xml") }),
     ])
   })
+
+  it.each([
+    ["неявные свойства справочника", `СтандартныеРеквизиты:
+  Код:
+    ЗначениеЗаполнения: "123"
+`],
+    ["явная длина и неявный тип", `ДлинаКода: 3
+СтандартныеРеквизиты:
+  Код:
+    ЗначениеЗаполнения: "--"
+`],
+  ])("проверяет код через %s", (_name, yaml) => {
+    const diagnostics = extractDiagnostics(yaml)
+      .filter(({ path }) => path === "/СтандартныеРеквизиты/Код/ЗначениеЗаполнения")
+    expect(diagnostics).toEqual([])
+  })
+
+  it("отклоняет код длиннее неявной длины", () => {
+    const diagnostics = extractDiagnostics(`СтандартныеРеквизиты:
+  Код:
+    ЗначениеЗаполнения: "1234567890"
+`)
+    expect(diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "/СтандартныеРеквизиты/Код/ЗначениеЗаполнения",
+        severity: "error",
+      }),
+    ]))
+  })
 })
 
 function extractAttributeDiagnostics(body: string) {

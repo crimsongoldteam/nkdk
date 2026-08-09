@@ -21,6 +21,7 @@ import { classifyStandardMemberFillValue, effectiveTypeFromTypeDescription } fro
 import type { FillValueClassification } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 
 const validationContext: ConfigurationContext = { version: "2.20", defaultLanguage: "ru" }
 const fillValueYamlKey = "ЗначениеЗаполнения"
@@ -62,7 +63,9 @@ export function parseFillValueItem(
   const tagged = yamlScalarTagAt(item, fillValueYamlKey) === "xml"
   const rawValue = item[fillValueYamlKey]
   const value = parseFillValueYaml(
-    tagged && typeof rawValue === "string" ? xmlScalarTagPayload(rawValue) : rawValue
+    tagged && typeof rawValue === "string"
+      ? xmlScalarTagPayload(rawValue)
+      : asExplicitYAMLStringIfMarked(item, fillValueYamlKey, rawValue)
   )
   return value === undefined ? undefined : { tagged, value }
 }
