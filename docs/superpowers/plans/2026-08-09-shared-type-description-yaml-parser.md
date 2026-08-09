@@ -4,7 +4,9 @@
 
 **Цель:** устранить расхождение семантики `TypeDescription` между основным fromYAML, предварительным индексом формы и индексом фактов владельца.
 
-**Архитектура:** чистое преобразование YAML → `TypeDescription` выделяется в отдельный модуль `parseYAML.ts`. Основной fromYAML остаётся переходником правил с проверкой `allowedTypes`, а оба индексатора используют чистую функцию напрямую.
+**Архитектура:** чистое преобразование YAML → `TypeDescription` выделяется функцией в `fromYAML.ts`. Основной fromYAML остаётся переходником правил с проверкой `allowedTypes`, а оба индексатора используют ту же функцию через нейтральный `indexValueFromYAMLRegistry`, не импортируя реализацию `commonObjects`.
+
+> **Уточнение после архитектурной проверки:** первоначальный вариант с отдельным `parseYAML.ts` и прямыми импортами из validation создавал восемь новых рёбер в существующей циклической компоненте. Поэтому указания ниже о прямом импорте `parseYAML.ts` заменяются нейтральной регистрацией; это уточнение имеет приоритет над первоначальными пошаговыми фрагментами.
 
 **Технологии:** TypeScript, Vitest, pnpm, существующие `TypeDescriptionRules`, `formulaFormatParser` и проверка проекта NKDK.
 
@@ -23,9 +25,9 @@
 
 ## Карта файлов
 
-- Создать `packages/core/metadata/commonObjects/typeDescription/parseYAML.ts` — единственная чистая реализация YAML → `TypeDescription`.
+- Изменить `packages/core/metadata/commonObjects/typeDescription/fromYAML.ts` — экспортировать единственную чистую реализацию YAML → `TypeDescription`, сохранить переходник `allowedTypes` и зарегистрировать проекцию индекса.
 - Создать `packages/core/metadata/commonObjects/typeDescription/parseYAML.test.ts` — договор чистого преобразователя на существующей таблице фикстур и неподходящих значениях.
-- Изменить `packages/core/metadata/commonObjects/typeDescription/fromYAML.ts` — оставить проверку `allowedTypes`, регистрацию правила и делегирование чистой функции.
+- Создать `packages/core/metadata/orchestration/property/indexValueFromYAMLRegistry.ts` — нейтральная граница доступа индексаторов к зарегистрированному преобразованию.
 - Изменить `packages/core/metadata/commonObjects/typeDescription/fromYAML.test.ts` — сохранить проверку ограничений переходника; существующие проверки импорта должны остаться зелёными.
 - Изменить `packages/core/metadata/validation/dataPath/formYamlIndex.ts` — использовать общий преобразователь и удалить локальную реализацию.
 - Изменить `packages/core/metadata/validation/dataPath/formYamlIndex.test.ts` — закрепить одинаковый вид данных для `Дата`, `Время`, `ДатаВремя`.

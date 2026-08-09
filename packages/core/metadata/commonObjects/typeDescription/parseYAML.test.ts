@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { typeFixturesTable } from "./__fixtures__/data"
-import { parseTypeDescriptionYAML } from "./parseYAML"
+import { parseTypeDescriptionYAML } from "./fromYAML"
 
 describe("parseTypeDescriptionYAML", () => {
   it.each(typeFixturesTable)("преобразует YAML-типы по общему договору: $enterprise", ({ internal, YAML }) => {

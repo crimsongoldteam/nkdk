@@ -1,6 +1,6 @@
-import { parseTypeDescriptionYAML } from "../../commonObjects/typeDescription/parseYAML"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
+import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
 import type { FormDataPathIndex } from "./formIndex"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
@@ -50,7 +50,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
     const attribute = pendingAttribute(attributeName)
 
     if (property === "Тип" && fact.yamlPath.length === 3) {
-      attribute.type = parseTypeDescriptionYAML(fact.value)
+      attribute.type = indexValueFromYAML<TypeDescription>("TypeDescription", fact.value)
       return
     }
     if (property === "ДинамическийСписок" && fact.yamlPath.length === 3) {
@@ -65,7 +65,7 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
     ) {
       attribute.columns.set(nestedName, {
         name: nestedName,
-        typeInfo: typeDescriptionToDataPathTypeInfo(parseTypeDescriptionYAML(fact.value)),
+        typeInfo: typeDescriptionToDataPathTypeInfo(indexValueFromYAML<TypeDescription>("TypeDescription", fact.value)),
       })
       return
     }
@@ -165,7 +165,9 @@ function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColum
     for (const [name, rawColumn] of Object.entries(asRecord(rawColumns) ?? {})) {
       columns.set(name, {
         name,
-        typeInfo: typeDescriptionToDataPathTypeInfo(parseTypeDescriptionYAML(asRecord(rawColumn)?.["Тип"])),
+        typeInfo: typeDescriptionToDataPathTypeInfo(
+          indexValueFromYAML<TypeDescription>("TypeDescription", asRecord(rawColumn)?.["Тип"])
+        ),
       })
     }
     target.set(normalizeIndexedPath(tablePath), columns)
