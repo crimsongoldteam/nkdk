@@ -31,12 +31,14 @@ export interface TableContext {
 export interface ResolvedDataPathTarget {
   value: string
   segments: readonly string[]
+  segmentIndex: number
   typeInfo: DataPathTypeInfo
   source: ResolvedDataPathTargetSource
 }
 
 export type ResolvedDataPathTargetSource =
   | { kind: "formAttribute"; name: string }
+  | { kind: "formElement"; name: string }
   | { kind: "tableColumn"; table: string; name: string }
   | { kind: "objectField"; owner: OwnerTypeRef; name: string }
   | { kind: "constant"; name: string }
@@ -48,11 +50,13 @@ export interface ResolvedDataPathSegmentReplacement {
   segmentIndex: number
   from: string
   to: string
-  reason: "standardMember"
+  reason: "serviceRoot" | "currentRow" | "standardMember"
 }
 
 export type ResolveDataPathCoreIssueCode =
   | "current_data_unsupported"
+  | "current_data_source_missing"
+  | "internal_service_name_in_yaml"
   | "tilde_variant"
   | "platform_source"
   | "table_context_mismatch"
@@ -77,16 +81,22 @@ export type ResolveDataPathCoreResult =
   | {
       status: "ok"
       value: string
+      internalValue?: string
+      yamlValue?: string
       segments: readonly string[]
       target?: ResolvedDataPathTarget
+      targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
       issues: []
     }
   | {
       status: "warning" | "error"
       value: string
+      internalValue?: string
+      yamlValue?: string
       segments: readonly string[]
       target?: ResolvedDataPathTarget
+      targets: readonly ResolvedDataPathTarget[]
       replacements: ResolvedDataPathSegmentReplacement[]
       issues: ResolveDataPathCoreIssue[]
     }
@@ -115,7 +125,33 @@ interface TableColumnSource {
 }
 
 export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveDataPathCoreResult {
-  return resolveDataPathCoreWithCurrentData(params, new Set())
+  return withCanonicalValues(resolveDataPathCoreWithCurrentData(params, new Set()), params.nameMode)
+}
+
+function withCanonicalValues(
+  result: ResolveDataPathCoreResult,
+  nameMode: DataPathNameMode
+): ResolveDataPathCoreResult {
+  const converted = applySegmentReplacements(result.value, result.replacements)
+  return {
+    ...result,
+    internalValue: nameMode === "yaml" ? converted : result.value,
+    yamlValue: nameMode === "internal" ? converted : result.value,
+  }
+}
+
+function applySegmentReplacements(
+  value: string,
+  replacements: readonly ResolvedDataPathSegmentReplacement[]
+): string {
+  if (replacements.length === 0) return value
+  const segments = value.split(".")
+  for (const replacement of replacements) {
+    const segment = segments[replacement.segmentIndex]
+    if (segment === undefined) continue
+    segments[replacement.segmentIndex] = `${replacement.to}${segment.slice(replacement.from.length)}`
+  }
+  return segments.join(".")
 }
 
 function resolveDataPathCoreWithCurrentData(
@@ -128,10 +164,6 @@ function resolveDataPathCoreWithCurrentData(
   const segments = value.split(".")
   const replacements: ResolvedDataPathSegmentReplacement[] = []
 
-  if (isCurrentDataPath(segments)) {
-    return resolveCurrentDataPath({ params, segments, currentDataElements })
-  }
-
   if (isTildeVariantPath(value)) {
     return okWithoutTarget({ value, segments })
   }
@@ -143,6 +175,18 @@ function resolveDataPathCoreWithCurrentData(
 
   const tableContextError = validateTableContext(params)
   if (tableContextError !== undefined) return issueResult(params, segments, tableContextError, replacements)
+
+  const currentDataMatch = matchCurrentDataPath(params, segments)
+  if (currentDataMatch.kind === "invalidInternalNames") {
+    return error(
+      params,
+      `ПутьКДанным "${value}": в YAML используйте "${currentDataMatch.expectedRoot}" и "${currentDataMatch.expectedCurrentRow}"`,
+      "internal_service_name_in_yaml"
+    )
+  }
+  if (currentDataMatch.kind === "match") {
+    return resolveCurrentDataPath({ params, segments, currentDataElements, match: currentDataMatch })
+  }
 
   const rootName = segmentLookupName(segments[0] ?? "")
   const root = params.index.getRoot(rootName)
@@ -385,14 +429,15 @@ function resolveCurrentDataPath(params: {
   params: ResolveDataPathCoreParams
   segments: readonly string[]
   currentDataElements: ReadonlySet<string>
+  match: CurrentDataPathMatch
 }): ResolveDataPathCoreResult {
   const elementName = params.segments[1] ?? ""
-  const tableDataPath = params.params.index.tableDataPathByElementName.get(elementName)
+  const tableDataPath = params.match.dataPath
   if (tableDataPath === undefined) {
     return error(
       params.params,
-      `ПутьКДанным "${params.params.value}": неизвестный табличный элемент "${elementName}"`,
-      "current_data_unsupported"
+      `ПутьКДанным "${params.params.value}": у табличного элемента "${elementName}" не указан источник данных`,
+      "current_data_source_missing"
     )
   }
   if (params.currentDataElements.has(elementName)) {
@@ -409,7 +454,7 @@ function resolveCurrentDataPath(params: {
   const nextElements = new Set(params.currentDataElements)
   nextElements.add(elementName)
   const result = resolveDataPathCoreWithCurrentData(
-    { ...params.params, value: expandedValue },
+    { ...params.params, value: expandedValue, tableContext: undefined },
     nextElements
   )
 
@@ -419,6 +464,7 @@ function resolveCurrentDataPath(params: {
     originalSegments: params.segments,
     expandedValue,
     tableDataPathSegmentCount: tableDataPathSegments.length,
+    serviceReplacements: params.match.replacements,
   })
 }
 
@@ -428,13 +474,14 @@ function rebaseCurrentDataResult(params: {
   originalSegments: readonly string[]
   expandedValue: string
   tableDataPathSegmentCount: number
+  serviceReplacements: readonly ResolvedDataPathSegmentReplacement[]
 }): ResolveDataPathCoreResult {
-  const replacements = params.result.replacements
+  const replacements = [...params.serviceReplacements, ...params.result.replacements
     .filter(({ segmentIndex }) => segmentIndex >= params.tableDataPathSegmentCount)
     .map((replacement) => ({
       ...replacement,
       segmentIndex: 3 + replacement.segmentIndex - params.tableDataPathSegmentCount,
-    }))
+    }))]
   const target =
     params.result.target === undefined
       ? undefined
@@ -442,11 +489,20 @@ function rebaseCurrentDataResult(params: {
           ...params.result.target,
           value: params.originalValue,
           segments: params.originalSegments,
+          segmentIndex: params.originalSegments.length - 1,
         }
+  const elementTarget: ResolvedDataPathTarget = {
+    value: params.originalValue,
+    segments: params.originalSegments,
+    segmentIndex: 1,
+    typeInfo: { kinds: ["tableSource"], nextTypes: [], sourceText: "TabularFormElement" },
+    source: { kind: "formElement", name: params.originalSegments[1] ?? "" },
+  }
   const common = {
     value: params.originalValue,
     segments: params.originalSegments,
     replacements,
+    targets: [elementTarget, ...(target === undefined ? [] : [target])],
     ...(target === undefined ? {} : { target }),
   }
   if (params.result.status === "ok") {
@@ -675,8 +731,54 @@ function validateTableContext(params: ResolveDataPathCoreParams): ResolveDataPat
   )
 }
 
-function isCurrentDataPath(segments: readonly string[]): boolean {
-  return segments.length >= 4 && segments[0] === "Items" && segments[2] === "CurrentData"
+interface CurrentDataPathMatch {
+  readonly kind: "match"
+  readonly dataPath?: string
+  readonly replacements: readonly ResolvedDataPathSegmentReplacement[]
+}
+
+function matchCurrentDataPath(
+  params: ResolveDataPathCoreParams,
+  segments: readonly string[]
+): CurrentDataPathMatch | {
+  readonly kind: "invalidInternalNames"
+  readonly expectedRoot: string
+  readonly expectedCurrentRow: string
+} | { readonly kind: "none" } {
+  const dialect = params.index.dialect
+  if (dialect === undefined || segments.length < 4) return { kind: "none" }
+
+  const elementName = segments[1] ?? ""
+  const declaration = params.index.tabularElementsByName.get(elementName)
+  if (declaration === undefined) return { kind: "none" }
+
+  const inputRoot = params.nameMode === "yaml" ? dialect.serviceRoot.yaml : dialect.serviceRoot.internal
+  const inputCurrentRow = params.nameMode === "yaml" ? dialect.currentRow.yaml : dialect.currentRow.internal
+  if (segments[0] === inputRoot && segments[2] === inputCurrentRow) {
+    const outputRoot = params.nameMode === "yaml" ? dialect.serviceRoot.internal : dialect.serviceRoot.yaml
+    const outputCurrentRow = params.nameMode === "yaml" ? dialect.currentRow.internal : dialect.currentRow.yaml
+    return {
+      kind: "match",
+      dataPath: declaration.dataPath,
+      replacements: [
+        { segmentIndex: 0, from: inputRoot, to: outputRoot, reason: "serviceRoot" },
+        { segmentIndex: 2, from: inputCurrentRow, to: outputCurrentRow, reason: "currentRow" },
+      ],
+    }
+  }
+
+  if (
+    params.nameMode === "yaml" &&
+    segments[0] === dialect.serviceRoot.internal &&
+    segments[2] === dialect.currentRow.internal
+  ) {
+    return {
+      kind: "invalidInternalNames",
+      expectedRoot: dialect.serviceRoot.yaml,
+      expectedCurrentRow: dialect.currentRow.yaml,
+    }
+  }
+  return { kind: "none" }
 }
 
 function isTildeVariantPath(value: string): boolean {
@@ -1011,6 +1113,7 @@ function ownerError(
     value: params.value,
     segments,
     replacements: [...replacements],
+    targets: [],
     issues: [
       {
         code: "owner_error",
@@ -1028,18 +1131,21 @@ function okTarget(params: {
   state: TraversalState
   replacements?: readonly ResolvedDataPathSegmentReplacement[]
 }): ResolveDataPathCoreResult {
+  const target: ResolvedDataPathTarget = {
+    value: params.value,
+    segments: params.segments,
+    segmentIndex: params.segments.length - 1,
+    typeInfo: params.state.typeInfo,
+    source: params.state.source,
+  }
   return {
     status: "ok",
     value: params.value,
     segments: params.segments,
     replacements: [...(params.replacements ?? [])],
+    targets: [target],
     issues: [],
-    target: {
-      value: params.value,
-      segments: params.segments,
-      typeInfo: params.state.typeInfo,
-      source: params.state.source,
-    },
+    target,
   }
 }
 
@@ -1053,6 +1159,7 @@ function okWithoutTarget(params: {
     value: params.value,
     segments: params.segments,
     replacements: [...(params.replacements ?? [])],
+    targets: [],
     issues: [],
   }
 }
@@ -1085,6 +1192,7 @@ function issueResult(
     value: params.value,
     segments,
     replacements: [...replacements],
+    targets: [],
     issues: [issue],
   }
 }

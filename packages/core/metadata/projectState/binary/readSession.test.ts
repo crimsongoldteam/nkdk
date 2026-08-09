@@ -73,14 +73,15 @@ it("читает владельца и входы проверки зависи�
   }])
 })
 
-it("сохраняет путь к данным табличного элемента в двоичном снимке", () => {
+it("сохраняет декларации табличных элементов с путём и без пути в двоичном снимке", () => {
   const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const owner = { kind: "Справочник", name: "Catalog.Source" }
   const update = {
     ...source,
     forms: [
       ...source.forms,
-      { kind: "tableDataPath" as const, owner, name: "ТаблицаТоваров", dataPath: "Объект.Товары" },
+      { kind: "tabularElement" as const, owner, name: "ТаблицаТоваров", dataPath: "Объект.Товары" },
+      { kind: "tabularElement" as const, owner, name: "ДеревоГрупп" },
     ],
   }
   const session = openSessionWithUpdates([update])
@@ -94,10 +95,14 @@ it("сохраняет путь к данным табличного элеме�
     status: "found",
     input: {
       forms: expect.arrayContaining([{
-        kind: "tableDataPath",
+        kind: "tabularElement",
         owner,
         name: "ТаблицаТоваров",
         dataPath: "Объект.Товары",
+      }, {
+        kind: "tabularElement",
+        owner,
+        name: "ДеревоГрупп",
       }]),
     },
   }])

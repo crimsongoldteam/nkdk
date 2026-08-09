@@ -38,6 +38,7 @@ import type {
 import type { ProjectStatePendingDependencyCheck } from "../projectState/contracts/fileUpdate"
 import { parseProjectPath, projectPathFromFileSystem } from "../project/path"
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
+import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 
 export function createProjectStateDependencyValidator(): ProjectStateDependencyValidator {
   return {
@@ -526,10 +527,18 @@ function projectStateObjectField(
 function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
   const additionalColumnsByTablePath = new Map()
-  const tableDataPathByElementName = new Map<string, string>()
+  const tabularElementsByName = new Map<string, {
+    readonly kind: "tabularFormElement"
+    readonly dataPath?: string
+  }>()
   for (const entry of entries) {
-    if (entry.kind === "tableDataPath") {
-      if (!tableDataPathByElementName.has(entry.name)) tableDataPathByElementName.set(entry.name, entry.dataPath)
+    if (entry.kind === "tabularElement") {
+      if (!tabularElementsByName.has(entry.name)) {
+        tabularElementsByName.set(entry.name, {
+          kind: "tabularFormElement",
+          ...(entry.dataPath === undefined ? {} : { dataPath: entry.dataPath }),
+        })
+      }
       continue
     }
     if (entry.kind === "root") {
@@ -553,10 +562,12 @@ function dependencyFormIndex(entries: readonly ProjectStateFormEntry[]): FormDat
     if (!columns.has(entry.name)) columns.set(entry.name, entry.source)
     additionalColumnsByTablePath.set(entry.tablePath, columns)
   }
+  const dialect = getRegisteredFormDataPathMetadataProjection()?.dataPathDialect
   return {
     roots,
     additionalColumnsByTablePath,
-    tableDataPathByElementName,
+    tabularElementsByName,
+    ...(dialect === undefined ? {} : { dialect }),
     duplicateDiagnostics: [],
     getRoot(name) {
       return roots.get(name)
@@ -615,7 +626,7 @@ function enqueueFormOwners(
   forms: readonly ProjectStateFormEntry[],
 ): void {
   for (const form of forms) {
-    if (form.kind === "tableDataPath") continue
+    if (form.kind === "tabularElement") continue
     enqueueTypeOwners(pending, componentPath, form.source.typeInfo.nextTypes)
     if ("table" in form.source && (form.source.table?.kind === "RegisterRecordSet" || form.source.table?.kind === "TabularSection")) {
       enqueueTypeOwners(pending, componentPath, [form.source.table.owner])

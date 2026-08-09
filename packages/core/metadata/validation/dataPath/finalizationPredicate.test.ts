@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import "../../appliedObjects/metadataChartOfCalculationTypes/register"
 import "../../appliedObjects/metadataCatalog/register"
+import "../../forms/clientApplicationForm/register"
 import { requiresDataPathStandardMemberFormatting } from "./finalizationPredicate"
 import {
   registerStandardMembers,
@@ -19,6 +20,8 @@ describe("requiresDataPathStandardMemberFormatting", () => {
     ["Объект.Товары.НомерСтроки", "internal-to-yaml", false],
     ["Объект.Товары.НомерСтроки", "yaml-to-internal", true],
     ["Объект.Товары.LineNumber", "yaml-to-internal", false],
+    ["Items.Таблица.CurrentData.Код", "internal-to-yaml", true],
+    ["Элементы.Таблица.ТекущиеДанные.Код", "yaml-to-internal", true],
   ] as const)("checks %j in %s", (value, direction, expected) => {
     expect(requiresDataPathStandardMemberFormatting(value, direction)).toBe(expected)
   })

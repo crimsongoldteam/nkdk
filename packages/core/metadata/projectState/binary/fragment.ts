@@ -204,10 +204,10 @@ type ProjectStateFormEntry =
       }
     }
   | {
-      readonly kind: "tableDataPath"
+      readonly kind: "tabularElement"
       readonly owner: OwnerTypeRef
       readonly name: string
-      readonly dataPath: string
+      readonly dataPath?: string
     }
 
 interface ProjectStatePendingReference {
@@ -495,12 +495,12 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendForms(forms: ProjectStateImportIndexContribution["forms"], fileId: number): void {
     for (const form of forms) {
-      if (form.kind === "tableDataPath") {
+      if (form.kind === "tabularElement") {
         rows.formColumns.push({
           sourceFileId: fileId,
           ownerTypeId: appendOwnerType(form.owner),
           nameId: strings.intern(form.name),
-          tablePathId: strings.intern(form.dataPath),
+          tablePathId: strings.intern(form.dataPath ?? ""),
           typeInfoId: NONE,
           tableInfoId: NONE,
           kind: 3,

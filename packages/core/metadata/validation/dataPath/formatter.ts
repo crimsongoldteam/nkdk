@@ -35,7 +35,10 @@ export interface FormatDataPathStandardMembersParams {
 }
 
 export function formatDataPathStandardMembers(params: FormatDataPathStandardMembersParams): string {
-  if (!requiresDataPathStandardMemberFormatting(params.value, params.direction)) return params.value
+  if (
+    !requiresDataPathStandardMemberFormatting(params.value, params.direction) &&
+    !requiresDataPathDialectFormatting(params)
+  ) return params.value
   const value = params.value
   const result = resolveDataPathCore({
     value,
@@ -55,6 +58,8 @@ export function formatDataPathStandardMembers(params: FormatDataPathStandardMemb
     })
     return params.value
   }
+  const canonicalValue = params.direction === "yaml-to-internal" ? result.internalValue : result.yamlValue
+  if (canonicalValue !== undefined) return canonicalValue
   if (result.replacements.length === 0) return params.value
 
   const segments = value.split(".")
@@ -65,4 +70,13 @@ export function formatDataPathStandardMembers(params: FormatDataPathStandardMemb
     segments[replacement.segmentIndex] = `${replacement.to}${suffix}`
   }
   return segments.join(".")
+}
+
+function requiresDataPathDialectFormatting(params: FormatDataPathStandardMembersParams): boolean {
+  const dialect = params.index.dialect
+  if (dialect === undefined) return false
+  const root = params.direction === "internal-to-yaml" ? dialect.serviceRoot.internal : dialect.serviceRoot.yaml
+  const currentRow = params.direction === "internal-to-yaml" ? dialect.currentRow.internal : dialect.currentRow.yaml
+  const segments = params.value.split(".")
+  return segments.length >= 4 && segments[0] === root && segments[2] === currentRow
 }

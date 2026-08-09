@@ -42,6 +42,22 @@ describe("createFormDataPathIndexFromYAML", () => {
       },
     })
 
-    expect(index.tableDataPathByElementName).toEqual(new Map([["Таблица", "Объект.Товары"]]))
+    expect(index.tabularElementsByName).toEqual(new Map([
+      ["Таблица", { kind: "tabularFormElement", dataPath: "Объект.Товары" }],
+    ]))
+  })
+
+  it("индексирует дерево без пути к данным", () => {
+    const index = createFormDataPathIndexFromYAML({
+      Элементы: {
+        Дерево: {
+          Вид: "ДеревоФормы",
+        },
+      },
+    })
+
+    expect(index.tabularElementsByName).toEqual(new Map([
+      ["Дерево", { kind: "tabularFormElement" }],
+    ]))
   })
 })
