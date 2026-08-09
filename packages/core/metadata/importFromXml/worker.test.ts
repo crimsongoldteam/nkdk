@@ -482,6 +482,8 @@ describe("XML import worker second pass", () => {
         },
       },
     })
+    appendSharedStateFragments(second.stateFragments)
+    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.Товары.НомерСтроки")
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
@@ -499,6 +501,7 @@ describe("XML import worker second pass", () => {
     const formFile = first.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
+    expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
     expect(second.files).toEqual([])
   })
 
@@ -612,6 +615,41 @@ function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
   if (first.stateFragment !== undefined) fixture.store.appendFragment(first.stateFragment)
   fixture.store.commitUpdate()
   return fixture.store.createReadToken()
+}
+
+function appendSharedStateFragments(stateFragments: ImportFirstPassResult["stateFragment"][]): void {
+  const fixture = sharedStateFixture
+  if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+  fixture.store.beginUpdate()
+  for (const stateFragment of stateFragments) {
+    if (stateFragment !== undefined) fixture.store.appendFragment(stateFragment)
+  }
+  fixture.store.commitUpdate()
+}
+
+function expectSharedFormRoot(targetProjectPath: string, value: string): void {
+  const fixture = sharedStateFixture
+  if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
+  const session = fixture.openReadSession(fixture.store.createReadToken())
+  const dependency = session.readDependencyInputs([{
+    requestId: "form-index",
+    componentPath: "cf",
+    projectPath: `cf/${targetProjectPath}`,
+    check: {
+      kind: "dataPath",
+      yamlPath: ["ПутьКДанным"],
+      location: { line: 1, col: 1 },
+      owner: { kind: "Справочник", name: "Товары" },
+      value,
+      policyInput: { yaml: "ПутьКДанным" },
+      policy: "formDataPath",
+    },
+  }])[0]
+  session.close()
+  expect(dependency).toMatchObject({
+    status: "found",
+    input: { forms: expect.arrayContaining([expect.objectContaining({ kind: "root", name: "Объект" })]) },
+  })
 }
 
 async function runCatalogAndFormSecondPass(
