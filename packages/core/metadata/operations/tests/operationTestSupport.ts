@@ -5,6 +5,7 @@ import { createTestProjectStateReadToken } from "../../projectState/tests/readTo
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../../diagnostics/collection"
 import type { ProjectReferenceLocation } from "../../projectState/readSession"
 import type { ProjectStateReadSession } from "../../projectState/readSession"
+import { missingProjectFileMetadataTargetReferences } from "../../projectState/tests/readSession"
 import type { ProjectStateService } from "../../projectState/service"
 import type { Diagnostic } from "../../validation/types"
 import { runProjectQuery } from "../../workerPool/projectQueries"
@@ -171,6 +172,7 @@ export function completeOperationReadSession(
     readOwnerRefPage: () => ({ refs: [] }),
     readComponentTargetPage: () => ({ entries: [] }),
     readValidationStatus: () => [],
+    readFileMetadataTargetReferences: missingProjectFileMetadataTargetReferences,
     close() {},
   }
 }
