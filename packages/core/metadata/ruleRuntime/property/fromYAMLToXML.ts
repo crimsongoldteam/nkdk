@@ -37,7 +37,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
-import { assertAllowedExplicitXMLTags } from "./explicitXMLPropertyRegistry"
+import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -138,16 +138,11 @@ export function createYAMLPropertySource(params: {
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
   const yaml = asRecord(params.yaml)
-  let explicitXMLActions: ReadonlyMap<string, "emit" | "omit">
-  try {
-    explicitXMLActions = assertAllowedExplicitXMLTags({
-      yaml,
-      itemType: params.rule.itemType,
-      properties: params.rule.properties,
-    })
-  } catch (cause) {
-    throw toYAMLImportError(cause, params.context)
-  }
+  const explicitXMLActions = collectExplicitXMLPropertyActions({
+    yaml,
+    itemType: params.rule.itemType,
+    properties: params.rule.properties,
+  })
   const source = createYAMLPropertySource({
     yaml,
     rule: params.rule,
@@ -181,7 +176,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       params.profile.propertyCount++
       params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
     }
-    if (explicitXMLActions.get(propertyKey) === "omit") continue
+    const explicitXMLAction = explicitXMLActions.get(propertyKey)
+    if (explicitXMLAction?.kind === "omit") continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
     if (!source.has(propertyKey)) {
@@ -196,6 +192,19 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         planned,
       })
     )
+    if (explicitXMLAction?.kind === "emit") {
+      collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
+      matchingOutputs.forEach((output, index) => {
+        writeXMLValue({
+          context: propertyContext,
+          output,
+          planned,
+          value: explicitXMLAction.xmlValue,
+          reference: references[index]!,
+        })
+      })
+      continue
+    }
     if (params.externalWriteFactory !== undefined) {
       externalWrites.push(
         ...params.externalWriteFactory({

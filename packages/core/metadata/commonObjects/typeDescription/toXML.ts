@@ -42,7 +42,8 @@ export const exportTypeDescriptionToXML = (
     typeDescription,
     shouldDeclareTypeNamespace(_rule),
     referenceContainerByType,
-    referenceSourceTypes
+    referenceSourceTypes,
+    _context.exportToXML?.typeDescriptionXMLNameByType
   )
   const typeIdXML = getTypeIdXML(typeDescription)
   const sourceTypeSetMarkerXML = getSourceTypeSetMarkerXML(
@@ -74,7 +75,8 @@ const getTypesXML = (
   typeDescription: TypeDescription,
   declareTypeNamespace: boolean,
   referenceContainerByType: TypeDescriptionXMLContainerByType | undefined,
-  referenceSourceTypes: TypeDescriptionSourceTypes | undefined
+  referenceSourceTypes: TypeDescriptionSourceTypes | undefined,
+  xmlNameByType: Readonly<Record<string, string>> | undefined
 ): {
   "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
   "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
@@ -93,9 +95,13 @@ const getTypesXML = (
       getTypeDescriptionRule(baseType) ?? (!isComplex ? getSystemEnumerationTypeDescriptionRule(type) : undefined)
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
-    const sourceType = getMatchingReferenceSourceType(type, rule, referenceSourceTypes)
+    const xmlBaseType = xmlNameByType?.[baseType]
+    const sourceType =
+      xmlBaseType === undefined ? getMatchingReferenceSourceType(type, rule, referenceSourceTypes) : undefined
     const item =
-      sourceType !== undefined ? getSourceTypeXML(sourceType) : getCanonicalTypeXML(type, rule, declareTypeNamespace)
+      sourceType !== undefined
+        ? getSourceTypeXML(sourceType)
+        : getCanonicalTypeXML(type, rule, declareTypeNamespace, xmlBaseType)
 
     if (referenceContainerByType?.[type] === "TypeSetAttribute") {
       typesXML.push(item)
@@ -185,9 +191,12 @@ const getSourceTypeXML = (sourceType: TypeDescriptionSourceType): TypeDescriptio
 const getCanonicalTypeXML = (
   type: string,
   rule: TypeDescriptionRule,
-  declareTypeNamespace: boolean
+  declareTypeNamespace: boolean,
+  xmlBaseType: string = type.includes(".") ? type.slice(0, type.indexOf(".")) : type
 ): TypeDescriptionXMLType => {
-  const typeXML = `${rule.prefix}:${type}`
+  const dotIndex = type.indexOf(".")
+  const suffix = dotIndex === -1 ? "" : type.slice(dotIndex)
+  const typeXML = `${rule.prefix}:${xmlBaseType}${suffix}`
   const namespace = getCanonicalTypeNamespace(rule, declareTypeNamespace)
   return namespace !== undefined
     ? {

@@ -77,6 +77,25 @@ describe("full XML sync worker", () => {
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("baseIndexSnapshot")
   })
 
+  it.each([
+    [undefined, "cfg:AnyIBRef"],
+    [{ AnyIBRef: "AnyRef" }, "cfg:AnyRef"],
+  ] as const)("passes the TypeDescription XML name policy to assignment export", async (policy, expected) => {
+    const projectDir = createProject(["Товары"])
+    fs.writeFileSync(
+      join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+      "Имя: Товары\nРеквизиты:\n  СсылкаНаОбъект:\n    Тип: ЛюбаяСсылка\n"
+    )
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned], context, undefined, undefined, undefined, undefined, undefined, policy)
+
+    const result = await runFullXmlSyncWorkerCommand({ kind: "execute", assignments: [assigned] })
+
+    expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
+    const xml = fs.readFileSync(join(projectDir, ".out", "Catalogs", "Товары.xml"), "utf8")
+    expect(xml).toContain(`<v8:TypeSet>${expected}</v8:TypeSet>`)
+  })
+
   it("возвращает каждую рабочую пачку двоичным результатом и ничего не накапливает к завершению", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
@@ -541,6 +560,7 @@ describe("full XML sync worker", () => {
       encodeConfigurationIndex(sampleSnapshot())
     ),
     outputTarget: FullXmlSyncOutputTarget = { kind: "directory", outputDir: join(projectDir, ".out") },
+    typeDescriptionXMLNameByType?: Readonly<Record<string, string>>,
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -553,6 +573,7 @@ describe("full XML sync worker", () => {
         kind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         componentKind: baseSnapshot === undefined ? "configuration" : "configurationExtension",
         adoptedUuids: {},
+        ...(typeDescriptionXMLNameByType === undefined ? {} : { typeDescriptionXMLNameByType }),
         ...(baseSnapshot === undefined
           ? {}
           : {

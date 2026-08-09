@@ -418,6 +418,7 @@ function exportContext(
       },
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
+      typeDescriptionXMLNameByType: state.profile.typeDescriptionXMLNameByType,
       xmlDefaultVariantByLogicalAddress: state.profile.xmlDefaultVariantByLogicalAddress,
     },
   }

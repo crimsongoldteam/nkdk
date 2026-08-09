@@ -12,6 +12,7 @@ export interface FullXmlSyncWorkerProfileRuntime {
   readonly kind: XmlSyncProfileKind
   readonly componentKind: ComponentAddress["kind"]
   readonly adoptedUuids: Readonly<Record<string, string>>
+  readonly typeDescriptionXMLNameByType?: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
   readonly referencePathByCurrentPath?: ReadonlyMap<string, string>
   readonly baseForms?: {
@@ -41,6 +42,10 @@ export interface FullXmlSyncComponentProfile {
     readonly target: ConfirmedComponentState
     readonly base?: ConfirmedComponentState
   }): FullXmlSyncProfileRuntime
+  readonly prepareRuntime?: (params: {
+    readonly runtime: FullXmlSyncProfileRuntime
+    readonly rootYaml: unknown
+  }) => FullXmlSyncProfileRuntime
 }
 
 const profiles = new Map<XmlSyncProfileKind, FullXmlSyncComponentProfile>()

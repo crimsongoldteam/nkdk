@@ -51,7 +51,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(yaml).toEqual({ Режим: "Auto" })
+    expect(yaml).toEqual({ Режим: "!xml" })
     expect(yamlScalarTagAt(yaml, "Режим")).toBe("xml")
   })
 
@@ -68,7 +68,7 @@ describe("importPropertiesFromXMLToYAML", () => {
       collector: createLocalIndexesCollector(),
     })
 
-    expect(yaml).toEqual({ Поле: "" })
+    expect(yaml).toEqual({ Поле: "!xml" })
     expect(yamlScalarTagAt(yaml, "Поле")).toBe("xml")
   })
 

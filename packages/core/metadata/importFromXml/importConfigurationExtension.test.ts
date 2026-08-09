@@ -62,6 +62,7 @@ describe("configuration extension XML import", () => {
     expect(configuration).toEqual({
       Имя: "РасширениеКонтроль",
       НазначениеРасширенияКонфигурации: "Адаптация",
+      РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
       ОсновнойРежимЗапуска: "УправляемоеПриложение",
       ОсновнойЯзык: "БазовыйЯзык",
       Контроль: ["ОсновнойРежимЗапуска"],
@@ -71,7 +72,7 @@ describe("configuration extension XML import", () => {
       Реквизиты: {
         РеквизитСправочника: {
           Синоним: "",
-          Тип: "Дата",
+          Тип: "ЛюбаяСсылка",
           Формат: "ДФ=dd.MM.yyyy",
           Контроль: ["ОбъектРасширяемойКонфигурации", "Формат"],
         },
@@ -91,7 +92,7 @@ describe("configuration extension XML import", () => {
         },
         СобственныйРеквизитФормы: {
           Заголовок: "",
-          Тип: "Строка",
+          Тип: "ЛюбаяСсылка",
         },
       },
       Элементы: {
@@ -139,12 +140,30 @@ describe("configuration extension XML import", () => {
 
 async function importExtension() {
   const projectDir = temporaryDirectory()
+  const inputDir = temporaryDirectory()
+  fs.cpSync(fixtureDir, inputDir, { recursive: true })
+  replaceExactlyOnce(
+    join(inputDir, "Configuration.xml"),
+    "\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>",
+    "\t\t\t<ConfigurationExtensionCompatibilityMode>Version8_3_20</ConfigurationExtensionCompatibilityMode>\n" +
+      "\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>"
+  )
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "<v8:Type>xs:dateTime</v8:Type>",
+    "<v8:TypeSet>cfg:AnyRef</v8:TypeSet>"
+  )
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "<v8:Type>xs:string</v8:Type>",
+    "<v8:TypeSet>cfg:AnyRef</v8:TypeSet>"
+  )
   writeBaseLanguage(projectDir)
   writeBaseCatalog(projectDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
-    inputDir: fixtureDir,
+    inputDir,
     projectDir,
     concurrency: 1,
     operationId: "configuration-extension-e2e",
@@ -165,6 +184,15 @@ async function importExtension() {
   })
 
   return { projectDir, result, configuration, catalog, form, yamlText, snapshot }
+}
+
+function replaceExactlyOnce(path: string, source: string, replacement: string): void {
+  const content = fs.readFileSync(path, "utf8")
+  const first = content.indexOf(source)
+  if (first === -1 || content.indexOf(source, first + source.length) !== -1) {
+    throw new Error(`Ожидалось ровно одно вхождение в ${path}: ${source}`)
+  }
+  fs.writeFileSync(path, content.slice(0, first) + replacement + content.slice(first + source.length))
 }
 
 function temporaryDirectory(): string {

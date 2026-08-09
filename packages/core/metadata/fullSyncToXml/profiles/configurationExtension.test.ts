@@ -7,6 +7,24 @@ import { createTestProjectStateReadToken } from "../../projectState/tests/readTo
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
 
 describe("configuration extension full XML sync profile", () => {
+  it.each([
+    ["Версия8_3_20", "AnyRef"],
+    ["Версия8_3_27", "AnyIBRef"],
+    [undefined, "AnyIBRef"],
+  ] as const)("prepares the TypeDescription policy for %s", (mode, expected) => {
+    const target = state({ componentPath: "cfe/Дополнение" })
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({
+      target,
+      base: state({ componentPath: "cf" }),
+    })
+    const rootYaml = mode === undefined ? {} : { РежимСовместимостиРасширенияКонфигурации: mode }
+
+    const prepared = configurationExtensionFullXmlSyncProfile.prepareRuntime?.({ runtime, rootYaml })
+
+    expect(prepared?.workerProfile.typeDescriptionXMLNameByType).toEqual({ AnyIBRef: expected })
+    expect(prepared?.workerProfile.adoptedUuids).toBe(runtime.workerProfile.adoptedUuids)
+  })
+
   it("rejects a base configuration changed after its snapshot", () => {
     const base = state({
       componentPath: "cf",

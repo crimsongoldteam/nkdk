@@ -5,6 +5,7 @@ import { Type } from "typebox"
 import { afterEach, describe, expect, it } from "vitest"
 import { explicitYAMLString } from "../../yaml/explicitString"
 import { serializeYAMLDocument } from "../../yaml/export"
+import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag } from "../../yaml/scalarTags"
 import { mockContext } from "../../tests/mockContext"
 import { compileValidationSchema } from "./compileValidationSchema"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -25,14 +26,17 @@ describe("validateSerializedProjectYaml", () => {
     tempDirs.push(projectDir)
     const projectPath = "Справочник/Товары/Свойства.yaml"
     const absolutePath = join(projectDir, projectPath)
-    const document = serializeYAMLDocument({
+    const source = {
       Реквизиты: {
         Артикул: {
           Тип: "Строка",
           ЗначениеЗаполнения: explicitYAMLString("001"),
         },
       },
-    })
+      ТранспортноеЗначение: EMPTY_XML_TAG_VALUE,
+    }
+    markYAMLScalarTag(source, "ТранспортноеЗначение", "xml")
+    const document = serializeYAMLDocument(source)
     mkdirSync(dirname(absolutePath), { recursive: true })
     writeFileSync(absolutePath, document.text)
     const file = resolveValidationProjectFile(projectDir, absolutePath)
@@ -44,6 +48,7 @@ describe("validateSerializedProjectYaml", () => {
           ЗначениеЗаполнения: Type.String(),
         }),
       }),
+      ТранспортноеЗначение: Type.Literal(EMPTY_XML_TAG_VALUE),
     }))
     const schemaCache: ValidationSchemaCache = {
       form: () => schema,

@@ -10,6 +10,8 @@ import {
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { hasExplicitXMLPropertyRegistration } from "./explicitXMLPropertyRegistry"
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -23,6 +25,17 @@ function withPropertyDescription(schema: TSchema, description: string | undefine
     ...schema,
     description: current === undefined ? description : `${current}\n\n${description}`,
   } as TSchema
+}
+
+function withExplicitXMLValidationValue(params: {
+  context: ConfigurationContext
+  itemType: string
+  propertyKey: string
+  schema: TSchema
+}): TSchema {
+  if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
+  if (!hasExplicitXMLPropertyRegistration(params.itemType, params.propertyKey)) return params.schema
+  return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
 }
 
 /**
@@ -88,7 +101,13 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       value,
     })
     if (exportedValue !== undefined) {
-      result[yamlKey] = ruleProp.required === true ? exportedValue : Type.Optional(exportedValue)
+      const schema = withExplicitXMLValidationValue({
+        context,
+        itemType: rule.itemType,
+        propertyKey: key,
+        schema: exportedValue,
+      })
+      result[yamlKey] = ruleProp.required === true ? schema : Type.Optional(schema)
     }
   }
 

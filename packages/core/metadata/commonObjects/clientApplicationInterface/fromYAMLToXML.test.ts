@@ -113,27 +113,44 @@ describe("ClientApplicationInterface YAML → XML", () => {
     expect(result).not.toContain('<panelDef id="00000000-0000-0000-0000-000000000000"')
   })
 
-  it("creates an empty non-standard panel definition only for tagged UUID", () => {
+  it("создаёт пустое определение нестандартной панели только по отдельному полю", () => {
     const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
     const plain = convertYAML(importFromYAML(`Верх:\n  - Панель:\n      UUID: ${uuid}`))
-    const tagged = convertYAML(importFromYAML(`Верх:\n  - Панель:\n      UUID: !xml ${uuid}`))
+    const explicit = convertYAML(importFromYAML([
+      "Верх:",
+      "  - Панель:",
+      `      UUID: ${uuid}`,
+      "      ПустоеОпределение: !xml",
+    ].join("\n")))
 
     expect(plain).not.toContain(`<panelDef id="${uuid}"`)
-    expect(tagged).toContain(`<panelDef id="${uuid}"/>`)
+    expect(explicit).toContain(`<panelDef id="${uuid}"/>`)
   })
 
-  it("rejects !xml on a panel name", () => {
-    const yaml = importFromYAML("Верх:\n  - Панель:\n      Имя: !xml НестандартнаяПанель")
+  it("отклоняет прежнюю форму !xml у UUID", () => {
+    const uuid = "8e10648b-f52d-4ec2-b4dd-87de33778d95"
+    const yaml = importFromYAML(`Верх:\n  - Панель:\n      UUID: !xml ${uuid}`)
 
-    expect(() => convertYAML(yaml)).toThrow(/!xml/)
+    expect(() => convertYAML(yaml)).toThrow("UUID панели не допускает !xml")
   })
 
-  it("rejects !xml on a standard panel UUID", () => {
-    const yaml = importFromYAML(
-      "Верх:\n  - Панель:\n      UUID: !xml b553047f-c9aa-4157-978d-448ecad24248"
+  it("экспортирует !xml в имени панели как обычный текст", () => {
+    const result = convertYAML(
+      importFromYAML("Право:\n  - Панель:\n      Имя: !xml НестандартнаяПанель")
     )
 
-    expect(() => convertYAML(yaml)).toThrow(/!xml/)
+    expect(result).toContain("<name>!xml НестандартнаяПанель</name>")
+  })
+
+  it.each([
+    ["стандартный UUID", "UUID: b553047f-c9aa-4157-978d-448ecad24248\n      ПустоеОпределение: !xml"],
+    ["другое значение", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      ПустоеОпределение: Истина"],
+    ["имя панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Имя: Панель\n      ПустоеОпределение: !xml"],
+    ["представление панели", "UUID: 8e10648b-f52d-4ec2-b4dd-87de33778d95\n      Представление: Текст\n      ПустоеОпределение: !xml"],
+  ])("отклоняет ПустоеОпределение: %s", (_name, panel) => {
+    const yaml = importFromYAML(`Верх:\n  - Панель:\n      ${panel}`)
+
+    expect(() => convertYAML(yaml)).toThrow(/ПустоеОпределение/)
   })
 
   it("creates default panel definition for new used standard panel when reference has partial panel definitions", () => {

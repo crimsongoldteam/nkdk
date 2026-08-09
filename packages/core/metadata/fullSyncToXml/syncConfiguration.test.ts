@@ -14,6 +14,7 @@ import type {
   ComponentProjectStructure,
 } from "../project/componentState"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
@@ -325,6 +326,58 @@ describe("shared full XML sync coordinator", () => {
     })
   })
 
+  it.each(["sync", "preview"] as const)("prepares the component profile before %s", async (mode) => {
+    const harness = createHarness()
+    const resolveProfile = harness.deps.resolveProfile
+    const readPaths: string[] = []
+    let preparations = 0
+    const deps = {
+      ...harness.deps,
+      async readFile(path: string) {
+        readPaths.push(path)
+        return Buffer.from("РежимСовместимостиРасширенияКонфигурации: Версия8_3_20\n")
+      },
+      resolveProfile(address: ComponentAddress) {
+        return {
+          ...resolveProfile(address),
+          prepareRuntime({ runtime, rootYaml }: {
+            readonly runtime: import("./componentProfile").FullXmlSyncProfileRuntime
+            readonly rootYaml: unknown
+          }) {
+            preparations++
+            expect(rootYaml).toEqual({
+              РежимСовместимостиРасширенияКонфигурации: "Версия8_3_20",
+            })
+            return {
+              ...runtime,
+              workerProfile: {
+                ...runtime.workerProfile,
+                typeDescriptionXMLNameByType: { AnyIBRef: "AnyRef" },
+              },
+            }
+          },
+        }
+      },
+    }
+    const common = {
+      projectDir: "/project",
+      componentPath: "cfe/Дополнение",
+      xmlDir: "/out",
+      projectState: harness.projectState,
+    }
+
+    const result = mode === "sync"
+      ? await syncComponentToXml({ ...common, context }, deps)
+      : await planSyncConfigurationToXml(common, deps)
+
+    expect("failed" in result ? result.failed : []).toEqual([])
+    expect(preparations).toBe(1)
+    expect(readPaths).toEqual(["/project/cfe/Дополнение/Конфигурация.yaml"])
+    if (mode === "sync") {
+      expect(harness.initializedProfile?.typeDescriptionXMLNameByType).toEqual({ AnyIBRef: "AnyRef" })
+    }
+  })
+
   it("keeps the previous snapshot when execution fails", async () => {
     const error: FullXmlSyncDiagnostic = {
       severity: "error",
@@ -516,6 +569,7 @@ function createHarness(options: HarnessOptions = {}) {
   let writtenIndex: ConfigurationSnapshot | undefined
   let writtenAddress: ComponentAddress | undefined
   let initializedWithBase = false
+  let initializedProfile: import("./componentProfile").FullXmlSyncWorkerProfileRuntime | undefined
   let ensureXmlDirectoryCalls = 0
   let confirmStateCalls = 0
   let profileConfirmCalls = 0
@@ -644,6 +698,7 @@ function createHarness(options: HarnessOptions = {}) {
       return {
         async initialize(params) {
           initializedWithBase = params.componentPath.startsWith("cfe/")
+          initializedProfile = params.profile
         },
         async execute(): Promise<FullXmlSyncExecutionPoolResult> {
           events.push("execute")
@@ -699,6 +754,9 @@ function createHarness(options: HarnessOptions = {}) {
     get initializedWithBase() {
       return initializedWithBase
     },
+    get initializedProfile() {
+      return initializedProfile
+    },
     get ensureXmlDirectoryCalls() {
       return ensureXmlDirectoryCalls
     },
@@ -725,8 +783,21 @@ function structure(
     componentPath,
     componentDir: `/project/${componentPath}`,
     topology,
-    resources: [],
+    resources: [configurationResource("Конфигурация.yaml")],
     projectPaths: ["Конфигурация.yaml"],
+  }
+}
+
+function configurationResource(projectPath: string): MetadataProjectResourceMatch {
+  return {
+    kind: "content",
+    projectPath,
+    assignment: undefined,
+    values: {},
+    role: "configuration",
+    rule: undefined,
+    owner: undefined,
+    compositionImpact: "none",
   }
 }
 

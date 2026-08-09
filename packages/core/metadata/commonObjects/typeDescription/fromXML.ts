@@ -16,6 +16,7 @@ import {
   TypeDescriptionXMLContainerByType,
   TypeDescriptionXMLType,
 } from "./types"
+import { normalizeImportedTypeDescriptionName } from "./xmlTypeNames"
 
 type TypeDescriptionXMLWithTypeSetAttribute = TypeDescriptionXML & { "_xsi:type"?: "v8:TypeSet" }
 
@@ -136,7 +137,7 @@ export const getType = (type: TypeDescriptionXMLType): string => {
 
   if (text === undefined) throw new Error("Type is undefined")
 
-  return removeTypePrefix(text)
+  return normalizeImportedTypeDescriptionName(removeTypePrefix(text))
 }
 
 const getTypeText = (type: TypeDescriptionXMLType): string | undefined =>

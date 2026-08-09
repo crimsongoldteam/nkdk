@@ -166,12 +166,11 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     for (const xmlKey of omittedXMLKeys) expect(xml).not.toContain(`<xr:${xmlKey}>`)
   })
 
-  it("отклоняет !xml для незарегистрированного ПолеКлюча", () => {
+  it("экспортирует !xml незарегистрированного ПолеКлюча как текст", () => {
     const yaml = importFromYAML("Характеристики:\n  - ПолеКлюча: !xml")
+    const xml = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
 
-    expect(() => testPropertyFromYAMLToXML({ rule, yaml })).toThrow(
-      /CharacteristicsDescription[\s\S]*ПолеКлюча[\s\S]*не зарегистрирован/
-    )
+    expect(xml).toContain("<xr:KeyField>!xml</xr:KeyField>")
   })
 })
 
