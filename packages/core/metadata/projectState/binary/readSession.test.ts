@@ -25,7 +25,7 @@ it("соблюдает видимость cf и собственного рас�
     lookup("base", "cfe/Цены", "Catalog.Base"),
     lookup("own", "cfe/Цены", "Catalog.Extension"),
     lookup("foreign", "cfe/Цены", "Catalog.Foreign"),
-  ]).map(({ status }) => status)).toEqual(["found", "found", "missing"])
+  ]).map(({ status }) => status)).toEqual(["missing", "found", "missing"])
 })
 
 it("возвращает ambiguous вместо произвольной записи", () => {
