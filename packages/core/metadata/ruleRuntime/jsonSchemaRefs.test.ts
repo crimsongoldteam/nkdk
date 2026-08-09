@@ -1,6 +1,7 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import {
+  arrayOfSchemaRef,
   attachCollectedSchemaRefs,
   collectSchemaRefs,
   createJSONSchemaExportContext,
@@ -30,6 +31,38 @@ const baseContext = {
 describe("jsonSchemaRefs", () => {
   it("creates stable nkdk schema refs", () => {
     expect(createSchemaRef("InputField")).toBe("nkdk://schema/InputField")
+  })
+
+  it("добавляет undefined в значение record-ссылки только по явному запросу", () => {
+    expect(recordOfSchemaRef("TestEmptyItem", { allowUndefinedValue: true })).toEqual({
+      type: "object",
+      additionalProperties: {
+        anyOf: [
+          { $ref: "nkdk://schema/TestEmptyItem" },
+          { type: "undefined" },
+        ],
+      },
+    })
+    expect(recordOfSchemaRef("TestStrictItem")).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/TestStrictItem" },
+    })
+  })
+
+  it("добавляет undefined в элемент array-ссылки только по явному запросу", () => {
+    expect(arrayOfSchemaRef("TestEmptyItem", { allowUndefinedValue: true })).toEqual({
+      type: "array",
+      items: {
+        anyOf: [
+          { $ref: "nkdk://schema/TestEmptyItem" },
+          { type: "undefined" },
+        ],
+      },
+    })
+    expect(arrayOfSchemaRef("TestStrictItem")).toEqual({
+      type: "array",
+      items: { $ref: "nkdk://schema/TestStrictItem" },
+    })
   })
 
   it("collects nested nkdk schema refs from arbitrary schema nodes", () => {

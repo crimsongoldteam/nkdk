@@ -14,7 +14,10 @@ registerMetadataItemCollectionRule({
 })
 
 const exportMetadataEnumerationValuesToJSONSchema = (context: ConfigurationContext): TSchema => {
-  return Type.Record(Type.String(), exportMetadataEnumerationValueYAMLToJSONSchema(context))
+  return Type.Record(
+    Type.String(),
+    Type.Union([exportMetadataEnumerationValueYAMLToJSONSchema(context), Type.Undefined()])
+  )
 }
 
 const exportMetadataEnumerationValueYAMLToJSONSchema = (context: ConfigurationContext): TSchema => {
@@ -36,5 +39,5 @@ registerProjectJSONSchema("MetadataEnumerationValueYAML", ({ context }) =>
   exportMetadataEnumerationValueYAMLToJSONSchema(context)
 )
 registerProjectJSONSchemaPropertyRefFactory("MetadataEnumerationValues", () =>
-  recordOfSchemaRef("MetadataEnumerationValueYAML")
+  recordOfSchemaRef("MetadataEnumerationValueYAML", { allowUndefinedValue: true })
 )

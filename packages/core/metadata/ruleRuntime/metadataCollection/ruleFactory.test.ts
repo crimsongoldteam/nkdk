@@ -33,12 +33,27 @@ const recursiveItemRule = {
 const recordType = "TestRecordSchemaCollection" as PropertyRuleType
 const arrayType = "TestArraySchemaCollection" as PropertyRuleType
 const recursiveType = "TestRecursiveSchemaCollection" as PropertyRuleType
+const emptyRecordType = "TestEmptyRecordSchemaCollection" as PropertyRuleType
+const emptyArrayType = "TestEmptyArraySchemaCollection" as PropertyRuleType
+const emptyItemRule = {
+  itemType: "TestEmptyCollectionItem",
+  properties: {
+    value: { type: "string", xml: "Value", yaml: "value" },
+  },
+} as MetadataItemRule
 
 registerMetadataItemCollectionRule({ propertyType: recordType, itemRule, xmlElement: "Item", keyField: "name" })
 registerMetadataItemCollectionRule({ propertyType: arrayType, itemRule, xmlElement: "Item", yamlAsArray: true })
 registerMetadataItemCollectionRule({
   propertyType: recursiveType,
   itemRule: recursiveItemRule,
+  xmlElement: "Item",
+  yamlAsArray: true,
+})
+registerMetadataItemCollectionRule({ propertyType: emptyRecordType, itemRule: emptyItemRule, xmlElement: "Item" })
+registerMetadataItemCollectionRule({
+  propertyType: emptyArrayType,
+  itemRule: emptyItemRule,
   xmlElement: "Item",
   yamlAsArray: true,
 })
@@ -62,7 +77,28 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
+    expect(compiled.Check({ A: undefined })).toBe(false)
     expect(compiled.Check([{ name: "A" }])).toBe(false)
+  })
+
+  it("принимает пустое значение только для пусто-допустимых элементов", () => {
+    const recordSchema = exportPropertyToJSONSchema({
+      context,
+      rule: propertyRule(emptyRecordType),
+      value: undefined,
+    })
+    const arraySchema = exportPropertyToJSONSchema({
+      context,
+      rule: propertyRule(emptyArrayType),
+      value: undefined,
+    })
+    const compiledRecord = compileValidationSchema(recordSchema!)
+    const compiledArray = compileValidationSchema(arraySchema!)
+
+    expect(compiledRecord.Check({ A: {} })).toBe(true)
+    expect(compiledRecord.Check({ A: undefined })).toBe(true)
+    expect(compiledArray.Check([{}])).toBe(true)
+    expect(compiledArray.Check([undefined])).toBe(true)
   })
 
   it("exports array schema for yamlAsArray collections", () => {
