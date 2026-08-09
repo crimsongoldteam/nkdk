@@ -225,6 +225,10 @@ function testReadSession(): ProjectStateReadSession {
         references: [{ yamlPath: ["Ссылка"], canonical: "Catalog.Поставщики" }],
       }))
     },
+    readStructuredDocumentEntries() {
+      assertOpen()
+      return []
+    },
     close() {
       closed = true
     },

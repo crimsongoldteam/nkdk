@@ -106,6 +106,15 @@ export function createBinaryProjectStateQueryPort(
     readValidationStatus: (query) => readValidationStatus(snapshot, typedReader, query),
     readFileMetadataTargetReferences: (requests) =>
       readFileMetadataTargetReferences(snapshot, readYamlFacts, requests),
+    readStructuredDocumentEntries: ({ componentPath, logicalAddress }) => {
+      if (typedReader === undefined) return []
+      const result = []
+      for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
+        if (snapshot.componentPath(fileId) !== componentPath) continue
+        result.push(...typedReader.structuredDocuments(fileId).filter((entry) => entry.logicalAddress === logicalAddress))
+      }
+      return result
+    },
   }
   return queryPort
 }

@@ -164,6 +164,7 @@ export type ProjectFileMetadataTargetReferencesResult =
       }[]
     }
   | { readonly requestId: string; readonly status: "missing" }
+export interface ProjectStructuredDocumentQuery { readonly componentPath: string; readonly logicalAddress: string }
 
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
@@ -179,6 +180,7 @@ export interface ProjectStateQueryPort {
   readFileMetadataTargetReferences(
     requests: readonly ProjectFileMetadataTargetReferencesQuery[]
   ): readonly ProjectFileMetadataTargetReferencesResult[]
+  readStructuredDocumentEntries(query: ProjectStructuredDocumentQuery): readonly import("./contracts/fileUpdate").ProjectStateStructuredDocumentEntry[]
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort {
@@ -215,6 +217,7 @@ export function createProjectStateReadSession(params: {
     readValidationStatus: (query) => read(() => params.queryPort.readValidationStatus(query)),
     readFileMetadataTargetReferences: (requests) =>
       read(() => params.queryPort.readFileMetadataTargetReferences(requests)),
+    readStructuredDocumentEntries: (query) => read(() => params.queryPort.readStructuredDocumentEntries(query)),
     close() {
       if (closed) return
       closed = true

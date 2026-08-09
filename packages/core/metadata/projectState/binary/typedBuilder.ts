@@ -183,6 +183,7 @@ function markReachableRows(source: Source): void {
   const roots: readonly ProjectStateFactTableKind[] = [
     "validationStatus", "targets", "pendingReferences", "owners", "fields",
     "forms", "formColumns", "pendingChecks", "dependencies",
+    "structuredDocuments",
   ]
   for (const kind of roots) {
     const range = source.tables.get(kind)
@@ -244,6 +245,7 @@ function markRow(source: Source, kind: ProjectStateFactTableKind, id: number): v
       markRange("allowedKinds", row.allowedKindsStart, row.allowedKindsCount)
       break
     case "yamlPaths": markRange("yamlPathSegments", row.segmentsStart, row.segmentsCount); break
+    case "structuredDocuments": mark("yamlPaths", row.yamlPathId); break
     case "typeDescriptions":
       markRange("typeDescriptionValues", row.typesStart, row.typesCount)
       markRange("typeDescriptionValues", row.typeIdsStart, row.typeIdsCount)

@@ -242,6 +242,12 @@ interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly pendingReferences: readonly ProjectStatePendingReference[]
   readonly pendingChecks: readonly ProjectStatePendingCheck[]
   readonly dependencies: readonly string[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
+}
+interface ProjectStateStructuredDocumentEntry {
+  readonly documentKind: string; readonly representation: string; readonly logicalAddress: string
+  readonly workingProjectPath: string; readonly componentKind: string; readonly name: string
+  readonly yamlPath: readonly (string | number)[]
 }
 
 type ProjectStateFileUpdate =
@@ -255,6 +261,7 @@ interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 
 type ProjectStateImportFinalFileState =
@@ -429,7 +436,7 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendIndexFacts(
-    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms">,
+    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms" | "structuredDocuments">,
     fileId: number,
   ): void {
     for (const entry of update.owners) {
@@ -460,6 +467,18 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     appendForms(update.forms, fileId)
+    for (const entry of update.structuredDocuments ?? []) {
+      rows.structuredDocuments.push({
+        sourceFileId: fileId,
+        documentKindId: strings.intern(entry.documentKind),
+        representationId: strings.intern(entry.representation),
+        logicalAddressId: strings.intern(entry.logicalAddress),
+        workingProjectPathId: strings.intern(entry.workingProjectPath),
+        componentKindId: strings.intern(entry.componentKind),
+        nameId: strings.intern(entry.name),
+        yamlPathId: appendYamlPath(entry.yamlPath),
+      })
+    }
   }
 
   function appendTargetFacts(targets: ProjectStateFileUpdate["targets"], fileId: number): void {
@@ -875,7 +894,7 @@ function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]
     owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
     ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
     allowedKinds: [], dependencies: [], yamlPaths: [], yamlPathSegments: [],
-    typeDescriptions: [], typeDescriptionValues: [],
+    typeDescriptions: [], typeDescriptionValues: [], structuredDocuments: [],
   }
 }
 

@@ -5,6 +5,9 @@ import type {
   ProjectStateImportIndexContribution,
 } from "../importSession"
 import { ProjectStateOwnerFactRecordView } from "./layouts"
+import { buildTypedProjectStateSnapshot } from "./typedBuilder"
+import { ProjectStateSnapshotView } from "./snapshot"
+import { createTypedProjectStateReader } from "./typedReader"
 import {
   createProjectStateFragmentWriter,
   openProjectStateFragment,
@@ -34,6 +37,26 @@ it("накапливает несколько файлов в одном тип�
   expect(view.tableRange("fields")?.records).toBe(3)
   expect(view.tableRange("pendingChecks")?.records).toBe(1)
   expect(view.diagnosticCount).toBe(2)
+})
+
+it("сохраняет структурные факты документа через fragment и snapshot", () => {
+  const writer = createProjectStateFragmentWriter()
+  writer.appendFile({
+    ...richYamlUpdate("cfe/Расширение/Форма.yaml", "cfe/Расширение", "Catalog.Товары.Form.Форма"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm", representation: "working",
+      logicalAddress: "Catalog.Товары.Form.Форма", workingProjectPath: "Форма.yaml",
+      componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+    }],
+  }, 9n)
+  const fragment = openProjectStateFragment(writer.finish())
+  const snapshot = new ProjectStateSnapshotView(buildTypedProjectStateSnapshot({ fragments: [fragment], deletions: [] }))
+
+  expect(createTypedProjectStateReader(snapshot).structuredDocuments(0)).toEqual([{
+    documentKind: "clientApplicationForm", representation: "working",
+    logicalAddress: "Catalog.Товары.Form.Форма", workingProjectPath: "Форма.yaml",
+    componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+  }])
 })
 
 it("передаёт пять буферов фрагмента без копирования", () => {

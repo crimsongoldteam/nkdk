@@ -13,6 +13,7 @@ import type {
   ProjectStateLocalValidationResult,
   ProjectStateOwnerFacts,
   ProjectStatePendingReference,
+  ProjectStateStructuredDocumentEntry,
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import { decodeMetadataTargetConstraint } from "./constraintCodec"
@@ -44,7 +45,7 @@ function targetPairs(parts: readonly string[]): readonly (readonly [string, stri
 const RECORDS = PROJECT_STATE_FACT_RECORD_VIEWS
 
 export interface TypedProjectStateReader {
-  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies"> | undefined
+  yamlFacts(fileId: number): Pick<ProjectStateYamlFileUpdate, "targets" | "pendingReferences" | "owners" | "fields" | "forms" | "pendingChecks" | "dependencies" | "structuredDocuments"> | undefined
   referenceDetails(
     fileId: number,
     kind: ProjectStateYamlFileUpdate["targets"][number]["kind"],
@@ -53,6 +54,7 @@ export interface TypedProjectStateReader {
   owners(fileId: number): ProjectStateYamlFileUpdate["owners"]
   fields(fileId: number): ProjectStateYamlFileUpdate["fields"]
   forms(fileId: number): ProjectStateYamlFileUpdate["forms"]
+  structuredDocuments(fileId: number): readonly ProjectStateStructuredDocumentEntry[]
   localValidation(fileId: number): ProjectStateLocalValidationResult | undefined
   pendingReferences(fileId: number): ProjectStateYamlFileUpdate["pendingReferences"]
   pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"]
@@ -102,6 +104,7 @@ export function createTypedProjectStateReader(
     owners,
     fields,
     forms,
+    structuredDocuments,
     localValidation,
     pendingReferences,
     pendingChecks,
@@ -309,12 +312,14 @@ export function createTypedProjectStateReader(
   function yamlFacts(fileId: number) {
     if (yamlCache.has(fileId)) return yamlCache.get(fileId)
     if (snapshot.fileRecord(fileId).updateKind !== 1) return undefined
+    const documents = structuredDocuments(fileId)
     const result: NonNullable<ReturnType<TypedProjectStateReader["yamlFacts"]>> = {
       targets: fileRows("targets", fileId).map(reference),
       pendingReferences: pendingReferences(fileId),
       owners: owners(fileId),
       fields: fields(fileId),
       forms: forms(fileId),
+      ...(documents.length === 0 ? {} : { structuredDocuments: documents }),
       pendingChecks: pendingChecks(fileId),
       dependencies: fileRows("dependencies", fileId).map((value) => string(value.projectPathId)),
     }
@@ -414,6 +419,18 @@ export function createTypedProjectStateReader(
 
   function pendingReferences(fileId: number): ProjectStateYamlFileUpdate["pendingReferences"] {
     return fileRows("pendingReferences", fileId).map(pendingReference)
+  }
+
+  function structuredDocuments(fileId: number): readonly ProjectStateStructuredDocumentEntry[] {
+    return fileRows("structuredDocuments", fileId).map((value) => ({
+      documentKind: string(value.documentKindId),
+      representation: string(value.representationId),
+      logicalAddress: string(value.logicalAddressId),
+      workingProjectPath: string(value.workingProjectPathId),
+      componentKind: string(value.componentKindId),
+      name: string(value.nameId),
+      yamlPath: yamlPath(value.yamlPathId),
+    }))
   }
 
   function pendingChecks(fileId: number): ProjectStateYamlFileUpdate["pendingChecks"] {

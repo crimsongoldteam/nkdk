@@ -6,6 +6,7 @@ import {
   ProjectStateFactTableRecordView,
   ProjectStateFieldRecordView,
   ProjectStateFormRecordView,
+  ProjectStateStructuredDocumentRecordView,
   ProjectStateOwnerFactRecordView,
   ProjectStateOwnerFactItemRecordView,
   ProjectStateOwnerRecordView,
@@ -46,6 +47,7 @@ export type ProjectStateFactTableKind =
   | "yamlPathSegments"
   | "typeDescriptions"
   | "typeDescriptionValues"
+  | "structuredDocuments"
 
 export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTableKind, number>> = {
   validationStatus: 1,
@@ -70,6 +72,7 @@ export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTable
   ownerFactItems: 20,
   typeDescriptions: 21,
   typeDescriptionValues: 22,
+  structuredDocuments: 23,
 }
 
 export interface ProjectStateFactTableRange {
@@ -111,6 +114,7 @@ export const PROJECT_STATE_FACT_RECORD_VIEWS = {
   yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
   typeDescriptions: ProjectStateTypeDescriptionRecordView,
   typeDescriptionValues: ProjectStateStringValueRecordView,
+  structuredDocuments: ProjectStateStructuredDocumentRecordView,
 } as unknown as Readonly<Record<ProjectStateFactTableKind, ProjectStateFactRecordView>>
 
 const NONE = 0xffff_ffff
@@ -329,6 +333,14 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("dependencies"), ProjectStateDependencyRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")
     assertStringId(record.projectPathId, params.stringCount, "dependency.projectPathId")
+  })
+  forEachRecord(params.tables.get("structuredDocuments"), ProjectStateStructuredDocumentRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "structuredDocument.sourceFileId")
+    for (const id of [record.documentKindId, record.representationId, record.logicalAddressId,
+      record.workingProjectPathId, record.componentKindId, record.nameId]) {
+      assertStringId(id, params.stringCount, "structuredDocument.stringId")
+    }
+    assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "structuredDocument.yamlPathId")
   })
   forEachRecord(params.tables.get("ownerFactItems"), ProjectStateOwnerFactItemRecordView, view, (record) => {
     assertRowId(record.ownerFactId, params.tables.get("ownerFacts")?.records ?? 0, "ownerFactItem.ownerFactId")

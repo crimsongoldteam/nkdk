@@ -7,6 +7,7 @@ import type {
   ProjectStateOwnerFacts,
   ProjectStatePendingDependencyCheck,
   ProjectStateReferenceEntry,
+  ProjectStateStructuredDocumentEntry,
   ProjectStateYamlPath,
 } from "./fileUpdate"
 import type { ProjectStateReadToken } from "./readToken"
@@ -46,6 +47,7 @@ export interface ProjectFileMetadataTargetReferencesQuery { readonly requestId: 
 export type ProjectFileMetadataTargetReferencesResult =
   | { readonly requestId: string; readonly status: "found"; readonly references: readonly { readonly yamlPath: ProjectStateYamlPath; readonly canonical: string }[] }
   | { readonly requestId: string; readonly status: "missing" }
+export interface ProjectStructuredDocumentQuery { readonly componentPath: string; readonly logicalAddress: string }
 
 export interface ProjectStateQueryPort {
   resolveTargets(requests: readonly ProjectTargetLookup[]): readonly ProjectTargetLookupResult[]
@@ -57,6 +59,7 @@ export interface ProjectStateQueryPort {
   readComponentTargetPage(query: ProjectComponentTargetPageQuery): ProjectComponentTargetPage
   readValidationStatus(query: ProjectValidationStatusQuery): readonly ProjectValidationStatusRow[]
   readFileMetadataTargetReferences(requests: readonly ProjectFileMetadataTargetReferencesQuery[]): readonly ProjectFileMetadataTargetReferencesResult[]
+  readStructuredDocumentEntries(query: ProjectStructuredDocumentQuery): readonly ProjectStateStructuredDocumentEntry[]
 }
 
 export interface ProjectStateReadSession extends ProjectStateQueryPort { close(): void }
