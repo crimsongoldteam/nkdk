@@ -3,13 +3,12 @@ import "../../forms/elements/inputField/rules"
 import "../../forms/elements/table/rules"
 import "../../forms/elements/usualGroup/rules"
 import { describe, expect, it } from "vitest"
+import type { TSchema } from "typebox"
 import {
   getChildItemTypesByPropertyType,
   getTreeNodeJSONSchemaPropertyAliases,
 } from "../../forms/commonObjects/childItems/treeYAML"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { structuralYamlValue } from "../../validation/structuralYamlValue"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { getValidationSchemaRef } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
@@ -72,7 +71,7 @@ describe("form element JSON Schema", () => {
     expect(check.Check("Авто")).toBe(false)
   })
 
-  it("разрешает !xml для HeaderHorizontalAlign табличного поля только в validation", () => {
+  it("разрешает !xml для HeaderHorizontalAlign табличного поля в validation", () => {
     const refs = new Set<string>()
     const schema = exportElementRuleToJSONSchema({
       context: {
@@ -87,21 +86,24 @@ describe("form element JSON Schema", () => {
       rule: getElementRule("TableInputField"),
       yamlKind: "ПолеВвода",
     })
-    const schemaContext = Object.fromEntries([...refs].map((name) => {
+    const headerSchema = (schema as { properties?: Record<string, TSchema> }).properties?.[
+      "ГоризонтальноеПоложениеВШапке"
+    ]
+    if (headerSchema === undefined) throw new Error("Expected HeaderHorizontalAlign schema")
+    const propertyRefs = collectSchemaRefs(headerSchema)
+    const schemaContext = Object.fromEntries([...propertyRefs].map((name) => {
       const registered = getValidationSchemaRef(name)
       if (registered === undefined) throw new Error(`Expected validation schema ${name}`)
       return [name, registered]
     }))
-    const check = compileValidationSchema(schemaContext, schema)
-    const marker = structuralYamlValue(parseMetadataYaml([
-      "Вид: ПолеВвода",
-      "ГоризонтальноеПоложениеВШапке: !xml",
-    ].join("\n")).data)
+    const check = compileValidationSchema(schemaContext, headerSchema)
 
-    expect(check.Check(marker)).toBe(true)
-    expect(check.Check({ Вид: "ПолеВвода", ГоризонтальноеПоложениеВШапке: "Авто" })).toBe(false)
-    expect(check.Check({ Вид: "ПолеВвода", ГоризонтальноеПоложениеВШапке: "!xml Авто" })).toBe(false)
+    expect(check.Check("!xml")).toBe(true)
+    expect(check.Check("Авто")).toBe(false)
+    expect(check.Check("!xml Авто")).toBe(false)
+  })
 
+  it("не показывает !xml для HeaderHorizontalAlign в схеме подсказок", () => {
     const hint = exportElementRuleToJSONSchema({
       context,
       rule: getElementRule("TableInputField"),
@@ -137,3 +139,16 @@ describe("form element JSON Schema", () => {
     }
   )
 })
+
+function collectSchemaRefs(value: unknown, result = new Set<string>()): ReadonlySet<string> {
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectSchemaRefs(item, result))
+    return result
+  }
+  if (typeof value !== "object" || value === null) return result
+
+  const record = value as Record<string, unknown>
+  if (typeof record.$ref === "string") result.add(record.$ref)
+  Object.values(record).forEach((item) => collectSchemaRefs(item, result))
+  return result
+}
