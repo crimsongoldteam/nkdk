@@ -1,4 +1,4 @@
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 
 export type ExplicitXMLPropertyRegistration =
   | {
@@ -12,10 +12,12 @@ export type ExplicitXMLPropertyRegistration =
       readonly action: "omit"
       readonly itemType: string
       readonly propertyKey: string
-      readonly yamlValue: ""
+      readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
     }
 
-export type ExplicitXMLPropertyAction = "emit" | "omit"
+export type ExplicitXMLPropertyAction =
+  | { readonly kind: "emit"; readonly xmlValue: unknown }
+  | { readonly kind: "omit" }
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 
@@ -45,7 +47,7 @@ export function matchExplicitXMLPropertyFromXML(params: {
     : undefined
 }
 
-export function assertAllowedExplicitXMLTags(params: {
+export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string
   readonly properties: Readonly<Record<string, { readonly yaml?: string }>>
@@ -53,30 +55,24 @@ export function assertAllowedExplicitXMLTags(params: {
   const actions = new Map<string, ExplicitXMLPropertyAction>()
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
   const yaml = params.yaml as Record<string, unknown>
-  const propertyByYamlKey = new Map(
-    Object.entries(params.properties).flatMap(([propertyKey, rule]) =>
-      typeof rule.yaml === "string" ? [[rule.yaml, propertyKey] as const] : []
+  for (const [propertyKey, rule] of Object.entries(params.properties)) {
+    if (typeof rule.yaml !== "string") continue
+    if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
+    const registration = registrations.get(registrationKey(params.itemType, propertyKey))
+    if (registration === undefined) continue
+    if (!Object.is(yaml[rule.yaml], registration.yamlValue)) continue
+    actions.set(
+      propertyKey,
+      registration.action === "omit"
+        ? { kind: "omit" }
+        : { kind: "emit", xmlValue: registration.xmlValue }
     )
-  )
-
-  for (const [yamlKey, value] of Object.entries(yaml)) {
-    if (yamlScalarTagAt(yaml, yamlKey) !== "xml") continue
-    const propertyKey = propertyByYamlKey.get(yamlKey)
-    const registration =
-      propertyKey === undefined
-        ? undefined
-        : registrations.get(registrationKey(params.itemType, propertyKey))
-    if (registration === undefined) {
-      throw new Error(`Для ${params.itemType}.${yamlKey} тег !xml не зарегистрирован`)
-    }
-    if (!Object.is(registration.yamlValue, value)) {
-      throw new Error(
-        `Для ${params.itemType}.${yamlKey} тег !xml не допускает значение ${String(value)}`
-      )
-    }
-    actions.set(propertyKey!, registration.action ?? "emit")
   }
   return actions
+}
+
+export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey: string): boolean {
+  return registrations.has(registrationKey(itemType, propertyKey))
 }
 
 function sameRegistration(

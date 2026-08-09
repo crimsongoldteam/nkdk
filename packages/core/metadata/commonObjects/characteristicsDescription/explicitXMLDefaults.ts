@@ -1,4 +1,5 @@
 import { registerExplicitXMLProperty } from "../../orchestration/property/explicitXMLPropertyRegistry"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 
 const omittedCharacteristicDefaultKeys = [
   "dataPathField",
@@ -12,6 +13,6 @@ for (const propertyKey of omittedCharacteristicDefaultKeys) {
     itemType: "CharacteristicsDescription",
     propertyKey,
     action: "omit",
-    yamlValue: "",
+    yamlValue: EMPTY_XML_TAG_VALUE,
   })
 }
