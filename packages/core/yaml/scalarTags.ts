@@ -3,7 +3,7 @@ import { JSON_SCHEMA, defineScalarTag } from "js-yaml"
 export type YAMLScalarTag = "xml"
 export type YAMLScalarTagKey = string | number
 
-export const EMPTY_XML_TAG_SCHEMA_MARKER = "\u0000nkdk:empty-xml-tag" as const
+export const EMPTY_XML_TAG_VALUE = "!xml" as const
 
 const taggedScalarKind = Symbol("taggedYamlScalar")
 const scalarTags = new WeakMap<object, Map<YAMLScalarTagKey, YAMLScalarTag>>()
@@ -47,15 +47,26 @@ export function taggedScalarForDump(parent: object, key: YAMLScalarTagKey, value
   return tag === undefined || typeof value !== "string" ? value : taggedYAMLScalar(tag, value)
 }
 
+function xmlTaggedValue(payload: string): string {
+  return payload === "" ? EMPTY_XML_TAG_VALUE : `${EMPTY_XML_TAG_VALUE} ${payload}`
+}
+
+function xmlTagPayload(value: string): string {
+  if (value === EMPTY_XML_TAG_VALUE) return ""
+  return value.startsWith(`${EMPTY_XML_TAG_VALUE} `)
+    ? value.slice(EMPTY_XML_TAG_VALUE.length + 1)
+    : value
+}
+
 const explicitXmlTag = defineScalarTag("!xml", {
   resolve(value) {
-    return taggedYAMLScalar("xml", value)
+    return taggedYAMLScalar("xml", xmlTaggedValue(value))
   },
   identify(value) {
     return isTaggedYAMLScalar(value) && value.tag === "xml"
   },
   represent(value) {
-    return (value as TaggedYAMLScalar).value
+    return xmlTagPayload((value as TaggedYAMLScalar).value)
   },
 })
 

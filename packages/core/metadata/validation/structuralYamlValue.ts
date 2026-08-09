@@ -1,5 +1,4 @@
 import { isExplicitYAMLString } from "../../yaml/explicitString"
-import { EMPTY_XML_TAG_SCHEMA_MARKER, yamlScalarTagAt } from "../../yaml/scalarTags"
 
 /** Возвращает семантическое представление YAML для JSON Schema, не изменяя исходное дерево. */
 export function structuralYamlValue(value: unknown): unknown {
@@ -12,7 +11,7 @@ export function structuralYamlValue(value: unknown): unknown {
 function structuralArray(value: readonly unknown[]): readonly unknown[] {
   let result: unknown[] | undefined
   for (const [index, item] of value.entries()) {
-    const structural = structuralChild(value, index, item)
+    const structural = structuralYamlValue(item)
     if (structural === item) continue
     result ??= [...value]
     result[index] = structural
@@ -23,17 +22,10 @@ function structuralArray(value: readonly unknown[]): readonly unknown[] {
 function structuralRecord(value: Record<string, unknown>): Record<string, unknown> {
   let result: Record<string, unknown> | undefined
   for (const [key, item] of Object.entries(value)) {
-    const structural = structuralChild(value, key, item)
+    const structural = structuralYamlValue(item)
     if (structural === item) continue
     result ??= { ...value }
     result[key] = structural
   }
   return result ?? value
-}
-
-function structuralChild(parent: object, key: string | number, value: unknown): unknown {
-  if (value === "" && yamlScalarTagAt(parent, key) === "xml") {
-    return EMPTY_XML_TAG_SCHEMA_MARKER
-  }
-  return structuralYamlValue(value)
 }

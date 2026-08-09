@@ -19,18 +19,25 @@ describe("exportToYAML", () => {
     expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
   })
 
-  it("сериализует пустой !xml без строкового значения и сохраняет пометку в данных", () => {
-    const source = { Значение: "" }
+  it("сериализует строковое значение !xml каноническим локальным тегом", () => {
+    const source = { Значение: "!xml" }
     markYAMLScalarTag(source, "Значение", "xml")
 
     const serialized = serializeYAMLDocument(source)
     const reparsed = parseMetadataYaml(serialized.text)
 
     expect(serialized.text).toBe("Значение: !xml")
-    expect(serialized.data).toEqual({ Значение: "" })
+    expect(serialized.data).toEqual({ Значение: "!xml" })
     expect(yamlScalarTagAt(serialized.data, "Значение")).toBe("xml")
     expect(serialized.data).toEqual(reparsed.data)
     expect(yamlScalarTagAt(reparsed.data, "Значение")).toBe("xml")
+  })
+
+  it("сохраняет текст непустого локального тега", () => {
+    const parsed = parseMetadataYaml("Комментарий: !xml Текст")
+
+    expect(exportToYAML(parsed.data)).toBe("Комментарий: !xml Текст")
+    expect(parsed.data).toEqual({ Комментарий: "!xml Текст" })
   })
 
   it("exports a marked scalar with the local xml tag", () => {
