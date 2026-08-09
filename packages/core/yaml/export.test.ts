@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { explicitYAMLString } from "./explicitString"
+import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
@@ -47,6 +47,13 @@ describe("exportToYAML", () => {
     markYAMLScalarTag(data, "Поле", "xml")
 
     expect(exportToYAML(data)).toBe("Поле: !xml Авто")
+  })
+
+  it("preserves explicit string style in serialized semantic data", () => {
+    const serialized = serializeYAMLDocument({ Внешний: { Значение: explicitYAMLString("001") } })
+    const outer = (serialized.data as { Внешний: { Значение: string } }).Внешний
+
+    expect(asExplicitYAMLStringIfMarked(outer, "Значение", outer.Значение)).toEqual(explicitYAMLString("001"))
   })
 
   it("preserves the local xml tag across parse and export", () => {
