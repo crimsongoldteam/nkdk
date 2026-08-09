@@ -25,6 +25,7 @@ import { createTypedProjectStateReader } from "./binary/typedReader"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { openBinaryProjectStateReadSession } from "./binary/readSession"
 import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 
 describe("ProjectStateFileHashBatch", () => {
   it("требует один собственный буфер хэшей по восемь байт на файл", () => {
@@ -391,7 +392,7 @@ function createTestStoreContractFixture() {
   return {
     store,
     openReadSession(token: ProjectStateReadToken): ProjectStateReadSession {
-      return openBinaryProjectStateReadSession(token)
+      return openBinaryProjectStateReadSession(token, createProjectStateDependencyValidator())
     },
   }
 }

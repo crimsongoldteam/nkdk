@@ -1,4 +1,3 @@
-import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
 import { compileMetadataPathIndex } from "./pathIndex"
 import { joinMetadataPathPatterns } from "./patterns"
 import type {
@@ -10,6 +9,7 @@ import type {
   CompiledMetadataXmlDocumentNode,
   MetadataContentDeclaration,
   MetadataResourceDeclaration,
+  MetadataResourceTopologySpec,
 } from "./types"
 
 interface CompileContext {
@@ -26,8 +26,8 @@ interface MutableAssignment extends Omit<MetadataContentDeclaration, "fileBacked
   readonly externalFiles: CompiledMetadataExternalFileNode[]
 }
 
-export function compileMetadataResourceTopology(
-  specs: readonly RegisteredProjectSpec[]
+export function compileMetadataResourceTopology<Spec extends MetadataResourceTopologySpec>(
+  specs: readonly Spec[]
 ): CompiledMetadataResourceTopology {
   const assignments: MutableAssignment[] = []
   const ignoredPaths: CompiledMetadataIgnoredPathNode[] = []

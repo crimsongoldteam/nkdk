@@ -1,23 +1,98 @@
-import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
-import type { ConfigurationContext } from "../context/types"
-import { callAtomicFromYAML } from "../orchestration/property/fromYAMLToXML"
 import type {
-  PendingMetadataTargetReferenceCandidate,
-  StructuralReferenceCandidate,
-} from "../orchestration/property/fn"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { exportPropertyValueToYAML } from "../orchestration/property/toYAML"
+  MetadataTargetConstraint,
+  MetadataTargetOwner,
+  ParsedMetadataTarget,
+} from "../orchestration/metadataTarget"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import {
   collectDependentStructuralItemReferences,
   type DependentStructuralItemReference,
 } from "../orchestration/property/dependentItemRegistry"
 
+export interface StructuralReferencePropertyRule {
+  readonly type: string
+  readonly yaml?: string
+  readonly metadataTarget?: {
+    readonly kind: string
+    readonly owner?: string
+  }
+}
+
+export interface StructuralReferenceItemRule {
+  readonly itemType: string
+  readonly properties: Readonly<Record<string, StructuralReferencePropertyRule>>
+}
+
+export interface StructuralReferenceCandidate {
+  readonly yamlPath: readonly (string | number)[]
+  readonly canonical: string
+  readonly setCanonical: (nextCanonical: string) => void
+}
+
+export interface IndexedStructuralReferenceCandidate {
+  readonly yamlPath: readonly (string | number)[]
+  readonly canonical: string
+  readonly target: ParsedMetadataTarget
+  readonly constraint: MetadataTargetConstraint
+}
+
+export type StructuralReferenceNestedRule =
+  | { readonly kind: "externalFile" }
+  | { readonly kind: "item"; readonly itemRule: StructuralReferenceItemRule }
+  | {
+      readonly kind: "polymorphicRecord"
+      readonly resolveItemRule: (params: { yaml: Record<string, unknown>; name: string }) => StructuralReferenceItemRule
+    }
+  | {
+      readonly kind: "collection"
+      readonly itemRule: StructuralReferenceItemRule
+      readonly resolveItemRule?: (params: {
+        yaml: unknown
+        name: string | undefined
+        index: number
+        propertyRule: StructuralReferencePropertyRule
+      }) => StructuralReferenceItemRule
+    }
+
+export interface StructuralReferenceRuntime {
+  readonly valueFromYAML: (params: {
+    context: unknown
+    rule: StructuralReferencePropertyRule
+    value: unknown
+    owner?: MetadataTargetOwner
+  }) => unknown
+  readonly valueToYAML: (params: {
+    context: unknown
+    rule: StructuralReferencePropertyRule
+    value: unknown
+    owner?: MetadataTargetOwner
+  }) => unknown
+  readonly collectStructuralReferences: (params: {
+    filePath: string
+    parsed: ParsedYaml
+    yamlPath: readonly (string | number)[]
+    propRule: StructuralReferencePropertyRule
+    propertyName: string
+    value: unknown
+    setValue: (nextValue: unknown) => void
+    owner?: MetadataTargetOwner
+  }) => StructuralReferenceCandidate[] | undefined
+  readonly collectIndexedReferences: (params: {
+    filePath: string
+    parsed: ParsedYaml
+    yamlPath: readonly (string | number)[]
+    propRule: StructuralReferencePropertyRule
+    propertyName: string
+    value: unknown
+    owner?: MetadataTargetOwner
+  }) => IndexedStructuralReferenceCandidate[]
+  readonly nestedRule: (rule: StructuralReferencePropertyRule) => StructuralReferenceNestedRule | undefined
+}
+
 export interface StructuralYamlReference extends StructuralReferenceCandidate {
   readonly filePath: string
-  readonly target: PendingMetadataTargetReferenceCandidate["target"]
-  readonly constraint: PendingMetadataTargetReferenceCandidate["constraint"]
+  readonly target: IndexedStructuralReferenceCandidate["target"]
+  readonly constraint: IndexedStructuralReferenceCandidate["constraint"]
   readonly stageCanonical: (nextCanonical: string) => void
   readonly commitStaged: () => void
 }
@@ -29,10 +104,11 @@ export type StructuralYamlReferenceCollectionResult =
 export function collectStructuralYamlReferences(params: {
   filePath: string
   parsed: ParsedYaml
-  rule: MetadataItemRule
+  rule: StructuralReferenceItemRule
   yaml: unknown
   owner?: MetadataTargetOwner
-  context: ConfigurationContext
+  context: unknown
+  runtime: StructuralReferenceRuntime
 }): StructuralYamlReferenceCollectionResult {
   return collectObjectReferences({
     ...params,
@@ -46,14 +122,15 @@ export function collectStructuralYamlReferences(params: {
 function collectObjectReferences(params: {
   filePath: string
   parsed: ParsedYaml
-  rule: MetadataItemRule
+  rule: StructuralReferenceItemRule
   value: unknown
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
-  context: ConfigurationContext
+  context: unknown
+  runtime: StructuralReferenceRuntime
   itemName?: string
   rootYaml: unknown
-  rootRule: MetadataItemRule
+  rootRule: StructuralReferenceItemRule
 }): StructuralYamlReferenceCollectionResult {
   const record = asRecord(params.value)
   if (record === undefined) return { ok: true, references: [] }
@@ -99,45 +176,42 @@ function collectObjectReferences(params: {
     const yamlValue = record[propertyRule.yaml]
     if (yamlValue === undefined) continue
 
-    const handler = getTypeRule(propertyRule.type, "structuralReferences")
-    if (handler !== undefined) {
-      let typedValue = callAtomicFromYAML({
-        context: params.context,
-        rule: propertyRule,
-        value: yamlValue,
-        owner: params.owner,
-      })
-      const candidates = handler({
-        filePath: params.filePath,
-        parsed: params.parsed,
-        yamlPath: [...params.yamlPath, propertyRule.yaml],
-        propRule: propertyRule,
-        propertyName,
+    const handlerParams = {
+      filePath: params.filePath,
+      parsed: params.parsed,
+      yamlPath: [...params.yamlPath, propertyRule.yaml],
+      propRule: propertyRule,
+      propertyName,
+      owner: params.owner,
+    }
+    let typedValue = params.runtime.valueFromYAML({
+      context: params.context,
+      rule: propertyRule,
+      value: yamlValue,
+      owner: params.owner,
+    })
+    const candidates = params.runtime.collectStructuralReferences({
+      ...handlerParams,
+      value: typedValue,
+      setValue: (nextValue) => {
+        typedValue = nextValue
+        record[propertyRule.yaml as string] = params.runtime.valueToYAML({
+          context: params.context,
+          rule: propertyRule,
+          value: nextValue,
+          owner: params.owner,
+        })
+      },
+    })
+    if (candidates !== undefined) {
+      const indexedCandidates = params.runtime.collectIndexedReferences({
+        ...handlerParams,
         value: typedValue,
-        setValue: (nextValue) => {
-          typedValue = nextValue
-          record[propertyRule.yaml as string] = exportPropertyValueToYAML({
-            context: params.context,
-            rule: propertyRule,
-            value: nextValue,
-            owner: params.owner,
-          })
-        },
-        owner: params.owner,
       })
-      const indexedCandidates = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")?.({
-        filePath: params.filePath,
-        parsed: params.parsed,
-        yamlPath: [...params.yamlPath, propertyRule.yaml],
-        propRule: propertyRule,
-        propertyName,
-        value: typedValue,
-        owner: params.owner,
-      }).references ?? []
       let stagedCanonical: string | undefined
       const commitStaged = (): void => {
         if (stagedCanonical === undefined) return
-        record[propertyRule.yaml as string] = exportPropertyValueToYAML({
+        record[propertyRule.yaml as string] = params.runtime.valueToYAML({
           context: params.context,
           rule: propertyRule,
           value: typedValue,
@@ -146,8 +220,7 @@ function collectObjectReferences(params: {
         stagedCanonical = undefined
       }
       for (const candidate of candidates) {
-        const runtimeCandidate = candidate as StructuralReferenceCandidate & { setCanonical?: unknown }
-        if (typeof runtimeCandidate.setCanonical !== "function") {
+        if (typeof candidate.setCanonical !== "function") {
           throw new Error(`Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}`)
         }
         const indexed = indexedCandidates.find((reference) =>
@@ -167,7 +240,7 @@ function collectObjectReferences(params: {
           commitStaged,
           setCanonical: (nextCanonical) => {
             candidate.setCanonical(nextCanonical)
-            record[propertyRule.yaml as string] = exportPropertyValueToYAML({
+            record[propertyRule.yaml as string] = params.runtime.valueToYAML({
               context: params.context,
               rule: propertyRule,
               value: typedValue,
@@ -206,15 +279,16 @@ function dependentStructuralConstraint(
 function collectNestedReferences(params: {
   filePath: string
   parsed: ParsedYaml
-  propertyRule: MetadataItemRule["properties"][string]
+  propertyRule: StructuralReferencePropertyRule
   value: unknown
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
-  context: ConfigurationContext
+  context: unknown
+  runtime: StructuralReferenceRuntime
   rootYaml: unknown
-  rootRule: MetadataItemRule
+  rootRule: StructuralReferenceItemRule
 }): StructuralYamlReferenceCollectionResult | undefined {
-  const descriptor = getTypeRule(params.propertyRule.type, "yamlToXMLNestedRule")
+  const descriptor = params.runtime.nestedRule(params.propertyRule)
   if (descriptor === undefined || descriptor.kind === "externalFile") return undefined
   if (descriptor.kind === "item") {
     return collectObjectReferences({ ...params, rule: descriptor.itemRule })
@@ -272,7 +346,7 @@ function collectNestedReferences(params: {
 }
 
 function ownerForRewrittenCanonical(
-  rule: MetadataItemRule["properties"][string],
+  rule: StructuralReferencePropertyRule,
   owner: MetadataTargetOwner | undefined,
   canonical: string,
 ): MetadataTargetOwner | undefined {

@@ -12,6 +12,7 @@ import {
 import { ProjectStateSnapshotView } from "./snapshot"
 import { resourceUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
+import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 
 describe("двоичный файл состояния проекта", () => {
   const projects = trackTempProjectDirs("nkdk-binary-state-")
@@ -106,7 +107,9 @@ function resourceSnapshot() {
 }
 
 function resolveFileTarget(buffers: ReturnType<typeof resourceSnapshot>) {
-  return createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(buffers)).resolveTargets([{
+  return createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(buffers), {
+    dependencyValidator: createProjectStateDependencyValidator(),
+  }).resolveTargets([{
     requestId: "target",
     componentPath: "cf",
     canonicalTarget: "Document.Заказ.Template.Печать",

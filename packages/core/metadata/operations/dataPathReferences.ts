@@ -1,4 +1,4 @@
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import type { ConfigurationContext } from "../context/types"
 import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"

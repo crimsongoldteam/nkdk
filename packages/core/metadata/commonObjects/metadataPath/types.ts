@@ -5,7 +5,13 @@ import {
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { Type } from "typebox"
 import type { Static } from "typebox"
-import { createMetadataTypesRules, createMetadataValuesRules, swapMetadataFieldsRulesKeys } from "./helper"
+import {
+  createMetadataTypesRules,
+  createMetadataValuesRules,
+  swapMetadataFieldsRulesKeys,
+  type MetadataFieldsRules,
+} from "./helper"
+export type { IncludeToType, MetadataFieldsRules, MetadataFieldsRulesItem, MetadataMapItem } from "./helper"
 
 const OtherTypeToYAML = {
   Characteristic: "Характеристика",
@@ -111,20 +117,6 @@ export const MetadataFieldTypeFromYAML = Object.fromEntries(
 
 export type MetadataFieldType = keyof typeof MetadataFieldTypeToYAML
 export type MetadataFieldTypeYAML = (typeof MetadataFieldTypeToYAML)[keyof typeof MetadataFieldTypeToYAML]
-
-export type IncludeToType = "Ref" | "Both" | "Save"
-
-export interface MetadataMapItem {
-  name: string
-  includeToType?: IncludeToType
-  fields?: {
-    [key: string]: string | MetadataMapItem
-  }
-}
-
-export type MetadataFieldsRulesItem = string | MetadataMapItem
-
-export type MetadataFieldsRules = Record<string, MetadataFieldsRulesItem>
 
 export const MetadataFieldsRulesToYAML: MetadataFieldsRules = {
   Catalog: {

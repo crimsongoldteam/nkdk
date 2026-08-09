@@ -1,5 +1,4 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import type {
   YAMLToXMLExternalWriteFactory,
   YAMLToXMLOutputRequest,
@@ -13,6 +12,22 @@ import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams {
+  readonly convertProperties: (params: {
+    readonly context: ConfigurationContextWithExportToXML
+    readonly yaml: unknown
+    readonly rule: MetadataItemRule
+    readonly name?: string
+    readonly namePropertyKey?: string
+    readonly sourceItemName?: string
+    readonly outputs: readonly YAMLToXMLOutputRequest[]
+    readonly propertyValues?: ReadonlyMap<string, unknown>
+    readonly sparseYAML?: true
+    readonly omitDefaultsForSparseYAML?: true
+    readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+    readonly profile?: YAMLToXMLProfile
+    readonly rulePath?: readonly (string | number)[]
+    readonly deferredRulePath?: readonly DeferredRulePathSegment[]
+  }) => YAMLToXMLResult
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly rule: MetadataItemRule
@@ -61,7 +76,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
             parent: { name: itemName },
           },
         }
-  const converted = convertPropertiesFromYAMLToXML({
+  const converted = params.convertProperties({
     context: itemContext,
     yaml,
     rule: params.rule,

@@ -1,4 +1,7 @@
-import { AutoCommandBar } from "./types"
+type AutoCommandBarContent = {
+  readonly childItems?: readonly unknown[]
+  readonly autofill?: boolean
+}
 
 export const getAutoCommandBarName = (parentElement: { name: string }): string => {
   return `${parentElement.name}КоманднаяПанель`
@@ -6,7 +9,7 @@ export const getAutoCommandBarName = (parentElement: { name: string }): string =
 
 const EXCLUDED_FIELDS = ["name", "itemType", "childItems"]
 
-export const isHasContent = (data: AutoCommandBar): boolean => {
+export const isHasContent = (data: AutoCommandBarContent): boolean => {
   if ((data.childItems?.length ?? 0) != 0) return true
 
   const keys = Object.keys(data)

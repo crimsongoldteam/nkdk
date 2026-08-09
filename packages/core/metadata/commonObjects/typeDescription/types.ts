@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { BasePropertyRule } from "../../orchestration/property/types"
 import { Type } from "typebox"
 import type { Static } from "typebox"
 
@@ -817,11 +817,15 @@ export interface TypeDescriptionEnterprise {
 
 //#endregion
 
-export interface TypeDescriptionWidePropertyRule extends WidePropertyRuleBase {
+export interface TypeDescriptionPropertyRule extends BasePropertyRule {
   type: "TypeDescription"
+  addTypeDescriptionAttributeToXML?: true
+  declareTypeNamespaceXML?: boolean
+  allowedTypes?: TypeDescriptionAllowedTypes
+  preserveEmptyXML?: true
 }
 
-export type TypeDescriptionRuleParams = Omit<TypeDescriptionWidePropertyRule, "type">
+export type TypeDescriptionRuleParams = Omit<TypeDescriptionPropertyRule, "type">
 
 export function typeDescriptionRule<const Params extends TypeDescriptionRuleParams>(
   params: WideExactRuleParams<TypeDescriptionRuleParams, Params>

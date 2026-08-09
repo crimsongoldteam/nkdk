@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { registerValidationMetadata } from "./registerValidationMetadata"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
@@ -21,6 +22,7 @@ describe("fill value structural references", () => {
       yaml: parsed.data,
       owner: { root: "Catalog", objectName: "Товары" },
       context: mockContext,
+      runtime: createPropertyStructuralReferenceRuntime(),
     })
 
     expect(result).toMatchObject({

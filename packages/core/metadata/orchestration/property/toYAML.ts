@@ -3,7 +3,7 @@ import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { exportStringMetadataTargetToYAML } from "./metadataTargetString"
 import type { PropertyRule } from "./types"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../metadataTarget/types"
 
 export const exportPropertyToYAML = (params: {
   context: ConfigurationContext

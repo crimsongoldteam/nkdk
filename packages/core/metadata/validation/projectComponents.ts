@@ -4,7 +4,7 @@ import { componentPath, type ComponentAddress } from "../components/address"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { createMetadataItemProjectSchemaExporter, type MetadataProjectSpec } from "../project/specs"
-import { registerCoreMetadata } from "../register"
+import { assertCoreMetadataRegistered } from "../project/projectSpecRegistry"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/registry"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
 
@@ -25,7 +25,7 @@ export interface ValidationProjectComponentDiscovery {
 export async function discoverValidationProjectComponents(
   projectDir: string
 ): Promise<ValidationProjectComponentDiscovery> {
-  registerCoreMetadata()
+  assertCoreMetadataRegistered("validation/projectComponents")
   const root = resolve(projectDir)
   const components: ValidationProjectComponent[] = []
 

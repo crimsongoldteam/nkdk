@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
+import type { ParsedMetadataTarget } from "../orchestration/metadataTarget"
 import {
   createProjectReferenceSnapshot,
   estimateProjectReferenceSnapshotBytes,

@@ -1,10 +1,4 @@
 import type { ConfigurationContext } from "../context/types"
-import {
-  createPreparedYamlValidationOperation,
-  type PreparedYamlProjectWorkerPool,
-  type PreparedYamlValidationOperation,
-  type ProjectStateValidationStats,
-} from "../project/preparedYamlProjectWorkerPool"
 import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
 import {
   createMetadataDiagnosticCollection,
@@ -17,6 +11,19 @@ import {
   type ProjectStateDiscoveredFileBatch,
   type ProjectStateValidationFileTask,
 } from "./projectFiles"
+import type {
+  ProjectStateRefreshExecutor,
+  ProjectStateRefreshOperation,
+  ProjectStateValidationFileBatch,
+  ProjectStateValidationStats,
+} from "./refreshExecutor"
+import { createProjectStateRefreshOperation } from "./refreshExecutor"
+export type {
+  ProjectStateRefreshExecutor,
+  ProjectStateRefreshOperation,
+  ProjectStateValidationFileBatch,
+  ProjectStateValidationStats,
+} from "./refreshExecutor"
 
 export interface ProjectStateRefreshStats {
   readonly hashedFiles: number
@@ -89,8 +96,6 @@ export interface ProjectStateRefreshParams {
   readonly profile?: true | ProjectStateProfileOptions
 }
 
-export interface ProjectStateRefreshOperation extends PreparedYamlValidationOperation {}
-
 export interface ProjectStateRefreshDependencies {
   readonly handle: ProjectStateRefreshHandle
   readonly afterProcessFiles?: () => Promise<void>
@@ -104,14 +109,9 @@ export interface ProjectStateRefreshDependencies {
   ) => Promise<ProjectStateValidationStats>
 }
 
-export interface ProjectStateValidationFileBatch extends ProjectStateFileBaselinePathPage {
-  readonly files: readonly ProjectStateValidationFileTask[]
-}
-
 export function createProjectStateRefreshDependencies(params: {
   readonly handle: ProjectStateRefreshHandle
-  readonly pool: PreparedYamlProjectWorkerPool
-  readonly context: ConfigurationContext
+  readonly executor: ProjectStateRefreshExecutor
   readonly afterProcessFiles?: () => Promise<void>
   readonly beforeCheckpoint?: () => Promise<void>
 }): ProjectStateRefreshDependencies {
@@ -121,12 +121,7 @@ export function createProjectStateRefreshDependencies(params: {
     ...(params.beforeCheckpoint === undefined ? {} : { beforeCheckpoint: params.beforeCheckpoint }),
     discoverFiles: ({ projectDir }) => discoverProjectStateValidationFileBatches(projectDir),
     processFiles(batches, producer, operation, projectDir) {
-      return params.pool.runProjectStateRefresh({
-        projectDir,
-        context: params.context,
-        source: { batches },
-        operation,
-      }, producer)
+      return params.executor.processFiles(batches, producer, operation, projectDir)
     },
   }
 }
@@ -135,7 +130,7 @@ export async function refreshProjectState(
   params: ProjectStateRefreshParams,
   dependencies: ProjectStateRefreshDependencies,
 ): Promise<ProjectStateRefreshResult> {
-  const operation = createPreparedYamlValidationOperation(params.signal)
+  const operation = createProjectStateRefreshOperation(params.signal)
   const operationParams = { ...params, signal: operation.signal }
   let updateActive = false
   let diagnostics: MetadataDiagnosticCollection | undefined

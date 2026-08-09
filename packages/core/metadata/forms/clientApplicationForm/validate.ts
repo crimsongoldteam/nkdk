@@ -1,5 +1,5 @@
 import { join } from "path"
-import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../../orchestration/metadataTarget/roots"
 import type { ConfigurationContext } from "../../context/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"

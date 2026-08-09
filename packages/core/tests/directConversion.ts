@@ -10,8 +10,8 @@ import {
 } from "../metadata/configurationIndex/sharedSnapshot"
 import { importMetadataItemFromXMLToYAML } from "../metadata/orchestration/metadataItem/fromXMLToYAML"
 import { convertMetadataItemFromYAMLToXML } from "../metadata/orchestration/metadataItem/fromYAMLToXML"
-import { importPropertiesFromXMLToYAML } from "../metadata/orchestration/property/fromXMLToYAML"
 import { convertPropertiesFromYAMLToXML } from "../metadata/orchestration/property/fromYAMLToXML"
+import { importPropertiesFromXMLToYAML } from "../metadata/orchestration/property/fromXMLToYAML"
 import { getTypeRule } from "../metadata/orchestration/property/typeRuleRegistry"
 import type {
   YAMLToXMLExternalWrite,
@@ -153,6 +153,7 @@ export function testMetadataItemFromYAMLToXML(params: {
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
 }): ToXMLResult {
   const result = convertMetadataItemFromYAMLToXML({
+    convertProperties: convertPropertiesFromYAMLToXML,
     context: params.context ?? mockContextToXML(),
     yaml: params.yaml,
     rule: params.rule,

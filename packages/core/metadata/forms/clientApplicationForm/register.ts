@@ -1,5 +1,6 @@
 import {
   registerFormPlatformSourceMatcher,
+  registerFormValidationAdapter,
   registerFormValidationPasses,
   registerFormValidator,
   registerFormWarningProvider,
@@ -18,6 +19,9 @@ import {
   validateFormElementNames,
 } from "./validateElementNames"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
+import { clientApplicationFormValidationAdapter } from "./validationAdapter"
+
+registerFormValidationAdapter(clientApplicationFormValidationAdapter)
 
 registerLocalYamlValueValidator({
   type: "ClientApplicationForm",

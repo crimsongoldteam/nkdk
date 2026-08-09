@@ -1,6 +1,6 @@
 import type { ValidationGraphContribution } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
-import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/binary/contribution"
+import type { ProjectStateEncodedFileUpdateBatch } from "../projectState/contracts/fileUpdate"
 
 export interface ValidationFirstPassFileResult {
   componentPath: string

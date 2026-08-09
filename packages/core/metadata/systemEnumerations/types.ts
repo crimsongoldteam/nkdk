@@ -2,6 +2,11 @@
 
 import { definePropertyRule, type ExactRuleParams } from "../commonObjects/ruleBuilder"
 import type { BasePropertyRule } from "../orchestration/property/types"
+import type {
+  MobileApplicationFunctionalities,
+  RequiredMobileApplicationPermissionMessages,
+  RequiredMobileApplicationPermissions,
+} from "../appliedObjects/configuration/mobileApplicationPermissionsEnumerations"
 
 export const DynamicListSearchStringViewModeToYAML = {
   Auto: "Авто",
@@ -2552,90 +2557,7 @@ export const MessageStatusFromYAML = {
 export type MessageStatus = keyof typeof MessageStatusToYAML
 export type MessageStatusYAML = keyof typeof MessageStatusFromYAML
 
-export const MobileApplicationFunctionalitiesToYAML = {
-  BluetoothPrinters: "BluetoothПринтеры",
-  NFC: "NFC",
-  PushNotifications: "PushУведомления",
-  WiFiPrinters: "WiFiПринтеры",
-  AutoSendSMS: "АвтоматическаяОтправкаSMSСообщений",
-  MusicLibrary: "БиблиотекаМузыки",
-  PictureAndVideoLibraries: "БиблиотекиКартинокИВидео",
-  Biometrics: "Биометрия",
-  Videoconferences: "Видеоконференции",
-  AudioPlaybackAndVibration: "ВоспроизведениеАудиоИВибрация",
-  BackgroundAudioPlaybackAndVibration: "ВоспроизведениеАудиоИВибрацияВФоновомРежиме",
-  InAppPurchases: "ВстроенныеПокупки",
-  IncomingShareRequests: "ВходящиеЗапросыПоделиться",
-  Geofences: "Геозоны",
-  Location: "Геопозиционирование",
-  BackgroundLocation: "ГеопозиционированиеВФоновомРежиме",
-  AllFilesAccess: "ДоступКоВсемФайлам",
-  SMSLog: "ЖурналSMS",
-  CallLog: "ЖурналЗвонков",
-  BackgroundAudioRecording: "ЗаписьАудиоВФоновомРежиме",
-  Calendars: "Календари",
-  Camera: "Камера",
-  Contacts: "Контакты",
-  LocalNotifications: "ЛокальныеУведомления",
-  Microphone: "Микрофон",
-  NumberDialing: "НаборНомера",
-  PersonalComputerFileExchange: "ОбменФайламиСПерсональнымКомпьютером",
-  AllIncomingShareRequestsTypesProcessing: "ОбработкаВсехТиповВходящихЗапросовПоделиться",
-  CallProcessing: "ОбработкаЗвонков",
-  ReceiveSMS: "ПолучениеSMS",
-  SpeechToText: "РаспознаваниеРечи",
-  OSBackup: "РезервноеКопированиеСредствамиОС",
-  Ads: "Реклама",
-  TextToSpeech: "СинтезРечи",
-  DocumentScanning: "СканированиеДокументов",
-  BarcodeScanning: "СканированиеШтрихКодов",
-  ApplicationUsageStatistics: "СтатистикаИспользованияПриложения",
-  InstallPackages: "УстановкаПриложений",
-} as const
-
-export const MobileApplicationFunctionalitiesFromYAML = {
-  BluetoothПринтеры: "BluetoothPrinters",
-  NFC: "NFC",
-  PushУведомления: "PushNotifications",
-  WiFiПринтеры: "WiFiPrinters",
-  АвтоматическаяОтправкаSMSСообщений: "AutoSendSMS",
-  БиблиотекаМузыки: "MusicLibrary",
-  БиблиотекиКартинокИВидео: "PictureAndVideoLibraries",
-  Биометрия: "Biometrics",
-  Видеоконференции: "Videoconferences",
-  ВоспроизведениеАудиоИВибрация: "AudioPlaybackAndVibration",
-  ВоспроизведениеАудиоИВибрацияВФоновомРежиме: "BackgroundAudioPlaybackAndVibration",
-  ВстроенныеПокупки: "InAppPurchases",
-  ВходящиеЗапросыПоделиться: "IncomingShareRequests",
-  Геозоны: "Geofences",
-  Геопозиционирование: "Location",
-  ГеопозиционированиеВФоновомРежиме: "BackgroundLocation",
-  ДоступКоВсемФайлам: "AllFilesAccess",
-  ЖурналSMS: "SMSLog",
-  ЖурналЗвонков: "CallLog",
-  ЗаписьАудиоВФоновомРежиме: "BackgroundAudioRecording",
-  Календари: "Calendars",
-  Камера: "Camera",
-  Контакты: "Contacts",
-  ЛокальныеУведомления: "LocalNotifications",
-  Микрофон: "Microphone",
-  НаборНомера: "NumberDialing",
-  ОбменФайламиСПерсональнымКомпьютером: "PersonalComputerFileExchange",
-  ОбработкаВсехТиповВходящихЗапросовПоделиться: "AllIncomingShareRequestsTypesProcessing",
-  ОбработкаЗвонков: "CallProcessing",
-  ПолучениеSMS: "ReceiveSMS",
-  РаспознаваниеРечи: "SpeechToText",
-  РезервноеКопированиеСредствамиОС: "OSBackup",
-  Реклама: "Ads",
-  СинтезРечи: "TextToSpeech",
-  СканированиеДокументов: "DocumentScanning",
-  СканированиеШтрихКодов: "BarcodeScanning",
-  СтатистикаИспользованияПриложения: "ApplicationUsageStatistics",
-  УстановкаПриложений: "InstallPackages",
-} as const
-
-export type MobileApplicationFunctionalities = keyof typeof MobileApplicationFunctionalitiesToYAML
-export type MobileApplicationFunctionalitiesYAML = keyof typeof MobileApplicationFunctionalitiesFromYAML
+export * from "../appliedObjects/configuration/mobileApplicationPermissionsEnumerations"
 
 export const NumericValueTypeToYAML = {
   Cardinal: "Количественное",
@@ -13160,6 +13082,8 @@ export type SystemEnumerationTypeMap = {
   Key: Key
   LocationRelativeToGeofence: LocationRelativeToGeofence
   MessageStatus: MessageStatus
+  RequiredMobileApplicationPermissionMessages: RequiredMobileApplicationPermissionMessages
+  RequiredMobileApplicationPermissions: RequiredMobileApplicationPermissions
   MobileApplicationFunctionalities: MobileApplicationFunctionalities
   NumericValueType: NumericValueType
   PasswordPolicyComplianceCheckResult: PasswordPolicyComplianceCheckResult

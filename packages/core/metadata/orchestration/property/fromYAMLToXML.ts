@@ -9,7 +9,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
+import type { MetadataTargetOwner } from "../metadataTarget"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
@@ -34,7 +34,7 @@ import type {
 import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
-import { readExternalFile } from "../../forms/commonObjects/dynamicList/externalFile"
+import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { assertAllowedExplicitXMLTags } from "./explicitXMLPropertyRegistry"
@@ -437,6 +437,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nested =
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
+              convertItem: convertMetadataItemFromYAMLToXML,
+              convertProperties: convertPropertiesFromYAMLToXML,
               context: nestedContext,
               yaml: nestedYAML,
               descriptor: effectiveNestedRule,
@@ -449,6 +451,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
           : convertMetadataItemFromYAMLToXML({
+              convertProperties: convertPropertiesFromYAMLToXML,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,
               rule:

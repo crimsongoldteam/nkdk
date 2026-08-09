@@ -1,6 +1,10 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { findProductionCycleViolations } from "../src/cycle-analysis.mjs"
+import {
+  findProductionCycleComponents,
+  findProductionCycleViolations,
+} from "../src/cycle-analysis.mjs"
+import { analyzeCruiseResult } from "../src/cruise-result.mjs"
 import { cruiseFixture } from "../src/fixture-cruise.mjs"
 import {
   addImplementationReachabilityViolations,
@@ -8,6 +12,17 @@ import {
 } from "../src/reachability.mjs"
 
 const result = cruiseFixture()
+
+test("project cruise не смешивает циклы с нарушениями границ", () => {
+  const analyzed = analyzeCruiseResult(result, [])
+  assert.equal(
+    analyzed.summary.violations.some(
+      ({ rule }) => rule.name === "no-circular-production"
+    ),
+    false
+  )
+  assert.equal(findProductionCycleComponents(analyzed).length, 1)
+})
 
 test("обнаруживает общие нарушения production-графа", () => {
   const names = new Set(

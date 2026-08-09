@@ -13,6 +13,25 @@ export type PropertyRuleType = string
  */
 export const PropertyRuleTypeKeys = [] as readonly PropertyRuleType[]
 
-export type PropertyToMetadata<Key extends PropertyRuleType> = Key & any
-export type PropertyToEnterprise<Key extends PropertyRuleType> = Key & any
-export type PropertyToYAML<Key extends PropertyRuleType> = Key & any
+export interface PropertyMetadataTypeMap {}
+export interface PropertyEnterpriseTypeMap {}
+export interface PropertyYAMLTypeMap {}
+
+type UnregisteredPropertyType<Key extends PropertyRuleType> = Key & any
+
+export type PropertyToMetadata<Key extends PropertyRuleType> = Key extends keyof PropertyMetadataTypeMap
+  ? PropertyMetadataTypeMap[Key]
+  : UnregisteredPropertyType<Key>
+
+export type PropertyToEnterprise<Key extends PropertyRuleType> = Key extends keyof PropertyEnterpriseTypeMap
+  ? PropertyEnterpriseTypeMap[Key]
+  : UnregisteredPropertyType<Key>
+
+export type PropertyToYAML<Key extends PropertyRuleType> = Key extends keyof PropertyYAMLTypeMap
+  ? PropertyYAMLTypeMap[Key]
+  : UnregisteredPropertyType<Key>
+
+export type {
+  SystemEnumerationToMetadata,
+  SystemEnumerationToYAML,
+} from "./systemEnumerationRegistry"

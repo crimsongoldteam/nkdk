@@ -1,5 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { applyMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import { applyMetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"

@@ -1,4 +1,4 @@
-import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../commonObjects/picture/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"

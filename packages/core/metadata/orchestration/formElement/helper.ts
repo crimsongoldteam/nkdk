@@ -1,1 +1,52 @@
-export * from "../../forms/elements/orchestration/helper"
+import { ConfigurationContext } from "../../context/types"
+import type { ElementRule } from "./types"
+import { getValueOrDefault } from "../property/helpers"
+import type { PropertyRule } from "../property/types"
+
+interface MetadataItem {
+  [key: string]: unknown
+}
+
+const isEmptyValue = (v: unknown): boolean =>
+  (Array.isArray(v) && v.length === 0) ||
+  (v !== null && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0)
+
+const isValueEqualToDefault = (value: unknown, valueOrDefault: unknown): boolean =>
+  Object.is(value, valueOrDefault) ||
+  (isEmptyValue(value) && (valueOrDefault === undefined || isEmptyValue(valueOrDefault)))
+
+export const isEmptyMetadataItem = <T extends MetadataItem>(params: {
+  context: ConfigurationContext
+  rule: ElementRule
+  element: T | undefined
+  ignoreKeys?: string[]
+}): boolean => {
+  const { context, rule, element, ignoreKeys } = params
+  if (element === undefined) return true
+
+  for (const [key, propertyRule] of Object.entries(rule.properties) as [string, PropertyRule][]) {
+    if (key === "itemType") continue
+    if (ignoreKeys?.includes(key)) continue
+
+    const value = element[key as keyof T]
+    if (value === undefined) continue
+
+    const valueOrDefault = getValueOrDefault({
+      context,
+      rule: propertyRule,
+      value: undefined,
+      name: key,
+      operation: "importFromXML",
+    })
+
+    if (isValueEqualToDefault(value, valueOrDefault)) continue
+
+    return false
+  }
+
+  // if (rule.events && "events" in element && typeof element.events === "object" && element.events !== null) {
+  //   if (Object.keys(element.events).length > 0) return false
+  // }
+
+  return true
+}

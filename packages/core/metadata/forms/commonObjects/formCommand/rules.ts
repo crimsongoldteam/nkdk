@@ -1,5 +1,5 @@
 import { functionalOptionsPropertyRule } from "../../../commonObjects/functionalOptionsProperty/types"
-import { pictureRule } from "../../../commonObjects/metadataTargets/types"
+import { pictureRule } from "../../../commonObjects/picture/types"
 import { associatedTableRule } from "../../../commonObjects/metadataValue/types"
 import { userVisibleRule } from "../../../commonObjects/userVisible/types"
 import { elementIdRule } from "../elementId/types"

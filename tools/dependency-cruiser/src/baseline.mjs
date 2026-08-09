@@ -12,7 +12,12 @@ export async function updateBaseline({ check, generate, baselinePath }) {
   await rm(temporaryPath, { force: true })
   await check()
   try {
-    await generate(temporaryPath)
+    const serialized = await generate()
+    if (JSON.parse(serialized).length === 0) {
+      await rm(baselinePath, { force: true })
+      return
+    }
+    await writeFile(temporaryPath, serialized)
     await rename(temporaryPath, baselinePath)
   } finally {
     await rm(temporaryPath, { force: true })
@@ -34,9 +39,7 @@ async function main() {
       const known = JSON.parse(await readFile(baselinePath, "utf8"))
       assertNoNewViolations(softenKnownViolations(candidate, known))
     },
-    generate: async (temporaryPath) => {
-      await writeFile(temporaryPath, serializeBaseline(candidate))
-    },
+    generate: async () => serializeBaseline(candidate),
   })
 }
 

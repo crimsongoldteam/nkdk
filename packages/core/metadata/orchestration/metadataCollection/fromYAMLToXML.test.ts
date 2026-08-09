@@ -8,6 +8,8 @@ import { sampleSnapshot } from "../../configurationIndex/testData"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule } from "../property/types"
+import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "./fromYAMLToXML"
 
 const context = (): ConfigurationContextWithExportToXML => ({
@@ -35,6 +37,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     } as const satisfies YAMLToXMLNestedRule
 
     const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: { Первый: { Значение: "A" }, Второй: { Значение: "B" } },
       descriptor,
@@ -59,6 +63,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     } as const satisfies YAMLToXMLNestedRule
 
     const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: [
         { Код: "A", Значение: "новое A" },
@@ -104,6 +110,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     } as const satisfies YAMLToXMLNestedRule
 
     const result = convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: [{ Значение: "обычное" }, { Другое: "особое" }],
       descriptor,
@@ -133,6 +141,8 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     } as const satisfies YAMLToXMLNestedRule
 
     convertMetadataCollectionFromYAMLToXML({
+      convertItem: convertMetadataItemFromYAMLToXML,
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: {
         ...context(),
         exportToXML: { ...context().exportToXML, configurationIndex },

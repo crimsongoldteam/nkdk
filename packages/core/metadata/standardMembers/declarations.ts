@@ -1,3 +1,8 @@
+import {
+  clearStandardMemberAliasesForTests,
+  registerStandardMemberAlias,
+} from "../orchestration/metadataTarget/standardMemberAliases"
+
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
 export type StandardMemberPhase = "index-time" | "traversal-time" | "deferred"
 export type StandardMemberSourceScope = "self" | "ownerModel" | "rules" | "projectIndex"
@@ -173,7 +178,9 @@ let standardMembersRevision = 0
 
 export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
   const existing = membersByOwnerKind.get(ownerKind) ?? []
-  membersByOwnerKind.set(ownerKind, [...existing, ...members.map(withCommonFillValuePolicy)])
+  const registered = members.map(withCommonFillValuePolicy)
+  membersByOwnerKind.set(ownerKind, [...existing, ...registered])
+  registerMetadataTargetAliases(registered)
   standardMembersRevision += 1
 }
 
@@ -189,6 +196,7 @@ export function getStandardMembers(ownerKind: string): readonly StandardMemberDe
 
 export function clearStandardMembersForTests(): void {
   membersByOwnerKind.clear()
+  clearStandardMemberAliasesForTests()
   standardMembersRevision += 1
 }
 
@@ -198,8 +206,22 @@ export function snapshotStandardMembersForTests(): Map<string, StandardMemberDec
 
 export function restoreStandardMembersForTests(snapshot: Map<string, StandardMemberDeclaration[]>): void {
   membersByOwnerKind.clear()
-  for (const [kind, members] of snapshot) membersByOwnerKind.set(kind, [...members])
+  clearStandardMemberAliasesForTests()
+  for (const [kind, members] of snapshot) {
+    membersByOwnerKind.set(kind, [...members])
+    registerMetadataTargetAliases(members)
+  }
   standardMembersRevision += 1
+}
+
+function registerMetadataTargetAliases(members: readonly StandardMemberDeclaration[]): void {
+  for (const member of members) {
+    registerStandardMemberAlias(member.names.yaml, member.names.internal)
+    if (member.memberKind !== "standardTabularSection") continue
+    for (const column of member.columns) {
+      registerStandardMemberAlias(column.names.yaml, column.names.internal)
+    }
+  }
 }
 
 export function standardMemberNamePairs(): readonly StandardMemberNames[] {

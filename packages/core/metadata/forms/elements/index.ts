@@ -108,3 +108,5 @@ import "./usualGroup/types"
 
 import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
+
+import "./register"

@@ -13,6 +13,12 @@ export interface ConfigurationIndexCollectionContext {
   readonly propertyValueLogicalAddress?: string
 }
 
+declare module "../../context/types" {
+  interface FromXMLConfigurationContext {
+    configurationIndex?: ConfigurationIndexCollectionContext
+  }
+}
+
 export function withConfigurationIndexCollector(
   context: ConfigurationContextFromXML,
   collector: ConfigurationIndexCollector,

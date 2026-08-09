@@ -1,8 +1,5 @@
-import type { OwnerTypeRef } from "../../validation/dataPath/types"
-import {
-  projectStateDataPathReferenceLocation,
-  resolveProjectStateDataPathReferenceBatch,
-} from "../dependencyValidation"
+import type { OwnerTypeRef } from "../../orchestration/dataPath/types"
+import type { ProjectStateDependencyValidator } from "../contracts/dependencyValidation"
 import type {
   ProjectStateLocalValidationResult,
   ProjectStateOwnerFact,
@@ -55,7 +52,8 @@ export function createBinaryProjectStateQueryPort(
   options: {
     readonly pageSize?: number
     readonly typedReader?: TypedProjectStateReader
-  } = {},
+    readonly dependencyValidator: ProjectStateDependencyValidator
+  },
 ): ProjectStateQueryPort {
   const pageSize = options.pageSize ?? PAGE_SIZE
   if (!Number.isSafeInteger(pageSize) || pageSize < 1) {
@@ -85,7 +83,13 @@ export function createBinaryProjectStateQueryPort(
       return resolveTargets(snapshot, readReferenceDetails, targetLookupCache, requests)
     },
     readOwners: (requests) => requests.map((request) => readOwner(snapshot, readOwners, request)),
-    findReferences: (requests) => findReferences(snapshot, readYamlFacts, queryPort, requests),
+    findReferences: (requests) => findReferences(
+      snapshot,
+      readYamlFacts,
+      queryPort,
+      options.dependencyValidator,
+      requests,
+    ),
     readDependencyInputs: (requests) => readDependencyInputs(
       snapshot,
       readOwners,
@@ -104,9 +108,10 @@ export function createBinaryProjectStateQueryPort(
 
 export function openBinaryProjectStateReadSession(
   token: ProjectStateReadToken,
+  dependencyValidator: ProjectStateDependencyValidator,
 ): ProjectStateReadSession {
   const snapshot = new ProjectStateSnapshotView(claimBinaryProjectStateReadToken(token))
-  const queryPort = createBinaryProjectStateQueryPort(snapshot)
+  const queryPort = createBinaryProjectStateQueryPort(snapshot, { dependencyValidator })
   return createProjectStateReadSession({ token, queryPort })
 }
 
@@ -271,6 +276,7 @@ function findReferences(
   snapshot: ProjectStateSnapshotView,
   readYamlFacts: ReadYamlFacts,
   queryPort: ProjectStateQueryPort,
+  dependencyValidator: ProjectStateDependencyValidator,
   requests: readonly ProjectReferenceLookup[],
 ) {
   return requests.map((request, requestIndex) => {
@@ -312,21 +318,31 @@ function findReferences(
       }
     }
     if (request.dataPathTarget !== undefined && dataChecks.length > 0) {
-      const resolved = resolveProjectStateDataPathReferenceBatch({
+      const resolved = dependencyValidator.resolveDataPaths({
         checks: dataChecks,
         projectDir: "",
         queryPort,
       })
+      const checksByRequestId = new Map(dataChecks.map((check) => [check.requestId, check]))
       for (const reference of resolved) {
         if (
-          reference.target.source.kind !== "objectField" ||
-          !sameOwner(reference.target.source.owner, request.dataPathTarget.owner) ||
+          !sameOwner(reference.sourceOwner, request.dataPathTarget.owner) ||
           (request.dataPathTarget.fieldName !== undefined &&
-            reference.target.source.name !== request.dataPathTarget.fieldName)
+            reference.sourceFieldName !== request.dataPathTarget.fieldName)
         ) {
           continue
         }
-        references.push(projectStateDataPathReferenceLocation(reference))
+        const check = checksByRequestId.get(reference.requestId)
+        if (check === undefined) continue
+        references.push({
+          kind: "dataPath",
+          projectPath: reference.projectPath,
+          componentPath: reference.componentPath,
+          yamlPath: check.check.yamlPath,
+          value: check.check.value,
+          resolvedSegments: reference.resolvedSegments,
+          segmentIndex: reference.resolvedSegments.length - 1,
+        })
       }
     }
     return { requestId: request.requestId, references }

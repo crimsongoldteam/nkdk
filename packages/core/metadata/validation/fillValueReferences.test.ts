@@ -6,7 +6,7 @@ import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { createValidationSchemaCache } from "./projectValidationPasses"
-import { validateKnownProjectYaml } from "./knownYamlValidation"
+import { validateKnownProjectYaml } from "../importFromXml/knownYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 registerValidationMetadata()

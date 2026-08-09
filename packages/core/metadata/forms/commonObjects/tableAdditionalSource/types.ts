@@ -3,7 +3,9 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
-export type TableAdditionalSourceTypes = "SearchStringRepresentation" | "SearchControl" | "ViewStatusRepresentation"
+import type { TableAdditionalSourceType } from "../../../orchestration/property/types"
+
+export type TableAdditionalSourceTypes = TableAdditionalSourceType
 
 export interface TableAdditionalSourceXML {
   Item: string

@@ -3,18 +3,36 @@ import "./appliedObjects/configurationExtension/register"
 import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
-import { registerFillValueImport, registerFillValueStructuralReferences } from "./commonObjects/fillValue/register"
+import { registerValidationMetadata } from "./validation/registerValidationMetadata"
+import { metadataResourceTopologyProvider } from "./resourceTopology/metadataProvider"
+import { registerMetadataResourceTopologyProvider } from "./resourceTopology/providerRegistry"
 import "./orchestration/appliedObject/syncToXML"
 
 let coreMetadataRegistered = false
+
+export interface MetadataRegistrationLayers {
+  commonObjects(): void
+  forms(): void
+  appliedObjects(): void
+  validationAdapters(): void
+}
+
+export function registerMetadataLayers(layers: MetadataRegistrationLayers): void {
+  layers.commonObjects()
+  layers.forms()
+  layers.appliedObjects()
+  layers.validationAdapters()
+}
 
 export function registerCoreMetadata(): void {
   if (coreMetadataRegistered) return
   coreMetadataRegistered = true
 
-  registerCommonObjects()
-  registerFillValueStructuralReferences()
-  registerFillValueImport()
-  registerForms()
-  registerAppliedObjects()
+  registerMetadataLayers({
+    commonObjects: registerCommonObjects,
+    forms: registerForms,
+    appliedObjects: registerAppliedObjects,
+    validationAdapters: registerValidationMetadata,
+  })
+  registerMetadataResourceTopologyProvider(metadataResourceTopologyProvider)
 }

@@ -6,6 +6,7 @@ import { transferableSymbol, valueSymbol } from "piscina"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ImportFirstPassResult } from "./types"
 import { createBinaryProjectStateStore } from "../projectState/binary/store"
+import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
@@ -42,6 +43,7 @@ let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undef
 
 beforeAll(() => {
   sharedStateFixture = createBinaryProjectStateStore({
+    dependencyValidator: createProjectStateDependencyValidator(),
     projectDir: "/project",
   })
   stateStores.push(sharedStateFixture.store)
@@ -425,7 +427,9 @@ describe("XML import worker second pass", () => {
       fragments: second.stateFragments.map(openProjectStateFragment),
       deletions: [],
     })
-    expect(createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot)).resolveTargets([{
+    expect(createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
+      dependencyValidator: createProjectStateDependencyValidator(),
+    }).resolveTargets([{
       requestId: "imported-form",
       componentPath: "cf",
       canonicalTarget: "Catalog.Товары.Form.ФормаЭлемента",

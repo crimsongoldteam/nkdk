@@ -16,7 +16,7 @@ import {
   operationPictureFormYaml,
   operationTargetReadSession,
   operationValidationError,
-} from "./operationTestSupport"
+} from "./tests/operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
 
 const validationError = operationValidationError

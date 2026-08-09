@@ -8,12 +8,12 @@ import {
   type DependentItemRegistrySnapshot,
   type DependentYamlItemParams,
 } from "../orchestration/property/dependentItemRegistry"
-import { registerValidationMetadata } from "./registerValidationMetadata"
+import { registerCoreMetadata } from "../register"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
-registerValidationMetadata()
+registerCoreMetadata()
 
 describe("dependent fill value validation", () => {
   let registry: DependentItemRegistrySnapshot

@@ -1,4 +1,4 @@
-import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
 import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
@@ -27,10 +27,10 @@ export const arbitraryDataPathTypeInfo: DataPathTypeInfo = {
 
 export function createFormDataPathIndexCollector(_params: { filePath: string }): {
   declareAttribute(name: string): void
-  setAttributeType(name: string, type: TypeDescription | undefined): void
+  setAttributeType(name: string, type: TypeDescriptionView | undefined): void
   setDynamicList(name: string): void
   declareColumn(attributeName: string, columnName: string): void
-  setColumnType(attributeName: string, columnName: string, type: TypeDescription | undefined): void
+  setColumnType(attributeName: string, columnName: string, type: TypeDescriptionView | undefined): void
   setAdditionalColumns(value: unknown): void
   acceptTableDataPath(params: { name: string; dataPath: string }): void
   finish(): FormDataPathIndex
@@ -251,8 +251,8 @@ function acceptPresentProperty(
   })
 }
 
-function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
-  return indexValueFromYAML<TypeDescription>("TypeDescription", value)
+function typeDescriptionFromYAML(value: unknown): TypeDescriptionView | undefined {
+  return indexValueFromYAML<TypeDescriptionView>("TypeDescription", value)
 }
 
 function stringSegment(value: string | number | undefined): string | undefined {
@@ -267,7 +267,7 @@ function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColum
       columns.set(name, {
         name,
         typeInfo: typeDescriptionToDataPathTypeInfo(
-          indexValueFromYAML<TypeDescription>("TypeDescription", asRecord(rawColumn)?.["Тип"])
+          indexValueFromYAML<TypeDescriptionView>("TypeDescription", asRecord(rawColumn)?.["Тип"])
         ),
       })
     }

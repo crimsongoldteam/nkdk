@@ -2,6 +2,11 @@ import { Type } from "typebox"
 import type { Static } from "typebox"
 import * as SE from "../../systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 
 export interface PictureXML {
   "xr:Ref"?: string
@@ -82,3 +87,15 @@ export interface AbsolutePictureEnterprise {
 export type PictureEnterprise = PredifinedPictureEnterprise | AbsolutePictureEnterprise
 
 // #endregion Enterprise
+
+export interface PictureWidePropertyRule extends WidePropertyRuleBase {
+  type: "Picture"
+}
+
+export type PictureRuleParams = Omit<PictureWidePropertyRule, "type">
+
+export function pictureRule<const Params extends PictureRuleParams>(
+  params: WideExactRuleParams<PictureRuleParams, Params>
+): Readonly<{ type: "Picture" } & Params> {
+  return defineWidePropertyRule("Picture", params)
+}

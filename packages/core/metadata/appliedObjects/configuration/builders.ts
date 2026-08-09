@@ -65,6 +65,22 @@ export function mobileApplicationURLsRule<const Params extends MobileApplication
 ): Readonly<{ type: "MobileApplicationURLs" } & Params> {
   return defineWidePropertyRule("MobileApplicationURLs", params)
 }
+export interface RequiredMobileApplicationPermissionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "RequiredMobileApplicationPermissions"
+}
+
+export type RequiredMobileApplicationPermissionsRuleParams = Omit<
+  RequiredMobileApplicationPermissionsWidePropertyRule,
+  "type"
+>
+
+export function requiredMobileApplicationPermissionsRule<
+  const Params extends RequiredMobileApplicationPermissionsRuleParams,
+>(
+  params: WideExactRuleParams<RequiredMobileApplicationPermissionsRuleParams, Params>
+): Readonly<{ type: "RequiredMobileApplicationPermissions" } & Params> {
+  return defineWidePropertyRule("RequiredMobileApplicationPermissions", params)
+}
 export interface UsedMobileApplicationFunctionalitiesWidePropertyRule extends WidePropertyRuleBase {
   type: "UsedMobileApplicationFunctionalities"
 }

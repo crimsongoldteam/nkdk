@@ -1,13 +1,8 @@
-import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItemRule, PropertyRule } from "./types"
+import type { ConfigurationIndexAddressingMode, YAMLPropertySource } from "./ruleContracts"
+export type { YAMLPropertySource } from "./ruleContracts"
 import type { YamlRuleCursor } from "./importYamlTypes"
 import type { DeferredValuePath } from "./deferredObjectValues"
-
-export interface YAMLPropertySource {
-  readonly itemName?: string
-  has(propertyKey: string): boolean
-  raw(propertyKey: string): unknown
-  yamlKey(propertyKey: string): string | undefined
-}
 
 export interface YAMLToXMLOutputRequest {
   readonly key: string

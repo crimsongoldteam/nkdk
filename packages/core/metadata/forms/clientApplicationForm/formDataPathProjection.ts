@@ -1,4 +1,4 @@
-import { collectFormTableDataPathsFromYAML } from "./formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
 
 export const clientApplicationFormDataPathProjection = {
   attributeItemType: "FormAttribute",

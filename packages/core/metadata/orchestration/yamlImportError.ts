@@ -7,6 +7,12 @@ export interface YAMLImportDiagnosticContext {
   yamlPath?: string[]
 }
 
+declare module "../context/types" {
+  interface FormimportFromYAMLContext {
+    diagnostics?: YAMLImportDiagnosticContext
+  }
+}
+
 export class YAMLImportError extends Error {
   readonly cause: unknown
   readonly diagnostics: YAMLImportDiagnosticContext

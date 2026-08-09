@@ -1,4 +1,4 @@
-import type { OwnerTypeRef } from "../validation/dataPath/types"
+import type { OwnerTypeRef } from "../orchestration/dataPath/types"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,
@@ -6,7 +6,7 @@ import type {
   ProjectStatePendingDependencyCheck,
   ProjectStateTargetEntry,
 } from "./fileUpdate"
-import type { ProjectStateReadToken } from "./contracts"
+import type { ProjectStateReadToken } from "./contracts/readToken"
 
 export interface ProjectTargetLookup {
   readonly requestId: string

@@ -1,9 +1,10 @@
 import type { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
-import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
+import { getMetadataResourceTopology } from "../../resourceTopology/providerRegistry"
 import { expandMetadataPathPattern } from "../../resourceTopology/patterns"
 import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/xmlExportProjection"
+export type { SyncAreaDeclaration } from "../property/ruleContracts"
 
 export type XmlSyncArea =
   | {
@@ -40,13 +41,6 @@ export type XmlSyncArea =
       dumpInfoNames: string[]
     }
 
-export type SyncAreaDeclaration =
-  | { kind: "objectModule"; yamlFile: string; xmlPath: string }
-  | { kind: "formModule"; yamlFile: string; xmlPath: string }
-  | { kind: "formHelp"; yamlDir: string; xmlBasePath: string }
-  | { kind: "templateContent"; yamlFile: string; xmlPath: string }
-  | { kind: "commandModule"; yamlFile: string; xmlPath: string }
-
 export function resolveXmlSyncAreaForProjectPath(
   projectPath: string,
   topologyOrLegacyRules?: CompiledMetadataResourceTopology | readonly MetadataItemRule[]
@@ -54,7 +48,7 @@ export function resolveXmlSyncAreaForProjectPath(
   const topology =
     topologyOrLegacyRules !== undefined && isCompiledTopology(topologyOrLegacyRules)
       ? topologyOrLegacyRules
-      : compileRegisteredMetadataResourceTopology()
+      : getMetadataResourceTopology()
   const impact = resolveMetadataProjectChangeImpact(topology, projectPath)
   const assignment = impact?.assignment
   if (impact === undefined || assignment === undefined) return undefined

@@ -17,7 +17,7 @@ import {
   operationPictureFormYaml,
   operationTargetReadSession,
   operationValidationError,
-} from "./operationTestSupport"
+} from "./tests/operationTestSupport"
 
 const validationError = operationValidationError
 

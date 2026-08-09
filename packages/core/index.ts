@@ -6,7 +6,7 @@ export { registerCoreMetadata } from "./metadata/register"
 export {
   ProjectStateReadSessionClosedError,
   createProjectStateFileUpdateBatch,
-  createProjectStateService,
+  createDefaultProjectStateService as createProjectStateService,
   createProjectStateWriterHandle,
   ProjectStateWriterCancelledError,
   ProjectStateWriterClosedError,
@@ -112,7 +112,6 @@ export type {
   DiagnosticSource,
   DiagnosticSeverity,
   MetadataDiagnostic,
-  MetadataKind,
 } from "./metadata/validation/types"
 export {
   createDiagnosticBatchWriter,

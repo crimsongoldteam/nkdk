@@ -1,5 +1,5 @@
 import type { ExternalFileEntry } from "../../context/types"
-import { applyMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import { applyMetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,

@@ -1,11 +1,6 @@
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../metadataTarget/types"
 import type { ConfigurationContext } from "../../context/types"
 import type { MetadataItemRule } from "./types"
-import {
-  clearTopologyMetadataTargetOwnerResolversForTests,
-  getTopologyMetadataTargetOwnerResolver,
-  registerTopologyMetadataTargetOwnerResolver,
-} from "../../resourceTopology/metadataTargetOwner"
 
 export interface MetadataTargetOwnerFrame {
   itemType: string
@@ -20,23 +15,16 @@ export type MetadataTargetOwnerResolver = (params: {
   context?: ConfigurationContext
 }) => MetadataTargetOwner | undefined
 
+const resolvers = new Map<string, MetadataTargetOwnerResolver>()
+
 export function registerMetadataTargetOwnerResolver(itemType: string, resolver: MetadataTargetOwnerResolver): void {
-  registerTopologyMetadataTargetOwnerResolver(itemType, (params) => resolver({
-    itemRule: params.itemRule as MetadataItemRule,
-    name: params.name,
-    frames: params.frames.map((frame) => ({
-      itemType: frame.itemType,
-      name: frame.name,
-      ...(frame.owner === undefined ? {} : { owner: frame.owner as MetadataTargetOwner }),
-    })),
-    ...(params.context === undefined ? {} : { context: params.context as ConfigurationContext }),
-  }))
+  resolvers.set(itemType, resolver)
 }
 
 export function getMetadataTargetOwnerResolver(itemType: string): MetadataTargetOwnerResolver | undefined {
-  return getTopologyMetadataTargetOwnerResolver(itemType) as MetadataTargetOwnerResolver | undefined
+  return resolvers.get(itemType)
 }
 
 export function clearMetadataTargetOwnerResolversForTests(): void {
-  clearTopologyMetadataTargetOwnerResolversForTests()
+  resolvers.clear()
 }

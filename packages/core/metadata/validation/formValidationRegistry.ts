@@ -1,8 +1,9 @@
 import type { ConfigurationContext } from "../context/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import type { OwnerMetadataCache } from "./dataPath/ownerCache"
+import type { OwnerMetadataCache } from "./dataPath/contracts"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
+import type { FormValidationAdapter } from "./formContracts"
 
 export interface RegisteredFormValidatorParams {
   projectDir: string
@@ -55,8 +56,28 @@ export type FormWarningProvider = (params: { filePath: string; parsed: ParsedYam
 let formValidator: RegisteredFormValidator | undefined
 let formFirstPassValidator: RegisteredFormFirstPassValidator | undefined
 let formSecondPassValidator: RegisteredFormSecondPassValidator | undefined
+let formValidationAdapter: FormValidationAdapter | undefined
 const platformSourceMatchers: FormPlatformSourceMatcher[] = []
 const warningProviders: FormWarningProvider[] = []
+
+export function registerFormValidationAdapter(adapter: FormValidationAdapter): void {
+  formValidationAdapter = adapter
+}
+
+export function getFormValidationAdapter(): FormValidationAdapter | undefined {
+  return formValidationAdapter
+}
+
+export function requireFormValidationAdapter(): FormValidationAdapter {
+  if (formValidationAdapter === undefined) {
+    throw new Error("Не зарегистрирован адаптер validation для ClientApplicationForm")
+  }
+  return formValidationAdapter
+}
+
+export function clearFormValidationAdapterForTests(): void {
+  formValidationAdapter = undefined
+}
 
 export function registerFormValidator(validator: RegisteredFormValidator): void {
   formValidator = validator

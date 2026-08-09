@@ -22,6 +22,12 @@ export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   exportSettingsXsiType?: boolean
 }
 
+declare module "../../../orchestration/property/types" {
+  interface PropertyRuleExtensionMap {
+    SettingsParameterValue: SettingsParameterValuePropertyRule
+  }
+}
+
 export type ParameterValue = {
   use?: boolean
   parameter: string

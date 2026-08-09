@@ -1,4 +1,10 @@
-import type { MetadataItemRule } from "../orchestration/property/types"
+export interface MetadataResourceTopologyTypeMap {}
+
+export type MetadataResourceItemRule = MetadataResourceTopologyTypeMap extends {
+  itemRule: infer ItemRule
+}
+  ? ItemRule
+  : never
 
 export type MetadataResourceRole =
   | "configuration"
@@ -24,7 +30,7 @@ export interface MetadataContentDeclaration {
   readonly repeatable: boolean
   readonly compositionImpact: "none" | "configurationComposition"
   readonly projectRole?: "form"
-  readonly itemRule: MetadataItemRule
+  readonly itemRule: MetadataResourceItemRule
   readonly logicalAddressSegment?: string
   readonly ownerProjectPattern?: string
   readonly dumpInfoNamePatterns?: readonly string[]
@@ -110,6 +116,10 @@ export type MetadataResourceDeclaration =
   | MetadataExternalFileDeclaration
   | MetadataIgnoredPathDeclaration
   | MetadataChildCollectionDeclaration
+
+export interface MetadataResourceTopologySpec {
+  readonly resources?: readonly MetadataResourceDeclaration[]
+}
 
 export interface CompiledMetadataXmlDocumentNode extends MetadataXmlDocumentDeclaration {
   readonly id: string

@@ -2,8 +2,9 @@ import type { FormDataPathIndex } from "./formIndex"
 import { resolveDataPathCore, type TableContext } from "./coreResolver"
 import type { OwnerMetadataCache } from "./ownerCache"
 import { requiresDataPathStandardMemberFormatting } from "./finalizationPredicate"
+import type { DataPathFormatDirection } from "./formatContracts"
 
-export type DataPathFormatDirection = "internal-to-yaml" | "yaml-to-internal"
+export type { DataPathFormatDirection } from "./formatContracts"
 
 export interface DataPathFormatDiagnostic {
   severity: "warning"
@@ -16,6 +17,12 @@ export interface DataPathFormatDiagnostic {
 export interface DataPathFormatDiagnosticSink {
   readonly targetProjectPath: string
   append(diagnostic: DataPathFormatDiagnostic): void
+}
+
+declare module "../../context/types" {
+  interface FormExportToYAMLContext {
+    readonly dataPathDiagnosticSink?: DataPathFormatDiagnosticSink
+  }
 }
 
 export interface FormatDataPathStandardMembersParams {

@@ -11,6 +11,11 @@ import { joinMetadataPathPatterns } from "./patterns"
 import type { MetadataResourceDeclaration } from "./types"
 import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "./types"
 
+export {
+  getMetadataResourceTopology,
+  registerMetadataResourceTopologyProvider,
+} from "./providerRegistry"
+
 export function describePropertyResourceTopology(
   propertyName: string,
   propertyRule: PropertyRule

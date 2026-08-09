@@ -1,5 +1,4 @@
-import type { ObjectFieldIndex } from "./dataPath/objectFields"
-import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
+import type { ObjectFieldIndex, ValidationOwnerFacts } from "./dataPath/contracts"
 import type { OwnerTypeRef } from "./dataPath/types"
 import type {
   PendingMetadataTargetReference,
@@ -10,7 +9,7 @@ import type {
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
 import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
-import type { FormDataPathIndex } from "./dataPath/formIndex"
+import type { FormDataPathIndex } from "../orchestration/dataPath/formIndex"
 
 export interface ValidationFormIndexContribution {
   readonly owner: OwnerTypeRef

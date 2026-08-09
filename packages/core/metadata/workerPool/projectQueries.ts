@@ -13,6 +13,21 @@ import {
   assertMetadataWorkerBinaryResult,
   type MetadataWorkerBinaryResult,
 } from "./binaryResult"
+import { registerMetadataWorkerOperation } from "./operationRegistry"
+
+declare module "./types" {
+  interface MetadataWorkerOperationTypeMap {
+    projectQuery: {
+      command: { readonly kind: "projectQuery"; readonly command: ProjectQueryCommand }
+      result: ProjectQueryResult
+    }
+  }
+}
+
+export function registerProjectQueryWorkerOperation(): void {
+  registerMetadataWorkerOperation("projectQuery", async (operation, state) =>
+    runProjectQuery(operation.command, state.projectState))
+}
 
 export interface IndexedReferencesQuery {
   readonly kind: "indexedReferences"

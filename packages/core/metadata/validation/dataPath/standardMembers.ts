@@ -9,8 +9,8 @@ import {
   type StandardTableColumnDeclaration,
   type StandardTableDeclaration,
 } from "../../standardMembers/declarations"
-import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
+import type { OwnerMetadata, OwnerMetadataCache } from "./contracts"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./ownerKindRegistry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export interface ResolveIndexTimeStandardMemberParams {

@@ -12,14 +12,14 @@ import {
 } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
+import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlContracts"
+import { openProjectStateReadSession } from "../projectState/createDefaultService"
+import type { ProjectStateReadSession } from "../projectState/readSession"
+import type { ProjectStateReadToken } from "../projectState/contracts/readToken"
 import {
   createProjectStateOwnerMetadataCache,
-  openProjectStateReadSession,
   type ProjectStateOwnerMetadataCache,
-  type ProjectStateReadSession,
-  type ProjectStateReadToken,
-} from "../projectState"
+} from "../validation/projectStateDependencyValidation"
 import type { OwnerTypeRef } from "../validation/dataPath/types"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader } from "./sharedMetadata"
@@ -41,6 +41,30 @@ import { aggregateCleanupFailures } from "./cleanupFailure"
 import { resolveDataPathCore } from "../validation/dataPath/coreResolver"
 import { createFullXmlSyncBinaryResult } from "./binaryResult"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
+import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+
+declare module "../workerPool/types" {
+  interface MetadataWorkerOperationTypeMap {
+    fullSync: {
+      command: { readonly kind: "fullSync"; readonly command: FullXmlSyncWorkerCommand }
+      result: { readonly kind: "fullSyncResult"; readonly result: FullXmlSyncWorkerCommandResult }
+    }
+  }
+}
+
+export function registerFullSyncWorkerOperation(): void {
+  registerMetadataWorkerOperation(
+    "fullSync",
+    async (operation, state) => ({
+      kind: "fullSyncResult",
+      result: await runFullXmlSyncWorkerCommand(operation.command, {
+        openReadSession() { throw new Error("Состояние проекта не установлено в универсальный worker") },
+        ...(state.projectState === undefined ? {} : { projectStateReadSession: state.projectState }),
+      }),
+    }),
+    async () => { await runFullXmlSyncWorkerCommand({ kind: "dispose" }) },
+  )
+}
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number

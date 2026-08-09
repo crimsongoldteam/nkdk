@@ -1,11 +1,12 @@
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { rootFromYAML } from "../orchestration/metadataTarget/roots"
 import type {
   MetadataRootName,
   MetadataTargetConstraint,
-} from "../commonObjects/metadataTargets/types"
+} from "../orchestration/metadataTarget/types"
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
 import type { OwnerFactRole } from "../orchestration/property/types"
+import { registeredStandardMemberAliases } from "../orchestration/metadataTarget/standardMemberAliases"
 import {
   getTypeRule,
   registerTypeRule,
@@ -32,6 +33,7 @@ export interface ValidationRulesSpecSnapshot {
   nesting?: ValidationRulesNestingSnapshot
   uniqueNameScopes: readonly ValidationRulesUniqueNameScopeSnapshot[]
   properties: readonly ValidationRulesPropertySnapshot[]
+  standardMemberAliases: Readonly<Record<string, string>>
 }
 
 export interface ValidationRulesNestingSnapshot {
@@ -88,6 +90,7 @@ function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot 
     ...(spec.nesting === undefined ? {} : { nesting: { kind: spec.nesting.kind, childDir: spec.nesting.childDir } }),
     uniqueNameScopes: (rule.uniqueNameScopes ?? []).map((scope) => ({ collections: [...scope.collections] })),
     properties: snapshotProperties(rule.properties, new Set([rule.itemType])),
+    standardMemberAliases: registeredStandardMemberAliases(),
   }
 }
 

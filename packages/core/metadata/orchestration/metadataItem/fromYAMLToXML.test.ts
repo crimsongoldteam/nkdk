@@ -6,6 +6,7 @@ import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "./fromYAMLToXML"
+import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { PropertyRuleType } from "../property/registry"
 import type { ExportToXMLFunctionNew } from "../property/fn"
@@ -35,6 +36,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
 
     expect(() =>
       convertMetadataItemFromYAMLToXML({
+        convertProperties: convertPropertiesFromYAMLToXML,
         context: context(),
         yaml: "Справочник.Организации",
         rule,
@@ -46,6 +48,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
 
   it("формирует metadata-item из YAML и имени записи без модели", () => {
     const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: { Значение: "A" },
       name: "Первый",
@@ -241,6 +244,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
       },
     } as const satisfies MetadataItemRule
     const result = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: "новое",
       rule,
@@ -287,6 +291,7 @@ describe("convertMetadataItemFromYAMLToXML", () => {
     } as const satisfies MetadataItemRule
 
     const converted = convertMetadataItemFromYAMLToXML({
+      convertProperties: convertPropertiesFromYAMLToXML,
       context: context(),
       yaml: { Значение: "draft" },
       rule,
@@ -327,6 +332,7 @@ function recalculationRule(): MetadataItemRule {
 
 function convert(rule: MetadataItemRule, yaml: unknown, referenceXML?: unknown): Record<string, unknown> {
   const result = convertMetadataItemFromYAMLToXML({
+    convertProperties: convertPropertiesFromYAMLToXML,
     context: context(),
     yaml,
     rule,
