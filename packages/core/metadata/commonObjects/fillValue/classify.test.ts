@@ -23,6 +23,37 @@ describe("classifyFillValue", () => {
     expect(classify(type, value).kind).toBe(expected)
   })
 
+  it("checks variable and fixed string length", () => {
+    expect(
+      classify(
+        { type: ["string"], stringQualifiers: { length: 3, allowedLength: "Variable" } },
+        { type: "string", value: "1234" }
+      ).kind
+    ).toBe("invalid")
+    expect(
+      classify(
+        { type: ["string"], stringQualifiers: { length: 3, allowedLength: "Fixed" } },
+        { type: "string", value: "12" }
+      ).kind
+    ).toBe("invalid")
+  })
+
+  it("validates a single reference and treats its EmptyRef as implicit", () => {
+    const type = { type: ["CatalogRef.Контрагенты"] }
+    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.Поставщик" }).kind).toBe(
+      "valid"
+    )
+    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.EmptyRef" }).kind).toBe("implicit")
+    expect(classify(type, { type: "ref", value: "Document.Заказ.EmptyRef" }).kind).toBe("invalid")
+  })
+
+  it("allows an unselected or empty selected branch for a composite reference", () => {
+    const type = { type: ["CatalogRef.Контрагенты", "CatalogRef.Партнеры"] }
+    expect(classify(type, { type: "ref", value: "" }).kind).toBe("valid")
+    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.EmptyRef" }).kind).toBe("valid")
+    expect(classify(type, { type: "ref", value: "Document.Заказ.EmptyRef" }).kind).toBe("invalid")
+  })
+
   it.each([
     ["Date", "2026-08-09T00:00:00", "valid"],
     ["Date", "2026-08-09T12:30:00", "invalid"],
@@ -59,37 +90,6 @@ describe("classifyFillValue", () => {
         { type: "dateTime", value: "0001-01-01T00:00:00" }
       ).kind
     ).toBe("valid")
-  })
-
-  it("checks variable and fixed string length", () => {
-    expect(
-      classify(
-        { type: ["string"], stringQualifiers: { length: 3, allowedLength: "Variable" } },
-        { type: "string", value: "1234" }
-      ).kind
-    ).toBe("invalid")
-    expect(
-      classify(
-        { type: ["string"], stringQualifiers: { length: 3, allowedLength: "Fixed" } },
-        { type: "string", value: "12" }
-      ).kind
-    ).toBe("invalid")
-  })
-
-  it("validates a single reference and treats its EmptyRef as implicit", () => {
-    const type = { type: ["CatalogRef.Контрагенты"] }
-    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.Поставщик" }).kind).toBe(
-      "valid"
-    )
-    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.EmptyRef" }).kind).toBe("implicit")
-    expect(classify(type, { type: "ref", value: "Document.Заказ.EmptyRef" }).kind).toBe("invalid")
-  })
-
-  it("allows an unselected or empty selected branch for a composite reference", () => {
-    const type = { type: ["CatalogRef.Контрагенты", "CatalogRef.Партнеры"] }
-    expect(classify(type, { type: "ref", value: "" }).kind).toBe("valid")
-    expect(classify(type, { type: "ref", value: "Catalog.Контрагенты.EmptyRef" }).kind).toBe("valid")
-    expect(classify(type, { type: "ref", value: "Document.Заказ.EmptyRef" }).kind).toBe("invalid")
   })
 
   it("returns unresolved without guessing an implicit value", () => {

@@ -118,21 +118,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("экспортирует незарегистрированный !xml как обычный текст", () => {
-    const result = convertPropertiesFromYAMLToXML({
-      context: context(),
-      yaml: importFromYAML("Комментарий: !xml"),
-      rule: {
-        itemType: "CommentProbe",
-        properties: { comment: { type: "string", xml: "Comment", yaml: "Комментарий" } },
-      } as MetadataItemRule,
-      outputs: [{ key: "owner" }],
-    })
-
-    expect(result.outputs.get("owner")).toEqual({ Comment: "!xml" })
-  })
-
-  it("разворачивает scalar !xml только для зарегистрированной пары", () => {
+  it("передаёт payload зарегистрированного скалярного !xml штатному типу", () => {
     const rule = {
       itemType: "ExplicitXMLScalarProbe",
       properties: {
@@ -145,11 +131,9 @@ describe("convertPropertiesFromYAMLToXML", () => {
       propertyKey: "fillValue",
     })
 
-    const yaml = importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка")
-
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
-      yaml,
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
       rule,
       outputs: [{ key: "owner" }],
     })
@@ -159,7 +143,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("не разворачивает scalar !xml для незарегистрированной пары", () => {
+  it("не распаковывает скалярный !xml у незарегистрированной пары", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
@@ -175,6 +159,20 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({
       FillValue: { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" },
     })
+  })
+
+  it("экспортирует незарегистрированный !xml как обычный текст", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("Комментарий: !xml"),
+      rule: {
+        itemType: "CommentProbe",
+        properties: { comment: { type: "string", xml: "Comment", yaml: "Комментарий" } },
+      } as MetadataItemRule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Comment: "!xml" })
   })
 
   it("не применяет регистрацию к другому тексту", () => {
@@ -770,7 +768,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("явная содержательная дата имеет приоритет над начальной датой снимка", () => {
+  it("явная дата имеет приоритет над снимком начальной даты", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant(
         "indexed",
@@ -793,7 +791,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("без снимка сохраняет каноническое пустое значение заполнения", () => {
+  it("использует канонический XML-default без снимка и YAML-поля", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},

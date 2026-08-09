@@ -10,6 +10,7 @@ import {
   classifyMetadataAttributeFillValue,
   classifyStandardAttributeFillValue,
   inferFillValueReferenceConstraint,
+  metadataAttributeUsesDefinedType,
   parseFillValueItem,
 } from "./analyzeItem"
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
@@ -25,6 +26,23 @@ let validationRegistered = false
 let structuralReferencesRegistered = false
 let importRegistered = false
 let xmlTransportRegistered = false
+
+function registerFillValueXMLTransport(): void {
+  if (xmlTransportRegistered) return
+  xmlTransportRegistered = true
+  registerExplicitXMLProperty({
+    action: "transportScalar",
+    itemType: "MetadataAttribute",
+    propertyKey: "fillValue",
+    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
+  })
+  registerExplicitXMLProperty({
+    action: "transportScalar",
+    itemType: "StandardAttributeDescription",
+    propertyKey: "fillValue",
+    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
+  })
+}
 
 export function registerFillValueValidation(): void {
   registerFillValueXMLTransport()
@@ -50,6 +68,7 @@ export function registerFillValueImport(): void {
     propertyKeys: ["fillValue"],
     shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
     shouldTagXML: (params) => classifyMetadataAttributeFillValue(params).kind === "invalid",
+    shouldDefer: (params) => params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item),
   })
   registerDependentImportItemHandler("StandardAttributeDescription", {
     propertyKeys: ["fillValue"],
@@ -58,24 +77,10 @@ export function registerFillValueImport(): void {
   })
 }
 
-function registerFillValueXMLTransport(): void {
-  if (xmlTransportRegistered) return
-  xmlTransportRegistered = true
-  registerExplicitXMLProperty({
-    action: "transportScalar",
-    itemType: "MetadataAttribute",
-    propertyKey: "fillValue",
-  })
-  registerExplicitXMLProperty({
-    action: "transportScalar",
-    itemType: "StandardAttributeDescription",
-    propertyKey: "fillValue",
-  })
-}
-
 const collectFillValueStructuralReference: DependentStructuralItemHandler = (params) => {
-  const { tagged, value } = parseFillValueItem(params.item)
-  if (value === undefined || value.type !== "ref") return []
+  const parsed = parseFillValueItem(params.item)
+  if (parsed === undefined || parsed.value.type !== "ref") return []
+  const value = parsed.value
   const constraint = inferFillValueReferenceConstraint(value)
   if (constraint === undefined) return []
   let currentValue = value
@@ -98,10 +103,12 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
         undefined,
         currentValue,
       )
-      params.item["ЗначениеЗаполнения"] = tagged
-        ? xmlScalarTagValue(String(yamlValue))
-        : yamlValue
-      if (tagged) markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
+      if (parsed.tagged) {
+        params.item["ЗначениеЗаполнения"] = xmlScalarTagValue(String(yamlValue))
+        markYAMLScalarTag(params.item, "ЗначениеЗаполнения", "xml")
+      } else {
+        params.item["ЗначениеЗаполнения"] = yamlValue
+      }
     },
   }))
 }

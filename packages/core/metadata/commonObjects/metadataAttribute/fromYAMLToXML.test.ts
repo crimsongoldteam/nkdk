@@ -11,7 +11,6 @@ import {
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { importFromYAML } from "../../../yaml/import"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
@@ -23,9 +22,7 @@ import {
   MetadataDataProcessorTabularSectionAttributeRules,
 } from "../../appliedObjects/metadataDataProcessor/childRules"
 import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
-
-registerCoreMetadata()
+import { importFromYAML } from "../../../yaml/import"
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 
@@ -110,17 +107,6 @@ describe("MetadataAttributes YAML → XML", () => {
     expect(convertYAML({ ТестовыйРеквизит: { Тип: "Строка" } })).toContain("<Name>ТестовыйРеквизит</Name>")
   })
 
-  it("exports an incompatible tagged empty reference as XML", () => {
-    const result = convertYAML(importFromYAML(`Получатель:
-  Тип: Справочник.ПолныеРоли
-  ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
-`))
-
-    expect(result).toContain(
-      '<FillValue xsi:type="xr:DesignTimeRef">Catalog.РолиИсполнителей.EmptyRef</FillValue>',
-    )
-  })
-
   it("should reject scalar short format", () => {
     expect(() => convertYAML({ ТестовыйРеквизит: "Строка" })).toThrow("MetadataAttribute: ожидался YAML-объект")
   })
@@ -184,6 +170,30 @@ describe("MetadataAttributes YAML → XML", () => {
 
     expect(result).toContain("<FillFromFillingValue>false</FillFromFillingValue>")
     expect(result).toContain('<FillValue xsi:nil="true"/>')
+  })
+
+  it("exports a tagged incompatible reference through MetadataValue", () => {
+    const yaml = importFromYAML(`Значение:
+  Исполнитель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    expect(result).toContain(
+      '<FillValue xsi:type="xr:DesignTimeRef">Catalog.РолиИсполнителей.EmptyRef</FillValue>'
+    )
+  })
+
+  it("exports !xml DesignTimeRef as an empty typed reference", () => {
+    const yaml = importFromYAML(`Значение:
+  Получатель:
+    Тип: Справочник.Контрагенты
+    ЗначениеЗаполнения: !xml DesignTimeRef
+`)
+    const result = serializeDirectXML(testPropertyFromYAMLToXML({ rule, yaml }).xml)
+
+    expect(result).toContain('<FillValue xsi:type="xr:DesignTimeRef"/>')
   })
 
   it("exports explicit empty Synonym as empty XML tag", () => {

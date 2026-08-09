@@ -24,7 +24,7 @@ import {
   type ProjectValueIndexEntry,
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
-import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import type { DataPathValidationPendingCheck, ValidationPendingCheck } from "./projectValidationPendingChecks"
 import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
@@ -103,6 +103,7 @@ export function extractValidationYamlFacts(params: {
     })
   }
   const localIndexesCollector = createLocalIndexesCollector({ recordEvents: false })
+  const pendingChecks: ValidationPendingCheck[] = []
   const pendingReferences =
     spec === undefined
       ? []
@@ -122,6 +123,7 @@ export function extractValidationYamlFacts(params: {
           rootYaml: params.parsed.data,
           rootRule: params.file.owner.spec.rule,
           validationDiagnostics,
+          pendingChecks,
         })
   const localIndexes = localIndexesCollector.finish()
   return {
@@ -142,7 +144,7 @@ export function extractValidationYamlFacts(params: {
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences,
-    pendingChecks: [],
+    pendingChecks,
     diagnostics: validationDiagnostics
       ? [
           ...referenceDiagnostics,
@@ -351,6 +353,7 @@ function collectPendingReferences(params: {
   rootYaml: unknown
   rootRule: MetadataItemRule
   validationDiagnostics: boolean
+  pendingChecks: ValidationPendingCheck[]
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -422,6 +425,7 @@ function collectPendingReferences(params: {
           rootRule: params.rootRule,
           nestedItemType: property.nestedItemType,
           validationDiagnostics: params.validationDiagnostics,
+          pendingChecks: params.pendingChecks,
         })
       )
     }
@@ -447,6 +451,7 @@ function collectNestedReferences(params: {
   rootRule: MetadataItemRule
   nestedItemType?: string
   validationDiagnostics: boolean
+  pendingChecks: ValidationPendingCheck[]
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) => collectNestedItem({ ...params, item, itemKey: index }))
@@ -477,6 +482,14 @@ function collectNestedItem(
       owner: { dir: params.fileOwner.dir, name: params.fileOwner.name },
     })
     if (params.validationDiagnostics) params.localValueDiagnostics.push(...analysis.diagnostics)
+    params.pendingChecks.push(...analysis.projectChecks.map((check) => ({
+      ...check,
+      location: yamlDiagnosticLocationAtPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: check.yamlPath,
+      }),
+    })))
     references.push(
       ...analysis.references.map((reference) => ({
         ...dependentPendingReference(reference),
@@ -715,7 +728,7 @@ function collectFormPendingChecks(params: {
   yamlPath: readonly (string | number)[]
   tableContext?: { dataPath: string }
 }): {
-  pendingChecks: ValidationPendingCheck[]
+  pendingChecks: DataPathValidationPendingCheck[]
   formElementNameDiagnostics: Diagnostic[]
   formElementNamesMs: number
 } {
@@ -755,8 +768,8 @@ function collectNestedFormElementChecks(params: {
   nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
-}): ValidationPendingCheck[] {
-  const checks: ValidationPendingCheck[] = []
+}): DataPathValidationPendingCheck[] {
+  const checks: DataPathValidationPendingCheck[] = []
   for (const [propertyKey, propertyRule] of Object.entries(params.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const nested = getTypeRule(propertyRule.type, "nestedItemRule")
@@ -877,7 +890,7 @@ function collectFormElementChecks(params: {
   nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
-}): ValidationPendingCheck[] {
+}): DataPathValidationPendingCheck[] {
   const itemChecks = collectRuleDataPathChecks({
     file: params.file,
     parsed: params.parsed,
@@ -910,8 +923,8 @@ function collectRuleDataPathChecks(params: {
   cursor: YamlRuleCursor
   elementType: ElementType
   tableContext?: { dataPath: string }
-}): ValidationPendingCheck[] {
-  const checks: ValidationPendingCheck[] = []
+}): DataPathValidationPendingCheck[] {
+  const checks: DataPathValidationPendingCheck[] = []
   for (const [propertyKey, rule] of Object.entries(params.properties)) {
     if (!isDataPathRule(rule) || typeof rule.yaml !== "string") continue
 
@@ -943,7 +956,7 @@ function collectRuleDataPathChecks(params: {
 
 function tableContextForChildren(
   elementType: ElementType,
-  checks: readonly ValidationPendingCheck[],
+  checks: readonly DataPathValidationPendingCheck[],
   currentContext: { dataPath: string } | undefined
 ): { dataPath: string } | undefined {
   if (elementType !== "Table") return currentContext

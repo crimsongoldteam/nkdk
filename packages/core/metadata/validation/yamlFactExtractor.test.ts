@@ -165,7 +165,8 @@ describe("extractValidationYamlFacts", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
-    const check = facts.pendingChecks.find((item) => item.value === "Объект.Товары.Артикул")
+    const check = facts.pendingChecks.find((item) => item.kind === "dataPath" && item.value === "Объект.Товары.Артикул")
+    if (check?.kind !== "dataPath") throw new Error("Не найдена DataPath-проверка")
     expect(check?.index.additionalColumnsByTablePath.get("Объект.Товары")?.get("Артикул")).toEqual(
       expect.objectContaining({
         name: "Артикул",
@@ -201,7 +202,8 @@ describe("extractValidationYamlFacts", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
-    const check = facts.pendingChecks.find((item) => item.value === "Объект.Товары.ИндексКартинки")
+    const check = facts.pendingChecks.find((item) => item.kind === "dataPath" && item.value === "Объект.Товары.ИндексКартинки")
+    if (check?.kind !== "dataPath") throw new Error("Не найдена DataPath-проверка")
     expect(check?.index.additionalColumnsByTablePath.get("Объект.Товары")?.get("ИндексКартинки")).toEqual(
       expect.objectContaining({
         name: "ИндексКартинки",

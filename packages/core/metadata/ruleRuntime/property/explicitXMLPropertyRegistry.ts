@@ -22,17 +22,13 @@ export type ExplicitXMLPropertyRegistration =
       readonly action: "transportScalar"
       readonly itemType: string
       readonly propertyKey: string
+      readonly overrides?: Readonly<Record<string, unknown>>
     }
 
 export type ExplicitXMLPropertyAction =
   | { readonly kind: "emit"; readonly xmlValue: unknown }
   | { readonly kind: "omit" }
   | { readonly kind: "useYamlValue"; readonly yamlValue: string }
-
-type ExplicitXMLFromXMLRegistration = Exclude<
-  ExplicitXMLPropertyRegistration,
-  { readonly action: "transportScalar" }
->
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 
@@ -54,7 +50,7 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly propertyKey: string
   readonly presentInXML: boolean
   readonly xmlValue: unknown
-}): ExplicitXMLFromXMLRegistration | undefined {
+}): Exclude<ExplicitXMLPropertyRegistration, { readonly action: "transportScalar" }> | undefined {
   const registration = registrations.get(registrationKey(params.itemType, params.propertyKey))
   if (registration?.action === "transportScalar") return undefined
   if (registration?.action === "omit") return params.presentInXML ? undefined : registration
@@ -76,14 +72,18 @@ export function collectExplicitXMLPropertyActions(params: {
     if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
     const registration = registrations.get(registrationKey(params.itemType, propertyKey))
     if (registration === undefined) continue
-    const rawValue = yaml[rule.yaml]
     if (registration.action === "transportScalar") {
+      const rawValue = yaml[rule.yaml]
       if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
-        actions.set(propertyKey, { kind: "useYamlValue", yamlValue: xmlScalarTagPayload(rawValue) })
+        const payload = xmlScalarTagPayload(rawValue)
+        const override = registration.overrides?.[payload]
+        actions.set(propertyKey, override === undefined
+          ? { kind: "useYamlValue", yamlValue: payload }
+          : { kind: "emit", xmlValue: override })
       }
       continue
     }
-    if (!Object.is(rawValue, registration.yamlValue)) continue
+    if (!Object.is(yaml[rule.yaml], registration.yamlValue)) continue
     actions.set(
       propertyKey,
       registration.action === "omit"
@@ -100,7 +100,7 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
 
 export function explicitXMLPropertyValidationMode(
   itemType: string,
-  propertyKey: string,
+  propertyKey: string
 ): "empty" | "scalar" | undefined {
   const registration = registrations.get(registrationKey(itemType, propertyKey))
   if (registration === undefined) return undefined
@@ -111,13 +111,14 @@ function sameRegistration(
   left: ExplicitXMLPropertyRegistration,
   right: ExplicitXMLPropertyRegistration
 ): boolean {
+  if (left.action === "transportScalar" || right.action === "transportScalar") {
+    return left.action === "transportScalar" && right.action === "transportScalar" &&
+      JSON.stringify(left.overrides) === JSON.stringify(right.overrides)
+  }
   const leftAction = left.action ?? "emit"
   const rightAction = right.action ?? "emit"
   if (leftAction !== rightAction) return false
-  if (leftAction === "transportScalar") return true
-  if (!("yamlValue" in left) || !("yamlValue" in right) || !Object.is(left.yamlValue, right.yamlValue)) {
-    return false
-  }
+  if (!Object.is(left.yamlValue, right.yamlValue)) return false
   return leftAction === "omit" ||
     ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }

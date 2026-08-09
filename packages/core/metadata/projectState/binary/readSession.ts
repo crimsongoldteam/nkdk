@@ -261,6 +261,15 @@ function readDependencyInputs(
   requests: readonly ProjectDependencyInputQuery[],
 ) {
   return requests.map(({ requestId, componentPath, projectPath, check }) => {
+    if (check.kind === "fillValue") {
+      const owners = []
+      for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
+        const candidateComponent = snapshot.componentPath(fileId)
+        if (!isVisible(componentPath, candidateComponent)) continue
+        owners.push(...readOwners(fileId).filter(({ owner }) => owner.kind === "ОпределяемыйТип"))
+      }
+      return { requestId, status: "found" as const, input: { owners, fields: [], forms: [] } }
+    }
     const selected = selectOwnerFile(snapshot, readOwners, componentPath, check.owner)
     if (selected.status !== "found") return { requestId, status: "missing" as const }
     const formFileId = snapshot.findFile(projectPath)
@@ -309,7 +318,7 @@ function findReferences(
       readonly requestId: string
       readonly componentPath: string
       readonly projectPath: string
-      readonly check: ProjectStatePendingDependencyCheck
+      readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }>
     }[] = []
     for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
       const componentPath = snapshot.componentPath(fileId)
@@ -332,6 +341,7 @@ function findReferences(
       }
       if (request.dataPathTarget !== undefined) {
         facts.pendingChecks.forEach((check, checkIndex) => {
+          if (check.kind !== "dataPath") return
           dataChecks.push({
             requestId: `data-path:${requestIndex}:${fileId}:${checkIndex}`,
             componentPath,
@@ -357,7 +367,7 @@ function findReferences(
           continue
         }
         const check = checksByRequestId.get(reference.requestId)
-        if (check === undefined) continue
+        if (check === undefined || check.check.kind !== "dataPath") continue
         references.push({
           kind: "dataPath",
           projectPath: reference.projectPath,

@@ -9,6 +9,11 @@ import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
+import {
+  createProjectReferenceIndex,
+  createProjectReferenceSnapshot,
+  validatePendingReferencesWithIndex,
+} from "./projectReferenceIndex"
 
 registerCoreMetadata()
 
@@ -41,22 +46,6 @@ describe("fill value references", () => {
     ])
   })
 
-  it("indexes a tagged incompatible reference without a local fill value error", () => {
-    const facts = extract(`Реквизиты:
-  Получатель:
-    Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
-`)
-
-    expect(facts.pendingReferences).toEqual([
-      expect.objectContaining({
-        yamlPath: ["Реквизиты", "Получатель", "ЗначениеЗаполнения"],
-        canonical: "Catalog.РолиИсполнителей.EmptyRef",
-      }),
-    ])
-    expect(facts.diagnostics).toEqual([])
-  })
-
   it("indexes an owner standard attribute reference", () => {
     const facts = extract(`Владельцы:
   - Справочник.Контрагенты
@@ -72,6 +61,62 @@ describe("fill value references", () => {
       }),
     ]))
     expect(facts.pendingReferences).toHaveLength(2)
+  })
+
+  it("indexes a tagged incompatible reference without a local type error", () => {
+    const facts = extract(`Реквизиты:
+  Исполнитель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "Исполнитель", "ЗначениеЗаполнения"],
+        canonical: "Catalog.РолиИсполнителей.EmptyRef",
+        target: expect.objectContaining({
+          kind: "value",
+          root: "Catalog",
+          objectName: "РолиИсполнителей",
+        }),
+      }),
+    ])
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Исполнитель/ЗначениеЗаполнения")).toEqual([])
+  })
+
+  it("reports a missing catalog referenced by a tagged empty owner value", () => {
+    const facts = extract(`Владельцы: []
+СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml Справочник.ПапкиФайлов.ПустаяСсылка
+`)
+    const fillValueReferences = facts.pendingReferences.filter(
+      ({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения"
+    )
+    const snapshot = createProjectReferenceSnapshot({
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: fillValueReferences,
+    })
+    const result = validatePendingReferencesWithIndex({
+      index: createProjectReferenceIndex({ projectDir: "/project", snapshot }),
+      references: fillValueReferences,
+    })
+
+    expect(fillValueReferences).toEqual([
+      expect.objectContaining({
+        canonical: "Catalog.ПапкиФайлов.EmptyRef",
+        yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
+      }),
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: "/project/Справочник/Товары/Свойства.yaml",
+        message: 'Не найдена ссылка "Catalog.ПапкиФайлов.EmptyRef"',
+        severity: "error",
+      }),
+    ])
   })
 
   it("stores only the reference in project state", () => {

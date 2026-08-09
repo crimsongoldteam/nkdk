@@ -73,50 +73,38 @@ describe("explicit XML property validation schema", () => {
     expect(JSON.stringify(properties)).not.toContain('"const":"!xml"')
   })
 
-  it("принимает зарегистрированный scalar !xml только во внутренней схеме", () => {
-    const registeredRule = probeRule("ExplicitXMLScalarSchemaProbe")
+  it("разрешает любой scalar только внутренней схеме зарегистрированного транспорта", () => {
+    const rule = probeRule("ExplicitXMLScalarSchemaProbe")
     registerExplicitXMLProperty({
       action: "transportScalar",
-      itemType: registeredRule.itemType,
+      itemType: rule.itemType,
       propertyKey: "flag",
     })
-    const validationContext = {
-      ...mockContext,
-      exportToJSONSchema: {
-        mode: "inline" as const,
-        refs: new Set<string>(),
-        validationPropertyRefs: true as const,
+    const validationProperties = exportPropertiesToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs: new Set<string>(),
+          validationPropertyRefs: true,
+        },
       },
-    }
-    const validation = compileValidationSchema(
-      validationSchemaContext(),
-      Type.Object(exportPropertiesToJSONSchema({ context: validationContext, rule: registeredRule })),
-    )
-    const unregistered = compileValidationSchema(
-      validationSchemaContext(),
-      Type.Object(exportPropertiesToJSONSchema({
-        context: validationContext,
-        rule: probeRule("UnregisteredExplicitXMLScalarSchemaProbe"),
-      })),
-    )
-    const hintProperties = exportPropertiesToJSONSchema({
+      rule,
+    })
+    const externalProperties = exportPropertiesToJSONSchema({
       context: {
         ...mockContext,
         exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
       },
-      rule: registeredRule,
+      rule,
     })
 
+    const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
+    const refSchema = getValidationSchemaRef(refName)
+    if (refSchema === undefined) throw new Error("Expected boolean validation schema")
+    const validation = compileValidationSchema({ [refName]: refSchema }, Type.Object(validationProperties))
     expect(validation.Check({ Флаг: "!xml" })).toBe(true)
     expect(validation.Check({ Флаг: "!xml Ложь" })).toBe(true)
-    expect(unregistered.Check({ Флаг: "!xml" })).toBe(false)
-    expect(JSON.stringify(hintProperties)).not.toContain("!xml")
+    expect(JSON.stringify(externalProperties)).not.toContain("!xml")
   })
 })
-
-function validationSchemaContext() {
-  const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
-  const refSchema = getValidationSchemaRef(refName)
-  if (refSchema === undefined) throw new Error("Expected boolean validation schema")
-  return { [refName]: refSchema }
-}

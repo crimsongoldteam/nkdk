@@ -1,5 +1,5 @@
 import { dump } from "js-yaml"
-import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString"
+import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import { copyYAMLScalarTags, NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
@@ -13,6 +13,7 @@ export interface SerializedYAMLDocument {
 interface PreparedYAMLNode {
   readonly dumpValue: unknown
   readonly data: unknown
+  readonly doubleQuoted?: true
 }
 
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
@@ -51,10 +52,10 @@ function prepareForDump(
 ): PreparedYAMLNode {
   if (isExplicitYAMLString(value)) {
     const data = String(unwrapExplicitYAMLString(value))
-    return { dumpValue: explicitStringMarker(data, explicitStrings), data }
+    return { dumpValue: explicitStringMarker(data, explicitStrings), data, doubleQuoted: true }
   }
   if (typeof value === "string" && shouldExportAsExplicitString(value)) {
-    return { dumpValue: explicitStringMarker(value, explicitStrings), data: value }
+    return { dumpValue: explicitStringMarker(value, explicitStrings), data: value, doubleQuoted: true }
   }
   if (Array.isArray(value)) {
     const prepared = value.map((item, index) =>
@@ -62,6 +63,9 @@ function prepareForDump(
     )
     const dumpValue = prepared.map(({ dumpValue }) => dumpValue)
     const data = prepared.map(({ data }) => data)
+    prepared.forEach((item, index) => {
+      if (item.doubleQuoted === true) markDoubleQuotedScalar(data, index)
+    })
     copyYAMLScalarTags(value, data)
     return { dumpValue, data }
   }
@@ -72,6 +76,9 @@ function prepareForDump(
     ] as const)
     const dumpValue = Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue]))
     const data = Object.fromEntries(prepared.map(([key, item]) => [key, item.data]))
+    for (const [key, item] of prepared) {
+      if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
+    }
     copyYAMLScalarTags(value, data)
     return { dumpValue, data }
   }
@@ -96,6 +103,7 @@ function prepareChildForDump(
   return {
     dumpValue: taggedScalarForDump(parent, key, prepared.dumpValue),
     data: prepared.data,
+    ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }
 }
 

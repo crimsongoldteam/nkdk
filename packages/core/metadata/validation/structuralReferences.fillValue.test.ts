@@ -44,27 +44,46 @@ describe("fill value structural references", () => {
     })
   })
 
-  it("rewrites a tagged reference and preserves !xml", () => {
+  it("preserves !xml when renaming a tagged fill-value reference", () => {
     const parsed = parseMetadataYaml(`Реквизиты:
-  Получатель:
+  Исполнитель:
     Тип: Справочник.ПолныеРоли
-    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.СтараяРоль
 `)
     const result = collect(parsed)
 
-    expect(result).toMatchObject({
-      ok: true,
-      references: [{ canonical: "Catalog.РолиИсполнителей.EmptyRef" }],
-    })
     if (!result.ok) throw new Error(result.message)
-    result.references[0]?.stageCanonical("Catalog.РолиСогласования.EmptyRef")
+    expect(result.references).toHaveLength(1)
+    result.references[0]?.stageCanonical("Catalog.РолиИсполнителей.НоваяРоль")
     result.references[0]?.commitStaged()
 
-    const attributes = (parsed.data as Record<string, Record<string, Record<string, unknown>>>).Реквизиты
-    const recipient = attributes.Получатель
-    expect(yamlScalarTagAt(recipient, "ЗначениеЗаполнения")).toBe("xml")
+    const attribute = (parsed.data as { Реквизиты: { Исполнитель: Record<string, unknown> } })
+      .Реквизиты.Исполнитель
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
     expect(serializeYAMLDocument(parsed.data).text).toContain(
-      "ЗначениеЗаполнения: !xml Справочник.РолиСогласования.ПустаяСсылка",
+      "ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.НоваяРоль"
+    )
+  })
+
+  it("preserves !xml when renaming a tagged empty owner reference", () => {
+    const parsed = parseMetadataYaml(`Владельцы: []
+СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml Справочник.ПапкиФайлов.ПустаяСсылка
+`)
+    const result = collect(parsed)
+
+    if (!result.ok) throw new Error(result.message)
+    expect(result.references).toHaveLength(1)
+    result.references[0]?.stageCanonical("Catalog.КаталогиФайлов.EmptyRef")
+    result.references[0]?.commitStaged()
+
+    const attribute = (parsed.data as { СтандартныеРеквизиты: { Владелец: Record<string, unknown> } })
+      .СтандартныеРеквизиты.Владелец
+    expect(attribute.ЗначениеЗаполнения).toBe("!xml Справочник.КаталогиФайлов.ПустаяСсылка")
+    expect(yamlScalarTagAt(attribute, "ЗначениеЗаполнения")).toBe("xml")
+    expect(serializeYAMLDocument(parsed.data).text).toContain(
+      "ЗначениеЗаполнения: !xml Справочник.КаталогиФайлов.ПустаяСсылка"
     )
   })
 })

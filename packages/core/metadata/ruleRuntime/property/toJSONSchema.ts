@@ -36,9 +36,7 @@ function withExplicitXMLValidationValue(params: {
   if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
   const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey)
   if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
-  if (mode === "scalar") {
-    return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
-  }
+  if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
   return params.schema
 }
 

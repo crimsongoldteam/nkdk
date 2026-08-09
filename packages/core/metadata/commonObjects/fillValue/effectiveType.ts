@@ -1,86 +1,23 @@
-import type { MetadataRootName } from "../metadataTargets/types"
 import type { MetadataTypedValue } from "../metadataValue/types"
 import type { TypeDescription } from "../typeDescription/types"
 import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
 import { classifyFillValue } from "./classify"
 import type { FillValueClassification } from "./types"
 import type { FillValueAlternative, FillValueEffectiveType } from "./types"
-
-const referenceRootByType: Readonly<Record<string, MetadataRootName | undefined>> = {
-  CatalogRef: "Catalog",
-  DocumentRef: "Document",
-  EnumRef: "Enum",
-  ChartOfAccountsRef: "ChartOfAccounts",
-  ChartOfCharacteristicTypesRef: "ChartOfCharacteristicTypes",
-  ChartOfCalculationTypesRef: "ChartOfCalculationTypes",
-  ExchangePlanRef: "ExchangePlan",
-  BusinessProcessRef: "BusinessProcess",
-  BusinessProcessRoutePointRef: "BusinessProcessRoutePoint",
-  TaskRef: "Task",
-}
+import { effectiveFillValueType } from "./definedType"
+import { isMetadataRootName } from "../metadataTargets/roots"
 
 export function effectiveTypeFromTypeDescription(type: TypeDescription | undefined): FillValueEffectiveType {
-  if (type === undefined || type.type.length === 0) {
-    return { status: "unresolved", reason: "эффективный тип реквизита не определён" }
-  }
-
-  const alternatives: FillValueAlternative[] = []
-  for (const sourceType of type.type) {
-    const alternative = alternativeFromType(sourceType, type)
-    if (alternative === undefined) {
-      return { status: "unresolved", reason: `проверка значения для типа ${sourceType} не поддержана` }
-    }
-    alternatives.push(alternative)
-  }
-
-  return { status: "known", alternatives, composite: alternatives.length > 1 }
+  return effectiveFillValueType(type)
 }
 
-function alternativeFromType(sourceType: string, type: TypeDescription): FillValueAlternative | undefined {
-  switch (sourceType) {
-    case "string":
-      return {
-        kind: "string",
-        ...(type.stringQualifiers?.length !== undefined ? { length: type.stringQualifiers.length } : {}),
-        ...(type.stringQualifiers?.allowedLength !== undefined
-          ? { allowedLength: type.stringQualifiers.allowedLength }
-          : {}),
-      }
-    case "decimal":
-      return {
-        kind: "number",
-        ...(type.numberQualifiers?.digits !== undefined ? { digits: type.numberQualifiers.digits } : {}),
-        ...(type.numberQualifiers?.fractionDigits !== undefined
-          ? { fractionDigits: type.numberQualifiers.fractionDigits }
-          : {}),
-        ...(type.numberQualifiers?.allowedSign !== undefined
-          ? { allowedSign: type.numberQualifiers.allowedSign }
-          : {}),
-      }
-    case "boolean":
-      return { kind: "boolean" }
-    case "dateTime":
-      return { kind: "dateTime", dateFractions: type.dateQualifiers?.dateFractions ?? "DateTime" }
-  }
-
-  const [baseType, objectName] = splitType(sourceType)
-  const root = referenceRootByType[baseType]
-  if (root === undefined) return undefined
-  return {
-    kind: "reference",
-    constraint: {
-      kind: "value",
-      roots: [root],
-      valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
-      allowEmptyRef: true,
-    },
-    ...(objectName !== undefined ? { objectName } : {}),
-  }
-}
-
-function splitType(value: string): [base: string, objectName?: string] {
-  const separator = value.indexOf(".")
-  return separator === -1 ? [value] : [value.slice(0, separator), value.slice(separator + 1)]
+export function isReferenceStandardMember(declaration: StandardMemberDeclaration): boolean {
+  if (declaration.memberKind !== "standardAttribute") return false
+  return declaration.family === "sameOwnerObject" ||
+    declaration.family === "objectRefsFromProperty" ||
+    declaration.family === "objectRefFromProperty" ||
+    declaration.family === "reverseLookup" ||
+    declaration.family === "closedReverseLookup"
 }
 
 export function classifyStandardMemberFillValue(params: {
@@ -171,13 +108,21 @@ function classifyCode(
 }
 
 function classifyOwnerReference(value: MetadataTypedValue, ownersValue: unknown): FillValueClassification {
-  if (!Array.isArray(ownersValue) || ownersValue.length === 0) {
-    return { kind: "unresolved", reason: "не определены владельцы справочника" }
+  if (ownersValue === undefined || (Array.isArray(ownersValue) && ownersValue.length === 0)) {
+    return {
+      kind: "invalid",
+      reason: "у справочника отсутствуют владельцы; значение заполнения реквизита Владелец допускается только с !xml",
+    }
+  }
+  if (!Array.isArray(ownersValue)) {
+    return { kind: "unresolved", reason: "не удалось определить владельцев справочника" }
   }
 
   const alternatives = ownersValue.flatMap((owner): FillValueAlternative[] => {
     if (typeof owner !== "string") return []
-    const [root, objectName] = splitType(owner)
+    const separator = owner.indexOf(".")
+    const root = separator === -1 ? owner : owner.slice(0, separator)
+    const objectName = separator === -1 ? undefined : owner.slice(separator + 1)
     if (!isMetadataRootName(root) || objectName === undefined) return []
     return [
       {
@@ -199,8 +144,4 @@ function classifyOwnerReference(value: MetadataTypedValue, ownersValue: unknown)
     effectiveType: { status: "known", alternatives, composite: alternatives.length > 1 },
     value,
   })
-}
-
-function isMetadataRootName(value: string): value is MetadataRootName {
-  return Object.values(referenceRootByType).includes(value as MetadataRootName)
 }

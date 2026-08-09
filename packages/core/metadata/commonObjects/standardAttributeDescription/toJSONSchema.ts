@@ -1,13 +1,13 @@
-import { TProperties, TSchema, Type } from "typebox"
+import { TSchema, Type } from "typebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { StandardAttributeDescriptionRules } from "./rules"
-import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
+import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
 import { commonStandardMemberFillValuePolicy } from "../../standardMembers/declarations"
 
 export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const { context } = params
-  const rule = asStandardAttributeDescriptionsRule(params.rule)
+  const rule = params.rule as StandardAttributeDescriptionsPropertyRule
   const attributeSchema = exportMetadataItemToJSONSchema({
     context: context,
     rule: StandardAttributeDescriptionRules,
@@ -18,26 +18,32 @@ export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaF
   ) {
     return Type.Record(Type.String(), attributeSchema)
   }
-
-  const properties: TProperties = {}
-  for (const [internalName, yamlName] of Object.entries(rule.standartAttributeNames)) {
-    const schema = commonStandardMemberFillValuePolicy(internalName)?.policy === "forbidden"
-      ? withoutProperty(attributeSchema, "ЗначениеЗаполнения")
-      : attributeSchema
-    properties[yamlName] = Type.Optional(schema)
-  }
+  const properties = Object.fromEntries(
+    Object.entries(rule.standartAttributeNames).map(([internalName, yamlName]) => [
+      yamlName,
+      Type.Optional(
+        commonStandardMemberFillValuePolicy(internalName)?.policy === "forbidden"
+          ? withoutFillValue(attributeSchema)
+          : attributeSchema
+      ),
+    ])
+  )
   return Type.Object(properties, { additionalProperties: attributeSchema })
 }
 
-function asStandardAttributeDescriptionsRule(rule: PropertyRule): StandardAttributeDescriptionsPropertyRule {
-  return rule as StandardAttributeDescriptionsPropertyRule
-}
-
-function withoutProperty(schema: TSchema, key: string): TSchema {
-  const properties = (schema as { properties?: Record<string, TSchema> }).properties
-  if (properties === undefined) return schema
-  const { [key]: _removed, ...rest } = properties
-  return { ...schema, properties: rest }
+function withoutFillValue(schema: TSchema): TSchema {
+  const source = schema as TSchema & {
+    readonly properties?: Readonly<Record<string, TSchema>>
+    readonly required?: readonly string[]
+  }
+  if (source.properties === undefined) return schema
+  const { ЗначениеЗаполнения: _fillValue, ...properties } = source.properties
+  const required = source.required?.filter((name) => name !== "ЗначениеЗаполнения")
+  return {
+    ...source,
+    properties,
+    ...(required === undefined ? {} : { required }),
+  }
 }
 
 registerTypeRule("StandardAttributeDescriptions", "exportToJSONSchema", exportStandardAttributeDescriptionToJSONSchema)

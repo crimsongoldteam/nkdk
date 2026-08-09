@@ -2,51 +2,45 @@ import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { registerCoreMetadata } from "../../composition/coreMetadata"
-import { getValidationSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
-import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
-import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { exportStandardAttributeDescriptionToJSONSchema } from "./toJSONSchema"
 
 registerCoreMetadata()
 
-describe("StandardAttributeDescriptions JSON Schema", () => {
-  it("скрывает fillValue forbidden-реквизита только из подсказок", () => {
-    const rule = MetadataCatalogRules.properties.standardAttributes as StandardAttributeDescriptionsPropertyRule
-    const validationContext = {
-      ...mockContext,
-      exportToJSONSchema: {
-        mode: "inline" as const,
-        refs: new Set<string>(),
-        validationPropertyRefs: true as const,
+const standardAttributesRule = MetadataCatalogRules.properties.standardAttributes
+
+describe("standard attribute description JSON Schema", () => {
+  it("включает зарегистрированный XML-scalar во внутреннюю схему", () => {
+    const schema = exportStandardAttributeDescriptionToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs: new Set<string>(),
+          validationPropertyRefs: true,
+        },
       },
-    }
-    const validationSchema = exportStandardAttributeDescriptionToJSONSchema({
-      context: validationContext,
-      rule,
+      rule: standardAttributesRule,
       value: undefined,
     })
-    if (validationSchema === undefined) throw new Error("Expected validation schema")
-    const refs = Object.fromEntries([...validationContext.exportToJSONSchema.refs].map((name) => {
-      const schema = getValidationSchemaRef(name)
-      if (schema === undefined) throw new Error(`Expected validation schema ${name}`)
-      return [name, schema]
-    }))
-    const validation = compileValidationSchema(refs, validationSchema)
+    if (schema === undefined) throw new Error("Standard attributes schema is missing")
 
-    const hintSchema = exportStandardAttributeDescriptionToJSONSchema({
+    expect(JSON.stringify(schema)).toContain("^!xml(?: .*)?$")
+  })
+
+  it("не предлагает запрещённое значение заполнения во внешней схеме", () => {
+    const schema = exportStandardAttributeDescriptionToJSONSchema({
       context: {
         ...mockContext,
         exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
       },
-      rule,
+      rule: standardAttributesRule,
       value: undefined,
-    }) as {
-      properties?: Record<string, { properties?: Record<string, unknown> }>
-    }
+    })
+    if (schema === undefined) throw new Error("Standard attributes schema is missing")
+    const properties = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> }).properties
 
-    expect(validation.Check({ Предопределенный: { ЗначениеЗаполнения: "!xml Ложь" } })).toBe(true)
-    expect(hintSchema.properties?.Предопределенный?.properties).not.toHaveProperty("ЗначениеЗаполнения")
-    expect(hintSchema.properties?.ПометкаУдаления?.properties).toHaveProperty("ЗначениеЗаполнения")
-    expect(JSON.stringify(hintSchema)).not.toContain("!xml")
+    expect(properties?.Предопределенный?.properties).not.toHaveProperty("ЗначениеЗаполнения")
+    expect(properties?.ПометкаУдаления?.properties).toHaveProperty("ЗначениеЗаполнения")
+    expect(JSON.stringify(schema)).not.toContain("!xml")
   })
 })

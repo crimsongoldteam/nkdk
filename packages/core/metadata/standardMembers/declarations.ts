@@ -34,7 +34,7 @@ const commonStandardAttributeFillValuePolicies: Readonly<Record<string, Standard
 }
 
 export function commonStandardMemberFillValuePolicy(
-  internalName: string,
+  internalName: string
 ): StandardMemberFillValuePolicy | undefined {
   return commonStandardAttributeFillValuePolicies[internalName]
 }
@@ -192,7 +192,7 @@ export function registerStandardMembers(ownerKind: string, members: readonly Sta
 
 function withCommonFillValuePolicy(member: StandardMemberDeclaration): StandardMemberDeclaration {
   if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
-  const fillValue = commonStandardMemberFillValuePolicy(member.names.internal)
+  const fillValue = commonStandardAttributeFillValuePolicies[member.names.internal]
   return fillValue === undefined ? member : { ...member, fillValue }
 }
 

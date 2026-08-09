@@ -37,7 +37,7 @@ describe("standard member declarations", () => {
     ["РегистрРасчета", "ПериодДействия"],
     ["РегистрРасчета", "НачалоБазовогоПериода"],
     ["РегистрРасчета", "КонецБазовогоПериода"],
-  ] as const)("declares fill value policy for %s.%s", (owner, name) => {
+  ] as const)("declares fill-value policy for %s.%s", (owner, name) => {
     const member = getStandardMembers(owner).find(({ names }) => names.yaml === name)
     expect(member?.fillValue).toEqual({ policy: "byEffectiveType" })
   })

@@ -15,6 +15,7 @@ import {
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
 import type { DirectImportProfile } from "../ruleRuntime/property/importYamlTypes"
+import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
 import {
   createDeferredValuePathCollector,
   createImportedDependentPropertyCollector,
@@ -27,7 +28,11 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/a
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
-import { normalizeImportedDependentItems } from "./dependentItems"
+import {
+  normalizeImportedDependentItems,
+  partitionImportedDependentItems,
+  preserveDeferredDependentRawXML,
+} from "./dependentItems"
 
 registerOwnerFactCollectors(getRegisteredProjectSpecs())
 
@@ -39,6 +44,8 @@ export interface PreparedImportYaml {
   ownerContext: readonly MetadataItemOwnerContextEntry[]
   localIndexes: LocalIndexes
   deferred: readonly DeferredObjectValue[]
+  dependentDeferred: readonly ImportedDependentPropertyCandidate[]
+  dependentOwner: { readonly dir: string; readonly name: string }
   generatedFiles: ExternalFileEntry[]
 }
 
@@ -89,19 +96,23 @@ export async function prepareImportYaml(params: {
     ) as XmlImportConfigurationContext
 
     const importProfile = createDirectImportProfile()
+    const dependentOwner = {
+      dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+      name: params.assignment.owner?.name ?? params.assignment.itemName,
+    }
     const result = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
         const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
-        return importClientApplicationFormFromXMLToYAML({
+        return { ...importClientApplicationFormFromXMLToYAML({
           context: importContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
           profile: importProfile,
           rule,
-        })
+        }), dependentDeferred: [] }
       }
 
       const collector = createLocalIndexesCollector()
@@ -124,17 +135,27 @@ export async function prepareImportYaml(params: {
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
-      normalizeImportedDependentItems({
+      const partitioned = partitionImportedDependentItems({
         yaml,
         rule,
         candidates: dependent.finish(),
-        collector: params.collector,
-        owner: {
-          dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
-          name: params.assignment.owner?.name ?? params.assignment.itemName,
-        },
+        owner: dependentOwner,
       })
-      return { yaml, localIndexes: collector.finish(), deferred: deferred.finish(), generatedFiles }
+      normalizeImportedDependentItems({
+        yaml,
+        rule,
+        candidates: partitioned.immediate,
+        collector: params.collector,
+        owner: dependentOwner,
+      })
+      preserveDeferredDependentRawXML({ candidates: partitioned.deferred, collector: params.collector })
+      return {
+        yaml,
+        localIndexes: collector.finish(),
+        deferred: deferred.finish(),
+        dependentDeferred: partitioned.deferred,
+        generatedFiles,
+      }
     })
     recordDirectImportProfile(params.profiler, importProfile)
 
@@ -150,6 +171,8 @@ export async function prepareImportYaml(params: {
       ownerContext,
       localIndexes: result.localIndexes,
       deferred: bindDeferredObjectValues(result.yaml, result.deferred),
+      dependentDeferred: result.dependentDeferred,
+      dependentOwner,
       generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     }
   } finally {
