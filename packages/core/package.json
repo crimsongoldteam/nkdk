@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@node-rs/xxhash": "^1.7.6",
+    "@zip.js/zip.js": "^2.8.34",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "date-fns": "^4.4.0",
