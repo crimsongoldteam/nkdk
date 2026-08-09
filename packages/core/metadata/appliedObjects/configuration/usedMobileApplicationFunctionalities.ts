@@ -1,12 +1,4 @@
 import { Type } from "typebox"
-import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
-import { BooleanJSONSchema, type StringboolXML, type StringboolYAML } from "../../commonObjects/boolean/types"
-import { I8nTextJSONSchema, type I8nText, type I8nTextXML, type I8nTextYAML } from "../../commonObjects/i8nText/types"
-import type { ConfigurationContext } from "../../context/types"
-import { type ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import type { PropertyRule } from "../../orchestration/property/types"
 import {
   MobileApplicationFunctionalitiesFromYAML,
   MobileApplicationFunctionalitiesToYAML,
@@ -16,13 +8,30 @@ import {
   type MobileApplicationFunctionalitiesYAML,
   type RequiredMobileApplicationPermissionMessages,
   type RequiredMobileApplicationPermissionMessagesYAML,
-} from "../../systemEnumerations/types"
+} from "./mobileApplicationPermissionsEnumerations"
 import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
+import {
+  MobileApplicationPermissionBooleanJSONSchema,
+  type MobileApplicationPermissionBooleanXML,
+  type MobileApplicationPermissionBooleanYAML,
+  exportMobileApplicationPermissionBooleanToYAML,
+  importMobileApplicationPermissionBooleanFromXML,
+  importMobileApplicationPermissionBooleanFromYAML,
+} from "./mobileApplicationPermissionBoolean"
+import {
+  CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+  IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+} from "./mobileApplicationPermissionsDefaults"
 import {
   exportMobileApplicationPermissionDescriptionToXML,
   exportMobileApplicationPermissionDescriptionToYAML,
   importMobileApplicationPermissionDescriptionFromXML,
   importMobileApplicationPermissionDescriptionFromYAML,
+  MobileApplicationPermissionDescriptionJSONSchema,
+  type MobileApplicationPermissionContext,
+  type MobileApplicationPermissionDescription,
+  type MobileApplicationPermissionDescriptionXML,
+  type MobileApplicationPermissionDescriptionYAML,
 } from "./mobileApplicationPermissionDescription"
 
 export interface UsedMobileApplicationFunctionality {
@@ -32,7 +41,7 @@ export interface UsedMobileApplicationFunctionality {
 
 export interface RequiredMobileApplicationPermissionMessage {
   permission: RequiredMobileApplicationPermissionMessages
-  description: I8nText
+  description: MobileApplicationPermissionDescription
 }
 
 export interface UsedMobileApplicationFunctionalities {
@@ -42,12 +51,12 @@ export interface UsedMobileApplicationFunctionalities {
 
 export interface UsedMobileApplicationFunctionalityYAML {
   Функциональность: MobileApplicationFunctionalitiesYAML
-  Использовать: StringboolYAML
+  Использовать: MobileApplicationPermissionBooleanYAML
 }
 
 export interface RequiredMobileApplicationPermissionMessageYAML {
   Разрешение: RequiredMobileApplicationPermissionMessagesYAML
-  Описание: I8nTextYAML
+  Описание: MobileApplicationPermissionDescriptionYAML
 }
 
 export interface UsedMobileApplicationFunctionalitiesYAML {
@@ -57,12 +66,12 @@ export interface UsedMobileApplicationFunctionalitiesYAML {
 
 interface UsedMobileApplicationFunctionalityXML {
   "app:functionality": MobileApplicationFunctionalities
-  "app:use": StringboolXML | { "#text"?: StringboolXML }
+  "app:use": MobileApplicationPermissionBooleanXML | { "#text"?: MobileApplicationPermissionBooleanXML }
 }
 
 interface RequiredMobileApplicationPermissionMessageXML {
   "app:permission": RequiredMobileApplicationPermissionMessages
-  "app:description": I8nTextXML | ""
+  "app:description": MobileApplicationPermissionDescriptionXML | ""
 }
 
 interface UsedMobileApplicationFunctionalitiesXML {
@@ -72,58 +81,17 @@ interface UsedMobileApplicationFunctionalitiesXML {
     | RequiredMobileApplicationPermissionMessageXML[]
 }
 
-export const CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES: UsedMobileApplicationFunctionality[] = [
-  { functionality: "Biometrics", use: true },
-  { functionality: "Location", use: false },
-  { functionality: "BackgroundLocation", use: false },
-  { functionality: "BluetoothPrinters", use: false },
-  { functionality: "WiFiPrinters", use: false },
-  { functionality: "Contacts", use: false },
-  { functionality: "Calendars", use: false },
-  { functionality: "PushNotifications", use: false },
-  { functionality: "LocalNotifications", use: false },
-  { functionality: "InAppPurchases", use: false },
-  { functionality: "PersonalComputerFileExchange", use: false },
-  { functionality: "Ads", use: false },
-  { functionality: "NumberDialing", use: false },
-  { functionality: "CallProcessing", use: false },
-  { functionality: "CallLog", use: false },
-  { functionality: "AutoSendSMS", use: false },
-  { functionality: "ReceiveSMS", use: false },
-  { functionality: "SMSLog", use: false },
-  { functionality: "Camera", use: false },
-  { functionality: "Microphone", use: false },
-  { functionality: "MusicLibrary", use: false },
-  { functionality: "PictureAndVideoLibraries", use: false },
-  { functionality: "AudioPlaybackAndVibration", use: false },
-  { functionality: "BackgroundAudioPlaybackAndVibration", use: false },
-  { functionality: "InstallPackages", use: false },
-  { functionality: "OSBackup", use: true },
-  { functionality: "ApplicationUsageStatistics", use: false },
-  { functionality: "BarcodeScanning", use: false },
-  { functionality: "BackgroundAudioRecording", use: false },
-  { functionality: "AllFilesAccess", use: false },
-  { functionality: "Videoconferences", use: false },
-  { functionality: "NFC", use: false },
-  { functionality: "DocumentScanning", use: false },
-  { functionality: "SpeechToText", use: false },
-  { functionality: "Geofences", use: false },
-  { functionality: "IncomingShareRequests", use: false },
-  { functionality: "AllIncomingShareRequestsTypesProcessing", use: false },
-  { functionality: "TextToSpeech", use: false },
-]
-
-export const IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES: UsedMobileApplicationFunctionalities = {
-  functionalities: CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
-  permissionMessages: [],
-}
+export {
+  CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+  IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+} from "./mobileApplicationPermissionsDefaults"
 
 export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Object({
   Функциональности: Type.Optional(
     Type.Array(
       Type.Object({
         Функциональность: literalUnionJSONSchema(Object.keys(MobileApplicationFunctionalitiesFromYAML)),
-        Использовать: BooleanJSONSchema,
+        Использовать: MobileApplicationPermissionBooleanJSONSchema,
       })
     )
   ),
@@ -131,7 +99,7 @@ export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Object({
     Type.Array(
       Type.Object({
         Разрешение: literalUnionJSONSchema(Object.keys(RequiredMobileApplicationPermissionMessagesFromYAML)),
-        Описание: I8nTextJSONSchema,
+        Описание: MobileApplicationPermissionDescriptionJSONSchema,
       })
     )
   ),
@@ -158,16 +126,16 @@ const isImplicitUsedMobileApplicationFunctionalities = (data: UsedMobileApplicat
   data.permissionMessages.length === 0 && isCleanDefaultUsedMobileApplicationFunctionalities(data.functionalities)
 
 const importFunctionalitiesFromXML = (
-  context: ConfigurationContext,
+  _context: MobileApplicationPermissionContext,
   xml: UsedMobileApplicationFunctionalitiesXML
 ): UsedMobileApplicationFunctionality[] =>
   normalizeArray(xml["app:functionality"]).map((item) => ({
     functionality: item["app:functionality"],
-    use: importBooleanFromXML(context, undefined, item["app:use"]) ?? false,
+    use: importMobileApplicationPermissionBooleanFromXML(item["app:use"]) ?? false,
   }))
 
 const importPermissionMessagesFromXML = (
-  context: ConfigurationContext,
+  context: MobileApplicationPermissionContext,
   xml: UsedMobileApplicationFunctionalitiesXML
 ): RequiredMobileApplicationPermissionMessage[] =>
   normalizeArray(xml["app:permissionMessage"]).map((item) => ({
@@ -176,8 +144,8 @@ const importPermissionMessagesFromXML = (
   }))
 
 export const importUsedMobileApplicationFunctionalitiesFromXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   xml: UsedMobileApplicationFunctionalitiesXML | "" | undefined
 ): UsedMobileApplicationFunctionalities | undefined => {
   if (xml === undefined) return undefined
@@ -194,8 +162,8 @@ export const importUsedMobileApplicationFunctionalitiesFromXML = (
 }
 
 export const exportUsedMobileApplicationFunctionalitiesToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   data: UsedMobileApplicationFunctionalities | undefined
 ): UsedMobileApplicationFunctionalitiesXML | "" => {
   const value = data ?? IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES
@@ -218,7 +186,7 @@ export const exportUsedMobileApplicationFunctionalitiesToXML = (
 }
 
 const importFunctionalitiesFromYAML = (
-  context: ConfigurationContext,
+  _context: MobileApplicationPermissionContext,
   yaml: UsedMobileApplicationFunctionalityYAML[]
 ): UsedMobileApplicationFunctionality[] => {
   const result = cloneCleanDefaultUsedMobileApplicationFunctionalities()
@@ -228,7 +196,7 @@ const importFunctionalitiesFromYAML = (
 
   for (const item of yaml) {
     const functionality = MobileApplicationFunctionalitiesFromYAML[item.Функциональность]
-    const use = importBooleanFromYAML(context, undefined, item.Использовать)
+    const use = importMobileApplicationPermissionBooleanFromYAML(item.Использовать)
     const resultItem = byFunctionality.get(functionality)
     if (resultItem !== undefined && use !== undefined) resultItem.use = use
   }
@@ -236,7 +204,7 @@ const importFunctionalitiesFromYAML = (
 }
 
 const importPermissionMessagesFromYAML = (
-  context: ConfigurationContext,
+  context: MobileApplicationPermissionContext,
   yaml: RequiredMobileApplicationPermissionMessageYAML[]
 ): RequiredMobileApplicationPermissionMessage[] =>
   yaml.map((item) => ({
@@ -245,8 +213,8 @@ const importPermissionMessagesFromYAML = (
   }))
 
 export const importUsedMobileApplicationFunctionalitiesFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   yaml: UsedMobileApplicationFunctionalitiesYAML | undefined
 ): UsedMobileApplicationFunctionalities | undefined => {
   if (yaml === undefined) return IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES
@@ -261,7 +229,7 @@ export const importUsedMobileApplicationFunctionalitiesFromYAML = (
 }
 
 const exportFunctionalitiesToYAML = (
-  context: ConfigurationContext,
+  _context: MobileApplicationPermissionContext,
   data: UsedMobileApplicationFunctionality[]
 ): UsedMobileApplicationFunctionalityYAML[] | undefined => {
   const dataByFunctionality = new Map<MobileApplicationFunctionalities, boolean>(
@@ -274,7 +242,7 @@ const exportFunctionalitiesToYAML = (
     return [
       {
         Функциональность: MobileApplicationFunctionalitiesToYAML[defaultItem.functionality],
-        Использовать: exportBooleanToYAML(context, undefined, use) ?? "Ложь",
+        Использовать: exportMobileApplicationPermissionBooleanToYAML(use) ?? "Ложь",
       },
     ]
   })
@@ -282,7 +250,7 @@ const exportFunctionalitiesToYAML = (
 }
 
 const exportPermissionMessagesToYAML = (
-  context: ConfigurationContext,
+  context: MobileApplicationPermissionContext,
   data: RequiredMobileApplicationPermissionMessage[]
 ): RequiredMobileApplicationPermissionMessageYAML[] | undefined =>
   data.length === 0
@@ -293,8 +261,8 @@ const exportPermissionMessagesToYAML = (
       }))
 
 export const exportUsedMobileApplicationFunctionalitiesToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   data: UsedMobileApplicationFunctionalities | undefined
 ): UsedMobileApplicationFunctionalitiesYAML | undefined => {
   if (data === undefined) return undefined
@@ -309,31 +277,5 @@ export const exportUsedMobileApplicationFunctionalitiesToYAML = (
   }
 }
 
-export const exportUsedMobileApplicationFunctionalitiesToJSONSchema: ExportToJSONSchemaFn = () =>
+export const exportUsedMobileApplicationFunctionalitiesToJSONSchema = (_params?: unknown) =>
   UsedMobileApplicationFunctionalitiesJSONSchema
-
-registerTypeRule(
-  "UsedMobileApplicationFunctionalities",
-  "importFromXML",
-  importUsedMobileApplicationFunctionalitiesFromXML
-)
-registerTypeRule(
-  "UsedMobileApplicationFunctionalities",
-  "exportToXML",
-  exportUsedMobileApplicationFunctionalitiesToXML
-)
-registerTypeRule(
-  "UsedMobileApplicationFunctionalities",
-  "importFromYAML",
-  importUsedMobileApplicationFunctionalitiesFromYAML
-)
-registerTypeRule(
-  "UsedMobileApplicationFunctionalities",
-  "exportToYAML",
-  exportUsedMobileApplicationFunctionalitiesToYAML
-)
-registerTypeRule(
-  "UsedMobileApplicationFunctionalities",
-  "exportToJSONSchema",
-  exportUsedMobileApplicationFunctionalitiesToJSONSchema
-)

@@ -6,6 +6,20 @@ import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonOb
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import type { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../orchestration/property/types"
+import {
+  exportRequiredMobileApplicationPermissionsToJSONSchema,
+  exportRequiredMobileApplicationPermissionsToXML,
+  exportRequiredMobileApplicationPermissionsToYAML,
+  importRequiredMobileApplicationPermissionsFromXML,
+  importRequiredMobileApplicationPermissionsFromYAML,
+} from "./requiredMobileApplicationPermissions"
+import {
+  exportUsedMobileApplicationFunctionalitiesToJSONSchema,
+  exportUsedMobileApplicationFunctionalitiesToXML,
+  exportUsedMobileApplicationFunctionalitiesToYAML,
+  importUsedMobileApplicationFunctionalitiesFromXML,
+  importUsedMobileApplicationFunctionalitiesFromYAML,
+} from "./usedMobileApplicationFunctionalities"
 
 export interface MobileApplicationURL {
   baseUrl: string
@@ -131,3 +145,53 @@ registerTypeRule("MobileApplicationURLs", "exportToXML", exportMobileApplication
 registerTypeRule("MobileApplicationURLs", "importFromYAML", importMobileApplicationURLsFromYAML)
 registerTypeRule("MobileApplicationURLs", "exportToYAML", exportMobileApplicationURLsToYAML)
 registerTypeRule("MobileApplicationURLs", "exportToJSONSchema", exportMobileApplicationURLsToJSONSchema)
+registerTypeRule(
+  "RequiredMobileApplicationPermissions",
+  "importFromXML",
+  importRequiredMobileApplicationPermissionsFromXML
+)
+registerTypeRule(
+  "RequiredMobileApplicationPermissions",
+  "exportToXML",
+  exportRequiredMobileApplicationPermissionsToXML
+)
+registerTypeRule(
+  "RequiredMobileApplicationPermissions",
+  "importFromYAML",
+  importRequiredMobileApplicationPermissionsFromYAML
+)
+registerTypeRule(
+  "RequiredMobileApplicationPermissions",
+  "exportToYAML",
+  exportRequiredMobileApplicationPermissionsToYAML
+)
+registerTypeRule(
+  "RequiredMobileApplicationPermissions",
+  "exportToJSONSchema",
+  exportRequiredMobileApplicationPermissionsToJSONSchema
+)
+registerTypeRule(
+  "UsedMobileApplicationFunctionalities",
+  "importFromXML",
+  importUsedMobileApplicationFunctionalitiesFromXML
+)
+registerTypeRule(
+  "UsedMobileApplicationFunctionalities",
+  "exportToXML",
+  exportUsedMobileApplicationFunctionalitiesToXML
+)
+registerTypeRule(
+  "UsedMobileApplicationFunctionalities",
+  "importFromYAML",
+  importUsedMobileApplicationFunctionalitiesFromYAML
+)
+registerTypeRule(
+  "UsedMobileApplicationFunctionalities",
+  "exportToYAML",
+  exportUsedMobileApplicationFunctionalitiesToYAML
+)
+registerTypeRule(
+  "UsedMobileApplicationFunctionalities",
+  "exportToJSONSchema",
+  exportUsedMobileApplicationFunctionalitiesToJSONSchema
+)

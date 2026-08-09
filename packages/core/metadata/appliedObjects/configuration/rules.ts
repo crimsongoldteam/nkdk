@@ -23,8 +23,10 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
 import "./mobileApplicationURLs"
-import { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./requiredMobileApplicationPermissions"
-import { IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES } from "./usedMobileApplicationFunctionalities"
+import {
+  EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
+  IMPLICIT_USED_MOBILE_APPLICATION_FUNCTIONALITIES,
+} from "./mobileApplicationPermissionsDefaults"
 import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"

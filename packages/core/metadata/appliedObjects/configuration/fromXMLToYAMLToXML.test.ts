@@ -6,6 +6,8 @@ import {
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { CLEAN_CONFIGURATION_XML, EXPECTED_CLEAN_CONFIGURATION_YAML } from "./cleanConfiguration.fixture"
+import "./requiredMobileApplicationPermissions"
+import "./usedMobileApplicationFunctionalities"
 import { MetadataConfigurationRules } from "./rules"
 
 const cleanFixture = () =>

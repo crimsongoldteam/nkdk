@@ -1,53 +1,54 @@
 import { Type } from "typebox"
-import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
-import { BooleanJSONSchema, type StringboolXML, type StringboolYAML } from "../../commonObjects/boolean/types"
 import {
-  I8nTextJSONSchema,
-  type I8nText,
-  type I8nTextXML,
-  type I8nTextYAML,
-} from "../../commonObjects/i8nText/types"
-import type { ConfigurationContext } from "../../context/types"
-import { type ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import type { PropertyRule } from "../../orchestration/property/types"
+  MobileApplicationPermissionBooleanJSONSchema,
+  type MobileApplicationPermissionBooleanXML,
+  type MobileApplicationPermissionBooleanYAML,
+  exportMobileApplicationPermissionBooleanToYAML,
+  importMobileApplicationPermissionBooleanFromXML,
+  importMobileApplicationPermissionBooleanFromYAML,
+} from "./mobileApplicationPermissionBoolean"
 import {
   RequiredMobileApplicationPermissionsFromYAML,
   RequiredMobileApplicationPermissionsToYAML,
   type RequiredMobileApplicationPermissions,
   type RequiredMobileApplicationPermissionsYAML,
-} from "../../systemEnumerations/types"
+} from "./mobileApplicationPermissionsEnumerations"
 import { literalUnionJSONSchema } from "./literalUnionJSONSchema"
+import { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./mobileApplicationPermissionsDefaults"
 import {
   exportMobileApplicationPermissionDescriptionToXML,
   exportMobileApplicationPermissionDescriptionToYAML,
   importMobileApplicationPermissionDescriptionFromXML,
   importMobileApplicationPermissionDescriptionFromYAML,
+  MobileApplicationPermissionDescriptionJSONSchema,
+  type MobileApplicationPermissionContext,
+  type MobileApplicationPermissionDescription,
+  type MobileApplicationPermissionDescriptionXML,
+  type MobileApplicationPermissionDescriptionYAML,
 } from "./mobileApplicationPermissionDescription"
 
 export interface RequiredMobileApplicationPermission {
   permission: RequiredMobileApplicationPermissions
   use: boolean
-  description: I8nText
+  description: MobileApplicationPermissionDescription
 }
 
 export type RequiredMobileApplicationPermissionCollection = RequiredMobileApplicationPermission[]
 
 export interface RequiredMobileApplicationPermissionYAML {
   Разрешение: RequiredMobileApplicationPermissionsYAML
-  Использовать: StringboolYAML
-  Описание: I8nTextYAML
+  Использовать: MobileApplicationPermissionBooleanYAML
+  Описание: MobileApplicationPermissionDescriptionYAML
 }
 
 export type RequiredMobileApplicationPermissionCollectionYAML = RequiredMobileApplicationPermissionYAML[]
 
-export const EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS: RequiredMobileApplicationPermissionCollection = []
+export { EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS } from "./mobileApplicationPermissionsDefaults"
 
 interface RequiredMobileApplicationPermissionXML {
   "app:permission": RequiredMobileApplicationPermissions
-  "app:use": StringboolXML | { "#text"?: StringboolXML }
-  "app:description": I8nTextXML | ""
+  "app:use": MobileApplicationPermissionBooleanXML | { "#text"?: MobileApplicationPermissionBooleanXML }
+  "app:description": MobileApplicationPermissionDescriptionXML | ""
 }
 
 interface RequiredMobileApplicationPermissionsXML {
@@ -60,8 +61,8 @@ const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
 }
 
 export const importRequiredMobileApplicationPermissionsFromXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   xml: RequiredMobileApplicationPermissionsXML | "" | undefined
 ): RequiredMobileApplicationPermissionCollection | undefined => {
   if (xml === undefined) return undefined
@@ -69,14 +70,14 @@ export const importRequiredMobileApplicationPermissionsFromXML = (
 
   return normalizeArray(xml["app:permission"]).map((item) => ({
     permission: item["app:permission"],
-    use: importBooleanFromXML(context, undefined, item["app:use"]) ?? false,
+    use: importMobileApplicationPermissionBooleanFromXML(item["app:use"]) ?? false,
     description: importMobileApplicationPermissionDescriptionFromXML(context, item["app:description"]),
   }))
 }
 
 export const exportRequiredMobileApplicationPermissionsToXML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   data: RequiredMobileApplicationPermissionCollection | undefined
 ): RequiredMobileApplicationPermissionsXML | "" | undefined => {
   if (data === undefined) return undefined
@@ -92,29 +93,29 @@ export const exportRequiredMobileApplicationPermissionsToXML = (
 }
 
 export const importRequiredMobileApplicationPermissionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   yaml: RequiredMobileApplicationPermissionCollectionYAML | undefined
 ): RequiredMobileApplicationPermissionCollection | undefined => {
   if (yaml === undefined) return EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS
 
   return yaml.map((item) => ({
     permission: RequiredMobileApplicationPermissionsFromYAML[item.Разрешение],
-    use: importBooleanFromYAML(context, undefined, item.Использовать) ?? false,
+    use: importMobileApplicationPermissionBooleanFromYAML(item.Использовать) ?? false,
     description: importMobileApplicationPermissionDescriptionFromYAML(context, item.Описание),
   }))
 }
 
 export const exportRequiredMobileApplicationPermissionsToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
+  context: MobileApplicationPermissionContext,
+  _rule: unknown,
   data: RequiredMobileApplicationPermissionCollection | undefined
 ): RequiredMobileApplicationPermissionCollectionYAML | undefined => {
   if (data === undefined) return undefined
 
   return data.map((item) => ({
     Разрешение: RequiredMobileApplicationPermissionsToYAML[item.permission],
-    Использовать: exportBooleanToYAML(context, undefined, item.use) ?? "Ложь",
+    Использовать: exportMobileApplicationPermissionBooleanToYAML(item.use) ?? "Ложь",
     Описание: exportMobileApplicationPermissionDescriptionToYAML(context, item.description),
   }))
 }
@@ -122,36 +123,10 @@ export const exportRequiredMobileApplicationPermissionsToYAML = (
 export const RequiredMobileApplicationPermissionsJSONSchema = Type.Array(
   Type.Object({
     Разрешение: literalUnionJSONSchema(Object.keys(RequiredMobileApplicationPermissionsFromYAML)),
-    Использовать: BooleanJSONSchema,
-    Описание: I8nTextJSONSchema,
+    Использовать: MobileApplicationPermissionBooleanJSONSchema,
+    Описание: MobileApplicationPermissionDescriptionJSONSchema,
   })
 )
 
-export const exportRequiredMobileApplicationPermissionsToJSONSchema: ExportToJSONSchemaFn = () =>
+export const exportRequiredMobileApplicationPermissionsToJSONSchema = (_params?: unknown) =>
   RequiredMobileApplicationPermissionsJSONSchema
-
-registerTypeRule(
-  "RequiredMobileApplicationPermissions",
-  "importFromXML",
-  importRequiredMobileApplicationPermissionsFromXML
-)
-registerTypeRule(
-  "RequiredMobileApplicationPermissions",
-  "exportToXML",
-  exportRequiredMobileApplicationPermissionsToXML
-)
-registerTypeRule(
-  "RequiredMobileApplicationPermissions",
-  "importFromYAML",
-  importRequiredMobileApplicationPermissionsFromYAML
-)
-registerTypeRule(
-  "RequiredMobileApplicationPermissions",
-  "exportToYAML",
-  exportRequiredMobileApplicationPermissionsToYAML
-)
-registerTypeRule(
-  "RequiredMobileApplicationPermissions",
-  "exportToJSONSchema",
-  exportRequiredMobileApplicationPermissionsToJSONSchema
-)
