@@ -188,7 +188,7 @@ describe("dependency validation из ProjectState", () => {
       { kind: "attribute", typeInfo: { kinds: ["decimal"], sourceText: "decimal" } },
     ),
     referenceCase("cfe/x -> cfe/x", "cfe/x", ["cfe/x"]),
-    referenceCase("fallback cfe/x -> cf", "cfe/x", ["cf"]),
+    referenceCase("forbidden cfe/x -> cf", "cfe/x", ["cf"]),
     referenceCase("forbidden cfe/x -> cfe/y", "cfe/x", ["cfe/y"]),
   ])("полностью совпадает с чистым validation-графом: $name", ({ sourceComponent, updates, graph }) => {
     const graphDiagnostics = validatePendingReferencesWithIndex({
@@ -203,6 +203,40 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(storeDiagnostics).toEqual(graphDiagnostics)
+    store.rollbackUpdate()
+  })
+
+  it.each([
+    {
+      name: "пользовательский реквизит своего расширения",
+      value: "Объект.Артикул",
+      field: {
+        name: "Артикул",
+        kind: "attribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      },
+    },
+    {
+      name: "стандартный реквизит явно представленного объекта",
+      value: "Объект.Код",
+      field: {
+        name: "Код",
+        targetName: "Code",
+        kind: "standardAttribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      },
+    },
+  ])("разрешает $name", ({ value, field }) => {
+    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value)
+    const extensionOwner = ownerUpdate("cfe/x", [{
+      owner: { kind: "Справочник", name: "Товары" },
+      ...field,
+    }])
+    const store = storeWithUpdates([source, extensionOwner, configurationUpdate(true)])
+
+    expect(store.validateDependencies({
+      requests: [{ requestId: "data-path", componentPath: "cfe/x", projectPath: source.projectPath }],
+    })).toEqual([])
     store.rollbackUpdate()
   })
 
@@ -333,7 +367,7 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
-  it("берёт DataPath-поля владельца только из приоритетного слоя", () => {
+  it("берёт DataPath-поля владельца только из собственного компонента", () => {
     const source = ownerDependencySource("cfe/x")
     const directOwner = ownerUpdate("cfe/x")
     const fallbackOwner = ownerUpdate("cf", [
@@ -386,6 +420,10 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(storeDiagnostics).toEqual(graphDiagnostics)
+    expect(storeDiagnostics).toEqual([expect.objectContaining({
+      source: "structure",
+      message: expect.stringContaining("Артикул"),
+    })])
     store.rollbackUpdate()
   })
 
@@ -431,7 +469,8 @@ describe("dependency validation из ProjectState", () => {
     const updates = [
       baseDocuments,
       localDocument,
-      ownerUpdate("cf", [], register),
+      ownerUpdate("cfe/x", [], register),
+      ownerUpdate("cfe/y", [], register),
       sourceX,
       sourceY,
       configurationUpdate(true),
@@ -466,8 +505,8 @@ describe("dependency validation из ProjectState", () => {
       } while (cursor !== undefined)
     }
     expect(pageSizes).toEqual(new Map([
-      ["cfe/x", [2, 1]],
-      ["cfe/y", [2, 1]],
+      ["cfe/x", [1]],
+      ["cfe/y", [0]],
     ]))
 
     const layeredOwners = pagedSession.readDependencyOwnerInputs([
@@ -476,7 +515,7 @@ describe("dependency validation из ProjectState", () => {
     ])
     expect(layeredOwners).toEqual([
       dependencyOwnerInput("local", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Local"] }),
-      dependencyOwnerInput("fallback", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Base"] }, "Номер"),
+      { requestId: "fallback", status: "missing" },
     ])
   })
 
