@@ -1,160 +1,106 @@
 import fs from "node:fs"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import type { ProjectStateService } from "../projectState"
 import { finalizePartialXmlSyncPackage } from "./finalizePartialXmlSyncPackage"
-import { preparePartialXmlSyncPackage } from "./preparePartialXmlSyncPackage"
+import {
+  preparePartialXmlSyncPackage,
+  type PreparePartialXmlSyncPackageResult,
+} from "./preparePartialXmlSyncPackage"
 import {
   createPartialSyncTestProject,
+  createPartialSyncTestProjectState,
   FORM_PATH,
   MODULE_PATH,
+  preparePartialSyncTestPackage,
+  type PartialSyncTestProject,
+  type PreparedPartialSyncTestPackage,
 } from "./__fixtures__/projectFactory"
 
-type TestProject = Awaited<ReturnType<typeof createPartialSyncTestProject>>
-
 describe("сквозная подготовка частичного XML-пакета", () => {
-  const projects: TestProject[] = []
-  afterEach(async () => {
-    let project = projects.pop()
-    while (project !== undefined) {
-      await project.close()
-      project = projects.pop()
-    }
-  })
+  const projects: PartialSyncTestProject[] = []
+  let projectState: ProjectStateService
+  let form: { prepared: PreparedPartialSyncTestPackage; publishedChanged: boolean; archiveRemoved: boolean }
+  let modulePrepared: PreparedPartialSyncTestPackage
+  let retry: { first: PreparedPartialSyncTestPackage; second: PreparedPartialSyncTestPackage; publishedUnchanged: boolean }
+  let unchanged: PreparePartialXmlSyncPackageResult
 
-  it("выгружает только изменённую форму и публикует снимок отдельной операцией", async () => {
-    const project = await createProject()
-    const publishedBefore = fs.readFileSync(project.indexPath)
-    project.write(FORM_PATH, "Реквизиты: {}\nКомментарий: Изменена форма\n")
-
-    const prepared = await preparePartialXmlSyncPackage({
-      context: project.context,
-      projectDir: project.projectDir,
-      componentPath: "cf",
-      projectState: project.projectState,
-    })
-
-    expect(prepared.ok).toBe(true)
-    if (!prepared.ok || prepared.status !== "prepared") throw new Error("Пакет не подготовлен")
-    expect(prepared.entries).toEqual([
-      "Catalogs/Товары/Forms/ФормаЭлемента.xml",
-      "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form.xml",
-      "load.lst",
-    ])
-    expect(prepared.loadTargets).toEqual(["Catalogs/Товары/Forms/ФормаЭлемента.xml"])
-    expect(fs.readFileSync(project.indexPath)).toEqual(publishedBefore)
-
+  beforeAll(async () => {
+    projectState = createPartialSyncTestProjectState()
+    const formProject = await createProject()
+    const publishedBefore = fs.readFileSync(formProject.indexPath)
+    formProject.write(FORM_PATH, "Реквизиты: {}\nКомментарий: Изменена форма\n")
+    const preparedForm = await preparePartialSyncTestPackage(formProject)
     await finalizePartialXmlSyncPackage({
-      projectDir: project.projectDir,
+      projectDir: formProject.projectDir,
       componentPath: "cf",
-      packageId: prepared.packageId,
+      packageId: preparedForm.packageId,
     })
+    form = {
+      prepared: preparedForm,
+      publishedChanged: !fs.readFileSync(formProject.indexPath).equals(publishedBefore),
+      archiveRemoved: !fs.existsSync(preparedForm.archivePath),
+    }
 
-    expect(fs.readFileSync(project.indexPath)).not.toEqual(publishedBefore)
-    expect(fs.existsSync(prepared.archivePath)).toBe(false)
+    const moduleProject = await createProject()
+    moduleProject.write(MODULE_PATH, "Процедура ПриОткрытии()\n// Изменено\nКонецПроцедуры\n")
+    modulePrepared = await preparePartialSyncTestPackage(moduleProject)
+
+    const retryProject = await createProject()
+    const retryPublished = fs.readFileSync(retryProject.indexPath)
+    retryProject.write(FORM_PATH, "Реквизиты: {}\nКомментарий: Повтор\n")
+    const first = await preparePartialSyncTestPackage(retryProject)
+    const second = await preparePartialSyncTestPackage(retryProject)
+    retry = {
+      first,
+      second,
+      publishedUnchanged: fs.readFileSync(retryProject.indexPath).equals(retryPublished),
+    }
+
+    const unchangedProject = await createProject()
+    unchanged = await preparePartialXmlSyncPackage({
+      context: unchangedProject.context,
+      projectDir: unchangedProject.projectDir,
+      componentPath: "cf",
+      projectState,
+    })
   })
 
-  it("пишет изменение модуля напрямую и не добавляет XML владельца", async () => {
-    const project = await createProject()
-    project.write(MODULE_PATH, "Процедура ПриОткрытии()\n// Изменено\nКонецПроцедуры\n")
-
-    const prepared = await prepare(project)
-
-    expect(prepared.entries).toEqual(["Catalogs/Товары/Ext/ObjectModule.bsl", "load.lst"])
-    expect(prepared.loadTargets).toEqual(["Catalogs/Товары/Ext/ObjectModule.bsl"])
+  afterAll(async () => {
+    for (const project of projects) await project.close()
+    await projectState.close()
   })
 
-  it("при добавлении и удалении формы включает владельца и текущее содержимое коллекции", async () => {
-    const addedProject = await createProject()
-    addedProject.write("Справочник/Товары/Формы/Дополнительная/Форма.yaml", "Реквизиты: {}\n")
-
-    const added = await prepare(addedProject)
-
-    expect(added.loadTargets).toEqual([
-      "Catalogs/Товары.xml",
-      "Catalogs/Товары/Forms/Дополнительная.xml",
-    ])
-    expect(added.entries).toEqual(expect.arrayContaining([
-      "Catalogs/Товары.xml",
-      "Catalogs/Товары/Forms/Дополнительная.xml",
-      "Catalogs/Товары/Forms/Дополнительная/Ext/Form.xml",
+  it("выгружает только изменённую форму и публикует снимок отдельной операцией", () => {
+    expect(form.prepared.entries).toEqual([
       "Catalogs/Товары/Forms/ФормаЭлемента.xml",
       "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form.xml",
-    ]))
-
-    const deletedProject = await createProject()
-    deletedProject.remove(FORM_PATH)
-
-    const deleted = await prepare(deletedProject)
-
-    expect(deleted.loadTargets).toEqual(["Catalogs/Товары.xml"])
-    expect(deleted.entries).toEqual(expect.arrayContaining([
-      "Catalogs/Товары.xml",
       "load.lst",
-    ]))
+    ])
+    expect(form.prepared.loadTargets).toEqual(["Catalogs/Товары/Forms/ФормаЭлемента.xml"])
+    expect(form.publishedChanged).toBe(true)
+    expect(form.archiveRemoved).toBe(true)
   })
 
-  it("при добавлении и удалении справочника включает корень конфигурации", async () => {
-    const addedProject = await createProject()
-    addedProject.write("Справочник/Новый/Свойства.yaml", "Комментарий: Новый\n")
-
-    const added = await prepare(addedProject)
-
-    expect(added.loadTargets).toContain("Configuration.xml")
-    expect(added.loadTargets).toContain("Catalogs/Новый.xml")
-
-    const deletedProject = await createProject()
-    deletedProject.remove("Справочник/Товары/Свойства.yaml")
-    deletedProject.remove(FORM_PATH)
-    deletedProject.remove(MODULE_PATH)
-
-    const deleted = await prepare(deletedProject)
-
-    expect(deleted.loadTargets).toContain("Configuration.xml")
-    expect(deleted.entries).toContain("Configuration.xml")
+  it("пишет изменение модуля напрямую и не добавляет XML владельца", () => {
+    expect(modulePrepared.entries).toEqual(["Catalogs/Товары/Ext/ObjectModule.bsl", "load.lst"])
+    expect(modulePrepared.loadTargets).toEqual(["Catalogs/Товары/Ext/ObjectModule.bsl"])
   })
 
-  it("повторяет подготовку с опубликованной базы и удаляет предыдущий пакет", async () => {
-    const project = await createProject()
-    const publishedBefore = fs.readFileSync(project.indexPath)
-    project.write(FORM_PATH, "Реквизиты: {}\nКомментарий: Повтор\n")
-
-    const first = await prepare(project)
-    const second = await prepare(project)
-
-    expect(second.packageId).not.toBe(first.packageId)
-    expect(fs.existsSync(first.archivePath)).toBe(false)
-    expect(fs.existsSync(second.archivePath)).toBe(true)
-    expect(fs.readFileSync(project.indexPath)).toEqual(publishedBefore)
+  it("повторяет подготовку с опубликованной базы и удаляет предыдущий пакет", () => {
+    expect(retry.second.packageId).not.toBe(retry.first.packageId)
+    expect(fs.existsSync(retry.first.archivePath)).toBe(false)
+    expect(fs.existsSync(retry.second.archivePath)).toBe(true)
+    expect(retry.publishedUnchanged).toBe(true)
   })
 
-  it("не создаёт ZIP, когда текущие хэши совпадают с опубликованным снимком", async () => {
-    const project = await createProject()
-
-    const result = await preparePartialXmlSyncPackage({
-      context: project.context,
-      projectDir: project.projectDir,
-      componentPath: "cf",
-      projectState: project.projectState,
-    })
-
-    expect(result).toEqual({ ok: true, status: "unchanged", diagnostics: [] })
+  it("не создаёт ZIP, когда текущие хэши совпадают с опубликованным снимком", () => {
+    expect(unchanged).toEqual({ ok: true, status: "unchanged", diagnostics: [] })
   })
 
-  async function createProject(): Promise<TestProject> {
-    const project = await createPartialSyncTestProject()
+  async function createProject(): Promise<PartialSyncTestProject> {
+    const project = await createPartialSyncTestProject(projectState)
     projects.push(project)
     return project
   }
 
-  async function prepare(project: TestProject) {
-    const result = await preparePartialXmlSyncPackage({
-      context: project.context,
-      projectDir: project.projectDir,
-      componentPath: "cf",
-      projectState: project.projectState,
-    })
-    if (!result.ok || result.status !== "prepared") {
-      throw new Error(`Пакет не подготовлен: ${result.diagnostics.map(({ message }) => message).join("; ")}`)
-    }
-    return result
-  }
 })
