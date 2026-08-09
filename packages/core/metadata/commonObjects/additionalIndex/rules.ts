@@ -3,7 +3,7 @@ import { indexFieldRule } from "../indexField/types"
 import { stringRule } from "../string/types"
 import { xmlRootRule } from "../xmlRoot/types"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
   xmlOrder: [

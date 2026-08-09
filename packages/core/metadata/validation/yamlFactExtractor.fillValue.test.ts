@@ -7,7 +7,7 @@ import {
   snapshotDependentItemRegistryForTests,
   type DependentItemRegistrySnapshot,
   type DependentYamlItemParams,
-} from "../orchestration/property/dependentItemRegistry"
+} from "../ruleRuntime/property/dependentItemRegistry"
 import { registerCoreMetadata } from "../register"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"

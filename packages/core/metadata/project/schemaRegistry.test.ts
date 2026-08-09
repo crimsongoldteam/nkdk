@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
-import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { registerProjectSpec, unregisterProjectSpecForTests } from "./projectSpecRegistry"
 import { exportJSONSchemaForSchemaName, listJSONSchemaNames, registerProjectJSONSchema } from "./schemaRegistry"
 
@@ -23,7 +23,7 @@ describe("project schema registry", () => {
     })
   })
 
-  it("exports schemas registered through orchestration identity registry", () => {
+  it("exports schemas registered through ruleRuntime identity registry", () => {
     registerJSONSchemaIdentity({
       name: "NeutralSchema",
       source: "test",

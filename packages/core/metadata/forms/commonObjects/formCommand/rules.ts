@@ -8,7 +8,7 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 export const FormCommandRules = {
   itemType: "FormCommand",
   xmlOrder: [

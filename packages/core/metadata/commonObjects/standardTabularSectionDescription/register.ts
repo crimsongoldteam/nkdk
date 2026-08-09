@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { StandardAttributeDescriptionRules } from "../standardAttributeDescription/rules"
 import { StandardTabularSectionDescriptionRules } from "./rules"
 

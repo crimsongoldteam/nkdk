@@ -9,7 +9,7 @@ import {
 } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"

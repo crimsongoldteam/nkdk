@@ -1,7 +1,7 @@
 import type { ValidateFunction } from "ajv"
 import { describe, expect, it } from "vitest"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { createValidationSchemaCacheFromStandaloneModule } from "./projectValidationStandaloneLoader"
 import {
   configurationValidationProjectSpec,

@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
-import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
+import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 /**

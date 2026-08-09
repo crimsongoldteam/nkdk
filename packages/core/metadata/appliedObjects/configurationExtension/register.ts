@@ -1,13 +1,13 @@
 import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
-import { registerMetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
+import { registerMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configurationExtension"
-import { registerMetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
+import { registerMetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { registerMetadataComponentDescriptor } from "../../components/descriptor"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 
 registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)

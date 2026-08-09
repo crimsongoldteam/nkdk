@@ -31,8 +31,8 @@ import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
 import "./configurationChildObjects"
-import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
 const configurationProperties = ["Properties"]
 const configurationInternalInfoContainedObjectClassIds = [
   "9cd510cd-abfc-11d4-9434-004095e12fc7",

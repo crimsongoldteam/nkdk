@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 
 import "./index"
 

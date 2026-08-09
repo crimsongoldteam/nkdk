@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration"
+import { registerTypeRule } from "../../ruleRuntime"
 import type { ChildSubsystemNames, ChildSubsystemNamesXML } from "./types"
 
 export const exportChildSubsystemNamesToXML = (

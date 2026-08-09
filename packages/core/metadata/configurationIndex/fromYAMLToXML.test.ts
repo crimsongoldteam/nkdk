@@ -5,9 +5,9 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../tests/directConversion"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
-import { convertPropertiesFromYAMLToXML } from "../orchestration/property/fromYAMLToXML"
-import type { TypeRulesOperations } from "../orchestration/property/fn"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { convertPropertiesFromYAMLToXML } from "../ruleRuntime/property/fromYAMLToXML"
+import type { TypeRulesOperations } from "../ruleRuntime/property/fn"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { createConfigurationIndexCollector } from "./collector/writer"
 import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"

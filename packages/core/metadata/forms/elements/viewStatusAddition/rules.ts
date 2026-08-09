@@ -3,9 +3,9 @@ import { contextMenuRule, extendedTooltipRule } from "./builders"
 import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
-import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getViewStatusAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 const commonProperties = {

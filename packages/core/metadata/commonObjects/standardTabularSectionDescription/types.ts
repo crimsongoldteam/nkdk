@@ -5,8 +5,8 @@ import type {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
 } from "../standardAttributeDescription/types"
-import type { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import type { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import type { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import type { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import type * as SE from "../../systemEnumerations/types"
 import type { StandardTabularSectionDescriptionRules } from "./rules"
 

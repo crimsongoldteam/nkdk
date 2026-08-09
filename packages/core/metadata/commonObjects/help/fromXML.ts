@@ -1,7 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../orchestration"
-import type { HelpPropertyRule, PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime"
+import type { HelpPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 /**

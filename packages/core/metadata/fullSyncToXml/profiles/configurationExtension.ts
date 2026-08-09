@@ -1,5 +1,5 @@
 import { createConfigurationIndexReader } from "../../configurationIndex"
-import { formatCanonicalMetadataTargetToYAML } from "../../orchestration/metadataTarget"
+import { formatCanonicalMetadataTargetToYAML } from "../../ruleRuntime/metadataTarget"
 import type { FullXmlSyncComponentProfile } from "../componentProfile"
 
 export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfile = {

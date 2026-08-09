@@ -1,5 +1,5 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { ExportToXMLFunction } from "../../orchestration/property/fn"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
 import type { WebSocketClientHeaders, WebSocketClientHeadersXML } from "./types"
 
 export const exportWebSocketClientHeadersToXML: ExportToXMLFunction = (

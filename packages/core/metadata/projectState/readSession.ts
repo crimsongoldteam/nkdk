@@ -1,4 +1,4 @@
-import type { OwnerTypeRef } from "../orchestration/dataPath/types"
+import type { OwnerTypeRef } from "../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,

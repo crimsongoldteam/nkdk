@@ -2,7 +2,7 @@ import { ConfigurationContextFromXML } from "../../../context/types"
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importNumberFromXML } from "../../../commonObjects/number/fromXML"
 import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fromXML"
-import { registerTypeRule } from "../../../orchestration"
+import { registerTypeRule } from "../../../ruleRuntime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 

@@ -2,12 +2,12 @@ import type {
   MetadataTargetConstraint,
   MetadataTargetOwner,
   ParsedMetadataTarget,
-} from "../orchestration/metadataTarget"
+} from "../ruleRuntime/metadataTarget"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import {
   collectDependentStructuralItemReferences,
   type DependentStructuralItemReference,
-} from "../orchestration/property/dependentItemRegistry"
+} from "../ruleRuntime/property/dependentItemRegistry"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string

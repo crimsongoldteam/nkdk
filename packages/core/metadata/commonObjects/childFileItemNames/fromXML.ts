@@ -1,6 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import type { PropertyRule } from "../../orchestration"
-import { registerTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../ruleRuntime"
+import { registerTypeRule } from "../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexXmlNodeLogicalAddress,

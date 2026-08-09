@@ -9,7 +9,7 @@ import {
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { importFromYAML } from "../../../yaml/import"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
 import { characteristicsDescriptionsRule } from "./types"
 

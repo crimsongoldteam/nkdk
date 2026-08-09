@@ -5,9 +5,9 @@ import { readSourceTreeOnce, type SourceTreeFile } from "../tests/sourceTreeSnap
 
 const METADATA_DIR = join(process.cwd(), "metadata")
 const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
-const ORCHESTRATION_DIR = join(METADATA_DIR, "orchestration")
-const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "appliedObject")
-const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
+const ORCHESTRATION_DIR = join(METADATA_DIR, "ruleRuntime")
+const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "ruleRuntime", "appliedObject")
+const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "ruleRuntime", "formElement")
 const PROJECT_DIR = join(METADATA_DIR, "project")
 const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
 const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
@@ -137,7 +137,7 @@ describe("metadata import boundaries", () => {
     expect(findImportOffenders(COMMON_OBJECTS_DIR, FORBIDDEN_COMMON_OBJECT_IMPORTS)).toEqual([])
   })
 
-  it("orchestration/appliedObject не импортирует configuration migrations", () => {
+  it("ruleRuntime/appliedObject не импортирует configuration migrations", () => {
     expect(
       findImportOffenders(ORCHESTRATION_APPLIED_OBJECT_DIR, FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS)
     ).toEqual([])
@@ -147,12 +147,12 @@ describe("metadata import boundaries", () => {
     const offenders = [
       ...findImportOffenders(METADATA_DIR, FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS),
       ...findImportOffenders(ORCHESTRATION_FORM_ELEMENT_DIR, FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS),
-    ].filter(({ filePath }) => filePath !== "metadata/orchestration/formElement/factory.ts")
+    ].filter(({ filePath }) => filePath !== "metadata/ruleRuntime/formElement/factory.ts")
 
     expect(offenders).toEqual([])
   })
 
-  it("orchestration не импортирует модель baseElement из forms", () => {
+  it("ruleRuntime не импортирует модель baseElement из forms", () => {
     const offenders = findImportOffenders(ORCHESTRATION_DIR, FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS).filter(
       ({ filePath }) => !filePath.includes(".test.ts")
     )
@@ -180,7 +180,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("metadataTargetString не знает concrete metadata itemType/root", () => {
-    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "metadataTargetString.ts"), "utf-8")
+    const source = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "metadataTargetString.ts"), "utf-8")
 
     expect(source).not.toContain("rootByOwnerItemType")
     expect(source).not.toContain("itemTypePrefixRootFallback")
@@ -324,7 +324,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("I8nText registry entry живёт рядом с владельцем", () => {
-    const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+    const globalRegistry = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
 
     expect(globalRegistry).not.toMatch(/^\s+I8nText: \{/m)
@@ -335,16 +335,16 @@ describe("metadata import boundaries", () => {
     expect(localRegistry).toContain("I8nText: I8nText")
   })
 
-  it("orchestration property registry is no longer a concrete metadata type list", () => {
-    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+  it("ruleRuntime property registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
 
     expect(source).not.toContain("interface PropertyTypeRegistry")
     expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
     expect(source).toContain("export type PropertyRuleType = string")
   })
 
-  it("orchestration metadata item registry is no longer a concrete metadata type list", () => {
-    const source = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+  it("ruleRuntime metadata item registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"), "utf-8")
 
     expect(source).not.toContain("interface MetadataItemTypeRegistry")
     expect(source).not.toContain("//#region Applied objects")
@@ -353,9 +353,9 @@ describe("metadata import boundaries", () => {
   })
 
   it("central metadata registries expose only neutral string keys", () => {
-    const propertyRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+    const propertyRegistry = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
     const metadataItemRegistry = readFileSync(
-      join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"),
+      join(METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"),
       "utf-8"
     )
 
@@ -425,7 +425,7 @@ describe("metadata import boundaries", () => {
     const files = [
       ...listTypeScriptFiles(join(METADATA_DIR, "fullSyncToXml")),
       ...listTypeScriptFiles(join(METADATA_DIR, "operations")),
-      join(METADATA_DIR, "orchestration", "appliedObject", "syncToXML.ts"),
+      join(METADATA_DIR, "ruleRuntime", "appliedObject", "syncToXML.ts"),
     ].filter((filePath) => !filePath.endsWith(".test.ts"))
     const source = files.map(readSource).join("\n")
 

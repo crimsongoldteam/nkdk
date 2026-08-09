@@ -10,7 +10,7 @@ import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import * as propertyImporter from "../../orchestration/property/fromXMLToYAML"
+import * as propertyImporter from "../../ruleRuntime/property/fromXMLToYAML"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,

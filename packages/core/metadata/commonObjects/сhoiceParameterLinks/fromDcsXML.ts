@@ -1,4 +1,4 @@
-import type { PropertyRule } from "../../orchestration/property/types"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import {

@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
-import { BasePropertyRule } from "../../../orchestration"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import { BasePropertyRule } from "../../../ruleRuntime"
 import type { SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import * as SE from "../../../systemEnumerations/types"
 import type { I8nText, I8nTextXML, I8nTextYAML } from "../../i8nText/types"
@@ -22,7 +22,7 @@ export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   exportSettingsXsiType?: boolean
 }
 
-declare module "../../../orchestration/property/types" {
+declare module "../../../ruleRuntime/property/types" {
   interface PropertyRuleExtensionMap {
     SettingsParameterValue: SettingsParameterValuePropertyRule
   }

@@ -1,5 +1,5 @@
-import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
-import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,

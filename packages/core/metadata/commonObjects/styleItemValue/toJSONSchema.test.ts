@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTypeRule, type PropertyRule } from "../../orchestration"
+import { getTypeRule, type PropertyRule } from "../../ruleRuntime"
 import { registerCoreMetadata } from "../../register"
 import { mockContext } from "../../../tests/mockContext"
 

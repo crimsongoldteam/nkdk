@@ -1,8 +1,8 @@
 import { TSchema, Type } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import type { MetadataTargetConstraint } from "../metadataTargets/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint

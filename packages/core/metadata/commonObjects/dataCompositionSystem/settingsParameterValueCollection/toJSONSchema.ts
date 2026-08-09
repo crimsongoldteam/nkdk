@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { exportSettingsParameterValueToJSONSchema } from "../parameterValue/toJSONSchema"
 

@@ -2,22 +2,22 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
 import type { TSchema } from "typebox"
 import { getParentFromContext } from "../../../context/helpers"
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
-import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
-import { importSingleFormElementFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
-import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/orchestration/ruleFactory"
+import { exportElementToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"
+import { importSingleFormElementFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
+import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/ruleRuntime/ruleFactory"
 import {
   getCanonicalSingletonName,
   type SingletonNameStyle,
-} from "../../../orchestration/formElement/singletonName"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { ElementXML } from "../../../orchestration/formElement/types"
-import type { ExportToJSONSchemaFn } from "../../../orchestration"
+} from "../../../ruleRuntime/formElement/singletonName"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { ElementXML } from "../../../ruleRuntime/formElement/types"
+import type { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML

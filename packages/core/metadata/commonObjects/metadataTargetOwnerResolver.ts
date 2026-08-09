@@ -1,5 +1,5 @@
-import type { MetadataTargetOwner } from "../orchestration/metadataTarget/types"
-import { registerMetadataTargetOwnerResolver } from "../orchestration/property/metadataTargetOwnerRegistry"
+import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget/types"
+import { registerMetadataTargetOwnerResolver } from "../ruleRuntime/property/metadataTargetOwnerRegistry"
 import { registerTopologyMetadataTargetOwnerResolver } from "../resourceTopology/metadataTargetOwner"
 
 export interface CommonMetadataTargetOwnerFrame {

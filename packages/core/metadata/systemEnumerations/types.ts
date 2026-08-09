@@ -1,7 +1,7 @@
 // #region SystemEnumerations
 
 import { definePropertyRule, type ExactRuleParams } from "../commonObjects/ruleBuilder"
-import type { BasePropertyRule } from "../orchestration/property/types"
+import type { BasePropertyRule } from "../ruleRuntime/property/types"
 import type {
   MobileApplicationFunctionalities,
   RequiredMobileApplicationPermissionMessages,

@@ -7,7 +7,7 @@
 export type MetadataItemType = string
 
 /**
- * Compatibility aliases for generic orchestration code that still receives only
+ * Compatibility aliases for generic ruleRuntime code that still receives only
  * itemType strings. New object-local code should prefer MetadataTypeByRule and
  * YAMLTypeByRule from a concrete rules.ts.
  */

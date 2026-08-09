@@ -13,7 +13,7 @@ import type { FullXmlSyncAssignment } from "./types"
 import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { registerMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import {

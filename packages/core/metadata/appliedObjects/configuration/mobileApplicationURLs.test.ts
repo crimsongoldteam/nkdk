@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "../../orchestration"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { getTypeRule } from "../../ruleRuntime"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { mockContext } from "../../../tests/mockContext"
 import {
   exportMobileApplicationURLsToJSONSchema,

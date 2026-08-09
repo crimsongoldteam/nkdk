@@ -17,7 +17,7 @@ import { MetadataExchangePlanRules } from "../../appliedObjects/metadataExchange
 import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
 import { MetadataReportRules } from "../../appliedObjects/metadataReport/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
-import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItem, MetadataItemRule } from "../../ruleRuntime/property/types"
 import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
 import { buildObjectFieldIndex } from "./objectFields"

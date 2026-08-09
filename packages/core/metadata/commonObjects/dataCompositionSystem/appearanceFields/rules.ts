@@ -1,5 +1,5 @@
 import { settingsParameterValueRule } from "../parameterValue/types"
-import { MetadataItemRule, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { MetadataItemRule, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
 import { normalizeAppearanceFieldsStringYAML } from "./stringValues"
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"

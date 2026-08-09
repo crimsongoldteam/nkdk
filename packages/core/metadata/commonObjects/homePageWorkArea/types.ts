@@ -1,8 +1,8 @@
 import { StringboolYAML, StringboolXML } from "../boolean/types"
 import { MetadataItemLink } from "../metadataRef/types"
-import { MetadataItem } from "../../orchestration"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import { MetadataItem } from "../../ruleRuntime"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { HomePageWorkAreaRules } from "./rules"
 
 export type HomePageWorkAreaTemplate = "OneColumn" | "TwoColumnsEqualWidth" | "TwoColumnsVariableWidth" | string

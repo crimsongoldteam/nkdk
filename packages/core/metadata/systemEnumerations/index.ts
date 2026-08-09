@@ -1,7 +1,7 @@
 import {
   getRegisteredSystemEnumerationNames,
   registerSystemEnumeration,
-} from "../orchestration/property/systemEnumerationRegistry"
+} from "../ruleRuntime/property/systemEnumerationRegistry"
 import * as systemEnumerationExports from "./types"
 
 type EnumerationTables = Record<string, Readonly<Record<string, string>> | undefined>

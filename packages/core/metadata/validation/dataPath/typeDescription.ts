@@ -1,4 +1,4 @@
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import {
   getOwnerKindByRegisterRecordSetBase,
   getOwnerKindByTypeDescriptionBase,

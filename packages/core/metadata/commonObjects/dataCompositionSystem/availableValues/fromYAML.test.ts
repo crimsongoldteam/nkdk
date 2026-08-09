@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { callAtomicFromYAML } from "../../../orchestration"
+import { callAtomicFromYAML } from "../../../ruleRuntime"
 import { mockContext } from "../../../../tests/mockContext"
 import { importFromYAML } from "../../../../yaml/import"
 import {

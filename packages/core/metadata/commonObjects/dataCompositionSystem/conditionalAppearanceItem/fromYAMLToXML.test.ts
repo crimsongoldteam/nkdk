@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MetadataItemRule, PropertyRule } from "../../../orchestration"
+import { MetadataItemRule, PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
 import {

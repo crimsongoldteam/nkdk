@@ -10,7 +10,7 @@ import type {
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { ClientApplicationFormRules } from "./rules"
 
 export function buildClientApplicationBaseForm(params: {

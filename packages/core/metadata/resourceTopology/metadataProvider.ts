@@ -1,5 +1,5 @@
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { typeRulesRegistryRevision } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { typeRulesRegistryRevision } from "../ruleRuntime/property/typeRuleRegistry"
 import { projectSpecRegistryRevision } from "../project/projectSpecRegistry"
 import {
   compileMetadataResourceTopologyForRootRule,

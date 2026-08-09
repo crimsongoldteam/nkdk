@@ -6,7 +6,7 @@ import {
   type AppliedMigrationsState,
 } from "../appliedObjects/configuration/migrations"
 import { isMigrationFileName } from "../appliedObjects/configuration/migrations/fileNames"
-import type { XmlSyncArea } from "../orchestration/appliedObject/xmlAreas"
+import type { XmlSyncArea } from "../ruleRuntime/appliedObject/xmlAreas"
 import { importFromYAML } from "../../yaml/import"
 import { validateMetadataLocalName } from "./nameRules"
 import { buildRenameTargetPathFromOperationPath, parseMetadataOperationPath } from "./operationPath"

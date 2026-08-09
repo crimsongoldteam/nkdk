@@ -10,8 +10,8 @@ import {
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
 import { mockContext } from "../../../../tests/mockContext"
-import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
+import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 import { DynamicListRules } from "./rules"
 
 import "./types"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { PropertyToYAML } from "../../orchestration/property/registry"
+import type { PropertyToYAML } from "../../ruleRuntime/property/registry"
 import type { FormattedI8nTextValueYAML, FormattedI8nTextYAML } from "./types"
 
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false

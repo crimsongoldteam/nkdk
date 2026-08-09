@@ -1,8 +1,8 @@
 import * as SE from "./types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { ExportToYAMLFunction } from "../orchestration"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { ExportToYAMLFunction } from "../ruleRuntime"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
 

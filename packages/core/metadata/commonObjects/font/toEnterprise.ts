@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 

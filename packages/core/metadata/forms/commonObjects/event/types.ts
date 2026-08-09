@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
-import { ElementXML } from "../../../orchestration"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import { ElementXML } from "../../../ruleRuntime"
 
 export const EVENT_CALL_TYPES_XML = ["Before", "After", "Override"] as const
 export const EVENT_CALL_TYPES_YAML = ["Перед", "После", "Вместо"] as const

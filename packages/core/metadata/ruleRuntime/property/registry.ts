@@ -8,7 +8,7 @@ export type PropertyRuleType = string
 
 /**
  * Runtime-known property types are collected by propertyTypeKeys.ts through
- * local registrations. The central orchestration layer must not import concrete
+ * local registrations. The central ruleRuntime layer must not import concrete
  * property implementations to build this list.
  */
 export const PropertyRuleTypeKeys = [] as readonly PropertyRuleType[]

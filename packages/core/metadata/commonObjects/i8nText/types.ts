@@ -2,8 +2,8 @@ import { Type } from "typebox"
 import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
 import { ConfigurationContext } from "../../context/types"
-import { TypeRulesOperations } from "../../orchestration"
-import type { BasePropertyRule } from "../../orchestration/property/types"
+import { TypeRulesOperations } from "../../ruleRuntime"
+import type { BasePropertyRule } from "../../ruleRuntime/property/types"
 
 export interface I8nText {
   items: Record<string, string>

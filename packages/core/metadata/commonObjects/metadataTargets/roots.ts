@@ -1,1 +1,1 @@
-export * from "../../orchestration/metadataTarget/roots"
+export * from "../../ruleRuntime/metadataTarget/roots"

@@ -4,7 +4,7 @@ import {
   getConfigurationIndexPropertyValueLogicalAddress,
 } from "../configurationIndex/collector/context"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>

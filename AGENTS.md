@@ -43,4 +43,4 @@
 
 - при изменении общих metadata-операций сверяйся с [архитектурой metadata-операций](.agents/architecture.md); изменяй этот архитектурный план только с согласия разработчика и только на этапе планирования; если после реализации план расходится с кодом, сообщи об этом разработчику вместо самостоятельного изменения плана
 - существующие ограничения проекта собраны в [restrictions.md](.agents/restrictions.md)
-- `packages/core/metadata/orchestration`, `packages/core/metadata/validation` и `packages/core/metadata/project` не знают про конкретные реализации метаданных: никаких частных условий по `itemType`, именам XML-корней, папкам вроде `Формы`/`Макеты` или типам вроде `ChildFormNames`
+- `packages/core/metadata/ruleRuntime`, `packages/core/metadata/validation` и `packages/core/metadata/project` не знают про конкретные реализации метаданных: никаких частных условий по `itemType`, именам XML-корней, папкам вроде `Формы`/`Макеты` или типам вроде `ChildFormNames`

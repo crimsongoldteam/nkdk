@@ -1,8 +1,8 @@
 import { TSchema, Type } from "typebox"
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 

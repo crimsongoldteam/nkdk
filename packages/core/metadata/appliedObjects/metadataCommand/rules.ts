@@ -7,7 +7,7 @@ import { moduleRule } from "../../commonObjects/module/types"
 import { stringRule } from "../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { uuidPropertyRule } from "../../commonObjects/uuid/rule"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
   externalMetadata: { segment: "Command", placement: "ownerChild" },

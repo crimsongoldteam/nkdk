@@ -1,5 +1,5 @@
 import { syncChildFormNamesFromXML } from "../../commonObjects/childFormNames/syncExternalFromXML"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 
 let registered = false
 

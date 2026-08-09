@@ -1,5 +1,5 @@
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import { indexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {

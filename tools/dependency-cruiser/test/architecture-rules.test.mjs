@@ -42,7 +42,7 @@ test("разрешает связь нейтральных слоёв", () => {
   assert.equal(
     result.summary.violations.some(
       ({ from }) =>
-        from === "packages/core/metadata/orchestration/allowed.ts"
+        from === "packages/core/metadata/ruleRuntime/allowed.ts"
     ),
     false
   )
@@ -57,15 +57,15 @@ test("запрещает runtime, type-only и транзитивное знан
     )
 
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/direct-runtime.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/direct-runtime.ts"),
     new Set(["not-in-allowed", "neutral-not-reach-implementations"])
   )
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/direct-type.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/direct-type.ts"),
     new Set(["not-in-allowed", "neutral-not-reach-implementations"])
   )
   assert.deepEqual(
-    namesFor("packages/core/metadata/orchestration/transitive.ts"),
+    namesFor("packages/core/metadata/ruleRuntime/transitive.ts"),
     new Set(["neutral-not-reach-implementations"])
   )
 })
@@ -77,15 +77,15 @@ test("линейный обход сохраняет runtime, type-only и тр�
     violations.map(({ from, to }) => [from, to]),
     [
       [
-        "packages/core/metadata/orchestration/direct-runtime.ts",
+        "packages/core/metadata/ruleRuntime/direct-runtime.ts",
         "packages/core/metadata/appliedObjects/example/runtime.ts",
       ],
       [
-        "packages/core/metadata/orchestration/direct-type.ts",
+        "packages/core/metadata/ruleRuntime/direct-type.ts",
         "packages/core/metadata/appliedObjects/example/types.ts",
       ],
       [
-        "packages/core/metadata/orchestration/transitive.ts",
+        "packages/core/metadata/ruleRuntime/transitive.ts",
         "packages/core/metadata/appliedObjects/example/runtime.ts",
       ],
     ]
@@ -125,14 +125,14 @@ test("смягчает известное reachable-нарушение по ис
     [
       {
         type: "reachability",
-        from: "packages/core/metadata/orchestration/transitive.ts",
+        from: "packages/core/metadata/ruleRuntime/transitive.ts",
         rule: { name: "neutral-not-reach-implementations" },
       },
     ]
   )
   const transitive = checked.summary.violations.find(
     ({ from, rule }) =>
-      from === "packages/core/metadata/orchestration/transitive.ts" &&
+      from === "packages/core/metadata/ruleRuntime/transitive.ts" &&
       rule.name === "neutral-not-reach-implementations"
   )
 

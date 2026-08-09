@@ -1,6 +1,6 @@
 import type { I8nText, I8nTextYAML } from "./types"
 
-declare module "../../orchestration/property/registry" {
+declare module "../../ruleRuntime/property/registry" {
   interface PropertyMetadataTypeMap {
     I8nText: I8nText
   }

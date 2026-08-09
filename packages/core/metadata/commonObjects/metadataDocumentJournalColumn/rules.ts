@@ -4,7 +4,7 @@ import { i8nTextRule } from "../i8nText/types"
 import { stringRule } from "../string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 export const MetadataDocumentJournalColumnRules = {
   itemType: "MetadataDocumentJournalColumn",
   xmlOrder: [

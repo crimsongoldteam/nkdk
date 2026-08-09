@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import type { BasePropertyRule } from "../../orchestration/property/types"
+import type { BasePropertyRule } from "../../ruleRuntime/property/types"
 
 export const StringJSONSchema = Type.String()
 

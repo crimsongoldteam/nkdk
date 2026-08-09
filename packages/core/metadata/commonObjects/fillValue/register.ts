@@ -3,7 +3,7 @@ import {
   registerDependentImportItemHandler,
   registerDependentYamlItemHandler,
   type DependentStructuralItemHandler,
-} from "../../orchestration/property/dependentItemRegistry"
+} from "../../ruleRuntime/property/dependentItemRegistry"
 import {
   analyzeMetadataAttributeFillValue,
   analyzeStandardAttributeFillValue,

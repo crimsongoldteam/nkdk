@@ -2,9 +2,9 @@ import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
+import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint

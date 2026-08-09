@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { registerCoreMetadata } from "../../register"
 import { mockContext } from "../../../tests/mockContext"
 import { HomePageWorkAreaRules } from "./rules"

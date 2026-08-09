@@ -2,12 +2,12 @@ import { compileValidationSchema, type ValidationSchemaValidator } from "./compi
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { resolve } from "path"
-import { rootFromYAML } from "../orchestration/metadataTarget/roots"
-import type { MetadataFieldKind, ParsedMetadataTarget } from "../orchestration/metadataTarget/types"
+import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
 import type { ConfigurationContext } from "../context/types"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { stripCollectedSchemaRefs } from "../ruleRuntime/jsonSchemaRefs"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -38,7 +38,7 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { collectFormTableDataPathsFromYAML } from "../orchestration/formElement/formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../ruleRuntime/formElement/formTableDataPaths"
 
 type CompiledSchema = ValidationSchemaValidator
 const formSchemaCache = new WeakMap<

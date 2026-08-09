@@ -2,8 +2,8 @@ import {
   recordOfDiscriminatedOneOfSchemaRefs,
   recordOfSchemaRef,
   schemaRef,
-} from "../orchestration/jsonSchemaRefs"
-import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+} from "../ruleRuntime/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   getChildItemTypesByPropertyType,
   getTreeNodeJSONSchemaPropertyAliases,
@@ -14,13 +14,13 @@ import { FormCommandRules } from "./commonObjects/formCommand/rules"
 import { exportFormParameterToJSONSchema } from "./commonObjects/formParameter/toJSONSchema"
 import { ClientApplicationFormRules } from "./clientApplicationForm/rules"
 import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../project/schemaRegistry"
-import { getElementRule } from "../orchestration/formElement/ruleFactory"
-import { exportElementRuleToJSONSchema, exportSingleElementRuleToJSONSchema } from "../orchestration/formElement/toJSONSchema"
+import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
+import { exportElementRuleToJSONSchema, exportSingleElementRuleToJSONSchema } from "../ruleRuntime/formElement/toJSONSchema"
 import {
   CollectableElementTypeToYAML,
   type CollectableElementType,
   type SingleElementType,
-} from "../orchestration/formElement/types"
+} from "../ruleRuntime/formElement/types"
 
 registerProjectJSONSchema("ClientApplicationForm", ({ context }) =>
   exportMetadataItemToJSONSchema({ context, rule: ClientApplicationFormRules })

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../../context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../../orchestration"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../../ruleRuntime"
 import {
   StructureItemGroupCollectionItemYAML,
   StructureItemGroupCollectionYAML,

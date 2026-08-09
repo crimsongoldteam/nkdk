@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTypeRule } from "../../orchestration"
-import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { getTypeRule } from "../../ruleRuntime"
+import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import { registerCoreMetadata } from "../../register"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { mockContext } from "../../../tests/mockContext"

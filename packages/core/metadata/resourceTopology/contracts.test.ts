@@ -4,7 +4,7 @@ import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability 
 import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "./registry"
 import { mockContextToXML } from "../../tests/mockContext"
-import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { sampleSnapshot } from "../configurationIndex/testData"

@@ -1,5 +1,5 @@
 import { MetadataAttributeFullYAML, MetadataAttributeXML } from "../metadataAttribute/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { MetadataNameYAML } from "../metadataName/types"
 import { MetadataTaskAddressingAttributeRules } from "./rules"
 

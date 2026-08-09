@@ -6,7 +6,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
 
 export interface PictureXML {
   "xr:Ref"?: string

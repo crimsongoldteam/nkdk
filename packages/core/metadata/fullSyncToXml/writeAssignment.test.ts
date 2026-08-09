@@ -8,7 +8,7 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleSnapshot } from "../configurationIndex/testData"
-import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"

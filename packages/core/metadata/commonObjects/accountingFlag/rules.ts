@@ -1,8 +1,8 @@
 import { commonRegisterFieldProperties } from "../metadataRegisterField/rules"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { ConfigurationContext } from "../../context/types"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
-import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { YAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
 
 const hasExplicitProperty =
   (propertyKey: string) =>

@@ -2,7 +2,7 @@ import type { Color } from "../../../color/types"
 import type { Font } from "../../../font/types"
 import type { I8nText } from "../../../i8nText/types"
 import type { MetadataTypedPrimitiveValue } from "../../../metadataValue/types"
-import type { PropertyRule } from "../../../../orchestration"
+import type { PropertyRule } from "../../../../ruleRuntime"
 import type { SettingsParameterValue } from "../../parameterValue/types"
 import type { AppearanceFields, AppearanceFieldsYAML } from "../types"
 

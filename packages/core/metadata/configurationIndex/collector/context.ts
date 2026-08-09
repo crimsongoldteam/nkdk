@@ -1,5 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import type { ConfigurationIndexAddressingMode } from "../../orchestration/property/types"
+import type { ConfigurationIndexAddressingMode } from "../../ruleRuntime/property/types"
 import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid, yamlPropertyUid } from "../logicalAddress"
 import type { ConfigurationIndexCollector } from "./writer"
 

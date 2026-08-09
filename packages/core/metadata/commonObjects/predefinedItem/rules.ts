@@ -6,7 +6,7 @@ import { stringRule } from "../string/types"
 import { uuidPropertyRule } from "../uuid/rule"
 import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 const isChartOfCharacteristicTypesPredefined = (context?: ConfigurationContextWithExportToXML): boolean =>
   context
     ? getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).itemType ===

@@ -2,7 +2,7 @@ import { registerProjectSpec } from "../../project/projectSpecRegistry"
 import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
 import { createMetadataItemProjectSchemaExporter } from "../../project/projectSpecHelpers"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
   registerProjectReferenceObjectPathContributor,

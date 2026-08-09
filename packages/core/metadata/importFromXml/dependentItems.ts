@@ -2,9 +2,9 @@ import type { ConfigurationIndexCollector } from "../configurationIndex/collecto
 import {
   shouldRemoveImportedDependentProperty,
   type DependentItemParams,
-} from "../orchestration/property/dependentItemRegistry"
-import type { ImportedDependentPropertyCandidate } from "../orchestration/property/importYamlTypes"
-import type { MetadataItemRule } from "../orchestration/property/types"
+} from "../ruleRuntime/property/dependentItemRegistry"
+import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 
 export function normalizeImportedDependentItems(params: {
   readonly yaml: unknown

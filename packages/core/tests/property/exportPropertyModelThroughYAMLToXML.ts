@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "../../metadata/context/types"
-import { exportPropertyToYAML } from "../../metadata/orchestration"
-import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/orchestration"
+import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
+import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime"
 import { xmlExport } from "../../xml/export/exporter"
 import {
   createDirectRoundTripContexts,

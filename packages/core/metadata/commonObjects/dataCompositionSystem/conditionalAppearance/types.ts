@@ -1,6 +1,6 @@
-import { registerMetadataItemRule, registerTypeRule } from "../../../orchestration"
-import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import { registerMetadataItemRule, registerTypeRule } from "../../../ruleRuntime"
+import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
+import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { ConditionalAppearanceRules } from "./rules"
 
 export type ConditionalAppearance = MetadataTypeByRule<typeof ConditionalAppearanceRules>

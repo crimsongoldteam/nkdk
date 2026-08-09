@@ -4,7 +4,7 @@ import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import importContentFromXML from "../../../xml/import/importer"
 import { importFormattedI8nTextFromXML } from "./fromXML"
 import { FormattedI8nTextPropertyRule, FormattedI8nTextXML } from "./types"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 
 describe("importFormattedI8nTextFromXML", () => {
   it.each(formattedI8nTextFixtures)("should import: $name", (fixture) => {

@@ -1,10 +1,10 @@
 import { join } from "path"
-import { rootFromYAML } from "../orchestration/metadataTarget/roots"
+import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
 import {
   getTypeRule,
   resolvePropertyItemRule,
-} from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../orchestration/property/types"
+} from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"
 import { getMetadataProjectSpecByDir } from "../project/specs"

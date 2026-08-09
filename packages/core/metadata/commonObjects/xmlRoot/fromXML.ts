@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 
 /** Маркерный обработчик: реальная работа выполняется единым обходом XML → YAML. */
 export const importXMLRootFromXML = (

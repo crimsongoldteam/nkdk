@@ -1,5 +1,5 @@
-import { exportPropertyToYAML } from "../../metadata/orchestration"
-import type { MetadataItemRule, PropertyRule } from "../../metadata/orchestration/property/types"
+import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
+import type { MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime/property/types"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directConversion"
 import { mockContext } from "../mockContext"
 import { readAndParseXMLFile } from "../readAndParseXMLFile"

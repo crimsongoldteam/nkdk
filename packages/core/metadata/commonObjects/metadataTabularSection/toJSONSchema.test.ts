@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 

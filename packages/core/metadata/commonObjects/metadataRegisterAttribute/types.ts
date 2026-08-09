@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { MetadataNameYAML } from "../metadataName/types"
-import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import {
   MetadataRegisterFieldFullYAML,
   MetadataRegisterFieldYAML,

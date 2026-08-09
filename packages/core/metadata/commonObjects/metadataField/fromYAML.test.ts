@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { callAtomicFromYAML } from "../../orchestration"
+import { callAtomicFromYAML } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataFieldFromYAML, importMetadataFieldsFromYAML } from "./fromYAML"
 

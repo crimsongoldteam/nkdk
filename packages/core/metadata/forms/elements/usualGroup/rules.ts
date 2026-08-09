@@ -6,9 +6,9 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
-import type { PropertyRule } from "../../../orchestration/property/types"
-import { ElementRule } from "../../../orchestration/formElement/types"
+import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
 export const UsualGroupRules = {

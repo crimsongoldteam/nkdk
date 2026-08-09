@@ -1,5 +1,5 @@
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
-import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "../../orchestration/property/types"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
 import { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"

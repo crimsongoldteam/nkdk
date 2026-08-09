@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn } from "../../orchestration"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ExportToJSONSchemaFn } from "../../ruleRuntime"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { XDTOPackagesJSONSchema } from "./types"
 
 export const exportXDTOPackagesToJSONSchema: ExportToJSONSchemaFn = (): TSchema => XDTOPackagesJSONSchema

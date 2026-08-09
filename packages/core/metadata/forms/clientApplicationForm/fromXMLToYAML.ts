@@ -1,18 +1,18 @@
 import type { ExternalFileEntry } from "../../context/types"
-import { applyMetadataItemXmlImportAugmenter } from "../../orchestration/metadataItem/augmenterRegistry"
-import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
+import { applyMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
+import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,
   type DirectImportProfile,
   type DirectImportResult,
-} from "../../orchestration/property/importYamlTypes"
+} from "../../ruleRuntime/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathMetadataCollector } from "../../validation/dataPath/formYamlIndex"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]

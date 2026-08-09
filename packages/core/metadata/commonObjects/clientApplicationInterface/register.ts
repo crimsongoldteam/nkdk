@@ -7,7 +7,7 @@ import {
   registerTypeRule,
   type ImportFromXMLToYAMLFunction,
   type PropertyRule,
-} from "../../orchestration"
+} from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
   getConfigurationIndexCollectionContext,
@@ -777,7 +777,7 @@ const collectAllPanels = (metadataItem: Record<string, unknown> | undefined): Cl
   )
 
 const collectAllPanelsFromYAMLSource = (
-  source: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLPropertySource
+  source: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLPropertySource
 ): ClientApplicationInterfacePanel[] =>
   ["top", "left", "right", "bottom"].flatMap((propertyKey) => collectPanelsFromYAML(source.raw(propertyKey)))
 

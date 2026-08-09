@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { mockContext } from "../../../tests/mockContext"
 
 const compileSchema = () => {

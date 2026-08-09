@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
 import { registerCoreMetadata } from "../register"
 import { compileRegisteredMetadataResourceTopology, describePropertyResourceTopology } from "./registry"
 import type { CompiledMetadataResourceTopology } from "./types"

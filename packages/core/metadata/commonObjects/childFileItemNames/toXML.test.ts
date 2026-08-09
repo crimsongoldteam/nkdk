@@ -6,7 +6,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration"
+import type { MetadataItemRule } from "../../ruleRuntime"
 
 const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOnly: true as const }
 

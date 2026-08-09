@@ -1,15 +1,15 @@
 import type { Diagnostic } from "../../diagnostics/types"
-import type { OwnerFactRole } from "../../orchestration/property/ownerFactRole"
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import type { ElementType } from "../../orchestration/formElement/types"
+import type { OwnerFactRole } from "../../ruleRuntime/property/ownerFactRole"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type {
   DataPathTableInfo,
   DataPathTypeInfo,
   FormDataPathColumnSource,
   OwnerTypeRef,
-} from "../../orchestration/dataPath/types"
-import type { DataPathAllowedKind } from "../../orchestration/property/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../orchestration/metadataTarget/types"
+} from "../../ruleRuntime/dataPath/types"
+import type { DataPathAllowedKind } from "../../ruleRuntime/property/types"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
 import type { ProjectStateFileIdentity } from "./fileIdentity"
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">

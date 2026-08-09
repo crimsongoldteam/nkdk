@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { eventCallTypeFromYAML } from "./callType"
 import type { EventCallHandlers, EventCallHandlersYAML, Events, EventsYAML } from "./types"
 

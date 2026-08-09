@@ -1,10 +1,10 @@
 import {
   getTypeRule,
   resolvePropertyItemRule,
-} from "../orchestration/property/typeRuleRegistry"
-import type { MetadataTargetOwner } from "../orchestration/metadataTarget"
-import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/property/fn"
-import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+} from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
+import type { PendingMetadataTargetReferenceCandidate } from "../ruleRuntime/property/fn"
+import type { MetadataItem, MetadataItemRule } from "../ruleRuntime/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 import type { Diagnostic } from "./types"

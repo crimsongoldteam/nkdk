@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { Type } from "typebox"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { RegisteredProjectSpec } from "../project/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "./compiler"
 import { compileMetadataPathIndex } from "./pathIndex"

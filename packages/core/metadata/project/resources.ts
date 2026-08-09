@@ -10,7 +10,7 @@ import {
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { projectPathFromFileSystem } from "./path"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"

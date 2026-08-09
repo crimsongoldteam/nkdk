@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import {
   MobileDeviceCommandBarContent,

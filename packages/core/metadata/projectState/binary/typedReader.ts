@@ -1,12 +1,12 @@
-import { isMetadataRootName } from "../../orchestration/metadataTarget/roots"
+import { isMetadataRootName } from "../../ruleRuntime/metadataTarget/roots"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
   MetadataRootName,
   ParsedMetadataTarget,
-} from "../../orchestration/metadataTarget/types"
-import type { TypeDescriptionView } from "../../orchestration/property/typeDescriptionView"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../orchestration/dataPath/types"
+} from "../../ruleRuntime/metadataTarget/types"
+import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
 import type {
   ProjectStateFileIdentity,
   ProjectStateFileUpdate,

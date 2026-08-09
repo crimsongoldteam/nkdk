@@ -4,8 +4,8 @@ import type {
   LocalMetadataFactsWriter,
   LocalMetadataTargetFact,
   LocalYamlFact,
-} from "../orchestration/property/localFacts"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+} from "../ruleRuntime/property/localFacts"
+import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 
 export type {
   LocalIndexes,
@@ -13,7 +13,7 @@ export type {
   LocalMetadataEvent,
   LocalMetadataIndex,
   LocalMetadataTargetFact,
-} from "../orchestration/property/localFacts"
+} from "../ruleRuntime/property/localFacts"
 
 export function createLocalIndexesCollector(options?: { recordEvents?: boolean }): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []

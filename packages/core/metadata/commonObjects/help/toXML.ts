@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { HelpPropertyRule, PropertyRule } from "../../orchestration/property/types"
+import type { HelpPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 
 export function prepareHelpXML(params: {

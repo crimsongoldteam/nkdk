@@ -16,7 +16,7 @@ import {
 } from "./prepareYaml"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ImportAssignment } from "./types"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,

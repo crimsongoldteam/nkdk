@@ -3,8 +3,8 @@ import type {
   ExternalPicturePropertyRule,
 } from "./externalPicture/types"
 import type { ExternalFilePropertyRule } from "./externalFile/types"
-import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../orchestration/property/types"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../ruleRuntime/property/types"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration, MetadataResourceSource } from "../resourceTopology/types"
 import { registerMetadataExternalTransferCapability } from "../resourceTopology/capabilities"
 

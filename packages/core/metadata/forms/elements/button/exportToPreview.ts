@@ -1,5 +1,5 @@
 // import { ConfigurationContext } from "../../../context/types"
-// import { exportElementToEnterprise, registerMetadata } from "../../../orchestration"
+// import { exportElementToEnterprise, registerMetadata } from "../../../ruleRuntime"
 // import { Button, ButtonEnterprise } from "./types"
 
 // export function exportButtonToEnterprise<From extends Button | undefined>(

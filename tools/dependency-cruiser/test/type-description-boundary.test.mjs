@@ -2,8 +2,8 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import test from "node:test"
 
-const orchestrationTypes = readFileSync(
-  "packages/core/metadata/orchestration/property/types.ts",
+const ruleRuntimeTypes = readFileSync(
+  "packages/core/metadata/ruleRuntime/property/types.ts",
   "utf8"
 )
 const typeDescriptionTypes = readFileSync(
@@ -12,7 +12,7 @@ const typeDescriptionTypes = readFileSync(
 )
 
 test("TypeDescription owns its property rule declaration", () => {
-  assert.doesNotMatch(orchestrationTypes, /TypeDescriptionAllowedTypes/u)
+  assert.doesNotMatch(ruleRuntimeTypes, /TypeDescriptionAllowedTypes/u)
   assert.match(
     typeDescriptionTypes,
     /interface TypeDescriptionPropertyRule extends BasePropertyRule/u

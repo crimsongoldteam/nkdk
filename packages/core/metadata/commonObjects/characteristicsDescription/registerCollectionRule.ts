@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../orchestration"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime"
 import { CharacteristicsDescriptionRules } from "./rules"
 
 import "./explicitXMLDefaults"

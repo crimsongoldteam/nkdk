@@ -6,7 +6,7 @@ import { registerAppliedObjects } from "./appliedObjects"
 import { registerValidationMetadata } from "./validation/registerValidationMetadata"
 import { metadataResourceTopologyProvider } from "./resourceTopology/metadataProvider"
 import { registerMetadataResourceTopologyProvider } from "./resourceTopology/providerRegistry"
-import "./orchestration/appliedObject/syncToXML"
+import "./ruleRuntime/appliedObject/syncToXML"
 
 let coreMetadataRegistered = false
 

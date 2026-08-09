@@ -9,7 +9,7 @@ import type {
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
 import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
-import type { FormDataPathIndex } from "../orchestration/dataPath/formIndex"
+import type { FormDataPathIndex } from "../ruleRuntime/dataPath/formIndex"
 
 export interface ValidationFormIndexContribution {
   readonly owner: OwnerTypeRef

@@ -12,7 +12,7 @@ import { indexedItemOrderSwap } from "./__fixtures__/indexedItemOrderSwap"
 import { fullCommandInterface } from "./__fixtures__/full"
 import { importCommandInterfaceFromXML } from "./fromXML"
 import { CommandInterfaceXML } from "./types"
-import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 

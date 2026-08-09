@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 
 export async function copyExistingRawFile(params: {
   sourcePath: string

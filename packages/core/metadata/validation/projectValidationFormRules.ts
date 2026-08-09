@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 
 export interface ProjectValidationFormRule {

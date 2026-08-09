@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { BasePropertyRule } from "../../orchestration/property/types"
+import type { BasePropertyRule } from "../../ruleRuntime/property/types"
 import { Type } from "typebox"
 import type { Static } from "typebox"
 

@@ -1,4 +1,4 @@
-import type { FormDataPathIndex } from "../../orchestration/dataPath/formIndex"
+import type { FormDataPathIndex } from "../../ruleRuntime/dataPath/formIndex"
 import type { ObjectField, OwnerMetadata, OwnerMetadataCache } from "./contracts"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 import {

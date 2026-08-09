@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../orchestration/property/types"
-import type { MetadataItemRule } from "../orchestration/property/types"
-import { getTypeRule, typeRulesRegistryRevision } from "../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { getTypeRule, typeRulesRegistryRevision } from "../ruleRuntime/property/typeRuleRegistry"
 import {
   getRegisteredProjectSpecs,
   projectSpecRegistryRevision,

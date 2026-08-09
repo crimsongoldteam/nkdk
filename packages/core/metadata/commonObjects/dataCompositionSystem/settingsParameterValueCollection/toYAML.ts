@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import { exportParameterValueToYAML } from "../parameterValue/toYAML"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionYAML } from "./types"

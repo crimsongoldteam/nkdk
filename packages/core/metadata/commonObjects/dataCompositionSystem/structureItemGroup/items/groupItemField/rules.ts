@@ -2,7 +2,7 @@ import { dateTimeRule } from "../../../../dateTime/types"
 import { booleanRule } from "../../../../boolean/types"
 import { stringRule } from "../../../../string/types"
 import { systemEnumerationRule } from "../../../../../systemEnumerations/types"
-import { MetadataItemRule } from "../../../../../orchestration"
+import { MetadataItemRule } from "../../../../../ruleRuntime"
 export const GroupItemFieldRules = {
   itemType: "GroupItemField",
   xsiType: "dcsset:GroupItemField",

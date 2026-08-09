@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRuleType } from "../orchestration/property/registry"
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { PropertyRuleType } from "../ruleRuntime/property/registry"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { createLocalIndexesCollector } from "./localIndexes"
 
 describe("createLocalIndexesCollector", () => {

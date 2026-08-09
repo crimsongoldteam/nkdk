@@ -2,7 +2,7 @@ import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { orderItemFieldsRule } from "./builders"
 import { userSettingsIDRule } from "../../userSettingsID/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { MetadataItemRule } from "../../../orchestration"
+import { MetadataItemRule } from "../../../ruleRuntime"
 export const OrderRules = {
   itemType: "Order",
   xmlOrder: [

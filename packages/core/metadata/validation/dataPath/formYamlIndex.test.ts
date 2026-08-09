@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 import { createFormDataPathIndexCollector } from "./formYamlIndex"
-import { collectFormTableDataPathsFromYAML } from "../../orchestration/formElement/formTableDataPaths"
+import { collectFormTableDataPathsFromYAML } from "../../ruleRuntime/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
   it("собирает пути табличных элементов при прямом обходе YAML по rules", () => {

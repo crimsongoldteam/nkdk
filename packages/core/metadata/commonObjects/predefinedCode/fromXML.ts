@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 import { PredefinedCode } from "./types"
 
 const TYPED_NUMERIC_XSI = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])

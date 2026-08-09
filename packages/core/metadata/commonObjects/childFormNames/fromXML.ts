@@ -4,7 +4,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
 
 /** Импортирует список имён форм из XML-тегов Form в ChildObjects. */
 export const importChildFormNamesFromXML = (

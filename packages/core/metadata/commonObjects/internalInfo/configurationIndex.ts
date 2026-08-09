@@ -2,7 +2,7 @@ import type { ConfigurationContext, ConfigurationContextFromXML } from "../../co
 import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import { childSegmentUid, childUid } from "../../configurationIndex/logicalAddress"
 import { getUUID } from "../../helpers/uuid"
-import type { CollectConfigurationIndexFromXMLFunction } from "../../orchestration/property/fn"
+import type { CollectConfigurationIndexFromXMLFunction } from "../../ruleRuntime/property/fn"
 import type { InternalInfoRootXML } from "./types"
 
 const internalInfoAddress = (ownerAddress: string): string => childSegmentUid(ownerAddress, "InternalInfo")

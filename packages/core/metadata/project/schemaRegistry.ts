@@ -13,10 +13,10 @@ import {
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
-} from "../orchestration/jsonSchemaRefs"
-import type { PropertyRuleType } from "../orchestration/property/registry"
-import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
-import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+} from "../ruleRuntime/jsonSchemaRefs"
+import type { PropertyRuleType } from "../ruleRuntime/property/registry"
+import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
+import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {

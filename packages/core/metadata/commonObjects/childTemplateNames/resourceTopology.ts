@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 

@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
-import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../orchestration/jsonSchemaRefs"
-import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../ruleRuntime/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { RegisteredProjectSpec } from "./projectSpecRegistry"
 
 export function createMetadataItemProjectSchemaExporter(rule: MetadataItemRule): RegisteredProjectSpec["exportSchema"] {

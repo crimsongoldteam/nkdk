@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../orchestration"
+import { registerTypeRule } from "../../ruleRuntime"
 
 export const exportXMLRootToXML = (): undefined => {
   return undefined

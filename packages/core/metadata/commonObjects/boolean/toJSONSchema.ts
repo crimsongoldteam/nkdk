@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../../ruleRuntime"
 import { BooleanJSONSchema } from "./types"
 
 export const exportBooleanToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

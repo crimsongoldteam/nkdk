@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "../../../orchestration"
+import { PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
 import {
   fullConditionalAppearanceItems,
@@ -13,7 +13,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "../../../orchestration"
+import type { MetadataItemRule } from "../../../ruleRuntime"
 
 const rule: PropertyRule = {
   type: "ConditionalAppearanceItems",

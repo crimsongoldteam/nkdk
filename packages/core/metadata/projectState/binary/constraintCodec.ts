@@ -1,4 +1,4 @@
-import type { MetadataTargetConstraint } from "../../orchestration/metadataTarget/types"
+import type { MetadataTargetConstraint } from "../../ruleRuntime/metadataTarget/types"
 
 export function encodeMetadataTargetConstraint(value: MetadataTargetConstraint): string {
   return encodeValue(value)

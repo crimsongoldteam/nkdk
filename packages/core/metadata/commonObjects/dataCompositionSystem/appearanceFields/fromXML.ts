@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../orchestration"
-import { exportPropertyValueToYAML } from "../../../orchestration/property/toYAML"
+import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { exportPropertyValueToYAML } from "../../../ruleRuntime/property/toYAML"
 import type { SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "../settingsParameterValueCollection/dcscorItemsXML"
 import { AppearanceFieldsRules } from "./rules"

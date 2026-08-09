@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
-import { ToEnterprise, registerTypeRule } from "../../../orchestration"
-import { exportElementToEnterprise } from "../../../orchestration/formElement/toEnterprise"
+import { ToEnterprise, registerTypeRule } from "../../../ruleRuntime"
+import { exportElementToEnterprise } from "../../../ruleRuntime/formElement/toEnterprise"
 import { ChildItem } from "./types"
 
 export const exportChildItemsToEnterprise = <From extends ChildItem>(params: {

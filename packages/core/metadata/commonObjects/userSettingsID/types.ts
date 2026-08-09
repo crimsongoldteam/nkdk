@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
 import type { StringboolYAML } from "../boolean/types"
 
 export type UserSettingIDRef = string

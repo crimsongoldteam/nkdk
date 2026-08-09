@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import type { BasePropertyRule } from "../../orchestration"
+import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import type { BasePropertyRule } from "../../ruleRuntime"
 
 export type ExternalPicture = true
 export type ExternalPictureYAML = true

@@ -1,7 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../orchestration"
-import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../ruleRuntime"
+import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../../ruleRuntime/property/types"
 
 /**
  * Копирует внешний .bsl-файл (модуль или шаблон) из XML-директории объекта

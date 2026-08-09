@@ -5,7 +5,7 @@ import {
   testPropertyFixtureThroughYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 import "./register"

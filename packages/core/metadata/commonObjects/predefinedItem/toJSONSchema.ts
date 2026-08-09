@@ -1,9 +1,9 @@
 import { TSchema, Type } from "typebox"
 import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
 import { ConfigurationContext } from "../../context/types"
-import { recordOfSchemaRef } from "../../orchestration/jsonSchemaRefs"
-import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
+import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import {
   registerProjectJSONSchema,
   registerProjectJSONSchemaPropertyRefFactory,

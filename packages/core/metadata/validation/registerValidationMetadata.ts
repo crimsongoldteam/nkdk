@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { getRegisteredProjectSpecs } from "../project/projectSpecRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 

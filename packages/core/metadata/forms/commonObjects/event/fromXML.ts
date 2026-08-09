@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
 

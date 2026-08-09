@@ -1,6 +1,6 @@
 import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import "../../commonObjects"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { ClientApplicationFormRules } from "./rules"

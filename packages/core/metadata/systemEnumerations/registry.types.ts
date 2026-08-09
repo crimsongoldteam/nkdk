@@ -10,6 +10,6 @@ export type RegisteredSystemEnumerationTypeMap = {
   }
 }
 
-declare module "../orchestration/property/systemEnumerationRegistry" {
+declare module "../ruleRuntime/property/systemEnumerationRegistry" {
   interface SystemEnumerationTypeMap extends RegisteredSystemEnumerationTypeMap {}
 }

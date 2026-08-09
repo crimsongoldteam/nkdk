@@ -1,4 +1,4 @@
-import { registerMetadataItemRule } from "../../orchestration"
+import { registerMetadataItemRule } from "../../ruleRuntime"
 import { registerProjectSpec } from "../../project/projectSpecRegistry"
 import { createProjectSchemaExporter } from "../../project/projectSpecHelpers"
 import { registerProjectJSONSchema } from "../../project/schemaRegistry"

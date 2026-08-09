@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
-import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
-import { resolvePropertyItemRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
+import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { MetadataResourceTopologySpec } from "../resourceTopology/types"
 
 export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {

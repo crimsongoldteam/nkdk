@@ -64,7 +64,7 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
     })
   })
 
-  it("does not contain private orchestration knowledge", () => {
+  it("does not contain private ruleRuntime knowledge", () => {
     const source = readFileSync(fileURLToPath(import.meta.url).replace(/\.test\.ts$/, ".ts"), "utf-8")
     expect(source).not.toContain('parts[2] === "Формы"')
     expect(source).not.toContain('parts[2] === "Макеты"')

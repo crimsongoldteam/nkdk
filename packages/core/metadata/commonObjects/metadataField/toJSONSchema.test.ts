@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "../../orchestration"
+import { getTypeRule } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataFieldToJSONSchema } from "./toJSONSchema"
 
