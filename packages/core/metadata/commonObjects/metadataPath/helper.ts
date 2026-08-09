@@ -1,4 +1,16 @@
-import { MetadataFieldsRules } from "./types"
+export type IncludeToType = "Ref" | "Both" | "Save"
+
+export interface MetadataMapItem {
+  name: string
+  includeToType?: IncludeToType
+  fields?: {
+    [key: string]: string | MetadataMapItem
+  }
+}
+
+export type MetadataFieldsRulesItem = string | MetadataMapItem
+
+export type MetadataFieldsRules = Record<string, MetadataFieldsRulesItem>
 
 export const swapMetadataFieldsRulesKeys = (
   rules: MetadataFieldsRules | undefined

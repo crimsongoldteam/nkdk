@@ -27,17 +27,7 @@ import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
 
-export const MetadataCatalogStandardAttributeNames: Record<string, string> = {
-  PredefinedDataName: "ИмяПредопределенныхДанных",
-  Predefined: "Предопределенный",
-  Ref: "Ссылка",
-  DeletionMark: "ПометкаУдаления",
-  IsFolder: "ЭтоГруппа",
-  Owner: "Владелец",
-  Parent: "Родитель",
-  Description: "Наименование",
-  Code: "Код",
-}
+export { MetadataCatalogStandardAttributeNames } from "./rules"
 
 export type MetadataCatalog = MetadataTypeByRule<typeof MetadataCatalogRules>
 

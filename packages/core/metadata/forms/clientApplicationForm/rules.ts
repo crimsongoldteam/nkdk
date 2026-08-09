@@ -19,9 +19,13 @@ import { stringRule } from "../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../../orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
-import { FormRulesTags } from "./types"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
 export type { ElementRule, PropertyRule }
+
+export const FormRulesTags = {
+  Form: "Form",
+  Metadata: "Metadata",
+} as const
 
 const FOLDERS_AND_ITEMS_MAIN_ATTRIBUTE_KINDS = new Set([
   "СправочникОбъект",

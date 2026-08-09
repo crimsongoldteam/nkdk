@@ -12,7 +12,7 @@ import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fro
 import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
-import { FormRulesTags } from "./types"
+import { FormRulesTags } from "./rules"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"

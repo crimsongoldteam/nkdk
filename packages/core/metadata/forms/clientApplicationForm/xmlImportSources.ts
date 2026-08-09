@@ -6,7 +6,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { DirectImportXMLSource } from "../../orchestration/property/importYamlTypes"
-import { FormRulesTags } from "./types"
+import { FormRulesTags } from "./rules"
 
 export function createClientApplicationFormBodyImportSource(params: {
   context: ConfigurationContextFromXML

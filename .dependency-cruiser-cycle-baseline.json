@@ -138,16 +138,6 @@
     },
     {
       "modules": [
-        "packages/core/metadata/appliedObjects/configuration/childObjects.ts",
-        "packages/core/metadata/appliedObjects/configuration/configurationChildObjects.ts",
-        "packages/core/metadata/appliedObjects/configuration/rootIO.ts",
-        "packages/core/metadata/appliedObjects/configuration/rules.ts",
-        "packages/core/metadata/appliedObjects/configuration/types.ts"
-      ],
-      "dependencyCount": 7
-    },
-    {
-      "modules": [
         "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromXML.ts",
         "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromYAML.ts",
         "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/toYAML.ts",
@@ -212,29 +202,8 @@
     },
     {
       "modules": [
-        "packages/core/metadata/appliedObjects/metadataCatalog/rules.ts",
-        "packages/core/metadata/appliedObjects/metadataCatalog/types.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
-        "packages/core/metadata/commonObjects/metadataPath/helper.ts",
-        "packages/core/metadata/commonObjects/metadataPath/types.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
         "packages/core/metadata/forms/clientApplicationForm/baseForm.ts",
         "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.ts"
-      ],
-      "dependencyCount": 2
-    },
-    {
-      "modules": [
-        "packages/core/metadata/forms/clientApplicationForm/rules.ts",
-        "packages/core/metadata/forms/clientApplicationForm/types.ts"
       ],
       "dependencyCount": 2
     },

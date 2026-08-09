@@ -16,8 +16,9 @@ import type {
 } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { CONFIGURATION_XML_FILE } from "./constants"
 
-export const CONFIGURATION_XML_FILE = "Configuration.xml"
+export { CONFIGURATION_XML_FILE } from "./constants"
 export { CONFIGURATION_YAML_FILE }
 
 type MetadataConfigurationXMLObject = {
