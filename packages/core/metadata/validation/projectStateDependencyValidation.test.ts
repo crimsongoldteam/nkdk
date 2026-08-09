@@ -87,6 +87,35 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
+  it("не дополняет реквизиты рабочей формы расширения из cf", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const workingPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const cfSource = ownerDependencySource("cf", owner, "ТолькоCF", `cf/${workingPath}`)
+    const cfRoot = cfSource.forms[0]
+    if (cfRoot?.kind !== "root") throw new Error("Ожидался реквизит формы")
+    const cf = {
+      ...cfSource,
+      forms: [{ ...cfRoot, name: "ТолькоCF", source: { ...cfRoot.source, name: "ТолькоCF" } }],
+      pendingChecks: [],
+    }
+    const extension = {
+      ...ownerDependencySource("cfe/X", owner, "ТолькоCF", `cfe/X/${workingPath}`),
+      forms: [],
+    }
+    const store = storeWithUpdates([cf, extension, ownerUpdate("cfe/X", [], owner), configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([
+      expect.objectContaining({ filePath: extension.projectPath, source: "structure" }),
+    ])
+
+    replaceFiles(store, [{
+      ...extension,
+      forms: [{ ...cf.forms[0]!, owner }],
+    }])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+    store.rollbackUpdate()
+  })
+
   it("Б5 принимает пустую ссылку, если владелец существует", () => {
     const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
       roots: ["Catalog"],

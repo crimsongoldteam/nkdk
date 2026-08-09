@@ -38,14 +38,44 @@ export function validateBorrowedClientApplicationForms(
     if (first === undefined || !first.componentPath.startsWith("cfe/")) continue
     const working = groupFactsByAddress(workingGroups, first.componentPath, first.entry.logicalAddress)
     diagnostics.push(...missingDiagnostics({
-      required: baseFacts.map(({ entry }) => entry).filter(({ componentKind }) => componentKind !== "document"),
+      required: baseFacts.map(({ entry }) => entry).filter(({ componentKind }) =>
+        ["element", "attribute", "command", "parameter"].includes(componentKind)
+      ),
       actual: working.map(({ entry }) => entry),
       filePath: absolutePath(params.projectDir, first.projectPath),
       subject: "сохранённой основы",
       useRequiredPath: true,
     }))
+    diagnostics.push(...baseDataPathDiagnostics({
+      facts: baseFacts,
+      filePath: absolutePath(params.projectDir, first.projectPath),
+    }))
   }
   return diagnostics
+}
+
+function baseDataPathDiagnostics(params: {
+  readonly facts: readonly ProjectStateStructuredDocumentFact[]
+  readonly filePath: string
+}): readonly Diagnostic[] {
+  const attributes = new Set(params.facts
+    .filter(({ entry }) => entry.componentKind === "attribute")
+    .map(({ entry }) => entry.name))
+  return params.facts
+    .filter(({ entry }) => entry.componentKind === "dataPath")
+    .flatMap(({ entry }) => {
+      const root = entry.name.trim().split(".")[0]
+      if (root === undefined || attributes.has(root) || root === "Элементы" || root === "ТекущиеДанные") return []
+      return [{
+        filePath: params.filePath,
+        line: 1,
+        col: 1,
+        severity: "error" as const,
+        source: "structure" as const,
+        message: `ПутьКДанным «${entry.name}»: корень «${root}» не объявлен в реквизитах сохранённой основы`,
+        path: yamlPointer(entry.yamlPath),
+      }]
+    })
 }
 
 function groupFacts(facts: readonly ProjectStateStructuredDocumentFact[]) {

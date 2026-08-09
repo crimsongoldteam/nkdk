@@ -732,13 +732,13 @@ describe("validation first-pass worker boundary", () => {
       components: [{ componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] }],
     })
 
-    expect(documents).toEqual([
+    expect(documents).toEqual(expect.arrayContaining([
       expect.objectContaining({
         representation: "base",
         logicalAddress: "ОбщаяФорма.РабочийСтол",
         workingProjectPath: "ОбщаяФорма/РабочийСтол/Свойства.yaml",
       }),
-    ])
+    ]))
   })
 
   it("declares only shared hash buffers at the Piscina worker boundary", async () => {

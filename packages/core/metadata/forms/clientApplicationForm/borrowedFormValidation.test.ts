@@ -54,6 +54,23 @@ describe("проверка заимствованной формы", () => {
       }),
     ])
   })
+
+  it("проверяет корень ПутьКДанным только по реквизитам основы", () => {
+    const diagnostics = validate([
+      fact("cfe/X", "working", "attribute", "РеквизитРабочейФормы", ["Реквизиты", "РеквизитРабочейФормы"]),
+      fact("cfe/X", "working", "attribute", "РеквизитОсновы", ["Реквизиты", "РеквизитОсновы"]),
+      fact("cfe/X", "base", "attribute", "РеквизитОсновы", ["Реквизиты", "РеквизитОсновы"], "БазоваяФорма.yaml"),
+      fact("cfe/X", "base", "dataPath", "РеквизитРабочейФормы.Код", ["Элементы", "Поле", "ПутьКДанным"], "БазоваяФорма.yaml"),
+    ])
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: "/project/cfe/X/БазоваяФорма.yaml",
+        path: "/Элементы/Поле/ПутьКДанным",
+        message: expect.stringContaining("РеквизитРабочейФормы"),
+      }),
+    ])
+  })
 })
 
 function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {

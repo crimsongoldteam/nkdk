@@ -702,7 +702,18 @@ function processValidationFirstPassFile(
     }, input.fileBackedTargets, projectFormStructureDocuments({
       projectDir: input.projectDir,
       descriptor,
-      components: first.structuredComponents,
+      components: first.structuredComponents === undefined
+        ? undefined
+        : [
+            ...first.structuredComponents,
+            ...(descriptor.indexContribution === "isolated" && first.state.kind === "form"
+              ? first.state.pendingChecks.map((check) => ({
+                  componentKind: "dataPath",
+                  name: check.value,
+                  yamlPath: check.yamlPath,
+                }))
+              : []),
+          ],
     })), descriptor.indexContribution),
     hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
   })
