@@ -189,19 +189,30 @@ describe("validateProjectFileFirstPass references", () => {
   it("keeps a form index contribution without pending DataPath checks", () => {
     const update = formFirstPassUpdate([
       "Реквизиты:",
-      "  Значение:",
-      "    Тип: Строка",
+      "  ПроизвольныйРеквизит: {}",
+      "  Таблица:",
+      "    Тип: ТаблицаЗначений",
+      "    Колонки:",
+      "      Значение: {}",
       "Элементы: {}",
     ])
 
     expect(update.pendingChecks).toEqual([])
-    expect(update.forms).toEqual([
+    expect(update.forms).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: "root",
         owner: { kind: "Справочник", name: "Товары" },
-        name: "Значение",
+        name: "ПроизвольныйРеквизит",
+        source: expect.objectContaining({ typeInfo: expect.objectContaining({ kinds: ["any"] }) }),
       }),
-    ])
+      expect.objectContaining({
+        kind: "additionalColumn",
+        owner: { kind: "Справочник", name: "Товары" },
+        tablePath: "Таблица",
+        name: "Значение",
+        source: expect.objectContaining({ typeInfo: expect.objectContaining({ kinds: ["any"] }) }),
+      }),
+    ]))
   })
 
   it("сохраняет путь к данным табличного элемента в состоянии проекта", () => {

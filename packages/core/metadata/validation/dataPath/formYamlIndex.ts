@@ -1,21 +1,29 @@
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
-import type { LocalYamlFact } from "../../orchestration/property/importYamlTypes"
 import { indexValueFromYAML } from "../../orchestration/property/indexValueFromYAMLRegistry"
 import type { Diagnostic } from "../types"
 import type { FormDataPathIndex } from "./formIndex"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
-import type { FormDataPathColumnSource, FormDataPathSource } from "./types"
+import type { DataPathTypeInfo, FormDataPathColumnSource, FormDataPathSource } from "./types"
 
 interface PendingFormAttribute {
-  type?: TypeDescription
-  dynamicList?: true
+  typeInfo: DataPathTypeInfo
   columns: Map<string, FormDataPathColumnSource>
 }
 
+export const arbitraryDataPathTypeInfo: DataPathTypeInfo = {
+  kinds: ["any"],
+  nextTypes: [],
+  sourceText: "Произвольный",
+}
+
 export function createFormDataPathIndexCollector(_params: { filePath: string }): {
-  acceptProperty(fact: LocalYamlFact): void
+  declareAttribute(name: string): void
+  setAttributeType(name: string, type: TypeDescription | undefined): void
+  setDynamicList(name: string): void
+  declareColumn(attributeName: string, columnName: string): void
+  setColumnType(attributeName: string, columnName: string, type: TypeDescription | undefined): void
+  setAdditionalColumns(value: unknown): void
   acceptTableDataPath(params: { name: string; dataPath: string }): void
-  completeValue(fact: LocalYamlFact): void
   finish(): FormDataPathIndex
 } {
   const attributes = new Map<string, PendingFormAttribute>()
@@ -25,86 +33,61 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
   const pendingAttribute = (name: string): PendingFormAttribute => {
     const existing = attributes.get(name)
     if (existing !== undefined) return existing
-    const created: PendingFormAttribute = { columns: new Map() }
+    const created: PendingFormAttribute = { typeInfo: arbitraryDataPathTypeInfo, columns: new Map() }
     attributes.set(name, created)
     return created
   }
 
-  const acceptProperty = (fact: LocalYamlFact): void => {
-    const propertyRulePath = fact.rulePath.at(-1)
-    const ownerRulePath = fact.rulePath.at(-2)
-    const elementName = fact.yamlPath.at(-2)
-    if (
-      propertyRulePath?.propertyKey === "dataPath" &&
-      ownerRulePath?.nestedItemType === "Table" &&
-      typeof elementName === "string" &&
-      typeof fact.value === "string" &&
-      fact.value.trim().length > 0 &&
-      !tableDataPathByElementName.has(elementName)
-    ) {
-      tableDataPathByElementName.set(elementName, fact.value)
-    }
-
-    const [root, attributeName, property, nestedName, nestedProperty] = fact.yamlPath
-    if (root !== "Реквизиты" || typeof attributeName !== "string" || typeof property !== "string") return
-    const attribute = pendingAttribute(attributeName)
-
-    if (property === "Тип" && fact.yamlPath.length === 3) {
-      attribute.type = indexValueFromYAML<TypeDescription>("TypeDescription", fact.value)
-      return
-    }
-    if (property === "ДинамическийСписок" && fact.yamlPath.length === 3) {
-      attribute.dynamicList = true
-      return
-    }
-    if (
-      property === "Колонки" &&
-      typeof nestedName === "string" &&
-      nestedProperty === "Тип" &&
-      fact.yamlPath.length === 5
-    ) {
-      attribute.columns.set(nestedName, {
-        name: nestedName,
-        typeInfo: typeDescriptionToDataPathTypeInfo(indexValueFromYAML<TypeDescription>("TypeDescription", fact.value)),
-      })
-      return
-    }
-    if (property === "ДополнительныеКолонки" && fact.yamlPath.length === 3) {
-      copyAdditionalColumns(additionalColumnsByTablePath, fact.value)
-    }
+  const declareColumn = (attributeName: string, columnName: string): void => {
+    const columns = pendingAttribute(attributeName).columns
+    if (columns.has(columnName)) return
+    columns.set(columnName, { name: columnName, typeInfo: arbitraryDataPathTypeInfo })
   }
 
   return {
-    acceptProperty,
+    declareAttribute: (name) => void pendingAttribute(name),
+    setAttributeType(name, type) {
+      pendingAttribute(name).typeInfo = typeDescriptionToDataPathTypeInfo(type)
+    },
+    setDynamicList(name) {
+      pendingAttribute(name).typeInfo = {
+        kinds: ["dynamicList", "tableSource"],
+        nextTypes: [],
+        table: { kind: "DynamicList" },
+        sourceText: "DynamicList",
+      }
+    },
+    declareColumn,
+    setColumnType(attributeName, columnName, type) {
+      declareColumn(attributeName, columnName)
+      pendingAttribute(attributeName).columns.set(columnName, {
+        name: columnName,
+        typeInfo: typeDescriptionToDataPathTypeInfo(type),
+      })
+    },
+    setAdditionalColumns(value) {
+      copyAdditionalColumns(additionalColumnsByTablePath, value)
+    },
     acceptTableDataPath({ name, dataPath }) {
       if (dataPath.trim().length > 0 && !tableDataPathByElementName.has(name)) {
         tableDataPathByElementName.set(name, dataPath)
       }
     },
-    completeValue: acceptProperty,
     finish() {
       const roots = new Map<string, FormDataPathSource>()
       for (const [name, attribute] of attributes) {
-        const typeInfo = attribute.dynamicList
-          ? {
-              kinds: ["dynamicList", "tableSource"] as const,
-              nextTypes: [],
-              table: { kind: "DynamicList" as const },
-              sourceText: "DynamicList",
-            }
-          : typeDescriptionToDataPathTypeInfo(attribute.type)
         const tableSource =
-          typeInfo.table === undefined
+          attribute.typeInfo.table === undefined
             ? undefined
             : {
-                table: typeInfo.table,
+                table: attribute.typeInfo.table,
                 columns: new Map(attribute.columns),
-                hasColumns: typeInfo.table.kind !== "ValueTable" || attribute.columns.size > 0,
+                hasColumns: attribute.typeInfo.table.kind !== "ValueTable" || attribute.columns.size > 0,
               }
         roots.set(name, {
           kind: "formAttribute",
           name,
-          typeInfo,
+          typeInfo: attribute.typeInfo,
           ...(tableSource === undefined ? {} : { tableSource }),
         })
       }
@@ -120,42 +103,6 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
       }
     },
   }
-}
-
-export function createFormDataPathIndexFromYAML(
-  yaml: unknown,
-  tableDataPathByElementName: ReadonlyMap<string, string> = new Map()
-): FormDataPathIndex {
-  const collector = createFormDataPathIndexCollector({ filePath: "" })
-  const attributes = asRecord(asRecord(yaml)?.["Реквизиты"])
-  const attributePropertyRule = { type: "string" } as const
-  for (const [attributeName, rawAttribute] of Object.entries(attributes ?? {})) {
-    const attribute = asRecord(rawAttribute)
-    for (const property of ["Тип", "ДинамическийСписок", "ДополнительныеКолонки"] as const) {
-      if (!Object.prototype.hasOwnProperty.call(attribute ?? {}, property)) continue
-      collector.acceptProperty({
-        yamlPath: ["Реквизиты", attributeName, property],
-        rulePath: [],
-        rule: attributePropertyRule,
-        value: attribute?.[property],
-      })
-    }
-    const columns = asRecord(attribute?.["Колонки"])
-    for (const [columnName, rawColumn] of Object.entries(columns ?? {})) {
-      const column = asRecord(rawColumn)
-      if (!Object.prototype.hasOwnProperty.call(column ?? {}, "Тип")) continue
-      collector.acceptProperty({
-        yamlPath: ["Реквизиты", attributeName, "Колонки", columnName, "Тип"],
-        rulePath: [],
-        rule: attributePropertyRule,
-        value: column?.["Тип"],
-      })
-    }
-  }
-  for (const [name, dataPath] of tableDataPathByElementName) {
-    collector.acceptTableDataPath({ name, dataPath })
-  }
-  return collector.finish()
 }
 
 function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColumnSource>>, value: unknown): void {

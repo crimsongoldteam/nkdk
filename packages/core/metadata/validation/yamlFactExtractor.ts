@@ -3,6 +3,8 @@ import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { createFormDataPathIndexFromYAML } from "../forms/clientApplicationForm/formDataPathMetadata"
+import { collectFormTableDataPathsFromYAML } from "../forms/clientApplicationForm/formTableDataPaths"
 import {
   createFormElementNameCollector,
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
@@ -15,7 +17,6 @@ import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/propert
 import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
 import { PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { createFormDataPathIndexCollector } from "./dataPath/formYamlIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -626,7 +627,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const data = asRecord(parsed.data)
   if (data === undefined) return emptyFacts()
 
-  const index = buildFormDataPathIndexFromYaml({ filePath: file.absolutePath, parsed })
+  const index = createFormDataPathIndexFromYAML(parsed.data, collectFormTableDataPathsFromYAML(parsed.data))
   const collected = collectFormPendingChecks({
     file,
     parsed,
@@ -674,41 +675,6 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
       ...index.duplicateDiagnostics,
     ],
   }
-}
-
-function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: ParsedYaml }): FormDataPathIndex {
-  const collector = createFormDataPathIndexCollector({ filePath: params.filePath })
-  const attributes = asRecord(asRecord(params.parsed.data)?.["Реквизиты"])
-
-  for (const [name, value] of Object.entries(attributes ?? {})) {
-    const attribute = asRecord(value)
-    acceptFormIndexValue(collector, ["Реквизиты", name, "Тип"], attribute?.["Тип"])
-    if (attribute?.["ДинамическийСписок"] !== undefined) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "ДинамическийСписок"], true)
-    }
-    for (const [columnName, column] of Object.entries(asRecord(attribute?.["Колонки"]) ?? {})) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "Колонки", columnName, "Тип"], asRecord(column)?.["Тип"])
-    }
-    if (attribute?.["ДополнительныеКолонки"] !== undefined) {
-      acceptFormIndexValue(collector, ["Реквизиты", name, "ДополнительныеКолонки"], attribute["ДополнительныеКолонки"])
-    }
-  }
-
-  return collector.finish()
-}
-
-function acceptFormIndexValue(
-  collector: ReturnType<typeof createFormDataPathIndexCollector>,
-  yamlPath: readonly (string | number)[],
-  value: unknown
-): void {
-  if (value === undefined) return
-  collector.acceptProperty({
-    yamlPath,
-    rulePath: [],
-    rule: { type: "ValidationFormIndex" as never, yaml: String(yamlPath.at(-1)) },
-    value,
-  })
 }
 
 function collectFormPendingChecks(params: {

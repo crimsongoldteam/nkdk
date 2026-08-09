@@ -7,7 +7,7 @@ import {
   type DirectImportResult,
 } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
-import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
+import { createFormDataPathMetadataCollector } from "./formDataPathMetadata"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { createClientApplicationFormImportSources } from "./xmlImportSources"
@@ -28,20 +28,21 @@ export function importClientApplicationFormFromXMLToYAML(params: {
 
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
-  const formDataPathIndexCollector = createFormDataPathIndexCollector({
+  const formDataPathMetadataCollector = createFormDataPathMetadataCollector({
     filePath: `Формы/${params.formName}/Форма.yaml`,
   })
   const collector = {
     acceptItem(fact: Parameters<typeof localIndexesCollector.acceptItem>[0]) {
       localIndexesCollector.acceptItem(fact)
+      formDataPathMetadataCollector.acceptItem(fact)
     },
     acceptProperty(fact: Parameters<typeof localIndexesCollector.acceptProperty>[0]) {
       localIndexesCollector.acceptProperty(fact)
-      formDataPathIndexCollector.acceptProperty(fact)
+      formDataPathMetadataCollector.acceptProperty(fact)
     },
     completeValue(fact: Parameters<typeof localIndexesCollector.completeValue>[0]) {
       localIndexesCollector.completeValue(fact)
-      formDataPathIndexCollector.completeValue(fact)
+      formDataPathMetadataCollector.completeValue(fact)
     },
     finish: () => localIndexesCollector.finish(),
   }
@@ -82,7 +83,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   }
 
   const localIndexes = localIndexesCollector.finish()
-  const formDataPathIndex = formDataPathIndexCollector.finish()
+  const formDataPathIndex = formDataPathMetadataCollector.finish()
   localIndexes.metadata.formDataPathIndex = formDataPathIndex
   return {
     yaml,

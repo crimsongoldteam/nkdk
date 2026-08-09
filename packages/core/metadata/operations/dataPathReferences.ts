@@ -1,6 +1,6 @@
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "../context/types"
-import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
+import { createFormDataPathIndexFromYAML } from "../forms/clientApplicationForm/formDataPathMetadata"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"

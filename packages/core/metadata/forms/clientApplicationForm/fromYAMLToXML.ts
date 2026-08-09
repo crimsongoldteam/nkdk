@@ -13,7 +13,7 @@ import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../orchestrati
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./types"
-import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
+import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 import { buildClientApplicationBaseForm } from "./baseForm"
