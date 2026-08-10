@@ -7,7 +7,11 @@ import {
 } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../property/types"
 import type { ElementRule } from "./types"
-import { defineElementAsType } from "./ruleFactory"
+import {
+  defineElementAsType,
+  defineElementRule,
+  getElementRule,
+} from "./ruleFactory"
 import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
 
 import "../../forms/elements/index"
@@ -32,6 +36,21 @@ describe("одиночный элемент формы", () => {
     expect(
       definition.propertyTypes.TestPureFormElement?.importFromXMLToYAML,
     ).toBeTypeOf("function")
+    expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
+  })
+
+  it("определяет element rule без изменения legacy registry", () => {
+    const registeredRule = getElementRule("ExtendedTooltip")
+    const elementRule = {
+      itemType: "ExtendedTooltip",
+      enterpriseField: "FormDecoration",
+      enterpriseFieldType: "None",
+      properties: {},
+    } as const satisfies ElementRule
+
+    const definition = defineElementRule("ExtendedTooltip", elementRule)
+
+    expect(getElementRule("ExtendedTooltip")).toBe(registeredRule)
     expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
   })
 

@@ -1,4 +1,7 @@
 import type { ElementRule, ElementType } from "./types"
+import { defineMetadataRules } from "../definition"
+import type { MetadataRulesDefinition } from "../definition"
+import { emptyMetadataRules } from "../definition/testSupport"
 
 const elementRulesRegistry = new Map<ElementType, ElementRule>()
 
@@ -15,6 +18,16 @@ export const getElementXMLTagName = <Rule extends ElementRule>(itemType: Rule["i
 
 export function registerElementRule(itemType: ElementType, elementRule: ElementRule): void {
   elementRulesRegistry.set(itemType, elementRule)
+}
+
+export function defineElementRule(
+  itemType: ElementType,
+  elementRule: ElementRule,
+): MetadataRulesDefinition {
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    formElements: { [itemType]: elementRule },
+  })
 }
 
 export const clearElementRulesRegistry = (): void => {

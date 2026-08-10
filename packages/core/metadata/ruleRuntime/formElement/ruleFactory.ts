@@ -24,6 +24,7 @@ import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
 export {
   clearElementRulesRegistry,
+  defineElementRule,
   getElementRule,
   getElementXMLTagName,
   registerElementRule,
