@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { DCSParameterRules } from "./rules"
@@ -10,7 +10,7 @@ export type DCSParameterYAML = YAMLTypeByRule<typeof DCSParameterRules>
 export type DCSParameters = DCSParameter[]
 export type DCSParametersYAML = Record<string, DCSParameterYAML>
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "DCSParameters",
   itemRule: DCSParameterRules,
   xmlElement: "Parameter",

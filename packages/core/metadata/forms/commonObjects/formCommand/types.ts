@@ -2,7 +2,7 @@ import { I8nTextXML } from "../../../commonObjects/i8nText/types"
 import { MetadataPrimitiveValueXML } from "../../../commonObjects/metadataValue/types"
 import { PictureXML } from "../../../commonObjects/picture/types"
 import { UserVisibleXML } from "../../../commonObjects/userVisible/types"
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection"
 import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations/types"
@@ -34,7 +34,7 @@ export type FormCommandYAML = YAMLTypeByRule<typeof FormCommandRules>
 
 export type FormCommandsYAML = Record<string, FormCommandYAML>
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "FormCommands",
   itemRule: FormCommandRules,
   xmlElement: "Command",

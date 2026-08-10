@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../../ruleRuntime"
+import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../../ruleRuntime"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import "../appearanceFields/types"
@@ -14,12 +14,12 @@ export type DataCompositionSchemaDataSetFieldYAML = YAMLTypeByRule<typeof DataCo
 export type DataSetFieldFields = DataCompositionSchemaDataSetField[]
 export type DataSetFieldFieldsYAML = DataCompositionSchemaDataSetFieldYAML[]
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "DataCompositionSchemaDataSetField",
   itemRule: DataCompositionSchemaDataSetFieldRules,
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "DataSetFieldFields",
   itemRule: DataCompositionSchemaDataSetFieldRules,
   xmlElement: "Field",

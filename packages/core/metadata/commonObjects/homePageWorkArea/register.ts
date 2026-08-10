@@ -5,12 +5,7 @@ import { exportBooleanToYAML } from "../boolean/toYAML"
 import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "../metadataTargets"
 import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
 import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
-import {
-  ExportToXMLFunctionNew,
-  registerMetadataItemRule,
-  registerTypeRule,
-  type PropertyRule,
-} from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { HomePageWorkAreaRules } from "./rules"
 import {
@@ -354,25 +349,25 @@ const exportColumnItemsToYAML = (
   return result.length > 0 ? result : undefined
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "HomePageWorkArea",
   itemRule: HomePageWorkAreaRules,
 })
 
-registerTypeRule("HomePageWorkAreaTemplate", "importFromXML", importEnumFromXML)
-registerTypeRule("HomePageWorkAreaTemplate", "exportToXML", exportEnumToXML)
-registerTypeRule("HomePageWorkAreaTemplate", "importFromYAML", importWorkingAreaTemplateFromYAML)
-registerTypeRule("HomePageWorkAreaTemplate", "exportToYAML", exportWorkingAreaTemplateToYAML)
-registerTypeRule("HomePageWorkAreaTemplate", "exportToJSONSchema", () => Type.String())
+export const metadataPropertyRule001 = definePropertyTypeRule("HomePageWorkAreaTemplate", "importFromXML", importEnumFromXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("HomePageWorkAreaTemplate", "exportToXML", exportEnumToXML)
+export const metadataPropertyRule003 = definePropertyTypeRule("HomePageWorkAreaTemplate", "importFromYAML", importWorkingAreaTemplateFromYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("HomePageWorkAreaTemplate", "exportToYAML", exportWorkingAreaTemplateToYAML)
+export const metadataPropertyRule005 = definePropertyTypeRule("HomePageWorkAreaTemplate", "exportToJSONSchema", () => Type.String())
 
-registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromXML", importEnumFromXML)
-registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToXML", exportEnumToXML)
-registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromYAML", importCommandInterfaceDisplayFromYAML)
-registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToYAML", exportCommandInterfaceDisplayToYAML)
-registerTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToJSONSchema", () => Type.String())
+export const metadataPropertyRule006 = definePropertyTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromXML", importEnumFromXML)
+export const metadataPropertyRule007 = definePropertyTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToXML", exportEnumToXML)
+export const metadataPropertyRule008 = definePropertyTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "importFromYAML", importCommandInterfaceDisplayFromYAML)
+export const metadataPropertyRule009 = definePropertyTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToYAML", exportCommandInterfaceDisplayToYAML)
+export const metadataPropertyRule010 = definePropertyTypeRule("HomePageWorkAreaCommandInterfaceDisplay", "exportToJSONSchema", () => Type.String())
 
-registerTypeRule("HomePageWorkAreaColumnItems", "importFromXML", importColumnItemsFromXML)
-registerTypeRule("HomePageWorkAreaColumnItems", "exportToXML", exportColumnItemsToXML)
-registerTypeRule("HomePageWorkAreaColumnItems", "importFromYAML", importColumnItemsFromYAML)
-registerTypeRule("HomePageWorkAreaColumnItems", "exportToYAML", exportColumnItemsToYAML)
-registerTypeRule("HomePageWorkAreaColumnItems", "exportToJSONSchema", () => homePageWorkAreaColumnItemsSchema)
+export const metadataPropertyRule011 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "importFromXML", importColumnItemsFromXML)
+export const metadataPropertyRule012 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "exportToXML", exportColumnItemsToXML)
+export const metadataPropertyRule013 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "importFromYAML", importColumnItemsFromYAML)
+export const metadataPropertyRule014 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "exportToYAML", exportColumnItemsToYAML)
+export const metadataPropertyRule015 = definePropertyTypeRule("HomePageWorkAreaColumnItems", "exportToJSONSchema", () => homePageWorkAreaColumnItemsSchema)

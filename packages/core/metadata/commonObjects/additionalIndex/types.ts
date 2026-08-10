@@ -1,5 +1,5 @@
 import { IndexFieldsXML } from "../indexField/types"
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { AdditionalIndexItemRules, AdditionalIndexRules } from "./rules"
@@ -29,12 +29,12 @@ export type AdditionalIndexesXML = AdditionalIndexXML[]
 export type AdditionalIndexes = AdditionalIndexItem[]
 export type AdditionalIndexesYAML = AdditionalIndexItemYAML[]
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "AdditionalIndexItem",
   itemRule: AdditionalIndexItemRules,
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "AdditionalIndexCollection",
   itemRule: AdditionalIndexItemRules,
   xmlElement: "AdditionalIndex",
@@ -42,7 +42,7 @@ registerMetadataItemCollectionRule({
   yamlAsArray: true,
 })
 
-registerMetadataItemRule({
+export const metadataRuleLayer002 = defineMetadataItemRule({
   propertyType: "AdditionalIndex",
   itemRule: AdditionalIndexRules,
 })

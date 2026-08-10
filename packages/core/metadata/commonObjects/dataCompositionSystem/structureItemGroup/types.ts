@@ -1,5 +1,5 @@
-import { registerMetadataItemRule } from "../../../ruleRuntime"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { defineMetadataItemRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import "./collection/index"
@@ -9,13 +9,13 @@ import { importStructureItemGroupFromXMLToYAML } from "./fromXMLToYAML"
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
 export type StructureItemGroupYAML = YAMLTypeByRule<typeof StructureItemGroupRules>
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "StructureItemGroup",
   itemRule: StructureItemGroupRules,
 })
 
-registerTypeRule("StructureItemGroup", "importFromXMLToYAML", importStructureItemGroupFromXMLToYAML)
-registerTypeRule("StructureItemGroup", "yamlToXMLNestedRule", {
+export const metadataPropertyRule001 = definePropertyTypeRule("StructureItemGroup", "importFromXMLToYAML", importStructureItemGroupFromXMLToYAML)
+export const metadataPropertyRule002 = definePropertyTypeRule("StructureItemGroup", "yamlToXMLNestedRule", {
   kind: "item",
   itemRule: StructureItemGroupRules,
   configurationIndexAddressing: "yamlPath",

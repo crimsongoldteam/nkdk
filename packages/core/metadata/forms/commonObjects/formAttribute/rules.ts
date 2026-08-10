@@ -18,7 +18,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 
 const formAttributeTitleRule = i8nTextRule({
@@ -220,7 +220,7 @@ const FormAttributeAdditionalColumnRules = {
   },
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "FormAttributes",
   itemRule: FormAttributeRules,
   xmlElement: "Attribute",
@@ -233,7 +233,7 @@ registerMetadataItemCollectionRule({
   },
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeColumns",
   itemRule: FormAttributeColumnRules,
   xmlElement: "Column",
@@ -246,7 +246,7 @@ registerMetadataItemCollectionRule({
   },
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer002 = defineMetadataItemCollectionRule({
   propertyType: "FormAttributeAdditionalColumns",
   itemRule: FormAttributeAdditionalColumnRules,
   xmlElement: "AdditionalColumns",

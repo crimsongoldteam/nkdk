@@ -5,7 +5,7 @@ import { TypeDescriptionXML } from "../../commonObjects/typeDescription/types"
 import { TypeLinkXML } from "../../commonObjects/typeLink/types"
 import { ChoiceParameterLinksXML } from "../../commonObjects/сhoiceParameterLinks/types"
 import { ChoiceParametersXML } from "../../commonObjects/сhoiceParameters/types"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
@@ -80,7 +80,7 @@ export interface MetadataConstantXML {
   }
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataConstant",
   itemRule: MetadataConstantRules,
 })

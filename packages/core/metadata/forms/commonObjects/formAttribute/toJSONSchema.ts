@@ -1,6 +1,6 @@
 import { TObject, TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
@@ -61,5 +61,5 @@ function buildFormColumnAttributesJSONSchema(context: ConfigurationContext): TSc
   return Type.Record(Type.String(), attributeSchema)
 }
 
-registerTypeRule("FormAttributes", "exportToJSONSchema", exportFormAttributesToJSONSchema)
-registerTypeRule("FormAttributeColumns", "exportToJSONSchema", exportFormColumnAttributesToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("FormAttributes", "exportToJSONSchema", exportFormAttributesToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("FormAttributeColumns", "exportToJSONSchema", exportFormColumnAttributesToJSONSchema)

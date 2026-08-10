@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { PredefinedItemRules } from "./rules"
@@ -75,12 +75,12 @@ function normalizePredefinedItemTypePrefixes(
   }
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "PredefinedItem",
   itemRule: PredefinedItemRules,
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "PredefinedItemCollection",
   itemRule: PredefinedItemRules,
   xmlElement: "Item",

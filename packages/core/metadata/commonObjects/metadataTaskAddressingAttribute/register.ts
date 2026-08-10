@@ -1,7 +1,7 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { MetadataTaskAddressingAttributeRules } from "./rules"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "MetadataTaskAddressingAttributes",
   itemRule: MetadataTaskAddressingAttributeRules,
   schemaName: "MetadataTaskAddressingAttribute",

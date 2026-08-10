@@ -8,7 +8,7 @@ import {
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import {
   AccumulationRegisterAggregateDimensionXML,
@@ -105,10 +105,10 @@ const getCurrentAccumulationRegisterName = (context: ConfigurationContextWithExp
   return getParentFromContext(context).name
 }
 
-registerTypeRule("AccumulationRegisterAggregateDimensions", "importFromXML", importAggregateDimensionsFromXML)
-registerTypeRule("AccumulationRegisterAggregateDimensions", "exportToXML", exportAggregateDimensionsToXML)
-registerTypeRule("AccumulationRegisterAggregateDimensions", "importFromYAML", importAggregateDimensionsFromYAML)
-registerTypeRule("AccumulationRegisterAggregateDimensions", "exportToYAML", exportAggregateDimensionsToYAML)
-registerTypeRule("AccumulationRegisterAggregateDimensions", "exportToJSONSchema", () =>
+export const metadataPropertyRule000 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "importFromXML", importAggregateDimensionsFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "exportToXML", exportAggregateDimensionsToXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "importFromYAML", importAggregateDimensionsFromYAML)
+export const metadataPropertyRule003 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "exportToYAML", exportAggregateDimensionsToYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("AccumulationRegisterAggregateDimensions", "exportToJSONSchema", () =>
   Type.Record(Type.String(), Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")]))
 )

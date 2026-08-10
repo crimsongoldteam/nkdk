@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
@@ -12,7 +12,7 @@ function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) =>
   return (yamlKey) => reverse.get(yamlKey) ?? StandartAttributeNameFromYAML(yamlKey)
 }
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
   xmlElement: "xr:StandardAttribute",

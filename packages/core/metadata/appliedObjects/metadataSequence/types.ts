@@ -5,7 +5,7 @@ import { MetadataItemLinksXML } from "../../commonObjects/metadataRef/types"
 import { MetadataSequenceDimensionsXML } from "../../commonObjects/metadataSequenceDimension/types"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataSequenceRules } from "./rules"
 
@@ -57,7 +57,7 @@ export interface MetadataSequenceXML {
   }
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataSequence",
   itemRule: MetadataSequenceRules,
 })

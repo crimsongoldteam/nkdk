@@ -1,9 +1,9 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime"
 import { CharacteristicsDescriptionRules } from "./rules"
 
 import "./explicitXMLDefaults"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "CharacteristicsDescriptions",
   itemRule: CharacteristicsDescriptionRules,
   xmlElement: "xr:Characteristic",

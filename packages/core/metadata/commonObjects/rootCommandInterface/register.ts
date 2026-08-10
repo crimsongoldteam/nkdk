@@ -13,13 +13,7 @@ import {
   exportMetadataItemLinkToYAML,
   exportMetadataItemLinksToYAML,
 } from "../metadataRef/toYAML"
-import {
-  ExportToXMLFunctionNew,
-  type ExportToJSONSchemaFn,
-  registerMetadataItemRule,
-  registerTypeRule,
-  type PropertyRule,
-} from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, type ExportToJSONSchemaFn, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
   CommandInterfaceOrder,
@@ -619,59 +613,59 @@ const exportCommandGroupsToXML: ExportToXMLFunctionNew = ({ rule, value }) => {
   return groups.length > 0 ? { [itemTag]: groups } : undefined
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "RootCommandInterface",
   itemRule: RootCommandInterfaceRules,
 })
 
-registerTypeRule("CommandInterfaceVisibilityMap", "importFromXML", importVisibilityMapFromXML)
-registerTypeRule("CommandInterfaceVisibilityMap", "exportToXML", exportVisibilityMapToXML)
-registerTypeRule("CommandInterfaceVisibilityMap", "importFromYAML", importVisibilityMapFromYAML)
-registerTypeRule("CommandInterfaceVisibilityMap", "exportToYAML", exportVisibilityMapToYAML)
-registerTypeRule("CommandInterfaceVisibilityMap", "exportToJSONSchema", () => CommandInterfaceVisibilityMapJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("CommandInterfaceVisibilityMap", "importFromXML", importVisibilityMapFromXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("CommandInterfaceVisibilityMap", "exportToXML", exportVisibilityMapToXML)
+export const metadataPropertyRule003 = definePropertyTypeRule("CommandInterfaceVisibilityMap", "importFromYAML", importVisibilityMapFromYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("CommandInterfaceVisibilityMap", "exportToYAML", exportVisibilityMapToYAML)
+export const metadataPropertyRule005 = definePropertyTypeRule("CommandInterfaceVisibilityMap", "exportToJSONSchema", () => CommandInterfaceVisibilityMapJSONSchema)
 
-registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromXML", importSubsystemsVisibilityMapFromXML)
-registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToXML", exportSubsystemsVisibilityMapToXML)
-registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromYAML", importSubsystemsVisibilityMapFromYAML)
-registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToYAML", exportSubsystemsVisibilityMapToYAML)
-registerTypeRule(
+export const metadataPropertyRule006 = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromXML", importSubsystemsVisibilityMapFromXML)
+export const metadataPropertyRule007 = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToXML", exportSubsystemsVisibilityMapToXML)
+export const metadataPropertyRule008 = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromYAML", importSubsystemsVisibilityMapFromYAML)
+export const metadataPropertyRule009 = definePropertyTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToYAML", exportSubsystemsVisibilityMapToYAML)
+export const metadataPropertyRule010 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsVisibilityMap",
   "exportToJSONSchema",
   () => CommandInterfaceSubsystemsVisibilityMapJSONSchema
 )
 
-registerTypeRule("CommandInterfacePlacementMap", "importFromXML", importPlacementMapFromXML)
-registerTypeRule("CommandInterfacePlacementMap", "exportToXML", exportPlacementMapToXML)
-registerTypeRule("CommandInterfacePlacementMap", "importFromYAML", importPlacementMapFromYAML)
-registerTypeRule("CommandInterfacePlacementMap", "exportToYAML", exportPlacementMapToYAML)
-registerTypeRule("CommandInterfacePlacementMap", "exportToJSONSchema", () => CommandInterfacePlacementMapJSONSchema)
+export const metadataPropertyRule011 = definePropertyTypeRule("CommandInterfacePlacementMap", "importFromXML", importPlacementMapFromXML)
+export const metadataPropertyRule012 = definePropertyTypeRule("CommandInterfacePlacementMap", "exportToXML", exportPlacementMapToXML)
+export const metadataPropertyRule013 = definePropertyTypeRule("CommandInterfacePlacementMap", "importFromYAML", importPlacementMapFromYAML)
+export const metadataPropertyRule014 = definePropertyTypeRule("CommandInterfacePlacementMap", "exportToYAML", exportPlacementMapToYAML)
+export const metadataPropertyRule015 = definePropertyTypeRule("CommandInterfacePlacementMap", "exportToJSONSchema", () => CommandInterfacePlacementMapJSONSchema)
 
-registerTypeRule("CommandInterfaceOrder", "importFromXML", importOrderFromXML)
-registerTypeRule("CommandInterfaceOrder", "exportToXML", exportOrderToXML)
-registerTypeRule("CommandInterfaceOrder", "importFromYAML", importOrderFromYAML)
-registerTypeRule("CommandInterfaceOrder", "exportToYAML", exportOrderToYAML)
-registerTypeRule("CommandInterfaceOrder", "exportToJSONSchema", () => CommandInterfaceOrderJSONSchema)
+export const metadataPropertyRule016 = definePropertyTypeRule("CommandInterfaceOrder", "importFromXML", importOrderFromXML)
+export const metadataPropertyRule017 = definePropertyTypeRule("CommandInterfaceOrder", "exportToXML", exportOrderToXML)
+export const metadataPropertyRule018 = definePropertyTypeRule("CommandInterfaceOrder", "importFromYAML", importOrderFromYAML)
+export const metadataPropertyRule019 = definePropertyTypeRule("CommandInterfaceOrder", "exportToYAML", exportOrderToYAML)
+export const metadataPropertyRule020 = definePropertyTypeRule("CommandInterfaceOrder", "exportToJSONSchema", () => CommandInterfaceOrderJSONSchema)
 
-registerTypeRule("CommandInterfaceSubsystemsOrder", "importFromXML", importMetadataItemLinksFromXML)
-registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToXML", exportMetadataItemLinksToXML)
-registerTypeRule(
+export const metadataPropertyRule021 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "importFromXML", importMetadataItemLinksFromXML)
+export const metadataPropertyRule022 = definePropertyTypeRule("CommandInterfaceSubsystemsOrder", "exportToXML", exportMetadataItemLinksToXML)
+export const metadataPropertyRule023 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "importFromYAML",
   importMetadataItemLinksFromYAML
 )
-registerTypeRule(
+export const metadataPropertyRule024 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "exportToYAML",
   exportMetadataItemLinksToYAML
 )
-registerTypeRule(
+export const metadataPropertyRule025 = definePropertyTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "exportToJSONSchema",
   exportCommandInterfaceSubsystemsOrderToJSONSchema
 )
 
-registerTypeRule("CommandInterfaceCommandGroups", "importFromYAML", importMetadataItemLinksFromYAMLWithCommandGroups)
-registerTypeRule("CommandInterfaceCommandGroups", "exportToYAML", exportMetadataItemLinksToYAMLWithCommandGroups)
-registerTypeRule("CommandInterfaceCommandGroups", "importFromXML", importCommandGroupsFromXML)
-registerTypeRule("CommandInterfaceCommandGroups", "exportToXML", exportCommandGroupsToXML)
-registerTypeRule("CommandInterfaceCommandGroups", "exportToJSONSchema", () => Type.Array(Type.String()))
+export const metadataPropertyRule026 = definePropertyTypeRule("CommandInterfaceCommandGroups", "importFromYAML", importMetadataItemLinksFromYAMLWithCommandGroups)
+export const metadataPropertyRule027 = definePropertyTypeRule("CommandInterfaceCommandGroups", "exportToYAML", exportMetadataItemLinksToYAMLWithCommandGroups)
+export const metadataPropertyRule028 = definePropertyTypeRule("CommandInterfaceCommandGroups", "importFromXML", importCommandGroupsFromXML)
+export const metadataPropertyRule029 = definePropertyTypeRule("CommandInterfaceCommandGroups", "exportToXML", exportCommandGroupsToXML)
+export const metadataPropertyRule030 = definePropertyTypeRule("CommandInterfaceCommandGroups", "exportToJSONSchema", () => Type.Array(Type.String()))

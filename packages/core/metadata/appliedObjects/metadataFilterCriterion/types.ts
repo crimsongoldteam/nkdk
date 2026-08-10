@@ -3,7 +3,7 @@ import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataItemLinksXML } from "../../commonObjects/metadataRef/types"
 import { TypeDescriptionXML } from "../../commonObjects/typeDescription/types"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
@@ -44,7 +44,7 @@ export interface MetadataFilterCriterionXML {
   }
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataFilterCriterion",
   itemRule: MetadataFilterCriterionRules,
 })

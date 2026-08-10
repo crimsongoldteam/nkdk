@@ -2,7 +2,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { PredefinedRules } from "../../../commonObjects/predefined/rules"
 import { PredefinedItemRules } from "../../../commonObjects/predefinedItem/rules"
 import { stringRule } from "../../../commonObjects/string/types"
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import {
@@ -22,7 +22,7 @@ export const PredefinedAccountingFlagRules = {
   },
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "ChartOfAccountsPredefinedAccountingFlags",
   itemRule: PredefinedAccountingFlagRules,
   xmlElement: "Flag",
@@ -52,7 +52,7 @@ export const PredefinedExtDimensionTypeRules = {
   },
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "ChartOfAccountsPredefinedExtDimensionTypes",
   itemRule: PredefinedExtDimensionTypeRules,
   xmlElement: "ExtDimensionType",

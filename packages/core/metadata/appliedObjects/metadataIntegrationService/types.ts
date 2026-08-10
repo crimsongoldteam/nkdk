@@ -5,7 +5,7 @@ import {
   MetadataIntegrationServiceChannelsXML,
   MetadataIntegrationServiceChannelsYAML,
 } from "../../commonObjects/metadataIntegrationServiceChannel/types"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
@@ -38,7 +38,7 @@ export type {
   MetadataIntegrationServiceChannelsYAML,
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataIntegrationService",
   itemRule: MetadataIntegrationServiceRules,
 })

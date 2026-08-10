@@ -1,11 +1,11 @@
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime"
 import type { CalculatedField, CalculatedFieldYAML } from "../calculatedField/types"
 import { CalculatedFieldRules } from "../calculatedField/rules"
 
 export type CalculatedFields = CalculatedField[]
 export type CalculatedFieldsYAML = CalculatedFieldYAML[]
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "CalculatedFields",
   itemRule: CalculatedFieldRules,
   xmlElement: "CalculatedField",

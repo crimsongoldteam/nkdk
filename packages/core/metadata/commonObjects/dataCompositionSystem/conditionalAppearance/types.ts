@@ -1,4 +1,4 @@
-import { registerMetadataItemRule, registerTypeRule } from "../../../ruleRuntime"
+import { defineMetadataItemRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { ConditionalAppearanceRules } from "./rules"
@@ -6,8 +6,8 @@ import { ConditionalAppearanceRules } from "./rules"
 export type ConditionalAppearance = MetadataTypeByRule<typeof ConditionalAppearanceRules>
 export type ConditionalAppearanceYAML = YAMLTypeByRule<typeof ConditionalAppearanceRules>
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "ConditionalAppearance",
   itemRule: ConditionalAppearanceRules,
 })
-registerTypeRule("ConditionalAppearance", "xmlImportPropertyBehavior", { presenceAffectsExport: true })
+export const metadataPropertyRule001 = definePropertyTypeRule("ConditionalAppearance", "xmlImportPropertyBehavior", { presenceAffectsExport: true })

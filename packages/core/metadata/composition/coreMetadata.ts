@@ -9,8 +9,8 @@ import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 import { metadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
 import { registerMetadataResourceTopologyProvider } from "../resourceTopology/core/providerRegistry"
 import "../ruleRuntime/appliedObject/syncToXML"
-import { registerLegacyPropertyTypeDefinitions } from "../ruleRuntime/property/typeRuleRegistry"
 import { metadataRules } from "./metadataRules"
+import { registerLegacyRuleDefinitions } from "./legacyRuleRegistration"
 
 let coreMetadataRegistered = false
 
@@ -32,7 +32,7 @@ export function registerCoreMetadata(): void {
   if (coreMetadataRegistered) return
   coreMetadataRegistered = true
 
-  registerLegacyPropertyTypeDefinitions(metadataRules.propertyTypes)
+  registerLegacyRuleDefinitions(metadataRules)
 
   registerMetadataLayers({
     commonObjects: registerCommonObjects,

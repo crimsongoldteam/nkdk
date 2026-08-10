@@ -1,7 +1,7 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "./rules"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "AccountingFlags",
   itemRule: AccountingFlagRules,
   xmlElement: "AccountingFlag",
@@ -9,7 +9,7 @@ registerMetadataItemCollectionRule({
   configurationIndexUidSegment: "ПризнакУчета",
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "ExtDimensionAccountingFlags",
   itemRule: ExtDimensionAccountingFlagRules,
   xmlElement: "ExtDimensionAccountingFlag",

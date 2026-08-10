@@ -1,8 +1,8 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import "../metadataHTTPServiceMethod/register"
 import { MetadataHTTPServiceURLTemplateRules } from "./rules"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "MetadataHTTPServiceURLTemplates",
   itemRule: MetadataHTTPServiceURLTemplateRules,
   xmlElement: "URLTemplate",

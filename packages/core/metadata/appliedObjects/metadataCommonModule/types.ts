@@ -1,4 +1,4 @@
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { MetadataCommonModuleRules } from "./rules"
@@ -6,7 +6,7 @@ import { MetadataCommonModuleRules } from "./rules"
 export type MetadataCommonModule = MetadataTypeByRule<typeof MetadataCommonModuleRules>
 export type MetadataCommonModuleYAML = YAMLTypeByRule<typeof MetadataCommonModuleRules>
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataCommonModule",
   itemRule: MetadataCommonModuleRules,
 })

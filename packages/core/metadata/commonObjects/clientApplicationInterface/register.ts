@@ -1,13 +1,6 @@
 import { Type } from "typebox"
 import { getUUID } from "../../helpers/uuid"
-import {
-  ExportToXMLFunctionNew,
-  ImportFromYAMLFunctionNew,
-  registerMetadataItemRule,
-  registerTypeRule,
-  type ImportFromXMLToYAMLFunction,
-  type PropertyRule,
-} from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
   getConfigurationIndexCollectionContext,
@@ -878,17 +871,17 @@ const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
   return result.length > 0 ? result : undefined
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "ClientApplicationInterface",
   itemRule: ClientApplicationInterfaceRules,
 })
-registerTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
 
-registerTypeRule("ClientApplicationInterfaceItems", "importFromXML", importItemsFromXML)
-registerTypeRule("ClientApplicationInterfaceItems", "exportToXML", exportItemsToXML)
-registerTypeRule("ClientApplicationInterfaceItems", "importFromYAML", importItemsFromYAML)
-registerTypeRule("ClientApplicationInterfaceItems", "exportToYAML", exportItemsPropertyToYAML)
-registerTypeRule(
+export const metadataPropertyRule002 = definePropertyTypeRule("ClientApplicationInterfaceItems", "importFromXML", importItemsFromXML)
+export const metadataPropertyRule003 = definePropertyTypeRule("ClientApplicationInterfaceItems", "exportToXML", exportItemsToXML)
+export const metadataPropertyRule004 = definePropertyTypeRule("ClientApplicationInterfaceItems", "importFromYAML", importItemsFromYAML)
+export const metadataPropertyRule005 = definePropertyTypeRule("ClientApplicationInterfaceItems", "exportToYAML", exportItemsPropertyToYAML)
+export const metadataPropertyRule006 = definePropertyTypeRule(
   "ClientApplicationInterfaceItems",
   "exportToJSONSchema",
   ({ context }) =>
@@ -897,6 +890,6 @@ registerTypeRule(
       : ClientApplicationInterfaceItemsHintYAMLSchema
 )
 
-registerTypeRule("ClientApplicationInterfacePanelDefs", "importFromXML", importPanelDefsFromXML)
-registerTypeRule("ClientApplicationInterfacePanelDefs", "exportToXML", exportPanelDefsToXML)
-registerTypeRule("ClientApplicationInterfacePanelDefs", "exportToJSONSchema", () => Type.Array(Type.Object({})))
+export const metadataPropertyRule007 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "importFromXML", importPanelDefsFromXML)
+export const metadataPropertyRule008 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "exportToXML", exportPanelDefsToXML)
+export const metadataPropertyRule009 = definePropertyTypeRule("ClientApplicationInterfacePanelDefs", "exportToJSONSchema", () => Type.Array(Type.Object({})))

@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "../../../ruleRuntime"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { ConditionalAppearanceItemRules } from "./rules"
@@ -12,7 +12,7 @@ export type ConditionalAppearanceItemsYAML = ConditionalAppearanceItemYAML[]
 
 export type ConditionalAppearanceItems = ConditionalAppearanceItem[]
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "ConditionalAppearanceItems",
   itemRule: ConditionalAppearanceItemRules,
   xmlElement: "dcsset:item",

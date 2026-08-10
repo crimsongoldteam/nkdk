@@ -1,18 +1,18 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { StandardAttributeDescriptionRules } from "../standardAttributeDescription/rules"
 import { StandardTabularSectionDescriptionRules } from "./rules"
 
 const xmlElement = "xr:StandardTabularSection"
 const standardAttributeXmlElement = "xr:StandardAttribute"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "StandardTabularSectionDescriptions",
   itemRule: StandardTabularSectionDescriptionRules,
   xmlElement,
   keyField: "name",
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "StandardTabularSectionAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
   xmlElement: standardAttributeXmlElement,

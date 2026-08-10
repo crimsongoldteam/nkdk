@@ -6,7 +6,7 @@ import {
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml, traversal }) => {
@@ -175,6 +175,6 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
     : undefined
 }
 
-registerTypeRule("FormAttributes", "importFromXMLToYAML", importFormAttributesFromXMLToYAML)
-registerTypeRule("FormAttributes", "nestedItemRule", { itemRule: FormAttributeRules })
-registerTypeRule("FormAttributeColumns", "nestedItemRule", { itemRule: FormAttributeColumnRules })
+export const metadataPropertyRule000 = definePropertyTypeRule("FormAttributes", "importFromXMLToYAML", importFormAttributesFromXMLToYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("FormAttributes", "nestedItemRule", { itemRule: FormAttributeRules })
+export const metadataPropertyRule002 = definePropertyTypeRule("FormAttributeColumns", "nestedItemRule", { itemRule: FormAttributeColumnRules })

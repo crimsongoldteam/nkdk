@@ -1,6 +1,6 @@
 import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import * as SE from "../../systemEnumerations/types"
@@ -26,7 +26,7 @@ export interface MetadataWSReferenceXML {
   }
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataWSReference",
   itemRule: MetadataWSReferenceRules,
 })

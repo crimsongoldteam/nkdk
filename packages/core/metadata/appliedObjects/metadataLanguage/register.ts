@@ -1,7 +1,7 @@
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataLanguageRules } from "./rules"
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataLanguage",
   itemRule: MetadataLanguageRules,
 })

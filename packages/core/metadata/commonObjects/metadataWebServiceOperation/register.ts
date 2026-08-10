@@ -1,7 +1,7 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } from "./rules"
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "MetadataWebServiceParameters",
   itemRule: MetadataWebServiceParameterRules,
   xmlElement: "Parameter",
@@ -9,7 +9,7 @@ registerMetadataItemCollectionRule({
   configurationIndexUidSegment: "Параметр",
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "MetadataWebServiceOperations",
   itemRule: MetadataWebServiceOperationRules,
   xmlElement: "Operation",

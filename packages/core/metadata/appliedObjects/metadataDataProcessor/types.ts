@@ -1,4 +1,4 @@
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { MetadataDataProcessorRules } from "./rules"
@@ -6,7 +6,7 @@ import { MetadataDataProcessorRules } from "./rules"
 export type MetadataDataProcessor = MetadataTypeByRule<typeof MetadataDataProcessorRules>
 export type MetadataDataProcessorYAML = YAMLTypeByRule<typeof MetadataDataProcessorRules>
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataDataProcessor",
   itemRule: MetadataDataProcessorRules,
 })

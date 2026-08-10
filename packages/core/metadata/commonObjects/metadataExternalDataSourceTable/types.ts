@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemCollectionRule, defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { MetadataExternalDataSourceTableCollectionRules, MetadataExternalDataSourceTableRules } from "./rules"
@@ -9,12 +9,12 @@ export type MetadataExternalDataSourceTableYAML = YAMLTypeByRule<typeof Metadata
 export type MetadataExternalDataSourceTables = MetadataExternalDataSourceTable[]
 export type MetadataExternalDataSourceTablesYAML = Record<string, MetadataExternalDataSourceTableYAML>
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataExternalDataSourceTable",
   itemRule: MetadataExternalDataSourceTableRules,
 })
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer001 = defineMetadataItemCollectionRule({
   propertyType: "MetadataExternalDataSourceTables",
   itemRule: MetadataExternalDataSourceTableCollectionRules,
   xmlElement: "Table",

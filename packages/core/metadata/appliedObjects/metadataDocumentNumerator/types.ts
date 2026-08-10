@@ -1,7 +1,7 @@
 import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataDocumentNumeratorRules } from "./rules"
 
@@ -20,7 +20,7 @@ export interface MetadataDocumentNumeratorXML {
   Synonym?: I8nTextXML
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataDocumentNumerator",
   itemRule: MetadataDocumentNumeratorRules,
 })

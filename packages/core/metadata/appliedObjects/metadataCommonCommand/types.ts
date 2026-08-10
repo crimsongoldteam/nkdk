@@ -1,4 +1,4 @@
-import { registerMetadataItemRule } from "../../ruleRuntime"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import { MetadataCommandXML } from "../metadataCommand/types"
@@ -12,7 +12,7 @@ export interface MetadataCommonCommandXML {
   CommonCommand: MetadataCommandXML
 }
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "MetadataCommonCommand",
   itemRule: MetadataCommonCommandRules,
 })
