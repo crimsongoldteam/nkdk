@@ -219,7 +219,7 @@ export function validateClientApplicationFormSecondPass(params: {
       parsed: params.state.parsed,
       yamlPath: occurrence.yamlPath,
       value: occurrence.value,
-      index: params.state.index,
+      index: dataPathContext.index,
       ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
     })

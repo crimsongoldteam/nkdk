@@ -181,12 +181,34 @@ export function prepareFormDataPathContextFromYAML(params: {
     borrowedNames,
     currentConfigurationForm,
   })
+  const effectiveIndex = withEffectiveTabularElementDataPaths({
+    index,
+    collected,
+    prepared,
+  })
 
   return {
-    index,
+    index: effectiveIndex,
     elementsByName: prepared.elementsByName,
     ...(effectiveMainAttribute === undefined ? {} : { effectiveMainAttribute }),
   }
+}
+
+function withEffectiveTabularElementDataPaths(params: {
+  index: FormDataPathIndex
+  collected: CollectedForm
+  prepared: PreparedForm
+}): FormDataPathIndex {
+  const tabularElementsByName = new Map(params.index.tabularElementsByName)
+  for (const [name, element] of params.collected.elementsByName) {
+    if (element.itemType !== "Table" || !tabularElementsByName.has(name)) continue
+    const dataPath = params.prepared.effectivePath(name)?.yaml
+    tabularElementsByName.set(name, {
+      kind: "tabularFormElement",
+      ...(dataPath === undefined ? {} : { dataPath }),
+    })
+  }
+  return { ...params.index, tabularElementsByName }
 }
 
 export interface CollectedFormElement {
