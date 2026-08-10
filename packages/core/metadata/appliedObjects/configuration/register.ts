@@ -1,27 +1,12 @@
-import { join } from "path"
-import {
-  registerProjectFileValidator,
-  registerProjectReferenceObjectPathContributor,
-  registerProjectReferenceValueContributor,
-} from "../../validation/projectReferenceIndexRegistry"
-import { TopLevelMetadataItemRules } from "./topLevelRules"
+import { applyLegacyProjectReferenceContributions } from "../../validation/projectReferenceIndexRegistry"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
+import { configurationReferenceRules } from "./referenceRules"
 import "./registerPartialXmlPackage"
-
-const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
-const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
-const predefinedValueRoots = new Set([
-  "Catalog",
-  "ChartOfAccounts",
-  "ChartOfCalculationTypes",
-  "ChartOfCharacteristicTypes",
-  "ExchangePlan",
-])
 
 registerMetadataXmlPrepareCapability({
   id: "configuration",
@@ -47,55 +32,4 @@ registerMetadataXmlPrepareCapability({
   },
 })
 
-registerProjectFileValidator("configuration", ({ filePath, parsed }) => {
-  if (parsed.data === null || typeof parsed.data !== "object" || Array.isArray(parsed.data)) return []
-  if (Object.prototype.hasOwnProperty.call(parsed.data, "ОсновнойЯзык")) return []
-
-  return [
-    {
-      filePath,
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      path: "/ОсновнойЯзык",
-      message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
-    },
-  ]
-})
-
-for (const rule of TopLevelMetadataItemRules) {
-  const dir = rule.itemTypePrefix
-  if (typeof dir !== "string") continue
-  if (objectOwnedProjectSpecDirs.has(dir)) continue
-  const owner = rule.metadataTargetOwner
-  if (owner?.kind === "self" && !specialObjectPathProjectSpecDirs.has(dir)) {
-    registerProjectReferenceObjectPathContributor(owner.root, ({ projectDir, target }) => ({
-      filePath: join(projectDir, dir, target.objectName, "Свойства.yaml"),
-    }))
-    if (predefinedValueRoots.has(owner.root)) {
-      registerProjectReferenceValueContributor(owner.root, ({ owner, target }) => {
-        if (target.valueKind === "emptyRef") return undefined
-        const values = metadataRecord(owner.facts).predefined
-        return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
-      })
-    }
-  }
-}
-
-function hasNamedItem(value: unknown, name: string): boolean {
-  if (Array.isArray(value)) return value.some((item) => hasNamedItem(item, name))
-  if (typeof value !== "object" || value === null) return false
-
-  const record = value as Record<string, unknown>
-  if (record.name === name) return true
-  if (Object.prototype.hasOwnProperty.call(record, name)) return true
-
-  return (
-    hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
-  )
-}
-
-function metadataRecord(value: unknown): Record<string, unknown> {
-  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
-}
+applyLegacyProjectReferenceContributions(configurationReferenceRules)

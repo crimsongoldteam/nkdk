@@ -33,6 +33,86 @@ export type ProjectReferenceMemberIndexContributor = (params: {
   owner: OwnerMetadata
 }) => Iterable<ProjectMemberIndexEntry>
 
+export type ProjectReferenceContribution =
+  | {
+      readonly kind: "objectPath"
+      readonly root: MetadataRootName
+      readonly contributor: ProjectReferenceObjectPathContributor
+    }
+  | {
+      readonly kind: "member"
+      readonly memberKind: MetadataMemberKind
+      readonly contributor: ProjectReferenceMemberContributor
+    }
+  | {
+      readonly kind: "value"
+      readonly root: MetadataRootName
+      readonly contributor: ProjectReferenceValueContributor
+    }
+  | {
+      readonly kind: "fileValidator"
+      readonly role: string
+      readonly validator: ProjectFileValidator
+    }
+  | {
+      readonly kind: "memberIndex"
+      readonly contributor: ProjectReferenceMemberIndexContributor
+    }
+
+export interface ProjectReferenceRegistrySet {
+  getObjectPathContributor(root: MetadataRootName): ProjectReferenceObjectPathContributor | undefined
+  getMemberContributors(kind: MetadataMemberKind): readonly ProjectReferenceMemberContributor[]
+  getValueContributor(root: MetadataRootName): ProjectReferenceValueContributor | undefined
+  getFileValidators(role: string): readonly ProjectFileValidator[]
+  getMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[]
+}
+
+export function createProjectReferenceRegistrySet(
+  contributions: readonly ProjectReferenceContribution[],
+): ProjectReferenceRegistrySet {
+  const objectPaths = new Map<MetadataRootName, ProjectReferenceObjectPathContributor>()
+  const members = new Map<MetadataMemberKind, ProjectReferenceMemberContributor[]>()
+  const values = new Map<MetadataRootName, ProjectReferenceValueContributor>()
+  const fileValidators = new Map<string, ProjectFileValidator[]>()
+  const memberIndexes: ProjectReferenceMemberIndexContributor[] = []
+
+  for (const contribution of contributions) {
+    if (contribution.kind === "objectPath") objectPaths.set(contribution.root, contribution.contributor)
+    else if (contribution.kind === "member") {
+      members.set(contribution.memberKind, [...(members.get(contribution.memberKind) ?? []), contribution.contributor])
+    } else if (contribution.kind === "value") values.set(contribution.root, contribution.contributor)
+    else if (contribution.kind === "fileValidator") {
+      fileValidators.set(contribution.role, [...(fileValidators.get(contribution.role) ?? []), contribution.validator])
+    } else memberIndexes.push(contribution.contributor)
+  }
+
+  return {
+    getObjectPathContributor: (root) => objectPaths.get(root),
+    getMemberContributors: (kind) => members.get(kind) ?? [],
+    getValueContributor: (root) => values.get(root),
+    getFileValidators: (role) => fileValidators.get(role) ?? [],
+    getMemberIndexContributors: () => memberIndexes,
+  }
+}
+
+export function applyLegacyProjectReferenceContributions(
+  contributions: readonly ProjectReferenceContribution[],
+): void {
+  for (const contribution of contributions) {
+    if (contribution.kind === "objectPath") {
+      registerProjectReferenceObjectPathContributor(contribution.root, contribution.contributor)
+    } else if (contribution.kind === "member") {
+      registerProjectReferenceMemberContributor(contribution.memberKind, contribution.contributor)
+    } else if (contribution.kind === "value") {
+      registerProjectReferenceValueContributor(contribution.root, contribution.contributor)
+    } else if (contribution.kind === "fileValidator") {
+      registerProjectFileValidator(contribution.role, contribution.validator)
+    } else {
+      registerProjectReferenceMemberIndexContributor(contribution.contributor)
+    }
+  }
+}
+
 const objectPathContributors = new Map<MetadataRootName, ProjectReferenceObjectPathContributor>()
 const memberContributors = new Map<MetadataMemberKind, ProjectReferenceMemberContributor[]>()
 const valueContributors = new Map<MetadataRootName, ProjectReferenceValueContributor>()

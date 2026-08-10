@@ -1,4 +1,3 @@
-import { join } from "path"
 import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
 import type { OwnerTypeRef } from "../../validation/dataPath/types"
 import {
@@ -7,8 +6,9 @@ import {
   registerRegisterRecordsItemResolver,
   registerTraversalTransitionResolver,
 } from "../../validation/dataPath/registry"
-import { registerProjectReferenceObjectPathContributor } from "../../validation/projectReferenceIndexRegistry"
+import { applyLegacyProjectReferenceContributions } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataDocumentRules } from "./rules"
+import { metadataDocumentReferenceRules } from "./referenceRules"
 import "./standardMembers"
 
 registerDataPathOwnerKind({
@@ -60,9 +60,7 @@ registerRegisterRecordsItemResolver(({ owner, segment }) => {
   }
 })
 
-registerProjectReferenceObjectPathContributor("Document", ({ projectDir, target }) => ({
-  filePath: join(projectDir, "Документ", target.objectName, "Свойства.yaml"),
-}))
+applyLegacyProjectReferenceContributions(metadataDocumentReferenceRules)
 
 function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
   const value = metadataRecord(owner.facts).registerRecords

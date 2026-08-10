@@ -7,6 +7,7 @@ import type {
   MetadataRulesDefinition,
   MetadataSchemaDefinition,
   MetadataSchemaPropertyRefDefinition,
+  MetadataSynchronizationContribution,
 } from "./definition"
 import type { ElementRule } from "./formElement/types"
 import type { MetadataItemRule } from "./property/types"
@@ -33,7 +34,7 @@ export interface RuleRegistrySet {
 }
 
 export function createRuleRegistrySet(
-  definition: MetadataRulesDefinition,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
 ): RuleRegistrySet {
   const metadataItems = new Map(Object.entries(definition.metadataItems))
   const formElements = new Map(Object.entries(definition.formElements))

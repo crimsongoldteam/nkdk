@@ -40,3 +40,34 @@ it("uses the local YAML validator from its own definition", () => {
   expect(first.validateLocalValue(input).diagnostics[0]?.message).toBe("first")
   expect(second.validateLocalValue(input).diagnostics[0]?.message).toBe("second")
 })
+
+it("exposes project reference contributions from its own definition", () => {
+  const first = createValidationRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    references: [{
+      kind: "objectPath",
+      root: "Document",
+      contributor: () => ({ filePath: "first.yaml" }),
+    }],
+  }))
+  const second = createValidationRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    references: [{
+      kind: "objectPath",
+      root: "Document",
+      contributor: () => ({ filePath: "second.yaml" }),
+    }],
+  }))
+  const target = {
+    kind: "object" as const,
+    root: "Document" as const,
+    objectName: "Sample",
+  }
+
+  expect(first.references.getObjectPathContributor("Document")?.({ projectDir: "/p", target })).toEqual({
+    filePath: "first.yaml",
+  })
+  expect(second.references.getObjectPathContributor("Document")?.({ projectDir: "/p", target })).toEqual({
+    filePath: "second.yaml",
+  })
+})

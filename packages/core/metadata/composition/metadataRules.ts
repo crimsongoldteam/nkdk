@@ -14,6 +14,13 @@ import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/chil
 import { createMetadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
 import { defineFormSchemaRules } from "../forms/schemaRegister"
 import { formElementCatalogRules } from "../forms/elements/formElementCatalog"
+import { metadataTargetProjectReferenceRules } from "../commonObjects/metadataTargetProjectResolvers/referenceRules"
+import { metadataSubsystemReferenceRules } from "../appliedObjects/metadataSubsystem/referenceRules"
+import { metadataExternalDataSourceReferenceRules } from "../appliedObjects/metadataExternalDataSource/referenceRules"
+import { metadataEnumerationReferenceRules } from "../appliedObjects/metadataEnumeration/referenceRules"
+import { metadataCatalogReferenceRules } from "../appliedObjects/metadataCatalog/referenceRules"
+import { metadataDocumentReferenceRules } from "../appliedObjects/metadataDocument/referenceRules"
+import { configurationReferenceRules } from "../appliedObjects/configuration/referenceRules"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -27,6 +34,18 @@ const formSchemaRules = defineFormSchemaRules(
   formElementRules.formElements,
   formElementCatalogRules.formElementKinds,
 )
+const projectReferenceRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  references: [
+    ...metadataTargetProjectReferenceRules,
+    ...metadataSubsystemReferenceRules,
+    ...metadataExternalDataSourceReferenceRules,
+    ...metadataEnumerationReferenceRules,
+    ...metadataCatalogReferenceRules,
+    ...metadataDocumentReferenceRules,
+    ...configurationReferenceRules,
+  ],
+})
 
 export const legacyCoreRules = composeMetadataRules(
   staticPropertyRules,
@@ -38,6 +57,7 @@ export const legacyCoreRules = composeMetadataRules(
   childFormNamesPropertyRules,
   formElementCatalogRules,
   formSchemaRules,
+  projectReferenceRules,
 )
 
 const rulesWithoutTopology = composeMetadataRules(

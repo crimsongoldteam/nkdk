@@ -12,6 +12,7 @@ import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { listJSONSchemaNames } from "../projectDefinition/schemaRegistry"
 import { exportPropertyExternalRefSchema } from "../ruleRuntime/jsonSchemaRefs"
 import type { PropertyRule } from "../ruleRuntime/property/types"
+import { snapshotProjectReferenceIndexRegistryForTests } from "../validation/projectReferenceIndexRegistry"
 
 describe("metadataRules", () => {
   it(
@@ -37,6 +38,7 @@ describe("metadataRules", () => {
         rule: settingsParameterRule,
       })
       const projectRevisionBeforeImport = projectSpecRegistryRevision()
+      const referenceRegistryBeforeImport = snapshotProjectReferenceIndexRegistryForTests()
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
       expect(() =>
@@ -63,6 +65,7 @@ describe("metadataRules", () => {
         }),
       ).toEqual(propertyRefBeforeImport)
       expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
+      expect(snapshotProjectReferenceIndexRegistryForTests()).toEqual(referenceRegistryBeforeImport)
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
       expect(() =>
@@ -117,6 +120,7 @@ describe("metadataRules", () => {
       expect(metadataRules.imports).toHaveLength(2)
       expect(metadataRules.synchronization).toHaveLength(2)
       expect(metadataRules.validation).toHaveLength(1)
+      expect(metadataRules.references.length).toBeGreaterThan(10)
       expect(metadataRules.resourceTopology).toHaveLength(1)
       expect(
         createRuleRegistrySet(metadataRules).resourceTopology.get().assignments

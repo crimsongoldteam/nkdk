@@ -7,16 +7,20 @@ import { emptyMetadataRules } from "./testSupport"
 
 export function composeMetadataRules<
   const Layers extends readonly (
-    Omit<MetadataRulesDefinition, "synchronization"> & {
+    Omit<MetadataRulesDefinition<MetadataSynchronizationContribution, object>, "synchronization"> & {
       readonly synchronization: readonly MetadataSynchronizationContribution[]
     }
   )[],
 >(
   ...layers: Layers
-): MetadataRulesDefinition<Layers[number]["synchronization"][number]> {
+): MetadataRulesDefinition<
+  Layers[number]["synchronization"][number],
+  Layers[number]["references"][number]
+> {
   type SynchronizationContribution =
     Layers[number]["synchronization"][number]
-  return layers.reduce<MetadataRulesDefinition<SynchronizationContribution>>(
+  type ReferenceContribution = Layers[number]["references"][number]
+  return layers.reduce<MetadataRulesDefinition<SynchronizationContribution, ReferenceContribution>>(
     (result, layer) => ({
       propertyTypes: mergePropertyTypes(
         result.propertyTypes,
@@ -77,7 +81,7 @@ export function composeMetadataRules<
         ...layer.workerOperations,
       ],
     }),
-    emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution>,
+    emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution, ReferenceContribution>,
   )
 }
 

@@ -6,7 +6,7 @@ import {
   compileRegisteredMetadataResourceTopology,
 } from "./registeredRules"
 import type { MetadataResourceTopologyProvider } from "../core/providerRegistry"
-import type { MetadataRulesDefinition } from "../../ruleRuntime/definition"
+import type { MetadataRulesDefinition, MetadataSynchronizationContribution } from "../../ruleRuntime/definition"
 import { createPropertyRuleRegistrySet } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import {
   compileMetadataResourceTopologyForProjectSpecs,
@@ -28,7 +28,7 @@ export const metadataResourceTopologyProvider: MetadataResourceTopologyProvider 
 }
 
 export function createMetadataResourceTopologyProvider(
-  definition: MetadataRulesDefinition,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
 ): MetadataResourceTopologyProvider {
   const propertyRules = createPropertyRuleRegistrySet(definition)
   const projectSpecs = Object.values(definition.projectSpecs)

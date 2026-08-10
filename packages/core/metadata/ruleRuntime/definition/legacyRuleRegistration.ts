@@ -7,10 +7,10 @@ import type { ElementType } from "../formElement/types"
 import type { PropertyRuleType } from "../property/registry"
 import { registerLegacyPropertyTypeDefinitions } from "../property/typeRuleRegistry"
 import { registerExplicitXMLProperty } from "../property/explicitXMLPropertyRegistry"
-import type { MetadataRulesDefinition } from "./contracts"
+import type { MetadataRulesDefinition, MetadataSynchronizationContribution } from "./contracts"
 
 export function registerLegacyRuleDefinitions(
-  definition: MetadataRulesDefinition,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
 ): void {
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
   for (const registration of Object.values(

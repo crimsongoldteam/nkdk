@@ -5,8 +5,10 @@ import type {
 
 export function defineMetadataRules<
   const Synchronization extends readonly MetadataSynchronizationContribution[],
-  const Definition extends Omit<MetadataRulesDefinition, "synchronization"> & {
+  const References extends readonly object[],
+  const Definition extends Omit<MetadataRulesDefinition<MetadataSynchronizationContribution, object>, "synchronization" | "references"> & {
     readonly synchronization: Synchronization
+    readonly references: References
   },
 >(
   definition: Definition,
