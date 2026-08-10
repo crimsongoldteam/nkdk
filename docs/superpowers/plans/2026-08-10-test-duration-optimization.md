@@ -1,10 +1,10 @@
-# Однократный динамический setup core — план реализации
+# Однократная динамическая загрузка core — план реализации
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Сохранить полную детерминированную регистрацию metadata и обеспечить setup `@nkdk/core` не более 3 секунд за счёт однократного динамического импорта в обычном Vitest setup.
 
-**Architecture:** Проекты `unit` и `core-metadata` остаются без изменения состава. `tests/registerCoreMetadata.ts` хранит в `globalThis` один `Promise<void>` и только при первом setup динамически импортирует composition root; последующие test files ожидают готовый Promise. Production-композиция и реестры не меняются.
+**Architecture:** Проекты `unit` и `core-metadata` остаются без изменения состава. `tests/registerCoreMetadata.ts` хранит в `globalThis` один Promise модуля и только при первом setup динамически импортирует composition root; последующие test files ожидают готовый Promise и вызывают идемпотентную регистрацию. Production-композиция и реестры не меняются.
 
 **Tech Stack:** TypeScript, Node.js, pnpm, Vitest 4, lifecycle reporter.
 
@@ -71,7 +71,7 @@ Expected: 34 tests PASS; новых дублей нет.
 
 ---
 
-### Task 2: Зафиксировать RED однократной регистрации
+### Task 2: Зафиксировать RED однократной загрузки
 
 **Files:**
 
@@ -81,7 +81,7 @@ Expected: 34 tests PASS; новых дублей нет.
 **Interfaces:**
 
 - Consumes: будущую функцию `ensureCoreMetadataRegistered(params?): Promise<void>`.
-- Produces: поведенческий договор «повторные и параллельные setup-вызовы загружают и регистрируют metadata один раз; отклонённый Promise переиспользуется».
+- Produces: поведенческий договор «повторные и параллельные setup-вызовы загружают metadata один раз и запрашивают регистрацию при каждом вызове; отклонённый Promise загрузки переиспользуется».
 
 - [ ] **Step 1: Добавить падающий архитектурный тест**
 
@@ -92,7 +92,7 @@ import { describe, expect, it } from "vitest"
 import { ensureCoreMetadataRegistered, type CoreMetadataSetupState } from "./coreMetadataSetup"
 
 describe("core metadata test setup", () => {
-  it("загружает и регистрирует metadata один раз для повторных setup-вызовов", async () => {
+  it("загружает metadata один раз и восстанавливает регистрацию при каждом setup-вызове", async () => {
     const state: CoreMetadataSetupState = {}
     let loads = 0
     let registrations = 0
@@ -111,7 +111,7 @@ describe("core metadata test setup", () => {
     ])
     await ensureCoreMetadataRegistered({ state, load })
 
-    expect({ loads, registrations }).toEqual({ loads: 1, registrations: 1 })
+    expect({ loads, registrations }).toEqual({ loads: 1, registrations: 3 })
   })
 
   it("сохраняет первую ошибку загрузки без повторной регистрации", async () => {
@@ -142,7 +142,7 @@ Expected: FAIL с ошибкой разрешения `./coreMetadataSetup`, п�
 
 ---
 
-### Task 3: Загружать core metadata один раз на окружение
+### Task 3: Загружать core metadata один раз и сохранять договор setup
 
 **Files:**
 
@@ -153,7 +153,7 @@ Expected: FAIL с ошибкой разрешения `./coreMetadataSetup`, п�
 
 **Interfaces:**
 
-- Produces: `ensureCoreMetadataRegistered(params?): Promise<void>` и глобальное test-only поле `__nkdkCoreMetadataRegistration?: Promise<void>`.
+- Produces: `ensureCoreMetadataRegistered(params?): Promise<void>` и глобальное test-only поле `__nkdkCoreMetadataModule?: Promise<CoreMetadataModule>`.
 - Consumes: `registerCoreMetadata(): void` из `metadata/composition/coreMetadata`.
 
 - [ ] **Step 1: Реализовать владельца динамического Promise**
@@ -166,7 +166,7 @@ interface CoreMetadataModule {
 }
 
 export interface CoreMetadataSetupState {
-  __nkdkCoreMetadataRegistration?: Promise<void>
+  __nkdkCoreMetadataModule?: Promise<CoreMetadataModule>
 }
 
 type CoreMetadataLoader = () => Promise<CoreMetadataModule>
@@ -181,11 +181,9 @@ export async function ensureCoreMetadataRegistered(params: {
   const state = params.state ?? globalRegistrationState
   const load = params.load ?? loadCoreMetadata
 
-  state.__nkdkCoreMetadataRegistration ??= load().then(({ registerCoreMetadata }) => {
-    registerCoreMetadata()
-  })
-
-  await state.__nkdkCoreMetadataRegistration
+  state.__nkdkCoreMetadataModule ??= load()
+  const { registerCoreMetadata } = await state.__nkdkCoreMetadataModule
+  registerCoreMetadata()
 }
 ```
 
