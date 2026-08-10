@@ -1,6 +1,7 @@
 import type { TSchema } from "typebox"
 
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ComponentAddress } from "../../components/address"
 import type { MetadataComponentDescriptor } from "../../components/descriptor"
 import type { ConfigurationContext } from "../../context/types"
 import type { Diagnostic, YamlPath } from "../../diagnostics/types"
@@ -53,6 +54,41 @@ export interface LocalYamlValueValidationContribution {
   readonly profileSubstep?: string
 }
 
+export interface MetadataImportComponentDescriptor {
+  readonly kind: string
+  detect(root: Readonly<Record<string, unknown>>): boolean
+  resolveAddress(root: Readonly<Record<string, unknown>>): ComponentAddress
+  readonly baseAddress?: ComponentAddress
+  readonly metadataItemAugmenter?: string
+}
+
+export type MetadataWorkerOperationOutcome =
+  | "success"
+  | "failure"
+  | "cancelled"
+
+export interface MetadataWorkerOperationRuleTypeMap {
+  probe: {
+    readonly command: { readonly kind: "probe"; readonly value: string }
+    readonly result: { readonly kind: "probeResult"; readonly value: string }
+    readonly state: object
+  }
+}
+
+export type MetadataWorkerOperationContribution = {
+  readonly [Kind in keyof MetadataWorkerOperationRuleTypeMap]: {
+    readonly kind: Kind
+    readonly handler: (
+      command: MetadataWorkerOperationRuleTypeMap[Kind]["command"],
+      state: MetadataWorkerOperationRuleTypeMap[Kind]["state"],
+    ) => Promise<MetadataWorkerOperationRuleTypeMap[Kind]["result"]>
+    readonly reset?: (
+      state: MetadataWorkerOperationRuleTypeMap[Kind]["state"],
+      outcome: MetadataWorkerOperationOutcome,
+    ) => Promise<void>
+  }
+}[keyof MetadataWorkerOperationRuleTypeMap]
+
 export interface DependentItemDefinition {
   readonly yaml?: DependentYamlItemHandler
   readonly structural?: DependentStructuralItemHandler
@@ -84,8 +120,8 @@ export interface MetadataRulesDefinition {
   readonly dataPaths: readonly RuleRegistrationContribution[]
   readonly references: readonly RuleRegistrationContribution[]
   readonly components: readonly MetadataComponentDescriptor[]
-  readonly imports: readonly RuleRegistrationContribution[]
+  readonly imports: readonly MetadataImportComponentDescriptor[]
   readonly synchronization: readonly RuleRegistrationContribution[]
   readonly operations: readonly RuleRegistrationContribution[]
-  readonly workerOperations: readonly RuleRegistrationContribution[]
+  readonly workerOperations: readonly MetadataWorkerOperationContribution[]
 }
