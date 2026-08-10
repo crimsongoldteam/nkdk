@@ -96,6 +96,22 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('<xr:StandardAttribute name="PredefinedDataName">')
   })
 
+  it("restores empty default synonym when YAML omits it", () => {
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: { Number: "Номер" },
+      },
+      value: undefined,
+      yaml: { Номер: { ПроверкаЗаполнения: "ВыдаватьОшибку" } },
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="Number">')
+    expect(result).toContain("<xr:Synonym/>")
+    expect(result).not.toContain("<v8:content>Number</v8:content>")
+  })
+
   it("exports undefined and empty YAML", () => {
     const results = [undefined, {}].map((yaml) => {
       return testExportPropertyModelThroughYAMLToXML({
@@ -168,7 +184,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       },
       value: fillValueEmptyRefTypeLoss,
       yaml: {
-        Ссылка: { Синоним: "", ЗначениеЗаполнения: "." },
+        Ссылка: { ЗначениеЗаполнения: "." },
       },
       xmlRootTag: "StandardAttributes",
       path: "fillValueEmptyRefTypeLoss.xml",
@@ -509,7 +525,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(exported.xml).toEqual({})
   })
 
-  it("does not restore an explicitly empty synonym as the standard attribute name", () => {
+  it("preserves an empty synonym without restoring the standard attribute name", () => {
     const itemRule = {
       itemType: "TestItem",
       properties: {
@@ -559,7 +575,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
         "xr:StandardAttribute": Array<Record<string, unknown>>
       }
     )["xr:StandardAttribute"]
-    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toEqual({})
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
     expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual({
       "v8:item": [{
         "v8:lang": "ru",
