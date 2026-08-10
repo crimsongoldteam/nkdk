@@ -110,6 +110,13 @@ describe("dependent fill value validation", () => {
     }
   )
 
+  it("игнорирует транспортный маркер коллекции стандартных реквизитов", () => {
+    const facts = extractFacts("СтандартныеРеквизиты: !xml\n")
+
+    expect(facts.diagnostics.filter(({ path }) => path?.startsWith("/СтандартныеРеквизиты"))).toEqual([])
+    expect(facts.pendingReferences.filter(({ yamlPath }) => yamlPath[0] === "СтандартныеРеквизиты")).toEqual([])
+  })
+
   it("отклоняет запрещённое значение без !xml", () => {
     const diagnostics = extractDiagnostics(
       "СтандартныеРеквизиты:\n  Предопределенный:\n    ЗначениеЗаполнения: Ложь\n"

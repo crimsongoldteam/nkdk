@@ -29,12 +29,11 @@ describe("writeFullXmlSyncAssignment", () => {
     return dir
   }
 
-  it("writes declared owner output from prepared YAML and returns index fragment", async () => {
-    const projectDir = tempDir()
+  async function writeDataProcessorOwnerFromYaml(projectDir: string, yaml: string, removeSource = false) {
     const sourceProjectPath = "Обработка/ОбработкаВсеСвойства/Свойства.yaml"
     const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
     fs.mkdirSync(join(projectDir, "Обработка", "ОбработкаВсеСвойства"), { recursive: true })
-    fs.writeFileSync(sourcePath, "Синоним: Синоним\nКомментарий: Комментарий\n")
+    fs.writeFileSync(sourcePath, yaml)
     const prepared = prepareYamlFiles({
       files: [
         {
@@ -47,10 +46,9 @@ describe("writeFullXmlSyncAssignment", () => {
       ],
       itemTypeByYamlDir: { Обработка: "MetadataDataProcessor" },
     })
-    fs.rmSync(sourcePath)
+    if (removeSource) fs.rmSync(sourcePath)
     const outputDir = join(projectDir, "xml")
     const assignment = dataProcessorAssignment(projectDir)
-
     const context = mockContextToXML()
     const preparedAssignment = prepareFullXmlSyncAssignment({
       assignment,
@@ -64,6 +62,17 @@ describe("writeFullXmlSyncAssignment", () => {
       context,
       outputTarget: { kind: "directory", outputDir },
     })
+
+    return { assignment, outputDir, result, sourceProjectPath }
+  }
+
+  it("writes declared owner output from prepared YAML and returns index fragment", async () => {
+    const projectDir = tempDir()
+    const { assignment, outputDir, result, sourceProjectPath } = await writeDataProcessorOwnerFromYaml(
+      projectDir,
+      "Синоним: Синоним\nКомментарий: Комментарий\n",
+      true
+    )
 
     expect(result.diagnostics).toEqual([])
     expect(result.writtenFiles).toEqual([
@@ -82,6 +91,16 @@ describe("writeFullXmlSyncAssignment", () => {
     )
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
+    expect(fs.readFileSync(join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"), "utf-8")).toContain(
+      "<Name>ОбработкаВсеСвойства</Name>"
+    )
+  })
+
+  it("writes owner XML from an empty properties YAML file", async () => {
+    const projectDir = tempDir()
+    const { outputDir, result } = await writeDataProcessorOwnerFromYaml(projectDir, "")
+
+    expect(result.diagnostics).toEqual([])
     expect(fs.readFileSync(join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"), "utf-8")).toContain(
       "<Name>ОбработкаВсеСвойства</Name>"
     )

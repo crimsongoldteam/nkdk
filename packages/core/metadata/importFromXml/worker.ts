@@ -25,14 +25,11 @@ import { validateSerializedProjectYaml } from "./serializedYamlValidation"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createProjectStateFileUpdateBatch,
-  isolateProjectStateYamlUpdate,
   projectStateFieldEntries,
   projectStateOwnerFacts,
   projectStateTargetEntry,
-  toProjectStateFileUpdate,
   type ProjectStateYamlFileUpdate,
 } from "../projectState/fileUpdate"
-export { isolateProjectStateYamlUpdate } from "../projectState/fileUpdate"
 import { createProjectStateOwnerMetadataCache } from "../validation/projectStateDependencyValidation"
 import { openProjectStateReadSession } from "../composition/projectState"
 import { resolveProjectPath } from "../projectDefinition/path"
@@ -70,6 +67,7 @@ import { normalizeImportedDependentItems } from "./dependentItems"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
+import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -973,16 +971,21 @@ function validateSerializedImportYaml(
     "Локальная валидация готового YAML",
     "Преобразование результата в состояние проекта",
     { items: 1 },
-    () => toProjectStateFileUpdate(
-      first,
-      importFileIdentity(state, prepared.targetProjectPath, file.kind),
-      importFileBackedTargets(state, prepared.targetProjectPath),
-    ),
+    () => buildProjectStateYamlFileUpdate({
+      projectDir: state.projectDir,
+      descriptor: {
+        componentPath: file.componentPath,
+        componentDir: file.componentDir,
+        rootProjectPath: file.rootProjectPath,
+        projectPath: file.projectPath,
+        role: file.kind,
+        ...(indexContribution === "isolated" ? { indexContribution: "isolated" as const } : {}),
+      },
+      firstPass: first,
+      fileBackedTargets: importFileBackedTargets(state, prepared.targetProjectPath),
+    }),
   )
-  return splitImportYamlUpdate(
-    indexContribution === "isolated" ? isolateProjectStateYamlUpdate(full) : full,
-    serialized.localHash,
-  )
+  return splitImportYamlUpdate(full, serialized.localHash)
 }
 
 function importFileBackedTargets(
@@ -1026,10 +1029,27 @@ function splitImportYamlUpdate(
     resourceKind: "yaml" as const,
     yamlRole: update.yamlRole,
   }
-  const { targets, owners, fields, forms, pendingReferences, pendingChecks, dependencies, localValidation } = update
+  const {
+    targets,
+    owners,
+    fields,
+    forms,
+    structuredDocuments,
+    pendingReferences,
+    pendingChecks,
+    dependencies,
+    localValidation,
+  } = update
   const batch = createProjectStateFileUpdateBatch([{ update, hash }])
   return {
-    index: { ...identity, targets, owners, fields, forms },
+    index: {
+      ...identity,
+      targets,
+      owners,
+      fields,
+      forms,
+      ...(structuredDocuments === undefined ? {} : { structuredDocuments }),
+    },
     final: {
       updates: [{ ...identity, kind: "yaml", localValidation, pendingReferences, pendingChecks, dependencies }],
       hashBytes: batch.hashBytes,

@@ -6,8 +6,6 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import {
   createProjectStateFileUpdateBatch,
-  isolateProjectStateYamlUpdate,
-  toProjectStateFileUpdate,
   type ProjectStateFileIdentity,
   type ProjectStateFileUpdateBatch,
   type ProjectStateFileUpdateBatchEntry,
@@ -66,11 +64,7 @@ import {
 import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
 import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
-import { classifyMetadataProjectPath as classifyTopologyProjectPath } from "../resourceTopology/core/projectProjection"
-import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
-import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
-import type { ProjectStateStructuredDocumentEntry } from "../projectState/fileUpdate"
-import { getRegisteredFormStructureProjection } from "../validation/formStructureProjectionRegistry"
+import { buildProjectStateYamlFileUpdate } from "./projectStateYamlUpdate"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
@@ -694,67 +688,18 @@ function processValidationFirstPassFile(
     schemaDiagnostics: first.schemaDiagnostics,
   })
   accumulator.fileUpdateEntries.push({
-    update: isolateYamlUpdateIfNeeded(toProjectStateFileUpdate(first, {
-      projectPath: descriptor.rootProjectPath,
-      componentPath: descriptor.componentPath,
-      resourceKind: "yaml",
-      yamlRole: descriptor.role,
-    }, input.fileBackedTargets, projectFormStructureDocuments({
+    update: buildProjectStateYamlFileUpdate({
       projectDir: input.projectDir,
       descriptor,
-      components: first.structuredComponents === undefined
-        ? undefined
-        : [
-            ...first.structuredComponents,
-            ...(descriptor.indexContribution === "isolated" && first.state.kind === "form"
-              ? first.state.pendingChecks.filter((check) => check.kind === "dataPath").map((check) => ({
-                  componentKind: "dataPath",
-                  name: check.value,
-                  yamlPath: check.yamlPath,
-                }))
-              : []),
-          ],
-    })), descriptor.indexContribution),
+      firstPass: first,
+      fileBackedTargets: input.fileBackedTargets,
+    }),
     hash: input.hash ?? hashFileBytes(Buffer.from(entry.text, "utf8")),
   })
   if (accumulator.detailedProfile.enabled) {
     accumulator.detailedProfile.collectMs += performance.now() - startedAt
   }
   return true
-}
-
-export function projectFormStructureDocuments(params: {
-  readonly projectDir: string
-  readonly descriptor: PreparedYamlProjectFileDescriptor
-  readonly components: import("../validation/projectValidationPasses").ProjectValidationFirstPassResult["structuredComponents"]
-}): readonly ProjectStateStructuredDocumentEntry[] {
-  if (params.components === undefined) return []
-  const component = validationProjectComponentFromAddress(params.projectDir, params.descriptor)
-  const match = classifyTopologyProjectPath(component.topology, params.descriptor.projectPath)
-  if (match === undefined || match.assignment === undefined) return []
-  const representation = match.kind === "yamlCompanion" ? "base" : "working"
-  if (match.kind !== "content" && match.kind !== "yamlCompanion") return []
-  const workingProjectPath = match.kind === "content"
-    ? match.projectPath
-    : expandMetadataPathPattern(match.assignment.projectPattern, match.values)
-  const workingMatch = classifyTopologyProjectPath(component.topology, workingProjectPath)
-  if (workingMatch === undefined || workingMatch.kind !== "content") return []
-  const logicalAddress = projectXmlExportAssignment(component.topology, workingMatch).logicalAddress
-  const projection = getRegisteredFormStructureProjection()
-  if (projection === undefined) throw new Error("Не зарегистрирована проекция структуры формы")
-  return projection({
-    components: params.components,
-    representation,
-    logicalAddress,
-    workingProjectPath,
-  })
-}
-
-function isolateYamlUpdateIfNeeded(
-  update: ReturnType<typeof toProjectStateFileUpdate>,
-  indexContribution: PreparedYamlProjectFileDescriptor["indexContribution"],
-): ReturnType<typeof toProjectStateFileUpdate> {
-  return indexContribution === "isolated" ? isolateProjectStateYamlUpdate(update) : update
 }
 
 function finishValidationFirstPass(accumulator: ValidationFirstPassAccumulator): ValidationFirstPassResult {

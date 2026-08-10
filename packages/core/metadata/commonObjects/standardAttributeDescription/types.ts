@@ -9,6 +9,7 @@ import * as SE from "../../systemEnumerations/types"
 import { ChoiceParametersXML } from "../сhoiceParameters/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 
 export { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
 export type { StandartAttributeName, StandartAttributeYAML } from "./standartAttributeNames"
@@ -53,4 +54,6 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
-export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
+export type StandardAttributeDescriptionsYAML =
+  | Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
+  | typeof EMPTY_XML_TAG_VALUE
