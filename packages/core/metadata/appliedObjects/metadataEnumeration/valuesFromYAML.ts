@@ -1,12 +1,13 @@
 import { ConfigurationContext } from "../../context/types"
 import { Type, type TSchema } from "typebox"
-import { registerMetadataItemCollectionRule, registerTypeRule } from "../../ruleRuntime"
+import { composeMetadataRules, defineMetadataRules } from "../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../projectDefinition/schemaRegistry"
 import { MetadataEnumerationValueRules } from "./rules"
 
-registerMetadataItemCollectionRule({
+const collectionRules = defineMetadataItemCollectionRule({
   propertyType: "MetadataEnumerationValues",
   itemRule: MetadataEnumerationValueRules,
   xmlElement: "EnumValue",
@@ -29,12 +30,27 @@ const exportMetadataEnumerationValueYAMLToJSONSchema = (context: ConfigurationCo
   return itemSchema
 }
 
-registerTypeRule("MetadataEnumerationValues", "exportToJSONSchema", ({ context }) =>
-  exportMetadataEnumerationValuesToJSONSchema(context)
-)
-registerProjectJSONSchema("MetadataEnumerationValueYAML", ({ context }) =>
-  exportMetadataEnumerationValueYAMLToJSONSchema(context)
-)
-registerProjectJSONSchemaPropertyRefFactory("MetadataEnumerationValues", () =>
-  recordOfSchemaRef("MetadataEnumerationValueYAML")
+const schemaRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  propertyTypes: {
+    MetadataEnumerationValues: {
+      exportToJSONSchema: ({ context }) =>
+        exportMetadataEnumerationValuesToJSONSchema(context),
+    },
+  },
+  schemas: {
+    MetadataEnumerationValueYAML: {
+      export: ({ context }) =>
+        exportMetadataEnumerationValueYAMLToJSONSchema(context),
+    },
+  },
+  schemaPropertyRefs: {
+    MetadataEnumerationValues: () =>
+      recordOfSchemaRef("MetadataEnumerationValueYAML"),
+  },
+})
+
+export const metadataRuleLayer000 = composeMetadataRules(
+  collectionRules,
+  schemaRules,
 )

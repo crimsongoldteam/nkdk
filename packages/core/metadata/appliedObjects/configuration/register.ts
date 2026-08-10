@@ -49,13 +49,6 @@ const predefinedValueRoots = new Set([
   "ExchangePlan",
 ])
 
-registerProjectSpec({
-  kind: "configuration",
-  dir: "",
-  rule: MetadataConfigurationRules,
-  exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
-})
-
 registerMetadataXmlPrepareCapability({
   id: "configuration",
   run: ({ context, preparedYamlFile, assignment, logicalAddress, outputs, composition, profile }) => {

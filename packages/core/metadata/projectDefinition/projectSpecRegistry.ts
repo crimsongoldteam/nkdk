@@ -35,14 +35,22 @@ export function defineProjectSpec(
 
 export function registerProjectSpec(spec: RegisteredProjectSpec): void {
   const definition = defineProjectSpec(spec)
-  specsByDir.set(spec.dir, spec)
-  registryRevision += 1
+  registerLegacyProjectSpecDefinitions(definition.projectSpecs)
   for (const [name, schema] of Object.entries(definition.schemas)) {
     registerJSONSchemaIdentity({
       name,
       source: schema.source ?? spec.rule,
       exporter: schema.export,
     })
+  }
+}
+
+export function registerLegacyProjectSpecDefinitions(
+  definitions: Readonly<Record<string, RegisteredProjectSpec>>,
+): void {
+  for (const spec of Object.values(definitions)) {
+    specsByDir.set(spec.dir, spec)
+    registryRevision += 1
   }
 }
 

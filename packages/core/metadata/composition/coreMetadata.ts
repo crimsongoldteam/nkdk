@@ -11,6 +11,7 @@ import { registerMetadataResourceTopologyProvider } from "../resourceTopology/co
 import "../ruleRuntime/appliedObject/syncToXML"
 import { legacyCoreRules } from "./metadataRules"
 import { registerLegacyRuleDefinitions } from "../ruleRuntime/definition/legacyRuleRegistration"
+import { registerLegacyProjectSpecDefinitions } from "../projectDefinition/projectSpecRegistry"
 
 let coreMetadataRegistered = false
 
@@ -33,6 +34,7 @@ export function registerCoreMetadata(): void {
   coreMetadataRegistered = true
 
   registerLegacyRuleDefinitions(legacyCoreRules)
+  registerLegacyProjectSpecDefinitions(legacyCoreRules.projectSpecs)
 
   registerMetadataLayers({
     commonObjects: registerCommonObjects,

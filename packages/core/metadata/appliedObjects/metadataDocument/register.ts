@@ -1,5 +1,3 @@
-import { registerProjectSpec } from "../../projectDefinition/projectSpecRegistry"
-import { createProjectSchemaExporter } from "../../projectDefinition/projectSpecHelpers"
 import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
 import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
@@ -68,13 +66,6 @@ registerProjectJSONSchema("MetadataDocument", ({ context }) => exportMetadataDoc
 registerProjectReferenceObjectPathContributor("Document", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Документ", target.objectName, "Свойства.yaml"),
 }))
-
-registerProjectSpec({
-  kind: "document",
-  dir: "Документ",
-  rule: MetadataDocumentRules,
-  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataDocumentToJSONSchema({ context })),
-})
 
 function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
   const value = metadataRecord(owner.facts).registerRecords

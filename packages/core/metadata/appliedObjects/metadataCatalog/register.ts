@@ -1,5 +1,3 @@
-import { registerProjectSpec } from "../../projectDefinition/projectSpecRegistry"
-import { createProjectSchemaExporter } from "../../projectDefinition/projectSpecHelpers"
 import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
@@ -35,13 +33,6 @@ registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
   if (target.valueKind === "emptyRef") return undefined
   const values = metadataRecord(owner.facts).predefined
   return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
-})
-
-registerProjectSpec({
-  kind: "catalog",
-  dir: "Справочник",
-  rule: MetadataCatalogRules,
-  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataCatalogToJSONSchema({ context })),
 })
 
 function hasNamedItem(value: unknown, name: string): boolean {
