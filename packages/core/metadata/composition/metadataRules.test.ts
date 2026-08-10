@@ -78,6 +78,11 @@ describe("metadataRules", () => {
       expect(
         metadataRules.schemas.MetadataConfigurationExtension,
       ).toBeDefined()
+      expect(metadataRules.schemas.ClientApplicationForm).toBeDefined()
+      expect(metadataRules.schemas.InputField).toBeDefined()
+      expect(
+        metadataRules.schemaPropertyRefs.GroupChildItems,
+      ).toBeTypeOf("function")
       expect(Object.keys(metadataRules.schemas).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.formElements).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(48)

@@ -122,6 +122,7 @@ export interface MetadataRulesDefinition<
   >
   readonly metadataItems: Readonly<Record<string, MetadataItemRule>>
   readonly formElements: Readonly<Record<string, ElementRule>>
+  readonly formElementKinds: Readonly<Record<string, string>>
   readonly systemEnumerations: Readonly<
     Record<string, RegisteredSystemEnumeration>
   >

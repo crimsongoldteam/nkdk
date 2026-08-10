@@ -10,6 +10,7 @@ export const emptyMetadataRules: MetadataRulesDefinition<never> = {
   metadataTargetOwners: {},
   metadataItems: {},
   formElements: {},
+  formElementKinds: {},
   systemEnumerations: {},
   schemas: {},
   schemaPropertyRefs: {},

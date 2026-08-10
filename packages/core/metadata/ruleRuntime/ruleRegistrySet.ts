@@ -19,6 +19,7 @@ export interface RuleRegistrySet {
   readonly property: PropertyRuleRegistrySet
   readonly metadataItems: ReadonlyMap<string, MetadataItemRule>
   readonly formElements: ReadonlyMap<string, ElementRule>
+  readonly formElementKinds: ReadonlyMap<string, string>
   readonly schemas: {
     get(name: string): MetadataSchemaDefinition | undefined
     propertyRef(
@@ -36,6 +37,7 @@ export function createRuleRegistrySet(
 ): RuleRegistrySet {
   const metadataItems = new Map(Object.entries(definition.metadataItems))
   const formElements = new Map(Object.entries(definition.formElements))
+  const formElementKinds = new Map(Object.entries(definition.formElementKinds))
   const schemas = new Map(Object.entries(definition.schemas))
   const schemaPropertyRefs = new Map(
     Object.entries(definition.schemaPropertyRefs),
@@ -54,6 +56,7 @@ export function createRuleRegistrySet(
     property: createPropertyRuleRegistrySet(definition),
     metadataItems,
     formElements,
+    formElementKinds,
     schemas: {
       get(name) {
         return schemas.get(name)

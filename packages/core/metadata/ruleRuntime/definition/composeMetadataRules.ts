@@ -44,6 +44,10 @@ export function composeMetadataRules<
       },
       metadataItems: { ...result.metadataItems, ...layer.metadataItems },
       formElements: { ...result.formElements, ...layer.formElements },
+      formElementKinds: {
+        ...result.formElementKinds,
+        ...layer.formElementKinds,
+      },
       systemEnumerations: {
         ...result.systemEnumerations,
         ...layer.systemEnumerations,
