@@ -36,6 +36,7 @@ export type ExplicitXMLPropertyAction =
   | { readonly kind: "omit" }
   | { readonly kind: "useYamlValue"; readonly yamlValue: string }
   | { readonly kind: "materializeCollection" }
+  | { readonly kind: "invalid"; readonly message: string }
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
@@ -98,7 +99,7 @@ export function matchExplicitXMLPropertyTypeFromXML(params: {
 export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string
-  readonly properties: Readonly<Record<string, { readonly yaml?: string }>>
+  readonly properties: Readonly<Record<string, { readonly type: string; readonly yaml?: string }>>
 }): ReadonlyMap<string, ExplicitXMLPropertyAction> {
   const actions = new Map<string, ExplicitXMLPropertyAction>()
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
@@ -107,7 +108,25 @@ export function collectExplicitXMLPropertyActions(params: {
     if (typeof rule.yaml !== "string") continue
     if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
     const registration = registrations.get(registrationKey(params.itemType, propertyKey))
-    if (registration === undefined) continue
+    if (registration === undefined) {
+      const typeRegistration = typeRegistrations.get(rule.type)
+      const rawValue = yaml[rule.yaml]
+      if (
+        typeRegistration === undefined ||
+        yamlScalarTagAt(yaml, rule.yaml) !== "xml" ||
+        typeof rawValue !== "string"
+      ) {
+        continue
+      }
+      const payload = xmlScalarTagPayload(rawValue)
+      actions.set(
+        propertyKey,
+        payload.length === 0
+          ? { kind: "materializeCollection" }
+          : { kind: "invalid", message: `${rule.yaml} допускает только пустой !xml` }
+      )
+      continue
+    }
     if (registration.action === "transportScalar") {
       const rawValue = yaml[rule.yaml]
       if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {

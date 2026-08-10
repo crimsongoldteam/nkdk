@@ -28,6 +28,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly propertyRule?: PropertyRule
   readonly source?: YAMLPropertySource
   readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly materializeCanonicalItems?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
@@ -44,6 +45,7 @@ export function convertMetadataCollectionFromYAMLToXML(
     propertyRule: params.propertyRule,
     source: params.source,
     outputs: params.outputs,
+    materializeCanonicalItems: params.materializeCanonicalItems,
   })
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
@@ -199,13 +201,19 @@ function completeCollectionEntries(params: {
   propertyRule: PropertyRule | undefined
   source: YAMLPropertySource | undefined
   outputs: readonly YAMLToXMLOutputRequest[]
+  materializeCanonicalItems: true | undefined
 }): { yaml: unknown; name?: string }[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
+  const shouldComplete = params.entries.length > 0 || params.materializeCanonicalItems === true
   const ruleNames =
-    params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
+    shouldComplete && params.propertyRule !== undefined && params.source !== undefined
       ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
       : []
+  if (params.materializeCanonicalItems === true && ruleNames.length === 0) {
+    const propertyLabel = params.propertyRule?.yaml ?? params.propertyRule?.type ?? "коллекция"
+    throw new Error(`Для свойства ${propertyLabel} не определены канонические стандартные реквизиты`)
+  }
   const sourceNames = new Set([
     ...params.entries.flatMap((entry) => entry.name === undefined ? [] : [entry.name]),
     ...(params.descriptor.preserveReferenceItems === true ? referenceNames : []),
