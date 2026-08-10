@@ -13,14 +13,19 @@ const collectFormTabularElementsFromYAML = (
     yaml,
     rule: ClientApplicationFormRules,
     visitElement: (visit) => acceptFormTabularElementVisit(result, visit),
-    resolveCollectionItemRule: ({ yaml: itemYaml, propertyRule }) =>
-      asRecord(itemYaml)?.["Вид"] === "ДеревоФормы" &&
-      getFormElementCollectionTypes(propertyRule.type)?.includes("Table")
-        ? TableRules
-        : undefined,
+    resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
   })
   return result
 }
+
+export const resolveClientApplicationFormCollectionItemRule = (params: {
+  yaml: unknown
+  propertyRule: { type: string }
+}) =>
+  asRecord(params.yaml)?.["Вид"] === "ДеревоФормы" &&
+  getFormElementCollectionTypes(params.propertyRule.type)?.includes("Table")
+    ? TableRules
+    : undefined
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === "object" && !Array.isArray(value)
