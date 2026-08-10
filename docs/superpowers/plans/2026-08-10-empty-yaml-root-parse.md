@@ -2,7 +2,7 @@
 
 > **For Codex:** REQUIRED SUB-SKILL: Use superpowers:test-driven-development to implement this plan task by task.
 
-**Goal:** Читать физически пустой или состоящий только из пробельных символов корневой YAML-документ как пустой объект в памяти, не записывая `{}` в файл и не меняя смысл явных `null` и `~`.
+**Goal:** Читать физически пустой или состоящий только из пробельных символов корневой YAML-документ как пустой объект в памяти, не записывая `{}` в файл и не меняя смысл явного `null` и строки `~`.
 
 **Architecture:** Исправление выполняется на общей границе быстрого чтения YAML — в `parseDataWithJsYaml`. Благодаря этому подготовка файлов и полный YAML → XML sync получают тот же договор, который уже соблюдает `parseWithJsYaml`, без частных условий по роли файла, типу метаданных или имени `Свойства.yaml`. Сериализация не меняется: пустой корневой объект продолжает записываться нулевой длиной.
 
@@ -34,13 +34,16 @@ describe("parseMetadataYamlData", () => {
     expect(parseMetadataYamlData(text)).toEqual({ data: {}, syntaxErrors: [] })
   })
 
-  it.each(["null", "~"])("сохраняет явный null: %s", (text) => {
-    expect(parseMetadataYamlData(text)).toEqual({ data: null, syntaxErrors: [] })
+  it.each([
+    ["null", null],
+    ["~", "~"],
+  ])("сохраняет явное значение %s", (text, data) => {
+    expect(parseMetadataYamlData(text)).toEqual({ data, syntaxErrors: [] })
   })
 })
 ```
 
-Keep the existing `parsedYamlFromKnownData` test unchanged. The explicit-null cases guard the semantic boundary: only the absence of YAML content becomes `{}`.
+Keep the existing `parsedYamlFromKnownData` test unchanged. The explicit-value cases guard the semantic boundary: only the absence of YAML content becomes `{}`; canonical `null` stays `null`, while `~` stays a string under the project `JSON_SCHEMA`.
 
 **Step 2: Write the failing full-sync regression test**
 
@@ -61,7 +64,7 @@ Run:
 pnpm --filter @nkdk/core exec vitest run yaml/parseMetadataYaml.test.ts metadata/fullSyncToXml/writeAssignment.test.ts --no-isolate
 ```
 
-Expected: the empty-document parser cases receive `undefined`, and the full-sync test fails in assignment preparation with `Подготовленные YAML-данные отсутствуют`. The explicit `null` and existing tests remain green.
+Expected: the empty-document parser cases receive `undefined`, and the full-sync test fails in assignment preparation with `Подготовленные YAML-данные отсутствуют`. The explicit `null`, string `~`, and existing tests remain green.
 
 **Step 4: Implement the minimal parser fix**
 
