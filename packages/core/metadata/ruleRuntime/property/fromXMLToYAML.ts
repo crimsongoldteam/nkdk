@@ -31,7 +31,10 @@ import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes
 import type { YamlPath } from "../../diagnostics/types"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
 import { markYAMLScalarTag } from "../../../yaml/scalarTags"
-import { matchExplicitXMLPropertyFromXML } from "./explicitXMLPropertyRegistry"
+import {
+  matchExplicitXMLPropertyFromXML,
+  matchExplicitXMLPropertyTypeFromXML,
+} from "./explicitXMLPropertyRegistry"
 import { isDependentImportProperty } from "./dependentItemRegistry"
 
 export class DirectImportConversionError extends Error {
@@ -111,7 +114,7 @@ export function importPropertiesFromXMLToYAML(params: {
     if (params.profile !== undefined) params.profile.propertyCount++
     const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
     const { propertyKey: key, rule: propertyRule } = entry
-    const explicitXML = matchExplicitXMLPropertyFromXML({
+    const explicitXMLByProperty = matchExplicitXMLPropertyFromXML({
       itemType: rule.itemType,
       propertyKey: key,
       presentInXML,
@@ -369,6 +372,13 @@ export function importPropertiesFromXMLToYAML(params: {
             owner,
           })
         : value
+      const explicitXML =
+        explicitXMLByProperty ??
+        matchExplicitXMLPropertyTypeFromXML({
+          propertyType: propertyRule.type,
+          presentInXML,
+          yamlValue,
+        })
       const exportedYamlValue = explicitXML?.yamlValue ?? yamlValue
       if (!convertedDirectly) {
         const profile = params.profile

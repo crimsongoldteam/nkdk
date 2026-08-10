@@ -82,6 +82,19 @@ export function matchExplicitXMLPropertyFromXML(params: {
     : undefined
 }
 
+export function matchExplicitXMLPropertyTypeFromXML(params: {
+  readonly propertyType: string
+  readonly presentInXML: boolean
+  readonly yamlValue: unknown
+}): ExplicitXMLPropertyTypeRegistration | undefined {
+  const registration = typeRegistrations.get(params.propertyType)
+  return registration !== undefined &&
+    params.presentInXML &&
+    Object.is(params.yamlValue, registration.yamlValue)
+    ? registration
+    : undefined
+}
+
 export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string

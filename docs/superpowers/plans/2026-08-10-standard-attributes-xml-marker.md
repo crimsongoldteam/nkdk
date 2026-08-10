@@ -138,18 +138,16 @@ git commit -m "feat: :sparkles: разрешить !xml по типу свойс
 
 - [ ] **Step 1: Изменить проверки импорта на новый договор**
 
-В `fromXMLToYAML.test.ts` заменить ожидание `{}` для `minimal.xml` и `default.xml` на транспортный маркер и проверить его сериализацию:
+В `fromXMLToYAML.test.ts` заменить ожидание `{}` для `minimal.xml`, где коллекция присутствует, на транспортный маркер и проверить его сериализацию:
 
 ```ts
 expect(result).toEqual({ СтандартныеРеквизиты: EMPTY_XML_TAG_VALUE })
 expect(serializeYAMLDocument(result).text).toContain("СтандартныеРеквизиты: !xml")
 ```
 
-Добавить отдельные границы через существующий тестовый `MetadataItemRule` с одним свойством `standardAttributes`:
+Нулевой `default.xml` представляет отсутствующую коллекцию и сохраняет прежнее ожидание `{}`. Добавить отдельную границу reference-импорта через существующий тестовый `MetadataItemRule` с одним свойством `standardAttributes`:
 
 ```ts
-expect(testPropertyFromXMLToYAML({ rule: itemRule, xml: {} }).yaml).toEqual({})
-
 const referenceContext = mockContextFromXML()
 const defaultCollection = {
   StandardAttributes: {
@@ -164,7 +162,12 @@ const referenceResult = testPropertyFromXMLToYAML({
     fromXML: { ...referenceContext.fromXML, forReference: true },
   },
 }).yaml
-expect(referenceResult).not.toHaveProperty("СтандартныеРеквизиты")
+expect(referenceResult).toEqual({
+  СтандартныеРеквизиты: {
+    НомерСтроки: {},
+  },
+})
+expect(yamlScalarTagAt(referenceResult, "СтандартныеРеквизиты")).toBeUndefined()
 ```
 
 Существующую проверку `accounting-ext-dimensions.xml` оставить неизменной: динамические элементы должны остаться отображением, а не маркером.
