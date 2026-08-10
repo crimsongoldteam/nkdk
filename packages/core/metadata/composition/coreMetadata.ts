@@ -12,6 +12,8 @@ import "../ruleRuntime/appliedObject/syncToXML"
 import { legacyCoreRules } from "./metadataRules"
 import { registerLegacyRuleDefinitions } from "../ruleRuntime/definition/legacyRuleRegistration"
 import { registerLegacyProjectSpecDefinitions } from "../projectDefinition/projectSpecRegistry"
+import { registerMetadataComponentDescriptor } from "../components/descriptor"
+import { registerXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
 
 let coreMetadataRegistered = false
 
@@ -35,6 +37,12 @@ export function registerCoreMetadata(): void {
 
   registerLegacyRuleDefinitions(legacyCoreRules)
   registerLegacyProjectSpecDefinitions(legacyCoreRules.projectSpecs)
+  for (const descriptor of legacyCoreRules.components) {
+    registerMetadataComponentDescriptor(descriptor)
+  }
+  for (const descriptor of legacyCoreRules.imports) {
+    registerXmlImportComponentDescriptor(descriptor)
+  }
 
   registerMetadataLayers({
     commonObjects: registerCommonObjects,

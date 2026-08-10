@@ -4,6 +4,8 @@ import { typeRulesRegistryRevision } from "../ruleRuntime/property/typeRuleRegis
 import { listJSONSchemaIdentityNames } from "../ruleRuntime/jsonSchemaRefs"
 import { getElementRule } from "../ruleRuntime/formElement/ruleRegistry"
 import { projectSpecRegistryRevision } from "../projectDefinition/projectSpecRegistry"
+import { findMetadataComponentDescriptor } from "../components/descriptor"
+import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
 
 describe("metadataRules", () => {
   it(
@@ -13,6 +15,10 @@ describe("metadataRules", () => {
       const schemaNamesBeforeImport = listJSONSchemaIdentityNames()
       const projectRevisionBeforeImport = projectSpecRegistryRevision()
       expect(() => getElementRule("InputField")).toThrow()
+      expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
+      expect(() =>
+        getRegisteredXmlImportComponentDescriptor("configuration"),
+      ).toThrow()
 
       const { metadataRules } = await import("./metadataRules")
 
@@ -20,6 +26,10 @@ describe("metadataRules", () => {
       expect(listJSONSchemaIdentityNames()).toEqual(schemaNamesBeforeImport)
       expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
       expect(() => getElementRule("InputField")).toThrow()
+      expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
+      expect(() =>
+        getRegisteredXmlImportComponentDescriptor("configuration"),
+      ).toThrow()
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
       )
@@ -30,6 +40,8 @@ describe("metadataRules", () => {
       expect(Object.keys(metadataRules.schemas).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.formElements).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.projectSpecs).length).toBeGreaterThan(0)
+      expect(metadataRules.components).toHaveLength(2)
+      expect(metadataRules.imports).toHaveLength(2)
     },
     30_000,
   )

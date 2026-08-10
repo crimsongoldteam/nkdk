@@ -9,7 +9,6 @@ import {
   registerProjectReferenceValueContributor,
 } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
-import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
@@ -19,26 +18,9 @@ import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
-import { registerMetadataComponentDescriptor } from "../../components/descriptor"
-import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
 import "./registerPartialXmlPackage"
 
 registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
-registerMetadataComponentDescriptor({
-  kind: "configuration",
-  rootRule: MetadataConfigurationRules,
-})
-registerXmlImportComponentDescriptor({
-  kind: "configuration",
-  detect(root) {
-    const configuration = root["Configuration"]
-    if (!isRecord(configuration)) return false
-    const properties = configuration["Properties"]
-    return !isRecord(properties) || !("ConfigurationExtensionPurpose" in properties)
-  },
-  resolveAddress: () => ({ kind: "configuration" }),
-})
-
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
 const predefinedValueRoots = new Set([
@@ -143,8 +125,4 @@ function hasNamedItem(value: unknown, name: string): boolean {
 
 function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
