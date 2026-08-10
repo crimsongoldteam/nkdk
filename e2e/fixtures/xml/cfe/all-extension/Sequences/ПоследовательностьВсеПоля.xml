@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Sequence uuid="16075319-b335-4f69-9c12-9d3dc1fdcf79">
+		<InternalInfo>
+			<xr:GeneratedType name="SequenceRecord.ПоследовательностьВсеПоля" category="Record">
+				<xr:TypeId>41c2681a-ed59-4e72-b9c7-74ae3808f1ee</xr:TypeId>
+				<xr:ValueId>a4578e9a-5113-4ea7-b785-dfaee6002ae1</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceManager.ПоследовательностьВсеПоля" category="Manager">
+				<xr:TypeId>51979d61-011c-4234-b91b-4670ee254ffa</xr:TypeId>
+				<xr:ValueId>f8803e21-33f7-4ab8-84cc-f29f1b54ee77</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="SequenceRecordSet.ПоследовательностьВсеПоля" category="RecordSet">
+				<xr:TypeId>1671d574-f825-4a91-b408-3346b5cff120</xr:TypeId>
+				<xr:ValueId>e36942c9-d6b9-4ee4-a1e4-45d7bc266ae2</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПоследовательностьВсеПоля</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>9a75d662-44b7-487e-970b-3265bfe1f7ca</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Dimension uuid="8b25305e-b3bd-40e3-828c-27650e454980">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеПолное</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>579511d3-dbe6-44ab-be70-86d13771a368</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+			<Dimension uuid="fac52964-d984-46f0-90ae-915d25861a58">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>04632834-d10d-419a-8f53-b49ca33b785a</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
+	</Sequence>
+</MetaDataObject>

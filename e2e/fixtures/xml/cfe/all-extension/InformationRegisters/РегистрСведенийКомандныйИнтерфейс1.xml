@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<InformationRegister uuid="93fa1306-66e2-4e9f-b66a-2e3f2a38b2e7">
+		<InternalInfo>
+			<xr:GeneratedType name="InformationRegisterRecord.РегистрСведенийКомандныйИнтерфейс1" category="Record">
+				<xr:TypeId>f205eaa7-bb50-4109-b217-ba52d85bfa4b</xr:TypeId>
+				<xr:ValueId>f964a4ed-212d-43e0-bbda-67b229361d33</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterManager.РегистрСведенийКомандныйИнтерфейс1" category="Manager">
+				<xr:TypeId>22c52bd8-e60b-4a12-bc16-64f13164cc44</xr:TypeId>
+				<xr:ValueId>190d939c-2a6d-47f0-b3a5-5812169be166</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterSelection.РегистрСведенийКомандныйИнтерфейс1" category="Selection">
+				<xr:TypeId>a7d8e3fc-f3dd-4d94-97fb-918d3b551fab</xr:TypeId>
+				<xr:ValueId>4087bb3e-ba73-4d2e-a6a3-71ee9c5cc543</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterList.РегистрСведенийКомандныйИнтерфейс1" category="List">
+				<xr:TypeId>58f2818c-093a-467a-80d4-3915d161fafd</xr:TypeId>
+				<xr:ValueId>45573840-e6ee-44ba-9194-ba06545a6b23</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordSet.РегистрСведенийКомандныйИнтерфейс1" category="RecordSet">
+				<xr:TypeId>dd6f3e0d-8c09-4bdc-aefc-e82b6541701e</xr:TypeId>
+				<xr:ValueId>90520d74-da20-4bfa-9b70-23111f1481f2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordKey.РегистрСведенийКомандныйИнтерфейс1" category="RecordKey">
+				<xr:TypeId>fdc3489c-19fb-445c-b134-f6bbf4e7e344</xr:TypeId>
+				<xr:ValueId>733014b5-6a36-43e5-8206-9a2dee41cd2b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordManager.РегистрСведенийКомандныйИнтерфейс1" category="RecordManager">
+				<xr:TypeId>d526c972-d13f-46e2-a19d-4e5816d81ecf</xr:TypeId>
+				<xr:ValueId>29290b88-b91e-4e73-a59e-0a89da38663b</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрСведенийКомандныйИнтерфейс1</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>a7291e11-57bc-4a6b-a09b-30a6ceb66252</ExtendedConfigurationObject>
+			<InformationRegisterPeriodicity>Nonperiodical</InformationRegisterPeriodicity>
+			<WriteMode>Independent</WriteMode>
+		</Properties>
+		<ChildObjects>
+			<Dimension uuid="f0018dfe-bfe3-4228-ace1-3005042dc8ba">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Измерение1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d7755e3e-e4bd-4769-8e35-04a413d02995</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникКомандныйИнтерфейс</v8:Type>
+					</Type>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
+	</InformationRegister>
+</MetaDataObject>

@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ReportFormType>Main</ReportFormType>
+	<AutoShowState>Auto</AutoShowState>
+	<CustomSettingsFolder>КомпоновщикНастроекПользовательскиеНастройки</CustomSettingsFolder>
+	<ReportResultViewMode>Auto</ReportResultViewMode>
+	<ViewModeApplicationOnSetReportResult>Auto</ViewModeApplicationOnSetReportResult>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<InputField name="РеквизитВсеСвойства" id="1">
+			<EditMode>EnterOnInput</EditMode>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="РеквизитВсеСвойстваКонтекстноеМеню" id="2"/>
+			<ExtendedTooltip name="РеквизитВсеСвойстваРасширеннаяПодсказка" id="3"/>
+		</InputField>
+		<CheckBoxField name="РеквизитБулево" id="4">
+			<EditMode>EnterOnInput</EditMode>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="РеквизитБулевоКонтекстноеМеню" id="5"/>
+			<ExtendedTooltip name="РеквизитБулевоРасширеннаяПодсказка" id="6"/>
+		</CheckBoxField>
+		<Table name="ТабличнаяЧастьВсеСвойства" id="7">
+			<Representation>List</Representation>
+			<AutoInsertNewRow>true</AutoInsertNewRow>
+			<EnableStartDrag>true</EnableStartDrag>
+			<EnableDrag>true</EnableDrag>
+			<RowFilter xsi:nil="true"/>
+			<ContextMenu name="ТабличнаяЧастьВсеСвойстваКонтекстноеМеню" id="8"/>
+			<AutoCommandBar name="ТабличнаяЧастьВсеСвойстваКоманднаяПанель" id="9"/>
+			<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваРасширеннаяПодсказка" id="10"/>
+			<SearchStringAddition name="ТабличнаяЧастьВсеСвойстваСтрокаПоиска" id="11">
+				<AdditionSource>
+					<Item>ТабличнаяЧастьВсеСвойства</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТабличнаяЧастьВсеСвойстваСтрокаПоискаКонтекстноеМеню" id="12"/>
+				<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка" id="13"/>
+			</SearchStringAddition>
+			<ViewStatusAddition name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотра" id="14">
+				<AdditionSource>
+					<Item>ТабличнаяЧастьВсеСвойства</Item>
+					<Type>ViewStatusRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотраКонтекстноеМеню" id="15"/>
+				<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотраРасширеннаяПодсказка" id="16"/>
+			</ViewStatusAddition>
+			<SearchControlAddition name="ТабличнаяЧастьВсеСвойстваУправлениеПоиском" id="17">
+				<AdditionSource>
+					<Item>ТабличнаяЧастьВсеСвойства</Item>
+					<Type>SearchControl</Type>
+				</AdditionSource>
+				<ContextMenu name="ТабличнаяЧастьВсеСвойстваУправлениеПоискомКонтекстноеМеню" id="18"/>
+				<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка" id="19"/>
+			</SearchControlAddition>
+			<ChildItems>
+				<LabelField name="ТабличнаяЧастьВсеСвойстваНомерСтроки" id="20">
+					<EditMode>EnterOnInput</EditMode>
+					<ContextMenu name="ТабличнаяЧастьВсеСвойстваНомерСтрокиКонтекстноеМеню" id="21"/>
+					<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваНомерСтрокиРасширеннаяПодсказка" id="22"/>
+				</LabelField>
+				<InputField name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойства" id="23">
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваКонтекстноеМеню" id="24"/>
+					<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваРасширеннаяПодсказка" id="25"/>
+				</InputField>
+			</ChildItems>
+		</Table>
+		<UsualGroup name="КомпоновщикНастроекПользовательскиеНастройки" id="26">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Настройки</v8:content>
+				</v8:item>
+			</Title>
+			<VerticalStretch>false</VerticalStretch>
+			<Group>Vertical</Group>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="КомпоновщикНастроекПользовательскиеНастройкиРасширеннаяПодсказка" id="27"/>
+		</UsualGroup>
+		<SpreadSheetDocumentField name="Результат" id="28">
+			<DefaultItem>true</DefaultItem>
+			<TitleLocation>None</TitleLocation>
+			<Width>100</Width>
+			<ContextMenu name="РезультатКонтекстноеМеню" id="29"/>
+			<ExtendedTooltip name="РезультатРасширеннаяПодсказка" id="30"/>
+		</SpreadSheetDocumentField>
+	</ChildItems>
+	<Attributes/>
+	<BaseForm version="2.20">
+		<ReportFormType>Main</ReportFormType>
+		<AutoShowState>Auto</AutoShowState>
+		<CustomSettingsFolder>КомпоновщикНастроекПользовательскиеНастройки</CustomSettingsFolder>
+		<ReportResultViewMode>Auto</ReportResultViewMode>
+		<ViewModeApplicationOnSetReportResult>Auto</ViewModeApplicationOnSetReportResult>
+		<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+		<ChildItems>
+			<InputField name="РеквизитВсеСвойства" id="1">
+				<EditMode>EnterOnInput</EditMode>
+				<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+				<ContextMenu name="РеквизитВсеСвойстваКонтекстноеМеню" id="2"/>
+				<ExtendedTooltip name="РеквизитВсеСвойстваРасширеннаяПодсказка" id="3"/>
+			</InputField>
+			<CheckBoxField name="РеквизитБулево" id="4">
+				<EditMode>EnterOnInput</EditMode>
+				<CheckBoxType>Auto</CheckBoxType>
+				<ContextMenu name="РеквизитБулевоКонтекстноеМеню" id="5"/>
+				<ExtendedTooltip name="РеквизитБулевоРасширеннаяПодсказка" id="6"/>
+			</CheckBoxField>
+			<Table name="ТабличнаяЧастьВсеСвойства" id="7">
+				<Representation>List</Representation>
+				<AutoInsertNewRow>true</AutoInsertNewRow>
+				<EnableStartDrag>true</EnableStartDrag>
+				<EnableDrag>true</EnableDrag>
+				<RowFilter xsi:nil="true"/>
+				<ContextMenu name="ТабличнаяЧастьВсеСвойстваКонтекстноеМеню" id="8"/>
+				<AutoCommandBar name="ТабличнаяЧастьВсеСвойстваКоманднаяПанель" id="9"/>
+				<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваРасширеннаяПодсказка" id="10"/>
+				<SearchStringAddition name="ТабличнаяЧастьВсеСвойстваСтрокаПоиска" id="11">
+					<AdditionSource>
+						<Item>ТабличнаяЧастьВсеСвойства</Item>
+						<Type>SearchStringRepresentation</Type>
+					</AdditionSource>
+					<ContextMenu name="ТабличнаяЧастьВсеСвойстваСтрокаПоискаКонтекстноеМеню" id="12"/>
+					<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка" id="13"/>
+				</SearchStringAddition>
+				<ViewStatusAddition name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотра" id="14">
+					<AdditionSource>
+						<Item>ТабличнаяЧастьВсеСвойства</Item>
+						<Type>ViewStatusRepresentation</Type>
+					</AdditionSource>
+					<ContextMenu name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотраКонтекстноеМеню" id="15"/>
+					<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваСостояниеПросмотраРасширеннаяПодсказка" id="16"/>
+				</ViewStatusAddition>
+				<SearchControlAddition name="ТабличнаяЧастьВсеСвойстваУправлениеПоиском" id="17">
+					<AdditionSource>
+						<Item>ТабличнаяЧастьВсеСвойства</Item>
+						<Type>SearchControl</Type>
+					</AdditionSource>
+					<ContextMenu name="ТабличнаяЧастьВсеСвойстваУправлениеПоискомКонтекстноеМеню" id="18"/>
+					<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка" id="19"/>
+				</SearchControlAddition>
+				<ChildItems>
+					<LabelField name="ТабличнаяЧастьВсеСвойстваНомерСтроки" id="20">
+						<EditMode>EnterOnInput</EditMode>
+						<ContextMenu name="ТабличнаяЧастьВсеСвойстваНомерСтрокиКонтекстноеМеню" id="21"/>
+						<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваНомерСтрокиРасширеннаяПодсказка" id="22"/>
+					</LabelField>
+					<InputField name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойства" id="23">
+						<EditMode>EnterOnInput</EditMode>
+						<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+						<ContextMenu name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваКонтекстноеМеню" id="24"/>
+						<ExtendedTooltip name="ТабличнаяЧастьВсеСвойстваРеквизитТаблицыВсеСвойстваРасширеннаяПодсказка" id="25"/>
+					</InputField>
+				</ChildItems>
+			</Table>
+			<UsualGroup name="КомпоновщикНастроекПользовательскиеНастройки" id="26">
+				<Title>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Настройки</v8:content>
+					</v8:item>
+				</Title>
+				<VerticalStretch>false</VerticalStretch>
+				<Group>Vertical</Group>
+				<ShowTitle>false</ShowTitle>
+				<ExtendedTooltip name="КомпоновщикНастроекПользовательскиеНастройкиРасширеннаяПодсказка" id="27"/>
+			</UsualGroup>
+			<SpreadSheetDocumentField name="Результат" id="28">
+				<DefaultItem>true</DefaultItem>
+				<TitleLocation>None</TitleLocation>
+				<Width>100</Width>
+				<ContextMenu name="РезультатКонтекстноеМеню" id="29"/>
+				<ExtendedTooltip name="РезультатРасширеннаяПодсказка" id="30"/>
+			</SpreadSheetDocumentField>
+		</ChildItems>
+		<Attributes/>
+	</BaseForm>
+</Form>

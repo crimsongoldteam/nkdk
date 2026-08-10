@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<FilterCriterion uuid="8030a684-8f9c-4081-9fb5-843647b912fe">
+		<InternalInfo>
+			<xr:GeneratedType name="FilterCriterionManager.КритерийОтбораВсеСвойства" category="Manager">
+				<xr:TypeId>77f43fed-d686-44c3-8eae-283bc52185c4</xr:TypeId>
+				<xr:ValueId>7c031110-ff41-4614-84ab-a5f4d5b17cf9</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="FilterCriterionList.КритерийОтбораВсеСвойства" category="List">
+				<xr:TypeId>f90d7626-9038-43d1-9eec-1dbda7f4f6a8</xr:TypeId>
+				<xr:ValueId>3bbb3aa0-74d8-4f92-b00d-ac72a55efbed</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>КритерийОтбораВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>f95f51b6-2066-4076-9691-3f86bffd3e6a</ExtendedConfigurationObject>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>10</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<Content>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.Attribute.СтроковыйРеквизитСИндексом</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.СправочникПолный.TabularSection.ТабличнаяЧасть.Attribute.РеквизитТабличнойЧасти</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Document.ДокументВсеСвойства.Attribute.СтроковыйРеквизит</xr:Item>
+			</Content>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаСписка</Form>
+			<Command uuid="bd6ed164-db52-4014-8c3b-db83dba86818">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c7dea22c-2aeb-468e-8426-a749ec0ca7a1</ExtendedConfigurationObject>
+					<Group>FormCommandBarCreateBasedOn</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</FilterCriterion>
+</MetaDataObject>

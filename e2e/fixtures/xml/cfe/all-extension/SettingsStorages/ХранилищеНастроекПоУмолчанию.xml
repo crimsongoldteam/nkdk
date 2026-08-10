@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<SettingsStorage uuid="0bb397b5-9e61-4f45-8dcc-e04474ebae9b">
+		<InternalInfo>
+			<xr:GeneratedType name="SettingsStorageManager.ХранилищеНастроекПоУмолчанию" category="Manager">
+				<xr:TypeId>ba6d5eb5-ac31-48ec-b0b4-a586fc8d80c2</xr:TypeId>
+				<xr:ValueId>6908fad0-2431-4831-8611-d6a7e1412587</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ХранилищеНастроекПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>4460a761-5c77-4a67-b2e8-6b0ee66a5656</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</SettingsStorage>
+</MetaDataObject>

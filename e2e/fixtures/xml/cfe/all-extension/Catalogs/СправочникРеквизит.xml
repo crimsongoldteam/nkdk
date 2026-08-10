@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="df4d04e6-41b3-42c7-ae7c-ad86b2f81365">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникРеквизит" category="Object">
+				<xr:TypeId>f5cdfe9c-d058-4c45-8e31-690d770fad7e</xr:TypeId>
+				<xr:ValueId>681cb1eb-b2e1-4e95-9f09-63a9b59dc843</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникРеквизит" category="Ref">
+				<xr:TypeId>18aab049-fed0-45f9-87df-cfadff1e2008</xr:TypeId>
+				<xr:ValueId>78e2986d-cccd-4e9f-9f14-9a081fbaff29</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникРеквизит" category="Selection">
+				<xr:TypeId>a9b72204-042d-47d5-acd4-b1d01b34681d</xr:TypeId>
+				<xr:ValueId>7f4571e0-ecf5-4e5c-bd10-657a55da73b8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникРеквизит" category="List">
+				<xr:TypeId>d7e01fc6-0e03-478e-ae4b-5cb63577c910</xr:TypeId>
+				<xr:ValueId>c13efa59-23fb-496a-8d0e-0c5caa858601</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникРеквизит" category="Manager">
+				<xr:TypeId>f83799f2-28d2-4e59-8f62-1914402f1f7f</xr:TypeId>
+				<xr:ValueId>cff8403d-f9f2-4695-bd54-388ab111ee37</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникРеквизит</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>52dc511c-8448-4f84-8643-21916e56d775</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Form>ФормаВыбора</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

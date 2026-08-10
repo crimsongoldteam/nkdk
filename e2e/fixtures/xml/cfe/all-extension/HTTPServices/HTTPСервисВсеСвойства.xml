@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<HTTPService uuid="4337c6bb-0722-47b6-864f-0fb91de9312a">
+		<InternalInfo/>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>HTTPСервисВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>4eeded5e-ccd7-490a-bbc3-c1e12ff3711c</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<URLTemplate uuid="6f4b6fca-d75b-404e-81da-17c5d4945013">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ШаблонURLВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>aee983bf-4532-4484-af10-18bec3476e5f</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Method uuid="64673e5b-2ff1-4230-aad1-99bf16c1c749">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>МетодВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>5cea292e-474f-4e14-9b79-46832cf8447b</ExtendedConfigurationObject>
+						</Properties>
+					</Method>
+					<Method uuid="32288206-0f9c-4946-8912-e45ca0c570f1">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>МетодПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>07a8e197-3ea2-4903-b834-a080fb590664</ExtendedConfigurationObject>
+						</Properties>
+					</Method>
+				</ChildObjects>
+			</URLTemplate>
+			<URLTemplate uuid="0f7d52bd-8415-4c4a-865f-434b938a295a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ШаблонURLПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>53662790-fea7-4c2c-9b8f-5026033648f3</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</URLTemplate>
+		</ChildObjects>
+	</HTTPService>
+</MetaDataObject>

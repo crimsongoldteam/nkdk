@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<BusinessProcess uuid="45891699-ab93-4a37-ab21-218dc7fbbe4d">
+		<InternalInfo>
+			<xr:GeneratedType name="BusinessProcessObject.БизнесПроцессВсеСвойства" category="Object">
+				<xr:TypeId>114bd89c-d004-4990-bc10-2efa51fbe107</xr:TypeId>
+				<xr:ValueId>b152526d-6c4c-4b21-82d6-0839620d3860</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessRef.БизнесПроцессВсеСвойства" category="Ref">
+				<xr:TypeId>e904aefe-79fe-42b5-b55c-aee4e08b8112</xr:TypeId>
+				<xr:ValueId>c3d9c8a5-1b73-499f-b32b-f45dea72600a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessSelection.БизнесПроцессВсеСвойства" category="Selection">
+				<xr:TypeId>3cc094dc-126b-4d01-9a52-3e9b20b11a64</xr:TypeId>
+				<xr:ValueId>63fc76e7-f098-4d5d-bdc9-d279673a60b6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessList.БизнесПроцессВсеСвойства" category="List">
+				<xr:TypeId>10c56fd9-19d4-49f6-8898-5f14ab6f19fb</xr:TypeId>
+				<xr:ValueId>907976ef-945b-46a8-a643-9efe335746ec</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessManager.БизнесПроцессВсеСвойства" category="Manager">
+				<xr:TypeId>7c112e83-bf33-4838-bca6-796d04d158dd</xr:TypeId>
+				<xr:ValueId>574b5ccd-5e21-4589-a683-b89f07fab331</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BusinessProcessRoutePointRef.БизнесПроцессВсеСвойства" category="RoutePointRef">
+				<xr:TypeId>e2de7b05-8d7f-4b67-a758-f5350108b2cd</xr:TypeId>
+				<xr:ValueId>cb8e44de-d17a-48d5-ad43-72c45e70196d</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>БизнесПроцессВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>f790632a-04a3-4e35-bb1e-d3c4ed5a2f0e</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="6c85a28b-8c32-44ba-9569-6e30c16860de">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>900893d3-494d-4372-a2e5-2b773e725ee9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="bab2caae-77b4-41e6-9bfd-f03e2b2909f9">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитХранилище</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e9736691-e146-4edf-b9b7-886b819696db</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="0560d283-7622-4430-bd3c-81c312488f96">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>62868e07-3ad4-4080-9084-8b4516a4a8d9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="19861b62-e2c7-45c0-b3c5-d01a18fcac48">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитИндексируемый</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>9e75b947-8c19-4c52-8c3b-9ddf6102efae</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="4d79e44e-605e-4909-bbff-8332aed40d89">
+				<InternalInfo>
+					<xr:GeneratedType name="BusinessProcessTabularSection.БизнесПроцессВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>87072412-85bd-443a-abef-8ac1c2a8ba86</xr:TypeId>
+						<xr:ValueId>6624b104-7527-4ea0-8e8b-153e97278a44</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="BusinessProcessTabularSectionRow.БизнесПроцессВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>09ae3515-884d-412e-a256-e0bd02944527</xr:TypeId>
+						<xr:ValueId>9fb8fde3-54de-44d9-a03e-7b741d363c59</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>a0f4cbdc-308d-4458-81c8-a3ae9374449e</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="2aa09f23-033f-46d5-92d4-e90139459084">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>f79b2ea1-0ca5-4789-9bd0-f2d36d57681e</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="12a4bffa-68f3-4123-8bab-884da7501478">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>1fee75ec-9bbb-411d-bb45-78e5755c9d55</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="54bd82ea-27be-4896-9a8a-5c8f9e11be1e">
+				<InternalInfo>
+					<xr:GeneratedType name="BusinessProcessTabularSection.БизнесПроцессВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>1f0ba123-86e7-4fed-84e5-d2d88d041d2e</xr:TypeId>
+						<xr:ValueId>03944785-dfa6-4f1b-bab7-69d186fda8eb</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="BusinessProcessTabularSectionRow.БизнесПроцессВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>5509d689-809d-4337-b8c7-b329181ad255</xr:TypeId>
+						<xr:ValueId>974964d6-c545-47ba-91e6-3e99ab45a6cf</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>5cc41d22-41b7-4409-9c77-945c8bce8852</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаЗадачи</Form>
+			<Template>Макет</Template>
+			<Command uuid="b5a4c2f4-a439-478e-8c87-ab9a63c0985d">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитАдресацииВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c5bd6a47-4fb6-4251-bd67-e77ffb159c98</ExtendedConfigurationObject>
+					<Group>NavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+			<Command uuid="53680874-f6cb-4795-937a-d8512e51c59c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитАдресацииПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>fd532c8f-564e-4f33-8a9b-02636e78f902</ExtendedConfigurationObject>
+					<Group>NavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</BusinessProcess>
+</MetaDataObject>

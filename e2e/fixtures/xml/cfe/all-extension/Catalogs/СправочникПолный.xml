@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="542adf1f-4330-4661-960a-353a2b037e9c">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.СправочникПолный" category="Object">
+				<xr:TypeId>73637b72-e06e-472b-827f-667eb1bd54c6</xr:TypeId>
+				<xr:ValueId>9ff6c76a-7d6d-43f9-8b16-e38b605d45c3</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.СправочникПолный" category="Ref">
+				<xr:TypeId>4575d7c9-5964-4116-9698-101bacbb318b</xr:TypeId>
+				<xr:ValueId>f3716298-a5b7-4d3d-93bf-8efa7decdffd</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.СправочникПолный" category="Selection">
+				<xr:TypeId>c0aaed98-bf69-46b8-b241-7b7c5ff22dc5</xr:TypeId>
+				<xr:ValueId>38e24f0d-1889-4620-81ef-fb71531556ed</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.СправочникПолный" category="List">
+				<xr:TypeId>e99dd9c1-3cdc-4d12-a6fe-b4cc0834680d</xr:TypeId>
+				<xr:ValueId>4dc76494-3d04-479a-afd4-4bc656beadd8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.СправочникПолный" category="Manager">
+				<xr:TypeId>5e667739-3873-401e-919e-6d7add6f7b9c</xr:TypeId>
+				<xr:ValueId>25734367-547e-40e6-b1a1-884d5fc60da9</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникПолный</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>f8ffca12-d09d-4111-ba91-67077462df5b</ExtendedConfigurationObject>
+			<CodeLength>11</CodeLength>
+			<DescriptionLength>30</DescriptionLength>
+			<CodeType>Number</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="f82ff53b-3aed-4421-bbe7-6f6311126446">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>СтроковыйРеквизитСИндексом</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>301fda37-ce86-4a9a-a764-f914a74e0188</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="7838c9da-1bc2-41d4-bf3e-71393ec66bf0">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитСправочника</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1f3ce853-d20e-42a3-9308-e01afc6d1af9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="2075490f-502f-41cc-8fe5-4c8ed3a5f32a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Реквизит1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1dbe78a6-0f6f-45e1-a989-7ba34c4e081b</ExtendedConfigurationObject>
+					<Type>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="99819712-a042-49c1-9abe-09980a6034e2">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Реквизит2</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Реквизит2 новое</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<ExtendedConfigurationObject>94efdf32-50ce-42b5-a826-84b5898e17f5</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="27ecaf3f-25c0-423a-9b6e-456881cd60e6">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитЧисло</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>09104319-55fb-4b1b-9dc2-5660443bcf00</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="82dc6be0-e8d7-48f5-9075-67c86f7ecb0d">
+				<InternalInfo>
+					<xr:GeneratedType name="CatalogTabularSection.СправочникПолный.ТабличнаяЧасть" category="TabularSection">
+						<xr:TypeId>430e5025-2234-4df3-8a05-bdb932d3fe38</xr:TypeId>
+						<xr:ValueId>2ebb5549-ef2f-4bd7-ba56-4c3d699190ea</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="CatalogTabularSectionRow.СправочникПолный.ТабличнаяЧасть" category="TabularSectionRow">
+						<xr:TypeId>67c3a140-d0b6-4f6e-8ba8-9d27315b7ef3</xr:TypeId>
+						<xr:ValueId>83c18ece-db7c-4363-8d58-33a282cf964c</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧасть</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>33737a10-74f4-4fac-a778-0612abab432b</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="88885a22-7712-42de-8da4-20ea85ffff8c">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитТабличнойЧасти</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>fad201c9-0134-4db1-ab7e-649f5419b3c3</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="3d777f18-f0c0-44cc-9ad9-ccf5a7512b3d">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>ЗацикленныйРеквизит</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>cc15f40a-36f1-4922-88f3-208893842ef1</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаЭлемента</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаГруппы</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбораГруппы</Form>
+			<Form>Минимальная</Form>
+			<Template>Макет</Template>
+			<Command uuid="9f4ab276-b1ef-4e38-ae23-0ecce21122bd">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПолнаяКоманда</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>36c7fb10-4e7d-44b5-af98-ae9e7f82cf63</ExtendedConfigurationObject>
+					<Group>FormNavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+			<Command uuid="42af3318-0abe-42ae-b229-889706552d6c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>b6c4a1c1-5bcd-4b0c-ac14-c6f669501bde</ExtendedConfigurationObject>
+					<Group>NavigationPanelOrdinary</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

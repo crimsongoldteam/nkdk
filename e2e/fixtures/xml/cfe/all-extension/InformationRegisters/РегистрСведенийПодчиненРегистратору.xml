@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<InformationRegister uuid="f3d2693b-3a77-4ab7-8d8d-233bb90324da">
+		<InternalInfo>
+			<xr:GeneratedType name="InformationRegisterRecord.РегистрСведенийПодчиненРегистратору" category="Record">
+				<xr:TypeId>bdfd9e63-ceff-4951-a692-13d1fd134f4e</xr:TypeId>
+				<xr:ValueId>6a95fbe9-6a7d-4cd9-ac6d-25e3ed0f4717</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterManager.РегистрСведенийПодчиненРегистратору" category="Manager">
+				<xr:TypeId>1463102e-ff9b-4495-8026-6ae3801be9a5</xr:TypeId>
+				<xr:ValueId>509c4617-e132-4097-8f1d-2524b73ff32a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterSelection.РегистрСведенийПодчиненРегистратору" category="Selection">
+				<xr:TypeId>ec6a2051-6d44-4a77-9734-b6203c97d431</xr:TypeId>
+				<xr:ValueId>9479834c-d085-4587-8f39-9445bc9d607e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterList.РегистрСведенийПодчиненРегистратору" category="List">
+				<xr:TypeId>632e2619-f297-4b9f-8370-42a275352178</xr:TypeId>
+				<xr:ValueId>e60f254b-a151-43a5-b392-ff4255ca332f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordSet.РегистрСведенийПодчиненРегистратору" category="RecordSet">
+				<xr:TypeId>20fbec40-32be-4648-8148-2101e46cf3a3</xr:TypeId>
+				<xr:ValueId>6e53172c-22bf-499b-b25f-d518000e7ada</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordKey.РегистрСведенийПодчиненРегистратору" category="RecordKey">
+				<xr:TypeId>3f62a40e-122c-4468-9ec2-46ebdd56abaa</xr:TypeId>
+				<xr:ValueId>72c2f828-3ac6-47ed-8bcd-32db36b3e3cc</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="InformationRegisterRecordManager.РегистрСведенийПодчиненРегистратору" category="RecordManager">
+				<xr:TypeId>027ddfcf-89a3-42ee-aba0-55db5f527e7f</xr:TypeId>
+				<xr:ValueId>fcdb0291-c421-472e-8bb1-e1dfbc2cb5a0</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрСведенийПодчиненРегистратору</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>939a53b9-c7ba-4315-a11e-fa15590651bf</ExtendedConfigurationObject>
+			<InformationRegisterPeriodicity>Nonperiodical</InformationRegisterPeriodicity>
+			<WriteMode>RecorderSubordinate</WriteMode>
+		</Properties>
+		<ChildObjects>
+			<Dimension uuid="c0db101d-c671-46d6-924f-c1e00d36c22c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Измерение1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>9bbc366b-2e51-40c4-820f-0260ccd6a6c9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Dimension>
+		</ChildObjects>
+	</InformationRegister>
+</MetaDataObject>

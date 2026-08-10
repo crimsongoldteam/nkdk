@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfCalculationTypes uuid="a5bb70df-0c10-47e9-b2c6-4a3199753029">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfCalculationTypesObject.ПланВидовРасчетаПоУмолчанию" category="Object">
+				<xr:TypeId>05ae112d-17aa-43c6-ac25-ffaab44715ee</xr:TypeId>
+				<xr:ValueId>abb6de0d-949e-42c2-87bf-e49f01d393c4</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesRef.ПланВидовРасчетаПоУмолчанию" category="Ref">
+				<xr:TypeId>cc15115d-3b41-440e-9b8b-739cc01634e5</xr:TypeId>
+				<xr:ValueId>b2f77775-ffc1-4130-836c-0fac32978b64</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesSelection.ПланВидовРасчетаПоУмолчанию" category="Selection">
+				<xr:TypeId>2043c7e0-2ee9-4a7a-a2a9-d028e965a2aa</xr:TypeId>
+				<xr:ValueId>f13dc492-bb74-404c-a0b5-9aa5e4fee9fd</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesList.ПланВидовРасчетаПоУмолчанию" category="List">
+				<xr:TypeId>f9cd2e09-3c4e-4723-a622-4f5eccf3ad9c</xr:TypeId>
+				<xr:ValueId>53453f96-7c64-42cf-9bf9-be14921ed0c6</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfCalculationTypesManager.ПланВидовРасчетаПоУмолчанию" category="Manager">
+				<xr:TypeId>401d4b16-2f44-4ba3-95eb-dbbb9900c60b</xr:TypeId>
+				<xr:ValueId>7c99d5e2-9881-468b-913d-c4e342d63c36</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypes.ПланВидовРасчетаПоУмолчанию" category="DisplacingCalculationTypes">
+				<xr:TypeId>0e7a4efd-bbfe-4470-933a-482cad924e9d</xr:TypeId>
+				<xr:ValueId>4d24ce27-280d-4518-b0d5-03a708451340</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DisplacingCalculationTypesRow.ПланВидовРасчетаПоУмолчанию" category="DisplacingCalculationTypesRow">
+				<xr:TypeId>74f36543-365f-4e81-80e6-a724f3317470</xr:TypeId>
+				<xr:ValueId>9fe9b18b-dff7-4dfa-9477-eee257ad5e33</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypes.ПланВидовРасчетаПоУмолчанию" category="BaseCalculationTypes">
+				<xr:TypeId>28dc5c1f-9789-4270-980e-4ae69613c1b1</xr:TypeId>
+				<xr:ValueId>c613d797-317d-4977-be2d-958746a83513</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="BaseCalculationTypesRow.ПланВидовРасчетаПоУмолчанию" category="BaseCalculationTypesRow">
+				<xr:TypeId>a77deab7-9d3a-426f-8c5d-665636ea7b52</xr:TypeId>
+				<xr:ValueId>ff72902f-16b1-4847-86cc-54505a5fba11</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypes.ПланВидовРасчетаПоУмолчанию" category="LeadingCalculationTypes">
+				<xr:TypeId>6df6fe3e-59c3-4294-9f71-9aa6ba96bfa6</xr:TypeId>
+				<xr:ValueId>a2c764c2-a69d-4886-8f06-06c0517eedec</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="LeadingCalculationTypesRow.ПланВидовРасчетаПоУмолчанию" category="LeadingCalculationTypesRow">
+				<xr:TypeId>8a5ce3fd-e4ff-4809-9698-e48eba3af097</xr:TypeId>
+				<xr:ValueId>b3c663d7-3e34-4bbc-8461-3132130b1597</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланВидовРасчетаПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>45392f3c-349b-4fbd-8534-7137330fc81a</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</ChartOfCalculationTypes>
+</MetaDataObject>

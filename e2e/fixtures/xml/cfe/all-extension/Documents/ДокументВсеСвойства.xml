@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Document uuid="309c8cc5-95cd-4f0f-9807-3c3385ec3271">
+		<InternalInfo>
+			<xr:GeneratedType name="DocumentObject.ДокументВсеСвойства" category="Object">
+				<xr:TypeId>db5ed8f6-e80a-463e-99c8-f4b03a790a7a</xr:TypeId>
+				<xr:ValueId>ee38c336-d34f-4287-97a8-6e7a3a1c55de</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentRef.ДокументВсеСвойства" category="Ref">
+				<xr:TypeId>4d37aaef-50d1-4c58-9d57-ff7d3d731ac8</xr:TypeId>
+				<xr:ValueId>904274c7-179a-4874-85bc-8b46e2e3fe58</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentSelection.ДокументВсеСвойства" category="Selection">
+				<xr:TypeId>fec4eda0-f1a1-4a5f-938c-9dadabbb9375</xr:TypeId>
+				<xr:ValueId>097c3268-5ce8-40ee-9a76-be706d27ed60</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentList.ДокументВсеСвойства" category="List">
+				<xr:TypeId>6d162778-39e5-4838-a936-bf7806d16ab4</xr:TypeId>
+				<xr:ValueId>ff9d2602-919f-4c56-bcee-88f398b95363</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DocumentManager.ДокументВсеСвойства" category="Manager">
+				<xr:TypeId>660764be-ddfd-4c28-a4d4-065a4c81802b</xr:TypeId>
+				<xr:ValueId>0290ac63-e8c4-450c-b9d5-8428b3432ad8</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ДокументВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>2f109eaa-d341-4592-a04f-3f199e75d879</ExtendedConfigurationObject>
+			<RegisterRecords>
+				<xr:Item xsi:type="xr:MDObjectRef">AccountingRegister.РегистрБухгалтерии1Ext</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">AccountingRegister.РегистрБухгалтерииВсеСвойстваОборотыExt</xr:Item>
+			</RegisterRecords>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="3b5c18a9-8703-492c-8813-927cd92e7888">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>СтроковыйРеквизит</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f019ac1d-40f3-4cf9-b142-708dd2ee9642</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="d826e31f-7c70-4710-8a09-5cc95fce3152">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитБулево</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1c13e5ad-46cf-4739-b8f9-ad731f1623ea</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="2618e2f7-dfe3-40de-9f68-3eb7c75b9901">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПолныйРеквизит</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>dbe5c1e5-7123-4984-b41a-375da46790cc</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="0ae22b75-485b-4192-8457-be13a3fc98bb">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИндексированноеПоле</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>20b8fc46-899a-48ef-a465-26c40dabc18f</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Form>ФормаДокумента</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаДокументаВсеСвойства</Form>
+			<TabularSection uuid="e8aa71e3-019c-46a4-812c-d188b20e5797">
+				<InternalInfo>
+					<xr:GeneratedType name="DocumentTabularSection.ДокументВсеСвойства.ТабличнаяЧасть" category="TabularSection">
+						<xr:TypeId>1f7b76fa-2102-4fc5-8e59-bf91540420a0</xr:TypeId>
+						<xr:ValueId>bd1b0b83-2056-4586-96c8-797ea17fa1c4</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="DocumentTabularSectionRow.ДокументВсеСвойства.ТабличнаяЧасть" category="TabularSectionRow">
+						<xr:TypeId>58c195ff-1591-4ce5-9a66-cf01382a818d</xr:TypeId>
+						<xr:ValueId>6947b0f4-4396-4bfb-a492-ea3f92493683</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧасть</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c9e31200-6141-4636-9849-d483d787ec32</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="c4b2ca53-a877-4567-9c6f-9613ef2e4889">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитТабличнойЧасти</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>dab3842c-5ad2-4e69-9539-4430a655f3d5</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:decimal</v8:Type>
+								<v8:NumberQualifiers>
+									<v8:Digits>10</v8:Digits>
+									<v8:FractionDigits>0</v8:FractionDigits>
+									<v8:AllowedSign>Any</v8:AllowedSign>
+								</v8:NumberQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Template>Макет</Template>
+			<Command uuid="c0426e06-192d-40fb-bb46-aa3ea355d15b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>e3464398-fb69-4562-bc40-ab9d5aeb2d74</ExtendedConfigurationObject>
+					<Group>NavigationPanelImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Document>
+</MetaDataObject>

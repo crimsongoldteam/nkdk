@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ChartOfAccounts uuid="c7aadf08-0c91-4b20-b034-88ae8d18efd0">
+		<InternalInfo>
+			<xr:GeneratedType name="ChartOfAccountsObject.ПланСчетовВсеСвойства" category="Object">
+				<xr:TypeId>779835cd-e317-436b-8bc0-3e96f5c9916c</xr:TypeId>
+				<xr:ValueId>d8a6c779-f8c1-4c50-9681-4a62ab5acf21</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsRef.ПланСчетовВсеСвойства" category="Ref">
+				<xr:TypeId>ba5479b1-2f3a-426d-8d4d-61f9bc34329f</xr:TypeId>
+				<xr:ValueId>b2fc84cd-bf29-4074-a706-3c5441c4de36</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsSelection.ПланСчетовВсеСвойства" category="Selection">
+				<xr:TypeId>ab45978f-3b8c-441c-a6cc-903876c1fc4f</xr:TypeId>
+				<xr:ValueId>c147c10d-b599-4197-9082-28d03bfc7fd5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsList.ПланСчетовВсеСвойства" category="List">
+				<xr:TypeId>f5f0577f-5946-40e7-a367-98ab154c6dbf</xr:TypeId>
+				<xr:ValueId>0ec14611-5fb3-4903-930b-ece0f99440bb</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsManager.ПланСчетовВсеСвойства" category="Manager">
+				<xr:TypeId>f4bea225-496c-4c25-9049-d9c7c77cd5ac</xr:TypeId>
+				<xr:ValueId>884a2dd5-ed97-43a0-9dbf-ae854332db8f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsExtDimensionTypes.ПланСчетовВсеСвойства" category="ExtDimensionTypes">
+				<xr:TypeId>041e9564-9135-404a-8cde-b39798e676e0</xr:TypeId>
+				<xr:ValueId>d90bbbad-a8b2-4ed3-af7d-3802bec588a5</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ChartOfAccountsExtDimensionTypesRow.ПланСчетовВсеСвойства" category="ExtDimensionTypesRow">
+				<xr:TypeId>597ffaed-bf72-4369-bcff-054322d90ebd</xr:TypeId>
+				<xr:ValueId>1263d566-9760-49cf-8450-645301dae221</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланСчетовВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>06cc2a86-f916-4f8f-964e-66a9ad7b1fc0</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="8072af27-bc0d-4f82-8b2a-ce50c27305df">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>cec521e8-64ed-4537-870d-f899e39f50e5</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="07b39466-79d8-45fc-9141-338cc370371c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитХранилище</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>beb77b3f-8100-47b6-b206-4cbab15d381a</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="7d07c176-a38c-44cc-b6cd-bcee74f62a1a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>46684503-41a1-469f-b689-df64a0278a4a</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="c4735083-b435-476e-ad9a-b73edc48d3f8">
+				<InternalInfo>
+					<xr:GeneratedType name="ChartOfAccountsTabularSection.ПланСчетовВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>ee109368-8f9c-4822-be80-da9080ad721e</xr:TypeId>
+						<xr:ValueId>18067716-7360-4495-89e4-6d6aa93d38e4</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ChartOfAccountsTabularSectionRow.ПланСчетовВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>31b1cd6b-ee71-4e84-afbc-64eb1f3760f3</xr:TypeId>
+						<xr:ValueId>3f9ed0cd-ec42-4b7a-a4ca-0cdeb95d903b</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>67b55c2f-55eb-4847-9e2b-c99118653191</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="a0ea2b06-87d3-496d-a430-1aed283fefb6">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>72ba3dea-cbd0-49eb-891e-dab46e1d3ad4</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="311d4d1d-8849-4cef-9167-c07e684c0060">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>ce6f31a7-6590-43c4-99ff-017d754326a3</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="709ecb8f-c860-4ef7-b36e-6196b8c171b9">
+				<InternalInfo>
+					<xr:GeneratedType name="ChartOfAccountsTabularSection.ПланСчетовВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>998c80eb-c92f-4cbf-a4aa-508ce7d3315c</xr:TypeId>
+						<xr:ValueId>98dbadeb-f10e-4144-811d-1c76a5465b19</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ChartOfAccountsTabularSectionRow.ПланСчетовВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>30bdfc98-525f-4801-8670-473aca2a6706</xr:TypeId>
+						<xr:ValueId>e966c8c2-6004-4b39-bf37-1fe2df57e905</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d1b7fc34-0ee8-4240-a6b3-0465ded0b8e5</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<AccountingFlag uuid="6bb1ce7b-367b-49ee-b430-b0121e7295f6">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПризнакУчетаВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>3c41e4cc-a8b5-4e29-adc7-b0e2940bd825</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</AccountingFlag>
+			<AccountingFlag uuid="4e9f82e3-4efe-445f-9755-a6bee22d940c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПризнакУчетаПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1ab6c585-45aa-499b-88f9-abf8b09c4414</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</AccountingFlag>
+			<ExtDimensionAccountingFlag uuid="6f429c3f-65aa-4a9a-bdaa-b331dba5f041">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПризнакУчетаСубконтоПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f7920883-f66b-4040-8496-97b59c3c30d0</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</ExtDimensionAccountingFlag>
+			<ExtDimensionAccountingFlag uuid="0f2ab9ca-1fae-43b8-abf1-e336b9f2ea36">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПризнакУчетаСубконтоВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>72f45d95-d78f-4429-82cd-ccba2758f508</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</ExtDimensionAccountingFlag>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаЗаписи</Form>
+			<Template>Макет</Template>
+			<Command uuid="3af4f26a-70b1-4a4f-88f2-0f13e2de3de4">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>323ace9c-7066-4c01-ba20-aa6843125696</ExtendedConfigurationObject>
+					<Group>FormCommandBarImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</ChartOfAccounts>
+</MetaDataObject>

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AccumulationRegister uuid="0aab282c-a235-4e90-9902-1481670a22c0">
+		<InternalInfo>
+			<xr:GeneratedType name="AccumulationRegisterRecord.РегистрНакопленияПоУмолчанию" category="Record">
+				<xr:TypeId>fa2c2be0-8b8e-4ec6-885d-fd34058893e5</xr:TypeId>
+				<xr:ValueId>93cab33d-ab10-4432-a98e-c42cbb07800e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccumulationRegisterManager.РегистрНакопленияПоУмолчанию" category="Manager">
+				<xr:TypeId>77454cd3-c956-4518-8950-ea15194b54c6</xr:TypeId>
+				<xr:ValueId>104fb4f0-2289-4671-8e7d-daf572943a6c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccumulationRegisterSelection.РегистрНакопленияПоУмолчанию" category="Selection">
+				<xr:TypeId>8329ded8-6109-41c7-b699-6a4000eb9802</xr:TypeId>
+				<xr:ValueId>837c6ec5-dbbf-4437-beb1-18ced22f4a8e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccumulationRegisterList.РегистрНакопленияПоУмолчанию" category="List">
+				<xr:TypeId>93c87749-e4aa-4ddc-a370-d574be54b577</xr:TypeId>
+				<xr:ValueId>a2cb563c-789c-47d8-ab6a-0ef4411a9018</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccumulationRegisterRecordSet.РегистрНакопленияПоУмолчанию" category="RecordSet">
+				<xr:TypeId>988fca48-203c-4249-adf7-e4418bc9b340</xr:TypeId>
+				<xr:ValueId>f9af5c63-bcb8-43fc-8207-df9ab35a8838</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccumulationRegisterRecordKey.РегистрНакопленияПоУмолчанию" category="RecordKey">
+				<xr:TypeId>eb6cf3a3-9a0d-4c9e-916f-4b24271f2811</xr:TypeId>
+				<xr:ValueId>d485e5a5-39f4-41cc-b7fd-8442e6606c3e</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрНакопленияПоУмолчанию</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>0b25c160-c52c-4c11-9f23-f4a3eae33cd4</ExtendedConfigurationObject>
+			<RegisterType>Balance</RegisterType>
+		</Properties>
+		<ChildObjects>
+			<Resource uuid="3cca7ccb-1450-402b-9a65-c75098fc9d5d">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Ресурс1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>286308db-298b-4060-8cef-633ca3ccd172</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Properties>
+			</Resource>
+		</ChildObjects>
+	</AccumulationRegister>
+</MetaDataObject>

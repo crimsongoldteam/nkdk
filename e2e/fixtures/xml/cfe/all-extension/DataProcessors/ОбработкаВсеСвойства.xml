@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<DataProcessor uuid="c382bef2-f451-4ef4-8d14-38a0317bbeae">
+		<InternalInfo>
+			<xr:GeneratedType name="DataProcessorObject.ОбработкаВсеСвойства" category="Object">
+				<xr:TypeId>5f2b2f49-8427-4c03-9247-d5f47956425c</xr:TypeId>
+				<xr:ValueId>0e2aeab7-3c65-44e6-a7b2-27196676a8a1</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="DataProcessorManager.ОбработкаВсеСвойства" category="Manager">
+				<xr:TypeId>281f1849-6a45-4c15-9666-983875e9e709</xr:TypeId>
+				<xr:ValueId>a5ed6215-43b2-4268-9b6d-7f5e459f5b12</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ОбработкаВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>d09aded1-3722-43c0-aff2-25f1c29159ea</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="3e0024eb-5f8e-4c71-b2db-7232d8347d6a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f8206ed7-b0fb-4152-8b32-a171ffa061c9</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникПолный</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="6ca68765-fe22-497a-8720-49f073cc0257">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитБулево</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>50a264b2-d7c1-4a8d-9ec3-276b7400b6a2</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="c5134801-2383-4c3f-bed9-17436c1349e1">
+				<InternalInfo>
+					<xr:GeneratedType name="DataProcessorTabularSection.ОбработкаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>91d552b6-2ad6-40a0-8bcc-6e545cf629c6</xr:TypeId>
+						<xr:ValueId>bf08714d-94bf-4a8a-8497-faaa329d5009</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="DataProcessorTabularSectionRow.ОбработкаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>f3880c66-d339-4f25-95b1-eba0fccbed8f</xr:TypeId>
+						<xr:ValueId>e5a8dbef-0122-44d5-9459-46a9d77a0140</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>64916fe4-9457-41ac-a24e-bf5060f34672</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="40d4ed45-7f15-4790-90d9-e3bb65edaf62">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитТаблицыВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>48ada0fe-827e-4864-a1e9-2ef831db0e9d</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="72ae963e-8224-4083-b31a-1cecb2e0e2ff">
+				<InternalInfo>
+					<xr:GeneratedType name="DataProcessorTabularSection.ОбработкаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>bb19d9d4-af5b-45bc-aa66-0c9e5ee8313e</xr:TypeId>
+						<xr:ValueId>ca205998-1e0d-4b1f-a081-04706087b0ef</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="DataProcessorTabularSectionRow.ОбработкаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>9d2c60ed-e07e-4acb-81c8-c38dfd9fdc7e</xr:TypeId>
+						<xr:ValueId>5e51e4b0-3376-43e4-b003-b9f3236be5dc</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>31b2de49-467a-4862-8f89-a8e9b461f370</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<Form>Форма</Form>
+			<Template>Макет</Template>
+			<Command uuid="f2a54364-d7b7-459a-9e1c-f2f0d28abf66">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>bdc75ded-71fc-440d-8e9a-896e8a51eda8</ExtendedConfigurationObject>
+					<Group>FormNavigationPanelGoTo</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</DataProcessor>
+</MetaDataObject>

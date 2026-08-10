@@ -6,14 +6,14 @@
 
 **Architecture:** Один `beforeAll` импортирует четыре XML-компонента реальными worker во временный эталонный NKDK-проект. Независимые тесты копируют эталон для validation и round-trip; сравнение XML вынесено в чистый файловый помощник, который сохраняет обычный и нормализованный diff.
 
-**Tech Stack:** TypeScript 7, Vitest 4, Node.js 26, `@nakidka/core`, GitHub Actions, встроенные `node:fs`, `node:path`, `node:child_process` и `node:util`.
+**Tech Stack:** TypeScript 7, Vitest 4, Node.js 26, `@nkdk/core`, GitHub Actions, встроенные `node:fs`, `node:path`, `node:child_process` и `node:util`.
 
 ## Global Constraints
 
 - Исходные данные копируются из `/Users/nikita/git/round-trip-compact/cf/all` и `/Users/nikita/git/round-trip-compact/cfe` в `e2e/fixtures/xml`; `.DS_Store` не копируется.
 - Версионируемые XML-фикстуры после копирования не изменяются тестами или реализацией.
 - `pnpm test` не запускает E2E; единственная команда нового контура — `pnpm test:e2e`.
-- Импорт, validation и экспорт используют публичный API `@nakidka/core` и реальные worker с `concurrency: 2`.
+- Импорт, validation и экспорт используют публичный API `@nkdk/core` и реальные worker с `concurrency: 2`.
 - Строгий договор round-trip сравнивает относительные пути и байты; нормализованный XML diff только объясняет ошибку и не разрешает её.
 - Отрицательная validation добавляет `НеизвестноеПолеE2E: true` в корень `cf/Конфигурация.yaml` только во временной копии.
 - В этой реализации не удаляются существующие тесты и не изменяются production rules.
@@ -32,8 +32,8 @@
 - `e2e/support/metadata-project.ts` — описания компонентов, общий импорт, копирование эталона, validation и экспорт.
 - `e2e/metadata-project.test.ts` — три пользовательских договора: импорт, validation, round-trip.
 - `e2e/fixtures/xml/**` — неизменяемый XML-источник истины.
-- `package.json` — команды `test:e2e`, общий `type-check` и workspace-зависимость на публичный `@nakidka/core`.
-- `pnpm-lock.yaml` — корневая workspace-зависимость `@nakidka/core`.
+- `package.json` — команды `test:e2e`, общий `type-check` и workspace-зависимость на публичный `@nkdk/core`.
+- `pnpm-lock.yaml` — корневая workspace-зависимость `@nkdk/core`.
 - `.gitignore` — исключение локальных отчётов `reports/e2e/`.
 - `.github/workflows/pr-quality.yml` — отдельное обязательное задание `e2e`.
 
@@ -126,7 +126,7 @@ export default defineConfig({
 Добавить в корневые `devDependencies`:
 
 ```json
-"@nakidka/core": "workspace:*"
+"@nkdk/core": "workspace:*"
 ```
 
 Создать `e2e/tsconfig.json`:
@@ -144,7 +144,7 @@ export default defineConfig({
 
 Run: `pnpm install --lockfile-only`
 
-Expected: корневой importer получает ссылку `@nakidka/core: workspace:*` в
+Expected: корневой importer получает ссылку `@nkdk/core: workspace:*` в
 `pnpm-lock.yaml`, сетевые зависимости не меняются.
 
 - [ ] **Step 3: Запустить проверку и подтвердить красное состояние**
@@ -312,7 +312,7 @@ Expected: FAIL, модуль `./file-tree` отсутствует.
 import { spawnSync } from "node:child_process"
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises"
 import { dirname, extname, join, relative, resolve } from "node:path"
-import { importContentFromXML } from "@nakidka/core"
+import { importContentFromXML } from "@nkdk/core"
 
 export interface FileTreeComparison {
   readonly equal: boolean
@@ -506,7 +506,7 @@ import {
   createProjectStateService,
   importConfigurationFromXml,
   type ConfigurationImportResult,
-} from "@nakidka/core"
+} from "@nkdk/core"
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
 

@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Table uuid="1da63153-b86f-4d9f-b8a2-1a56ae811949">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceTableManager.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="Manager">
+				<xr:TypeId>a122c79a-5c70-433b-9c65-6739ea79965a</xr:TypeId>
+				<xr:ValueId>2339e98c-2625-4e21-bd0f-0499dc6919fa</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="Object">
+				<xr:TypeId>0f9e6a03-62fd-4dbc-9474-bb0bdb8af66e</xr:TypeId>
+				<xr:ValueId>2b52212f-f104-4970-9959-1e97e8944ec8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="Ref">
+				<xr:TypeId>89889fb7-ded7-420f-b419-9c714fff4eeb</xr:TypeId>
+				<xr:ValueId>12cb3711-8c89-4fbe-a44e-054f6c2cf731</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableList.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="List">
+				<xr:TypeId>d9ba995f-529a-47dd-8ad5-e1e81a030788</xr:TypeId>
+				<xr:ValueId>3381e151-ffab-42c4-8d4c-b909f8f77f3a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecord.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="Record">
+				<xr:TypeId>12060cc8-d0fa-4add-ab98-2a9c2d688f47</xr:TypeId>
+				<xr:ValueId>b78d795b-8231-489e-8a72-072d4d7f75ed</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordSet.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="RecordSet">
+				<xr:TypeId>76d78087-3b30-4473-950f-07a98668b3da</xr:TypeId>
+				<xr:ValueId>86f5a72f-ad68-4fec-b8ea-ba8fc19bf610</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordKey.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="RecordKey">
+				<xr:TypeId>b641013d-8bf8-4be1-b70b-72244bebed40</xr:TypeId>
+				<xr:ValueId>6cf662fb-29c6-4ce4-9440-88c72a70758f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceTableRecordManager.ВнешнийИсточникДанныхВсеСвойстваExt.ТаблицаВсеСвойства" category="RecordManager">
+				<xr:TypeId>5929f0b1-74f8-4623-920d-5d4c71c0372a</xr:TypeId>
+				<xr:ValueId>24190c96-40f4-45fa-9a29-0be5e253bfb2</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ТаблицаВсеСвойства</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Синоним</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>Комментарий</Comment>
+			<TableType>Table</TableType>
+			<NameInDataSource>ИмяВИсточнике</NameInDataSource>
+			<ExpressionInDataSource/>
+			<TableDataType>ObjectData</TableDataType>
+			<KeyFields>
+				<xr:Field>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</xr:Field>
+			</KeyFields>
+			<PresentationField>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</PresentationField>
+			<ParentField/>
+			<UnfilledParentValue xsi:nil="true"/>
+			<Characteristics/>
+			<UseStandardCommands>true</UseStandardCommands>
+			<QuickChoice>true</QuickChoice>
+			<InputByString/>
+			<CreateOnInput>Auto</CreateOnInput>
+			<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>
+			<ChoiceDataGetModeOnInputByString>Background</ChoiceDataGetModeOnInputByString>
+			<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+			<DefaultObjectForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Form.ФормаОбъекта</DefaultObjectForm>
+			<DefaultRecordForm/>
+			<DefaultListForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Form.ФормаСписка</DefaultListForm>
+			<DefaultChoiceForm>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Form.ФормаВыбора</DefaultChoiceForm>
+			<ObjectPresentation/>
+			<ExtendedObjectPresentation/>
+			<RecordPresentation/>
+			<ExtendedRecordPresentation/>
+			<ListPresentation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Представление списка</v8:content>
+				</v8:item>
+			</ListPresentation>
+			<ExtendedListPresentation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Расширенное представление списка</v8:content>
+				</v8:item>
+			</ExtendedListPresentation>
+			<Explanation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Пояснение</v8:content>
+				</v8:item>
+			</Explanation>
+			<IncludeHelpInContents>true</IncludeHelpInContents>
+			<ReadOnly>true</ReadOnly>
+			<TransactionsIsolationLevel>ReadUncommitted</TransactionsIsolationLevel>
+			<DataVersionField>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</DataVersionField>
+			<EditType>InDialog</EditType>
+			<BasedOn>
+				<xr:Item xsi:type="xr:MDObjectRef">ExchangePlan.ПланОбменаВсеСвойства</xr:Item>
+			</BasedOn>
+			<DataLockFields>
+				<xr:Field>ExternalDataSource.ВнешнийИсточникДанныхВсеСвойстваExt.Table.ТаблицаВсеСвойства.Field.ПолеПоУмолчанию</xr:Field>
+			</DataLockFields>
+			<DataLockControlMode>Managed</DataLockControlMode>
+		</Properties>
+		<ChildObjects>
+			<Field uuid="1ff29678-31c7-4f31-988b-db2b37dfa473">
+				<Properties>
+					<Name>ПолеПоУмолчанию</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Поле по умолчанию</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+					<PasswordMode>false</PasswordMode>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+					<MarkNegatives>false</MarkNegatives>
+					<Mask/>
+					<MultiLine>false</MultiLine>
+					<ExtendedEdit>false</ExtendedEdit>
+					<MinValue xsi:nil="true"/>
+					<MaxValue xsi:nil="true"/>
+					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
+					<FillChecking>DontCheck</FillChecking>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>Auto</CreateOnInput>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<ChoiceForm/>
+					<NameInDataSource>ИмяВИсточнике</NameInDataSource>
+					<ReadOnly>false</ReadOnly>
+					<AllowNull>false</AllowNull>
+				</Properties>
+			</Field>
+			<Field uuid="0ab1fd13-b7d1-45d1-bd6d-8d6d33f3d719">
+				<Properties>
+					<Name>ПолеВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<Type>
+						<v8:Type>xs:base64Binary</v8:Type>
+						<v8:BinaryDataQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:BinaryDataQualifiers>
+					</Type>
+					<PasswordMode>true</PasswordMode>
+					<Format>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+						</v8:item>
+					</Format>
+					<EditFormat>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>ЧЦ=15; ЧДЦ=2</v8:content>
+						</v8:item>
+					</EditFormat>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Подсказка</v8:content>
+						</v8:item>
+					</ToolTip>
+					<MarkNegatives>true</MarkNegatives>
+					<Mask>Маска</Mask>
+					<MultiLine>true</MultiLine>
+					<ExtendedEdit>true</ExtendedEdit>
+					<MinValue xsi:type="xs:string">4</MinValue>
+					<MaxValue xsi:type="xs:string">96</MaxValue>
+					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="v8:Null"/>
+					<FillChecking>ShowError</FillChecking>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>DontUse</CreateOnInput>
+					<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
+					<ChoiceForm/>
+					<NameInDataSource>ИмяВИсточнике</NameInDataSource>
+					<ReadOnly>true</ReadOnly>
+					<AllowNull>true</AllowNull>
+				</Properties>
+			</Field>
+			<Form>ФормаОбъекта</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Command uuid="2b40ddf1-fb3d-4f1c-9c85-262a6e6f3713">
+				<Properties>
+					<Name>Команда1</Name>
+					<Synonym/>
+					<Comment/>
+					<Group>NavigationPanelImportant</Group>
+					<CommandParameterType/>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<ModifiesData>false</ModifiesData>
+					<Representation>Auto</Representation>
+					<ToolTip/>
+					<Picture/>
+					<Shortcut/>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+				</Properties>
+			</Command>
+			<Template>Макет</Template>
+		</ChildObjects>
+	</Table>
+</MetaDataObject>

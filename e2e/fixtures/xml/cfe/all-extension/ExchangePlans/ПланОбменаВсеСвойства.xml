@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<ExchangePlan uuid="8b1bb118-d8be-48b5-8163-3a966a7c4c8f">
+		<InternalInfo>
+			<xr:ThisNode>1fa9814a-246b-4b7e-a1ff-2a331c4376c1</xr:ThisNode>
+			<xr:GeneratedType name="ExchangePlanObject.ПланОбменаВсеСвойства" category="Object">
+				<xr:TypeId>00260f47-4a0f-4f5c-82ef-5fada7956133</xr:TypeId>
+				<xr:ValueId>47ca4194-2cd0-4a7b-9e63-3c387169eb47</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanRef.ПланОбменаВсеСвойства" category="Ref">
+				<xr:TypeId>320e7863-689a-4dbc-a3e9-16cfba1021ae</xr:TypeId>
+				<xr:ValueId>88bf0c20-0789-4601-ad7a-6c2cc9697cb1</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanSelection.ПланОбменаВсеСвойства" category="Selection">
+				<xr:TypeId>4fd26a6b-e7a8-4025-9827-12b5d88e8503</xr:TypeId>
+				<xr:ValueId>d45e64de-a1fd-43be-aeab-37999992b54a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanList.ПланОбменаВсеСвойства" category="List">
+				<xr:TypeId>271c5ae6-4362-49d0-ada9-e8bccabb886c</xr:TypeId>
+				<xr:ValueId>63620cff-d855-4044-8ede-e0d0a957fc26</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExchangePlanManager.ПланОбменаВсеСвойства" category="Manager">
+				<xr:TypeId>49317beb-5ebe-494c-be54-c0241dd20ec9</xr:TypeId>
+				<xr:ValueId>6810cfd2-6677-4b0e-b68f-51544d6d844f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ПланОбменаВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>795bd97c-bf59-484f-8fea-c3189e5b197b</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="cde017f1-63d5-4e93-8ffd-a0a3285cbb39">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>73cf230f-eaf8-483c-8863-50ae1779fd36</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="3c62231d-c053-4292-a987-27c11722d09c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитХранилище</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>80780d7a-00af-47ae-9db2-e2745fb0f44d</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="4f795079-47cd-4975-ab79-5e7209885056">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>58cadde7-0047-4b83-bcda-66418d60acfc</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="7b3e99a8-bb99-4e71-b9a5-8310b5a8c7df">
+				<InternalInfo>
+					<xr:GeneratedType name="ExchangePlanTabularSection.ПланОбменаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSection">
+						<xr:TypeId>b52e0833-f6a3-4448-a26b-b8e9e82b6849</xr:TypeId>
+						<xr:ValueId>9760fa68-2f11-49d3-9198-5c1c00da75b1</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExchangePlanTabularSectionRow.ПланОбменаВсеСвойства.ТабличнаяЧастьПоУмолчанию" category="TabularSectionRow">
+						<xr:TypeId>f94fb552-aaa6-4484-880d-3ff4de277e85</xr:TypeId>
+						<xr:ValueId>3c353ad5-6b47-4c19-aced-b46a8e22e4be</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>93fb3d78-190d-4c7f-9d2b-e34b6ee83e26</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects/>
+			</TabularSection>
+			<TabularSection uuid="441435dd-1fd6-4fe3-8c85-7efead8da726">
+				<InternalInfo>
+					<xr:GeneratedType name="ExchangePlanTabularSection.ПланОбменаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>c6eb549e-d05a-4284-ac44-1b39a7545393</xr:TypeId>
+						<xr:ValueId>a18a917c-05b2-468f-8d38-25102d470ddd</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="ExchangePlanTabularSectionRow.ПланОбменаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>2c8f781c-1328-4b94-a1c8-1db1425e1018</xr:TypeId>
+						<xr:ValueId>ce529631-57a4-44d5-ab06-6c42b8eb32ce</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>a91854e0-0389-4f21-8201-e8fa151f396b</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="7dec7f98-b5f4-488e-81a6-33298e1dd397">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>f7f03b14-c035-4990-b119-fdb3e5af6a51</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="3c302dd8-852f-4a38-9d9a-9dda0f6b57d5">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>602d1eaf-fa97-4786-a6f5-501fbf0745c3</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаУзла</Form>
+			<Template>Макет</Template>
+			<Command uuid="ce75c8ee-dc48-4d1a-813d-5196eae5a4ad">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>1556ef95-b596-4d66-bec5-026971b06c8e</ExtendedConfigurationObject>
+					<Group>FormCommandBarImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</ExchangePlan>
+</MetaDataObject>

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Constant uuid="2d17776f-ba2f-4f14-b20a-385709e4e61c">
+		<InternalInfo>
+			<xr:GeneratedType name="ConstantManager.КонстантаБулево" category="Manager">
+				<xr:TypeId>52206728-3df5-4332-b7cd-9c141a51147f</xr:TypeId>
+				<xr:ValueId>ea43e6ac-a786-4822-b69e-9a31cae4dc8a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ConstantValueManager.КонстантаБулево" category="ValueManager">
+				<xr:TypeId>59ec6a3c-1468-4a7b-bbfa-059a5d62fa7d</xr:TypeId>
+				<xr:ValueId>d6252c63-dddf-435a-a1c5-7148511f2a95</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ConstantValueKey.КонстантаБулево" category="ValueKey">
+				<xr:TypeId>1496ed37-9eaf-407d-91bb-1047478e4281</xr:TypeId>
+				<xr:ValueId>b1a214d0-07a6-4f39-a2ad-bb200fd9c983</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>КонстантаБулево</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>d7533d79-977e-4195-ba43-0bc00e5ce47e</ExtendedConfigurationObject>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Properties>
+	</Constant>
+</MetaDataObject>

@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Task uuid="83a7ef20-2dbd-429f-bdb5-18b22603c42e">
+		<InternalInfo>
+			<xr:GeneratedType name="TaskObject.ЗадачаВсеСвойства" category="Object">
+				<xr:TypeId>63b43da3-44c5-4e12-9b6d-275c45a1395f</xr:TypeId>
+				<xr:ValueId>48bd2a91-ef33-444b-a6c3-b1876526e886</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="TaskRef.ЗадачаВсеСвойства" category="Ref">
+				<xr:TypeId>0ae991f7-8bac-42e8-9642-97c522710e9f</xr:TypeId>
+				<xr:ValueId>6f67f7d1-cec5-4700-9403-2cd47a9ccd01</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="TaskSelection.ЗадачаВсеСвойства" category="Selection">
+				<xr:TypeId>bb1a36db-08d1-4716-942e-168fc2b3d873</xr:TypeId>
+				<xr:ValueId>f51c3d7a-880e-4f82-b2da-f8a740b2e063</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="TaskList.ЗадачаВсеСвойства" category="List">
+				<xr:TypeId>33762331-0d24-4fb1-9384-b131be1f26dc</xr:TypeId>
+				<xr:ValueId>1264ecb1-98f2-4f20-8696-a57de6a4ac3f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="TaskManager.ЗадачаВсеСвойства" category="Manager">
+				<xr:TypeId>0c57d052-4ea8-45cb-98a8-86d75671203c</xr:TypeId>
+				<xr:ValueId>6c51d91c-3cb8-4b9b-91e7-96565c145863</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ЗадачаВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>cdd7e9c6-691f-429c-a06f-27f74773fd84</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="892d7e62-7ff9-4557-8e65-2c4139763d48">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>937b170d-eafe-4f52-b6fa-47e30a5f99ca</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="59a86d4e-1502-41a5-95d0-14bbee8bee3a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитХранилище</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>b28075f2-1cc6-47c9-b73a-d246d012ac64</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="e13e5bb7-364a-4c71-bb1f-0bfb046beebc">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f06b7f77-59a7-42be-8029-22b2714e02a8</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="442454f9-687a-4155-9913-004400adc45c">
+				<InternalInfo>
+					<xr:GeneratedType name="TaskTabularSection.ЗадачаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSection">
+						<xr:TypeId>e5f99b23-9d05-4eed-add8-5a286537bc6a</xr:TypeId>
+						<xr:ValueId>e68102bc-e53e-482f-84a2-1a9e1312f8d0</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="TaskTabularSectionRow.ЗадачаВсеСвойства.ТабличнаяЧастьВсеСвойства" category="TabularSectionRow">
+						<xr:TypeId>b0089785-3f66-4176-b31f-4063d1a7a835</xr:TypeId>
+						<xr:ValueId>beca7a50-dbe9-4be9-ad05-6b101d85ea89</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ТабличнаяЧастьВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>30252dac-7c8a-4928-b677-f23641dae385</ExtendedConfigurationObject>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="ac53450e-bf36-4ab4-86c2-5dc20c5250db">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитВсеСвойства</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>88337127-c2c7-40b8-9de7-e717ed7cbff9</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="d737067f-9c8e-4f22-8bcc-7d3fe4a841ec">
+						<InternalInfo/>
+						<Properties>
+							<ObjectBelonging>Adopted</ObjectBelonging>
+							<Name>РеквизитПоУмолчанию</Name>
+							<Comment/>
+							<ExtendedConfigurationObject>0cec112b-f866-4bde-8d5c-d35096fa36fd</ExtendedConfigurationObject>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаЗадачи</Form>
+			<Template>Макет</Template>
+			<AddressingAttribute uuid="0350f5e9-d508-4064-a7af-7215789f2dd1">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитАдресацииВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d7d973ca-def2-485f-afd4-e16fb8ae54f5</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.СправочникРеквизит</v8:Type>
+					</Type>
+				</Properties>
+			</AddressingAttribute>
+			<AddressingAttribute uuid="a9537f24-2785-46f7-b8db-64f4b088a900">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитАдресацииПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>476fc3f4-59d5-4b04-abbb-b73f4e7ad3b5</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</AddressingAttribute>
+			<Command uuid="723537dc-9f17-486b-ab3c-843c610fa5c1">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>db5fa673-728d-4c34-bd4a-4d8d1da38043</ExtendedConfigurationObject>
+					<Group>FormCommandBarImportant</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</Task>
+</MetaDataObject>

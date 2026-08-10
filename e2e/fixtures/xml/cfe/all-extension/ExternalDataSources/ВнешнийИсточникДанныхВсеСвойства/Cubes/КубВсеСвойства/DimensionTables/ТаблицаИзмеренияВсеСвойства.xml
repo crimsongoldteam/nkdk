@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<DimensionTable uuid="04815b84-0773-4077-975d-1a2cfcf42e90">
+		<InternalInfo>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableManager.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства" category="Manager">
+				<xr:TypeId>818798aa-da41-4656-a2ac-91ad1f289747</xr:TypeId>
+				<xr:ValueId>b54d68fc-e19c-4ed1-90cf-4f28188618a2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableObject.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства" category="Object">
+				<xr:TypeId>94bdc7dd-8b74-49b6-b55c-d3dcd38e49ec</xr:TypeId>
+				<xr:ValueId>19d01b11-b99e-42d7-a555-89de3a3f94f2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства" category="Ref">
+				<xr:TypeId>fb045dbe-84eb-4b6e-a3c8-a1045839d284</xr:TypeId>
+				<xr:ValueId>355d644f-d3b2-40db-b34a-87338ad17c52</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ExternalDataSourceCubeDimensionTableList.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства" category="List">
+				<xr:TypeId>c64e3ec8-7cca-4639-9551-8312c359412f</xr:TypeId>
+				<xr:ValueId>54cf0c74-e1ed-47fb-9b0d-3efd6b8fc6e0</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ТаблицаИзмеренияВсеСвойства</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>e948bf38-a9fa-411a-8a06-0c14f9fdc867</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Field uuid="55d0d15e-cfcb-4068-9a66-0141ac1cba27">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПолеВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>0257dc13-2d57-4d31-9227-a90a10adb1ae</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Field>
+			<Field uuid="7cff1eff-a1fe-4500-bbde-a7a8709dad92">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПолеПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>0d1540b4-4165-4c8d-b0af-bab0b57cc986</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Field>
+		</ChildObjects>
+	</DimensionTable>
+</MetaDataObject>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<CalculationRegister uuid="3421b5e0-79a1-4f53-94e9-ab4628de30fe">
+		<InternalInfo>
+			<xr:GeneratedType name="CalculationRegisterRecord.РегистрРасчета1" category="Record">
+				<xr:TypeId>b762dba5-fb38-491c-9ee2-9008ab6a0afc</xr:TypeId>
+				<xr:ValueId>1c84b380-2b7b-4cd6-a202-4bd8490bde8e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CalculationRegisterManager.РегистрРасчета1" category="Manager">
+				<xr:TypeId>4d160ae3-36db-4bdb-afb7-e18fa7a23c4e</xr:TypeId>
+				<xr:ValueId>cd1dd24c-595b-4f49-97bb-b39bc09847b0</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CalculationRegisterSelection.РегистрРасчета1" category="Selection">
+				<xr:TypeId>492f2b0b-b02b-42a7-8131-4e20df29883b</xr:TypeId>
+				<xr:ValueId>8436f002-5f47-4397-a5b1-c3c272104a81</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CalculationRegisterList.РегистрРасчета1" category="List">
+				<xr:TypeId>26c21582-ded8-4a5d-934f-225bab7f03f8</xr:TypeId>
+				<xr:ValueId>56762dee-8bfc-4a59-95b8-7e5fc40a0dbc</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CalculationRegisterRecordSet.РегистрРасчета1" category="RecordSet">
+				<xr:TypeId>630e8385-18c4-440b-be45-e24b439ed40c</xr:TypeId>
+				<xr:ValueId>f558efa1-d35e-4822-bda7-a642f05fec69</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CalculationRegisterRecordKey.РегистрРасчета1" category="RecordKey">
+				<xr:TypeId>7549fa9e-9ace-4c95-97f7-4e43611c0f7f</xr:TypeId>
+				<xr:ValueId>10e9eec1-9e7a-45b4-8919-c2eb8ce963df</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="RecalculationsManager.РегистрРасчета1" category="Recalcs">
+				<xr:TypeId>c5712e89-e0e1-4c3d-bf59-5b811937bc5b</xr:TypeId>
+				<xr:ValueId>79f05b5c-f9ba-413e-848f-c3be3089ec6f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрРасчета1</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1dad0117-9cbc-401b-a3e1-c973eef11fe4</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</CalculationRegister>
+</MetaDataObject>

@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AccountingRegister uuid="64e2dc72-5f50-4807-aa06-fc6a8463a0f0">
+		<InternalInfo>
+			<xr:GeneratedType name="AccountingRegisterRecord.РегистрБухгалтерииВсеСвойстваОбороты" category="Record">
+				<xr:TypeId>5b6861d6-e1ec-4b52-832f-a230a8f5b554</xr:TypeId>
+				<xr:ValueId>9e146568-8d03-4e47-8073-3cd173d6235b</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterExtDimensions.РегистрБухгалтерииВсеСвойстваОбороты" category="ExtDimensions">
+				<xr:TypeId>0b50f4ba-0f65-4f40-808f-e6ced1186f5c</xr:TypeId>
+				<xr:ValueId>6955b5f9-1518-4da9-bfb0-2f207efa8d91</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterRecordSet.РегистрБухгалтерииВсеСвойстваОбороты" category="RecordSet">
+				<xr:TypeId>cc8e7f35-8ed7-4474-9afa-884793166710</xr:TypeId>
+				<xr:ValueId>59203fbf-538f-4e94-8130-64046c5fe1de</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterRecordKey.РегистрБухгалтерииВсеСвойстваОбороты" category="RecordKey">
+				<xr:TypeId>0ebc5dcd-ff3e-4540-b297-eafb6c47b2ce</xr:TypeId>
+				<xr:ValueId>c393c269-8625-402f-ac7f-730a7dcc6d33</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterSelection.РегистрБухгалтерииВсеСвойстваОбороты" category="Selection">
+				<xr:TypeId>cc70d072-65ec-4c36-9d7f-dce85efa8434</xr:TypeId>
+				<xr:ValueId>5892afdd-9981-4588-b5c8-ab9c17fdb683</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterList.РегистрБухгалтерииВсеСвойстваОбороты" category="List">
+				<xr:TypeId>5830901b-7efa-4dd5-a1fa-b5214c9b1c82</xr:TypeId>
+				<xr:ValueId>073eed76-dcbd-4a86-a9e8-5265be07ea88</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="AccountingRegisterManager.РегистрБухгалтерииВсеСвойстваОбороты" category="Manager">
+				<xr:TypeId>eba3d52d-396e-41f9-8539-33fa44a9b3c4</xr:TypeId>
+				<xr:ValueId>3b457ad4-d984-42fe-b170-ba3e41954654</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>РегистрБухгалтерииВсеСвойстваОбороты</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>28c1195f-ffed-4f2e-994d-663362cadd4d</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Dimension uuid="dff3b6f5-a677-43c1-8bb4-83d0fd698681">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>6e433de4-e7a5-41fc-a89b-cd97430fad1b</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.ПараметрыВыбора</v8:Type>
+					</Type>
+					<Balance>false</Balance>
+				</Properties>
+			</Dimension>
+			<Dimension uuid="12d55711-1b6c-4b3a-a0a2-d5746957fb98">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИспользоватьХранилищеДвоичныхДанных</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>88b1a6ab-3aea-43e9-997e-5364d8f856f4</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+					<Balance>true</Balance>
+				</Properties>
+			</Dimension>
+			<Resource uuid="5bd9ed2b-c76d-4ac9-b8fe-3009d99352ed">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РесурсВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>46a6d281-76df-4d05-8494-0b4dac4fcc90</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+					<Balance>true</Balance>
+				</Properties>
+			</Resource>
+			<Resource uuid="d579bf99-f655-41fd-bb67-dacce7f9bf65">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ИзмерениеИндексировать</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>5da25cf4-1527-4039-a0be-a8e6ca8ae93b</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>10</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Any</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+					<Balance>true</Balance>
+				</Properties>
+			</Resource>
+			<Attribute uuid="13123a7f-6b6f-4759-922e-d199ed88091c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитВсеСвойства</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c49fd4d4-4069-4d8f-97f7-35c6aaa63e26</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>10</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="4d176859-3454-4d44-886c-a70e5353843a">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитПоУмолчанию</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>8c8b6620-07d8-4e6c-b0d1-5d97d1415903</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>v8:ValueStorage</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Form>ФормаСписка</Form>
+			<Template>Макет</Template>
+			<Command uuid="e55ca59f-e31c-4dd1-973a-039990d65c33">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Команда1</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d6db57aa-bb06-42ad-82e0-48fc29308e81</ExtendedConfigurationObject>
+					<Group>ActionsPanelCreate</Group>
+				</Properties>
+			</Command>
+		</ChildObjects>
+	</AccountingRegister>
+</MetaDataObject>

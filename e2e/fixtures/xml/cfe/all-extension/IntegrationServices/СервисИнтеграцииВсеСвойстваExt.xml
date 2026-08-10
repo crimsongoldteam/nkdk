@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<IntegrationService uuid="ed651881-b1f8-43ef-949f-5eea9719c31d">
+		<InternalInfo>
+			<xr:GeneratedType name="IntegrationServiceManager.СервисИнтеграцииВсеСвойстваExt" category="Manager">
+				<xr:TypeId>2c94bcce-745d-4309-a0c4-3c7d3c5694e2</xr:TypeId>
+				<xr:ValueId>783a5934-8742-4b7b-a23b-9a463e0ad7bf</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>СервисИнтеграцииВсеСвойстваExt</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Синоним</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>Комментарий</Comment>
+			<ExternalIntegrationServiceAddress>https://example-service.com</ExternalIntegrationServiceAddress>
+		</Properties>
+		<ChildObjects>
+			<IntegrationServiceChannel uuid="2c509af2-97f0-4282-ad89-a949409653c7">
+				<InternalInfo>
+					<xr:GeneratedType name="IntegrationServiceChannelManager.СервисИнтеграцииВсеСвойстваExt.КаналСервисаИнтеграцииВсеСвойства" category="Manager">
+						<xr:TypeId>01153b8c-7153-4ec3-aef5-31e4b437dafd</xr:TypeId>
+						<xr:ValueId>aa762670-d730-4d98-bc76-62a899c6dc8b</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<Name>КаналСервисаИнтеграцииВсеСвойства</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Синоним</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment>Комментарий</Comment>
+					<ExternalIntegrationServiceChannelName>ИмяКанала</ExternalIntegrationServiceChannelName>
+					<MessageDirection>Receive</MessageDirection>
+					<ReceiveMessageProcessing>КаналСервисаИнтеграцииВсеСвойстваОбработкаПолученияСообщения</ReceiveMessageProcessing>
+					<Transactioned>false</Transactioned>
+				</Properties>
+			</IntegrationServiceChannel>
+			<IntegrationServiceChannel uuid="a6b81a38-a829-4187-a606-56e1dc2f617a">
+				<InternalInfo>
+					<xr:GeneratedType name="IntegrationServiceChannelManager.СервисИнтеграцииВсеСвойстваExt.КаналСервисаИнтеграцииПоУмолчанию" category="Manager">
+						<xr:TypeId>743fddbb-43ee-48dd-8ba3-14f29ec0dde0</xr:TypeId>
+						<xr:ValueId>56ab67d1-269a-4f5d-8a50-8e7b47f0b48c</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<Name>КаналСервисаИнтеграцииПоУмолчанию</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Канал сервиса интеграции по умолчанию</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<ExternalIntegrationServiceChannelName/>
+					<MessageDirection>Send</MessageDirection>
+					<ReceiveMessageProcessing/>
+					<Transactioned>true</Transactioned>
+				</Properties>
+			</IntegrationServiceChannel>
+		</ChildObjects>
+	</IntegrationService>
+</MetaDataObject>

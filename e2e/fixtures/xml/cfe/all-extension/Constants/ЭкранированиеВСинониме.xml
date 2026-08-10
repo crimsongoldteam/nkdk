@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Constant uuid="02dbcdca-6c51-4fed-a530-fa5be3c6075c">
+		<InternalInfo>
+			<xr:GeneratedType name="ConstantManager.ЭкранированиеВСинониме" category="Manager">
+				<xr:TypeId>532e99b5-b3df-4ef0-8b33-33dda87c3f5d</xr:TypeId>
+				<xr:ValueId>583761df-142a-478f-99ed-f5ded3477714</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ConstantValueManager.ЭкранированиеВСинониме" category="ValueManager">
+				<xr:TypeId>80afb76d-6feb-48cc-be74-b461810823b8</xr:TypeId>
+				<xr:ValueId>17a94dd1-1e10-42b5-a1ef-baea1ddf9a99</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="ConstantValueKey.ЭкранированиеВСинониме" category="ValueKey">
+				<xr:TypeId>06dee1cf-cc4b-4285-9301-4b27d7be6ee2</xr:TypeId>
+				<xr:ValueId>dac56637-b378-4a37-a959-a2438a88b4e2</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ЭкранированиеВСинониме</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>f5cc310c-f6a8-4648-be97-40c10a60359d</ExtendedConfigurationObject>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>10</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Properties>
+	</Constant>
+</MetaDataObject>
