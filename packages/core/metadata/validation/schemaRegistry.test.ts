@@ -533,7 +533,7 @@ function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): 
   const cached = compiledSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
 
-  const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
+  const compiled = compileValidationSchema(schemaForName(name, mode))
   compiled.Check(undefined)
   compiledSchemaCache.set(cacheKey, compiled)
   return compiled

@@ -268,27 +268,25 @@ describe("validateFile", () => {
     expect(deepError!.line).toBeGreaterThanOrEqual(1)
   })
 
-  it("uses AJV discriminator by Вид and returns the selected branch error", () => {
+  it("выбирает ветвь TypeBox по Вид и возвращает одну её ошибку", () => {
     const text = `Вид: Второй\nЧисло: не-число\nЛишнее: значение\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
 
     expect(result.some((diagnostic) => diagnostic.message === "Expected union value")).toBe(false)
-    expect(result).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          filePath: "test.yaml",
-          line: 3,
-          col: 9,
-          path: "/Лишнее",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
+    expect(result).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 3,
+        col: 9,
+        path: "/Лишнее",
+        source: "structure",
+        severity: "error",
+      }),
+    ])
   })
 
-  it("uses AJV discriminator diagnostic for unknown Вид", () => {
+  it("указывает неизвестный Вид на поле discriminator", () => {
     const text = `Вид: Третий\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -301,12 +299,12 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: expect.stringContaining("value of tag \"Вид\" must be in oneOf"),
+        message: "must be equal to one of the allowed values",
       }),
     ])
   })
 
-  it("uses nested AJV discriminator and keeps full path", () => {
+  it("сохраняет полный путь ошибки вложенного discriminator", () => {
     const text = `Вид: Контейнер\nChild:\n  Вид: Второй\n  Число: не-число\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: nestedDiscriminatedUnionSchema })
@@ -327,7 +325,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("uses AJV discriminator with Type.Ref from root schema", () => {
+  it("обрабатывает рекурсивный discriminator через Type.Ref", () => {
     const text = `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: referencedNestedDiscriminatedUnionSchema })
@@ -348,7 +346,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("converts Type.Ref discriminator errors without root schema expansion", () => {
+  it("преобразует ошибку Type.Ref discriminator без разворачивания корневой схемы", () => {
     const parsed = parseMetadataYaml(
       `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
     )
@@ -368,7 +366,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("uses AJV discriminator diagnostic for missing Вид", () => {
+  it("указывает отсутствующий Вид на поле discriminator", () => {
     const text = `Поле: значение\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -381,12 +379,12 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: expect.stringContaining("tag \"Вид\" must be string"),
+        message: "Expected string",
       }),
     ])
   })
 
-  it("uses AJV discriminator diagnostic for non-string Вид", () => {
+  it("указывает нестроковый Вид на поле discriminator", () => {
     const text = `Вид: 123\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -399,28 +397,20 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: expect.stringContaining("tag \"Вид\" must be string"),
+        message: "Expected string",
       }),
     ])
   })
 
-  it("leaves regular union without discriminator as AJV union branch errors", () => {
+  it("оставляет обычный union без discriminator последовательной проверкой TypeBox", () => {
     const text = `Вид: Второй\nЧисло: не-число\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: plainUnionSchema })
 
-    expect(result).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          path: "/Число",
-          message: "Expected number",
-          source: "structure",
-          severity: "error",
-        }),
-      ])
-    )
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({ source: "structure", severity: "error" })
     const [, errors] = plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })
-    expect(errors.some((error) => error.keyword === "anyOf")).toBe(true)
+    expect(errors).toHaveLength(1)
   })
 })
 
