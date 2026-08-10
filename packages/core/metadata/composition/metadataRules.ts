@@ -11,6 +11,7 @@ import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { clientApplicationFormValidationRules } from "../forms/clientApplicationForm/validationRules"
 import { clientApplicationFormPropertyRules } from "../forms/clientApplicationForm/propertyTypeRules"
 import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/childFormNamesPropertyRules"
+import { createMetadataResourceTopologyProvider } from "../resourceTopology/adapters/metadataProvider"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -31,7 +32,17 @@ export const legacyCoreRules = composeMetadataRules(
   childFormNamesPropertyRules,
 )
 
-export const metadataRules = composeMetadataRules(
+const rulesWithoutTopology = composeMetadataRules(
   legacyCoreRules,
   formElementRules,
+)
+
+const resourceTopologyRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  resourceTopology: [createMetadataResourceTopologyProvider(rulesWithoutTopology)],
+})
+
+export const metadataRules = composeMetadataRules(
+  rulesWithoutTopology,
+  resourceTopologyRules,
 )

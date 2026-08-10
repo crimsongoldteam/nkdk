@@ -1,6 +1,7 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { PropertyRuleRegistrySet } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { RegisteredProjectSpec } from "../../projectDefinition/projectSpecContracts"
 import { compileMetadataResourceTopology } from "../core/compiler"
 import { joinMetadataPathPatterns } from "../core/patterns"
@@ -9,9 +10,10 @@ import type { CompiledMetadataResourceTopology, MetadataResourceSource } from ".
 
 export function describePropertyResourceTopology(
   propertyName: string,
-  propertyRule: PropertyRule
+  propertyRule: PropertyRule,
+  propertyRules: Pick<PropertyRuleRegistrySet, "getTypeRule"> = { getTypeRule },
 ): readonly MetadataResourceDeclaration[] {
-  const declarations = getTypeRule(propertyRule.type, "resourceTopology")?.({ propertyRule }) ?? []
+  const declarations = propertyRules.getTypeRule(propertyRule.type, "resourceTopology")?.({ propertyRule }) ?? []
   return declarations.map((declaration) => ({
     ...declaration,
     source: {
@@ -25,11 +27,12 @@ export function describePropertyResourceTopology(
 
 export function compileMetadataResourceTopologyForProjectSpecs(
   projectSpecs: readonly RegisteredProjectSpec[],
+  propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): CompiledMetadataResourceTopology {
   return compileMetadataResourceTopology(
     projectSpecs.map((spec) => ({
       ...spec,
-      resources: describeProjectSpecResourceTopology(spec),
+      resources: describeProjectSpecResourceTopology(spec, propertyRules),
     }))
   )
 }
@@ -37,14 +40,17 @@ export function compileMetadataResourceTopologyForProjectSpecs(
 export function compileMetadataResourceTopologyForRootRule(
   rootRule: MetadataItemRule,
   projectSpecs: readonly RegisteredProjectSpec[],
+  propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): CompiledMetadataResourceTopology {
   return compileMetadataResourceTopologyForProjectSpecs(
     projectSpecs.map((spec) => (spec.dir === "" ? { ...spec, rule: rootRule } : spec)),
+    propertyRules,
   )
 }
 
 export function describeProjectSpecResourceTopology(
-  spec: RegisteredProjectSpec
+  spec: RegisteredProjectSpec,
+  propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): readonly MetadataResourceDeclaration[] {
   const source = itemRuleSource(spec.rule)
   const declarations: MetadataResourceDeclaration[] = []
@@ -74,7 +80,7 @@ export function describeProjectSpecResourceTopology(
       assignmentProjectPattern: "Конфигурация.yaml",
       currentNameParameter: "ownerName",
       nextNameIndex: 1,
-    })
+    }, propertyRules)
   } else if (typeof spec.rule.xmlDir === "string") {
     const projectBase = `${spec.dir}/{ownerName}`
     const xmlBase = `${spec.rule.xmlDir}/{ownerName}`
@@ -83,7 +89,7 @@ export function describeProjectSpecResourceTopology(
       xmlBase,
       role: "properties",
       currentNameParameter: "ownerName",
-    })
+    }, propertyRules)
     if (spec.nesting?.kind === "recursiveChildDir") {
       for (let depth = 1; depth <= 16; depth += 1) {
         const recursiveSteps = Array.from(
@@ -105,7 +111,7 @@ export function describeProjectSpecResourceTopology(
               ? `${projectBase}/Свойства.yaml`
               : `${[projectBase, ...recursiveSteps.slice(0, -1)].join("/")}/Свойства.yaml`,
           logicalAddressSegment: spec.nesting.logicalAddressSegment,
-        })
+        }, propertyRules)
       }
     }
   }
@@ -124,7 +130,8 @@ function collectSpecAssignment(
     currentNameParameter: string
     ownerProjectPattern?: string
     logicalAddressSegment?: string
-  }
+  },
+  propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): void {
   const assignmentProjectPattern = `${params.projectBase}/Свойства.yaml`
   declarations.push(
@@ -155,7 +162,7 @@ function collectSpecAssignment(
     ownerProjectPattern: params.ownerProjectPattern,
     currentNameParameter: params.currentNameParameter,
     nextNameIndex: 1,
-  })
+  }, propertyRules)
 }
 
 interface RuleTopologyContext {
@@ -171,10 +178,11 @@ interface RuleTopologyContext {
 function collectRuleDeclarations(
   target: MetadataResourceDeclaration[],
   rule: MetadataItemRule,
-  context: RuleTopologyContext
+  context: RuleTopologyContext,
+  propertyRules?: Pick<PropertyRuleRegistrySet, "getTypeRule">,
 ): void {
   for (const [propertyName, propertyRule] of Object.entries(rule.properties)) {
-    const contribution = describePropertyResourceTopology(propertyName, propertyRule)
+    const contribution = describePropertyResourceTopology(propertyName, propertyRule, propertyRules)
     let contributionAssignment = context.assignmentProjectPattern
     for (const declaration of contribution) {
       if (declaration.kind === "content") {
@@ -298,7 +306,7 @@ function collectRuleDeclarations(
         currentNameParameter: childNameParameter,
         parentNameParameter: context.currentNameParameter,
         nextNameIndex: context.nextNameIndex + 1,
-      })
+      }, propertyRules)
       continue
     }
 
@@ -307,7 +315,7 @@ function collectRuleDeclarations(
       currentNameParameter: childNameParameter,
       parentNameParameter: context.currentNameParameter,
       nextNameIndex: context.nextNameIndex + 1,
-    })
+    }, propertyRules)
   }
 }
 

@@ -8,6 +8,7 @@ import { findMetadataComponentDescriptor } from "../components/descriptor"
 import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
 import { resolveFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import { snapshotLocalYamlValueValidationRegistryForTests } from "../validation/yamlValueValidationRegistry"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
 describe("metadataRules", () => {
   it(
@@ -75,6 +76,11 @@ describe("metadataRules", () => {
       expect(metadataRules.imports).toHaveLength(2)
       expect(metadataRules.synchronization).toHaveLength(2)
       expect(metadataRules.validation).toHaveLength(1)
+      expect(metadataRules.resourceTopology).toHaveLength(1)
+      expect(
+        createRuleRegistrySet(metadataRules).resourceTopology.get().assignments
+          .length,
+      ).toBeGreaterThan(0)
     },
     30_000,
   )
