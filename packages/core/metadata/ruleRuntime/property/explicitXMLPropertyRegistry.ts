@@ -25,12 +25,20 @@ export type ExplicitXMLPropertyRegistration =
       readonly overrides?: Readonly<Record<string, unknown>>
     }
 
+export interface ExplicitXMLPropertyTypeRegistration {
+  readonly action: "materializeCollection"
+  readonly propertyType: string
+  readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
+}
+
 export type ExplicitXMLPropertyAction =
   | { readonly kind: "emit"; readonly xmlValue: unknown }
   | { readonly kind: "omit" }
   | { readonly kind: "useYamlValue"; readonly yamlValue: string }
+  | { readonly kind: "materializeCollection" }
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
+const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
 
 export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void {
   const key = registrationKey(registration.itemType, registration.propertyKey)
@@ -43,6 +51,21 @@ export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyReg
     return
   }
   throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
+}
+
+export function registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void {
+  const current = typeRegistrations.get(registration.propertyType)
+  if (current === undefined) {
+    typeRegistrations.set(registration.propertyType, registration)
+    return
+  }
+  if (
+    current.action === registration.action &&
+    Object.is(current.yamlValue, registration.yamlValue)
+  ) {
+    return
+  }
+  throw new Error(`Конфликт регистрации явного XML-значения типа ${registration.propertyType}`)
 }
 
 export function matchExplicitXMLPropertyFromXML(params: {
@@ -100,11 +123,12 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
 
 export function explicitXMLPropertyValidationMode(
   itemType: string,
-  propertyKey: string
+  propertyKey: string,
+  propertyType?: string
 ): "empty" | "scalar" | undefined {
   const registration = registrations.get(registrationKey(itemType, propertyKey))
-  if (registration === undefined) return undefined
-  return registration.action === "transportScalar" ? "scalar" : "empty"
+  if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
+  return propertyType !== undefined && typeRegistrations.has(propertyType) ? "empty" : undefined
 }
 
 function sameRegistration(

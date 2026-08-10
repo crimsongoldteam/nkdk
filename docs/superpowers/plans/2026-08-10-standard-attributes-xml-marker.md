@@ -61,7 +61,7 @@ expect(JSON.stringify(externalProperties)).not.toContain("!xml")
 
 - [ ] **Step 2: Запустить тест и подтвердить ожидаемое падение**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts`
 
 Expected: FAIL, потому что `registerExplicitXMLPropertyType` ещё не экспортируется и типовая регистрация не участвует в схеме.
 
@@ -101,7 +101,7 @@ registerExplicitXMLPropertyType({
 
 - [ ] **Step 5: Запустить целевые тесты и проверку дублей**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts`
 
 Expected: PASS; пустой маркер принят только внутренней схемой, payload и незарегистрированный тип отклонены.
 
@@ -171,7 +171,7 @@ expect(referenceResult).not.toHaveProperty("СтандартныеРеквизи
 
 - [ ] **Step 2: Запустить тест и подтвердить ожидаемое падение**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts`
 
 Expected: FAIL: дефолтная присутствующая коллекция пока удаляется из YAML.
 
@@ -202,7 +202,7 @@ export type StandardAttributeDescriptionsYAML =
 
 - [ ] **Step 5: Запустить тесты импорта и проверки существующих `!xml`**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts metadata/ruleRuntime/property/fromXMLToYAML.test.ts yaml/export.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts metadata/ruleRuntime/property/fromXMLToYAML.test.ts yaml/export.test.ts`
 
 Expected: PASS; сериализатор выводит локальный тег, reference-импорт и динамические измерения не меняются.
 
@@ -286,7 +286,7 @@ expect(() => testPropertyFromYAMLToXML({
 
 - [ ] **Step 2: Запустить тест и подтвердить ожидаемое падение**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts`
 
 Expected: FAIL: scalar `!xml` пока не запускает дополнение пустой коллекции.
 
@@ -316,11 +316,11 @@ const ruleNames = shouldComplete && params.propertyRule !== undefined && params.
 
 - [ ] **Step 5: Запустить целевые тесты и проверку типов**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts metadata/ruleRuntime/metadataCollection/fromYAMLToXML.test.ts metadata/ruleRuntime/property/fromYAMLToXML.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts metadata/ruleRuntime/metadataCollection/fromYAMLToXML.test.ts metadata/ruleRuntime/property/fromYAMLToXML.test.ts`
 
 Expected: PASS; маркер создаёт все канонические элементы, обычное отображение и reference-путь не меняются.
 
-Run: `pnpm --filter @nakidka/core type-check`
+Run: `pnpm --filter @nkdk/core type-check`
 
 Expected: PASS.
 
@@ -469,11 +469,11 @@ expect(facts.pendingReferences.filter(({ yamlPath }) => yamlPath[0] === "Ста�
 
 - [ ] **Step 3: Запустить связанные проверки пакета**
 
-Run: `pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts`
+Run: `pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts metadata/validation/yamlFactExtractor.fillValue.test.ts metadata/ruleRuntime/property/toJSONSchemaExplicitXML.test.ts`
 
 Expected: PASS.
 
-Run: `pnpm --filter @nakidka/core type-check`
+Run: `pnpm --filter @nkdk/core type-check`
 
 Expected: PASS.
 
