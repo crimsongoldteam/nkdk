@@ -19,6 +19,17 @@ export function hasMainAttributeKind(
   })
 }
 
+export function findMainAttributeName(attributes: unknown): string | undefined {
+  if (!isRecord(attributes)) return undefined
+  for (const [name, rawAttribute] of Object.entries(attributes)) {
+    if (
+      isRecord(rawAttribute) &&
+      (rawAttribute["ОсновнойРеквизит"] === true || rawAttribute["ОсновнойРеквизит"] === "Истина")
+    ) return name
+  }
+  return undefined
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
 }

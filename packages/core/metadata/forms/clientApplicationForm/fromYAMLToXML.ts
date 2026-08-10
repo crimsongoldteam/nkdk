@@ -5,6 +5,7 @@ import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML } from "./types"
+import type { SelectedBaseYAMLInput } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
 
 export const convertClientApplicationFormFromYAMLToXML =
   convertClientApplicationFormYAMLToXMLCore
@@ -26,8 +27,10 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
   }) => {
     const rule = ClientApplicationFormRules
     const extensionYaml = yaml as ClientApplicationFormYAML
+    const selectedBase = selectedBaseYAMLInput(baseYAML)
+    const baseFormYAML = selectedBase?.baseFormYAML ?? baseYAML
     const baseFormXML =
-      baseYAML === undefined
+      baseFormYAML === undefined
         ? undefined
         : buildClientApplicationBaseForm({
             context: baseYAMLContext ?? context,
@@ -37,7 +40,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
                   extensionYaml,
                 }
               : {}),
-            baseYaml: baseYAML as ClientApplicationFormYAML,
+            baseYaml: baseFormYAML as ClientApplicationFormYAML,
             formName: name,
             rule,
           })
@@ -48,11 +51,29 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
         name,
         referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
         ...(baseFormXML === undefined ? {} : { baseFormXML }),
+        ...(selectedBase === undefined
+          ? {}
+          : {
+              currentConfigurationFormYaml:
+                selectedBase.currentConfigurationFormYAML as ClientApplicationFormYAML,
+              ...(selectedBase.baseFormSourceKind === "saved"
+                ? { savedBaseFormYaml: selectedBase.baseFormYAML as ClientApplicationFormYAML }
+                : {}),
+            }),
         rule,
       }).formXML,
     }
   },
 })
+
+function selectedBaseYAMLInput(value: unknown): SelectedBaseYAMLInput | undefined {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined
+  const input = value as Partial<SelectedBaseYAMLInput>
+  return input.kind === "selectedBaseYAML" &&
+    (input.baseFormSourceKind === "saved" || input.baseFormSourceKind === "projected")
+    ? input as SelectedBaseYAMLInput
+    : undefined
+}
 
 function requireBaseConfigurationIndex(
   baseConfigurationIndex: ConfigurationIndexReader | undefined

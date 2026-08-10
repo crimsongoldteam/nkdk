@@ -262,6 +262,7 @@ export interface ProjectStateStructuredDocumentRecord {
   readonly componentKindId: number
   readonly nameId: number
   readonly yamlPathId: number
+  readonly payloadId: number
 }
 
 export interface ProjectStatePendingCheckRecord {
@@ -704,7 +705,7 @@ export const ProjectStateStructuredDocumentRecordView = projectStateView.create<
   properties: {
     sourceFileId: uint32Field, documentKindId: uint32Field, representationId: uint32Field,
     logicalAddressId: uint32Field, workingProjectPathId: uint32Field, componentKindId: uint32Field,
-    nameId: uint32Field, yamlPathId: uint32Field,
+    nameId: uint32Field, yamlPathId: uint32Field, payloadId: uint32Field,
   },
 })
 

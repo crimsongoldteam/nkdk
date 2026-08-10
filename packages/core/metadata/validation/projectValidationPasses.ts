@@ -38,7 +38,6 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { collectFormTabularElementsFromYAML } from "../ruleRuntime/formElement/formTableDataPaths"
 import type { FormStructuredComponent } from "./formContracts"
 
 type CompiledSchema = ValidationSchemaValidator
@@ -315,10 +314,7 @@ export function extractProjectValidationFileFacts(params: {
         : {
             form: {
               owner: { kind: params.file.owner.dir, name: params.file.owner.name },
-              index: {
-                ...yamlFacts.formDataPathIndex,
-                tabularElementsByName: collectFormTabularElementsFromYAML(parsed.data),
-              },
+              index: yamlFacts.formDataPathIndex,
             },
           }),
       ...(yamlFacts.structuredComponents === undefined

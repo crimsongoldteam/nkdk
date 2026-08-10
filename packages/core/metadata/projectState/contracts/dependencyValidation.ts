@@ -91,7 +91,8 @@ export interface ProjectStateDependencyValidationParams { readonly checks: reado
 export interface ProjectStateStructuredDocumentValidationParams {
   readonly facts: readonly ProjectStateStructuredDocumentFact[]
   readonly projectDir: string
-  readonly queryPort: Pick<ProjectStateQueryPort, "readStructuredDocumentEntries">
+  readonly queryPort: Pick<ProjectStateQueryPort,
+    "readStructuredDocumentEntries" | "readDependencyInputs" | "readDependencyOwnerInputs">
 }
 export type ProjectStateStructuredDocumentValidator = (
   params: ProjectStateStructuredDocumentValidationParams,

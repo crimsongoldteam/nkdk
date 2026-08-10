@@ -24,6 +24,7 @@ import { registerFormStructureProjection } from "../../validation/formStructureP
 import { projectClientApplicationFormStructure } from "./formStructureProjection"
 import "./childFormNamesImportAdapter"
 import "./childFormNamesResourceAdapter"
+import "./importedYamlFinalizer"
 
 registerFormValidationAdapter(clientApplicationFormValidationAdapter)
 registerFormStructureProjection(projectClientApplicationFormStructure)

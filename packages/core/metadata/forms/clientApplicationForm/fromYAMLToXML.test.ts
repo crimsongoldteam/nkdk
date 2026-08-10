@@ -23,6 +23,7 @@ import { sampleSnapshot } from "../../configurationIndex/testData"
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
+import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   const formWithMainAttribute = (
@@ -654,6 +655,158 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(firstInputField(result.formXML).DataPath).toBe("Объект.Code")
   })
 
+  it("восстанавливает отсутствующие DataPath собственных элементов", () => {
+    const yaml = {
+      Реквизиты: {
+        Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+      },
+      Элементы: {
+        Номер: { Вид: "ПолеВвода" },
+        Товары: {
+          Вид: "ТаблицаФормы",
+          Элементы: {
+            Группа: {
+              Вид: "ГруппаКолонок",
+              Элементы: {
+                ТоварыКоличество: { Вид: "ПолеВвода" },
+              },
+            },
+          },
+        },
+      },
+    } satisfies ClientApplicationFormYAML
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBe("Объект.Number")
+    expect(elementByName(result.formXML, "Товары").DataPath).toBe("Объект.Товары")
+    expect(elementByName(result.formXML, "ТоварыКоличество").DataPath).toBe("Объект.Товары.Количество")
+    expect(yaml.Элементы.Номер).not.toHaveProperty("ПутьКДанным")
+  })
+
+  it("не создаёт DataPath при явной пустой строке и сохраняет вспомогательный путь", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: {
+          Товары: {
+            Вид: "ТаблицаФормы",
+            ПутьКДанным: "",
+            ПутьКДаннымКартинкиСтроки: "Объект.Товары.Количество",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Товары").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "Товары").RowPictureDataPath).toBe("Объект.Товары.Количество")
+  })
+
+  it("не материализует отсутствующий DataPath заимствованного элемента", () => {
+    const context = contextWithLayeredDocumentOwner()
+    const ownerCache = context.importFromYAML?.ownerMetadataCache
+    if (ownerCache === undefined) throw new Error("Тестовый кэш владельца не создан")
+    const yaml = {
+      Элементы: { Номер: { Вид: "ПолеВвода" } },
+    } satisfies ClientApplicationFormYAML
+    const formDataPathContext = prepareFormDataPathContextFromYAML({
+      yaml,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+      },
+      ownerCache,
+    })
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context,
+      yaml,
+      name: "ФормаДокумента",
+      formDataPathContext,
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBeUndefined()
+  })
+
+  it("использует текущую cf без БазоваяФорма.yaml для заимствованного и собственного элементов", () => {
+    const currentConfigurationFormYaml = {
+      Реквизиты: {
+        Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+      },
+      Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+    } satisfies ClientApplicationFormYAML
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: {
+          Номер: { Вид: "ПолеВвода" },
+          Дата: { Вид: "ПолеВвода" },
+        },
+      } satisfies ClientApplicationFormYAML,
+      currentConfigurationFormYaml,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "Дата").DataPath).toBe("Объект.Date")
+  })
+
+  it("строит путь собственной колонки из пути заимствованной таблицы текущей cf", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: {
+          Товары: {
+            Вид: "ТаблицаФормы",
+            Элементы: { ТоварыКоличество: { Вид: "ПолеВвода" } },
+          },
+        },
+      } as ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: {
+          Товары: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.Товары" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Товары").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "ТоварыКоличество").DataPath)
+      .toBe("Объект.Товары.Количество")
+  })
+
+  it("сохраняет явный override заимствованного элемента", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+      } satisfies ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+      },
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBe("Объект.Number")
+  })
+
   it("экспортирует payload tagged DataPath без преобразования внутренних имён", () => {
     const yaml = importFromYAML<ClientApplicationFormYAML>([
       "Реквизиты:",
@@ -705,6 +858,41 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       },
     })
   })
+
+  it("разделяет сохранённый BaseForm и текущую форму cf во вложенном преобразовании", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const context = contextWithLayeredDocumentOwner()
+
+    const result = nestedRule.convert({
+      context,
+      yaml: {
+        Элементы: {
+          Номер: { Вид: "ПолеВвода" },
+          Дата: { Вид: "ПолеВвода" },
+        },
+      },
+      baseYAML: {
+        kind: "selectedBaseYAML",
+        baseFormSourceKind: "saved",
+        baseFormYAML: { Ширина: 80 },
+        currentConfigurationFormYAML: {
+          Реквизиты: {
+            Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+          },
+          Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+        },
+      },
+      baseYAMLContext: context,
+      name: "ФормаДокумента",
+      referenceXML: undefined,
+    })
+    const form = result.Form as ClientApplicationFormXML
+
+    expect(form.BaseForm).toMatchObject({ Width: 80 })
+    expect(elementByName(form, "Номер").DataPath).toBeUndefined()
+    expect(elementByName(form, "Дата").DataPath).toBe("Объект.Date")
+  })
 })
 
 function firstTable(form: ClientApplicationFormXML): Record<string, unknown> {
@@ -723,6 +911,27 @@ function firstInputField(form: ClientApplicationFormXML): Record<string, unknown
   const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
   const first = Array.isArray(childItems) ? childItems[0] : childItems
   return first?.InputField ?? {}
+}
+
+function elementByName(form: ClientApplicationFormXML, name: string): Record<string, unknown> {
+  const visit = (value: unknown): Record<string, unknown> | undefined => {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = visit(item)
+        if (found !== undefined) return found
+      }
+      return undefined
+    }
+    if (value === null || typeof value !== "object") return undefined
+    const record = value as Record<string, unknown>
+    if (record._name === name) return record
+    for (const child of Object.values(record)) {
+      const found = visit(child)
+      if (found !== undefined) return found
+    }
+    return undefined
+  }
+  return visit(form) ?? {}
 }
 
 function contextWithLayeredCatalogOwner() {
@@ -767,7 +976,11 @@ function contextWithLayeredDocumentOwner() {
     },
     model: {
       itemType: "MetadataDocument",
-      tabularSections: [{ itemType: "MetadataTabularSection", name: "Товары", attributes: [] }],
+      tabularSections: [{
+        itemType: "MetadataTabularSection",
+        name: "Товары",
+        attributes: [{ name: "Количество", type: { type: ["number"] } }],
+      }],
     },
   })
   const ownerMetadataCache = createLayeredOwnerMetadataCacheForTests({

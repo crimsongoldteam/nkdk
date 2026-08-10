@@ -459,6 +459,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(clientForm.properties?.События?.$ref).toBeUndefined()
     expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
     expect(JSON.stringify(inputField.properties?.ПутьКДанным)).toContain("type")
+    expect(JSON.stringify(inputField.properties?.ПутьКДанным)).toContain('"const":""')
     expect(JSON.stringify(clientForm.properties?.События)).toContain("properties")
   })
 

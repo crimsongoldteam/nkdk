@@ -2,8 +2,6 @@ import { join } from "path"
 import { rootFromYAML } from "../../ruleRuntime/metadataTarget/roots"
 import type { ConfigurationContext } from "../../context/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
-import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
-import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { toDataPathPolicyInput, validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
 import { resolveDataPath } from "../../validation/dataPath/resolver"
@@ -21,7 +19,17 @@ import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
-import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
+import {
+  collectClientApplicationFormDataPathPreparation,
+  prepareFormDataPathContextFromYAML,
+  type ClientApplicationFormDataPathPreparation,
+} from "./formDataPathContext"
+import type { ClientApplicationFormYAML } from "./types"
+import {
+  collectFormDataPathOccurrencesFromYAML,
+  type FormYAMLItemVisit,
+} from "../../validation/dataPath/formYamlTraversal"
+import type { FormDataPathOccurrence } from "../../validation/dataPath/formTraversal"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
@@ -37,7 +45,8 @@ interface ClientApplicationFormValidationState {
   filePath: string
   parsed: ParsedYaml
   index: FormDataPathIndex
-  occurrences: ReturnType<typeof collectFormDataPathOccurrencesFromYAML>
+  occurrences: ClientApplicationFormDataPathPreparation["collected"]["occurrences"]
+  dataPathPreparation: ClientApplicationFormDataPathPreparation
 }
 
 export function validateClientApplicationFormFirstPass(
@@ -56,15 +65,15 @@ export function validateClientApplicationFormFirstPass(
   }
 
   const context = params.context ?? defaultValidationContext()
-  const index = createFormDataPathIndexFromYAML(
-    entry.parsed.data,
-    clientApplicationFormDataPathProjection
-  )
   const localDiagnostics: Diagnostic[] = []
-  const occurrences = collectFormDataPathOccurrencesFromYAML({
-    yaml: entry.parsed.data,
+  const visitedItems: FormYAMLItemVisit[] = []
+  const dataPathPreparation = collectClientApplicationFormDataPathPreparation({
+    yaml: entry.parsed.data as ClientApplicationFormYAML,
     rule: ClientApplicationFormRules,
-    visitItem: (visit) => {
+    visitItem: (visit) => visitedItems.push(visit),
+  })
+  const index = dataPathPreparation.index
+  for (const visit of visitedItems) {
       localDiagnostics.push(
         ...validateDynamicListTableProperties({
           filePath: entry.filePath,
@@ -73,8 +82,8 @@ export function validateClientApplicationFormFirstPass(
           visit,
         })
       )
-    },
-  })
+  }
+  const occurrences = dataPathPreparation.collected.occurrences
   const diagnostics = [
     ...validateExcludedEqualNameYAML({
       filePath: entry.filePath,
@@ -110,6 +119,7 @@ export function validateClientApplicationFormFirstPass(
       parsed: entry.parsed,
       index,
       occurrences,
+      dataPathPreparation,
     },
   }
 }
@@ -178,8 +188,48 @@ export function validateClientApplicationFormSecondPass(params: {
   ownerCache: OwnerMetadataCache
 }): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
+  const dataPathContext = prepareFormDataPathContextFromYAML({
+    yaml: params.state.parsed.data as ClientApplicationFormYAML,
+    ownerCache: params.ownerCache,
+    rule: ClientApplicationFormRules,
+    preparation: params.state.dataPathPreparation,
+  })
+  const implicitOccurrences: FormDataPathOccurrence[] = [...dataPathContext.elementsByName.values()].flatMap((element) =>
+    element.origin === "own" &&
+    !element.present &&
+    element.candidateYaml !== undefined &&
+    element.elementType !== undefined
+      ? [{
+          rule: element.dataPathRule,
+          value: element.candidateYaml,
+          setValue: () => {},
+          markTag: () => {},
+          yamlPath: [...element.yamlPath, "ПутьКДанным"],
+          tagged: false,
+          nameMode: "yaml" as const,
+          elementType: element.elementType,
+        }]
+      : []
+  )
 
-  for (const occurrence of params.state.occurrences) {
+  for (const element of dataPathContext.elementsByName.values()) {
+    if (
+      element.origin !== "own" ||
+      !element.present ||
+      element.candidateInternal === undefined ||
+      element.valueInternal !== element.candidateInternal
+    ) continue
+    diagnostics.push(diagnosticAtYamlPath({
+      filePath: params.state.filePath,
+      parsed: params.state.parsed,
+      path: [...element.yamlPath, "ПутьКДанным"],
+      severity: "error",
+      source: "structure",
+      message: "Вычисляемый ПутьКДанным не нужно указывать явно.",
+    }))
+  }
+
+  for (const occurrence of [...params.state.occurrences, ...implicitOccurrences]) {
     if (isAcceptedOpaqueMultipleValueDataPath(occurrence)) continue
 
     const result = resolveDataPath({
@@ -187,7 +237,7 @@ export function validateClientApplicationFormSecondPass(params: {
       parsed: params.state.parsed,
       yamlPath: occurrence.yamlPath,
       value: occurrence.value,
-      index: params.state.index,
+      index: dataPathContext.index,
       ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
       ...(occurrence.nameMode === undefined ? {} : { nameMode: occurrence.nameMode }),

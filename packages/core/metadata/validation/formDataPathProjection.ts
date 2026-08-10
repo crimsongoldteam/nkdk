@@ -14,7 +14,9 @@ export interface FormDataPathMetadataProjection {
   additionalColumnsPropertyKey: string
   tableDataPathPropertyKey: string
   dataPathDialect?: DataPathDialect
-  collectTabularElementsFromYAML?(yaml: unknown): ReadonlyMap<string, {
+  collectTabularElementsFromYAML?(yaml: unknown, options?: {
+    readonly inferImplicitDataPaths?: boolean
+  }): ReadonlyMap<string, {
     readonly kind: "tabularFormElement"
     readonly dataPath?: string
   }>
