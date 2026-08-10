@@ -1,5 +1,5 @@
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
@@ -24,4 +24,4 @@ export const exportCommandSetToXML = (
   }
 }
 
-registerTypeRule("CommandSet", "exportToXML", exportCommandSetToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandSet", "exportToXML", exportCommandSetToXML)

@@ -1,10 +1,10 @@
 import { Type } from "typebox"
 import type { ConfigurationContextFromXML } from "../../../context/types"
-import { registerMetadataItemRule, registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { defineMetadataItemRule } from "../../../ruleRuntime/metadataItem/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
-import "../../../commonObjects/dataCompositionSystem/index"
 import { DynamicListRules } from "./rules"
 
 /** Внутренняя модель по правилам; `Record<string, unknown>` — для pass-through полей до полного перевода импорта на rules. */
@@ -38,12 +38,12 @@ const normalizeKeyField = (value: unknown): string | undefined => {
   return undefined
 }
 
-registerTypeRule("DynamicListKeyFields", "importFromXML", importDynamicListKeyFieldsFromXML)
-registerTypeRule("DynamicListKeyFields", "exportToJSONSchema", () =>
+export const metadataPropertyRule000 = definePropertyTypeRule("DynamicListKeyFields", "importFromXML", importDynamicListKeyFieldsFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("DynamicListKeyFields", "exportToJSONSchema", () =>
   Type.Union([Type.String(), Type.Array(Type.String())])
 )
 
-registerMetadataItemRule({
+export const metadataRuleLayer000 = defineMetadataItemRule({
   propertyType: "DynamicList",
   itemRule: DynamicListRules,
 })

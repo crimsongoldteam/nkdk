@@ -1,7 +1,7 @@
 import { getCurrentTableFromContext } from "../../../context/helpers"
 import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
 import { DataPathPropertyRule, PropertyRule } from "../../../ruleRuntime"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"
 
 export const exportDataPathToEnterprise = (params: {
@@ -73,4 +73,4 @@ const getAttributeNumberSuffix = (
   return String(counter)
 }
 
-registerTypeRule("DataPath", "exportToEnterprise", exportDataPathToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("DataPath", "exportToEnterprise", exportDataPathToEnterprise)

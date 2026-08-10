@@ -1,5 +1,5 @@
 import { PropertyRule } from "../../elements/calendarField/rules"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetYAML } from "./types"
 
@@ -20,4 +20,4 @@ export const exportCommandSetToYAML = (
   return result.length > 0 ? result : undefined
 }
 
-registerTypeRule("CommandSet", "exportToYAML", exportCommandSetToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandSet", "exportToYAML", exportCommandSetToYAML)

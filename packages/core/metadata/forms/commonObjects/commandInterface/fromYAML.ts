@@ -1,6 +1,6 @@
 import { importUserVisibleFromYAML } from "../../../commonObjects/userVisible/fromYAML"
 import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { StandardCommandsGroupFromYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroupYAML } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -79,4 +79,4 @@ const importCommandInterfaceItemFromYAML = (
   return result
 }
 
-registerTypeRule("CommandInterface", "importFromYAML", importCommandInterfaceFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "importFromYAML", importCommandInterfaceFromYAML)

@@ -1,6 +1,6 @@
 import { exportUserVisibleToYAML } from "../../../commonObjects/userVisible/toYAML"
 import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { StandardCommandsGroupToYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroup } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -77,4 +77,4 @@ const exportCommandInterfaceItemToYAML = (
   return result
 }
 
-registerTypeRule("CommandInterface", "exportToYAML", exportCommandInterfaceToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "exportToYAML", exportCommandInterfaceToYAML)

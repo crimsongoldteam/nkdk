@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
-import { ToEnterprise, registerTypeRule } from "../../../ruleRuntime"
+import { ToEnterprise } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { exportElementToEnterprise } from "../../../ruleRuntime/formElement/toEnterprise"
 import { ChildItem } from "./types"
 
@@ -19,7 +20,7 @@ export const exportChildItemsToEnterprise = <From extends ChildItem>(params: {
   return result
 }
 
-registerTypeRule("GroupChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
-registerTypeRule("CommandBarChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
-registerTypeRule("TableChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
-registerTypeRule("PagesChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+export const metadataPropertyRule001 = definePropertyTypeRule("CommandBarChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+export const metadataPropertyRule002 = definePropertyTypeRule("TableChildItems", "exportToEnterprise", exportChildItemsToEnterprise)
+export const metadataPropertyRule003 = definePropertyTypeRule("PagesChildItems", "exportToEnterprise", exportChildItemsToEnterprise)

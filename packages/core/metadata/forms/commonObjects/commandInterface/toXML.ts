@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "../../../commonObjects/userVisible/toXML"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
@@ -78,4 +78,4 @@ const commandInterfaceItemXMLKeys = [
   "Visible",
 ] as const satisfies readonly (keyof CommandInterfaceItemXML)[]
 
-registerTypeRule("CommandInterface", "exportToXML", exportCommandInterfaceToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "exportToXML", exportCommandInterfaceToXML)

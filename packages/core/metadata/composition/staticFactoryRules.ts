@@ -104,6 +104,7 @@ import { metadataRuleLayer000 as contribution169 } from "../appliedObjects/metad
 import { metadataRuleLayer000 as contribution171 } from "../commonObjects/dataCompositionSystem/filter/types"
 import { metadataRuleLayer000 as contribution172 } from "../commonObjects/dataCompositionSystem/filterItem/types"
 import { metadataRuleLayer000 as contribution173 } from "../commonObjects/dataCompositionSystem/orderItemFields/types"
+import { metadataRuleLayer000 as contribution174 } from "../forms/commonObjects/dynamicList/types"
 import { metadataPropertyRule000 as contribution102 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule001 as contribution103 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule002 as contribution104 } from "../commonObjects/accumulationRegisterAggregates/register"
@@ -207,6 +208,21 @@ import { metadataPropertyRule000 as latePropertyContribution054 } from "../commo
 import { metadataPropertyRule000 as latePropertyContribution055 } from "../commonObjects/typeLink/toXML"
 import { metadataPropertyRule000 as latePropertyContribution056 } from "../commonObjects/сhoiceParameterLinks/toXML"
 import { metadataPropertyRule000 as latePropertyContribution057 } from "../commonObjects/сhoiceParameters/toXML"
+import { metadataPropertyRule000 as formPropertyContribution000 } from "../forms/commonObjects/formParameter/fromXML"
+import { metadataPropertyRule000 as formPropertyContribution001 } from "../forms/commonObjects/formParameter/fromYAML"
+import { metadataPropertyRule000 as formPropertyContribution002 } from "../forms/commonObjects/formParameter/toXML"
+import { metadataPropertyRule000 as formPropertyContribution003 } from "../forms/commonObjects/formParameter/toYAML"
+import { metadataPropertyRule000 as formPropertyContribution004 } from "../forms/commonObjects/commandSet/fromXML"
+import { metadataPropertyRule000 as formPropertyContribution005 } from "../forms/commonObjects/commandSet/fromYAML"
+import { metadataPropertyRule000 as formPropertyContribution006 } from "../forms/commonObjects/commandSet/toXML"
+import { metadataPropertyRule000 as formPropertyContribution007 } from "../forms/commonObjects/commandSet/toYAML"
+import { metadataPropertyRule000 as formPropertyContribution008 } from "../forms/commonObjects/commandInterface/fromXML"
+import { metadataPropertyRule000 as formPropertyContribution009 } from "../forms/commonObjects/commandInterface/fromYAML"
+import { metadataPropertyRule000 as formPropertyContribution010 } from "../forms/commonObjects/commandInterface/toXML"
+import { metadataPropertyRule000 as formPropertyContribution011 } from "../forms/commonObjects/commandInterface/toYAML"
+import { metadataPropertyRule000 as formPropertyContribution012 } from "../forms/commonObjects/dataPath/toEnterprise"
+import { metadataPropertyRule000 as formPropertyContribution013, metadataPropertyRule001 as formPropertyContribution014, metadataPropertyRule002 as formPropertyContribution015, metadataPropertyRule003 as formPropertyContribution016 } from "../forms/commonObjects/childItems/toEnterprise"
+import { metadataPropertyRule000 as formPropertyContribution017, metadataPropertyRule001 as formPropertyContribution018 } from "../forms/commonObjects/dynamicList/types"
 import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
@@ -339,6 +355,25 @@ const factoryPropertyRules = defineMetadataRules({
   latePropertyContribution055,
   latePropertyContribution056,
   latePropertyContribution057,
+  formPropertyContribution000,
+  formPropertyContribution001,
+  formPropertyContribution002,
+  formPropertyContribution003,
+  formPropertyContribution004,
+  formPropertyContribution005,
+  formPropertyContribution006,
+  formPropertyContribution007,
+  formPropertyContribution008,
+  formPropertyContribution009,
+  formPropertyContribution010,
+  formPropertyContribution011,
+  formPropertyContribution012,
+  formPropertyContribution013,
+  formPropertyContribution014,
+  formPropertyContribution015,
+  formPropertyContribution016,
+  formPropertyContribution017,
+  formPropertyContribution018,
   ]),
 })
 
@@ -449,5 +484,6 @@ export const staticFactoryRules = composeMetadataRules(
   contribution171,
   contribution172,
   contribution173,
+  contribution174,
   factoryPropertyRules,
 )

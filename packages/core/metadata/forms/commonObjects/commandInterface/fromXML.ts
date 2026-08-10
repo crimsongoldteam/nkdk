@@ -2,7 +2,7 @@ import { ConfigurationContextFromXML } from "../../../context/types"
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importNumberFromXML } from "../../../commonObjects/number/fromXML"
 import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fromXML"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 
@@ -78,4 +78,4 @@ const commandInterfaceItemKeys = [
   "visible",
 ] as const satisfies readonly (keyof CommandInterfaceItem)[]
 
-registerTypeRule("CommandInterface", "importFromXML", importCommandInterfaceFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "importFromXML", importCommandInterfaceFromXML)
