@@ -14,6 +14,10 @@ import { createPreparedYamlWorkerThreadPoolFactory } from "../../tests/preparedY
 import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__", "configurationExtension")
+const configurationFixtureDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
+const catalogFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__")
+const formFixtureDir = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__")
+const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
@@ -87,6 +91,9 @@ describe("configuration extension XML import", () => {
         name: "РасширениеКонтроль",
       }),
     })
+    expect(result.failed).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ message: expect.stringContaining("Не найдена текущая форма cf") }),
+    ]))
 
     expect(configuration).toEqual({
       Имя: "РасширениеКонтроль",
@@ -199,6 +206,7 @@ describe("configuration extension XML import", () => {
 
 async function importExtension() {
   const projectDir = temporaryDirectory()
+  await importBaseConfiguration(projectDir)
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
   replaceExactlyOnce(
@@ -234,11 +242,6 @@ async function importExtension() {
     "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>"
   )
   addFormWithoutBase(inputDir)
-  writeBaseLanguage(projectDir)
-  writeBaseCatalog(projectDir)
-  writeBaseForm(projectDir, "ФормаОтчета")
-  writeBaseForm(projectDir, "ФормаБезОсновы")
-  writeBaseConfiguration(projectDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
@@ -249,6 +252,11 @@ async function importExtension() {
     xmlImportWorkerPoolHandle,
     projectState,
   })
+  const importedFormPath = join(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
+  )
+  if (!fs.existsSync(importedFormPath)) throw new Error(`Импорт не создал форму: ${JSON.stringify(result)}`)
   const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
   const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
@@ -271,6 +279,78 @@ async function importExtension() {
   })
 
   return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
+}
+
+async function importBaseConfiguration(projectDir: string): Promise<void> {
+  const inputDir = temporaryDirectory()
+  const configurationPath = join(inputDir, "Configuration.xml")
+  fs.copyFileSync(join(configurationFixtureDir, "minimal.xml"), configurationPath)
+  replaceExactlyOnce(
+    configurationPath,
+    "\t\t\t<Name>Конфигурация</Name>",
+    "\t\t\t<Name>Конфигурация</Name>\n\t\t\t<DefaultLanguage>Language.БазовыйЯзык</DefaultLanguage>",
+  )
+
+  const catalogPath = join(inputDir, "Catalogs", "СправочникПолный.xml")
+  fs.mkdirSync(dirname(catalogPath), { recursive: true })
+  fs.copyFileSync(join(catalogFixtureDir, "minimal.xml"), catalogPath)
+  replaceAllInFile(catalogPath, "ПоУмолчанию", "СправочникПолный")
+  replaceExactlyOnce(
+    catalogPath,
+    "\t\t<ChildObjects/>",
+    "\t\t<ChildObjects><Form>ФормаОтчета</Form><Form>ФормаБезОсновы</Form></ChildObjects>",
+  )
+
+  for (const formName of ["ФормаОтчета", "ФормаБезОсновы"]) {
+    const formsDir = join(inputDir, "Catalogs", "СправочникПолный", "Forms")
+    const metadataPath = join(formsDir, `${formName}.xml`)
+    const bodyPath = join(formsDir, formName, "Ext", "Form.xml")
+    fs.mkdirSync(dirname(bodyPath), { recursive: true })
+    fs.copyFileSync(join(formFixtureDir, "minimalMetadata.xml"), metadataPath)
+    replaceAllInFile(metadataPath, "Минимальная", formName)
+    fs.copyFileSync(join(formFixtureDir, "minimal.xml"), bodyPath)
+    replaceExactlyOnce(
+      bodyPath,
+      "\t<Attributes/>",
+      [
+        "\t<ChildItems>",
+        "\t\t<InputField name=\"БазовоеПоле\" id=\"1\">",
+        "\t\t\t<DataPath>БазовыйРеквизитФормы</DataPath>",
+        "\t\t\t<Width>99</Width>",
+        "\t\t\t<ContextMenu name=\"БазовоеПолеКонтекстноеМеню\" id=\"2\"/>",
+        "\t\t\t<ExtendedTooltip name=\"БазовоеПолеРасширеннаяПодсказка\" id=\"3\"/>",
+        "\t\t</InputField>",
+        "\t</ChildItems>",
+        "\t<Attributes>",
+        "\t\t<Attribute name=\"БазовыйРеквизитФормы\" id=\"4\">",
+        "\t\t\t<Type><v8:Type>xs:dateTime</v8:Type></Type>",
+        "\t\t</Attribute>",
+        "\t\t<Attribute name=\"БазовыйОбъект\" id=\"5\">",
+        "\t\t\t<Type><v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type></Type>",
+        "\t\t\t<MainAttribute>true</MainAttribute>",
+        "\t\t</Attribute>",
+        "\t</Attributes>",
+      ].join("\n"),
+    )
+  }
+
+  const languagePath = join(inputDir, "Languages", "БазовыйЯзык.xml")
+  fs.mkdirSync(dirname(languagePath), { recursive: true })
+  fs.copyFileSync(join(languageFixtureDir, "ru.xml"), languagePath)
+  replaceExactlyOnce(languagePath, "<Name>Русский</Name>", "<Name>БазовыйЯзык</Name>")
+
+  const result = await importConfigurationFromXml({
+    context: mockContextFromXML(),
+    inputDir,
+    projectDir,
+    concurrency: 1,
+    operationId: "configuration-base-e2e",
+    xmlImportWorkerPoolHandle,
+    projectState,
+  })
+  expect(result.failed).toEqual([])
+  expect(result.componentPath).toBe("cf")
+  expect(result.succeeded).toBe(5)
 }
 
 function addFormWithoutBase(inputDir: string): void {
@@ -318,70 +398,16 @@ function replaceExactlyOnce(path: string, source: string, replacement: string): 
   fs.writeFileSync(path, content.slice(0, first) + replacement + content.slice(first + source.length))
 }
 
+function replaceAllInFile(path: string, source: string, replacement: string): void {
+  const content = fs.readFileSync(path, "utf8")
+  if (!content.includes(source)) throw new Error(`Не найдено вхождение в ${path}: ${source}`)
+  fs.writeFileSync(path, content.replaceAll(source, replacement))
+}
+
 function temporaryDirectory(): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-extension-import-"))
   temporaryDirectories.push(directory)
   return directory
-}
-
-function writeBaseLanguage(projectDir: string): void {
-  const path = join(projectDir, "cf", "Язык", "БазовыйЯзык", "Свойства.yaml")
-  fs.mkdirSync(dirname(path), { recursive: true })
-  fs.writeFileSync(path, "КодЯзыка: ru\n")
-}
-
-function writeBaseConfiguration(projectDir: string): void {
-  const path = join(projectDir, "cf", "Конфигурация.yaml")
-  fs.mkdirSync(dirname(path), { recursive: true })
-  fs.writeFileSync(path, "Имя: Основная\nОсновнойЯзык: БазовыйЯзык\n")
-}
-
-function writeBaseCatalog(projectDir: string): void {
-  const path = join(projectDir, "cf", "Справочник", "БазовыйСправочник", "Свойства.yaml")
-  fs.mkdirSync(dirname(path), { recursive: true })
-  fs.writeFileSync(path, [
-    "Реквизиты:",
-    "  БазовыйРеквизит:",
-    "    Тип: Справочник.БазовыйСправочник",
-    "  СобственноеПоле:",
-    "    Тип: Строка",
-    "",
-  ].join("\n"))
-  const formOwnerPath = join(projectDir, "cf", "Справочник", "СправочникПолный", "Свойства.yaml")
-  fs.mkdirSync(dirname(formOwnerPath), { recursive: true })
-  fs.writeFileSync(formOwnerPath, [
-    "Комментарий: Владелец текущей формы",
-    "Реквизиты:",
-    "  СобственноеПоле:",
-    "    Тип: Строка",
-    "",
-  ].join("\n"))
-}
-
-function writeBaseForm(projectDir: string, formName: string): void {
-  const path = join(
-    projectDir,
-    "cf",
-    "Справочник",
-    "СправочникПолный",
-    "Формы",
-    formName,
-    "Форма.yaml",
-  )
-  fs.mkdirSync(dirname(path), { recursive: true })
-  fs.writeFileSync(path, [
-    "Реквизиты:",
-    "  БазовыйОбъект:",
-    "    Тип: СправочникОбъект.СправочникПолный",
-    "    ОсновнойРеквизит: Истина",
-    "Элементы:",
-    "  СобственноеПоле:",
-    "    Вид: ПолеВвода",
-    "    ПутьКДанным: БазовыйОбъект.СобственноеПоле",
-    "  БазовоеПоле:",
-    "    Вид: ПолеВвода",
-    "",
-  ].join("\n"))
 }
 
 function readYaml(projectDir: string, relativePath: string): unknown {

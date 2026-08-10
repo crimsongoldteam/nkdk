@@ -8,6 +8,7 @@ const coreMetadataTests = [
   "metadata/commonObjects/metadataExternalDataSource*/**/*.test.ts",
   "metadata/commonObjects/metadataPath/**/*.test.ts",
   "metadata/components/**/*.test.ts",
+  "metadata/configurationIndex/projectFiles.test.ts",
   "metadata/forms/clientApplicationForm/**/*.test.ts",
   "metadata/forms/commonObjects/scrollBarUse/**/*.test.ts",
   "metadata/forms/elements/**/*.test.ts",
