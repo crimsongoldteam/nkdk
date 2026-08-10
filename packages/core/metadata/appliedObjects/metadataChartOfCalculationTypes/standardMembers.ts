@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const tableColumns = [
   { memberKind: "standardTabularSectionColumn", names: { internal: "CalculationType", yaml: "ВидРасчета" }, family: "sameOwnerObject" },
@@ -19,5 +20,7 @@ const members = [
   { memberKind: "standardTabularSection", names: { internal: "BaseCalculationTypes", yaml: "БазовыеВидыРасчета" }, family: "standardTable", phase: "traversal-time", sourceScope: "self", tableKind: "ValueTable", columns: tableColumns },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("ПланВидовРасчета", members)
-registerStandardMembers("ПланВидовРасчетаОбъект", members)
+export const metadataChartOfCalculationTypesStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "ПланВидовРасчета", members },
+  { kind: "standardMembers", ownerKind: "ПланВидовРасчетаОбъект", members },
+]

@@ -10,7 +10,7 @@ import { registerExplicitXMLProperty } from "../property/explicitXMLPropertyRegi
 import type { MetadataRulesDefinition, MetadataSynchronizationContribution } from "./contracts"
 
 export function registerLegacyRuleDefinitions(
-  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object, object>,
 ): void {
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
   for (const registration of Object.values(

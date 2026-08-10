@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const documentMembers = [
   { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
@@ -8,5 +9,7 @@ const documentMembers = [
   { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("Документ", documentMembers)
-registerStandardMembers("ДокументОбъект", documentMembers)
+export const metadataDocumentStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "Документ", members: documentMembers },
+  { kind: "standardMembers", ownerKind: "ДокументОбъект", members: documentMembers },
+]

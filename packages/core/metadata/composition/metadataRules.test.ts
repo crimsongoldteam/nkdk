@@ -13,6 +13,7 @@ import { listJSONSchemaNames } from "../projectDefinition/schemaRegistry"
 import { exportPropertyExternalRefSchema } from "../ruleRuntime/jsonSchemaRefs"
 import type { PropertyRule } from "../ruleRuntime/property/types"
 import { snapshotProjectReferenceIndexRegistryForTests } from "../validation/projectReferenceIndexRegistry"
+import { snapshotDataPathResolverRegistryForTests } from "../validation/dataPath/registry"
 
 describe("metadataRules", () => {
   it(
@@ -39,6 +40,7 @@ describe("metadataRules", () => {
       })
       const projectRevisionBeforeImport = projectSpecRegistryRevision()
       const referenceRegistryBeforeImport = snapshotProjectReferenceIndexRegistryForTests()
+      const dataPathRegistryBeforeImport = snapshotDataPathResolverRegistryForTests()
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
       expect(() =>
@@ -66,6 +68,7 @@ describe("metadataRules", () => {
       ).toEqual(propertyRefBeforeImport)
       expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
       expect(snapshotProjectReferenceIndexRegistryForTests()).toEqual(referenceRegistryBeforeImport)
+      expect(snapshotDataPathResolverRegistryForTests()).toEqual(dataPathRegistryBeforeImport)
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
       expect(() =>
@@ -121,6 +124,7 @@ describe("metadataRules", () => {
       expect(metadataRules.synchronization).toHaveLength(2)
       expect(metadataRules.validation).toHaveLength(1)
       expect(metadataRules.references.length).toBeGreaterThan(10)
+      expect(metadataRules.dataPaths.length).toBeGreaterThan(20)
       expect(metadataRules.resourceTopology).toHaveLength(1)
       expect(
         createRuleRegistrySet(metadataRules).resourceTopology.get().assignments

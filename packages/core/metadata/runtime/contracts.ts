@@ -6,6 +6,7 @@ import type { MetadataRulesDefinition } from "../ruleRuntime/definition"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 import type { ProjectReferenceContribution } from "../validation/projectReferenceIndexRegistry"
+import type { DataPathContribution } from "../validation/dataPath/registry"
 
 export interface MetadataWorkerManifest {
   readonly preparedYamlProject: URL
@@ -15,7 +16,7 @@ export interface MetadataWorkerManifest {
 }
 
 export interface CreateMetadataRuntimeOptions {
-  readonly rules: MetadataRulesDefinition<FullXmlSyncComponentProfile, ProjectReferenceContribution>
+  readonly rules: MetadataRulesDefinition<FullXmlSyncComponentProfile, ProjectReferenceContribution, DataPathContribution>
   readonly workers: MetadataWorkerManifest
 }
 

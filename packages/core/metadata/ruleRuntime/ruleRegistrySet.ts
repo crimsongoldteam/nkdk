@@ -34,7 +34,7 @@ export interface RuleRegistrySet {
 }
 
 export function createRuleRegistrySet(
-  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object, object>,
 ): RuleRegistrySet {
   const metadataItems = new Map(Object.entries(definition.metadataItems))
   const formElements = new Map(Object.entries(definition.formElements))

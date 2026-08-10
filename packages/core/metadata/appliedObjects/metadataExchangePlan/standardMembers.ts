@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const exchangePlanIdentityMembers = [
   { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
@@ -15,5 +16,7 @@ const members = [
   { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("ПланОбмена", members)
-registerStandardMembers("ПланОбменаОбъект", members)
+export const metadataExchangePlanStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "ПланОбмена", members },
+  { kind: "standardMembers", ownerKind: "ПланОбменаОбъект", members },
+]

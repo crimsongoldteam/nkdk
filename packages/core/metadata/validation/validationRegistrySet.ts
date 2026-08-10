@@ -11,9 +11,11 @@ import {
   type ProjectReferenceContribution,
   type ProjectReferenceRegistrySet,
 } from "./projectReferenceIndexRegistry"
+import { createDataPathRegistrySet, type DataPathContribution, type DataPathRegistrySet } from "./dataPath/registry"
 
 export interface ValidationRegistrySet {
   readonly references: ProjectReferenceRegistrySet
+  readonly dataPaths: DataPathRegistrySet
   validateLocalValue(
     params: LocalYamlValueValidationParams & { readonly type: string },
   ): LocalYamlValueValidationResult
@@ -21,8 +23,8 @@ export interface ValidationRegistrySet {
 
 export function createValidationRegistrySet(
   definition: Pick<
-    MetadataRulesDefinition<never, ProjectReferenceContribution>,
-    "validation" | "references"
+    MetadataRulesDefinition<never, ProjectReferenceContribution, DataPathContribution>,
+    "validation" | "references" | "dataPaths"
   >,
 ): ValidationRegistrySet {
   const localYamlValidators = new Map(
@@ -34,6 +36,7 @@ export function createValidationRegistrySet(
 
   return {
     references: createProjectReferenceRegistrySet(definition.references),
+    dataPaths: createDataPathRegistrySet(definition.dataPaths),
     validateLocalValue(params) {
       const contribution = localYamlValidators.get(params.type)
       if (contribution === undefined) return { diagnostics: [] }

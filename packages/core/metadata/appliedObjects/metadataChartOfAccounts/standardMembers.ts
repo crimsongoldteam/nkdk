@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const members = [
   { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
@@ -27,5 +28,7 @@ const members = [
   },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("ПланСчетов", members)
-registerStandardMembers("ПланСчетовОбъект", members)
+export const metadataChartOfAccountsStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "ПланСчетов", members },
+  { kind: "standardMembers", ownerKind: "ПланСчетовОбъект", members },
+]

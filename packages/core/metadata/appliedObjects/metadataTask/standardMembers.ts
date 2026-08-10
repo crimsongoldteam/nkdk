@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const indexTimeMembers = [
   { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
@@ -16,5 +17,7 @@ const traversalMembers = [
 
 const members = [...indexTimeMembers, ...traversalMembers] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("Задача", members)
-registerStandardMembers("ЗадачаОбъект", members)
+export const metadataTaskStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "Задача", members },
+  { kind: "standardMembers", ownerKind: "ЗадачаОбъект", members },
+]

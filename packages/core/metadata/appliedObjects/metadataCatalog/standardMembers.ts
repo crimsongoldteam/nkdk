@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const catalogMembers = [
   { memberKind: "standardAttribute", names: { internal: "Ref", yaml: "Ссылка" }, family: "sameOwnerObject", phase: "index-time", sourceScope: "self" },
@@ -12,5 +13,7 @@ const catalogMembers = [
   { memberKind: "standardAttribute", names: { internal: "PredefinedDataName", yaml: "ИмяПредопределенныхДанных" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "string" },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("Справочник", catalogMembers)
-registerStandardMembers("СправочникОбъект", catalogMembers)
+export const metadataCatalogStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "Справочник", members: catalogMembers },
+  { kind: "standardMembers", ownerKind: "СправочникОбъект", members: catalogMembers },
+]

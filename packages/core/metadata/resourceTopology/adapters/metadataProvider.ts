@@ -28,7 +28,7 @@ export const metadataResourceTopologyProvider: MetadataResourceTopologyProvider 
 }
 
 export function createMetadataResourceTopologyProvider(
-  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object>,
+  definition: MetadataRulesDefinition<MetadataSynchronizationContribution, object, object>,
 ): MetadataResourceTopologyProvider {
   const propertyRules = createPropertyRuleRegistrySet(definition)
   const projectSpecs = Object.values(definition.projectSpecs)

@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const extDimensions = Array.from({ length: 50 }, (_, index): StandardMemberDeclaration[] => {
   const number = index + 1
@@ -78,4 +79,6 @@ const members = [
   ...extDimensions,
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("РегистрБухгалтерии", members)
+export const metadataAccountingRegisterStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "РегистрБухгалтерии", members },
+]

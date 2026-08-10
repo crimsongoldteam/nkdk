@@ -108,6 +108,7 @@ export interface MetadataSynchronizationContribution {
 export interface MetadataRulesDefinition<
   SynchronizationContribution extends MetadataSynchronizationContribution = MetadataSynchronizationContribution,
   ReferenceContribution extends object = RuleRegistrationContribution,
+  DataPathContribution extends object = RuleRegistrationContribution,
 > {
   readonly propertyTypes: Readonly<Record<string, PropertyTypeDefinition>>
   readonly propertyItemRules: Readonly<Record<string, object>>
@@ -134,7 +135,7 @@ export interface MetadataRulesDefinition<
   readonly projectSpecs: Readonly<Record<string, RegisteredProjectSpec>>
   readonly resourceTopology: readonly MetadataResourceTopologyProvider[]
   readonly validation: readonly LocalYamlValueValidationContribution[]
-  readonly dataPaths: readonly RuleRegistrationContribution[]
+  readonly dataPaths: readonly DataPathContribution[]
   readonly references: readonly ReferenceContribution[]
   readonly components: readonly MetadataComponentDescriptor[]
   readonly imports: readonly MetadataImportComponentDescriptor[]

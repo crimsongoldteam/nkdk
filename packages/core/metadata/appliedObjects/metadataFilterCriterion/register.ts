@@ -1,4 +1,1 @@
-import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
-import { MetadataFilterCriterionRules } from "./rules"
-
-registerDataPathOwnerKind({ kind: "КритерийОтбора", projectDir: "КритерийОтбора", rule: MetadataFilterCriterionRules })
+export {}

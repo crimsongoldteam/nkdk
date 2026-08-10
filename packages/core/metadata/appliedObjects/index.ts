@@ -58,7 +58,6 @@ import "./metadataStyle"
 import "./metadataCommandGroup"
 import "./metadataSubsystem/register"
 import "./metadataAccountingRegister/register"
-import "./dataPathCommon/register"
 import "./metadataAccountingRegister"
 import "./metadataBusinessProcess/register"
 import "./metadataBusinessProcess"
@@ -75,6 +74,10 @@ import "./metadataIntegrationService"
 import "./metadataTask/register"
 import "./metadataTask"
 import "./metadataWebService"
+import { applyLegacyDataPathContributions } from "../validation/dataPath/registry"
+import { appliedObjectDataPathRules } from "./dataPathRules"
+
+applyLegacyDataPathContributions(appliedObjectDataPathRules)
 
 let appliedObjectsRegistered = false
 

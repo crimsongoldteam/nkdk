@@ -1,4 +1,5 @@
-import { registerStandardMembers, type StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
+import type { DataPathContribution } from "../../validation/dataPath/registry"
 
 const businessProcessDate = {
   memberKind: "standardAttribute",
@@ -20,5 +21,7 @@ const members = [
   { memberKind: "standardAttribute", names: { internal: "DeletionMark", yaml: "ПометкаУдаления" }, family: "primitive", phase: "index-time", sourceScope: "self", kind: "boolean" },
 ] as const satisfies readonly StandardMemberDeclaration[]
 
-registerStandardMembers("БизнесПроцесс", members)
-registerStandardMembers("БизнесПроцессОбъект", members)
+export const metadataBusinessProcessStandardMemberRules: readonly DataPathContribution[] = [
+  { kind: "standardMembers", ownerKind: "БизнесПроцесс", members },
+  { kind: "standardMembers", ownerKind: "БизнесПроцессОбъект", members },
+]
