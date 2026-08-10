@@ -565,7 +565,7 @@ function validateProjectPropertiesFirstPass(params: {
     const diagnostics = validateProjectFileSchema({
       file: params.file,
       cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec.rule, validationSchemaVariant(params.file)),
+      schema: params.schemaCache.properties(params.file.itemRule, validationSchemaVariant(params.file)),
     })
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(
@@ -587,7 +587,7 @@ function validateProjectPropertiesFirstPass(params: {
   const baseSchemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec.rule, validationSchemaVariant(params.file)),
+    schema: params.schemaCache.properties(params.file.itemRule, validationSchemaVariant(params.file)),
     parsed,
   })
   const schemaDiagnostics = baseSchemaDiagnostics

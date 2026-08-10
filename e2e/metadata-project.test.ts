@@ -47,14 +47,20 @@ describe.sequential("metadata project E2E", () => {
     const result = await validateChangedProject(projectDir)
 
     expect(result.cold).toEqual(result.warm)
-    expect(clean).toEqual([])
-    expect(result.warm).toHaveLength(1)
-    expect(result.warm[0]).toMatchObject({
-      filePath: "cf/Конфигурация.yaml",
+    const ownRequired = result.warm.filter(({ filePath, path }) =>
+      filePath.includes("cfe/Расширение_All/ВнешнийИсточникДанных/ВнешнийИсточникДанныхВсеСвойстваExt/")
+      && path === "/ИмяВИсточникеДанных"
+    )
+    expect(ownRequired).toHaveLength(1)
+    expect(ownRequired[0]).toMatchObject({
+      filePath: expect.stringContaining("cfe/Расширение_All/"),
       severity: "error",
       source: "structure",
+      path: "/ИмяВИсточникеДанных",
     })
-    expect(result.warm[0]?.message).toContain("НеизвестноеПолеE2E")
+    expect(ownRequired[0]?.message).toContain("обязательное")
+    expect(clean).toEqual([])
+    expect(result.warm).toHaveLength(1)
     console.info("E2E validation durations, ms", result.durationsMs)
   })
 
@@ -67,7 +73,10 @@ describe.sequential("metadata project E2E", () => {
     expect(results.map(({ component }) => component.componentPath))
       .toEqual(E2E_COMPONENTS.map(({ componentPath }) => componentPath))
     for (const result of results) {
-      expect.soft(result.sync.failed).toEqual([])
+      expect(result.sync.failed, JSON.stringify(result.sync.diagnostics, null, 2)).toEqual([])
+      if (result.kind !== "compared") {
+        throw new Error(`Sync ${result.component.componentPath} завершился без сравнения`)
+      }
       expect.soft(result.comparison, result.comparison.reportDir).toMatchObject({
         equal: true,
         added: [],

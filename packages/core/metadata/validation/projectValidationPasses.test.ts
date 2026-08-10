@@ -150,7 +150,7 @@ describe("validateProjectFileFirstPass references", () => {
       yamlRole: "properties",
     })
 
-    expect(properties).toHaveBeenCalledWith(file.owner.spec.rule, "extension-overlay")
+    expect(properties).toHaveBeenCalledWith(file.itemRule, "extension-overlay")
     expect(update.pendingChecks).toContainEqual(expect.objectContaining({
       kind: "addressableRequired",
       canonicalTarget: "ExternalDataSource.Источник.Cube.Куб",

@@ -37,14 +37,15 @@ function collectObject(params: {
   if (record === undefined) return
 
   if (params.checkBoundary) {
-    const missing = Object.values(params.rule.properties)
-      .filter((propertyRule) =>
+    const missing = Object.entries(params.rule.properties)
+      .filter(([propertyKey, propertyRule]) =>
+        propertyKey !== "name" &&
         propertyRule.required === true &&
         typeof propertyRule.yaml === "string" &&
         shouldProcessProperty({ rule: propertyRule, operation: "importFromYAML" }) &&
         !Object.hasOwn(record, propertyRule.yaml)
       )
-      .map((propertyRule) => propertyRule.yaml as string)
+      .map(([, propertyRule]) => propertyRule.yaml as string)
     if (missing.length > 0) {
       params.checks.push({
         kind: "addressableRequired",

@@ -222,9 +222,7 @@ export function decodeValidationSchemaKey(key: string): string {
 }
 
 function validationSchemaRefName(context: ConfigurationContext, key: string): string {
-  const variant = context.exportToJSONSchema?.requiredPolicy?.cacheVariant ?? "full"
-  const variantPath = variant === "full" ? "" : `${variant}/`
-  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${variantPath}${encodeValidationSchemaKey(key)}`)
+  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`)
 }
 
 function encodeValidationSchemaKeySegment(segment: string): string {

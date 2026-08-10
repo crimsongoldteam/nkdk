@@ -4,7 +4,9 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import {
   createProjectStateService,
+  exportToYAML,
   importConfigurationFromXml,
+  parseMetadataYaml,
   syncConfigurationToXML,
   validateProject,
   type ConfigurationImportResult,
@@ -43,12 +45,14 @@ export interface ValidationParityResult {
   }
 }
 
-export interface ComponentRoundTripResult {
+export type ComponentRoundTripResult = {
   readonly component: E2EComponent
   readonly sync: FullXmlSyncResult
-  readonly comparison: FileTreeComparison
   readonly durationMs: number
-}
+} & (
+  | { readonly kind: "syncFailed" }
+  | { readonly kind: "compared"; readonly comparison: FileTreeComparison }
+)
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
 
@@ -125,13 +129,7 @@ export async function validateCleanProject(projectDir: string): Promise<readonly
 }
 
 export async function validateChangedProject(projectDir: string): Promise<ValidationParityResult> {
-  const configurationPath = join(projectDir, "cf", "Конфигурация.yaml")
-  const original = await readFile(configurationPath, "utf8")
-  await writeFile(
-    configurationPath,
-    `${original.endsWith("\n") ? original : `${original}\n`}НеизвестноеПолеE2E: true\n`,
-    "utf8",
-  )
+  await removeRequiredOwnExtensionField(projectDir)
 
   const warmStartedAt = performance.now()
   const warm = await runValidation(projectDir)
@@ -147,6 +145,37 @@ export async function validateChangedProject(projectDir: string): Promise<Valida
     cold,
     durationsMs: { warm: warmDurationMs, cold: coldDurationMs },
   }
+}
+
+async function removeRequiredOwnExtensionField(projectDir: string): Promise<void> {
+  const projectPath = [
+    "cfe",
+    "Расширение_All",
+    "ВнешнийИсточникДанных",
+    "ВнешнийИсточникДанныхВсеСвойстваExt",
+    "Кубы",
+    "КубВсеСвойства",
+    "Свойства.yaml",
+  ]
+  const filePath = join(projectDir, ...projectPath)
+  const parsed = parseMetadataYaml(await readFile(filePath, "utf8"))
+  if (parsed.syntaxErrors.length > 0) {
+    throw new Error(`Некорректный исходный YAML ${projectPath.join("/")}`)
+  }
+  const yaml = yamlRecord(parsed.data, projectPath.join("/"))
+  const requiredField = yaml["ИмяВИсточникеДанных"]
+  if (typeof requiredField !== "string") {
+    throw new Error(`В ${projectPath.join("/")} отсутствует строковое поле ИмяВИсточникеДанных`)
+  }
+  delete yaml["ИмяВИсточникеДанных"]
+  await writeFile(filePath, `${exportToYAML(yaml)}\n`, "utf8")
+}
+
+function yamlRecord(value: unknown, projectPath: string): Record<string, unknown> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`В ${projectPath} ожидался YAML-объект`)
+  }
+  return value as Record<string, unknown>
 }
 
 export async function roundTripMetadataProject(params: {
@@ -170,7 +199,8 @@ export async function roundTripMetadataProject(params: {
         concurrency: 2,
         projectState,
       })
-      const comparison = await compareFileTrees({
+      const compared = await compareSuccessfulSync({
+        sync,
         expectedDir: resolve(fixturesRoot, component.fixturePath),
         actualDir: xmlDir,
         reportDir: resolve(params.reportRoot, component.reportName),
@@ -178,7 +208,7 @@ export async function roundTripMetadataProject(params: {
       results.push({
         component,
         sync,
-        comparison,
+        ...compared,
         durationMs: performance.now() - startedAt,
       })
     }
@@ -186,6 +216,25 @@ export async function roundTripMetadataProject(params: {
   } finally {
     await projectState.close()
   }
+}
+
+export async function compareSuccessfulSync(params: {
+  readonly sync: FullXmlSyncResult
+  readonly expectedDir: string
+  readonly actualDir: string
+  readonly reportDir: string
+  readonly compare?: typeof compareFileTrees
+}): Promise<
+  | { readonly kind: "syncFailed" }
+  | { readonly kind: "compared"; readonly comparison: FileTreeComparison }
+> {
+  if (params.sync.failed.length > 0) return { kind: "syncFailed" }
+  const comparison = await (params.compare ?? compareFileTrees)({
+    expectedDir: params.expectedDir,
+    actualDir: params.actualDir,
+    reportDir: params.reportDir,
+  })
+  return { kind: "compared", comparison }
 }
 
 export async function removeImportedProject(source: ImportedMetadataProject): Promise<void> {

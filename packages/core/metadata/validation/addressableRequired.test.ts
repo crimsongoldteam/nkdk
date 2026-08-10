@@ -8,6 +8,7 @@ const addressableChildRule = {
   itemType: "RequiredAddressableChild",
   externalMetadata: { segment: "Cube", placement: "ownedEntry" },
   properties: {
+    name: { type: "string", yaml: "Имя", required: true },
     requiredValue: { type: "string", yaml: "ОбязательноеПоле", required: true },
   },
 } as const satisfies MetadataItemRule
