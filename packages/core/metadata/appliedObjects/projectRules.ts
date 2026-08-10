@@ -11,8 +11,9 @@ import { MetadataDocumentRules } from "./metadataDocument/rules"
 import { exportMetadataDocumentToJSONSchema } from "./metadataDocument/toJSONSchema"
 import { MetadataEnumerationRules } from "./metadataEnumeration/rules"
 import { exportMetadataEnumerationToJSONSchema } from "./metadataEnumeration/toJSONSchema"
+import type { MetadataItemRule } from "../ruleRuntime/property/types"
 
-export const appliedObjectProjectRules = composeMetadataRules(
+const fixedAppliedObjectProjectRules = composeMetadataRules(
   defineProjectSpec({
     kind: "configuration",
     dir: "",
@@ -46,3 +47,36 @@ export const appliedObjectProjectRules = composeMetadataRules(
     ),
   }),
 )
+
+export function defineAppliedObjectProjectRules(
+  metadataItems: Readonly<Record<string, MetadataItemRule>>,
+) {
+  const dynamicProjectRules = Object.values(metadataItems).flatMap((rule) => {
+    const dir = rule.itemTypePrefix
+    if (typeof dir !== "string") return []
+    return [
+      defineProjectSpec({
+        kind: rule.itemType,
+        dir,
+        rule,
+        exportSchema: createMetadataItemProjectSchemaExporter(rule),
+        ...(rule.itemType === "MetadataSubsystem"
+          ? {
+              nesting: {
+                kind: "recursiveChildDir" as const,
+                childDir: "Подсистемы",
+                itemRole: "subsystem",
+                collectionRole: "subsystems",
+                logicalAddressSegment: "Подсистема",
+              },
+            }
+          : {}),
+      }),
+    ]
+  })
+
+  return composeMetadataRules(
+    fixedAppliedObjectProjectRules,
+    ...dynamicProjectRules,
+  )
+}

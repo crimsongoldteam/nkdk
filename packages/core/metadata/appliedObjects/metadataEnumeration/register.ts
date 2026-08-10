@@ -1,5 +1,4 @@
 import { registerMetadataItemRule } from "../../ruleRuntime"
-import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
@@ -7,7 +6,6 @@ import {
   registerProjectReferenceValueContributor,
 } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataEnumerationRules } from "./rules"
-import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
 import "./standardMembers"
 
 registerMetadataItemRule({
@@ -23,7 +21,6 @@ registerDataPathOwnerKind({
   metadataLinkPrefixes: ["Enum"],
 })
 
-registerProjectJSONSchema("MetadataEnumeration", ({ context }) => exportMetadataEnumerationToJSONSchema({ context }))
 registerProjectReferenceObjectPathContributor("Enum", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Перечисление", target.objectName, "Свойства.yaml"),
 }))

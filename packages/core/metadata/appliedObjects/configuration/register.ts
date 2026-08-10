@@ -8,7 +8,6 @@ import {
   registerProjectReferenceObjectPathContributor,
   registerProjectReferenceValueContributor,
 } from "../../validation/projectReferenceIndexRegistry"
-import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
@@ -73,7 +72,11 @@ for (const rule of TopLevelMetadataItemRules) {
   const dir = rule.itemTypePrefix
   if (typeof dir !== "string") continue
   if (objectOwnedProjectSpecDirs.has(dir)) continue
-  registerProjectJSONSchema(rule.itemType, ({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
+  if (rule.itemType === "MetadataCommonForm") {
+    registerProjectJSONSchema(rule.itemType, ({ context }) =>
+      exportMetadataItemToJSONSchema({ context, rule }),
+    )
+  }
   const owner = rule.metadataTargetOwner
   if (owner?.kind === "self" && !specialObjectPathProjectSpecDirs.has(dir)) {
     registerProjectReferenceObjectPathContributor(owner.root, ({ projectDir, target }) => ({
@@ -88,23 +91,14 @@ for (const rule of TopLevelMetadataItemRules) {
     }
   }
 
-  registerProjectSpec({
-    kind: rule.itemType,
-    dir,
-    rule,
-    exportSchema: createMetadataItemProjectSchemaExporter(rule),
-    ...(rule.itemType === MetadataSubsystemRules.itemType
-      ? {
-          nesting: {
-            kind: "recursiveChildDir" as const,
-            childDir: "Подсистемы",
-            itemRole: "subsystem",
-            collectionRole: "subsystems",
-            logicalAddressSegment: "Подсистема",
-          },
-        }
-      : {}),
-  })
+  if (rule.itemType === "MetadataCommonForm") {
+    registerProjectSpec({
+      kind: rule.itemType,
+      dir,
+      rule,
+      exportSchema: createMetadataItemProjectSchemaExporter(rule),
+    })
+  }
 }
 
 function hasNamedItem(value: unknown, name: string): boolean {

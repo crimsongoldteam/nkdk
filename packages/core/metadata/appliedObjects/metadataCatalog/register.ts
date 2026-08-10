@@ -1,4 +1,3 @@
-import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
@@ -6,7 +5,6 @@ import {
   registerProjectReferenceValueContributor,
 } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataCatalogRules } from "./rules"
-import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"
 import "./standardMembers"
 
 registerDataPathOwnerKind({
@@ -25,7 +23,6 @@ registerDataPathOwnerKind({
   metadataLinkPrefixes: ["Catalog"],
 })
 
-registerProjectJSONSchema("MetadataCatalog", ({ context }) => exportMetadataCatalogToJSONSchema({ context }))
 registerProjectReferenceObjectPathContributor("Catalog", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Справочник", target.objectName, "Свойства.yaml"),
 }))
