@@ -56,6 +56,15 @@ export function validatePendingChecks(params: {
       diagnostics.push(...validateFillValueCheck(params.ownerCache, check))
       continue
     }
+    if (check.tagged && check.value.trim().length === 0) {
+      diagnostics.push(diagnosticAtYamlLocation({
+        location: check.location,
+        severity: "error",
+        source: "structure",
+        message: "!xml для ПутьКДанным требует непустой путь",
+      }))
+      continue
+    }
     const result = resolveDataPath({
       location: check.location,
       value: check.value,

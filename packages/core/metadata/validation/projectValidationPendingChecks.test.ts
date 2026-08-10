@@ -21,6 +21,31 @@ const ownerCache: OwnerMetadataCache = {
 }
 
 describe("validatePendingChecks", () => {
+  it("отклоняет пустой payload tagged ПутьКДанным", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+    const parsed = parseMetadataYaml([
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеФлажок",
+      "    ПутьКДанным: !xml",
+    ].join("\n"))
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual([
+      expect.objectContaining({
+        path: "/Элементы/Поле/ПутьКДанным",
+        message: "!xml для ПутьКДанным требует непустой путь",
+      }),
+    ])
+  })
+
   it("применяет !xml только к разрешённому несовместимому ПутьКДанным", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"

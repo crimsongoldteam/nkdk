@@ -88,8 +88,8 @@ registerStandardAttributeTypeResolver(({ owner, internalName, yamlName }) => {
 })
 
 registerTableColumnResolver(({ table, segment }) => {
-  if (segment === "RowsCount") return scalarColumn(segment, "RowsCount")
-  if (segment.startsWith("Total")) return scalarColumn(segment, "Total")
+  if (segment === "RowsCount") return decimalColumn(segment, "RowsCount")
+  if (segment.startsWith("Total")) return decimalColumn(segment, "Total")
   if (table.kind === "ValueList") return valueListColumn(segment)
   if (table.kind === "GanttChart") return ganttChartColumn(segment)
   return undefined
@@ -110,6 +110,10 @@ registerTableColumnResolver(({ table, segment, field }) => {
 
 export function scalarColumn(name: string, sourceText: string): FormDataPathColumnSource {
   return { name, typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText } }
+}
+
+export function decimalColumn(name: string, sourceText: string): FormDataPathColumnSource {
+  return { name, typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["decimal"], sourceText } }
 }
 
 export function booleanColumn(name: string, sourceText: string): FormDataPathColumnSource {
@@ -199,7 +203,7 @@ function registerRecordSetStandardColumn(
       return { ...dateTimeColumn(yamlName, "RegisterRecordSet.Period"), targetName: "Period" }
     case "LineNumber":
     case "НомерСтроки":
-      return { ...scalarColumn(yamlName, "RegisterRecordSet.LineNumber"), targetName: "LineNumber" }
+      return { ...decimalColumn(yamlName, "RegisterRecordSet.LineNumber"), targetName: "LineNumber" }
     case "Recorder":
     case "Регистратор":
       return { ...scalarColumn(yamlName, "RegisterRecordSet.Recorder"), targetName: "Recorder" }

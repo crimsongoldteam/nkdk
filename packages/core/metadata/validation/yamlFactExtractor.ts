@@ -935,7 +935,7 @@ function collectRuleDataPathChecks(params: {
     if (typeof rawValue !== "string") continue
     const tagged = yamlScalarTagAt(params.owner, rule.yaml) === "xml"
     const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
-    if (value.trim().length === 0) continue
+    if (value.trim().length === 0 && !tagged) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",

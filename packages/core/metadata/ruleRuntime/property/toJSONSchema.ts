@@ -40,7 +40,7 @@ function withExplicitXMLValidationValue(params: {
     params.rule.yaml === "ПутьКДанным" &&
     params.rule.allowedKinds !== undefined
   ) {
-    return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .+)?$" })])
+    return Type.Union([params.schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
   }
   const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey)
   if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])

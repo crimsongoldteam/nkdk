@@ -1152,8 +1152,11 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("keeps RegisterRecordSet standard columns available with form-only columns", () => {
-    const result = resolve("НаборЗаписей.Период", {
+  it.each([
+    ["Период", { kinds: ["dateTime"], terminalTypes: ["dateTime"], sourceText: "RegisterRecordSet.Period" }],
+    ["НомерСтроки", { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RegisterRecordSet.LineNumber" }],
+  ] as const)("keeps RegisterRecordSet standard column %s available with form-only columns", (columnName, typeInfo) => {
+    const result = resolve(`НаборЗаписей.${columnName}`, {
       index: indexWithAttributes([
         attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
           column("ПериодГод", { type: ["decimal"] }),
@@ -1166,8 +1169,8 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        source: { kind: "tableColumn", table: "НаборЗаписей", name: "Период" },
-        typeInfo: { kinds: ["dateTime"], terminalTypes: ["dateTime"], sourceText: "RegisterRecordSet.Period" },
+        source: { kind: "tableColumn", table: "НаборЗаписей", name: columnName },
+        typeInfo,
       },
     })
   })
@@ -1610,7 +1613,7 @@ describe("resolveDataPath", () => {
         diagnostics: [],
         target: {
           source: { kind: "tableColumn", table: "Товары", name: "RowsCount" },
-          typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+          typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RowsCount" },
         },
       })
     }
@@ -1627,7 +1630,7 @@ describe("resolveDataPath", () => {
       diagnostics: [],
       target: {
         source: { kind: "tableColumn", table: "СкидкиНаценки", name: "RowsCount" },
-        typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+        typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RowsCount" },
       },
     })
   })
@@ -1650,7 +1653,7 @@ describe("resolveDataPath", () => {
         diagnostics: [],
         target: {
           source: { kind: "tableColumn", table: "Товары", name: "TotalСумма" },
-          typeInfo: { kinds: ["scalar"], sourceText: "Total" },
+          typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "Total" },
         },
       })
     }

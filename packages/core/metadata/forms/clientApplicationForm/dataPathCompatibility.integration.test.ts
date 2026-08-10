@@ -100,6 +100,15 @@ describe("совместимость ПутьКДанным в полной фо
     const diagnostics = validate("ТаблицаФормы", "Строка", false, "ПутьКДаннымКартинкиСтроки")
     expect(diagnostics).toEqual([])
   })
+
+  it.each([
+    ["ПолеИндикатора", true],
+    ["ПолеHTMLДокумента", false],
+  ] as const)("учитывает числовой тип виртуальной колонки RowsCount для %s", (elementKind, compatible) => {
+    const diagnostics = validateVirtualColumn(elementKind, "RowsCount")
+    expect(diagnostics).toHaveLength(compatible ? 0 : 1)
+    if (!compatible) expect(diagnostics[0]?.message).toContain("decimal")
+  })
 })
 
 function validate(
@@ -121,6 +130,28 @@ function validate(
     `    Вид: ${elementKind}`,
     ...(hasValuesPicture ? ["    КартинкаЗначений: ОбщаяКартинка.Состояния"] : []),
     `    ${dataPathKey}: Значение`,
+  ].join("\n"))
+  const facts = extractValidationYamlFacts({
+    file,
+    parsed,
+    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+  })
+  return validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics
+}
+
+function validateVirtualColumn(elementKind: string, column: string) {
+  const projectDir = "/project"
+  const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+  const file = resolveValidationProjectFile(projectDir, filePath)
+  if (file === undefined) throw new Error("Не удалось определить файл формы")
+  const parsed = parseMetadataYaml([
+    "Реквизиты:",
+    "  Таблица:",
+    "    Тип: ТаблицаЗначений",
+    "Элементы:",
+    "  Поле:",
+    `    Вид: ${elementKind}`,
+    `    ПутьКДанным: Таблица.${column}`,
   ].join("\n"))
   const facts = extractValidationYamlFacts({
     file,
