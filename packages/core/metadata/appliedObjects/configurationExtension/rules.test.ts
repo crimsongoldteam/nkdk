@@ -126,4 +126,22 @@ describe("MetadataConfigurationExtensionRules", () => {
     expect(MetadataConfigurationExtensionRules.properties.mainSectionCommandInterface.configurationIndexAddressing)
       .toBe("yamlPath")
   })
+
+  it.each([
+    ["managedApplicationModule", "МодульПриложения.bsl", "Ext/ManagedApplicationModule.bsl"],
+    ["sessionModule", "МодульСеанса.bsl", "Ext/SessionModule.bsl"],
+    ["externalConnectionModule", "МодульВнешнегоСоединения.bsl", "Ext/ExternalConnectionModule.bsl"],
+    ["ordinaryApplicationModule", "МодульОбычногоПриложения.bsl", "Ext/OrdinaryApplicationModule.bsl"],
+    [
+      "standaloneConfigurationContent",
+      "СодержимоеАвтономнойКонфигурации.bin",
+      "Ext/StandaloneConfigurationContent.bin",
+    ],
+  ])("использует общий корневой внешний ресурс %s", (property, nkdkPath, xmlPath) => {
+    const extensionRule = (MetadataConfigurationExtensionRules.properties as Record<string, unknown>)[property]
+    const configurationRule = (MetadataConfigurationRules.properties as Record<string, unknown>)[property]
+
+    expect(extensionRule).toBe(configurationRule)
+    expect(extensionRule).toMatchObject({ nkdkPath, xmlPath, syncExternalOnly: true })
+  })
 })

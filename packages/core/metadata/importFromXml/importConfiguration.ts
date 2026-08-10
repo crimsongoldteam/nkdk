@@ -29,7 +29,7 @@ import {
   type ProjectStateService,
 } from "../projectState"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/adapters/capabilities"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import { createValidationProjectComponent, type ValidationProjectComponent } from "../validation/projectComponents"
 import { classifyMetadataProjectPath, projectStateFileBackedTargets } from "../projectDefinition/resources"
 import { resolveXmlImportComponent, type XmlImportComponentDescriptor } from "./componentDescriptor"
@@ -78,6 +78,7 @@ export interface ImportCoordinatorDependencies {
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
     xmlDir: string
+    topology: CompiledMetadataResourceTopology
   }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
   collectSnapshotFragments?(params: {
     context: ConfigurationContextFromXML
@@ -100,8 +101,8 @@ export interface ImportCoordinatorDependencies {
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
-  async discover({ xmlDir }) {
-    return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
+  async discover({ xmlDir, topology }) {
+    return discoverXmlImport({ xmlDir, topology })
   },
   collectSnapshotFragments,
   createProjectStateService,
@@ -206,7 +207,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir })
+      () => deps.discover({ xmlDir: params.inputDir, topology: validationComponent.topology })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,

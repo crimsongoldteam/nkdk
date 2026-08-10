@@ -54,6 +54,14 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
+  resources: [
+    {
+      kind: "ignore",
+      side: "xml",
+      pattern: "ConfigDumpInfo.xml",
+      source: { kind: "itemRule", description: "служебное описание выгрузки конфигурации" },
+    },
+  ],
 })
 
 registerMetadataXmlPrepareCapability({

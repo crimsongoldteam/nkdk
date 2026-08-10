@@ -68,6 +68,7 @@ import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/f
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
 import { buildProjectStateYamlFileUpdate } from "../project/projectStateYamlUpdate"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -98,6 +99,7 @@ interface InitializedImportWorkerState {
   outputDir: string
   projectDir: string
   componentPath: string
+  topology: CompiledMetadataResourceTopology
   schemaCache: ValidationSchemaCache
   rulesSnapshot: ValidationRulesSnapshot
 }
@@ -163,18 +165,24 @@ export async function runImportWorkerCommand(
     preparedYaml.clear()
     assignedImportIds.clear()
     firstPassAccumulator?.fragmentWriter.discard()
+    const projectDir = command.projectDir ?? command.outputDir
+    const componentPath = command.componentPath ?? "cf"
+    const validationComponent = validationProjectComponentFromAddress(projectDir, {
+      componentPath,
+      componentDir: command.outputDir,
+    })
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
       context: command.context,
       outputDir: command.outputDir,
-      projectDir: command.projectDir ?? command.outputDir,
-      componentPath: command.componentPath ?? "cf",
+      projectDir,
+      componentPath,
+      topology: validationComponent.topology,
       schemaCache: options.persistentValidationState?.schemaCache
         ?? schemaCacheForTests
         ?? createValidationSchemaCache(command.context),
-      rulesSnapshot: options.persistentValidationState?.rulesSnapshot
-        ?? createValidationRulesSnapshot(command.context),
+      rulesSnapshot: createValidationRulesSnapshot(command.context, validationComponent.topology),
     }
     firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined
@@ -672,6 +680,7 @@ async function processFirstPass(
         context: state.context,
         collector,
         profiler,
+        topology: state.topology,
       })
       const fragment = profiler.measure(
         "Подготовка импорта конфигурации",

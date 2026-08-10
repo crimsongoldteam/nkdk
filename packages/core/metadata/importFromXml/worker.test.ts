@@ -29,6 +29,9 @@ import {
 } from "./worker"
 import type { ImportAssignment } from "./types"
 import { serializeImportYaml } from "./writeOutput"
+import { resolveAssignmentRule } from "./prepareYaml"
+import { createValidationProjectComponent } from "../validation/projectComponents"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -52,11 +55,50 @@ const fastValidationSchemaCache = {
   compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
 } satisfies ValidationSchemaCache
 const validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
+const configurationTopology = createValidationProjectComponent(
+  "/project",
+  { kind: "configuration" },
+).topology
+function requireTopologyNode(projectPattern: string) {
+  const node = configurationTopology.assignments.find((candidate) => candidate.projectPattern === projectPattern)
+  if (node === undefined) throw new Error(`Не найден topology-узел тестового задания: ${projectPattern}`)
+  return node
+}
+const catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
+const catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
+const documentNumeratorTopologyNode = requireTopologyNode("Нумератор/{ownerName}/Свойства.yaml")
 const catalogValidationFile = resolveValidationProjectFile(
   "/project",
   "/project/Справочник/Товары/Свойства.yaml",
 )
 if (catalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
+
+it("resolves an assignment only in the selected component topology", () => {
+  const topology = createValidationProjectComponent(
+    "/project",
+    { kind: "configurationExtension", name: "Расширение" },
+  ).topology
+  const root = topology.assignments.find(({ role }) => role === "configuration")
+  if (root === undefined) throw new Error("Не найден корневой assignment расширения")
+  const assignment = catalogAssignment({
+    role: "properties",
+    topologyNodeId: root.id,
+    itemType: MetadataConfigurationExtensionRules.itemType,
+  })
+
+  expect(resolveAssignmentRule(assignment, "configurationExtension", topology))
+    .toBe(MetadataConfigurationExtensionRules)
+  expect(() => resolveAssignmentRule(
+    { ...assignment, topologyNodeId: "unknown-node" },
+    "configurationExtension",
+    topology,
+  )).toThrow("Не найден узел топологии XML-import: unknown-node")
+  expect(() => resolveAssignmentRule(
+    { ...assignment, topologyNodeId: undefined },
+    "configurationExtension",
+    topology,
+  )).toThrow("Задание XML-import не связано с узлом topology")
+})
 fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
@@ -234,11 +276,11 @@ describe("XML import worker first pass", () => {
     expect(result.configurationFragments).toHaveLength(1)
   })
 
-  it("links a model-building error to the assignment metadata XML", async () => {
+  it("links a topology rule resolution error to the assignment metadata XML", async () => {
     const metadataPath = join(syncXmlDir, "Catalogs/Контрагенты.xml")
     const assignment = catalogAssignment({
       id: "unknown-model",
-      itemType: "UnknownImportModel",
+      topologyNodeId: "unknown-node",
       xmlFiles: [
         { role: "metadata", sourcePath: metadataPath },
         {
@@ -468,6 +510,7 @@ describe("XML import worker second pass", () => {
       "DocumentNumerator",
       catalogAssignment({
         id: "document-numerator",
+        topologyNodeId: documentNumeratorTopologyNode.id,
         itemType: "MetadataDocumentNumerator",
         itemName: "НумераторПоУмолчанию",
         logicalAddress: "Нумератор.НумераторПоУмолчанию",
@@ -656,6 +699,7 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
   return {
     id: "catalog",
     role: "properties",
+    topologyNodeId: catalogTopologyNode.id,
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
     itemType: "MetadataCatalog",
     itemName: "Контрагенты",
@@ -905,6 +949,7 @@ function createCatalogAndFormAssignments(
   const form: ImportAssignment = {
     id: "catalog-products-form",
     role: "fileItem",
+    topologyNodeId: catalogFormTopologyNode.id,
     targetProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
     itemType: "ClientApplicationForm",
     itemName: "ФормаЭлемента",

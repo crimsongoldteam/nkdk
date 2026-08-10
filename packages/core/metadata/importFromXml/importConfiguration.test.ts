@@ -28,6 +28,8 @@ import {
 import { createValidationProjectComponent } from "../validation/projectComponents"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 import type { ImportDiagnosticCollection, ImportResultFileCollection } from "./workerPool"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 
 const failurePhases = [
   "discover",
@@ -185,7 +187,8 @@ describe("configuration XML import coordinator", () => {
     const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }> = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
     let secondPassTokenCount = 0
-    const dependencies = fakeDependencies({ calls, writtenIndexes, initialized })
+    const discovered: Array<{ xmlDir: string; topology?: CompiledMetadataResourceTopology }> = []
+    const dependencies = fakeDependencies({ calls, writtenIndexes, initialized, discovered })
     const pool = dependencies.createWorkerPool!({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
       ...pool,
@@ -222,6 +225,8 @@ describe("configuration XML import coordinator", () => {
       },
     ])
     expect(secondPassTokenCount).toBe(1)
+    expect(discovered).toHaveLength(1)
+    expect(discovered[0]?.topology?.assignments[0]?.itemRule).toBe(MetadataConfigurationExtensionRules)
     expect(writtenIndexes[0]).toMatchObject({
       address: { kind: "configurationExtension", name: "Расширение_All" },
       data: {
@@ -684,6 +689,7 @@ function fakeDependencies(params: {
   failurePhase?: FailurePhase
   writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationSnapshot }>
   initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
+  discovered?: Array<{ xmlDir: string; topology?: CompiledMetadataResourceTopology }>
   transfers?: string[]
   workerCloseFailure?: Error
   projectStateCloseFailure?: Error
@@ -753,8 +759,9 @@ function fakeDependencies(params: {
         },
       }
     },
-    async discover() {
+    async discover(discoverParams) {
       call("discover")
+      params.discovered?.push(discoverParams)
       return { assignments }
     },
     createProjectStateService() {

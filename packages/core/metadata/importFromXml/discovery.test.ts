@@ -272,6 +272,17 @@ describe("XML import discovery", () => {
     expect(fs.readFile).not.toHaveBeenCalled()
   })
 
+  it("rejects XML that is outside the selected component topology", async () => {
+    const unknownXml = "Catalogs/Контрагенты/Ext/Unknown.xml"
+
+    await expect(
+      discoverXmlImport({ xmlDir, topology: testTopology, fs: fakeFs([unknownXml]) })
+    ).rejects.toMatchObject({
+      code: "xml_import_route_unmatched",
+      paths: [unknownXml],
+    })
+  })
+
   it("rejects an external file whose assignment is absent", async () => {
     await expect(
       discoverXmlImport({

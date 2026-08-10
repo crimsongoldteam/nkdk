@@ -48,6 +48,7 @@ export async function discoverXmlImport(
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
   const paths = [...new Set(listedPaths.map((path) => normalizeListedPath(params.xmlDir, path)))].sort(compareUtf8)
   const conflictPaths: string[] = []
+  const unmatchedXmlPaths: string[] = []
   const assignmentsByTarget = new Map<string, ImportAssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
   const snapshotFiles: ImportSnapshotFile[] = []
@@ -58,7 +59,10 @@ export async function discoverXmlImport(
     const matches = allMatches.some((match) => match.kind !== "externalFile" || match.node.fallback !== true)
       ? allMatches.filter((match) => match.kind !== "externalFile" || match.node.fallback !== true)
       : allMatches
-    if (matches.length === 0) continue
+    if (matches.length === 0) {
+      if (/\.xml$/i.test(path)) unmatchedXmlPaths.push(path)
+      continue
+    }
     const compatibleMatches = resolveCompatibleMatches(matches)
     if (compatibleMatches === undefined) {
       conflictPaths.push(path)
@@ -117,6 +121,7 @@ export async function discoverXmlImport(
     assignmentsByTarget.set(compatible.assignmentProjectPath, group)
   }
 
+  if (unmatchedXmlPaths.length > 0) throw importDiscoveryError("xml_import_route_unmatched", unmatchedXmlPaths)
   if (conflictPaths.length > 0) throw importDiscoveryError("xml_import_route_conflict", conflictPaths)
 
   for (const match of externalMatches) {
