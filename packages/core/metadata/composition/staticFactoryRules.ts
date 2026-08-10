@@ -105,6 +105,13 @@ import { metadataRuleLayer000 as contribution171 } from "../commonObjects/dataCo
 import { metadataRuleLayer000 as contribution172 } from "../commonObjects/dataCompositionSystem/filterItem/types"
 import { metadataRuleLayer000 as contribution173 } from "../commonObjects/dataCompositionSystem/orderItemFields/types"
 import { metadataRuleLayer000 as contribution174 } from "../forms/commonObjects/dynamicList/types"
+import { metadataRuleLayer000 as contribution175 } from "../forms/commonObjects/flowchartContext/types"
+import { metadataRuleLayer000 as contribution176 } from "../forms/commonObjects/spreadsheetDocument/types"
+import { metadataRuleLayer000 as contribution177 } from "../forms/commonObjects/planner/types"
+import { metadataRuleLayer000 as contribution178 } from "../forms/commonObjects/ganttChart/types"
+import { metadataRuleLayer000 as contribution179 } from "../forms/commonObjects/chart/types"
+import { metadataRuleLayer000 as contribution180 } from "../forms/commonObjects/childItems/fromXMLToYAML"
+import { metadataRuleLayer000 as contribution181 } from "../appliedObjects/metadataCommonForm/types"
 import { metadataPropertyRule000 as contribution102 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule001 as contribution103 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule002 as contribution104 } from "../commonObjects/accumulationRegisterAggregates/register"
@@ -485,5 +492,12 @@ export const staticFactoryRules = composeMetadataRules(
   contribution172,
   contribution173,
   contribution174,
+  contribution175,
+  contribution176,
+  contribution177,
+  contribution178,
+  contribution179,
+  contribution180,
+  contribution181,
   factoryPropertyRules,
 )

@@ -1,8 +1,4 @@
-import { registerProjectSpec } from "../../projectDefinition/projectSpecRegistry"
-import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 import { join } from "path"
-import { createMetadataItemProjectSchemaExporter } from "../../projectDefinition/projectSpecHelpers"
-import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
   registerProjectReferenceObjectPathContributor,
@@ -72,11 +68,6 @@ for (const rule of TopLevelMetadataItemRules) {
   const dir = rule.itemTypePrefix
   if (typeof dir !== "string") continue
   if (objectOwnedProjectSpecDirs.has(dir)) continue
-  if (rule.itemType === "MetadataCommonForm") {
-    registerProjectJSONSchema(rule.itemType, ({ context }) =>
-      exportMetadataItemToJSONSchema({ context, rule }),
-    )
-  }
   const owner = rule.metadataTargetOwner
   if (owner?.kind === "self" && !specialObjectPathProjectSpecDirs.has(dir)) {
     registerProjectReferenceObjectPathContributor(owner.root, ({ projectDir, target }) => ({
@@ -89,15 +80,6 @@ for (const rule of TopLevelMetadataItemRules) {
         return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
       })
     }
-  }
-
-  if (rule.itemType === "MetadataCommonForm") {
-    registerProjectSpec({
-      kind: rule.itemType,
-      dir,
-      rule,
-      exportSchema: createMetadataItemProjectSchemaExporter(rule),
-    })
   }
 }
 

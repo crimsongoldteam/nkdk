@@ -1,4 +1,10 @@
-import { registerTypeRule } from "../../../ruleRuntime"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import type { MetadataRulesDefinition } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
+import {
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+} from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRuleType } from "../../../ruleRuntime/property/registry"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
@@ -101,43 +107,50 @@ const restoreReferenceNilMarkers = (value: unknown, reference: unknown): unknown
   return result
 }
 
-export const registerSettingsFragmentType = <TModel extends SettingsFragment>({
+export const defineSettingsFragmentType = <TModel extends SettingsFragment>({
   propertyType,
   canonicalAttributes,
   matchXsiType,
-}: SettingsFragmentTypeRegistration): void => {
-  registerTypeRule(propertyType, "importFromXML", (_context, _rule, xml) => {
-    if (!isSettingsFragmentXML(xml)) return undefined
+}: SettingsFragmentTypeRegistration): MetadataRulesDefinition<never> => {
+  const propertyTypes = propertyTypesFromContributions([
+    definePropertyTypeRule(propertyType, "importFromXML", (_context, _rule, xml) => {
+      if (!isSettingsFragmentXML(xml)) return undefined
 
-    const xsiType = xml["_xsi:type"]
-    if (typeof xsiType !== "string" || !matchXsiType(xsiType)) return undefined
+      const xsiType = xml["_xsi:type"]
+      if (typeof xsiType !== "string" || !matchXsiType(xsiType)) return undefined
 
-    return omitSettingsAttributes(xml) as TModel
-  })
+      return omitSettingsAttributes(xml) as TModel
+    }),
 
-  registerTypeRule(propertyType, "exportToXML", (_context, _rule, value: TModel | undefined, reference?: TModel) => {
-    if (value === undefined) return undefined
-    const restoredValue = restoreReferenceNilMarkers(value, reference)
-    return {
-      ...canonicalAttributes,
-      ...(expandEmptyElements(restoredValue) as SettingsFragment),
-    }
-  })
+    definePropertyTypeRule(propertyType, "exportToXML", (_context, _rule, value: TModel | undefined, reference?: TModel) => {
+      if (value === undefined) return undefined
+      const restoredValue = restoreReferenceNilMarkers(value, reference)
+      return {
+        ...canonicalAttributes,
+        ...(expandEmptyElements(restoredValue) as SettingsFragment),
+      }
+    }),
 
-  registerTypeRule(propertyType, "importFromYAML", (_context, _rule, value) => {
-    if (typeof value !== "string") return undefined
-    const fragment = value.trim()
-    if (fragment.length === 0) return {} as TModel
+    definePropertyTypeRule(propertyType, "importFromYAML", (_context, _rule, value) => {
+      if (typeof value !== "string") return undefined
+      const fragment = value.trim()
+      if (fragment.length === 0) return {} as TModel
 
-    const parsed = importContentFromXML<{ SettingsFragment?: SettingsFragment }>(
-      `<SettingsFragment>${fragment}</SettingsFragment>`,
-      { preserveXsiNil: true }
-    )
-    return normalizeImportedFragment(parsed.SettingsFragment) as TModel | undefined
-  })
+      const parsed = importContentFromXML<{ SettingsFragment?: SettingsFragment }>(
+        `<SettingsFragment>${fragment}</SettingsFragment>`,
+        { preserveXsiNil: true }
+      )
+      return normalizeImportedFragment(parsed.SettingsFragment) as TModel | undefined
+    }),
 
-  registerTypeRule(propertyType, "exportToYAML", (_context, _rule, value: TModel | undefined) => {
-    if (value === undefined) return undefined
-    return xmlExport(expandEmptyElements(value) as SettingsFragment, false)
+    definePropertyTypeRule(propertyType, "exportToYAML", (_context, _rule, value: TModel | undefined) => {
+      if (value === undefined) return undefined
+      return xmlExport(expandEmptyElements(value) as SettingsFragment, false)
+    }),
+  ])
+
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes,
   })
 }

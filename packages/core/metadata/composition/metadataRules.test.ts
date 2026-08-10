@@ -57,7 +57,7 @@ describe("metadataRules", () => {
       expect(Object.keys(metadataRules.metadataItems).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.schemas).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.formElements).length).toBeGreaterThan(0)
-      expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(47)
+      expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(48)
       expect(metadataRules.components).toHaveLength(2)
       expect(metadataRules.imports).toHaveLength(2)
       expect(metadataRules.synchronization).toHaveLength(2)

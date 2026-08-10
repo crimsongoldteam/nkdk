@@ -8,7 +8,6 @@ import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import "../../forms/clientApplicationForm/propertyRules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 const properties = ["Properties"]
@@ -119,4 +118,3 @@ export const MetadataCommonFormRules = {
     }),
   },
 } as const satisfies MetadataItemRule
-import "../../forms/clientApplicationForm/fromYAMLToXML"

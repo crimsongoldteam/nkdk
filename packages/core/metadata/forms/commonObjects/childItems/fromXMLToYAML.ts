@@ -12,7 +12,12 @@ import type {
 } from "../../../ruleRuntime/formElement/types"
 import { CollectableElementTypeToYAML } from "../../elements/ruleRuntime/types"
 import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import {
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+} from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { importFormElementPropertiesFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
@@ -83,14 +88,23 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
   return Object.keys(result).length === 0 ? undefined : result
 }
 
-for (const propertyType of childItemsTreePropertyTypes) {
-  registerTypeRule(propertyType, "importFromXMLToYAML", importChildItemsFromXMLToYAML)
-  registerTypeRule(propertyType, "nestedItemRule", {
-    resolveItemRule(itemType) {
-      return getElementRule(itemType as ElementType)
-    },
-  })
-}
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...emptyMetadataRules,
+  propertyTypes: propertyTypesFromContributions(
+    childItemsTreePropertyTypes.flatMap((propertyType) => [
+      definePropertyTypeRule(
+        propertyType,
+        "importFromXMLToYAML",
+        importChildItemsFromXMLToYAML,
+      ),
+      definePropertyTypeRule(propertyType, "nestedItemRule", {
+        resolveItemRule(itemType) {
+          return getElementRule(itemType as ElementType)
+        },
+      }),
+    ]),
+  ),
+})
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
