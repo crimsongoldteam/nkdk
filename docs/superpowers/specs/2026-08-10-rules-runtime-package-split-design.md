@@ -1,481 +1,371 @@
-# Разделение правил и runtime на два пакета
+# Разделение rules и runtime на два пакета
 
-Статус: новая спецификация после анализа первой попытки реализации и актуального `develop`.
+Статус: согласованная спецификация после анализа первой попытки реализации и
+актуального `origin/develop`.
 
 ## Контекст
 
-`packages/core` одновременно содержит:
+`packages/core` совмещает две разные ответственности:
 
-- декларации и обработчики конкретной модели метаданных;
-- нейтральный механизм исполнения `rules.ts`;
-- validation, описание и состояние проекта, операции, worker и файловую координацию;
-- composition root, который связывает конкретные регистрации с общими механизмами;
-- публичный фасад и сборочные точки для MCP.
+- описание конкретной модели: `rules.ts`, типы объектов, формы, project specs,
+  validation-политики и профили операций;
+- общий механизм исполнения: XML/YAML-преобразования, project state,
+  validation-исполнители, import/sync/operations, worker и файловую
+  координацию.
 
-На актуальном `develop` внутренний граф уже существенно улучшен. Выделены
-`ruleRuntime`, `projectDefinition`, `diagnostics`, `validation`, `project`,
-`projectState`, `resourceTopology/core` и `metadata/composition`. Проверка
-dependency-cruiser проходит с нулём нарушений и циклов. Поэтому прежний план,
-начинавшийся с механического переименования всего `core` в `runtime`, больше не
-соответствует состоянию репозитория.
-
-Цель этой работы — превратить существующую логическую границу в физическую
-границу двух workspace-пакетов без изменения XML/YAML-семантики:
+Внутри `core` уже существуют логические нейтральные слои `ruleRuntime`,
+`diagnostics`, `validation`, `projectDefinition`, `project`, `projectState` и
+`resourceTopology/core`. Цель работы — довести эту границу до двух физических
+private workspace-пакетов без изменения XML/YAML-семантики:
 
 ```text
-@nkdk/rules ───────▶ @nkdk/runtime
-
-MCP composition root:
-metadataRules + createMetadataRuntime(...) ─▶ готовый runtime
+@nkdk/rules ─────────▶ @nkdk/runtime
+       │                       ▲
+       └────── MCP ────────────┘
+              composition root
 ```
 
-`@nkdk/runtime` не импортирует `@nkdk/rules` ни напрямую, ни транзитивно.
-`@nkdk/rules` зависит только от явно экспортированного договора runtime, но не
-от его `internal`-путей и не от физических путей исходников.
+`@nkdk/runtime` никогда не импортирует `@nkdk/rules`. MCP импортирует оба
+пакета, передаёт определение rules и worker manifest при создании runtime.
 
 ## Что показала первая попытка
 
-Первая ветка подтвердила принципиальную реализуемость двух пакетов, но не
-завершила семантическое разделение.
+Первая реализация подтвердила правильное направление зависимости, но начала с
+массового переноса `packages/core/**`. В результате:
 
-### Полезные результаты
+- архитектурное изменение смешалось с переименованием тысяч файлов;
+- `@nkdk/rules` получил широкий доступ к `@nkdk/runtime/internal/*`;
+- новый bundle собирался как снимок старых side effects;
+- старые и новые реестры существовали одновременно;
+- часть lookup продолжала читать module-level `Map`;
+- worker переносились раньше, чем появился явный договор rules;
+- baseline dependency-cruiser скрыл новые нарушения.
 
-- Подтверждено правильное направление зависимости `rules → runtime`.
-- Проверена идея экземплярного `createMetadataRuntime({ rules })`.
-- Выявлена необходимость отдельного worker entrypoint, который статически
-  загружает функции правил внутри worker.
-- Подтверждена необходимость атомарной компиляции набора правил и проверки
-  согласованности главного процесса с worker.
-- Собран перечень concrete-зависимостей validation, project, import, sync и
-  operations, которые нельзя устранить простым переносом каталогов.
-
-### Ошибки подхода
-
-1. Работа началась с переноса `packages/core/** → packages/runtime/**`. Итоговый
-   diff затронул 4 818 файлов и смешал архитектурное изменение с массовым
-   переименованием. На фоне 207 новых коммитов `develop` такую ветку невозможно
-   надёжно обновить или проверить по частям.
-2. `@nkdk/rules` продолжил импортировать широкий
-   `@nkdk/runtime/internal/*`, включая validation, project и конкретные
-   каталоги. Направление зависимости формально соблюдалось, но runtime получил
-   огромный неуправляемый внутренний API.
-3. `metadataRulesBundle` собирался после запуска старой регистрации через
-   `legacyContributionJournal`. Bundle был снимком побочных действий над
-   глобальными реестрами, а не самостоятельным определением правил.
-4. Старые функции регистрации одновременно изменяли module-level `Map` и
-   записывали вклад в журнал. Это создало два источника истины и зависимость от
-   порядка импортов.
-5. `CompiledMetadataRules` передавался только части операций. Многие lookup-
-   функции продолжали читать глобальные реестры, поэтому два runtime с разными
-   наборами правил не были реально изолированы.
-6. Публичный wildcard `./internal/*` разрешал любое пересечение package-
-   границы и делал архитектурную проверку малоценной.
-7. Worker-обвязка была перенесена до завершения договора регистрации. Часть
-   entrypoint только импортировала definition ради side effect и затем
-   реэкспортировала старый runtime-worker.
-8. Ветка изменила baseline dependency-cruiser и стала сообщать сотни
-   «известных» нарушений. На актуальном `develop` таких нарушений нет. Baseline
-   нельзя использовать для принятия новых зависимостей при этом разделении.
-9. План был привязан к старым путям `orchestration`, `project` и прежней модели
-   resource topology. Актуальные `ruleRuntime`, `projectDefinition`,
-   `resourceTopology/core|adapters` и `composition` уже решают часть исходных
-   проблем иначе.
-
-Из первой ветки допускается вручную перенести только небольшие проверенные идеи
-и тестовые сценарии. Массовые коммиты, журнал совместимости и физические
-переносы повторно не используются.
+Из первой ветки можно переносить вручную только отдельные идеи и тестовые
+сценарии. Массовые коммиты, журнал совместимости, двойная запись и изменения
+baseline повторно не используются.
 
 ## Рассмотренные подходы
 
 ### (А) Сначала семантическая, затем физическая граница — выбран
 
-В текущем `core` вводятся чистое определение правил, экземплярные реестры и
-runtime API. Только после доказательства направленного графа готовые зоны
-переносятся в два пакета. Подход даёт небольшие проверяемые слои и использует
-уже выполненное разделение neutral/concrete в актуальном `develop`.
+Сначала внутри `core` вводятся явное определение rules, экземплярные реестры и
+runtime API. Только законченные и проверенные зоны затем переносятся в два
+пакета.
 
 ### (Б) Сразу создать два пакета и временные мосты — отклонён
 
-Этот путь использовался в первой попытке. Он быстро показывает конечные имена,
-но вынуждает открыть `runtime/internal`, дублировать регистрацию и поддерживать
-журнал перехода. Физическая граница появляется раньше рабочего договора и
-скрывает незавершённость за package imports.
+Физические package imports появились бы раньше рабочего договора и потребовали
+бы временных globals, широкого `internal` API или двойной записи.
 
-### (В) Сохранить `@nkdk/core` как совместимый фасад — отклонён
+### (В) Сохранить `@nkdk/core` как фасад — отклонён
 
-Фасад уменьшил бы одномоментное изменение потребителей, но сохранил бы третью
-точку composition и старую неявную инициализацию. Поскольку пакет private, а
-реальные потребители находятся в том же workspace, миграция выполняется как
-одно несовместимое изменение после подготовки внутренних границ.
+Пакет private, а реальные потребители находятся в том же workspace. Фасад
+сохранил бы третью точку композиции и старую неявную инициализацию.
 
 ## Принятые решения
 
 1. Конечные пакеты называются `@nkdk/rules` и `@nkdk/runtime`.
-2. `@nkdk/core` удаляется после перевода внутренних потребителей. Совместимый
-   пакет-фасад не сохраняется.
-3. В названиях новых пакетов, API, типов и документации не используется имя
+2. Оба пакета private и встраиваются в самостоятельную сборку MCP.
+3. `@nkdk/core` удаляется после перевода потребителей; совместимый фасад не
+   сохраняется.
+4. Production-зависимость направлена только `rules → runtime`.
+5. Импорт любого пакета не регистрирует rules, не запускает worker и не меняет
+   состояние процесса.
+6. В production MCP лениво создаёт один runtime и использует его до остановки
+   сервера.
+7. Тесты обязаны поддерживать два одновременно созданных runtime с разными
+   наборами rules — это доказательство отсутствия скрытых globals.
+8. Публично переносится только договор, реально используемый MCP. Широкий API
+   старого `core` не сохраняется.
+9. В новых именах пакетов, API, типов и документации не используется имя
    внешней платформы.
-4. `@nkdk/runtime` предоставляет экземплярный API. Импорт пакета не
-   регистрирует правила, не запускает worker и не изменяет состояние процесса.
-5. В рабочем процессе создаётся один runtime, но договор и тесты обязаны
-   поддерживать два одновременно созданных runtime с разными синтетическими
-   наборами правил. Это является доказательством отсутствия скрытых globals.
-6. Рабочий `@nkdk/rules` предоставляет один неизменяемый `metadataRules`.
-   Динамические сторонние плагины и объединение нескольких рабочих наборов не
-   входят в эту работу.
-7. Конкретные `rules.ts`, обработчики свойств, формы, project specs, адаптеры
-   validation, import/sync/operations и resource topology принадлежат rules.
-8. Общие исполнители, нейтральные договоры, состояние проекта, файловая
-   координация и worker-инфраструктура принадлежат runtime.
-9. Turborepo не входит в работу. Сначала создаётся корректный граф пакетов;
-   ускорение CI оценивается отдельно по измерениям.
 
-## Целевая ответственность пакетов
+## Ответственность пакетов
 
 ### `@nkdk/runtime`
 
-Runtime владеет механизмами, которые работают с любым корректным набором
-правил:
+Runtime владеет механизмами, работающими с любым переданным определением rules:
 
-- договорами и исполнителями `ruleRuntime`;
-- `diagnostics`;
-- нейтральными частями `validation`, `projectDefinition`, `project` и
-  `projectState`;
-- `resourceTopology/core` и общими проекциями;
+- нейтральными договорами и исполнителями `ruleRuntime`;
 - общими XML/YAML-механизмами;
-- общими индексами, двоичными форматами и кэшами;
-- исполнителями import, sync и metadata operations после отделения конкретных
-  descriptors;
-- worker pool, очередями, транспортом, жизненным циклом и протоколом запуска;
-- компилятором определения правил;
-- `createMetadataRuntime` и управлением ресурсами runtime.
+- `diagnostics`, нейтральными частями validation и project;
+- project definition и project state;
+- `resourceTopology/core` и общими проекциями;
+- исполнителями import, sync и metadata operations;
+- worker pool, транспортом, очередями и жизненным циклом;
+- экземплярными таблицами rules и зависимыми от runtime кэшами;
+- `createMetadataRuntime`.
 
 Runtime не содержит:
 
-- условий по конкретным `itemType`;
-- имён XML-корней и предметных каталогов проекта;
-- конкретных типов форм, свойств или объектов;
-- таблиц конкретных перечислений;
-- конкретных project specs, validation-политик и профилей import/sync;
-- импортов rules-пакета даже в worker-коде и тестах production-договора.
-
-Текущая архитектурная матрица neutral-слоёв остаётся обязательной и после
-переноса в пакет. Физическая package-граница дополняет её, а не заменяет.
+- конкретных типов объектов, форм и свойств;
+- конкретных project specs, validation-политик и профилей операций;
+- условий по конкретным `itemType`, XML-корням и каталогам проекта;
+- импортов rules-пакета, включая type-only imports.
 
 ### `@nkdk/rules`
 
 Rules владеет содержанием конкретной модели:
 
 - `commonObjects`, `forms`, `appliedObjects`, `systemEnumerations`;
-- конкретными `rules.ts`, обработчиками и builders;
+- `rules.ts`, обработчиками свойств и элементов;
 - конкретными project specs, схемами и ресурсными декларациями;
-- адаптерами `resourceTopology/adapters`;
-- concrete-вкладами validation и data path;
-- descriptors для import, sync, rename, references и других операций;
-- composition набора правил;
-- worker entrypoint, которые статически импортируют тот же набор правил;
-- round-trip, schema, validation и интеграционными тестами конкретной модели.
+- adapters resource topology;
+- вкладами validation, data path и references;
+- descriptors import, sync и metadata operations;
+- явной композицией `metadataRules`;
+- worker entrypoint, статически загружающими `metadataRules`;
+- round-trip, schema, validation и интеграционными тестами модели.
 
-Путь файла не является достаточным критерием владения. Например, общий
-исполнитель из нынешнего concrete-каталога переносится в runtime, а конкретный
-адаптер из общего каталога — в rules. Для каждого спорного модуля решение
-принимается по входам, выходам и достижимости, а не массовым `git mv` каталога.
+Путь текущего файла не определяет владельца. Общий исполнитель из конкретного
+каталога переносится в runtime, а конкретный adapter из общего каталога — в
+rules.
 
-## Договор определения и компиляции правил
+## Определение rules
 
-Старые module-level реестры заменяются двумя стадиями:
+Runtime экспортирует из `@nkdk/runtime/rule-kit` только типы и builders,
+необходимые rules-пакету:
 
 ```ts
-// @nkdk/runtime/rule-kit
 export interface MetadataRulesDefinition {
-  readonly id: string
-  readonly apiVersion: 1
-  readonly revision: string
-  readonly declarations: readonly MetadataDeclaration[]
-  readonly workers: MetadataWorkerManifest
+  readonly propertyTypes: Readonly<Record<string, PropertyTypeDescriptor>>
+  readonly metadataItems: Readonly<Record<string, MetadataItemDescriptor>>
+  readonly formElements: Readonly<Record<string, FormElementDescriptor>>
+  readonly systemEnumerations: Readonly<Record<string, EnumerationDescriptor>>
+  readonly schemas: Readonly<Record<string, SchemaDescriptor>>
+  readonly projectSpecs: Readonly<Record<string, ProjectSpecDescriptor>>
+  readonly resourceTopology: readonly ResourceTopologyDescriptor[]
+  readonly validation: readonly ValidationDescriptor[]
+  readonly dataPaths: readonly DataPathDescriptor[]
+  readonly references: readonly ReferenceDescriptor[]
+  readonly components: readonly ComponentDescriptor[]
+  readonly imports: readonly ImportDescriptor[]
+  readonly synchronization: readonly SyncDescriptor[]
+  readonly operations: readonly OperationDescriptor[]
+  readonly workerOperations: readonly WorkerOperationDescriptor[]
 }
 
 export function defineMetadataRules(
   definition: MetadataRulesDefinition,
 ): MetadataRulesDefinition
 
-// @nkdk/runtime
-export async function createMetadataRuntime(options: {
-  readonly rules: MetadataRulesDefinition
-  readonly concurrency?: number
-}): Promise<MetadataRuntime>
+export function composeMetadataRules(
+  ...layers: readonly MetadataRulesDefinition[]
+): MetadataRulesDefinition
 ```
 
-`MetadataDeclaration` — закрытое объединение типизированных категорий, а не
-произвольная функция `install(): unknown`. Минимальный состав категорий:
+Договор остаётся структурированным: именованные таблицы используются для
+записей с одним владельцем, массивы — для упорядоченных обработчиков. Если при
+инвентаризации обнаружится новая самостоятельная категория, она сначала
+добавляется в этот договор, а не передаётся через произвольный callback.
 
-- property type и операции property rule;
-- metadata item и form element;
-- system enumeration;
-- JSON Schema identity/ref;
-- project spec и resource declaration;
-- resource topology adapter/capability;
-- validation, data-path и reference contribution;
-- component, import, sync и operation descriptor.
+`defineMetadataRules()` только обеспечивает TypeScript-договор. Отдельных
+`compileMetadataRules`, `CompiledMetadataRules`, `id`, `apiVersion` и
+`revision` нет.
 
-Сложный обработчик может быть функцией внутри типизированного descriptor, но
-не получает доступ к глобальному registry и не может регистрировать соседние
-категории скрытым побочным действием.
+`composeMetadataRules(...)` объединяет слои в явно заданном порядке:
 
-Для категорий с единственным владельцем повтор ключа всегда является ошибкой;
-последняя регистрация не заменяет предыдущую. Категории с несколькими
-обработчиками моделируются отдельным типом ordered/multi declaration. Их
-порядок задаётся явной композицией rules и проверяется тестом, а не зависит от
-порядка обхода файлов или загрузки модулей. Механизм неявного override в эту
-работу не входит.
+- в именованной таблице поздняя запись заменяет раннюю, сохраняя нынешнюю
+  семантику `Map.set()`;
+- массивы обработчиков объединяются в порядке слоёв;
+- скрытого порядка загрузки файлов и side-effect imports нет.
 
-Компиляция выполняется так:
-
-1. Создаются новые временные builders всех категорий.
-2. Декларации нормализуются в детерминированном порядке.
-3. Собираются все конфликты ключей, отсутствующие ссылки и несовместимые
-   версии договора.
-4. После заполнения выполняются межкатегорийные проверки: project spec ↔
-   schema ↔ topology ↔ validation ↔ operation profile.
-5. Только при отсутствии ошибок создаётся неизменяемый `CompiledMetadataRules`.
-6. Worker и кэши создаются после успешной компиляции.
-
-Ошибка компиляции не изменяет состояние процесса и не оставляет частично
-заполненные реестры. Диагностики имеют стабильный код, категорию, ключ и
-источник декларации; их порядок детерминирован.
-
-После компиляции live-регистрация запрещена. Для изменения правил создаётся
-новый runtime.
+Предварительная проверка полноты rules, конфликтов и межкатегорийных ссылок в
+эту работу не входит. Существующее поведение продолжают проверять текущие
+тесты и исполнители.
 
 ## Экземплярное состояние
 
-Все таблицы правил и производные кэши принадлежат одному из двух владельцев:
+`createMetadataRuntime()` копирует секции definitions в собственные таблицы.
+`readonly` защищает входной договор на уровне TypeScript; рекурсивный
+`Object.freeze` и полное клонирование графа не применяются.
 
-- `CompiledMetadataRules` — неизменяемые таблицы и кэши, зависящие только от
-  набора правил;
-- `ProjectState` — данные, diagnostics, индексы и checkpoint конкретного
-  проекта.
+Запрещены:
 
-Операционные исполнители получают зависимости явно через объект runtime или
-связанный с ним execution context. Запрещены:
+- module-level `Map`/`Set` для регистрации rules;
+- `clear...ForTests()` как способ изоляции;
+- lookup без ссылки на runtime, его bound service или execution context;
+- регистрация во время чтения проекта, построения схемы или операции;
+- одновременная запись в старый и новый реестр.
 
-- module-level `Map`/`Set` с регистрацией правил;
-- `clear...ForTests()` как способ изоляции тестов;
-- lookup без ссылки на compiled rules/runtime;
-- регистрация во время чтения snapshot, построения schema или выполнения
-  операции;
-- установка флага «registered» до успешного завершения всей сборки.
+Каждый старый реестр мигрирует атомарно как отдельный законченный слой:
 
-Внутренние сервисы предпочтительно создаются уже связанными с
-`CompiledMetadataRules`, чтобы не протягивать optional `context.rules` через
-каждую функцию и не допускать резервного чтения global registry.
+1. Добавляется экземплярный реестр.
+2. Все записи и чтения категории переводятся на него.
+3. Добавляется тест двух runtime с пересекающимися ключами.
+4. Старый global registry и его test-clear удаляются.
 
-## Публичная граница runtime
+Если весь слой нельзя перевести за один шаг, слой не считается законченным и
+следующая категория не начинается. Переходник к singleton runtime не вводится.
 
-Старая первая попытка экспортировала `./internal/*`; этот путь запрещён.
-Runtime имеет небольшой набор осознанных точек входа:
+## Публичная граница
 
-- `@nkdk/runtime` — пользовательский экземплярный API;
-- `@nkdk/runtime/rule-kit` — договоры и builders, нужные rules-пакету;
-- `@nkdk/runtime/worker` — фабрики нейтральных worker entrypoint;
-- `@nkdk/runtime/testing` — только синтетический набор и test doubles runtime.
+Runtime имеет только осознанные exports:
 
-Если concrete-коду нужен новый символ runtime, сначала определяется, является
-ли он устойчивой частью `rule-kit`. Нельзя открывать wildcard или отдельный
-deep import ради одного мигрируемого файла. Перечень экспортов проверяется
-snapshot/contract-тестом.
+- `@nkdk/runtime` — создание runtime и публичные нейтральные договоры;
+- `@nkdk/runtime/rule-kit` — договор определения rules;
+- `@nkdk/runtime/worker` — нейтральные worker contracts и исполнители.
 
-Низкоуровневые XML/YAML-функции либо входят в `rule-kit`, либо получают
-отдельную осознанную точку входа только после инвентаризации фактических
-импортов. Package exports не повторяют внутреннее дерево каталогов.
+Публичного `@nkdk/runtime/testing`, wildcard `./internal/*` и exports,
+повторяющих внутреннее дерево каталогов, нет.
 
-Rules экспортирует из корня только `metadataRules`. Служебные worker entrypoint
-имеют именованные subpath exports, предназначенные для сборки, но не
-реэкспортируют concrete-типы. Тесты самого rules-пакета используют относительные
-пути внутри пакета, а не расширяют его внешний API ради тестирования.
+Корень `@nkdk/rules` экспортирует только `metadataRules`. Именованные subpath
+`@nkdk/rules/workers/*` экспортируют entrypoint для сборки MCP. Concrete-типы
+rules не протекают в публичные типы runtime.
 
-## TypeScript-граница
-
-- Публичные типы runtime не импортируют типы rules.
-- Declaration merging и ambient module augmentation между пакетами не
-  используются. Расширяемые варианты property/item rules задаются generic-
-  параметром или закрытым descriptor-договором `rule-kit`.
-- Concrete-типы не входят в общий `ConfigurationContext`, project state и
-  worker transport. На границе используются нейтральные DTO и идентификаторы.
-- Неизбежное приведение типа допускается только в именованном переходнике
-  compiler, покрытом contract-тестом; распределённые `as any` и
-  `as unknown` не являются способом миграции.
-- Сгенерированные `.d.ts` runtime проверяются отдельным type-test без
-  установленного rules-пакета. Это защищает от случайной обратной зависимости,
-  невидимой в runtime JavaScript.
+Сгенерированные `.d.ts` runtime проверяются без установленного rules-пакета.
 
 ## Runtime API и жизненный цикл
 
-Целевой фасад:
+`createMetadataRuntime()` синхронен: он создаёт экземплярные таблицы, но не
+запускает worker. Worker manifest обязателен, сами pool создаются лениво.
 
 ```ts
+export interface CreateMetadataRuntimeOptions {
+  readonly rules: MetadataRulesDefinition
+  readonly workers: MetadataWorkerManifest
+}
+
+export function createMetadataRuntime(
+  options: CreateMetadataRuntimeOptions,
+): MetadataRuntime
+
 export interface MetadataRuntime {
-  createProjectState(options?: CreateProjectStateOptions): ProjectState
-  validateProject(options: ValidateProjectOptions): Promise<ValidationResult>
-  importFromXml(options: ImportFromXmlOptions): Promise<ImportResult>
-  syncToXml(options: SyncToXmlOptions): Promise<SyncResult>
-  renameItem(options: RenameItemOptions): Promise<RenameResult>
-  findMetadataReferences(
-    options: FindMetadataReferencesOptions,
-  ): Promise<FindMetadataReferencesResult>
+  readonly projects: ProjectServices
+  readonly validation: ValidationServices
+  readonly import: ImportServices
+  readonly sync: SyncServices
+  readonly metadata: MetadataOperationServices
   close(): Promise<void>
 }
 ```
 
-Точный набор методов определяется инвентаризацией реально используемого API
-MCP до удаления `@nkdk/core`. Неиспользуемые concrete-экспорты старого core не
-переносятся автоматически в корень runtime.
+Группы покрывают фактически используемый MCP договор:
 
-Договор жизненного цикла:
+- `projects`: создание state, разбор project path и описание структуры;
+- `schemas`: экспорт схемы файла или именованной схемы, поиск и сокращённое
+  представление;
+- `validation`: проверка проекта;
+- `import`: импорт из XML;
+- `sync`: построение плана, синхронизация в XML и инициализация sync state;
+- `metadata`: переименование и поиск ссылок.
 
-- runtime возвращается только после успешной компиляции правил;
-- worker pool создаётся лениво, если операция не требует его при старте;
-- `ProjectState` принадлежит создавшему его runtime;
-- передача состояния другому runtime завершается типизированной ошибкой;
-- `close()` идемпотентен, прекращает новые операции и закрывает все принадлежащие
-  runtime pool/state;
-- любая ошибка инициализации закрывает уже созданные ресурсы;
-- после `close()` рабочие методы возвращают ошибку жизненного цикла.
+Неиспользуемые exports старого `core` не переносятся. Инвентаризация на этапе 0
+проверяет этот список против production-вызовов MCP и не расширяет его без
+отдельного обоснования.
 
-## Worker и согласованность правил
+Project state остаётся явным:
 
-Функции правил нельзя передать через structured clone. Поэтому:
+- `runtime.projects.createState()` создаёт `ProjectStateService`;
+- операции получают state параметром, как сейчас;
+- state принадлежит создавшему runtime и не используется другим runtime;
+- `state.close()` и `runtime.close()` идемпотентны;
+- `runtime.close()` закрывает все созданные им state и worker pool;
+- MCP при остановке закрывает только runtime.
 
-- runtime владеет протоколом, очередью и нейтральным исполнителем worker;
-- rules владеет каждым production entrypoint, который статически импортирует
-  `metadataRules` и передаёт его фабрике из `@nkdk/runtime/worker`;
-- главный процесс передаёт worker только сериализуемые параметры;
-- случайный порядок side-effect imports не является частью bootstrap;
-- сборка MCP обращается к package exports, а не к
-  `packages/*/metadata/...`.
+Ошибки данных остаются существующими diagnostics/results. Ошибки файловой
+системы, worker и неверного lifecycle продолжают выбрасываться как обычный
+`Error` с понятным сообщением. Новая иерархия классов ошибок не вводится.
 
-Текущая топология worker сохраняется на первом этапе миграции. Объединение или
-удаление отдельных worker — самостоятельная оптимизация, чтобы не смешивать
-изменение производительности с package-границей.
+## Worker и сборка
 
-Набор правил имеет сериализуемую identity:
+Функции rules не передаются через structured clone. Каждый production worker
+статически импортирует `metadataRules` через entrypoint rules-пакета.
+
+Распределение ответственности:
+
+- runtime владеет протоколом, очередью, pool и нейтральным исполнителем;
+- rules владеет исходными worker entrypoint;
+- MCP собирает официальные exports rules в файлы своего `dist`;
+- MCP формирует `MetadataWorkerManifest` с путями к готовым файлам;
+- runtime получает manifest через `createMetadataRuntime({ rules, workers })`.
+
+MCP не обращается к путям `packages/rules/**` или `packages/runtime/**`.
+Текущая топология worker сохраняется; их объединение является отдельной
+оптимизацией.
+
+При аварии worker:
+
+- текущая операция завершается ошибкой;
+- автоматического повтора нет;
+- worker этой операции уничтожаются;
+- следующий отдельный вызов может создать новые worker.
+
+Hash, handshake, rules identity и привязка persisted caches к rules revision не
+добавляются. Соответствие main/worker проверяется интеграционными тестами
+сборки.
+
+## Composition root MCP
+
+MCP является единственным production-местом, знающим оба пакета:
 
 ```ts
-{ rulesId, apiVersion, revision }
+const runtime = createMetadataRuntime({
+  rules: metadataRules,
+  workers: createMcpWorkerManifest(import.meta.url),
+})
 ```
 
-`revision` формируется сборкой rules из нормализованного графа входных
-исходников и одинаково встраивается в главный entrypoint и все worker. Она не
-вычисляется через `Function.toString()` и не задаётся вручную для каждого
-обработчика. Worker подтверждает identity до первой задачи; несовпадение
-закрывает pool и завершает инициализацию ошибкой.
+Runtime создаётся лениво при первом обращении и затем переиспользуется. Старый
+`projectStateHandle` заменяется владением внутри runtime; отдельная глобальная
+точка закрытия project state не сохраняется.
 
-Та же identity включается в validation snapshots и кэши project state,
-семантика которых зависит от правил. Несовпадение вызывает безопасное
-перестроение производных данных, а не чтение устаревшего результата. Версия
-двоичного формата остаётся отдельным понятием.
+## Особенности текущего репозитория
 
-## Composition root
+### Регистрация остаётся побочной
 
-С двумя пакетами production-composition, знающая и rules, и runtime, не может
-принадлежать runtime. Она находится:
+Часть верхнеуровневых `index.ts` регистрирует rules импортом модуля. Явные
+`register...()` не отражают полный фактический порядок. Каждый такой модуль
+должен экспортировать descriptor или секцию definition без side effects.
 
-- в `@nkdk/rules` для сборки `metadataRules` и worker entrypoint;
-- в MCP для создания единственного runtime процесса, передачи его обработчикам
-  и закрытия при завершении.
+### Нейтральные слои ещё содержат globals
 
-Нынешний `metadata/composition` используется как карта зависимостей при
-миграции. Его части разделяются так:
+Module-level таблицы остаются в property/item/form registries,
+projectDefinition, validation/data path, resource topology, components,
+import/sync и worker operations. Нейтральное расположение файла не означает,
+что его состояние экземплярно.
 
-- сборка конкретных metadata-слоёв и concrete validation adapters → rules;
-- фабрики общих project state/worker сервисов → runtime;
-- окончательное связывание рабочего rules с runtime → MCP composition root.
+### Сборка MCP владеет чужими исходными путями
 
-Обычные metadata-модули не импортируют composition root.
+Сборщик MCP сейчас входит непосредственно в worker-файлы `packages/core`.
+После разделения он использует только именованные exports rules и runtime.
 
-## Особенности актуального репозитория
+### Публичный API старого core слишком широк
 
-Следующие свойства необходимо учесть до физического переноса.
+MCP использует ограниченный набор project state, validation, schema,
+import/sync и metadata operation contracts. Перед удалением `core/index.ts`
+составляется машинная инвентаризация реальных imports. Остальные exports не
+переносятся автоматически.
 
-### Регистрация сейчас остаётся побочной
+### Исходное состояние нужно измерить заново
 
-`registerCoreMetadata()` выглядит как явная последовательность слоёв, но
-`commonObjects/index.ts`, `forms/index.ts` и `appliedObjects/index.ts` загружают
-большинство регистраций верхнеуровневыми side-effect imports. Их функции
-`register...()` выполняют только малую часть работы. Тест порядка вызовов не
-доказывает фактический порядок регистрации.
-
-Перед созданием rules-пакета каждый такой модуль должен экспортировать явные
-declarations или функцию `declare...(builder)`, не меняющую process globals.
-
-### Нейтральные слои ещё содержат изменяемые реестры
-
-На момент написания найдены module-level таблицы как минимум в:
-
-- `ruleRuntime/property/typeRuleRegistry.ts`;
-- `ruleRuntime/jsonSchemaRefs.ts`;
-- реестрах metadata item, form element, enumeration и property adapters;
-- `projectDefinition/projectSpecRegistry.ts` и `schemaRegistry.ts`;
-- validation/data-path/reference registries;
-- resource topology provider/capability registries;
-- component, import, sync и worker operation registries.
-
-Их нейтральное расположение не делает их экземплярными. Физический перенос
-разрешён только после теста двух независимых compiled rule sets для каждой
-мигрируемой категории.
-
-### Граф импортов не видит предметные литералы
-
-Dependency-cruiser уже запрещает neutral → concrete imports, но не обнаруживает
-конкретные имена каталогов, XML-корней и ветвления по `itemType` внутри
-нейтрального файла. Например, общий validation всё ещё может содержать имя
-предметного каталога без импорта concrete-модуля.
-
-Для package-границы добавляется узкая семантическая проверка запрещённых
-литералов и условий в neutral production-коде. Она дополняет графовую проверку
-и не заменяет поведенческие тесты.
-
-### Сборка сейчас владеет чужими исходниками
-
-MCP напрямую собирает worker из `packages/core/metadata/...`. После разделения
-каждый пакет публикует собственные build entrypoints через `exports`; MCP не
-знает расположение исходников соседнего пакета. Общие test/build scripts не
-вызываются через относительные пути вроде `../runtime/scripts/...` — их нужно
-оставить в корневых инструментах либо дать каждому пакету собственную команду.
-
-### Локальная исходная проверка не полностью зелёная
-
-На свежем `develop` полный `pnpm test` в Windows даёт 12 падений из-за ожиданий
-POSIX-путей. Архитектурные проверки проходят. Эти падения не вызваны
-разделением, но делают локальный регрессионный сигнал неоднозначным.
-
-До активной миграции пути нормализуются отдельным изменением либо для каждого
-слоя фиксируется чистая исходная проверка в той же среде. Финальное разделение
-нельзя объявить завершённым при падающем полном `pnpm test`.
+До реализации выполняются актуальные проверки на том же commit и в той же
+среде. Несвязанные падения не исправляются в этой работе. Если они мешают
+обязательной финальной проверке, реализация останавливается и состояние
+сообщается отдельно.
 
 ## Стратегия перехода
 
-Переход выполняется семантически, затем физически.
-
 ### Этап 0. Зафиксировать исходное состояние
 
-- Работать от актуального `origin/develop` в отдельном worktree.
-- Зафиксировать базовый commit для duplicate-проверок.
+- Создать implementation-worktree от актуального `origin/develop`.
+- Зафиксировать base commit для duplicate-проверок.
 - Выполнить type-check, архитектурные проверки и полный test.
-- Отделить существующие платформозависимые падения путей от регрессий ветки.
+- Инвентаризировать публичный API MCP, globals и side-effect registrations.
 - Не создавать и не обновлять dependency-cruiser baseline.
 
-### Этап 1. Ввести договор определения правил внутри `core`
+### Этап 1. Ввести договор rules внутри `core`
 
-- Добавить `MetadataRulesDefinition`, типизированные declarations и compiler в
-  нынешний `ruleRuntime`.
-- Проверить атомарность, детерминированные ошибки и неизменяемость результата на
-  синтетическом наборе.
-- Не менять production-registration и публичный API на этом этапе.
+- Добавить структурированный `MetadataRulesDefinition`,
+  `defineMetadataRules()` и `composeMetadataRules()`.
+- Перевести одну нижнюю категорию на явные descriptors и экземплярный реестр.
+- Сохранить существующую XML/YAML-семантику и порядок обработчиков.
+- Не создавать новый пакет на этом этапе.
 
 ### Этап 2. Перевести реестры на экземплярное состояние
 
-Мигрировать по категориям, начиная с нижних:
+Мигрировать атомарными категориями, начиная с нижних:
 
 1. property/item/form-element/system-enumeration;
 2. schema и projectDefinition;
@@ -483,202 +373,181 @@ POSIX-путей. Архитектурные проверки проходят. 
 4. validation/data path/references;
 5. components, import, sync, operations и worker operations.
 
-Для каждой категории сначала добавляется тест двух независимых compiled sets,
-затем lookup переводится на bound service/context, после чего удаляются global
-registry и `clear...ForTests()` этой категории.
+После каждого слоя удалять соответствующие global registry и test-clear. Не
+использовать двойную запись и singleton-переходники.
 
-Нельзя одновременно поддерживать запись и в новый builder, и в старый global
-registry через журнал совместимости.
+### Этап 3. Собрать рабочий `metadataRules`
 
-### Этап 3. Сделать рабочее определение rules без side effects
-
-- Заменить импортные агрегаторы явной композицией declarations.
-- Сохранить направленную иерархию concrete-слоёв.
-- Компилировать schema/topology/validation snapshots только чтением уже
-  собранного immutable-набора.
+- Заменить side-effect агрегаторы явной композицией секций.
+- Сохранить направленную иерархию конкретных слоёв.
+- Передавать специальное поведение validation/import/sync/operations через
+  узкие descriptors и нейтральный context runtime.
 - Доказать эквивалентность существующими round-trip, schema, validation,
   import и sync тестами без изменения XML-фикстур.
 
 ### Этап 4. Ввести экземплярный runtime внутри `core`
 
-- Добавить `createMetadataRuntime({ rules })` и жизненный цикл.
-- Перевести MCP на один передаваемый экземпляр runtime.
-- Удалить регистрацию из `core/index.ts` и тестового global setup.
-- Проверить два runtime, два project state, close и откат частичной
-  инициализации.
+- Добавить синхронный `createMetadataRuntime({ rules, workers })`.
+- Сгруппировать API по возможностям.
+- Перевести MCP на ленивый singleton runtime.
+- Передать project state во владение runtime.
+- Удалить регистрацию из `core/index.ts` и test setup.
 
 ### Этап 5. Перевести worker и сборку
 
-- Ввести явные rules-owned entrypoint и identity handshake.
-- Привязать snapshots/caches к rules revision.
-- Экспортировать worker entrypoint через package exports.
-- Удалить прямые source paths из MCP build.
+- Создать rules-owned entrypoint без side effects.
+- Создать обязательный worker manifest в MCP.
+- Перевести MCP build с source paths на именованные package exports.
+- Зафиксировать отсутствие автоматического повтора после аварии worker.
 
 ### Этап 6. Создать физические пакеты
 
-- Создать минимальные `packages/runtime` и `packages/rules` manifest/config.
-- Переносить законченные архитектурные зоны отдельными `git mv`, сохраняя
-  рабочий граф после каждого слоя.
-- Сначала переносить neutral contracts/core в runtime, затем concrete-код в
-  rules; composition переносить последней.
-- Распределить npm dependencies по фактическим production-импортам.
-- Не открывать wildcard package exports.
+- Создать private `packages/runtime` и `packages/rules`.
+- Переносить законченные зоны отдельными `git mv`.
+- Сначала переносить нейтральный код в runtime, затем конкретные definitions и
+  adapters в rules; composition переносить последней.
+- Распределить dependencies по фактическим production imports.
+- Не открывать wildcard exports.
 
 ### Этап 7. Удалить `@nkdk/core`
 
-- Перевести MCP и остальные реальные потребители на public exports двух
-  пакетов.
-- Удалить старый фасад, flags регистрации, global setup и переходные aliases.
-- Обновить dependency-cruiser на package paths и запретить runtime → rules для
-  direct, type-only и transitive imports.
-- Проверить отсутствие старых package/path imports и случайных side effects.
+- Перевести оставшихся потребителей на два новых пакета.
+- Удалить старый фасад, register flags, global setup и aliases.
+- Обновить архитектурные правила на package paths.
+- Запретить runtime → rules для direct, type-only и transitive imports.
+- Проверить отсутствие старых package imports и deep source paths.
 
-## Проверка и тестовая архитектура
+## Тестовая архитектура
 
 ### Runtime
 
-Runtime тестируется на маленьком синтетическом наборе из нескольких property и
-item types. Обязательные договоры:
+Runtime тестируется внутренними синтетическими definitions без публичного
+`runtime/testing`:
 
 - импорт пакета не меняет состояние;
-- compiler атомарен и детерминирован;
-- конфликты и отсутствующие ссылки обнаруживаются до создания worker;
-- два compiled sets и два runtime изолированы;
-- read-only операции не регистрируют новые правила;
-- lifecycle и очистка частичной инициализации корректны;
-- worker отклоняет несовпадающую identity;
-- кэш с другой rules revision перестраивается.
+- два runtime с одинаковыми ключами и разными обработчиками изолированы;
+- поздний слой definition детерминированно заменяет ранний;
+- массивы обработчиков сохраняют порядок композиции;
+- read-only операции не регистрируют rules;
+- project state нельзя использовать с другим runtime;
+- `state.close()` и `runtime.close()` идемпотентны;
+- авария worker не повторяет текущую операцию.
 
 ### Rules
 
 Rules владеет проверками содержания:
 
-- полнота рабочего определения;
-- XML↔YAML round-trip и существующие фикстуры;
+- XML↔YAML round-trip на существующих фикстурах;
 - JSON Schema;
 - project/resource topology;
 - validation и data path;
-- descriptors import/sync/operations;
-- интеграция рабочего rules с настоящим runtime и worker.
+- import/sync/operations;
+- интеграция `metadataRules` с настоящим runtime и worker.
 
-Существующие XML-фикстуры не изменяются. Тесты не удаляются автоматически из-за
-переноса файлов; дублирующие внутренние тесты объединяются только после
-появления равносильного граничного теста согласно `.agents/testing.md`.
+XML-фикстуры не изменяются. Тесты не удаляются автоматически из-за переноса;
+внутренние тесты объединяются только после появления равносильного граничного
+теста согласно `.agents/testing.md`.
 
 ### Архитектура и сборка
 
 Обязательные проверки:
 
 - runtime не достигает rules;
-- rules импортирует runtime только через разрешённые package exports;
-- neutral-слои не содержат concrete imports и запрещённые предметные условия;
+- rules импортирует runtime только через разрешённые exports;
 - обычные модули не достигают composition roots;
 - public exports не содержат wildcard `internal`;
-- MCP build не использует пути `packages/runtime/**` и `packages/rules/**`;
-- каждый worker entrypoint проходит handshake;
-- package manifests содержат только фактические зависимости.
+- MCP build не использует deep source paths соседних пакетов;
+- package manifests содержат только фактические dependencies;
+- dependency-cruiser показывает ноль нарушений и циклов без нового baseline.
 
 После каждого законченного слоя выполняются целевые тесты и
-`pnpm duplicates -- --base <исходный-коммит>`. Перед завершением обязательны:
+`pnpm duplicates -- --base <base-commit>`. Перед завершением обязательны:
 
 ```text
 pnpm type-check
 pnpm test:architecture:rules
 pnpm test:architecture
-pnpm duplicates -- --base <исходный-коммит>
+pnpm duplicates -- --base <base-commit>
 pnpm test
 ```
 
-## Риски и способы ограничения
+## Риски и ограничения
 
-### Слишком широкий rule-authoring API
+### Слишком широкий `rule-kit`
 
-Concrete-коду нужны многие типы и builders. Если просто открыть внутреннее
-дерево runtime, пакеты останутся сцепленными. Каждый экспорт `rule-kit`
-группируется по устойчивому договору, покрывается contract-тестом и не раскрывает
-изменяемые registry implementations.
+Rules может потребовать множество внутренних типов runtime. Новый export
+добавляется только как устойчивый descriptor/builder, а не ради одного deep
+import. `rule-kit` не раскрывает изменяемые registry implementations.
 
 ### Скрытое глобальное состояние
 
-Удаление `registerCoreMetadata()` само по себе недостаточно. Главный критерий —
-одновременная работа двух runtime с пересекающимися ключами без взаимного
-влияния. Любой singleton, допускающий это только через `clear...ForTests()`,
-блокирует физический перенос слоя.
+Удаления `registerCoreMetadata()` недостаточно. Критерий — два runtime с
+пересекающимися ключами работают независимо без `clear...ForTests()`.
+
+### Изменение порядка
+
+Текущий порядок side-effect imports может влиять на поведение. Явная
+композиция должна воспроизвести его: поздние одиночные записи заменяют ранние,
+массивы сохраняют последовательность.
 
 ### Несогласованность main/worker
 
-Worker может загрузить другой набор или устаревшую сборку. Identity handshake
-выполняется до задач, а производные persisted caches включают rules revision.
-
-### Ложная нейтральность
-
-Отсутствие concrete-импорта не гарантирует нейтральность, если файл содержит
-предметный путь или ветвление. Поэтому проверяются и граф, и узкие семантические
-ограничения.
-
-### Изменение поведения при переносе
-
-Порядок side-effect imports сейчас может влиять на результат. Его сначала
-выражают явными declarations и фиксируют contract-тестами. Физический `git mv`
-после этого не должен менять порядок или семантику.
+Дополнительного handshake нет. Риск ограничивается тем, что MCP собирает main
+и все worker из одних package exports в одном build, а packed smoke-тест
+запускает готовый результат.
 
 ### Размер изменения
 
 Повторный перенос всего дерева одним коммитом запрещён. Каждый слой должен быть
 собираемым, тестируемым и архитектурно чистым до следующего переноса.
 
-### Публичные concrete-типы старого core
+## Точки остановки
 
-Старый private-пакет экспортирует ряд конкретных типов и вспомогательных
-функций. Перед удалением составляется инвентаризация фактических потребителей.
-Неиспользуемые экспорты удаляются; нужные concrete-типы остаются внутренними
-rules или получают узкий осознанный export. Они не протекают в типы runtime.
+Работа останавливается на границе слоя, если:
 
-## Точки остановки, требующие пересмотра решения
-
-Реализация останавливается на границе слоя, если обнаружено хотя бы одно:
-
-- runtime может работать только при импорте rules ради side effect;
+- runtime работает только после side-effect импорта rules;
 - rules требует wildcard-доступа к runtime internals;
-- экземплярный registry невозможно протянуть без изменения XML/YAML-договора;
-- worker не может доказать использование той же rules identity;
-- новый package import создаёт цикл или архитектурное нарушение;
-- для продолжения требуется изменить XML-фикстуру, добавить новое правило
+- категорию реестра нельзя перевести атомарно без двойной записи;
+- package import создаёт цикл или архитектурное нарушение;
+- продолжение требует изменить XML-фикстуру, добавить новое правило
   преобразования или новое применение `!xml`;
-- полный тест получает новое падение либо существующее падение нельзя отделить
-  от изменения слоя.
+- полный test получает новое падение либо исходное падение нельзя отделить от
+  изменений слоя.
 
-В этих случаях спецификация и архитектурный план не исправляются постфактум:
-сначала фиксируется найденное ограничение и согласуется новое решение.
+Найденное ограничение сначала фиксируется и согласуется; спецификация не
+исправляется постфактум под уже написанный код.
 
 ## Критерии завершения
 
-- `packages/core` и пакет `@nkdk/core` отсутствуют.
-- Существуют `@nkdk/runtime` и `@nkdk/rules` с единственным production-
-  направлением зависимости rules → runtime.
-- Импорт любого из двух пакетов не запускает регистрацию и worker.
-- Рабочий runtime создаётся через
-  `await createMetadataRuntime({ rules: metadataRules })`.
-- Все registry таблицы и rules-dependent caches экземплярны или принадлежат
-  immutable `CompiledMetadataRules`.
-- Два runtime с разными синтетическими наборами не видят данные друг друга.
+- `packages/core` и `@nkdk/core` отсутствуют.
+- Существуют private `@nkdk/runtime` и `@nkdk/rules` с зависимостью только
+  `rules → runtime`.
+- Импорт пакетов не запускает регистрацию и worker.
+- MCP лениво создаёт один runtime через
+  `createMetadataRuntime({ rules: metadataRules, workers })`.
+- Все таблицы rules экземплярны и не используют process globals.
+- Два runtime с разными definitions не видят данные друг друга.
 - Rules не использует `@nkdk/runtime/internal/*` и deep source imports.
-- Runtime не содержит concrete imports, предметных путей и ветвлений по
-  конкретной модели.
-- Каждый worker явно загружает rules, подтверждает identity и не зависит от
-  случайного порядка импортов.
-- MCP создаёт и закрывает один runtime и собирает worker только через package
-  exports.
+- Runtime не содержит конкретных imports и предметных условий.
+- Worker явно загружает `metadataRules`; MCP собирает worker только через
+  package exports.
+- `runtime.close()` закрывает project state и worker pool.
 - Dependency-cruiser показывает ноль нарушений и циклов без нового baseline.
-- Все проверки проекта проходят, новые дубли отсутствуют, XML-фикстуры не
+- Все обязательные проверки проходят, новых дублей нет, XML-фикстуры не
   изменены.
 
 ## Вне границ работы
 
 - Turborepo и удалённый кэш CI;
-- динамическая установка сторонних наборов правил;
-- независимая публикация и согласование версий rules/runtime;
-- изменение смысловой модели XML/YAML;
-- добавление новых правил преобразования или новых применений `!xml`;
+- динамические сторонние наборы rules и plugins;
+- отдельная публикация и согласование версий rules/runtime;
+- предварительная проверка полноты и ссылок в rules;
+- `id`, `apiVersion`, `revision`, hash и worker handshake;
+- публичный `@nkdk/runtime/testing`;
+- новая иерархия типизированных ошибок;
+- семантический анализатор конкретных строк и условий в runtime;
+- исправление несвязанных тестов;
+- изменение XML/YAML-семантики;
+- новые правила преобразования и применения `!xml`;
 - объединение worker ради производительности;
-- сохранение совместимого `@nkdk/core`.
+- совместимый фасад `@nkdk/core`.
