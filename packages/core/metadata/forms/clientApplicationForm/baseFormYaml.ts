@@ -11,6 +11,7 @@ import type { ExternalFileEntry } from "../../context/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector, type DeferredValuePath } from "../../ruleRuntime/property/importYamlTypes"
 import type { LocalIndexes, MetadataItemRule } from "../../ruleRuntime"
+import { isExplicitYAMLString } from "../../../yaml/explicitString"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { importClientApplicationFormBodyFromXML } from "./fromXMLToYAML"
 import { ClientApplicationFormRules } from "./rules"
@@ -61,6 +62,7 @@ export function importBaseFormYaml(params: {
 }
 
 export function normalizeBaseFormYaml(value: unknown): unknown {
+  if (isExplicitYAMLString(value)) return value
   if (Array.isArray(value)) return value.map(normalizeBaseFormYaml)
   if (!isRecord(value)) return value
 

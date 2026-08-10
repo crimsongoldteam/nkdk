@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
+import { exportToYAML } from "../../../yaml/export"
+import { explicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import type { ClientApplicationFormXML } from "./types"
@@ -72,6 +74,16 @@ describe("base form YAML", () => {
       Значение: 1,
       Вложенный: { _id: 8, Имя: "Поле" },
     })).toEqual({ Значение: 1, Вложенный: { Имя: "Поле" } })
+  })
+
+  it("сохраняет явные строки списка выбора при нормализации", () => {
+    const normalized = normalizeBaseFormYaml({
+      СписокВыбора: [{ Представление: "Массив", Значение: explicitYAMLString("Массив") }],
+    }) as { СписокВыбора: Array<{ Значение: unknown }> }
+
+    expect(isExplicitYAMLString(normalized.СписокВыбора[0]?.Значение)).toBe(true)
+    expect(exportToYAML(normalized)).toContain('Значение: "Массив"')
+    expect(exportToYAML(normalized)).not.toContain("value:")
   })
 })
 

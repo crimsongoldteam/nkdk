@@ -9,9 +9,6 @@ import { importConfigurationFromXml } from "../../importFromXml/importConfigurat
 import "../../appliedObjects/metadataCatalog/register"
 import { syncChildFormNamesFromXML } from "./childFormNamesImportAdapter"
 import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
-
-registerCoreMetadata()
 
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()

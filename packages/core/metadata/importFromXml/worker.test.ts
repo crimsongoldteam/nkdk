@@ -14,14 +14,17 @@ import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
-import { createValidationSchemaCache, validateProjectFileFirstPass } from "../validation/projectValidationPasses"
+import {
+  createValidationSchemaCache,
+  type ValidationSchemaCache,
+  validateProjectFileFirstPass,
+} from "../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createFirstPassTransferable,
   isolateProjectStateYamlUpdate,
   resetImportWorkerStateForTests,
   runImportWorkerCommand,
-  setImportWorkerSchemaCacheForTests,
   workerStateForTests,
 } from "./worker"
 import type { ImportAssignment } from "./types"
@@ -43,6 +46,12 @@ const withDynamicListXmlPath = join(
   "../forms/clientApplicationForm/__fixtures__/withDynamicList.xml"
 )
 const fullValidationSchemaCache = createValidationSchemaCache(mockXmlImportContext())
+const fastValidationSchemaCache = {
+  form: () => validSchema,
+  properties: () => validSchema,
+  compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
+} satisfies ValidationSchemaCache
+const validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
 const catalogValidationFile = resolveValidationProjectFile(
   "/project",
   "/project/Справочник/Товары/Свойства.yaml",
@@ -65,22 +74,10 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   resetImportWorkerStateForTests()
-  setImportWorkerSchemaCacheForTests({
-    form: () => validSchema,
-    properties: () => validSchema,
-    compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
-  })
-  await runImportWorkerCommand({
-    kind: "initialize",
-    operationId: "test-operation",
-    workerIndex: 2,
-    context: mockXmlImportContext(),
-    outputDir: "/tmp/nkdk-import-worker-2",
-  })
+  await initializeWorker("/tmp/nkdk-import-worker-2")
 })
 
 afterAll(() => {
-  setImportWorkerSchemaCacheForTests(undefined)
   for (const store of stateStores.splice(0)) store.close()
 })
 
@@ -628,13 +625,18 @@ function expectWrittenImportFile(
   expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
 }
 
-async function initializeWorker(outputDir: string): Promise<void> {
+async function initializeWorker(
+  outputDir: string,
+  schemaCache: ValidationSchemaCache = fastValidationSchemaCache,
+): Promise<void> {
   await runImportWorkerCommand({
     kind: "initialize",
     operationId: "second-pass-test",
     workerIndex: 0,
     context: mockXmlImportContext(),
     outputDir,
+  }, {
+    persistentValidationState: { schemaCache, rulesSnapshot: validationRulesSnapshot },
   })
 }
 
@@ -649,8 +651,7 @@ function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
 
 async function prepareReadyYamlValidationScenario() {
   const outputDir = createTempDir("first-pass-ready")
-  setImportWorkerSchemaCacheForTests(fullValidationSchemaCache)
-  await initializeWorker(outputDir)
+  await initializeWorker(outputDir, fullValidationSchemaCache)
   const assignment = catalogAssignment({
     itemName: "СправочникПолный",
     targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",

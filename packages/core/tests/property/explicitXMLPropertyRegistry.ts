@@ -34,3 +34,6 @@ export function registeredMissingExplicitXMLTestRule(): MetadataItemRule {
   })
   return rule
 }
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()
