@@ -217,20 +217,32 @@ interface ProjectStatePendingReference {
   readonly constraint: MetadataTargetConstraint
 }
 
-interface ProjectStatePendingCheck {
-  readonly yamlPath: readonly (string | number)[]
-  readonly location: { readonly line: number; readonly col: number; readonly path?: string }
-  readonly owner: OwnerTypeRef
-  readonly value: string
-  readonly policyInput: {
-    readonly yaml: string
-    readonly allowedKinds?: readonly string[]
-    readonly allowComposite?: boolean
-  }
-  readonly elementType?: string
-  readonly hasValuesPicture?: boolean
-  readonly tableContext?: { readonly dataPath: string }
-}
+type ProjectStatePendingCheck =
+  | {
+      readonly kind: "dataPath"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly owner: OwnerTypeRef
+      readonly value: string
+      readonly policyInput: {
+        readonly yaml: string
+        readonly allowedKinds?: readonly string[]
+        readonly allowComposite?: boolean
+      }
+      readonly elementType?: string
+      readonly hasValuesPicture?: boolean
+      readonly tableContext?: { readonly dataPath: string }
+    }
+  | {
+      readonly kind: "fillValue"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly itemType: string
+      readonly type: unknown
+      readonly value: unknown
+      readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
+    }
 
 interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
@@ -242,6 +254,12 @@ interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly pendingReferences: readonly ProjectStatePendingReference[]
   readonly pendingChecks: readonly ProjectStatePendingCheck[]
   readonly dependencies: readonly string[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
+}
+interface ProjectStateStructuredDocumentEntry {
+  readonly documentKind: string; readonly representation: string; readonly logicalAddress: string
+  readonly workingProjectPath: string; readonly componentKind: string; readonly name: string
+  readonly yamlPath: readonly (string | number)[]
 }
 
 type ProjectStateFileUpdate =
@@ -255,6 +273,7 @@ interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 
 type ProjectStateImportFinalFileState =
@@ -429,7 +448,7 @@ export function createProjectStateFragmentWriter(options: {
   }
 
   function appendIndexFacts(
-    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms">,
+    update: Pick<ProjectStateImportIndexContribution, "owners" | "fields" | "forms" | "structuredDocuments">,
     fileId: number,
   ): void {
     for (const entry of update.owners) {
@@ -460,6 +479,18 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     appendForms(update.forms, fileId)
+    for (const entry of update.structuredDocuments ?? []) {
+      rows.structuredDocuments.push({
+        sourceFileId: fileId,
+        documentKindId: strings.intern(entry.documentKind),
+        representationId: strings.intern(entry.representation),
+        logicalAddressId: strings.intern(entry.logicalAddress),
+        workingProjectPathId: strings.intern(entry.workingProjectPath),
+        componentKindId: strings.intern(entry.componentKind),
+        nameId: strings.intern(entry.name),
+        yamlPathId: appendYamlPath(entry.yamlPath),
+      })
+    }
   }
 
   function appendTargetFacts(targets: ProjectStateFileUpdate["targets"], fileId: number): void {
@@ -544,6 +575,35 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     for (const check of update.pendingChecks) {
+      if (check.kind === "fillValue") {
+        rows.pendingChecks.push({
+          sourceFileId: fileId,
+          yamlPathId: appendYamlPath(check.yamlPath),
+          kindId: strings.intern("fillValue"),
+          payloadId: strings.intern(JSON.stringify({
+            version: 1,
+            itemType: check.itemType,
+            type: check.type,
+            value: check.value,
+            tagged: check.tagged,
+            ...(check.transport === undefined ? {} : { transport: check.transport }),
+          })),
+          line: check.location.line,
+          col: check.location.col,
+          pathId: optionalString(check.location.path),
+          ownerTypeId: NONE,
+          valueId: NONE,
+          policyYamlId: NONE,
+          allowedKindsStart: rows.allowedKinds.length,
+          allowedKindsCount: 0,
+          elementTypeId: NONE,
+          tableContextId: NONE,
+          allowComposite: 0,
+          hasValuesPicture: 0,
+          reserved: 0,
+        })
+        continue
+      }
       const allowedKindsStart = rows.allowedKinds.length
       for (const kind of check.policyInput.allowedKinds ?? []) {
         rows.allowedKinds.push({ valueId: strings.intern(kind) })
@@ -551,6 +611,8 @@ export function createProjectStateFragmentWriter(options: {
       rows.pendingChecks.push({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(check.yamlPath),
+        kindId: strings.intern("dataPath"),
+        payloadId: NONE,
         line: check.location.line,
         col: check.location.col,
         pathId: optionalString(check.location.path),
@@ -875,7 +937,7 @@ function emptyRows(): Record<ProjectStateFactTableKind, Record<string, number>[]
     owners: [], ownerFacts: [], ownerFactItems: [], fields: [], typeInfo: [], typeKinds: [], definedTypes: [],
     ownerTypes: [], tableInfo: [], forms: [], formColumns: [], pendingChecks: [],
     allowedKinds: [], dependencies: [], yamlPaths: [], yamlPathSegments: [],
-    typeDescriptions: [], typeDescriptionValues: [],
+    typeDescriptions: [], typeDescriptionValues: [], structuredDocuments: [],
   }
 }
 

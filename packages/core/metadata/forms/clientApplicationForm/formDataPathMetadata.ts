@@ -8,6 +8,8 @@ export function createFormDataPathIndexFromYAML(
     readonly dataPath?: string
   }>
 ) {
+  // Корни всегда строятся только из Реквизиты этого YAML. Дополнительный аргумент
+  // описывает лишь табличные элементы того же представления формы.
   return createProjectedFormDataPathIndexFromYAML(
     yaml,
     clientApplicationFormDataPathProjection,

@@ -6,6 +6,7 @@ import {
   ProjectStateFactTableRecordView,
   ProjectStateFieldRecordView,
   ProjectStateFormRecordView,
+  ProjectStateStructuredDocumentRecordView,
   ProjectStateOwnerFactRecordView,
   ProjectStateOwnerFactItemRecordView,
   ProjectStateOwnerRecordView,
@@ -46,6 +47,7 @@ export type ProjectStateFactTableKind =
   | "yamlPathSegments"
   | "typeDescriptions"
   | "typeDescriptionValues"
+  | "structuredDocuments"
 
 export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTableKind, number>> = {
   validationStatus: 1,
@@ -70,6 +72,7 @@ export const PROJECT_STATE_FACT_TABLE_IDS: Readonly<Record<ProjectStateFactTable
   ownerFactItems: 20,
   typeDescriptions: 21,
   typeDescriptionValues: 22,
+  structuredDocuments: 23,
 }
 
 export interface ProjectStateFactTableRange {
@@ -111,6 +114,7 @@ export const PROJECT_STATE_FACT_RECORD_VIEWS = {
   yamlPathSegments: ProjectStateYamlPathSegmentRecordView,
   typeDescriptions: ProjectStateTypeDescriptionRecordView,
   typeDescriptionValues: ProjectStateStringValueRecordView,
+  structuredDocuments: ProjectStateStructuredDocumentRecordView,
 } as unknown as Readonly<Record<ProjectStateFactTableKind, ProjectStateFactRecordView>>
 
 const NONE = 0xffff_ffff
@@ -316,10 +320,12 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("pendingChecks"), ProjectStatePendingCheckRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "pendingCheck.sourceFileId")
     assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "pendingCheck.yamlPathId")
+    assertStringId(record.kindId, params.stringCount, "pendingCheck.kindId")
+    assertOptionalStringId(record.payloadId, params.stringCount, "pendingCheck.payloadId")
     assertOptionalStringId(record.pathId, params.stringCount, "pendingCheck.pathId")
-    assertRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, "pendingCheck.ownerTypeId")
-    assertStringId(record.valueId, params.stringCount, "pendingCheck.valueId")
-    assertStringId(record.policyYamlId, params.stringCount, "pendingCheck.policyYamlId")
+    assertOptionalRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, "pendingCheck.ownerTypeId")
+    assertOptionalStringId(record.valueId, params.stringCount, "pendingCheck.valueId")
+    assertOptionalStringId(record.policyYamlId, params.stringCount, "pendingCheck.policyYamlId")
     assertRange(record.allowedKindsStart, record.allowedKindsCount, params.tables.get("allowedKinds")?.records ?? 0, "pendingCheck.allowedKinds")
     assertOptionalStringId(record.elementTypeId, params.stringCount, "pendingCheck.elementTypeId")
     assertOptionalStringId(record.tableContextId, params.stringCount, "pendingCheck.tableContextId")
@@ -329,6 +335,14 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("dependencies"), ProjectStateDependencyRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")
     assertStringId(record.projectPathId, params.stringCount, "dependency.projectPathId")
+  })
+  forEachRecord(params.tables.get("structuredDocuments"), ProjectStateStructuredDocumentRecordView, view, (record) => {
+    assertFileId(record.sourceFileId, params.fileCount, "structuredDocument.sourceFileId")
+    for (const id of [record.documentKindId, record.representationId, record.logicalAddressId,
+      record.workingProjectPathId, record.componentKindId, record.nameId]) {
+      assertStringId(id, params.stringCount, "structuredDocument.stringId")
+    }
+    assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "structuredDocument.yamlPathId")
   })
   forEachRecord(params.tables.get("ownerFactItems"), ProjectStateOwnerFactItemRecordView, view, (record) => {
     assertRowId(record.ownerFactId, params.tables.get("ownerFacts")?.records ?? 0, "ownerFactItem.ownerFactId")

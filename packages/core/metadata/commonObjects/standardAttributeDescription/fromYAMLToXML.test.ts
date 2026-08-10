@@ -18,6 +18,7 @@ import {
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
+import { importFromYAML } from "../../../yaml/import"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
@@ -95,6 +96,22 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('<xr:StandardAttribute name="PredefinedDataName">')
   })
 
+  it("restores empty default synonym when YAML omits it", () => {
+    const { result } = testExportPropertyModelThroughYAMLToXML({
+      rule: {
+        type: "StandardAttributeDescriptions",
+        standartAttributeNames: { Number: "Номер" },
+      },
+      value: undefined,
+      yaml: { Номер: { ПроверкаЗаполнения: "ВыдаватьОшибку" } },
+      xmlRootTag: "StandardAttributes",
+    })
+
+    expect(result).toContain('<xr:StandardAttribute name="Number">')
+    expect(result).toContain("<xr:Synonym/>")
+    expect(result).not.toContain("<v8:content>Number</v8:content>")
+  })
+
   it("exports undefined and empty YAML", () => {
     const results = [undefined, {}].map((yaml) => {
       return testExportPropertyModelThroughYAMLToXML({
@@ -167,7 +184,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       },
       value: fillValueEmptyRefTypeLoss,
       yaml: {
-        Ссылка: { Синоним: "", ЗначениеЗаполнения: "." },
+        Ссылка: { ЗначениеЗаполнения: "." },
       },
       xmlRootTag: "StandardAttributes",
       path: "fillValueEmptyRefTypeLoss.xml",
@@ -176,6 +193,58 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("exports a tagged forbidden boolean through MetadataValue", () => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Предопределенный:
+    ЗначениеЗаполнения: !xml Ложь
+`, { Predefined: "Предопределенный" })
+
+    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
+  })
+
+  it.each([
+    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }],
+    [
+      "Справочник.ПапкиФайлов.ПустаяСсылка",
+      { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+    ],
+  ] as const)("exports !xml %s as exact DesignTimeRef XML", (fillValue, expected) => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml ${fillValue}
+`, { Owner: "Владелец" })
+
+    expect(item["xr:FillValue"]).toEqual(expected)
+    expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
+  })
+
+  function standardAttributeFillValueXML(
+    yaml: string,
+    standartAttributeNames: Record<string, string>,
+  ): Record<string, unknown> {
+    const collectionRule = {
+      itemType: "StandardAttributeXMLTransportProbe",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: importFromYAML(yaml),
+      rule: collectionRule,
+      outputs: [{ key: "owner" }],
+    })
+    const rawItem = (result.outputs.get("owner")?.StandardAttributes as {
+      "xr:StandardAttribute": Record<string, unknown> | Record<string, unknown>[]
+    })["xr:StandardAttribute"]
+    return Array.isArray(rawItem) ? rawItem[0]! : rawItem
+  }
 
   it("preserves maxValue xsi type from reference", () => {
     const xmlString = '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>'
@@ -456,7 +525,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(exported.xml).toEqual({})
   })
 
-  it("does not restore an explicitly empty synonym as the standard attribute name", () => {
+  it("preserves an empty synonym without restoring the standard attribute name", () => {
     const itemRule = {
       itemType: "TestItem",
       properties: {
@@ -506,7 +575,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
         "xr:StandardAttribute": Array<Record<string, unknown>>
       }
     )["xr:StandardAttribute"]
-    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toEqual({})
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
     expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual({
       "v8:item": [{
         "v8:lang": "ru",

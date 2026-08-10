@@ -7,6 +7,7 @@ import type {
   CompiledMetadataIgnoredPathNode,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
+  CompiledMetadataYamlCompanionNode,
   MetadataContentDeclaration,
   MetadataResourceDeclaration,
   MetadataResourceTopologySpec,
@@ -23,6 +24,7 @@ interface MutableAssignment extends Omit<MetadataContentDeclaration, "fileBacked
   readonly ownerProjectPattern?: string
   fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
   readonly xmlDocuments: CompiledMetadataXmlDocumentNode[]
+  readonly yamlCompanions: CompiledMetadataYamlCompanionNode[]
   readonly externalFiles: CompiledMetadataExternalFileNode[]
 }
 
@@ -48,6 +50,9 @@ export function compileMetadataResourceTopology<Spec extends MetadataResourceTop
     ignoredPaths: Object.freeze(ignoredPaths),
     projectIndex: compileMetadataPathIndex([
       ...frozenAssignments.map((assignment) => [assignment.id, assignment.projectPattern] as const),
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.yamlCompanions.map((companion) => [companion.id, companion.projectPattern] as const)
+      ),
       ...frozenAssignments.flatMap((assignment) =>
         assignment.externalFiles.map((file) => [file.id, file.projectPattern] as const)
       ),
@@ -89,6 +94,7 @@ function compileDeclarations(
           ? {}
           : { ownerProjectPattern: declaration.ownerProjectPattern ?? context.ownerProjectPattern }),
         xmlDocuments: [],
+        yamlCompanions: [],
         externalFiles: [],
       }
       assignments.push(currentAssignment)
@@ -141,6 +147,16 @@ function compileDeclarations(
         ...declaration,
         id: stableId("xml", assignment.projectPattern, xmlPattern, declaration.role),
         xmlPattern,
+      })
+      continue
+    }
+
+    if (declaration.kind === "yamlCompanion") {
+      const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
+      assignment.yamlCompanions.push({
+        ...declaration,
+        id: stableId("yamlCompanion", assignment.projectPattern, projectPattern),
+        projectPattern,
       })
       continue
     }
@@ -265,6 +281,7 @@ function freezeAssignment(assignment: MutableAssignment): CompiledMetadataAssign
   return Object.freeze({
     ...assignment,
     xmlDocuments: Object.freeze([...assignment.xmlDocuments]),
+    yamlCompanions: Object.freeze([...assignment.yamlCompanions]),
     externalFiles: Object.freeze([...assignment.externalFiles]),
   })
 }

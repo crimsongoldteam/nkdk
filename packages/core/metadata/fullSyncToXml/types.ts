@@ -33,6 +33,10 @@ export interface FullXmlSyncAssignment {
   readonly owner?: { readonly itemType: string; readonly name: string; readonly logicalAddress: string }
   readonly nodeId: string
   readonly potentialOutputs: readonly FullXmlSyncPotentialOutput[]
+  readonly baseFormPaths?: {
+    readonly baseProjectPath: string
+    readonly savedProjectPath?: string
+  }
 }
 
 export interface FullXmlSyncExecutionAssignment extends FullXmlSyncAssignment {
@@ -96,7 +100,10 @@ export interface PreparedXMLDocument {
 export interface PreparedXMLAssignment {
   readonly assignment: FullXmlSyncAssignment
   readonly documents: readonly PreparedXMLDocument[]
-  readonly indexCollector: ConfigurationIndexCollector
+  readonly indexCollectors: readonly {
+    readonly collector: ConfigurationIndexCollector
+    readonly targetProjectPath: string
+  }[]
   readonly profile: YAMLToXMLProfile
 }
 

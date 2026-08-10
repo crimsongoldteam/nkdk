@@ -6,8 +6,8 @@ describe("validationComponentLayers", () => {
     expect(validationComponentLayers("cf")).toEqual(["cf"])
   })
 
-  it("returns the extension layer before the base layer", () => {
-    expect(validationComponentLayers("cfe/Продажи")).toEqual(["cfe/Продажи", "cf"])
+  it("returns only the requested extension layer", () => {
+    expect(validationComponentLayers("cfe/Продажи")).toEqual(["cfe/Продажи"])
   })
 
   it("rejects an incomplete extension component path", () => {

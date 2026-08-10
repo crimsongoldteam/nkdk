@@ -190,6 +190,41 @@ describe("compileMetadataResourceTopology", () => {
     ])
   })
 
+  it("компилирует YAML-спутник внутри задания без отдельного XML-задания", () => {
+    const formRule = rule("Form")
+    const topology = compileMetadataResourceTopology([
+      spec("Объект", formRule, [
+        content("Объект/{ownerName}/Форма.yaml", formRule, "fileItem"),
+        {
+          kind: "yamlCompanion",
+          assignmentProjectPattern: "",
+          projectPattern: "Объект/{ownerName}/БазоваяФорма.yaml",
+          required: false,
+          itemRule: formRule,
+          projectRole: "form",
+          indexContribution: "isolated",
+          logicalAddressSegment: "ОсноваФормы",
+          source: source("base form"),
+        },
+        xml("", "Objects/{ownerName}/Form.xml", "body"),
+      ]),
+    ])
+
+    expect(topology.assignments).toHaveLength(1)
+    expect(topology.assignments[0]?.yamlCompanions).toEqual([
+      expect.objectContaining({
+        projectPattern: "Объект/{ownerName}/БазоваяФорма.yaml",
+        projectRole: "form",
+        indexContribution: "isolated",
+        logicalAddressSegment: "ОсноваФормы",
+      }),
+    ])
+    expect(topology.projectIndex.match("Объект/Первая/БазоваяФорма.yaml")).toEqual([
+      expect.objectContaining({ values: { ownerName: "Первая" } }),
+    ])
+    expect(topology.xmlIndex.match("Объект/Первая/БазоваяФорма.yaml")).toEqual([])
+  })
+
   it("compiles root, nested, and recursively nested assignments by the same contract", () => {
     const configurationRule = rule("Configuration")
     const ownerRule = rule("Owner")

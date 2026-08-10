@@ -65,6 +65,7 @@ export function assertProjectStateImportIndexContribution(
     "owners",
     "fields",
     "forms",
+    "structuredDocuments",
   ], path)
   assertProjectStateFileUpdate({
     ...contribution,
@@ -73,6 +74,7 @@ export function assertProjectStateImportIndexContribution(
     pendingReferences: [],
     pendingChecks: [],
     dependencies: [],
+    structuredDocuments: contribution["structuredDocuments"] ?? [],
   }, path)
 }
 
@@ -104,6 +106,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
       "forms",
       "pendingChecks",
       "dependencies",
+      "structuredDocuments",
     ],
     path
   )
@@ -149,6 +152,14 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     assertOptionalBoolean(row["tableHasColumns"], `${rowPath}.tableHasColumns`)
   })
   assertFormRows(update["forms"], `${path}.forms`)
+  assertRows(update["structuredDocuments"] ?? [], `${path}.structuredDocuments`, [
+    "documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name", "yamlPath",
+  ], (row, rowPath) => {
+    for (const key of ["documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name"] as const) {
+      assertString(row[key], `${rowPath}.${key}`)
+    }
+    assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
+  })
   assertRows(update["pendingChecks"], `${path}.pendingChecks`, [
     "kind",
     "yamlPath",
@@ -160,6 +171,10 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     "hasValuesPicture",
     "tableContext",
     "policy",
+    "itemType",
+    "type",
+    "tagged",
+    "transport",
   ], assertPendingCheck)
   if (!Array.isArray(update["dependencies"]) || !update["dependencies"].every((item) => typeof item === "string")) {
     throw new Error(`${path}.dependencies должен быть массивом строк`)
@@ -592,13 +607,23 @@ function assertRows(
 }
 
 function assertPendingCheck(row: Record<string, unknown>, path: string): void {
-  if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
   assertYamlPath(row["yamlPath"], `${path}.yamlPath`)
   const location = requiredRecord(row["location"], `${path}.location`)
   assertExactKeys(location, ["line", "col", "path"], `${path}.location`)
   assertNumber(location["line"], `${path}.location.line`)
   assertNumber(location["col"], `${path}.location.col`)
   assertOptionalString(location["path"], `${path}.location.path`)
+  if (row["kind"] === "fillValue") {
+    assertString(row["itemType"], `${path}.itemType`)
+    assertTypeDescriptionView(row["type"], `${path}.type`)
+    assertMetadataTypedValue(row["value"], `${path}.value`)
+    if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
+    if (row["transport"] !== undefined && row["transport"] !== "DesignTimeRef") {
+      throw new Error(`${path}.transport имеет неизвестное значение`)
+    }
+    return
+  }
+  if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
   assertOwnerRef(row["owner"], `${path}.owner`)
   assertString(row["value"], `${path}.value`)
   const policyInput = requiredRecord(row["policyInput"], `${path}.policyInput`)
@@ -623,6 +648,27 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
     assertExactKeys(tableContext, ["dataPath"], `${path}.tableContext`)
     assertString(tableContext["dataPath"], `${path}.tableContext.dataPath`)
   }
+}
+
+function assertTypeDescriptionView(value: unknown, path: string): void {
+  const type = requiredRecord(value, path)
+  assertExactKeys(type, ["type", "typeId", "stringQualifiers", "numberQualifiers", "dateQualifiers"], path)
+  if (type["type"] !== undefined) assertStringArray(type["type"], `${path}.type`)
+  if (type["typeId"] !== undefined) assertStringArray(type["typeId"], `${path}.typeId`)
+  for (const key of ["stringQualifiers", "numberQualifiers", "dateQualifiers"] as const) {
+    if (type[key] !== undefined) requiredRecord(type[key], `${path}.${key}`)
+  }
+}
+
+function assertMetadataTypedValue(value: unknown, path: string): void {
+  const typed = requiredRecord(value, path)
+  assertString(typed["type"], `${path}.type`)
+  if (typed["type"] === "valueList") {
+    assertExactKeys(typed, ["type"], path)
+    return
+  }
+  if (!("value" in typed)) throw new Error(`${path}.value отсутствует`)
+  assertPortableData(typed["value"], `${path}.value`)
 }
 
 function assertDiagnostic(row: Record<string, unknown>, path: string): void {

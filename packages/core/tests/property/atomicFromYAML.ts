@@ -15,3 +15,6 @@ export const testAtomicFromYAML = (params: {
     referenceValue: params.sourceValue,
     name: params.name,
   })
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()

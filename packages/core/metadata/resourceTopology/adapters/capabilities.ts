@@ -47,6 +47,7 @@ export interface MetadataXmlPrepareCapability {
     readonly preparedYamlFile: PreparedYamlFile
     readonly basePreparedYamlFile?: PreparedYamlFile
     readonly baseConfigurationIndex?: ConfigurationIndexReader
+    readonly baseFormContext?: ConfigurationContextWithExportToXML
     readonly assignment: CompiledMetadataAssignmentNode
     readonly itemName: string
     readonly logicalAddress: string

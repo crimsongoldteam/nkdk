@@ -349,6 +349,7 @@ function validateSnapshotDependencies(
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
+  const structuredDocuments = []
   const seenOwners = new Set<string>()
   for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
     const record = snapshot.fileRecord(fileId)
@@ -358,6 +359,9 @@ function validateSnapshotDependencies(
     if (readiness.blockedComponentPaths.has(componentPath)) continue
     const pendingReferences = typed.pendingReferences(fileId)
     const pendingChecks = typed.pendingChecks(fileId)
+    for (const entry of typed.structuredDocuments(fileId)) {
+      structuredDocuments.push({ componentPath, projectPath, entry })
+    }
     pendingReferences.forEach((reference, index) => references.push({
       requestId: `reference:${fileId}:${index}`,
       componentPath,
@@ -370,6 +374,7 @@ function validateSnapshotDependencies(
         projectPath,
         check,
       })
+      if (check.kind !== "dataPath") return
       const ownerKey = `${componentPath}\u0000${check.owner.kind}\u0000${check.owner.name ?? ""}`
       if (!seenOwners.has(ownerKey)) {
         seenOwners.add(ownerKey)
@@ -381,6 +386,7 @@ function validateSnapshotDependencies(
     ...dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }),
     ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
     ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
+    ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
     ...readiness.diagnostics,
   ]
 }

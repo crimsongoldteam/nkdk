@@ -60,3 +60,6 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
     name: params.name,
   }).yaml
 }
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()

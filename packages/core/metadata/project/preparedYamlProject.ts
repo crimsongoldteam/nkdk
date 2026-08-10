@@ -159,6 +159,9 @@ export function toPreparedYamlProjectFileDescriptor(
     projectPath: resource.projectPath,
     filePath: resource.absolutePath,
     role: resource.role,
+    ...(resource.role === "form" && resource.indexContribution !== undefined
+      ? { indexContribution: resource.indexContribution }
+      : {}),
     owner: { dir: resource.owner.dir, name: resource.owner.name },
     itemType:
       resource.owner.spec.rule.metadataTargetOwner?.kind === "self"

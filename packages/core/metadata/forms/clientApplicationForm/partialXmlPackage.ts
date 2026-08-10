@@ -12,6 +12,9 @@ export const childFormPartialXmlPackagePolicy = {
       includeCurrentMemberSubtree: true,
       stopAtOwner: true,
     },
+    yamlCompanionInputs: [{
+      projectPattern: "{ownerPath...}/Формы/{itemName}/БазоваяФорма.yaml",
+    }],
   },
   externalFiles: [{
     projectPattern: "{ownerPath...}/Формы/{itemName}/{relativePath...}",
@@ -19,4 +22,15 @@ export const childFormPartialXmlPackagePolicy = {
   }],
 } as const satisfies PartialXmlPackagePolicyRegistration
 
+export const commonFormPartialXmlPackagePolicy = {
+  assignment: {
+    assignmentPattern: "ОбщаяФорма/{ownerName}/Свойства.yaml",
+    loadDocumentRoles: ["metadata"],
+    yamlCompanionInputs: [{
+      projectPattern: "ОбщаяФорма/{ownerName}/БазоваяФорма.yaml",
+    }],
+  },
+} as const satisfies PartialXmlPackagePolicyRegistration
+
 registerPartialXmlPackagePolicy(childFormPartialXmlPackagePolicy)
+registerPartialXmlPackagePolicy(commonFormPartialXmlPackagePolicy)

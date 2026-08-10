@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { serializeYAMLDocument } from "../../yaml/export"
@@ -9,8 +9,22 @@ import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
+import {
+  createProjectReferenceIndex,
+  createProjectReferenceSnapshot,
+  validatePendingReferencesWithIndex,
+} from "./projectReferenceIndex"
 
 registerCoreMetadata()
+
+const schemaCache = createValidationSchemaCache(mockContext)
+const rulesSnapshot = createValidationRulesSnapshot(mockContext)
+
+beforeAll(() => {
+  const file = catalogFile()
+  if (file.kind !== "properties") throw new Error("properties file expected")
+  schemaCache.properties(file.owner.spec.rule)
+})
 
 describe("fill value references", () => {
   it("indexes an ordinary attribute reference but not a primitive fill value", () => {
@@ -49,6 +63,62 @@ describe("fill value references", () => {
     expect(facts.pendingReferences).toHaveLength(2)
   })
 
+  it("indexes a tagged incompatible reference without a local type error", () => {
+    const facts = extract(`Реквизиты:
+  Исполнитель:
+    Тип: Справочник.ПолныеРоли
+    ЗначениеЗаполнения: !xml Справочник.РолиИсполнителей.ПустаяСсылка
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        yamlPath: ["Реквизиты", "Исполнитель", "ЗначениеЗаполнения"],
+        canonical: "Catalog.РолиИсполнителей.EmptyRef",
+        target: expect.objectContaining({
+          kind: "value",
+          root: "Catalog",
+          objectName: "РолиИсполнителей",
+        }),
+      }),
+    ])
+    expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Исполнитель/ЗначениеЗаполнения")).toEqual([])
+  })
+
+  it("reports a missing catalog referenced by a tagged empty owner value", () => {
+    const facts = extract(`Владельцы: []
+СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml Справочник.ПапкиФайлов.ПустаяСсылка
+`)
+    const fillValueReferences = facts.pendingReferences.filter(
+      ({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения"
+    )
+    const snapshot = createProjectReferenceSnapshot({
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: fillValueReferences,
+    })
+    const result = validatePendingReferencesWithIndex({
+      index: createProjectReferenceIndex({ projectDir: "/project", snapshot }),
+      references: fillValueReferences,
+    })
+
+    expect(fillValueReferences).toEqual([
+      expect.objectContaining({
+        canonical: "Catalog.ПапкиФайлов.EmptyRef",
+        yamlPath: ["СтандартныеРеквизиты", "Владелец", "ЗначениеЗаполнения"],
+      }),
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: "/project/Справочник/Товары/Свойства.yaml",
+        message: 'Не найдена ссылка "Catalog.ПапкиФайлов.EmptyRef"',
+        severity: "error",
+      }),
+    ])
+  })
+
   it("stores only the reference in project state", () => {
     const document = serializeYAMLDocument({
       Реквизиты: {
@@ -68,8 +138,8 @@ describe("fill value references", () => {
       file,
       document,
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      schemaCache,
+      rulesSnapshot,
     })
     const update = toProjectStateFileUpdate(firstPass, {
       projectPath: "Справочник/Товары/Свойства.yaml",
@@ -91,7 +161,7 @@ function extract(text: string) {
   return extractValidationYamlFacts({
     file: catalogFile(),
     parsed: parseMetadataYaml(text),
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
 }
 

@@ -8,6 +8,7 @@ import {
   projectMemberIndexKey,
   projectObjectIndexKey,
   projectValueIndexKey,
+  referenceNotIncludedInExtensionResult,
   validatePendingReferencesWithIndex,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
@@ -15,6 +16,35 @@ import {
 } from "./projectReferenceIndex"
 
 describe("ProjectReferenceIndex", () => {
+  it.each([
+    ["object", objectTarget("Справочник.Номенклатура")],
+    ["member", memberTarget("Справочник.Номенклатура.Реквизит.Артикул")],
+  ] as const)("reports a %s reference that is not included in the extension", (_kind, target) => {
+    const reference = {
+      filePath: "cfe/Цены/Источник.yaml",
+      yamlPath: ["Реквизиты", "Тип"] as const,
+      canonical: target.kind === "object" ? projectObjectIndexKey(target) : projectMemberIndexKey(target),
+      target,
+      constraint: target.kind === "object"
+        ? { kind: "object" as const }
+        : { kind: "member" as const, owner: "explicit" as const },
+    }
+
+    expect(referenceNotIncludedInExtensionResult(reference)).toEqual({
+      ok: false,
+      reason: "notFound",
+      diagnostics: [{
+        filePath: reference.filePath,
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "reference",
+        message: `Ссылка "${reference.canonical}" не включена в расширение`,
+      }],
+    })
+    expect(reference.yamlPath).toEqual(["Реквизиты", "Тип"])
+  })
+
   it("resolves object entries without resolver fallback", () => {
     const projectDir = "/tmp/nkdk-project"
     const target = objectTarget("Справочник.Номенклатура")

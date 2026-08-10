@@ -11,7 +11,7 @@ import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
 import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
-import { hasExplicitXMLPropertyRegistration } from "./explicitXMLPropertyRegistry"
+import { explicitXMLPropertyValidationMode } from "./explicitXMLPropertyRegistry"
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -34,8 +34,10 @@ function withExplicitXMLValidationValue(params: {
   schema: TSchema
 }): TSchema {
   if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
-  if (!hasExplicitXMLPropertyRegistration(params.itemType, params.propertyKey)) return params.schema
-  return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
+  const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey)
+  if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
+  if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
+  return params.schema
 }
 
 /**
@@ -47,7 +49,7 @@ function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (v === undefined || typeof v === "function") return undefined
   if (rule.type === "boolean" && typeof v === "boolean") return v ? "Истина" : "Ложь"
   if (rule.type === "number" && typeof v === "number") return v
-  if (rule.type === "string" && typeof v === "string") return v
+  if ((rule.type === "string" || rule.type === "I8nText") && typeof v === "string") return v
   if (rule.type === "SystemEnumeration" && typeof v === "string") {
     const typeSE = (rule as { typeSE?: string }).typeSE
     if (typeSE === undefined) return v

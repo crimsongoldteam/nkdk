@@ -39,6 +39,7 @@ import {
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 import { collectFormTabularElementsFromYAML } from "../ruleRuntime/formElement/formTableDataPaths"
+import type { FormStructuredComponent } from "./formContracts"
 
 type CompiledSchema = ValidationSchemaValidator
 const formSchemaCache = new WeakMap<
@@ -85,6 +86,7 @@ export interface ProjectValidationFirstPassResult {
   pendingReferences: PendingMetadataTargetReference[]
   dependencies: string[]
   form?: ValidationFormIndexContribution
+  structuredComponents?: readonly FormStructuredComponent[]
   diagnostics: Diagnostic[]
   profile?: ProjectValidationFirstPassProfile
 }
@@ -116,6 +118,7 @@ export interface ProjectValidationFileFacts {
   diagnostics: Diagnostic[]
   localDependencies: import("../projectDefinition/componentIndexFacts").ProjectLocalDependency[]
   form?: ValidationFormIndexContribution
+  structuredComponents?: readonly FormStructuredComponent[]
   profile: {
     yamlFactsMs: number
     localValueValidationProfile: LocalValueValidationProfile
@@ -321,6 +324,9 @@ export function extractProjectValidationFileFacts(params: {
               },
             },
           }),
+      ...(yamlFacts.structuredComponents === undefined
+        ? {}
+        : { structuredComponents: yamlFacts.structuredComponents }),
       profile: {
         yamlFactsMs: measuredYamlFacts.timeMs,
         localValueValidationProfile: yamlFacts.localValueValidationProfile,
@@ -490,6 +496,9 @@ function validateProjectFormFirstPass(params: {
       ]),
     ],
     ...(facts.form === undefined ? {} : { form: facts.form }),
+    ...(facts.structuredComponents === undefined
+      ? {}
+      : { structuredComponents: facts.structuredComponents }),
     profile: {
       ...emptyFirstPassProfile("form"),
       totalMs: performance.now() - totalStartedAt,

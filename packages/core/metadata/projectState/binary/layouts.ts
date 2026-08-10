@@ -253,10 +253,22 @@ export interface ProjectStateFormRecord {
   readonly tableHasColumns: number
   readonly reserved: number
 }
+export interface ProjectStateStructuredDocumentRecord {
+  readonly sourceFileId: number
+  readonly documentKindId: number
+  readonly representationId: number
+  readonly logicalAddressId: number
+  readonly workingProjectPathId: number
+  readonly componentKindId: number
+  readonly nameId: number
+  readonly yamlPathId: number
+}
 
 export interface ProjectStatePendingCheckRecord {
   readonly sourceFileId: number
   readonly yamlPathId: number
+  readonly kindId: number
+  readonly payloadId: number
   readonly line: number
   readonly col: number
   readonly pathId: number
@@ -686,6 +698,15 @@ export const ProjectStateFormRecordView = projectStateView.create<ProjectStateFo
     kind: uint8Field, tableHasColumns: uint8Field, reserved: uint16Field,
   },
 })
+export const ProjectStateStructuredDocumentRecordView = projectStateView.create<ProjectStateStructuredDocumentRecord>({
+  $id: "ProjectStateStructuredDocumentRecord",
+  type: "object",
+  properties: {
+    sourceFileId: uint32Field, documentKindId: uint32Field, representationId: uint32Field,
+    logicalAddressId: uint32Field, workingProjectPathId: uint32Field, componentKindId: uint32Field,
+    nameId: uint32Field, yamlPathId: uint32Field,
+  },
+})
 
 export const ProjectStatePendingCheckRecordView = projectStateView.create<ProjectStatePendingCheckRecord>({
   $id: "ProjectStatePendingCheckRecord",
@@ -693,6 +714,8 @@ export const ProjectStatePendingCheckRecordView = projectStateView.create<Projec
   properties: {
     sourceFileId: { type: "integer", btype: "uint32" },
     yamlPathId: { type: "integer", btype: "uint32" },
+    kindId: { type: "integer", btype: "uint32" },
+    payloadId: { type: "integer", btype: "uint32" },
     line: { type: "integer", btype: "uint32" },
     col: { type: "integer", btype: "uint32" },
     pathId: { type: "integer", btype: "uint32" },

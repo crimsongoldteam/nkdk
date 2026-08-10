@@ -8,6 +8,7 @@ import type {
   CompiledMetadataPathCursor,
   CompiledMetadataPathMatch,
   CompiledMetadataResourceTopology,
+  CompiledMetadataYamlCompanionNode,
   MetadataResourceRole,
   MetadataResourceItemRule,
   TopologyMetadataTargetOwnerFrame,
@@ -21,10 +22,11 @@ export interface MetadataProjectResourceOwner {
 }
 
 export interface MetadataProjectResourceMatch {
-  readonly kind: "content" | "externalFile" | "ignore"
+  readonly kind: "content" | "yamlCompanion" | "externalFile" | "ignore"
   readonly projectPath: string
   readonly assignment: CompiledMetadataAssignmentNode | undefined
   readonly externalFile?: CompiledMetadataExternalFileNode
+  readonly yamlCompanion?: CompiledMetadataYamlCompanionNode
   readonly ignoredPath?: CompiledMetadataIgnoredPathNode
   readonly values: Readonly<Record<string, string>>
   readonly role: MetadataResourceRole
@@ -155,6 +157,11 @@ function createMetadataProjectMatchResolver(
       assignment.externalFiles.map((externalFile) => [externalFile.id, { assignment, externalFile }] as const)
     )
   )
+  const companionsById = new Map(
+    topology.assignments.flatMap((assignment) =>
+      assignment.yamlCompanions.map((yamlCompanion) => [yamlCompanion.id, { assignment, yamlCompanion }] as const)
+    )
+  )
   const ignoredById = new Map(
     topology.ignoredPaths.filter((path) => path.side === "project").map((path) => [path.id, path])
   )
@@ -164,6 +171,7 @@ function createMetadataProjectMatchResolver(
     assignmentsById,
     assignmentsByProjectPattern,
     externalById,
+    companionsById,
     ignoredById,
   })
 }
@@ -177,9 +185,21 @@ function classifyMetadataProjectPathWithMatches(params: {
     readonly assignment: CompiledMetadataAssignmentNode
     readonly externalFile: CompiledMetadataExternalFileNode
   }>
+  readonly companionsById: ReadonlyMap<string, {
+    readonly assignment: CompiledMetadataAssignmentNode
+    readonly yamlCompanion: CompiledMetadataYamlCompanionNode
+  }>
   readonly ignoredById: ReadonlyMap<string, CompiledMetadataIgnoredPathNode>
 }): MetadataProjectResourceMatch | undefined {
-  const { projectPath, matches, assignmentsById, assignmentsByProjectPattern, externalById, ignoredById } = params
+  const {
+    projectPath,
+    matches,
+    assignmentsById,
+    assignmentsByProjectPattern,
+    externalById,
+    companionsById,
+    ignoredById,
+  } = params
   const candidates = matches.flatMap((match): MetadataProjectResourceMatch[] => {
     const assignment = assignmentsById.get(match.nodeId)
     if (assignment !== undefined) {
@@ -206,6 +226,20 @@ function classifyMetadataProjectPathWithMatches(params: {
         rule: undefined,
         owner: resolveOwner(assignmentsByProjectPattern, external.assignment),
         compositionImpact: external.externalFile.compositionImpact,
+      }]
+    }
+    const companion = companionsById.get(match.nodeId)
+    if (companion !== undefined) {
+      return [{
+        kind: "yamlCompanion",
+        projectPath,
+        assignment: companion.assignment,
+        yamlCompanion: companion.yamlCompanion,
+        values: match.values,
+        role: companion.yamlCompanion.projectRole,
+        rule: companion.yamlCompanion.itemRule,
+        owner: resolveOwner(assignmentsByProjectPattern, companion.assignment),
+        compositionImpact: "none",
       }]
     }
     const ignoredPath = ignoredById.get(match.nodeId)
@@ -297,7 +331,11 @@ export async function* iterateMetadataProjectPathCandidates(params: {
             projectPath,
             classify() {
               const match = resolveMatches(projectPath, cursor.matches())
-              return params.include === "content" && match?.kind !== "content" ? undefined : match
+              return params.include === "content"
+                && match?.kind !== "content"
+                && match?.kind !== "yamlCompanion"
+                ? undefined
+                : match
             },
           }
         }

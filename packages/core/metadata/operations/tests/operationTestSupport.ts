@@ -174,6 +174,7 @@ export function completeOperationReadSession(
     readFileMetadataTargetReferences(requests) {
       return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
     },
+    readStructuredDocumentEntries: () => [],
     close() {},
   }
 }

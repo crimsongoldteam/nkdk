@@ -39,6 +39,20 @@ describe("XML import output", () => {
     expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
   })
 
+  it("сериализует пустые тела именованной коллекции без фигурных скобок", () => {
+    const serialized = serializeImportYaml({
+      output: {
+        sourceKind: "worker",
+        sourcePath: "/project/cf/Перечисление/Виды/Свойства.yaml",
+        targetProjectPath: "Перечисление/Виды/Свойства.yaml",
+      },
+      yaml: { Значения: { Первый: {}, Второй: {} } },
+    })
+
+    expect(serialized.text).toBe("Значения:\n  Первый:\n  Второй:")
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
   it("writes generated files relative to the main YAML directory", async () => {
     const outputDir = createTempDir()
 

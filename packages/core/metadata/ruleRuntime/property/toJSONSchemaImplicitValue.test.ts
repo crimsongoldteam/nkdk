@@ -1,6 +1,7 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import "../../commonObjects/boolean/toJSONSchema"
+import "../../commonObjects/i8nText/toJSONSchema"
 import "../../commonObjects/number/toJSONSchema"
 import "../../commonObjects/string/toJSONSchema"
 import "../../systemEnumerations/toJSONSchema"
@@ -165,6 +166,21 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     expect(check.Check("")).toBe(false)
     expect(check.Check("значение")).toBe(true)
     expect(check.Check(0)).toBe(false)
+  })
+
+  it("excludes implicit empty string from an I8nText schema", () => {
+    const schema = exportPropertyToJSONSchema({
+      context: validationContext,
+      rule: { type: "I8nText", implicitValueYAML: "" },
+      value: undefined,
+    })
+
+    if (schema === undefined) throw new Error("Expected I8nText schema")
+    const check = compileValidationSchema(schema)
+
+    expect(check.Check("")).toBe(false)
+    expect(check.Check("Явный синоним")).toBe(true)
+    expect(check.Check({ ru: "Явный синоним", en: "Explicit synonym" })).toBe(true)
   })
 
   it("does not exclude defaultValue when implicitValueYAML is absent", () => {

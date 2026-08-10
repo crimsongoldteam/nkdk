@@ -149,7 +149,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       session.close()
     })
 
-    it("для расширения выбирает собственную файловую цель, иначе цель основной конфигурации", () => {
+    it("для расширения выбирает только собственную файловую цель", () => {
       const { store, openReadSession } = factory()
       const base = fileTargetUpdate("cf/Макеты/Печать/Template.xml")
       store.beginUpdate()
@@ -157,10 +157,8 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       store.commitUpdate()
 
       let session = openReadSession(store.createReadToken())
-      expect(session.resolveTargets([targetLookup("base", "cfe/Цены")])[0]).toMatchObject({
-        status: "found",
-        source: { projectPath: base.projectPath, componentPath: "cf" },
-      })
+      expect(session.resolveTargets([targetLookup("base", "cfe/Цены")]))
+        .toEqual([{ requestId: "base", status: "missing" }])
       session.close()
 
       const own = fileTargetUpdate(
@@ -323,7 +321,9 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const sourceBase = richYamlUpdate("cf/Справочник/Заказы/Формы/Форма/Форма.yaml", "cf", "Catalog.Заказы", "Ошибка")
       const source: ProjectStateYamlFileUpdate = {
         ...sourceBase,
-        pendingChecks: sourceBase.pendingChecks.map((check) => ({ ...check, value: "Объект.Артикул" })),
+        pendingChecks: sourceBase.pendingChecks.map((check) => check.kind === "dataPath"
+          ? { ...check, value: "Объект.Артикул" }
+          : check),
         forms: [{
           kind: "root",
           owner: owner("Catalog.Заказы"),
@@ -373,12 +373,13 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
 
     it("ограничивает видимость cf и своего компонента, сохраняя порядок пакетных ответов", () => {
       const { store, openReadSession } = factory()
-      const cf = yamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
+      const cf = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
       const cfe = richYamlUpdate("cfe/Цены/Цены.yaml", "cfe/Цены", "Catalog.Цены", "Локальная ошибка цен")
+      const sameTargetInCf = yamlUpdate("cf/Цены.yaml", "cf", "Catalog.Цены")
       const foreignCfe = yamlUpdate("cfe/Скидки/Скидки.yaml", "cfe/Скидки", "Catalog.Скидки")
 
       store.beginUpdate()
-      replaceFiles(store, { updates: [cf, cfe, foreignCfe], hashBytes: new Uint8Array(24) })
+      replaceFiles(store, { updates: [cf, cfe, sameTargetInCf, foreignCfe], hashBytes: new Uint8Array(32) })
       store.commitUpdate()
 
       const session = openReadSession(store.createReadToken())
@@ -390,7 +391,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
 
       expect(result.map(({ requestId, status }) => ({ requestId, status }))).toEqual([
         { requestId: "cfe", status: "found" },
-        { requestId: "cf", status: "found" },
+        { requestId: "cf", status: "missing" },
         { requestId: "foreign", status: "missing" },
       ])
       expect(result[0]).toEqual({
@@ -406,17 +407,17 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "foreign-owner", componentPath: "cfe/Цены", owner: owner("Catalog.Скидки") },
       ]).map(({ requestId, status }) => ({ requestId, status }))).toEqual([
         { requestId: "own-owner", status: "found" },
-        { requestId: "cf-owner", status: "found" },
+        { requestId: "cf-owner", status: "missing" },
         { requestId: "foreign-owner", status: "missing" },
       ])
       expect(session.findReferences([
         { requestId: "own-reference", componentPath: "cfe/Цены", canonical: "Catalog.Цены" },
         { requestId: "cf-reference", componentPath: "cfe/Цены", canonical: "Catalog.Товары" },
         { requestId: "foreign-reference", componentPath: "cfe/Цены", canonical: "Catalog.Скидки" },
-      ]).map(({ requestId, references }) => ({ requestId, found: references.length > 0 }))).toEqual([
-        { requestId: "own-reference", found: false },
-        { requestId: "cf-reference", found: true },
-        { requestId: "foreign-reference", found: false },
+      ]).map(({ requestId, references }) => ({ requestId, count: references.length }))).toEqual([
+        { requestId: "own-reference", count: 0 },
+        { requestId: "cf-reference", count: 1 },
+        { requestId: "foreign-reference", count: 0 },
       ])
       expect(session.findReferences([{
         requestId: "cf-cannot-see-extension-reference",
@@ -424,7 +425,13 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         canonical: "Catalog.Товары",
       }])).toEqual([{
         requestId: "cf-cannot-see-extension-reference",
-        references: [],
+        references: [{
+          kind: "metadataTarget",
+          projectPath: cf.projectPath,
+          componentPath: "cf",
+          yamlPath: ["Ссылка"],
+          canonical: "Catalog.Товары",
+        }],
       }])
       expect(session.readDependencyInputs([
         dependencyQuery("own-dependency", "cfe/Цены", cfe.projectPath, "Catalog.Цены"),
@@ -432,7 +439,7 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         dependencyQuery("foreign-dependency", "cfe/Цены", foreignCfe.projectPath, "Catalog.Скидки"),
       ]).map(({ requestId, status }) => ({ requestId, status }))).toEqual([
         { requestId: "own-dependency", status: "found" },
-        { requestId: "cf-dependency", status: "found" },
+        { requestId: "cf-dependency", status: "missing" },
         { requestId: "foreign-dependency", status: "missing" },
       ])
       expect(session.readDependencyOwnerInputs([
@@ -441,11 +448,11 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
         { requestId: "foreign-owner-input", componentPath: "cfe/Цены", owner: owner("Catalog.Скидки") },
       ]).map(({ requestId, status }) => ({ requestId, status }))).toEqual([
         { requestId: "own-owner-input", status: "found" },
-        { requestId: "cf-owner-input", status: "found" },
+        { requestId: "cf-owner-input", status: "missing" },
         { requestId: "foreign-owner-input", status: "missing" },
       ])
       expect(session.readOwnerRefPage({ componentPath: "cfe/Цены", kind: "Справочник" }).refs
-        .map(({ name }) => name).sort()).toEqual(["Catalog.Товары", "Catalog.Цены"])
+        .map(({ name }) => name).sort()).toEqual(["Catalog.Цены"])
     })
 
     it("не выбирает произвольный результат при неоднозначном target или owner", () => {

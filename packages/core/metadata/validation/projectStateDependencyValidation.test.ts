@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import { mockContext } from "../../tests/mockContext"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {
@@ -10,6 +12,10 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { FormDataPathColumnSource, OwnerTypeRef } from "./dataPath/types"
 import type { ObjectFieldIndex } from "./dataPath/objectFields"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { resolveValidationProjectFile } from "./projectFiles"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { createValidationProjectComponent } from "./projectComponents"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,
@@ -39,6 +45,7 @@ import {
   validateProjectStateOwnerBatch,
   validateProjectStateReferenceBatch,
 } from "./projectStateDependencyValidation"
+import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -59,6 +66,87 @@ if (!objectTargetResult.ok || objectTargetResult.target.kind !== "object") {
 const objectTarget = objectTargetResult.target
 
 describe("dependency validation из ProjectState", () => {
+  it("Б5 вызывает зарегистрированную проверку структуры формы", () => {
+    const structuredValidator = vi.fn(validateBorrowedClientApplicationForms)
+    const validator = createProjectStateDependencyValidator({
+      structuredDocumentValidators: [structuredValidator],
+    })
+    const cf = structuredFormUpdate("cf", "ПолеCF")
+    const extension = structuredFormUpdate("cfe/X", "Собственное")
+    const { store } = createBinaryProjectStateTestFixture(validator)
+    store.beginUpdate()
+    replaceFiles(store, [cf, extension, configurationUpdate(true)])
+
+    const diagnostics = store.validateDependencies({ requests: [] })
+    expect(structuredValidator).toHaveBeenCalledWith(expect.objectContaining({
+      facts: expect.arrayContaining([
+        expect.objectContaining({ componentPath: "cf" }),
+        expect.objectContaining({ componentPath: "cfe/X" }),
+      ]),
+    }))
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: `/project/${extension.projectPath}`,
+        message: expect.stringContaining("ПолеCF"),
+      }),
+    ])
+    store.rollbackUpdate()
+  })
+
+  it("не дополняет реквизиты рабочей формы расширения из cf", () => {
+    const owner = { kind: "Справочник", name: "Товары" }
+    const workingPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const cfSource = ownerDependencySource("cf", owner, "ТолькоCF", `cf/${workingPath}`)
+    const cfRoot = cfSource.forms[0]
+    if (cfRoot?.kind !== "root") throw new Error("Ожидался реквизит формы")
+    const cf = {
+      ...cfSource,
+      forms: [{ ...cfRoot, name: "ТолькоCF", source: { ...cfRoot.source, name: "ТолькоCF" } }],
+      pendingChecks: [],
+    }
+    const extension = {
+      ...ownerDependencySource("cfe/X", owner, "ТолькоCF", `cfe/X/${workingPath}`),
+      forms: [],
+    }
+    const store = storeWithUpdates([cf, extension, ownerUpdate("cfe/X", [], owner), configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([
+      expect.objectContaining({ filePath: extension.projectPath, source: "structure" }),
+    ])
+
+    replaceFiles(store, [{
+      ...extension,
+      forms: [{ ...cf.forms[0]!, owner }],
+    }])
+    expect(store.validateDependencies({ requests: [] })).toEqual([])
+    store.rollbackUpdate()
+  })
+
+  it("не наследует стандартный реквизит владельца заимствованного справочника из cf", () => {
+    const file = resolveValidationProjectFile(
+      "/project/cfe/Продажи",
+      "Справочник/Товары/Свойства.yaml",
+      createValidationProjectComponent("/project", { kind: "configurationExtension", name: "Продажи" }),
+    )
+    if (file === undefined) throw new Error("Не определён файл заимствованного справочника")
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(`Реквизиты:
+  Дополнительный:
+    Тип: Строка(10)
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const get = vi.fn<OwnerMetadataCache["get"]>(() => {
+      throw new Error("Стандартные реквизиты заимствованного объекта не должны читаться из cf")
+    })
+    const ownerCache = { get, listRefs: () => [] } satisfies OwnerMetadataCache
+
+    expect(facts.pendingChecks).toEqual([])
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({ diagnostics: [] })
+    expect(get).not.toHaveBeenCalled()
+  })
+
   it("Б5 принимает пустую ссылку, если владелец существует", () => {
     const reference = valueReference("Справочник.Товары.ПустаяСсылка", {
       roots: ["Catalog"],
@@ -176,6 +264,34 @@ describe("dependency validation из ProjectState", () => {
     expect(requestBatchSizes).toEqual([1])
   })
 
+  it("проверяет fillValue через сохранённые сведения DefinedType", () => {
+    const check = {
+      kind: "fillValue" as const,
+      yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+      location: { line: 4, col: 5 },
+      itemType: "MetadataAttribute",
+      type: { type: ["DefinedType.АвторДействия"] },
+      value: { type: "ref" as const, value: "Catalog.Пользователи.Администратор" },
+      tagged: false,
+    }
+    const query = { requestId: "fill", componentPath: "cf", projectPath: "cf/Справочник/Товары/Свойства.yaml", check }
+    const definedType = { kind: "ОпределяемыйТип", name: "АвторДействия" }
+
+    expect(validateProjectStateDependencyBatch({
+      projectDir: "/project",
+      checks: [query],
+      queryPort: {
+        readDependencyInputs: () => [{
+          requestId: "fill",
+          status: "found",
+          input: { owners: [{ owner: definedType, facts: { type: { type: ["CatalogRef.Пользователи"] } } }], fields: [], forms: [] },
+        }],
+        readDependencyOwnerInputs: () => [],
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+    })).toEqual([])
+  })
+
   it.each([
     referenceCase("missing", "cf", []),
     referenceCase("found / cf -> cf", "cf", ["cf"]),
@@ -188,7 +304,6 @@ describe("dependency validation из ProjectState", () => {
       { kind: "attribute", typeInfo: { kinds: ["decimal"], sourceText: "decimal" } },
     ),
     referenceCase("cfe/x -> cfe/x", "cfe/x", ["cfe/x"]),
-    referenceCase("fallback cfe/x -> cf", "cfe/x", ["cf"]),
     referenceCase("forbidden cfe/x -> cfe/y", "cfe/x", ["cfe/y"]),
   ])("полностью совпадает с чистым validation-графом: $name", ({ sourceComponent, updates, graph }) => {
     const graphDiagnostics = validatePendingReferencesWithIndex({
@@ -203,6 +318,84 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(storeDiagnostics).toEqual(graphDiagnostics)
+    store.rollbackUpdate()
+  })
+
+  it("отличает незаимствованную цель cf от отсутствующей цели", () => {
+    const source = yamlUpdate("cfe/x/Источник.yaml", "cfe/x", true)
+    const baseTarget = yamlUpdate("cf/Цель.yaml", "cf", false)
+    const store = storeWithUpdates([source, baseTarget, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      filePath: source.projectPath,
+      source: "reference",
+      message: `Ссылка "${canonical}" не включена в расширение`,
+    })])
+
+    store.deleteFiles([baseTarget.projectPath])
+    expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
+
+    replaceFiles(store, [
+      yamlUpdate("cf/ПерваяЦель.yaml", "cf", false),
+      yamlUpdate("cf/ВтораяЦель.yaml", "cf", false),
+    ])
+    expect(store.validateDependencies({ requests: [] })).toEqual([missingMemberDiagnostic(source.projectPath)])
+    store.rollbackUpdate()
+  })
+
+  it("не применяет фильтр к уточняющей цели cf", () => {
+    const constraint = {
+      kind: "member" as const,
+      owner: "explicit" as const,
+      filters: [{ kind: "hasType" as const, type: "string" as const }],
+    }
+    const source = yamlUpdate("cfe/x/ИсточникФильтра.yaml", "cfe/x", true, constraint)
+    const baseTarget = yamlUpdate(
+      "cf/ЦельФильтра.yaml",
+      "cf",
+      false,
+      undefined,
+      { kind: "attribute", typeInfo: { kinds: ["decimal"], sourceText: "decimal" } },
+    )
+    const store = storeWithUpdates([source, baseTarget, configurationUpdate(true)])
+
+    expect(store.validateDependencies({ requests: [] })).toEqual([expect.objectContaining({
+      message: `Ссылка "${canonical}" не включена в расширение`,
+    })])
+    store.rollbackUpdate()
+  })
+
+  it.each([
+    {
+      name: "пользовательский реквизит своего расширения",
+      value: "Объект.Артикул",
+      field: {
+        name: "Артикул",
+        kind: "attribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      },
+    },
+    {
+      name: "стандартный реквизит явно представленного объекта",
+      value: "Объект.Код",
+      field: {
+        name: "Код",
+        targetName: "Code",
+        kind: "standardAttribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      },
+    },
+  ])("разрешает $name", ({ value, field }) => {
+    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value)
+    const extensionOwner = ownerUpdate("cfe/x", [{
+      owner: { kind: "Справочник", name: "Товары" },
+      ...field,
+    }])
+    const store = storeWithUpdates([source, extensionOwner, configurationUpdate(true)])
+
+    expect(store.validateDependencies({
+      requests: [{ requestId: "data-path", componentPath: "cfe/x", projectPath: source.projectPath }],
+    })).toEqual([])
     store.rollbackUpdate()
   })
 
@@ -333,7 +526,7 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
-  it("берёт DataPath-поля владельца только из приоритетного слоя", () => {
+  it("берёт DataPath-поля владельца только из собственного компонента", () => {
     const source = ownerDependencySource("cfe/x")
     const directOwner = ownerUpdate("cfe/x")
     const fallbackOwner = ownerUpdate("cf", [
@@ -386,6 +579,10 @@ describe("dependency validation из ProjectState", () => {
     })
 
     expect(storeDiagnostics).toEqual(graphDiagnostics)
+    expect(storeDiagnostics).toEqual([expect.objectContaining({
+      source: "structure",
+      message: expect.stringContaining("Артикул"),
+    })])
     store.rollbackUpdate()
   })
 
@@ -431,7 +628,8 @@ describe("dependency validation из ProjectState", () => {
     const updates = [
       baseDocuments,
       localDocument,
-      ownerUpdate("cf", [], register),
+      ownerUpdate("cfe/x", [], register),
+      ownerUpdate("cfe/y", [], register),
       sourceX,
       sourceY,
       configurationUpdate(true),
@@ -466,8 +664,8 @@ describe("dependency validation из ProjectState", () => {
       } while (cursor !== undefined)
     }
     expect(pageSizes).toEqual(new Map([
-      ["cfe/x", [2, 1]],
-      ["cfe/y", [2, 1]],
+      ["cfe/x", [1]],
+      ["cfe/y", [0]],
     ]))
 
     const layeredOwners = pagedSession.readDependencyOwnerInputs([
@@ -476,7 +674,7 @@ describe("dependency validation из ProjectState", () => {
     ])
     expect(layeredOwners).toEqual([
       dependencyOwnerInput("local", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Local"] }),
-      dependencyOwnerInput("fallback", documentRefs[0]!, { registerRecords: ["AccumulationRegister.Base"] }, "Номер"),
+      { requestId: "fallback", status: "missing" },
     ])
   })
 
@@ -861,7 +1059,9 @@ function pagedDependencyQueryPort(params: {
   ownerFacts: ReadonlyMap<string, ProjectStateYamlFileUpdate["owners"][number]["facts"]>
   readPage: PagedDependencyQueryPort["readOwnerRefPage"]
 }) {
-  const currentOwner = params.source.pendingChecks[0]!.owner
+  const currentCheck = params.source.pendingChecks[0]!
+  if (currentCheck.kind !== "dataPath") throw new Error("Ожидалась DataPath-проверка")
+  const currentOwner = currentCheck.owner
   return {
     readDependencyInputs: (requests: readonly { readonly requestId: string }[]) =>
       requests.map(({ requestId }) => currentOwnerInput(requestId, currentOwner, params.source)),
@@ -941,6 +1141,22 @@ function emptyYamlUpdate(
     ...yamlUpdate(projectPath, componentPath, false),
     yamlRole,
     targets: [],
+  }
+}
+
+function structuredFormUpdate(componentPath: string, name: string): ProjectStateYamlFileUpdate {
+  const projectPath = `${componentPath}/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml`
+  return {
+    ...emptyYamlUpdate(projectPath, componentPath, "form"),
+    structuredDocuments: [{
+      documentKind: "clientApplicationForm",
+      representation: "working",
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      workingProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      componentKind: "element",
+      name,
+      yamlPath: ["Элементы", name],
+    }],
   }
 }
 
@@ -1143,7 +1359,7 @@ function ownerUpdate(
 
 function ownerDependencySource(
   componentPath = "cf",
-  owner: ProjectStateYamlFileUpdate["pendingChecks"][number]["owner"] = { kind: "Справочник", name: "Товары" },
+  owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
 ): ProjectStateYamlFileUpdate {

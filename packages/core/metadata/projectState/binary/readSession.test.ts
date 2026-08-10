@@ -6,7 +6,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
-import { richYamlUpdate } from "./testData"
+import { fillValuePendingCheck, richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 import {
@@ -25,7 +25,22 @@ it("соблюдает видимость cf и собственного рас�
     lookup("base", "cfe/Цены", "Catalog.Base"),
     lookup("own", "cfe/Цены", "Catalog.Extension"),
     lookup("foreign", "cfe/Цены", "Catalog.Foreign"),
-  ]).map(({ status }) => status)).toEqual(["found", "found", "missing"])
+  ]).map(({ status }) => status)).toEqual(["missing", "found", "missing"])
+})
+
+it("читает структурные документы только точного компонента и адреса", () => {
+  const entry = {
+    documentKind: "clientApplicationForm", representation: "working", logicalAddress: "Form.Одна",
+    workingProjectPath: "Форма.yaml", componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+  } as const
+  const session = openSessionWithUpdates([
+    { ...richYamlUpdate("cf/form.yaml", "cf", "Form.Одна"), structuredDocuments: [entry] },
+    { ...richYamlUpdate("cfe/X/form.yaml", "cfe/X", "Form.Одна"), structuredDocuments: [{ ...entry, name: "Расширение" }] },
+  ])
+
+  expect(session.readStructuredDocumentEntries({ componentPath: "cfe/X", logicalAddress: "Form.Одна" }))
+    .toEqual([{ ...entry, name: "Расширение" }])
+  expect(session.readStructuredDocumentEntries({ componentPath: "cfe/X", logicalAddress: "Form.Другая" })).toEqual([])
 })
 
 it("возвращает ambiguous вместо произвольной записи", () => {
@@ -274,6 +289,14 @@ it("использует переданный типизированный чи�
   queryPort.readValidationStatus({ offset: 1, batchSize: 1 })
 
   expect(localValidation).toHaveBeenCalledTimes(2)
+})
+
+it("читает fillValue-проверку из двоичного состояния без потери payload", () => {
+  const expected = fillValuePendingCheck()
+  const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
+
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
 })
 
 it("разрешает одинаковую цель один раз для всей серии запросов", () => {

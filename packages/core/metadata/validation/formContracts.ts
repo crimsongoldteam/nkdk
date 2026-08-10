@@ -36,9 +36,16 @@ export interface FormElementNameCollectorView {
   finish(): Diagnostic[]
 }
 
+export interface FormStructuredComponent {
+  readonly componentKind: string
+  readonly name: string
+  readonly yamlPath: YamlPath
+}
+
 export interface FormValidationAdapter {
   readonly formRule: MetadataItemRule
   readonly elementNamesProfileSubstep: string
   elementTypeFromYAML(value: unknown, tableContext: { dataPath: string } | undefined): ElementType | undefined
   createElementNameCollector(params: { filePath: string; parsed: ParsedYaml }): FormElementNameCollectorView
+  collectStructuredComponents(yaml: unknown): readonly FormStructuredComponent[]
 }

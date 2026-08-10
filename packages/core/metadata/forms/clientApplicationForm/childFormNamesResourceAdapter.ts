@@ -43,6 +43,17 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       source,
     },
     {
+      kind: "yamlCompanion",
+      assignmentProjectPattern: "",
+      projectPattern: `${folderName}/{itemName}/БазоваяФорма.yaml`,
+      required: false,
+      itemRule: ClientApplicationFormRules,
+      projectRole: "form",
+      indexContribution: "isolated",
+      logicalAddressSegment: "ОсноваФормы",
+      source,
+    },
+    {
       kind: "xmlDocument",
       assignmentProjectPattern: "",
       xmlPattern: "Forms/{itemName}.xml",

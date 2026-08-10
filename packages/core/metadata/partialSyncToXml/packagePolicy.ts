@@ -24,6 +24,7 @@ export interface PartialXmlAssignmentPolicy {
     readonly include: "targetAssignment"
     readonly loadTarget: boolean
   }[]
+  readonly yamlCompanionInputs?: readonly { readonly projectPattern: string }[]
 }
 
 export interface PartialXmlExternalFilePolicy {
@@ -45,6 +46,7 @@ export interface ResolvedPartialXmlAssignmentPolicy {
     readonly loadTarget: boolean
   }[]
   readonly companionReferences: NonNullable<PartialXmlAssignmentPolicy["companionReferences"]>
+  readonly yamlCompanionInputIds: readonly string[]
 }
 
 export interface ResolvedPartialXmlExternalFilePolicy {
@@ -177,12 +179,24 @@ function resolveAssignmentPolicy(
   const companionReferences = (policy.companionReferences ?? []).map((reference) =>
     Object.freeze({ ...reference, yamlPath: Object.freeze([...reference.yamlPath]) })
   )
+  const yamlCompanionInputIds = (policy.yamlCompanionInputs ?? []).map((input) => {
+    const matches = assignment.yamlCompanions.filter((companion) =>
+      matchesTopologyPattern(input.projectPattern, companion.projectPattern)
+    )
+    if (matches.length !== 1) {
+      throw new Error(
+        `YAML-вход ${input.projectPattern} задания ${assignment.projectPattern} разрешился в ${matches.length} спутников`
+      )
+    }
+    return matches[0]!.id
+  })
   return Object.freeze({
     assignmentId: assignment.id,
     loadDocumentIds: Object.freeze(loadDocumentIds),
     ...(policy.structural === undefined ? {} : { structural: policy.structural }),
     companionDocuments: Object.freeze(companionDocuments),
     companionReferences: Object.freeze(companionReferences),
+    yamlCompanionInputIds: Object.freeze(yamlCompanionInputIds),
   })
 }
 
@@ -204,6 +218,13 @@ function freezeRegistration(
             companionReferences: Object.freeze(assignment.companionReferences.map((value) =>
               Object.freeze({ ...value, yamlPath: Object.freeze([...value.yamlPath]) })
             )),
+          }),
+      ...(assignment.yamlCompanionInputs === undefined
+        ? {}
+        : {
+            yamlCompanionInputs: Object.freeze(
+              assignment.yamlCompanionInputs.map((value) => Object.freeze({ ...value }))
+            ),
           }),
     }),
     ...(registration.externalFiles === undefined

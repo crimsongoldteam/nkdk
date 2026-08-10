@@ -33,6 +33,12 @@ const commonStandardAttributeFillValuePolicies: Readonly<Record<string, Standard
   DeletionMark: { policy: "byEffectiveType", implicitValue: false },
 }
 
+export function commonStandardMemberFillValuePolicy(
+  internalName: string
+): StandardMemberFillValuePolicy | undefined {
+  return commonStandardAttributeFillValuePolicies[internalName]
+}
+
 export interface StandardMemberNames {
   internal: string
   yaml: string

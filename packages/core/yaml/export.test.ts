@@ -1,12 +1,26 @@
 import { describe, expect, it } from "vitest"
-import { explicitYAMLString } from "./explicitString"
+import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { exportToYAML, serializeYAMLDocument } from "./export"
 import { importFromYAML } from "./import"
 import { parseWithJsYaml } from "./jsYamlParser"
 import { parseMetadataYaml } from "./parseMetadataYaml"
-import { markYAMLScalarTag, yamlScalarTagAt } from "./scalarTags"
+import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "./scalarTags"
 
 describe("exportToYAML", () => {
+  it.each([
+    ["корень", {}, ""],
+    ["свойство", { Поле: {} }, "Поле:"],
+    ["вложенное свойство", { Внешний: { Поле: {} } }, "Внешний:\n  Поле:"],
+    ["элемент последовательности", { Элементы: [{}] }, "Элементы:\n  -"],
+  ] as const)("выводит пустой объект как пустое YAML-значение: %s", (_name, source, expected) => {
+    const serialized = serializeYAMLDocument(source)
+
+    expect(serialized.text).toBe(expected)
+    expect(serialized.text).not.toContain("{}")
+    expect(serialized.data).toEqual(source)
+    expect(serialized.data).toEqual(parseMetadataYaml(serialized.text).data)
+  })
+
   it.each([
     ["явная строка", { Значение: explicitYAMLString("001") }],
     ["пустая строка", { Значение: explicitYAMLString("") }],
@@ -35,9 +49,11 @@ describe("exportToYAML", () => {
 
   it("сохраняет текст непустого локального тега", () => {
     const parsed = parseMetadataYaml("Комментарий: !xml Текст")
+    const data = parsed.data as { Комментарий: string }
 
-    expect(exportToYAML(parsed.data)).toBe("Комментарий: !xml Текст")
-    expect(parsed.data).toEqual({ Комментарий: "!xml Текст" })
+    expect(exportToYAML(data)).toBe("Комментарий: !xml Текст")
+    expect(data).toEqual({ Комментарий: "!xml Текст" })
+    expect(xmlScalarTagPayload(data.Комментарий)).toBe("Текст")
   })
 
   it("exports a marked scalar with the local xml tag", () => {
@@ -45,6 +61,13 @@ describe("exportToYAML", () => {
     markYAMLScalarTag(data, "Поле", "xml")
 
     expect(exportToYAML(data)).toBe("Поле: !xml Авто")
+  })
+
+  it("preserves explicit string style in serialized semantic data", () => {
+    const serialized = serializeYAMLDocument({ Внешний: { Значение: explicitYAMLString("001") } })
+    const outer = (serialized.data as { Внешний: { Значение: string } }).Внешний
+
+    expect(asExplicitYAMLStringIfMarked(outer, "Значение", outer.Значение)).toEqual(explicitYAMLString("001"))
   })
 
   it("preserves the local xml tag across parse and export", () => {
@@ -131,5 +154,9 @@ describe("exportToYAML", () => {
   it("does not wrap long scalar lines", () => {
     const longValue = "x".repeat(160)
     expect(exportToYAML({ Поле: longValue })).toBe(`Поле: ${longValue}`)
+  })
+
+  it("не принимает окончание обычной строки за пустое отображение", () => {
+    expect(exportToYAML({ Поле: "Текст {}" })).toBe("Поле: Текст {}")
   })
 })

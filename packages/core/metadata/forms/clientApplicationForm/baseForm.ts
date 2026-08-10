@@ -15,6 +15,27 @@ import { ClientApplicationFormRules } from "./rules"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
+  readonly baseIndex?: ConfigurationIndexReader
+  readonly baseYaml: ClientApplicationFormYAML
+  readonly extensionYaml?: ClientApplicationFormYAML
+  readonly formName: string
+  readonly rule?: MetadataItemRule
+}): ClientApplicationFormXML {
+  if (params.extensionYaml === undefined) {
+    return buildSavedClientApplicationBaseForm(params)
+  }
+  if (params.baseIndex === undefined) {
+    throw new Error("Для построения проекции BaseForm не передан индекс основной конфигурации")
+  }
+  return buildProjectedClientApplicationBaseForm({
+    ...params,
+    baseIndex: params.baseIndex,
+    extensionYaml: params.extensionYaml,
+  })
+}
+
+function buildProjectedClientApplicationBaseForm(params: {
+  readonly context: ConfigurationContextWithExportToXML
   readonly baseIndex: ConfigurationIndexReader
   readonly baseYaml: ClientApplicationFormYAML
   readonly extensionYaml: ClientApplicationFormYAML
@@ -49,6 +70,24 @@ export function buildClientApplicationBaseForm(params: {
     dataPathYaml: projected.yaml,
     name: params.formName,
     rule,
+  }).formXML
+  return Object.fromEntries(
+    Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))
+  ) as ClientApplicationFormXML
+}
+
+function buildSavedClientApplicationBaseForm(params: {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly baseYaml: ClientApplicationFormYAML
+  readonly formName: string
+  readonly rule?: MetadataItemRule
+}): ClientApplicationFormXML {
+  const converted = convertClientApplicationFormYAMLToXMLCore({
+    context: params.context,
+    yaml: params.baseYaml,
+    dataPathYaml: params.baseYaml,
+    name: params.formName,
+    rule: params.rule ?? ClientApplicationFormRules,
   }).formXML
   return Object.fromEntries(
     Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))

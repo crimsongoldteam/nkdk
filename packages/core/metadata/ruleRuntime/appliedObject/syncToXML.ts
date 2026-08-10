@@ -250,6 +250,7 @@ registerMetadataXmlPrepareCapability({
     preparedYamlFile,
     basePreparedYamlFile,
     baseConfigurationIndex,
+    baseFormContext,
     itemName,
     logicalAddress,
     outputs,
@@ -296,7 +297,9 @@ registerMetadataXmlPrepareCapability({
       const xml = nestedRule.convert({
         context: propertyContext,
         yaml: source.raw(propertyKey),
-        ...(output.baseInput?.value === "wholeYaml" &&
+        ...(baseFormContext !== undefined && basePreparedYamlFile !== undefined
+          ? { baseYAML: basePreparedYamlFile.data }
+          : output.baseInput?.value === "wholeYaml" &&
         basePreparedYamlFile !== undefined
           ? { baseYAML: basePreparedYamlFile.data }
           : output.baseInput?.value === "sourceProperty" &&
@@ -311,6 +314,7 @@ registerMetadataXmlPrepareCapability({
         ...(baseConfigurationIndex === undefined
           ? {}
           : { baseConfigurationIndex }),
+        ...(baseFormContext === undefined ? {} : { baseYAMLContext: baseFormContext }),
       })
       return [
         {

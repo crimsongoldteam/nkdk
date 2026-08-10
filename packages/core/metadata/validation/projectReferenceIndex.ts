@@ -117,6 +117,16 @@ export function unresolvedProjectReferenceResult(
   }
 }
 
+export function referenceNotIncludedInExtensionResult(
+  reference: PendingMetadataTargetReference,
+): Extract<ProjectReferenceIndexResult, { ok: false }> {
+  return {
+    ok: false,
+    reason: "notFound",
+    diagnostics: [referenceDiagnostic(reference, `Ссылка "${reference.canonical}" не включена в расширение`)],
+  }
+}
+
 export function projectObjectIndexKey(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
   return [
     target.root,

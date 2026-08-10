@@ -225,6 +225,10 @@ function testReadSession(): ProjectStateReadSession {
         references: [{ yamlPath: ["Ссылка"], canonical: "Catalog.Поставщики" }],
       }))
     },
+    readStructuredDocumentEntries() {
+      assertOpen()
+      return []
+    },
     close() {
       closed = true
     },
@@ -368,6 +372,18 @@ function createTestStoreContractFixture() {
     readDependencyCheckBatch: ({ requests }) => ({
       results: requests.map(({ requestId, componentPath, projectPath, check }) => {
         const visible = visibleYamlUpdates(current(), componentPath)
+        if (check.kind === "fillValue") {
+          return {
+            requestId,
+            status: "found" as const,
+            input: {
+              owners: visible.flatMap((update) => update.owners)
+                .filter(({ owner }) => owner.kind === "ОпределяемыйТип"),
+              fields: [],
+              forms: [],
+            },
+          }
+        }
         const input = dependencyInput(visible, componentPath, projectPath, check.owner)
         return input === undefined
           ? { requestId, status: "missing" as const }

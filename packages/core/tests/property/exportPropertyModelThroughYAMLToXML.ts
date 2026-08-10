@@ -131,3 +131,6 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
 
   return { expectedResult, result }
 }
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()

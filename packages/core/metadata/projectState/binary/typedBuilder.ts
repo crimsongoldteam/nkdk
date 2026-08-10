@@ -183,6 +183,7 @@ function markReachableRows(source: Source): void {
   const roots: readonly ProjectStateFactTableKind[] = [
     "validationStatus", "targets", "pendingReferences", "owners", "fields",
     "forms", "formColumns", "pendingChecks", "dependencies",
+    "structuredDocuments",
   ]
   for (const kind of roots) {
     const range = source.tables.get(kind)
@@ -244,6 +245,7 @@ function markRow(source: Source, kind: ProjectStateFactTableKind, id: number): v
       markRange("allowedKinds", row.allowedKindsStart, row.allowedKindsCount)
       break
     case "yamlPaths": markRange("yamlPathSegments", row.segmentsStart, row.segmentsCount); break
+    case "structuredDocuments": mark("yamlPaths", row.yamlPathId); break
     case "typeDescriptions":
       markRange("typeDescriptionValues", row.typesStart, row.typesCount)
       markRange("typeDescriptionValues", row.typeIdsStart, row.typeIdsCount)
@@ -350,8 +352,13 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
     case "ownerTypes": string("kindId", "nameId"); break
     case "tableInfo": ref("ownerTypeId", "ownerTypes"); string("nameId"); break
     case "forms": case "formColumns": file(); ref("ownerTypeId", "ownerTypes"); string("nameId", "tablePathId"); ref("typeInfoId", "typeInfo"); ref("tableInfoId", "tableInfo"); break
-    case "pendingChecks": file(); ref("yamlPathId", "yamlPaths"); string("pathId", "valueId", "policyYamlId", "elementTypeId", "tableContextId"); ref("ownerTypeId", "ownerTypes"); range("allowedKindsStart", "allowedKindsCount", "allowedKinds"); break
+    case "pendingChecks": file(); ref("yamlPathId", "yamlPaths"); string("kindId", "payloadId", "pathId", "valueId", "policyYamlId", "elementTypeId", "tableContextId"); ref("ownerTypeId", "ownerTypes"); range("allowedKindsStart", "allowedKindsCount", "allowedKinds"); break
     case "dependencies": file(); string("projectPathId"); break
+    case "structuredDocuments":
+      file()
+      string("documentKindId", "representationId", "logicalAddressId", "workingProjectPathId", "componentKindId", "nameId")
+      ref("yamlPathId", "yamlPaths")
+      break
     case "yamlPaths": range("segmentsStart", "segmentsCount", "yamlPathSegments"); break
     case "yamlPathSegments": if (row.kind === 1) string("stringId"); break
     case "typeDescriptions": range("typesStart", "typesCount", "typeDescriptionValues"); range("typeIdsStart", "typeIdsCount", "typeDescriptionValues"); break

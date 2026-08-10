@@ -24,6 +24,16 @@ it("регистрирует состав частичного XML-пакета 
     },
   })
   expect(policy?.loadDocumentIds).not.toContain(body.id)
+  expect(policy?.yamlCompanionInputIds).toEqual([
+    assignment.yamlCompanions.find(({ projectRole }) => projectRole === "form")?.id,
+  ])
   expect(assignment.externalFiles.length).toBeGreaterThan(0)
   expect(assignment.externalFiles.every((file) => resolved.externalFiles.get(file.id)?.loadTarget)).toBe(true)
+
+  const common = topology.assignments.find(
+    (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
+  )!
+  expect(resolved.assignments.get(common.id)?.yamlCompanionInputIds).toEqual([
+    common.yamlCompanions.find(({ projectRole }) => projectRole === "form")?.id,
+  ])
 })

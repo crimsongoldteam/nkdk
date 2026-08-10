@@ -88,3 +88,16 @@ export function richYamlUpdate(
     dependencies: ["Catalog.Товары"],
   }
 }
+
+export function fillValuePendingCheck(): ProjectStateYamlFileUpdate["pendingChecks"][number] {
+  return {
+    kind: "fillValue",
+    yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+    location: { line: 4, col: 5, path: "/Реквизиты/Автор/ЗначениеЗаполнения" },
+    itemType: "MetadataAttribute",
+    type: { type: ["DefinedType.АвторДействия", "string"] },
+    value: { type: "ref", value: "" },
+    tagged: true,
+    transport: "DesignTimeRef",
+  }
+}

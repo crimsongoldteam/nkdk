@@ -158,6 +158,24 @@ describe("ProjectStateFileUpdateBatch", () => {
   })
 
   it.each([
+    ["строковое значение", { type: { type: ["DefinedType.А"] }, value: "Catalog.Товары.EmptyRef", tagged: true }],
+    ["нестроковый itemType", { itemType: 1, type: { type: ["DefinedType.А"] }, value: { type: "ref", value: "" }, tagged: true }],
+    ["неизвестная форма value", { type: { type: ["DefinedType.А"] }, value: {}, tagged: true }],
+  ])("отклоняет повреждённую fillValue-проверку: %s", (_name, payload) => {
+    const pendingCheck = {
+      kind: "fillValue",
+      yamlPath: ["Реквизиты", "А", "ЗначениеЗаполнения"],
+      location: { line: 1, col: 1 },
+      itemType: "MetadataAttribute",
+      ...payload,
+    }
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{ ...yamlUpdate("a.yaml"), pendingChecks: [pendingCheck] }],
+      hashBytes: new Uint8Array(8),
+    })).toThrow()
+  })
+
+  it.each([
     ["short source hash", { update: resourceUpdate("a.bin"), hashBytes: new Uint8Array(7) }],
     ["negative hash", { update: resourceUpdate("a.bin"), hash: -1n }],
     ["overflow hash", { update: resourceUpdate("a.bin"), hash: 1n << 64n }],

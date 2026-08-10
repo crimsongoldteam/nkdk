@@ -28,7 +28,18 @@ describe("совместимость заимствованной формы с 
     })])
   })
 
-  it("диагностирует повтор имени в разных ветвях и безымянный элемент", () => {
+  it.each([
+    ["Реквизиты", "Реквизит", "реквизит"],
+    ["Команды", "Команда", "команда"],
+    ["Параметры", "Параметр", "параметр"],
+  ])("проверяет категорию %s", (collection, name, label) => {
+    const diagnostics = validateBaseFormCompatibility({
+      base: { [collection]: { [name]: {} } }, extension: {}, extensionFilePath: "/cfe/БазоваяФорма.yaml",
+    })
+    expect(diagnostics[0]).toMatchObject({ path: `${collection}.${name}`, message: expect.stringContaining(label) })
+  })
+
+  it("диагностирует первое структурное нарушение формы", () => {
     const diagnostics = validateBaseFormCompatibility({
       base: form({ Код: element("ПолеФормы") }),
       extension: form({
@@ -41,7 +52,6 @@ describe("совместимость заимствованной формы с 
 
     expect(diagnostics.map(({ message }) => message)).toEqual([
       expect.stringMatching(/имя.*пуст/i),
-      expect.stringMatching(/повтор.*Код/i),
     ])
   })
 })

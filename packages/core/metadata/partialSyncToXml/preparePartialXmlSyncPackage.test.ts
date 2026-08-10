@@ -2,12 +2,34 @@ import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "../diagnostics/types"
 import type { ProjectStateService } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
+import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
+import type { FullXmlSyncAssignment } from "../fullSyncToXml/types"
 import {
   preparePartialXmlSyncPackage,
   type PartialXmlSyncCoordinatorDependencies,
 } from "./preparePartialXmlSyncPackage"
 
 describe("подготовка частичного XML-пакета", () => {
+  it.each([
+    ["сохранённой", "Объект/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"],
+    ["удалённой", undefined],
+  ] as const)("передаёт подтверждённый источник %s основы в задание формы", (_case, savedProjectPath) => {
+    const assignment = formAssignment()
+    const plan = attachBorrowedFormPaths({ assignments: [assignment], externalFiles: [] }, {
+      borrowedForms: [{
+        logicalAddress: assignment.logicalAddress,
+        extensionProjectPath: assignment.sourceProjectPath,
+        baseProjectPath: assignment.sourceProjectPath,
+        ...(savedProjectPath === undefined ? {} : { savedProjectPath }),
+      }],
+    })
+
+    expect(plan.assignments[0]?.baseFormPaths).toEqual({
+      baseProjectPath: assignment.sourceProjectPath,
+      ...(savedProjectPath === undefined ? {} : { savedProjectPath }),
+    })
+  })
+
   it("возвращает unchanged без запуска подготовки ZIP", async () => {
     const dependencies = boundary({ ok: true, status: "unchanged", diagnostics: [] })
 
@@ -67,6 +89,21 @@ describe("подготовка частичного XML-пакета", () => {
     expect(dependencies.cleanup).toHaveBeenCalledOnce()
   })
 })
+
+function formAssignment(): FullXmlSyncAssignment {
+  return {
+    id: "form",
+    sourceProjectPath: "Объект/Товары/Формы/ФормаЭлемента/Форма.yaml",
+    sourcePath: "/project/cfe/Расширение/Объект/Товары/Формы/ФормаЭлемента/Форма.yaml",
+    expectedContentHash: 1n,
+    role: "form",
+    itemType: "ClientApplicationForm",
+    itemName: "ФормаЭлемента",
+    logicalAddress: "Объект.Товары.Форма.ФормаЭлемента",
+    nodeId: "form-node",
+    potentialOutputs: [],
+  }
+}
 
 function params() {
   return {

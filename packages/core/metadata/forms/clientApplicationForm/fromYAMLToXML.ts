@@ -19,6 +19,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
     context,
     yaml,
     baseYAML,
+    baseYAMLContext,
     baseConfigurationIndex,
     name,
     referenceXML,
@@ -29,10 +30,14 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
       baseYAML === undefined
         ? undefined
         : buildClientApplicationBaseForm({
-            context,
-            baseIndex: requireBaseConfigurationIndex(baseConfigurationIndex),
+            context: baseYAMLContext ?? context,
+            ...(baseYAMLContext === undefined
+              ? {
+                  baseIndex: requireBaseConfigurationIndex(baseConfigurationIndex),
+                  extensionYaml,
+                }
+              : {}),
             baseYaml: baseYAML as ClientApplicationFormYAML,
-            extensionYaml,
             formName: name,
             rule,
           })

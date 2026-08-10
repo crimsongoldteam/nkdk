@@ -14,8 +14,13 @@ export interface BaseFormSource {
   read(params: {
     readonly extensionAssignment: FullXmlSyncAssignment
     readonly baseProjectPath: string
-  }): Promise<PreparedYamlFile>
+    readonly savedProjectPath?: string
+  }): Promise<BaseFormSourceResult>
 }
+
+export type BaseFormSourceResult =
+  | { readonly kind: "saved"; readonly prepared: PreparedYamlFile; readonly projectPath: string }
+  | { readonly kind: "projected"; readonly prepared: PreparedYamlFile; readonly projectPath: string }
 
 export class BaseFormSourceError extends Error {
   readonly code: "full_xml_sync_base_form_changed"
@@ -29,71 +34,93 @@ export class BaseFormSourceError extends Error {
 export function createVerifiedBaseFormSource(params: {
   readonly baseStructure: ComponentProjectStructure
   readonly baseHashes: ComponentHashState
+  readonly savedStructure?: ComponentProjectStructure
+  readonly savedHashes?: ComponentHashState
 }): BaseFormSource {
-  if (params.baseStructure.componentPath !== params.baseHashes.componentPath) {
-    throw new Error("Структура и хэши базовой формы относятся к разным компонентам")
-  }
-  const hashes = new Map(
-    params.baseHashes.projectFiles.map(({ projectPath, contentHash }) => [
-      projectPath,
-      contentHash,
-    ])
-  )
+  const base = verifiedComponent(params.baseStructure, params.baseHashes)
+  const saved = params.savedStructure === undefined || params.savedHashes === undefined
+    ? undefined
+    : verifiedComponent(params.savedStructure, params.savedHashes)
 
   return {
-    async read({ extensionAssignment, baseProjectPath }) {
-      const resource = classifyMetadataProjectPath(
-        params.baseStructure.topology,
-        baseProjectPath
-      )
-      if (
-        resource?.kind !== "content" ||
-        resource.assignment === undefined ||
-        !params.baseStructure.projectPaths.includes(baseProjectPath)
-      ) {
-        throw new Error(
-          `Путь не является содержательным ресурсом основной конфигурации: ${baseProjectPath}`
-        )
+    async read({ extensionAssignment, baseProjectPath, savedProjectPath }) {
+      if (savedProjectPath !== undefined) {
+        if (saved === undefined) {
+          throw new Error(`Для сохранённой основы отсутствует подтверждённое состояние: ${savedProjectPath}`)
+        }
+        return {
+          kind: "saved",
+          prepared: await readVerifiedYaml(saved, savedProjectPath, extensionAssignment),
+          projectPath: savedProjectPath,
+        }
       }
-      const expectedHash = hashes.get(baseProjectPath)
-      if (expectedHash === undefined) {
-        throw new Error(`Для базовой формы отсутствует подтверждённый хэш: ${baseProjectPath}`)
+      return {
+        kind: "projected",
+        prepared: await readVerifiedYaml(base, baseProjectPath, extensionAssignment),
+        projectPath: baseProjectPath,
       }
-      const sourcePath = join(
-        params.baseStructure.componentDir,
-        ...baseProjectPath.split("/")
-      )
-      const baseAssignment = resource.assignment
-      const bytes = await fs.promises.readFile(sourcePath)
-      if (hashFileBytes(bytes) !== expectedHash) {
-        throw new BaseFormSourceError(
-          `Базовая YAML-форма изменена после получения хэшей: ${baseProjectPath}`
-        )
-      }
-      const prepared = prepareYamlFiles({
-        files: [{
-          projectPath: baseProjectPath,
-          filePath: sourcePath,
-          role:
-            baseAssignment.role === "fileItem"
-              ? "form"
-              : baseAssignment.role,
-          owner: ownerFromPath(baseProjectPath, extensionAssignment.itemName),
-          itemType: baseAssignment.itemRule.itemType,
-        }],
-        itemTypeByYamlDir: {},
-        sourceBytes: new Map([[sourcePath, bytes]]),
-      })
-      const file = prepared.yamlFiles[0]
-      if (file === undefined) {
-        throw new Error(`Не удалось подготовить базовую YAML-форму: ${baseProjectPath}`)
-      }
-      if (file.syntaxDiagnostics.some(({ severity }) => severity === "error")) {
-        throw new Error(`Синтаксическая ошибка базовой YAML-формы: ${baseProjectPath}`)
-      }
-      return file
     },
   }
+}
+
+function verifiedComponent(
+  structure: ComponentProjectStructure,
+  hashes: ComponentHashState,
+): { readonly structure: ComponentProjectStructure; readonly hashes: ReadonlyMap<string, bigint> } {
+  if (structure.componentPath !== hashes.componentPath) {
+    throw new Error("Структура и хэши формы относятся к разным компонентам")
+  }
+  return {
+    structure,
+    hashes: new Map(hashes.projectFiles.map(({ projectPath, contentHash }) => [projectPath, contentHash])),
+  }
+}
+
+async function readVerifiedYaml(
+  component: ReturnType<typeof verifiedComponent>,
+  projectPath: string,
+  extensionAssignment: FullXmlSyncAssignment,
+): Promise<PreparedYamlFile> {
+  const resource = classifyMetadataProjectPath(component.structure.topology, projectPath)
+  if (
+    (resource?.kind !== "content" && resource?.kind !== "yamlCompanion") ||
+    resource.assignment === undefined ||
+    !component.structure.projectPaths.includes(projectPath)
+  ) {
+    throw new Error(`Путь не является подтверждённым ресурсом формы: ${projectPath}`)
+  }
+  const expectedHash = component.hashes.get(projectPath)
+  if (expectedHash === undefined) {
+    throw new Error(`Для базовой формы отсутствует подтверждённый хэш: ${projectPath}`)
+  }
+  const sourcePath = join(component.structure.componentDir, ...projectPath.split("/"))
+  const baseAssignment = resource.assignment
+  const bytes = await fs.promises.readFile(sourcePath)
+  if (hashFileBytes(bytes) !== expectedHash) {
+    throw new BaseFormSourceError(`Базовая YAML-форма изменена после получения хэшей: ${projectPath}`)
+  }
+  const prepared = prepareYamlFiles({
+    files: [{
+      projectPath,
+      filePath: sourcePath,
+      role:
+        resource.kind === "yamlCompanion" || baseAssignment.role === "fileItem"
+          ? "form"
+          : baseAssignment.role,
+      owner: ownerFromPath(projectPath, extensionAssignment.itemName),
+      itemType: resource.rule?.itemType ?? baseAssignment.itemRule.itemType,
+    }],
+    itemTypeByYamlDir: {},
+    sourceBytes: new Map([[sourcePath, bytes]]),
+  })
+  const file = prepared.yamlFiles[0]
+  if (file === undefined) {
+    throw new Error(`Не удалось подготовить базовую YAML-форму: ${projectPath}`)
+  }
+  if (file.syntaxDiagnostics.some(({ severity }) => severity === "error")) {
+    throw new Error(`Синтаксическая ошибка базовой YAML-формы: ${projectPath}`)
+  }
+  return file
 }
 
 function ownerFromPath(

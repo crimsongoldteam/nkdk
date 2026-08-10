@@ -11,9 +11,19 @@ import type {
 import type { DataPathAllowedKind } from "../../ruleRuntime/property/types"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
 import type { ProjectStateFileIdentity } from "./fileIdentity"
+import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
 export type ProjectStateYamlPath = readonly (string | number)[]
+export interface ProjectStateStructuredDocumentEntry {
+  readonly documentKind: string
+  readonly representation: string
+  readonly logicalAddress: string
+  readonly workingProjectPath: string
+  readonly componentKind: string
+  readonly name: string
+  readonly yamlPath: ProjectStateYamlPath
+}
 
 export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
   readonly kind: "resource"
@@ -91,18 +101,29 @@ export type ProjectStateFormEntry =
   | { readonly kind: "root"; readonly owner: OwnerTypeRef; readonly name: string; readonly source: ProjectStateFormSource }
   | { readonly kind: "additionalColumn"; readonly owner: OwnerTypeRef; readonly tablePath: string; readonly name: string; readonly source: FormDataPathColumnSource }
   | { readonly kind: "tabularElement"; readonly owner: OwnerTypeRef; readonly name: string; readonly dataPath?: string }
-export interface ProjectStatePendingDependencyCheck {
-  readonly kind: "dataPath"
-  readonly yamlPath: ProjectStateYamlPath
-  readonly location: { readonly line: number; readonly col: number; readonly path?: string }
-  readonly owner: OwnerTypeRef
-  readonly value: string
-  readonly policyInput: { readonly yaml: string; readonly allowedKinds?: readonly DataPathAllowedKind[]; readonly allowComposite?: boolean }
-  readonly elementType?: ElementType
-  readonly hasValuesPicture?: boolean
-  readonly tableContext?: { readonly dataPath: string }
-  readonly policy: "formDataPath"
-}
+export type ProjectStatePendingDependencyCheck =
+  | {
+      readonly kind: "dataPath"
+      readonly yamlPath: ProjectStateYamlPath
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly owner: OwnerTypeRef
+      readonly value: string
+      readonly policyInput: { readonly yaml: string; readonly allowedKinds?: readonly DataPathAllowedKind[]; readonly allowComposite?: boolean }
+      readonly elementType?: ElementType
+      readonly hasValuesPicture?: boolean
+      readonly tableContext?: { readonly dataPath: string }
+      readonly policy: "formDataPath"
+    }
+  | {
+      readonly kind: "fillValue"
+      readonly yamlPath: ProjectStateYamlPath
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly itemType: string
+      readonly type: TypeDescriptionView
+      readonly value: FillValueTypedValue
+      readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
+    }
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
   readonly localValidation: ProjectStateLocalValidationResult
@@ -113,6 +134,7 @@ export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly forms: readonly ProjectStateFormEntry[]
   readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
   readonly dependencies: readonly string[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
   readonly resourceKind: "yaml"
@@ -121,6 +143,7 @@ export interface ProjectStateImportIndexContribution extends ProjectStateFileIde
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 export type ProjectStateFileUpdate = ProjectStateResourceUpdate | ProjectStateYamlFileUpdate
 export interface ProjectStateFileUpdateBatch { readonly updates: readonly ProjectStateFileUpdate[]; readonly hashBytes: Uint8Array }
