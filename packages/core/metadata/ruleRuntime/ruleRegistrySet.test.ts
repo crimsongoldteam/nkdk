@@ -44,6 +44,9 @@ it("keeps form, schema, project and topology state inside its registry set", () 
       schemas: {
         Main: { export: () => Type.Literal(label) },
       },
+      schemaPropertyRefs: {
+        Main: () => Type.Literal(label),
+      },
       projectSpecs: {
         Main: {
           dir: label,
@@ -66,6 +69,14 @@ it("keeps form, schema, project and topology state inside its registry set", () 
   expect(first.schemas.get("Main")?.export({
     context: { defaultLanguage: "ru", version: "test" },
   })).toMatchObject({ const: "first" })
+  expect(first.schemas.propertyRef("Main")?.({
+    context: { defaultLanguage: "ru", version: "test" },
+    rule: { type: "string" },
+  })).toMatchObject({ const: "first" })
+  expect(second.schemas.propertyRef("Main")?.({
+    context: { defaultLanguage: "ru", version: "test" },
+    rule: { type: "string" },
+  })).toMatchObject({ const: "second" })
   expect(second.projectSpecs.get("Main")?.kind).toBe("second")
   expect(first.formElements.get("Field")?.itemType).toBe("InputField")
   expect(first.resourceTopology.get()).not.toBe(second.resourceTopology.get())

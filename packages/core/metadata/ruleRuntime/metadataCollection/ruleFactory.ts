@@ -12,11 +12,22 @@ import { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import {
-  registerTypeRule,
+  registerLegacyPropertyTypeDefinitions,
   resolvePropertyItemRule,
 } from "../property/typeRuleRegistry"
+import {
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type PropertyTypeRuleContribution,
+} from "../property/propertyRuleRegistrySet"
 import { getDeclaredPropertyItemRule } from "../property/propertyItemRuleDeclarations"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
+import { defineMetadataRules } from "../definition"
+import type {
+  MetadataRulesDefinition,
+  MetadataSchemaPropertyRefDefinition,
+} from "../definition"
+import { emptyMetadataRules } from "../definition/testSupport"
 
 type JSONSchemaCollectionShape = "record" | "array" | "schema"
 
@@ -77,20 +88,18 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   schemaShape?: JSONSchemaCollectionShape
 }
 
-export const registerMetadataItemCollectionRule = <
+export const defineMetadataItemCollectionRule = <
   Rule extends MetadataItemRule,
   CollectionType extends PropertyRuleType,
   XMLKey extends string,
 >(
   params: CollectionRule<Rule, CollectionType, XMLKey>
-): void => {
+): MetadataRulesDefinition => {
   const { propertyType, itemRule, xmlElement } = params
   const schemaName = params.schemaName ?? itemRule.itemType
   const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
-  registerJSONSchemaIdentity({
-    name: schemaName,
-    source: itemRule,
-    exporter: ({ context }) => {
+  const propertyTypeRules: PropertyTypeRuleContribution[] = []
+  const schemaExporter = ({ context }: Parameters<MetadataRulesDefinition["schemas"][string]["export"]>[0]) => {
       if (schemaShape === "schema" && params.toJSONSchema !== undefined) {
         return (
           params.toJSONSchema({
@@ -102,10 +111,9 @@ export const registerMetadataItemCollectionRule = <
       }
 
       return exportMetadataItemToJSONSchema({ context, rule: declaredMetadataItemRule(propertyType) ?? itemRule })
-    },
-  })
+    }
 
-  registerJSONSchemaPropertyRef(propertyType, ({ context, rule }) => {
+  const schemaPropertyRef: MetadataSchemaPropertyRefDefinition = ({ context, rule }) => {
     const resolvedItemRule = resolvePropertyItemRule(rule, itemRule)
     if (resolvedItemRule === itemRule) {
       if (schemaShape === "schema") return schemaRef(schemaName)
@@ -116,12 +124,12 @@ export const registerMetadataItemCollectionRule = <
       return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
     return exportCollectionSchema({ context, propertyRule: rule, resolvedItemRule })
-  })
+  }
 
   if (params.fromXMLToYAML !== undefined) {
-    registerTypeRule(propertyType, "importFromXMLToYAML", params.fromXMLToYAML)
+    propertyTypeRules.push(definePropertyTypeRule(propertyType, "importFromXMLToYAML", params.fromXMLToYAML))
   } else {
-    registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, rule, xml, traversal }) =>
+    propertyTypeRules.push(definePropertyTypeRule(propertyType, "importFromXMLToYAML", ({ context, rule, xml, traversal }) =>
       importMetadataItemCollectionFromXMLToYAML({
         context,
         rule,
@@ -137,10 +145,10 @@ export const registerMetadataItemCollectionRule = <
         ...(params.recordYamlKeyFromYAML === undefined ? {} : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
         traversal,
       })
-    )
+    ))
   }
-  registerTypeRule(propertyType, "nestedItemRule", { itemRule })
-  registerTypeRule(propertyType, "yamlToXMLNestedRule", {
+  propertyTypeRules.push(definePropertyTypeRule(propertyType, "nestedItemRule", { itemRule }))
+  propertyTypeRules.push(definePropertyTypeRule(propertyType, "yamlToXMLNestedRule", {
     kind: "collection",
     itemRule,
     itemRuleFromProperty: (propertyRule) => resolvePropertyItemRule(propertyRule, itemRule),
@@ -161,7 +169,7 @@ export const registerMetadataItemCollectionRule = <
     configurationIndexUidSegment: params.configurationIndexUidSegment,
     requiredIdentity: params.requiredIdentity,
     configurationIndexAddressing: params.configurationIndexAddressing,
-  })
+  }))
 
   const exportCollectionSchema = (paramsForSchema: {
     context: Parameters<ExportToJSONSchemaFn>[0]["context"]
@@ -209,12 +217,46 @@ export const registerMetadataItemCollectionRule = <
             resolvedItemRule,
           })
         }
-  registerTypeRule(propertyType, "exportToJSONSchema", toJSONSchema)
+  propertyTypeRules.push(definePropertyTypeRule(propertyType, "exportToJSONSchema", toJSONSchema))
 
   if (params.collectionItemRule) {
-    registerTypeRule(propertyType, "collectionItemRule", {
+    propertyTypeRules.push(definePropertyTypeRule(propertyType, "collectionItemRule", {
       itemRule: itemRule as unknown as MetadataItemRule,
+    }))
+  }
+
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: propertyTypesFromContributions(propertyTypeRules),
+    metadataItems: { [itemRule.itemType]: itemRule },
+    schemas: {
+      [schemaName]: {
+        source: itemRule,
+        export: schemaExporter,
+      },
+    },
+    schemaPropertyRefs: { [propertyType]: schemaPropertyRef },
+  })
+}
+
+export const registerMetadataItemCollectionRule = <
+  Rule extends MetadataItemRule,
+  CollectionType extends PropertyRuleType,
+  XMLKey extends string,
+>(params: CollectionRule<Rule, CollectionType, XMLKey>): void => {
+  const definition = defineMetadataItemCollectionRule(params)
+  registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
+  for (const [name, schema] of Object.entries(definition.schemas)) {
+    registerJSONSchemaIdentity({
+      name,
+      source: schema.source ?? params.itemRule,
+      exporter: schema.export,
     })
+  }
+  for (const [propertyType, factory] of Object.entries(
+    definition.schemaPropertyRefs,
+  )) {
+    registerJSONSchemaPropertyRef(propertyType as PropertyRuleType, factory)
   }
 }
 

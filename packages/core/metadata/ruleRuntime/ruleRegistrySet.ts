@@ -6,6 +6,7 @@ import type {
 import type {
   MetadataRulesDefinition,
   MetadataSchemaDefinition,
+  MetadataSchemaPropertyRefDefinition,
 } from "./definition"
 import type { ElementRule } from "./formElement/types"
 import type { MetadataItemRule } from "./property/types"
@@ -20,6 +21,9 @@ export interface RuleRegistrySet {
   readonly formElements: ReadonlyMap<string, ElementRule>
   readonly schemas: {
     get(name: string): MetadataSchemaDefinition | undefined
+    propertyRef(
+      propertyType: string,
+    ): MetadataSchemaPropertyRefDefinition | undefined
   }
   readonly projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
   readonly resourceTopology: {
@@ -33,6 +37,9 @@ export function createRuleRegistrySet(
   const metadataItems = new Map(Object.entries(definition.metadataItems))
   const formElements = new Map(Object.entries(definition.formElements))
   const schemas = new Map(Object.entries(definition.schemas))
+  const schemaPropertyRefs = new Map(
+    Object.entries(definition.schemaPropertyRefs),
+  )
   const projectSpecs = new Map(Object.entries(definition.projectSpecs))
   const topologyProviders = [...definition.resourceTopology]
   const topologyCache = new Map<
@@ -50,6 +57,9 @@ export function createRuleRegistrySet(
     schemas: {
       get(name) {
         return schemas.get(name)
+      },
+      propertyRef(propertyType) {
+        return schemaPropertyRefs.get(propertyType)
       },
     },
     projectSpecs,

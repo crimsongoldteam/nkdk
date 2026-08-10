@@ -34,6 +34,10 @@ export function composeMetadataRules(
         ...layer.systemEnumerations,
       },
       schemas: { ...result.schemas, ...layer.schemas },
+      schemaPropertyRefs: {
+        ...result.schemaPropertyRefs,
+        ...layer.schemaPropertyRefs,
+      },
       projectSpecs: { ...result.projectSpecs, ...layer.projectSpecs },
       resourceTopology: [
         ...result.resourceTopology,

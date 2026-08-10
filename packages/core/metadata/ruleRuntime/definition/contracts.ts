@@ -34,6 +34,11 @@ export interface MetadataSchemaDefinition {
   readonly export: (params: { context: ConfigurationContext }) => TSchema
 }
 
+export type MetadataSchemaPropertyRefDefinition = (params: {
+  readonly context: ConfigurationContext
+  readonly rule: import("../property/types").PropertyRule
+}) => TSchema | undefined
+
 export interface RuleRegistrationContribution {
   readonly register: () => void
 }
@@ -115,6 +120,9 @@ export interface MetadataRulesDefinition {
     Record<string, RegisteredSystemEnumeration>
   >
   readonly schemas: Readonly<Record<string, MetadataSchemaDefinition>>
+  readonly schemaPropertyRefs: Readonly<
+    Record<string, MetadataSchemaPropertyRefDefinition>
+  >
   readonly projectSpecs: Readonly<Record<string, RegisteredProjectSpec>>
   readonly resourceTopology: readonly MetadataResourceTopologyProvider[]
   readonly validation: readonly LocalYamlValueValidationContribution[]

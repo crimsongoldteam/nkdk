@@ -6,13 +6,20 @@ import {
   createJSONSchemaExportContext,
   createSchemaRef,
   getJSONSchemaIdentityExporter,
+  listJSONSchemaIdentityNames,
 } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { PropertyRuleType } from "../property/registry"
 import { declarePropertyItemRule } from "../property/propertyItemRuleDeclarations"
-import { getTypeRule } from "../property/typeRuleRegistry"
+import {
+  getTypeRule,
+  typeRulesRegistryRevision,
+} from "../property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
-import { registerMetadataItemCollectionRule } from "./ruleFactory"
+import {
+  defineMetadataItemCollectionRule,
+  registerMetadataItemCollectionRule,
+} from "./ruleFactory"
 
 const itemRule = {
   itemType: "TestCollectionItem",
@@ -47,6 +54,26 @@ const context = { defaultLanguage: "ru", version: "2.20" } as const
 const propertyRule = (type: PropertyRuleType): PropertyRule => ({ type })
 
 describe("registerMetadataItemCollectionRule direct importer", () => {
+  it("creates a definition without writing to legacy registries", () => {
+    const propertyType = "TestPureCollection" as PropertyRuleType
+    const typeRevision = typeRulesRegistryRevision()
+    const schemaNames = listJSONSchemaIdentityNames()
+
+    const definition = defineMetadataItemCollectionRule({
+      propertyType,
+      itemRule,
+      xmlElement: "Item",
+    })
+
+    expect(typeRulesRegistryRevision()).toBe(typeRevision)
+    expect(listJSONSchemaIdentityNames()).toEqual(schemaNames)
+    expect(definition.propertyTypes[propertyType]?.importFromXMLToYAML).toBeTypeOf(
+      "function",
+    )
+    expect(definition.schemaPropertyRefs[propertyType]).toBeTypeOf("function")
+    expect(definition.schemas[itemRule.itemType]?.source).toBe(itemRule)
+  })
+
   it("registers an explicitly opted-in direct importer", () => {
     const propertyType = "TestCustomDirectCollection" as PropertyRuleType
     const fromXMLToYAML = () => ({ Значение: "direct" })

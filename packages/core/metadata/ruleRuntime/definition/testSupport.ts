@@ -12,6 +12,7 @@ export const emptyMetadataRules: MetadataRulesDefinition = {
   formElements: {},
   systemEnumerations: {},
   schemas: {},
+  schemaPropertyRefs: {},
   projectSpecs: {},
   resourceTopology: [],
   validation: [],
