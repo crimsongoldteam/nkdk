@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest"
 import { getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
-import { registerMetadataItemRule } from "./ruleFactory"
+import {
+  defineMetadataItemRule,
+  registerMetadataItemRule,
+} from "./ruleFactory"
+import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
+import { listJSONSchemaIdentityNames } from "../jsonSchemaRefs"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -22,6 +27,29 @@ const ExplicitOnlySampleItemRule = {
 } as const satisfies MetadataItemRule
 
 describe("registerMetadataItemRule JSON Schema identity", () => {
+  it("creates a definition without writing to legacy registries", () => {
+    const typeRevision = typeRulesRegistryRevision()
+    const schemaNames = listJSONSchemaIdentityNames()
+
+    const definition = defineMetadataItemRule({
+      propertyType: "RuleFactorySampleItemProperty",
+      itemRule: SampleItemRule,
+    })
+
+    expect(typeRulesRegistryRevision()).toBe(typeRevision)
+    expect(listJSONSchemaIdentityNames()).toEqual(schemaNames)
+    expect(
+      definition.propertyTypes.RuleFactorySampleItemProperty
+        ?.importFromXMLToYAML,
+    ).toBeTypeOf("function")
+    expect(definition.metadataItems[SampleItemRule.itemType]).toBe(
+      SampleItemRule,
+    )
+    expect(definition.schemas[SampleItemRule.itemType]?.source).toBe(
+      SampleItemRule,
+    )
+  })
+
   it("registers item schema by itemType by default", () => {
     registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
 

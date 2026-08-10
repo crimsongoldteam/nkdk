@@ -30,6 +30,7 @@ export type PropertyTypeDefinition = {
 }
 
 export interface MetadataSchemaDefinition {
+  readonly source?: object | string
   readonly export: (params: { context: ConfigurationContext }) => TSchema
 }
 
