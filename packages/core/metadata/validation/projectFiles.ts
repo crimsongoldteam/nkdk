@@ -8,6 +8,7 @@ import {
 import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { TopologyMetadataTarget } from "../resourceTopology/core/types"
 
 export interface ComponentFileAddress {
   componentPath: string
@@ -19,10 +20,12 @@ export interface ValidationProjectFile extends ComponentFileAddress {
   absolutePath: string
   projectPath: string
   kind: "configuration" | "properties" | "form"
+  topologyNodeId: string
   itemType: string
   owner: { dir: string; name: string; spec: ValidationProjectSpec }
   formName?: string
-  itemRule?: MetadataItemRule
+  itemRule: MetadataItemRule
+  metadataTarget?: TopologyMetadataTarget
 }
 
 export async function discoverValidationProjectFiles(
@@ -63,14 +66,18 @@ function toValidationProjectFile(
     rootProjectPath: `${component.componentPath}/${resource.projectPath}`,
   }
 
+  if (resource.kind !== "yaml") return undefined
+
   if (resource.role === "configuration") {
     return {
       ...address,
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "configuration",
-      itemType: resource.owner.spec.rule.itemType,
+      topologyNodeId: resource.topologyNodeId,
+      itemType: resource.itemType,
       owner: resource.owner,
+      itemRule: resource.itemRule,
     }
   }
 
@@ -80,8 +87,11 @@ function toValidationProjectFile(
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "properties",
-      itemType: resource.owner.spec.rule.itemType,
+      topologyNodeId: resource.topologyNodeId,
+      itemType: resource.itemType,
       owner: resource.owner,
+      itemRule: resource.itemRule,
+      ...(resource.metadataTarget === undefined ? {} : { metadataTarget: resource.metadataTarget }),
     }
   }
 
@@ -91,10 +101,12 @@ function toValidationProjectFile(
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "form",
+      topologyNodeId: resource.topologyNodeId,
       itemType: resource.itemType,
       owner: resource.owner,
       formName: resource.formName,
       itemRule: resource.itemRule,
+      ...(resource.metadataTarget === undefined ? {} : { metadataTarget: resource.metadataTarget }),
     }
   }
 

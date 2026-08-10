@@ -1,4 +1,4 @@
-import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
+import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
 import type { ElementType } from "../ruleRuntime/formElement/types"
@@ -28,6 +28,7 @@ import type { DataPathValidationPendingCheck, ValidationPendingCheck } from "./p
 import { toDataPathPolicyInput } from "./dataPath/policies"
 import {
   findValidationRulesSpec,
+  findValidationRulesItem,
   type ValidationRulesSnapshot,
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
@@ -85,10 +86,15 @@ export function extractValidationYamlFacts(params: {
     return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed) : emptyFacts()
   }
 
-  const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
-  const objectTarget = spec === undefined ? undefined : objectTargetForProjectFile(params.file, spec)
-  const owner =
-    objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
+  const spec = findValidationRulesItem(
+    params.rulesSnapshot,
+    params.file.itemType,
+    params.file.topologyNodeId,
+  ) ?? findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
+  const objectTarget = objectTargetForProjectFile(params.file)
+  const owner = objectTarget === undefined || params.file.metadataTarget === undefined
+    ? undefined
+    : { root: objectTarget.root, objectName: params.file.metadataTarget.owner.objectName }
   const referenceDiagnostics: Diagnostic[] = []
   const localValueDiagnostics: Diagnostic[] = []
   const localValueValidationProfile: LocalValueValidationProfile = {}
@@ -123,7 +129,7 @@ export function extractValidationYamlFacts(params: {
           fileOwner: params.file.owner,
           rulePath: [],
           rootYaml: params.parsed.data,
-          rootRule: params.file.owner.spec.rule,
+          rootRule: params.file.itemRule,
           validationDiagnostics,
           pendingChecks,
         })
@@ -170,37 +176,19 @@ export function extractValidationOwnerYamlFacts(params: {
 
 function objectTargetForProjectFile(
   file: ValidationProjectFile,
-  spec: ValidationRulesSpecSnapshot
 ): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
-  const root = spec.metadataTargetOwner?.kind === "self" ? spec.metadataTargetOwner.root : spec.root
-  if (!root || file.owner.name.length === 0) return undefined
-
-  if (spec.nesting?.kind !== "recursiveChildDir") {
-    return {
-      kind: "object",
-      root,
-      objectName: file.owner.name,
-    }
+  if (file.kind === "configuration") return undefined
+  if (file.metadataTarget === undefined) {
+    throw new Error(`Для адресуемого YAML-файла не передан metadata target: ${file.projectPath}`)
   }
-
-  const parts = file.projectPath.split("/")
-  if (parts[0] !== file.owner.dir || parts[parts.length - 1] !== "Свойства.yaml") return undefined
-  const rootObjectName = parts[1]
-  if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
-  const nestedNames: string[] = []
-  for (let index = 2; index < parts.length - 2; index += 2) {
-    if (parts[index] !== spec.nesting.childDir) return undefined
-    const objectName = parts[index + 1]
-    if (objectName === undefined || objectName.length === 0) return undefined
-    nestedNames.push(objectName)
+  const parsed = parseMetadataTargetFromModel({
+    canonical: file.metadataTarget.canonical,
+    constraint: { kind: "object", allowNested: true },
+  })
+  if (!parsed.ok || parsed.target.kind !== "object") {
+    throw new Error(`Некорректный topology metadata target для ${file.projectPath}: ${file.metadataTarget.canonical}`)
   }
-
-  return {
-    kind: "object",
-    root,
-    objectName: rootObjectName,
-    segments: nestedNames.map((objectName) => ({ kind: root, objectName })),
-  }
+  return parsed.target
 }
 
 function objectIndexDetails(data: unknown): { type?: string } {
@@ -264,7 +252,7 @@ function emptyObjectFieldIndex(): ObjectFieldIndex {
 function collectUniqueNameScopeDiagnostics(
   file: ValidationProjectFile,
   parsed: ParsedYaml,
-  spec: ValidationRulesSpecSnapshot
+  spec: Pick<ValidationRulesSpecSnapshot, "uniqueNameScopes" | "properties">
 ): Diagnostic[] {
   if (spec.uniqueNameScopes.length === 0) return []
 
@@ -307,7 +295,10 @@ function collectUniqueNameScopeDiagnostics(
   return diagnostics
 }
 
-function yamlPathByModelKey(spec: ValidationRulesSpecSnapshot, modelKey: string): readonly string[] | undefined {
+function yamlPathByModelKey(
+  spec: Pick<ValidationRulesSpecSnapshot, "properties">,
+  modelKey: string,
+): readonly string[] | undefined {
   return spec.properties.find((property) => property.modelKey === modelKey)?.yamlPath
 }
 

@@ -120,9 +120,19 @@ describe("extractValidationYamlFacts", () => {
     ])
   })
 
-  it("extracts object index entries for nested recursive objects", () => {
+  it.each([
+    [
+      "nested recursive object",
+      "/project/Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+      "Subsystem.Администрирование.Subsystem.Настройки",
+    ],
+    [
+      "nested file item",
+      "/project/ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml",
+      "ExternalDataSource.Источник.Cube.Куб",
+    ],
+  ])("uses the topology target for %s", (_case, filePath, canonical) => {
     const projectDir = "/project"
-    const filePath = "/project/Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
 
@@ -134,7 +144,7 @@ describe("extractValidationYamlFacts", () => {
 
     expect(facts.objectIndexEntries).toEqual([
       expect.objectContaining({
-        canonical: "Subsystem.Администрирование.Subsystem.Настройки",
+        canonical,
       }),
     ])
   })

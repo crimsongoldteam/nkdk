@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { createValidationRulesSnapshot, findValidationRulesSpec } from "./rulesSnapshot"
+import {
+  createValidationRulesSnapshot,
+  findValidationRulesItem,
+  findValidationRulesSpec,
+} from "./rulesSnapshot"
 import { registerValidationMetadata } from "./registerValidationMetadata"
 import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 
@@ -53,5 +57,19 @@ describe("ValidationRulesSnapshot", () => {
 
     expect(attributes?.nestedItemType).toBe("MetadataAttribute")
     expect(standardAttributes?.nestedItemType).toBe("StandardAttributeDescription")
+  })
+
+  it("includes the actual rule of a nested file assignment", () => {
+    const cube = findValidationRulesItem(
+      createValidationRulesSnapshot(mockContext),
+      "MetadataExternalDataSourceCube",
+    )
+
+    expect(cube).toMatchObject({
+      itemType: "MetadataExternalDataSourceCube",
+      properties: expect.arrayContaining([
+        expect.objectContaining({ modelKey: "nameInDataSource" }),
+      ]),
+    })
   })
 })

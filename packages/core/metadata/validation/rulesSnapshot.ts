@@ -18,10 +18,22 @@ import {
   validationProjectSpecs,
   type ValidationProjectSpec,
 } from "./projectSpecs"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 export interface ValidationRulesSnapshot {
   version: 1
   specs: ValidationRulesSpecSnapshot[]
+  items: ValidationRulesItemSnapshot[]
+}
+
+export interface ValidationRulesItemSnapshot {
+  topologyNodeId: string
+  itemType: string
+  metadataTargetOwner?: MetadataTargetOwnerDeclaration
+  uniqueNameScopes: readonly ValidationRulesUniqueNameScopeSnapshot[]
+  properties: readonly ValidationRulesPropertySnapshot[]
+  standardMemberAliases: Readonly<Record<string, string>>
 }
 
 export interface ValidationRulesSpecSnapshot {
@@ -64,10 +76,14 @@ interface SnapshotSourceProperty {
   itemRule?: ValidationProjectSpec["rule"]
 }
 
-export function createValidationRulesSnapshot(_context: ConfigurationContext): ValidationRulesSnapshot {
+export function createValidationRulesSnapshot(
+  _context: ConfigurationContext,
+  topology: CompiledMetadataResourceTopology = compileRegisteredMetadataResourceTopology(),
+): ValidationRulesSnapshot {
   return {
     version: 1,
     specs: [configurationValidationProjectSpec, ...validationProjectSpecs].map(snapshotSpec),
+    items: topology.assignments.map((assignment) => snapshotItem(assignment.id, assignment.itemRule)),
   }
 }
 
@@ -78,16 +94,43 @@ export function findValidationRulesSpec(
   return snapshot.specs.find((spec) => spec.dir === dir)
 }
 
+export function findValidationRulesItem(
+  snapshot: ValidationRulesSnapshot,
+  itemType: string,
+  topologyNodeId?: string,
+): ValidationRulesItemSnapshot | undefined {
+  return topologyNodeId === undefined
+    ? snapshot.items.find((item) => item.itemType === itemType)
+    : snapshot.items.find((item) => item.topologyNodeId === topologyNodeId)
+      ?? snapshot.items.find((item) => item.itemType === itemType)
+}
+
+function snapshotItem(
+  topologyNodeId: string,
+  rule: ValidationProjectSpec["rule"],
+): ValidationRulesItemSnapshot {
+  return {
+    topologyNodeId,
+    ...snapshotRule(rule),
+  }
+}
+
 function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot {
   const rule = spec.rule
 
   return {
     dir: spec.dir,
     kind: spec.kind,
-    itemType: rule.itemType,
+    ...snapshotRule(rule),
     ...(rootFromYAML[spec.dir] === undefined ? {} : { root: rootFromYAML[spec.dir] }),
-    ...(rule.metadataTargetOwner === undefined ? {} : { metadataTargetOwner: rule.metadataTargetOwner }),
     ...(spec.nesting === undefined ? {} : { nesting: { kind: spec.nesting.kind, childDir: spec.nesting.childDir } }),
+  }
+}
+
+function snapshotRule(rule: ValidationProjectSpec["rule"]): Omit<ValidationRulesItemSnapshot, "topologyNodeId"> {
+  return {
+    itemType: rule.itemType,
+    ...(rule.metadataTargetOwner === undefined ? {} : { metadataTargetOwner: rule.metadataTargetOwner }),
     uniqueNameScopes: (rule.uniqueNameScopes ?? []).map((scope) => ({ collections: [...scope.collections] })),
     properties: snapshotProperties(rule.properties, new Set([rule.itemType])),
     standardMemberAliases: registeredStandardMemberAliases(),

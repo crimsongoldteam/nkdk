@@ -9,7 +9,11 @@ import {
 } from "../resourceTopology/core/projectProjection"
 import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
 import { resolveTopologyMetadataTargetOwner } from "../resourceTopology/adapters/metadataTargetOwner"
-import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/core/types"
+import type {
+  CompiledMetadataResourceTopology,
+  MetadataResourceSource,
+  TopologyMetadataTarget,
+} from "../resourceTopology/core/types"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
@@ -59,6 +63,13 @@ export interface MetadataProjectResourceTargetRef {
   readonly fileBackedTargets: readonly MetadataFileBackedTargetContribution[]
 }
 
+export interface MetadataProjectYamlContext {
+  readonly topologyNodeId: string
+  readonly itemType: string
+  readonly itemRule: MetadataItemRule
+  readonly metadataTarget?: TopologyMetadataTarget
+}
+
 export interface MetadataProjectStateTargetRef {
   readonly kind: "member"
   readonly canonical: string
@@ -87,7 +98,8 @@ export function projectStateFileBackedTargets(
   }))
 }
 
-export interface MetadataProjectConfigurationYamlRef extends MetadataProjectResourceTargetRef {
+export interface MetadataProjectConfigurationYamlRef
+  extends MetadataProjectResourceTargetRef, MetadataProjectYamlContext {
   kind: "yaml"
   role: "configuration"
   projectPath: string
@@ -95,7 +107,8 @@ export interface MetadataProjectConfigurationYamlRef extends MetadataProjectReso
   owner: MetadataProjectResourceOwner
 }
 
-export interface MetadataProjectPropertiesYamlRef extends MetadataProjectResourceTargetRef {
+export interface MetadataProjectPropertiesYamlRef
+  extends MetadataProjectResourceTargetRef, MetadataProjectYamlContext {
   kind: "yaml"
   role: "properties"
   projectPath: string
@@ -104,15 +117,14 @@ export interface MetadataProjectPropertiesYamlRef extends MetadataProjectResourc
   nesting: MetadataProjectNestingSegment[]
 }
 
-export interface MetadataProjectFormYamlRef extends MetadataProjectResourceTargetRef {
+export interface MetadataProjectFormYamlRef
+  extends MetadataProjectResourceTargetRef, MetadataProjectYamlContext {
   kind: "yaml"
   role: "form"
   projectPath: string
   absolutePath?: string
   owner: MetadataProjectResourceOwner
   formName: string
-  itemType: string
-  itemRule: MetadataItemRule
   indexContribution?: "isolated"
 }
 
@@ -222,7 +234,11 @@ function toLegacyResource(
     match,
     resolveTopologyMetadataTargetOwner,
   )
-  if (match.kind === "yamlCompanion" && match.yamlCompanion !== undefined) {
+  if (
+    match.kind === "yamlCompanion"
+    && match.yamlCompanion !== undefined
+    && match.assignment !== undefined
+  ) {
     return {
       kind: "yaml",
       role: "form",
@@ -230,8 +246,7 @@ function toLegacyResource(
       fileBackedTargets,
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
-      itemType: match.yamlCompanion.itemRule.itemType,
-      itemRule: match.yamlCompanion.itemRule,
+      ...yamlContext(match, match.yamlCompanion.itemRule),
       indexContribution: match.yamlCompanion.indexContribution,
     }
   }
@@ -242,10 +257,16 @@ function toLegacyResource(
       projectPath: match.projectPath,
       fileBackedTargets,
       owner: { dir: "", name: "Конфигурация", spec: context.rootSpec },
+      ...yamlContext(match, match.assignment.itemRule),
     }
   }
 
-  if (match.kind === "content" && match.assignment?.role === "properties") {
+  if (
+    match.kind === "content"
+    && match.assignment !== undefined
+    && (match.assignment.role === "properties"
+      || (match.assignment.role === "fileItem" && match.assignment.projectRole !== "form"))
+  ) {
     const owner = legacyOwner(match)
     return {
       kind: "yaml",
@@ -254,9 +275,14 @@ function toLegacyResource(
       fileBackedTargets,
       owner,
       nesting: nestingSegments(match, owner.dir),
+      ...yamlContext(match, match.assignment.itemRule),
     }
   }
-  if (match.kind === "content" && match.assignment?.role === "fileItem") {
+  if (
+    match.kind === "content"
+    && match.assignment?.role === "fileItem"
+    && match.assignment.projectRole === "form"
+  ) {
     return {
       kind: "yaml",
       role: "form",
@@ -264,8 +290,7 @@ function toLegacyResource(
       fileBackedTargets,
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
-      itemType: match.assignment.itemRule.itemType,
-      itemRule: match.assignment.itemRule,
+      ...yamlContext(match, match.assignment.itemRule),
     }
   }
   return {
@@ -279,6 +304,21 @@ function toLegacyResource(
       kind: "itemRule",
       description: match.assignment?.itemRule.itemType ?? "resource",
     },
+  }
+}
+
+function yamlContext(
+  match: MetadataProjectResourceMatch,
+  itemRule: MetadataItemRule,
+): MetadataProjectYamlContext {
+  if (match.assignment === undefined) {
+    throw new Error(`Для YAML-ресурса не найден assignment: ${match.projectPath}`)
+  }
+  return {
+    topologyNodeId: match.assignment.id,
+    itemType: itemRule.itemType,
+    itemRule,
+    ...(match.metadataTarget === undefined ? {} : { metadataTarget: match.metadataTarget }),
   }
 }
 
