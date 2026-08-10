@@ -675,7 +675,10 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   return {
     ...emptyFacts(),
     formDataPathIndex: index,
-    structuredComponents: adapter.collectStructuredComponents(parsed.data),
+    structuredComponents: adapter.collectStructuredComponents(parsed.data, {
+      kind: file.owner.dir,
+      name: file.owner.name,
+    }),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {

@@ -356,7 +356,7 @@ function remapRow(source: Source, kind: ProjectStateFactTableKind, original: Rec
     case "dependencies": file(); string("projectPathId"); break
     case "structuredDocuments":
       file()
-      string("documentKindId", "representationId", "logicalAddressId", "workingProjectPathId", "componentKindId", "nameId")
+      string("documentKindId", "representationId", "logicalAddressId", "workingProjectPathId", "componentKindId", "nameId", "payloadId")
       ref("yamlPathId", "yamlPaths")
       break
     case "yamlPaths": range("segmentsStart", "segmentsCount", "yamlPathSegments"); break

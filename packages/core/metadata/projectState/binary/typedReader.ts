@@ -431,6 +431,7 @@ export function createTypedProjectStateReader(
       componentKind: string(value.componentKindId),
       name: string(value.nameId),
       yamlPath: yamlPath(value.yamlPathId),
+      ...optionalField("payload", value.payloadId),
     }))
   }
 

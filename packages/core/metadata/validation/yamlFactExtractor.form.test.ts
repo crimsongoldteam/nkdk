@@ -233,7 +233,16 @@ describe("extractValidationYamlFacts form", () => {
     ].join("\n"))
 
     expect(facts.structuredComponents).toEqual([
-      { componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"] },
+      {
+        componentKind: "element",
+        name: "Поле",
+        yamlPath: ["Элементы", "Поле"],
+        payload: JSON.stringify({
+          version: 1,
+          primaryDataPath: "missing",
+          owner: { kind: "Справочник", name: "Товары" },
+        }),
+      },
       { componentKind: "attribute", name: "Объект", yamlPath: ["Реквизиты", "Объект"] },
       { componentKind: "command", name: "Записать", yamlPath: ["Команды", "Записать"] },
       { componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] },

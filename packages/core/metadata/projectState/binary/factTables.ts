@@ -342,6 +342,7 @@ function validateFactRows(params: {
       record.workingProjectPathId, record.componentKindId, record.nameId]) {
       assertStringId(id, params.stringCount, "structuredDocument.stringId")
     }
+    assertOptionalStringId(record.payloadId, params.stringCount, "structuredDocument.payloadId")
     assertRowId(record.yamlPathId, params.tables.get("yamlPaths")?.records ?? 0, "structuredDocument.yamlPathId")
   })
   forEachRecord(params.tables.get("ownerFactItems"), ProjectStateOwnerFactItemRecordView, view, (record) => {

@@ -260,6 +260,7 @@ interface ProjectStateStructuredDocumentEntry {
   readonly documentKind: string; readonly representation: string; readonly logicalAddress: string
   readonly workingProjectPath: string; readonly componentKind: string; readonly name: string
   readonly yamlPath: readonly (string | number)[]
+  readonly payload?: string
 }
 
 type ProjectStateFileUpdate =
@@ -489,6 +490,7 @@ export function createProjectStateFragmentWriter(options: {
         componentKindId: strings.intern(entry.componentKind),
         nameId: strings.intern(entry.name),
         yamlPathId: appendYamlPath(entry.yamlPath),
+        payloadId: optionalString(entry.payload),
       })
     }
   }

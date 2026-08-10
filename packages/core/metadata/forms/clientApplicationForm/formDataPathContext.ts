@@ -5,7 +5,10 @@ import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { standardMemberYamlToInternal } from "../../validation/dataPath/registry"
-import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
+import {
+  collectFormDataPathOccurrencesFromYAML,
+  type FormYAMLItemVisitor,
+} from "../../validation/dataPath/formYamlTraversal"
 import type { ClientApplicationFormYAML } from "./types"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { resolveClientApplicationFormCollectionItemRule } from "./formDataPathProjection"
@@ -28,6 +31,27 @@ export interface FormDataPathContext {
   readonly index: FormDataPathIndex
   readonly elementsByName: ReadonlyMap<string, FormElementDataPathState>
   readonly effectiveMainAttribute?: string
+}
+
+export interface ClientApplicationFormDataPathPreparation {
+  readonly collected: CollectedForm
+  readonly index: FormDataPathIndex
+  readonly effectiveMainAttribute?: string
+}
+
+export function collectClientApplicationFormDataPathPreparation(params: {
+  yaml: ClientApplicationFormYAML
+  rule?: MetadataItemRule
+  visitItem?: FormYAMLItemVisitor
+}): ClientApplicationFormDataPathPreparation {
+  const rule = params.rule ?? ClientApplicationFormRules
+  const collected = collectFormElements(params.yaml, rule, params.visitItem)
+  const effectiveMainAttribute = findMainAttribute(params.yaml)
+  return {
+    collected,
+    index: createFormDataPathIndexFromYAML(params.yaml, collected.tabularElementsByName),
+    ...(effectiveMainAttribute === undefined ? {} : { effectiveMainAttribute }),
+  }
 }
 
 export function compactImportedFormDataPaths(params: {
@@ -125,6 +149,7 @@ export function prepareFormDataPathContextFromYAML(params: {
   readonly savedBaseFormYaml?: ClientApplicationFormYAML
   readonly ownerCache: OwnerMetadataCache
   readonly rule?: MetadataItemRule
+  readonly preparation?: ClientApplicationFormDataPathPreparation
 }): FormDataPathContext {
   const rule = params.rule ?? ClientApplicationFormRules
   const currentConfigurationForm =
@@ -139,11 +164,15 @@ export function prepareFormDataPathContextFromYAML(params: {
   if (params.savedBaseFormYaml !== undefined) {
     collectFormElements(params.savedBaseFormYaml, rule).elementsByName.forEach((_value, name) => borrowedNames.add(name))
   }
-  const collected = collectFormElements(params.yaml, rule)
-  const ownIndex = createFormDataPathIndexFromYAML(params.yaml, collected.tabularElementsByName)
+  const preparation = params.preparation ?? collectClientApplicationFormDataPathPreparation({
+    yaml: params.yaml,
+    rule,
+  })
+  const collected = preparation.collected
+  const ownIndex = preparation.index
   const index = mergeFormDataPathIndexes(ownIndex, currentConfigurationForm?.index)
   const effectiveMainAttribute =
-    findMainAttribute(params.yaml) ?? currentConfigurationForm?.effectiveMainAttribute
+    preparation.effectiveMainAttribute ?? currentConfigurationForm?.effectiveMainAttribute
   const prepared = prepareCollectedForm({
     collected,
     index,
@@ -160,7 +189,7 @@ export function prepareFormDataPathContextFromYAML(params: {
   }
 }
 
-interface CollectedFormElement {
+export interface CollectedFormElement {
   readonly name: string
   readonly itemType: string
   readonly yamlPath: readonly (string | number)[]
@@ -169,9 +198,10 @@ interface CollectedFormElement {
   readonly tableOwnerName?: string
 }
 
-interface CollectedForm {
+export interface CollectedForm {
   readonly elementsByName: ReadonlyMap<string, CollectedFormElement>
   readonly tabularElementsByName: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
+  readonly occurrences: ReturnType<typeof collectFormDataPathOccurrencesFromYAML>
 }
 
 interface ResolvedPath {
@@ -332,12 +362,17 @@ function prepareCollectedForm(params: {
   }
 }
 
-function collectFormElements(yaml: ClientApplicationFormYAML, rule: MetadataItemRule): CollectedForm {
+function collectFormElements(
+  yaml: ClientApplicationFormYAML,
+  rule: MetadataItemRule,
+  visitItem?: FormYAMLItemVisitor
+): CollectedForm {
   const elementsByName = new Map<string, CollectedFormElement>()
   const tabularElementsByName = new Map<string, FormDataPathTabularElementDeclaration>()
-  collectFormDataPathOccurrencesFromYAML({
+  const occurrences = collectFormDataPathOccurrencesFromYAML({
     yaml,
     rule,
+    visitItem,
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
     visitElement: (visit) => {
       acceptFormTabularElementVisit(tabularElementsByName, visit)
@@ -353,7 +388,7 @@ function collectFormElements(yaml: ClientApplicationFormYAML, rule: MetadataItem
       })
     },
   })
-  return { elementsByName, tabularElementsByName }
+  return { elementsByName, tabularElementsByName, occurrences }
 }
 
 function mergeFormDataPathIndexes(

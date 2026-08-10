@@ -5,6 +5,7 @@ import type {
   ProjectStateStructuredDocumentValidationParams,
 } from "../../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentEntry } from "../../projectState/fileUpdate"
+import { resolveProjectStateDataPathReferenceBatch } from "../../validation/projectStateDependencyValidation"
 
 const DOCUMENT_KIND = "clientApplicationForm"
 
@@ -31,6 +32,125 @@ export function validateBorrowedClientApplicationForms(
       filePath: absolutePath(params.projectDir, first.projectPath),
       subject: "основной формы",
     }))
+    const currentElementNames = new Set(baseEntries
+      .filter(({ representation, componentKind }) => representation === "working" && componentKind === "element")
+      .map(({ name }) => name))
+    const currentElements = new Map(baseEntries
+      .filter(({ representation, componentKind }) => representation === "working" && componentKind === "element")
+      .map((entry) => [entry.name, entry]))
+    const savedEntries = groupFactsByAddress(baseGroups, first.componentPath, first.entry.logicalAddress)
+      .map(({ entry }) => entry)
+    const savedElementNames = new Set(savedEntries
+      .filter(({ componentKind }) => componentKind === "element")
+      .map(({ name }) => name))
+    const workingEntries = extensionFacts.map(({ entry }) => entry)
+    const workingElements = new Map(workingEntries
+      .filter(({ componentKind }) => componentKind === "element")
+      .map((entry) => [entry.name, entry]))
+    const effectiveMainAttribute = workingEntries.find(({ componentKind }) => componentKind === "mainAttribute")?.name ??
+      baseEntries.find(({ representation, componentKind }) =>
+        representation === "working" && componentKind === "mainAttribute"
+      )?.name
+    const effectivePaths = new Map<string, string | undefined>()
+    const effectivePath = (entry: ProjectStateStructuredDocumentEntry): string | undefined => {
+      if (effectivePaths.has(entry.name)) return effectivePaths.get(entry.name)
+      const payload = formElementDataPathPayload(entry.payload)
+      let value = payload?.primaryDataPath === "explicit" ? payload.value : undefined
+      if (value === undefined && currentElementNames.has(entry.name)) {
+        const current = currentElements.get(entry.name)
+        const currentPayload = formElementDataPathPayload(current?.payload)
+        value = currentPayload?.primaryDataPath === "explicit"
+          ? currentPayload.value
+          : effectiveMainAttribute === undefined ? undefined : `${effectiveMainAttribute}.${entry.name}`
+      } else if (value === undefined && effectiveMainAttribute !== undefined) {
+        value = `${effectiveMainAttribute}.${entry.name}`
+      }
+      effectivePaths.set(entry.name, value)
+      return value
+    }
+    const candidate = (entry: ProjectStateStructuredDocumentEntry): string | undefined => {
+      const payload = formElementDataPathPayload(entry.payload)
+      if (payload?.tableOwnerName === undefined) {
+        return effectiveMainAttribute === undefined ? undefined : `${effectiveMainAttribute}.${entry.name}`
+      }
+      const table = workingElements.get(payload.tableOwnerName) ?? currentElements.get(payload.tableOwnerName)
+      const tablePath = table === undefined ? undefined : effectivePath(table)
+      if (tablePath === undefined) return undefined
+      const columnName = entry.name.startsWith(payload.tableOwnerName) && entry.name.length > payload.tableOwnerName.length
+        ? entry.name.slice(payload.tableOwnerName.length)
+        : entry.name
+      return `${tablePath}.${columnName}`
+    }
+    const redundantCandidates: Array<{
+      entry: ProjectStateStructuredDocumentEntry
+      value: string
+      owner: { readonly kind: string; readonly name: string }
+    }> = []
+    for (const entry of workingElements.values()) {
+      const payload = formElementDataPathPayload(entry.payload)
+      const borrowed = currentElementNames.has(entry.name) || savedElementNames.has(entry.name)
+      if (borrowed && payload?.primaryDataPath === "empty") {
+        diagnostics.push({
+          filePath: absolutePath(params.projectDir, first.projectPath),
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "cross-file",
+          message: `Пустой ПутьКДанным запрещён для заимствованного элемента «${entry.name}»`,
+          path: yamlPointer([...entry.yamlPath, "ПутьКДанным"]),
+        })
+      }
+      if (
+        !borrowed &&
+        payload?.primaryDataPath === "explicit" &&
+        typeof payload.value === "string" &&
+        payload.value === candidate(entry) &&
+        payload.owner !== undefined
+      ) {
+        redundantCandidates.push({ entry, value: payload.value, owner: payload.owner })
+      }
+    }
+    const resolvedRedundant = new Set(resolveProjectStateDataPathReferenceBatch({
+      checks: redundantCandidates.map(({ entry, value, owner }, index) => ({
+        requestId: String(index),
+        componentPath: first.componentPath,
+        projectPath: first.projectPath,
+        check: {
+          kind: "dataPath" as const,
+          yamlPath: [...entry.yamlPath, "ПутьКДанным"],
+          location: { line: 1, col: 1, path: yamlPointer([...entry.yamlPath, "ПутьКДанным"]) },
+          owner,
+          value,
+          policyInput: { yaml: "ПутьКДанным" },
+          policy: "formDataPath" as const,
+        },
+      })),
+      projectDir: params.projectDir,
+      queryPort: params.queryPort,
+    }).map(({ requestId }) => requestId))
+    redundantCandidates.forEach(({ entry }, index) => {
+      if (!resolvedRedundant.has(String(index))) return
+      diagnostics.push({
+        filePath: absolutePath(params.projectDir, first.projectPath),
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "cross-file",
+        message: `Вычисляемый ПутьКДанным собственного элемента «${entry.name}» не нужно указывать явно`,
+        path: yamlPointer([...entry.yamlPath, "ПутьКДанным"]),
+      })
+    })
+    for (const name of savedElementNames) {
+      if (currentElementNames.has(name)) continue
+      diagnostics.push({
+        filePath: absolutePath(params.projectDir, first.projectPath),
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "cross-file",
+        message: `Заимствованный элемент «${name}» из сохранённой основы отсутствует в текущей форме cf`,
+      })
+    }
   }
 
   for (const baseFacts of baseGroups.values()) {
@@ -52,6 +172,25 @@ export function validateBorrowedClientApplicationForms(
     }))
   }
   return diagnostics
+}
+
+function formElementDataPathPayload(value: string | undefined): {
+  readonly version: 1
+  readonly primaryDataPath: "missing" | "empty" | "explicit"
+  readonly value?: string
+  readonly tableOwnerName?: string
+  readonly owner?: { readonly kind: string; readonly name: string }
+} | undefined {
+  if (value === undefined) return undefined
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>
+    return parsed.version === 1 &&
+      (parsed.primaryDataPath === "missing" || parsed.primaryDataPath === "empty" || parsed.primaryDataPath === "explicit")
+      ? parsed as ReturnType<typeof formElementDataPathPayload>
+      : undefined
+  } catch {
+    return undefined
+  }
 }
 
 function baseDataPathDiagnostics(params: {

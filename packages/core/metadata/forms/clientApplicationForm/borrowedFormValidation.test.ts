@@ -36,6 +36,49 @@ describe("проверка заимствованной формы", () => {
     ])).toEqual([])
   })
 
+  it("запрещает пустой ПутьКДанным заимствованного элемента", () => {
+    const diagnostics = validate([
+      working("cf", "ПолеCF"),
+      workingWithDataPath("cfe/X", "ПолеCF", "empty"),
+    ])
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      path: "/Элементы/ПолеCF/ПутьКДанным",
+      message: expect.stringContaining("заимствованного элемента"),
+    })])
+  })
+
+  it("разрешает пустой ПутьКДанным собственного элемента и явный override заимствованного", () => {
+    expect(validate([
+      working("cf", "ПолеCF"),
+      workingWithDataPath("cfe/X", "ПолеCF", "explicit", "Объект.Поле"),
+      workingWithDataPath("cfe/X", "Собственное", "empty"),
+    ])).toEqual([])
+  })
+
+  it("сообщает об элементе, который остался только в сохранённой основе", () => {
+    const diagnostics = validate([
+      workingWithDataPath("cfe/X", "Удалённое", "missing"),
+      fact("cfe/X", "base", "element", "Удалённое", ["Элементы", "Удалённое"], "БазоваяФорма.yaml"),
+    ])
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      message: expect.stringContaining("отсутствует в текущей форме cf"),
+    })])
+  })
+
+  it("запрещает явный вычисляемый путь собственного элемента расширения", () => {
+    const diagnostics = validate([
+      fact("cfe/X", "working", "mainAttribute", "Объект", ["Реквизиты", "Объект", "ОсновнойРеквизит"]),
+      workingWithDataPath("cfe/X", "Код", "explicit", "Объект.Код"),
+    ])
+
+    expect(diagnostics).toEqual([expect.objectContaining({
+      path: "/Элементы/Код/ПутьКДанным",
+      message: expect.stringContaining("не нужно указывать явно"),
+    })])
+  })
+
   it.each([
     ["element", "Элементы.Поля"],
     ["attribute", "Реквизиты.Объект"],
@@ -78,6 +121,39 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
     projectDir: "/project",
     facts,
     queryPort: {
+      readDependencyInputs(requests) {
+        return requests.map(({ requestId }) => ({
+          requestId,
+          status: "found" as const,
+          input: {
+            owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: {} }],
+            fields: [{
+              owner: { kind: "Справочник", name: "Товары" },
+              name: "Код",
+              kind: "standardAttribute" as const,
+              targetName: "Code",
+              typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "String" },
+            }],
+            forms: [{
+              kind: "root" as const,
+              owner: { kind: "Справочник", name: "Товары" },
+              name: "Объект",
+              source: {
+                kind: "formAttribute" as const,
+                name: "Объект",
+                typeInfo: {
+                  kinds: ["object"],
+                  nextTypes: [{ kind: "Справочник", name: "Товары" }],
+                  sourceText: "СправочникОбъект.Товары",
+                },
+              },
+            }],
+          },
+        }))
+      },
+      readDependencyOwnerInputs(requests) {
+        return requests.map(({ requestId }) => ({ requestId, status: "missing" as const }))
+      },
       readStructuredDocumentEntries({ componentPath, logicalAddress }) {
         return facts
           .filter((fact) => fact.componentPath === componentPath && fact.entry.logicalAddress === logicalAddress)
@@ -90,6 +166,27 @@ function validate(facts: readonly ProjectStateStructuredDocumentFact[]) {
 
 function working(componentPath: string, name: string): ProjectStateStructuredDocumentFact {
   return fact(componentPath, "working", "element", name, ["Элементы", name])
+}
+
+function workingWithDataPath(
+  componentPath: string,
+  name: string,
+  primaryDataPath: "missing" | "empty" | "explicit",
+  value?: string,
+): ProjectStateStructuredDocumentFact {
+  const result = working(componentPath, name)
+  return {
+    ...result,
+    entry: {
+      ...result.entry,
+      payload: JSON.stringify({
+        version: 1,
+        primaryDataPath,
+        ...(value === undefined ? {} : { value }),
+        owner: { kind: "Справочник", name: "Товары" },
+      }),
+    },
+  }
 }
 
 function fact(
