@@ -4,7 +4,9 @@ import { I8nTextJSONSchema } from "../../i8nText/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../projectDefinition/schemaRegistry"
+import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import { ensureDcsMetadataValueJSONSchema, exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
@@ -289,9 +291,14 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
 
 export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
 
-registerProjectJSONSchemaPropertyRefFactory("SettingsParameterValue", ({ rule }) => {
-  const settingsRule = rule as SettingsParameterValuePropertyRule
-  return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...emptyMetadataRules,
+  schemaPropertyRefs: {
+    SettingsParameterValue: ({ rule }) => {
+      const settingsRule = rule as SettingsParameterValuePropertyRule
+      return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+    },
+  },
 })
 
 function ensureSettingsParameterValueJSONSchema(rule: SettingsParameterValuePropertyRule): string {

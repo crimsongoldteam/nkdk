@@ -12,7 +12,9 @@ import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../projectDefinition/schemaRegistry"
+import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import * as SE from "../../../systemEnumerations/types"
 import {
@@ -262,16 +264,27 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
 
-registerProjectJSONSchema(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME, () => DcsMetadataSingleValueJSONSchema)
-registerProjectJSONSchema(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME, ({ context }) =>
-  context.exportToJSONSchema?.validationPropertyRefs === true
-    ? Type.Any()
-    : explicitDcsSystemEnumerationValueJSONSchema(context)
-)
-
-registerProjectJSONSchemaPropertyRefFactory("MetadataDcsMetadataValue", ({ rule }) => {
-  const dcsRule = rule as DcsMetadataValuePropertyRule
-  return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...emptyMetadataRules,
+  schemas: {
+    [DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME]: {
+      source: DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME,
+      export: () => DcsMetadataSingleValueJSONSchema,
+    },
+    [DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME]: {
+      source: DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME,
+      export: ({ context }) =>
+        context.exportToJSONSchema?.validationPropertyRefs === true
+          ? Type.Any()
+          : explicitDcsSystemEnumerationValueJSONSchema(context),
+    },
+  },
+  schemaPropertyRefs: {
+    MetadataDcsMetadataValue: ({ rule }) => {
+      const dcsRule = rule as DcsMetadataValuePropertyRule
+      return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+    },
+  },
 })
 
 export function ensureDcsMetadataValueJSONSchema(rule: DcsMetadataValuePropertyRule): string {

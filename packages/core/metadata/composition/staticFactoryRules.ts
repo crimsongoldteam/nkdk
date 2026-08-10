@@ -117,6 +117,9 @@ import { metadataRuleLayer000 as contribution183 } from "../appliedObjects/metad
 import { metadataRuleLayer000 as contribution184 } from "../appliedObjects/metadataCommand/register"
 import { metadataRuleLayer000 as contribution185 } from "../commonObjects/schemaRegister"
 import { metadataRuleLayer000 as contribution186 } from "../appliedObjects/configurationExtension/schema"
+import { metadataRuleLayer000 as contribution187 } from "../commonObjects/predefinedItem/toJSONSchema"
+import { metadataRuleLayer000 as contribution188 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema"
+import { metadataRuleLayer000 as contribution189 } from "../commonObjects/dataCompositionSystem/parameterValue/toJSONSchema"
 import { metadataPropertyRule000 as contribution102 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule001 as contribution103 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule002 as contribution104 } from "../commonObjects/accumulationRegisterAggregates/register"
@@ -509,5 +512,8 @@ export const staticFactoryRules = composeMetadataRules(
   contribution184,
   contribution185,
   contribution186,
+  contribution187,
+  contribution188,
+  contribution189,
   factoryPropertyRules,
 )

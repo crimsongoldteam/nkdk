@@ -5,9 +5,9 @@ import { ConfigurationContext } from "../../context/types"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import {
-  registerProjectJSONSchema,
-  registerProjectJSONSchemaPropertyRefFactory,
-} from "../../projectDefinition/schemaRegistry"
+  defineMetadataRules,
+} from "../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 import { PredefinedItemRules } from "./rules"
 
 export const exportPredefinedItemCollectionToJSONSchema = (context: ConfigurationContext): TSchema => {
@@ -58,5 +58,15 @@ const exportPredefinedItemYAMLToJSONSchema = (context: ConfigurationContext): TS
 export const metadataPropertyRule000 = definePropertyTypeRule("PredefinedItemCollection", "exportToJSONSchema", ({ context }) =>
   exportPredefinedItemCollectionToJSONSchema(context)
 )
-registerProjectJSONSchema("PredefinedItemYAML", ({ context }) => exportPredefinedItemYAMLToJSONSchema(context))
-registerProjectJSONSchemaPropertyRefFactory("PredefinedItemCollection", () => recordOfSchemaRef("PredefinedItemYAML"))
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...emptyMetadataRules,
+  schemas: {
+    PredefinedItemYAML: {
+      source: PredefinedItemRules,
+      export: ({ context }) => exportPredefinedItemYAMLToJSONSchema(context),
+    },
+  },
+  schemaPropertyRefs: {
+    PredefinedItemCollection: () => recordOfSchemaRef("PredefinedItemYAML"),
+  },
+})

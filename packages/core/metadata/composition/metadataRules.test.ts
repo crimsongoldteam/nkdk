@@ -9,6 +9,9 @@ import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/comp
 import { resolveFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import { snapshotLocalYamlValueValidationRegistryForTests } from "../validation/yamlValueValidationRegistry"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { listJSONSchemaNames } from "../projectDefinition/schemaRegistry"
+import { exportPropertyExternalRefSchema } from "../ruleRuntime/jsonSchemaRefs"
+import type { PropertyRule } from "../ruleRuntime/property/types"
 
 describe("metadataRules", () => {
   it(
@@ -16,6 +19,23 @@ describe("metadataRules", () => {
     async () => {
       const revisionBeforeImport = typeRulesRegistryRevision()
       const schemaNamesBeforeImport = listJSONSchemaIdentityNames()
+      const projectSchemaNamesBeforeImport = listJSONSchemaNames()
+      const settingsParameterRule = {
+        type: "SettingsParameterValue",
+        valueType: "Primitive",
+      } as PropertyRule
+      const externalRefContext = {
+        defaultLanguage: "ru" as const,
+        version: "2.20" as const,
+        exportToJSONSchema: {
+          mode: "externalRefs" as const,
+          refs: new Set<string>(),
+        },
+      }
+      const propertyRefBeforeImport = exportPropertyExternalRefSchema({
+        context: externalRefContext,
+        rule: settingsParameterRule,
+      })
       const projectRevisionBeforeImport = projectSpecRegistryRevision()
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
@@ -35,6 +55,13 @@ describe("metadataRules", () => {
 
       expect(typeRulesRegistryRevision()).toBe(revisionBeforeImport)
       expect(listJSONSchemaIdentityNames()).toEqual(schemaNamesBeforeImport)
+      expect(listJSONSchemaNames()).toEqual(projectSchemaNamesBeforeImport)
+      expect(
+        exportPropertyExternalRefSchema({
+          context: externalRefContext,
+          rule: settingsParameterRule,
+        }),
+      ).toEqual(propertyRefBeforeImport)
       expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
       expect(() => getElementRule("InputField")).toThrow()
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
