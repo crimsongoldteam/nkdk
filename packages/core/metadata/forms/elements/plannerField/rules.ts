@@ -118,6 +118,8 @@ export const PlannerFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "Planner",
+      allowedKinds: ["Planner"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,

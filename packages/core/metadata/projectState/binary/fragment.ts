@@ -122,6 +122,7 @@ type DataPathTableInfo =
 interface DataPathTypeInfo {
   readonly kinds: readonly string[]
   readonly nextTypes: readonly OwnerTypeRef[]
+  readonly terminalTypes?: readonly string[]
   readonly definedTypes?: readonly string[]
   readonly table?: DataPathTableInfo
   readonly isComposite?: boolean
@@ -224,6 +225,7 @@ type ProjectStatePendingCheck =
       readonly location: { readonly line: number; readonly col: number; readonly path?: string }
       readonly owner: OwnerTypeRef
       readonly value: string
+      readonly tagged: boolean
       readonly policyInput: {
         readonly yaml: string
         readonly allowedKinds?: readonly string[]
@@ -625,7 +627,7 @@ export function createProjectStateFragmentWriter(options: {
         tableContextId: optionalString(check.tableContext?.dataPath),
         allowComposite: booleanFlag(check.policyInput.allowComposite),
         hasValuesPicture: booleanFlag(check.hasValuesPicture),
-        reserved: 0,
+        reserved: check.tagged ? 1 : 0,
       })
     }
     for (const dependency of update.dependencies) {
@@ -729,7 +731,7 @@ export function createProjectStateFragmentWriter(options: {
     return id
   }
 
-  function appendTypeInfo(typeInfo: Pick<DataPathTypeInfo, "nextTypes" | "definedTypes" | "table" | "isComposite" | "sourceText"> & {
+  function appendTypeInfo(typeInfo: Pick<DataPathTypeInfo, "nextTypes" | "terminalTypes" | "definedTypes" | "table" | "isComposite" | "sourceText"> & {
     readonly kinds: readonly string[]
   }): number {
     const kindsStart = rows.typeKinds.length
@@ -737,6 +739,8 @@ export function createProjectStateFragmentWriter(options: {
     const nextTypesStart = rows.ownerTypes.length
     typeInfo.nextTypes.forEach((owner) => appendOwnerType(owner, false))
     const definedTypesStart = rows.definedTypes.length
+    typeInfo.terminalTypes?.forEach((value) => rows.definedTypes.push({ valueId: strings.intern(value) }))
+    const terminalTypesCount = rows.definedTypes.length - definedTypesStart
     typeInfo.definedTypes?.forEach((value) => rows.definedTypes.push({ valueId: strings.intern(value) }))
     const id = rows.typeInfo.length
     rows.typeInfo.push({
@@ -750,7 +754,7 @@ export function createProjectStateFragmentWriter(options: {
       sourceTextId: optionalString(typeInfo.sourceText),
       isComposite: booleanFlag(typeInfo.isComposite),
       reserved8: 0,
-      reserved16: 0,
+      reserved16: terminalTypesCount,
     })
     return id
   }

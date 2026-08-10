@@ -238,7 +238,6 @@ const DATA_PATH_VALUE_KINDS = [
   "standardPeriod",
   "unsupportedIntermediate",
 ]
-const DATA_PATH_POLICY_KINDS = ["boolean", "dateTime", "Picture", "scalar", "object", "tableSource"]
 const ELEMENT_TYPES = [
   ...Object.keys(CollectableElementTypeToYAML),
   "SingleSearchControlAddition",
@@ -626,15 +625,14 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
   assertOwnerRef(row["owner"], `${path}.owner`)
   assertString(row["value"], `${path}.value`)
+  if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
   const policyInput = requiredRecord(row["policyInput"], `${path}.policyInput`)
   assertExactKeys(policyInput, ["yaml", "allowedKinds", "allowComposite"], `${path}.policyInput`)
   assertString(policyInput["yaml"], `${path}.policyInput.yaml`)
   if (
     policyInput["allowedKinds"] !== undefined &&
     (!Array.isArray(policyInput["allowedKinds"]) ||
-      !policyInput["allowedKinds"].every(
-        (kind) => typeof kind === "string" && DATA_PATH_POLICY_KINDS.includes(kind)
-      ))
+      !policyInput["allowedKinds"].every((kind) => typeof kind === "string"))
   ) {
     throw new Error(`${path}.policyInput.allowedKinds должен быть массивом строк`)
   }
@@ -689,10 +687,11 @@ function assertOwnerRef(value: unknown, path: string): void {
 
 function assertTypeInfo(value: unknown, path: string): void {
   const typeInfo = requiredRecord(value, path)
-  assertExactKeys(typeInfo, ["kinds", "nextTypes", "definedTypes", "table", "isComposite", "sourceText"], path)
+  assertExactKeys(typeInfo, ["kinds", "nextTypes", "terminalTypes", "definedTypes", "table", "isComposite", "sourceText"], path)
   assertStringArray(typeInfo["kinds"], `${path}.kinds`, DATA_PATH_VALUE_KINDS)
   if (!Array.isArray(typeInfo["nextTypes"])) throw new Error(`${path}.nextTypes должен быть массивом`)
   typeInfo["nextTypes"].forEach((owner, index) => assertOwnerRef(owner, `${path}.nextTypes[${index}]`))
+  assertOptionalStringArray(typeInfo["terminalTypes"], `${path}.terminalTypes`)
   assertOptionalStringArray(typeInfo["definedTypes"], `${path}.definedTypes`)
   if (typeInfo["table"] !== undefined) assertDataPathTableInfo(typeInfo["table"], `${path}.table`)
   assertOptionalBoolean(typeInfo["isComposite"], `${path}.isComposite`)

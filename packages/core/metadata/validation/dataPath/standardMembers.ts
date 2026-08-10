@@ -150,9 +150,14 @@ function indexTimeTypeInfo(
     case "numberByProperty":
       return scalarFromMetadataProperty(owner, member.property, `${owner.ref.kind}.${member.names.internal}`)
     case "standardEnum":
-      return { kinds: ["scalar"], nextTypes: [], sourceText: member.name }
+      return { kinds: ["scalar"], nextTypes: [], terminalTypes: [member.name], sourceText: member.name }
     case "typeDescription":
-      return { kinds: ["typeDescription"], nextTypes: [], sourceText: `${owner.ref.kind}.${member.names.internal}` }
+      return {
+        kinds: ["typeDescription"],
+        nextTypes: [],
+        terminalTypes: ["TypeDescription"],
+        sourceText: `${owner.ref.kind}.${member.names.internal}`,
+      }
     case "opaque":
       return {
         kinds: ["unsupportedIntermediate"],
@@ -340,7 +345,8 @@ function matchesSegment(member: { names: StandardMemberNames }, segment: string)
 
 function primitiveTypeInfo(kind: PrimitiveKind, sourceText: string): DataPathTypeInfo {
   const dataPathKind = kind === "string" || kind === "number" ? "scalar" : kind
-  return { kinds: [dataPathKind], nextTypes: [], sourceText }
+  const terminalType = kind === "number" ? "decimal" : kind
+  return { kinds: [dataPathKind], nextTypes: [], terminalTypes: [terminalType], sourceText }
 }
 
 function objectRefsFromProperty(owner: Pick<OwnerMetadata, "facts">, property: string): DataPathTypeInfo | undefined {

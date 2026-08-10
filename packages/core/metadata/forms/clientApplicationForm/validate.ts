@@ -190,6 +190,7 @@ export function validateClientApplicationFormSecondPass(params: {
       index: params.state.index,
       ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
+      ...(occurrence.nameMode === undefined ? {} : { nameMode: occurrence.nameMode }),
     })
 
     diagnostics.push(...result.diagnostics)
@@ -205,6 +206,7 @@ export function validateClientApplicationFormSecondPass(params: {
         target: result.target,
         ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
         ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),
+        ...(occurrence.tagged === undefined ? {} : { tagged: occurrence.tagged }),
       })
     )
   }

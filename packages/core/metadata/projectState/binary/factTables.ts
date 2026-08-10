@@ -284,6 +284,9 @@ function validateFactRows(params: {
     assertOptionalRowId(record.tableInfoId, params.tables.get("tableInfo")?.records ?? 0, "typeInfo.tableInfoId")
     assertOptionalStringId(record.sourceTextId, params.stringCount, "typeInfo.sourceTextId")
     assertTernary(record.isComposite, "typeInfo.isComposite")
+    if (record.reserved16 > record.definedTypesCount) {
+      throw new Error("typeInfo.reserved16 превышает число сохранённых точных и определяемых типов")
+    }
   })
   for (const kind of ["typeKinds", "definedTypes", "allowedKinds", "typeDescriptionValues"] as const) {
     forEachRecord(params.tables.get(kind), ProjectStateStringValueRecordView, view, (record) => {
@@ -331,6 +334,7 @@ function validateFactRows(params: {
     assertOptionalStringId(record.tableContextId, params.stringCount, "pendingCheck.tableContextId")
     assertTernary(record.allowComposite, "pendingCheck.allowComposite")
     assertTernary(record.hasValuesPicture, "pendingCheck.hasValuesPicture")
+    assertBoolean(record.reserved, "pendingCheck.reserved")
   })
   forEachRecord(params.tables.get("dependencies"), ProjectStateDependencyRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")

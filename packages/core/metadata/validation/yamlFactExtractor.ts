@@ -51,6 +51,7 @@ import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "../../yaml/scalarTags"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -930,8 +931,11 @@ function collectRuleDataPathChecks(params: {
   for (const [propertyKey, rule] of Object.entries(params.properties)) {
     if (!isDataPathRule(rule) || typeof rule.yaml !== "string") continue
 
-    const value = params.owner[rule.yaml]
-    if (typeof value !== "string" || value.trim().length === 0) continue
+    const rawValue = params.owner[rule.yaml]
+    if (typeof rawValue !== "string") continue
+    const tagged = yamlScalarTagAt(params.owner, rule.yaml) === "xml"
+    const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
+    if (value.trim().length === 0 && !tagged) continue
     const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",
@@ -943,6 +947,8 @@ function collectRuleDataPathChecks(params: {
       }),
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
+      tagged,
+      nameMode: tagged ? "internal" : "yaml",
       index: params.index,
       policyInput: toDataPathPolicyInput(rule),
       elementType: params.elementType,

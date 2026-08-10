@@ -6,6 +6,7 @@ import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -129,7 +130,14 @@ function isMetadataTargetLikeYAML(value: string): boolean {
   return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }
 
-const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, value }) => {
+const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, yaml, value }) => {
+  if (
+    typeof value === "string" &&
+    typeof rule.yaml === "string" &&
+    yamlScalarTagAt(yaml, rule.yaml) === "xml"
+  ) {
+    return xmlScalarTagPayload(value)
+  }
   return importDataPathStandardMembersFromYAML(context, value)
 }
 

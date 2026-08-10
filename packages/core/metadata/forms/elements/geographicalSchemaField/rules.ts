@@ -97,6 +97,8 @@ export const GeographicalSchemaFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "GeographicalSchema",
+      allowedKinds: ["GeographicalSchema"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },

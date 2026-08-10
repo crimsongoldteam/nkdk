@@ -36,6 +36,7 @@ export type DataPathTableInfo =
 export interface DataPathTypeInfo {
   kinds: readonly DataPathValueKind[]
   nextTypes: readonly OwnerTypeRef[]
+  terminalTypes?: readonly string[]
   definedTypes?: readonly string[]
   table?: DataPathTableInfo
   isComposite?: boolean

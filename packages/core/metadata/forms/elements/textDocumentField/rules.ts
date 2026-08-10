@@ -121,6 +121,8 @@ export const TextDocumentFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: ["string", "TextDocument"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,

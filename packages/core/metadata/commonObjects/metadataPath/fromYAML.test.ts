@@ -14,6 +14,9 @@ import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredO
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 
 const dirs: string[] = []
 
@@ -70,6 +73,20 @@ describe("importMetadataValueStringFromYAML", () => {
 })
 
 describe("importDataPathStandardMembersFromYAML", () => {
+  test("выгружает !xml как точный внутренний путь без повторного преобразования", () => {
+    const parsed = parseMetadataYaml("ПутьКДанным: !xml Объект.Owner\n")
+    const yaml = parsed.data as Record<string, unknown>
+    const importFromYAML = getTypeRule("DataPath", "importFromYAML")
+    if (importFromYAML === undefined) throw new Error("DataPath importer is not registered")
+
+    expect((importFromYAML as ImportFromYAMLFunctionNew)({
+      context: catalogContext(),
+      rule: { type: "DataPath", yaml: "ПутьКДанным" },
+      yaml,
+      value: yaml.ПутьКДанным,
+    })).toBe("Объект.Owner")
+  })
+
   test("imports direct standard attribute of current object", () => {
     expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Владелец")).toBe("Объект.Owner")
   })

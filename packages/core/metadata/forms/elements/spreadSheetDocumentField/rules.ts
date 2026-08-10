@@ -174,6 +174,8 @@ export const SpreadSheetDocumentFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "SpreadsheetDocument",
+      allowedKinds: ["SpreadsheetDocument", "ValueTable"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,

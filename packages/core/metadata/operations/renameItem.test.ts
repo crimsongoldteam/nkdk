@@ -372,13 +372,16 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     )
   })
 
-  it("rewrites resolvable form DataPath when an attribute is renamed", async () => {
+  it.each([
+    ["обычном", ""],
+    ["tagged", "!xml "],
+  ] as const)("переписывает ссылку и сохраняет тег в %s DataPath", async (_case, tagPrefix) => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     const formPath = writeProjectFile(
       projectDir,
       "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-      operationDataPathFormYaml,
+      operationDataPathFormYaml.map((line) => line.replace("ПутьКДанным: ", `ПутьКДанным: ${tagPrefix}`)),
     )
     harness.setIndex({ references: [operationDataPathReference()] })
 
@@ -387,12 +390,12 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "Код",
       allowWrite: true,
-       projectState,
+      projectState,
       ignoreValidationErrors: true,
     })
 
     expect(result.ok).toBe(true)
-    expect(readFileSync(formPath, "utf-8")).toContain("ПутьКДанным: Объект.Код")
+    expect(readFileSync(formPath, "utf-8")).toContain(`ПутьКДанным: ${tagPrefix}Объект.Код`)
   })
 
   it.each([

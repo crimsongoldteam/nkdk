@@ -4,6 +4,7 @@ import type { ClientApplicationForm } from "../../forms/clientApplicationForm/ty
 import type { ChildItem } from "../../forms/commonObjects/childItems/types"
 import { collectFormDataPathOccurrences } from "./formTraversal"
 import { collectFormDataPathOccurrencesFromYAML } from "./formYamlTraversal"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 
 describe("collectFormDataPathOccurrences", () => {
@@ -133,6 +134,31 @@ describe("collectFormDataPathOccurrences", () => {
 })
 
 describe("collectFormDataPathOccurrencesFromYAML", () => {
+  it("распознаёт !xml как внутренний ПутьКДанным", () => {
+    const parsed = parseMetadataYaml(
+      [
+        "Элементы:",
+        "  Флаг:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: !xml Объект.InvalidFlag",
+      ].join("\n")
+    )
+
+    expect(
+      collectFormDataPathOccurrencesFromYAML({
+        yaml: parsed.data,
+        rule: ClientApplicationFormRules,
+      })
+    ).toEqual([
+      expect.objectContaining({
+        value: "Объект.InvalidFlag",
+        tagged: true,
+        nameMode: "internal",
+        yamlPath: ["Элементы", "Флаг", "ПутьКДанным"],
+      }),
+    ])
+  })
+
   it("посещает вложенные элементы и остаётся совместимым с вызовом без visitor", () => {
     const yaml = {
       Элементы: {

@@ -108,6 +108,7 @@ export type ProjectStatePendingDependencyCheck =
       readonly location: { readonly line: number; readonly col: number; readonly path?: string }
       readonly owner: OwnerTypeRef
       readonly value: string
+      readonly tagged: boolean
       readonly policyInput: { readonly yaml: string; readonly allowedKinds?: readonly DataPathAllowedKind[]; readonly allowComposite?: boolean }
       readonly elementType?: ElementType
       readonly hasValuesPicture?: boolean

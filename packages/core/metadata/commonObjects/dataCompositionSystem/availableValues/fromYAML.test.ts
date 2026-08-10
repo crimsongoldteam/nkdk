@@ -8,6 +8,7 @@ import {
   stringAvailableValues,
   stringAvailableValuesYAML,
 } from "./__fixtures__/data"
+import "../index"
 
 const rule = { type: "DcsAvailableValues" } as const
 
