@@ -113,7 +113,7 @@ describe("validateResolvedDataPathPolicy", () => {
       expect.objectContaining({
         severity: "error",
         source: "structure",
-        message: expect.stringMatching(/string.*CheckBoxField.*boolean или decimal/),
+        message: expect.stringMatching(/string.*boolean или decimal.*CheckBoxField/),
       }),
     ])
   })

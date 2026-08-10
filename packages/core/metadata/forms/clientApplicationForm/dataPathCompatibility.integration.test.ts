@@ -73,7 +73,7 @@ describe("совместимость ПутьКДанным в полной фо
         path: "/Элементы/Поле/ПутьКДанным",
         severity: "error",
         source: "structure",
-        message: expect.stringContaining("для элемента"),
+        message: expect.stringContaining("элемент"),
       }),
     ])
     expect(diagnostics[0]?.message).toContain("Значение")

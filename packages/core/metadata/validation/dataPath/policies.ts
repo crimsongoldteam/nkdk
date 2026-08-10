@@ -126,8 +126,8 @@ function incompatibilityMessage(
   elementType?: ElementType,
 ): string {
   const reason = result.reason === "composite" ? "составной конечный тип" : "конечный тип не подходит"
-  const element = elementType === undefined ? "" : ` для элемента ${elementType}`
-  return `ПутьКДанным "${value}": ${reason} ${result.actual}${element}, ожидается ${result.expected.join(" или ")}`
+  const element = elementType === undefined ? "" : `; элемент ${elementType}`
+  return `ПутьКДанным "${value}": ${reason} ${result.actual}, ожидается ${result.expected.join(" или ")}${element}`
 }
 
 function policyDiagnostic(
