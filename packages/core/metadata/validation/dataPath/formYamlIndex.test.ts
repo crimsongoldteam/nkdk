@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { createFormDataPathIndexFromYAML } from "../../forms/clientApplicationForm/formDataPathMetadata"
 import { createFormDataPathIndexCollector } from "./formYamlIndex"
-import { collectFormTabularElementsFromYAML } from "../../ruleRuntime/formElement/formTableDataPaths"
 
 describe("createFormDataPathIndexCollector", () => {
   it("собирает объявления таблиц и деревьев с путём и без пути", () => {
@@ -19,10 +18,7 @@ describe("createFormDataPathIndexCollector", () => {
           },
         },
       }
-    const index = createFormDataPathIndexFromYAML(
-      yaml,
-      collectFormTabularElementsFromYAML(yaml)
-    )
+    const index = createFormDataPathIndexFromYAML(yaml)
 
     expect(index.tabularElementsByName).toEqual(new Map([
       ["ТаблицаТоваров", { kind: "tabularFormElement", dataPath: "Объект.Товары" }],
