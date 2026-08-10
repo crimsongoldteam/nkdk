@@ -5,18 +5,18 @@ import { testModulePattern } from "../src/common-rules.mjs"
 
 test("operation test support lives in a test-only directory", () => {
   assert.equal(
-    existsSync("packages/core/metadata/operations/operationTestSupport.ts"),
+    existsSync("packages/rules/metadata/operations/operationTestSupport.ts"),
     false
   )
   assert.equal(
-    existsSync("packages/core/metadata/operations/tests/operationTestSupport.ts"),
+    existsSync("packages/rules/metadata/operations/tests/operationTestSupport.ts"),
     true
   )
 })
 
 test("operation target declarations own their target kind types", () => {
   const operationTargets = readFileSync(
-    "packages/core/metadata/ruleRuntime/property/operationTargets.ts",
+    "packages/runtime/metadata/ruleRuntime/property/operationTargets.ts",
     "utf8"
   )
 
@@ -30,7 +30,7 @@ test("benchmark modules are classified as test-only code", () => {
 
   assert.equal(
     testModule.test(
-      "packages/core/metadata/validation/dataPath/finalizationPredicate.bench.ts"
+      "packages/rules/metadata/validation/dataPath/finalizationPredicate.bench.ts"
     ),
     true
   )
@@ -38,13 +38,13 @@ test("benchmark modules are classified as test-only code", () => {
 
 test("unused validation schema cache is removed", () => {
   const validationTypes = readFileSync(
-    "packages/core/metadata/validation/types.ts",
+    "packages/rules/metadata/validation/types.ts",
     "utf8"
   )
-  const coreIndex = readFileSync("packages/core/index.ts", "utf8")
+  const coreIndex = readFileSync("packages/rules/index.ts", "utf8")
 
   assert.equal(
-    existsSync("packages/core/metadata/validation/schemaCache.ts"),
+    existsSync("packages/rules/metadata/validation/schemaCache.ts"),
     false
   )
   assert.doesNotMatch(validationTypes, /MetadataKind/u)
@@ -54,13 +54,13 @@ test("unused validation schema cache is removed", () => {
 test("generic external file handling belongs to property ruleRuntime", () => {
   assert.equal(
     existsSync(
-      "packages/core/metadata/forms/commonObjects/dynamicList/externalFile.ts"
+      "packages/rules/metadata/forms/commonObjects/dynamicList/externalFile.ts"
     ),
     false
   )
   assert.equal(
     existsSync(
-      "packages/core/metadata/ruleRuntime/property/externalFile.ts"
+      "packages/rules/metadata/ruleRuntime/property/externalFile.ts"
     ),
     true
   )

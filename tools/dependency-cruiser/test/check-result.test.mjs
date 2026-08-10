@@ -19,8 +19,8 @@ test("показывает новое правило и зависимость",
           ignore: 10,
           violations: [
             {
-              from: "packages/core/metadata/ruleRuntime/new.ts",
-              to: "packages/core/metadata/register.ts",
+              from: "packages/rules/metadata/ruleRuntime/new.ts",
+              to: "packages/rules/metadata/register.ts",
               rule: {
                 name: "neutral-not-reach-implementations",
                 severity: "error",
@@ -29,6 +29,6 @@ test("показывает новое правило и зависимость",
           ],
         },
       }),
-    /neutral-not-reach-implementations: packages\/core\/metadata\/ruleRuntime\/new\.ts -> packages\/core\/metadata\/register\.ts/u
+    /neutral-not-reach-implementations: packages\/rules\/metadata\/ruleRuntime\/new\.ts -> packages\/rules\/metadata\/register\.ts/u
   )
 })

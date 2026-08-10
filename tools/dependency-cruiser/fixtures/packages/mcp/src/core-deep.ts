@@ -1,3 +1,3 @@
-export { coreValue } from "../../core/index"
-export { runtimeValue } from "../../core/metadata/ruleRuntime/allowed"
+export { coreValue } from "../../rules/index"
+export { runtimeValue } from "../../rules/metadata/ruleRuntime/allowed"
 export { platformValue } from "../../platform/index"

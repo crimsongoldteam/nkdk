@@ -24,7 +24,7 @@
     "test:isolated": "pnpm -r run test:isolated",
     "test:architecture": "node tools/dependency-cruiser/src/check.mjs",
     "test:architecture:rules": "node --test 'tools/dependency-cruiser/test/*.test.mjs'",
-    "test:profile": "node packages/core/scripts/run-test-duration-profile.mjs"
+    "test:profile": "node packages/rules/scripts/run-test-duration-profile.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

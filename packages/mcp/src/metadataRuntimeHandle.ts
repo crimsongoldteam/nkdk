@@ -31,7 +31,7 @@ export function createMetadataRuntimeHandle<Runtime extends ClosableMetadataRunt
 
 export const metadataRuntimeHandle = createMetadataRuntimeHandle(async () => {
   const [{ createMetadataRuntime, metadataRules }, { createMetadataWorkerManifest }] = await Promise.all([
-    import("@nkdk/core"),
+    import("@nkdk/rules"),
     import("./metadataWorkerManifest"),
   ])
   return {

@@ -5,7 +5,7 @@ import {
   assertCyclesNotWorse,
 } from "../src/cycle-baseline.mjs"
 
-const source = (name) => `packages/core/helpers/${name}`
+const source = (name) => `packages/rules/helpers/${name}`
 
 function baselineComponent(names, dependencyCount) {
   return { modules: names.map(source).sort(), dependencyCount }

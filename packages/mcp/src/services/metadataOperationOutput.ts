@@ -3,7 +3,7 @@ import type {
   MetadataOperationDiagnostic,
   MetadataOperationReferenceChange,
   MetadataOperationResult,
-} from "@nkdk/core"
+} from "@nkdk/rules"
 import type { ToolPayload } from "../contracts/common"
 import type { DiagnosticReportOperation } from "./diagnosticReport"
 import { prepareDiagnosticOutput } from "./diagnosticReport"

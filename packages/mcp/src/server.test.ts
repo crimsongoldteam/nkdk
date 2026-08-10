@@ -135,21 +135,21 @@ describe("MCP server", () => {
       fs.readFile(new URL("./metadataRuntimeHandle.ts", import.meta.url), "utf8"),
     ]))
 
-    expect(coreApiSource).not.toContain("../../core/index.ts")
-    expect(coreApiSource).toContain('from "@nkdk/core"')
-    expect(coreApiSource).not.toContain('import("@nkdk/core")')
-    expect(runtimeHandleSource).toContain('import("@nkdk/core")')
+    expect(coreApiSource).not.toContain("../../rules/index.ts")
+    expect(coreApiSource).toContain('from "@nkdk/rules"')
+    expect(coreApiSource).not.toContain('import("@nkdk/rules")')
+    expect(runtimeHandleSource).toContain('import("@nkdk/rules")')
   })
 
-  it("keeps private core as a build-only dependency", async () => {
+  it("keeps private rules as a build-only dependency", async () => {
     const packageJson = (
       await import("../package.json", {
         with: { type: "json" },
       })
     ).default
 
-    expect(packageJson.dependencies).not.toHaveProperty("@nkdk/core")
-    expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
+    expect(packageJson.dependencies).not.toHaveProperty("@nkdk/rules")
+    expect(packageJson.devDependencies).toHaveProperty("@nkdk/rules", "workspace:*")
   })
 
   it("declares binary project-state runtime dependencies", async () => {

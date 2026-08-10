@@ -9,10 +9,10 @@ import type {
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
   ProjectStateService,
-} from "@nkdk/core"
+} from "@nkdk/rules"
 import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 
-export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/core"
+export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/rules"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean

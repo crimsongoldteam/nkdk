@@ -15,7 +15,7 @@ const packageJson = (
   })
 ).default
 const corePackageJson = (
-  await import(pathToFileURL(join(repoRoot, "packages/core/package.json")).href, {
+  await import(pathToFileURL(join(repoRoot, "packages/rules/package.json")).href, {
     with: { type: "json" },
   })
 ).default
@@ -62,25 +62,25 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/prepared-yaml"))],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/rules/workers/prepared-yaml"))],
   outfile: join(binDir, "preparedYamlProjectWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/import"))],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/rules/workers/import"))],
   outfile: join(binDir, "importFromXmlWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/sync"))],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/rules/workers/sync"))],
   outfile: join(binDir, "fullSyncToXmlWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/generic"))],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/rules/workers/generic"))],
   outfile: join(binDir, "worker.js"),
 })
 

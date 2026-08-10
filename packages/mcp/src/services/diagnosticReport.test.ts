@@ -5,7 +5,7 @@ import {
   createMetadataDiagnosticCollection,
   openDiagnosticBatch,
   type MetadataDiagnostic,
-} from "@nkdk/core"
+} from "@nkdk/rules"
 import {
   MAX_INLINE_DIAGNOSTICS,
   prepareDiagnosticOutput,

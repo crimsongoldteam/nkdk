@@ -1,7 +1,7 @@
 export const testModulePattern =
   "(?:\\.(?:test|spec|bench)\\.[cm]?[jt]sx?$|/(?:tests?|__tests__|__fixtures__)/)"
 export const productionSourcePattern =
-  "^packages/(?:runtime/|rules/|core/(?:index\\.ts|helpers/|metadata/|xml/|yaml/)|mcp/src/|platform/(?:index\\.ts|src/))"
+  "^packages/(?:runtime/|rules/(?:index\\.ts|helpers/|metadata/|xml/|yaml/)|mcp/src/|platform/(?:index\\.ts|src/))"
 
 const productionFrom = {
   path: productionSourcePattern,
@@ -46,7 +46,7 @@ export const commonRules = [
     severity: "error",
     comment: "Core не зависит от прикладных workspace-пакетов.",
     from: {
-      path: "^packages/core/",
+      path: "^packages/rules/",
       pathNot: testModulePattern,
     },
     to: { path: "^packages/(?:mcp|platform)/" },
@@ -59,7 +59,7 @@ export const commonRules = [
       path: "^packages/platform/",
       pathNot: testModulePattern,
     },
-    to: { path: "^packages/(?:core|mcp)/" },
+    to: { path: "^packages/(?:rules|mcp)/" },
   },
   {
     name: "mcp-no-workspace-deep-imports",
@@ -69,7 +69,9 @@ export const commonRules = [
       path: "^packages/mcp/src/",
       pathNot: testModulePattern,
     },
-    to: { path: "^packages/(?:core|platform)/(?!index\\.ts$)" },
+    to: {
+      path: "^packages/(?:rules/(?!index\\.ts$)|runtime/(?!(?:index|rule-kit|worker)\\.ts$)|platform/(?!index\\.ts$))",
+    },
   },
 ]
 

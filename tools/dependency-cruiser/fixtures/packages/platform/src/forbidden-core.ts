@@ -1,1 +1,1 @@
-export { coreValue } from "../../core/index"
+export { coreValue } from "../../rules/index"

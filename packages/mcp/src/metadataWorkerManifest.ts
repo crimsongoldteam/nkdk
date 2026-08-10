@@ -1,4 +1,4 @@
-import type { MetadataWorkerManifest } from "@nkdk/core"
+import type { MetadataWorkerManifest } from "@nkdk/rules"
 
 export function createMetadataWorkerManifest(baseUrl: string | URL): MetadataWorkerManifest {
   return {
