@@ -2,6 +2,9 @@ import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
+import { defineMetadataRules } from "../ruleRuntime/definition"
+import type { MetadataRulesDefinition } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 
 export type {
   ProjectSpecNesting,
@@ -11,18 +14,36 @@ export type {
 const specsByDir = new Map<string, RegisteredProjectSpec>()
 let registryRevision = 0
 
+export function defineProjectSpec(
+  spec: RegisteredProjectSpec,
+): MetadataRulesDefinition {
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    projectSpecs: { [spec.dir]: spec },
+    schemas: {
+      [spec.rule.itemType]: {
+        source: spec.rule,
+        export: ({ context }) =>
+          spec.exportSchema({
+            context,
+            mode: context.exportToJSONSchema?.mode ?? "externalRefs",
+          }),
+      },
+    },
+  })
+}
+
 export function registerProjectSpec(spec: RegisteredProjectSpec): void {
+  const definition = defineProjectSpec(spec)
   specsByDir.set(spec.dir, spec)
   registryRevision += 1
-  registerJSONSchemaIdentity({
-    name: spec.rule.itemType,
-    source: spec.rule,
-    exporter: ({ context }) =>
-      spec.exportSchema({
-        context,
-        mode: context.exportToJSONSchema?.mode ?? "externalRefs",
-      }),
-  })
+  for (const [name, schema] of Object.entries(definition.schemas)) {
+    registerJSONSchemaIdentity({
+      name,
+      source: schema.source ?? spec.rule,
+      exporter: schema.export,
+    })
+  }
 }
 
 export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {

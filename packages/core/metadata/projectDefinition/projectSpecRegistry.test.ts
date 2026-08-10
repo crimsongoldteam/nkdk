@@ -3,9 +3,12 @@ import { afterEach, describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import {
   getRegisteredProjectSpecByDir,
+  defineProjectSpec,
+  projectSpecRegistryRevision,
   registerProjectSpec,
   unregisterProjectSpecForTests,
 } from "./projectSpecRegistry"
+import { listJSONSchemaIdentityNames } from "../ruleRuntime/jsonSchemaRefs"
 
 const SampleRule = testOnlyMetadataItemRule({
   itemType: "SampleItem",
@@ -26,6 +29,23 @@ function testOnlyMetadataItemRule(rule: {
 
 describe("projectSpecRegistry", () => {
   afterEach(() => unregisterProjectSpecForTests(SAMPLE_DIR))
+
+  it("defines a project spec without legacy registration", () => {
+    const revision = projectSpecRegistryRevision()
+    const schemaNames = listJSONSchemaIdentityNames()
+
+    const definition = defineProjectSpec({
+      dir: SAMPLE_DIR,
+      kind: "sample",
+      rule: SampleRule,
+      exportSchema: () => Type.Object({ value: Type.String() }),
+    })
+
+    expect(projectSpecRegistryRevision()).toBe(revision)
+    expect(listJSONSchemaIdentityNames()).toEqual(schemaNames)
+    expect(definition.projectSpecs[SAMPLE_DIR]?.rule).toBe(SampleRule)
+    expect(definition.schemas.SampleItem?.source).toBe(SampleRule)
+  })
 
   it("registers specs by dir and replaces duplicate registration predictably", () => {
     registerProjectSpec({
