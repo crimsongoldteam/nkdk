@@ -1,20 +1,8 @@
 import type { TSchema } from "typebox"
 import { compileTypeboxValidationSchema } from "./typeboxValidationCompiler"
+import type { SchemaContext, ValidationSchemaValidator } from "./validationSchema"
 
-export type SchemaContext = Record<string, TSchema>
-
-export interface ValidationSchemaError {
-  keyword: string
-  schemaPath: string
-  instancePath: string
-  params: Record<string, unknown>
-  message: string
-}
-
-export interface ValidationSchemaValidator {
-  Check(value: unknown): boolean
-  Errors(value: unknown): [boolean, ValidationSchemaError[]]
-}
+export type { SchemaContext, ValidationSchemaError, ValidationSchemaValidator } from "./validationSchema"
 
 export function compileValidationSchema<const Type extends TSchema>(
   schema: Type

@@ -80,6 +80,32 @@ describe("compileTypeboxValidationSchema", () => {
     ])
   })
 
+  it("сохраняет вложенную ошибку discriminator внутри record-схемы", () => {
+    const validator = compileTypeboxValidationSchema({}, Type.Object({
+      items: { type: "object", additionalProperties: direct } as TSchema,
+    }))
+
+    expect(validator.Errors({ items: { child: { Kind: "B", count: "bad" } } })[1]).toEqual([
+      expect.objectContaining({
+        keyword: "type",
+        instancePath: "/items/child/count",
+      }),
+    ])
+  })
+
+  it("разделяет одноимённые локальные Type.Cyclic определения", () => {
+    const stringValue = Type.Cyclic({
+      Value: Type.Union([Type.String(), Type.Object({ next: Type.Ref("Value") })]),
+    }, "Value")
+    const numberValue = Type.Cyclic({
+      Value: Type.Union([Type.Number(), Type.Object({ next: Type.Ref("Value") })]),
+    }, "Value")
+    const validator = compileTypeboxValidationSchema({}, Type.Union([stringValue, numberValue]))
+
+    expect(validator.Check("text")).toBe(true)
+    expect(validator.Check(42)).toBe(true)
+  })
+
   it("не преобразует обычный union без discriminator", () => {
     const validator = compileTypeboxValidationSchema({}, Type.Union([Type.String(), Type.Number()]))
 

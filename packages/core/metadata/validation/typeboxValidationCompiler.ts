@@ -6,7 +6,7 @@ import type {
   SchemaContext,
   ValidationSchemaError,
   ValidationSchemaValidator,
-} from "./compileValidationSchema"
+} from "./validationSchema"
 
 const firstErrorMarker = Symbol("nkdk-first-validation-error")
 const selectedBranchMarker = Symbol("nkdk-selected-branch-error")
@@ -35,6 +35,8 @@ export function compileTypeboxValidationSchema(
   schema: TSchema,
 ): ValidationSchemaValidator {
   let preparedContext: SchemaContext = {}
+  const localContext: SchemaContext = {}
+  let localDefinitionIndex = 0
   const preparedNodes = new WeakMap<object, unknown>()
 
   const prepareNode = (value: unknown, document: unknown): unknown => {
@@ -49,6 +51,30 @@ export function compileTypeboxValidationSchema(
     if (!isRecord(value)) return value
     const cached = preparedNodes.get(value)
     if (cached !== undefined) return cached
+
+    const localDefinitions = localDefinitionEntries(value)
+    if (localDefinitions !== undefined) {
+      const result: Record<string, unknown> = {}
+      preparedNodes.set(value, result)
+      const aliases = new Map<string, string>()
+      const definitions = localDefinitions.entries.map(([key, definition]) => {
+        const runtimeId = `nkdk://runtime/local-definition/${localDefinitionIndex++}`
+        aliases.set(key, runtimeId)
+        if (typeof definition.$id === "string") aliases.set(definition.$id, runtimeId)
+        return { definition, runtimeId }
+      })
+      for (const { definition, runtimeId } of definitions) {
+        const rewritten = rewriteLocalDefinitionRefs(definition, aliases)
+        rewritten.$id = runtimeId
+        localContext[runtimeId] = prepareNode(rewritten, rewritten) as TSchema
+      }
+      for (const [key, entry] of Object.entries(value)) {
+        if (key === "$defs" || key === "$ref") continue
+        result[key] = prepareNode(entry, document)
+      }
+      result.$ref = aliases.get(localDefinitions.rootRef)!
+      return result
+    }
 
     const propertyName = discriminatorPropertyName(value)
     if (propertyName !== undefined) {
@@ -73,16 +99,68 @@ export function compileTypeboxValidationSchema(
 
     const result: Record<string, unknown> = {}
     preparedNodes.set(value, result)
-    for (const [key, entry] of Object.entries(value)) result[key] = prepareNode(entry, document)
+    const recordValue = pureAdditionalPropertiesSchema(value)
+    for (const [key, entry] of Object.entries(value)) {
+      if (recordValue !== undefined && key === "additionalProperties") continue
+      result[key] = prepareNode(entry, document)
+    }
+    if (recordValue !== undefined) {
+      result.patternProperties = { "^.*$": prepareNode(recordValue, document) }
+      result.additionalProperties = false
+    }
     return result
   }
 
-  preparedContext = expandCompileContext(Object.fromEntries(
+  const explicitContext = Object.fromEntries(
     Object.entries(context).map(([key, contextSchema]) => [key, prepareNode(contextSchema, contextSchema) as TSchema]),
-  ))
+  )
   const preparedSchema = prepareNode(schema, schema) as TSchema
+  preparedContext = expandCompileContext({ ...explicitContext, ...localContext })
   const compiled = Compile(preparedContext, preparedSchema)
   return wrapCompiledValidator(compiled)
+}
+
+function localDefinitionEntries(schema: Record<string, unknown>): {
+  readonly entries: Array<[string, Record<string, unknown>]>
+  readonly rootRef: string
+} | undefined {
+  if (!isRecord(schema.$defs) || typeof schema.$ref !== "string") return undefined
+  const entries = Object.entries(schema.$defs)
+    .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
+  const hasRoot = entries.some(([key, definition]) => key === schema.$ref || definition.$id === schema.$ref)
+  return hasRoot ? { entries, rootRef: schema.$ref } : undefined
+}
+
+function rewriteLocalDefinitionRefs(
+  value: Record<string, unknown>,
+  aliases: ReadonlyMap<string, string>,
+): Record<string, unknown> {
+  return rewriteNode(value, aliases) as Record<string, unknown>
+}
+
+function rewriteNode(value: unknown, aliases: ReadonlyMap<string, string>): unknown {
+  if (Array.isArray(value)) return value.map((entry) => rewriteNode(entry, aliases))
+  if (!isRecord(value)) return value
+
+  const nestedAliases = isRecord(value.$defs)
+    ? new Map([...aliases].filter(([key]) => !Object.hasOwn(value.$defs as object, key)))
+    : aliases
+  const result: Record<string, unknown> = {}
+  for (const [key, entry] of Object.entries(value)) {
+    result[key] = key === "$ref" && typeof entry === "string" && nestedAliases.has(entry)
+      ? nestedAliases.get(entry)
+      : rewriteNode(entry, nestedAliases)
+  }
+  return result
+}
+
+function pureAdditionalPropertiesSchema(schema: Record<string, unknown>): TSchema | undefined {
+  return schema.type === "object"
+    && schema.properties === undefined
+    && schema.patternProperties === undefined
+    && isRecord(schema.additionalProperties)
+    ? schema.additionalProperties as TSchema
+    : undefined
 }
 
 function expandCompileContext(context: SchemaContext): SchemaContext {
