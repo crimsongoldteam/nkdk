@@ -42,7 +42,7 @@ function withExplicitXMLValidationValue(params: {
   ) {
     return Type.Union([params.schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
   }
-  const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey)
+  const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey, params.rule.type)
   if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
   if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
   return params.schema
