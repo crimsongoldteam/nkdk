@@ -18,6 +18,11 @@ export interface DataPathReferenceInput {
   setValue(nextValue: string): void
 }
 
+export interface FormDataPathValueInput {
+  readonly value: string
+  setValue(nextValue: string): void
+}
+
 export function rewriteDataPathSegments(
   value: string,
   resolvedSegments: readonly string[],
@@ -67,6 +72,7 @@ export function collectFormDataPathReferencesForItem(params: {
       parsed: params.item.parsed,
       yamlPath: occurrence.yamlPath,
       value: occurrence.value,
+      nameMode: occurrence.nameMode,
       index,
       ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
@@ -92,6 +98,15 @@ export function collectFormDataPathReferencesForItem(params: {
   }
 
   return references
+}
+
+export function findFormDataPathValueForItem(
+  item: OperationSnapshotItem,
+  yamlPath: readonly (string | number)[],
+): FormDataPathValueInput | undefined {
+  if (item.kind !== "form") return undefined
+  return collectFormDataPathOccurrencesFromYAML({ yaml: item.yaml, rule: item.rule })
+    .find((occurrence) => sameYamlPath(occurrence.yamlPath, yamlPath))
 }
 
 export function dataPathTargetMatchesCanonicalPrefix(
@@ -122,4 +137,8 @@ function operationFormLogicalAddress(item: OperationSnapshotItem): string | unde
   if (item.kind !== "form" || item.resource.formName === undefined) return undefined
   const ownerRoot = rootFromYAML[item.resource.owner.dir] ?? item.resource.owner.dir
   return `${ownerRoot}.${item.resource.owner.name}.Form.${item.resource.formName}`
+}
+
+function sameYamlPath(left: readonly (string | number)[], right: readonly (string | number)[]): boolean {
+  return left.length === right.length && left.every((segment, index) => segment === right[index])
 }

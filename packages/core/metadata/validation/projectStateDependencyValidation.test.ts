@@ -411,6 +411,28 @@ describe("dependency validation из ProjectState", () => {
     store.rollbackUpdate()
   })
 
+  it("сообщает об отсутствующем поле внутри tagged DataPath", () => {
+    const source = ownerDependencySource(
+      "cf",
+      { kind: "Справочник", name: "Товары" },
+      "Объект.MissingField",
+      undefined,
+      true,
+    )
+    const owner = ownerUpdate("cf", [])
+    const store = storeWithUpdates([source, owner])
+
+    expect(store.validateDependencies({
+      requests: [{ requestId: "data-path", componentPath: "cf", projectPath: source.projectPath }],
+    })).toEqual([
+      expect.objectContaining({
+        source: "structure",
+        message: expect.stringContaining('неизвестный реквизит "MissingField"'),
+      }),
+    ])
+    store.rollbackUpdate()
+  })
+
   it("привязывает отсутствующий объект к ожидаемому Свойства.yaml", () => {
     const source: ProjectStateYamlFileUpdate = {
       ...yamlUpdate("cf/ИсточникОбъекта.yaml", "cf", false),

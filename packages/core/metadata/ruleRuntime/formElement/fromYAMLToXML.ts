@@ -9,6 +9,7 @@ import {
 } from "../../configurationIndex/referenceView"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getChildContextToXML } from "../../context/helpers"
+import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
 
 export function registerDirectFormElementCollections(): void {
   for (const propertyType of getFormElementCollectionPropertyTypes()) {
@@ -89,9 +90,11 @@ export function normalizeFormElementYAML(params: {
   const node = asNode(params.yaml, params.name)
   const itemType = resolveFormElementRule(params).itemType
   const { Вид: _kind, Тип: _legacyKind, ТипКнопки: buttonType, ...yaml } = node
-  return itemType === "Button" || itemType === "CommandBarButton"
+  const result = itemType === "Button" || itemType === "CommandBarButton"
     ? { ...yaml, ...(buttonType === undefined ? {} : { Вид: buttonType }) }
     : yaml
+  copyYAMLScalarTags(node, result)
+  return result
 }
 
 function asNode(value: unknown, name: string | undefined): Record<string, unknown> {
