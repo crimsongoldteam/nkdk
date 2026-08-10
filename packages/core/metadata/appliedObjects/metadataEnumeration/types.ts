@@ -5,6 +5,7 @@ import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { StandardAttributeDescriptionsXML } from "../../commonObjects/standardAttributeDescription/types"
 import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
+import { defineMetadataItemRule } from "../../ruleRuntime"
 import * as SE from "../../systemEnumerations/types"
 import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "./rules"
 
@@ -86,3 +87,8 @@ export interface MetadataEnumerationXML {
     }
   }
 }
+
+export const metadataRuleLayer000 = defineMetadataItemRule({
+  propertyType: "MetadataEnumeration",
+  itemRule: MetadataEnumerationRules,
+})

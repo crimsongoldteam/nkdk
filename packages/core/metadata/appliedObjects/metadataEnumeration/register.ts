@@ -1,4 +1,3 @@
-import { registerMetadataItemRule } from "../../ruleRuntime"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
@@ -7,11 +6,6 @@ import {
 } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataEnumerationRules } from "./rules"
 import "./standardMembers"
-
-registerMetadataItemRule({
-  propertyType: "MetadataEnumeration",
-  itemRule: MetadataEnumerationRules,
-})
 
 registerDataPathOwnerKind({
   kind: "Перечисление",

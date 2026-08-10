@@ -54,7 +54,20 @@ describe("metadataRules", () => {
       expect(metadataRules.propertyTypes.dateTime?.exportToXML).toBeTypeOf(
         "function",
       )
+      expect(
+        metadataRules.propertyTypes.ChildFormNames?.resourceTopology,
+      ).toBeTypeOf("function")
+      expect(
+        metadataRules.propertyTypes.ChildFormNames?.fileChildNamesDescriptor,
+      ).toBeTypeOf("function")
+      expect(
+        metadataRules.propertyTypes.ChildFormNames?.syncExternalFromXML,
+      ).toBeTypeOf("function")
       expect(Object.keys(metadataRules.metadataItems).length).toBeGreaterThan(0)
+      expect(metadataRules.metadataItems.Order?.itemType).toBe("Order")
+      expect(metadataRules.metadataItems.MetadataEnumeration?.itemType).toBe(
+        "MetadataEnumeration",
+      )
       expect(Object.keys(metadataRules.schemas).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.formElements).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(48)

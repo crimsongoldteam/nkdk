@@ -112,6 +112,8 @@ import { metadataRuleLayer000 as contribution178 } from "../forms/commonObjects/
 import { metadataRuleLayer000 as contribution179 } from "../forms/commonObjects/chart/types"
 import { metadataRuleLayer000 as contribution180 } from "../forms/commonObjects/childItems/fromXMLToYAML"
 import { metadataRuleLayer000 as contribution181 } from "../appliedObjects/metadataCommonForm/types"
+import { metadataRuleLayer000 as contribution182 } from "../commonObjects/dataCompositionSystem/order/types"
+import { metadataRuleLayer000 as contribution183 } from "../appliedObjects/metadataEnumeration/types"
 import { metadataPropertyRule000 as contribution102 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule001 as contribution103 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule002 as contribution104 } from "../commonObjects/accumulationRegisterAggregates/register"
@@ -499,5 +501,7 @@ export const staticFactoryRules = composeMetadataRules(
   contribution179,
   contribution180,
   contribution181,
+  contribution182,
+  contribution183,
   factoryPropertyRules,
 )

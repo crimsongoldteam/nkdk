@@ -10,6 +10,7 @@ import { defineAppliedObjectProjectRules } from "../appliedObjects/projectRules"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { clientApplicationFormValidationRules } from "../forms/clientApplicationForm/validationRules"
 import { clientApplicationFormPropertyRules } from "../forms/clientApplicationForm/propertyTypeRules"
+import { childFormNamesPropertyRules } from "../forms/clientApplicationForm/childFormNamesPropertyRules"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -27,6 +28,7 @@ export const legacyCoreRules = composeMetadataRules(
   appliedObjectComponentRules,
   clientApplicationFormValidationRules,
   clientApplicationFormPropertyRules,
+  childFormNamesPropertyRules,
 )
 
 export const metadataRules = composeMetadataRules(
