@@ -9,6 +9,7 @@ import { createBinaryProjectStateStore } from "../projectState/binary/store"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
+import { isolateProjectStateYamlUpdate } from "../projectState/fileUpdate"
 import { buildProjectStateSnapshot } from "../projectState/binary/builder"
 import { ProjectStateSnapshotView } from "../projectState/binary/snapshot"
 import { createBinaryProjectStateQueryPort } from "../projectState/binary/readSession"
@@ -22,7 +23,6 @@ import {
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createFirstPassTransferable,
-  isolateProjectStateYamlUpdate,
   resetImportWorkerStateForTests,
   runImportWorkerCommand,
   workerStateForTests,
@@ -525,6 +525,36 @@ describe("XML import worker second pass", () => {
     expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.Товары.НомерСтроки")
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
     expect(workerStateForTests().preparedYamlIds).toEqual([])
+  })
+
+  it("публикует структуру импортированной формы в окончательном ProjectState", async () => {
+    const outputDir = createTempDir("structured-form")
+    const { assignments, second } = await runCatalogAndFormSecondPass(
+      outputDir,
+      "Объект.Товары.LineNumber",
+    )
+    expect(second).toMatchObject({ diagnostics: [], warnings: [] })
+
+    const snapshot = buildProjectStateSnapshot({
+      fragments: second.stateFragments.map(openProjectStateFragment),
+      deletions: [],
+    })
+    const query = createBinaryProjectStateQueryPort(new ProjectStateSnapshotView(snapshot), {
+      dependencyValidator: createProjectStateDependencyValidator(),
+    })
+
+    expect(query.readStructuredDocumentEntries({
+      componentPath: "cf",
+      logicalAddress: assignments.form.logicalAddress,
+    })).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        documentKind: "clientApplicationForm",
+        representation: "working",
+        componentKind: "element",
+        name: "Путь",
+      }),
+      expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
+    ]))
   })
 
   it("writes a user DataPath after building the layered owner snapshot", async () => {

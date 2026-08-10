@@ -26,10 +26,10 @@ import {
 import preparedYamlProjectWorkerEntryPoint, {
   classifyChangedProjectStateFile,
   collectValidationFacts,
-  projectFormStructureDocuments,
   runPreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTask,
 } from "./preparedYamlProjectWorker"
+import { projectFormStructureDocuments } from "./projectStateYamlUpdate"
 
 const tempDirs: string[] = []
 
@@ -723,10 +723,7 @@ describe("validation first-pass worker boundary", () => {
         componentDir,
         rootProjectPath: `${componentPath}/${projectPath}`,
         projectPath,
-        filePath: join(componentDir, ...projectPath.split("/")),
         role: "form",
-        owner: { dir: "ОбщаяФорма", name: "РабочийСтол" },
-        itemType: "ClientApplicationForm",
         indexContribution: "isolated",
       },
       components: [{ componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] }],
