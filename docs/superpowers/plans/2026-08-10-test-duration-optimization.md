@@ -71,33 +71,62 @@ Expected: 34 tests PASS; новых дублей нет.
 
 ---
 
-### Task 2: Зафиксировать RED статического setup
+### Task 2: Зафиксировать RED однократной регистрации
 
 **Files:**
 
-- Modify: `packages/core/metadata/importBoundaries.test.ts`
-- Read: `packages/core/tests/registerCoreMetadata.ts`
+- Create: `packages/core/tests/coreMetadataSetup.test.ts`
+- Create in Task 3: `packages/core/tests/coreMetadataSetup.ts`
 
 **Interfaces:**
 
-- Consumes: исходный текст `tests/registerCoreMetadata.ts`.
-- Produces: архитектурный договор «нет статических metadata-импортов; composition root динамически импортируется ровно один раз».
+- Consumes: будущую функцию `ensureCoreMetadataRegistered(params?): Promise<void>`.
+- Produces: поведенческий договор «повторные и параллельные setup-вызовы загружают и регистрируют metadata один раз; отклонённый Promise переиспользуется».
 
 - [ ] **Step 1: Добавить падающий архитектурный тест**
 
-В `metadata/importBoundaries.test.ts` рядом с проверками composition roots добавить:
+Создать `tests/coreMetadataSetup.test.ts`:
 
 ```ts
-it("загружает core metadata из setup одним динамическим импортом", () => {
-  const source = readFileSync(join(import.meta.dirname, "../tests/registerCoreMetadata.ts"), "utf8")
-  const dynamicImports = source.match(
-    /import\("\.\.\/metadata\/composition\/coreMetadata"\)/gu
-  ) ?? []
+import { describe, expect, it } from "vitest"
+import { ensureCoreMetadataRegistered, type CoreMetadataSetupState } from "./coreMetadataSetup"
 
-  expect(source).not.toMatch(/^\s*import\s/mu)
-  expect(dynamicImports).toHaveLength(1)
-  expect(source).toContain("__nkdkCoreMetadataRegistration")
-  expect(source).toContain("await registrationState.__nkdkCoreMetadataRegistration")
+describe("core metadata test setup", () => {
+  it("загружает и регистрирует metadata один раз для повторных setup-вызовов", async () => {
+    const state: CoreMetadataSetupState = {}
+    let loads = 0
+    let registrations = 0
+    const load = async () => {
+      loads += 1
+      return {
+        registerCoreMetadata() {
+          registrations += 1
+        },
+      }
+    }
+
+    await Promise.all([
+      ensureCoreMetadataRegistered({ state, load }),
+      ensureCoreMetadataRegistered({ state, load }),
+    ])
+    await ensureCoreMetadataRegistered({ state, load })
+
+    expect({ loads, registrations }).toEqual({ loads: 1, registrations: 1 })
+  })
+
+  it("сохраняет первую ошибку загрузки без повторной регистрации", async () => {
+    const state: CoreMetadataSetupState = {}
+    const failure = new Error("metadata load failed")
+    let loads = 0
+    const load = async () => {
+      loads += 1
+      throw failure
+    }
+
+    await expect(ensureCoreMetadataRegistered({ state, load })).rejects.toBe(failure)
+    await expect(ensureCoreMetadataRegistered({ state, load })).rejects.toBe(failure)
+    expect(loads).toBe(1)
+  })
 })
 ```
 
@@ -106,10 +135,10 @@ it("загружает core metadata из setup одним динамическ�
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run metadata/importBoundaries.test.ts
+pnpm --filter @nkdk/core exec vitest run tests/coreMetadataSetup.test.ts
 ```
 
-Expected: FAIL, потому что текущий setup содержит семь статических imports и не содержит динамического импорта composition root.
+Expected: FAIL с ошибкой разрешения `./coreMetadataSetup`, потому что test-only модуль ещё не создан.
 
 ---
 
@@ -117,48 +146,72 @@ Expected: FAIL, потому что текущий setup содержит сем
 
 **Files:**
 
+- Create: `packages/core/tests/coreMetadataSetup.ts`
 - Modify: `packages/core/tests/registerCoreMetadata.ts`
-- Test: `packages/core/metadata/importBoundaries.test.ts`
+- Test: `packages/core/tests/coreMetadataSetup.test.ts`
 - Test: `packages/core/metadata/composition/coreMetadata.test.ts`
 
 **Interfaces:**
 
-- Produces: глобальное test-only поле `__nkdkCoreMetadataRegistration?: Promise<void>`.
+- Produces: `ensureCoreMetadataRegistered(params?): Promise<void>` и глобальное test-only поле `__nkdkCoreMetadataRegistration?: Promise<void>`.
 - Consumes: `registerCoreMetadata(): void` из `metadata/composition/coreMetadata`.
 
-- [ ] **Step 1: Заменить статические импорты динамическим Promise**
+- [ ] **Step 1: Реализовать владельца динамического Promise**
+
+Создать `tests/coreMetadataSetup.ts`:
+
+```ts
+interface CoreMetadataModule {
+  registerCoreMetadata(): void
+}
+
+export interface CoreMetadataSetupState {
+  __nkdkCoreMetadataRegistration?: Promise<void>
+}
+
+type CoreMetadataLoader = () => Promise<CoreMetadataModule>
+
+const globalRegistrationState = globalThis as typeof globalThis & CoreMetadataSetupState
+const loadCoreMetadata: CoreMetadataLoader = () => import("../metadata/composition/coreMetadata")
+
+export async function ensureCoreMetadataRegistered(params: {
+  state?: CoreMetadataSetupState
+  load?: CoreMetadataLoader
+} = {}): Promise<void> {
+  const state = params.state ?? globalRegistrationState
+  const load = params.load ?? loadCoreMetadata
+
+  state.__nkdkCoreMetadataRegistration ??= load().then(({ registerCoreMetadata }) => {
+    registerCoreMetadata()
+  })
+
+  await state.__nkdkCoreMetadataRegistration
+}
+```
+
+- [ ] **Step 2: Заменить статические metadata-импорты лёгким setup-вызовом**
 
 Полностью заменить содержимое `tests/registerCoreMetadata.ts`:
 
 ```ts
-export {}
+import { ensureCoreMetadataRegistered } from "./coreMetadataSetup"
 
-const registrationState = globalThis as typeof globalThis & {
-  __nkdkCoreMetadataRegistration?: Promise<void>
-}
-
-registrationState.__nkdkCoreMetadataRegistration ??= import("../metadata/composition/coreMetadata").then(
-  ({ registerCoreMetadata }) => {
-    registerCoreMetadata()
-  }
-)
-
-await registrationState.__nkdkCoreMetadataRegistration
+await ensureCoreMetadataRegistered()
 ```
 
 Не добавлять статические imports остальных metadata-barrels: composition root уже импортирует `commonObjects`, `forms`, `appliedObjects` и validation adapters.
 
-- [ ] **Step 2: Запустить GREEN архитектурного и функционального договоров**
+- [ ] **Step 3: Запустить GREEN поведенческого и функционального договоров**
 
 Run:
 
 ```bash
-pnpm --filter @nkdk/core exec vitest run metadata/importBoundaries.test.ts metadata/composition/coreMetadata.test.ts
+pnpm --filter @nkdk/core exec vitest run tests/coreMetadataSetup.test.ts metadata/composition/coreMetadata.test.ts
 ```
 
 Expected: все tests PASS; `getTypeRule("I8nText", "exportToXML")` и `getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")` остаются зарегистрированы.
 
-- [ ] **Step 3: Проверить полный core на одном фиксированном seed**
+- [ ] **Step 4: Проверить полный core на одном фиксированном seed**
 
 Run:
 
@@ -170,7 +223,7 @@ Expected: функциональный PASS; setup не более 3 000 мс; �
 
 Если функциональные tests падают, остановиться и проверить, входит ли отсутствующий side-effect import в граф `metadata/composition/coreMetadata`; не добавлять import в отдельный test file. Если нарушен только временной бюджет, сохранить lifecycle-числа и вернуться к `systematic-debugging` до изменения предметных тестов.
 
-- [ ] **Step 4: Проверить ещё два порядка файлов**
+- [ ] **Step 5: Проверить ещё два порядка файлов**
 
 Run:
 
@@ -181,14 +234,14 @@ node packages/core/scripts/run-test-duration-check.mjs -- --no-isolate --sequenc
 
 Expected: оба запуска функционально PASS; setup не более 3 000 мс; каждый test file не более 1 000 мс. Число test files и tests совпадает во всех трёх запусках.
 
-- [ ] **Step 5: Проверить архитектуру, дубли и закоммитить**
+- [ ] **Step 6: Проверить архитектуру, дубли и закоммитить**
 
 Run:
 
 ```bash
 pnpm test:architecture
 pnpm duplicates -- --base 0d550245a
-git add packages/core/tests/registerCoreMetadata.ts packages/core/metadata/importBoundaries.test.ts
+git add packages/core/tests/coreMetadataSetup.ts packages/core/tests/coreMetadataSetup.test.ts packages/core/tests/registerCoreMetadata.ts
 git commit -m "perf: :zap: загружать core metadata один раз в setup" -m "Vitest повторно обходил большой статический граф setup для каждого test file. Динамический Promise сохраняет полную регистрацию и выполняет загрузку один раз на общее окружение."
 ```
 
