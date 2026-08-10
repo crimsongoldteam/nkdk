@@ -20,6 +20,7 @@ export interface FormElementDataPathState {
   readonly tableOwnerName?: string
   readonly candidateYaml?: string
   readonly candidateInternal?: string
+  readonly valueInternal?: string
   readonly currentConfigurationValue?: string
 }
 
@@ -27,6 +28,62 @@ export interface FormDataPathContext {
   readonly index: FormDataPathIndex
   readonly elementsByName: ReadonlyMap<string, FormElementDataPathState>
   readonly effectiveMainAttribute?: string
+}
+
+export function compactImportedFormDataPaths(params: {
+  readonly yaml: ClientApplicationFormYAML
+  readonly context: FormDataPathContext
+}): void {
+  for (const element of params.context.elementsByName.values()) {
+    if (element.origin !== "own" || element.candidateInternal === undefined) continue
+    const yaml = recordAtPath(params.yaml, element.yamlPath)
+    if (!element.present) {
+      yaml["ПутьКДанным"] = ""
+    } else if (element.valueInternal === element.candidateInternal) {
+      delete yaml["ПутьКДанным"]
+    }
+  }
+}
+
+export function requiresImportedFormDataPathCompaction(
+  yaml: ClientApplicationFormYAML,
+  rule: MetadataItemRule = ClientApplicationFormRules
+): boolean {
+  const mainAttribute = findMainAttribute(yaml)
+  if (mainAttribute === undefined) return false
+  const collected = collectFormElements(yaml, rule)
+  const effectivePaths = new Map<string, string | undefined>()
+
+  const candidate = (element: CollectedFormElement): string | undefined => {
+    if (element.itemType !== "Table" && element.tableOwnerName !== undefined) {
+      const table = collected.elementsByName.get(element.tableOwnerName)
+      const tablePath = table === undefined ? undefined : effectivePath(table)
+      return tablePath === undefined ? undefined : `${tablePath}.${semanticElementName(element)}`
+    }
+    return `${mainAttribute}.${element.name}`
+  }
+  const effectivePath = (element: CollectedFormElement): string | undefined => {
+    if (effectivePaths.has(element.name)) return effectivePaths.get(element.name)
+    const value = element.present && typeof element.value === "string" && element.value.trim().length > 0
+      ? element.value
+      : candidate(element)
+    effectivePaths.set(element.name, value)
+    return value
+  }
+
+  for (const element of collected.elementsByName.values()) {
+    const candidateYaml = candidate(element)
+    if (candidateYaml === undefined) continue
+    if (!element.present || element.value === "") return true
+    if (typeof element.value !== "string") continue
+    const semanticName = semanticElementName(element)
+    const internalName = standardMemberYamlToInternal(semanticName)
+    const candidateInternal = internalName === undefined
+      ? candidateYaml
+      : replaceUnconvertedLeaf(candidateYaml, semanticName, internalName)
+    if (element.value === candidateYaml || element.value === candidateInternal) return true
+  }
+  return false
 }
 
 export function materializeImplicitFormDataPaths(
@@ -204,7 +261,7 @@ function prepareCollectedForm(params: {
       const table = pending.get(collected.tableOwnerName)
       const tablePath = table === undefined ? undefined : effectivePath(table)
       if (tablePath !== undefined) {
-        const columnName = columnNameFromElement(collected.name, collected.tableOwnerName)
+        const columnName = semanticElementName(collected)
         candidateYaml = `${tablePath.yaml}.${columnName}`
         semanticLeafName = columnName
       }
@@ -238,6 +295,12 @@ function prepareCollectedForm(params: {
   const elementsByName = new Map<string, FormElementDataPathState>()
   for (const [name, element] of pending) {
     const resolvedCandidate = candidate(element)
+    const valueInternal =
+      element.collected.present &&
+      typeof element.collected.value === "string" &&
+      element.collected.value.trim().length > 0
+        ? resolvePath(element.collected.value, semanticElementName(element.collected))?.internal
+        : undefined
     const currentConfigurationValue = params.currentConfigurationForm?.effectivePath(name)?.yaml
     elementsByName.set(name, {
       name,
@@ -251,6 +314,7 @@ function prepareCollectedForm(params: {
       ...(resolvedCandidate === undefined
         ? {}
         : { candidateYaml: resolvedCandidate.yaml, candidateInternal: resolvedCandidate.internal }),
+      ...(valueInternal === undefined ? {} : { valueInternal }),
       ...(currentConfigurationValue === undefined ? {} : { currentConfigurationValue }),
     })
   }
@@ -276,7 +340,9 @@ function collectFormElements(yaml: ClientApplicationFormYAML, rule: MetadataItem
     rule,
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
     visitElement: (visit) => {
+      acceptFormTabularElementVisit(tabularElementsByName, visit)
       const dataPath = visit.primaryDataPath
+      if (dataPath === undefined) return
       elementsByName.set(visit.name, {
         name: visit.name,
         itemType: visit.itemType,
@@ -285,7 +351,6 @@ function collectFormElements(yaml: ClientApplicationFormYAML, rule: MetadataItem
         value: dataPath?.value,
         ...(visit.tableOwner === undefined ? {} : { tableOwnerName: visit.tableOwner.name }),
       })
-      acceptFormTabularElementVisit(tabularElementsByName, visit)
     },
   })
   return { elementsByName, tabularElementsByName }
@@ -322,10 +387,11 @@ function findMainAttribute(yaml: ClientApplicationFormYAML): string | undefined 
   return undefined
 }
 
-function columnNameFromElement(elementName: string, tableName: string): string {
-  return elementName.startsWith(tableName) && elementName.length > tableName.length
-    ? elementName.slice(tableName.length)
-    : elementName
+function semanticElementName(element: CollectedFormElement): string {
+  const tableName = element.tableOwnerName
+  return tableName !== undefined && element.name.startsWith(tableName) && element.name.length > tableName.length
+    ? element.name.slice(tableName.length)
+    : element.name
 }
 
 function replaceUnconvertedLeaf(value: string, yamlName: string, internalName: string): string {
@@ -339,6 +405,17 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function recordAtPath(value: unknown, path: readonly (string | number)[]): Record<string, unknown> {
+  let current = value
+  for (const segment of path) {
+    if (!isContainer(current)) throw new Error(`Некорректный YAML-путь элемента формы: ${path.join(".")}`)
+    current = current[segment as keyof typeof current]
+  }
+  const record = asRecord(current)
+  if (record !== undefined) return record
+  throw new Error(`YAML-путь элемента формы не указывает на объект: ${path.join(".")}`)
 }
 
 function mutableRecordAtPath(params: {

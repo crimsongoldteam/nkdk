@@ -7,6 +7,10 @@ import type { ConfigurationContext, XmlImportConfigurationContext } from "../con
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
+import {
+  finalizeMetadataItemImportedYaml,
+  requiresMetadataItemImportedYamlFinalization,
+} from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -404,6 +408,16 @@ async function writePreparedYamlToOutput(
       preserveRawXML: false,
     })
   )
+  profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Уточнение импортированного metadata-item",
+    { items: 1 },
+    () => finalizeMetadataItemImportedYaml({
+      yaml: prepared.yaml,
+      rule: prepared.rule,
+      ownerMetadataCache,
+    })
+  )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
@@ -607,6 +621,7 @@ async function processFirstPass(
           prepared.deferred.length === 0
           && prepared.dependentDeferred.length === 0
           && prepared.baseFormCandidate === undefined
+          && !requiresMetadataItemImportedYamlFinalization({ yaml: prepared.yaml, rule: prepared.rule })
         ) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })

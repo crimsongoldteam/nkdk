@@ -10,7 +10,10 @@ import type {
   OwnerMetadataResult,
 } from "../../validation/dataPath/ownerCache"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
-import { prepareFormDataPathContextFromYAML } from "./formDataPathContext"
+import {
+  compactImportedFormDataPaths,
+  prepareFormDataPathContextFromYAML,
+} from "./formDataPathContext"
 import type { ClientApplicationFormYAML } from "./types"
 
 describe("prepareFormDataPathContextFromYAML", () => {
@@ -55,7 +58,6 @@ describe("prepareFormDataPathContextFromYAML", () => {
       Таблица: ["Объект.Таблица", "Объект.Таблица"],
       ТаблицаКолонка: ["Объект.Таблица.Колонка", "Объект.Таблица.Колонка"],
       ТаблицаНаименование: ["Объект.Таблица.Наименование", "Объект.Таблица.Description"],
-      Группа: [undefined, undefined],
       БезПрефикса: ["Объект.Таблица.БезПрефикса", "Объект.Таблица.БезПрефикса"],
       ЯвнаяТаблица: [undefined, undefined],
       ЯвнаяТаблицаКолонка: ["Объект.Таблица.Колонка", "Объект.Таблица.Колонка"],
@@ -118,6 +120,31 @@ describe("prepareFormDataPathContextFromYAML", () => {
     expect(context.effectiveMainAttribute).toBeUndefined()
     expect(context.elementsByName.get("Поле")?.candidateYaml).toBeUndefined()
   })
+
+  it("уплотняет импортированные пути и различает отсутствующий XML-тег", () => {
+    const yaml = {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары", ОсновнойРеквизит: "Истина" },
+      },
+      Элементы: {
+        Наименование: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Объект.Наименование",
+          ПутьКДаннымКартинкиМножественногоЗначения: "Объект.Картинка",
+        },
+        Код: { Вид: "ПолеВвода" },
+        Комментарий: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Код" },
+      },
+    } satisfies ClientApplicationFormYAML
+    const context = prepareFormDataPathContextFromYAML({ yaml, ownerCache: catalogOwnerCache() })
+
+    compactImportedFormDataPaths({ yaml, context })
+
+    expect(yaml.Элементы.Наименование).not.toHaveProperty("ПутьКДанным")
+    expect(yaml.Элементы.Наименование.ПутьКДаннымКартинкиМножественногоЗначения).toBe("Объект.Картинка")
+    expect(yaml.Элементы.Код).toHaveProperty("ПутьКДанным", "")
+    expect(yaml.Элементы.Комментарий).toHaveProperty("ПутьКДанным", "Объект.Код")
+  })
 })
 
 function elementCandidates(context: ReturnType<typeof prepareFormDataPathContextFromYAML>) {
@@ -157,6 +184,7 @@ function catalogOwner(): OwnerMetadata {
   const emptyFieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
   const model = {
     itemType: "MetadataCatalog",
+    attributes: [{ name: "Комментарий", type: { type: ["string"] } }],
     tabularSections: [{
       name: "Таблица",
       attributes: [

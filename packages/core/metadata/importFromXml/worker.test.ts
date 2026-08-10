@@ -403,6 +403,28 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
+    const outputDir = createTempDir("implicit-form-data-path")
+    const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "Код", false)
+    await initializeWorker(outputDir)
+
+    const first = expectFirstPass(await runImportWorkerCommand({
+      kind: "firstPass",
+      assignments: [assignments.catalog, assignments.form],
+    }))
+
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
+    await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
+    await runImportWorkerCommand({ kind: "endSecondPass" })
+
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [] })
+    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+    if (formFile === undefined) throw new Error("Ожидался файл формы")
+    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain('ПутьКДанным: ""')
+  })
+
   it("выводит агрегированный профиль только после завершения прохода", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     vi.stubEnv("NKDK_PROFILE", "1")
@@ -766,7 +788,9 @@ function createCatalogAndFormAssignments(
   dataPath: string,
   objectTypeName = "Товары",
   includeUsualGroup = false,
-  includeDynamicList = false
+  includeDynamicList = false,
+  elementName = "Путь",
+  includeDataPath = true
 ): { catalog: ImportAssignment; form: ImportAssignment } {
   const sourceDir = createTempDir("sources")
   const catalogXmlPath = join(sourceDir, "Товары.xml")
@@ -780,8 +804,8 @@ function createCatalogAndFormAssignments(
     "utf-8"
   )
   writeFileSync(formMetadataPath, readFileSync(minimalFormMetadataXmlPath, "utf-8"), "utf-8")
-  const labelField = `<LabelField name="Путь" id="2">
-\t\t\t<DataPath>${dataPath}</DataPath>
+  const dataPathXml = includeDataPath ? `\n\t\t\t<DataPath>${dataPath}</DataPath>` : ""
+  const labelField = `<LabelField name="${elementName}" id="2">${dataPathXml}
 \t\t\t<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>
 \t\t\t<ExtendedTooltip name="ПутьРасширеннаяПодсказка" id="4"/>
 \t\t</LabelField>`
