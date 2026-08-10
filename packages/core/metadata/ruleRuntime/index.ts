@@ -21,6 +21,8 @@ export * from "./property/types"
 export * from "./property/typeRuleRegistry"
 export * from "./property/yamlRuleCursor"
 export * from "./property/propertyTypeKeys"
+export * from "./property/propertyRuleRegistrySet"
+export * from "./property/propertyRuleExecutor"
 
 export * from "./formElement/factory"
 export * from "./formElement/ruleFactory"

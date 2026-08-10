@@ -22,6 +22,7 @@
 - После каждого законченного слоя выполнять `pnpm duplicates -- --base $(git merge-base HEAD origin/develop)`.
 - Перед завершением выполнить `pnpm type-check`, `pnpm test:architecture:rules`, `pnpm test:architecture`, duplicate-check и полный `pnpm test`.
 - Сообщения коммитов оформлять на русском языке по Conventional Commits с gitmoji.
+- До Task 9 старый global-путь регистрации остаётся неизменным и обслуживает production. Tasks 3–8 строят новый экземплярный путь рядом, но не записывают в оба пути и не подключают его частично. В Task 9 MCP и workers переключаются на новый путь атомарно, после чего старые globals удаляются в том же коммите.
 
 ---
 
@@ -271,15 +272,15 @@ export function createPropertyRuleRegistrySet(
 }
 ```
 
-- [ ] **Step 4: Перевести всех production-потребителей категории**
+- [ ] **Step 4: Подготовить связанные с экземпляром lookup и executor**
 
 Run: `rg -n "getTypeRule|registerTypeRule|getSystemEnumeration|registerSystemEnumeration|registerExplicitXMLProperty|registerDependent|registerIndexValueFromYAML|registerMetadataTargetOwner" packages/core/metadata -g '*.ts'`
 
-Expected after edits: production-код использует definition при композиции и экземплярный lookup при исполнении; старые register/clear/snapshot функции остаются только до удаления в следующем шаге.
+Expected after edits: новый код не импортирует старые register/clear/snapshot функции. Production остаётся на старом пути до атомарного переключения в Task 9.
 
-- [ ] **Step 5: Удалить global tables и test clear/snapshot**
+- [ ] **Step 5: Зафиксировать список legacy API для удаления в Task 9**
 
-Удалить module-level `Map`, `clearTypeRulesRegistry`, snapshot/restore для этой категории и переписать узкие unit-тесты на локальный `PropertyRuleRegistrySet`.
+Добавить локальные тесты нового `PropertyRuleRegistrySet`. Module-level `Map`, `clearTypeRulesRegistry`, snapshot/restore и их существующие тесты пока не менять: они удаляются только одновременно с переключением всех production-потребителей в Task 9.
 
 - [ ] **Step 6: Выполнить целевые проверки**
 
@@ -290,7 +291,7 @@ pnpm test:architecture
 pnpm duplicates -- --base $(git merge-base HEAD origin/develop)
 ```
 
-Expected: PASS; `rg` не находит удалённые production-register/clear функции.
+Expected: PASS; новые registry-тесты не требуют очистки глобального состояния.
 
 - [ ] **Step 7: Создать коммит**
 
@@ -348,11 +349,11 @@ Expected: FAIL: `createRuleRegistrySet` отсутствует.
 
 - [ ] **Step 3: Реализовать `RuleRegistrySet` и перенести кэши topology**
 
-Topology cache хранить внутри set и вычислять лениво по переданному provider. Удалить `registeredProvider`, `cachedTopology`, project/schema maps и test-reset globals.
+Topology cache хранить внутри set и вычислять лениво по переданному provider. Старые `registeredProvider`, `cachedTopology`, project/schema maps и test-reset globals оставить без изменений до Task 9.
 
-- [ ] **Step 4: Перевести lookup-потребителей**
+- [ ] **Step 4: Подготовить связанные lookup-сервисы**
 
-Передать bound registry в schema export, project discovery, metadata/form conversion и resource projections. Не добавлять registry в сериализуемый `ConfigurationContext`; верхний bound service замыкает его в main и заново создаётся worker-entrypoint.
+Создать связанные сервисы для schema export, project discovery, metadata/form conversion и resource projections. Не добавлять registry в сериализуемый `ConfigurationContext`; новый путь пока вызывают только локальные тесты, а production переключается в Task 9.
 
 - [ ] **Step 5: Выполнить целевые проверки**
 
@@ -363,7 +364,7 @@ pnpm test:architecture
 pnpm duplicates -- --base $(git merge-base HEAD origin/develop)
 ```
 
-Expected: PASS; `clearProjectSpecRegistryForTests`, `clearJSONSchemaRefRegistries`, `resetMetadataResourceTopologyProviderForTests` и form/item registry resets удалены.
+Expected: PASS; два новых набора не разделяют кэши и значения. Legacy reset API остаются до Task 9.
 
 - [ ] **Step 6: Создать коммит**
 
@@ -422,9 +423,9 @@ Expected: FAIL: фабрика отсутствует.
 
 Создать таблицы из definition; `rulesSnapshot` только читает registries и больше не вызывает `registerTypeRule`. Owner-fact collectors становятся явными validation descriptors при сборке `metadataRules`.
 
-- [ ] **Step 4: Удалить snapshot/restore test API**
+- [ ] **Step 4: Проверить новый путь без snapshot/restore**
 
-Переписать `yamlFactExtractor*.test.ts`, `dataPath/registry.test.ts`, `projectReferenceIndexRegistry.test.ts`, `projectValidationPasses.test.ts` и `projectStateDependencyValidation.test.ts` на локальные экземпляры.
+Добавить локальные тесты нового validation-пути без snapshot/restore. Существующие production и legacy-тесты не переключать до Task 9.
 
 - [ ] **Step 5: Выполнить целевые проверки**
 
@@ -435,7 +436,7 @@ pnpm test:architecture
 pnpm duplicates -- --base $(git merge-base HEAD origin/develop)
 ```
 
-Expected: PASS; production validation не импортирует register-функции и не изменяет rules при построении snapshot.
+Expected: PASS; новый validation registry не изменяет definition и не зависит от legacy register-функций.
 
 - [ ] **Step 6: Создать коммит**
 
@@ -500,7 +501,7 @@ export function createMetadataWorkerHandler(registries: OperationRegistrySet) {
 }
 ```
 
-`worker.ts` получает registries из rules-owned entrypoint, а не вызывает `registerMetadataWorkerOperations()`.
+Подготовить handler, принимающий registries явно. Существующий `worker.ts` продолжает старый запуск до атомарного переключения в Task 9.
 
 - [ ] **Step 5: Выполнить целевые проверки**
 
@@ -510,7 +511,7 @@ pnpm --filter @nkdk/core type-check
 pnpm duplicates -- --base $(git merge-base HEAD origin/develop)
 ```
 
-Expected: PASS; `resetMetadataWorkerOperationRegistryForTests` и module-level component/operation maps удалены.
+Expected: PASS; новый dispatcher изолирован. Legacy maps и reset API остаются до Task 9.
 
 - [ ] **Step 6: Создать коммит**
 
@@ -698,6 +699,7 @@ git commit -m "feat: :sparkles: добавить экземплярный metada
 - Modify: `packages/core/metadata/importFromXml/worker.ts`
 - Modify: `packages/core/metadata/fullSyncToXml/worker.ts`
 - Modify: `packages/core/metadata/workerPool/worker.ts`
+- Modify: legacy registry-файлы из Tasks 3–6 и их reset/snapshot-тесты
 
 **Interfaces:**
 - Consumes: `metadataRules`, `createMetadataRuntime`, official worker entrypoint.
@@ -729,6 +731,10 @@ Expected: FAIL: handle отсутствует.
 - [ ] **Step 3: Реализовать MCP handle и обновить services**
 
 Заменить `loadCoreApi()` и `projectStateHandle` на `metadataRuntimeHandle`. Services получают соответствующую capability group. `shutdownNkdkMcpServer()` закрывает runtime и platform manager через `Promise.allSettled`.
+
+- [ ] **Step 3а: Атомарно переключить production и удалить legacy globals**
+
+Перевести все production-потребители lookup/dispatcher на связанные сервисы нового runtime. В том же изменении удалить module-level registry maps, side-effect `register...`, `clear...ForTests`, snapshot/restore и тесты старого пути. Не оставлять совместимый singleton, dual-write или временный fallback.
 
 - [ ] **Step 4: Сделать rules-owned worker entrypoint**
 

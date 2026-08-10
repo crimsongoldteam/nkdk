@@ -3,6 +3,11 @@ import type { MetadataRulesDefinition } from "./contracts"
 
 export const emptyMetadataRules: MetadataRulesDefinition = {
   propertyTypes: {},
+  propertyItemRules: {},
+  explicitXMLProperties: {},
+  dependentItems: {},
+  indexValuesFromYAML: {},
+  metadataTargetOwners: {},
   metadataItems: {},
   formElements: {},
   systemEnumerations: {},

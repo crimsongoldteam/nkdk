@@ -7,6 +7,26 @@ export function composeMetadataRules(
   return layers.reduce<MetadataRulesDefinition>(
     (result, layer) => ({
       propertyTypes: { ...result.propertyTypes, ...layer.propertyTypes },
+      propertyItemRules: {
+        ...result.propertyItemRules,
+        ...layer.propertyItemRules,
+      },
+      explicitXMLProperties: {
+        ...result.explicitXMLProperties,
+        ...layer.explicitXMLProperties,
+      },
+      dependentItems: {
+        ...result.dependentItems,
+        ...layer.dependentItems,
+      },
+      indexValuesFromYAML: {
+        ...result.indexValuesFromYAML,
+        ...layer.indexValuesFromYAML,
+      },
+      metadataTargetOwners: {
+        ...result.metadataTargetOwners,
+        ...layer.metadataTargetOwners,
+      },
       metadataItems: { ...result.metadataItems, ...layer.metadataItems },
       formElements: { ...result.formElements, ...layer.formElements },
       systemEnumerations: {
