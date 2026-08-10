@@ -1,7 +1,9 @@
 import type { TSchema } from "typebox"
 
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { MetadataComponentDescriptor } from "../../components/descriptor"
 import type { ConfigurationContext } from "../../context/types"
+import type { Diagnostic, YamlPath } from "../../diagnostics/types"
 import type { RegisteredProjectSpec } from "../../projectDefinition/projectSpecContracts"
 import type { MetadataResourceTopologyProvider } from "../../resourceTopology/core/providerRegistry"
 import type { ElementRule } from "../formElement/types"
@@ -34,6 +36,23 @@ export interface RuleRegistrationContribution {
   readonly register: () => void
 }
 
+export interface LocalYamlValueValidationParams {
+  readonly filePath: string
+  readonly parsed: ParsedYaml
+  readonly value: unknown
+  readonly yamlPath: YamlPath
+  readonly owner: { readonly dir: string; readonly name: string }
+}
+
+export interface LocalYamlValueValidationContribution {
+  readonly kind: "localYamlValue"
+  readonly propertyType: string
+  readonly validate: (
+    params: LocalYamlValueValidationParams,
+  ) => readonly Diagnostic[]
+  readonly profileSubstep?: string
+}
+
 export interface DependentItemDefinition {
   readonly yaml?: DependentYamlItemHandler
   readonly structural?: DependentStructuralItemHandler
@@ -61,7 +80,7 @@ export interface MetadataRulesDefinition {
   readonly schemas: Readonly<Record<string, MetadataSchemaDefinition>>
   readonly projectSpecs: Readonly<Record<string, RegisteredProjectSpec>>
   readonly resourceTopology: readonly MetadataResourceTopologyProvider[]
-  readonly validation: readonly RuleRegistrationContribution[]
+  readonly validation: readonly LocalYamlValueValidationContribution[]
   readonly dataPaths: readonly RuleRegistrationContribution[]
   readonly references: readonly RuleRegistrationContribution[]
   readonly components: readonly MetadataComponentDescriptor[]
