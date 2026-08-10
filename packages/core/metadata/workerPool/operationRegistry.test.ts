@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import {
+  createMetadataWorkerOperationRegistry,
   registerMetadataWorkerOperation,
   resetMetadataWorkerOperationRegistryForTests,
   runRegisteredMetadataWorkerOperation,
 } from "./operationRegistry"
 import {
+  createMetadataWorkerOperations,
   registerMetadataWorkerOperations,
   resetMetadataWorkerOperationsRegistrationForTests,
 } from "../composition/workerOperations"
@@ -13,6 +15,36 @@ import type { MetadataWorkerPersistentState } from "./workerState"
 const state = {} as MetadataWorkerPersistentState
 
 describe("metadata worker operation registry", () => {
+  it("isolates handlers between registry instances", async () => {
+    const first = createMetadataWorkerOperationRegistry()
+    const second = createMetadataWorkerOperationRegistry()
+    first.register("probe", async () => ({ kind: "probeResult", value: "first" }))
+    second.register("probe", async () => ({ kind: "probeResult", value: "second" }))
+
+    await expect(first.run({ kind: "probe", value: "x" }, state)).resolves.toEqual({
+      kind: "probeResult",
+      value: "first",
+    })
+    await expect(second.run({ kind: "probe", value: "x" }, state)).resolves.toEqual({
+      kind: "probeResult",
+      value: "second",
+    })
+  })
+
+  it("composes a fresh production registry", async () => {
+    const first = createMetadataWorkerOperations()
+    const second = createMetadataWorkerOperations()
+
+    await expect(first.run({ kind: "probe", value: "one" }, state)).resolves.toEqual({
+      kind: "probeResult",
+      value: "one",
+    })
+    await expect(second.run({ kind: "probe", value: "two" }, state)).resolves.toEqual({
+      kind: "probeResult",
+      value: "two",
+    })
+  })
+
   beforeEach(() => {
     resetMetadataWorkerOperationRegistryForTests()
     resetMetadataWorkerOperationsRegistrationForTests()

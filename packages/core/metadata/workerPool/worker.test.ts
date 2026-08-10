@@ -1,10 +1,33 @@
 import { describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createMetadataWorkerCommandHandler } from "./worker"
+import { createMetadataWorkerOperationRegistry } from "./operationRegistry"
+import { createMetadataWorkerOperations } from "../composition/workerOperations"
 
 const context = { defaultLanguage: "ru", version: "8.3.27" }
 
 describe("единая точка входа worker", () => {
+  it("uses the operation registry supplied by its entrypoint", async () => {
+    const operations = createMetadataWorkerOperationRegistry()
+    operations.register("probe", async () => ({ kind: "probeResult", value: "bound" }))
+    const run = createMetadataWorkerCommandHandler({
+      operations,
+      createState: (async () => ({
+        beginOperation: vi.fn(),
+        resetOperation: vi.fn(),
+        installProjectState: vi.fn(),
+        clearProjectState: vi.fn(),
+      })) as never,
+    })
+
+    await run({ kind: "initializeLine", workerIndex: 0, context })
+    await expect(run({
+      kind: "runOperation",
+      operationId: "probe",
+      command: { kind: "probe", value: "global" },
+    })).resolves.toEqual({ kind: "probeResult", value: "bound" })
+  })
+
   it("маршрутизирует команду операции после инициализации", async () => {
     const createState = vi.fn(async () => ({
       beginOperation: vi.fn(),
@@ -12,7 +35,7 @@ describe("единая точка входа worker", () => {
       installProjectState: vi.fn(),
       clearProjectState: vi.fn(),
     }))
-    const run = createMetadataWorkerCommandHandler({ createState: createState as never })
+    const run = createMetadataWorkerCommandHandler({ operations: createMetadataWorkerOperations(), createState: createState as never })
 
     await expect(run({ kind: "initializeLine", workerIndex: 2, context })).resolves.toBeUndefined()
     await expect(run({
@@ -25,7 +48,7 @@ describe("единая точка входа worker", () => {
   })
 
   it("не выполняет предметную команду до инициализации", async () => {
-    const run = createMetadataWorkerCommandHandler()
+    const run = createMetadataWorkerCommandHandler({ operations: createMetadataWorkerOperations() })
 
     await expect(run({
       kind: "runOperation",
@@ -45,6 +68,7 @@ describe("единая точка входа worker", () => {
         installProjectState: vi.fn(),
         clearProjectState: vi.fn(),
       })) as never,
+      operations: createMetadataWorkerOperations(),
       runImportCommand: runImportCommand as never,
     })
     await run({ kind: "initializeLine", workerIndex: 0, context })
@@ -86,7 +110,8 @@ describe("единая точка входа worker", () => {
       const createState = vi.fn(async () => persistentState)
       const runImportCommand = vi.fn(async () => undefined)
       const run = createMetadataWorkerCommandHandler({
-        createState: createState as never,
+      createState: createState as never,
+      operations: createMetadataWorkerOperations(),
         runImportCommand: runImportCommand as never,
       })
       await run({ kind: "initializeLine", workerIndex: 0, context })

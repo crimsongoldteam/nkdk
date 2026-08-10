@@ -116,8 +116,8 @@ export type MetadataOperationContribution =
 
 export interface MetadataRulesDefinition<
   SynchronizationContribution extends MetadataSynchronizationContribution = MetadataSynchronizationContribution,
-  ReferenceContribution extends object = RuleRegistrationContribution,
-  DataPathContribution extends object = RuleRegistrationContribution,
+  ReferenceContribution extends object = never,
+  DataPathContribution extends object = never,
 > {
   readonly propertyTypes: Readonly<Record<string, PropertyTypeDefinition>>
   readonly propertyItemRules: Readonly<Record<string, object>>

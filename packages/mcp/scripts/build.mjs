@@ -62,25 +62,25 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/project/preparedYamlProjectWorker.ts")],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/prepared-yaml"))],
   outfile: join(binDir, "preparedYamlProjectWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/importFromXml/worker.ts")],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/import"))],
   outfile: join(binDir, "importFromXmlWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/fullSyncToXml/worker.ts")],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/sync"))],
   outfile: join(binDir, "fullSyncToXmlWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/workerPool/worker.ts")],
+  entryPoints: [fileURLToPath(import.meta.resolve("@nkdk/core/workers/generic"))],
   outfile: join(binDir, "worker.js"),
 })
 

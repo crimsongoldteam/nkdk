@@ -58,7 +58,10 @@ import {
   type SerializedImportYaml,
 } from "./writeOutput"
 import { createImportBinaryResult } from "./binaryResult"
-import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+import {
+  legacyMetadataWorkerOperationRegistry,
+  type MetadataWorkerOperationRegistry,
+} from "../workerPool/operationRegistry"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
 import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
@@ -78,8 +81,10 @@ declare module "../workerPool/types" {
   }
 }
 
-export function registerImportWorkerOperation(): void {
-  registerMetadataWorkerOperation(
+export function registerImportWorkerOperation(
+  registry: MetadataWorkerOperationRegistry = legacyMetadataWorkerOperationRegistry,
+): void {
+  registry.register(
     "import",
     async (operation, state) => ({
       kind: "importResult",

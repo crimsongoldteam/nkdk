@@ -9,7 +9,11 @@
   "exports": {
     ".": {
       "import": "./index.ts"
-    }
+    },
+    "./workers/generic": "./metadata/composition/workers/generic.ts",
+    "./workers/prepared-yaml": "./metadata/composition/workers/preparedYamlProject.ts",
+    "./workers/import": "./metadata/composition/workers/importFromXml.ts",
+    "./workers/sync": "./metadata/composition/workers/fullSyncToXml.ts"
   },
   "scripts": {
     "build": "node scripts/build.mjs",

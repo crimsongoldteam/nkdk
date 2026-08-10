@@ -1,4 +1,3 @@
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import type {
   MetadataWorkerCommand,
   MetadataWorkerCommandResult,
@@ -12,13 +11,8 @@ import {
 } from "./workerState"
 import { createMovableBinaryResult } from "./binaryResult"
 import {
-  resetRegisteredMetadataWorkerOperations,
-  runRegisteredMetadataWorkerOperation,
+  type MetadataWorkerOperationRegistry,
 } from "./operationRegistry"
-import { registerMetadataWorkerOperations } from "../composition/workerOperations"
-
-registerCoreMetadata()
-registerMetadataWorkerOperations()
 
 type ImportOperationCommand = Extract<MetadataWorkerOperationCommand, { readonly kind: "import" }>
 type ImportOperationResult = Extract<MetadataWorkerOperationResult, { readonly kind: "importResult" }>
@@ -26,6 +20,7 @@ type FullSyncOperationCommand = Extract<MetadataWorkerOperationCommand, { readon
 type FullSyncOperationResult = Extract<MetadataWorkerOperationResult, { readonly kind: "fullSyncResult" }>
 
 interface MetadataWorkerCommandHandlerDependencies {
+  readonly operations: MetadataWorkerOperationRegistry
   readonly createState?: typeof createMetadataWorkerPersistentState
   readonly runImportCommand?: (
     command: ImportOperationCommand["command"],
@@ -43,8 +38,9 @@ interface MetadataWorkerCommandHandlerDependencies {
 }
 
 export function createMetadataWorkerCommandHandler(
-  dependencies: MetadataWorkerCommandHandlerDependencies = {},
+  dependencies: MetadataWorkerCommandHandlerDependencies,
 ): (command: MetadataWorkerCommand) => Promise<MetadataWorkerCommandResult> {
+  const operations = dependencies.operations
   let state: MetadataWorkerPersistentState | undefined
 
   return async (command) => {
@@ -68,7 +64,7 @@ export function createMetadataWorkerCommandHandler(
     }
     if (command.kind === "resetOperation") {
       if (dependencies.runImportCommand === undefined && dependencies.runFullSyncCommand === undefined) {
-        await resetRegisteredMetadataWorkerOperations(initialized, command.outcome)
+        await operations.reset(initialized, command.outcome)
       } else {
         await dependencies.runImportCommand?.({ kind: "dispose" })
         await dependencies.runFullSyncCommand?.({ kind: "dispose" })
@@ -81,14 +77,14 @@ export function createMetadataWorkerCommandHandler(
     let result: MetadataWorkerOperationResult
     switch (command.command.kind) {
       case "probe":
-        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+        result = await operations.run(command.command, initialized)
         break
       case "validation":
-        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+        result = await operations.run(command.command, initialized)
         break
       case "import":
         if (dependencies.runImportCommand === undefined) {
-          result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+          result = await operations.run(command.command, initialized)
           break
         }
         result = movableImportResult({
@@ -103,7 +99,7 @@ export function createMetadataWorkerCommandHandler(
         break
       case "fullSync":
         if (dependencies.runFullSyncCommand === undefined) {
-          result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+          result = await operations.run(command.command, initialized)
           break
         }
         result = movableOperationResult({
@@ -120,7 +116,7 @@ export function createMetadataWorkerCommandHandler(
         })
         break
       case "projectQuery":
-        result = await runRegisteredMetadataWorkerOperation(command.command, initialized)
+        result = await operations.run(command.command, initialized)
         break
     }
     return movableBinaryResult(result)
@@ -154,14 +150,6 @@ function movableOperationResult<T extends Exclude<MetadataWorkerCommandResult, u
     get [transferableSymbol]() { return buffers },
     get [valueSymbol]() { return result },
   }) as unknown as T
-}
-
-const runMetadataWorkerCommand = createMetadataWorkerCommandHandler()
-
-export default function metadataWorkerEntryPoint(
-  command: MetadataWorkerCommand,
-): Promise<MetadataWorkerCommandResult> {
-  return runMetadataWorkerCommand(command)
 }
 
 function requireState(

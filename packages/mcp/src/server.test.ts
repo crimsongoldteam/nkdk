@@ -3,7 +3,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
 import { createNkdkMcpServer, runServerUntilTransportCloses, shutdownNkdkMcpServer } from "./server"
 
-const closeProjectStateHandle = vi.hoisted(() => vi.fn())
+const closeMetadataRuntimeHandle = vi.hoisted(() => vi.fn())
 const closePlatformSessionManager = vi.hoisted(() => vi.fn())
 const listInfobases = vi.hoisted(() =>
   vi.fn(async () => ({
@@ -21,8 +21,8 @@ const listInfobaseExtensions = vi.hoisted(() =>
   }))
 )
 
-vi.mock("./services/projectStateHandle", () => ({
-  projectStateHandle: { close: closeProjectStateHandle },
+vi.mock("./metadataRuntimeHandle", () => ({
+  metadataRuntimeHandle: { close: closeMetadataRuntimeHandle },
 }))
 
 vi.mock("./services/platformSessionHandle", () => ({
@@ -130,13 +130,15 @@ describe("MCP server", () => {
   })
 
   it("loads core API lazily without a monorepo-relative runtime import", async () => {
-    const source = await import("node:fs/promises").then((fs) =>
-      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8")
-    )
+    const [coreApiSource, runtimeHandleSource] = await import("node:fs/promises").then((fs) => Promise.all([
+      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8"),
+      fs.readFile(new URL("./metadataRuntimeHandle.ts", import.meta.url), "utf8"),
+    ]))
 
-    expect(source).not.toContain("../../core/index.ts")
-    expect(source).toContain('from "@nkdk/core"')
-    expect(source).toContain('import("@nkdk/core")')
+    expect(coreApiSource).not.toContain("../../core/index.ts")
+    expect(coreApiSource).toContain('from "@nkdk/core"')
+    expect(coreApiSource).not.toContain('import("@nkdk/core")')
+    expect(runtimeHandleSource).toContain('import("@nkdk/core")')
   })
 
   it("keeps private core as a build-only dependency", async () => {
@@ -173,7 +175,7 @@ describe("MCP server", () => {
   })
 
   it("closes validation and platform handles on shutdown", async () => {
-    closeProjectStateHandle.mockResolvedValueOnce(undefined)
+    closeMetadataRuntimeHandle.mockResolvedValueOnce(undefined)
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 0,
       stoppedOwnedProcesses: 0,
@@ -181,12 +183,12 @@ describe("MCP server", () => {
 
     await shutdownNkdkMcpServer()
 
-    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
+    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 
   it("closes validation and platform handles when the transport closes", async () => {
-    closeProjectStateHandle.mockResolvedValueOnce(undefined)
+    closeMetadataRuntimeHandle.mockResolvedValueOnce(undefined)
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 1,
       stoppedOwnedProcesses: 1,
@@ -200,20 +202,20 @@ describe("MCP server", () => {
 
     await runServerUntilTransportCloses(server, transport)
 
-    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
+    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 
   it("attempts both shutdown branches when one fails", async () => {
-    closeProjectStateHandle.mockRejectedValueOnce(new Error("project state close failed"))
+    closeMetadataRuntimeHandle.mockRejectedValueOnce(new Error("metadata runtime close failed"))
     closePlatformSessionManager.mockResolvedValueOnce({
       closedCount: 0,
       stoppedOwnedProcesses: 0,
     })
 
-    await expect(shutdownNkdkMcpServer()).rejects.toThrow("project state close failed")
+    await expect(shutdownNkdkMcpServer()).rejects.toThrow("metadata runtime close failed")
 
-    expect(closeProjectStateHandle).toHaveBeenCalledTimes(1)
+    expect(closeMetadataRuntimeHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 })

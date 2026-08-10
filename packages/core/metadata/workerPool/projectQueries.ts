@@ -13,7 +13,10 @@ import {
   assertMetadataWorkerBinaryResult,
   type MetadataWorkerBinaryResult,
 } from "./binaryResult"
-import { registerMetadataWorkerOperation } from "./operationRegistry"
+import {
+  legacyMetadataWorkerOperationRegistry,
+  type MetadataWorkerOperationRegistry,
+} from "./operationRegistry"
 
 declare module "./types" {
   interface MetadataWorkerOperationTypeMap {
@@ -24,8 +27,10 @@ declare module "./types" {
   }
 }
 
-export function registerProjectQueryWorkerOperation(): void {
-  registerMetadataWorkerOperation("projectQuery", async (operation, state) =>
+export function registerProjectQueryWorkerOperation(
+  registry: MetadataWorkerOperationRegistry = legacyMetadataWorkerOperationRegistry,
+): void {
+  registry.register("projectQuery", async (operation, state) =>
     runProjectQuery(operation.command, state.projectState))
 }
 

@@ -15,7 +15,8 @@ import type {
 } from "./types"
 
 export function createMetadataWorkerPoolHandle(params: {
-  createLine?: () => MetadataWorkerLine
+  readonly workerUrl?: URL
+  createLine?: (workerUrl?: URL) => MetadataWorkerLine
 } = {}): MetadataWorkerPoolHandle {
   const lines = new Map<number, MetadataWorkerLine>()
   const createLine = params.createLine ?? createPiscinaLine
@@ -37,7 +38,7 @@ export function createMetadataWorkerPoolHandle(params: {
       try {
         for (let workerIndex = 0; workerIndex < operationParams.concurrency; workerIndex += 1) {
           if (lines.has(workerIndex)) continue
-          const line = createLine()
+          const line = createLine(params.workerUrl)
           lines.set(workerIndex, line)
           try {
             await line.run({
@@ -214,12 +215,14 @@ function assertWorkerIndex(workerIndex: number, concurrency: number): void {
   }
 }
 
-function createPiscinaLine(): MetadataWorkerLine {
+function createPiscinaLine(workerUrl?: URL): MetadataWorkerLine {
   const currentFile = fileURLToPath(import.meta.url)
-  const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "worker.ts")
-    : join(dirname(currentFile), "worker.js")
-  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
+  const workerFile = workerUrl === undefined
+    ? currentFile.endsWith(".ts")
+      ? join(dirname(currentFile), "worker.ts")
+      : join(dirname(currentFile), "worker.js")
+    : fileURLToPath(workerUrl)
+  const execArgv = workerFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   const piscina = new Piscina({
     filename: workerFile,
     minThreads: 1,

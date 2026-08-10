@@ -1,8 +1,13 @@
-import { registerMetadataWorkerOperation } from "../workerPool/operationRegistry"
+import {
+  legacyMetadataWorkerOperationRegistry,
+  type MetadataWorkerOperationRegistry,
+} from "../workerPool/operationRegistry"
 import { runPreparedYamlProjectWorkerTask } from "./preparedYamlProjectWorker"
 
-export function registerValidationWorkerOperation(): void {
-  registerMetadataWorkerOperation("validation", async (command, state) =>
+export function registerValidationWorkerOperation(
+  registry: MetadataWorkerOperationRegistry = legacyMetadataWorkerOperationRegistry,
+): void {
+  registry.register("validation", async (command, state) =>
     runPreparedYamlProjectWorkerTask(command.task, {
       persistentValidationState: {
         schemaCache: state.schemaCache,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import { createMetadataWorkerPoolHandle } from "./handle"
-import type { MetadataWorkerCommand, MetadataWorkerCommandResult } from "./types"
+import type { MetadataWorkerCommand, MetadataWorkerCommandResult, MetadataWorkerLine } from "./types"
 
 const context = { defaultLanguage: "ru", version: "8.3.27" }
 
@@ -19,6 +19,40 @@ function createLines() {
 }
 
 describe("createMetadataWorkerPoolHandle", () => {
+  it("uses the supplied worker entrypoint", async () => {
+    const workerUrl = new URL("file:///custom-worker.js")
+    const handle = createMetadataWorkerPoolHandle({
+      workerUrl,
+      createLine: (actualWorkerUrl?: URL): MetadataWorkerLine => ({
+        async run(command) {
+          if (command.kind === "runOperation" && command.command.kind === "probe") {
+            return {
+              kind: "probeResult",
+              value: `${actualWorkerUrl === workerUrl ? "custom" : "default"}:${command.command.value}`,
+            }
+          }
+          return undefined
+        },
+        async destroy() {},
+      }),
+    })
+
+    try {
+      const operation = await handle.beginOperation({
+        id: "custom-entrypoint",
+        concurrency: 1,
+        context: { defaultLanguage: "ru", version: "8.3.27" },
+      })
+
+      await expect(operation.run(0, { kind: "probe", value: "ready" })).resolves.toEqual({
+        kind: "probeResult",
+        value: "custom:ready",
+      })
+      await operation.finish("success")
+    } finally {
+      await handle.close()
+    }
+  })
   it("лениво создаёт линии, растёт и не уничтожает их при уменьшении параллельности", async () => {
     const lines = createLines()
     const handle = createMetadataWorkerPoolHandle({ createLine: lines.factory })

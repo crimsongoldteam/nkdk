@@ -9,6 +9,13 @@ import type {} from "./metadata/workerPool/projectQueries"
 registerCoreMetadata()
 
 export { registerCoreMetadata } from "./metadata/composition/coreMetadata"
+export { metadataRules } from "./metadata/composition/metadataRules"
+export {
+  createMetadataRuntime,
+  type CreateMetadataRuntimeOptions,
+  type MetadataRuntime,
+  type MetadataWorkerManifest,
+} from "./metadata/runtime"
 export {
   ProjectStateReadSessionClosedError,
   createProjectStateFileUpdateBatch,

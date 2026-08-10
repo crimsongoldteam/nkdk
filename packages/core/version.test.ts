@@ -20,7 +20,7 @@ describe("NKDK_CORE_VERSION", () => {
   it("включает универсальный worker в compiled-сборку", () => {
     const coreBuild = readFileSync(join(process.cwd(), "scripts/build.mjs"), "utf-8")
 
-    expect(coreBuild).toContain('entryPoints: ["metadata/workerPool/worker.ts"]')
+    expect(coreBuild).toContain('entryPoints: ["metadata/composition/workers/generic.ts"]')
     expect(coreBuild).toContain('outfile: new URL("worker.js", outdir).pathname')
   })
 })

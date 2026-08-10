@@ -42,24 +42,24 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: ["metadata/project/preparedYamlProjectWorker.ts"],
+  entryPoints: ["metadata/composition/workers/preparedYamlProject.ts"],
   outfile: new URL("preparedYamlProjectWorker.js", outdir).pathname,
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: ["metadata/importFromXml/worker.ts"],
+  entryPoints: ["metadata/composition/workers/importFromXml.ts"],
   outfile: new URL("importFromXmlWorker.js", outdir).pathname,
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: ["metadata/fullSyncToXml/worker.ts"],
+  entryPoints: ["metadata/composition/workers/fullSyncToXml.ts"],
   outfile: new URL("fullSyncToXmlWorker.js", outdir).pathname,
 })
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: ["metadata/workerPool/worker.ts"],
+  entryPoints: ["metadata/composition/workers/generic.ts"],
   outfile: new URL("worker.js", outdir).pathname,
 })

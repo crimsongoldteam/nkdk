@@ -7,6 +7,32 @@ import type {
   CreateMetadataRuntimeOptions,
   MetadataRuntime,
 } from "./contracts"
+import { parseProjectPath } from "../projectDefinition/path"
+import { describeMetadataProjectDirectoryStructure } from "../project/directoryStructure"
+import {
+  exportJSONSchemaForProjectFile,
+  exportJSONSchemaForSchemaName,
+  ProjectFileSchemaError,
+} from "../validation/projectFileSchema"
+import {
+  listSchemaSummaryKeys,
+  splitSearchTerms,
+  summarizeJSONSchema,
+} from "../validation/schemaSummary"
+import { importConfigurationFromXml } from "../importFromXml/importConfiguration"
+import { syncConfigurationFromXML } from "../appliedObjects/configuration/convertFromXML"
+import {
+  planSyncConfigurationToXml,
+  syncConfigurationToXml,
+} from "../fullSyncToXml/syncConfiguration"
+import {
+  initializeXmlSyncState,
+  readXmlSyncState,
+} from "../appliedObjects/configuration/syncState"
+import { renameMetadataItem } from "../operations/renameItem"
+import { findMetadataReferences } from "../operations/findMetadataReferences"
+import type { ProjectStateService } from "../projectState/service"
+import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
 
 export function createMetadataRuntime(
   options: CreateMetadataRuntimeOptions,
@@ -14,6 +40,8 @@ export function createMetadataRuntime(
   const rules = createRuleRegistrySet(options.rules)
   const validation = createValidationRegistrySet(options.rules)
   const operations = createOperationRegistrySet(options.rules)
+  const createWorkerPool = options.createWorkerPool
+    ?? ((workerUrl: URL) => createMetadataWorkerPoolHandle({ workerUrl }))
   const ownedStates = new WeakSet<object>()
   const openStates = new Set<ReturnType<typeof createProjectStateService>>()
   let closed = false
@@ -22,30 +50,75 @@ export function createMetadataRuntime(
   const assertOpen = () => {
     if (closed) throw new Error("Metadata runtime закрыт")
   }
+  const assertOwnedState = (state: ProjectStateService) => {
+    assertOpen()
+    if (!ownedStates.has(state)) {
+      throw new Error("ProjectStateService принадлежит другому runtime")
+    }
+  }
 
   return {
     projects: {
       specs: rules.projectSpecs,
+      parsePath: parseProjectPath,
+      describeStructure: describeMetadataProjectDirectoryStructure,
       createState() {
         assertOpen()
-        const state = createProjectStateService()
+        const state = createProjectStateService({
+          workerPool: createWorkerPool(options.workers.generic),
+        })
         ownedStates.add(state)
         openStates.add(state)
         return state
       },
     },
-    schemas: rules.schemas,
+    schemas: {
+      ...rules.schemas,
+      ProjectFileSchemaError,
+      exportForProjectFile: exportJSONSchemaForProjectFile,
+      exportByName: exportJSONSchemaForSchemaName,
+      splitSearchTerms,
+      listSummaryKeys: listSchemaSummaryKeys,
+      summarize: summarizeJSONSchema,
+    },
     validation: {
       ...validation,
       async validateProject(params) {
-        assertOpen()
-        if (!ownedStates.has(params.projectState)) {
-          throw new Error("ProjectStateService принадлежит другому runtime")
-        }
+        assertOwnedState(params.projectState)
         return validateProject(params)
       },
     },
-    metadata: { rules, operations },
+    import: {
+      async configurationFromXml(params) {
+        assertOwnedState(params.projectState)
+        return importConfigurationFromXml(params)
+      },
+      configurationFromSourceXml: syncConfigurationFromXML,
+    },
+    sync: {
+      async planToXml(params) {
+        assertOwnedState(params.projectState)
+        return planSyncConfigurationToXml(params)
+      },
+      async configurationToXml(params) {
+        assertOwnedState(params.projectState)
+        return syncConfigurationToXml(params)
+      },
+      readState: readXmlSyncState,
+      initializeState: initializeXmlSyncState,
+    },
+    metadata: {
+      rules,
+      operations,
+      async rename(params) {
+        assertOwnedState(params.projectState)
+        return renameMetadataItem(params)
+      },
+      async findReferences(params) {
+        assertOwnedState(params.projectState)
+        return findMetadataReferences(params)
+      },
+    },
     close() {
       if (closePromise !== undefined) return closePromise
       closed = true
