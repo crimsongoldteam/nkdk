@@ -1,0 +1,329 @@
+import { performance } from "node:perf_hooks"
+import { createHash } from "node:crypto"
+import type { Diagnostic } from "./types"
+
+interface ValidationProfileStats {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+}
+
+export interface ValidationProfileResult {
+  readonly hashedFiles: number
+  readonly parsedYamlFiles: number
+  readonly changedFiles: number
+  readonly deletedFiles: number
+  readonly snapshotBytes: number
+  readonly loadMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
+  readonly discoverFilesMs: number
+  readonly readBaselineMs: number
+  readonly processFilesMs: number
+  readonly readLocalDiagnosticsMs: number
+  readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs: number
+  readonly workerReadyMs: number
+  readonly workerReuseMs: number
+  readonly diagnosticsDigest: string
+}
+
+export function createValidationProfileResult(params: {
+  readonly diagnostics: readonly Diagnostic[]
+  readonly stats: ValidationProfileStats
+  readonly snapshotBytes: number
+  readonly loadMs: number
+  readonly scheduleSaveMs: number
+  readonly saveBinaryMs: number
+  readonly discoverFilesMs: number
+  readonly readBaselineMs: number
+  readonly processFilesMs: number
+  readonly readLocalDiagnosticsMs: number
+  readonly dependencyValidationMs: number
+  readonly workerPoolCreateMs?: number
+  readonly workerReadyMs?: number
+  readonly workerReuseMs?: number
+}): ValidationProfileResult {
+  return {
+    ...params.stats,
+    snapshotBytes: params.snapshotBytes,
+    loadMs: params.loadMs,
+    scheduleSaveMs: params.scheduleSaveMs,
+    saveBinaryMs: params.saveBinaryMs,
+    discoverFilesMs: params.discoverFilesMs,
+    readBaselineMs: params.readBaselineMs,
+    processFilesMs: params.processFilesMs,
+    readLocalDiagnosticsMs: params.readLocalDiagnosticsMs,
+    dependencyValidationMs: params.dependencyValidationMs,
+    workerPoolCreateMs: params.workerPoolCreateMs ?? 0,
+    workerReadyMs: params.workerReadyMs ?? 0,
+    workerReuseMs: params.workerReuseMs ?? 0,
+    diagnosticsDigest: createHash("sha256").update(stableJson(params.diagnostics)).digest("hex"),
+  }
+}
+
+export type ValidationProfileScope = { scope: "main" } | { scope: "worker"; workerIndex: number }
+
+export interface ValidationProfileRecord {
+  operation: string
+  step: string
+  substep: string
+  scope: "main" | "worker"
+  workerIndex?: number
+  items?: number
+  timeMs: number
+  rssStartMiB: number
+  rssEndMiB: number
+  rssPeakMiB: number
+  heapStartMiB: number
+  heapEndMiB: number
+  heapPeakMiB: number
+  bytes?: number
+}
+
+export interface ValidationProfiler {
+  measure<T>(step: string, substep: string, params: { items?: number; bytes?: number }, fn: () => T): T
+  measureAsync<T>(
+    step: string,
+    substep: string,
+    params: { items?: number; bytes?: number },
+    fn: () => Promise<T>
+  ): Promise<T>
+  record(step: string, substep: string, params: { items?: number; timeMs: number; bytes?: number }): void
+  records(): ValidationProfileRecord[]
+  flush(): void
+}
+
+export function createValidationProfiler(scope: ValidationProfileScope): ValidationProfiler {
+  return createOperationProfiler({ operation: "validation", scope })
+}
+
+export function createOperationProfiler(options: {
+  operation: string
+  scope: ValidationProfileScope
+  aggregate?: boolean
+}): ValidationProfiler {
+  const records: ValidationProfileRecord[] = []
+  const aggregatedByKey = new Map<string, ValidationProfileRecord>()
+
+  function append(record: ValidationProfileRecord): void {
+    if (options.aggregate !== true) {
+      records.push(record)
+      return
+    }
+
+    const key = [record.operation, record.step, record.substep, record.scope, record.workerIndex ?? ""].join("\u0000")
+    const current = aggregatedByKey.get(key)
+    if (current === undefined) {
+      records.push(record)
+      aggregatedByKey.set(key, record)
+      return
+    }
+    mergeProfileRecord(current, record)
+  }
+
+  return {
+    measure(step, substep, params, fn) {
+      const tracker = createMemoryTracker()
+      const startedAt = performance.now()
+      printProfileStageBoundary("start", {
+        operation: options.operation,
+        step,
+        substep,
+        scope: options.scope,
+        items: params.items,
+        bytes: params.bytes,
+      })
+      try {
+        return fn()
+      } finally {
+        const record = createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          startedAt,
+        })
+        append(record)
+        printProfileStageBoundary("end", record)
+      }
+    },
+    async measureAsync(step, substep, params, fn) {
+      const tracker = createMemoryTracker()
+      const startedAt = performance.now()
+      printProfileStageBoundary("start", {
+        operation: options.operation,
+        step,
+        substep,
+        scope: options.scope,
+        items: params.items,
+        bytes: params.bytes,
+      })
+      try {
+        return await fn()
+      } finally {
+        const record = createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          startedAt,
+        })
+        append(record)
+        printProfileStageBoundary("end", record)
+      }
+    },
+    record(step, substep, params) {
+      const tracker = createMemoryTracker()
+      append(
+        createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          timeMs: params.timeMs,
+        })
+      )
+    },
+    records() {
+      return [...records]
+    },
+    flush() {
+      if (!isProfilingEnabled()) return
+      for (const record of records) console.error(formatValidationProfileRecord(record))
+    },
+  }
+}
+
+function mergeProfileRecord(current: ValidationProfileRecord, next: ValidationProfileRecord): void {
+  current.timeMs += next.timeMs
+  if (current.items !== undefined || next.items !== undefined) current.items = (current.items ?? 0) + (next.items ?? 0)
+  if (current.bytes !== undefined || next.bytes !== undefined) current.bytes = (current.bytes ?? 0) + (next.bytes ?? 0)
+  current.rssEndMiB = next.rssEndMiB
+  current.heapEndMiB = next.heapEndMiB
+  current.rssPeakMiB = Math.max(current.rssPeakMiB, next.rssPeakMiB)
+  current.heapPeakMiB = Math.max(current.heapPeakMiB, next.heapPeakMiB)
+}
+
+function createRecord(params: {
+  operation: string
+  step: string
+  substep: string
+  scope: ValidationProfileScope
+  items: number | undefined
+  bytes: number | undefined
+  tracker: ReturnType<typeof createMemoryTracker>
+  startedAt?: number
+  timeMs?: number
+}): ValidationProfileRecord {
+  params.tracker.sample()
+  return {
+    operation: params.operation,
+    step: params.step,
+    substep: params.substep,
+    scope: params.scope.scope,
+    ...(params.scope.scope === "worker" ? { workerIndex: params.scope.workerIndex } : {}),
+    ...(params.items === undefined ? {} : { items: params.items }),
+    ...(params.bytes === undefined ? {} : { bytes: params.bytes }),
+    timeMs: params.timeMs ?? performance.now() - (params.startedAt ?? performance.now()),
+    ...params.tracker.snapshot(),
+  }
+}
+
+function createMemoryTracker() {
+  const start = process.memoryUsage()
+  let peakRss = start.rss
+  let peakHeapUsed = start.heapUsed
+
+  return {
+    sample() {
+      const memory = process.memoryUsage()
+      peakRss = Math.max(peakRss, memory.rss)
+      peakHeapUsed = Math.max(peakHeapUsed, memory.heapUsed)
+    },
+    snapshot() {
+      const end = process.memoryUsage()
+      peakRss = Math.max(peakRss, end.rss)
+      peakHeapUsed = Math.max(peakHeapUsed, end.heapUsed)
+      return {
+        rssStartMiB: bytesToMiB(start.rss),
+        rssEndMiB: bytesToMiB(end.rss),
+        rssPeakMiB: bytesToMiB(peakRss),
+        heapStartMiB: bytesToMiB(start.heapUsed),
+        heapEndMiB: bytesToMiB(end.heapUsed),
+        heapPeakMiB: bytesToMiB(peakHeapUsed),
+      }
+    },
+  }
+}
+
+function formatValidationProfileRecord(record: ValidationProfileRecord): string {
+  return [
+    "[nkdk-profile-step]",
+    `operation=${encodeProfileValue(record.operation)}`,
+    `step=${encodeProfileValue(record.step)}`,
+    `substep=${encodeProfileValue(record.substep)}`,
+    `scope=${record.scope}`,
+    record.workerIndex === undefined ? undefined : `worker=${record.workerIndex}`,
+    record.items === undefined ? undefined : `items=${record.items}`,
+    record.bytes === undefined ? undefined : `bytes=${record.bytes}`,
+    `time=${record.timeMs.toFixed(2)}ms`,
+    `rssStart=${record.rssStartMiB.toFixed(1)}MiB`,
+    `rssEnd=${record.rssEndMiB.toFixed(1)}MiB`,
+    `rssPeak=${record.rssPeakMiB.toFixed(1)}MiB`,
+    `heapStart=${record.heapStartMiB.toFixed(1)}MiB`,
+    `heapEnd=${record.heapEndMiB.toFixed(1)}MiB`,
+    `heapPeak=${record.heapPeakMiB.toFixed(1)}MiB`,
+  ]
+    .filter((part): part is string => part !== undefined)
+    .join(" ")
+}
+
+function printProfileStageBoundary(
+  boundary: "start" | "end",
+  params:
+    | ValidationProfileRecord
+    | {
+        operation: string
+        step: string
+        substep: string
+        scope: ValidationProfileScope
+        items: number | undefined
+        bytes: number | undefined
+      }
+): void {
+  void boundary
+  void params
+}
+
+function isProfilingEnabled(): boolean {
+  return process.env["NKDK_PROFILE"] === "1"
+}
+
+function encodeProfileValue(value: string): string {
+  return JSON.stringify(value)
+}
+
+function bytesToMiB(value: number): number {
+  return value / 1024 / 1024
+}
+
+function stableJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value)
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`
+  return `{${Object.entries(value)
+    .filter(([, entry]) => entry !== undefined)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, entry]) => `${JSON.stringify(key)}:${stableJson(entry)}`)
+    .join(",")}}`
+}

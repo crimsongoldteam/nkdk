@@ -37,6 +37,47 @@ export * from "./metadata/resourceTopology/core/providerRegistry"
 export * from "./metadata/resourceTopology/core/types"
 export * from "./metadata/resourceTopology/core/xmlExportProjection"
 export * from "./metadata/resourceTopology/core/xmlImportProjection"
+export * from "./metadata/projectDefinition/path"
+export * from "./metadata/projectDefinition/preparedYamlContracts"
+export * from "./metadata/validation/componentVisibility"
+export * from "./metadata/validation/compileValidationSchema"
+export * from "./metadata/validation/formDataPathProjection"
+export * from "./metadata/validation/projectSpecs"
+export * from "./metadata/validation/projectYamlCache"
+export * from "./metadata/validation/schemaSummary"
+export * from "./metadata/validation/sharedStringPool"
+export * from "./metadata/validation/structuralReferences"
+export * from "./metadata/validation/structuralYamlValue"
+export * from "./metadata/validation/validationSchema"
+export {
+  diagnosticAtYamlLocation,
+  diagnosticAtYamlPath,
+  yamlDiagnosticLocationAtPath,
+  yamlPathToPointer,
+} from "./metadata/validation/yamlLocations"
+export type { DiagnosticAtYamlPathParams } from "./metadata/validation/yamlLocations"
+export * from "./metadata/validation/dataPath/formatContracts"
+export * from "./metadata/validation/diagnostics"
+export * from "./metadata/validation/excludeIfEqualNameYAML"
+export * from "./metadata/validation/formContracts"
+export * from "./metadata/validation/formDataPathProjectionRegistry"
+export * from "./metadata/validation/metadataTargetTraversal"
+export * from "./metadata/validation/profile"
+export * from "./metadata/validation/projectReferenceIndex"
+export * from "./metadata/validation/projectLocalDependencies"
+export {
+  projectMetadataReferenceDetails,
+  resolvePendingReference,
+} from "./metadata/validation/projectMetadataReferences"
+export type {
+  PendingReferenceFastResult,
+  ProjectMetadataReferenceDetails,
+} from "./metadata/validation/projectMetadataReferences"
+export * from "./metadata/validation/typeboxErrorsToDiagnostics"
+export * from "./metadata/validation/typeboxValidationCompiler"
+export * from "./metadata/validation/uniqueNameScopes"
+export * from "./metadata/validation/validateFile"
+export * from "./metadata/validation/yamlValueValidationRegistry"
 export * from "./xml/export/exporter"
 export * from "./xml/import/contracts"
 export * from "./xml/import/importer"
