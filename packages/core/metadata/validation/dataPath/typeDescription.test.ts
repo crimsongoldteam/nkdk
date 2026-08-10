@@ -220,7 +220,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("does not hard-code owner base type maps", () => {
-    const source = readFileSync(join(process.cwd(), "metadata/validation/dataPath/typeDescription.ts"), "utf-8")
+    const source = readFileSync(join(process.cwd(), "../runtime/metadata/validation/dataPath/typeDescription.ts"), "utf-8")
 
     expect(source).not.toContain("ownerKindsByBaseType")
     expect(source).not.toContain("registerRecordSetOwnerKindsByBaseType")

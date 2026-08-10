@@ -1,13 +1,14 @@
 import { afterEach, describe, expect, it } from "vitest"
-import "../appliedObjects/metadataAccountingRegister/standardMembers"
-import "../appliedObjects/metadataAccumulationRegister/standardMembers"
-import "../appliedObjects/metadataBusinessProcess/standardMembers"
-import "../appliedObjects/metadataCalculationRegister/standardMembers"
-import "../appliedObjects/metadataDocument/standardMembers"
-import "../appliedObjects/metadataDocumentJournal/standardMembers"
-import "../appliedObjects/metadataExchangePlan/standardMembers"
-import "../appliedObjects/metadataInformationRegister/standardMembers"
-import "../appliedObjects/metadataTask/standardMembers"
+import { metadataAccountingRegisterStandardMemberRules } from "../appliedObjects/metadataAccountingRegister/standardMembers"
+import { metadataAccumulationRegisterStandardMemberRules } from "../appliedObjects/metadataAccumulationRegister/standardMembers"
+import { metadataBusinessProcessStandardMemberRules } from "../appliedObjects/metadataBusinessProcess/standardMembers"
+import { metadataCalculationRegisterStandardMemberRules } from "../appliedObjects/metadataCalculationRegister/standardMembers"
+import { metadataDocumentStandardMemberRules } from "../appliedObjects/metadataDocument/standardMembers"
+import { metadataDocumentJournalStandardMemberRules } from "../appliedObjects/metadataDocumentJournal/standardMembers"
+import { metadataExchangePlanStandardMemberRules } from "../appliedObjects/metadataExchangePlan/standardMembers"
+import { metadataInformationRegisterStandardMemberRules } from "../appliedObjects/metadataInformationRegister/standardMembers"
+import { metadataTaskStandardMemberRules } from "../appliedObjects/metadataTask/standardMembers"
+import { applyLegacyDataPathContributions } from "../validation/dataPath/registry"
 import {
   clearStandardMembersForTests,
   getStandardMembers,
@@ -16,6 +17,18 @@ import {
   snapshotStandardMembersForTests,
   type StandardMemberDeclaration,
 } from "./declarations"
+
+applyLegacyDataPathContributions([
+  ...metadataAccountingRegisterStandardMemberRules,
+  ...metadataAccumulationRegisterStandardMemberRules,
+  ...metadataBusinessProcessStandardMemberRules,
+  ...metadataCalculationRegisterStandardMemberRules,
+  ...metadataDocumentStandardMemberRules,
+  ...metadataDocumentJournalStandardMemberRules,
+  ...metadataExchangePlanStandardMemberRules,
+  ...metadataInformationRegisterStandardMemberRules,
+  ...metadataTaskStandardMemberRules,
+])
 
 describe("standard member declarations", () => {
   const initial = snapshotStandardMembersForTests()
