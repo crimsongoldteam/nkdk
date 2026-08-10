@@ -65,17 +65,3 @@ await esbuild.build({
   entryPoints: ["metadata/workerPool/worker.ts"],
   outfile: new URL("worker.js", outdir).pathname,
 })
-
-await esbuild.build({
-  ...commonOptions,
-  entryPoints: ["metadata/workerPool/generateProjectValidationAjvStandaloneEntry.ts"],
-  outfile: new URL("generateProjectValidationAjvStandalone.js", outdir).pathname,
-})
-
-const { generateProjectValidationAjvStandalone } = await import(
-  new URL("generateProjectValidationAjvStandalone.js", outdir).href
-)
-
-await generateProjectValidationAjvStandalone({
-  outfile: new URL("projectValidationAjvStandalone.js", outdir).pathname,
-})
