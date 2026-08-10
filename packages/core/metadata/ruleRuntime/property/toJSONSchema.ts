@@ -49,7 +49,7 @@ function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (v === undefined || typeof v === "function") return undefined
   if (rule.type === "boolean" && typeof v === "boolean") return v ? "Истина" : "Ложь"
   if (rule.type === "number" && typeof v === "number") return v
-  if (rule.type === "string" && typeof v === "string") return v
+  if ((rule.type === "string" || rule.type === "I8nText") && typeof v === "string") return v
   if (rule.type === "SystemEnumeration" && typeof v === "string") {
     const typeSE = (rule as { typeSE?: string }).typeSE
     if (typeSE === undefined) return v

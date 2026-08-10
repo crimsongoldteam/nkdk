@@ -69,7 +69,6 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({
       СтандартныеРеквизиты: {
         Ссылка: {
-          Синоним: "",
           ЗначениеЗаполнения: ".",
         },
       },
