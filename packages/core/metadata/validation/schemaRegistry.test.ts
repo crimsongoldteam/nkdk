@@ -280,7 +280,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
   })
 
-  it("exports child item refs with AJV discriminator in form graph", () => {
+  it("exports child item refs with discriminator in form graph", () => {
     const graph = clientApplicationFormGraph()
 
     for (const owner of ["UsualGroup", "Page", "Table", "CommandBar", "ButtonGroup"] as const) {

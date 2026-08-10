@@ -15,8 +15,6 @@ const commonOptions = {
   bundle: true,
   external: [
     "@node-rs/xxhash",
-    "ajv",
-    "ajv-formats",
     "date-fns",
     "fast-xml-parser",
     "js-yaml",
