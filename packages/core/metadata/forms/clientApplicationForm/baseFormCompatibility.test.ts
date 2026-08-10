@@ -20,7 +20,7 @@ describe("совместимость заимствованной формы с 
     })
 
     expect(diagnostics).toEqual([expect.objectContaining({
-      severity: "error",
+      severity: "warning",
       source: "cross-file",
       filePath: "/cfe/Форма.yaml",
       path: "Элементы.Группа.Элементы.НовыйКод",
@@ -53,6 +53,7 @@ describe("совместимость заимствованной формы с 
     expect(diagnostics.map(({ message }) => message)).toEqual([
       expect.stringMatching(/имя.*пуст/i),
     ])
+    expect(diagnostics[0]?.severity).toBe("error")
   })
 })
 

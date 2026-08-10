@@ -16,7 +16,7 @@ export function validateBaseFormCompatibility(params: {
       for (const [name, component] of base[category]) {
         if (extension[category].has(name)) continue
         diagnostics.push(diagnostic(params.extensionFilePath,
-          `В форме расширения отсутствует ${label} основной формы «${name}»`, component.path))
+          `В форме расширения отсутствует ${label} основной формы «${name}»`, component.path, "warning"))
       }
     }
   } catch (caught) {
@@ -26,6 +26,11 @@ export function validateBaseFormCompatibility(params: {
   return diagnostics
 }
 
-function diagnostic(filePath: string, message: string, path: string): Diagnostic {
-  return { filePath, line: 1, col: 1, severity: "error", source: "cross-file", message, path }
+function diagnostic(
+  filePath: string,
+  message: string,
+  path: string,
+  severity: Diagnostic["severity"] = "error",
+): Diagnostic {
+  return { filePath, line: 1, col: 1, severity, source: "cross-file", message, path }
 }
