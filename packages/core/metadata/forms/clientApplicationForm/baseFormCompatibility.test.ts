@@ -3,10 +3,10 @@ import { validateBaseFormCompatibility } from "./baseFormCompatibility"
 
 describe("совместимость заимствованной формы с текущей формой cf", () => {
   it("принимает одинаковое дерево и дополнительные элементы расширения", () => {
-    const base = form({ Группа: element("ГруппаФормы", { Код: element("ПолеФормы") }) })
+    const base = form({ Группа: element("Группа", { Код: element("ПолеВвода") }) })
     const extension = form({
-      Группа: element("ГруппаФормы", { Код: element("ПолеФормы") }),
-      Дополнение: element("ПолеФормы"),
+      Группа: element("Группа", { Код: element("ПолеВвода") }),
+      Дополнение: element("ПолеВвода"),
     })
 
     expect(validateBaseFormCompatibility({ base, extension, extensionFilePath: "/cfe/Форма.yaml" })).toEqual([])
@@ -14,8 +14,8 @@ describe("совместимость заимствованной формы с 
 
   it("указывает вложенный элемент cf, которого нет в расширении", () => {
     const diagnostics = validateBaseFormCompatibility({
-      base: form({ Группа: element("ГруппаФормы", { НовыйКод: element("ПолеФормы") }) }),
-      extension: form({ Группа: element("ГруппаФормы") }),
+      base: form({ Группа: element("Группа", { НовыйКод: element("ПолеВвода") }) }),
+      extension: form({ Группа: element("Группа") }),
       extensionFilePath: "/cfe/Форма.yaml",
     })
 
@@ -41,11 +41,11 @@ describe("совместимость заимствованной формы с 
 
   it("диагностирует первое структурное нарушение формы", () => {
     const diagnostics = validateBaseFormCompatibility({
-      base: form({ Код: element("ПолеФормы") }),
+      base: form({ Код: element("ПолеВвода") }),
       extension: form({
-        "": element("ПолеФормы"),
-        Первая: element("ГруппаФормы", { Код: element("ПолеФормы") }),
-        Вторая: element("ГруппаФормы", { Код: element("ПолеФормы") }),
+        "": element("ПолеВвода"),
+        Первая: element("Группа", { Код: element("ПолеВвода") }),
+        Вторая: element("Группа", { Код: element("ПолеВвода") }),
       }),
       extensionFilePath: "/cfe/Форма.yaml",
     })
