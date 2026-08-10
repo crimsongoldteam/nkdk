@@ -5,7 +5,7 @@ import {
   exportSettingsParameterValueDcscorItemsToXML,
   getDcscorItemExportValueForXmlParents,
   importSettingsParameterValueDcscorItemsFromXML,
-} from "./dcscorItemsXML"
+} from "./index"
 
 describe("settingsParameterValueCollection dcscor items", () => {
   const ruleSet: SettingsParameterValueCollectionPropertyRule = {
