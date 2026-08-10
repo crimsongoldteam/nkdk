@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
+import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 import { configurationValidationProjectSpec } from "./projectSpecs"
 
 const context = {
@@ -10,18 +11,22 @@ const context = {
 
 describe("projectValidationWorkerSchemaCache", () => {
   let acceptsConfigurationNameOnly: boolean
+  let rejectsNonObjectForm: boolean
 
   beforeAll(async () => {
-    const cache = await createProjectValidationWorkerSchemaCache({
+    const workerParams = {
       context,
-      workerUrl: "file:///project/metadata/validation/projectValidationWorker.ts",
-    })
+      workerUrl: "file:///missing/compiled/worker.js",
+    }
+    const cache = await createProjectValidationWorkerSchemaCache(workerParams)
     acceptsConfigurationNameOnly = cache
       .properties(configurationValidationProjectSpec.rule)
       .Check({ Имя: "Конфигурация" })
+    rejectsNonObjectForm = cache.form(registeredProjectValidationFormRules()[0]!.rule).Check(42)
   })
 
-  it("uses runtime schema cache for source TypeScript workers", () => {
+  it("компилирует runtime cache независимо от расположения worker", () => {
     expect(acceptsConfigurationNameOnly).toBe(false)
+    expect(rejectsNonObjectForm).toBe(false)
   })
 })
