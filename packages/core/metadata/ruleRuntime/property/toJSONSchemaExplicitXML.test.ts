@@ -2,11 +2,15 @@ import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import "../../commonObjects/boolean/toJSONSchema"
 import "../../commonObjects/metadataPath/toJSONSchema"
+import "../../commonObjects/standardAttributeDescription/registerCollectionRule"
 import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
 import { mockContext } from "../../../tests/mockContext"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { getValidationSchemaRef } from "../jsonSchemaRefs"
-import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
+import {
+  registerExplicitXMLProperty,
+  registerExplicitXMLPropertyType,
+} from "./explicitXMLPropertyRegistry"
 import { exportPropertiesToJSONSchema } from "./toJSONSchema"
 import type { MetadataItemRule } from "./types"
 import { CheckBoxFieldRules } from "../../forms/elements/checkBoxField/rules"
@@ -22,7 +26,55 @@ function probeRule(itemType: string): MetadataItemRule {
   } as MetadataItemRule
 }
 
+function explicitXMLSchemas(rule: MetadataItemRule) {
+  return {
+    validationProperties: exportPropertiesToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs: new Set<string>(),
+          validationPropertyRefs: true,
+        },
+      },
+      rule,
+    }),
+    externalProperties: exportPropertiesToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
+      },
+      rule,
+    }),
+  }
+}
+
 describe("explicit XML property validation schema", () => {
+  it("разрешает пустой !xml для точного типа коллекции", () => {
+    registerExplicitXMLPropertyType({
+      propertyType: "StandardAttributeDescriptions",
+      action: "materializeCollection",
+      yamlValue: EMPTY_XML_TAG_VALUE,
+    })
+    const rule = {
+      itemType: "ExplicitXMLCollectionSchemaProbe",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: { LineNumber: "НомерСтроки" },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const { validationProperties, externalProperties } = explicitXMLSchemas(rule)
+    const validation = compileValidationSchema(Type.Object(validationProperties))
+
+    expect(validation.Check({ СтандартныеРеквизиты: "!xml" })).toBe(true)
+    expect(validation.Check({ СтандартныеРеквизиты: "!xml payload" })).toBe(false)
+    expect(JSON.stringify(externalProperties)).not.toContain("!xml")
+  })
+
   it.each([
     ["закрытая основная политика", CheckBoxFieldRules.properties.dataPath, true],
     ["кнопка без политики", ButtonRules.properties.dataPath, false],
@@ -119,24 +171,7 @@ describe("explicit XML property validation schema", () => {
       itemType: rule.itemType,
       propertyKey: "flag",
     })
-    const validationProperties = exportPropertiesToJSONSchema({
-      context: {
-        ...mockContext,
-        exportToJSONSchema: {
-          mode: "inline",
-          refs: new Set<string>(),
-          validationPropertyRefs: true,
-        },
-      },
-      rule,
-    })
-    const externalProperties = exportPropertiesToJSONSchema({
-      context: {
-        ...mockContext,
-        exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
-      },
-      rule,
-    })
+    const { validationProperties, externalProperties } = explicitXMLSchemas(rule)
 
     const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
     const refSchema = getValidationSchemaRef(refName)

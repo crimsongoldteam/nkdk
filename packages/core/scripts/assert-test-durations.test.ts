@@ -20,7 +20,7 @@ const report = ({ testMs }: { testMs: number }) => ({
   }],
 })
 
-const lifecycleReport = (fileMs: number, packageSetupMs = 3_000) => ({
+const lifecycleReport = (fileMs: number, packageSetupMs = 15_000) => ({
   packageSetupDuration: packageSetupMs,
   testFiles: [{
     file: "/project/packages/core/example.test.ts",
@@ -45,9 +45,9 @@ describe("assert test durations", () => {
       failures: [],
     })
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000.01)).failures).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000, 3_000.01)).failures).toEqual([{
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000, 15_000.01)).failures).toEqual([{
       type: "setup",
-      duration: 3_000.01,
+      duration: 15_000.01,
     }])
   })
 
@@ -55,8 +55,13 @@ describe("assert test durations", () => {
     const slowReport = report({ testMs: 80 })
     const slowLifecycleReport = lifecycleReport(1_900, 5_700)
 
-    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(2)
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(1)
     expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      slowReport,
+      lifecycleReport(1_900, 15_000.01),
+      { CI: "true" },
+    ).failures).toContainEqual({ type: "setup", duration: 15_000.01 })
   })
 
   it("учитывает системное замедление Windows для жёстких лимитов", () => {
@@ -65,6 +70,11 @@ describe("assert test durations", () => {
       lifecycleReport(4_500, 14_500),
       { platform: "win32" },
     ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 200 }),
+      lifecycleReport(4_500, 15_000.01),
+      { platform: "win32" },
+    ).failures).toContainEqual({ type: "setup", duration: 15_000.01 })
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
@@ -92,7 +102,7 @@ describe("assert test durations", () => {
         },
       ],
     }, {
-      packageSetupDuration: 3_500,
+      packageSetupDuration: 15_500,
       testFiles: [
         { file: "/project/first.test.ts", duration: 1_100 },
         { file: "/project/second.test.ts", duration: 1_200 },
@@ -100,7 +110,7 @@ describe("assert test durations", () => {
     })
 
     expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([80, 60, 20, 11])
-    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([3_500, 1_200, 1_100])
+    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([15_500, 1_200, 1_100])
   })
 
   it("отклоняет повреждённый JSON-отчёт", () => {
