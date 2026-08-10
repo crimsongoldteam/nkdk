@@ -378,6 +378,7 @@ describe("dependency validation из ProjectState", () => {
     {
       name: "стандартный реквизит явно представленного объекта",
       value: "Объект.Код",
+      tagged: false,
       field: {
         name: "Код",
         targetName: "Code",
@@ -385,8 +386,19 @@ describe("dependency validation из ProjectState", () => {
         typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
       },
     },
-  ])("разрешает $name", ({ value, field }) => {
-    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value)
+    {
+      name: "внутреннее имя стандартного реквизита в !xml",
+      value: "Объект.Code",
+      tagged: true,
+      field: {
+        name: "Код",
+        targetName: "Code",
+        kind: "standardAttribute" as const,
+        typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "String" },
+      },
+    },
+  ])("разрешает $name", ({ value, field, tagged = false }) => {
+    const source = ownerDependencySource("cfe/x", { kind: "Справочник", name: "Товары" }, value, undefined, tagged)
     const extensionOwner = ownerUpdate("cfe/x", [{
       owner: { kind: "Справочник", name: "Товары" },
       ...field,
@@ -1310,6 +1322,7 @@ function formPolicySource(): ProjectStateYamlFileUpdate {
         location: { line: 8, col: 13, path: "/Элементы/Календарь/ПутьКДанным" },
         owner,
         value: "Таблица.Значение",
+        tagged: false,
         policyInput: { yaml: "ПутьКДанным", allowedKinds: ["dateTime"] },
         policy: "formDataPath",
       },
@@ -1362,6 +1375,7 @@ function ownerDependencySource(
   owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
+  tagged = false,
 ): ProjectStateYamlFileUpdate {
   return {
     ...emptyYamlUpdate(projectPath, componentPath, "form"),
@@ -1384,6 +1398,7 @@ function ownerDependencySource(
         location: { line: 3, col: 15, path: "/ПутьКДанным" },
         owner,
         value,
+        tagged,
         policyInput: { yaml: "ПутьКДанным" },
         policy: "formDataPath",
       },

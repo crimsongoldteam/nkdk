@@ -455,6 +455,7 @@ export function createTypedProjectStateReader(
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
         location,
         owner: ownerType(value.ownerTypeId), value: string(value.valueId),
+        tagged: value.reserved === 1,
         policyInput: { yaml: string(value.policyYamlId),
           ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues("allowedKinds", value.allowedKindsStart, value.allowedKindsCount) }),
           ...(value.allowComposite === 0 ? {} : { allowComposite: value.allowComposite === 1 }) },

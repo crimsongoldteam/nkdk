@@ -625,6 +625,7 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (row["kind"] !== "dataPath" || row["policy"] !== "formDataPath") throw new Error(`${path} имеет неизвестный вид`)
   assertOwnerRef(row["owner"], `${path}.owner`)
   assertString(row["value"], `${path}.value`)
+  if (typeof row["tagged"] !== "boolean") throw new Error(`${path}.tagged должен быть boolean`)
   const policyInput = requiredRecord(row["policyInput"], `${path}.policyInput`)
   assertExactKeys(policyInput, ["yaml", "allowedKinds", "allowComposite"], `${path}.policyInput`)
   assertString(policyInput["yaml"], `${path}.policyInput.yaml`)

@@ -225,6 +225,7 @@ type ProjectStatePendingCheck =
       readonly location: { readonly line: number; readonly col: number; readonly path?: string }
       readonly owner: OwnerTypeRef
       readonly value: string
+      readonly tagged: boolean
       readonly policyInput: {
         readonly yaml: string
         readonly allowedKinds?: readonly string[]
@@ -626,7 +627,7 @@ export function createProjectStateFragmentWriter(options: {
         tableContextId: optionalString(check.tableContext?.dataPath),
         allowComposite: booleanFlag(check.policyInput.allowComposite),
         hasValuesPicture: booleanFlag(check.hasValuesPicture),
-        reserved: 0,
+        reserved: check.tagged ? 1 : 0,
       })
     }
     for (const dependency of update.dependencies) {

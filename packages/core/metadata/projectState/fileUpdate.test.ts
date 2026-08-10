@@ -314,9 +314,11 @@ describe("ProjectStateFileUpdateBatch", () => {
     const field = { owner, name: "Код", kind: "attribute", typeInfo }
     const pendingCheck = {
       kind: "dataPath",
+      yamlPath: ["ПутьКДанным"],
       location: { line: 1, col: 1 },
       owner,
       value: "Объект.Код",
+      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     }
@@ -345,6 +347,7 @@ describe("ProjectStateFileUpdateBatch", () => {
       },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, elementType: "unknown" }] },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, hasValuesPicture: "yes" }] },
+      { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, tagged: "yes" }] },
       { ...yamlUpdate("a.yaml"), pendingChecks: [{ ...pendingCheck, tableContext: { dataPath: 1 } }] },
     ]
 

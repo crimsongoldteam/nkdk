@@ -23,7 +23,7 @@ export type ValidationPendingCheck =
       policyInput: DataPathPolicyInput
       elementType?: ElementType
       hasValuesPicture?: boolean
-      tagged?: boolean
+      tagged: boolean
       nameMode?: "yaml" | "internal"
       tableContext?: { dataPath: string }
       policy: "formDataPath"

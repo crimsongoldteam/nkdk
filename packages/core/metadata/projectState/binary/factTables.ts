@@ -334,6 +334,7 @@ function validateFactRows(params: {
     assertOptionalStringId(record.tableContextId, params.stringCount, "pendingCheck.tableContextId")
     assertTernary(record.allowComposite, "pendingCheck.allowComposite")
     assertTernary(record.hasValuesPicture, "pendingCheck.hasValuesPicture")
+    assertBoolean(record.reserved, "pendingCheck.reserved")
   })
   forEachRecord(params.tables.get("dependencies"), ProjectStateDependencyRecordView, view, (record) => {
     assertFileId(record.sourceFileId, params.fileCount, "dependency.sourceFileId")

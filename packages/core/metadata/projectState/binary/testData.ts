@@ -82,6 +82,7 @@ export function richYamlUpdate(
       yamlPath: ["ПутьКДанным"],
       owner,
       value: "Объект.Код",
+      tagged: true,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     }],

@@ -718,6 +718,7 @@ function expectSharedFormRoot(targetProjectPath: string, value: string): void {
       location: { line: 1, col: 1 },
       owner: { kind: "Справочник", name: "Товары" },
       value,
+      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },
