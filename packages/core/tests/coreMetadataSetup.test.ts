@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { ensureCoreMetadataRegistered, type CoreMetadataSetupState } from "./coreMetadataSetup"
 
 describe("core metadata test setup", () => {
-  it("загружает и регистрирует metadata один раз для повторных setup-вызовов", async () => {
+  it("загружает metadata один раз и восстанавливает регистрацию при каждом setup-вызове", async () => {
     const state: CoreMetadataSetupState = {}
     let loads = 0
     let registrations = 0
@@ -21,7 +21,7 @@ describe("core metadata test setup", () => {
     ])
     await ensureCoreMetadataRegistered({ state, load })
 
-    expect({ loads, registrations }).toEqual({ loads: 1, registrations: 1 })
+    expect({ loads, registrations }).toEqual({ loads: 1, registrations: 3 })
   })
 
   it("сохраняет первую ошибку загрузки без повторной регистрации", async () => {

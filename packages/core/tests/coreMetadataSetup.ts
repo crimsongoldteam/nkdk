@@ -3,7 +3,7 @@ interface CoreMetadataModule {
 }
 
 export interface CoreMetadataSetupState {
-  __nkdkCoreMetadataRegistration?: Promise<void>
+  __nkdkCoreMetadataModule?: Promise<CoreMetadataModule>
 }
 
 type CoreMetadataLoader = () => Promise<CoreMetadataModule>
@@ -18,9 +18,7 @@ export async function ensureCoreMetadataRegistered(params: {
   const state = params.state ?? globalRegistrationState
   const load = params.load ?? loadCoreMetadata
 
-  state.__nkdkCoreMetadataRegistration ??= load().then(({ registerCoreMetadata }) => {
-    registerCoreMetadata()
-  })
-
-  await state.__nkdkCoreMetadataRegistration
+  state.__nkdkCoreMetadataModule ??= load()
+  const { registerCoreMetadata } = await state.__nkdkCoreMetadataModule
+  registerCoreMetadata()
 }
