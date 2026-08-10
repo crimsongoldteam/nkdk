@@ -1,6 +1,6 @@
+import { definePropertyTypeRule } from "../../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ConfigurationContextFromXML } from "../../../../context/types"
 import { importStringFromXML } from "../../../string/fromXML"
-import { registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../../ruleRuntime/property/types"
 
 const exportDcsBooleanToXML = (_context: unknown, _rule: PropertyRule | undefined, value: string | undefined) => {
@@ -16,5 +16,5 @@ const importDcsBooleanFromXML = (
   return importStringFromXML(context, rule as any, xml as any)
 }
 
-registerTypeRule("DcsBoolean", "exportToXML", exportDcsBooleanToXML as any)
-registerTypeRule("DcsBoolean", "importFromXML", importDcsBooleanFromXML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsBoolean", "exportToXML", exportDcsBooleanToXML as any)
+export const metadataPropertyRule001 = definePropertyTypeRule("DcsBoolean", "importFromXML", importDcsBooleanFromXML as any)

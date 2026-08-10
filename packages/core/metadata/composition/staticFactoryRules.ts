@@ -101,6 +101,9 @@ import { metadataRuleLayer001 as contribution99 } from "../forms/commonObjects/f
 import { metadataRuleLayer002 as contribution100 } from "../forms/commonObjects/formAttribute/rules"
 import { metadataRuleLayer000 as contribution101 } from "../forms/commonObjects/formCommand/types"
 import { metadataRuleLayer000 as contribution169 } from "../appliedObjects/metadataEnumeration/valuesFromYAML"
+import { metadataRuleLayer000 as contribution171 } from "../commonObjects/dataCompositionSystem/filter/types"
+import { metadataRuleLayer000 as contribution172 } from "../commonObjects/dataCompositionSystem/filterItem/types"
+import { metadataRuleLayer000 as contribution173 } from "../commonObjects/dataCompositionSystem/orderItemFields/types"
 import { metadataPropertyRule000 as contribution102 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule001 as contribution103 } from "../commonObjects/accumulationRegisterAggregates/register"
 import { metadataPropertyRule002 as contribution104 } from "../commonObjects/accumulationRegisterAggregates/register"
@@ -169,6 +172,41 @@ import { metadataPropertyRule002 as contribution166 } from "../forms/commonObjec
 import { metadataPropertyRule000 as contribution167 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 import { metadataPropertyRule001 as contribution168 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 
+import { metadataPropertyRule000 as latePropertyContribution000 } from "../commonObjects/choiceList/toXML"
+import { metadataPropertyRule000 as latePropertyContribution001, metadataPropertyRule001 as latePropertyContribution002, metadataPropertyRule002 as latePropertyContribution003, metadataPropertyRule003 as latePropertyContribution004 } from "../commonObjects/dataCompositionSystem/appearanceFields/registerDataCompositionSelectionTypeRules"
+import { metadataPropertyRule000 as latePropertyContribution005 } from "../commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution006 } from "../commonObjects/dataCompositionSystem/availableFields/toXML"
+import { metadataPropertyRule000 as latePropertyContribution007 } from "../commonObjects/dataCompositionSystem/availableValues/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution008 } from "../commonObjects/dataCompositionSystem/availableValues/toXML"
+import { metadataPropertyRule000 as latePropertyContribution009 } from "../commonObjects/dataCompositionSystem/dcsLocalStringType/toXML"
+import { metadataPropertyRule000 as latePropertyContribution010 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution011 } from "../commonObjects/dataCompositionSystem/dcsMetadataValue/toXML"
+import { metadataPropertyRule000 as latePropertyContribution012 } from "../commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromXML"
+import { metadataPropertyRule000 as latePropertyContribution013 } from "../commonObjects/dataCompositionSystem/dscMetadataTypedValue/fromYAML"
+import { metadataPropertyRule000 as latePropertyContribution014 } from "../commonObjects/dataCompositionSystem/dscMetadataTypedValue/toXML"
+import { metadataPropertyRule000 as latePropertyContribution015 } from "../commonObjects/dataCompositionSystem/dscMetadataTypedValue/toYAML"
+import { metadataPropertyRule000 as latePropertyContribution016 } from "../commonObjects/dataCompositionSystem/filter/types"
+import { metadataPropertyRule000 as latePropertyContribution017, metadataPropertyRule001 as latePropertyContribution018 } from "../commonObjects/dataCompositionSystem/filterItem/fields/dcsBoolean"
+import { metadataPropertyRule000 as latePropertyContribution019, metadataPropertyRule001 as latePropertyContribution020, metadataPropertyRule002 as latePropertyContribution021, metadataPropertyRule003 as latePropertyContribution022 } from "../commonObjects/dataCompositionSystem/filterItem/fields/dcsField"
+import { metadataPropertyRule000 as latePropertyContribution023, metadataPropertyRule001 as latePropertyContribution024, metadataPropertyRule002 as latePropertyContribution025, metadataPropertyRule003 as latePropertyContribution026, metadataPropertyRule004 as latePropertyContribution027, metadataPropertyRule005 as latePropertyContribution028, metadataPropertyRule006 as latePropertyContribution029, metadataPropertyRule007 as latePropertyContribution030, metadataPropertyRule008 as latePropertyContribution031, metadataPropertyRule009 as latePropertyContribution032, metadataPropertyRule010 as latePropertyContribution033, metadataPropertyRule011 as latePropertyContribution034, metadataPropertyRule012 as latePropertyContribution035, metadataPropertyRule013 as latePropertyContribution036, metadataPropertyRule014 as latePropertyContribution037, metadataPropertyRule015 as latePropertyContribution038 } from "../commonObjects/dataCompositionSystem/filterItem/typedValues"
+import { metadataPropertyRule000 as latePropertyContribution039 } from "../commonObjects/dataCompositionSystem/filterItem/types"
+import { metadataPropertyRule000 as latePropertyContribution040 } from "../commonObjects/dataCompositionSystem/orderItemFields/types"
+import { metadataPropertyRule000 as latePropertyContribution041 } from "../commonObjects/dataCompositionSystem/parameterValue/fromXML"
+import { metadataPropertyRule000 as latePropertyContribution042 } from "../commonObjects/dataCompositionSystem/parameterValue/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution043 } from "../commonObjects/dataCompositionSystem/parameterValue/toXML"
+import { metadataPropertyRule000 as latePropertyContribution044 } from "../commonObjects/dataCompositionSystem/settingsParameterValueCollection/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution045 } from "../commonObjects/formattedI8nText/toXML"
+import { metadataPropertyRule000 as latePropertyContribution046 } from "../commonObjects/i8nText/toEnterprise"
+import { metadataPropertyRule000 as latePropertyContribution047 } from "../commonObjects/i8nText/toXML"
+import { metadataPropertyRule000 as latePropertyContribution048 } from "../commonObjects/metadataObjectRefCollection/toXML"
+import { metadataPropertyRule000 as latePropertyContribution049, metadataPropertyRule001 as latePropertyContribution050 } from "../commonObjects/metadataValue/toXML"
+import { metadataPropertyRule000 as latePropertyContribution051 } from "../commonObjects/mobileDeviceCommandBarContent/toXML"
+import { metadataPropertyRule000 as latePropertyContribution052 } from "../commonObjects/predefined/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution053 } from "../commonObjects/predefinedItem/toJSONSchema"
+import { metadataPropertyRule000 as latePropertyContribution054 } from "../commonObjects/typeDescription/fromYAML"
+import { metadataPropertyRule000 as latePropertyContribution055 } from "../commonObjects/typeLink/toXML"
+import { metadataPropertyRule000 as latePropertyContribution056 } from "../commonObjects/сhoiceParameterLinks/toXML"
+import { metadataPropertyRule000 as latePropertyContribution057 } from "../commonObjects/сhoiceParameters/toXML"
 import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { propertyTypesFromContributions } from "../ruleRuntime/property/propertyRuleRegistrySet"
@@ -243,6 +281,64 @@ const factoryPropertyRules = defineMetadataRules({
   contribution166,
   contribution167,
   contribution168,
+  latePropertyContribution000,
+  latePropertyContribution001,
+  latePropertyContribution002,
+  latePropertyContribution003,
+  latePropertyContribution004,
+  latePropertyContribution005,
+  latePropertyContribution006,
+  latePropertyContribution007,
+  latePropertyContribution008,
+  latePropertyContribution009,
+  latePropertyContribution010,
+  latePropertyContribution011,
+  latePropertyContribution012,
+  latePropertyContribution013,
+  latePropertyContribution014,
+  latePropertyContribution015,
+  latePropertyContribution016,
+  latePropertyContribution017,
+  latePropertyContribution018,
+  latePropertyContribution019,
+  latePropertyContribution020,
+  latePropertyContribution021,
+  latePropertyContribution022,
+  latePropertyContribution023,
+  latePropertyContribution024,
+  latePropertyContribution025,
+  latePropertyContribution026,
+  latePropertyContribution027,
+  latePropertyContribution028,
+  latePropertyContribution029,
+  latePropertyContribution030,
+  latePropertyContribution031,
+  latePropertyContribution032,
+  latePropertyContribution033,
+  latePropertyContribution034,
+  latePropertyContribution035,
+  latePropertyContribution036,
+  latePropertyContribution037,
+  latePropertyContribution038,
+  latePropertyContribution039,
+  latePropertyContribution040,
+  latePropertyContribution041,
+  latePropertyContribution042,
+  latePropertyContribution043,
+  latePropertyContribution044,
+  latePropertyContribution045,
+  latePropertyContribution046,
+  latePropertyContribution047,
+  latePropertyContribution048,
+  latePropertyContribution049,
+  latePropertyContribution050,
+  latePropertyContribution051,
+  latePropertyContribution052,
+  latePropertyContribution053,
+  latePropertyContribution054,
+  latePropertyContribution055,
+  latePropertyContribution056,
+  latePropertyContribution057,
   ]),
 })
 
@@ -350,5 +446,8 @@ export const staticFactoryRules = composeMetadataRules(
   contribution100,
   contribution101,
   contribution169,
+  contribution171,
+  contribution172,
+  contribution173,
   factoryPropertyRules,
 )

@@ -1,6 +1,7 @@
 import type {
   MetadataRulesDefinition,
   MetadataSynchronizationContribution,
+  PropertyTypeDefinition,
 } from "./contracts"
 import { emptyMetadataRules } from "./testSupport"
 
@@ -17,7 +18,10 @@ export function composeMetadataRules<
     Layers[number]["synchronization"][number]
   return layers.reduce<MetadataRulesDefinition<SynchronizationContribution>>(
     (result, layer) => ({
-      propertyTypes: { ...result.propertyTypes, ...layer.propertyTypes },
+      propertyTypes: mergePropertyTypes(
+        result.propertyTypes,
+        layer.propertyTypes,
+      ),
       propertyItemRules: {
         ...result.propertyItemRules,
         ...layer.propertyItemRules,
@@ -71,4 +75,18 @@ export function composeMetadataRules<
     }),
     emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution>,
   )
+}
+
+function mergePropertyTypes(
+  first: Readonly<Record<string, PropertyTypeDefinition>>,
+  second: Readonly<Record<string, PropertyTypeDefinition>>,
+): Readonly<Record<string, PropertyTypeDefinition>> {
+  const result: Record<string, PropertyTypeDefinition> = { ...first }
+  for (const [propertyType, operations] of Object.entries(second)) {
+    result[propertyType] = {
+      ...result[propertyType],
+      ...operations,
+    }
+  }
+  return result
 }

@@ -1,5 +1,6 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule } from "../../ruleRuntime"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { exportI8nTextToXML } from "../i8nText/toXML"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextXML } from "./types"
@@ -21,4 +22,4 @@ export const exportFormattedI8nTextToXML = (
   return { _formatted: data.formatted, ...v8Items }
 }
 
-registerTypeRule("FormattedI8nText", "exportToXML", exportFormattedI8nTextToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("FormattedI8nText", "exportToXML", exportFormattedI8nTextToXML)

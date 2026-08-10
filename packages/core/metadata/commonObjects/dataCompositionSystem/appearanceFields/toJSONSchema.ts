@@ -1,10 +1,11 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { ColorJSONSchema } from "../../color/types"
 import { I8nTextJSONSchema } from "../../i8nText/types"
 import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
@@ -231,4 +232,4 @@ export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ conte
   ])
 }
 
-registerTypeRule("AppearanceFields", "exportToJSONSchema", exportAppearanceFieldsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields", "exportToJSONSchema", exportAppearanceFieldsToJSONSchema)

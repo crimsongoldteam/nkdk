@@ -1,7 +1,8 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { I8nTextJSONSchema } from "../../i8nText/types"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
@@ -286,7 +287,7 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
   return createSettingsParameterValueJSONSchemaForRule(context, settingsRule)
 }
 
-registerTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
 
 registerProjectJSONSchemaPropertyRefFactory("SettingsParameterValue", ({ rule }) => {
   const settingsRule = rule as SettingsParameterValuePropertyRule

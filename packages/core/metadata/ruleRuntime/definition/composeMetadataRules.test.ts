@@ -41,4 +41,26 @@ describe("metadata rules definition", () => {
       secondValidation,
     ])
   })
+
+  it("merges operations of the same property type", () => {
+    const importFromXML = () => undefined
+    const firstExportToXML = () => undefined
+    const secondExportToXML = () => ({ value: "second" })
+
+    const result = composeMetadataRules(
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        propertyTypes: {
+          Sample: { importFromXML, exportToXML: firstExportToXML },
+        },
+      }),
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        propertyTypes: { Sample: { exportToXML: secondExportToXML } },
+      }),
+    )
+
+    expect(result.propertyTypes.Sample?.importFromXML).toBe(importFromXML)
+    expect(result.propertyTypes.Sample?.exportToXML).toBe(secondExportToXML)
+  })
 })

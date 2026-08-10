@@ -1,9 +1,9 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
 import { ConfigurationContext } from "../../context/types"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import {
   registerProjectJSONSchema,
   registerProjectJSONSchemaPropertyRefFactory,
@@ -55,7 +55,7 @@ const exportPredefinedItemYAMLToJSONSchema = (context: ConfigurationContext): TS
   )
 }
 
-registerTypeRule("PredefinedItemCollection", "exportToJSONSchema", ({ context }) =>
+export const metadataPropertyRule000 = definePropertyTypeRule("PredefinedItemCollection", "exportToJSONSchema", ({ context }) =>
   exportPredefinedItemCollectionToJSONSchema(context)
 )
 registerProjectJSONSchema("PredefinedItemYAML", ({ context }) => exportPredefinedItemYAMLToJSONSchema(context))

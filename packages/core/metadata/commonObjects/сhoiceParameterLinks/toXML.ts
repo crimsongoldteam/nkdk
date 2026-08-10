@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -40,4 +40,4 @@ export const exportChoiceParameterLinksToXML = (
   }
 }
 
-registerTypeRule("ChoiceParameterLinks", "exportToXML", exportChoiceParameterLinksToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameterLinks", "exportToXML", exportChoiceParameterLinksToXML)

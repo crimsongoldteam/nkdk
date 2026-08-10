@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { DcsMetadataTypedValueRegistry, DcsMetadataTypedValueTypeFromXML } from "./rules"
 import {
@@ -76,4 +76,4 @@ const importDcsMetadataTypedValueFromXMLForRule = (
     value as DcsMetadataTypedValueXML | (DcsMetadataTypedValueXML | undefined)[]
   )
 
-registerTypeRule("DcsMetadataTypedValue", "importFromXML", importDcsMetadataTypedValueFromXMLForRule)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsMetadataTypedValue", "importFromXML", importDcsMetadataTypedValueFromXMLForRule)

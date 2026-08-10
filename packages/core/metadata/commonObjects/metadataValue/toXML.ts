@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { primitiveValueHandlers } from "./handlers"
 import { exportStandardPeriodToXML } from "../standardPeriod/toXML"
@@ -158,5 +158,5 @@ export const exportAssociatedTableToXML = (
   }) as MetadataSimpleValueXML
 }
 
-registerTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML as any)
-registerTypeRule("AssociatedTable", "exportToXML", exportAssociatedTableToXML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "exportToXML", exportMetadataValueToXML as any)
+export const metadataPropertyRule001 = definePropertyTypeRule("AssociatedTable", "exportToXML", exportAssociatedTableToXML as any)

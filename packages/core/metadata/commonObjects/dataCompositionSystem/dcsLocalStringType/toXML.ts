@@ -1,7 +1,8 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import { I8nText } from "../../i8nText/types"
 import { ConfigurationContext } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule } from "../../../ruleRuntime"
 import { DcsLocalStringTypeReference } from "./types"
 
 const exportAsLocalString = (context: ConfigurationContext, data: I8nText) => {
@@ -37,4 +38,4 @@ export const exportDcsLocalStringTypeToXML = (
   return exportAsLocalString(context, data)
 }
 
-registerTypeRule("DcsLocalStringType", "exportToXML", exportDcsLocalStringTypeToXML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "exportToXML", exportDcsLocalStringTypeToXML as any)

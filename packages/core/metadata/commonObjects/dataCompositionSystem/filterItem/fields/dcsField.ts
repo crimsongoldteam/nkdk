@@ -1,6 +1,6 @@
+import { definePropertyTypeRule } from "../../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../../context/types"
 import { importStringFromXML } from "../../../string/fromXML"
-import { registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../../ruleRuntime/property/types"
 
 const exportDcsFieldToXML = (
@@ -31,7 +31,7 @@ const importDcsFieldFromYAML = (_context: ConfigurationContext, _rule: PropertyR
   return value.startsWith(".") ? value.slice(1) : value
 }
 
-registerTypeRule("DcsField", "exportToXML", exportDcsFieldToXML as any)
-registerTypeRule("DcsField", "importFromXML", importDcsFieldFromXML as any)
-registerTypeRule("DcsField", "exportToYAML", exportDcsFieldToYAML as any)
-registerTypeRule("DcsField", "importFromYAML", importDcsFieldFromYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsField", "exportToXML", exportDcsFieldToXML as any)
+export const metadataPropertyRule001 = definePropertyTypeRule("DcsField", "importFromXML", importDcsFieldFromXML as any)
+export const metadataPropertyRule002 = definePropertyTypeRule("DcsField", "exportToYAML", exportDcsFieldToYAML as any)
+export const metadataPropertyRule003 = definePropertyTypeRule("DcsField", "importFromYAML", importDcsFieldFromYAML as any)

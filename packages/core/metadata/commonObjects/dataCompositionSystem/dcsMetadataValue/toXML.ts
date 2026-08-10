@@ -1,3 +1,4 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { exportColorToXML } from "../../color/toXML"
 import { Color } from "../../color/types"
 import { exportFontToXML } from "../../font/toXML"
@@ -16,7 +17,6 @@ import { exportChoiceParameterToDcsXML } from "../../сhoiceParameters/toDcsXML"
 import { ChoiceParameter } from "../../сhoiceParameters/types"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import type { ExportToXMLFunctionNew } from "../../../ruleRuntime/property/fn"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { exportSystemEnumerationToDcsXML } from "../../../systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -271,4 +271,4 @@ const exportDcsMetadataValueToXMLForRule: ExportToXMLFunctionNew = ({ context, r
   return exportDcsMetadataValueToXML(context, rule, normalizedValue)
 }
 
-registerTypeRule("MetadataDcsMetadataValue", "exportToXML", exportDcsMetadataValueToXMLForRule)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "exportToXML", exportDcsMetadataValueToXMLForRule)

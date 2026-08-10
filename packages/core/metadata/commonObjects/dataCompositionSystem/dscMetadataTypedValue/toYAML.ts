@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import {
@@ -53,4 +53,4 @@ const exportDcsMetadataTypedValueToYAMLForRule = (
     value as DcsMetadataTypedValue | (DcsMetadataTypedValue | undefined)[]
   )
 
-registerTypeRule("DcsMetadataTypedValue", "exportToYAML", exportDcsMetadataTypedValueToYAMLForRule)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsMetadataTypedValue", "exportToYAML", exportDcsMetadataTypedValueToYAMLForRule)

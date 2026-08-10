@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import { MetadataObjectRefValue, MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -29,4 +29,4 @@ export const exportMetadataObjectRefCollectionToXML = (
   }
 }
 
-registerTypeRule("MetadataObjectRefCollection", "exportToXML", exportMetadataObjectRefCollectionToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "exportToXML", exportMetadataObjectRefCollectionToXML)

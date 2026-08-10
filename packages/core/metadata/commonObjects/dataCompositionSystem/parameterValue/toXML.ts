@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../../context/types"
 import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
@@ -162,4 +162,4 @@ export const exportSettingsParameterValueToDcsXML = (
     rootSettingsXsi: (rule as SettingsParameterValuePropertyRule).exportSettingsXsiType ?? true,
   })
 
-registerTypeRule("SettingsParameterValue", "exportToXML", exportSettingsParameterValueToDcsXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "exportToXML", exportSettingsParameterValueToDcsXML)

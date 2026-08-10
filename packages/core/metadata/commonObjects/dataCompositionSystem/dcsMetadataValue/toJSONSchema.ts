@@ -1,3 +1,4 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { ColorJSONSchema } from "../../color/types"
 import { FontJSONSchema } from "../../font/types"
@@ -9,7 +10,7 @@ import { TypeLinkJSONSchema } from "../../typeLink/types"
 import { ChoiceParameterLinksJSONSchema } from "../../сhoiceParameterLinks/types"
 import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
@@ -259,7 +260,7 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
   return createDcsMetadataValueJSONSchema(context, dcsRule)
 }
 
-registerTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
 
 registerProjectJSONSchema(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME, () => DcsMetadataSingleValueJSONSchema)
 registerProjectJSONSchema(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME, ({ context }) =>

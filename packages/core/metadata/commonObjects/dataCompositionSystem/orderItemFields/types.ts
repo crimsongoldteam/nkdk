@@ -1,7 +1,11 @@
-import { registerMetadataItemCollectionRule, registerTypeRule, type MetadataItemRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { type MetadataItemRule } from "../../../ruleRuntime"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
+import { composeMetadataRules, defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { MetadataTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
-import { registerJSONSchemaPropertyRef, schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
+import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { Type } from "typebox"
 import { importOrderItemFieldsFromXMLToYAML } from "./fromXMLToYAML"
 import { OrderItemFieldRules } from "./rules"
@@ -22,7 +26,7 @@ const OrderItemAutoRules = {
   properties: {},
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+const collectionRules = defineMetadataItemCollectionRule({
   propertyType: "OrderItemFields",
   itemRule: OrderItemFieldRules,
   // xmlElement: "dcsset:item",
@@ -32,7 +36,7 @@ registerMetadataItemCollectionRule({
   configurationIndexAddressing: "yamlPath",
 })
 
-registerTypeRule("OrderItemFields", "yamlToXMLNestedRule", {
+export const metadataPropertyRule000 = definePropertyTypeRule("OrderItemFields", "yamlToXMLNestedRule", {
   kind: "collection",
   itemRule: OrderItemFieldRules,
   resolveItemRule: ({ yaml }) => (yaml === "[Авто]" ? OrderItemAutoRules : OrderItemFieldRules),
@@ -41,6 +45,17 @@ registerTypeRule("OrderItemFields", "yamlToXMLNestedRule", {
   configurationIndexAddressing: "yamlPath",
 })
 
-registerJSONSchemaPropertyRef("OrderItemFields", () =>
-  Type.Array(Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")]))
+const schemaRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  schemaPropertyRefs: {
+    OrderItemFields: () =>
+      Type.Array(
+        Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")]),
+      ),
+  },
+})
+
+export const metadataRuleLayer000 = composeMetadataRules(
+  collectionRules,
+  schemaRules,
 )

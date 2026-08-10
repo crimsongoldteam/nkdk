@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
@@ -90,21 +90,21 @@ const importFilterItemLocalStringTypeFromYAML = (
   return importDcsMetadataValueFromYAML(context, localStringRule as any, value as any, sourceValue as any)
 }
 
-registerTypeRule("FilterItemFieldValue", "exportToXML", exportFilterItemFieldValueToXML as any)
-registerTypeRule("FilterItemFieldValue", "importFromXML", importFilterItemFieldValueFromXML as any)
-registerTypeRule("FilterItemFieldValue", "exportToYAML", exportFilterItemFieldValueToYAML as any)
-registerTypeRule("FilterItemFieldValue", "importFromYAML", importFilterItemFieldValueFromYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("FilterItemFieldValue", "exportToXML", exportFilterItemFieldValueToXML as any)
+export const metadataPropertyRule001 = definePropertyTypeRule("FilterItemFieldValue", "importFromXML", importFilterItemFieldValueFromXML as any)
+export const metadataPropertyRule002 = definePropertyTypeRule("FilterItemFieldValue", "exportToYAML", exportFilterItemFieldValueToYAML as any)
+export const metadataPropertyRule003 = definePropertyTypeRule("FilterItemFieldValue", "importFromYAML", importFilterItemFieldValueFromYAML as any)
 
-registerTypeRule("FilterItemLocalStringTypeValue", "exportToXML", exportFilterItemLocalStringTypeToXML as any)
-registerTypeRule("FilterItemLocalStringTypeValue", "importFromXML", importFilterItemLocalStringTypeFromXML as any)
-registerTypeRule("FilterItemLocalStringTypeValue", "exportToYAML", exportFilterItemLocalStringTypeToYAML as any)
-registerTypeRule("FilterItemLocalStringTypeValue", "importFromYAML", importFilterItemLocalStringTypeFromYAML as any)
+export const metadataPropertyRule004 = definePropertyTypeRule("FilterItemLocalStringTypeValue", "exportToXML", exportFilterItemLocalStringTypeToXML as any)
+export const metadataPropertyRule005 = definePropertyTypeRule("FilterItemLocalStringTypeValue", "importFromXML", importFilterItemLocalStringTypeFromXML as any)
+export const metadataPropertyRule006 = definePropertyTypeRule("FilterItemLocalStringTypeValue", "exportToYAML", exportFilterItemLocalStringTypeToYAML as any)
+export const metadataPropertyRule007 = definePropertyTypeRule("FilterItemLocalStringTypeValue", "importFromYAML", importFilterItemLocalStringTypeFromYAML as any)
 
 // Alias для `dcsset:presentation` в FilterItem (тот же смысл/формат, что и LocalStringType).
-registerTypeRule("FilterItemPresentationValue", "exportToXML", exportFilterItemLocalStringTypeToXML as any)
-registerTypeRule("FilterItemPresentationValue", "importFromXML", importFilterItemLocalStringTypeFromXML as any)
-registerTypeRule("FilterItemPresentationValue", "exportToYAML", exportFilterItemLocalStringTypeToYAML as any)
-registerTypeRule("FilterItemPresentationValue", "importFromYAML", importFilterItemLocalStringTypeFromYAML as any)
+export const metadataPropertyRule008 = definePropertyTypeRule("FilterItemPresentationValue", "exportToXML", exportFilterItemLocalStringTypeToXML as any)
+export const metadataPropertyRule009 = definePropertyTypeRule("FilterItemPresentationValue", "importFromXML", importFilterItemLocalStringTypeFromXML as any)
+export const metadataPropertyRule010 = definePropertyTypeRule("FilterItemPresentationValue", "exportToYAML", exportFilterItemLocalStringTypeToYAML as any)
+export const metadataPropertyRule011 = definePropertyTypeRule("FilterItemPresentationValue", "importFromYAML", importFilterItemLocalStringTypeFromYAML as any)
 
 const exportFilterItemPrimitiveValueToXML = (
   context: ConfigurationContext,
@@ -138,7 +138,7 @@ const importFilterItemPrimitiveValueFromYAML = (
   value: unknown
 ) => importDcsMetadataValueFromYAML(context, primitiveRule as any, value as any)
 
-registerTypeRule("FilterItemPrimitiveValue", "exportToXML", exportFilterItemPrimitiveValueToXML as any)
-registerTypeRule("FilterItemPrimitiveValue", "importFromXML", importFilterItemPrimitiveValueFromXML as any)
-registerTypeRule("FilterItemPrimitiveValue", "exportToYAML", exportFilterItemPrimitiveValueToYAML as any)
-registerTypeRule("FilterItemPrimitiveValue", "importFromYAML", importFilterItemPrimitiveValueFromYAML as any)
+export const metadataPropertyRule012 = definePropertyTypeRule("FilterItemPrimitiveValue", "exportToXML", exportFilterItemPrimitiveValueToXML as any)
+export const metadataPropertyRule013 = definePropertyTypeRule("FilterItemPrimitiveValue", "importFromXML", importFilterItemPrimitiveValueFromXML as any)
+export const metadataPropertyRule014 = definePropertyTypeRule("FilterItemPrimitiveValue", "exportToYAML", exportFilterItemPrimitiveValueToYAML as any)
+export const metadataPropertyRule015 = definePropertyTypeRule("FilterItemPrimitiveValue", "importFromYAML", importFilterItemPrimitiveValueFromYAML as any)

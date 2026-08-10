@@ -1,7 +1,7 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ConfigurationContext } from "../../../context/types"
 import type { ConfigurationContextFromXML } from "../../../context/types"
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields } from "./types"
@@ -47,14 +47,14 @@ const exportSelectionToYAML = (fields: AppearanceFields | undefined): string[] |
   return names && names.length > 0 ? names : undefined
 }
 
-registerTypeRule(
+export const metadataPropertyRule000 = definePropertyTypeRule(
   "AppearanceFields",
   "importFromXML",
   (_context: ConfigurationContextFromXML, _rule: PropertyRule | undefined, xml: unknown) =>
     importSelectionFromDcsXML(xml as SelectionXML | undefined)
 )
 
-registerTypeRule(
+export const metadataPropertyRule001 = definePropertyTypeRule(
   "AppearanceFields",
   "exportToXML",
   (
@@ -65,13 +65,13 @@ registerTypeRule(
   ) => exportSelectionToDcsXML(value as AppearanceFields | undefined)
 )
 
-registerTypeRule(
+export const metadataPropertyRule002 = definePropertyTypeRule(
   "AppearanceFields",
   "importFromYAML",
   (_context: ConfigurationContext, _rule: PropertyRule | undefined, yaml: unknown) => importSelectionFromYAML(yaml)
 )
 
-registerTypeRule(
+export const metadataPropertyRule003 = definePropertyTypeRule(
   "AppearanceFields",
   "exportToYAML",
   (_context: ConfigurationContext, _rule: PropertyRule | undefined, data: unknown) =>

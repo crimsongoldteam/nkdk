@@ -1,6 +1,7 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { exportSettingsParameterValueToJSONSchema } from "../parameterValue/toJSONSchema"
@@ -46,7 +47,7 @@ function requiredSettingsParameterValueSchema(
   return schema
 }
 
-registerTypeRule(
+export const metadataPropertyRule000 = definePropertyTypeRule(
   "SettingsParameterValueCollection",
   "exportToJSONSchema",
   exportSettingsParameterValueCollectionToJSONSchema

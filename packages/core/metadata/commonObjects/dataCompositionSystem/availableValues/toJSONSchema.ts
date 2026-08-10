@@ -1,7 +1,8 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
 import type { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -35,4 +36,4 @@ function requiredPresentationSchema(context: ConfigurationContext): TSchema {
   return schema
 }
 
-registerTypeRule("DcsAvailableValues", "exportToJSONSchema", exportDcsAvailableValuesToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsAvailableValues", "exportToJSONSchema", exportDcsAvailableValuesToJSONSchema)

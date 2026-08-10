@@ -1,7 +1,7 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import "./registry.types"
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { isEmptyI8nText } from "./helper"
 import "./registerPropertyType"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
@@ -51,4 +51,4 @@ export const exportI8nTextToXML = (
   return base
 }
 
-registerTypeRule("I8nText", "exportToXML", exportI8nTextToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "exportToXML", exportI8nTextToXML)

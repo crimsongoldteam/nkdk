@@ -1,5 +1,6 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule } from "../../ruleRuntime"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import {
   MobileDeviceCommandBarContent,
@@ -29,4 +30,4 @@ export const exportMobileDeviceCommandBarContentToXML = (
   }
 }
 
-registerTypeRule("MobileDeviceCommandBarContent", "exportToXML", exportMobileDeviceCommandBarContentToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MobileDeviceCommandBarContent", "exportToXML", exportMobileDeviceCommandBarContentToXML)

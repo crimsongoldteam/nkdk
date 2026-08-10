@@ -1,5 +1,6 @@
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { ConfigurationContext } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule } from "../../../ruleRuntime"
 import { exportDcsLocalStringTypeToXML } from "../dcsLocalStringType/toXML"
 import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -38,4 +39,4 @@ export const exportDcsAvailableValuesToXML = (
   })
 }
 
-registerTypeRule("DcsAvailableValues", "exportToXML", exportDcsAvailableValuesToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsAvailableValues", "exportToXML", exportDcsAvailableValuesToXML)

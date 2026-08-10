@@ -1,4 +1,5 @@
-import { registerMetadataItemCollectionRule, registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
+import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
 import { FormTypeByRule } from "../../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../../ruleRuntime/metadataItem/yaml"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
@@ -52,7 +53,7 @@ const referenceIdentity = {
   },
 }
 
-registerMetadataItemCollectionRule({
+export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   propertyType: "FilterItem",
   itemRule: FilterItemComparisonRules,
   xmlElement: "dcsset:item",
@@ -65,7 +66,7 @@ registerMetadataItemCollectionRule({
   referenceIdentity,
 })
 
-registerTypeRule("FilterItem", "yamlToXMLNestedRule", {
+export const metadataPropertyRule000 = definePropertyTypeRule("FilterItem", "yamlToXMLNestedRule", {
   kind: "collection",
   itemRule: FilterItemComparisonRules,
   resolveItemRule: ({ yaml }) =>

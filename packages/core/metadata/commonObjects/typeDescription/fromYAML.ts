@@ -1,5 +1,5 @@
+import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { registerIndexValueFromYAML } from "../../ruleRuntime/property/indexValueFromYAMLRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
@@ -149,5 +149,5 @@ const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers => {
   return { dateFractions: "Date" }
 }
 
-registerTypeRule("TypeDescription", "importFromYAML", importTypeDescriptionFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromYAML", importTypeDescriptionFromYAML)
 registerIndexValueFromYAML("TypeDescription", parseTypeDescriptionYAML)
