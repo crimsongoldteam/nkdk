@@ -23,6 +23,8 @@ export type ValidationPendingCheck =
       policyInput: DataPathPolicyInput
       elementType?: ElementType
       hasValuesPicture?: boolean
+      tagged?: boolean
+      nameMode?: "yaml" | "internal"
       tableContext?: { dataPath: string }
       policy: "formDataPath"
     }
@@ -60,6 +62,7 @@ export function validatePendingChecks(params: {
       index: check.index,
       ownerCache: params.ownerCache,
       ...(check.tableContext === undefined ? {} : { tableContext: check.tableContext }),
+      ...(check.nameMode === undefined ? {} : { nameMode: check.nameMode }),
     })
 
     diagnostics.push(...result.diagnostics)
@@ -73,6 +76,7 @@ export function validatePendingChecks(params: {
         target: result.target,
         ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
         ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),
+        ...(check.tagged === undefined ? {} : { tagged: check.tagged }),
       })
     )
   }

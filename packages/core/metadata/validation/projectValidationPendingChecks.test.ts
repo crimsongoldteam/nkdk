@@ -21,6 +21,58 @@ const ownerCache: OwnerMetadataCache = {
 }
 
 describe("validatePendingChecks", () => {
+  it("применяет !xml только к разрешённому несовместимому ПутьКДанным", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+    const parsed = parseMetadataYaml(
+      [
+        "Реквизиты:",
+        "  БулевоЗначение:",
+        "    Тип: Булево",
+        "  СтроковоеЗначение:",
+        "    Тип: Строка",
+        "Элементы:",
+        "  ДопустимоеИсключение:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: !xml СтроковоеЗначение",
+        "  ЛишнееИсключение:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: !xml БулевоЗначение",
+        "  НеизвестныйПуть:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: !xml НеизвестноеЗначение",
+        "  ОбычнаяОшибка:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: СтроковоеЗначение",
+      ].join("\n")
+    )
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/Элементы/ЛишнееИсключение/ПутьКДанным",
+          message: "!xml допустим только для несовместимого ПутьКДанным",
+        }),
+        expect.objectContaining({
+          path: "/Элементы/НеизвестныйПуть/ПутьКДанным",
+          message: expect.stringContaining('неизвестный корень "НеизвестноеЗначение"'),
+        }),
+        expect.objectContaining({
+          path: "/Элементы/ОбычнаяОшибка/ПутьКДанным",
+          message: expect.stringContaining("конечный тип не подходит string"),
+        }),
+      ])
+    )
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toHaveLength(3)
+  })
+
   it.each([
     ["Значение", []],
     [

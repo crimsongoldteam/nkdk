@@ -11,6 +11,7 @@ import {
   type ResolvedDataPathTarget,
   type ResolveDataPathCoreResult,
   type TableContext,
+  type DataPathNameMode,
 } from "./coreResolver"
 import type { FormDataPathIndex } from "./formIndex"
 import type { OwnerMetadataCache } from "./ownerCache"
@@ -22,6 +23,7 @@ export type ResolveDataPathParams = {
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
   tableContext?: TableContext
+  nameMode?: DataPathNameMode
 } & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
 
 export type ResolveDataPathResult =
@@ -32,7 +34,7 @@ export type ResolveDataPathResult =
 export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathResult {
   const core = resolveDataPathCore({
     value: params.value,
-    nameMode: "yaml",
+    nameMode: params.nameMode ?? "yaml",
     index: params.index,
     ownerCache: params.ownerCache,
     ...(params.tableContext !== undefined ? { tableContext: params.tableContext } : {}),

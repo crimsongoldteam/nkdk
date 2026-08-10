@@ -4,6 +4,7 @@ import type { DataPathPropertyRule, PropertyRule } from "../../ruleRuntime/prope
 import type { FormValidationView } from "../formContracts"
 import { requireFormValidationAdapter } from "../formValidationRegistry"
 import type { YamlPath } from "../yamlLocations"
+import type { DataPathNameMode } from "./coreResolver"
 import type { TableContext } from "./resolver"
 
 export interface FormDataPathOccurrence {
@@ -15,6 +16,8 @@ export interface FormDataPathOccurrence {
   hasValuesPicture?: boolean
   hasMultipleValuesExtendedEdit?: boolean
   tableContext?: TableContext
+  tagged?: boolean
+  nameMode?: DataPathNameMode
 }
 
 export function collectFormDataPathOccurrences(form: FormValidationView): FormDataPathOccurrence[] {
@@ -116,6 +119,7 @@ function collectDataPathProperties(params: {
         owner[propertyName] = nextValue
       },
       yamlPath: [...params.yamlPath, rule.yaml],
+      nameMode: "internal",
       ...(params.elementType !== undefined ? { elementType: params.elementType } : {}),
       ...(owner["valuesPicture"] !== undefined ? { hasValuesPicture: true } : {}),
       ...(owner["multipleValuesExtendedEdit"] === true ? { hasMultipleValuesExtendedEdit: true } : {}),

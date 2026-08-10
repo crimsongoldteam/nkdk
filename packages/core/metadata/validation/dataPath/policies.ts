@@ -43,6 +43,7 @@ type DataPathPolicyParams = {
   target: ResolvedDataPathTarget | undefined
   elementType?: ElementType
   hasValuesPicture?: boolean
+  tagged?: boolean
 } & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
 
 export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Diagnostic[] {
@@ -51,6 +52,12 @@ export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Di
     target: params.target,
     hasValuesPicture: params.hasValuesPicture,
   })
+  if (params.tagged === true) {
+    if (compatibility.status === "incompatible") return []
+    if (compatibility.status === "compatible") {
+      return [policyDiagnostic(params, "!xml допустим только для несовместимого ПутьКДанным")]
+    }
+  }
   const message =
     compatibility.status === "incompatible"
       ? incompatibilityMessage(params.value, compatibility)

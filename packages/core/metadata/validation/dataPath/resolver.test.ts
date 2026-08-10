@@ -64,21 +64,24 @@ describe("resolveDataPath", () => {
 
   it("reports yaml-to-internal replacement for a standard owner member", () => {
     const result = resolveDataPathCore({
+      ...catalogGoodsResolveParams(),
       value: "Объект.Код",
       nameMode: "yaml",
-      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
-      ownerCache: ownerCache([
-        owner({
-          ref: { kind: "Справочник", name: "Товары" },
-          rule: MetadataCatalogRules,
-          model: { itemType: "MetadataCatalog" },
-        }),
-      ]),
     })
 
     expect(result).toMatchObject({
       status: "ok",
       replacements: [{ segmentIndex: 1, from: "Код", to: "Code", reason: "standardMember" }],
+      target: { source: { kind: "objectField", name: "Код" } },
+    })
+  })
+
+  it("разрешает внутреннее имя стандартного реквизита только в internal режиме", () => {
+    const params = catalogGoodsResolveParams()
+
+    expect(resolve("Объект.Code", params)).toMatchObject({ status: "error" })
+    expect(resolve("Объект.Code", { ...params, nameMode: "internal" })).toMatchObject({
+      status: "ok",
       target: { source: { kind: "objectField", name: "Код" } },
     })
   })
@@ -2679,6 +2682,7 @@ function resolve(
     ownerCache?: OwnerMetadataCache
     tableContext?: { dataPath: string }
     yamlPath?: string[]
+    nameMode?: DataPathNameMode
   }
 ) {
   const parsed = parseMetadataYaml(`ПутьКДанным: ${JSON.stringify(value)}\n`)
@@ -2690,8 +2694,22 @@ function resolve(
     value,
     index: params.index,
     ownerCache: params.ownerCache ?? ownerCache([]),
+    ...(params.nameMode === undefined ? {} : { nameMode: params.nameMode }),
     ...(params.tableContext ? { tableContext: params.tableContext } : {}),
   })
+}
+
+function catalogGoodsResolveParams(): Pick<ResolveDataPathCoreParams, "index" | "ownerCache"> {
+  return {
+    index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
+    ownerCache: ownerCache([
+      owner({
+        ref: { kind: "Справочник", name: "Товары" },
+        rule: MetadataCatalogRules,
+        model: { itemType: "MetadataCatalog" },
+      }),
+    ]),
+  }
 }
 
 function documentWithGoods(): OwnerMetadataCache {
