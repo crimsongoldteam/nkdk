@@ -2,222 +2,126 @@ import { describe, expect, it } from "vitest"
 import type { DataPathPropertyRule } from "../../ruleRuntime/property/types"
 import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import type { ResolvedDataPathTarget } from "./resolver"
-import { evaluateDataPathPolicy, toDataPathPolicyInput, validateResolvedDataPathPolicy } from "./policies"
+import {
+  evaluateDataPathCompatibility,
+  toDataPathPolicyInput,
+  validateResolvedDataPathPolicy,
+} from "./policies"
+
+describe("evaluateDataPathCompatibility", () => {
+  it.each([
+    [["string", "boolean"], ["string", "boolean"]],
+    [["Picture", "string"], ["Picture", "string"]],
+  ] as const)("allows a confirmed composite type for an enabled policy", (terminalTypes, allowedKinds) => {
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds, allowComposite: true },
+        target: exactTarget(terminalTypes),
+      })
+    ).toEqual({ status: "compatible" })
+  })
+
+  it.each(["CheckBoxField", "PictureField", "RadioButtonField"])(
+    "rejects a composite type for strict policy represented by %s",
+    () => {
+      expect(
+        evaluateDataPathCompatibility({
+          rule: { yaml: "ПутьКДанным", allowedKinds: ["boolean"], allowComposite: false },
+          target: exactTarget(["boolean", "string"]),
+        })
+      ).toMatchObject({ status: "incompatible", reason: "composite" })
+    }
+  )
+
+  it.each(["string", "dateTime", "EnumRef.Состояния"])("rejects invalid checkbox XML type %s", (type) => {
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["boolean", "decimal"] },
+        target: exactTarget([type]),
+      })
+    ).toMatchObject({ status: "incompatible", reason: "kind" })
+  })
+
+  it("allows only ValueTable with ValuesPicture through the narrow exception", () => {
+    const rule = { yaml: "ПутьКДанным", allowedKinds: ["Picture"] as const }
+    expect(
+      evaluateDataPathCompatibility({ rule, target: exactTarget(["ValueTable"]), hasValuesPicture: true })
+    ).toEqual({ status: "compatible" })
+    expect(
+      evaluateDataPathCompatibility({ rule, target: exactTarget(["ValueTree"]), hasValuesPicture: true })
+    ).toMatchObject({ status: "incompatible", reason: "kind" })
+    expect(evaluateDataPathCompatibility({ rule, target: exactTarget(["ValueTable"]) })).toMatchObject({
+      status: "incompatible",
+      reason: "kind",
+    })
+  })
+
+  it("matches a named family without matching its bare type", () => {
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["CatalogRef.*"] },
+        target: exactTarget(["CatalogRef.Номенклатура"]),
+      })
+    ).toEqual({ status: "compatible" })
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["CatalogRef.*"] },
+        target: exactTarget(["CatalogRef"]),
+      })
+    ).toMatchObject({ status: "incompatible", reason: "kind" })
+  })
+
+  it("allows a DefinedType declaration group for one effective branch", () => {
+    const base = exactTarget(["CatalogRef.Номенклатура"])
+    const target = { ...base, typeInfo: { ...base.typeInfo, definedTypes: ["ОбъектУчета"] } }
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["DefinedType.*"] },
+        target,
+      })
+    ).toEqual({ status: "compatible" })
+  })
+
+  it("distinguishes missing details, resolved any, and missing configuration", () => {
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["<any>"] },
+        target: exactTarget(["<any>"]),
+      })
+    ).toEqual({ status: "compatible" })
+    expect(
+      evaluateDataPathCompatibility({
+        rule: { yaml: "ПутьКДанным", allowedKinds: ["boolean"] },
+        target: unresolvedTarget(),
+      })
+    ).toEqual({ status: "notResolved" })
+    expect(
+      evaluateDataPathCompatibility({ rule: { yaml: "ПутьКДанным" }, target: exactTarget(["boolean"]) })
+    ).toEqual({ status: "notConfigured" })
+  })
+})
 
 describe("validateResolvedDataPathPolicy", () => {
-  it("allows composite and unknown terminal types when rule has no allowed kinds", () => {
-    expect(validatePolicy({ rule: dataPathRule(), kinds: ["unknown"], isComposite: true })).toEqual([])
-  })
-
-  it("reports missing terminal type when allowed kinds are configured", () => {
-    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean"] }), kinds: [] })
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        source: "structure",
-        message: expect.stringContaining("не удалось определить конечный тип"),
-      }),
-    ])
-  })
-
-  it("reports unknown terminal type when allowed kinds are configured", () => {
-    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean"] }), kinds: ["unknown"] })
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        source: "structure",
-        message: expect.stringContaining("не удалось определить конечный тип"),
-      }),
-    ])
-  })
-
-  it("reports composite terminal type by default when allowed kinds are configured", () => {
+  it("reports one exact incompatibility diagnostic", () => {
     const diagnostics = validatePolicy({
-      rule: dataPathRule({ allowedKinds: ["dateTime"] }),
-      kinds: ["dateTime"],
-      isComposite: true,
+      rule: dataPathRule({ allowedKinds: ["boolean", "decimal"] }),
+      target: exactTarget(["string"]),
     })
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
         severity: "error",
-        message: expect.stringContaining("имеет составной тип"),
+        source: "structure",
+        message: expect.stringMatching(/string.*boolean или decimal/),
       }),
     ])
   })
 
-  it("allows composite terminal type when rule explicitly allows it", () => {
+  it("does not duplicate resolver diagnostics for an unresolved target", () => {
     expect(
-      validatePolicy({
-        rule: dataPathRule({ allowedKinds: ["dateTime"], allowComposite: true }),
-        kinds: ["dateTime"],
-        isComposite: true,
-      })
+      validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean"] }), target: unresolvedTarget() })
     ).toEqual([])
-  })
-
-  it("allows composite terminal type when one of its kinds is allowed", () => {
-    expect(
-      validatePolicy({
-        rule: dataPathRule({ allowedKinds: ["Picture", "scalar"], allowComposite: true }),
-        kinds: ["object", "scalar"],
-        isComposite: true,
-      })
-    ).toEqual([])
-  })
-
-  it("reports terminal kind mismatch", () => {
-    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["tableSource"] }), kinds: ["boolean"] })
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        message: expect.stringContaining("ожидается tableSource"),
-      }),
-    ])
-  })
-
-  it("lists all allowed kinds in a mismatch", () => {
-    expect(
-      validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean", "scalar"] }), kinds: ["object"] })
-    ).toEqual([expect.objectContaining({ message: expect.stringContaining("boolean или scalar") })])
-  })
-
-  it("reports non-date terminal kind for CalendarField policy", () => {
-    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["dateTime"] }), kinds: ["boolean"] })
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        message: expect.stringContaining("ожидается dateTime"),
-      }),
-    ])
-  })
-
-  it("accepts a matching terminal kind", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture"] }), kinds: ["Picture"] })).toEqual([])
-  })
-
-  it("accepts scalar terminal kind when the rule explicitly allows it", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "scalar"] }), kinds: ["scalar"] })).toEqual(
-      []
-    )
-  })
-
-  it("accepts boolean terminal kind when the rule explicitly allows it", () => {
-    expect(
-      validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })
-    ).toEqual([])
-  })
-
-  it("accepts scalar and date terminal kinds when the rule explicitly allows checkbox-compatible values", () => {
-    const rule = dataPathRule({ allowedKinds: ["boolean", "scalar", "dateTime"] })
-
-    expect(validatePolicy({ rule, kinds: ["boolean"] })).toEqual([])
-    expect(validatePolicy({ rule, kinds: ["scalar"] })).toEqual([])
-    expect(validatePolicy({ rule, kinds: ["dateTime"] })).toEqual([])
-  })
-
-  it("accepts object terminal kind when the rule explicitly allows it", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "object"] }), kinds: ["object"] })).toEqual(
-      []
-    )
-  })
-
-  it("still rejects scalar terminal kind when only Picture is allowed", () => {
-    const diagnostics = validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture"] }), kinds: ["scalar"] })
-
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        severity: "error",
-        message: expect.stringContaining("ожидается Picture"),
-      }),
-    ])
-  })
-
-  it("allows a table source only for picture fields with ValuesPicture", () => {
-    const rule = dataPathRule({ allowedKinds: ["Picture"] })
-    expect(
-      validatePolicy({ rule, kinds: ["tableSource"], elementType: "PictureField", hasValuesPicture: true })
-    ).toEqual([])
-    expect(validatePolicy({ rule, kinds: ["tableSource"], elementType: "PictureField" })).toEqual([
-      expect.objectContaining({ message: expect.stringContaining("ожидается Picture") }),
-    ])
-    expect(
-      validatePolicy({
-        rule: { ...rule, yaml: "Данные" },
-        kinds: ["tableSource"],
-        elementType: "PictureField",
-        hasValuesPicture: true,
-      })
-    ).toEqual([expect.objectContaining({ message: expect.stringContaining("ожидается Picture") })])
-    expect(
-      validatePolicy({ rule, kinds: ["tableSource"], elementType: "InputField", hasValuesPicture: true })
-    ).toEqual([expect.objectContaining({ message: expect.stringContaining("ожидается Picture") })])
-    expect(
-      validatePolicy({ rule, kinds: ["tableSource"], elementType: "TablePictureField", hasValuesPicture: true })
-    ).toEqual([])
-  })
-
-  it("detects a composite terminal from multiple next types", () => {
-    const diagnostics = validatePolicy({
-      rule: dataPathRule({ allowedKinds: ["object"] }),
-      kinds: ["object"],
-      nextTypes: [{ kind: "Справочник" }, { kind: "Документ" }],
-    })
-    expect(diagnostics).toEqual([expect.objectContaining({ message: expect.stringContaining("составной тип") })])
-  })
-
-  it("does not treat one next type as composite", () => {
-    expect(
-      validatePolicy({
-        rule: dataPathRule({ allowedKinds: ["object"] }),
-        kinds: ["object"],
-        nextTypes: [{ kind: "Справочник" }],
-      })
-    ).toEqual([])
-  })
-
-  it("does not exempt a non-table value merely because ValuesPicture is present", () => {
-    expect(
-      validatePolicy({
-        rule: dataPathRule({ allowedKinds: ["Picture"] }),
-        kinds: ["boolean"],
-        elementType: "PictureField",
-        hasValuesPicture: true,
-      })
-    ).toEqual([expect.objectContaining({ message: expect.stringContaining("ожидается Picture") })])
-  })
-
-  it("uses the occurrence value in a missing-target diagnostic", () => {
-    expect(
-      evaluateDataPathPolicy(
-        { yaml: "ПутьКДанным", allowedKinds: ["boolean"] },
-        undefined,
-        { value: "РеквизитФормы" }
-      )
-    ).toContain('"РеквизитФормы"')
-  })
-
-  it("keeps the missing-target diagnostic valid without a display value", () => {
-    expect(evaluateDataPathPolicy({ yaml: "ПутьКДанным", allowedKinds: ["boolean"] }, undefined)).toContain('""')
-  })
-
-  it("falls back to the resolved target value in diagnostics", () => {
-    expect(
-      evaluateDataPathPolicy(
-        { yaml: "ПутьКДанным", allowedKinds: ["boolean"] },
-        resolvedTarget(["scalar"], "РеквизитОбъекта")
-      )
-    ).toContain('"РеквизитОбъекта"')
-  })
-
-  it("reports any as an unknown terminal type", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean"] }), kinds: ["any"] })).toEqual([
-      expect.objectContaining({ message: expect.stringContaining("не удалось определить конечный тип") }),
-    ])
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["boolean"] }), target: undefined })).toEqual([])
   })
 
   it("requires the YAML name when minimizing a DataPath rule", () => {
@@ -227,11 +131,7 @@ describe("validateResolvedDataPathPolicy", () => {
 
 function validatePolicy(params: {
   rule: DataPathPropertyRule
-  kinds: ResolvedDataPathTarget["typeInfo"]["kinds"]
-  isComposite?: boolean
-  nextTypes?: ResolvedDataPathTarget["typeInfo"]["nextTypes"]
-  elementType?: Parameters<typeof validateResolvedDataPathPolicy>[0]["elementType"]
-  hasValuesPicture?: boolean
+  target: ResolvedDataPathTarget | undefined
 }) {
   const parsed = parseMetadataYaml("ПутьКДанным: Значение\n")
   return validateResolvedDataPathPolicy({
@@ -240,39 +140,35 @@ function validatePolicy(params: {
     yamlPath: ["ПутьКДанным"],
     value: "Значение",
     rule: toDataPathPolicyInput(params.rule),
-    target: {
-      value: "Значение",
-      segments: ["Значение"],
-      segmentIndex: 0,
-      source: { kind: "formAttribute", name: "Значение" },
-      typeInfo: {
-        kinds: params.kinds,
-        nextTypes: params.nextTypes ?? [],
-        ...(params.isComposite !== undefined ? { isComposite: params.isComposite } : {}),
-      },
-    },
-    ...(params.elementType === undefined ? {} : { elementType: params.elementType }),
-    ...(params.hasValuesPicture === undefined ? {} : { hasValuesPicture: params.hasValuesPicture }),
+    target: params.target,
   })
 }
 
 function dataPathRule(params: Partial<DataPathPropertyRule> = {}): DataPathPropertyRule {
+  return { yaml: "ПутьКДанным", type: "DataPath", ...params }
+}
+
+function exactTarget(terminalTypes: readonly string[]): ResolvedDataPathTarget {
   return {
-    yaml: "ПутьКДанным",
-    type: "DataPath",
-    ...params,
+    value: "Значение",
+    segments: ["Значение"],
+    segmentIndex: 0,
+    source: { kind: "formAttribute", name: "Значение" },
+    typeInfo: {
+      kinds: ["scalar"],
+      nextTypes: [],
+      terminalTypes,
+      ...(terminalTypes.length > 1 ? { isComposite: true } : {}),
+    },
   }
 }
 
-function resolvedTarget(
-  kinds: ResolvedDataPathTarget["typeInfo"]["kinds"],
-  value: string
-): ResolvedDataPathTarget {
+function unresolvedTarget(): ResolvedDataPathTarget {
   return {
-    value,
-    segments: [value],
+    value: "Значение",
+    segments: ["Значение"],
     segmentIndex: 0,
-    source: { kind: "formAttribute", name: value },
-    typeInfo: { kinds, nextTypes: [] },
+    source: { kind: "formAttribute", name: "Значение" },
+    typeInfo: { kinds: ["unknown"], nextTypes: [] },
   }
 }

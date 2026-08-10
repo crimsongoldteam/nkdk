@@ -721,7 +721,7 @@ describe("validateForm", () => {
     ])
   })
 
-  it("accepts composite PictureField data path when one terminal kind is compatible", () => {
+  it("rejects composite PictureField data path even when both branches are allowed separately", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -737,7 +737,9 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("составной конечный тип Picture | decimal") }),
+    ])
   })
 
   it("accepts scalar CheckBoxField data path", () => {
@@ -756,7 +758,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts date CheckBoxField data path", () => {
+  it("rejects date CheckBoxField data path", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -769,7 +771,9 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("dateTime, ожидается boolean или decimal") }),
+    ])
   })
 
   it("accepts scalar TableCheckBoxField data path", () => {
@@ -795,7 +799,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts composite TableCheckBoxField data path when one terminal kind is compatible", () => {
+  it("rejects composite TableCheckBoxField data path", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -817,7 +821,9 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("составной конечный тип boolean | decimal") }),
+    ])
   })
 
   it("accepts scalar table row picture data path", () => {
@@ -1448,7 +1454,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts CheckBoxField data path bound to enum object values", () => {
+  it("rejects CheckBoxField data path bound to enum object values", () => {
     const project = createProject({
       ownerDir: "Справочник",
       ownerName: "ПравилаСогласования",
@@ -1470,7 +1476,9 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([])
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({ message: expect.stringContaining("EnumRef.*, ожидается boolean или decimal") }),
+    ])
   })
 
   it("accepts accounting RegisterRecords virtual columns", () => {

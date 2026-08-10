@@ -15,11 +15,27 @@ import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { DataPathAllowedKind, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
+const inputFieldDataPathKinds = [
+  "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
+  "Picture", "Color", "Font", "ValueStorage", "TypeDescription",
+  "ValueTable", "ValueListType", "StandardPeriod", "StandardBeginningDate",
+  "DocumentRef.*", "CatalogRef.*", "EnumRef.*", "TaskRef.*",
+  "BusinessProcessRef.*", "ExchangePlanRef.*", "ChartOfAccountsRef.*",
+  "ChartOfCharacteristicTypesRef.*", "ChartOfCalculationTypesRef.*",
+  "AccumulationRegisterRef.*", "AccountingRegisterRef.*", "InformationRegisterRef.*",
+  "BusinessProcessRoutePointRef.*", "Characteristic.*", "DefinedType.*",
+  "DocumentRef", "CatalogRef", "EnumRef", "TaskRef", "BusinessProcessRef",
+  "ExchangePlanRef", "ChartOfAccountsRef", "ChartOfCharacteristicTypesRef",
+  "ChartOfCalculationTypesRef", "BusinessProcessRoutePointRef", "AnyIBRef",
+  "CatalogTabularSection.*", "<standard-enum>", "DataCompositionComparisonType",
+  "ComparisonType", "DataCompositionGroupType", "DataCompositionSortDirection",
+  "DataCompositionPeriodAdditionType", "Field", "Filter", "HorizontalAlign", "VerticalAlign",
+] as const satisfies readonly DataPathAllowedKind[]
 export const InputFieldRules = {
   itemType: "InputField",
   enterpriseField: "FormField",
@@ -377,6 +393,8 @@ export const InputFieldRules = {
       yaml: "ПутьКДанным",
       // fromYAML: false,
       defaultType: "string",
+      allowedKinds: inputFieldDataPathKinds,
+      allowComposite: true,
       allowOpaqueMultipleValue: true,
     }),
     ...formFieldCommonProperties,
@@ -510,6 +528,8 @@ export const TableInputFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: inputFieldDataPathKinds,
+      allowComposite: true,
     }),
     minValue: minMaxValueRule({ yaml: "МинимальноеЗначение", xml: "MinValue" }),
     maxValue: minMaxValueRule({ yaml: "МаксимальноеЗначение", xml: "MaxValue" }),

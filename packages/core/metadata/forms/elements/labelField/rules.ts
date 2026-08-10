@@ -7,11 +7,25 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { DataPathAllowedKind, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
+const labelFieldDataPathKinds = [
+  "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
+  "Picture", "FormattedString", "ValueStorage", "TypeDescription",
+  "ValueTable", "ValueTree", "ValueListType", "StandardPeriod",
+  "DocumentRef.*", "CatalogRef.*", "EnumRef.*", "TaskRef.*",
+  "BusinessProcessRef.*", "ExchangePlanRef.*", "ChartOfAccountsRef.*",
+  "ChartOfCharacteristicTypesRef.*", "ChartOfCalculationTypesRef.*",
+  "AccumulationRegisterRef.*", "AccountingRegisterRef.*", "InformationRegisterRef.*",
+  "CalculationRegisterRef.*", "Characteristic.*", "DefinedType.*",
+  "DocumentRef", "CatalogRef", "EnumRef", "TaskRef", "BusinessProcessRef",
+  "ExchangePlanRef", "ChartOfAccountsRef", "ChartOfCharacteristicTypesRef",
+  "ChartOfCalculationTypesRef", "BusinessProcessRoutePointRef", "AnyIBRef",
+  "<standard-enum>", "DataCompositionSortDirection",
+] as const satisfies readonly DataPathAllowedKind[]
 export const LabelFieldRules = {
   itemType: "LabelField",
   enterpriseField: "FormField",
@@ -125,6 +139,8 @@ export const LabelFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: labelFieldDataPathKinds,
+      allowComposite: true,
     }),
     ...formFieldCommonProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),

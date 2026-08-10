@@ -58,7 +58,7 @@ describe("ProjectStateFileUpdateBatch", () => {
     const rule = {
       yaml: "ПутьКДанным",
       type: "DataPath",
-      allowedKinds: ["boolean", "scalar"],
+      allowedKinds: ["boolean", "decimal"],
       allowComposite: true,
       defaultType: "boolean",
       callback: () => "must not cross the boundary",
@@ -66,7 +66,7 @@ describe("ProjectStateFileUpdateBatch", () => {
 
     expect(toDataPathPolicyInput(rule)).toEqual({
       yaml: "ПутьКДанным",
-      allowedKinds: ["boolean", "scalar"],
+      allowedKinds: ["boolean", "decimal"],
       allowComposite: true,
     })
   })

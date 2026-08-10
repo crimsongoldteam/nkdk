@@ -103,6 +103,8 @@ export const HTMLDocumentFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: ["string"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },

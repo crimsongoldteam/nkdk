@@ -238,7 +238,6 @@ const DATA_PATH_VALUE_KINDS = [
   "standardPeriod",
   "unsupportedIntermediate",
 ]
-const DATA_PATH_POLICY_KINDS = ["boolean", "dateTime", "Picture", "scalar", "object", "tableSource"]
 const ELEMENT_TYPES = [
   ...Object.keys(CollectableElementTypeToYAML),
   "SingleSearchControlAddition",
@@ -632,9 +631,7 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (
     policyInput["allowedKinds"] !== undefined &&
     (!Array.isArray(policyInput["allowedKinds"]) ||
-      !policyInput["allowedKinds"].every(
-        (kind) => typeof kind === "string" && DATA_PATH_POLICY_KINDS.includes(kind)
-      ))
+      !policyInput["allowedKinds"].every((kind) => typeof kind === "string"))
   ) {
     throw new Error(`${path}.policyInput.allowedKinds должен быть массивом строк`)
   }

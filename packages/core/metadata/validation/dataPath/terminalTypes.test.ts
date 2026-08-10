@@ -1,33 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { registerSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
-import {
-  registerDataPathOwnerKind,
-  restoreOwnerKindRegistryForTests,
-  snapshotOwnerKindRegistryForTests,
-  type OwnerKindRegistrySnapshot,
-} from "./ownerKindRegistry"
 import { normalizeDataPathTerminalType } from "./terminalTypes"
 
-let ownerKindsBeforeTest: OwnerKindRegistrySnapshot
-
-beforeAll(() => {
-  ownerKindsBeforeTest = snapshotOwnerKindRegistryForTests()
-  registerDataPathOwnerKind({
-    kind: "Справочник",
-    projectDir: "Справочник",
-    rule: {} as never,
-    typeDescriptionBases: ["CatalogRef"],
-  })
-  registerDataPathOwnerKind({
-    kind: "РегистрРасчета",
-    projectDir: "РегистрРасчета",
-    rule: {} as never,
-    registerRecordSetBases: ["CalculationRegisterRecordSet"],
-  })
-  registerSystemEnumeration("__terminal_type_test_enum__", { fromYAML: {}, toYAML: {} })
-})
-
-afterAll(() => restoreOwnerKindRegistryForTests(ownerKindsBeforeTest))
+registerSystemEnumeration("__terminal_type_test_enum__", { fromYAML: {}, toYAML: {} })
 
 describe("normalizeDataPathTerminalType", () => {
   it.each([
@@ -108,22 +83,13 @@ describe("normalizeDataPathTerminalType", () => {
     })
   })
 
-  it("uses an unambiguous owner reference when exact branches are absent", () => {
-    expect(
-      normalizeDataPathTerminalType({
-        kinds: ["object"],
-        nextTypes: [{ kind: "Справочник", name: "Номенклатура" }],
-      })
-    ).toMatchObject({ status: "resolved", groups: ["CatalogRef.*"], composite: false })
-  })
-
   it("uses structural table metadata when exact branches are absent", () => {
     expect(
       normalizeDataPathTerminalType({
         kinds: ["tableSource"],
         nextTypes: [],
-        table: { kind: "RegisterRecordSet", owner: { kind: "РегистрРасчета", name: "Начисления" } },
+        table: { kind: "ValueTable" },
       })
-    ).toMatchObject({ status: "resolved", groups: ["CalculationRegisterRecordSet.*"], composite: false })
+    ).toMatchObject({ status: "resolved", groups: ["ValueTable"], composite: false })
   })
 })

@@ -303,9 +303,6 @@ export type DataPathNamedFamily =
   | "CalculationRegisterRecordSet"
 
 export type DataPathAllowedKind =
-  | "scalar"
-  | "object"
-  | "tableSource"
   | `${DataPathNamedFamily}.*`
   | DataPathNamedFamily
   | "string"
