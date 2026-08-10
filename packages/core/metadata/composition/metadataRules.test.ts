@@ -6,6 +6,7 @@ import { getElementRule } from "../ruleRuntime/formElement/ruleRegistry"
 import { projectSpecRegistryRevision } from "../projectDefinition/projectSpecRegistry"
 import { findMetadataComponentDescriptor } from "../components/descriptor"
 import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
+import { resolveFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 
 describe("metadataRules", () => {
   it(
@@ -19,6 +20,9 @@ describe("metadataRules", () => {
       expect(() =>
         getRegisteredXmlImportComponentDescriptor("configuration"),
       ).toThrow()
+      expect(() =>
+        resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
+      ).toThrow()
 
       const { metadataRules } = await import("./metadataRules")
 
@@ -29,6 +33,9 @@ describe("metadataRules", () => {
       expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
       expect(() =>
         getRegisteredXmlImportComponentDescriptor("configuration"),
+      ).toThrow()
+      expect(() =>
+        resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
       ).toThrow()
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
@@ -42,6 +49,7 @@ describe("metadataRules", () => {
       expect(Object.keys(metadataRules.projectSpecs).length).toBeGreaterThan(0)
       expect(metadataRules.components).toHaveLength(2)
       expect(metadataRules.imports).toHaveLength(2)
+      expect(metadataRules.synchronization).toHaveLength(2)
     },
     30_000,
   )

@@ -1,14 +1,11 @@
 import { registerMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
-import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
-import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configurationExtension"
 import { registerMetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { registerProjectJSONSchema } from "../../projectDefinition/schemaRegistry"
 
-registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
 registerProjectJSONSchema(MetadataConfigurationExtensionRules.itemType, ({ context }) =>
   exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationExtensionRules })
 )

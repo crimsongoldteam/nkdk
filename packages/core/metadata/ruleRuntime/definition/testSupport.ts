@@ -1,7 +1,7 @@
 import type { MetadataItemRule } from "../property/types"
 import type { MetadataRulesDefinition } from "./contracts"
 
-export const emptyMetadataRules: MetadataRulesDefinition = {
+export const emptyMetadataRules: MetadataRulesDefinition<never> = {
   propertyTypes: {},
   propertyItemRules: {},
   explicitXMLProperties: {},

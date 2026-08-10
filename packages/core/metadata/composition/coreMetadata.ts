@@ -14,6 +14,7 @@ import { registerLegacyRuleDefinitions } from "../ruleRuntime/definition/legacyR
 import { registerLegacyProjectSpecDefinitions } from "../projectDefinition/projectSpecRegistry"
 import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import { registerXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
+import { registerFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 
 let coreMetadataRegistered = false
 
@@ -42,6 +43,9 @@ export function registerCoreMetadata(): void {
   }
   for (const descriptor of legacyCoreRules.imports) {
     registerXmlImportComponentDescriptor(descriptor)
+  }
+  for (const profile of legacyCoreRules.synchronization) {
+    registerFullXmlSyncComponentProfile(profile)
   }
 
   registerMetadataLayers({

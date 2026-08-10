@@ -94,7 +94,7 @@ export const defineMetadataItemCollectionRule = <
   XMLKey extends string,
 >(
   params: CollectionRule<Rule, CollectionType, XMLKey>
-): MetadataRulesDefinition => {
+): MetadataRulesDefinition<never> => {
   const { propertyType, itemRule, xmlElement } = params
   const schemaName = params.schemaName ?? itemRule.itemType
   const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")

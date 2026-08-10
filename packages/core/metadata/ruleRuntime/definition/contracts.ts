@@ -101,7 +101,13 @@ export interface DependentItemDefinition {
   readonly imported?: DependentImportItemHandler
 }
 
-export interface MetadataRulesDefinition {
+export interface MetadataSynchronizationContribution {
+  readonly kind: string
+}
+
+export interface MetadataRulesDefinition<
+  SynchronizationContribution extends MetadataSynchronizationContribution = MetadataSynchronizationContribution,
+> {
   readonly propertyTypes: Readonly<Record<string, PropertyTypeDefinition>>
   readonly propertyItemRules: Readonly<Record<string, object>>
   readonly explicitXMLProperties: Readonly<
@@ -130,7 +136,7 @@ export interface MetadataRulesDefinition {
   readonly references: readonly RuleRegistrationContribution[]
   readonly components: readonly MetadataComponentDescriptor[]
   readonly imports: readonly MetadataImportComponentDescriptor[]
-  readonly synchronization: readonly RuleRegistrationContribution[]
+  readonly synchronization: readonly SynchronizationContribution[]
   readonly operations: readonly RuleRegistrationContribution[]
   readonly workerOperations: readonly MetadataWorkerOperationContribution[]
 }

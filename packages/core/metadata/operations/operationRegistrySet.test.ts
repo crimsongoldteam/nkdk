@@ -5,6 +5,7 @@ import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { metadataItemRule } from "../ruleRuntime/definition/testSupport"
 import { createOperationRegistrySet } from "./operationRegistrySet"
 import { createMetadataWorkerHandler } from "../workerPool/metadataWorkerHandler"
+import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 
 it("runs the worker operation from the owning registry", async () => {
   const createRules = (value: string) =>
@@ -61,4 +62,25 @@ it("resolves an XML import descriptor from its own registry", () => {
   expect(registries.imports.resolve({ kind: "configuration" }).kind).toBe(
     "configuration",
   )
+})
+
+it("resolves a synchronization profile from its own registry", () => {
+  const profile: FullXmlSyncComponentProfile = {
+    kind: "configuration",
+    supports: (address) => address.kind === "configuration",
+    baseAddress: () => undefined,
+    confirm: () => {
+      throw new Error("not used")
+    },
+  }
+  const registries = createOperationRegistrySet(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      synchronization: [profile],
+    }),
+  )
+
+  expect(
+    registries.synchronization.resolve({ kind: "configuration" }).kind,
+  ).toBe("configuration")
 })

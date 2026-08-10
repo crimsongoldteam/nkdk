@@ -23,7 +23,7 @@ export function registerElementRule(itemType: ElementType, elementRule: ElementR
 export function defineElementRule(
   itemType: ElementType,
   elementRule: ElementRule,
-): MetadataRulesDefinition {
+): MetadataRulesDefinition<never> {
   return defineMetadataRules({
     ...emptyMetadataRules,
     formElements: { [itemType]: elementRule },

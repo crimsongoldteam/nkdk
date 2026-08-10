@@ -2,6 +2,8 @@ import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { MetadataConfigurationRules } from "./configuration/rules"
 import { MetadataConfigurationExtensionRules } from "./configurationExtension/rules"
+import { configurationFullXmlSyncProfile } from "../fullSyncToXml/profiles/configuration"
+import { configurationExtensionFullXmlSyncProfile } from "../fullSyncToXml/profiles/configurationExtension"
 
 export const appliedObjectComponentRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -54,6 +56,10 @@ export const appliedObjectComponentRules = defineMetadataRules({
       baseAddress: { kind: "configuration" },
       metadataItemAugmenter: "configurationExtension",
     },
+  ],
+  synchronization: [
+    configurationFullXmlSyncProfile,
+    configurationExtensionFullXmlSyncProfile,
   ],
 })
 

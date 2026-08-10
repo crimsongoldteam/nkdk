@@ -1,10 +1,21 @@
-import type { MetadataRulesDefinition } from "./contracts"
+import type {
+  MetadataRulesDefinition,
+  MetadataSynchronizationContribution,
+} from "./contracts"
 import { emptyMetadataRules } from "./testSupport"
 
-export function composeMetadataRules(
-  ...layers: readonly MetadataRulesDefinition[]
-): MetadataRulesDefinition {
-  return layers.reduce<MetadataRulesDefinition>(
+export function composeMetadataRules<
+  const Layers extends readonly (
+    Omit<MetadataRulesDefinition, "synchronization"> & {
+      readonly synchronization: readonly MetadataSynchronizationContribution[]
+    }
+  )[],
+>(
+  ...layers: Layers
+): MetadataRulesDefinition<Layers[number]["synchronization"][number]> {
+  type SynchronizationContribution =
+    Layers[number]["synchronization"][number]
+  return layers.reduce<MetadataRulesDefinition<SynchronizationContribution>>(
     (result, layer) => ({
       propertyTypes: { ...result.propertyTypes, ...layer.propertyTypes },
       propertyItemRules: {
@@ -58,6 +69,6 @@ export function composeMetadataRules(
         ...layer.workerOperations,
       ],
     }),
-    emptyMetadataRules,
+    emptyMetadataRules as MetadataRulesDefinition<SynchronizationContribution>,
   )
 }

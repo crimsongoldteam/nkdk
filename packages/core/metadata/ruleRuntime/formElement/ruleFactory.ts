@@ -100,7 +100,7 @@ export const defineElementAsType = <Rule extends ElementRule & { itemType: Singl
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   nameStyle?: SingletonNameStyle
   directId?: string
-}): MetadataRulesDefinition => {
+}): MetadataRulesDefinition<never> => {
   const { propertyType, elementRule, toXML, nameStyle } = params
   const propertyTypeRules: PropertyTypeRuleContribution[] = []
   propertyTypeRules.push(definePropertyTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>

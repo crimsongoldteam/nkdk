@@ -24,7 +24,7 @@ export const defineMetadataItemRule = <
   PropertyType extends PropertyRuleType,
 >(
   params: MetadataItemRuleParams<Rule, PropertyType>
-): import("../definition").MetadataRulesDefinition => {
+): import("../definition").MetadataRulesDefinition<never> => {
   const { propertyType, itemRule } = params
   const schemaName = params.schemaName ?? itemRule.itemType
   const schemaExporter = ({ context }: { context: ConfigurationContext }) =>

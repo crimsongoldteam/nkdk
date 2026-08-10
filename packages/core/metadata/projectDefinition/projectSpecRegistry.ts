@@ -16,7 +16,7 @@ let registryRevision = 0
 
 export function defineProjectSpec(
   spec: RegisteredProjectSpec,
-): MetadataRulesDefinition {
+): MetadataRulesDefinition<never> {
   return defineMetadataRules({
     ...emptyMetadataRules,
     projectSpecs: { [spec.dir]: spec },

@@ -16,11 +16,8 @@ import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/ada
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
-import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
-import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
 import "./registerPartialXmlPackage"
 
-registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
 const predefinedValueRoots = new Set([

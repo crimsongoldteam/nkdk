@@ -6,6 +6,8 @@ import type {
 } from "../ruleRuntime/definition"
 import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataImportComponentDescriptor } from "../ruleRuntime/definition"
+import type { ComponentAddress } from "../components/address"
+import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 
 export type WorkerOperationKind = keyof MetadataWorkerOperationRuleTypeMap
 
@@ -32,13 +34,16 @@ export interface OperationRegistrySet {
     ): MetadataImportComponentDescriptor
     get(kind: string): MetadataImportComponentDescriptor
   }
+  readonly synchronization: {
+    resolve(address: ComponentAddress): FullXmlSyncComponentProfile
+  }
   readonly worker: WorkerOperationRegistry
 }
 
 export function createOperationRegistrySet(
   definition: Pick<
-    MetadataRulesDefinition,
-    "components" | "imports" | "workerOperations"
+    MetadataRulesDefinition<FullXmlSyncComponentProfile>,
+    "components" | "imports" | "synchronization" | "workerOperations"
   >,
 ): OperationRegistrySet {
   const components = new Map<string, MetadataComponentDescriptor>()
@@ -63,6 +68,15 @@ export function createOperationRegistrySet(
     WorkerOperationKind,
     MetadataWorkerOperationContribution
   >()
+  const synchronization = new Map<string, FullXmlSyncComponentProfile>()
+  for (const profile of definition.synchronization) {
+    if (synchronization.has(profile.kind)) {
+      throw new Error(
+        `Профиль XML-синхронизации уже зарегистрирован: ${profile.kind}`,
+      )
+    }
+    synchronization.set(profile.kind, profile)
+  }
   for (const operation of definition.workerOperations) {
     if (workerOperations.has(operation.kind)) {
       throw new Error(
@@ -108,6 +122,24 @@ export function createOperationRegistrySet(
           throw new Error(`Не найдено описание XML-компонента: ${kind}`)
         }
         return descriptor
+      },
+    },
+    synchronization: {
+      resolve(address) {
+        const matches = [...synchronization.values()].filter((profile) =>
+          profile.supports(address),
+        )
+        if (matches.length === 0) {
+          throw new Error(
+            `Не найден профиль XML-синхронизации для компонента: ${address.kind}`,
+          )
+        }
+        if (matches.length > 1) {
+          throw new Error(
+            `Несколько профилей XML-синхронизации поддерживают компонент: ${address.kind}`,
+          )
+        }
+        return matches[0] as FullXmlSyncComponentProfile
       },
     },
     worker: {
