@@ -3,6 +3,7 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "../property/types"
 import {
   applyMetadataItemXmlImportAugmenter,
+  createMetadataItemXmlImportAugmenterRegistry,
   registerMetadataItemXmlImportAugmenter,
 } from "./augmenterRegistry"
 
@@ -49,4 +50,23 @@ describe("metadata item XML import augmenter registry", () => {
 
     expect(yaml).toEqual({})
   })
+})
+
+it("isolates XML import augmenters between registry instances", () => {
+  const createRegistry = (value: string) => createMetadataItemXmlImportAugmenterRegistry([{
+    name: "sample",
+    augmenter: { augment: ({ yaml }) => { yaml.value = value } },
+  }])
+  const context = {
+    ...mockContextFromXML(),
+    fromXML: { ...mockContextFromXML().fromXML, metadataItemAugmenter: "sample" },
+  }
+  const firstYaml: Record<string, unknown> = {}
+  const secondYaml: Record<string, unknown> = {}
+
+  createRegistry("first").apply({ context, rule, source: {}, yaml: firstYaml })
+  createRegistry("second").apply({ context, rule, source: {}, yaml: secondYaml })
+
+  expect(firstYaml.value).toBe("first")
+  expect(secondYaml.value).toBe("second")
 })

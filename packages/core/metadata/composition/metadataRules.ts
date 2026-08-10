@@ -22,6 +22,7 @@ import { metadataCatalogReferenceRules } from "../appliedObjects/metadataCatalog
 import { metadataDocumentReferenceRules } from "../appliedObjects/metadataDocument/referenceRules"
 import { configurationReferenceRules } from "../appliedObjects/configuration/referenceRules"
 import { appliedObjectDataPathRules } from "../appliedObjects/dataPathRules"
+import { configurationExtensionOperationRules } from "../appliedObjects/configurationExtension/operationRules"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -51,6 +52,10 @@ const dataPathRules = defineMetadataRules({
   ...emptyMetadataRules,
   dataPaths: appliedObjectDataPathRules,
 })
+const operationRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: configurationExtensionOperationRules,
+})
 
 export const legacyCoreRules = composeMetadataRules(
   staticPropertyRules,
@@ -64,6 +69,7 @@ export const legacyCoreRules = composeMetadataRules(
   formSchemaRules,
   projectReferenceRules,
   dataPathRules,
+  operationRules,
 )
 
 const rulesWithoutTopology = composeMetadataRules(

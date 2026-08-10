@@ -8,6 +8,8 @@ import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataImportComponentDescriptor } from "../ruleRuntime/definition"
 import type { ComponentAddress } from "../components/address"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import { createMetadataItemXmlImportAugmenterRegistry, type MetadataItemXmlImportAugmenterRegistry } from "../ruleRuntime/metadataItem/augmenterRegistry"
+import { createMetadataItemYamlToXmlAugmenterRegistry, type MetadataItemYamlToXmlAugmenterRegistry } from "../ruleRuntime/property/yamlToXmlAugmenter"
 
 export type WorkerOperationKind = keyof MetadataWorkerOperationRuleTypeMap
 
@@ -24,6 +26,10 @@ export interface WorkerOperationRegistry {
 }
 
 export interface OperationRegistrySet {
+  readonly augmentation: {
+    readonly xmlImport: MetadataItemXmlImportAugmenterRegistry
+    readonly yamlToXml: MetadataItemYamlToXmlAugmenterRegistry
+  }
   readonly components: {
     get(kind: string): MetadataComponentDescriptor
     find(kind: string): MetadataComponentDescriptor | undefined
@@ -43,7 +49,7 @@ export interface OperationRegistrySet {
 export function createOperationRegistrySet(
   definition: Pick<
     MetadataRulesDefinition<FullXmlSyncComponentProfile>,
-    "components" | "imports" | "synchronization" | "workerOperations"
+    "components" | "imports" | "synchronization" | "operations" | "workerOperations"
   >,
 ): OperationRegistrySet {
   const components = new Map<string, MetadataComponentDescriptor>()
@@ -85,8 +91,19 @@ export function createOperationRegistrySet(
     }
     workerOperations.set(operation.kind, operation)
   }
+  const xmlImportAugmenters = createMetadataItemXmlImportAugmenterRegistry(
+    definition.operations.flatMap((operation) => operation.kind === "xmlImportAugmenter"
+      ? [{ name: operation.name, augmenter: operation.augmenter }]
+      : []),
+  )
+  const yamlToXmlAugmenters = createMetadataItemYamlToXmlAugmenterRegistry(
+    definition.operations.flatMap((operation) => operation.kind === "yamlToXmlAugmenter"
+      ? [{ componentKind: operation.componentKind, augmenter: operation.augmenter }]
+      : []),
+  )
 
   return {
+    augmentation: { xmlImport: xmlImportAugmenters, yamlToXml: yamlToXmlAugmenters },
     components: {
       get(kind) {
         const component = components.get(kind)

@@ -8,7 +8,7 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
-import { registerMetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
+import { createMetadataItemYamlToXmlAugmenterRegistry, registerMetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 
 const calls: Array<{ itemType: string; logicalAddress: string }> = []
 registerMetadataItemYamlToXmlAugmenter("recursive-augmenter-test", {
@@ -44,6 +44,22 @@ registerTypeRule("RecursiveAugmenterChildren" as never, "yamlToXMLNestedRule", {
 })
 
 describe("metadata item YAML-to-XML augmenter", () => {
+  it("isolates augmenters between registry instances", () => {
+    const calls: string[] = []
+    const createRegistry = (value: string) => createMetadataItemYamlToXmlAugmenterRegistry([{
+      componentKind: "sample",
+      augmenter: { augment: () => { calls.push(value) } },
+    }])
+    const baseContext = context()
+    const sampleContext = { ...baseContext, exportToXML: { ...baseContext.exportToXML, componentKind: "sample" } }
+    const params = { context: sampleContext, rule: rule("Root", {}), yaml: {}, outputs: new Map() }
+
+    createRegistry("first").augment(params)
+    createRegistry("second").augment(params)
+
+    expect(calls).toEqual(["first", "second"])
+  })
+
   it("runs at root, nested item and second-level nested item boundaries", () => {
     calls.splice(0)
     convertPropertiesFromYAMLToXML({

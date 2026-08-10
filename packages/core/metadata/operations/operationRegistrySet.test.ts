@@ -6,6 +6,13 @@ import { metadataItemRule } from "../ruleRuntime/definition/testSupport"
 import { createOperationRegistrySet } from "./operationRegistrySet"
 import { createMetadataWorkerHandler } from "../workerPool/metadataWorkerHandler"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import { mockContextFromXML } from "../../tests/mockContext"
+import type { ConfigurationContextWithExportToXML } from "../context/types"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import { sampleSnapshot } from "../configurationIndex/testData"
 
 it("runs the worker operation from the owning registry", async () => {
   const createRules = (value: string) =>
@@ -83,4 +90,37 @@ it("resolves a synchronization profile from its own registry", () => {
   expect(
     registries.synchronization.resolve({ kind: "configuration" }).kind,
   ).toBe("configuration")
+})
+
+it("owns XML import and YAML-to-XML augmenters from its rules", () => {
+  const registries = createOperationRegistrySet(defineMetadataRules({
+    ...emptyMetadataRules,
+    operations: [
+      { kind: "xmlImportAugmenter", name: "sample", augmenter: { augment: ({ yaml }) => { yaml.imported = true } } },
+      { kind: "yamlToXmlAugmenter", componentKind: "sample", augmenter: { augment: ({ outputs }) => { outputs.get("metadata")!.exported = true } } },
+    ],
+  }))
+  const yaml: Record<string, unknown> = {}
+  const fromXmlContext = { ...mockContextFromXML(), fromXML: { ...mockContextFromXML().fromXML, metadataItemAugmenter: "sample" } }
+  registries.augmentation.xmlImport.apply({ context: fromXmlContext, rule: metadataItemRule("Sample"), source: {}, yaml })
+  const output: Record<string, unknown> = {}
+  const toXmlContext: ConfigurationContextWithExportToXML = {
+    version: "2.20",
+    defaultLanguage: "ru",
+    exportToXML: {
+      version: "2.20",
+      itemsTree: [],
+      componentKind: "sample",
+      configurationIndex: createConfigurationIndexExportRuntime({
+        source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
+        collector: createConfigurationIndexCollector(),
+        targetProjectPath: "root.yaml",
+        logicalAddress: "Root",
+      }),
+    },
+  }
+  registries.augmentation.yamlToXml.augment({ context: toXmlContext, rule: metadataItemRule("Sample"), yaml: {}, outputs: new Map([["metadata", output]]) })
+
+  expect(yaml.imported).toBe(true)
+  expect(output.exported).toBe(true)
 })

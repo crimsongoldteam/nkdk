@@ -1,10 +1,11 @@
 import { registerMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
-import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { registerMetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
-import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
-registerMetadataItemYamlToXmlAugmenter(
-  "configurationExtension",
-  configurationExtensionYamlToXmlAugmenter
-)
+import { configurationExtensionOperationRules } from "./operationRules"
 
-registerMetadataItemXmlImportAugmenter("configurationExtension", configurationExtensionPropertyStatesAugmenter)
+for (const operation of configurationExtensionOperationRules) {
+  if (operation.kind === "xmlImportAugmenter") {
+    registerMetadataItemXmlImportAugmenter(operation.name, operation.augmenter)
+  } else {
+    registerMetadataItemYamlToXmlAugmenter(operation.componentKind, operation.augmenter)
+  }
+}

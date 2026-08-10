@@ -22,6 +22,8 @@ import type { RegisteredSystemEnumeration } from "../property/systemEnumerationR
 import type { IndexValueFromYAMLFunction } from "../property/indexValueFromYAMLRegistry"
 import type { MetadataTargetOwnerResolver } from "../property/metadataTargetOwnerRegistry"
 import type { MetadataItemRule } from "../property/types"
+import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRegistry"
+import type { MetadataItemYamlToXmlAugmenter } from "../property/yamlToXmlAugmenter"
 
 export type PropertyTypeDefinition = {
   readonly [Operation in TypeRulesOperations]?: NonNullable<
@@ -105,6 +107,10 @@ export interface MetadataSynchronizationContribution {
   readonly kind: string
 }
 
+export type MetadataOperationContribution =
+  | { readonly kind: "xmlImportAugmenter"; readonly name: string; readonly augmenter: MetadataItemXmlImportAugmenter }
+  | { readonly kind: "yamlToXmlAugmenter"; readonly componentKind: string; readonly augmenter: MetadataItemYamlToXmlAugmenter }
+
 export interface MetadataRulesDefinition<
   SynchronizationContribution extends MetadataSynchronizationContribution = MetadataSynchronizationContribution,
   ReferenceContribution extends object = RuleRegistrationContribution,
@@ -140,6 +146,6 @@ export interface MetadataRulesDefinition<
   readonly components: readonly MetadataComponentDescriptor[]
   readonly imports: readonly MetadataImportComponentDescriptor[]
   readonly synchronization: readonly SynchronizationContribution[]
-  readonly operations: readonly RuleRegistrationContribution[]
+  readonly operations: readonly MetadataOperationContribution[]
   readonly workerOperations: readonly MetadataWorkerOperationContribution[]
 }

@@ -11,6 +11,28 @@ export interface MetadataItemYamlToXmlAugmenter {
   }): void
 }
 
+export interface MetadataItemYamlToXmlAugmenterContribution {
+  readonly componentKind: string
+  readonly augmenter: MetadataItemYamlToXmlAugmenter
+}
+
+export interface MetadataItemYamlToXmlAugmenterRegistry {
+  augment(params: Parameters<typeof augmentMetadataItemYamlToXml>[0]): void
+}
+
+export function createMetadataItemYamlToXmlAugmenterRegistry(
+  contributions: readonly MetadataItemYamlToXmlAugmenterContribution[],
+): MetadataItemYamlToXmlAugmenterRegistry {
+  const instanceAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
+  for (const { componentKind, augmenter } of contributions) {
+    if (instanceAugmenters.has(componentKind)) {
+      throw new Error(`Дополнение YAML-to-XML metadata-item уже зарегистрировано: ${componentKind}`)
+    }
+    instanceAugmenters.set(componentKind, augmenter)
+  }
+  return { augment: (params) => augmentFromRegistry(instanceAugmenters, params) }
+}
+
 const augmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
 
 export function registerMetadataItemYamlToXmlAugmenter(
@@ -31,9 +53,16 @@ export function augmentMetadataItemYamlToXml(params: {
   readonly yaml: Readonly<Record<string, unknown>>
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
 }): void {
+  augmentFromRegistry(augmenters, params)
+}
+
+function augmentFromRegistry(
+  registry: ReadonlyMap<string, MetadataItemYamlToXmlAugmenter>,
+  params: Parameters<typeof augmentMetadataItemYamlToXml>[0],
+): void {
   const componentKind = params.context.exportToXML.componentKind
   const logicalAddress =
     params.context.exportToXML.configurationIndex?.logicalAddress
   if (componentKind === undefined || logicalAddress === undefined) return
-  augmenters.get(componentKind)?.augment({ ...params, logicalAddress })
+  registry.get(componentKind)?.augment({ ...params, logicalAddress })
 }

@@ -125,6 +125,7 @@ describe("metadataRules", () => {
       expect(metadataRules.validation).toHaveLength(1)
       expect(metadataRules.references.length).toBeGreaterThan(10)
       expect(metadataRules.dataPaths.length).toBeGreaterThan(20)
+      expect(metadataRules.operations).toHaveLength(2)
       expect(metadataRules.resourceTopology).toHaveLength(1)
       expect(
         createRuleRegistrySet(metadataRules).resourceTopology.get().assignments
