@@ -30,6 +30,10 @@ export interface JSONSchemaExportContext {
   validationPropertyRefs?: true
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]
+  defineSchema?: (
+    name: string,
+    exporter: (params: { context: ConfigurationContext }) => TSchema,
+  ) => void
 }
 
 export type ContextElementToEnterprise =

@@ -4,7 +4,6 @@ import { I8nTextJSONSchema } from "../../i8nText/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
@@ -283,7 +282,7 @@ function createSettingsParameterValueJSONSchemaForRule(
 export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
   const settingsRule = rule as SettingsParameterValuePropertyRule
   if (context.exportToJSONSchema?.mode === "externalRefs") {
-    return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+    return schemaRef(ensureSettingsParameterValueJSONSchema(context, settingsRule))
   }
 
   return createSettingsParameterValueJSONSchemaForRule(context, settingsRule)
@@ -294,19 +293,22 @@ export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameter
 export const metadataRuleLayer000 = defineMetadataRules({
   ...emptyMetadataRules,
   schemaPropertyRefs: {
-    SettingsParameterValue: ({ rule }) => {
+    SettingsParameterValue: ({ context, rule }) => {
       const settingsRule = rule as SettingsParameterValuePropertyRule
-      return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+      return schemaRef(ensureSettingsParameterValueJSONSchema(context, settingsRule))
     },
   },
 })
 
-function ensureSettingsParameterValueJSONSchema(rule: SettingsParameterValuePropertyRule): string {
+function ensureSettingsParameterValueJSONSchema(
+  context: ConfigurationContext,
+  rule: SettingsParameterValuePropertyRule,
+): string {
   const schemaName = settingsParameterValueSchemaKey(rule)
-  registerProjectJSONSchema(schemaName, ({ context }) =>
+  context.exportToJSONSchema?.defineSchema?.(schemaName, ({ context }) =>
     createSettingsParameterValueJSONSchema({
       context,
-      rawValueSchema: schemaRef(ensureDcsMetadataValueJSONSchema(toDcsMetadataValueRule(rule))),
+      rawValueSchema: schemaRef(ensureDcsMetadataValueJSONSchema(context, toDcsMetadataValueRule(rule))),
       rule,
     })
   )

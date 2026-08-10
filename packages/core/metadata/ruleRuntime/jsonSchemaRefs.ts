@@ -97,7 +97,12 @@ export function listJSONSchemaIdentityNames(): string[] {
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
   mode: JSONSchemaExportMode,
-  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean; validationPropertyRefs?: true } = {}
+  options: {
+    excludeImplicitValueYAML?: boolean
+    includeNestedChildItems?: boolean
+    validationPropertyRefs?: true
+    defineSchema?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["defineSchema"]
+  } = {}
 ): ConfigurationContext {
   return {
     ...context,
@@ -113,6 +118,9 @@ export function createJSONSchemaExportContext(
       ...(options.validationPropertyRefs === undefined
         ? {}
         : { validationPropertyRefs: options.validationPropertyRefs }),
+      ...(options.defineSchema === undefined
+        ? {}
+        : { defineSchema: options.defineSchema }),
     },
   }
 }

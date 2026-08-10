@@ -36,6 +36,10 @@ export function composeMetadataRules<
         ...result.explicitXMLProperties,
         ...layer.explicitXMLProperties,
       },
+      explicitXMLPropertyTypes: {
+        ...result.explicitXMLPropertyTypes,
+        ...layer.explicitXMLPropertyTypes,
+      },
       dependentItems: {
         ...result.dependentItems,
         ...layer.dependentItems,

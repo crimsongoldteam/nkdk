@@ -8,6 +8,8 @@ import {
   propertyTypesFromContributions,
 } from "./propertyRuleRegistrySet"
 import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { importFromYAML } from "../../../yaml/import"
 
 it("uses the last property type contribution for the same operation", () => {
   const first = () => "first"
@@ -109,4 +111,37 @@ it("copies auxiliary property declarations into the registry instance", () => {
       parsed: {},
     }),
   ).toBe(dependentAnalysis)
+})
+
+it("keeps explicit XML property-type policies inside the registry instance", () => {
+  const withPolicy = createPropertyRuleRegistrySet(
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      explicitXMLPropertyTypes: {
+        Collection: {
+          propertyType: "Collection",
+          action: "materializeCollection",
+          yamlValue: EMPTY_XML_TAG_VALUE,
+        },
+      },
+    }),
+  )
+  const withoutPolicy = createPropertyRuleRegistrySet(
+    defineMetadataRules({ ...emptyMetadataRules }),
+  )
+
+  const yaml = importFromYAML<Record<string, unknown>>("Value: !xml\n")
+  const params = {
+    yaml,
+    itemType: "Owner",
+    properties: { value: { type: "Collection", yaml: "Value" } },
+  } as const
+
+  expect(withPolicy.collectExplicitXMLPropertyActions(params).get("value"))
+    .toEqual({ kind: "materializeCollection" })
+  expect(withPolicy.explicitXMLPropertyValidationMode("Owner", "value", "Collection"))
+    .toBe("empty")
+  expect(withoutPolicy.collectExplicitXMLPropertyActions(params)).toEqual(new Map())
+  expect(withoutPolicy.explicitXMLPropertyValidationMode("Owner", "value", "Collection"))
+    .toBeUndefined()
 })

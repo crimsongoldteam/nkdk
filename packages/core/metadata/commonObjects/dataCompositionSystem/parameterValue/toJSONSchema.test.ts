@@ -1,8 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import type { SettingsParameterValuePropertyRule } from "./types"
-import "./toJSONSchema"
+import { exportSettingsParameterValueToJSONSchema } from "./toJSONSchema"
 
 describe("SettingsParameterValue exportToJSONSchema", () => {
   const schemas = new Map<SettingsParameterValuePropertyRule["valueType"], string>()
@@ -14,7 +13,7 @@ describe("SettingsParameterValue exportToJSONSchema", () => {
       { type: "SettingsParameterValue", valueType: "Font", yaml: "Шрифт" },
       { type: "SettingsParameterValue", valueType: "ChoiceParameterLinks", yaml: "СвязиПараметровВыбора" },
     ] as const satisfies readonly SettingsParameterValuePropertyRule[]) {
-      const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
+      const schema = exportSettingsParameterValueToJSONSchema({ context: mockContext, rule, value: undefined })
       if (schema === undefined) throw new Error(`Schema is not registered for ${rule.valueType}`)
       schemas.set(rule.valueType, JSON.stringify(schema))
     }

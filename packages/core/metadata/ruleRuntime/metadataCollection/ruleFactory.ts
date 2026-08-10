@@ -187,6 +187,7 @@ export const defineMetadataItemCollectionRule = <
       context: {
         ...context,
         exportToJSONSchema: {
+          ...context.exportToJSONSchema,
           mode: context.exportToJSONSchema?.mode ?? "inline",
           refs: context.exportToJSONSchema?.refs ?? new Set(),
           includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,

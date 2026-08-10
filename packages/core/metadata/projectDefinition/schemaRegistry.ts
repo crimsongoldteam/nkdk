@@ -30,6 +30,11 @@ export class ProjectFileSchemaError extends Error {
 type SchemaExporter = (params: { context: ConfigurationContext }) => TSchema
 type SchemaRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
 
+interface JSONSchemaExportSession {
+  readonly exporters: Map<string, SchemaExporter>
+  readonly defineSchema: (name: string, exporter: SchemaExporter) => void
+}
+
 export type JSONSchemaGraphRoot =
   | {
       key: string
@@ -66,10 +71,21 @@ export function exportJSONSchemaForSchemaName(params: {
   includeNestedChildItems?: boolean
   validationPropertyRefs?: true
 }): TSchema {
+  return exportJSONSchemaForSchemaNameInSession(params, createJSONSchemaExportSession())
+}
+
+function exportJSONSchemaForSchemaNameInSession(params: {
+  context: ConfigurationContext
+  name: string
+  mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+  includeNestedChildItems?: boolean
+  validationPropertyRefs?: true
+}, session: JSONSchemaExportSession): TSchema {
   ensureJSONSchemaRegistry()
 
   const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs", validationPropertyRefs } = params
-  const exporter = getSchemaExporter(name) ?? getSchemaExporter(encodeValidationSchemaKey(name))
+  const exporter = getSchemaExporter(name, session) ?? getSchemaExporter(encodeValidationSchemaKey(name), session)
   if (!exporter) {
     throw new ProjectFileSchemaError(
       `Неизвестная JSON Schema "${name}". Доступные имена: ${listJSONSchemaNames().join(", ")}`
@@ -80,6 +96,7 @@ export function exportJSONSchemaForSchemaName(params: {
     excludeImplicitValueYAML,
     includeNestedChildItems,
     validationPropertyRefs,
+    defineSchema: session.defineSchema,
   })
   const schema = exporter({ context: schemaContext })
 
@@ -99,26 +116,27 @@ export function exportJSONSchemaGraph(params: {
   const schemas: Record<string, TSchema> = {}
   const pendingRefs: string[] = []
   const mode = params.validationPropertyRefs === true ? "externalRefs" : (params.mode ?? "externalRefs")
+  const session = createJSONSchemaExportSession()
 
   for (const root of params.roots) {
     const schema =
       root.rule === undefined
-        ? exportJSONSchemaForSchemaName({
+        ? exportJSONSchemaForSchemaNameInSession({
             context: params.context,
             name: root.name,
             mode,
             excludeImplicitValueYAML: params.excludeImplicitValueYAML,
             includeNestedChildItems: root.includeNestedChildItems,
             validationPropertyRefs: params.validationPropertyRefs,
-          })
-        : exportJSONSchemaForMetadataItemRule({
+          }, session)
+        : exportJSONSchemaForMetadataItemRuleInSession({
             context: params.context,
             rule: root.rule,
             mode,
             excludeImplicitValueYAML: params.excludeImplicitValueYAML,
             includeNestedChildItems: root.includeNestedChildItems,
             validationPropertyRefs: params.validationPropertyRefs,
-          })
+          }, session)
     const rewritten = params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, schema) : schema
     roots[root.key] = rewritten
     pendingRefs.push(...collectSchemaRefs(rewritten))
@@ -130,13 +148,13 @@ export function exportJSONSchemaGraph(params: {
 
     const validationSchema = params.validationPropertyRefs === true ? getValidationSchemaRef(ref) : undefined
     const name = params.validationPropertyRefs === true ? validationSchemaName(params.context, ref) : schemaNameFromRef(ref)
-    const exported = validationSchema ?? exportJSONSchemaForSchemaName({
+    const exported = validationSchema ?? exportJSONSchemaForSchemaNameInSession({
       context: params.context,
       name,
       mode,
       excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       validationPropertyRefs: params.validationPropertyRefs,
-    })
+    }, session)
     const schema = withSchemaId(ref, params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, exported) : exported)
 
     schemas[ref] = schema
@@ -154,6 +172,17 @@ export function exportJSONSchemaForMetadataItemRule(params: {
   includeNestedChildItems?: boolean
   validationPropertyRefs?: true
 }): TSchema {
+  return exportJSONSchemaForMetadataItemRuleInSession(params, createJSONSchemaExportSession())
+}
+
+function exportJSONSchemaForMetadataItemRuleInSession(params: {
+  context: ConfigurationContext
+  rule: MetadataItemRule
+  mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+  includeNestedChildItems?: boolean
+  validationPropertyRefs?: true
+}, session: JSONSchemaExportSession): TSchema {
   ensureJSONSchemaRegistry()
   const {
     context,
@@ -167,6 +196,7 @@ export function exportJSONSchemaForMetadataItemRule(params: {
     excludeImplicitValueYAML,
     includeNestedChildItems,
     validationPropertyRefs,
+    defineSchema: session.defineSchema,
   })
   const schema = exportMetadataItemToJSONSchema({
     context: schemaContext,
@@ -243,8 +273,18 @@ export function registerProjectJSONSchemaPropertyRefFactory(type: PropertyRuleTy
   registerJSONSchemaPropertyRef(type, factory)
 }
 
-function getSchemaExporter(name: string): SchemaExporter | undefined {
-  return schemaExporters.get(name) ?? getJSONSchemaIdentityExporter(name)
+function getSchemaExporter(name: string, session?: JSONSchemaExportSession): SchemaExporter | undefined {
+  return session?.exporters.get(name) ?? schemaExporters.get(name) ?? getJSONSchemaIdentityExporter(name)
+}
+
+function createJSONSchemaExportSession(): JSONSchemaExportSession {
+  const exporters = new Map<string, SchemaExporter>()
+  return {
+    exporters,
+    defineSchema(name, exporter) {
+      exporters.set(name, exporter)
+    },
+  }
 }
 
 function withSchemaId(ref: string, schema: TSchema): TSchema {

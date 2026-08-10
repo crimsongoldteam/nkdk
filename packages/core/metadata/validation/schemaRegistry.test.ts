@@ -314,6 +314,33 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
   })
 
+  it("keeps dynamically declared schemas inside one export graph", () => {
+    const namesBeforeExport = listJSONSchemaNames()
+    const dynamicSchemaName =
+      "SettingsParameterValue/Primitive/yaml/SessionOnlyDynamicSchema"
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{
+        key: "probe",
+        rule: {
+          itemType: "DynamicSchemaSessionProbe",
+          properties: {
+            value: {
+              type: "SettingsParameterValue",
+              valueType: "Primitive",
+              yaml: "SessionOnlyDynamicSchema",
+            },
+          },
+        },
+      }],
+    })
+
+    expect(graph.schemas[`nkdk://schema/${dynamicSchemaName}`]).toMatchObject({
+      $id: `nkdk://schema/${dynamicSchemaName}`,
+    })
+    expect(listJSONSchemaNames()).toEqual(namesBeforeExport)
+  })
+
   it("exports single form objects as refs in form graph", () => {
     const graph = clientApplicationFormGraph()
     const tableSchema = graph.schemas["nkdk://schema/Table"] as {

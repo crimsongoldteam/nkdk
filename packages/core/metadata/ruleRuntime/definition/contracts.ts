@@ -13,7 +13,10 @@ import type {
   DependentStructuralItemHandler,
   DependentYamlItemHandler,
 } from "../property/dependentItemRegistry"
-import type { ExplicitXMLPropertyRegistration } from "../property/explicitXMLPropertyRegistry"
+import type {
+  ExplicitXMLPropertyRegistration,
+  ExplicitXMLPropertyTypeRegistration,
+} from "../property/explicitXMLPropertyRegistry"
 import type {
   importExportFunction,
   TypeRulesOperations,
@@ -120,6 +123,9 @@ export interface MetadataRulesDefinition<
   readonly propertyItemRules: Readonly<Record<string, object>>
   readonly explicitXMLProperties: Readonly<
     Record<string, ExplicitXMLPropertyRegistration>
+  >
+  readonly explicitXMLPropertyTypes: Readonly<
+    Record<string, ExplicitXMLPropertyTypeRegistration>
   >
   readonly dependentItems: Readonly<Record<string, DependentItemDefinition>>
   readonly indexValuesFromYAML: Readonly<

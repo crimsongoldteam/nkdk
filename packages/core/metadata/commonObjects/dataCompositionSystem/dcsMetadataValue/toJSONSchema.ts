@@ -12,7 +12,6 @@ import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
@@ -256,7 +255,7 @@ function createDcsMetadataValueJSONSchema(context: ConfigurationContext, rule: D
 export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
   const dcsRule = rule as DcsMetadataValuePropertyRule
   if (context.exportToJSONSchema?.mode === "externalRefs") {
-    return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+    return schemaRef(ensureDcsMetadataValueJSONSchema(context, dcsRule))
   }
 
   return createDcsMetadataValueJSONSchema(context, dcsRule)
@@ -280,16 +279,19 @@ export const metadataRuleLayer000 = defineMetadataRules({
     },
   },
   schemaPropertyRefs: {
-    MetadataDcsMetadataValue: ({ rule }) => {
+    MetadataDcsMetadataValue: ({ context, rule }) => {
       const dcsRule = rule as DcsMetadataValuePropertyRule
-      return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+      return schemaRef(ensureDcsMetadataValueJSONSchema(context, dcsRule))
     },
   },
 })
 
-export function ensureDcsMetadataValueJSONSchema(rule: DcsMetadataValuePropertyRule): string {
+export function ensureDcsMetadataValueJSONSchema(
+  context: ConfigurationContext,
+  rule: DcsMetadataValuePropertyRule,
+): string {
   const schemaName = dcsMetadataValueSchemaName(rule)
-  registerProjectJSONSchema(schemaName, ({ context }) =>
+  context.exportToJSONSchema?.defineSchema?.(schemaName, ({ context }) =>
     createDcsMetadataValueJSONSchema(context, rule)
   )
   return schemaName

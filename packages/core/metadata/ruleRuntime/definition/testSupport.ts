@@ -5,6 +5,7 @@ export const emptyMetadataRules: MetadataRulesDefinition<never, never, never> = 
   propertyTypes: {},
   propertyItemRules: {},
   explicitXMLProperties: {},
+  explicitXMLPropertyTypes: {},
   dependentItems: {},
   indexValuesFromYAML: {},
   metadataTargetOwners: {},

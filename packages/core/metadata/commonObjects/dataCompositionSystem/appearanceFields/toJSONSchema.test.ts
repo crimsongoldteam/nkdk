@@ -1,13 +1,12 @@
 import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
-import "./toJSONSchema"
+import { exportAppearanceFieldsToJSONSchema } from "./toJSONSchema"
 
 let compiledAppearanceFieldsSchema: ReturnType<typeof compileValidationSchema>
 
 const schemaFor = () => {
-  const schema = exportPropertyToJSONSchema({
+  const schema = exportAppearanceFieldsToJSONSchema({
     context: mockContext,
     rule: { type: "AppearanceFields", yaml: "Оформление" },
     value: undefined,

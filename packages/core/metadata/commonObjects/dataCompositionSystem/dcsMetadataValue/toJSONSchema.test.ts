@@ -1,8 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import type { DcsMetadataValuePropertyRule } from "./types"
-import "./toJSONSchema"
+import { exportDcsMetadataValueToJSONSchema } from "./toJSONSchema"
 
 describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
   let primitiveSchema = ""
@@ -37,7 +36,7 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
 })
 
 function schemaJSON(rule: DcsMetadataValuePropertyRule): string {
-  const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
+  const schema = exportDcsMetadataValueToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error(`Schema is not registered for ${rule.valueType}`)
   return JSON.stringify(schema)
 }

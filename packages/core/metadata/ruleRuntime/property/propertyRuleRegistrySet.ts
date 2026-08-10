@@ -9,6 +9,7 @@ import {
 import type {
   ExplicitXMLPropertyAction,
   ExplicitXMLPropertyRegistration,
+  ExplicitXMLPropertyTypeRegistration,
 } from "./explicitXMLPropertyRegistry"
 import type {
   DependentImportedPropertyCandidate,
@@ -104,12 +105,13 @@ export interface PropertyRuleRegistrySet {
     readonly yaml: unknown
     readonly itemType: string
     readonly properties: Readonly<
-      Record<string, { readonly yaml?: string }>
+      Record<string, { readonly type?: string; readonly yaml?: string }>
     >
   }): ReadonlyMap<string, ExplicitXMLPropertyAction>
   explicitXMLPropertyValidationMode(
     itemType: string,
     propertyKey: string,
+    propertyType?: string,
   ): "empty" | "scalar" | undefined
   indexValueFromYAML<T>(propertyType: string, value: unknown): T | undefined
   getMetadataTargetOwnerResolver(
@@ -145,6 +147,7 @@ export function createPropertyRuleRegistrySet(
     | "propertyTypes"
     | "propertyItemRules"
     | "explicitXMLProperties"
+    | "explicitXMLPropertyTypes"
     | "dependentItems"
     | "indexValuesFromYAML"
     | "metadataTargetOwners"
@@ -160,6 +163,10 @@ export function createPropertyRuleRegistrySet(
       propertyRegistrationKey(registration.itemType, registration.propertyKey),
       registration,
     )
+  }
+  const explicitXMLPropertyTypes = new Map<string, ExplicitXMLPropertyTypeRegistration>()
+  for (const registration of Object.values(definition.explicitXMLPropertyTypes)) {
+    explicitXMLPropertyTypes.set(registration.propertyType, registration)
   }
   const indexValuesFromYAML = new Map<string, IndexValueFromYAMLFunction>(
     Object.entries(definition.indexValuesFromYAML),
@@ -232,7 +239,27 @@ export function createPropertyRuleRegistrySet(
         const registration = explicitXMLProperties.get(
           propertyRegistrationKey(params.itemType, propertyKey),
         )
-        if (registration === undefined) continue
+        if (registration === undefined) {
+          const typeRegistration = rule.type === undefined
+            ? undefined
+            : explicitXMLPropertyTypes.get(rule.type)
+          const rawValue = yaml[rule.yaml]
+          if (
+            typeRegistration === undefined ||
+            yamlScalarTagAt(yaml, rule.yaml) !== "xml" ||
+            typeof rawValue !== "string"
+          ) {
+            continue
+          }
+          const payload = xmlScalarTagPayload(rawValue)
+          actions.set(
+            propertyKey,
+            payload.length === 0
+              ? { kind: "materializeCollection" }
+              : { kind: "invalid", message: `${rule.yaml} допускает только пустой !xml` },
+          )
+          continue
+        }
         if (registration.action === "transportScalar") {
           const rawValue = yaml[rule.yaml]
           if (
@@ -260,12 +287,16 @@ export function createPropertyRuleRegistrySet(
       }
       return actions
     },
-    explicitXMLPropertyValidationMode(itemType, propertyKey) {
+    explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType) {
       const registration = explicitXMLProperties.get(
         propertyRegistrationKey(itemType, propertyKey),
       )
-      if (registration === undefined) return undefined
-      return registration.action === "transportScalar" ? "scalar" : "empty"
+      if (registration !== undefined) {
+        return registration.action === "transportScalar" ? "scalar" : "empty"
+      }
+      return propertyType !== undefined && explicitXMLPropertyTypes.has(propertyType)
+        ? "empty"
+        : undefined
     },
     indexValueFromYAML<T>(propertyType: string, value: unknown): T | undefined {
       return indexValuesFromYAML.get(propertyType)?.(value) as T | undefined

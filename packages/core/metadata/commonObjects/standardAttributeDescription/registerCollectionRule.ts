@@ -3,8 +3,8 @@ import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "..
 import { StandardAttributeDescriptionRules } from "./rules"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
 import { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
-import { registerExplicitXMLPropertyType } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
 import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { defineMetadataRules } from "../../ruleRuntime/definition"
 
 function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {
   const names = (rule as StandardAttributeDescriptionsPropertyRule | undefined)?.standartAttributeNames
@@ -14,13 +14,7 @@ function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) =>
   return (yamlKey) => reverse.get(yamlKey) ?? StandartAttributeNameFromYAML(yamlKey)
 }
 
-registerExplicitXMLPropertyType({
-  propertyType: "StandardAttributeDescriptions",
-  action: "materializeCollection",
-  yamlValue: EMPTY_XML_TAG_VALUE,
-})
-
-export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
+const collectionRule = defineMetadataItemCollectionRule({
   propertyType: "StandardAttributeDescriptions",
   itemRule: StandardAttributeDescriptionRules,
   xmlElement: "xr:StandardAttribute",
@@ -40,4 +34,15 @@ export const metadataRuleLayer000 = defineMetadataItemCollectionRule({
   omitEmptyOutput: true,
   recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as keyof typeof StandartAttributeNameToYAML],
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,
+})
+
+export const metadataRuleLayer000 = defineMetadataRules({
+  ...collectionRule,
+  explicitXMLPropertyTypes: {
+    StandardAttributeDescriptions: {
+      propertyType: "StandardAttributeDescriptions",
+      action: "materializeCollection",
+      yamlValue: EMPTY_XML_TAG_VALUE,
+    },
+  },
 })

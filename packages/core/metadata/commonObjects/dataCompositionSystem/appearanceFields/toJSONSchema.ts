@@ -7,7 +7,6 @@ import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
-import { registerProjectJSONSchema } from "../../../projectDefinition/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import {
   StandardPeriodVariantFromYAML,
@@ -132,7 +131,7 @@ const propertySchema = (
 ): TSchema => {
   const useExternalRefs = context.exportToJSONSchema?.mode === "externalRefs"
   const schema = useExternalRefs
-    ? schemaRef(ensureAppearanceSettingsParameterValueJSONSchema(property, rawValueSchema))
+    ? schemaRef(ensureAppearanceSettingsParameterValueJSONSchema(context, property, rawValueSchema))
     : createSettingsParameterValueJSONSchema({
         context,
         rawValueSchema: rawValueSchema(context),
@@ -167,11 +166,12 @@ const appearanceStringPropertySchema = (context: ConfigurationContext): TSchema 
 }
 
 function ensureAppearanceSettingsParameterValueJSONSchema(
+  exportContext: ConfigurationContext,
   property: SettingsParameterValuePropertyRule,
   rawValueSchema: (context: ConfigurationContext) => TSchema
 ): string {
   const schemaName = appearanceSettingsParameterValueSchemaName(property)
-  registerProjectJSONSchema(schemaName, ({ context }) =>
+  exportContext.exportToJSONSchema?.defineSchema?.(schemaName, ({ context }) =>
     createSettingsParameterValueJSONSchema({
       context,
       rawValueSchema: rawValueSchema(context),
