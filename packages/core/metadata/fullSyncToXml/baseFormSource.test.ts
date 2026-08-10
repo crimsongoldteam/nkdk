@@ -33,8 +33,9 @@ describe("verified base form source", () => {
     })
 
     expect(result.kind).toBe("projected")
-    expect(result.projectPath).toBe(state.projectPath)
-    expect(result.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
+    expect(result.baseForm.projectPath).toBe(state.projectPath)
+    expect(result.baseForm.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
+    expect(result.currentConfigurationForm).toBe(result.baseForm)
   })
 
   it("rejects a base YAML changed after hashes were received", async () => {
@@ -77,8 +78,8 @@ describe("verified base form source", () => {
     })
 
     expect(result.kind).toBe("projected")
-    expect(result.prepared.role).toBe("properties")
-    expect(result.prepared.data).toMatchObject({
+    expect(result.baseForm.prepared.role).toBe("properties")
+    expect(result.baseForm.prepared.data).toMatchObject({
       Форма: { Заголовок: "Основная форма" },
     })
   })
@@ -103,8 +104,10 @@ describe("verified base form source", () => {
     })
 
     expect(result.kind).toBe("saved")
-    expect(result.projectPath).toBe(saved.projectPath)
-    expect(result.prepared.data).toMatchObject({ Заголовок: "Сохранённая основа" })
+    expect(result.baseForm.projectPath).toBe(saved.projectPath)
+    expect(result.baseForm.prepared.data).toMatchObject({ Заголовок: "Сохранённая основа" })
+    expect(result.currentConfigurationForm.projectPath).toBe(base.projectPath)
+    expect(result.currentConfigurationForm.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
   })
 
   it("reads the changed current form after confirmation without creating a companion", async () => {
@@ -133,8 +136,8 @@ describe("verified base form source", () => {
       baseProjectPath: state.projectPath,
     })
 
-    expect(first.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
-    expect(second.prepared.data).toMatchObject({ Заголовок: "Обновлённая форма" })
+    expect(first.baseForm.prepared.data).toMatchObject({ Заголовок: "Основная форма" })
+    expect(second.baseForm.prepared.data).toMatchObject({ Заголовок: "Обновлённая форма" })
     expect(fs.existsSync(companionPath)).toBe(false)
   })
 

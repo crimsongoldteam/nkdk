@@ -22,7 +22,9 @@ export const prepareFormXML = (params: {
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
-  basePreparedYamlFile?: PreparedYamlFile
+  baseFormPreparedYamlFile?: PreparedYamlFile
+  currentConfigurationFormPreparedYamlFile?: PreparedYamlFile
+  baseFormSourceKind?: "saved" | "projected"
   baseConfigurationIndex?: ConfigurationIndexReader
   baseFormContext?: ConfigurationContextWithExportToXML
   rule?: MetadataItemRule
@@ -53,7 +55,16 @@ export const prepareFormXML = (params: {
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,
-    ...(params.basePreparedYamlFile === undefined
+    ...(params.currentConfigurationFormPreparedYamlFile === undefined
+      ? {}
+      : {
+          currentConfigurationFormYaml:
+            params.currentConfigurationFormPreparedYamlFile.data as ClientApplicationFormYAML,
+          ...(params.baseFormSourceKind === "saved" && params.baseFormPreparedYamlFile !== undefined
+            ? { savedBaseFormYaml: params.baseFormPreparedYamlFile.data as ClientApplicationFormYAML }
+            : {}),
+        }),
+    ...(params.baseFormPreparedYamlFile === undefined
       ? {}
       : {
           baseFormXML: buildClientApplicationBaseForm({
@@ -61,7 +72,7 @@ export const prepareFormXML = (params: {
             ...(params.baseFormContext === undefined
               ? { baseIndex: requireBaseConfigurationIndex(params), extensionYaml: yamlObj }
               : {}),
-            baseYaml: params.basePreparedYamlFile.data as ClientApplicationFormYAML,
+            baseYaml: params.baseFormPreparedYamlFile.data as ClientApplicationFormYAML,
             formName: params.formName,
             rule,
           }),
@@ -100,7 +111,7 @@ export const prepareFormXML = (params: {
 }
 
 function requireBaseConfigurationIndex(params: {
-  readonly basePreparedYamlFile?: PreparedYamlFile
+  readonly baseFormPreparedYamlFile?: PreparedYamlFile
   readonly baseConfigurationIndex?: ConfigurationIndexReader
 }): ConfigurationIndexReader {
   if (params.baseConfigurationIndex !== undefined) {

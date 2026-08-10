@@ -248,7 +248,9 @@ registerMetadataXmlPrepareCapability({
     assignment,
     context,
     preparedYamlFile,
-    basePreparedYamlFile,
+    baseFormPreparedYamlFile,
+    currentConfigurationFormPreparedYamlFile,
+    baseFormSourceKind,
     baseConfigurationIndex,
     baseFormContext,
     itemName,
@@ -270,10 +272,19 @@ registerMetadataXmlPrepareCapability({
       context: itemContext,
     })
     const baseSource =
-      basePreparedYamlFile === undefined
+      baseFormPreparedYamlFile === undefined || baseFormContext !== undefined
         ? undefined
         : createYAMLPropertySource({
-            yaml: basePreparedYamlFile.data,
+            yaml: baseFormPreparedYamlFile.data,
+            rule: assignment.itemRule,
+            itemName,
+            context: itemContext,
+          })
+    const currentConfigurationFormSource =
+      currentConfigurationFormPreparedYamlFile === undefined
+        ? undefined
+        : createYAMLPropertySource({
+            yaml: currentConfigurationFormPreparedYamlFile.data,
             rule: assignment.itemRule,
             itemName,
             context: itemContext,
@@ -297,11 +308,27 @@ registerMetadataXmlPrepareCapability({
       const xml = nestedRule.convert({
         context: propertyContext,
         yaml: source.raw(propertyKey),
-        ...(baseFormContext !== undefined && basePreparedYamlFile !== undefined
-          ? { baseYAML: basePreparedYamlFile.data }
+        ...(baseFormPreparedYamlFile !== undefined &&
+        currentConfigurationFormPreparedYamlFile !== undefined &&
+        baseFormSourceKind !== undefined
+          ? {
+              baseYAML: {
+                kind: "selectedBaseYAML",
+                baseFormSourceKind,
+                baseFormYAML:
+                  baseFormContext !== undefined
+                    ? baseFormPreparedYamlFile.data
+                    : selectedBasePropertyYAML(output, baseFormPreparedYamlFile, baseSource),
+                currentConfigurationFormYAML: selectedBasePropertyYAML(
+                  output,
+                  currentConfigurationFormPreparedYamlFile,
+                  currentConfigurationFormSource
+                ),
+              },
+            }
           : output.baseInput?.value === "wholeYaml" &&
-        basePreparedYamlFile !== undefined
-          ? { baseYAML: basePreparedYamlFile.data }
+        baseFormPreparedYamlFile !== undefined
+          ? { baseYAML: baseFormPreparedYamlFile.data }
           : output.baseInput?.value === "sourceProperty" &&
               output.baseInput.propertyName !== undefined &&
               baseSource !== undefined
@@ -328,6 +355,18 @@ registerMetadataXmlPrepareCapability({
     })
   },
 })
+
+function selectedBasePropertyYAML(
+  output: { readonly baseInput?: { readonly value: string; readonly propertyName?: string } },
+  prepared: { readonly data?: unknown },
+  source: ReturnType<typeof createYAMLPropertySource> | undefined
+): unknown {
+  if (output.baseInput?.value === "wholeYaml") return prepared.data
+  if (output.baseInput?.value === "sourceProperty" && output.baseInput.propertyName !== undefined) {
+    return source?.raw(output.baseInput.propertyName)
+  }
+  return undefined
+}
 
 function withImportFormDir(
   context: ConfigurationContextWithExportToXML,

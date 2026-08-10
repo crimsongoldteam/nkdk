@@ -80,7 +80,9 @@ registerMetadataXmlPrepareCapability({
   run: ({
     context,
     preparedYamlFile,
-    basePreparedYamlFile,
+    baseFormPreparedYamlFile,
+    currentConfigurationFormPreparedYamlFile,
+    baseFormSourceKind,
     baseConfigurationIndex,
     baseFormContext,
     assignment,
@@ -96,7 +98,11 @@ registerMetadataXmlPrepareCapability({
       rule: assignment.itemRule,
       currentXMLPath: byRole.get("body")?.targetXmlPath,
       profile,
-      ...(basePreparedYamlFile === undefined ? {} : { basePreparedYamlFile }),
+      ...(baseFormPreparedYamlFile === undefined ? {} : { baseFormPreparedYamlFile }),
+      ...(currentConfigurationFormPreparedYamlFile === undefined
+        ? {}
+        : { currentConfigurationFormPreparedYamlFile }),
+      ...(baseFormSourceKind === undefined ? {} : { baseFormSourceKind }),
       ...(baseConfigurationIndex === undefined
         ? {}
         : { baseConfigurationIndex }),

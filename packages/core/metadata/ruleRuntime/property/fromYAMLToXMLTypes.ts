@@ -50,6 +50,13 @@ export const createYAMLToXMLProfile = (): YAMLToXMLProfile => ({
   propertyPaths: [],
 })
 
+export interface SelectedBaseYAMLInput {
+  readonly kind: "selectedBaseYAML"
+  readonly baseFormSourceKind: "saved" | "projected"
+  readonly baseFormYAML: unknown
+  readonly currentConfigurationFormYAML: unknown
+}
+
 export type YAMLToXMLNestedRule =
   | {
       readonly kind: "externalFile"

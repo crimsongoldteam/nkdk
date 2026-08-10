@@ -738,6 +738,75 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(elementByName(result.formXML, "Номер").DataPath).toBeUndefined()
   })
 
+  it("использует текущую cf без БазоваяФорма.yaml для заимствованного и собственного элементов", () => {
+    const currentConfigurationFormYaml = {
+      Реквизиты: {
+        Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+      },
+      Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+    } satisfies ClientApplicationFormYAML
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: {
+          Номер: { Вид: "ПолеВвода" },
+          Дата: { Вид: "ПолеВвода" },
+        },
+      } satisfies ClientApplicationFormYAML,
+      currentConfigurationFormYaml,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "Дата").DataPath).toBe("Объект.Date")
+  })
+
+  it("строит путь собственной колонки из пути заимствованной таблицы текущей cf", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: {
+          Товары: {
+            Вид: "ТаблицаФормы",
+            Элементы: { ТоварыКоличество: { Вид: "ПолеВвода" } },
+          },
+        },
+      } as ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: {
+          Товары: { Вид: "ТаблицаФормы", ПутьКДанным: "Объект.Товары" },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Товары").DataPath).toBeUndefined()
+    expect(elementByName(result.formXML, "ТоварыКоличество").DataPath)
+      .toBe("Объект.Товары.Количество")
+  })
+
+  it("сохраняет явный override заимствованного элемента", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredDocumentOwner(),
+      yaml: {
+        Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+      } satisfies ClientApplicationFormYAML,
+      currentConfigurationFormYaml: {
+        Реквизиты: {
+          Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+        },
+        Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+      },
+      name: "ФормаДокумента",
+    })
+
+    expect(elementByName(result.formXML, "Номер").DataPath).toBe("Объект.Number")
+  })
+
   it("строит BaseForm встроенной формы из отдельного базового YAML", () => {
     const nestedRule = getTypeRule(
       "ClientApplicationForm",
@@ -767,6 +836,41 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
         Width: 80,
       },
     })
+  })
+
+  it("разделяет сохранённый BaseForm и текущую форму cf во вложенном преобразовании", () => {
+    const nestedRule = getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")
+    if (nestedRule?.kind !== "externalFile") throw new Error("Не зарегистрировано вложенное правило формы")
+    const context = contextWithLayeredDocumentOwner()
+
+    const result = nestedRule.convert({
+      context,
+      yaml: {
+        Элементы: {
+          Номер: { Вид: "ПолеВвода" },
+          Дата: { Вид: "ПолеВвода" },
+        },
+      },
+      baseYAML: {
+        kind: "selectedBaseYAML",
+        baseFormSourceKind: "saved",
+        baseFormYAML: { Ширина: 80 },
+        currentConfigurationFormYAML: {
+          Реквизиты: {
+            Объект: { Тип: "ДокументОбъект.Заказ", ОсновнойРеквизит: "Истина" },
+          },
+          Элементы: { Номер: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Номер" } },
+        },
+      },
+      baseYAMLContext: context,
+      name: "ФормаДокумента",
+      referenceXML: undefined,
+    })
+    const form = result.Form as ClientApplicationFormXML
+
+    expect(form.BaseForm).toMatchObject({ Width: 80 })
+    expect(elementByName(form, "Номер").DataPath).toBeUndefined()
+    expect(elementByName(form, "Дата").DataPath).toBe("Объект.Date")
   })
 })
 

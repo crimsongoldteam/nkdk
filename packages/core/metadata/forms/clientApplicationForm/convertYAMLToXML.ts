@@ -37,6 +37,8 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly profile?: YAMLToXMLProfile
   readonly rule?: MetadataItemRule
   readonly formDataPathContext?: FormDataPathContext
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly savedBaseFormYaml?: ClientApplicationFormYAML
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -58,6 +60,12 @@ export function convertClientApplicationFormYAMLToXMLCore(
     params.formDataPathContext ??
     prepareFormDataPathContextFromYAML({
       yaml: params.dataPathYaml ?? params.yaml,
+      ...(params.currentConfigurationFormYaml === undefined
+        ? {}
+        : { currentConfigurationFormYaml: params.currentConfigurationFormYaml }),
+      ...(params.savedBaseFormYaml === undefined
+        ? {}
+        : { savedBaseFormYaml: params.savedBaseFormYaml }),
       ownerCache: ownerMetadataCache,
       rule,
     })

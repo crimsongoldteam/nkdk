@@ -18,9 +18,16 @@ export interface BaseFormSource {
   }): Promise<BaseFormSourceResult>
 }
 
-export type BaseFormSourceResult =
-  | { readonly kind: "saved"; readonly prepared: PreparedYamlFile; readonly projectPath: string }
-  | { readonly kind: "projected"; readonly prepared: PreparedYamlFile; readonly projectPath: string }
+interface PreparedBaseFormSource {
+  readonly prepared: PreparedYamlFile
+  readonly projectPath: string
+}
+
+export type BaseFormSourceResult = {
+  readonly kind: "saved" | "projected"
+  readonly baseForm: PreparedBaseFormSource
+  readonly currentConfigurationForm: PreparedBaseFormSource
+}
 
 export class BaseFormSourceError extends Error {
   readonly code: "full_xml_sync_base_form_changed"
@@ -48,16 +55,22 @@ export function createVerifiedBaseFormSource(params: {
         if (saved === undefined) {
           throw new Error(`Для сохранённой основы отсутствует подтверждённое состояние: ${savedProjectPath}`)
         }
+        const [savedPrepared, currentPrepared] = await Promise.all([
+          readVerifiedYaml(saved, savedProjectPath, extensionAssignment),
+          readVerifiedYaml(base, baseProjectPath, extensionAssignment),
+        ])
         return {
           kind: "saved",
-          prepared: await readVerifiedYaml(saved, savedProjectPath, extensionAssignment),
-          projectPath: savedProjectPath,
+          baseForm: { prepared: savedPrepared, projectPath: savedProjectPath },
+          currentConfigurationForm: { prepared: currentPrepared, projectPath: baseProjectPath },
         }
       }
+      const prepared = await readVerifiedYaml(base, baseProjectPath, extensionAssignment)
+      const currentConfigurationForm = { prepared, projectPath: baseProjectPath }
       return {
         kind: "projected",
-        prepared: await readVerifiedYaml(base, baseProjectPath, extensionAssignment),
-        projectPath: baseProjectPath,
+        baseForm: currentConfigurationForm,
+        currentConfigurationForm,
       }
     },
   }
