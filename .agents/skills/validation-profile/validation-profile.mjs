@@ -80,9 +80,9 @@ function parseArgs(argv) {
 
 async function loadCompiledCore() {
   const distIndex = resolve(repoRoot, "packages/core/dist/index.js")
-  const standalone = resolve(repoRoot, "packages/core/dist/projectValidationAjvStandalone.js")
+  const worker = resolve(repoRoot, "packages/core/dist/worker.js")
 
-  if (!existsSync(distIndex) || !existsSync(standalone)) {
+  if (!existsSync(distIndex) || !existsSync(worker)) {
     fail(
       [
         "compiled validation files are missing.",
@@ -187,7 +187,7 @@ async function runProfile(options) {
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
   const result = {
-    mode: "compiled-standalone",
+    mode: "compiled-runtime",
     projectDir: options.projectDir,
     runs,
     coldMs: runs[0]?.elapsedMs,
@@ -360,7 +360,7 @@ function printResult(result, options) {
     return
   }
 
-  console.log("Validation profile: compiled standalone")
+  console.log("Validation profile: compiled runtime")
   console.log(`YAML-каталог: ${result.projectDir}`)
   console.log(`Воркеры: ${result.runs[0]?.workerPoolSize ?? "unknown"}`)
   console.log(`Cold: ${formatMs(result.coldMs)}`)
@@ -694,7 +694,7 @@ async function main() {
     const timing = runTimingPass(options)
     if (options.jsonOnly) {
       console.log(JSON.stringify({
-        mode: "compiled-standalone-timing-only",
+        mode: "compiled-runtime-timing-only",
         projectDir: options.projectDir,
         ...timing,
       }, null, 2))
