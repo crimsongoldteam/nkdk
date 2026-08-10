@@ -3,8 +3,11 @@ import { join } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
   E2E_COMPONENTS,
+  cloneImportedProject,
   importMetadataProject,
   removeImportedProject,
+  validateChangedProject,
+  validateCleanProject,
   type ImportedMetadataProject,
 } from "./support/metadata-project"
 
@@ -34,5 +37,23 @@ describe.sequential("metadata project E2E", () => {
     }
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
+  })
+
+  it("validates a clean project and reports the same changed YAML without .nkdk", async () => {
+    if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
+    const projectDir = await cloneImportedProject(baseline, "validation")
+    const clean = await validateCleanProject(projectDir)
+    const result = await validateChangedProject(projectDir)
+
+    expect(result.cold).toEqual(result.warm)
+    expect(clean).toEqual([])
+    expect(result.warm).toHaveLength(1)
+    expect(result.warm[0]).toMatchObject({
+      filePath: "cf/Конфигурация.yaml",
+      severity: "error",
+      source: "structure",
+    })
+    expect(result.warm[0]?.message).toContain("НеизвестноеПолеE2E")
+    console.info("E2E validation durations, ms", result.durationsMs)
   })
 })

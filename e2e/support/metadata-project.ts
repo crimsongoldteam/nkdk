@@ -1,11 +1,13 @@
-import { cp, mkdtemp, rm } from "node:fs/promises"
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { join, resolve } from "node:path"
+import { isAbsolute, join, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import {
   createProjectStateService,
   importConfigurationFromXml,
+  validateProject,
   type ConfigurationImportResult,
+  type MetadataDiagnostic,
 } from "@nkdk/core"
 
 export interface E2EComponent {
@@ -19,6 +21,23 @@ export interface ImportedMetadataProject {
   readonly projectDir: string
   readonly results: readonly ConfigurationImportResult[]
   readonly durationsMs: Readonly<Record<string, number>>
+}
+
+export interface ComparableDiagnostic {
+  readonly filePath: string
+  readonly severity: MetadataDiagnostic["severity"]
+  readonly source: MetadataDiagnostic["source"]
+  readonly message: string
+  readonly path?: string
+}
+
+export interface ValidationParityResult {
+  readonly warm: readonly ComparableDiagnostic[]
+  readonly cold: readonly ComparableDiagnostic[]
+  readonly durationsMs: {
+    readonly warm: number
+    readonly cold: number
+  }
 }
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
@@ -91,6 +110,67 @@ export async function cloneImportedProject(source: ImportedMetadataProject, name
   return target
 }
 
+export async function validateCleanProject(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
+  return runValidation(projectDir)
+}
+
+export async function validateChangedProject(projectDir: string): Promise<ValidationParityResult> {
+  const configurationPath = join(projectDir, "cf", "Конфигурация.yaml")
+  const original = await readFile(configurationPath, "utf8")
+  await writeFile(
+    configurationPath,
+    `${original.endsWith("\n") ? original : `${original}\n`}НеизвестноеПолеE2E: true\n`,
+    "utf8",
+  )
+
+  const warmStartedAt = performance.now()
+  const warm = await runValidation(projectDir)
+  const warmDurationMs = performance.now() - warmStartedAt
+
+  await rm(join(projectDir, ".nkdk"), { recursive: true, force: true })
+  const coldStartedAt = performance.now()
+  const cold = await runValidation(projectDir)
+  const coldDurationMs = performance.now() - coldStartedAt
+
+  return {
+    warm,
+    cold,
+    durationsMs: { warm: warmDurationMs, cold: coldDurationMs },
+  }
+}
+
 export async function removeImportedProject(source: ImportedMetadataProject): Promise<void> {
   await rm(source.root, { recursive: true, force: true })
+}
+
+async function runValidation(projectDir: string): Promise<readonly ComparableDiagnostic[]> {
+  const projectState = createProjectStateService()
+  try {
+    const { diagnostics } = await validateProject({
+      projectDir,
+      context: SYNC_CONTEXT,
+      concurrency: 2,
+      projectState,
+    })
+    try {
+      return [...diagnostics].map((diagnostic) => comparableDiagnostic(projectDir, diagnostic))
+    } finally {
+      diagnostics.release()
+    }
+  } finally {
+    await projectState.close()
+  }
+}
+
+function comparableDiagnostic(projectDir: string, diagnostic: MetadataDiagnostic): ComparableDiagnostic {
+  const filePath = isAbsolute(diagnostic.filePath)
+    ? relative(projectDir, diagnostic.filePath).replaceAll("\\", "/")
+    : diagnostic.filePath
+  return {
+    filePath,
+    severity: diagnostic.severity,
+    source: diagnostic.source,
+    message: diagnostic.message,
+    ...(diagnostic.path === undefined ? {} : { path: diagnostic.path }),
+  }
 }
