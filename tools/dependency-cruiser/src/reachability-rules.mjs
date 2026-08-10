@@ -135,7 +135,40 @@ export const exampleCoreReachabilityRule = {
   toPatterns: ["^packages/core/metadata/example/adapters/"],
 }
 
+/** @type {ReachabilityRule} */
+export const runtimeDoesNotReachRulesRule = {
+  name: "runtime-does-not-reach-rules",
+  severity: "error",
+  comment: "Runtime не зависит от конкретного набора rules.",
+  fromPatterns: ["^packages/runtime/"],
+  toPatterns: ["^packages/rules/"],
+}
+
+/** @type {ReachabilityRule} */
+export const rulesDoesNotReachRuntimeInternalsRule = {
+  name: "rules-does-not-reach-runtime-internals",
+  severity: "error",
+  comment: "Rules использует только публичные точки входа runtime.",
+  fromPatterns: ["^packages/rules/"],
+  toPatterns: ["^packages/runtime/"],
+  toNotPatterns: [
+    "^packages/runtime/(?:index|rule-kit|worker)\\.ts$",
+  ],
+}
+
+/** @type {ReachabilityRule} */
+export const packageCompositionRootOnlyInMcpRule = {
+  name: "package-composition-root-only-in-mcp",
+  severity: "error",
+  comment: "Готовый набор rules подключает только MCP как composition root.",
+  fromPatterns: ["^packages/(?!mcp/|rules/)"],
+  toPatterns: ["^packages/rules/"],
+}
+
 export const metadataReachabilityRules = [
+  runtimeDoesNotReachRulesRule,
+  rulesDoesNotReachRuntimeInternalsRule,
+  packageCompositionRootOnlyInMcpRule,
   metadataImplementationReachabilityRule,
   diagnosticsValidationReachabilityRule,
   resourceTopologyCoreReachabilityRule,
