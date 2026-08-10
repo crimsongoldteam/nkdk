@@ -203,6 +203,7 @@ function withEffectiveTabularElementDataPaths(params: {
   const tabularElementsByName = new Map(params.index.tabularElementsByName)
   for (const [name, element] of params.collected.elementsByName) {
     if (element.itemType !== "Table" || !tabularElementsByName.has(name)) continue
+    if (element.present && typeof element.value === "string" && element.value.trim().length > 0) continue
     const dataPath = params.prepared.effectivePath(name)?.yaml
     tabularElementsByName.set(name, {
       kind: "tabularFormElement",
