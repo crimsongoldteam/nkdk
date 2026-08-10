@@ -121,6 +121,41 @@ describe("validateProjectFileFirstPass references", () => {
     )
   })
 
+  it.each([
+    [
+      "ПланСчетов/Тест/Свойства.yaml",
+      [
+        "Предопределенные:",
+        "  Элемент:",
+        '    Порядок: "1"',
+        "    ПризнакиУчета: {}",
+      ],
+      ["Порядок", "ПризнакиУчета"],
+    ],
+    [
+      "ПланВидовРасчета/Тест/Свойства.yaml",
+      [
+        "Предопределенные:",
+        "  Элемент:",
+        "    ПериодДействияБазовый: Истина",
+        "    Базовые: []",
+        "    Ведущие: []",
+        "    Вытесняющие: []",
+      ],
+      ["ПериодДействияБазовый", "Базовые", "Ведущие", "Вытесняющие"],
+    ],
+  ])("accepts specialized Predefined fields in %s", (projectPath, yaml, fields) => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, projectPath, yaml)
+
+    const paths = validateProjectPath(projectDir, projectPath).schemaDiagnostics.map(({ path }) => path)
+
+    for (const field of fields) {
+      expect(paths).not.toContain(`/Предопределенные/Элемент/${field}`)
+    }
+  })
+
   it("keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
