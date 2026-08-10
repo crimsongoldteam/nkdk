@@ -7,6 +7,7 @@ import { projectSpecRegistryRevision } from "../projectDefinition/projectSpecReg
 import { findMetadataComponentDescriptor } from "../components/descriptor"
 import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
 import { resolveFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import { snapshotLocalYamlValueValidationRegistryForTests } from "../validation/yamlValueValidationRegistry"
 
 describe("metadataRules", () => {
   it(
@@ -23,6 +24,11 @@ describe("metadataRules", () => {
       expect(() =>
         resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
       ).toThrow()
+      expect(
+        snapshotLocalYamlValueValidationRegistryForTests().validators.has(
+          "ClientApplicationForm",
+        ),
+      ).toBe(false)
 
       const { metadataRules } = await import("./metadataRules")
 
@@ -37,6 +43,11 @@ describe("metadataRules", () => {
       expect(() =>
         resolveFullXmlSyncComponentProfile({ kind: "configuration" }),
       ).toThrow()
+      expect(
+        snapshotLocalYamlValueValidationRegistryForTests().validators.has(
+          "ClientApplicationForm",
+        ),
+      ).toBe(false)
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
       )
@@ -50,6 +61,7 @@ describe("metadataRules", () => {
       expect(metadataRules.components).toHaveLength(2)
       expect(metadataRules.imports).toHaveLength(2)
       expect(metadataRules.synchronization).toHaveLength(2)
+      expect(metadataRules.validation).toHaveLength(1)
     },
     30_000,
   )

@@ -15,6 +15,7 @@ import { registerLegacyProjectSpecDefinitions } from "../projectDefinition/proje
 import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import { registerXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
 import { registerFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import { registerLocalYamlValueValidator } from "../validation/yamlValueValidationRegistry"
 
 let coreMetadataRegistered = false
 
@@ -46,6 +47,15 @@ export function registerCoreMetadata(): void {
   }
   for (const profile of legacyCoreRules.synchronization) {
     registerFullXmlSyncComponentProfile(profile)
+  }
+  for (const contribution of legacyCoreRules.validation) {
+    registerLocalYamlValueValidator({
+      type: contribution.propertyType,
+      validator: (params) => [...contribution.validate(params)],
+      ...(contribution.profileSubstep === undefined
+        ? {}
+        : { profileSubstep: contribution.profileSubstep }),
+    })
   }
 
   registerMetadataLayers({

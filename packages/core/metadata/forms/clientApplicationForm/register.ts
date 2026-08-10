@@ -6,18 +6,12 @@ import {
   registerFormWarningProvider,
 } from "../../validation/formValidationRegistry"
 import { registerFormDataPathMetadataProjection } from "../../validation/formDataPathProjectionRegistry"
-import { registerLocalYamlValueValidator } from "../../validation/yamlValueValidationRegistry"
 import {
   collectDynamicListTypeValueWarnings,
   validateClientApplicationForm,
   validateClientApplicationFormFirstPass,
   validateClientApplicationFormSecondPass,
 } from "./validate"
-import { ClientApplicationFormRules } from "./rules"
-import {
-  FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
-  validateFormElementNames,
-} from "./validateElementNames"
 import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
 import { clientApplicationFormValidationAdapter } from "./validationAdapter"
 import { registerFormStructureProjection } from "../../validation/formStructureProjectionRegistry"
@@ -28,16 +22,6 @@ import "./importedYamlFinalizer"
 
 registerFormValidationAdapter(clientApplicationFormValidationAdapter)
 registerFormStructureProjection(projectClientApplicationFormStructure)
-
-registerLocalYamlValueValidator({
-  type: "ClientApplicationForm",
-  profileSubstep: FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
-  validator: (params) =>
-    validateFormElementNames({
-      ...params,
-      rule: ClientApplicationFormRules,
-    }),
-})
 
 registerFormValidator(validateClientApplicationForm)
 registerFormDataPathMetadataProjection(clientApplicationFormDataPathProjection)
