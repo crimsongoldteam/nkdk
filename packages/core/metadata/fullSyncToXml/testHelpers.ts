@@ -44,6 +44,7 @@ export function emptyProjectStateReadSession(
       requestId: request.requestId,
       status: "missing" as const,
     })),
+    readStructuredDocumentEntries: () => [],
     close() {},
     ...overrides,
   }

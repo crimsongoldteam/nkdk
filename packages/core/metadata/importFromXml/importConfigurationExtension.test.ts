@@ -48,11 +48,26 @@ describe("configuration extension XML import", () => {
         {
           severity: "error",
           code: "project_validation",
-          message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
+          message: "Не найден владелец СправочникОбъект.БазовыйСправочник",
+          targetProjectPath: join(
+            fs.realpathSync(projectDir),
+            "cfe/РасширениеКонтроль/Справочник/БазовыйСправочник/Свойства.yaml",
+          ),
+        },
+        {
+          severity: "error",
+          code: "project_validation",
+          message: 'Ссылка "Language.БазовыйЯзык" не включена в расширение',
           targetProjectPath: "cfe/РасширениеКонтроль/Конфигурация.yaml",
         },
       ],
-      warnings: [],
+      warnings: [{
+        severity: "warning",
+        code: "unresolved_data_path",
+        message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
+        targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
+        value: "БазовыйОбъект.БазовыйРеквизит.Description",
+      }],
       configurationIndexPath: configurationIndexPath(projectDir, {
         kind: "configurationExtension",
         name: "РасширениеКонтроль",
@@ -102,7 +117,7 @@ describe("configuration extension XML import", () => {
         },
         ПолеБазовогоРеквизита: {
           Вид: "ПолеНадписи",
-          ПутьКДанным: "БазовыйОбъект.БазовыйРеквизит.Наименование",
+          ПутьКДанным: "БазовыйОбъект.БазовыйРеквизит.Description",
         },
       },
     })
@@ -112,6 +127,12 @@ describe("configuration extension XML import", () => {
     expect(yamlText).not.toContain("БазовыйРеквизитФормы")
     expect(yamlText).not.toContain("UnknownProperty")
     expect(yamlText).not.toContain("FutureState")
+    expect(readYaml(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
+    )).toMatchObject({
+      Элементы: { БазовоеПоле: { Вид: "ПолеВвода", Ширина: 99 } },
+    })
 
     expect(snapshot).toMatchObject({
       specificationVersion: "1.3",
@@ -129,6 +150,12 @@ describe("configuration extension XML import", () => {
     expect(
       snapshot.entities.every((entity) => snapshot.files.some((file) => file.projectPath === entity.sourceProjectPath))
     ).toBe(true)
+    expect(snapshot.entities.filter(({ sourceProjectPath }) => sourceProjectPath.endsWith("БазоваяФорма.yaml")))
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          logicalAddress: expect.stringContaining(".ОсноваФормы"),
+        }),
+      ]))
     expect(snapshot).not.toHaveProperty("localIndexes")
     expect(snapshot).not.toHaveProperty("dependencies")
     expect(
@@ -136,6 +163,7 @@ describe("configuration extension XML import", () => {
     ).toBe(true)
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
+
 })
 
 async function importExtension() {
@@ -160,6 +188,8 @@ async function importExtension() {
   )
   writeBaseLanguage(projectDir)
   writeBaseCatalog(projectDir)
+  writeBaseForm(projectDir)
+  writeBaseConfiguration(projectDir)
 
   const result = await importConfigurationFromXml({
     context: mockContextFromXML(),
@@ -178,6 +208,10 @@ async function importExtension() {
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml"),
   ].join("\n")
+  if (!fs.existsSync(configurationIndexPath(projectDir, {
+    kind: "configurationExtension",
+    name: "РасширениеКонтроль",
+  }))) throw new Error(`Импорт не создал снимок: ${JSON.stringify(result)}`)
   const snapshot = await readConfigurationIndex({
     projectDir,
     address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
@@ -202,15 +236,40 @@ function temporaryDirectory(): string {
 }
 
 function writeBaseLanguage(projectDir: string): void {
-  const path = join(projectDir, "cf", "Язык", "БазовыйЯзык.yaml")
+  const path = join(projectDir, "cf", "Язык", "БазовыйЯзык", "Свойства.yaml")
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, "КодЯзыка: ru\n")
+}
+
+function writeBaseConfiguration(projectDir: string): void {
+  const path = join(projectDir, "cf", "Конфигурация.yaml")
+  fs.mkdirSync(dirname(path), { recursive: true })
+  fs.writeFileSync(path, "Имя: Основная\nОсновнойЯзык: БазовыйЯзык\n")
 }
 
 function writeBaseCatalog(projectDir: string): void {
   const path = join(projectDir, "cf", "Справочник", "БазовыйСправочник", "Свойства.yaml")
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, ["Реквизиты:", "  БазовыйРеквизит:", "    Тип: Справочник.БазовыйСправочник", ""].join("\n"))
+}
+
+function writeBaseForm(projectDir: string): void {
+  const path = join(
+    projectDir,
+    "cf",
+    "Справочник",
+    "СправочникПолный",
+    "Формы",
+    "ФормаОтчета",
+    "Форма.yaml",
+  )
+  fs.mkdirSync(dirname(path), { recursive: true })
+  fs.writeFileSync(path, [
+    "Элементы:",
+    "  БазовоеПоле:",
+    "    Вид: ПолеВвода",
+    "",
+  ].join("\n"))
 }
 
 function readYaml(projectDir: string, relativePath: string): unknown {

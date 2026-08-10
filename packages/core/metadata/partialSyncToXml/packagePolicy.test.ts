@@ -85,6 +85,7 @@ describe("partial XML package policy registry", () => {
       loadDocumentIds: [assignment.xmlDocuments[0]!.id],
       companionDocuments: [],
       companionReferences: [],
+      yamlCompanionInputIds: [],
     })
     expect(resolved.externalFiles.get(assignment.externalFiles[0]!.id)).toEqual({
       externalFileId: assignment.externalFiles[0]!.id,

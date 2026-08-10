@@ -2,6 +2,8 @@ import { createConfigurationIndexReader } from "../../configurationIndex"
 import { formatCanonicalMetadataTargetToYAML } from "../../ruleRuntime/metadataTarget"
 import type { FullXmlSyncComponentProfile } from "../componentProfile"
 import { configurationExtensionTypeDescriptionXMLNameByType } from "../../appliedObjects/configurationExtension/typeDescriptionPolicy"
+import { expandMetadataPathPattern } from "../../resourceTopology/core/patterns"
+import type { ConfirmedComponentState } from "../../project/componentState/types"
 
 export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfile = {
   kind: "configurationExtension",
@@ -60,15 +62,31 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       base.indexes.logicalAddresses.map(({ logicalAddress, sourceProjectPath }) => [logicalAddress, sourceProjectPath]),
     )
     const extensionFormPaths = new Set(target.structure.resources.flatMap((resource) =>
-      resource.kind === "content" && resource.rule?.itemType === "ClientApplicationForm"
+      resource.kind === "content" && (
+        resource.rule?.itemType === "ClientApplicationForm" ||
+        resource.assignment?.yamlCompanions.some(({ projectRole }) => projectRole === "form") === true
+      )
         ? [resource.projectPath]
+        : []
+    ))
+    const extensionFormResourceByPath = new Map(target.structure.resources.flatMap((resource) =>
+      resource.kind === "content" && extensionFormPaths.has(resource.projectPath)
+        ? [[resource.projectPath, resource] as const]
         : []
     ))
     const borrowedForms = target.indexes.logicalAddresses.flatMap(({ logicalAddress, sourceProjectPath }) => {
       const baseProjectPath = baseProjectPathByLogicalAddress.get(logicalAddress)
       return baseProjectPath === undefined || !extensionFormPaths.has(sourceProjectPath)
         ? []
-        : [{ logicalAddress, extensionProjectPath: sourceProjectPath, baseProjectPath }]
+        : [{
+            logicalAddress,
+            extensionProjectPath: sourceProjectPath,
+            baseProjectPath,
+            ...savedBaseFormPath(
+              extensionFormResourceByPath.get(sourceProjectPath),
+              target.structure.projectPaths,
+            ),
+          }]
     })
 
     return {
@@ -89,11 +107,22 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         baseForms: {
           componentDir: base.structure.componentDir,
           projectFiles: base.hashes.projectFiles,
+          targetProjectFiles: target.hashes.projectFiles,
           snapshot: base.snapshot,
         },
       },
     }
   },
+}
+
+function savedBaseFormPath(
+  resource: ConfirmedComponentState["structure"]["resources"][number] | undefined,
+  projectPaths: readonly string[],
+): { readonly savedProjectPath?: string } {
+  const companion = resource?.assignment?.yamlCompanions.find(({ projectRole }) => projectRole === "form")
+  if (companion === undefined || resource === undefined) return {}
+  const projectPath = expandMetadataPathPattern(companion.projectPattern, resource.values)
+  return projectPaths.includes(projectPath) ? { savedProjectPath: projectPath } : {}
 }
 
 function assertEqualProjectFiles(

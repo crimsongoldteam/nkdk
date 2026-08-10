@@ -83,7 +83,7 @@ export function validateDependencyDiagnosticBatch(
 ): EncodedDiagnosticBatch {
   const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
   const readiness = dependencyValidator.readReadiness({ queryPort })
-  const { references, dependencies, owners } = collectDependencyChecks(
+  const { references, dependencies, owners, structuredDocuments } = collectDependencyChecks(
     snapshot,
     typed,
     readiness.blockedComponentPaths,
@@ -92,6 +92,7 @@ export function validateDependencyDiagnosticBatch(
   append(writer, dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }))
   append(writer, dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }))
   append(writer, dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }))
+  append(writer, dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }))
   append(writer, readiness.diagnostics)
   return writer.finish()
 }
@@ -104,11 +105,15 @@ function collectDependencyChecks(
   const references: ProjectStatePendingReferenceCheck[] = []
   const dependencies: ProjectDependencyInputQuery[] = []
   const owners: ProjectStatePendingOwnerCheck[] = []
+  const structuredDocuments = []
   const seenOwners = new Set<string>()
   for (const fileId of yamlFileIds(snapshot)) {
     const componentPath = snapshot.componentPath(fileId)
     const projectPath = snapshot.filePath(fileId)
     if (blockedComponentPaths.has(componentPath)) continue
+    for (const entry of typed.structuredDocuments(fileId)) {
+      structuredDocuments.push({ componentPath, projectPath, entry })
+    }
     typed.pendingReferences(fileId).forEach((reference, index) => references.push({
       requestId: `reference:${fileId}:${index}`,
       componentPath,
@@ -128,7 +133,7 @@ function collectDependencyChecks(
       owners.push({ requestId: `owner:${fileId}:${index}`, componentPath, owner: check.owner })
     }
   }
-  return { references, dependencies, owners }
+  return { references, dependencies, owners, structuredDocuments }
 }
 
 function* yamlFileIds(snapshot: ProjectStateSnapshotView): IterableIterator<number> {

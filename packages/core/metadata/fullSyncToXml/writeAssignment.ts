@@ -24,7 +24,7 @@ export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly generatedDocuments: readonly FullXmlSyncGeneratedDocument[]
-  readonly fragment?: ConfigurationSnapshotFragment
+  readonly fragments: readonly ConfigurationSnapshotFragment[]
   readonly profile?: YAMLToXMLProfile
 }
 
@@ -77,7 +77,9 @@ async function writePreparedAssignment(
       diagnostics: [],
       writtenFiles,
       generatedDocuments,
-      fragment: params.prepared.indexCollector.fragment(params.prepared.assignment.sourceProjectPath),
+      fragments: params.prepared.indexCollectors.map(({ collector, targetProjectPath }) =>
+        collector.fragment(targetProjectPath)
+      ),
       profile: params.prepared.profile,
     }
   } catch (caught) {
@@ -100,6 +102,7 @@ function failedResult(
     ],
     writtenFiles,
     generatedDocuments: [],
+    fragments: [],
   }
 }
 

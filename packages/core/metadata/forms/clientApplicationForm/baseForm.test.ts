@@ -735,6 +735,39 @@ describe("client application BaseForm", () => {
         entities: [],
       })
   })
+
+  it("converts a saved base directly and records newly allocated identities", () => {
+    const collector = createConfigurationIndexCollector()
+    const source = reader({ componentPath: "cfe/Расширение" })
+    const targetProjectPath =
+      "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"
+    const baseContext = mockContextToXML()
+    const configurationIndex = createConfigurationIndexExportRuntime({
+      source,
+      collector,
+      targetProjectPath,
+      logicalAddress: `${formAddress}.ОсноваФормы`,
+    })
+    const context = {
+      ...baseContext,
+      exportToXML: { ...baseContext.exportToXML, configurationIndex },
+    }
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseYaml: {
+        Элементы: { ИсторическоеПоле: { Вид: "ПолеВвода" } },
+      } as ClientApplicationFormYAML,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.InputField?._id).toBeDefined()
+    expect(collector.fragment(targetProjectPath).entities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sourceProjectPath: targetProjectPath }),
+      ])
+    )
+  })
 })
 
 function reader(params: {

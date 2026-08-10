@@ -100,6 +100,10 @@ export function buildPartialXmlImpactPlan(params: {
         structurallyDeletedCollections.has(memberCollectionKey(match))) continue
       throw new Error(`Удалённый внешний файл нельзя включить в XML-пакет: ${version.projectPath}`)
     }
+    if (match.kind === "yamlCompanion") {
+      includeYamlCompanionOwner(match)
+      continue
+    }
     if (match.compositionImpact === "configurationComposition") {
       includeConfigurationRoot()
       continue
@@ -162,7 +166,27 @@ export function buildPartialXmlImpactPlan(params: {
       includeAssignment(resource, true)
     } else if (resource.kind === "externalFile") {
       includeExternal(resource, true)
+    } else if (resource.kind === "yamlCompanion") {
+      includeYamlCompanionOwner(resource)
     }
+  }
+
+  function includeYamlCompanionOwner(resource: MetadataProjectResourceMatch): void {
+    const assignment = resource.assignment
+    const companion = resource.yamlCompanion
+    if (assignment === undefined || companion === undefined) {
+      throw new Error(`YAML-спутник не связан с XML-заданием: ${resource.projectPath}`)
+    }
+    const policy = params.policies.assignments.get(assignment.id)
+    if (!policy?.yamlCompanionInputIds.includes(companion.id)) {
+      throw new Error(`YAML-спутник не зарегистрирован как вход задания: ${resource.projectPath}`)
+    }
+    const assignmentPath = expandMetadataPathPattern(assignment.projectPattern, resource.values)
+    const owner = currentByPath.get(assignmentPath)
+    if (owner?.kind !== "content") {
+      throw new Error(`Для YAML-спутника не найдено текущее XML-задание: ${resource.projectPath}`)
+    }
+    includeAssignment(owner, true)
   }
 
   function includeAssignment(resource: MetadataProjectResourceMatch, requestLoad: boolean): void {

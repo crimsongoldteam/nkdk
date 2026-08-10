@@ -26,6 +26,7 @@ import {
 import preparedYamlProjectWorkerEntryPoint, {
   classifyChangedProjectStateFile,
   collectValidationFacts,
+  projectFormStructureDocuments,
   runPreparedYamlProjectWorkerTask,
   type PreparedYamlProjectWorkerTask,
 } from "./preparedYamlProjectWorker"
@@ -639,8 +640,106 @@ describe("validation first-pass worker boundary", () => {
     ])
     expect(update.pendingChecks[0]).not.toHaveProperty("rule")
     expect(update.pendingChecks[0]).not.toHaveProperty("index")
+    expect(update.structuredDocuments).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        documentKind: "clientApplicationForm",
+        representation: "working",
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath: projectPath,
+        componentKind: "attribute",
+        name: "Значение",
+        yamlPath: ["Реквизиты", "Значение"],
+      }),
+    ]))
     expect(structuredClone(batch)).toEqual(batch)
   }, 120_000)
+
+  it("публикует основу формы отдельно и не добавляет её обычные факты", async () => {
+    const projectDir = createTempDir()
+    const componentPath = "cfe/Продажи"
+    const componentDir = join(projectDir, "cfe", "Продажи")
+    const workingProjectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const projectPath = "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml"
+    const filePath = join(componentDir, ...projectPath.split("/"))
+    mkdirSync(dirname(filePath), { recursive: true })
+    writeFileSync(filePath, [
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: Строка",
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Объект",
+      "",
+    ].join("\n"))
+    const descriptor: PreparedYamlProjectFileDescriptor = {
+      componentPath,
+      componentDir,
+      rootProjectPath: `${componentPath}/${projectPath}`,
+      projectPath,
+      filePath,
+      role: "form",
+      owner: { dir: "Справочник", name: "Товары" },
+      itemType: "ClientApplicationForm",
+      indexContribution: "isolated",
+    }
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [descriptor],
+    })
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    const update = openProjectStateFileUpdateBatch(result.fileUpdateBatches[0]!).update(0)
+    if (update?.kind !== "yaml") throw new Error("unexpected project state update")
+
+    expect(update).toMatchObject({
+      targets: [], owners: [], fields: [], forms: [], pendingReferences: [], pendingChecks: [], dependencies: [],
+      localValidation: { contributedFacts: false },
+    })
+    expect(update.structuredDocuments).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        representation: "base",
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+        workingProjectPath,
+        componentKind: "element",
+        name: "Поле",
+      }),
+      expect.objectContaining({ componentKind: "attribute", name: "Объект" }),
+    ]))
+  }, 120_000)
+
+  it("определяет роль формы через topology, а не имя файла", () => {
+    const projectDir = createTempDir()
+    const componentPath = "cfe/Продажи"
+    const componentDir = join(projectDir, "cfe", "Продажи")
+    const projectPath = "ОбщаяФорма/РабочийСтол/БазоваяФорма.yaml"
+    const documents = projectFormStructureDocuments({
+      projectDir,
+      descriptor: {
+        componentPath,
+        componentDir,
+        rootProjectPath: `${componentPath}/${projectPath}`,
+        projectPath,
+        filePath: join(componentDir, ...projectPath.split("/")),
+        role: "form",
+        owner: { dir: "ОбщаяФорма", name: "РабочийСтол" },
+        itemType: "ClientApplicationForm",
+        indexContribution: "isolated",
+      },
+      components: [{ componentKind: "parameter", name: "Режим", yamlPath: ["Параметры", "Режим"] }],
+    })
+
+    expect(documents).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        representation: "base",
+        logicalAddress: "ОбщаяФорма.РабочийСтол",
+        workingProjectPath: "ОбщаяФорма/РабочийСтол/Свойства.yaml",
+      }),
+    ]))
+  })
 
   it("declares only shared hash buffers at the Piscina worker boundary", async () => {
     const projectDir = createTempDir()

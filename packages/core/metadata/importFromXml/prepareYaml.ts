@@ -4,6 +4,7 @@ import { withConfigurationIndexCollector } from "../configurationIndex/collector
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ExternalFileEntry, XmlImportConfigurationContext } from "../context/types"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
+import { importBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
 import { importMetadataItemFromXMLToYAML } from "../ruleRuntime/metadataItem/fromXMLToYAML"
@@ -14,7 +15,7 @@ import {
 } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../ruleRuntime/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
-import type { DirectImportProfile } from "../ruleRuntime/property/importYamlTypes"
+import type { DirectImportProfile, DirectImportResult } from "../ruleRuntime/property/importYamlTypes"
 import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
 import {
   createDeferredValuePathCollector,
@@ -26,6 +27,8 @@ import { findRegisteredProjectRule, getRegisteredProjectSpecs } from "../project
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ValidationProfiler } from "../validation/profile"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+import { expandMetadataPathPattern, matchMetadataPathPattern } from "../resourceTopology/core/patterns"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
@@ -47,6 +50,18 @@ export interface PreparedImportYaml {
   dependentDeferred: readonly ImportedDependentPropertyCandidate[]
   dependentOwner: { readonly dir: string; readonly name: string }
   generatedFiles: ExternalFileEntry[]
+  baseFormCandidate?: PreparedBaseFormCandidate
+}
+
+export interface PreparedBaseFormCandidate {
+  baseProjectPath: string
+  targetProjectPath: string
+  owner: { dir: string; name: string }
+  yaml: unknown
+  rule: MetadataItemRule
+  localIndexes: LocalIndexes
+  deferred: readonly DeferredObjectValue[]
+  configurationFragment: ConfigurationSnapshotFragment
 }
 
 interface ParsedImportXmlInput {
@@ -100,19 +115,49 @@ export async function prepareImportYaml(params: {
       dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
       name: params.assignment.owner?.name ?? params.assignment.itemName,
     }
-    const result = measureYaml(params.profiler, () => {
+    const result: DirectImportResult & Pick<PreparedImportYaml, "baseFormCandidate" | "dependentDeferred"> = measureYaml(params.profiler, () => {
       if (rule.itemType === ClientApplicationFormRules.itemType) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
         const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
         const bodyXML = bodyInput?.parsed
-        return { ...importClientApplicationFormFromXMLToYAML({
+        const imported = importClientApplicationFormFromXMLToYAML({
           context: importContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
           profile: importProfile,
           rule,
-        }), dependentDeferred: [] }
+        })
+        const baseFormXML = (bodyXML?.["Form"] as ClientApplicationFormXML | undefined)?.BaseForm
+        const companion = baseFormXML === undefined
+          ? undefined
+          : resolveBaseFormCompanion(params.assignment)
+        if (baseFormXML === undefined || companion === undefined) {
+          return { ...imported, dependentDeferred: [] }
+        }
+        const baseForm = importBaseFormYaml({
+          context: importContext,
+          baseFormXML,
+          formName: params.assignment.itemName,
+          rule: companion.rule,
+        })
+        return {
+          ...imported,
+          dependentDeferred: [],
+          baseFormCandidate: {
+            baseProjectPath: params.assignment.targetProjectPath,
+            targetProjectPath: companion.targetProjectPath,
+            owner: {
+              dir: params.assignment.targetProjectPath.split("/", 1)[0] ?? "",
+              name: params.assignment.owner?.name ?? params.assignment.itemName,
+            },
+            yaml: baseForm.yaml,
+            rule: companion.rule,
+            localIndexes: baseForm.localIndexes,
+            deferred: bindDeferredObjectValues(baseForm.yaml, baseForm.deferred),
+            configurationFragment: baseForm.configurationIndexCollector.fragment(companion.targetProjectPath),
+          },
+        }
       }
 
       const collector = createLocalIndexesCollector()
@@ -174,9 +219,31 @@ export async function prepareImportYaml(params: {
       dependentDeferred: result.dependentDeferred,
       dependentOwner,
       generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
+      ...(result.baseFormCandidate === undefined ? {} : { baseFormCandidate: result.baseFormCandidate }),
     }
   } finally {
     xmlInputs = undefined
+  }
+}
+
+function resolveBaseFormCompanion(assignment: ImportAssignment): {
+  targetProjectPath: string
+  rule: MetadataItemRule
+} | undefined {
+  if (assignment.topologyNodeId === undefined) return undefined
+  const node = compileRegisteredMetadataResourceTopology().assignments.find(({ id }) => id === assignment.topologyNodeId)
+  if (node === undefined) throw new Error(`Не найден узел топологии формы ${assignment.topologyNodeId}`)
+  const values = matchMetadataPathPattern(node.projectPattern, assignment.targetProjectPath)
+  if (values === undefined) {
+    throw new Error(`Путь формы не соответствует topology: ${assignment.targetProjectPath}`)
+  }
+  const companions = node.yamlCompanions.filter(({ projectRole }) => projectRole === "form")
+  if (companions.length === 0) return undefined
+  if (companions.length > 1) throw new Error(`У задания формы несколько YAML-спутников: ${assignment.targetProjectPath}`)
+  const companion = companions[0]!
+  return {
+    targetProjectPath: expandMetadataPathPattern(companion.projectPattern, values),
+    rule: companion.itemRule,
   }
 }
 

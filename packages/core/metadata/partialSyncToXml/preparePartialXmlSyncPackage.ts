@@ -7,7 +7,11 @@ import { hashFileBytes } from "../configurationIndex/hash"
 import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { Diagnostic } from "../diagnostics/types"
-import { resolveFullXmlSyncComponentProfile, type FullXmlSyncProfileRuntime } from "../fullSyncToXml/componentProfile"
+import {
+  resolveFullXmlSyncComponentProfile,
+  type FullXmlSyncProfileRuntime,
+} from "../fullSyncToXml/componentProfile"
+import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"
 import { readProfileComponentStates } from "../fullSyncToXml/componentRuntime"
 import { buildXmlSyncPlan } from "../fullSyncToXml/selection"
 import { createFullXmlSyncCompositionSnapshot } from "../fullSyncToXml/sharedMetadata"
@@ -36,7 +40,6 @@ import {
   type PendingPartialXmlSyncStateV1,
 } from "./pendingStore"
 import { createPartialXmlArchiveWriter, type PartialXmlArchiveWriter } from "./archiveWriter"
-import { validateBorrowedExtensionForms } from "./borrowedFormValidation"
 
 export interface PreparePartialXmlSyncPackageParams {
   readonly context: ConfigurationContext
@@ -154,9 +157,7 @@ async function prepareValidatedPackage(
     componentPath: params.componentPath,
     componentDir: runtime.target.structure.componentDir,
   })
-  const borrowedDiagnostics = await validateBorrowedExtensionForms({ runtime })
-  const diagnostics = [...params.diagnostics, ...borrowedDiagnostics]
-  if (hasErrors(borrowedDiagnostics)) return { ok: false, diagnostics }
+  const diagnostics = params.diagnostics
   if (isEmptyChanges(changes) && migration.pending.length === 0) {
     return { ok: true, status: "unchanged", diagnostics }
   }
@@ -171,11 +172,11 @@ async function prepareValidatedPackage(
     referencesFor: (sourceProjectPath) => references.bySource.get(sourceProjectPath) ?? [],
     resolveCanonicalTarget: (canonical) => references.targetByCanonical.get(canonical),
   })
-  const plan = buildXmlSyncPlan({
+  const plan = attachBorrowedFormPaths(buildXmlSyncPlan({
     structure: runtime.target.structure,
     hashes: runtime.target.hashes,
     selection: impact.selection,
-  })
+  }), runtime)
   return writePreparedPackage({ ...params, runtime, plan, impact, migration, previous, diagnostics })
 }
 

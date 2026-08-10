@@ -37,6 +37,7 @@ import type {
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
+import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"
@@ -98,7 +99,7 @@ export async function runFullXmlSyncWorkerCommand(
       ?? dependencies.openReadSession(requireProjectStateReadToken(command.projectStateReadToken))
     const ownsProjectStateReadSession = dependencies.projectStateReadSession === undefined
     try {
-      const baseFormSource = createBaseFormSource(command.profile)
+      const baseFormSource = createBaseFormSource(command.profile, command.componentPath, command.componentDir)
       const composition = (dependencies.createCompositionReader ?? createFullXmlSyncCompositionReader)(
         command.composition,
       )
@@ -207,7 +208,7 @@ async function executeAssignments(
   const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const generatedDocuments: FullXmlSyncGeneratedDocument[] = []
-  const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
+  const fragments: ConfigurationSnapshotFragment[] = []
   state.ownerMetadataCache.preload(assignments.flatMap(ownerRefsFromAssignment))
 
   for (const assignment of assignments) {
@@ -247,15 +248,20 @@ async function executeAssignments(
       diagnostics.push(...syntaxDiagnostics)
       if (syntaxDiagnostics.some(({ severity }) => severity === "error")) continue
 
-      const basePreparedYamlFile = await readBaseFormIfAdopted(assignment, state)
+      const baseFormSource = await readBaseFormIfAdopted(assignment, state)
       const prepared = prepareFullXmlSyncAssignment({
         assignment,
         preparedYamlFile: yamlFile,
-        ...(basePreparedYamlFile === undefined
+        ...(baseFormSource === undefined
           ? {}
           : {
-              basePreparedYamlFile,
-              ...(state.baseIndex === undefined ? {} : { baseConfigurationIndex: state.baseIndex }),
+              baseFormSource,
+              ...(baseFormSource.kind === "saved"
+                ? { baseFormConfigurationIndex: state.index }
+                : {}),
+              ...(baseFormSource.kind === "projected" && state.baseIndex !== undefined
+                ? { baseConfigurationIndex: state.baseIndex }
+                : {}),
             }),
         context: exportContext(state, assignment.logicalAddress),
         index: assignmentIndex,
@@ -275,7 +281,7 @@ async function executeAssignments(
       diagnostics.push(...result.diagnostics)
       writtenFiles.push(...result.writtenFiles)
       generatedDocuments.push(...result.generatedDocuments)
-      if (result.fragment !== undefined) fragments.push(result.fragment)
+      fragments.push(...result.fragments)
     } catch (caught) {
       diagnostics.push(
         assignmentDiagnostic(
@@ -329,11 +335,18 @@ async function readBaseFormIfAdopted(assignment: FullXmlSyncAssignment, state: I
   }
   return state.baseFormSource.read({
     extensionAssignment: assignment,
-    baseProjectPath: assignment.sourceProjectPath,
+    baseProjectPath: assignment.baseFormPaths?.baseProjectPath ?? assignment.sourceProjectPath,
+    ...(assignment.baseFormPaths?.savedProjectPath === undefined
+      ? {}
+      : { savedProjectPath: assignment.baseFormPaths.savedProjectPath }),
   })
 }
 
-function createBaseFormSource(profile: FullXmlSyncWorkerProfileRuntime): BaseFormSource | undefined {
+function createBaseFormSource(
+  profile: FullXmlSyncWorkerProfileRuntime,
+  targetComponentPath: string,
+  targetComponentDir: string,
+): BaseFormSource | undefined {
   if (profile.baseForms === undefined) return undefined
   const topology = compileRegisteredMetadataResourceTopology()
   const resources = profile.baseForms.projectFiles.flatMap(({ projectPath }) => {
@@ -353,6 +366,25 @@ function createBaseFormSource(profile: FullXmlSyncWorkerProfileRuntime): BaseFor
       componentPath: "cf",
       projectFiles: profile.baseForms.projectFiles,
     },
+    ...(profile.baseForms.targetProjectFiles === undefined
+      ? {}
+      : {
+          savedStructure: {
+            address: { kind: "configurationExtension", name: "extension" },
+            componentPath: targetComponentPath,
+            componentDir: targetComponentDir,
+            topology,
+            resources: profile.baseForms.targetProjectFiles.flatMap(({ projectPath }) => {
+              const resource = classifyMetadataProjectPath(topology, projectPath)
+              return resource === undefined ? [] : [resource]
+            }),
+            projectPaths: profile.baseForms.targetProjectFiles.map(({ projectPath }) => projectPath),
+          },
+          savedHashes: {
+            componentPath: targetComponentPath,
+            projectFiles: profile.baseForms.targetProjectFiles,
+          },
+        }),
   })
 }
 

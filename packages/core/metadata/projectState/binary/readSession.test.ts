@@ -25,7 +25,22 @@ it("соблюдает видимость cf и собственного рас�
     lookup("base", "cfe/Цены", "Catalog.Base"),
     lookup("own", "cfe/Цены", "Catalog.Extension"),
     lookup("foreign", "cfe/Цены", "Catalog.Foreign"),
-  ]).map(({ status }) => status)).toEqual(["found", "found", "missing"])
+  ]).map(({ status }) => status)).toEqual(["missing", "found", "missing"])
+})
+
+it("читает структурные документы только точного компонента и адреса", () => {
+  const entry = {
+    documentKind: "clientApplicationForm", representation: "working", logicalAddress: "Form.Одна",
+    workingProjectPath: "Форма.yaml", componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+  } as const
+  const session = openSessionWithUpdates([
+    { ...richYamlUpdate("cf/form.yaml", "cf", "Form.Одна"), structuredDocuments: [entry] },
+    { ...richYamlUpdate("cfe/X/form.yaml", "cfe/X", "Form.Одна"), structuredDocuments: [{ ...entry, name: "Расширение" }] },
+  ])
+
+  expect(session.readStructuredDocumentEntries({ componentPath: "cfe/X", logicalAddress: "Form.Одна" }))
+    .toEqual([{ ...entry, name: "Расширение" }])
+  expect(session.readStructuredDocumentEntries({ componentPath: "cfe/X", logicalAddress: "Form.Другая" })).toEqual([])
 })
 
 it("возвращает ambiguous вместо произвольной записи", () => {

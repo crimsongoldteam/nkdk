@@ -24,6 +24,7 @@ export const prepareFormXML = (params: {
   profile?: import("../../ruleRuntime/property/fromYAMLToXMLTypes").YAMLToXMLProfile
   basePreparedYamlFile?: PreparedYamlFile
   baseConfigurationIndex?: ConfigurationIndexReader
+  baseFormContext?: ConfigurationContextWithExportToXML
   rule?: MetadataItemRule
 }): readonly {
   targetKind: "metadata" | "body"
@@ -56,10 +57,11 @@ export const prepareFormXML = (params: {
       ? {}
       : {
           baseFormXML: buildClientApplicationBaseForm({
-            context: contextWithFormExternalMetadata,
-            baseIndex: requireBaseConfigurationIndex(params),
+            context: params.baseFormContext ?? contextWithFormExternalMetadata,
+            ...(params.baseFormContext === undefined
+              ? { baseIndex: requireBaseConfigurationIndex(params), extensionYaml: yamlObj }
+              : {}),
             baseYaml: params.basePreparedYamlFile.data as ClientApplicationFormYAML,
-            extensionYaml: yamlObj,
             formName: params.formName,
             rule,
           }),

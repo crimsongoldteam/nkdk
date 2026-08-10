@@ -65,6 +65,7 @@ export function assertProjectStateImportIndexContribution(
     "owners",
     "fields",
     "forms",
+    "structuredDocuments",
   ], path)
   assertProjectStateFileUpdate({
     ...contribution,
@@ -73,6 +74,7 @@ export function assertProjectStateImportIndexContribution(
     pendingReferences: [],
     pendingChecks: [],
     dependencies: [],
+    structuredDocuments: contribution["structuredDocuments"] ?? [],
   }, path)
 }
 
@@ -104,6 +106,7 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
       "forms",
       "pendingChecks",
       "dependencies",
+      "structuredDocuments",
     ],
     path
   )
@@ -149,6 +152,14 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
     assertOptionalBoolean(row["tableHasColumns"], `${rowPath}.tableHasColumns`)
   })
   assertFormRows(update["forms"], `${path}.forms`)
+  assertRows(update["structuredDocuments"] ?? [], `${path}.structuredDocuments`, [
+    "documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name", "yamlPath",
+  ], (row, rowPath) => {
+    for (const key of ["documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name"] as const) {
+      assertString(row[key], `${rowPath}.${key}`)
+    }
+    assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
+  })
   assertRows(update["pendingChecks"], `${path}.pendingChecks`, [
     "kind",
     "yamlPath",

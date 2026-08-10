@@ -386,7 +386,8 @@ describe("full XML sync worker", () => {
   })
 
   it("строит BaseForm заимствованной общей формы и не строит его собственной", async () => {
-    for (const adopted of [true, false]) {
+    for (const mode of ["saved", "projected", "own"] as const) {
+      const adopted = mode !== "own"
       resetFullXmlSyncWorkerStateForTests()
       const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-common-form-"))
       tempDirs.push(projectDir)
@@ -395,6 +396,8 @@ describe("full XML sync worker", () => {
       const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
       const sourcePath = join(componentDir, ...projectPath.split("/"))
       const baseSourcePath = join(baseComponentDir, ...projectPath.split("/"))
+      const savedProjectPath = "ОбщаяФорма/ФормаПродаж/БазоваяФорма.yaml"
+      const savedSourcePath = join(componentDir, ...savedProjectPath.split("/"))
       fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
       fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
       fs.writeFileSync(
@@ -409,6 +412,12 @@ describe("full XML sync worker", () => {
           "\n"
         )
       )
+      if (mode === "saved") {
+        fs.writeFileSync(
+          savedSourcePath,
+          ["Ширина: 70", "Элементы:", "  ИсторическоеПоле:", "    Вид: ПолеВвода", ""].join("\n")
+        )
+      }
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
       const formAddress = logicalAddress
       const elementAddress = childUid(formAddress, "Элемент", "Поле")
@@ -459,6 +468,14 @@ describe("full XML sync worker", () => {
         itemName: "ФормаПродаж",
         logicalAddress,
         configurationIndexEntityRange: { start: 0, count: 0 },
+        ...(adopted
+          ? {
+              baseFormPaths: {
+                baseProjectPath: projectPath,
+                ...(mode === "saved" ? { savedProjectPath } : {}),
+              },
+            }
+          : {}),
         ...fullXmlSyncTestTopologyFields(projectPath),
       }
       await runFullXmlSyncWorkerCommand({
@@ -483,6 +500,12 @@ describe("full XML sync worker", () => {
                 projectPath,
                 contentHash: hashFileBytes(fs.readFileSync(baseSourcePath)),
               },
+            ],
+            targetProjectFiles: [
+              { projectPath, contentHash: hashFileBytes(fs.readFileSync(sourcePath)) },
+              ...(mode === "saved"
+                ? [{ projectPath: savedProjectPath, contentHash: hashFileBytes(fs.readFileSync(savedSourcePath)) }]
+                : []),
             ],
             snapshot: baseSnapshot,
           },
@@ -523,15 +546,21 @@ describe("full XML sync worker", () => {
         diagnostics: [],
       })
       const formXml = fs.readFileSync(join(projectDir, ".out", "CommonForms", "ФормаПродаж", "Ext", "Form.xml"), "utf8")
+      expect(fs.existsSync(savedSourcePath)).toBe(mode === "saved")
       if (adopted) {
         expect(formXml).toContain("<BaseForm")
-        expect(formXml).toContain("<Width>80</Width>")
+        expect(formXml).toContain(`<Width>${mode === "saved" ? 70 : 80}</Width>`)
         const baseFormXml = formXml.slice(
           formXml.indexOf("<BaseForm"),
           formXml.indexOf("</BaseForm>") + "</BaseForm>".length
         )
-        expect(baseFormXml).toContain('name="Поле" id="10"')
-        expect(baseFormXml).not.toContain('id="1000010"')
+        if (mode === "saved") {
+          expect(baseFormXml).toContain('name="ИсторическоеПоле"')
+          expect(baseFormXml).not.toContain('name="Поле"')
+        } else {
+          expect(baseFormXml).toContain('name="Поле" id="10"')
+          expect(baseFormXml).not.toContain('id="1000010"')
+        }
       } else {
         expect(formXml).not.toContain("<BaseForm")
       }

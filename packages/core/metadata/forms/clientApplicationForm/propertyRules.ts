@@ -44,6 +44,17 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
   const xmlFormDir = dirname(filePath).replace(/\\/g, "/")
   return [
     {
+      kind: "yamlCompanion",
+      assignmentProjectPattern: "",
+      projectPattern: "БазоваяФорма.yaml",
+      required: false,
+      itemRule: ClientApplicationFormRules,
+      projectRole: "form",
+      indexContribution: "isolated",
+      logicalAddressSegment: "ОсноваФормы",
+      source: { kind: "property", description: "ClientApplicationForm" },
+    },
+    {
       kind: "xmlDocument",
       assignmentProjectPattern: "",
       xmlPattern: filePath,
@@ -71,6 +82,7 @@ registerMetadataXmlPrepareCapability({
     preparedYamlFile,
     basePreparedYamlFile,
     baseConfigurationIndex,
+    baseFormContext,
     assignment,
     itemName,
     outputs,
@@ -88,6 +100,7 @@ registerMetadataXmlPrepareCapability({
       ...(baseConfigurationIndex === undefined
         ? {}
         : { baseConfigurationIndex }),
+      ...(baseFormContext === undefined ? {} : { baseFormContext }),
     })
     return prepared.flatMap((document) => {
       const output = byRole.get(document.targetKind)

@@ -88,6 +88,7 @@ export interface ImportSecondPassResult {
   diagnostics: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   files: ImportResultFile[]
+  configurationFragments: ConfigurationSnapshotFragment[]
   stateFragment?: ProjectStateFragment
 }
 

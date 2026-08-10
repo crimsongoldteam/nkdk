@@ -5,6 +5,8 @@ import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "../../c
 import type { ConfirmedComponentState } from "../../project/componentState/types"
 import { createTestProjectStateReadToken } from "../../projectState/tests/readToken"
 import { configurationExtensionFullXmlSyncProfile } from "./configurationExtension"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
+import { classifyMetadataProjectPath } from "../../resourceTopology/core/projectProjection"
 
 describe("configuration extension full XML sync profile", () => {
   it.each([
@@ -95,9 +97,62 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.workerProfile.baseForms).toEqual({
       componentDir: "/project/cf",
       projectFiles: base.hashes.projectFiles,
+      targetProjectFiles: target.hashes.projectFiles,
       snapshot: base.snapshot,
     })
     expect(Object.keys(runtime)).toEqual(["kind", "target", "base", "workerProfile"])
+  })
+
+  it.each([
+    [
+      "Catalog.Товары.Form.ФормаЭлемента",
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml",
+    ],
+    [
+      "CommonForm.ФормаПродаж",
+      "ОбщаяФорма/ФормаПродаж/Свойства.yaml",
+      "ОбщаяФорма/ФормаПродаж/БазоваяФорма.yaml",
+    ],
+  ])("records both confirmed sources for borrowed form %s", (logicalAddress, formPath, savedPath) => {
+    const topology = compileRegisteredMetadataResourceTopology()
+    const targetFiles = [formPath, savedPath].map((projectPath, index) => ({
+      projectPath,
+      contentHash: BigInt(index + 1),
+    }))
+    const targetBase = state({ componentPath: "cfe/Дополнение", projectFiles: targetFiles })
+    const target: ConfirmedComponentState = {
+      ...targetBase,
+      structure: {
+        ...targetBase.structure,
+        topology,
+        resources: targetFiles.flatMap(({ projectPath }) => {
+          const resource = classifyMetadataProjectPath(topology, projectPath)
+          return resource === undefined ? [] : [resource]
+        }),
+      },
+      indexes: {
+        ...targetBase.indexes,
+        logicalAddresses: [{ logicalAddress, sourceProjectPath: formPath }],
+      },
+    }
+    const base = state({ componentPath: "cf", projectFiles: [{ projectPath: formPath, contentHash: 1n }] })
+    const baseWithAddress: ConfirmedComponentState = {
+      ...base,
+      indexes: {
+        ...base.indexes,
+        logicalAddresses: [{ logicalAddress, sourceProjectPath: formPath }],
+      },
+    }
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base: baseWithAddress })
+
+    expect(runtime.borrowedForms).toEqual([{
+      logicalAddress,
+      extensionProjectPath: formPath,
+      baseProjectPath: formPath,
+      savedProjectPath: savedPath,
+    }])
   })
 
   it("does not adopt an address found only in snapshots", () => {

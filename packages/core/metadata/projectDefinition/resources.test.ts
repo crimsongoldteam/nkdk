@@ -16,6 +16,9 @@ import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,
 } from "../forms/clientApplicationForm/rules"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
+import { getMetadataProjectSpecByDir } from "./specs"
+import { toPreparedYamlProjectFileDescriptor } from "./preparedYamlDescriptor"
 
 describe("metadata project resources", () => {
   const tempDirs: string[] = []
@@ -78,6 +81,64 @@ describe("metadata project resources", () => {
       role: "form",
       itemRule: ClientApplicationFormRules,
     })
+  })
+
+  it("представляет изолированный YAML-спутник как форму", () => {
+    const catalogSpec = getMetadataProjectSpecByDir("Справочник")!
+    const context = {
+      rootSpec: catalogSpec,
+      topology: compileMetadataResourceTopology([{
+        ...catalogSpec,
+        resources: [
+          {
+            kind: "content" as const,
+            projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+            role: "fileItem" as const,
+            required: true,
+            repeatable: true,
+            compositionImpact: "none" as const,
+            itemRule: ClientApplicationFormRules,
+            source: { kind: "itemRule" as const, description: "form" },
+          },
+          {
+            kind: "yamlCompanion" as const,
+            assignmentProjectPattern: "",
+            projectPattern: "Справочник/{ownerName}/Формы/{itemName}/БазоваяФорма.yaml",
+            required: false,
+            itemRule: ClientApplicationFormRules,
+            projectRole: "form" as const,
+            indexContribution: "isolated" as const,
+            logicalAddressSegment: "ОсноваФормы",
+            source: { kind: "itemRule" as const, description: "base form" },
+          },
+        ],
+      }]),
+    }
+
+    const resource = classifyMetadataProjectPath(
+      "Справочник/Товары/Формы/Элемент/БазоваяФорма.yaml",
+      context,
+    )
+
+    expect(resource).toMatchObject({
+      kind: "yaml",
+      role: "form",
+      projectPath: "Справочник/Товары/Формы/Элемент/БазоваяФорма.yaml",
+      formName: "Элемент",
+      itemRule: ClientApplicationFormRules,
+      indexContribution: "isolated",
+    })
+    expect(toPreparedYamlProjectFileDescriptor(
+      { ...resource!, absolutePath: "/project/БазоваяФорма.yaml" },
+      { componentPath: "cfe/Расширение", componentDir: "/project" },
+    )).toMatchObject({
+      role: "form",
+      indexContribution: "isolated",
+    })
+    expect(classifyMetadataProjectPath(
+      "Справочник/Товары/Формы/Элемент/Лишняя.yaml",
+      context,
+    )).toBeUndefined()
   })
 
   it("сохраняет проекцию файловой цели в общем описании ресурса", () => {

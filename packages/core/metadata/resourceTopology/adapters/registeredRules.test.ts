@@ -36,6 +36,15 @@ describe("property resource topology registry", () => {
           role: "fileItem",
         }),
         expect.objectContaining({
+          kind: "yamlCompanion",
+          assignmentProjectPattern: "",
+          projectPattern: "Формы/{itemName}/БазоваяФорма.yaml",
+          projectRole: "form",
+          indexContribution: "isolated",
+          logicalAddressSegment: "ОсноваФормы",
+          required: false,
+        }),
+        expect.objectContaining({
           kind: "xmlDocument",
           xmlPattern: "Forms/{itemName}.xml",
           role: "metadata",
@@ -167,6 +176,14 @@ describe("property resource topology registry", () => {
         expect.objectContaining({
           projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
           ownerProjectPattern: "Справочник/{ownerName}/Свойства.yaml",
+          yamlCompanions: [expect.objectContaining({
+            projectPattern: "Справочник/{ownerName}/Формы/{itemName}/БазоваяФорма.yaml",
+            itemRule: ClientApplicationFormRules,
+            projectRole: "form",
+            indexContribution: "isolated",
+            logicalAddressSegment: "ОсноваФормы",
+            required: false,
+          })],
           xmlDocuments: expect.arrayContaining([
             expect.objectContaining({
               xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form.xml",
@@ -183,9 +200,16 @@ describe("property resource topology registry", () => {
     expect(
       topology.assignments
         .find((assignment) => assignment.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml")
-        ?.xmlDocuments
-    ).toEqual(
-      expect.arrayContaining([
+    ).toMatchObject({
+      yamlCompanions: [expect.objectContaining({
+        projectPattern: "ОбщаяФорма/{ownerName}/БазоваяФорма.yaml",
+        itemRule: ClientApplicationFormRules,
+        projectRole: "form",
+        indexContribution: "isolated",
+        logicalAddressSegment: "ОсноваФормы",
+        required: false,
+      })],
+      xmlDocuments: expect.arrayContaining([
         expect.objectContaining({
           xmlPattern: "CommonForms/{ownerName}/Ext/Form.xml",
           role: "body",
@@ -196,8 +220,8 @@ describe("property resource topology registry", () => {
             value: "sourceProperty",
           },
         }),
-      ])
-    )
+      ]),
+    })
   })
 
   it("selects the form rule in owner declarations", () => {

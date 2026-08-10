@@ -3,8 +3,11 @@ import { applyMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataI
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,
+  type DeferredValuePathCollector,
   type DirectImportProfile,
   type DirectImportResult,
+  type DirectImportXMLSource,
+  type LocalIndexesCollector,
 } from "../../ruleRuntime/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { ClientApplicationFormRules } from "./rules"
@@ -28,36 +31,23 @@ export function importClientApplicationFormFromXMLToYAML(params: {
 
   const localIndexesCollector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
-  const generatedFiles: ExternalFileEntry[] = []
-  const context =
-    params.context.exportToYAML === undefined
-      ? params.context
-      : {
-          ...params.context,
-          exportToYAML: {
-            ...params.context.exportToYAML,
-            externalFilesCollector: generatedFiles,
-            parent: { name: params.formName },
-          },
-        }
-  const yaml = importPropertiesFromXMLToYAML({
-    context,
+  const imported = importClientApplicationFormSources({
+    context: params.context,
     rule,
-    sources: createClientApplicationFormImportSources({
+    formName: params.formName,
+    collector: localIndexesCollector,
+    deferred,
+    profile: params.profile,
+    createSources: (context) => createClientApplicationFormImportSources({
       context,
       formXML: params.formXML,
       metadataXML: params.metadataXML,
     }),
-    itemName: params.formName,
-    yamlPath: [],
-    rulePath: [],
-    collector: localIndexesCollector,
-    deferred,
-    profile: params.profile,
   })
+  const yaml = imported.yaml
   if (yaml !== undefined) {
     applyMetadataItemXmlImportAugmenter({
-      context,
+      context: imported.context,
       rule,
       source: { ...params.metadataXML.Form },
       yaml,
@@ -70,6 +60,68 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     yaml,
     localIndexes,
     deferred: deferred.finish(),
+    generatedFiles: imported.generatedFiles,
+  }
+}
+
+export function importClientApplicationFormBodyFromXML(params: {
+  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
+  formName: string
+  formXML: ClientApplicationFormXML
+  collector: LocalIndexesCollector
+  deferred: DeferredValuePathCollector
+  profile?: DirectImportProfile
+  rule?: MetadataItemRule
+}): { yaml: Record<string, unknown> | undefined; generatedFiles: ExternalFileEntry[] } {
+  const { context: _context, ...result } = importClientApplicationFormSources({
+    ...params,
+    rule: params.rule ?? ClientApplicationFormRules,
+    createSources: (context) => [createClientApplicationFormImportSources({
+      context,
+      formXML: params.formXML,
+      metadataXML: {},
+    })[0]!],
+  })
+  return result
+}
+
+function importClientApplicationFormSources(params: {
+  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
+  formName: string
+  rule: MetadataItemRule
+  collector: LocalIndexesCollector
+  deferred: DeferredValuePathCollector
+  profile?: DirectImportProfile
+  createSources(context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]): DirectImportXMLSource[]
+}): {
+  yaml: Record<string, unknown> | undefined
+  generatedFiles: ExternalFileEntry[]
+  context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
+} {
+  const generatedFiles: ExternalFileEntry[] = []
+  const context = params.context.exportToYAML === undefined
+    ? params.context
+    : {
+        ...params.context,
+        exportToYAML: {
+          ...params.context.exportToYAML,
+          externalFilesCollector: generatedFiles,
+          parent: { name: params.formName },
+        },
+      }
+  return {
+    yaml: importPropertiesFromXMLToYAML({
+      context,
+      rule: params.rule,
+      sources: params.createSources(context),
+      itemName: params.formName,
+      yamlPath: [],
+      rulePath: [],
+      collector: params.collector,
+      deferred: params.deferred,
+      profile: params.profile,
+    }),
     generatedFiles,
+    context,
   }
 }

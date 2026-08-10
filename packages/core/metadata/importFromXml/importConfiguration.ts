@@ -246,12 +246,6 @@ export async function importConfigurationFromXml(
       files: discovered.snapshotFiles ?? [],
     })
     for (const fragment of snapshotFragments) fragmentBuilder.add(fragment)
-    const fragmentData = fragmentBuilder.finish()
-
-    profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
-      items: discovered.assignments.length,
-      timeMs: 0,
-    })
     const firstReadToken = await importSession.commitWorkingIndex()
     const readTokens = [firstReadToken]
     for (let index = 1; index < pool.workerCount(); index += 1) readTokens.push(await importSession.createReadToken())
@@ -272,6 +266,11 @@ export async function importConfigurationFromXml(
       const cleanup = await abortCleanupDiagnostics(importSession, secondDiagnostics, closePoolForCleanup)
       return outcome = failedResult([...secondDiagnostics, ...cleanup], warnings, resolvedComponentPath)
     }
+    const fragmentData = fragmentBuilder.finish()
+    profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
+      items: discovered.assignments.length,
+      timeMs: 0,
+    })
 
     const allFiles = [...first.files, ...second.files]
     const files = profiler.measure(
@@ -411,15 +410,16 @@ function createImportStateSink(
   selectedComponentPath: string,
   fragmentBuilder: ConfigurationIndexFragmentBuilder,
 ): XmlImportStateSink {
+  const writeState = async (batch: Parameters<XmlImportStateSink["writeFirstPassState"]>[0]): Promise<void> => {
+    if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
+    if (batch.configurationFragmentBuffer !== undefined) fragmentBuilder.addEncoded(batch.configurationFragmentBuffer)
+    if (batch.stateFragment !== undefined) {
+      await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
+    }
+  }
   return {
-    async writeFirstPassState(batch) {
-      if (batch.configurationFragment !== undefined) fragmentBuilder.add(batch.configurationFragment)
-      if (batch.configurationFragmentBuffer !== undefined) fragmentBuilder.addEncoded(batch.configurationFragmentBuffer)
-      if (batch.stateFragment !== undefined) await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
-    },
-    async writeSecondPassState(batch) {
-      if (batch.stateFragment !== undefined) await writeStreamedImportState(session, hashes, selectedComponentPath, batch.stateFragment)
-    },
+    writeFirstPassState: writeState,
+    writeSecondPassState: writeState,
   }
 }
 

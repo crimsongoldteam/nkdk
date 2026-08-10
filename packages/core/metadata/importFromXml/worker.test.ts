@@ -18,6 +18,7 @@ import { createValidationSchemaCache, validateProjectFileFirstPass } from "../va
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
   createFirstPassTransferable,
+  isolateProjectStateYamlUpdate,
   resetImportWorkerStateForTests,
   runImportWorkerCommand,
   setImportWorkerSchemaCacheForTests,
@@ -96,6 +97,49 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
+  it("оставляет у изолированного YAML только локальные schema diagnostics", () => {
+    const schemaDiagnostic = { line: 1, col: 1, severity: "error" as const, source: "structure" as const, message: "schema" }
+    const update = isolateProjectStateYamlUpdate({
+      kind: "yaml",
+      projectPath: "cfe/Расширение/БазоваяФорма.yaml",
+      componentPath: "cfe/Расширение",
+      resourceKind: "yaml",
+      yamlRole: "form",
+      localValidation: {
+        contributedFacts: true,
+        diagnostics: [schemaDiagnostic, { ...schemaDiagnostic, message: "reference" }],
+        schemaDiagnostics: [schemaDiagnostic],
+      },
+      targets: [{ kind: "member", canonical: "Catalog.Товары.Form.Форма" }],
+      owners: [{ owner: { kind: "CatalogObject", name: "Товары" }, facts: {} }],
+      fields: [],
+      forms: [],
+      pendingReferences: [{
+        yamlPath: [],
+        canonical: "Catalog.Товары",
+        target: { kind: "object", root: "Catalog", objectName: "Товары" },
+        constraint: { kind: "object", roots: ["Catalog"] },
+      }],
+      pendingChecks: [],
+      dependencies: ["Catalog.Товары"],
+    })
+
+    expect(update).toMatchObject({
+      localValidation: {
+        contributedFacts: false,
+        diagnostics: [schemaDiagnostic],
+        schemaDiagnostics: [schemaDiagnostic],
+      },
+      targets: [],
+      owners: [],
+      fields: [],
+      forms: [],
+      pendingReferences: [],
+      pendingChecks: [],
+      dependencies: [],
+    })
+  })
+
   it("writes ready YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")

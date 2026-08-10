@@ -49,7 +49,7 @@ import {
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
-import type { FormElementNameCollectorView } from "./formContracts"
+import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
@@ -65,6 +65,7 @@ export interface ValidationYamlFacts {
   fieldIndex?: ObjectFieldIndex
   formDataPathIndex?: FormDataPathIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
+  structuredComponents?: readonly FormStructuredComponent[]
 }
 
 export interface ValidationOwnerYamlFacts {
@@ -674,6 +675,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   return {
     ...emptyFacts(),
     formDataPathIndex: index,
+    structuredComponents: adapter.collectStructuredComponents(parsed.data),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {

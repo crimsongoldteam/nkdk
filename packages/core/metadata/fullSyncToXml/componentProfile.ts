@@ -18,6 +18,7 @@ export interface FullXmlSyncWorkerProfileRuntime {
   readonly baseForms?: {
     readonly componentDir: string
     readonly projectFiles: readonly ConfigurationProjectFile[]
+    readonly targetProjectFiles?: readonly ConfigurationProjectFile[]
     readonly snapshot: SharedConfigurationIndexSnapshot
   }
 }
@@ -31,6 +32,7 @@ export interface FullXmlSyncProfileRuntime {
     readonly logicalAddress: string
     readonly extensionProjectPath: string
     readonly baseProjectPath: string
+    readonly savedProjectPath?: string
   }[]
 }
 

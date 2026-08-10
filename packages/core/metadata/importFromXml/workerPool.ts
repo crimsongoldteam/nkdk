@@ -374,8 +374,13 @@ function createXmlImportOperationPool(params: {
             diagnosticViews.push(batch.diagnostics)
             warningViews.push(batch.warnings)
             fileViews.push(batch.files)
-            if (batch.stateFragment !== undefined) {
-              await stateQueue.run(() => sink.writeSecondPassState({ stateFragment: batch.stateFragment }))
+            if (batch.configurationFragmentBuffer !== undefined || batch.stateFragment !== undefined) {
+              await stateQueue.run(() => sink.writeSecondPassState({
+                ...(batch.configurationFragmentBuffer === undefined
+                  ? {}
+                  : { configurationFragmentBuffer: batch.configurationFragmentBuffer }),
+                ...(batch.stateFragment === undefined ? {} : { stateFragment: batch.stateFragment }),
+              }))
             }
           }
           assertProducerActive("secondPassRunning")

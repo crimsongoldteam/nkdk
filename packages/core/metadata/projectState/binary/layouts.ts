@@ -253,6 +253,16 @@ export interface ProjectStateFormRecord {
   readonly tableHasColumns: number
   readonly reserved: number
 }
+export interface ProjectStateStructuredDocumentRecord {
+  readonly sourceFileId: number
+  readonly documentKindId: number
+  readonly representationId: number
+  readonly logicalAddressId: number
+  readonly workingProjectPathId: number
+  readonly componentKindId: number
+  readonly nameId: number
+  readonly yamlPathId: number
+}
 
 export interface ProjectStatePendingCheckRecord {
   readonly sourceFileId: number
@@ -686,6 +696,15 @@ export const ProjectStateFormRecordView = projectStateView.create<ProjectStateFo
     sourceFileId: uint32Field, ownerTypeId: uint32Field, nameId: uint32Field,
     tablePathId: uint32Field, typeInfoId: uint32Field, tableInfoId: uint32Field,
     kind: uint8Field, tableHasColumns: uint8Field, reserved: uint16Field,
+  },
+})
+export const ProjectStateStructuredDocumentRecordView = projectStateView.create<ProjectStateStructuredDocumentRecord>({
+  $id: "ProjectStateStructuredDocumentRecord",
+  type: "object",
+  properties: {
+    sourceFileId: uint32Field, documentKindId: uint32Field, representationId: uint32Field,
+    logicalAddressId: uint32Field, workingProjectPathId: uint32Field, componentKindId: uint32Field,
+    nameId: uint32Field, yamlPathId: uint32Field,
   },
 })
 

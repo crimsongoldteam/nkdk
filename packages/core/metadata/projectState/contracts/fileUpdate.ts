@@ -15,6 +15,15 @@ import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSe
 
 export type ProjectStateDiagnostic = Omit<Diagnostic, "filePath">
 export type ProjectStateYamlPath = readonly (string | number)[]
+export interface ProjectStateStructuredDocumentEntry {
+  readonly documentKind: string
+  readonly representation: string
+  readonly logicalAddress: string
+  readonly workingProjectPath: string
+  readonly componentKind: string
+  readonly name: string
+  readonly yamlPath: ProjectStateYamlPath
+}
 
 export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {
   readonly kind: "resource"
@@ -125,6 +134,7 @@ export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly forms: readonly ProjectStateFormEntry[]
   readonly pendingChecks: readonly ProjectStatePendingDependencyCheck[]
   readonly dependencies: readonly string[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 export interface ProjectStateImportIndexContribution extends ProjectStateFileIdentity {
   readonly resourceKind: "yaml"
@@ -133,6 +143,7 @@ export interface ProjectStateImportIndexContribution extends ProjectStateFileIde
   readonly owners: readonly ProjectStateOwnerFact[]
   readonly fields: readonly ProjectStateFieldEntry[]
   readonly forms: readonly ProjectStateFormEntry[]
+  readonly structuredDocuments?: readonly ProjectStateStructuredDocumentEntry[]
 }
 export type ProjectStateFileUpdate = ProjectStateResourceUpdate | ProjectStateYamlFileUpdate
 export interface ProjectStateFileUpdateBatch { readonly updates: readonly ProjectStateFileUpdate[]; readonly hashBytes: Uint8Array }

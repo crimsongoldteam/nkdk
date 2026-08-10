@@ -191,16 +191,29 @@ function collectRuleDeclarations(
         })
         continue
       }
+      if (declaration.kind === "yamlCompanion") {
+        target.push({
+          ...declaration,
+          assignmentProjectPattern: resolveContributionAssignmentPattern(
+            declaration.assignmentProjectPattern,
+            contributionAssignment,
+            context,
+          ),
+          projectPattern: joinMetadataPathPatterns(
+            context.projectBase,
+            substituteLocalParameters(declaration.projectPattern, context)
+          ),
+        })
+        continue
+      }
       if (declaration.kind === "xmlDocument") {
         target.push({
           ...declaration,
-          assignmentProjectPattern:
-            declaration.assignmentProjectPattern === ""
-              ? contributionAssignment
-              : joinMetadataPathPatterns(
-                  context.projectBase,
-                  substituteLocalParameters(declaration.assignmentProjectPattern, context)
-                ),
+          assignmentProjectPattern: resolveContributionAssignmentPattern(
+            declaration.assignmentProjectPattern,
+            contributionAssignment,
+            context,
+          ),
           xmlPattern: joinWithOverlap(context.xmlBase, substituteLocalParameters(declaration.xmlPattern, context)),
         })
         continue
@@ -208,13 +221,11 @@ function collectRuleDeclarations(
       if (declaration.kind === "externalFile") {
         target.push({
           ...declaration,
-          assignmentProjectPattern:
-            declaration.assignmentProjectPattern === ""
-              ? contributionAssignment
-              : joinMetadataPathPatterns(
-                  context.projectBase,
-                  substituteLocalParameters(declaration.assignmentProjectPattern, context)
-                ),
+          assignmentProjectPattern: resolveContributionAssignmentPattern(
+            declaration.assignmentProjectPattern,
+            contributionAssignment,
+            context,
+          ),
           projectPattern: joinMetadataPathPatterns(
             context.projectBase,
             substituteLocalParameters(declaration.projectPattern, context)
@@ -298,6 +309,19 @@ function collectRuleDeclarations(
       nextNameIndex: context.nextNameIndex + 1,
     })
   }
+}
+
+function resolveContributionAssignmentPattern(
+  declarationPattern: string,
+  contributionAssignment: string,
+  context: RuleTopologyContext,
+): string {
+  return declarationPattern === ""
+    ? contributionAssignment
+    : joinMetadataPathPatterns(
+        context.projectBase,
+        substituteLocalParameters(declarationPattern, context),
+      )
 }
 
 function projectFileBackedTargetDeclaration(

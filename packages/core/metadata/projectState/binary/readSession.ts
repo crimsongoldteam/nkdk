@@ -106,6 +106,15 @@ export function createBinaryProjectStateQueryPort(
     readValidationStatus: (query) => readValidationStatus(snapshot, typedReader, query),
     readFileMetadataTargetReferences: (requests) =>
       readFileMetadataTargetReferences(snapshot, readYamlFacts, requests),
+    readStructuredDocumentEntries: ({ componentPath, logicalAddress }) => {
+      if (typedReader === undefined) return []
+      const result = []
+      for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
+        if (snapshot.componentPath(fileId) !== componentPath) continue
+        result.push(...typedReader.structuredDocuments(fileId).filter((entry) => entry.logicalAddress === logicalAddress))
+      }
+      return result
+    },
   }
   return queryPort
 }
@@ -149,10 +158,7 @@ function resolveTargets(
     const cacheKey = `${componentPath}\u0000${canonicalTarget}`
     const cached = cache.get(cacheKey)
     if (cached !== undefined) return { requestId, ...cached }
-    const own = snapshot.lookupTarget(componentPath, canonicalTarget)
-    const candidates = componentPath === "cf" || own.length > 0
-      ? own
-      : snapshot.lookupTarget("cf", canonicalTarget)
+    const candidates = snapshot.lookupTarget(componentPath, canonicalTarget)
     if (candidates.length === 0) {
       const result = { status: "missing" as const }
       cache.set(cacheKey, result)
@@ -235,19 +241,17 @@ function selectOwnerFile(
 ):
   | { readonly status: "missing" | "ambiguous" }
   | { readonly status: "found"; readonly fileId: number; readonly owners: ReturnType<ReadOwners> } {
-  const own: { fileId: number; owners: ReturnType<ReadOwners> }[] = []
-  const base: { fileId: number; owners: ReturnType<ReadOwners> }[] = []
+  const candidates: { fileId: number; owners: ReturnType<ReadOwners> }[] = []
   const seen = new Set<number>()
   for (const { sourceFileId: fileId } of snapshot.lookupOwnerKey(encodeBinaryOwnerKey(owner))) {
     if (seen.has(fileId)) continue
     seen.add(fileId)
     const candidateComponent = snapshot.componentPath(fileId)
-    if (!isVisible(componentPath, candidateComponent)) continue
+    if (candidateComponent !== componentPath) continue
     const owners = readOwners(fileId)
     if (!owners.some((entry) => sameOwner(entry.owner, owner))) continue
-    ;(candidateComponent === componentPath ? own : base).push({ fileId, owners })
+    candidates.push({ fileId, owners })
   }
-  const candidates = own.length > 0 ? own : base
   if (candidates.length === 0) return { status: "missing" }
   if (candidates.length > 1) return { status: "ambiguous" }
   return { status: "found", ...candidates[0] }
@@ -265,7 +269,7 @@ function readDependencyInputs(
       const owners = []
       for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
         const candidateComponent = snapshot.componentPath(fileId)
-        if (!isVisible(componentPath, candidateComponent)) continue
+        if (candidateComponent !== componentPath) continue
         owners.push(...readOwners(fileId).filter(({ owner }) => owner.kind === "ОпределяемыйТип"))
       }
       return { requestId, status: "found" as const, input: { owners, fields: [], forms: [] } }
@@ -322,7 +326,7 @@ function findReferences(
     }[] = []
     for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
       const componentPath = snapshot.componentPath(fileId)
-      if (!isVisible(request.componentPath, componentPath)) continue
+      if (componentPath !== request.componentPath) continue
       const facts = readYamlFacts(fileId)
       if (facts === undefined) continue
       for (const pending of facts.pendingReferences) {
@@ -395,15 +399,14 @@ function readOwnerRefPage(
     if (key <= (query.cursor ?? "")) continue
     const owner = decodeBinaryOwnerKey(key)
     if (owner.kind !== query.kind) continue
-    const own = new Set<number>()
-    const base = new Set<number>()
+    const candidates = new Set<number>()
     for (let index = 0; index < range.count; index += 1) {
       const { sourceFileId } = snapshot.ownerEntry(range.start + index)
       const componentPath = snapshot.componentPath(sourceFileId)
-      if (!isVisible(query.componentPath, componentPath)) continue
-      ;(componentPath === query.componentPath ? own : base).add(sourceFileId)
+      if (componentPath !== query.componentPath) continue
+      candidates.add(sourceFileId)
     }
-    if ((own.size > 0 ? own.size : base.size) === 1) rows.push({ key, owner })
+    if (candidates.size === 1) rows.push({ key, owner })
   }
   const page = rows.slice(0, pageSize)
   return {
@@ -490,11 +493,6 @@ function createYamlFactsReader(
     }
     return decodedByFileId.get(fileId)
   }
-}
-
-function isVisible(requestComponent: string, candidateComponent: string): boolean {
-  return candidateComponent === requestComponent ||
-    (requestComponent !== "cf" && candidateComponent === "cf")
 }
 
 function sameOwner(left: OwnerTypeRef, right: OwnerTypeRef): boolean {

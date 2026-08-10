@@ -30,5 +30,6 @@ it("регистрирует корневые спутники частично�
       include: "targetAssignment",
       loadTarget: true,
     }],
+    yamlCompanionInputIds: [],
   })
 })

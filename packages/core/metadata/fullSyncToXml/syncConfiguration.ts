@@ -18,6 +18,7 @@ import { createValidationProfiler } from "../validation/profile"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateComponentProjection, ProjectStateReadToken, ProjectStateService } from "../projectState"
 import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
+import { attachBorrowedFormPaths } from "./borrowedFormPlan"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
@@ -174,11 +175,12 @@ export async function syncComponentToXml(
       runtime: confirmedRuntime,
       readFile: deps.readFile ?? defaultDependencies.readFile!,
     })
-    const plan = deps.buildPlan({
+    const basePlan = deps.buildPlan({
       structure: target.structure,
       hashes: target.hashes,
       selection,
     })
+    const plan = attachBorrowedFormPaths(basePlan, runtime)
 
     const workerConcurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
     const usesUniversalWorkers = deps.createWorkerPool === undefined

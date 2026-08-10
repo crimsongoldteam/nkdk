@@ -101,6 +101,27 @@ describe("registered metadata resource topology contracts", () => {
     })
   })
 
+  it.each([
+    [
+      "Справочник/Товары/Формы/ФормаЭлемента/БазоваяФорма.yaml",
+      "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+    ],
+    [
+      "ОбщаяФорма/ВыборТовара/БазоваяФорма.yaml",
+      "ОбщаяФорма/{ownerName}/Свойства.yaml",
+    ],
+  ] as const)("классифицирует основу %s за правильным заданием", (projectPath, assignmentProjectPattern) => {
+    expect(classifyMetadataProjectPath(topology, projectPath)).toMatchObject({
+      kind: "yamlCompanion",
+      role: "form",
+      assignment: { projectPattern: assignmentProjectPattern },
+      yamlCompanion: {
+        indexContribution: "isolated",
+        logicalAddressSegment: "ОсноваФормы",
+      },
+    })
+  })
+
   it("проецирует владельца вложенной формы через общий resolver", () => {
     const projectPath =
       "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Формы/Основная/Форма.yaml"

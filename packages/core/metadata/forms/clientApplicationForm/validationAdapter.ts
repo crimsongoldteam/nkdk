@@ -5,6 +5,7 @@ import {
   createFormElementNameCollector,
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
 } from "./validateElementNames"
+import { collectClientApplicationFormStructure } from "./formStructureProjection"
 
 export const clientApplicationFormValidationAdapter: FormValidationAdapter = {
   formRule: ClientApplicationFormRules,
@@ -20,4 +21,5 @@ export const clientApplicationFormValidationAdapter: FormValidationAdapter = {
     return CollectableElementTypeFromYAML[value as keyof typeof CollectableElementTypeFromYAML]
   },
   createElementNameCollector: createFormElementNameCollector,
+  collectStructuredComponents: collectClientApplicationFormStructure,
 }
