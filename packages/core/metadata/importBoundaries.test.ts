@@ -131,6 +131,13 @@ describe("metadata import boundaries", () => {
     })
   })
 
+  it("изолирует служебные проекты Vitest в заданном порядке", () => {
+    const source = readFileSync(join(import.meta.dirname, "../vitest.config.ts"), "utf8")
+
+    expect(source).toMatch(/name:\s*"isolation-mutation"[\s\S]*?groupOrder:\s*0/u)
+    expect(source).toMatch(/name:\s*"isolation-observation"[\s\S]*?groupOrder:\s*1/u)
+  })
+
   it("composition roots own runtime assembly", () => {
     expect(existsSync(join(METADATA_DIR, "register.ts"))).toBe(false)
     expect(existsSync(join(METADATA_DIR, "projectState", "createDefaultService.ts"))).toBe(false)

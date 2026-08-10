@@ -21,6 +21,10 @@ const coreMetadataTests = [
   "metadata/ruleRuntime/metadataItem/**/*.test.ts",
   "metadata/validation/**/*.test.ts",
 ]
+const isolationTests = [
+  "tests/projectIsolation/mutation.test.ts",
+  "tests/projectIsolation/observation.test.ts",
+]
 const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
 
@@ -43,9 +47,25 @@ export default defineConfig({
     projects: [
       {
         test: {
-          name: "unit",
-          exclude: [...configDefaults.exclude, ...coreMetadataTests],
+          name: "isolation-mutation",
+          include: ["tests/projectIsolation/mutation.test.ts"],
           sequence: { groupOrder: 0 },
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+        },
+      },
+      {
+        test: {
+          name: "isolation-observation",
+          include: ["tests/projectIsolation/observation.test.ts"],
+          sequence: { groupOrder: 1 },
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
+        },
+      },
+      {
+        test: {
+          name: "unit",
+          exclude: [...configDefaults.exclude, ...coreMetadataTests, ...isolationTests],
+          sequence: { groupOrder: 2 },
           setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
       },
@@ -53,7 +73,7 @@ export default defineConfig({
         test: {
           name: "core-metadata",
           include: coreMetadataTests,
-          sequence: { groupOrder: 1 },
+          sequence: { groupOrder: 3 },
           setupFiles: [
             forbiddenPiscinaSetup,
             resolve(__dirname, "./tests/registerCoreMetadata"),
