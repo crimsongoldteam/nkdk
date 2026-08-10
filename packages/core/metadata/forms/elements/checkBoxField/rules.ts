@@ -1,9 +1,9 @@
 import { booleanRule } from "../../../commonObjects/boolean/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 const CheckBoxFieldCommonRulesProperties = {
   backColor: {
@@ -165,6 +165,6 @@ export const TableCheckBoxFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
-registerExplicitHeaderHorizontalAlign(TableCheckBoxFieldRules.itemType)
-registerElementRule("CheckBoxField", CheckBoxFieldRules)
-registerElementRule("TableCheckBoxField", TableCheckBoxFieldRules)
+export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableCheckBoxFieldRules.itemType)
+export const metadataRuleLayer001 = defineElementRule("CheckBoxField", CheckBoxFieldRules)
+export const metadataRuleLayer002 = defineElementRule("TableCheckBoxField", TableCheckBoxFieldRules)

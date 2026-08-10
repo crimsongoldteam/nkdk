@@ -8,11 +8,11 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 export const PictureFieldRules = {
   itemType: "PictureField",
@@ -228,6 +228,6 @@ export const TablePictureFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
-registerExplicitHeaderHorizontalAlign(TablePictureFieldRules.itemType)
-registerElementRule("PictureField", PictureFieldRules)
-registerElementRule("TablePictureField", TablePictureFieldRules)
+export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TablePictureFieldRules.itemType)
+export const metadataRuleLayer001 = defineElementRule("PictureField", PictureFieldRules)
+export const metadataRuleLayer002 = defineElementRule("TablePictureField", TablePictureFieldRules)

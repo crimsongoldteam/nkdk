@@ -6,12 +6,18 @@ import { registerElementRule } from "../formElement/ruleRegistry"
 import type { ElementType } from "../formElement/types"
 import type { PropertyRuleType } from "../property/registry"
 import { registerLegacyPropertyTypeDefinitions } from "../property/typeRuleRegistry"
+import { registerExplicitXMLProperty } from "../property/explicitXMLPropertyRegistry"
 import type { MetadataRulesDefinition } from "./contracts"
 
 export function registerLegacyRuleDefinitions(
   definition: MetadataRulesDefinition,
 ): void {
   registerLegacyPropertyTypeDefinitions(definition.propertyTypes)
+  for (const registration of Object.values(
+    definition.explicitXMLProperties,
+  )) {
+    registerExplicitXMLProperty(registration)
+  }
   for (const [itemType, rule] of Object.entries(definition.formElements)) {
     registerElementRule(itemType as ElementType, rule)
   }

@@ -47,6 +47,18 @@ import { metadataPropertyRule001 as ganttProperty1 } from "../commonObjects/gant
 import { metadataPropertyRule002 as ganttProperty2 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule003 as ganttProperty3 } from "../commonObjects/ganttChartFieldTable/types"
 import { metadataPropertyRule004 as ganttProperty4 } from "../commonObjects/ganttChartFieldTable/types"
+import { metadataRuleLayer000 as checkBoxFieldHeaderRules } from "./checkBoxField/rules"
+import { metadataRuleLayer001 as checkBoxFieldRules } from "./checkBoxField/rules"
+import { metadataRuleLayer002 as tableCheckBoxFieldRules } from "./checkBoxField/rules"
+import { metadataRuleLayer000 as inputFieldHeaderRules } from "./inputField/rules"
+import { metadataRuleLayer001 as inputFieldRules } from "./inputField/rules"
+import { metadataRuleLayer002 as tableInputFieldRules } from "./inputField/rules"
+import { metadataRuleLayer000 as labelFieldHeaderRules } from "./labelField/rules"
+import { metadataRuleLayer001 as labelFieldRules } from "./labelField/rules"
+import { metadataRuleLayer002 as tableLabelFieldRules } from "./labelField/rules"
+import { metadataRuleLayer000 as pictureFieldHeaderRules } from "./pictureField/rules"
+import { metadataRuleLayer001 as pictureFieldRules } from "./pictureField/rules"
+import { metadataRuleLayer002 as tablePictureFieldRules } from "./pictureField/rules"
 
 import { composeMetadataRules, defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
@@ -108,5 +120,17 @@ export const formElementRules = composeMetadataRules(
   layer41,
   layer42,
   layer43,
+  checkBoxFieldHeaderRules,
+  checkBoxFieldRules,
+  tableCheckBoxFieldRules,
+  inputFieldHeaderRules,
+  inputFieldRules,
+  tableInputFieldRules,
+  labelFieldHeaderRules,
+  labelFieldRules,
+  tableLabelFieldRules,
+  pictureFieldHeaderRules,
+  pictureFieldRules,
+  tablePictureFieldRules,
   ganttChartFieldTableRules,
 )

@@ -6,11 +6,11 @@ import { eventsRule } from "../../commonObjects/event/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { numberRule } from "../../../commonObjects/number/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { DataPathAllowedKind, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 const labelFieldDataPathKinds = [
   "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
@@ -216,6 +216,6 @@ export const TableLabelFieldRules = {
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
-registerExplicitHeaderHorizontalAlign(TableLabelFieldRules.itemType)
-registerElementRule("LabelField", LabelFieldRules)
-registerElementRule("TableLabelField", TableLabelFieldRules)
+export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableLabelFieldRules.itemType)
+export const metadataRuleLayer001 = defineElementRule("LabelField", LabelFieldRules)
+export const metadataRuleLayer002 = defineElementRule("TableLabelField", TableLabelFieldRules)

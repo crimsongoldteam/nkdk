@@ -14,11 +14,11 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { DataPathAllowedKind, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
-import { registerExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
+import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"
 export type { ElementRule, PropertyRule }
 const inputFieldDataPathKinds = [
   "string", "decimal", "boolean", "dateTime", "UUID", "Null", "<any>",
@@ -535,6 +535,6 @@ export const TableInputFieldRules = {
     maxValue: minMaxValueRule({ yaml: "МаксимальноеЗначение", xml: "MaxValue" }),
   },
 } as const satisfies ElementRule
-registerExplicitHeaderHorizontalAlign(TableInputFieldRules.itemType)
-registerElementRule("InputField", InputFieldRules)
-registerElementRule("TableInputField", TableInputFieldRules)
+export const metadataRuleLayer000 = defineExplicitHeaderHorizontalAlign(TableInputFieldRules.itemType)
+export const metadataRuleLayer001 = defineElementRule("InputField", InputFieldRules)
+export const metadataRuleLayer002 = defineElementRule("TableInputField", TableInputFieldRules)
