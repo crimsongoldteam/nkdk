@@ -191,6 +191,49 @@ describe("extractValidationYamlFacts form", () => {
     )
   })
 
+  it("публикует вычисляемый путь таблицы основной формы", () => {
+    const facts = extractFormFacts(
+      [
+        "Реквизиты:",
+        "  Объект:",
+        "    ОсновнойРеквизит: Истина",
+        "Элементы:",
+        "  Товары:",
+        "    Вид: ТаблицаФормы",
+      ].join("\n")
+    )
+
+    expect(facts.formDataPathIndex?.tabularElementsByName.get("Товары")).toEqual({
+      kind: "tabularFormElement",
+      dataPath: "Объект.Товары",
+    })
+  })
+
+  it("не подменяет отсутствующий путь таблицы расширения вычисляемым", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+    const facts = extractValidationYamlFacts({
+      file: { ...file, componentPath: "cfe/Расширение", componentDir: "/project/cfe/Расширение" },
+      parsed: parseMetadataYaml(
+        [
+          "Реквизиты:",
+          "  Объект:",
+          "    ОсновнойРеквизит: Истина",
+          "Элементы:",
+          "  Товары:",
+          "    Вид: ТаблицаФормы",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.formDataPathIndex?.tabularElementsByName.get("Товары")).toEqual({
+      kind: "tabularFormElement",
+    })
+  })
+
   it("не формирует DataPath checks и diagnostics в fact-only режиме", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"

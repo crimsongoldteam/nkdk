@@ -13,6 +13,7 @@ import type { ClientApplicationFormYAML } from "./types"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { resolveClientApplicationFormCollectionItemRule } from "./formDataPathProjection"
 import { ClientApplicationFormRules } from "./rules"
+import { findMainAttributeName } from "./mainAttributeKinds"
 
 export interface FormElementDataPathState {
   readonly name: string
@@ -46,7 +47,7 @@ export function collectClientApplicationFormDataPathPreparation(params: {
 }): ClientApplicationFormDataPathPreparation {
   const rule = params.rule ?? ClientApplicationFormRules
   const collected = collectFormElements(params.yaml, rule, params.visitItem)
-  const effectiveMainAttribute = findMainAttribute(params.yaml)
+  const effectiveMainAttribute = findMainAttributeName(asRecord(params.yaml)?.["Реквизиты"])
   return {
     collected,
     index: createFormDataPathIndexFromYAML(params.yaml, collected.tabularElementsByName),
@@ -73,7 +74,7 @@ export function requiresImportedFormDataPathCompaction(
   yaml: ClientApplicationFormYAML,
   rule: MetadataItemRule = ClientApplicationFormRules
 ): boolean {
-  const mainAttribute = findMainAttribute(yaml)
+  const mainAttribute = findMainAttributeName(asRecord(yaml)?.["Реквизиты"])
   if (mainAttribute === undefined) return false
   const collected = collectFormElements(yaml, rule)
   const effectivePaths = new Map<string, string | undefined>()
@@ -258,7 +259,7 @@ function prepareStandaloneForm(params: {
     collected,
     index,
     ownerCache: params.ownerCache,
-    effectiveMainAttribute: findMainAttribute(params.yaml),
+    effectiveMainAttribute: findMainAttributeName(asRecord(params.yaml)?.["Реквизиты"]),
     borrowedNames: new Set(),
   })
 }
@@ -433,15 +434,6 @@ function mergeFormDataPathIndexes(
     tabularElementsByName,
     getRoot: (name) => roots.get(name),
   }
-}
-
-function findMainAttribute(yaml: ClientApplicationFormYAML): string | undefined {
-  const attributes = asRecord(yaml)?.["Реквизиты"]
-  for (const [name, value] of Object.entries(asRecord(attributes) ?? {})) {
-    const mainAttribute = asRecord(value)?.["ОсновнойРеквизит"]
-    if (mainAttribute === true || mainAttribute === "Истина") return name
-  }
-  return undefined
 }
 
 function semanticElementName(element: CollectedFormElement): string {

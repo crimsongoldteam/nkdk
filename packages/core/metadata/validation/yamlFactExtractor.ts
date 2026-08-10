@@ -646,7 +646,9 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const adapter = requireFormValidationAdapter()
   const projection = getRegisteredFormDataPathMetadataProjection()
   if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
-  const index = createFormDataPathIndexFromYAML(parsed.data, projection)
+  const index = createFormDataPathIndexFromYAML(parsed.data, projection, undefined, {
+    inferImplicitDataPaths: file.componentPath === "cf",
+  })
   const collected = collectFormPendingChecks({
     file,
     parsed,

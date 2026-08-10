@@ -4,9 +4,11 @@ import { getFormElementCollectionTypes } from "../../ruleRuntime/formElement/reg
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { TableRules } from "../elements/table/rules"
 import { ClientApplicationFormRules } from "./rules"
+import { findMainAttributeName } from "./mainAttributeKinds"
 
 const collectFormTabularElementsFromYAML = (
-  yaml: unknown
+  yaml: unknown,
+  options?: { readonly inferImplicitDataPaths?: boolean }
 ): ReadonlyMap<string, FormDataPathTabularElementDeclaration> => {
   const result = new Map<string, FormDataPathTabularElementDeclaration>()
   collectFormDataPathOccurrencesFromYAML({
@@ -15,6 +17,16 @@ const collectFormTabularElementsFromYAML = (
     visitElement: (visit) => acceptFormTabularElementVisit(result, visit),
     resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
   })
+  if (options?.inferImplicitDataPaths === true) {
+    const mainAttribute = findMainAttributeName(asRecord(yaml)?.["Реквизиты"])
+    if (mainAttribute !== undefined) {
+      for (const [name, declaration] of result) {
+        if (declaration.dataPath === undefined) {
+          result.set(name, { kind: "tabularFormElement", dataPath: `${mainAttribute}.${name}` })
+        }
+      }
+    }
+  }
   return result
 }
 
