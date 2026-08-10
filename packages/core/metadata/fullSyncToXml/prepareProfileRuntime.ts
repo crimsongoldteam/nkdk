@@ -1,5 +1,5 @@
 import { resolve } from "node:path"
-import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYamlData } from "@nkdk/runtime"
 import type {
   FullXmlSyncComponentProfile,
   FullXmlSyncProfileRuntime,

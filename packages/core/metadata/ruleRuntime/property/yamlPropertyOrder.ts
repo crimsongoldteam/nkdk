@@ -1,4 +1,4 @@
-import { markYAMLScalarTag, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag, yamlScalarTagAt } from "@nkdk/runtime"
 
 const collator = new Intl.Collator("ru")
 

@@ -1,5 +1,5 @@
 import type { DcsAvailableValues, DcsAvailableValuesYAML } from "../types"
-import { explicitYAMLString } from "../../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const stringAvailableValues = [
   {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathPropertyRule } from "../ruleRuntime/property/types"
+import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import { toDataPathPolicyInput } from "../validation/dataPath/policies"
 import {
   assertProjectStateFileUpdateBatch,

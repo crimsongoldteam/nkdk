@@ -1,4 +1,4 @@
-import type { MetadataTargetConstraint } from "../../ruleRuntime/metadataTarget/types"
+import type { MetadataTargetConstraint } from "@nkdk/runtime/rule-kit"
 
 export function encodeMetadataTargetConstraint(value: MetadataTargetConstraint): string {
   return encodeValue(value)

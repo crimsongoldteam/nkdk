@@ -1,6 +1,6 @@
-import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { getMinMaxValueXMLText, getMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
 type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }

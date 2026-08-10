@@ -1,6 +1,6 @@
 import { expect } from "vitest"
 
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { serializeDirectXML, testMetadataItemFromYAMLToXML } from "../../../tests/directConversion"
 
 export function expectProcessingChildDefaults(rule: MetadataItemRule): void {

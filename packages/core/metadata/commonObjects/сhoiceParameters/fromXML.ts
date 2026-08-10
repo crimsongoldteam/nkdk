@@ -1,5 +1,5 @@
-import { ConfigurationContextFromXML } from "../../context/types"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import type { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"

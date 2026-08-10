@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { registerCoreMetadata } from "../composition/coreMetadata"
-import { yamlScalarTagAt } from "../../yaml/scalarTags"
-import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
+import { yamlScalarTagAt } from "@nkdk/runtime"
+import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,

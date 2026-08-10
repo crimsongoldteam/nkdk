@@ -1,8 +1,8 @@
-import { capitalize } from "../../../helpers/capitalize"
-import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
-import { childSegmentUid } from "../../configurationIndex/logicalAddress"
+import { capitalize } from "@nkdk/runtime"
+import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
+import { childSegmentUid } from "@nkdk/runtime"
 import type { MetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",

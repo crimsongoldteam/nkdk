@@ -1,8 +1,8 @@
-import { capitalize } from "../../../helpers/capitalize"
-import { childSegmentUid } from "../../configurationIndex/logicalAddress"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { capitalize } from "@nkdk/runtime"
+import { childSegmentUid } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemYamlToXmlAugmenter } from "../../ruleRuntime/property/yamlToXmlAugmenter"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
 

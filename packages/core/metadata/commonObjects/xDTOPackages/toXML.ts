@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
+import { ExportToXMLFunction } from "@nkdk/runtime/rule-kit"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 
 const getXDTOPackageXMLType = (value: string): "xr:MDObjectRef" | "xs:string" =>

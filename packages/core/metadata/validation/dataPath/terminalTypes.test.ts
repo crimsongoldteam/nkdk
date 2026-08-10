@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { registerSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
+import { registerSystemEnumeration } from "@nkdk/runtime/rule-kit"
 import { normalizeDataPathTerminalType } from "./terminalTypes"
 
 registerSystemEnumeration("__terminal_type_test_enum__", { fromYAML: {}, toYAML: {} })

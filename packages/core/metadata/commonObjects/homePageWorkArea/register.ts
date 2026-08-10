@@ -6,7 +6,7 @@ import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "../metadataTar
 import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
 import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
 import { ExportToXMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import { HomePageWorkAreaRules } from "./rules"
 import {
   HomePageWorkAreaColumnItem,

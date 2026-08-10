@@ -1,18 +1,18 @@
-import { childUid } from "../../configurationIndex/logicalAddress"
+import { childUid } from "@nkdk/runtime"
 import "../../commonObjects"
 import {
   withConfigurationIndexExportFormElementRootLogicalAddress,
   withConfigurationIndexExportXmlNodeLogicalAddress,
-} from "../../configurationIndex/referenceView"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { getUUID } from "../../helpers/uuid"
 import { recordCurrentExternalMetadataUuid } from "../../ruleRuntime/externalMetadata/record"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
-import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./rules"
-import type { DeferredValuePath } from "../../ruleRuntime/property/deferredObjectValues"
+import type { DeferredValuePath } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { classifyTableSource } from "./tableSourceProfile"
 import {

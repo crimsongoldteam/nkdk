@@ -1,5 +1,5 @@
-import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types"
-import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
+import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
+import type { ConfigurationIndexReader } from "@nkdk/runtime"
 
 export function createBaseFormConfigurationIndexReader(params: {
   readonly base: ConfigurationIndexReader

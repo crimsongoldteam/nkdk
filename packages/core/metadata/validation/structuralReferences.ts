@@ -3,7 +3,7 @@ import type {
   MetadataTargetOwner,
   ParsedMetadataTarget,
 } from "../ruleRuntime/metadataTarget"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import {
   collectDependentStructuralItemReferences,
   type DependentStructuralItemReference,

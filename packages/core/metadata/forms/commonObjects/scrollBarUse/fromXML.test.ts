@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, importPropertyFromXML } from "../../../ruleRuntime"
 
 describe("importScrollBarUseFromXML (ScrollBarUseBoolean)", () => {

@@ -1,5 +1,5 @@
 import { TProperties, TSchema, Type } from "typebox"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import {
@@ -10,7 +10,7 @@ import {
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import { getSystemEnumeration } from "./systemEnumerationRegistry"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 import { explicitXMLPropertyValidationMode } from "./explicitXMLPropertyRegistry"
 
 function notSchema(schema: TSchema): TSchema {

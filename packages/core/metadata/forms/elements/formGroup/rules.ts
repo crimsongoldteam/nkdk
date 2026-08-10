@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 export const formGroupCommonProperties = {
   enableContentChange: {

@@ -5,7 +5,7 @@ import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "./handler
 import { MetadataPrimitiveValueType } from "./types"
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportMetadataValueToXML } from "./toXML"
 
 describe("exportMetadataValueToXML", () => {

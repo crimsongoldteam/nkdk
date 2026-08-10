@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { exportMetadataItemLinksToXML, exportMetadataItemLinkToXML } from "./toXML"
 

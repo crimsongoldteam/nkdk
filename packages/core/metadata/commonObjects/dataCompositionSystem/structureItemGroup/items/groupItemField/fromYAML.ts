@@ -1,6 +1,6 @@
-import type { ConfigurationContext } from "../../../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   DataCompositionGroupTypeFromYAML,
   DataCompositionPeriodAdditionTypeFromYAML,

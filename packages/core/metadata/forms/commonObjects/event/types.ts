@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import { ElementXML } from "../../../ruleRuntime"
 
 export const EVENT_CALL_TYPES_XML = ["Before", "After", "Override"] as const

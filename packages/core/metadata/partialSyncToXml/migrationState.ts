@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import { join, resolve } from "node:path"
-import { exportToYAML } from "../../yaml/export"
-import { importFromYAML } from "../../yaml/import"
-import { parseComponentPath } from "../components/address"
+import { exportToYAML } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
+import { parseComponentPath } from "@nkdk/runtime"
 import {
   MIGRATIONS_DIR,
   isMigrationFileName,

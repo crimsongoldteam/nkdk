@@ -1,20 +1,20 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
 import {
   configurationIndexPath,
   writeConfigurationIndex,
-} from "../configurationIndex/fileIO"
-import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { entity } from "../configurationIndex/testData"
-import type { ConfigurationSnapshot } from "../configurationIndex/types"
-import type { ConfigurationContext } from "../context/types"
+} from "@nkdk/runtime"
+import { snapshotConfigurationIndex } from "@nkdk/runtime"
+import { entity } from "@nkdk/runtime"
+import type { ConfigurationSnapshot } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { Diagnostic } from "../validation/types"
 import type { ProjectStateReadSession, ProjectStateService } from "../projectState"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import {
   syncComponentToXml,

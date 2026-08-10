@@ -1,5 +1,5 @@
 import fs from "fs"
-import { exportToYAML } from "../../yaml/export"
+import { exportToYAML } from "@nkdk/runtime"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 
 export function exportOperationItemToYamlText(item: OperationSnapshotItem): string {

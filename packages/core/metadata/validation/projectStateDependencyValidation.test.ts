@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {

@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
+import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportParameterValueToYAML } from "../parameterValue/toYAML"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionYAML } from "./types"

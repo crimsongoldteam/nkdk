@@ -7,11 +7,11 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "../../../../xml/import/importer"
-import { xmlExport } from "../../../../xml/export/exporter"
+import { importContentFromXML } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
 import { mockContext } from "../../../../tests/mockContext"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { DynamicListRules } from "./rules"
 
 import "./types"

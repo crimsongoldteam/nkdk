@@ -15,11 +15,11 @@ import { exportChoiceParameterLinksToDcsXML } from "../../сhoiceParameterLinks/
 import { ChoiceParameterLinks } from "../../сhoiceParameterLinks/types"
 import { exportChoiceParameterToDcsXML } from "../../сhoiceParameters/toDcsXML"
 import { ChoiceParameter } from "../../сhoiceParameters/types"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import type { ExportToXMLFunctionNew } from "../../../ruleRuntime/property/fn"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { ExportToXMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { exportSystemEnumerationToDcsXML } from "../../../systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import {
   DcsMetadataValuePropertyRule,
   MetadataDcsExplicitTextValue,

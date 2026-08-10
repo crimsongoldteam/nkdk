@@ -1,10 +1,10 @@
-import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
+import { childUid, indexedUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
-} from "../../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule } from "../../../ruleRuntime/property/yamlRuleCursor"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"

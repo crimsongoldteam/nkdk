@@ -11,7 +11,7 @@ import { snapshotLocalYamlValueValidationRegistryForTests } from "../validation/
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { listJSONSchemaNames } from "../projectDefinition/schemaRegistry"
 import { exportPropertyExternalRefSchema } from "../ruleRuntime/jsonSchemaRefs"
-import type { PropertyRule } from "../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { snapshotProjectReferenceIndexRegistryForTests } from "../validation/projectReferenceIndexRegistry"
 import { snapshotDataPathResolverRegistryForTests } from "../validation/dataPath/registry"
 

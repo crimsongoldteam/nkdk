@@ -1,9 +1,9 @@
 import { importMetadataItemCollectionFromXMLToYAML } from "../../ruleRuntime/metadataCollection/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../ruleRuntime/property/importYamlTypes"
-import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
+import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML, type StandartAttributeName } from "./standartAttributeNames"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 
 export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYAMLFunction = (params) => {
   const rule = params.rule as StandardAttributeDescriptionsPropertyRule

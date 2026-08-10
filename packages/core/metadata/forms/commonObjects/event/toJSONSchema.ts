@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import type { EventsPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is EventsPropertyRule => {
   return rule.type === "Events"

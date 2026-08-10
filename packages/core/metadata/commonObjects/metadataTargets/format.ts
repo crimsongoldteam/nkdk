@@ -1,1 +1,1 @@
-export * from "../../ruleRuntime/metadataTarget/format"
+export * from "@nkdk/runtime/rule-kit"

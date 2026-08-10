@@ -2,7 +2,7 @@ import fs from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { hashFileBytes } from "./hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import { hashConfigurationProjectFileList, hashConfigurationProjectFiles } from "./projectFiles"
 
 describe("hashConfigurationProjectFiles", () => {

@@ -1,5 +1,5 @@
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
-import type { ConfigurationContext } from "../context/types"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
 import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation/dataPath/ownerCache"

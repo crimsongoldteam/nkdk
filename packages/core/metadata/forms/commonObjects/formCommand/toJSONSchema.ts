@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
 import { FormCommandRules } from "./rules"

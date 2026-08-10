@@ -1,5 +1,5 @@
-import type { Diagnostic } from "../../diagnostics/types"
-import { openDiagnosticBatch } from "../../diagnostics/binaryBatch"
+import type { Diagnostic } from "@nkdk/runtime"
+import { openDiagnosticBatch } from "@nkdk/runtime"
 import { readLocalDiagnosticBatch, validateDependencyDiagnosticBatch } from "./diagnosticBatches"
 import type {
   ProjectStateDependencyValidator,

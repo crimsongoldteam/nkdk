@@ -1,4 +1,4 @@
-// import { ConfigurationContext } from "../../../context/types"
+// import { ConfigurationContext } from "@nkdk/runtime"
 // import { exportElementToEnterprise } from "../../../ruleRuntime"
 // import { InputField } from "./types"
 

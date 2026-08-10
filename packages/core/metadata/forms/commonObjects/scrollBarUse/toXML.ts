@@ -1,4 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { ScrollBarUse } from "./types"
 

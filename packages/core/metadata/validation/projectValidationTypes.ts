@@ -9,7 +9,7 @@ import type {
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
 import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
-import type { FormDataPathIndex } from "../ruleRuntime/dataPath/formIndex"
+import type { FormDataPathIndex } from "@nkdk/runtime/rule-kit"
 
 export interface ValidationFormIndexContribution {
   readonly owner: OwnerTypeRef

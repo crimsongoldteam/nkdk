@@ -4,7 +4,7 @@ import { i8nTextRule } from "../i8nText/types"
 import { stringRule } from "../string/types"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const propertiesParents = ["Properties"]
 export const MetadataExternalDataSourceFunctionRules = {
   itemType: "MetadataExternalDataSourceFunction",

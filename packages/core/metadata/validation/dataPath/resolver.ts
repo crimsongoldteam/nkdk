@@ -1,4 +1,4 @@
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { Diagnostic } from "../types"
 import {
   diagnosticAtYamlLocation,

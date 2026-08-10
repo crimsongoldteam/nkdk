@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { importContentFromXML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { CONFIGURATION_XML_FILE } from "./constants"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 

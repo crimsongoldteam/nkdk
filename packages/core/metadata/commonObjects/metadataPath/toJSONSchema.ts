@@ -2,7 +2,7 @@ import { TSchema, Type } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import type { MetadataTargetConstraint } from "../metadataTargets/types"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint

@@ -11,13 +11,13 @@ import { importTypeLinkFromYAML } from "../../typeLink/fromYAML"
 import { importChoiceParameterLinksFromYAML } from "../../сhoiceParameterLinks/fromYAML"
 import { importChoiceParametersFromYAML } from "../../сhoiceParameters/fromYAML"
 import { ChoiceParametersYAML } from "../../сhoiceParameters/types"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../../systemEnumerations/fromYAML"
 import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
-import type { ExplicitYAMLString } from "../../../../yaml/explicitString"
-import { isExplicitYAMLString, unwrapExplicitYAMLString } from "../../../../yaml/explicitString"
-import { ConfigurationContext } from "../../../context/types"
+import type { ExplicitYAMLString } from "@nkdk/runtime"
+import { isExplicitYAMLString, unwrapExplicitYAMLString } from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import {
   DcsMetadataValuePropertyRule,
   MetadataDcsMetadataSingleValue,

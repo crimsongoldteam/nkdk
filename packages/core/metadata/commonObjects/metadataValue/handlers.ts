@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { explicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
+import { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { explicitYAMLString, isExplicitYAMLString } from "@nkdk/runtime"
 import {
   AccountTypeFromYAML,
   AccountTypeToYAML,

@@ -1,8 +1,8 @@
 import { importBooleanFromYAML } from "../boolean/fromYAML"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ImportFromYAMLFunctionNew } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {

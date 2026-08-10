@@ -12,7 +12,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { MetadataCommandRules } from "../../commonObjects/metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataFilterCriterionRules = {

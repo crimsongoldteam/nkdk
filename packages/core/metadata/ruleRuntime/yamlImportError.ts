@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 
 export interface YAMLImportDiagnosticContext {
   sourceFile?: string

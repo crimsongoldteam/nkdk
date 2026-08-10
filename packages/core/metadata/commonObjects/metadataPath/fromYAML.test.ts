@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
@@ -14,9 +14,9 @@ import { createLayeredOwnerMetadataCacheForTests } from "../../../tests/layeredO
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
+import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 
 const dirs: string[] = []
 

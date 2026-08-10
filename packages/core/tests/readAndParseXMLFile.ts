@@ -1,6 +1,6 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { importContentFromXML } from "../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 
 const fixturesRoot = join(__dirname, "fixtures")
 const movedFixtures = [

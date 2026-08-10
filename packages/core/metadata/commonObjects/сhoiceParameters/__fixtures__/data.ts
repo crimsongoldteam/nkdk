@@ -1,5 +1,5 @@
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 import { refsWithNilFixedArray, refsWithNilFixedArrayYAML } from "../../metadataValue/fixedArray/__fixtures__/data"
 
 //#region DCS (один параметр для фрагмента СКД)

@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { DateTimePropertyRule } from "./types"
 

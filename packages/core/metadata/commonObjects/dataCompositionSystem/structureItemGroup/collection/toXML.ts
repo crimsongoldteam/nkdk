@@ -1,4 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "../../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { callAtomicToXML, PropertyRule, definePropertyTypeRule } from "../../../../ruleRuntime"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection, StructureItemGroupCollectionItem } from "./types"

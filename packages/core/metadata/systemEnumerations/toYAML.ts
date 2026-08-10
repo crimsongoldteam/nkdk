@@ -1,6 +1,6 @@
 import * as SE from "./types"
-import { ConfigurationContext } from "../context/types"
-import type { PropertyRule } from "../ruleRuntime/property/types"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ExportToYAMLFunction } from "../ruleRuntime"
 import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 

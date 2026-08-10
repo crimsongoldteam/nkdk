@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
 import { ExportToYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"

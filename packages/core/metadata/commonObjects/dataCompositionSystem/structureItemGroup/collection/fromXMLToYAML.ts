@@ -1,9 +1,9 @@
-import type { ImportFromXMLToYAMLFunction } from "../../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { getTypeRule, definePropertyTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"
-import { withConfigurationIndexYamlCollectionItemContext } from "../../../../configurationIndex/collector/context"
+import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 
 const itemRules = [GroupItemAutoRules, GroupItemFieldRules] as const
 

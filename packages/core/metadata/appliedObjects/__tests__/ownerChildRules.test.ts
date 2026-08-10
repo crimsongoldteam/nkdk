@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getCompiledXMLPropertyOrder } from "../../ruleRuntime/property/xmlPropertyOrder"
 import {
   MetadataCatalogAttributeRules,

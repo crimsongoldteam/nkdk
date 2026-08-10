@@ -2,7 +2,7 @@ import { exchangePlanContentItemsRule } from "./builders"
 import { metadataItemLinkRule } from "../metadataPath/types"
 import { xmlRootRule } from "../xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   xmlOrder: [

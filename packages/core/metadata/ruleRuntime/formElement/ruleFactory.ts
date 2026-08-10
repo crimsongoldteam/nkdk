@@ -1,4 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { getChildContextToXML } from "../../context/helpers"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
@@ -16,7 +16,7 @@ import {
   configurationIndexExportFormSingletonLogicalAddress,
   getConfigurationIndexXmlName,
   withConfigurationIndexExportLogicalAddress,
-} from "../../configurationIndex/referenceView"
+} from "@nkdk/runtime"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import type { ElementRule, ElementXML, SingleElementType } from "./types"
 import { defineMetadataRules } from "../definition"

@@ -2,7 +2,7 @@ import { Value } from "typebox/value"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { getTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   EMPTY_REQUIRED_MOBILE_APPLICATION_PERMISSIONS,
   exportRequiredMobileApplicationPermissionsToJSONSchema,

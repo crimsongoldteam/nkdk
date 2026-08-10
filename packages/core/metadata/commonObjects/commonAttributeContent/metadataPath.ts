@@ -1,6 +1,6 @@
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 
 const importPrefixOverrides: Record<string, string> = {
   "Справочники.": "Справочник.",

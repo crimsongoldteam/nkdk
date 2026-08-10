@@ -5,7 +5,7 @@ import {
   MIGRATIONS_DIR,
   nextMigrationFileName,
 } from "../appliedObjects/configuration/migrations"
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
 import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
 import type { ProjectReferenceLocation } from "../projectState/readSession"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"

@@ -1,5 +1,5 @@
 import { MetadataRegisterAttributes, MetadataRegisterAttributesYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const attributesFromXML: MetadataRegisterAttributes = [
   {

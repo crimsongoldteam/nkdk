@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { afterEach, describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   getRegisteredProjectSpecByDir,
   defineProjectSpec,

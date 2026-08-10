@@ -1,10 +1,10 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexYamlCollectionItemContext,
-} from "../../../configurationIndex/collector/context"
-import { withConfigurationIndexExportYamlCollectionItemContext } from "../../../configurationIndex/referenceView"
+} from "@nkdk/runtime"
+import { withConfigurationIndexExportYamlCollectionItemContext } from "@nkdk/runtime"
 import { callAtomicToXML, importPropertyFromXML } from "../../../ruleRuntime"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"

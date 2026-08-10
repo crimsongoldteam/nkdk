@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } from "./types"
 
 export const importMetadataFieldFromXML = (

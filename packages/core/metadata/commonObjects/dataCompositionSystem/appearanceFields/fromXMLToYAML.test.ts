@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../../tests/property/exportPropertyModelThroughXMLToYAML"
 import { testPropertyFromXMLToYAML } from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "./__fixtures__/data"
 import "./types"
 

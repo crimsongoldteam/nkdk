@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import * as SE from "../../systemEnumerations/types"
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   ChoiceParameterLink,
   ChoiceParameterLinkDcsItemXML,

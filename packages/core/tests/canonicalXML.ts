@@ -1,4 +1,4 @@
-import { importContentFromXML } from "../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 
 export function canonicalXML(value: string): unknown {
   return removeFormattingText(importContentFromXML(value.replace(/^\uFEFF/, "")))

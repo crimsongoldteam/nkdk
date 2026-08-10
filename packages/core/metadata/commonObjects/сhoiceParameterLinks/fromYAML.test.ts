@@ -3,7 +3,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 
 const dirs: string[] = []
 

@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../ruleRuntime"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import {

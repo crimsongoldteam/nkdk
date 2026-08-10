@@ -32,7 +32,7 @@ import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
 import "./configurationChildObjects"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 const configurationProperties = ["Properties"]
 const configurationInternalInfoContainedObjectClassIds = [
   "9cd510cd-abfc-11d4-9434-004095e12fc7",

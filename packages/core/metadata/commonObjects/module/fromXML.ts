@@ -1,7 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../../ruleRuntime/property/types"
+import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "@nkdk/runtime/rule-kit"
 
 /**
  * Копирует внешний .bsl-файл (модуль или шаблон) из XML-директории объекта

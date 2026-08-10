@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 const MIN_MAX_VALUE_XSI_TYPE: unique symbol = Symbol("minMaxValueXsiType")
 const MIN_MAX_VALUE_XML_TEXT: unique symbol = Symbol("minMaxValueXMLText")
 

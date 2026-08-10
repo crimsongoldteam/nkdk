@@ -3,7 +3,7 @@ import { eventsRule } from "../../commonObjects/event/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }

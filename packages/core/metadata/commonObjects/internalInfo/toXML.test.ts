@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportInternalInfoToXMLOld } from "./toXML"
 
 describe("exportInternalInfoToXML", () => {

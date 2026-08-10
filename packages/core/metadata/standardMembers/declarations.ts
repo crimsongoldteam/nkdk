@@ -1,7 +1,7 @@
 import {
   clearStandardMemberAliasesForTests,
   registerStandardMemberAlias,
-} from "../ruleRuntime/metadataTarget/standardMemberAliases"
+} from "@nkdk/runtime/rule-kit"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
 export type StandardMemberPhase = "index-time" | "traversal-time" | "deferred"

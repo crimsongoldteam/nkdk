@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import type { ComponentAddress } from "../components/address"
-import importContentFromXML from "../../xml/import/importer"
+import type { ComponentAddress } from "@nkdk/runtime"
+import { importContentFromXML } from "@nkdk/runtime"
 import {
   registerXmlImportComponentDescriptor,
   resolveXmlImportComponent,

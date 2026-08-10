@@ -1,4 +1,4 @@
-import { isExplicitYAMLString } from "../../yaml/explicitString"
+import { isExplicitYAMLString } from "@nkdk/runtime"
 
 /** Возвращает семантическое представление YAML для JSON Schema, не изменяя исходное дерево. */
 export function structuralYamlValue(value: unknown): unknown {

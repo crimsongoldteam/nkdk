@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportI8nTextToYAML } from "../../i8nText/toYAML"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"

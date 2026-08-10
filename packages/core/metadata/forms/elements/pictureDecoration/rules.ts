@@ -9,7 +9,7 @@ import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
 export type { ElementRule, PropertyRule }

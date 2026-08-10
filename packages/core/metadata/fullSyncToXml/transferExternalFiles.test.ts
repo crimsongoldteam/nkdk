@@ -3,7 +3,7 @@ import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncExternalFile } from "./types"
 

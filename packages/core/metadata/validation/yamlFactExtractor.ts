@@ -1,16 +1,16 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
-import type { MetadataTargetOwner, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import type { MetadataTargetOwner, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../ruleRuntime/formElement/types"
-import type { DataPathPropertyRule, PropertyRule } from "../ruleRuntime/property/types"
+import type { DataPathPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { callAtomicFromYAML } from "../ruleRuntime/property/fromYAMLToXML"
 import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import { getSystemEnumeration } from "../ruleRuntime/property/systemEnumerationRegistry"
+import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
-import type { YamlRuleCursor } from "../ruleRuntime/property/importYamlTypes"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
 import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
@@ -46,12 +46,12 @@ import {
   analyzeDependentYamlItem,
   type DependentReferenceCandidate,
 } from "../ruleRuntime/property/dependentItemRegistry"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { createFormDataPathIndexFromYAML } from "./dataPath/formYamlIndex"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "../../yaml/scalarTags"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 

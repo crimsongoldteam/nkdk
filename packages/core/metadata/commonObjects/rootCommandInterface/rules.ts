@@ -7,7 +7,7 @@ import {
   commandInterfaceVisibilityMapRule,
 } from "./builders"
 import { xmlRootRule } from "../xmlRoot/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const commandInterfaceRootAttributes = {
   _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
   "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",

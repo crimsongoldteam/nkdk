@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { getUUID } from "../../helpers/uuid"
 import {

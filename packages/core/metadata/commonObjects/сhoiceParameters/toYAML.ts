@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportFormChoiceListToYAML } from "../metadataValue/formChoiceList/toYAML"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import type { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"

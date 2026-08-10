@@ -2,8 +2,8 @@ import { relative, resolve } from "node:path"
 import { readFile } from "node:fs/promises"
 import { performance } from "node:perf_hooks"
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { hashFileBytes } from "../configurationIndex/hash"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { hashFileBytes } from "@nkdk/runtime"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import {
   createProjectStateFileUpdateBatch,
   type ProjectStateFileIdentity,
@@ -18,7 +18,7 @@ import {
 import {
   createProjectStateFragmentWriter,
 } from "../projectState/binary/fragment"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { createValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import {

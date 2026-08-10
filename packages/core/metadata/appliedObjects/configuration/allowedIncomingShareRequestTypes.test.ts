@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContext } from "../../../tests/mockContext"
 import {
   exportAllowedIncomingShareRequestTypesToJSONSchema,

@@ -1,5 +1,5 @@
 import { MetadataRegisterResources, MetadataRegisterResourcesYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const resourcesFromXML: MetadataRegisterResources = [
   {

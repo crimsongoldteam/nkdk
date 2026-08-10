@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import { ExportToJSONSchemaFn } from "../../ruleRuntime/property/fn"
+import { ExportToJSONSchemaFn } from "@nkdk/runtime/rule-kit"
 import { I8nTextJSONSchema } from "./types"
 
 export const exportI8nTextToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

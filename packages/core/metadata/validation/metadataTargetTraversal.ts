@@ -3,9 +3,9 @@ import {
   resolvePropertyItemRule,
 } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
-import type { PendingMetadataTargetReferenceCandidate } from "../ruleRuntime/property/fn"
-import type { MetadataItem, MetadataItemRule } from "../ruleRuntime/property/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { PendingMetadataTargetReferenceCandidate } from "@nkdk/runtime/rule-kit"
+import type { MetadataItem, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"

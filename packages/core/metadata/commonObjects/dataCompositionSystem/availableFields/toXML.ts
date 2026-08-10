@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import { PropertyRule } from "../../../ruleRuntime"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"

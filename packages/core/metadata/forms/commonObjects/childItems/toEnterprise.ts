@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { ToEnterprise } from "../../../ruleRuntime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { exportElementToEnterprise } from "../../../ruleRuntime/formElement/toEnterprise"

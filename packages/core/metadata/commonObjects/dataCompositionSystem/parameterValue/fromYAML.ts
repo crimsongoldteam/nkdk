@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import { ConfigurationContext } from "../../../context/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import * as SE from "../../../systemEnumerations/types"
@@ -7,7 +7,7 @@ import {
   asExplicitYAMLStringIfMarked,
   isExplicitYAMLString,
   unwrapExplicitYAMLString,
-} from "../../../../yaml/explicitString"
+} from "@nkdk/runtime"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"

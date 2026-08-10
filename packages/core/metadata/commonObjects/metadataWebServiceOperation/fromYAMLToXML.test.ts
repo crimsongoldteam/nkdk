@@ -5,8 +5,8 @@ import {
   testPropertyFixtureThroughYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
-import { importContentFromXML } from "../../../xml/import/importer"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { importContentFromXML } from "@nkdk/runtime"
 
 import "./register"
 

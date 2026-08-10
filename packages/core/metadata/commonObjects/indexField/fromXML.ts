@@ -1,10 +1,10 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
-} from "../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import type { IndexFields, IndexFieldsXML } from "./types"
 
 export const importIndexFieldsFromXML = (

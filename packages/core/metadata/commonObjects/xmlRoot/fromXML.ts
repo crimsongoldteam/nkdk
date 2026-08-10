@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Маркерный обработчик: реальная работа выполняется единым обходом XML → YAML. */

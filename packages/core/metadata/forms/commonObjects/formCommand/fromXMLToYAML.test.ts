@@ -7,9 +7,9 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "../../../../xml/import/importer"
-import { xmlExport } from "../../../../xml/export/exporter"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import { importContentFromXML } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import "./types"
 

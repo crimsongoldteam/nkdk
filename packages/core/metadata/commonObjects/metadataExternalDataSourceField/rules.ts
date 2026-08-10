@@ -1,4 +1,4 @@
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { booleanRule } from "../boolean/types"
 import {
   attributeChoiceFragment,

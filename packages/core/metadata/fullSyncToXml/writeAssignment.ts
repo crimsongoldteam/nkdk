@@ -1,10 +1,10 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
-import { xmlExport } from "../../xml/export/exporter"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
-import type { ConfigurationContext } from "../context/types"
+import { xmlExport } from "@nkdk/runtime"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { finalizeExportedXmlValues } from "../ruleRuntime/property/finalizeExportedXML"
-import type { YAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,

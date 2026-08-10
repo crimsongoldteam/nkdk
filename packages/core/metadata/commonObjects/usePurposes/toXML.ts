@@ -1,6 +1,6 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import type { UsePurposes, UsePurposesXML } from "./types"
 

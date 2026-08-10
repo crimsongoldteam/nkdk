@@ -3,7 +3,7 @@ import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataResourceTopology,
   MetadataResourceRole,
-} from "../resourceTopology/core/types"
+} from "@nkdk/runtime/rule-kit"
 
 type XmlDocumentRole = Extract<MetadataResourceRole, "metadata" | "body" | "property">
 

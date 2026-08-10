@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathAllowedKind, DataPathPropertyRule } from "../../ruleRuntime/property/types"
+import type { DataPathAllowedKind, DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import { ButtonRules, CommandBarButtonRules } from "./button/rules"
 import { CalendarFieldRules } from "./calendarField/rules"
 import { ChartFieldRules } from "./chartField/rules"

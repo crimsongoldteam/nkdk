@@ -2,9 +2,9 @@ import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSo
 import { contextMenuRule, extendedTooltipRule } from "./builders"
 import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getViewStatusAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }

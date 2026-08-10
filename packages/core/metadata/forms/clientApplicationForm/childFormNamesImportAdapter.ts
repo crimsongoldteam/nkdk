@@ -1,8 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "./convertFromXML"
-import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
-import { importContentFromXML } from "../../../xml/import/importer"
+import type { SyncExternalFromXMLFunction } from "@nkdk/runtime/rule-kit"
+import { importContentFromXML } from "@nkdk/runtime"
 
 /**
  * Сканирует `<xmlDir>/<name>/Forms/*.xml` и для каждого вызывает `convertFormFromXML`.

@@ -1,7 +1,7 @@
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { registerProjectSpec, unregisterProjectSpecForTests } from "./projectSpecRegistry"
 import {
   defineProjectJSONSchema,

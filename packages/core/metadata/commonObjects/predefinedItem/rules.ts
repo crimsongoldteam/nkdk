@@ -5,8 +5,8 @@ import { booleanRule } from "../boolean/types"
 import { stringRule } from "../string/types"
 import { uuidPropertyRule } from "../uuid/rule"
 import { getParentFromContext } from "../../context/helpers"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const isChartOfCharacteristicTypesPredefined = (context?: ConfigurationContextWithExportToXML): boolean =>
   context
     ? getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).itemType ===

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathPropertyRule } from "../../ruleRuntime/property/types"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { ResolvedDataPathTarget } from "./resolver"
 import {
   evaluateDataPathCompatibility,

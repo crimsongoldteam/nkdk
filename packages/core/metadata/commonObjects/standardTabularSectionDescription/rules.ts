@@ -2,7 +2,7 @@ import { standardTabularSectionAttributeDescriptionsRule } from "./builders"
 import { i8nTextRule } from "../i8nText/types"
 import { stringRule } from "../string/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const StandardTabularSectionDescriptionRules = {
   itemType: "StandardTabularSectionDescription",
   xmlOrder: [

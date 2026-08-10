@@ -1,4 +1,4 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule } from "./types"
 
 export interface MetadataItemYamlToXmlAugmenter {

@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { MetadataBotRules } from "../metadataBot/rules"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"

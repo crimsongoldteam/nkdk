@@ -1,5 +1,5 @@
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import {

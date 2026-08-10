@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToYAMLFunction, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 import { ScrollBarUse } from "./types"

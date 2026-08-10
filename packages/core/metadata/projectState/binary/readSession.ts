@@ -1,4 +1,4 @@
-import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
+import type { OwnerTypeRef } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateDependencyValidator } from "../contracts/dependencyValidation"
 import type {
   ProjectStateLocalValidationResult,

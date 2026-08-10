@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateReadSession } from "../projectState/readSession"
 import { openBinaryProjectStateReadSession } from "../projectState/binary/readSession"

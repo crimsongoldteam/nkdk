@@ -1,4 +1,4 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 
 type RequiredConfigurationIdentityKind = "uuid" | "xmlId" | "xmlName"
 

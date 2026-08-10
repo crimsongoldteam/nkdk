@@ -1,7 +1,7 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { recordOfSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import {

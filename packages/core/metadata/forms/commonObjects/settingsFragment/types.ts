@@ -5,9 +5,9 @@ import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
 } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import type { PropertyRuleType } from "../../../ruleRuntime/property/registry"
-import { importContentFromXML } from "../../../../xml/import/importer"
-import { xmlExport } from "../../../../xml/export/exporter"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import { importContentFromXML } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
 
 export type SettingsFragment = Record<string, unknown>
 export type SettingsFragmentXML = SettingsFragment & {

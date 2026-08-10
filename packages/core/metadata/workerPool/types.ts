@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 
 export type MetadataWorkerOperationOutcome = "success" | "failure" | "cancelled"

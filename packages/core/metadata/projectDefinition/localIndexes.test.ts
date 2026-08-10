@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRuleType } from "../ruleRuntime/property/registry"
+import { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import { createLocalIndexesCollector } from "./localIndexes"
 

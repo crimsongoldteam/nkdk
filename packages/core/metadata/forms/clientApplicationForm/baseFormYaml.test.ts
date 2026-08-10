@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { exportToYAML } from "../../../yaml/export"
-import { explicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { exportToYAML } from "@nkdk/runtime"
+import { explicitYAMLString, isExplicitYAMLString } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { ClientApplicationFormXML } from "./types"
 import {
   equalBaseFormYaml,

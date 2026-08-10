@@ -6,7 +6,7 @@ import type {
 } from "../ruleRuntime/definition"
 import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataImportComponentDescriptor } from "../ruleRuntime/definition"
-import type { ComponentAddress } from "../components/address"
+import type { ComponentAddress } from "@nkdk/runtime"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import { createMetadataItemXmlImportAugmenterRegistry, type MetadataItemXmlImportAugmenterRegistry } from "../ruleRuntime/metadataItem/augmenterRegistry"
 import { createMetadataItemYamlToXmlAugmenterRegistry, type MetadataItemYamlToXmlAugmenterRegistry } from "../ruleRuntime/property/yamlToXmlAugmenter"

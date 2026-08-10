@@ -1,18 +1,18 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
-import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "@nkdk/runtime"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ProjectStateReadToken } from "../projectState/contracts"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { MetadataWorkerOperation } from "../workerPool/types"
-import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import type { DiagnosticBatchView } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
   createMetadataDiagnosticCollection,
   type MetadataDiagnosticCollection,
-} from "../diagnostics/collection"
+} from "@nkdk/runtime"
 import type {
   ImportAssignment,
   ImportDiagnostic,

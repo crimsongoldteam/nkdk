@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { formattedI8nTextFixtures } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportFormattedI8nTextToXML } from "./toXML"
 import { FormattedI8nTextPropertyRule } from "./types"
 

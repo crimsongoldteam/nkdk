@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { multiple, single } from "./__fixtures__/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
-import { importContentFromXML } from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { importMetadataObjectRefCollectionFromXML } from "./fromXML"
 import { MetadataObjectRefCollectionXML } from "./types"
 

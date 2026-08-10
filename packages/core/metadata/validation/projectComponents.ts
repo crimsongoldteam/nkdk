@@ -1,12 +1,12 @@
 import { readdir, stat } from "node:fs/promises"
 import { join, resolve } from "node:path"
-import { componentPath, type ComponentAddress } from "../components/address"
+import { componentPath, type ComponentAddress } from "@nkdk/runtime"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
 import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecContracts"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
-import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 
 export interface ValidationProjectComponent {

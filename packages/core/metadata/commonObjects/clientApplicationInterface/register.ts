@@ -1,13 +1,13 @@
 import { Type } from "typebox"
 import { getUUID } from "../../helpers/uuid"
 import { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew, defineMetadataItemRule, definePropertyTypeRule, type ImportFromXMLToYAMLFunction, type PropertyRule } from "../../ruleRuntime"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyLogicalAddress,
   type ConfigurationIndexCollectionContext,
-} from "../../configurationIndex/collector/context"
-import { indexedUid } from "../../configurationIndex/logicalAddress"
+} from "@nkdk/runtime"
+import { indexedUid } from "@nkdk/runtime"
 import {
   SectionsPanelRepresentationFromYAML,
   SectionsPanelRepresentationToYAML,
@@ -34,7 +34,7 @@ import {
   ClientApplicationInterfaceItemsHintYAMLSchema,
   ClientApplicationInterfaceItemsValidationYAMLSchema,
 } from "./types"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 
 const standardPanelsByUuid = {
   "b553047f-c9aa-4157-978d-448ecad24248": "ПанельИстории",

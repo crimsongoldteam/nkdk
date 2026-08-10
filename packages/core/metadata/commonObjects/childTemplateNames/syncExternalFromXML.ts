@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
+import type { SyncExternalFromXMLFunction } from "@nkdk/runtime/rule-kit"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesFromXML: SyncExternalFromXMLFunction = async (params) => {

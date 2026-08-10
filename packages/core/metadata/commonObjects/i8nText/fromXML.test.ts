@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import importContentFromXML from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "./fromXML"
 import { I8nTextPropertyRule, I8nTextXML } from "./types"
 

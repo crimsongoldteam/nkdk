@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { MetadataInformationRegisterRules } from "../appliedObjects/metadataInformationRegister/rules"
-import type { MetadataItem } from "../ruleRuntime/property/types"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import type { MetadataItem } from "@nkdk/runtime/rule-kit"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
 type ValidationModel = MetadataItem & Record<string, unknown>

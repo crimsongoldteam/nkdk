@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { TableAdditionalSourceXML } from "./types"
 

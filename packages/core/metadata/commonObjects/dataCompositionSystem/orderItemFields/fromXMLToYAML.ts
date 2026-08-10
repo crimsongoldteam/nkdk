@@ -1,6 +1,6 @@
-import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
+import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../../../ruleRuntime/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { OrderItemFieldRules } from "./rules"
 
 export const importOrderItemFieldsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({

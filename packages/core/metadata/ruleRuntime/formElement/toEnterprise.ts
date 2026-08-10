@@ -1,4 +1,4 @@
-import { ConfigurationContext, ContextElementToEnterprise } from "../../context/types"
+import { ConfigurationContext, ContextElementToEnterprise } from "@nkdk/runtime"
 import { ToEnterprise, ToMetadata } from "../metadataItem/registry"
 import { exportPropertiesToEnterprise } from "../property/toEnterprise"
 import { exportFormElementDataPath } from "./registry"

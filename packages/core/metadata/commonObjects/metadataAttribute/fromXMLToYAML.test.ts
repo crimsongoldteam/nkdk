@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataTargetOwnerContext } from "../../context/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { importContentFromXML } from "@nkdk/runtime"
+import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 import "../../appliedObjects/metadataCatalog/childRules"
 import "../../appliedObjects/metadataDocument/childRules"

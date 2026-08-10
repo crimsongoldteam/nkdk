@@ -15,7 +15,7 @@ import {
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const DynamicListRules = {
   itemType: "DynamicList",
   xsiType: "DynamicList",

@@ -1,1 +1,1 @@
-export * from "../../ruleRuntime/dataPath/types"
+export * from "@nkdk/runtime/rule-kit"

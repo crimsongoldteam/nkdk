@@ -8,8 +8,8 @@ import {
   propertyTypesFromContributions,
 } from "./propertyRuleRegistrySet"
 import { createPropertyRuleExecutor } from "./propertyRuleExecutor"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
-import { importFromYAML } from "../../../yaml/import"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
 
 it("uses the last property type contribution for the same operation", () => {
   const first = () => "first"

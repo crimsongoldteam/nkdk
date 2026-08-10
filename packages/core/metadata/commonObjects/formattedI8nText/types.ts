@@ -2,10 +2,10 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import { Type } from "typebox"
 import type { Static } from "typebox"
-import type { BasePropertyRule } from "../../ruleRuntime/property/types"
+import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
 import { StringboolXML } from "../boolean/types"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 

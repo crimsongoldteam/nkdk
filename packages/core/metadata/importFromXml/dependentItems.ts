@@ -1,13 +1,13 @@
-import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import {
   shouldRemoveImportedDependentProperty,
   shouldTagImportedDependentProperty,
   shouldDeferImportedDependentProperty,
   type DependentItemParams,
 } from "../ruleRuntime/property/dependentItemRegistry"
-import type { ImportedDependentPropertyCandidate } from "../ruleRuntime/property/importYamlTypes"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import { markYAMLScalarTag, xmlScalarTagValue } from "../../yaml/scalarTags"
+import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
 
 export function normalizeImportedDependentItems(params: {
   readonly yaml: unknown

@@ -2,10 +2,10 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { decodeConfigurationIndex } from "../configurationIndex/decode"
-import { hashFileBytes } from "../configurationIndex/hash"
-import type { ConfigurationSnapshot } from "../configurationIndex/types"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { decodeConfigurationIndex } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import {
   assertNoPendingPartialXmlSync,
   cleanupPendingPartialXmlSync,

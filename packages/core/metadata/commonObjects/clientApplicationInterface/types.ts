@@ -4,7 +4,7 @@ import { MetadataTypeByRule } from "../../ruleRuntime/metadataItem/element"
 import { YAMLTypeByRule } from "../../ruleRuntime/metadataItem/yaml"
 import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 
 export type ClientApplicationInterfaceStandardPanel =
   | "ПанельИстории"

@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ImportFromXMLFunction } from "../../ruleRuntime/property/fn"
+import { ImportFromXMLFunction } from "@nkdk/runtime/rule-kit"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 
 export const importXDTOPackagesFromXML: ImportFromXMLFunction = (_context, _rule, xml: XDTOPackagesXML | undefined) => {

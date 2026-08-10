@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { MetadataStringValue } from "../metadataValue/types"

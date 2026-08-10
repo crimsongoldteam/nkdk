@@ -1,6 +1,6 @@
 import { registerExplicitXMLProperty } from "../../metadata/ruleRuntime/property/explicitXMLPropertyRegistry"
-import type { MetadataItemRule } from "../../metadata/ruleRuntime/property/types"
-import { EMPTY_XML_TAG_VALUE } from "../../yaml/scalarTags"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 
 export function registeredExplicitXMLTestRule(itemType: string): MetadataItemRule {
   const rule = {

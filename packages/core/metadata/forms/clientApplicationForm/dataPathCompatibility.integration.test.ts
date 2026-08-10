@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { mockContext } from "../../../tests/mockContext"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { resolveValidationProjectFile } from "../../validation/projectFiles"
 import { validatePendingChecks } from "../../validation/projectValidationPendingChecks"

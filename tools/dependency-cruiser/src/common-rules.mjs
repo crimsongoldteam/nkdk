@@ -1,7 +1,7 @@
 export const testModulePattern =
   "(?:\\.(?:test|spec|bench)\\.[cm]?[jt]sx?$|/(?:tests?|__tests__|__fixtures__)/)"
 export const productionSourcePattern =
-  "^packages/(?:core/(?:index\\.ts|helpers/|metadata/|xml/|yaml/)|mcp/src/|platform/(?:index\\.ts|src/))"
+  "^packages/(?:runtime/|rules/|core/(?:index\\.ts|helpers/|metadata/|xml/|yaml/)|mcp/src/|platform/(?:index\\.ts|src/))"
 
 const productionFrom = {
   path: productionSourcePattern,

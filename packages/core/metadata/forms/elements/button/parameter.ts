@@ -9,9 +9,9 @@ import {
 import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
 import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "../../../commonObjects/typeDescription/types"
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 export type ButtonParameter =
   | string

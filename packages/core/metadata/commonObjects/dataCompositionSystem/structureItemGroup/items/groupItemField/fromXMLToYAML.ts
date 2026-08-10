@@ -1,5 +1,5 @@
 import { importMetadataItemFromXMLToYAML } from "../../../../../ruleRuntime/metadataItem/fromXMLToYAML"
-import type { ImportFromXMLToYAMLFunction } from "../../../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemFieldRules } from "./rules"
 

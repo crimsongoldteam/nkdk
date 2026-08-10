@@ -13,13 +13,13 @@ import { importChoiceParameterLinksFromDcsXML } from "../../сhoiceParameterLink
 import { ChoiceParameterLinkDcsValueRootXML } from "../../сhoiceParameterLinks/types"
 import { importChoiceParameterFromDcsXML } from "../../сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "../../сhoiceParameters/types"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { SystemEnumerationDcsValueRootXML } from "../../../systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "../../../systemEnumerations/fromDcsXML"
 import * as SystemEnumerations from "../../../systemEnumerations/types"
 import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   DcsMetadataValuePropertyRule,
   MetadataDcsMetadataSingleValue,

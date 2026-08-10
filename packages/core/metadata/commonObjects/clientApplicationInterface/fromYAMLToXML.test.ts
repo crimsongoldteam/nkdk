@@ -8,8 +8,8 @@ import {
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importContentFromXML } from "../../../xml/import/importer"
-import { importFromYAML } from "../../../yaml/import"
+import { importContentFromXML } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"

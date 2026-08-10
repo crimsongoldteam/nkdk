@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { exportXDTOTypeNameToXML } from "./toXML"
 import {
   MetadataWebServiceOperationRules,

@@ -2,12 +2,12 @@ import {
   encodeDiagnosticBatch,
   openDiagnosticBatch,
   type DiagnosticBatchView,
-} from "../diagnostics/binaryBatch"
+} from "@nkdk/runtime"
 import {
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
-} from "../configurationIndex/fragment"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+} from "@nkdk/runtime"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import {
   openProjectStateFragment,
   type ProjectStateFragment,

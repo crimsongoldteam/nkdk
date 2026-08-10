@@ -5,7 +5,7 @@ import { stringRule } from "../../commonObjects/string/types"
 import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",

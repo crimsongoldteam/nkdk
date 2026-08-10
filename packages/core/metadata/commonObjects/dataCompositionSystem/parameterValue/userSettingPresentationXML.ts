@@ -1,7 +1,7 @@
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import type { I8nText, I8nTextXML } from "../../i8nText/types"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { UserSettingPresentationShortXML } from "./types"
 
 const shortFormMarker = Symbol("userSettingPresentationXML.shortForm")

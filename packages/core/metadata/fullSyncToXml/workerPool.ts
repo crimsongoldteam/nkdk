@@ -2,14 +2,14 @@ import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
-import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
+import { mergeConfigurationIndexFragments } from "@nkdk/runtime"
+import type { MergedConfigurationSnapshotFragments } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   type AssignmentScopedConfigurationIndexReader,
   type SharedConfigurationIndexSnapshot,
-} from "../configurationIndex/sharedSnapshot"
-import type { ConfigurationContext } from "../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "../projectState"
 import type { MetadataWorkerOperation } from "../workerPool/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"

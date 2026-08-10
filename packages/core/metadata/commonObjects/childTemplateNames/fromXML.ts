@@ -1,9 +1,9 @@
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+  getConfigurationIndexCollectionXmlNodeLogicalAddress,
+} from "@nkdk/runtime"
+import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
@@ -26,7 +26,7 @@ export const metadataPropertyRule001 = definePropertyTypeRule("ChildTemplateName
   if (!names.every((name): name is string => typeof name === "string")) return
   setChildTemplateNamesOmittedChildren(
     collection.collector,
-    getConfigurationIndexXmlNodeLogicalAddress(collection),
+    getConfigurationIndexCollectionXmlNodeLogicalAddress(collection),
     names
   )
 })

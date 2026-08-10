@@ -1,8 +1,8 @@
 import {
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
-} from "../configurationIndex/fragment"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+} from "@nkdk/runtime"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import {
   BinaryStringPoolBuilder,
   openBinaryStringPool,

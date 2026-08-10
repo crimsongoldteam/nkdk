@@ -1,7 +1,7 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import { I8nText } from "../../i8nText/types"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../../ruleRuntime"
 import { DcsLocalStringTypeReference } from "./types"
 

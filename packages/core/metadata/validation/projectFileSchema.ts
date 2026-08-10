@@ -1,5 +1,5 @@
 import type { TSchema } from "typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import { classifyMetadataProjectPath } from "../projectDefinition/resources"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import {

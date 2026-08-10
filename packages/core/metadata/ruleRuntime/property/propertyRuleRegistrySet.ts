@@ -5,7 +5,7 @@ import type {
 import {
   xmlScalarTagPayload,
   yamlScalarTagAt,
-} from "../../../yaml/scalarTags"
+} from "@nkdk/runtime"
 import type {
   ExplicitXMLPropertyAction,
   ExplicitXMLPropertyRegistration,

@@ -7,8 +7,8 @@ import {
   externalDataSourceFieldBaseProperties,
   externalDataSourceObjectServiceProperties,
 } from "../metadataExternalDataSourceField/rules"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
-import type { YAMLPropertySource } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { YAMLPropertySource } from "@nkdk/runtime/rule-kit"
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>

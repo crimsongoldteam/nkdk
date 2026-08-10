@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import type { Color, ColorYAML } from "../../color/types"
 import type { Font, FontYAML } from "../../font/types"
 import type { FormattedI8nText, FormattedI8nTextValueYAML } from "../../formattedI8nText/types"

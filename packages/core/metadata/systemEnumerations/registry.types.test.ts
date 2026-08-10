@@ -3,11 +3,11 @@ import type { YAMLTypeByRule } from "../ruleRuntime/metadataItem/yaml"
 import {
   getRegisteredSystemEnumerationNames,
   getSystemEnumeration,
-} from "../ruleRuntime/property/systemEnumerationRegistry"
+} from "@nkdk/runtime/rule-kit"
 import type {
   SystemEnumerationToMetadata,
   SystemEnumerationToYAML,
-} from "../ruleRuntime/property/systemEnumerationRegistry"
+} from "@nkdk/runtime/rule-kit"
 import "./index"
 import * as systemEnumerationExports from "./types"
 import type { PictureLib, PictureLibYAML } from "./types"

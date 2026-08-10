@@ -1,6 +1,6 @@
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function exportMetadataItemLinkToXML(

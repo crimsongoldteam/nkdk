@@ -1,5 +1,5 @@
 import { ChoiceList, ChoiceListYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const oneItemChoiceList: ChoiceList = [
   {

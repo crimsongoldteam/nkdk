@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { finalizeDeferredObjectValues, type DeferredObjectValue } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"

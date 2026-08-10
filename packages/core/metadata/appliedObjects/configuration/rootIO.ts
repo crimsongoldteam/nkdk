@@ -1,8 +1,8 @@
 import fs from "fs"
 import { join } from "path"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { importContentFromXML } from "../../../xml/import/importer"
-import { xmlExport } from "../../../xml/export/exporter"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { importContentFromXML } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
 import { CONFIGURATION_YAML_FILE } from "../../project/constants"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { MetadataConfigurationRules } from "./rules"
@@ -14,9 +14,9 @@ import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
   YAMLToXMLProfile,
-} from "../../ruleRuntime/property/fromYAMLToXMLTypes"
-import { bindDeferredObjectValues, type DeferredObjectValue } from "../../ruleRuntime/property/deferredObjectValues"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+} from "@nkdk/runtime/rule-kit"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { CONFIGURATION_XML_FILE } from "./constants"
 
 export { CONFIGURATION_XML_FILE } from "./constants"

@@ -1,6 +1,6 @@
 import type { ElementRule, ElementType } from "../../ruleRuntime/formElement/types"
 import { getElementRule } from "../../ruleRuntime/formElement/ruleFactory"
-import type { DataPathPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { DataPathPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { FormValidationView } from "../formContracts"
 import { requireFormValidationAdapter } from "../formValidationRegistry"
 import type { YamlPath } from "../yamlLocations"

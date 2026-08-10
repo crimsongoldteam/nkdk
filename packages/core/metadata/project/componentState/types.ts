@@ -1,10 +1,10 @@
-import type { ComponentAddress } from "../../components/address"
+import type { ComponentAddress } from "@nkdk/runtime"
 import type { ConfigurationProjectFile } from "../../configurationIndex"
 import type { SharedConfigurationIndexSnapshot } from "../../configurationIndex"
 import type { ProjectStateReadToken } from "../../projectState"
 import type { ProjectLogicalAddressEntry } from "../../projectDefinition/componentIndexFacts"
 import type { MetadataProjectResourceMatch } from "../../resourceTopology/core/projectProjection"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
+import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 
 export interface ComponentProjectStructure {
   readonly address: ComponentAddress

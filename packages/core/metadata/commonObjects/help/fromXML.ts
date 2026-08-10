@@ -1,8 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import type { HelpPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
-import { importContentFromXML } from "../../../xml/import/importer"
+import type { HelpPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import { importContentFromXML } from "@nkdk/runtime"
 
 /**
  * Читает Ext/Help.xml и копирует HTML-страницы каждого языка в nkdk-директорию объекта.

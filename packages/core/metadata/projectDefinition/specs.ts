@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
 import { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter } from "./projectSpecHelpers"
 

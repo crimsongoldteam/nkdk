@@ -1,11 +1,11 @@
-import { collectConfigurationIndexIdentityFromXML } from "../../configurationIndex/collector/collectProperty"
+import { collectConfigurationIndexIdentityFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
   getConfigurationIndexFormSingletonLogicalAddress,
   withConfigurationIndexLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationContextFromXML } from "../../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"

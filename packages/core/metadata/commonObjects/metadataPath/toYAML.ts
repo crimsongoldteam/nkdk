@@ -1,10 +1,10 @@
 import { formatMetadataTargetToYAML } from "../metadataTargets"
 import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { ExportToYAMLFunctionNew } from "../../ruleRuntime/property/fn"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { requiresDataPathStandardMemberFormatting } from "../../validation/dataPath/finalizationPredicate"
 import {
   exportDataPathStandardMembersToYAML,

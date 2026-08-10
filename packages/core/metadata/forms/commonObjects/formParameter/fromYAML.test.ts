@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../../tests/mockContext"
 import { importFormParametersFromYAML } from "./fromYAML"
 import { FormParametersYAML } from "./types"
-import { importFromYAML } from "../../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 
 describe("importFormParametersFromYAML", () => {
   it("should import form parameter without type", () => {

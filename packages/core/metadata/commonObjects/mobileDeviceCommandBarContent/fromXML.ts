@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentXML } from "./types"

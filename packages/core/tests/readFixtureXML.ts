@@ -1,7 +1,7 @@
 import { readFileSync } from "fs"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
-import { importContentFromXML } from "../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 
 /**
  * Reads XML from `__fixtures__` рядом с тестовым файлом (по import.meta.url).

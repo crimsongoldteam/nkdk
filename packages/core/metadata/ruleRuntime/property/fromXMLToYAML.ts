@@ -3,14 +3,14 @@ import {
   collectConfigurationIndexIdentityFromXML,
   collectConfigurationIndexImportedValue,
   collectConfigurationIndexPropertyFromXML,
-} from "../../configurationIndex/collector/collectProperty"
+} from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
+  getConfigurationIndexCollectionXmlNodeLogicalAddress,
   runWithConfigurationIndexPropertyContext,
-} from "../../configurationIndex/collector/context"
-import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/logicalAddress"
-import type { ConfigurationContextFromXML } from "../../context/types"
+} from "@nkdk/runtime"
+import { configurationIndexPropertyXmlStateUid } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { buildExternalFileEntry } from "./externalFile"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import type {
@@ -28,9 +28,9 @@ import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from ".
 import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import type { YamlPath } from "../../diagnostics/types"
+import type { YamlPath } from "@nkdk/runtime"
 import type { DeferredValuePathCollector } from "./importYamlTypes"
-import { markYAMLScalarTag } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag } from "@nkdk/runtime"
 import {
   matchExplicitXMLPropertyFromXML,
   matchExplicitXMLPropertyTypeFromXML,
@@ -83,7 +83,7 @@ export function importPropertiesFromXMLToYAML(params: {
       plan,
       indexCollection,
       xmlNodeLogicalAddress:
-        indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection),
+        indexCollection === undefined ? undefined : getConfigurationIndexCollectionXmlNodeLogicalAddress(indexCollection),
       ownerXmlName: getOwnerXmlName(source.xml),
       foundPropertyKeys: new Set<string>(),
     }

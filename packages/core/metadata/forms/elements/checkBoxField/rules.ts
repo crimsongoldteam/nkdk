@@ -1,6 +1,6 @@
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
-import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 import { defineExplicitHeaderHorizontalAlign } from "../formField/explicitHeaderHorizontalAlign"

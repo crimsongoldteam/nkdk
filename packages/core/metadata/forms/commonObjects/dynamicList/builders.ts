@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 
 export interface CalculatedFieldsWidePropertyRule extends WidePropertyRuleBase {
   type: "CalculatedFields"

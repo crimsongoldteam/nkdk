@@ -1,5 +1,5 @@
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { PendingMetadataTargetReferenceCandidate } from "../../ruleRuntime/property/fn"
+import type { ParsedYaml } from "@nkdk/runtime"
+import type { PendingMetadataTargetReferenceCandidate } from "@nkdk/runtime/rule-kit"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
 import type { MetadataTypedValue } from "../metadataValue/types"

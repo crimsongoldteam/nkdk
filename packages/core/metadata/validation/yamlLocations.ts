@@ -1,13 +1,13 @@
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type {
   Diagnostic,
   DiagnosticSeverity,
   DiagnosticSource,
   YamlDiagnosticLocation,
   YamlPath,
-} from "../diagnostics/types"
+} from "@nkdk/runtime"
 
-export type { YamlDiagnosticLocation, YamlPath } from "../diagnostics/types"
+export type { YamlDiagnosticLocation, YamlPath } from "@nkdk/runtime"
 
 export interface DiagnosticAtYamlPathParams {
   filePath: string

@@ -1,7 +1,7 @@
 import fs from "fs"
 import { resolve } from "path"
-import type { YamlLocationIndex } from "../../yaml/locationIndex"
-import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { YamlLocationIndex } from "@nkdk/runtime"
+import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import type { PreparedYamlFile } from "../projectDefinition/preparedYamlContracts"
 
 export interface ProjectYamlEntry {

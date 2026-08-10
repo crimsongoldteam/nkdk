@@ -1,8 +1,8 @@
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
-import { childSegmentUid, childUid } from "../../configurationIndex/logicalAddress"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
+import { getConfigurationIndexCollectionContext } from "@nkdk/runtime"
+import { childSegmentUid, childUid } from "@nkdk/runtime"
 import { getUUID } from "../../helpers/uuid"
-import type { CollectConfigurationIndexFromXMLFunction } from "../../ruleRuntime/property/fn"
+import type { CollectConfigurationIndexFromXMLFunction } from "@nkdk/runtime/rule-kit"
 import type { InternalInfoRootXML } from "./types"
 
 const internalInfoAddress = (ownerAddress: string): string => childSegmentUid(ownerAddress, "InternalInfo")

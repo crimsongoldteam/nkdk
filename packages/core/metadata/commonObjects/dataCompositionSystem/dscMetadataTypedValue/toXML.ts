@@ -1,6 +1,6 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import type { ExportToXMLFunctionNew } from "../../../ruleRuntime/property/fn"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { ExportToXMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import {
   DcsMetadataTypedValue,

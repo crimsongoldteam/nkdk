@@ -1,5 +1,5 @@
 import { exportTypeDescriptionToYAML } from "../../../commonObjects/typeDescription/toYAML"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { FormParameterYAML, FormParameters, FormParametersYAML } from "./types"

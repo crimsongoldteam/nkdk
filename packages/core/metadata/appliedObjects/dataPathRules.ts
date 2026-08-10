@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { DataPathContribution } from "../validation/dataPath/registry"
 import { MetadataAccountingRegisterRules } from "./metadataAccountingRegister/rules"
 import { MetadataAccumulationRegisterRules } from "./metadataAccumulationRegister/rules"

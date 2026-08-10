@@ -1,6 +1,6 @@
-import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
-import { withConfigurationIndexExportLogicalAddress } from "../../configurationIndex/referenceView"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "@nkdk/runtime"
+import { withConfigurationIndexExportLogicalAddress } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import type {
   YAMLToXMLNestedRule,

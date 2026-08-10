@@ -27,7 +27,7 @@ import {
   withoutValueChoiceParametersYAML,
 } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { importFromYAML } from "../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { importChoiceParametersFromYAML } from "./fromYAML"
 import type { ChoiceParametersYAML } from "./types"
 

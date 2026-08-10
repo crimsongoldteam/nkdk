@@ -1,8 +1,8 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importFormChoiceListValueFromXML } from "../metadataValue/fromXML"
 import type { ChoiceList, ChoiceListXML } from "./types"
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 
 export const importChoiceListFromXML = (
   context: ConfigurationContextFromXML,

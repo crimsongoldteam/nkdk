@@ -1,10 +1,10 @@
 import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
-import type { MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directConversion"
 import { mockContext } from "../mockContext"
 import { readAndParseXMLFile } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture } from "../readFixtureXML"
-import { importContentFromXML } from "../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 
 export const testExportPropertyModelThroughXMLToYAML = (params: {
   rule: PropertyRule

@@ -6,10 +6,10 @@ import { CollectableElementTypeToYAML, type CollectableElementType } from "./typ
 import {
   configurationIndexExportFormElementLogicalAddress,
   withConfigurationIndexExportLogicalAddress,
-} from "../../configurationIndex/referenceView"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { getChildContextToXML } from "../../context/helpers"
-import { copyYAMLScalarTags } from "../../../yaml/scalarTags"
+import { copyYAMLScalarTags } from "@nkdk/runtime"
 
 export function registerDirectFormElementCollections(): void {
   for (const propertyType of getFormElementCollectionPropertyTypes()) {

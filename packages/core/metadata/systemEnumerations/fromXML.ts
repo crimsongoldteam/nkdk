@@ -1,9 +1,9 @@
-import { ConfigurationContext } from "../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
-} from "../configurationIndex/collector/context"
-import type { PropertyRule } from "../ruleRuntime/property/types"
+} from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 

@@ -3,7 +3,7 @@ import { withMultipleValuesUserVisible } from "./__fixtures__/withMultipleValues
 import { withSingleValueUserVisible } from "./__fixtures__/withSingleValue"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportUserVisibleToXML } from "./toXML"
 import { UserVisible } from "./types"
 

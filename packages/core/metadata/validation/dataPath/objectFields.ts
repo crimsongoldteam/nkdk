@@ -1,10 +1,10 @@
-import { standardMemberInternalToYaml } from "../../ruleRuntime/metadataTarget/standardMemberAliases"
+import { standardMemberInternalToYaml } from "@nkdk/runtime/rule-kit"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import { resolvePropertyItemRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type {
   PropertyRule,
   StandardAttributeDescriptionsPropertyRule,
-} from "../../ruleRuntime/property/types"
+} from "@nkdk/runtime/rule-kit"
 import type { ObjectField, ObjectFieldIndex, OwnerMetadata } from "./contracts"
 import type { Diagnostic } from "../types"
 export type { ObjectField, ObjectFieldIndex, ObjectFieldKind, ObjectFieldTableSource } from "./contracts"

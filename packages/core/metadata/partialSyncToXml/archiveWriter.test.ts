@@ -3,7 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { BlobReader, TextWriter, Uint8ArrayWriter, ZipReader, type Entry, type FileEntry } from "@zip.js/zip.js"
 import { afterEach, describe, expect, it } from "vitest"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import type { FullXmlSyncExternalFile, FullXmlSyncGeneratedDocument } from "../fullSyncToXml/types"
 import { createPartialXmlArchiveWriter } from "./archiveWriter"
 

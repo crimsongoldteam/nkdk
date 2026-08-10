@@ -1,12 +1,12 @@
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
 import type {
   MetadataRootName,
   MetadataTargetConstraint,
-} from "../ruleRuntime/metadataTarget/types"
-import type { ConfigurationContext } from "../context/types"
-import type { MetadataTargetOwnerDeclaration } from "../ruleRuntime/property/types"
-import type { OwnerFactRole } from "../ruleRuntime/property/types"
-import { registeredStandardMemberAliases } from "../ruleRuntime/metadataTarget/standardMemberAliases"
+} from "@nkdk/runtime/rule-kit"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { MetadataTargetOwnerDeclaration } from "@nkdk/runtime/rule-kit"
+import type { OwnerFactRole } from "@nkdk/runtime/rule-kit"
+import { registeredStandardMemberAliases } from "@nkdk/runtime/rule-kit"
 import {
   getTypeRule,
   registerTypeRule,

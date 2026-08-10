@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { serializeYAMLDocument } from "../../../yaml/export"
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { serializeYAMLDocument } from "@nkdk/runtime"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { ClientApplicationFormRules } from "./rules"

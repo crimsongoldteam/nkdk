@@ -1,11 +1,11 @@
 import fs from "node:fs"
 import { resolve } from "node:path"
 import { xxh3 } from "@node-rs/xxhash"
-import { parseComponentPath } from "../components/address"
-import { decodeConfigurationIndex } from "../configurationIndex/decode"
-import { configurationIndexPath, writeConfigurationIndex } from "../configurationIndex/fileIO"
-import { hashFileBytes } from "../configurationIndex/hash"
-import type { ConfigurationSnapshot } from "../configurationIndex/types"
+import { parseComponentPath } from "@nkdk/runtime"
+import { decodeConfigurationIndex } from "@nkdk/runtime"
+import { configurationIndexPath, writeConfigurationIndex } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import {
   pendingPartialXmlSyncPaths,
   readPendingPartialXmlSync,

@@ -1,6 +1,6 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema } from "typebox"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import "../predefinedItem/toJSONSchema"
 import { PredefinedRules } from "./rules"

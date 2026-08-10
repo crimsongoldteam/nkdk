@@ -2,7 +2,7 @@ import { xxh3 } from "@node-rs/xxhash"
 import type {
   MetadataTargetConstraint,
   ParsedMetadataTarget,
-} from "../../ruleRuntime/metadataTarget/types"
+} from "@nkdk/runtime/rule-kit"
 import { PROJECT_STATE_FORMAT_VERSION } from "./format"
 import { encodeMetadataTargetConstraint } from "./constraintCodec"
 import {

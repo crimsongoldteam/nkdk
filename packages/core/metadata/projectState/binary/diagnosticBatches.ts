@@ -2,8 +2,8 @@ import {
   createDiagnosticBatchWriter,
   type DiagnosticBatchView,
   type EncodedDiagnosticBatch,
-} from "../../diagnostics/binaryBatch"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
+} from "@nkdk/runtime"
+import type { DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import type {
   ProjectStateDependencyValidator,
   ProjectStatePendingOwnerCheck,

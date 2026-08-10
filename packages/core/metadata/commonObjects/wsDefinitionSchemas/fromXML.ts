@@ -1,7 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 export const syncWSDefinitionSchemasFromXML = async (params: {
   rule: PropertyRule

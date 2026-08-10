@@ -14,7 +14,7 @@ import {
   exportMetadataItemLinksToYAML,
 } from "../metadataRef/toYAML"
 import { ExportToXMLFunctionNew, type ExportToJSONSchemaFn, defineMetadataItemRule, definePropertyTypeRule, type PropertyRule } from "../../ruleRuntime"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   CommandInterfaceOrder,
   CommandInterfaceOrderJSONSchema,

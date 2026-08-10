@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import type { I8nText } from "../../i8nText/types"
 
 export type DcsLocalStringTypeXML =

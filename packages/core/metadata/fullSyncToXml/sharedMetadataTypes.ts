@@ -1,4 +1,4 @@
-import type { BinaryHashIndex } from "../binary/hashIndex"
+import type { BinaryHashIndex } from "@nkdk/runtime"
 import type { SharedStringPool } from "../validation/sharedStringPool"
 
 export interface FullXmlSyncSharedCompositionSnapshot {

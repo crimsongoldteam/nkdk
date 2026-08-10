@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { serializeDirectXML, testMetadataItemFromYAMLToXML, testPropertyFromYAMLToXML } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../accountingFlag/rules"
 
 import "../accountingFlag/register"

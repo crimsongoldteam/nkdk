@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
+import type { MetadataResourceDeclaration } from "@nkdk/runtime/rule-kit"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const metadataPropertyRule000 = definePropertyTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) => {

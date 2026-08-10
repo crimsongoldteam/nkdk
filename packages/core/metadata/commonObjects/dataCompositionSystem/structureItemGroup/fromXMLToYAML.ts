@@ -1,12 +1,12 @@
-import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
   withConfigurationIndexXmlNodeLogicalAddress,
-} from "../../../configurationIndex/collector/context"
-import { yamlPropertyUid } from "../../../configurationIndex/logicalAddress"
-import type { ConfigurationContextFromXML } from "../../../context/types"
+} from "@nkdk/runtime"
+import { yamlPropertyUid } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 
 export const importStructureItemGroupFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   context,

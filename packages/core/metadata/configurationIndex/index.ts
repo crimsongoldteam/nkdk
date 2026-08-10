@@ -1,34 +1,34 @@
-export { childSegmentUid, childUid, configurationUid, indexedUid, metadataItemUid } from "./logicalAddress"
+export { childSegmentUid, childUid, configurationUid, indexedUid, metadataItemUid } from "@nkdk/runtime"
 export {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexCollector,
   withConfigurationIndexLogicalAddress,
   type ConfigurationIndexCollectionContext,
-} from "./collector/context"
-export { createConfigurationIndexCollector, type ConfigurationIndexCollector } from "./collector/writer"
+} from "@nkdk/runtime"
+export { createConfigurationIndexCollector, type ConfigurationIndexCollector } from "@nkdk/runtime"
 export {
   ConfigurationIndexCompatibilityError,
   decodeConfigurationIndex,
   type DecodeConfigurationIndexOptions,
-} from "./decode"
-export { encodeConfigurationIndex } from "./encode"
+} from "@nkdk/runtime"
+export { encodeConfigurationIndex } from "@nkdk/runtime"
 export {
   createConfigurationIndexExportRuntime,
   type ConfigurationIndexExportRuntime,
   type CreateConfigurationIndexExportRuntimeOptions,
-} from "./exportRuntime"
+} from "@nkdk/runtime"
 export {
   configurationIndexPath,
   readConfigurationIndex,
   writeConfigurationIndex,
-} from "./fileIO"
+} from "@nkdk/runtime"
 export {
   createConfigurationIndexFragmentBuilder,
   decodeConfigurationIndexFragments,
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
   type ConfigurationIndexFragmentBuilder,
-} from "./fragment"
+} from "@nkdk/runtime"
 export { hashConfigurationProjectFiles, hashConfigurationProjectFileList, type HashConfigurationProjectFilesOptions } from "./projectFiles"
 export {
   createConfigurationIndexAssignmentLookupStats,
@@ -40,7 +40,7 @@ export {
   type ConfigurationIndexEntityRange,
   type ConfigurationIndexReader,
   type SharedConfigurationIndexSnapshot,
-} from "./sharedSnapshot"
+} from "@nkdk/runtime"
 export type {
   ConfigurationProjectFile,
   ConfigurationSnapshot,
@@ -50,5 +50,5 @@ export type {
   ConfigurationSnapshotXml,
   MergedConfigurationSnapshotFragments,
   OmittedChildren,
-} from "./types"
-export { componentPath, type ComponentAddress } from "../components/address"
+} from "@nkdk/runtime"
+export { componentPath, type ComponentAddress } from "@nkdk/runtime"

@@ -1,5 +1,5 @@
-import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
-import { capitalize } from "../../../helpers/capitalize"
+import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
+import { capitalize } from "@nkdk/runtime"
 import {
   configurationIndexPropertyXmlStateLogicalAddress,
   type ConfigurationIndexPropertyXmlStateAddress,
@@ -8,9 +8,9 @@ import {
   getConfigurationIndexXmlName,
   getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexExportPropertyContext,
-} from "../../configurationIndex/referenceView"
+} from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTarget"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "@nkdk/runtime"
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"

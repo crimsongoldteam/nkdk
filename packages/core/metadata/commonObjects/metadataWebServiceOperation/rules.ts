@@ -1,5 +1,5 @@
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]

@@ -8,7 +8,7 @@ import {
   TableInputFieldTypedYAML,
 } from "../types"
 import { StructureResult } from "../../../../../tests/types"
-import { explicitYAMLString } from "../../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,

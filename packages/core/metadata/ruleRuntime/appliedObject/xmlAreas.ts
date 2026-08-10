@@ -1,6 +1,6 @@
 import type { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
+import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 import { getMetadataResourceTopology } from "../../resourceTopology/core/providerRegistry"
 import { expandMetadataPathPattern } from "../../resourceTopology/core/patterns"
 import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/core/xmlExportProjection"

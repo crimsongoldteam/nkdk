@@ -1,4 +1,4 @@
-import type { OmittedChildren } from "../configurationIndex/types"
+import type { OmittedChildren } from "@nkdk/runtime"
 
 export function mergeOmittedNames(current: readonly string[], saved: OmittedChildren | undefined): string[] {
   assertUniqueNames(current)

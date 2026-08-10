@@ -8,7 +8,7 @@ import {
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
-import { importContentFromXML } from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
 

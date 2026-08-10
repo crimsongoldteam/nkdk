@@ -4,7 +4,7 @@ import { compileValidationSchema } from "../../validation/compileValidationSchem
 import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { getValidationSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import "./register"
 
 registerCoreMetadata()

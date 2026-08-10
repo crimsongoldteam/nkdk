@@ -12,7 +12,7 @@ import { buildProjectStateSnapshot } from "./binary/builder"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
 import { createMetadataWorkerLineFactory } from "../../tests/metadataWorkerTestPool"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 
 const tempDirs: string[] = []
 

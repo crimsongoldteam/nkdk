@@ -1,5 +1,5 @@
-import type { DataPathAllowedKind, DataPathNamedFamily } from "../../ruleRuntime/property/types"
-import { getSystemEnumeration } from "../../ruleRuntime/property/systemEnumerationRegistry"
+import type { DataPathAllowedKind, DataPathNamedFamily } from "@nkdk/runtime/rule-kit"
+import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
 import type { DataPathTypeInfo } from "./types"
 import { getRecordSetTypeBaseByOwnerKind, getReferenceTypeBaseByOwnerKind } from "./ownerKindRegistry"
 

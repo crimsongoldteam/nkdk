@@ -6,7 +6,7 @@ import {
   forEachBinaryHashIndexEntry,
   openBinaryHashIndex,
   type BinaryHashIndex,
-} from "../binary/hashIndex"
+} from "@nkdk/runtime"
 import { componentPath, type ComponentAddress } from "../components/address"
 import { decodeConfigurationIndex, type DecodeConfigurationIndexOptions } from "./decode"
 import { configurationIndexPath } from "./fileIO"

@@ -1,9 +1,9 @@
 import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
-import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule, StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
 import { StandartAttributeNameFromYAML, StandartAttributeNameToYAML } from "./standartAttributeNames"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 
 function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {

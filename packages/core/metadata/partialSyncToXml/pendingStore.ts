@@ -1,9 +1,9 @@
 import fs from "node:fs"
 import { randomUUID } from "node:crypto"
 import { basename, dirname, join, relative, resolve } from "node:path"
-import { decodeConfigurationIndex } from "../configurationIndex/decode"
-import { hashFileBytes } from "../configurationIndex/hash"
-import { parseComponentPath } from "../components/address"
+import { decodeConfigurationIndex } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import { parseComponentPath } from "@nkdk/runtime"
 
 export interface PendingPartialXmlSyncStateV1 {
   readonly version: 1

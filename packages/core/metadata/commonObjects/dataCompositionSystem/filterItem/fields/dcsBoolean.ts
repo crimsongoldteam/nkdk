@@ -1,7 +1,7 @@
 import { definePropertyTypeRule } from "../../../../ruleRuntime/property/propertyRuleRegistrySet"
-import type { ConfigurationContextFromXML } from "../../../../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importStringFromXML } from "../../../string/fromXML"
-import type { PropertyRule } from "../../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 const exportDcsBooleanToXML = (_context: unknown, _rule: PropertyRule | undefined, value: string | undefined) => {
   if (value === undefined) return undefined

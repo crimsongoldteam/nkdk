@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { exportStringMetadataTargetToYAML } from "./metadataTargetString"

@@ -3,7 +3,7 @@ import type { OwnerMetadata, OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ProjectMemberIndexEntry, MetadataReferenceResolveResult } from "./projectReferenceIndex"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 
 export type ProjectReferenceObjectPathContributor = (params: {
   projectDir: string

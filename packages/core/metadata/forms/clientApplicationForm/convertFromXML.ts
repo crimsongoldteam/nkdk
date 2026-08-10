@@ -1,17 +1,17 @@
 import fs from "fs"
 import { join } from "path"
-import { ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
-import importContentFromXML from "../../../xml/import/importer"
-import { exportToYAML } from "../../../yaml/export"
+import { ConfigurationContextFromXML, ExternalFileEntry } from "@nkdk/runtime"
+import { importContentFromXML } from "@nkdk/runtime"
+import { exportToYAML } from "@nkdk/runtime"
 import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
-import { childUid } from "../../configurationIndex/logicalAddress"
+import { childUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
-} from "../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 
 export type ReadFormFromXMLResult = {
   yaml: string | undefined

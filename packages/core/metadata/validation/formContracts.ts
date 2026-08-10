@@ -1,6 +1,6 @@
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 import type { ElementType } from "../ruleRuntime/formElement/types"

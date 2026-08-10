@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"

@@ -1,5 +1,5 @@
 import { RadioButtonField, RadioButtonFieldEnterprise, RadioButtonFieldPartialYAML } from "../types"
-import { explicitYAMLString } from "../../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 import {
   fullFormFieldCommonFixture,

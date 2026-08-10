@@ -1,4 +1,4 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import type {
   DeferredValuePathCollector,
@@ -11,11 +11,11 @@ import type {
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
-import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
-} from "../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 
 type MetadataItemCollectionImportOptions = {
   propertyType?: PropertyRuleType

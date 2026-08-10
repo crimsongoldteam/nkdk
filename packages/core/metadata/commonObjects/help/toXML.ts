@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { HelpPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { HelpPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 
 export function prepareHelpXML(params: {

@@ -4,7 +4,7 @@ import {
   findBinaryHashIndex,
   forEachBinaryHashIndexEntry,
   openBinaryHashIndex,
-} from "../binary/hashIndex"
+} from "@nkdk/runtime"
 import {
   createSharedStringPool,
   createSharedStringPoolView,

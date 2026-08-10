@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { importFromYAMLFunction } from "../../ruleRuntime/property/fn"
+import type { importFromYAMLFunction } from "@nkdk/runtime/rule-kit"
 import type { WebSocketClientHeaders, WebSocketClientHeadersYAML } from "./types"
 
 export const importWebSocketClientHeadersFromYAML: importFromYAMLFunction = (

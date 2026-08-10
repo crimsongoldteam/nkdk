@@ -1,10 +1,10 @@
 import type { ElementType } from "../../ruleRuntime/formElement/types"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
-import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 
 export interface FormYAMLItemVisit {
   yaml: Record<string, unknown>

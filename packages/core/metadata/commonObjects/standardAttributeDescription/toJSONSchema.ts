@@ -2,7 +2,7 @@ import { TSchema, Type } from "typebox"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { StandardAttributeDescriptionRules } from "./rules"
-import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
+import type { StandardAttributeDescriptionsPropertyRule } from "@nkdk/runtime/rule-kit"
 import { commonStandardMemberFillValuePolicy } from "../../standardMembers/declarations"
 
 export const exportStandardAttributeDescriptionToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {

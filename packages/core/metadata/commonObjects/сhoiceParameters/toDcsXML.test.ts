@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { dcsDecimalChoiceParameter } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportChoiceParameterToDcsXML } from "./toDcsXML"
 
 describe("exportChoiceParameterToDcsXML", () => {

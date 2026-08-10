@@ -4,12 +4,12 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "../../context/types"
+} from "@nkdk/runtime"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   AccumulationRegisterAggregateDimensionXML,
   AccumulationRegisterAggregateDimensions,

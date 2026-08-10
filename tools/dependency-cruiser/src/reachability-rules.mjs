@@ -1,7 +1,8 @@
 export const neutralProductionPattern =
-  "^packages/core/metadata/(?:ruleRuntime|diagnostics|validation|project|projectDefinition|projectState|resourceTopology/core|standardMembers)/"
+  "^packages/(?:runtime/|core/metadata/(?:ruleRuntime|diagnostics|validation|project|projectDefinition|projectState|resourceTopology/core|standardMembers)/)"
 
 export const implementationTargetPatterns = [
+  "^packages/rules/",
   "^packages/core/metadata/(?:appliedObjects|forms|commonObjects|systemEnumerations|operations|importFromXml)/",
   "^packages/core/metadata/register\\.ts$",
 ]

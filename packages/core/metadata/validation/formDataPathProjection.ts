@@ -1,4 +1,4 @@
-import type { DataPathDialect } from "../ruleRuntime/dataPath/dialect"
+import type { DataPathDialect } from "@nkdk/runtime/rule-kit"
 
 export interface FormDataPathMetadataProjection {
   attributeItemType: string

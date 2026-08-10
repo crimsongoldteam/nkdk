@@ -1,7 +1,7 @@
 import { Type } from "typebox"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD = "ПолеНабораДанныхСхемыКомпоновкиДанных"
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER = "ПапкаПолейНабораДанныхСхемыКомпоновкиДанных"

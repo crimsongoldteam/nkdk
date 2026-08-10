@@ -2,7 +2,7 @@ import fs from "fs"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML } from "../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
@@ -14,12 +14,12 @@ import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
-} from "../../configurationIndex/sharedSnapshot"
-import { sampleSnapshot } from "../../configurationIndex/testData"
+} from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
 import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"

@@ -1,5 +1,5 @@
 import { TypeDescriptionRules } from "../commonObjects/typeDescription/types"
-import { ConfigurationContext } from "../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
 import { SystemEnumerationPropertyRule } from "./types"
 

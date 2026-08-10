@@ -1,4 +1,4 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { getValueOrDefault } from "./helpers"
 import type { PropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
 import type { PropertyRule } from "./types"

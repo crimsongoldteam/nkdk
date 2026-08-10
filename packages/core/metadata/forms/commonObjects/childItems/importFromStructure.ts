@@ -1,4 +1,4 @@
-// import { ConfigurationContext } from "../../../context/types"
+// import { ConfigurationContext } from "@nkdk/runtime"
 // import { parseAutoCommandBar, parseElement } from "./parser/elementsParser/parse"
 // import { tokenize } from "./parser/tokenizer/tokenizer"
 // import { parseTree } from "./parser/treeParser/treeParser"

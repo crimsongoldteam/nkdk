@@ -2,7 +2,7 @@ import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import Piscina, { move, transferableSymbol, valueSymbol } from "piscina"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   ComponentFirstPassPoolResult,

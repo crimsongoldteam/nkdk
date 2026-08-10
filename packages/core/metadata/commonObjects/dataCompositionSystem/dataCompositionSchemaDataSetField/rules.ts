@@ -11,7 +11,7 @@ import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { typeDescriptionRule } from "../../typeDescription/types"
 import { stringRule, type StringRuleParams } from "../../string/types"
 import { MetadataItemRule } from "../../../ruleRuntime"
-import type { YAMLPropertySource } from "../../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { YAMLPropertySource } from "@nkdk/runtime/rule-kit"
 import type { AppearanceFieldsPropertyRule } from "../appearanceFields/rules"
 import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,

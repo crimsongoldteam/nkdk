@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import { describe, expect, it } from "vitest"
 import { createDirectRoundTripContexts, testMetadataItemFromXMLToYAML, testMetadataItemFromYAMLToXML } from "../../../../tests/directConversion"
-import { importContentFromXML } from "../../../../xml/import/importer"
-import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../configurationIndex/collector/context"
+import { importContentFromXML } from "@nkdk/runtime"
+import { withConfigurationIndexFormElementRootLogicalAddress } from "@nkdk/runtime"
 import { CalendarFieldRules } from "./rules"
 
 describe("CalendarField rules", () => {

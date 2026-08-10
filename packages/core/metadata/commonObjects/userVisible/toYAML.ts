@@ -1,7 +1,7 @@
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { UserVisiblePropertyRule } from "../../ruleRuntime/property/types"
-import { ConfigurationContext } from "../../context/types"
+import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 
 export const exportUserVisibleToYAML = (

@@ -1,5 +1,5 @@
 import { getParentFromContext } from "../../../context/helpers"
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { PropertyRule, TableAdditionalSourcePropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { TableAdditionalSourceXML } from "./types"
 

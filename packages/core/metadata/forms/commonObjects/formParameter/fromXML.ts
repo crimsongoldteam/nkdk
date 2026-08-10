@@ -1,6 +1,6 @@
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"

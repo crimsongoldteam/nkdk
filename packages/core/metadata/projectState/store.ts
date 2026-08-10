@@ -14,7 +14,7 @@ import type {
   ProjectStateReadToken,
 } from "./contracts"
 import type { ProjectStateFragment } from "./binary/fragment"
-import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import type { DiagnosticBatchView } from "@nkdk/runtime"
 
 export interface ProjectStateFileChange {
   readonly index: number

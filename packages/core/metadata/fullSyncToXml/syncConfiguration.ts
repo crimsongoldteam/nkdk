@@ -1,12 +1,12 @@
 import fs from "node:fs"
 import { resolve } from "node:path"
-import { componentPath, parseComponentPath, type ComponentAddress } from "../components/address"
-import { configurationIndexPath, writeConfigurationIndex } from "../configurationIndex/fileIO"
+import { componentPath, parseComponentPath, type ComponentAddress } from "@nkdk/runtime"
+import { configurationIndexPath, writeConfigurationIndex } from "@nkdk/runtime"
 import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
 import type {
   ConfigurationSnapshot,
-} from "../configurationIndex/types"
-import type { ConfigurationContext } from "../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import {
   confirmComponentState,
   readComponentHashState,

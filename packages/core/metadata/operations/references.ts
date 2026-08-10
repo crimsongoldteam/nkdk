@@ -1,8 +1,8 @@
 import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { callAtomicFromYAML } from "../ruleRuntime/property/fromYAMLToXML"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import {
   collectStructuralYamlReferences,
@@ -10,7 +10,7 @@ import {
   type StructuralReferenceRuntime,
   type StructuralYamlReference,
 } from "../validation/structuralReferences"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataOperationBlockedReference, MetadataOperationReferenceChange } from "./types"
 import { defaultMetadataOperationsContext } from "./context"

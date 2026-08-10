@@ -1,8 +1,8 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import type { ConfigurationContext } from "../../../context/types"
-import type { ConfigurationContextFromXML } from "../../../context/types"
-import type { ConfigurationContextWithExportToXML } from "../../../context/types"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields } from "./types"
 

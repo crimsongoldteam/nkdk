@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { ElementRule } from "./types"
 import { getValueOrDefault } from "../property/helpers"
 import type { PropertyRule } from "../property/types"

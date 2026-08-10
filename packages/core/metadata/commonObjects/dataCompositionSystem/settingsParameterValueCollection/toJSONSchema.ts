@@ -1,8 +1,8 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
+import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { exportSettingsParameterValueToJSONSchema } from "../parameterValue/toJSONSchema"
 

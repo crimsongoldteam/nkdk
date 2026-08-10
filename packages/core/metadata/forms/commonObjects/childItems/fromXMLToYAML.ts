@@ -2,7 +2,7 @@ import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexFormElementLogicalAddress,
   withConfigurationIndexLogicalAddress,
-} from "../../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type {
   CollectableElementType,
@@ -11,7 +11,7 @@ import type {
   ElementXML,
 } from "../../../ruleRuntime/formElement/types"
 import { CollectableElementTypeToYAML } from "../../elements/ruleRuntime/types"
-import type { ImportFromXMLToYAMLFunction } from "../../../ruleRuntime/property/importYamlTypes"
+import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
@@ -20,9 +20,9 @@ import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 import { importFormElementPropertiesFromXMLToYAML } from "../../elements/ruleRuntime/fromXMLToYAML"
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { TableChildItem } from "./types"
-import { copyYAMLScalarTags } from "../../../../yaml/scalarTags"
+import { copyYAMLScalarTags } from "@nkdk/runtime"
 
 const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {

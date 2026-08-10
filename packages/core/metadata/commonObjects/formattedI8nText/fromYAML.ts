@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { ImportFromYAMLFunctionNew, PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"

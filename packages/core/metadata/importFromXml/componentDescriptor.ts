@@ -1,4 +1,4 @@
-import type { ComponentAddress } from "../components/address"
+import type { ComponentAddress } from "@nkdk/runtime"
 
 export interface XmlImportComponentDescriptor {
   readonly kind: string

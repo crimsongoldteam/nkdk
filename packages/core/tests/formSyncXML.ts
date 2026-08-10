@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { strict as assert } from "node:assert"
 import { join } from "node:path"
-import { importFromYAML } from "../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { canonicalXML } from "./canonicalXML"
 import { withKnownXMLDefaults } from "./knownXMLDefaults"
 

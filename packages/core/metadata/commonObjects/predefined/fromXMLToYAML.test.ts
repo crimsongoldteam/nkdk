@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { testAppliedObjectFromXMLToYAML, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"

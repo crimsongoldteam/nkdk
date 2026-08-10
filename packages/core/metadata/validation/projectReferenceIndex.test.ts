@@ -1,7 +1,7 @@
 import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import type { ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
+import type { ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,

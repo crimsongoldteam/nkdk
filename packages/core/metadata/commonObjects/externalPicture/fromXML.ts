@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { definePropertyTypeRule } from "../../ruleRuntime"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ExternalPicturePropertyRule } from "./types"
 
 export const syncExternalPictureFromXML = async (params: {

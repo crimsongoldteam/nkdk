@@ -3,7 +3,7 @@ import type {
   ConfigurationContextWithExportToXML,
   ContextElementToXML,
   MetadataTargetOwnerContext,
-} from "../../context/types"
+} from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
 import type { MetadataItemType } from "../metadataItem/registry"
 

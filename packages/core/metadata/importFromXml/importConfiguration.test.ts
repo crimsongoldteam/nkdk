@@ -8,7 +8,7 @@ import {
   type ConfigurationSnapshot,
   type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
-import type { ComponentAddress } from "../components/address"
+import type { ComponentAddress } from "@nkdk/runtime"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createProjectStateFileUpdateBatch } from "../projectState/fileUpdate"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "../projectState/binary/fragment"
@@ -18,7 +18,7 @@ import type {
   ProjectStateService,
 } from "../projectState"
 import { createUnusedMetadataWorkerPool } from "../../tests/metadataWorkerTestPool"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import {
   externalFileStateBatch,
   importConfigurationFromXml,

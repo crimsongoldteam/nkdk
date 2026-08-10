@@ -6,7 +6,7 @@ import { moduleRule } from "../../../commonObjects/module/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { uuidPropertyRule } from "../../../commonObjects/uuid/rule"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {

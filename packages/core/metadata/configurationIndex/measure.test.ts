@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { commandSnapshotPath, measureConfigurationSnapshot } from "../../scripts/measure-configuration-snapshot.mjs"
-import { decodeConfigurationIndex } from "./decode"
-import { encodeConfigurationIndex } from "./encode"
-import { sampleSnapshot } from "./testData"
+import { decodeConfigurationIndex } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
 
 describe("measure-configuration-snapshot", () => {
   it("отделяет логические payload от полной физической раскладки", () => {

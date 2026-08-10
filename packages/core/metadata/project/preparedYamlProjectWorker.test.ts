@@ -7,7 +7,7 @@ import { mockContext } from "../../tests/mockContext"
 import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import {
   openProjectStateFileUpdateBatch,
 } from "../projectState/binary/contribution"

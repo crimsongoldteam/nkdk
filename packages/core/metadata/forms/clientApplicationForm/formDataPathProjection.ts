@@ -1,4 +1,4 @@
-import type { FormDataPathTabularElementDeclaration } from "../../ruleRuntime/dataPath/formIndex"
+import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
 import { getFormElementCollectionTypes } from "../../ruleRuntime/formElement/registry"
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"

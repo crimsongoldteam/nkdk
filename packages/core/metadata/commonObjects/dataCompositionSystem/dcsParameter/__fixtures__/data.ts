@@ -1,5 +1,5 @@
 import type { TypeDescription } from "../../../typeDescription/types"
-import { explicitYAMLString } from "../../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 import type { DCSParameters, DCSParametersYAML } from "../types"
 
 const compositeValueType = {

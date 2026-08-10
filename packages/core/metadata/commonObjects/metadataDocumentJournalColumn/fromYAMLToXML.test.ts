@@ -6,7 +6,7 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { columnsYAML } from "./__fixtures__/data"
 
 import "./register"

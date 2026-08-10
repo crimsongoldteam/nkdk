@@ -1,5 +1,5 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
-import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { importDcsLocalStringTypeFromXML } from "../dcsLocalStringType/fromXML"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"

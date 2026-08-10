@@ -1,5 +1,5 @@
 import { join } from "node:path"
-import type { Diagnostic } from "../../diagnostics/types"
+import type { Diagnostic } from "@nkdk/runtime"
 import type {
   ProjectStateStructuredDocumentFact,
   ProjectStateStructuredDocumentValidationParams,

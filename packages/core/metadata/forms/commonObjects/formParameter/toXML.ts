@@ -1,5 +1,5 @@
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { FormParameter, FormParameters, FormParametersXML, FormParameterXML } from "./types"

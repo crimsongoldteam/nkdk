@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
 import { PrimitiveTypeToYAML, type TypeDescription, type TypeDescriptionYAML } from "./types"

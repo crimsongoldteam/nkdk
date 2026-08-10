@@ -9,7 +9,7 @@ import {
   getProjectReferenceObjectPathContributor,
   getProjectReferenceValueContributor,
 } from "./projectReferenceIndexRegistry"
-import type { Diagnostic } from "../diagnostics/types"
+import type { Diagnostic } from "@nkdk/runtime"
 import {
   ownerMetadataFromFacts,
   ownerMetadataNotFound,

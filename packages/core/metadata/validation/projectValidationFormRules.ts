@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 

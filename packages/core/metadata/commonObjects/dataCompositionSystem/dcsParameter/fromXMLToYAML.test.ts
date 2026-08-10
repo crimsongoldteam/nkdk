@@ -8,7 +8,7 @@ import {
   minimalDCSParametersYAML,
 } from "./__fixtures__/data"
 import "./types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 const rule: PropertyRule = {
   type: "DCSParameters",

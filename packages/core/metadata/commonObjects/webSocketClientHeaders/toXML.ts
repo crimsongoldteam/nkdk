@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
+import type { ExportToXMLFunction } from "@nkdk/runtime/rule-kit"
 import type { WebSocketClientHeaders, WebSocketClientHeadersXML } from "./types"
 
 export const exportWebSocketClientHeadersToXML: ExportToXMLFunction = (

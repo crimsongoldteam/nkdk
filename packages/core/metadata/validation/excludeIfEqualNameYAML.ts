@@ -1,8 +1,8 @@
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { findExcludedEqualNameYAMLOccurrence } from "../helpers/excludeIfEqualNameYAML"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { Diagnostic } from "./types"
 import { diagnosticAtYamlPath, type YamlPath } from "./yamlLocations"
 

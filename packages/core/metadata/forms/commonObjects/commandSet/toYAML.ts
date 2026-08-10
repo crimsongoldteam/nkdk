@@ -1,6 +1,6 @@
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { CommandSet, CommandSetYAML } from "./types"
 
 export const exportCommandSetToYAML = (

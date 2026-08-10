@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { CommandBarChildItem } from "../../commonObjects/childItems/types"
 import { fullCommandBarChildItemsAllYAML } from "../__fixtures__/commandBarChildItems/data"
 import { mockContext } from "../../../../tests/mockContext"

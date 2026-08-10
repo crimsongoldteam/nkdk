@@ -4,7 +4,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
   XmlImportConfigurationContext,
-} from "../metadata/context/types"
+} from "@nkdk/runtime"
 import { resolveDataPathCore } from "../metadata/validation/dataPath/coreResolver"
 
 export const mockContext: ConfigurationContext = {

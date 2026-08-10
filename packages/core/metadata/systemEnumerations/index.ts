@@ -1,7 +1,7 @@
 import {
   getRegisteredSystemEnumerationNames,
   registerSystemEnumeration,
-} from "../ruleRuntime/property/systemEnumerationRegistry"
+} from "@nkdk/runtime/rule-kit"
 import * as systemEnumerationExports from "./types"
 
 type EnumerationTables = Record<string, Readonly<Record<string, string>> | undefined>

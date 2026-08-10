@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 
-import type { FormDataPathIndex } from "../../ruleRuntime/dataPath/formIndex"
+import type { FormDataPathIndex } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadata } from "./contracts"
 import {
   applyLegacyDataPathContributions,

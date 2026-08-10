@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { structuralYamlValue } from "./structuralYamlValue"
 
 describe("structuralYamlValue", () => {

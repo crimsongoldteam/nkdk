@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import { join } from "node:path"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"

@@ -1,7 +1,7 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { I8nTextJSONSchema } from "../../i8nText/types"
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 import { schemaRef } from "../../../ruleRuntime/jsonSchemaRefs"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { fullFieldsList } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportFieldsListToXML } from "./toXML"
 
 describe("exportFieldsListToXML", () => {

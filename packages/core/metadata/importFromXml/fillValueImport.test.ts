@@ -3,11 +3,11 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
 import { registerCoreMetadata } from "../composition/coreMetadata"
-import { serializeYAMLDocument } from "../../yaml/export"
+import { serializeYAMLDocument } from "@nkdk/runtime"
 
 registerCoreMetadata()
 

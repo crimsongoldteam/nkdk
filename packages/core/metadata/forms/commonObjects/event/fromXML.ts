@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
-import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
+import type { EventsPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
 

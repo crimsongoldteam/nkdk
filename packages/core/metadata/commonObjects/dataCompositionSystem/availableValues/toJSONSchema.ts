@@ -1,9 +1,9 @@
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { TSchema, Type } from "typebox"
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 

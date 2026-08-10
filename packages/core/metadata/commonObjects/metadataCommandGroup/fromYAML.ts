@@ -1,7 +1,7 @@
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
 import { MetadataCommandGroup, MetadataCommandGroupYAML } from "./types"
 

@@ -1,7 +1,7 @@
 import { format } from "date-fns"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { DateTimeYAML } from "./types"
 
 const hasZeroTime = (date: Date): boolean => {

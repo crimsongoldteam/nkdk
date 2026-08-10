@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "../../../xml/import/importer"
-import { exportToYAML } from "../../../yaml/export"
+import { importContentFromXML } from "@nkdk/runtime"
+import { exportToYAML } from "@nkdk/runtime"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"

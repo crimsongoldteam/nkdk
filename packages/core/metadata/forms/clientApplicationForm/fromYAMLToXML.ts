@@ -1,11 +1,11 @@
-import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
+import type { ConfigurationIndexReader } from "@nkdk/runtime"
 import "../../commonObjects"
 import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML } from "./types"
-import type { SelectedBaseYAMLInput } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
+import type { SelectedBaseYAMLInput } from "@nkdk/runtime/rule-kit"
 
 export const convertClientApplicationFormFromYAMLToXML =
   convertClientApplicationFormYAMLToXMLCore

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
 import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { buildFormDataPathIndex, getKnownPlatformFormSource } from "./formIndex"
 
 describe("buildFormDataPathIndex", () => {

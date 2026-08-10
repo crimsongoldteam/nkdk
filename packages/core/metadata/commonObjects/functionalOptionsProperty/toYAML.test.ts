@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
-import { exportToYAML } from "../../../yaml/export"
+import { exportToYAML } from "@nkdk/runtime"
 import "./toYAML"
 
 const rule: PropertyRule = {

@@ -3,7 +3,7 @@ import type {
   PendingMetadataTargetReferenceCandidate,
   StructuralReferencesFunction,
   ValidateMetadataTargetFunction,
-} from "../../ruleRuntime/property/fn"
+} from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import type { Diagnostic } from "../../validation/types"

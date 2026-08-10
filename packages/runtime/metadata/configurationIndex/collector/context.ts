@@ -178,7 +178,7 @@ export function withConfigurationIndexYamlCollectionItemContext(
   )
 }
 
-export function getConfigurationIndexXmlNodeLogicalAddress(collection: ConfigurationIndexCollectionContext): string {
+export function getConfigurationIndexCollectionXmlNodeLogicalAddress(collection: ConfigurationIndexCollectionContext): string {
   return collection.xmlNodeLogicalAddress ?? collection.logicalAddress
 }
 

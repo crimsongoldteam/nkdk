@@ -1,10 +1,10 @@
-import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
-import type { ConfigurationSnapshotFragment } from "../../configurationIndex/types"
-import type { ConfigurationContextFromXML } from "../../context/types"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { DeferredObjectValue } from "../../ruleRuntime/property/deferredObjectValues"
-import type { YAMLToXMLProfile } from "../../ruleRuntime/property/fromYAMLToXMLTypes"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { ConfigurationIndexReader } from "@nkdk/runtime"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { DeferredObjectValue } from "@nkdk/runtime/rule-kit"
+import type { YAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import type {
   CompiledMetadataAssignmentNode,

@@ -1,6 +1,6 @@
-import type { Diagnostic } from "../../diagnostics/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
-import type { OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
+import type { Diagnostic } from "@nkdk/runtime"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
+import type { OwnerTypeRef } from "@nkdk/runtime/rule-kit"
 import type {
   ProjectStateFieldEntry,
   ProjectStateFormEntry,

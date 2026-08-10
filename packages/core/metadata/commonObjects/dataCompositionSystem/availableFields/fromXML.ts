@@ -1,5 +1,5 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
-import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
+import { withConfigurationIndexYamlCollectionItemContext } from "@nkdk/runtime"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"

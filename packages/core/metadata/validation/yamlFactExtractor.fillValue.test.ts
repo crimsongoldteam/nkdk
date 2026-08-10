@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import {
   registerDependentYamlItemHandler,
   restoreDependentItemRegistryForTests,

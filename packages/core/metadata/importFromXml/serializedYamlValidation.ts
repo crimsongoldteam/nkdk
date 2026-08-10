@@ -1,6 +1,6 @@
-import type { SerializedYAMLDocument } from "../../yaml/export"
-import { parsedYamlFromKnownData } from "../../yaml/parseMetadataYaml"
-import type { ConfigurationContext } from "../context/types"
+import type { SerializedYAMLDocument } from "@nkdk/runtime"
+import { parsedYamlFromKnownData } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import {

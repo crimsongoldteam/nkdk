@@ -2,10 +2,10 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import type { TSchema } from "typebox"
 import { getParentFromContext } from "../../../context/helpers"
-import type { ConfigurationContextWithExportToXML } from "../../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../ruleRuntime/formElement/toJSONSchema"

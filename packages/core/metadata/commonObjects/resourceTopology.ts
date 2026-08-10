@@ -3,9 +3,9 @@ import type {
   ExternalPicturePropertyRule,
 } from "./externalPicture/types"
 import type { ExternalFilePropertyRule } from "./externalFile/types"
-import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../ruleRuntime/property/types"
+import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataResourceDeclaration, MetadataResourceSource } from "../resourceTopology/core/types"
+import type { MetadataResourceDeclaration, MetadataResourceSource } from "@nkdk/runtime/rule-kit"
 import { registerMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
 
 const source = (description: string): MetadataResourceSource => ({

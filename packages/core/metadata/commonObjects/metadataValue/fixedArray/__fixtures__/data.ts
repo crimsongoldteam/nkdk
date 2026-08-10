@@ -1,5 +1,5 @@
 import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML } from "../../types"
-import { explicitYAMLString } from "../../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const twoRefsFixedArray: MetadataFixedArrayValue = {
   type: "fixedArray",

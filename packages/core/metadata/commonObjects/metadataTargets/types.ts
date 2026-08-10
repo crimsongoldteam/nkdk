@@ -1,2 +1,2 @@
-export * from "../../ruleRuntime/metadataTarget/types"
+export * from "@nkdk/runtime/rule-kit"
 export * from "../picture/types"

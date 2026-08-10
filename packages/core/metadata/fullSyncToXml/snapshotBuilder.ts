@@ -3,7 +3,7 @@ import type {
   ConfigurationSnapshot,
   ConfigurationSnapshotEntity,
   MergedConfigurationSnapshotFragments,
-} from "../configurationIndex/types"
+} from "@nkdk/runtime"
 import type { ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
 
 export function buildXmlSyncConfigurationSnapshot(params: {

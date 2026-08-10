@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
+import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import {
   exportSettingsParameterValueDcscorItemsToXML,

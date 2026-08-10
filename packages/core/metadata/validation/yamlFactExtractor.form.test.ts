@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"

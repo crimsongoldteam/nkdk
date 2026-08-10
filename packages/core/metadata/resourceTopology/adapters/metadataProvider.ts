@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { typeRulesRegistryRevision } from "../../ruleRuntime/property/typeRuleRegistry"
 import { projectSpecRegistryRevision } from "../../projectDefinition/projectSpecRegistry"
 import {
@@ -13,7 +13,7 @@ import {
   compileMetadataResourceTopologyForRootRule as compileMetadataResourceTopologyForRootRuleWithRegistry,
 } from "./ruleTopology"
 
-declare module "../core/types" {
+declare module "@nkdk/runtime/rule-kit" {
   interface MetadataResourceTopologyTypeMap {
     itemRule: MetadataItemRule
   }

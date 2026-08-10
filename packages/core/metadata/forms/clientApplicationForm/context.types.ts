@@ -1,6 +1,7 @@
 import type { FormChildItemsPartialYAML, FormElementsYAML } from "../commonObjects/childItems/types"
 import type { FormAttribute } from "../commonObjects/formAttribute/types"
 import type { EnterpriseAttributeMapItem } from "./types"
+import type { ContextElementToEnterprise } from "@nkdk/runtime/rule-kit"
 
 declare module "../../context/types" {
   interface MetadataContextTypeMap {

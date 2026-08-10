@@ -1,6 +1,6 @@
 import { predefinedItemCollectionRule } from "../predefinedItem/builders"
 import { xmlRootRule } from "../xmlRoot/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Record<string, string> => {
   const itemType =
     params.ownerMetadataItem !== null &&

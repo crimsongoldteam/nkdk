@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { transferableSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { fragment } from "../configurationIndex/testData"
-import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import { fragment } from "@nkdk/runtime"
+import { decodeConfigurationIndexFragments } from "@nkdk/runtime"
 import { createFullXmlSyncBinaryResult, openFullXmlSyncBinaryResult } from "./binaryResult"
 
 describe("двоичный результат полной синхронизации", () => {

@@ -1,5 +1,5 @@
-import type { ComponentAddress } from "../components/address"
-import type { ConfigurationContext } from "../context/types"
+import type { ComponentAddress } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import {
   confirmComponentState,
   readComponentHashState,

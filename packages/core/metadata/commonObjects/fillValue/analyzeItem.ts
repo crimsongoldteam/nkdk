@@ -1,6 +1,6 @@
-import type { ConfigurationContext } from "../../context/types"
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type {
   DependentItemParams,
   DependentYamlItemAnalysis,
@@ -24,8 +24,8 @@ import {
 } from "./effectiveType"
 import type { FillValueClassification } from "./types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
-import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { asExplicitYAMLStringIfMarked } from "@nkdk/runtime"
 import { fillValueDiagnostic } from "../../ruleRuntime/property/fillValueSemantics"
 import { effectiveFillValueType } from "../../ruleRuntime/property/fillValueSemantics"
 

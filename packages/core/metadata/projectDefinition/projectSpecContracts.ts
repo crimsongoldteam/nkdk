@@ -2,9 +2,9 @@ import type { TSchema } from "typebox"
 import type {
   ConfigurationContext,
   JSONSchemaExportMode,
-} from "../context/types"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
-import type { MetadataResourceTopologySpec } from "../resourceTopology/core/types"
+} from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { MetadataResourceTopologySpec } from "@nkdk/runtime/rule-kit"
 
 export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
   dir: string

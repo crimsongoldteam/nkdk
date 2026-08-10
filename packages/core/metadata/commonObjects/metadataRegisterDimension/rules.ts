@@ -1,5 +1,5 @@
 import { commonRegisterFieldProperties } from "../metadataRegisterField/rules"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   metadataRegisterDimensionRuleBase,
   registerDimensionRoleFragment,

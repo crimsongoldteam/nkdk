@@ -4,12 +4,12 @@ import type {
   ExportToXMLFunctionNew,
   ExportToYAMLFunctionNew,
   ImportFromYAMLFunctionNew,
-} from "../metadata/ruleRuntime/property/fn"
+} from "@nkdk/runtime/rule-kit"
 import { minimalYAML } from "../metadata/appliedObjects/metadataCatalog/__fixtures__/minimal"
 import { MetadataCatalogRules } from "../metadata/appliedObjects/metadataCatalog/rules"
-import { PropertyRuleType } from "../metadata/ruleRuntime/property/registry"
+import { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import { registerTypeRule } from "../metadata/ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../metadata/ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   testAppliedObjectFromXMLToYAML,
   testAppliedObjectFromYAMLToXML,

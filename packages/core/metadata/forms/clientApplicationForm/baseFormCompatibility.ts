@@ -1,4 +1,4 @@
-import type { Diagnostic } from "../../diagnostics/types"
+import type { Diagnostic } from "@nkdk/runtime"
 import { FormComponentIndexError, indexClientApplicationFormComponents } from "./formComponentIndex"
 
 export function validateBaseFormCompatibility(params: {

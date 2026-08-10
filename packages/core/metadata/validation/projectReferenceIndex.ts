@@ -7,7 +7,7 @@ import type {
   MetadataObjectSegment,
   ParsedMetadataTarget,
 } from "../ruleRuntime/metadataTarget"
-import { objectPathKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
+import { objectPathKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 

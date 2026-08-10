@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 import {
   registerLocalYamlValueValidator,

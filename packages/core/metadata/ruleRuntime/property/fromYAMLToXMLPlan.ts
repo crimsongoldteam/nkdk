@@ -1,4 +1,4 @@
-import { capitalize } from "../../../helpers/capitalize"
+import { capitalize } from "@nkdk/runtime"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 export interface YAMLToXMLPlannedProperty {

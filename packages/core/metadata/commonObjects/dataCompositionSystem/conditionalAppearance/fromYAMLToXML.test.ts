@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import { serializeDirectXML, testPropertyFromYAMLToXML } from "../../../../tests/directConversion"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   fullConditionalAppearance,
   minimalConditionalAppearance,

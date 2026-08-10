@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
-import { ExportToJSONSchemaFn } from "../../../ruleRuntime/property/fn"
+import { ExportToJSONSchemaFn } from "@nkdk/runtime/rule-kit"
 import { OrderItemFieldRules } from "./rules"
 
 export const exportOrderItemFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>

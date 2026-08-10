@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importXDTOTypeNameFromXML } from "./fromXML"
 
 const context = { fromXML: { forReference: false } } as ConfigurationContextFromXML

@@ -1,4 +1,4 @@
-import { capitalize } from "../../../helpers/capitalize"
+import { capitalize } from "@nkdk/runtime"
 
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItemRule, PropertyRule } from "./types"

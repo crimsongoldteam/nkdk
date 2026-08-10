@@ -1,6 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
-import type { MetadataFieldKind, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"

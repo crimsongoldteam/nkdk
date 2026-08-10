@@ -2,16 +2,16 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { hashFileBytes } from "../configurationIndex/hash"
-import { childSegmentUid, childUid } from "../configurationIndex/logicalAddress"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import { childSegmentUid, childUid } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
   type SharedConfigurationIndexSnapshot,
-} from "../configurationIndex/sharedSnapshot"
-import { sampleSnapshot } from "../configurationIndex/testData"
-import type { ConfigurationContext } from "../context/types"
+} from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadSession, ProjectStateReadToken } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import {

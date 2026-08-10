@@ -5,7 +5,7 @@ import { PropertyRule } from "../../ruleRuntime"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 
 const rule: PropertyRule = {
   type: "TypeLink",

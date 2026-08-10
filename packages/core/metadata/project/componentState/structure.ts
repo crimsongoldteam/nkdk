@@ -1,8 +1,8 @@
 import { resolve } from "path"
-import { componentPath, type ComponentAddress } from "../../components/address"
+import { componentPath, type ComponentAddress } from "@nkdk/runtime"
 import { discoverMetadataProjectResources } from "../../resourceTopology/core/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
-import type { CompiledMetadataResourceTopology } from "../../resourceTopology/core/types"
+import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 import type { ComponentProjectStructure } from "./types"
 
 export async function readComponentProjectStructure(params: {

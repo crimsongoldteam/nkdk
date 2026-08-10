@@ -1,8 +1,8 @@
 import { getParentFromContext } from "../../context/helpers"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../ruleRuntime/appliedObject/presets"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import { internalInfoRule } from "../internalInfo/types"
 

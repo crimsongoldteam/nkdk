@@ -4,8 +4,8 @@ import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
-import type { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import {
   exportRequiredMobileApplicationPermissionsToJSONSchema,
   exportRequiredMobileApplicationPermissionsToXML,

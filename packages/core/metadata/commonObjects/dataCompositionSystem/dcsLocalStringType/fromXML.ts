@@ -1,11 +1,11 @@
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { I8nText, I8nTextXML } from "../../i8nText/types"
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
-} from "../../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import { DcsLocalStringTypeXML } from "./types"
 
 const extractStringValue = (xml: DcsLocalStringTypeXML): string | undefined => {

@@ -1,6 +1,6 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 
 const TYPED_DECIMAL_XSI = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
 

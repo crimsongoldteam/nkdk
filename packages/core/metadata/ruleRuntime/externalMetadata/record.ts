@@ -1,4 +1,4 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { PropertyRule } from "../property/types"
 
 export function recordCurrentExternalMetadataUuid(params: {

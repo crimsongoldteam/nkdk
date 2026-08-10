@@ -1,6 +1,6 @@
 import { ClientApplicationForm, ClientApplicationFormYAML } from "../types"
 import { CommandInterface } from "../../commonObjects/commandInterface/types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder: string

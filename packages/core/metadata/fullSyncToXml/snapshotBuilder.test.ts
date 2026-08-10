@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { entity } from "../configurationIndex/testData"
-import type { ConfigurationSnapshot } from "../configurationIndex/types"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { entity } from "@nkdk/runtime"
+import type { ConfigurationSnapshot } from "@nkdk/runtime"
 import { buildXmlSyncConfigurationSnapshot } from "./snapshotBuilder"
 
 const previous: ConfigurationSnapshot = {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
 import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
-import { exportToYAML } from "../../../../yaml/export"
-import { importFromYAML } from "../../../../yaml/import"
+import { exportToYAML } from "@nkdk/runtime"
+import { importFromYAML } from "@nkdk/runtime"
 import {
   nilSettingsParameterValue,
   nilSettingsParameterValueRule,

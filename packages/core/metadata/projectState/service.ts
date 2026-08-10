@@ -2,7 +2,7 @@ import { availableParallelism } from "node:os"
 import { readdir, realpath, rm, stat } from "node:fs/promises"
 import { basename, dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateReadToken } from "./contracts"
 import type { ProjectStateReadSession } from "./readSession"
 import {

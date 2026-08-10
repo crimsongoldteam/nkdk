@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { colorTestCases } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportColorToXML } from "./toXML"
 
 describe("exportColorToXML", () => {

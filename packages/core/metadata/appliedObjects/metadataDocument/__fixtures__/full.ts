@@ -1,5 +1,5 @@
 import { MetadataDocument, MetadataDocumentYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const full: MetadataDocument = {
   actionsWritingOnPost: "WriteSelected",

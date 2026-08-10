@@ -2,7 +2,7 @@ import fs from "fs"
 import { join, resolve } from "path"
 import { xxh3 } from "@node-rs/xxhash"
 import pLimit from "p-limit"
-import { importFromYAML } from "../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { BINARY_SYNC_STATE_FILE, readBinaryXmlSyncState, writeBinaryXmlSyncState } from "./syncStateBinary"
 import type { XmlSyncState, XmlSyncStateDiff } from "./syncStateContracts"
 

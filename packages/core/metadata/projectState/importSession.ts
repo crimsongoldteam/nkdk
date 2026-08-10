@@ -15,7 +15,7 @@ import {
   assertProjectStateImportFinalFileState,
   assertProjectStatePortableData,
 } from "./fileUpdateValidation"
-import { createMetadataDiagnosticCollection } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollection } from "@nkdk/runtime"
 
 export interface ProjectStateImportParams {
   readonly projectDir: string

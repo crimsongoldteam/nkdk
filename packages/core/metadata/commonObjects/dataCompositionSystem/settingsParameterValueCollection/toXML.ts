@@ -1,6 +1,6 @@
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
-import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
+import type { SettingsParameterValueCollectionPropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ParameterValueXML } from "../parameterValue/types"
 import { exportSettingsParameterValueDcscorItemsToXML, getDcscorItemExportValueForXmlParents } from "./dcscorItemsXML"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionXML } from "./types"

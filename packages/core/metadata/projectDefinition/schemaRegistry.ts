@@ -1,5 +1,5 @@
 import type { TSchema } from "typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import {
   attachCollectedSchemaRefs,
   collectSchemaRefs,
@@ -14,8 +14,8 @@ import {
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
 } from "../ruleRuntime/jsonSchemaRefs"
-import type { PropertyRuleType } from "../ruleRuntime/property/registry"
-import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import { defineMetadataRules, type MetadataRulesDefinition } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"

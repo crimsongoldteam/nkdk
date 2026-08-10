@@ -1,6 +1,6 @@
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import { resolvePropertyItemRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import type { MetadataRulesDefinition } from "../ruleRuntime/definition"

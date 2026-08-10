@@ -1,5 +1,5 @@
 import { TProperties, TSchema, Type } from "typebox"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import {
@@ -8,7 +8,7 @@ import {
 } from "../../../ruleRuntime/formElement/toJSONSchema"
 import { ElementRule, CollectableElementTypeToYAML } from "../../../ruleRuntime/formElement/types"
 import { createJSONSchemaPropertyOverrideContext } from "../../../ruleRuntime/jsonSchemaRefs"
-import type { PropertyRuleType } from "../../../ruleRuntime/property/registry"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 import {
   childItemsTreePropertyTypes,
   ChildItemsTreePropertyType,

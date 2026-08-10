@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
@@ -23,11 +23,11 @@ import {
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
-import { importFromYAML } from "../../../yaml/import"
-import { serializeYAMLDocument } from "../../../yaml/export"
-import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { importFromYAML } from "@nkdk/runtime"
+import { serializeYAMLDocument } from "@nkdk/runtime"
+import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
-import type { PropertyRuleType } from "../../ruleRuntime/property/registry"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",

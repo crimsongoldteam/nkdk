@@ -1,13 +1,13 @@
-import { isMetadataRootName } from "../../ruleRuntime/metadataTarget/roots"
+import { isMetadataRootName } from "@nkdk/runtime/rule-kit"
 import type {
   MetadataMemberKind,
   MetadataObjectPathKind,
   MetadataRootName,
   ParsedMetadataTarget,
-} from "../../ruleRuntime/metadataTarget/types"
+} from "@nkdk/runtime/rule-kit"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
-import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "../../ruleRuntime/dataPath/types"
+import type { DataPathTableInfo, DataPathTypeInfo, OwnerTypeRef } from "@nkdk/runtime/rule-kit"
 import type {
   ProjectStateFileIdentity,
   ProjectStateFileUpdate,
@@ -18,7 +18,7 @@ import type {
   ProjectStateYamlFileUpdate,
 } from "../fileUpdate"
 import { decodeMetadataTargetConstraint } from "./constraintCodec"
-import type { DiagnosticSource, DiagnosticSeverity } from "../../diagnostics/types"
+import type { DiagnosticSource, DiagnosticSeverity } from "@nkdk/runtime"
 import { PROJECT_STATE_FACT_RECORD_VIEWS, PROJECT_STATE_FACT_TABLE_ORDER, type ProjectStateFactTableKind } from "./factTables"
 import {
   ProjectStateDiagnosticRecordView,

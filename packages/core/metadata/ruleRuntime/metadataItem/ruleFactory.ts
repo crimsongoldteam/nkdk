@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { registerJSONSchemaIdentity } from "../jsonSchemaRefs"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"

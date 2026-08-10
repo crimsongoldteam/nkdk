@@ -1,14 +1,14 @@
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { snapshotConfigurationIndex } from "@nkdk/runtime"
 import type {
   ConfigurationSnapshot,
   ConfigurationSnapshotEntity,
   MergedConfigurationSnapshotFragments,
-} from "../configurationIndex/types"
-import { entity } from "../configurationIndex/testData"
-import type { ComponentAddress } from "../components/address"
+} from "@nkdk/runtime"
+import { entity } from "@nkdk/runtime"
+import type { ComponentAddress } from "@nkdk/runtime"
 import type {
   ComponentHashState,
   ComponentProjectStructure,
@@ -16,7 +16,7 @@ import type {
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type { FullXmlSyncDiagnostic } from "./types"
 import {

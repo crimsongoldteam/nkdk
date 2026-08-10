@@ -4,7 +4,7 @@ import type {
   LocalMetadataFactsWriter,
   LocalMetadataTargetFact,
   LocalYamlFact,
-} from "../ruleRuntime/property/localFacts"
+} from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 
 export type {
@@ -13,7 +13,7 @@ export type {
   LocalMetadataEvent,
   LocalMetadataIndex,
   LocalMetadataTargetFact,
-} from "../ruleRuntime/property/localFacts"
+} from "@nkdk/runtime/rule-kit"
 
 export function createLocalIndexesCollector(options?: { recordEvents?: boolean }): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []

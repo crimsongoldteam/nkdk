@@ -8,7 +8,7 @@ import {
 } from "./factTables"
 import type { ProjectStateFragmentView } from "./fragment"
 import { encodeProjectStateHeader, type ProjectStateSectionDescriptor } from "./format"
-import { BinaryHashSlotRecordView, buildBinaryHashIndex } from "../../binary/hashIndex"
+import { BinaryHashSlotRecordView, buildBinaryHashIndex } from "@nkdk/runtime"
 import {
   ProjectStateDiagnosticRecordView,
   ProjectStateDiagnosticSectionHeaderView,

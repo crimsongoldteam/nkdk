@@ -1,5 +1,5 @@
-import type { MetadataItem, MetadataItemRule } from "../ruleRuntime/property/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { MetadataItem, MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { Diagnostic } from "./types"
 
 interface ValidateUniqueNameScopesParams {

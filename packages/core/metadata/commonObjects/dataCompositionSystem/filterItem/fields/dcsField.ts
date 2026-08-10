@@ -1,7 +1,7 @@
 import { definePropertyTypeRule } from "../../../../ruleRuntime/property/propertyRuleRegistrySet"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importStringFromXML } from "../../../string/fromXML"
-import type { PropertyRule } from "../../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 const exportDcsFieldToXML = (
   _context: ConfigurationContext,

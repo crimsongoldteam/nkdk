@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
 import { MetadataIntegrationServiceRules } from "../metadataIntegrationService/rules"

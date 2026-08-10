@@ -1,12 +1,12 @@
 import type { ChildFormNamesPropertyRule } from "../../commonObjects/childFormNames/types"
 import { defineMetadataRules } from "../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
 } from "../../ruleRuntime/property/propertyRuleRegistrySet"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
+import type { MetadataResourceDeclaration } from "@nkdk/runtime/rule-kit"
 import { syncChildFormNamesFromXML } from "./childFormNamesImportAdapter"
 import { ClientApplicationFormRules } from "./rules"
 import { describeFormExternalResourceDeclarations } from "./externalItemFiles"

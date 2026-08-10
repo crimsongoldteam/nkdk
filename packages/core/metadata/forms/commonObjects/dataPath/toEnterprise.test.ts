@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
+import { ConfigurationContext, ContextElementToEnterprise } from "@nkdk/runtime"
 import { GetAttributeNameFixture, getAttributeNameFixtures } from "./__fixtures__/data"
 import { mockContext } from "../../../../tests/mockContext"
 import { exportDataPathToEnterprise } from "./toEnterprise"

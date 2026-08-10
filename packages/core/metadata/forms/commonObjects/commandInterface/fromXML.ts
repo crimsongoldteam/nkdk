@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
 import { importNumberFromXML } from "../../../commonObjects/number/fromXML"
 import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fromXML"

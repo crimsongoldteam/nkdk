@@ -5,7 +5,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 export type { ElementRule, PropertyRule }
 export const ButtonGroupRules = {

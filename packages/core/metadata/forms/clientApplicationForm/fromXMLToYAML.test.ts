@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from "vitest"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
 import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { xmlExport } from "../../../xml/export/exporter"
-import { importContentFromXML } from "../../../xml/import/importer"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types"
+import { xmlExport } from "@nkdk/runtime"
+import { importContentFromXML } from "@nkdk/runtime"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import {
   importClientApplicationFormBodyFromXML,
@@ -19,11 +19,11 @@ import {
   ClientApplicationFormWithExtendedPresentationRules,
 } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
-import { bindDeferredObjectValues } from "../../ruleRuntime/property/deferredObjectValues"
+import { bindDeferredObjectValues } from "@nkdk/runtime/rule-kit"
 import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeImportedYAML"
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import { createDeferredValuePathCollector } from "../../ruleRuntime/property/importYamlTypes"
+import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],

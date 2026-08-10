@@ -1,6 +1,6 @@
 import { metadataValueRule } from "../metadataValue/types"
 import { stringRule } from "../string/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
   xmlOrder: [

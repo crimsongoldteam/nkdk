@@ -1,1 +1,1 @@
-export * from "../../ruleRuntime/metadataTarget/parse"
+export * from "@nkdk/runtime/rule-kit"

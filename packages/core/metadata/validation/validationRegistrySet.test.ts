@@ -2,7 +2,7 @@ import { expect, it } from "vitest"
 
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 
 it("uses the local YAML validator from its own definition", () => {

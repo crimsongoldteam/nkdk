@@ -1,10 +1,10 @@
-import type { ComponentAddress } from "../components/address"
+import type { ComponentAddress } from "@nkdk/runtime"
 import type {
   ConfigurationProjectFile,
   SharedConfigurationIndexSnapshot,
 } from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
-import type { XMLDefaultVariant } from "../context/types"
+import type { XMLDefaultVariant } from "@nkdk/runtime"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 

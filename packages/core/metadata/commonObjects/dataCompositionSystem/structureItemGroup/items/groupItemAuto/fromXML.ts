@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "../../../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { importPropertyFromXML } from "../../../../../ruleRuntime/property/fromXML"
-import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"

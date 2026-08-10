@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import "../../appliedObjects"
 import "../../forms"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
-import type { MetadataItem } from "../../ruleRuntime/property/types"
+import type { MetadataItem } from "@nkdk/runtime/rule-kit"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import type {
   OwnerMetadata,

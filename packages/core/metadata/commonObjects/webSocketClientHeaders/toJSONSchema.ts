@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ExportToJSONSchemaFn } from "../../ruleRuntime/property/fn"
+import { ExportToJSONSchemaFn } from "@nkdk/runtime/rule-kit"
 import { WebSocketClientHeadersJSONSchema } from "./types"
 
 export const exportWebSocketClientHeadersToJSONSchema: ExportToJSONSchemaFn = (): TSchema =>

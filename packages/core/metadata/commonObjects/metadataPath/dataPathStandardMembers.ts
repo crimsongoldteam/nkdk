@@ -1,5 +1,5 @@
-import type { ConfigurationContext, FormDataPathAttributeContext } from "../../context/types"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import type { ConfigurationContext, FormDataPathAttributeContext } from "@nkdk/runtime"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { buildFormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { formatDataPathStandardMembers, type DataPathFormatDirection } from "../../validation/dataPath/formatter"
 import { createOwnerMetadataCache } from "../../validation/dataPath/ownerCache"

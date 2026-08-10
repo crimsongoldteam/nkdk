@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import { importFromYAML } from "../../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { listMigrationFileNames } from "./fileNames"
 import { MIGRATIONS_DIR, type AppliedMigrationsState, type MigrationEntry } from "./types"
 

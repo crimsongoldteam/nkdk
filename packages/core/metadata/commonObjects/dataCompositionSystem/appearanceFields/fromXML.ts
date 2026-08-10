@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportPropertyValueToYAML } from "../../../ruleRuntime/property/toYAML"
 import type { SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"

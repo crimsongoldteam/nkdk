@@ -1,5 +1,5 @@
 import type { ImportAssignment, ImportAssignmentRole, ImportExternalFile, ImportXmlInput } from "./types"
-import { childUid, configurationUid, metadataItemUid } from "../configurationIndex/logicalAddress"
+import { childUid, configurationUid, metadataItemUid } from "@nkdk/runtime"
 
 export interface ImportAssignmentGroup {
   definition: {

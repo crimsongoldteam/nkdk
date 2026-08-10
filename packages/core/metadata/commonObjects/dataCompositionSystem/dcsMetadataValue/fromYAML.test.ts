@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../../tests/mockContext"
 import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
-import { importFromYAML } from "../../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { importDcsMetadataValueFromYAML } from "./fromYAML"
 import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 

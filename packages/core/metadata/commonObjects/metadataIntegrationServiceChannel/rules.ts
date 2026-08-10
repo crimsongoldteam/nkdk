@@ -1,7 +1,7 @@
 import { uuidPropertyRule } from "../uuid/rule"
 import { getParentFromContext } from "../../context/helpers"
-import { ConfigurationContextWithExportToXML } from "../../context/types"
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { internalInfoRule } from "../internalInfo/types"
 
 const propertiesParents = ["Properties"]

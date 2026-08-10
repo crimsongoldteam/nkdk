@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { performance } from "node:perf_hooks"
-import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
-import type { ConfigurationProjectFile } from "../configurationIndex/types"
+import { parseMetadataYamlData } from "@nkdk/runtime"
+import type { ConfigurationProjectFile } from "@nkdk/runtime"
 import type { Diagnostic } from "../validation/types"
 import type {
   PreparedMetadataDeclaration,

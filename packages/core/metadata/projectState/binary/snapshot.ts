@@ -4,7 +4,7 @@ import {
   findBinaryHashIndex,
   openBinaryHashIndex,
   type BinaryHashIndex,
-} from "../../binary/hashIndex"
+} from "@nkdk/runtime"
 import { decodeProjectStateHeader, type ProjectStateSectionKind } from "./format"
 import {
   ProjectStateFileRecordView,

@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportPropertiesToJSONSchema, exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { MetadataItem, MetadataItemRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"

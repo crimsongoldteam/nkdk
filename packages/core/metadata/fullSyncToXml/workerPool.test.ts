@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { entity, fragment } from "../configurationIndex/testData"
-import type { ConfigurationSnapshotEntity } from "../configurationIndex/types"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { snapshotConfigurationIndex } from "@nkdk/runtime"
+import { entity, fragment } from "@nkdk/runtime"
+import type { ConfigurationSnapshotEntity } from "@nkdk/runtime"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,

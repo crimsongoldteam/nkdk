@@ -2,7 +2,7 @@ import {
   EMPTY_XML_TAG_VALUE,
   xmlScalarTagPayload,
   yamlScalarTagAt,
-} from "../../../yaml/scalarTags"
+} from "@nkdk/runtime"
 
 export type ExplicitXMLPropertyRegistration =
   | {

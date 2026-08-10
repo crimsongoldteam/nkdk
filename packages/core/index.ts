@@ -40,7 +40,7 @@ export {
 } from "./metadata/projectState"
 export { createDefaultProjectStateService as createProjectStateService } from "./metadata/composition/projectState"
 export * from "./metadata/configurationIndex"
-export { componentPath, type ComponentAddress } from "./metadata/components/address"
+export { componentPath, type ComponentAddress } from "@nkdk/runtime"
 export { NKDK_CORE_VERSION } from "./version"
 export {
   createXmlImportWorkerPoolHandle,
@@ -115,16 +115,16 @@ export type {
   ClientApplicationFormYAML,
 } from "./metadata/forms/clientApplicationForm/types"
 export type { FormMetadataXML } from "./metadata/forms/index"
-export { xmlExport } from "./xml/export/exporter"
-export { importContentFromXML } from "./xml/import/importer"
-export { exportToYAML } from "./yaml/export"
-export { importFromYAML } from "./yaml/import"
-export { parseWithJsYaml } from "./yaml/jsYamlParser"
-export type { JsParsedYaml, JsYamlSyntaxError } from "./yaml/jsYamlParser"
-export { buildYamlLocationIndex } from "./yaml/locationIndex"
-export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
-export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
-export type { ParsedYaml } from "./yaml/parseMetadataYaml"
+export { xmlExport } from "@nkdk/runtime"
+export { importContentFromXML } from "@nkdk/runtime"
+export { exportToYAML } from "@nkdk/runtime"
+export { importFromYAML } from "@nkdk/runtime"
+export { parseWithJsYaml } from "@nkdk/runtime"
+export type { JsParsedYaml, JsYamlSyntaxError } from "@nkdk/runtime"
+export { buildYamlLocationIndex } from "@nkdk/runtime"
+export type { YamlLocationIndex, YamlPath, YamlPosition } from "@nkdk/runtime"
+export { parseMetadataYaml } from "@nkdk/runtime"
+export type { ParsedYaml } from "@nkdk/runtime"
 export type {
   Diagnostic,
   DiagnosticSource,
@@ -137,11 +137,11 @@ export {
   type DiagnosticBatchView,
   type DiagnosticBatchWriter,
   type EncodedDiagnosticBatch,
-} from "./metadata/diagnostics/binaryBatch"
+} from "@nkdk/runtime"
 export {
   createMetadataDiagnosticCollection,
   type MetadataDiagnosticCollection,
-} from "./metadata/diagnostics/collection"
+} from "@nkdk/runtime"
 export {
   validateProject,
   type ValidateProjectParams,

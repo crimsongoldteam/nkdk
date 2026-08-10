@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { borderTestCases } from "./__fixtures__/data"
 import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
-import importContentFromXML from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { importBorderFromXML } from "./fromXML"
 import { Border, BorderXML } from "./types"
 

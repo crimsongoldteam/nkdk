@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { callAtomicFromYAML } from "../../../ruleRuntime"
 import { mockContext } from "../../../../tests/mockContext"
-import { importFromYAML } from "../../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import {
   nilAndBooleanAvailableValues,
   nilAndBooleanAvailableValuesYAML,

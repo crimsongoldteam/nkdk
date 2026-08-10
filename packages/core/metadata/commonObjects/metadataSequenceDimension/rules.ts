@@ -3,7 +3,7 @@ import { typeDescriptionRule } from "../typeDescription/types"
 import { i8nTextRule } from "../i8nText/types"
 import { stringRule } from "../string/types"
 import { uuidPropertyRule } from "../uuid/rule"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const MetadataSequenceDimensionRules = {
   itemType: "MetadataSequenceDimension",
   externalMetadata: { segment: "Dimension", placement: "ownerChild" },

@@ -1,5 +1,5 @@
 import { I8nText, I8nTextYAML } from "../commonObjects/i8nText/types"
-import { ConfigurationContext } from "../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
 
 export const excludeNameFromI8nText = (

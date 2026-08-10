@@ -1,4 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { exportPropertyToYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { StructureItemGroupCollectionYAML } from "./collection/types"
 import { StructureItemGroupRules } from "./rules"

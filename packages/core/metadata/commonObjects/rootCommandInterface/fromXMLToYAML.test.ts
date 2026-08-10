@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { testAppliedObjectFromXMLToYAML, testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
-import { importContentFromXML } from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { RootCommandInterfaceRules } from "./rules"
 
 import "./register"

@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import { BasePropertyRule } from "../../../ruleRuntime"
 import type { SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import * as SE from "../../../systemEnumerations/types"

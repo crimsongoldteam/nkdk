@@ -1,5 +1,5 @@
-import { capitalize } from "../../../helpers/capitalize"
-import { ConfigurationContext } from "../../context/types"
+import { capitalize } from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { TypeRulesOperations } from "./fn"
 import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 import { getCompiledXMLPropertyOrder } from "./xmlPropertyOrder"

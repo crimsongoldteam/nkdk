@@ -1,6 +1,6 @@
 import { CollectableElementTypeToYAML } from "../ruleRuntime/formElement/types"
 import type { MetadataProjectResourceKind } from "../projectDefinition/resources"
-import { memberKindToYAML, rootToYAML } from "../ruleRuntime/metadataTarget/roots"
+import { memberKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
 
 export const PROJECT_STATE_HASH_BYTE_LENGTH = 8

@@ -1,9 +1,9 @@
-import type { ConfigurationContext } from "../context/types"
-import type { DiagnosticBatchView } from "../diagnostics/binaryBatch"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { DiagnosticBatchView } from "@nkdk/runtime"
 import {
   createMetadataDiagnosticCollection,
   type MetadataDiagnosticCollection,
-} from "../diagnostics/collection"
+} from "@nkdk/runtime"
 import type { ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"
 import {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleSnapshot, TEST_UUID } from "../configurationIndex/testData"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import type { ConfigurationContext } from "../context/types"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
+import { sampleSnapshot, TEST_UUID } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { getUUID, UUID_TEST } from "./uuid"
 
 describe("getUUID", () => {

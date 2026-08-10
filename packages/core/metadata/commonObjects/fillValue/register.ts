@@ -16,11 +16,11 @@ import {
 import { materializeMetadataValueReference } from "../metadataTargets/referenceMaterializer"
 import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { ConfigurationContext } from "../../context/types"
+import type { ParsedYaml } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
-import { markYAMLScalarTag, xmlScalarTagValue } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
 
 let validationRegistered = false
 let structuralReferencesRegistered = false

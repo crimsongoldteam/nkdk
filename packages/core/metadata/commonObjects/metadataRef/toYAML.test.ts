@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../ruleRuntime"
-import { ExportToYAMLFunctionNew } from "../../ruleRuntime/property/fn"
+import { ExportToYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 

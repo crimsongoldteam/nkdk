@@ -1,5 +1,5 @@
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const importMetadataCommandGroupFromXML = (

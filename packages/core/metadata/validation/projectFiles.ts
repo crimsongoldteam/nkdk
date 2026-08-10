@@ -7,7 +7,7 @@ import {
 } from "../projectDefinition/resources"
 import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 export interface ComponentFileAddress {
   componentPath: string

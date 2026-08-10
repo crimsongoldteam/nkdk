@@ -8,8 +8,8 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { importFromYAML } from "../../../yaml/import"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { importFromYAML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
 import { characteristicsDescriptionsRule } from "./types"
 

@@ -1,5 +1,5 @@
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
-import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml, type ParsedYaml } from "@nkdk/runtime"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { Diagnostic } from "./types"
 import { structuralYamlValue } from "./structuralYamlValue"

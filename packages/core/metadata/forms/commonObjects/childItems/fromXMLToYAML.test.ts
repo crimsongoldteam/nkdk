@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { createConfigurationIndexCollector } from "../../../configurationIndex/collector/writer"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import {
   withConfigurationIndexCollector,
   withConfigurationIndexFormElementRootLogicalAddress,
-} from "../../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../../projectDefinition/localIndexes"
 import { mockContextFromXML } from "../../../../tests/mockContext"
-import { exportToYAML } from "../../../../yaml/export"
+import { exportToYAML } from "@nkdk/runtime"
 import "../../elements"
 import { importChildItemsFromXMLToYAML } from "./fromXMLToYAML"
 

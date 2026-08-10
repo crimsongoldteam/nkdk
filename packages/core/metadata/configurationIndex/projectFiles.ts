@@ -2,8 +2,8 @@ import fs from "fs"
 import { join, resolve } from "path"
 import pLimit from "p-limit"
 import { collectSyncStateFilePaths } from "../project/syncStateFiles"
-import { hashFileBytes } from "./hash"
-import type { ConfigurationProjectFile } from "./types"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { ConfigurationProjectFile } from "@nkdk/runtime"
 
 const DEFAULT_HASH_CONCURRENCY = 16
 

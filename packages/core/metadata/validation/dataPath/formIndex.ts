@@ -1,8 +1,8 @@
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type {
   FormDataPathIndex,
   FormDataPathTabularElementDeclaration,
-} from "../../ruleRuntime/dataPath/formIndex"
+} from "@nkdk/runtime/rule-kit"
 import type { FormAttributeColumnView, FormAttributeView, FormValidationView } from "../formContracts"
 import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
@@ -16,7 +16,7 @@ import type {
   FormDataPathSource,
 } from "./types"
 
-export type { FormDataPathIndex } from "../../ruleRuntime/dataPath/formIndex"
+export type { FormDataPathIndex } from "@nkdk/runtime/rule-kit"
 
 declare module "../../context/types" {
   interface FormimportFromYAMLContext {

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "fs"
 import { join } from "path"
 import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import type { ProjectStateService } from "../projectState/service"
 import { findMetadataReferences } from "./findMetadataReferences"
 import {

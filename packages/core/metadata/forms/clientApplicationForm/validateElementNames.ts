@@ -1,5 +1,5 @@
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { ParsedYaml } from "@nkdk/runtime"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"

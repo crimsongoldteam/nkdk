@@ -1,7 +1,7 @@
 import { typeDescriptionRule } from "../../../commonObjects/typeDescription/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const FormParameterRules = {
   itemType: "FormParameter",
   properties: {

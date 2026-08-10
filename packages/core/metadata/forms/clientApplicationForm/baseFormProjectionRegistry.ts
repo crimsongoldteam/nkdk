@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
-import type { PropertyRuleType } from "../../ruleRuntime/property/registry"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
 
 export interface BaseFormProjectionContext {
   readonly attributeNames: ReadonlySet<string>

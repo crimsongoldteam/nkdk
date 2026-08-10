@@ -1,4 +1,4 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { applyMetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"

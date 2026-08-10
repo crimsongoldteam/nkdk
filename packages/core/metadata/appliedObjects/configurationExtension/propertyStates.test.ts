@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 

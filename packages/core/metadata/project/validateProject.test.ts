@@ -8,7 +8,7 @@ import {
   toRootProjectDiagnostic,
   validateProject,
 } from "./validateProject"
-import { createMetadataDiagnosticCollectionFromDiagnostics } from "../diagnostics/collection"
+import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { createBinaryProjectStateTestFixture } from "../projectState/binary/testFixture"
 import { createProjectStateFragmentWriter } from "../projectState/binary/fragment"

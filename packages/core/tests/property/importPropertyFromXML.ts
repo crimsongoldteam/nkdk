@@ -1,6 +1,6 @@
 import { registerCommonObjects } from "../../metadata/commonObjects"
 import { ElementXML, importPropertyFromXML, PropertyRule } from "../../metadata/ruleRuntime"
-import { importContentFromXML } from "../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { mockContextFromXML } from "../mockContext"
 import { readAndParseXMLFile } from "../readAndParseXMLFile"
 import { testFixturesDir } from "../testFixturesDir"

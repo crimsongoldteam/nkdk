@@ -3,7 +3,7 @@ import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { StandardCommandsGroupFromYAML } from "../../../systemEnumerations/types"
 import type { StandardCommandsGroupYAML } from "../../../systemEnumerations/types"
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
 

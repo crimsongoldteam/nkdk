@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataDocumentRules } from "./rules"
 

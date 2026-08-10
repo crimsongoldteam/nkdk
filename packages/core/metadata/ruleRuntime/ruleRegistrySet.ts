@@ -2,7 +2,7 @@ import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecCont
 import type {
   CompiledMetadataResourceTopology,
   MetadataResourceItemRule,
-} from "../resourceTopology/core/types"
+} from "@nkdk/runtime/rule-kit"
 import type {
   MetadataRulesDefinition,
   MetadataSchemaDefinition,

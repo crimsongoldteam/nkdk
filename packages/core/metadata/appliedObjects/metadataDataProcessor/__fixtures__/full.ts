@@ -1,5 +1,5 @@
 import { MetadataDataProcessor, MetadataDataProcessorYAML } from "../types"
-import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 
 export const full: MetadataDataProcessor = {
   itemType: "MetadataDataProcessor",

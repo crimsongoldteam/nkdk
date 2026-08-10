@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { discoverXmlImport } from "./discovery"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 const xmlDir = resolve("/xml-dump")
 const source = { kind: "itemRule" as const, description: "test" }

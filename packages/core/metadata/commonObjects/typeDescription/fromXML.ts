@@ -1,12 +1,12 @@
 import { importNumberFromXML } from "../number/fromXML"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "@nkdk/runtime"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
-} from "../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,

@@ -1,14 +1,14 @@
 import { registerCommonObjects } from "../metadata/commonObjects"
-import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../metadata/context/types"
-import type { MetadataTargetOwnerContext } from "../metadata/context/types"
-import { withConfigurationIndexCollector } from "../metadata/configurationIndex/collector/context"
-import { createConfigurationIndexCollector } from "../metadata/configurationIndex/collector/writer"
-import { encodeConfigurationIndex } from "../metadata/configurationIndex/encode"
-import { createConfigurationIndexExportRuntime } from "../metadata/configurationIndex/exportRuntime"
+import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import type { MetadataTargetOwnerContext } from "@nkdk/runtime"
+import { withConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
-} from "../metadata/configurationIndex/sharedSnapshot"
+} from "@nkdk/runtime"
 import { importMetadataItemFromXMLToYAML } from "../metadata/ruleRuntime/metadataItem/fromXMLToYAML"
 import { convertMetadataItemFromYAMLToXML } from "../metadata/ruleRuntime/metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../metadata/ruleRuntime/property/fromYAMLToXML"
@@ -17,13 +17,13 @@ import { getTypeRule } from "../metadata/ruleRuntime/property/typeRuleRegistry"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
-} from "../metadata/ruleRuntime/property/fromYAMLToXMLTypes"
-import type { MetadataItemRule } from "../metadata/ruleRuntime/property/types"
-import type { PropertyRule } from "../metadata/ruleRuntime/property/types"
+} from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/projectDefinition/localIndexes"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
-import { xmlExport } from "../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 
 interface FromXMLResult {
   yaml: unknown

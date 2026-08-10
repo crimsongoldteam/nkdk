@@ -7,7 +7,7 @@ import {
 } from "../appliedObjects/configuration/migrations"
 import { isMigrationFileName } from "../appliedObjects/configuration/migrations/fileNames"
 import type { XmlSyncArea } from "../ruleRuntime/appliedObject/xmlAreas"
-import { importFromYAML } from "../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import { validateMetadataLocalName } from "./nameRules"
 import { buildRenameTargetPathFromOperationPath, parseMetadataOperationPath } from "./operationPath"
 import type { MigrationChainError, MigrationChainInvalidResult, MigrationPlanItem } from "./types"

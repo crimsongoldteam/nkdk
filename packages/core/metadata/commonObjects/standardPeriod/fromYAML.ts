@@ -1,7 +1,7 @@
 import { format, parse } from "date-fns"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { StandardPeriodVariant, StandardPeriodVariantFromYAML } from "../../systemEnumerations/types"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { StandardPeriod, StandardPeriodYAML } from "./types"
 
 export const isStandardPeriodYAML = (data: unknown): data is StandardPeriodYAML =>

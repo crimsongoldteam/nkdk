@@ -1,7 +1,7 @@
-import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "../../metadata/context/types"
+import type { ConfigurationContextWithExportToXML, ContextElementToXML } from "@nkdk/runtime"
 import { exportPropertyToYAML } from "../../metadata/ruleRuntime"
 import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/ruleRuntime"
-import { xmlExport } from "../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import {
   createDirectRoundTripContexts,
   testPropertyFromXMLToYAML,
@@ -10,7 +10,7 @@ import {
 import { mockContext, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
-import { importContentFromXML } from "../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 
 type Params = {
   rule: PropertyRule

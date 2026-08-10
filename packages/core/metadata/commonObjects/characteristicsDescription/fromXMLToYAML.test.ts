@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import { readAppliedObjectFixture, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
-import { exportToYAML } from "../../../yaml/export"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { exportToYAML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
 
 import "./registerCollectionRule"

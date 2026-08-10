@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { exportChildItemsToEnterprise } from "../commonObjects/childItems/toEnterprise"
 import {
   ClientApplicationForm,

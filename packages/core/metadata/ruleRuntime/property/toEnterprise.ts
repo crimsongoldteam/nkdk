@@ -1,5 +1,5 @@
-import { capitalize } from "../../../helpers/capitalize"
-import { ConfigurationContext } from "../../context/types"
+import { capitalize } from "@nkdk/runtime"
+import { ConfigurationContext } from "@nkdk/runtime"
 import type { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from "../metadataItem/registry"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"

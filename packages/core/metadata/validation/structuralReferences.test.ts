@@ -1,8 +1,8 @@
 import { expect, it } from "vitest"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import type { StructuralReferenceCandidate } from "../ruleRuntime/property/fn"
+import { parseMetadataYaml } from "@nkdk/runtime"
+import type { StructuralReferenceCandidate } from "@nkdk/runtime/rule-kit"
 import { getTypeRule, registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 

@@ -1,4 +1,4 @@
-import type { MetadataTargetOwner } from "../ruleRuntime/metadataTarget/types"
+import type { MetadataTargetOwner } from "@nkdk/runtime/rule-kit"
 import { registerMetadataTargetOwnerResolver } from "../ruleRuntime/property/metadataTargetOwnerRegistry"
 import { registerTopologyMetadataTargetOwnerResolver } from "../resourceTopology/adapters/metadataTargetOwner"
 

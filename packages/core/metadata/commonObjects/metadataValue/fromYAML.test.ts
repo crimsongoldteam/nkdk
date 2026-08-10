@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { metadataValueFixtures } from "./__fixtures__/data"
 import { mockContext } from "../../../tests/mockContext"
-import { explicitYAMLString } from "../../../yaml/explicitString"
+import { explicitYAMLString } from "@nkdk/runtime"
 import { importMetadataValueFromYAML } from "./fromYAML"
 import { MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 

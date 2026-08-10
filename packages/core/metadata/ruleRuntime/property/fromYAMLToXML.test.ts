@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest"
 
-import { importFromYAML } from "../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 import "../../commonObjects/i8nText/fromXML"
 import "../../commonObjects/i8nText/fromYAML"
 import "../../commonObjects/i8nText/toXML"
 import "../../commonObjects/usePurposes/fromYAML"
 import "../../commonObjects/usePurposes/toXML"
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import type { PropertyRuleType } from "./registry"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { encodeConfigurationIndex } from "../../configurationIndex/encode"
-import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
-} from "../../configurationIndex/sharedSnapshot"
-import { sampleSnapshot } from "../../configurationIndex/testData"
-import type { ConfigurationSnapshotXml } from "../../configurationIndex/types"
+} from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
+import type { ConfigurationSnapshotXml } from "@nkdk/runtime"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
 import {
   registeredExplicitXMLTestRule,

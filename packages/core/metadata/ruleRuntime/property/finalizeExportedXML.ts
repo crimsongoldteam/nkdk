@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { finalizeDeferredObjectValues, type DeferredObjectValue } from "./deferredObjectValues"
 import { resolveDeferredPropertyRule } from "./finalizeImportedYAML"
 import { getTypeRule } from "./typeRuleRegistry"

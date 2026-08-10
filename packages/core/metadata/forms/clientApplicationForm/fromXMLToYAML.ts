@@ -1,4 +1,4 @@
-import type { ExternalFileEntry } from "../../context/types"
+import type { ExternalFileEntry } from "@nkdk/runtime"
 import { applyMetadataItemXmlImportAugmenter } from "../../ruleRuntime/metadataItem/augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../../ruleRuntime/property/fromXMLToYAML"
 import {
@@ -8,7 +8,7 @@ import {
   type DirectImportResult,
   type DirectImportXMLSource,
   type LocalIndexesCollector,
-} from "../../ruleRuntime/property/importYamlTypes"
+} from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"

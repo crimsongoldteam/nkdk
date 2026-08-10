@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { fontYAMLFixtures } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportFontToXML } from "./toXML"
 
 describe("exportFontToXML", () => {

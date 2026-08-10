@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { hashFileBytes } from "@nkdk/runtime"
 import { prepareYamlFiles } from "./prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "./preparedYamlProject"
 

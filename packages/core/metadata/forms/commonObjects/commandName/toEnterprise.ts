@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../../ruleRuntime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 

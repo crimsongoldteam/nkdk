@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./compileValidationSchema"
 import { Type, type TSchema } from "typebox"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { describe, expect, it } from "vitest"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"

@@ -1,8 +1,8 @@
 import type { TSchema } from "typebox"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../ruleRuntime/jsonSchemaRefs"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
 
 export function createMetadataItemProjectSchemaExporter(rule: MetadataItemRule): RegisteredProjectSpec["exportSchema"] {

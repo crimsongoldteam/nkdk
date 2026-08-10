@@ -1,11 +1,11 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import type { PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+  getConfigurationIndexCollectionXmlNodeLogicalAddress,
+} from "@nkdk/runtime"
+import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 
 export const importChildFileItemNamesFromXML = (
   _context: ConfigurationContextFromXML,
@@ -25,7 +25,7 @@ export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemName
   if (!names.every((value): value is string => typeof value === "string")) return
   setChildFileItemNamesOmittedChildren(
     collection.collector,
-    getConfigurationIndexXmlNodeLogicalAddress(collection),
+    getConfigurationIndexCollectionXmlNodeLogicalAddress(collection),
     names
   )
 })

@@ -2,7 +2,7 @@ import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
 import { definePropertyTypeRule } from "../../../ruleRuntime"
-import { ExportToJSONSchemaFn } from "../../../ruleRuntime/property/fn"
+import { ExportToJSONSchemaFn } from "@nkdk/runtime/rule-kit"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 
 const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {

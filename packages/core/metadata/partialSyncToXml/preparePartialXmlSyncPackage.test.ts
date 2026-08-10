@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { Diagnostic } from "../diagnostics/types"
+import type { Diagnostic } from "@nkdk/runtime"
 import type { ProjectStateService } from "../projectState"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { attachBorrowedFormPaths } from "../fullSyncToXml/borrowedFormPlan"

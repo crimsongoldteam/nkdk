@@ -2,7 +2,7 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "../../../context/types"
+} from "@nkdk/runtime"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "../../metadataPath/fromYAML"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "../../metadataPath/toYAML"
 import { importMetadataValueFromXML } from "../../metadataValue/fromXML"

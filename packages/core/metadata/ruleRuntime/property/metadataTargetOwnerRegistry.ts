@@ -1,5 +1,5 @@
 import type { MetadataTargetOwner } from "../metadataTarget/types"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataItemRule } from "./types"
 
 export interface MetadataTargetOwnerFrame {

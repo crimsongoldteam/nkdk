@@ -1,11 +1,11 @@
-import { childUid } from "../../configurationIndex/logicalAddress"
+import { childUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexFormElementRootLogicalAddress,
   withConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationContextFromXML } from "../../context/types"
-import type { DirectImportXMLSource } from "../../ruleRuntime/property/importYamlTypes"
+} from "@nkdk/runtime"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
+import type { DirectImportXMLSource } from "@nkdk/runtime/rule-kit"
 import { FormRulesTags } from "./rules"
 
 export function createClientApplicationFormBodyImportSource(params: {

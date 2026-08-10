@@ -1,5 +1,5 @@
 import { resolve } from "node:path"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { createValidationProfiler } from "../validation/profile"
 import type { ValidationProjectComponent } from "../validation/projectComponents"
 export type {

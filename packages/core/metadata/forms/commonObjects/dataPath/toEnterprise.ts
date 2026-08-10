@@ -1,5 +1,5 @@
 import { getCurrentTableFromContext } from "../../../context/helpers"
-import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
+import { ConfigurationContext, ContextElementToEnterprise } from "@nkdk/runtime"
 import { DataPathPropertyRule, PropertyRule } from "../../../ruleRuntime"
 import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import { EnterpriseAttributeMapItem } from "../../clientApplicationForm/types"

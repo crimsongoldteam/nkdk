@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import type { Diagnostic } from "../validation/types"
-import { encodeDiagnosticBatch, openDiagnosticBatch } from "../diagnostics/binaryBatch"
+import { encodeDiagnosticBatch, openDiagnosticBatch } from "@nkdk/runtime"
 import type { ProjectStateFileIdentity, ProjectStateFileUpdate } from "./fileUpdate"
 import { createProjectStateFragmentWriter, type ProjectStateFragment } from "./binary/fragment"
 import type { ProjectStateFileBaselinePathPage, ProjectStateReadToken } from "./contracts"

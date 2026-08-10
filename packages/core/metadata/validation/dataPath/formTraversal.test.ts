@@ -4,7 +4,7 @@ import type { ClientApplicationForm } from "../../forms/clientApplicationForm/ty
 import type { ChildItem } from "../../forms/commonObjects/childItems/types"
 import { collectFormDataPathOccurrences } from "./formTraversal"
 import { collectFormDataPathOccurrencesFromYAML } from "./formYamlTraversal"
-import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "@nkdk/runtime"
 import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 
 describe("collectFormDataPathOccurrences", () => {

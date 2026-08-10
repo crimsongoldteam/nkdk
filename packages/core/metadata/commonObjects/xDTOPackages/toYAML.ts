@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import { ExportToYAMLFunction } from "../../ruleRuntime/property/fn"
+import { ExportToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import { XDTOPackages, XDTOPackagesYAML } from "./types"
 
 export const exportXDTOPackagesToYAML: ExportToYAMLFunction = (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML } from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { getMetadataComponentDescriptor } from "../../components/descriptor"

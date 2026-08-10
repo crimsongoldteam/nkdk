@@ -1,5 +1,5 @@
 import { type TSchema } from "typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
 import { getTypeRule } from "./property/typeRuleRegistry"

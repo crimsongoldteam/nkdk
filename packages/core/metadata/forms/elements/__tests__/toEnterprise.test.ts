@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { CollectableElement } from "../../../ruleRuntime"
 import { exportElementToEnterprise } from "../../../ruleRuntime/formElement/toEnterprise"
 import { mockContextToEnterprise } from "../../../../tests/mockContext"

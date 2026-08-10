@@ -1,17 +1,17 @@
-import { childSegmentUid } from "../../configurationIndex/logicalAddress"
+import { childSegmentUid } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexCollector,
-} from "../../configurationIndex/collector/context"
+} from "@nkdk/runtime"
 import {
   createConfigurationIndexCollector,
   type ConfigurationIndexCollector,
-} from "../../configurationIndex/collector/writer"
-import type { ExternalFileEntry } from "../../context/types"
+} from "@nkdk/runtime"
+import type { ExternalFileEntry } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
-import { createDeferredValuePathCollector, type DeferredValuePath } from "../../ruleRuntime/property/importYamlTypes"
+import { createDeferredValuePathCollector, type DeferredValuePath } from "@nkdk/runtime/rule-kit"
 import type { LocalIndexes, MetadataItemRule } from "../../ruleRuntime"
-import { isExplicitYAMLString } from "../../../yaml/explicitString"
+import { isExplicitYAMLString } from "@nkdk/runtime"
 import { createFormDataPathIndexFromYAML } from "./formDataPathMetadata"
 import { importClientApplicationFormBodyFromXML } from "./fromXMLToYAML"
 import { ClientApplicationFormRules } from "./rules"

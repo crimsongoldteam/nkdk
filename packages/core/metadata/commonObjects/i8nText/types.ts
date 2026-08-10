@@ -1,9 +1,9 @@
 import { Type } from "typebox"
 import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { TypeRulesOperations } from "../../ruleRuntime"
-import type { BasePropertyRule } from "../../ruleRuntime/property/types"
+import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
 
 export interface I8nText {
   items: Record<string, string>

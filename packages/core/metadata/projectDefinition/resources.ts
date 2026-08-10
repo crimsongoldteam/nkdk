@@ -9,14 +9,14 @@ import {
 } from "../resourceTopology/core/projectProjection"
 import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
 import { resolveTopologyMetadataTargetOwner } from "../resourceTopology/adapters/metadataTargetOwner"
-import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/core/types"
+import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "@nkdk/runtime/rule-kit"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
   metadataProjectSpecs,
   type MetadataProjectSpec,
 } from "./specs"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { projectPathFromFileSystem } from "./path"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"

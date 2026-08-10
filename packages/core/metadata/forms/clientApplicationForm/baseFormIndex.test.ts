@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { encodeConfigurationIndex } from "../../configurationIndex/encode"
-import { childUid } from "../../configurationIndex/logicalAddress"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { childUid } from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
   type ConfigurationIndexReader,
-} from "../../configurationIndex/sharedSnapshot"
-import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "../../configurationIndex/types"
+} from "@nkdk/runtime"
+import type { ConfigurationSnapshot, ConfigurationSnapshotEntity } from "@nkdk/runtime"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 
 const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"

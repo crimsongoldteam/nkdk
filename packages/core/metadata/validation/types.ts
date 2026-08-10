@@ -1,1 +1,1 @@
-export type { Diagnostic, DiagnosticSeverity, DiagnosticSource, MetadataDiagnostic } from "../diagnostics/types"
+export type { Diagnostic, DiagnosticSeverity, DiagnosticSource, MetadataDiagnostic } from "@nkdk/runtime"

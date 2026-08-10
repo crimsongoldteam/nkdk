@@ -10,7 +10,7 @@ import type {
   CompiledMetadataAssignmentNode,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
-} from "../resourceTopology/core/types"
+} from "@nkdk/runtime/rule-kit"
 import { resolveMetadataProjectChangeImpact } from "../resourceTopology/core/xmlExportProjection"
 import type { PartialXmlChanges } from "./types"
 import type {

@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { attachMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
 const MIN_MAX_VALUE_XSI_TYPES = new Set<MinMaxValueXsiType>(["xs:string", "xs:decimal"])

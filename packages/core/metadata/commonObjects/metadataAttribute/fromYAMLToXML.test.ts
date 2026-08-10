@@ -10,8 +10,8 @@ import {
 } from "../../../tests/directConversion"
 import { mockContext } from "../../../tests/mockContext"
 import { testAtomicToXML } from "../../../tests/property/atomicToXML"
-import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { importContentFromXML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { MetadataCatalogAttributeRules } from "../../appliedObjects/metadataCatalog/childRules"
@@ -22,7 +22,7 @@ import {
   MetadataDataProcessorTabularSectionAttributeRules,
 } from "../../appliedObjects/metadataDataProcessor/childRules"
 import { MetadataDocumentTabularSectionAttributeRules } from "../../appliedObjects/metadataDocument/childRules"
-import { importFromYAML } from "../../../yaml/import"
+import { importFromYAML } from "@nkdk/runtime"
 
 const rule = probeRule("MetadataCatalogAttributes", MetadataCatalogAttributeRules)
 

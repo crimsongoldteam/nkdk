@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { MetadataDocumentRules } from "../appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "../appliedObjects/metadataInformationRegister/rules"
-import type { PropertyRule } from "../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 
 describe("operation target registrations", () => {
   it("declares catalog attributes, tabular sections and file items", () => {

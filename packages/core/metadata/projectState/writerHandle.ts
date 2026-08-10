@@ -4,7 +4,7 @@ import {
   encodeDiagnosticBatch,
   openDiagnosticBatch,
   type DiagnosticBatchView,
-} from "../diagnostics/binaryBatch"
+} from "@nkdk/runtime"
 import { createBinaryProjectStateStore } from "./binary/store"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 import type { ProjectStateDependencyValidator } from "./contracts/dependencyValidation"

@@ -1,4 +1,4 @@
-import type { ParsedYaml } from "../../../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { FormDataPathIndex } from "../../../validation/dataPath/formIndex"
 import type { FormYAMLItemVisit } from "../../../validation/dataPath/formYamlTraversal"
 import type { Diagnostic } from "../../../validation/types"

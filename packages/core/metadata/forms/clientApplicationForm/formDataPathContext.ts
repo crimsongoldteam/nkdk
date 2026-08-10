@@ -1,6 +1,6 @@
-import type { DataPathPropertyRule, MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { DataPathPropertyRule, MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
-import type { FormDataPathTabularElementDeclaration } from "../../ruleRuntime/dataPath/formIndex"
+import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"

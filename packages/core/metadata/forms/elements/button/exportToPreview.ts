@@ -1,4 +1,4 @@
-// import { ConfigurationContext } from "../../../context/types"
+// import { ConfigurationContext } from "@nkdk/runtime"
 // import { exportElementToEnterprise, registerMetadata } from "../../../ruleRuntime"
 // import { Button, ButtonEnterprise } from "./types"
 

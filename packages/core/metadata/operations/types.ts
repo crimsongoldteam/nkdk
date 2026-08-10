@@ -4,7 +4,7 @@ import type { ProjectStateService } from "../projectState/service"
 export type {
   MetadataFileItemRole,
   MetadataNamedChildKind,
-} from "../ruleRuntime/property/operationTargets"
+} from "@nkdk/runtime/rule-kit"
 
 export interface MetadataOperationDiagnostic extends Diagnostic {
   code?: string

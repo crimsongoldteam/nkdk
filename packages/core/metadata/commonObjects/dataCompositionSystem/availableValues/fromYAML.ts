@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "../../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { callAtomicFromYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { restoreExplicitMetadataValueYAMLString } from "../../metadataValue/explicitYAMLString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"

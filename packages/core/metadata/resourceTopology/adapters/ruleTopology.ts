@@ -1,5 +1,5 @@
-import type { PropertyRule } from "../../ruleRuntime/property/types"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRuleRegistrySet } from "../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { RegisteredProjectSpec } from "../../projectDefinition/projectSpecContracts"

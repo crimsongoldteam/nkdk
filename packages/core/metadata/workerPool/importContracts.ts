@@ -1,7 +1,7 @@
-import type { XmlImportConfigurationContext } from "../context/types"
+import type { XmlImportConfigurationContext } from "@nkdk/runtime"
 import type { ProjectStateFragment } from "../projectState/binary/fragment"
 import type { ProjectStateReadToken } from "../projectState/contracts"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import type { MetadataWorkerBinaryResult } from "./binaryResult"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"

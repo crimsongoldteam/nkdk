@@ -1,5 +1,5 @@
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import type { BasePropertyRule } from "../../ruleRuntime/property/types"
+import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
 
 export interface UuidPropertyRule extends BasePropertyRule {
   type: "uuid"

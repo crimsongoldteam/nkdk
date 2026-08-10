@@ -1,16 +1,16 @@
 import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { createMovableBinaryResult } from "../workerPool/binaryResult"
-import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { hashFileBytes } from "../configurationIndex/hash"
+import { encodeConfigurationIndexFragments } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
 import {
   createConfigurationIndexAssignmentLookupStats,
   createConfigurationIndexReader,
   type AssignmentScopedConfigurationIndexReader,
   type ConfigurationIndexAssignmentLookupStats,
   type ConfigurationIndexReader,
-} from "../configurationIndex/sharedSnapshot"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
+} from "@nkdk/runtime"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../projectDefinition/preparedYamlContracts"
 import { openProjectStateReadSession } from "../composition/projectState"
@@ -37,7 +37,7 @@ import type {
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import { BaseFormSourceError, createVerifiedBaseFormSource, type BaseFormSource } from "./baseFormSource"
-import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
+import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { aggregateCleanupFailures } from "./cleanupFailure"

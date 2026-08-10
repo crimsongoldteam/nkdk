@@ -1,0 +1,291 @@
+import { compileMetadataPathIndex } from "./pathIndex"
+import { joinMetadataPathPatterns } from "./patterns"
+import type {
+  CompiledMetadataAssignmentNode,
+  CompiledMetadataExternalFileNode,
+  CompiledMetadataFileBackedMemberTargetDeclaration,
+  CompiledMetadataIgnoredPathNode,
+  CompiledMetadataResourceTopology,
+  CompiledMetadataXmlDocumentNode,
+  CompiledMetadataYamlCompanionNode,
+  MetadataContentDeclaration,
+  MetadataResourceDeclaration,
+  MetadataResourceTopologySpec,
+} from "./types"
+
+interface CompileContext {
+  readonly projectBasePattern: string
+  readonly xmlBasePattern: string
+  readonly ownerProjectPattern?: string
+}
+
+interface MutableAssignment extends Omit<MetadataContentDeclaration, "fileBackedTarget"> {
+  readonly id: string
+  readonly ownerProjectPattern?: string
+  fileBackedTarget?: CompiledMetadataFileBackedMemberTargetDeclaration
+  readonly xmlDocuments: CompiledMetadataXmlDocumentNode[]
+  readonly yamlCompanions: CompiledMetadataYamlCompanionNode[]
+  readonly externalFiles: CompiledMetadataExternalFileNode[]
+}
+
+export function compileMetadataResourceTopology<Spec extends MetadataResourceTopologySpec>(
+  specs: readonly Spec[]
+): CompiledMetadataResourceTopology {
+  const assignments: MutableAssignment[] = []
+  const ignoredPaths: CompiledMetadataIgnoredPathNode[] = []
+
+  for (const spec of specs) {
+    compileDeclarations(spec.resources ?? [], {
+      projectBasePattern: "",
+      xmlBasePattern: "",
+    }, assignments, ignoredPaths)
+  }
+
+  assertUniqueAssignmentPaths(assignments)
+  assertUniqueXmlOwners(assignments)
+
+  const frozenAssignments = assignments.map(freezeAssignment)
+  return Object.freeze({
+    assignments: Object.freeze(frozenAssignments),
+    ignoredPaths: Object.freeze(ignoredPaths),
+    projectIndex: compileMetadataPathIndex([
+      ...frozenAssignments.map((assignment) => [assignment.id, assignment.projectPattern] as const),
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.yamlCompanions.map((companion) => [companion.id, companion.projectPattern] as const)
+      ),
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.externalFiles.map((file) => [file.id, file.projectPattern] as const)
+      ),
+      ...ignoredPaths
+        .filter((path) => path.side === "project")
+        .map((path) => [path.id, path.pattern] as const),
+    ]),
+    xmlIndex: compileMetadataPathIndex([
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.xmlDocuments.map((document) => [document.id, document.xmlPattern] as const)
+      ),
+      ...frozenAssignments.flatMap((assignment) =>
+        assignment.externalFiles.map((file) => [file.id, file.xmlPattern] as const)
+      ),
+      ...ignoredPaths
+        .filter((path) => path.side === "xml")
+        .map((path) => [path.id, path.pattern] as const),
+    ]),
+  })
+}
+
+function compileDeclarations(
+  declarations: readonly MetadataResourceDeclaration[],
+  context: CompileContext,
+  assignments: MutableAssignment[],
+  ignoredPaths: CompiledMetadataIgnoredPathNode[]
+): void {
+  let currentAssignment: MutableAssignment | undefined
+
+  for (const declaration of declarations) {
+    if (declaration.kind === "content") {
+      const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
+      currentAssignment = {
+        ...declaration,
+        fileBackedTarget: undefined,
+        id: stableId("assignment", projectPattern, declaration.role, declaration.source.description),
+        projectPattern,
+        ...(declaration.ownerProjectPattern === undefined && context.ownerProjectPattern === undefined
+          ? {}
+          : { ownerProjectPattern: declaration.ownerProjectPattern ?? context.ownerProjectPattern }),
+        xmlDocuments: [],
+        yamlCompanions: [],
+        externalFiles: [],
+      }
+      assignments.push(currentAssignment)
+      currentAssignment.fileBackedTarget = compileFileBackedTarget({
+        declaration: declaration.fileBackedTarget,
+        resourceProjectPattern: projectPattern,
+        projectBasePattern: context.projectBasePattern,
+        assignment: currentAssignment,
+        assignments,
+      })
+      continue
+    }
+
+    if (declaration.kind === "childCollection") {
+      compileDeclarations(
+        declaration.declarations,
+        {
+          projectBasePattern: joinMetadataPathPatterns(context.projectBasePattern, declaration.projectBasePattern),
+          xmlBasePattern: joinMetadataPathPatterns(context.xmlBasePattern, declaration.xmlBasePattern),
+          ...(currentAssignment === undefined ? {} : { ownerProjectPattern: currentAssignment.projectPattern }),
+        },
+        assignments,
+        ignoredPaths
+      )
+      continue
+    }
+
+    if (declaration.kind === "ignore") {
+      const pattern =
+        declaration.side === "project"
+          ? joinMetadataPathPatterns(context.projectBasePattern, declaration.pattern)
+          : joinMetadataPathPatterns(context.xmlBasePattern, declaration.pattern)
+      ignoredPaths.push({
+        ...declaration,
+        id: stableId("ignore", declaration.side, pattern, declaration.source.description),
+        pattern,
+      })
+      continue
+    }
+
+    const assignment = resolveAssignment(declaration.assignmentProjectPattern, context, currentAssignment, assignments)
+    if (declaration.kind === "xmlDocument") {
+      const xmlPattern = joinMetadataPathPatterns(context.xmlBasePattern, declaration.xmlPattern)
+      if (declaration.required && declaration.prepareCapabilityId === undefined) {
+        throw new Error(
+          `Обязательный XML-документ ${xmlPattern} не имеет возможности подготовки (${declaration.source.description})`
+        )
+      }
+      assignment.xmlDocuments.push({
+        ...declaration,
+        id: stableId("xml", assignment.projectPattern, xmlPattern, declaration.role),
+        xmlPattern,
+      })
+      continue
+    }
+
+    if (declaration.kind === "yamlCompanion") {
+      const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
+      assignment.yamlCompanions.push({
+        ...declaration,
+        id: stableId("yamlCompanion", assignment.projectPattern, projectPattern),
+        projectPattern,
+      })
+      continue
+    }
+
+    const projectPattern = joinMetadataPathPatterns(context.projectBasePattern, declaration.projectPattern)
+    assignment.externalFiles.push({
+      ...declaration,
+      id: stableId("external", assignment.projectPattern, declaration.projectPattern, declaration.xmlPattern),
+      projectPattern,
+      xmlPattern: joinMetadataPathPatterns(context.xmlBasePattern, declaration.xmlPattern),
+      fileBackedTarget: compileFileBackedTarget({
+        declaration: declaration.fileBackedTarget,
+        resourceProjectPattern: projectPattern,
+        projectBasePattern: context.projectBasePattern,
+        assignment,
+        assignments,
+      }),
+    })
+  }
+}
+
+function compileFileBackedTarget(params: {
+  readonly declaration: MetadataContentDeclaration["fileBackedTarget"]
+  readonly resourceProjectPattern: string
+  readonly projectBasePattern: string
+  readonly assignment: MutableAssignment
+  readonly assignments: readonly MutableAssignment[]
+}): CompiledMetadataFileBackedMemberTargetDeclaration | undefined {
+  const declaration = params.declaration
+  if (declaration === undefined) return undefined
+
+  const resourceParameters = new Set(patternParameters(params.resourceProjectPattern))
+  if (!resourceParameters.has(declaration.itemNameParameter)) {
+    throw new Error(
+      `Файловая цель ${params.resourceProjectPattern}: параметр имени ${declaration.itemNameParameter} отсутствует в пути ресурса`
+    )
+  }
+
+  const itemProjectPattern = joinMetadataPathPatterns(params.projectBasePattern, declaration.itemProjectPattern)
+  for (const parameter of patternParameters(itemProjectPattern)) {
+    if (!resourceParameters.has(parameter)) {
+      throw new Error(`Файловая цель ${params.resourceProjectPattern}: параметр пути ${parameter} недоступен`)
+    }
+  }
+
+  const ownerAssignment = declaration.owner === "assignment"
+    ? params.assignment
+    : params.assignment.ownerProjectPattern === undefined
+      ? undefined
+      : params.assignments.find((candidate) => candidate.projectPattern === params.assignment.ownerProjectPattern)
+  if (ownerAssignment === undefined) {
+    throw new Error(`Файловая цель ${params.resourceProjectPattern}: assignment не имеет владельца`)
+  }
+  const ownerDeclaration = ownerAssignment.itemRule.metadataTargetOwner
+  if (ownerDeclaration === undefined) {
+    throw new Error(
+      `Файловая цель ${params.resourceProjectPattern}: владелец не имеет metadataTargetOwner`
+    )
+  }
+  const ownerParameters = patternParameters(ownerAssignment.projectPattern)
+  for (const parameter of ownerParameters) {
+    if (!resourceParameters.has(parameter)) {
+      throw new Error(`Файловая цель ${params.resourceProjectPattern}: параметр пути владельца ${parameter} недоступен`)
+    }
+  }
+
+  return {
+    ...declaration,
+    itemProjectPattern,
+    ownerProjectPattern: ownerAssignment.projectPattern,
+    ownerAssignmentNodeId: ownerAssignment.id,
+  }
+}
+
+function patternParameters(pattern: string): string[] {
+  return [...pattern.matchAll(/\{([^}]+?)(?:\.\.\.)?\}/g)].map((match) => match[1]!)
+}
+
+function resolveAssignment(
+  assignmentProjectPattern: string,
+  context: CompileContext,
+  currentAssignment: MutableAssignment | undefined,
+  assignments: readonly MutableAssignment[]
+): MutableAssignment {
+  if (assignmentProjectPattern === "") {
+    if (currentAssignment === undefined) throw new Error("XML-ресурс объявлен до содержательного файла")
+    return currentAssignment
+  }
+
+  const fullPattern = joinMetadataPathPatterns(context.projectBasePattern, assignmentProjectPattern)
+  const assignment = assignments.find((candidate) => candidate.projectPattern === fullPattern)
+  if (assignment === undefined) throw new Error(`Не найдено задание-владелец: ${fullPattern}`)
+  return assignment
+}
+
+function assertUniqueAssignmentPaths(assignments: readonly MutableAssignment[]): void {
+  assertUnique(
+    assignments.map((assignment) => [assignment.projectPattern, assignment.projectPattern] as const),
+    "Содержательный путь принадлежит нескольким заданиям"
+  )
+}
+
+function assertUniqueXmlOwners(assignments: readonly MutableAssignment[]): void {
+  assertUnique(
+    assignments.flatMap((assignment) =>
+      assignment.xmlDocuments.map((document) => [document.xmlPattern, assignment.projectPattern] as const)
+    ),
+    "XML-путь принадлежит нескольким заданиям"
+  )
+}
+
+function assertUnique(entries: readonly (readonly [string, string])[], message: string): void {
+  const owners = new Map<string, string>()
+  for (const [path, owner] of entries) {
+    const previous = owners.get(path)
+    if (previous !== undefined) throw new Error(`${message}: ${path}: ${previous} и ${owner}`)
+    owners.set(path, owner)
+  }
+}
+
+function freezeAssignment(assignment: MutableAssignment): CompiledMetadataAssignmentNode {
+  return Object.freeze({
+    ...assignment,
+    xmlDocuments: Object.freeze([...assignment.xmlDocuments]),
+    yamlCompanions: Object.freeze([...assignment.yamlCompanions]),
+    externalFiles: Object.freeze([...assignment.externalFiles]),
+  })
+}
+
+function stableId(...parts: readonly string[]): string {
+  return parts.join("\u0000")
+}

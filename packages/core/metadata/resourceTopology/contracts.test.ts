@@ -5,10 +5,10 @@ import { compileRegisteredMetadataResourceTopology } from "./adapters/registered
 import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"
 import { classifyMetadataProjectPath, projectMetadataFileBackedTargets } from "./core/projectProjection"
 import { mockContextToXML } from "../../tests/mockContext"
-import { createYAMLToXMLProfile } from "../ruleRuntime/property/fromYAMLToXMLTypes"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { sampleSnapshot } from "../configurationIndex/testData"
+import { createYAMLToXMLProfile } from "@nkdk/runtime/rule-kit"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
 import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
 
 registerCoreMetadata()

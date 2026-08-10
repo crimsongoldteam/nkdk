@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "../../ruleRuntime/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import { namedCollectionTarget } from "@nkdk/runtime/rule-kit"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 
 export interface MetadataSequenceDimensionsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataSequenceDimensions"

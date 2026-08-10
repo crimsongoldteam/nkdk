@@ -3,7 +3,7 @@ import { PredefinedRules } from "../../../commonObjects/predefined/rules"
 import { PredefinedItemRules } from "../../../commonObjects/predefinedItem/rules"
 import { stringRule } from "../../../commonObjects/string/types"
 import { defineMetadataItemCollectionRule } from "../../../ruleRuntime/metadataCollection/ruleFactory"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import {
   chartOfAccountsPredefinedAccountingFlagsRule,

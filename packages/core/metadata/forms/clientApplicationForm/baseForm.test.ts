@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../../tests/mockContext"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { encodeConfigurationIndex } from "../../configurationIndex/encode"
-import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import {
   childSegmentUid,
   childUid,
-} from "../../configurationIndex/logicalAddress"
+} from "@nkdk/runtime"
 import {
   createConfigurationIndexReader,
   snapshotConfigurationIndex,
   type ConfigurationIndexReader,
-} from "../../configurationIndex/sharedSnapshot"
-import { sampleSnapshot } from "../../configurationIndex/testData"
+} from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
 import type { ClientApplicationFormYAML } from "./types"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"

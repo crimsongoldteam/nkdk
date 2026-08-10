@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { classifyMetadataProjectPath, type MetadataProjectResourceMatch } from "../resourceTopology/core/projectProjection"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import { createPartialXmlPackagePolicyRegistry } from "./packagePolicy"

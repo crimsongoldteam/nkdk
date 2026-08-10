@@ -1,12 +1,12 @@
 import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
-import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import type { ImportFromYAMLFunctionNew } from "@nkdk/runtime/rule-kit"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint

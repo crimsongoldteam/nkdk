@@ -1,9 +1,9 @@
-import { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+  getConfigurationIndexCollectionXmlNodeLogicalAddress,
+} from "@nkdk/runtime"
+import type { ConfigurationIndexCollector } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Импортирует список имён форм из XML-тегов Form в ChildObjects. */
@@ -27,7 +27,7 @@ export const collectChildFormNamesOmittedChildrenFromXML = (params: {
   if (collection === undefined) return
   const names = Array.isArray(params.xml) ? params.xml : [params.xml]
   if (!names.every((name): name is string => typeof name === "string")) return
-  setChildFormNamesOmittedChildren(collection.collector, getConfigurationIndexXmlNodeLogicalAddress(collection), names)
+  setChildFormNamesOmittedChildren(collection.collector, getConfigurationIndexCollectionXmlNodeLogicalAddress(collection), names)
 }
 
 export const metadataPropertyRule001 = definePropertyTypeRule("ChildFormNames", "collectConfigurationIndexFromXML", collectChildFormNamesOmittedChildrenFromXML)

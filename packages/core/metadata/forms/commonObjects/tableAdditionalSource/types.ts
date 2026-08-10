@@ -2,8 +2,8 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../ruleRuntime/property/types"
-import type { TableAdditionalSourceType } from "../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
+import type { TableAdditionalSourceType } from "@nkdk/runtime/rule-kit"
 
 export type TableAdditionalSourceTypes = TableAdditionalSourceType
 

@@ -1,4 +1,4 @@
-import type { MetadataItemRule, PropertyRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"

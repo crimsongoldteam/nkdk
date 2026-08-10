@@ -8,8 +8,8 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { mockContextToXML } from "../../../tests/mockContext"
-import { importContentFromXML } from "../../../xml/import/importer"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import { importContentFromXML } from "@nkdk/runtime"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { expectFinishedRuleOrder } from "../metadataRuleTestHelpers"
 import { MetadataCatalogTabularSectionRules } from "../../appliedObjects/metadataCatalog/childRules"
 import { MetadataBusinessProcessTabularSectionRules } from "../../appliedObjects/metadataBusinessProcess/childRules"

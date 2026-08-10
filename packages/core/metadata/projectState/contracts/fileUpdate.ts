@@ -1,5 +1,5 @@
-import type { Diagnostic } from "../../diagnostics/types"
-import type { OwnerFactRole } from "../../ruleRuntime/property/ownerFactRole"
+import type { Diagnostic } from "@nkdk/runtime"
+import type { OwnerFactRole } from "@nkdk/runtime/rule-kit"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
 import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type {
@@ -7,9 +7,9 @@ import type {
   DataPathTypeInfo,
   FormDataPathColumnSource,
   OwnerTypeRef,
-} from "../../ruleRuntime/dataPath/types"
-import type { DataPathAllowedKind } from "../../ruleRuntime/property/types"
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../../ruleRuntime/metadataTarget/types"
+} from "@nkdk/runtime/rule-kit"
+import type { DataPathAllowedKind } from "@nkdk/runtime/rule-kit"
+import type { MetadataTargetConstraint, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateFileIdentity } from "./fileIdentity"
 import type { FillValueTypedValue } from "../../ruleRuntime/property/fillValueSemantics"
 

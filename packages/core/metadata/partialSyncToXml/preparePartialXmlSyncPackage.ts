@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto"
 import { join, resolve } from "node:path"
-import { componentPath, parseComponentPath } from "../components/address"
-import { decodeConfigurationIndex } from "../configurationIndex/decode"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { hashFileBytes } from "../configurationIndex/hash"
-import type { MergedConfigurationSnapshotFragments } from "../configurationIndex/types"
-import type { ConfigurationContext } from "../context/types"
-import type { Diagnostic } from "../diagnostics/types"
+import { componentPath, parseComponentPath } from "@nkdk/runtime"
+import { decodeConfigurationIndex } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { hashFileBytes } from "@nkdk/runtime"
+import type { MergedConfigurationSnapshotFragments } from "@nkdk/runtime"
+import type { ConfigurationContext } from "@nkdk/runtime"
+import type { Diagnostic } from "@nkdk/runtime"
 import {
   resolveFullXmlSyncComponentProfile,
   type FullXmlSyncProfileRuntime,

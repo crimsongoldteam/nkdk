@@ -2,7 +2,7 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { detectGroupItemAutoYAML } from "../items/groupItemAuto/detectYAML"

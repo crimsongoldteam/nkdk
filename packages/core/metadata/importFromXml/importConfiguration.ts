@@ -14,7 +14,7 @@ import {
   type ConfigurationSnapshotFragment,
   type MergedConfigurationSnapshotFragments,
 } from "../configurationIndex"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
 import {
   createPreparedYamlProjectWorkerPool,

@@ -1,6 +1,6 @@
-import type { DataPathAllowedKind, DataPathPropertyRule } from "../../ruleRuntime/property/types"
+import type { DataPathAllowedKind, DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../../ruleRuntime"
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ParsedYaml } from "@nkdk/runtime"
 import type { Diagnostic } from "../types"
 import {
   diagnosticAtYamlLocation,

@@ -1,8 +1,8 @@
-import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
-import { childUid } from "../../configurationIndex/logicalAddress"
-import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { childUid } from "@nkdk/runtime"
+import type { ConfigurationIndexReader } from "@nkdk/runtime"
 import type {
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
@@ -10,7 +10,7 @@ import type {
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { ClientApplicationFormRules } from "./rules"
 
 export function buildClientApplicationBaseForm(params: {

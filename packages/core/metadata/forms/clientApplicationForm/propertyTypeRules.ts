@@ -1,5 +1,5 @@
 import { dirname, join } from "path"
-import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
+import type { SyncExternalFromXMLFunction } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
   propertyTypesFromContributions,

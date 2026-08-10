@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises"
 import { join } from "node:path"
 import { TopLevelMetadataItemRules } from "../../metadata/appliedObjects/configuration/topLevelRules"
-import type { MetadataItemRule } from "../../metadata/ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { MetadataTarget } from "./types"
 
 const appliedObjectsPath = "packages/core/metadata/appliedObjects"

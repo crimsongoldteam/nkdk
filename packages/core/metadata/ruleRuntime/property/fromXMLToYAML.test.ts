@@ -4,15 +4,15 @@ import {
   runWithConfigurationIndexPropertyContext,
   withConfigurationIndexCollector,
   withConfigurationIndexLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+} from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
 import { createDeferredValuePathCollector } from "./importYamlTypes"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
-import { yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { yamlScalarTagAt } from "@nkdk/runtime"
 import { registerExplicitXMLProperty } from "./explicitXMLPropertyRegistry"
 import {
   registeredExplicitXMLTestRule,

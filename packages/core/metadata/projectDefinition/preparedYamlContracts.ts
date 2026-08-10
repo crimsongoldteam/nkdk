@@ -1,4 +1,4 @@
-import type { Diagnostic } from "../diagnostics/types"
+import type { Diagnostic } from "@nkdk/runtime"
 
 export interface PreparedYamlProject {
   projectDir: string

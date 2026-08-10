@@ -4,7 +4,7 @@ import { singleChoiceParameterLinks } from "./__fixtures__/single"
 import { withStringDataPathChoiceParameterLinks } from "./__fixtures__/withStringDataPath"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportChoiceParameterLinksToXML } from "./toXML"
 
 describe("exportChoiceParameterLinksToXML", () => {

@@ -1,5 +1,5 @@
 import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../metadataTarget"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"

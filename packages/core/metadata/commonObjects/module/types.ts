@@ -2,9 +2,9 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
-import type { ModulePropertyRule } from "../../ruleRuntime/property/types"
+import type { ModulePropertyRule } from "@nkdk/runtime/rule-kit"
 
 export type ModuleRuleParams = Omit<ModulePropertyRule, "type">
 

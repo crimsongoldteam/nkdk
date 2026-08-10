@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext } from "../../context/types"
-import type { PropertyRule } from "../../ruleRuntime/property/types"
+import { ConfigurationContext } from "@nkdk/runtime"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
 import type { StandardBeginningDateVariant } from "../../systemEnumerations/types"
 import type { StandartBeginningDate, StandartBeginningDateYAML } from "./types"

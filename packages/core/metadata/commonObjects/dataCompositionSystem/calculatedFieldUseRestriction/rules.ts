@@ -1,5 +1,5 @@
 import { booleanRule } from "../../boolean/types"
-import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const CalculatedFieldUseRestrictionRules = {
   itemType: "CalculatedFieldUseRestriction",
   xmlOrder: [

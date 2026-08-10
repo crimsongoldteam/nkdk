@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { callAtomicFromYAML, type PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { StructureItemGroupCollection } from "./collection/types"
 import type { StructureItemGroup } from "./types"

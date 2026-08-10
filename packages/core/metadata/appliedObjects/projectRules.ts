@@ -11,7 +11,7 @@ import { MetadataDocumentRules } from "./metadataDocument/rules"
 import { exportMetadataDocumentToJSONSchema } from "./metadataDocument/toJSONSchema"
 import { MetadataEnumerationRules } from "./metadataEnumeration/rules"
 import { exportMetadataEnumerationToJSONSchema } from "./metadataEnumeration/toJSONSchema"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 const fixedAppliedObjectProjectRules = composeMetadataRules(
   defineProjectSpec({

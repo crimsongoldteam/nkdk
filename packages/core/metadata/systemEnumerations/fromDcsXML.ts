@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "../context/types"
+import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
 import { SystemEnumerationPropertyRule } from "./types"
 import { resolveSystemEnumerationXsiType } from "./toDcsXML"

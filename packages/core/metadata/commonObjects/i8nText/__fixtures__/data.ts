@@ -1,4 +1,4 @@
-import type { PropertyRule } from "../../../ruleRuntime/property/types"
+import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import { I8nText } from "../types"
 
 export const typedI8nTextRule = {

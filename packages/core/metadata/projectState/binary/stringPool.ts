@@ -5,7 +5,7 @@ import {
   findBinaryHashIndex,
   forEachBinaryHashIndexEntry,
   type BinaryHashIndex,
-} from "../../binary/hashIndex"
+} from "@nkdk/runtime"
 import {
   ProjectStateStringRecordView,
   ProjectStateStringSectionHeaderView,

@@ -1,5 +1,5 @@
 import { definePropertyTypeRule } from "../../ruleRuntime/property/propertyRuleRegistrySet"
-import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContext } from "@nkdk/runtime"
 import { PropertyRule } from "../../ruleRuntime"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { exportI8nTextToXML } from "../i8nText/toXML"

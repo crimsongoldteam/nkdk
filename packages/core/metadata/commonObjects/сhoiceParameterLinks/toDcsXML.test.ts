@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { singleChoiceParameterLinks } from "./__fixtures__/single"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { xmlExport } from "../../../xml/export/exporter"
+import { xmlExport } from "@nkdk/runtime"
 import { exportChoiceParameterLinkToDcsXML } from "./toDcsXML"
 
 describe("exportChoiceParameterLinkToDcsXML", () => {

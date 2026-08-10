@@ -3,9 +3,9 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createOperationProfiler } from "../validation/profile"
-import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
+import { parseMetadataYamlData } from "@nkdk/runtime"
 import { discoverXmlImport } from "./discovery"
 import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import {
@@ -16,7 +16,7 @@ import {
 } from "./prepareYaml"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { ImportAssignment } from "./types"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import {
   ClientApplicationFormRules,
   ClientApplicationFormWithExtendedPresentationRules,

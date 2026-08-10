@@ -8,9 +8,9 @@ import {
   testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
 } from "../../../../tests/directConversion"
-import { importContentFromXML } from "../../../../xml/import/importer"
-import { xmlExport } from "../../../../xml/export/exporter"
-import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../configurationIndex/collector/context"
+import { importContentFromXML } from "@nkdk/runtime"
+import { xmlExport } from "@nkdk/runtime"
+import { withConfigurationIndexFormElementRootLogicalAddress } from "@nkdk/runtime"
 import type { CollectableElementType } from "../../../ruleRuntime/formElement/types"
 import { getElementRule } from "../ruleRuntime/ruleFactory"
 import { withKnownXMLDefaults } from "../../../../tests/knownXMLDefaults"
@@ -25,7 +25,7 @@ import { ExtendedTooltipRules } from "../extendedTooltip/rules"
 import { TableLabelFieldRules } from "../labelField/rules"
 import { TablePictureFieldRules } from "../pictureField/rules"
 import { GraphicalSchemaFieldRules } from "../graphicalSchemaField/rules"
-import { exportToYAML } from "../../../../yaml/export"
+import { exportToYAML } from "@nkdk/runtime"
 
 import "../index"
 

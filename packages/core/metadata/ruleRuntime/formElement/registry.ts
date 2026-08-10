@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import type { PropertyRule } from "../property/types"
 import {
   CollectableElementTypeFromYAML,

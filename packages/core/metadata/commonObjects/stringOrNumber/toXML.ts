@@ -1,4 +1,4 @@
-import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { PropertyRule } from "../../ruleRuntime"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"

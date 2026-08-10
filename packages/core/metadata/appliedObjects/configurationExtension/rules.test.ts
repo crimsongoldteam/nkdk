@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML } from "../../../xml/import/importer"
+import { importContentFromXML } from "@nkdk/runtime"
 import {
   createDirectRoundTripContexts,
   testMetadataItemFromXMLToYAML,

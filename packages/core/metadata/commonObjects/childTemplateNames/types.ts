@@ -2,9 +2,9 @@ import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "../../ruleRuntime/property/types"
-import type { BasePropertyRule } from "../../ruleRuntime/property/types"
-import { fileItemCollectionTarget } from "../../ruleRuntime/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "@nkdk/runtime/rule-kit"
+import type { BasePropertyRule } from "@nkdk/runtime/rule-kit"
+import { fileItemCollectionTarget } from "@nkdk/runtime/rule-kit"
 
 /** Правило property-типа ChildTemplateNames — список имён макетов в ChildObjects XML.
  *

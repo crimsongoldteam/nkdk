@@ -7,12 +7,12 @@ import { createOperationRegistrySet } from "./operationRegistrySet"
 import { createMetadataWorkerHandler } from "../workerPool/metadataWorkerHandler"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
 import { mockContextFromXML } from "../../tests/mockContext"
-import type { ConfigurationContextWithExportToXML } from "../context/types"
-import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleSnapshot } from "../configurationIndex/testData"
+import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
+import { encodeConfigurationIndex } from "@nkdk/runtime"
+import { createConfigurationIndexCollector } from "@nkdk/runtime"
+import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "@nkdk/runtime"
+import { sampleSnapshot } from "@nkdk/runtime"
 
 it("runs the worker operation from the owning registry", async () => {
   const createRules = (value: string) =>

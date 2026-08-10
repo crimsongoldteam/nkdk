@@ -3,7 +3,7 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import type { XmlWriteManifest } from "../../ruleRuntime/xmlWriteManifest"
 import type { PropertyRule } from "../../ruleRuntime"
 import { ClientApplicationFormRules } from "./rules"
-import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
+import type { MetadataResourceDeclaration } from "@nkdk/runtime/rule-kit"
 
 type ExternalFormItemFileSpec = {
   propertyName: string

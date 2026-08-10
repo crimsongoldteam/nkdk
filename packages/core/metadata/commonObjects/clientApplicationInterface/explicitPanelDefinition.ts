@@ -1,4 +1,4 @@
-import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag } from "../../../yaml/scalarTags"
+import { EMPTY_XML_TAG_VALUE, markYAMLScalarTag } from "@nkdk/runtime"
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)

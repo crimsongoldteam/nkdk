@@ -4,7 +4,7 @@ import {
   serializeDirectXML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { MetadataAccountingRegisterRules } from "../metadataAccountingRegister/rules"
 import { MetadataAccumulationRegisterRules } from "../metadataAccumulationRegister/rules"
 import { MetadataCalculationRegisterRules } from "../metadataCalculationRegister/rules"

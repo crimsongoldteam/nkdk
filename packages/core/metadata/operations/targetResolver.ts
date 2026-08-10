@@ -1,10 +1,10 @@
 import { join } from "path"
-import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
+import { rootFromYAML } from "@nkdk/runtime/rule-kit"
 import {
   getTypeRule,
   resolvePropertyItemRule,
 } from "../ruleRuntime/property/typeRuleRegistry"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { MetadataRuleOperationTargetDescriptor } from "../project/operationTargets"
 import { describeMetadataRuleOperationTargets } from "../project/operationTargets"
 import { getMetadataProjectSpecByDir } from "../projectDefinition/specs"

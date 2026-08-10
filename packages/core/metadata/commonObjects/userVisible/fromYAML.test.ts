@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { UserVisiblePropertyRule } from "../../ruleRuntime/property/types"
+import type { UserVisiblePropertyRule } from "@nkdk/runtime/rule-kit"
 import { mockContext } from "../../../tests/mockContext"
 import { importUserVisibleFromYAML } from "./fromYAML"
 import { UserVisibleKeysYAML } from "./types"

@@ -8,7 +8,7 @@ import {
   attributeSearchAndHistoryFragment,
   attributeUuidFragment,
 } from "../metadataAttribute/fragments"
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 export const MetadataTaskAddressingAttributeRules = {
   itemType: "MetadataAttribute",
   externalMetadata: { segment: "AddressingAttribute", placement: "ownerChild" },

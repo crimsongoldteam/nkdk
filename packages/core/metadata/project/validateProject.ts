@@ -1,9 +1,9 @@
 import { availableParallelism } from "node:os"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext } from "@nkdk/runtime"
 import { projectPathFromFileSystem } from "../projectDefinition/path"
 import { createProjectStateService, type ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
-import type { MetadataDiagnosticCollection } from "../diagnostics/collection"
+import type { MetadataDiagnosticCollection } from "@nkdk/runtime"
 
 export interface ValidateProjectParams {
   projectDir: string

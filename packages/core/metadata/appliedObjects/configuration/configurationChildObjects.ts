@@ -1,8 +1,8 @@
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
-import type { ConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
+  getConfigurationIndexCollectionXmlNodeLogicalAddress,
+} from "@nkdk/runtime"
+import type { ConfigurationIndexExportRuntime } from "@nkdk/runtime"
 import { readOmittedTypedNames } from "../../commonObjects/omittedChildren"
 import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
@@ -23,7 +23,7 @@ export const metadataPropertyRule000 = definePropertyTypeRule("ConfigurationChil
 
   const items = flattenChildObjects(xml)
   if (items.length === 0) return
-  collection.collector.setOmittedChildren(getConfigurationIndexXmlNodeLogicalAddress(collection), {
+  collection.collector.setOmittedChildren(getConfigurationIndexCollectionXmlNodeLogicalAddress(collection), {
     kind: "typedNames",
     items,
   })

@@ -1,5 +1,5 @@
-import type { PropertyOperationTargetDeclaration } from "../ruleRuntime/property/operationTargets"
-import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { PropertyOperationTargetDeclaration } from "@nkdk/runtime/rule-kit"
+import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 
 export interface MetadataRuleOperationTargetDescriptor {
   propertyName: string
