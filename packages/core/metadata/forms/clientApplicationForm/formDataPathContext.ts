@@ -29,6 +29,39 @@ export interface FormDataPathContext {
   readonly effectiveMainAttribute?: string
 }
 
+export function materializeImplicitFormDataPaths(
+  yaml: ClientApplicationFormYAML,
+  context: FormDataPathContext
+): ClientApplicationFormYAML {
+  const changes: MaterializedDataPathChange[] = []
+  for (const element of context.elementsByName.values()) {
+    if (element.origin !== "own") continue
+    if (element.present) {
+      if (element.value === "" && element.candidateYaml !== undefined) {
+        changes.push({ yamlPath: element.yamlPath, kind: "delete" })
+      }
+      continue
+    }
+    if (element.candidateYaml !== undefined) {
+      changes.push({ yamlPath: element.yamlPath, kind: "set", value: element.candidateYaml })
+    }
+  }
+  if (changes.length === 0) return yaml
+
+  const root = cloneContainer(yaml)
+  const clones = new Map<object, object>([[yaml, root]])
+  for (const change of changes) {
+    const element = mutableRecordAtPath({ source: yaml, target: root, path: change.yamlPath, clones })
+    if (change.kind === "delete") delete element["ПутьКДанным"]
+    else element["ПутьКДанным"] = change.value
+  }
+  return root as ClientApplicationFormYAML
+}
+
+type MaterializedDataPathChange =
+  | { readonly yamlPath: readonly (string | number)[]; readonly kind: "delete" }
+  | { readonly yamlPath: readonly (string | number)[]; readonly kind: "set"; readonly value: string }
+
 export function prepareFormDataPathContextFromYAML(params: {
   readonly yaml: ClientApplicationFormYAML
   readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
@@ -306,4 +339,42 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function mutableRecordAtPath(params: {
+  source: unknown
+  target: unknown
+  path: readonly (string | number)[]
+  clones: Map<object, object>
+}): Record<string, unknown> {
+  let source = params.source
+  let target = params.target
+  for (const segment of params.path) {
+    if (!isContainer(source) || !isContainer(target)) {
+      throw new Error(`Некорректный YAML-путь элемента формы: ${params.path.join(".")}`)
+    }
+    const sourceChild = source[segment as keyof typeof source]
+    if (!isContainer(sourceChild)) {
+      throw new Error(`Некорректный YAML-путь элемента формы: ${params.path.join(".")}`)
+    }
+    let targetChild = params.clones.get(sourceChild)
+    if (targetChild === undefined) {
+      targetChild = cloneContainer(sourceChild)
+      params.clones.set(sourceChild, targetChild)
+      target[segment as keyof typeof target] = targetChild as never
+    }
+    source = sourceChild
+    target = targetChild
+  }
+  const record = asRecord(target)
+  if (record !== undefined) return record
+  throw new Error(`YAML-путь элемента формы указывает на массив: ${params.path.join(".")}`)
+}
+
+function cloneContainer<T extends object>(value: T): T {
+  return (Array.isArray(value) ? [...value] : { ...value }) as T
+}
+
+function isContainer(value: unknown): value is Record<string | number, unknown> | unknown[] {
+  return value !== null && typeof value === "object"
 }

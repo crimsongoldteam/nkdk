@@ -12,11 +12,14 @@ import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../ruleRuntime
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./rules"
-import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import type { DeferredValuePath } from "../../ruleRuntime/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../ruleRuntime"
 import { classifyTableSource } from "./tableSourceProfile"
-import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
+import {
+  materializeImplicitFormDataPaths,
+  prepareFormDataPathContextFromYAML,
+  type FormDataPathContext,
+} from "./formDataPathContext"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -33,6 +36,7 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly dataPathYaml?: ClientApplicationFormYAML
   readonly profile?: YAMLToXMLProfile
   readonly rule?: MetadataItemRule
+  readonly formDataPathContext?: FormDataPathContext
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -46,14 +50,19 @@ export function convertClientApplicationFormYAMLToXMLCore(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
   const rule = params.rule ?? ClientApplicationFormRules
-  const formDataPathIndex = createFormDataPathIndexFromYAML(
-    params.dataPathYaml ?? params.yaml,
-    clientApplicationFormDataPathProjection
-  )
   const ownerMetadataCache =
     params.context.importFromYAML?.ownerMetadataCache ??
     params.context.exportToYAML?.ownerMetadataCache ??
     emptyOwnerMetadataCache
+  const formDataPathContext =
+    params.formDataPathContext ??
+    prepareFormDataPathContextFromYAML({
+      yaml: params.dataPathYaml ?? params.yaml,
+      ownerCache: ownerMetadataCache,
+      rule,
+    })
+  const formDataPathIndex = formDataPathContext.index
+  const materializedYaml = materializeImplicitFormDataPaths(params.yaml, formDataPathContext)
   const resolveDataPath = params.context.importFromYAML?.resolveDataPath
   const metadataContext = {
     ...params.context,
@@ -73,7 +82,7 @@ export function convertClientApplicationFormYAMLToXMLCore(
   const formContext = createFormBodyContext(metadataContext)
   const converted = convertPropertiesFromYAMLToXML({
     context: metadataContext,
-    yaml: params.yaml,
+    yaml: materializedYaml,
     rule,
     name: params.name,
     outputs: [
