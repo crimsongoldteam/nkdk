@@ -216,7 +216,7 @@ Expected: все tests PASS; `getTypeRule("I8nText", "exportToXML")` и `getType
 Run:
 
 ```bash
-node packages/core/scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260730
+pnpm --filter @nkdk/core exec node scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260730
 ```
 
 Expected: функциональный PASS; setup не более 3 000 мс; каждый test file не более 1 000 мс.
@@ -228,8 +228,8 @@ Expected: функциональный PASS; setup не более 3 000 мс; �
 Run:
 
 ```bash
-node packages/core/scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260731
-node packages/core/scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260810
+pnpm --filter @nkdk/core exec node scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260731
+pnpm --filter @nkdk/core exec node scripts/run-test-duration-check.mjs -- --no-isolate --sequence.shuffle --sequence.seed=20260810
 ```
 
 Expected: оба запуска функционально PASS; setup не более 3 000 мс; каждый test file не более 1 000 мс. Число test files и tests совпадает во всех трёх запусках.
