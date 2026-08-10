@@ -3,7 +3,11 @@ import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { compileMetadataResourceTopology } from "./core/compiler"
 import { resolveMetadataProjectChangeImpact } from "./core/xmlExportProjection"
 
-const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
+const rule = {
+  itemType: "TestObject",
+  properties: {},
+  metadataTargetOwner: { kind: "self", root: "Catalog" },
+} as MetadataItemRule
 const source = { kind: "itemRule" as const, description: "test" }
 const topology = compileMetadataResourceTopology([
   {

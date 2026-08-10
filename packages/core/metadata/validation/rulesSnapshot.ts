@@ -18,7 +18,8 @@ import {
   validationProjectSpecs,
   type ValidationProjectSpec,
 } from "./projectSpecs"
-import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
+import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 
 export interface ValidationRulesSnapshot {
@@ -78,13 +79,38 @@ interface SnapshotSourceProperty {
 
 export function createValidationRulesSnapshot(
   _context: ConfigurationContext,
-  topology: CompiledMetadataResourceTopology = compileRegisteredMetadataResourceTopology(),
+  topology: CompiledMetadataResourceTopology | readonly CompiledMetadataResourceTopology[] = validationRulesTopologies(),
 ): ValidationRulesSnapshot {
+  const topologies: readonly CompiledMetadataResourceTopology[] = isCompiledTopology(topology)
+    ? [topology]
+    : topology
+  const items = new Map<string, ValidationRulesItemSnapshot>()
+  for (const current of topologies) {
+    for (const assignment of current.assignments) {
+      items.set(
+        `${assignment.id}\u0000${assignment.itemRule.itemType}`,
+        snapshotItem(assignment.id, assignment.itemRule),
+      )
+    }
+  }
   return {
     version: 1,
     specs: [configurationValidationProjectSpec, ...validationProjectSpecs].map(snapshotSpec),
-    items: topology.assignments.map((assignment) => snapshotItem(assignment.id, assignment.itemRule)),
+    items: [...items.values()],
   }
+}
+
+function isCompiledTopology(
+  value: CompiledMetadataResourceTopology | readonly CompiledMetadataResourceTopology[],
+): value is CompiledMetadataResourceTopology {
+  return !Array.isArray(value)
+}
+
+function validationRulesTopologies(): readonly CompiledMetadataResourceTopology[] {
+  const specs = [configurationValidationProjectSpec, ...validationProjectSpecs]
+  return (["configuration", "configurationExtension"] as const).map((kind) =>
+    compileMetadataResourceTopologyForRootRule(getMetadataComponentDescriptor(kind).rootRule, specs)
+  )
 }
 
 export function findValidationRulesSpec(
