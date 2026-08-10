@@ -121,6 +121,7 @@ export function validateBorrowedClientApplicationForms(
           location: { line: 1, col: 1, path: yamlPointer([...entry.yamlPath, "ПутьКДанным"]) },
           owner,
           value,
+          tagged: false,
           policyInput: { yaml: "ПутьКДанным" },
           policy: "formDataPath" as const,
         },

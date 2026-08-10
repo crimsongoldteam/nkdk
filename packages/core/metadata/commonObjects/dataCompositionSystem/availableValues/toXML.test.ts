@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { callAtomicToXML } from "../../../ruleRuntime"
 import { mockContextToXML } from "../../../../tests/mockContext"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
+import "../index"
 
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
 

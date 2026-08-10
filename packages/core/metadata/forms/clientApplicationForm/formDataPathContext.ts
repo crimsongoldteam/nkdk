@@ -1,4 +1,5 @@
-import type { MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { DataPathPropertyRule, MetadataItemRule } from "../../ruleRuntime/property/types"
+import type { ElementType } from "../../ruleRuntime/formElement/types"
 import type { FormDataPathTabularElementDeclaration } from "../../ruleRuntime/dataPath/formIndex"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
 import { resolveDataPathCore } from "../../validation/dataPath/coreResolver"
@@ -17,6 +18,8 @@ import { findMainAttributeName } from "./mainAttributeKinds"
 
 export interface FormElementDataPathState {
   readonly name: string
+  readonly elementType?: ElementType
+  readonly dataPathRule: DataPathPropertyRule
   readonly yamlPath: readonly (string | number)[]
   readonly origin: "own" | "borrowed"
   readonly present: boolean
@@ -216,6 +219,7 @@ function withEffectiveTabularElementDataPaths(params: {
 export interface CollectedFormElement {
   readonly name: string
   readonly itemType: string
+  readonly dataPathRule: DataPathPropertyRule
   readonly yamlPath: readonly (string | number)[]
   readonly present: boolean
   readonly value: unknown
@@ -358,6 +362,8 @@ function prepareCollectedForm(params: {
     const currentConfigurationValue = params.currentConfigurationForm?.effectivePath(name)?.yaml
     elementsByName.set(name, {
       name,
+      ...(isElementType(element.collected.itemType) ? { elementType: element.collected.itemType } : {}),
+      dataPathRule: element.collected.dataPathRule,
       yamlPath: element.collected.yamlPath,
       origin: element.origin,
       present: element.collected.present,
@@ -402,9 +408,15 @@ function collectFormElements(
       acceptFormTabularElementVisit(tabularElementsByName, visit)
       const dataPath = visit.primaryDataPath
       if (dataPath === undefined) return
+      const dataPathRule = Object.values(visit.rule.properties).find(
+        (propertyRule): propertyRule is DataPathPropertyRule =>
+          propertyRule.type === "DataPath" && propertyRule.yaml === dataPath.yamlKey
+      )
+      if (dataPathRule === undefined) return
       elementsByName.set(visit.name, {
         name: visit.name,
         itemType: visit.itemType,
+        dataPathRule,
         yamlPath: visit.yamlPath,
         present: dataPath?.present ?? false,
         value: dataPath?.value,
@@ -504,4 +516,8 @@ function cloneContainer<T extends object>(value: T): T {
 
 function isContainer(value: unknown): value is Record<string | number, unknown> | unknown[] {
   return value !== null && typeof value === "object"
+}
+
+function isElementType(value: string): value is ElementType {
+  return value !== "ClientApplicationForm" && !value.startsWith("Metadata")
 }

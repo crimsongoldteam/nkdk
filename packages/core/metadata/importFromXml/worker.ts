@@ -67,6 +67,9 @@ import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm
 import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
 import { normalizeImportedDependentItems } from "./dependentItems"
+import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { finalizeImportedFormDataPathCompatibility } from "../forms/clientApplicationForm/importDataPathCompatibility"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -379,6 +382,7 @@ async function writePreparedYamlToOutput(
       return withExportMetadataTargetOwners(context, prepared.ownerContext)
     }
   )
+  const originalFormDataPaths = collectImportedFormDataPaths(prepared.yaml, prepared.rule.itemType)
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных значений YAML",
@@ -392,6 +396,13 @@ async function writePreparedYamlToOutput(
         formDataPathIndex: prepared.formDataPathIndex,
       })
   )
+  finalizeImportedFormDataPaths({
+    yaml: prepared.yaml,
+    itemType: prepared.rule.itemType,
+    originalOccurrences: originalFormDataPaths,
+    formDataPathIndex: prepared.formDataPathIndex,
+    ownerMetadataCache,
+  })
   const currentConfigurationYAML = state.componentPath.startsWith("cfe/") &&
     supportsMetadataItemImportedYamlFinalization(prepared.rule)
     ? await readCurrentConfigurationFormYaml({
@@ -408,6 +419,7 @@ async function writePreparedYamlToOutput(
         extensionYaml: prepared.yaml,
         currentConfigurationYAML,
         contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
+        ownerMetadataCache,
       })
   profiler.measure(
     "Подготовка импорта конфигурации",
@@ -464,16 +476,28 @@ function prepareBaseFormCandidate(params: {
   extensionYaml: unknown
   currentConfigurationYAML: unknown
   contextWithOwners: ConfigurationContext
+  ownerMetadataCache: OwnerMetadataCache
 }): NonNullable<DeferredImportYaml["baseFormCandidate"]> | undefined {
   if (params.currentConfigurationYAML === undefined) {
     throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
   }
+  const originalFormDataPaths = collectImportedFormDataPaths(
+    params.candidate.yaml,
+    params.candidate.rule.itemType,
+  )
   finalizeImportedYamlValues({
     yaml: params.candidate.yaml,
     rootRule: params.candidate.rule,
     deferred: params.candidate.deferred,
     context: params.contextWithOwners,
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
+  })
+  finalizeImportedFormDataPaths({
+    yaml: params.candidate.yaml,
+    itemType: params.candidate.rule.itemType,
+    originalOccurrences: originalFormDataPaths,
+    formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
+    ownerMetadataCache: params.ownerMetadataCache,
   })
   const projection = projectClientApplicationBaseForm({
     baseYaml: clientApplicationFormYaml(params.currentConfigurationYAML, params.candidate.baseProjectPath),
@@ -513,6 +537,28 @@ async function writePreparedBaseFormCandidate(params: {
     finalState: validated.final,
     configurationFragment: params.candidate.configurationFragment,
   }
+}
+
+function collectImportedFormDataPaths(yaml: unknown, itemType: string) {
+  return itemType === "ClientApplicationForm"
+    ? collectFormDataPathOccurrencesFromYAML({ yaml, rule: ClientApplicationFormRules })
+    : []
+}
+
+function finalizeImportedFormDataPaths(params: {
+  yaml: unknown
+  itemType: string
+  originalOccurrences: ReturnType<typeof collectImportedFormDataPaths>
+  formDataPathIndex: DeferredImportYaml["formDataPathIndex"]
+  ownerMetadataCache: OwnerMetadataCache
+}): void {
+  if (params.itemType !== "ClientApplicationForm" || params.formDataPathIndex === undefined) return
+  finalizeImportedFormDataPathCompatibility({
+    yaml: params.yaml,
+    originalOccurrences: params.originalOccurrences,
+    index: params.formDataPathIndex,
+    ownerCache: params.ownerMetadataCache,
+  })
 }
 
 function withoutDataPathDiagnosticSink(context: ConfigurationContext): ConfigurationContext {
@@ -673,6 +719,10 @@ async function processFirstPass(
           accumulator.stateEntries += generatedStateEntries.length
         }
         assignmentFiles.push(...externalFiles)
+        const requiresFormDataPathCompatibility = collectImportedFormDataPaths(
+          prepared.yaml,
+          prepared.rule.itemType,
+        ).some((occurrence) => occurrence.rule.allowedKinds !== undefined && occurrence.rule.yaml === "ПутьКДанным")
         if (
           prepared.deferred.length === 0
           && prepared.dependentDeferred.length === 0
@@ -680,6 +730,7 @@ async function processFirstPass(
           && !requiresMetadataItemImportedYamlFinalization({ yaml: prepared.yaml, rule: prepared.rule })
           && !(state.componentPath.startsWith("cfe/") &&
             supportsMetadataItemImportedYamlFinalization(prepared.rule))
+          && !requiresFormDataPathCompatibility
         ) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })

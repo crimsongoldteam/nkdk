@@ -37,6 +37,11 @@ export function typeDescriptionToDataPathTypeInfo(
   return {
     kinds,
     nextTypes,
+    ...(
+      types.some((type) => definedTypeNameFromType(type) === undefined)
+        ? { terminalTypes: types.filter((type) => definedTypeNameFromType(type) === undefined) }
+        : {}
+    ),
     ...(definedTypes.length > 0 ? { definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
     ...(types.length > 1 ? { isComposite: true } : {}),

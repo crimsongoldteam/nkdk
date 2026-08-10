@@ -110,6 +110,11 @@ export const RadioButtonFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: [
+        "string", "decimal", "CatalogRef.*", "DefinedType.*", "EnumRef.*",
+        "FormattedString", "ChartOfAccountsRef.*", "ChartOfCharacteristicTypesRef.*", "<standard-enum>",
+      ],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,

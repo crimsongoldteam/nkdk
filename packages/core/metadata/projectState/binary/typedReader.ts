@@ -181,11 +181,14 @@ export function createTypedProjectStateReader(
   function typeInfo(id: number): DataPathTypeInfo {
     const value = row("typeInfo", id)
     const table = tableInfo(value.tableInfoId)
-    const definedTypes = stringValues("definedTypes", value.definedTypesStart, value.definedTypesCount)
+    const storedTypes = stringValues("definedTypes", value.definedTypesStart, value.definedTypesCount)
+    const terminalTypes = storedTypes.slice(0, value.reserved16)
+    const definedTypes = storedTypes.slice(value.reserved16)
     const sourceText = optionalString(value.sourceTextId)
     return {
       kinds: stringValues("typeKinds", value.kindsStart, value.kindsCount) as DataPathTypeInfo["kinds"],
       nextTypes: range("ownerTypes", value.nextTypesStart, value.nextTypesCount).map((_entry, index) => ownerType(value.nextTypesStart + index)),
+      ...(terminalTypes.length === 0 ? {} : { terminalTypes }),
       ...(definedTypes.length === 0 ? {} : { definedTypes }),
       ...(table === undefined ? {} : { table }),
       ...(value.isComposite === 0 ? {} : { isComposite: value.isComposite === 1 }),
@@ -453,6 +456,7 @@ export function createTypedProjectStateReader(
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
         location,
         owner: ownerType(value.ownerTypeId), value: string(value.valueId),
+        tagged: value.reserved === 1,
         policyInput: { yaml: string(value.policyYamlId),
           ...(value.allowedKindsCount === 0 ? {} : { allowedKinds: stringValues("allowedKinds", value.allowedKindsStart, value.allowedKindsCount) }),
           ...(value.allowComposite === 0 ? {} : { allowComposite: value.allowComposite === 1 }) },

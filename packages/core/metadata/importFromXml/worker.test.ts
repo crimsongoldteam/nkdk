@@ -330,7 +330,7 @@ describe("XML import worker first pass", () => {
   })
 
   it.each(["Объект.Товары.НомерСтроки", "Объект.Товары.CustomField"])(
-    "writes a form without an English standard member during the first pass: %s",
+    "удерживает форму до проверки совместимости DataPath: %s",
     async (dataPath) => {
       const outputDir = createTempDir("first-pass-form")
       const assignments = createCatalogAndFormAssignments(dataPath)
@@ -340,11 +340,7 @@ describe("XML import worker first pass", () => {
         await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
       )
 
-      expect(first.diagnostics).toEqual([])
-      expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toEqual(
-        expect.arrayContaining([assignments.catalog.targetProjectPath, assignments.form.targetProjectPath])
-      )
-      expect(workerStateForTests().preparedYamlIds).toEqual([])
+      expectDeferredFormFirstPass(first, assignments)
     }
   )
 
@@ -405,7 +401,7 @@ describe("XML import worker first pass", () => {
 describe("XML import worker second pass", () => {
   it("уточняет отсутствующий путь элемента формы после загрузки владельца", async () => {
     const outputDir = createTempDir("implicit-form-data-path")
-    const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "Код", false)
+    const assignments = createCatalogAndFormAssignments("", "Товары", false, false, "LabelField", "Код", false)
     await initializeWorker(outputDir)
 
     const first = expectFirstPass(await runImportWorkerCommand({
@@ -499,13 +495,7 @@ describe("XML import worker second pass", () => {
         expect(workerStateForTests().preparedYamlIds).toEqual([firstPassAssignments.form.id])
       },
     )
-    expect(first.diagnostics).toEqual([])
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toContain(
-      assignments.catalog.targetProjectPath
-    )
-    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(
-      assignments.form.targetProjectPath
-    )
+    expectDeferredFormFirstPass(first, assignments, false)
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
     if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
     const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
@@ -537,7 +527,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("writes a user DataPath before building the layered owner snapshot", async () => {
+  it("writes a user DataPath after building the layered owner snapshot", async () => {
     const tempDir = createTempDir("worker-layered")
     const { assignments, first, second } = await runCatalogAndFormSecondPass(
       tempDir,
@@ -547,11 +537,12 @@ describe("XML import worker second pass", () => {
 
     expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
     if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
-    const formFile = first.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.БазовыйРеквизит")
+    appendSharedStateFragments(second.stateFragments)
     expectSharedFormRoot(assignments.form.targetProjectPath, "Объект.БазовыйРеквизит")
-    expect(second.files).toEqual([])
+    expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
   })
 
   it("preserves an unresolved DataPath, returns one warning and releases the YAML", async () => {
@@ -578,6 +569,23 @@ describe("XML import worker second pass", () => {
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.НеизвестныйПереход.LineNumber")
     expect(workerStateForTests().preparedYamlIds).toEqual([])
+  })
+
+  it.each([
+    ["несовместимый строковый тип", "Объект.Description", "ПутьКДанным: !xml Объект.Description"],
+    ["совместимый булев тип", "Объект.DeletionMark", "ПутьКДанным: Объект.ПометкаУдаления"],
+  ])("классифицирует при импорте ПолеФлажок: %s", async (_name, dataPath, expected) => {
+    const tempDir = createTempDir("worker-checkbox")
+    const { assignments, second } = await runCatalogAndFormSecondPass(
+      tempDir,
+      dataPath,
+      undefined,
+      undefined,
+      "CheckBoxField",
+    )
+    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+    if (formFile === undefined) throw new Error("Ожидался файл формы")
+    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain(expected)
   })
 
   it("continues first pass after an early YAML write error", async () => {
@@ -632,6 +640,17 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
 function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerCommand>>): ImportFirstPassResult {
   if (result?.kind !== "firstPassResult") throw new Error("Ожидался firstPassResult")
   return result
+}
+
+function expectDeferredFormFirstPass(
+  first: ImportFirstPassResult,
+  assignments: ReturnType<typeof createCatalogAndFormAssignments>,
+  checkWorkerState = true,
+): void {
+  expect(first.diagnostics).toEqual([])
+  expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toContain(assignments.catalog.targetProjectPath)
+  expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
+  if (checkWorkerState) expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
 }
 
 function expectWrittenImportFile(
@@ -740,6 +759,7 @@ function expectSharedFormRoot(targetProjectPath: string, value: string): void {
       location: { line: 1, col: 1 },
       owner: { kind: "Справочник", name: "Товары" },
       value,
+      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },
@@ -759,8 +779,9 @@ async function runCatalogAndFormSecondPass(
     readonly assignments: ReturnType<typeof createCatalogAndFormAssignments>
     readonly first: ImportFirstPassResult
   }) => void,
+  elementTag = "LabelField",
 ) {
-  const assignments = createCatalogAndFormAssignments(dataPath, objectTypeName)
+  const assignments = createCatalogAndFormAssignments(dataPath, objectTypeName, false, false, elementTag)
   await initializeWorker(outputDir)
   const first = expectFirstPass(await runImportWorkerCommand({
     kind: "firstPass",
@@ -789,6 +810,7 @@ function createCatalogAndFormAssignments(
   objectTypeName = "Товары",
   includeUsualGroup = false,
   includeDynamicList = false,
+  elementTag = "LabelField",
   elementName = "Путь",
   includeDataPath = true
 ): { catalog: ImportAssignment; form: ImportAssignment } {
@@ -805,10 +827,10 @@ function createCatalogAndFormAssignments(
   )
   writeFileSync(formMetadataPath, readFileSync(minimalFormMetadataXmlPath, "utf-8"), "utf-8")
   const dataPathXml = includeDataPath ? `\n\t\t\t<DataPath>${dataPath}</DataPath>` : ""
-  const labelField = `<LabelField name="${elementName}" id="2">${dataPathXml}
+  const labelField = `<${elementTag} name="${elementName}" id="2">${dataPathXml}
 \t\t\t<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>
 \t\t\t<ExtendedTooltip name="ПутьРасширеннаяПодсказка" id="4"/>
-\t\t</LabelField>`
+\t\t</${elementTag}>`
   const formElement = includeUsualGroup
     ? `<UsualGroup name="Группа" id="5">
 \t\t\t<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Группа</v8:content></v8:item></Title>

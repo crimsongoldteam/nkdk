@@ -107,6 +107,8 @@ export const GraphicalSchemaFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "FlowchartContextType",
+      allowedKinds: ["FlowchartContextType"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },

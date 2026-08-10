@@ -11,6 +11,7 @@ import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
 import type { MetadataItemRule } from "../../../ruleRuntime/property/types"
 
+import "../index"
 import "./fromXMLToYAML"
 import "./rules"
 

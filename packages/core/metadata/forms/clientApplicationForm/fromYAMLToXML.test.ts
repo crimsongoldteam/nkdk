@@ -807,6 +807,27 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     expect(elementByName(result.formXML, "Номер").DataPath).toBe("Объект.Number")
   })
 
+  it("экспортирует payload tagged DataPath без преобразования внутренних имён", () => {
+    const yaml = importFromYAML<ClientApplicationFormYAML>([
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: СправочникОбъект.СправочникПолный",
+      "Элементы:",
+      "  Наименование:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: !xml Объект.Description",
+    ].join("\n"))
+
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: mockContextToXML(),
+      yaml,
+      name: "ФормаЭлемента",
+    })
+
+    expect(firstInputField(result.formXML).DataPath).toBe("Объект.Description")
+    expect(firstInputField(result.formXML).DataPath).not.toContain("!xml")
+  })
+
   it("строит BaseForm встроенной формы из отдельного базового YAML", () => {
     const nestedRule = getTypeRule(
       "ClientApplicationForm",

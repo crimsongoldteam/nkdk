@@ -42,6 +42,10 @@ export const getOwnerKindByTypeDescriptionBase = (baseType: string) => ownerKind
 export const getOwnerKindByRegisterRecordSetBase = (baseType: string) => ownerKindByRegisterRecordSetBase.get(baseType)
 export const getOwnerKindByMetadataLinkPrefix = (prefix: string) => ownerKindByMetadataLinkPrefix.get(prefix)
 export const getMetadataLinkPrefixesByOwnerKind = (kind: string): readonly string[] => ownerKinds.get(kind)?.metadataLinkPrefixes ?? []
+export const getReferenceTypeBaseByOwnerKind = (kind: string): string | undefined =>
+  ownerKinds.get(kind)?.typeDescriptionBases?.find((base) => base.endsWith("Ref"))
+export const getRecordSetTypeBaseByOwnerKind = (kind: string): string | undefined =>
+  ownerKinds.get(kind)?.registerRecordSetBases?.[0]
 
 export function clearOwnerKindRegistryForTests(): void {
   ownerKinds.clear()

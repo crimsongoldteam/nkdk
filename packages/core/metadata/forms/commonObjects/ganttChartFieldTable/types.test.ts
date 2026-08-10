@@ -8,6 +8,7 @@ import {
 import { GanttChartFieldRules } from "../../elements/ganttChartField/rules"
 
 import "../../elements/index"
+import "../tableAdditionalSource/toXML"
 
 describe("таблица поля диаграммы Ганта", () => {
   it("восстанавливает канонические дополнения без явных YAML-ключей", () => {

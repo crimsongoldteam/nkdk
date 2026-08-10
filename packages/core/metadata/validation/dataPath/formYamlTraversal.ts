@@ -4,6 +4,7 @@ import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "../..
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
+import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 export interface FormYAMLItemVisit {
   yaml: Record<string, unknown>
@@ -80,15 +81,23 @@ function collectItem(params: {
 
   for (const propertyRule of Object.values(params.rule.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
-    const value = record[propertyRule.yaml]
-    if (isDataPathRule(propertyRule) && typeof value === "string" && value.trim().length > 0) {
+    const rawValue = record[propertyRule.yaml]
+    if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
+      const tagged = yamlScalarTagAt(record, propertyRule.yaml) === "xml"
+      const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
+      if (value.trim().length === 0) continue
       occurrences.push({
         rule: propertyRule,
         value,
         setValue: (nextValue) => {
           record[propertyRule.yaml as string] = nextValue
         },
+        markTag: (tag) => {
+          markYAMLScalarTag(record, propertyRule.yaml as string, tag)
+        },
         yamlPath: [...params.yamlPath, propertyRule.yaml],
+        tagged,
+        nameMode: tagged ? "internal" : "yaml",
         ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
         ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),
         ...(isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit"))

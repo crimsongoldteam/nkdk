@@ -110,6 +110,8 @@ export const PDFDocumentFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "PDFDocument",
+      allowedKinds: ["PDFDocument"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: {

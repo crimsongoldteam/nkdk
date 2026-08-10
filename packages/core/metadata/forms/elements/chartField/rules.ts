@@ -83,6 +83,8 @@ export const ChartFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "Chart",
+      allowedKinds: ["Chart"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),

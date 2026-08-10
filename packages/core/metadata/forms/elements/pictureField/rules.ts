@@ -145,8 +145,8 @@ export const PictureFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "Picture",
-      allowedKinds: ["Picture", "scalar", "boolean", "object"],
-      allowComposite: true,
+      allowedKinds: ["Picture", "string", "decimal", "boolean", "EnumRef.*", "ValueStorage"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: {

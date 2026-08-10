@@ -120,6 +120,8 @@ export const FormattedDocumentFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "string",
+      allowedKinds: ["FormattedDocument"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },

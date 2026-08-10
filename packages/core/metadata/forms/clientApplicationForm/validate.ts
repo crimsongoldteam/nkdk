@@ -29,6 +29,7 @@ import {
   collectFormDataPathOccurrencesFromYAML,
   type FormYAMLItemVisit,
 } from "../../validation/dataPath/formYamlTraversal"
+import type { FormDataPathOccurrence } from "../../validation/dataPath/formTraversal"
 
 const DOCUMENT_MAIN_ATTRIBUTE_KINDS = new Set(["ДокументОбъект"])
 const REPORT_MAIN_ATTRIBUTE_KINDS = new Set(["ОтчетОбъект"])
@@ -193,6 +194,23 @@ export function validateClientApplicationFormSecondPass(params: {
     rule: ClientApplicationFormRules,
     preparation: params.state.dataPathPreparation,
   })
+  const implicitOccurrences: FormDataPathOccurrence[] = [...dataPathContext.elementsByName.values()].flatMap((element) =>
+    element.origin === "own" &&
+    !element.present &&
+    element.candidateYaml !== undefined &&
+    element.elementType !== undefined
+      ? [{
+          rule: element.dataPathRule,
+          value: element.candidateYaml,
+          setValue: () => {},
+          markTag: () => {},
+          yamlPath: [...element.yamlPath, "ПутьКДанным"],
+          tagged: false,
+          nameMode: "yaml" as const,
+          elementType: element.elementType,
+        }]
+      : []
+  )
 
   for (const element of dataPathContext.elementsByName.values()) {
     if (
@@ -211,7 +229,7 @@ export function validateClientApplicationFormSecondPass(params: {
     }))
   }
 
-  for (const occurrence of params.state.occurrences) {
+  for (const occurrence of [...params.state.occurrences, ...implicitOccurrences]) {
     if (isAcceptedOpaqueMultipleValueDataPath(occurrence)) continue
 
     const result = resolveDataPath({
@@ -222,6 +240,7 @@ export function validateClientApplicationFormSecondPass(params: {
       index: dataPathContext.index,
       ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
+      ...(occurrence.nameMode === undefined ? {} : { nameMode: occurrence.nameMode }),
     })
 
     diagnostics.push(...result.diagnostics)
@@ -237,6 +256,7 @@ export function validateClientApplicationFormSecondPass(params: {
         target: result.target,
         ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
         ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),
+        ...(occurrence.tagged === undefined ? {} : { tagged: occurrence.tagged }),
       })
     )
   }

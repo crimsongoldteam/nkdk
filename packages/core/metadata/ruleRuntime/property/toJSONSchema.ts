@@ -31,9 +31,17 @@ function withExplicitXMLValidationValue(params: {
   context: ConfigurationContext
   itemType: string
   propertyKey: string
+  rule: PropertyRule
   schema: TSchema
 }): TSchema {
   if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
+  if (
+    params.rule.type === "DataPath" &&
+    params.rule.yaml === "ПутьКДанным" &&
+    params.rule.allowedKinds !== undefined
+  ) {
+    return Type.Union([params.schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
+  }
   const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey)
   if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
   if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
@@ -107,6 +115,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
         context,
         itemType: rule.itemType,
         propertyKey: key,
+        rule: ruleProp,
         schema: exportedValue,
       })
       result[yamlKey] = ruleProp.required === true ? schema : Type.Optional(schema)
