@@ -1,5 +1,6 @@
 export * from "./formElement/types"
 export * from "./definition"
+export * from "./ruleRegistrySet"
 
 export * from "./metadataItem/registry"
 export * from "./metadataItem/ruleFactory"
