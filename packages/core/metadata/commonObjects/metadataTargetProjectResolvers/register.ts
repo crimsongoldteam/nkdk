@@ -1,4 +1,3 @@
-import { rootFromYAML } from "../metadataTargets/roots"
 import type { ParsedMetadataTarget } from "../metadataTargets/types"
 import {
   registerProjectReferenceMemberIndexContributor,
@@ -26,16 +25,28 @@ registerProjectReferenceMemberContributor(
   "Resource",
   createCollectionMemberResolver({ modelName: "resources", yamlName: "Ресурсы" })
 )
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "commands", kind: "Command" }))
 registerProjectReferenceMemberIndexContributor(
-  collectionMemberIndexContributor({ modelName: "accountingFlags", kind: "AccountingFlag" })
+  collectionMemberIndexContributor({ modelName: "commands", yamlName: "Команды", kind: "Command" })
 )
 registerProjectReferenceMemberIndexContributor(
-  collectionMemberIndexContributor({ modelName: "extDimensionAccountingFlags", kind: "ExtDimensionAccountingFlag" })
+  collectionMemberIndexContributor({ modelName: "accountingFlags", yamlName: "ПризнакиУчета", kind: "AccountingFlag" })
 )
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "fields", kind: "Field" }))
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "dimensions", kind: "Dimension" }))
-registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "resources", kind: "Resource" }))
+registerProjectReferenceMemberIndexContributor(
+  collectionMemberIndexContributor({
+    modelName: "extDimensionAccountingFlags",
+    yamlName: "ПризнакиУчетаСубконто",
+    kind: "ExtDimensionAccountingFlag",
+  })
+)
+registerProjectReferenceMemberIndexContributor(
+  collectionMemberIndexContributor({ modelName: "fields", yamlName: "Поля", kind: "Field" })
+)
+registerProjectReferenceMemberIndexContributor(
+  collectionMemberIndexContributor({ modelName: "dimensions", yamlName: "Измерения", kind: "Dimension" })
+)
+registerProjectReferenceMemberIndexContributor(
+  collectionMemberIndexContributor({ modelName: "resources", yamlName: "Ресурсы", kind: "Resource" })
+)
 
 function createCollectionMemberResolver(params: { modelName: string; yamlName: string }): ProjectReferenceMemberContributor {
   return ({ owner, rawYaml, segment, target }) => {
@@ -53,19 +64,19 @@ function createCollectionMemberResolver(params: { modelName: string; yamlName: s
 
 function collectionMemberIndexContributor(params: {
   modelName: string
+  yamlName: string
   kind: ProjectMemberIndexEntry["target"]["segments"][number]["kind"]
 }): ProjectReferenceMemberIndexContributor {
-  return ({ owner }) => {
-    const root = rootFromYAML[owner.ref.kind]
-    if (!root || !owner.ref.name) return []
-    const collection = metadataRecord(owner.facts)[params.modelName]
+  return ({ owner, objectTarget, rawYaml }) => {
+    const collection = metadataRecord(owner.facts)[params.modelName] ?? metadataRecord(rawYaml)[params.yamlName]
     const entries: ProjectMemberIndexEntry[] = []
 
     for (const item of collectionItems(collection)) {
       const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
         kind: "member",
-        root,
-        objectName: owner.ref.name,
+        root: objectTarget.root,
+        objectName: objectTarget.objectName,
+        ...(objectTarget.segments === undefined ? {} : { objectSegments: objectTarget.segments }),
         segments: [{ kind: params.kind, name: item.name }],
       }
       entries.push({

@@ -227,7 +227,12 @@ function ownerMemberIndexEntries(params: {
     spec: params.file.owner.spec,
   }
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor({ projectDir: params.projectDir, owner })) {
+    for (const entry of contributor({
+      projectDir: params.projectDir,
+      owner,
+      objectTarget,
+      rawYaml: params.prepared.yaml,
+    })) {
       appendMember(entries, seen, entry)
     }
   }

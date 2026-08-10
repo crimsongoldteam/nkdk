@@ -377,7 +377,7 @@ export function extractProjectValidationFileFacts(params: {
       ref: ownerRef,
       filePath: params.file.absolutePath,
       facts: ownerFactsWithoutIndex,
-      rule: params.file.owner.spec.rule,
+      rule: params.file.itemRule,
       spec: params.file.owner.spec,
     }
     const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
@@ -389,6 +389,8 @@ export function extractProjectValidationFileFacts(params: {
     buildMemberIndexEntries({
       projectDir: params.projectDir,
       owner: measuredOwner.value.owner,
+      objectTarget: yamlFacts.objectIndexEntries[0]?.target,
+      rawYaml: parsed.data,
     })
   )
   const memberIndexEntries = measuredMemberIndex.value
@@ -760,6 +762,8 @@ function validationFirstPassProfileKey(file: ValidationProjectFile): string {
 function buildMemberIndexEntries(params: {
   projectDir: string
   owner: OwnerMetadata
+  objectTarget?: Extract<ParsedMetadataTarget, { kind: "object" }>
+  rawYaml: unknown
 }): ProjectMemberIndexEntry[] {
   const entries: ProjectMemberIndexEntry[] = []
   const seen = new Set<string>()
@@ -784,8 +788,14 @@ function buildMemberIndexEntries(params: {
     }
   }
 
+  if (params.objectTarget === undefined) return entries
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    for (const entry of contributor(params)) addMemberIndexEntry(entries, seen, entry)
+    for (const entry of contributor({
+      projectDir: params.projectDir,
+      owner: params.owner,
+      objectTarget: params.objectTarget,
+      rawYaml: params.rawYaml,
+    })) addMemberIndexEntry(entries, seen, entry)
   }
 
   return entries

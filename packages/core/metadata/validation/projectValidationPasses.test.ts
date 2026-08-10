@@ -455,6 +455,61 @@ describe("validateProjectFileFirstPass references", () => {
     )
   })
 
+  it("builds nested external data source member targets from the exact file owner", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const files = [
+      {
+        projectPath: "ВнешнийИсточникДанных/Источник/Таблицы/Таблица/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: Table",
+          "Поля:",
+          "  Поле:",
+          "    Тип: Строка",
+          "Команды:",
+          "  Команда: {}",
+        ],
+      },
+      {
+        projectPath: "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: Cube",
+          "Измерения:",
+          "  Измерение:",
+          "    Тип: Строка",
+          "Ресурсы:",
+          "  Ресурс:",
+          "    Тип: Число",
+        ],
+      },
+      {
+        projectPath:
+          "ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/ТаблицаИзмерений/Свойства.yaml",
+        yaml: [
+          "ИмяВИсточникеДанных: DimensionTable",
+          "Поля:",
+          "  Поле:",
+          "    Тип: Строка",
+        ],
+      },
+    ]
+
+    const entries = files.flatMap(({ projectPath, yaml }) => {
+      writeProjectFile(projectDir, projectPath, yaml)
+      return validateProjectPath(projectDir, projectPath).memberIndexEntries
+    })
+
+    expect(entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Table.Таблица.Field.Поле" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Table.Таблица.Command.Команда" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Cube.Куб.Dimension.Измерение" }),
+      expect.objectContaining({ canonical: "ExternalDataSource.Источник.Cube.Куб.Resource.Ресурс" }),
+      expect.objectContaining({
+        canonical: "ExternalDataSource.Источник.Cube.Куб.DimensionTable.ТаблицаИзмерений.Field.Поле",
+      }),
+    ]))
+  })
+
   it("builds chart of accounts accounting flag member index entries from YAML", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)
