@@ -60,7 +60,7 @@ export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Di
   }
   const message =
     compatibility.status === "incompatible"
-      ? incompatibilityMessage(params.value, compatibility)
+      ? incompatibilityMessage(params.value, compatibility, params.elementType)
       : undefined
   return message === undefined ? [] : [policyDiagnostic(params, message)]
 }
@@ -116,13 +116,18 @@ export function evaluateDataPathPolicy(
     hasValuesPicture: context.hasValuesPicture,
   })
   return compatibility.status === "incompatible"
-    ? incompatibilityMessage(context.value ?? value?.value ?? "", compatibility)
+    ? incompatibilityMessage(context.value ?? value?.value ?? "", compatibility, context.elementType)
     : undefined
 }
 
-function incompatibilityMessage(value: string, result: Extract<DataPathCompatibilityResult, { status: "incompatible" }>): string {
+function incompatibilityMessage(
+  value: string,
+  result: Extract<DataPathCompatibilityResult, { status: "incompatible" }>,
+  elementType?: ElementType,
+): string {
   const reason = result.reason === "composite" ? "составной конечный тип" : "конечный тип не подходит"
-  return `ПутьКДанным "${value}": ${reason} ${result.actual}, ожидается ${result.expected.join(" или ")}`
+  const element = elementType === undefined ? "" : ` для элемента ${elementType}`
+  return `ПутьКДанным "${value}": ${reason} ${result.actual}${element}, ожидается ${result.expected.join(" или ")}`
 }
 
 function policyDiagnostic(

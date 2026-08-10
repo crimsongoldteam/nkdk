@@ -106,13 +106,14 @@ describe("validateResolvedDataPathPolicy", () => {
     const diagnostics = validatePolicy({
       rule: dataPathRule({ allowedKinds: ["boolean", "decimal"] }),
       target: exactTarget(["string"]),
+      elementType: "CheckBoxField",
     })
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
         severity: "error",
         source: "structure",
-        message: expect.stringMatching(/string.*boolean или decimal/),
+        message: expect.stringMatching(/string.*CheckBoxField.*boolean или decimal/),
       }),
     ])
   })
@@ -132,6 +133,7 @@ describe("validateResolvedDataPathPolicy", () => {
 function validatePolicy(params: {
   rule: DataPathPropertyRule
   target: ResolvedDataPathTarget | undefined
+  elementType?: "CheckBoxField"
 }) {
   const parsed = parseMetadataYaml("ПутьКДанным: Значение\n")
   return validateResolvedDataPathPolicy({
@@ -141,6 +143,7 @@ function validatePolicy(params: {
     value: "Значение",
     rule: toDataPathPolicyInput(params.rule),
     target: params.target,
+    elementType: params.elementType,
   })
 }
 
