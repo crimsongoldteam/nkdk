@@ -1,11 +1,12 @@
 import { access } from "node:fs/promises"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
   E2E_COMPONENTS,
   cloneImportedProject,
   importMetadataProject,
   removeImportedProject,
+  roundTripMetadataProject,
   validateChangedProject,
   validateCleanProject,
   type ImportedMetadataProject,
@@ -55,5 +56,28 @@ describe.sequential("metadata project E2E", () => {
     })
     expect(result.warm[0]?.message).toContain("НеизвестноеПолеE2E")
     console.info("E2E validation durations, ms", result.durationsMs)
+  })
+
+  it("restores every XML component byte for byte after YAML", async () => {
+    if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
+    const projectDir = await cloneImportedProject(baseline, "round-trip")
+    const reportRoot = resolve(import.meta.dirname, "../reports/e2e/round-trip")
+    const results = await roundTripMetadataProject({ projectDir, reportRoot })
+
+    expect(results.map(({ component }) => component.componentPath))
+      .toEqual(E2E_COMPONENTS.map(({ componentPath }) => componentPath))
+    for (const result of results) {
+      expect.soft(result.sync.failed).toEqual([])
+      expect.soft(result.comparison, result.comparison.reportDir).toMatchObject({
+        equal: true,
+        added: [],
+        removed: [],
+        changed: [],
+      })
+    }
+    console.table(results.map(({ component, durationMs }) => ({
+      component: component.componentPath,
+      durationMs,
+    })))
   })
 })

@@ -1,14 +1,17 @@
-import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { isAbsolute, join, relative, resolve } from "node:path"
+import { dirname, isAbsolute, join, relative, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import {
   createProjectStateService,
   importConfigurationFromXml,
+  syncConfigurationToXML,
   validateProject,
   type ConfigurationImportResult,
+  type FullXmlSyncResult,
   type MetadataDiagnostic,
 } from "@nkdk/core"
+import { compareFileTrees, type FileTreeComparison } from "./file-tree"
 
 export interface E2EComponent {
   readonly fixturePath: string
@@ -38,6 +41,13 @@ export interface ValidationParityResult {
     readonly warm: number
     readonly cold: number
   }
+}
+
+export interface ComponentRoundTripResult {
+  readonly component: E2EComponent
+  readonly sync: FullXmlSyncResult
+  readonly comparison: FileTreeComparison
+  readonly durationMs: number
 }
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
@@ -136,6 +146,45 @@ export async function validateChangedProject(projectDir: string): Promise<Valida
     warm,
     cold,
     durationsMs: { warm: warmDurationMs, cold: coldDurationMs },
+  }
+}
+
+export async function roundTripMetadataProject(params: {
+  readonly projectDir: string
+  readonly reportRoot: string
+}): Promise<readonly ComponentRoundTripResult[]> {
+  await rm(params.reportRoot, { recursive: true, force: true })
+  const projectState = createProjectStateService()
+  const results: ComponentRoundTripResult[] = []
+  try {
+    for (const component of E2E_COMPONENTS) {
+      const xmlDir = join(dirname(params.projectDir), `xml-${component.reportName}`)
+      await rm(xmlDir, { recursive: true, force: true })
+      await mkdir(xmlDir, { recursive: true })
+      const startedAt = performance.now()
+      const sync = await syncConfigurationToXML({
+        context: SYNC_CONTEXT,
+        projectDir: params.projectDir,
+        componentPath: component.componentPath,
+        xmlDir,
+        concurrency: 2,
+        projectState,
+      })
+      const comparison = await compareFileTrees({
+        expectedDir: resolve(fixturesRoot, component.fixturePath),
+        actualDir: xmlDir,
+        reportDir: resolve(params.reportRoot, component.reportName),
+      })
+      results.push({
+        component,
+        sync,
+        comparison,
+        durationMs: performance.now() - startedAt,
+      })
+    }
+    return results
+  } finally {
+    await projectState.close()
   }
 }
 
