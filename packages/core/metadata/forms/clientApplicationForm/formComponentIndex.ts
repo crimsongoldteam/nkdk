@@ -21,29 +21,29 @@ export class FormComponentIndexError extends Error {
 
 export function indexClientApplicationFormComponents(yaml: unknown): ClientApplicationFormComponentIndex {
   const root = record(yaml)
-  const elements = new Map<string, FormComponentEntry>()
-  visitElements(root?.Элементы, "Элементы", elements)
   return {
-    elements,
+    elements: indexElements(yaml),
     attributes: indexNamed(root?.Реквизиты, "Реквизиты"),
     commands: indexNamed(root?.Команды, "Команды"),
     parameters: indexNamed(root?.Параметры, "Параметры"),
   }
 }
 
-function visitElements(value: unknown, path: string, result: Map<string, FormComponentEntry>): void {
-  if (value === undefined) return
-  const collection = record(value)
-  if (collection === undefined) throw new FormComponentIndexError("Некорректное дерево элементов формы", path)
-  for (const [name, raw] of Object.entries(collection)) {
-    const elementPath = `${path}.${name}`
-    if (name.length === 0) throw new FormComponentIndexError("Имя элемента формы не может быть пустым", path)
-    const element = record(raw)
-    if (element === undefined) throw new FormComponentIndexError(`Некорректный элемент «${name}»`, elementPath)
-    if (result.has(name)) throw new FormComponentIndexError(`Повтор имени элемента «${name}»`, elementPath)
-    result.set(name, { name, path: elementPath })
-    visitElements(element.Элементы, `${elementPath}.Элементы`, result)
-  }
+function indexElements(yaml: unknown): ReadonlyMap<string, FormComponentEntry> {
+  const result = new Map<string, FormComponentEntry>()
+  collectFormDataPathOccurrencesFromYAML({
+    yaml,
+    rule: ClientApplicationFormRules,
+    resolveCollectionItemRule: resolveClientApplicationFormCollectionItemRule,
+    visitElement({ name, yamlPath, rule }) {
+      if (!("enterpriseField" in rule) || !("enterpriseFieldType" in rule)) return
+      const path = yamlPath.map(String).join(".")
+      if (name.length === 0) throw new FormComponentIndexError("Имя элемента формы не может быть пустым", path)
+      if (result.has(name)) throw new FormComponentIndexError(`Повтор имени элемента «${name}»`, path)
+      result.set(name, { name, path })
+    },
+  })
+  return result
 }
 
 function indexNamed(value: unknown, path: string): ReadonlyMap<string, FormComponentEntry> {
@@ -60,3 +60,6 @@ function record(value: unknown): Record<string, unknown> | undefined {
     ? value as Record<string, unknown>
     : undefined
 }
+import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
+import { resolveClientApplicationFormCollectionItemRule } from "./formDataPathProjection"
+import { ClientApplicationFormRules } from "./rules"

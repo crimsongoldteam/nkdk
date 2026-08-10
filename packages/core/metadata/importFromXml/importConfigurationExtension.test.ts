@@ -18,6 +18,7 @@ const configurationFixtureDir = join(import.meta.dirname, "../appliedObjects/con
 const catalogFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__")
 const formFixtureDir = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__")
 const languageFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataLanguage/__fixtures__")
+const borrowedCommandBarButtonName = "ОбщаяПанельнаяКнопка"
 const temporaryDirectories: string[] = []
 const xmlImportWorkerPoolHandle = createXmlImportWorkerTestPool()
 const preparedYamlWorkerFactory = createPreparedYamlWorkerThreadPoolFactory()
@@ -94,6 +95,12 @@ describe("configuration extension XML import", () => {
     expect(result.failed).not.toEqual(expect.arrayContaining([
       expect.objectContaining({ message: expect.stringContaining("Не найдена текущая форма cf") }),
     ]))
+    const importButtonDiagnostics = result.warnings
+      .filter(({ message }) => message.includes(borrowedCommandBarButtonName))
+    const validationButtonDiagnostics = importedExtension.validationDiagnostics
+      .filter(({ message }) => message.includes(borrowedCommandBarButtonName))
+    expect(importButtonDiagnostics).toEqual([])
+    expect(validationButtonDiagnostics).toEqual([])
 
     expect(configuration).toEqual({
       Имя: "РасширениеКонтроль",
@@ -227,6 +234,21 @@ async function importExtension() {
     ].join("\n")
   )
   replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "\t<BaseForm version=\"2.20\">\n\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+    [
+      "\t<BaseForm version=\"2.20\">",
+      "\t\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\">",
+      "\t\t\t<ChildItems>",
+      `\t\t\t\t<Button name=\"${borrowedCommandBarButtonName}\" id=\"10\">`,
+      "\t\t\t\t\t<Type>CommandBarButton</Type>",
+      "\t\t\t\t\t<CommandName>Form.StandardCommand.Close</CommandName>",
+      "\t\t\t\t</Button>",
+      "\t\t\t</ChildItems>",
+      "\t\t</AutoCommandBar>",
+    ].join("\n"),
+  )
+  replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "<v8:Type>xs:dateTime</v8:Type>",
     "<v8:TypeSet>cfg:AnyRef</v8:TypeSet>"
@@ -252,6 +274,13 @@ async function importExtension() {
     xmlImportWorkerPoolHandle,
     projectState,
   })
+  const validation = await projectState.refreshAndValidate({
+    projectDir,
+    context: mockContextFromXML(),
+    concurrency: 1,
+  })
+  const validationDiagnostics = [...validation.diagnostics]
+  validation.diagnostics.release()
   const importedFormPath = join(
     projectDir,
     "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
@@ -278,7 +307,7 @@ async function importExtension() {
     address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
   })
 
-  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
+  return { projectDir, result, validationDiagnostics, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
 }
 
 async function importBaseConfiguration(projectDir: string): Promise<void> {
@@ -309,6 +338,22 @@ async function importBaseConfiguration(projectDir: string): Promise<void> {
     fs.copyFileSync(join(formFixtureDir, "minimalMetadata.xml"), metadataPath)
     replaceAllInFile(metadataPath, "Минимальная", formName)
     fs.copyFileSync(join(formFixtureDir, "minimal.xml"), bodyPath)
+    if (formName === "ФормаОтчета") {
+      replaceExactlyOnce(
+        bodyPath,
+        "\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\"/>",
+        [
+          "\t<AutoCommandBar name=\"ФормаКоманднаяПанель\" id=\"-1\">",
+          "\t\t<ChildItems>",
+          `\t\t\t<Button name=\"${borrowedCommandBarButtonName}\" id=\"10\">`,
+          "\t\t\t\t<Type>CommandBarButton</Type>",
+          "\t\t\t\t<CommandName>Form.StandardCommand.Close</CommandName>",
+          "\t\t\t</Button>",
+          "\t\t</ChildItems>",
+          "\t</AutoCommandBar>",
+        ].join("\n"),
+      )
+    }
     replaceExactlyOnce(
       bodyPath,
       "\t<Attributes/>",

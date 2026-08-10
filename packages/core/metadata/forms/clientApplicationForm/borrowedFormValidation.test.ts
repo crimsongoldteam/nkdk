@@ -14,6 +14,7 @@ describe("проверка заимствованной формы", () => {
     expect(diagnostics).toEqual([
       expect.objectContaining({
         filePath: "/project/cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        severity: "warning",
         message: expect.stringContaining("ПолеCF"),
       }),
     ])
@@ -43,6 +44,7 @@ describe("проверка заимствованной формы", () => {
     ])
 
     expect(diagnostics).toEqual([expect.objectContaining({
+      severity: "error",
       path: "/Элементы/ПолеCF/ПутьКДанным",
       message: expect.stringContaining("заимствованного элемента"),
     })])
@@ -63,6 +65,7 @@ describe("проверка заимствованной формы", () => {
     ])
 
     expect(diagnostics).toEqual([expect.objectContaining({
+      severity: "warning",
       message: expect.stringContaining("отсутствует в текущей форме cf"),
     })])
   })
@@ -74,6 +77,7 @@ describe("проверка заимствованной формы", () => {
     ])
 
     expect(diagnostics).toEqual([expect.objectContaining({
+      severity: "error",
       path: "/Элементы/Код/ПутьКДанным",
       message: expect.stringContaining("не нужно указывать явно"),
     })])
@@ -92,6 +96,7 @@ describe("проверка заимствованной формы", () => {
     expect(diagnostics).toEqual([
       expect.objectContaining({
         filePath: "/project/cfe/X/БазоваяФорма.yaml",
+        severity: "warning",
         path: `/${dottedPath.replaceAll(".", "/")}`,
         message: expect.stringContaining(name),
       }),
@@ -109,6 +114,7 @@ describe("проверка заимствованной формы", () => {
     expect(diagnostics).toEqual([
       expect.objectContaining({
         filePath: "/project/cfe/X/БазоваяФорма.yaml",
+        severity: "error",
         path: "/Элементы/Поле/ПутьКДанным",
         message: expect.stringContaining("РеквизитРабочейФормы"),
       }),

@@ -147,7 +147,7 @@ export function validateBorrowedClientApplicationForms(
         filePath: absolutePath(params.projectDir, first.projectPath),
         line: 1,
         col: 1,
-        severity: "error",
+        severity: "warning",
         source: "cross-file",
         message: `Заимствованный элемент «${name}» из сохранённой основы отсутствует в текущей форме cf`,
       })
@@ -251,7 +251,7 @@ function missingDiagnostics(params: {
       filePath: params.filePath,
       line: 1,
       col: 1,
-      severity: "error" as const,
+      severity: "warning" as const,
       source: "cross-file" as const,
       message: `В рабочей форме отсутствует ${componentLabel(entry.componentKind)} ${params.subject} «${entry.name}»`,
       ...(params.useRequiredPath ? { path: yamlPointer(entry.yamlPath) } : {}),
