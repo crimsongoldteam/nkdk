@@ -113,11 +113,11 @@ export function scalarColumn(name: string, sourceText: string): FormDataPathColu
 }
 
 export function booleanColumn(name: string, sourceText: string): FormDataPathColumnSource {
-  return { name, typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText } }
+  return { name, typeInfo: { kinds: ["boolean"], nextTypes: [], terminalTypes: ["boolean"], sourceText } }
 }
 
 export function dateTimeColumn(name: string, sourceText: string): FormDataPathColumnSource {
-  return { name, typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText } }
+  return { name, typeInfo: { kinds: ["dateTime"], nextTypes: [], terminalTypes: ["dateTime"], sourceText } }
 }
 
 export function metadataRecord(value: unknown): Record<string, unknown> {
@@ -156,13 +156,19 @@ function sameOwnerRef(ref: OwnerTypeRef): OwnerTypeRef {
 function valueListColumn(segment: string): FormDataPathColumnSource | undefined {
   switch (segment) {
     case "Value":
-      return scalarColumn(segment, "ValueList.Value")
+      return {
+        name: segment,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["<any>"], sourceText: "ValueList.Value" },
+      }
     case "Presentation":
-      return scalarColumn(segment, "ValueList.Presentation")
+      return { name: segment, typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["string"], sourceText: "ValueList.Presentation" } }
     case "Check":
       return booleanColumn(segment, "ValueList.Check")
     case "Picture":
-      return { name: segment, typeInfo: { kinds: ["Picture"], nextTypes: [], sourceText: "ValueList.Picture" } }
+      return {
+        name: segment,
+        typeInfo: { kinds: ["Picture"], nextTypes: [], terminalTypes: ["Picture"], sourceText: "ValueList.Picture" },
+      }
   }
 
   return undefined

@@ -689,10 +689,11 @@ function assertOwnerRef(value: unknown, path: string): void {
 
 function assertTypeInfo(value: unknown, path: string): void {
   const typeInfo = requiredRecord(value, path)
-  assertExactKeys(typeInfo, ["kinds", "nextTypes", "definedTypes", "table", "isComposite", "sourceText"], path)
+  assertExactKeys(typeInfo, ["kinds", "nextTypes", "terminalTypes", "definedTypes", "table", "isComposite", "sourceText"], path)
   assertStringArray(typeInfo["kinds"], `${path}.kinds`, DATA_PATH_VALUE_KINDS)
   if (!Array.isArray(typeInfo["nextTypes"])) throw new Error(`${path}.nextTypes должен быть массивом`)
   typeInfo["nextTypes"].forEach((owner, index) => assertOwnerRef(owner, `${path}.nextTypes[${index}]`))
+  assertOptionalStringArray(typeInfo["terminalTypes"], `${path}.terminalTypes`)
   assertOptionalStringArray(typeInfo["definedTypes"], `${path}.definedTypes`)
   if (typeInfo["table"] !== undefined) assertDataPathTableInfo(typeInfo["table"], `${path}.table`)
   assertOptionalBoolean(typeInfo["isComposite"], `${path}.isComposite`)

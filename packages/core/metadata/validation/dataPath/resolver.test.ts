@@ -201,7 +201,7 @@ describe("resolveDataPath", () => {
     const cases = [
       ["Список.Value", "Value", { kinds: ["scalar"], sourceText: "ValueList.Value" }],
       ["Список.Presentation", "Presentation", { kinds: ["scalar"], sourceText: "ValueList.Presentation" }],
-      ["Список.Check", "Check", { kinds: ["boolean"], sourceText: "ValueList.Check" }],
+      ["Список.Check", "Check", { kinds: ["boolean"], terminalTypes: ["boolean"], sourceText: "ValueList.Check" }],
       ["Список.Picture", "Picture", { kinds: ["Picture"], sourceText: "ValueList.Picture" }],
     ] as const
 
@@ -582,6 +582,37 @@ describe("resolveDataPath", () => {
         segments: ["ВключитьВДоговор", "Номер"],
         source: { kind: "objectField", owner: { kind: "Справочник", name: "ДоговорыКонтрагентов" }, name: "Номер" },
         typeInfo: { kinds: ["scalar"] },
+      },
+    })
+  })
+
+  it("merges effective terminal branches of DefinedType without counting its declaration", () => {
+    const result = resolve("ВключитьВДоговор", {
+      index: indexWithAttributes([
+        attribute("ВключитьВДоговор", {
+          type: ["DefinedType.ДоговорКонтрагента", "boolean"],
+        }),
+      ]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+          rule: MetadataDefinedTypeRules,
+          model: {
+            itemType: "MetadataDefinedType",
+            type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: {
+        typeInfo: {
+          terminalTypes: ["boolean", "CatalogRef.ДоговорыКонтрагентов"],
+          definedTypes: ["ДоговорКонтрагента"],
+          isComposite: true,
+        },
       },
     })
   })
@@ -1133,7 +1164,7 @@ describe("resolveDataPath", () => {
       diagnostics: [],
       target: {
         source: { kind: "tableColumn", table: "НаборЗаписей", name: "Период" },
-        typeInfo: { kinds: ["dateTime"], sourceText: "RegisterRecordSet.Period" },
+        typeInfo: { kinds: ["dateTime"], terminalTypes: ["dateTime"], sourceText: "RegisterRecordSet.Period" },
       },
     })
   })
@@ -2105,7 +2136,7 @@ describe("resolveDataPath", () => {
           owner: { kind: "Справочник", name: "ГруппыАналитик" },
           name: "Предопределенный",
         },
-        typeInfo: { kinds: ["boolean"], sourceText: "Справочник.Predefined" },
+        typeInfo: { kinds: ["boolean"], terminalTypes: ["boolean"], sourceText: "Справочник.Predefined" },
       },
     })
   })
@@ -2375,7 +2406,11 @@ describe("resolveDataPath", () => {
         target: {
           value: path,
           source: { kind: "standardPeriodField", name: path.split(".")[1] },
-          typeInfo: { kinds: ["dateTime"], sourceText: `StandardPeriod.${path.split(".")[1]}` },
+          typeInfo: {
+            kinds: ["dateTime"],
+            terminalTypes: ["dateTime"],
+            sourceText: `StandardPeriod.${path.split(".")[1]}`,
+          },
         },
       })
     }

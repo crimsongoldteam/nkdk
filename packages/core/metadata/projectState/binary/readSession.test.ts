@@ -126,7 +126,12 @@ it("сохраняет декларации табличных элементо�
 it("сохраняет произвольный тип колонки в двоичном снимке", () => {
   const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const owner = { kind: "Справочник", name: "Catalog.Source" }
-  const arbitrary = { kinds: ["any"] as const, nextTypes: [], sourceText: "Произвольный" }
+  const arbitrary = {
+    kinds: ["any"] as const,
+    nextTypes: [],
+    terminalTypes: ["<any>"],
+    sourceText: "Произвольный",
+  }
   const update = {
     ...source,
     forms: [
