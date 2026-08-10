@@ -6,8 +6,8 @@ import {
 
 describe("проекция структуры формы", () => {
   const yaml = {
-    Элементы: { Группа: { Элементы: { Поле: {} } } },
-    Реквизиты: { Объект: {} },
+    Элементы: { Группа: { Вид: "Группа", Элементы: { Поле: { Вид: "ПолеВвода" } } } },
+    Реквизиты: { Объект: { ОсновнойРеквизит: "Истина" } },
     Команды: { Записать: {} },
     Параметры: { Режим: {} },
   }
@@ -16,8 +16,16 @@ describe("проекция структуры формы", () => {
     const components = collectClientApplicationFormStructure(yaml)
     expect(components.map(({ componentKind, name }) => `${componentKind}:${name}`)).toEqual([
       "element:Группа", "element:Поле", "attribute:Объект", "command:Записать", "parameter:Режим",
+      "mainAttribute:Объект",
     ])
     expect(components[1]?.yamlPath).toEqual(["Элементы", "Группа", "Элементы", "Поле"])
+    expect(components.find(({ componentKind, name }) => componentKind === "element" && name === "Поле"))
+      .toMatchObject({ payload: JSON.stringify({ version: 1, primaryDataPath: "missing" }) })
+    expect(components).toContainEqual({
+      componentKind: "mainAttribute",
+      name: "Объект",
+      yamlPath: ["Реквизиты", "Объект", "ОсновнойРеквизит"],
+    })
   })
 
   it("добавляет роль и topology-адрес документа", () => {

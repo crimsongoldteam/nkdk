@@ -38,7 +38,6 @@ import {
   type LocalValueValidationProfile,
 } from "./yamlFactExtractor"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { collectFormTabularElementsFromYAML } from "../ruleRuntime/formElement/formTableDataPaths"
 import type { FormStructuredComponent } from "./formContracts"
 
 type CompiledSchema = ValidationSchemaValidator
@@ -228,7 +227,7 @@ function compileProjectPropertiesSchema(context: ConfigurationContext, rule: Met
     roots: [{ key: "properties", name: rule.itemType }],
   })
   const rootSchema = stripCollectedSchemaRefs(graph.roots["properties"]!)
-  return compileValidationSchema(graph.schemas, rootSchema, { inlineRefs: false })
+  return compileValidationSchema(graph.schemas, rootSchema)
 }
 
 function validationProjectPropertyRules(): MetadataItemRule[] {
@@ -261,10 +260,7 @@ function compileRegisteredFormSchema(
     validationPropertyRefs: true,
     roots: [{ key: "form", rule, includeNestedChildItems: true }],
   })
-  const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!, {
-    inlineRefs: false,
-    eagerFallback: true,
-  })
+  const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!)
   schemasByContext ??= new Map()
   schemasByContext.set(cacheKey, compiled)
   formSchemaCache.set(rule, schemasByContext)
@@ -318,10 +314,7 @@ export function extractProjectValidationFileFacts(params: {
         : {
             form: {
               owner: { kind: params.file.owner.dir, name: params.file.owner.name },
-              index: {
-                ...yamlFacts.formDataPathIndex,
-                tabularElementsByName: collectFormTabularElementsFromYAML(parsed.data),
-              },
+              index: yamlFacts.formDataPathIndex,
             },
           }),
       ...(yamlFacts.structuredComponents === undefined

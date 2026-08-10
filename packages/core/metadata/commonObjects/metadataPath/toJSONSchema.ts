@@ -8,7 +8,8 @@ const metadataObjectTargetFallback = { kind: "object" } as const satisfies Metad
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
 
 export const exportDataPathToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {
-  return buildMetadataTargetSchema(rule.metadataTarget ?? dataPathTargetFallback(rule))
+  const schema = buildMetadataTargetSchema(rule.metadataTarget ?? dataPathTargetFallback(rule))
+  return rule.yaml === "ПутьКДанным" ? Type.Union([Type.Literal(""), schema]) : schema
 }
 
 export const exportMetadataItemLinkToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {

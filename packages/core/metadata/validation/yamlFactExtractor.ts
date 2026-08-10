@@ -647,7 +647,9 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   const adapter = requireFormValidationAdapter()
   const projection = getRegisteredFormDataPathMetadataProjection()
   if (projection === undefined) throw new Error("Не зарегистрирована проекция индекса формы")
-  const index = createFormDataPathIndexFromYAML(parsed.data, projection)
+  const index = createFormDataPathIndexFromYAML(parsed.data, projection, undefined, {
+    inferImplicitDataPaths: file.componentPath === "cf",
+  })
   const collected = collectFormPendingChecks({
     file,
     parsed,
@@ -676,7 +678,10 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   return {
     ...emptyFacts(),
     formDataPathIndex: index,
-    structuredComponents: adapter.collectStructuredComponents(parsed.data),
+    structuredComponents: adapter.collectStructuredComponents(parsed.data, {
+      kind: file.owner.dir,
+      name: file.owner.name,
+    }),
     pendingReferences,
     pendingChecks: collected.pendingChecks,
     localValueValidationProfile: {

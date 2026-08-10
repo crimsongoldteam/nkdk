@@ -189,7 +189,8 @@ export function createFormDataPathMetadataCollector(params: {
 export function createFormDataPathIndexFromYAML(
   yaml: unknown,
   projection: FormDataPathMetadataProjection,
-  tabularElementsByName?: ReadonlyMap<string, FormDataPathTabularElementDeclaration>
+  tabularElementsByName?: ReadonlyMap<string, FormDataPathTabularElementDeclaration>,
+  options?: { readonly inferImplicitDataPaths?: boolean }
 ): FormDataPathIndex {
   const collector = createFormDataPathMetadataCollector({ filePath: "", projection })
   const attributes = asRecord(asRecord(yaml)?.[projection.attributesYaml])
@@ -248,7 +249,7 @@ export function createFormDataPathIndexFromYAML(
     }
   }
   const tabularElements =
-    tabularElementsByName ?? projection.collectTabularElementsFromYAML?.(yaml) ??
+    tabularElementsByName ?? projection.collectTabularElementsFromYAML?.(yaml, options) ??
     new Map<string, FormDataPathTabularElementDeclaration>()
   for (const [name, declaration] of tabularElements) {
     collector.declareTabularElement({ name, ...(declaration.dataPath === undefined ? {} : { dataPath: declaration.dataPath }) })

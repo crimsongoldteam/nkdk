@@ -7,6 +7,11 @@ import type { ConfigurationContext, XmlImportConfigurationContext } from "../con
 import type { ConfigurationSnapshotFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../ruleRuntime/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../ruleRuntime/property/finalizeImportedYAML"
+import {
+  finalizeMetadataItemImportedYaml,
+  requiresMetadataItemImportedYamlFinalization,
+  supportsMetadataItemImportedYamlFinalization,
+} from "../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
@@ -102,6 +107,7 @@ interface InitializedImportWorkerState {
 interface DeferredImportYaml {
   diagnosticAssignment: Pick<ImportAssignment, "targetProjectPath" | "xmlFiles">
   targetProjectPath: string
+  logicalAddress: string
   yaml: unknown
   rule: PreparedImportYaml["rule"]
   ownerContext: PreparedImportYaml["ownerContext"]
@@ -397,6 +403,24 @@ async function writePreparedYamlToOutput(
     formDataPathIndex: prepared.formDataPathIndex,
     ownerMetadataCache,
   })
+  const currentConfigurationYAML = state.componentPath.startsWith("cfe/") &&
+    supportsMetadataItemImportedYamlFinalization(prepared.rule)
+    ? await readCurrentConfigurationFormYaml({
+        logicalAddress: prepared.logicalAddress,
+        rule: prepared.rule,
+        owner: prepared.dependentOwner,
+        state,
+      })
+    : undefined
+  const preparedBaseFormCandidate = prepared.baseFormCandidate === undefined
+    ? undefined
+    : prepareBaseFormCandidate({
+        candidate: prepared.baseFormCandidate,
+        extensionYaml: prepared.yaml,
+        currentConfigurationYAML,
+        contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
+        ownerMetadataCache,
+      })
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных зависимых значений YAML",
@@ -415,17 +439,27 @@ async function writePreparedYamlToOutput(
       preserveRawXML: false,
     })
   )
+  profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Уточнение импортированного metadata-item",
+    { items: 1 },
+    () => finalizeMetadataItemImportedYaml({
+      yaml: prepared.yaml,
+      rule: prepared.rule,
+      ownerMetadataCache,
+      ...(currentConfigurationYAML === undefined ? {} : { currentConfigurationYAML }),
+      ...(preparedBaseFormCandidate === undefined
+        ? {}
+        : { savedBaseYAML: preparedBaseFormCandidate.yaml }),
+    })
+  )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
-  const baseFormCandidate = prepared.baseFormCandidate
-  const baseForm = baseFormCandidate === undefined
+  const baseForm = preparedBaseFormCandidate === undefined
     ? undefined
-    : await writeBaseFormCandidate({
-        candidate: baseFormCandidate,
-        extensionYaml: prepared.yaml,
-        contextWithOwners: withoutDataPathDiagnosticSink(contextWithOwners),
-        ownerMetadataCache,
+    : await writePreparedBaseFormCandidate({
+        candidate: preparedBaseFormCandidate,
         state,
         profiler,
       })
@@ -437,19 +471,16 @@ async function writePreparedYamlToOutput(
   }
 }
 
-async function writeBaseFormCandidate(params: {
+function prepareBaseFormCandidate(params: {
   candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
   extensionYaml: unknown
+  currentConfigurationYAML: unknown
   contextWithOwners: ConfigurationContext
   ownerMetadataCache: OwnerMetadataCache
-  state: InitializedImportWorkerState
-  profiler: ValidationProfiler
-}): Promise<{
-  file: ImportResultFile
-  indexContribution: ProjectStateImportIndexContribution
-  finalState: ProjectStateImportFinalFileStateBatch
-  configurationFragment: ConfigurationSnapshotFragment
-} | undefined> {
+}): NonNullable<DeferredImportYaml["baseFormCandidate"]> | undefined {
+  if (params.currentConfigurationYAML === undefined) {
+    throw new Error(`Не найдена текущая форма cf для ${params.candidate.baseProjectPath}`)
+  }
   const originalFormDataPaths = collectImportedFormDataPaths(
     params.candidate.yaml,
     params.candidate.rule.itemType,
@@ -468,27 +499,24 @@ async function writeBaseFormCandidate(params: {
     formDataPathIndex: params.candidate.localIndexes.metadata.formDataPathIndex,
     ownerMetadataCache: params.ownerMetadataCache,
   })
-  const baseFilePath = join(params.state.projectDir, "cf", ...params.candidate.baseProjectPath.split("/"))
-  const base = prepareYamlFiles({
-    files: [{
-      projectPath: params.candidate.baseProjectPath,
-      filePath: baseFilePath,
-      role: "form",
-      owner: params.candidate.owner,
-      itemType: params.candidate.rule.itemType,
-    }],
-    itemTypeByYamlDir: {},
-  })
-  if (base.diagnostics.length > 0 || base.yamlFiles[0]?.syntaxDiagnostics.length !== 0) {
-    throw new Error(`Не удалось подготовить основную форму ${params.candidate.baseProjectPath}`)
-  }
   const projection = projectClientApplicationBaseForm({
-    baseYaml: clientApplicationFormYaml(base.yamlFiles[0]?.data, params.candidate.baseProjectPath),
+    baseYaml: clientApplicationFormYaml(params.currentConfigurationYAML, params.candidate.baseProjectPath),
     extensionYaml: clientApplicationFormYaml(params.extensionYaml, params.candidate.targetProjectPath),
     rule: params.candidate.rule,
   })
-  if (equalBaseFormYaml(params.candidate.yaml, projection.yaml)) return undefined
+  return equalBaseFormYaml(params.candidate.yaml, projection.yaml) ? undefined : params.candidate
+}
 
+async function writePreparedBaseFormCandidate(params: {
+  candidate: NonNullable<DeferredImportYaml["baseFormCandidate"]>
+  state: InitializedImportWorkerState
+  profiler: ValidationProfiler
+}): Promise<{
+  file: ImportResultFile
+  indexContribution: ProjectStateImportIndexContribution
+  finalState: ProjectStateImportFinalFileStateBatch
+  configurationFragment: ConfigurationSnapshotFragment
+} | undefined> {
   const serialized = serializePreparedYaml(
     params.candidate.targetProjectPath,
     params.candidate.yaml,
@@ -544,6 +572,48 @@ function clientApplicationFormYaml(value: unknown, projectPath: string): ClientA
     throw new Error(`YAML формы не является объектом: ${projectPath}`)
   }
   return value as ClientApplicationFormYAML
+}
+
+async function readCurrentConfigurationFormYaml(params: {
+  logicalAddress: string
+  rule: PreparedImportYaml["rule"]
+  owner: DeferredImportYaml["dependentOwner"]
+  state: InitializedImportWorkerState
+}): Promise<unknown | undefined> {
+  const readSession = activeSecondPass?.readSession
+  if (readSession === undefined) throw new Error("Не начат второй проход XML-import worker")
+  const projectPaths = new Set(
+    readSession.readStructuredDocumentEntries({
+      componentPath: "cf",
+      logicalAddress: params.logicalAddress,
+    })
+      .filter(({ representation, componentKind }) =>
+        representation === "working" && componentKind === "document"
+      )
+      .map(({ workingProjectPath }) => workingProjectPath)
+  )
+  if (projectPaths.size === 0) return undefined
+  if (projectPaths.size > 1) {
+    throw new Error(`Для текущей формы cf найдено несколько YAML: ${[...projectPaths].join(", ")}`)
+  }
+  const projectPath = [...projectPaths][0]
+  if (projectPath === undefined) return undefined
+  const filePath = join(params.state.projectDir, "cf", ...projectPath.split("/"))
+  const prepared = prepareYamlFiles({
+    files: [{
+      projectPath,
+      filePath,
+      role: "form",
+      owner: params.owner,
+      itemType: params.rule.itemType,
+    }],
+    itemTypeByYamlDir: {},
+  })
+  const yaml = prepared.yamlFiles[0]
+  if (prepared.diagnostics.length > 0 || yaml === undefined || yaml.syntaxDiagnostics.length > 0) {
+    throw new Error(`Не удалось подготовить текущую форму cf: ${projectPath}`)
+  }
+  return yaml.data
 }
 
 function secondPassExportContext(params: {
@@ -657,6 +727,9 @@ async function processFirstPass(
           prepared.deferred.length === 0
           && prepared.dependentDeferred.length === 0
           && prepared.baseFormCandidate === undefined
+          && !requiresMetadataItemImportedYamlFinalization({ yaml: prepared.yaml, rule: prepared.rule })
+          && !(state.componentPath.startsWith("cfe/") &&
+            supportsMetadataItemImportedYamlFinalization(prepared.rule))
           && !requiresFormDataPathCompatibility
         ) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
@@ -678,6 +751,7 @@ async function processFirstPass(
               xmlFiles: assignment.xmlFiles,
             },
             targetProjectPath: prepared.targetProjectPath,
+            logicalAddress: assignment.logicalAddress,
             yaml: prepared.yaml,
             rule: prepared.rule,
             ownerContext: prepared.ownerContext,

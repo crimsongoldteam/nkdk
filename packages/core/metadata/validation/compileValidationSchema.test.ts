@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { ValidateFunction } from "ajv"
 import { Type, type TSchema } from "typebox"
-import {
-  compileValidationSchema,
-  createValidationSchemaFromAjvFunction,
-} from "./compileValidationSchema"
+import { compileValidationSchema } from "./compileValidationSchema"
 
 describe("compileValidationSchema", () => {
   it("компилирует TypeBox-схему через совместимый интерфейс валидатора", () => {
@@ -31,7 +27,7 @@ describe("compileValidationSchema", () => {
       expect.objectContaining({
         keyword: "required",
         instancePath: "",
-        params: { missingProperty: "Имя" },
+        params: { requiredProperties: ["Имя"] },
       }),
     ])
 
@@ -40,7 +36,7 @@ describe("compileValidationSchema", () => {
       expect.objectContaining({
         keyword: "additionalProperties",
         instancePath: "",
-        params: { additionalProperty: "Лишнее" },
+        params: { additionalProperties: ["Лишнее"] },
       }),
     ])
   })
@@ -61,11 +57,7 @@ describe("compileValidationSchema", () => {
       Ребёнок: { $ref: "nkdk://schema/TestChild" } as TSchema,
     })
 
-    const compiled = compileValidationSchema(
-      { "nkdk://schema/TestChild": child },
-      root,
-      { inlineRefs: false }
-    )
+    const compiled = compileValidationSchema({ "nkdk://schema/TestChild": child }, root)
 
     expect(compiled.Check({ Ребёнок: { Имя: "Тест" } })).toBe(true)
     expect(compiled.Check({ Ребёнок: { Имя: 10 } })).toBe(false)
@@ -79,7 +71,7 @@ describe("compileValidationSchema", () => {
     expect(compiled.Check("")).toBe(false)
   })
 
-  it("can compile TypeBox fallback eagerly for schemas with local defs", () => {
+  it("компилирует Type.Cyclic с локальными определениями", () => {
     const schema = Type.Object({
       Значения: Type.Cyclic(
         {
@@ -89,20 +81,8 @@ describe("compileValidationSchema", () => {
       ),
     })
 
-    const compiled = compileValidationSchema(schema, { eagerFallback: true })
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check({ Значения: { Тест: { Значение: "ok" } } })).toBe(true)
-  })
-
-  it("wraps a standalone Ajv function without schema metadata", () => {
-    const validate = Object.assign(
-      (value: unknown) => typeof value === "string",
-      { errors: null as ValidateFunction["errors"] }
-    ) as ValidateFunction
-
-    const compiled = createValidationSchemaFromAjvFunction(validate)
-
-    expect(compiled.Check("ok")).toBe(true)
-    expect(compiled.Check(42)).toBe(false)
   })
 })

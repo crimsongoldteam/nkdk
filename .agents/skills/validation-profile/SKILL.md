@@ -1,17 +1,17 @@
 ---
 name: validation-profile
-description: Use when the user asks to measure YAML project validation speed or memory through the compiled standalone validation path.
+description: Use when the user asks to measure YAML project validation speed or memory through the compiled production validation path.
 ---
 
 # validation-profile
 
 ## Что делает скилл
 
-Скилл выполняет benchmark валидации YAML-проекта через compiled standalone path:
+Скилл выполняет benchmark валидации YAML-проекта через production build с runtime-компиляцией схем в worker:
 
 ```text
 packages/core/dist/index.js
-  -> packages/core/dist/projectValidationAjvStandalone.js
+  -> packages/core/dist/worker.js
 ```
 
 Он не использует MCP service и не импортирует `packages/core/index.ts`, потому что это source/tsx path.
@@ -33,7 +33,7 @@ Runner использует один `ProjectStateService` для последо
 - Не коммить результаты замеров.
 - Не запускай runner прямо на пользовательском проекте, если его `.nkdk` нельзя изменять: подготовь временную копию без `.nkdk` и зафиксируй контрольную сумму исходного кэша до и после.
 - Для целевого проекта запускай runner через внешний ограничитель времени не более 115 секунд; не полагайся на отмену внутри JavaScript для остановки синхронной SQLite-фазы.
-- Если пользователь просит сравнить source/tsx и compiled standalone, скажи, что это отдельная диагностика вне этого скилла.
+- Если пользователь просит сравнить source/tsx и production build, скажи, что это отдельная диагностика вне этого скилла.
 
 ## Быстрый запуск
 
@@ -77,7 +77,7 @@ node .agents/skills/validation-profile/validation-profile.mjs /private/tmp/proje
 В финальном ответе покажи:
 
 ```text
-Режим: compiled standalone
+Режим: compiled runtime
 YAML-каталог: <path>
 Воркеры: <N>
 Cold: <seconds>
@@ -113,4 +113,4 @@ worker | phase | files | processRssPeak | workerHeapPeak
 
 `--timing` использует общий `NKDK_PROFILE=1` и выполняется после обычных прогонов, поэтому является прогретым. Для детализации холодного Б1–Б4 используй `--timing-only` на временной копии.
 
-Если diagnostics выглядят неожиданно, явно укажи, что это результат compiled standalone, и предложи отдельную проверку parity.
+Если diagnostics выглядят неожиданно, явно укажи, что это результат compiled runtime validation, и предложи отдельную проверку parity.

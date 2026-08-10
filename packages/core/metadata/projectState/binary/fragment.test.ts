@@ -46,7 +46,7 @@ it("сохраняет структурные факты документа че
     structuredDocuments: [{
       documentKind: "clientApplicationForm", representation: "working",
       logicalAddress: "Catalog.Товары.Form.Форма", workingProjectPath: "Форма.yaml",
-      componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+      componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"], payload: "{\"version\":1}",
     }],
   }, 9n)
   const fragment = openProjectStateFragment(writer.finish())
@@ -55,7 +55,7 @@ it("сохраняет структурные факты документа че
   expect(createTypedProjectStateReader(snapshot).structuredDocuments(0)).toEqual([{
     documentKind: "clientApplicationForm", representation: "working",
     logicalAddress: "Catalog.Товары.Form.Форма", workingProjectPath: "Форма.yaml",
-    componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
+    componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"], payload: "{\"version\":1}",
   }])
 })
 

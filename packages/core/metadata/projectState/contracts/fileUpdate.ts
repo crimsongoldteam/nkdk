@@ -23,6 +23,7 @@ export interface ProjectStateStructuredDocumentEntry {
   readonly componentKind: string
   readonly name: string
   readonly yamlPath: ProjectStateYamlPath
+  readonly payload?: string
 }
 
 export interface ProjectStateResourceUpdate extends ProjectStateFileIdentity {

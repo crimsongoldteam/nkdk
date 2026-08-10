@@ -153,12 +153,13 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   })
   assertFormRows(update["forms"], `${path}.forms`)
   assertRows(update["structuredDocuments"] ?? [], `${path}.structuredDocuments`, [
-    "documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name", "yamlPath",
+    "documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name", "yamlPath", "payload",
   ], (row, rowPath) => {
     for (const key of ["documentKind", "representation", "logicalAddress", "workingProjectPath", "componentKind", "name"] as const) {
       assertString(row[key], `${rowPath}.${key}`)
     }
     assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
+    assertOptionalString(row["payload"], `${rowPath}.payload`)
   })
   assertRows(update["pendingChecks"], `${path}.pendingChecks`, [
     "kind",

@@ -13,7 +13,7 @@ const schemaFor = () => {
     value: undefined,
   })
   if (schema === undefined) throw new Error("schema is undefined")
-  return compileValidationSchema(schema, { eagerFallback: true })
+  return compileValidationSchema(schema)
 }
 
 describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {

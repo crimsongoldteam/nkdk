@@ -59,7 +59,7 @@ export function prepareFullXmlSyncAssignment(params: {
           configurationIndex: createConfigurationIndexExportRuntime({
             source: params.baseFormConfigurationIndex ?? params.index,
             collector: baseFormCollector,
-            targetProjectPath: params.baseFormSource.projectPath,
+            targetProjectPath: params.baseFormSource.baseForm.projectPath,
             logicalAddress: `${params.assignment.logicalAddress}.ОсноваФормы`,
           }),
         },
@@ -79,7 +79,7 @@ export function prepareFullXmlSyncAssignment(params: {
       { collector: indexCollector, targetProjectPath: params.assignment.sourceProjectPath },
       ...(baseFormCollector === undefined || params.baseFormSource === undefined
         ? []
-        : [{ collector: baseFormCollector, targetProjectPath: params.baseFormSource.projectPath }]),
+        : [{ collector: baseFormCollector, targetProjectPath: params.baseFormSource.baseForm.projectPath }]),
     ],
     profile,
   }
@@ -115,7 +115,12 @@ function prepareTopologyAssignmentDocuments(
       preparedYamlFile: params.preparedYamlFile,
       ...(params.baseFormSource === undefined
         ? {}
-        : { basePreparedYamlFile: params.baseFormSource.prepared }),
+        : {
+            baseFormPreparedYamlFile: params.baseFormSource.baseForm.prepared,
+            currentConfigurationFormPreparedYamlFile:
+              params.baseFormSource.currentConfigurationForm.prepared,
+            baseFormSourceKind: params.baseFormSource.kind,
+          }),
       ...(params.baseConfigurationIndex === undefined
         ? {}
         : {
