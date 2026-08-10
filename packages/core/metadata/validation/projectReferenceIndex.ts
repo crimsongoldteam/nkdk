@@ -39,6 +39,7 @@ export interface PendingMetadataTargetReference {
   canonical: string
   target: ParsedMetadataTarget
   constraint: MetadataTargetConstraint
+  tagged?: "xml"
 }
 
 export interface ProjectReferenceSnapshot {
@@ -124,6 +125,16 @@ export function referenceNotIncludedInExtensionResult(
     ok: false,
     reason: "notFound",
     diagnostics: [referenceDiagnostic(reference, `Ссылка "${reference.canonical}" не включена в расширение`)],
+  }
+}
+
+export function unnecessaryXmlReferenceResult(
+  reference: PendingMetadataTargetReference,
+): Extract<ProjectReferenceIndexResult, { ok: false }> {
+  return {
+    ok: false,
+    reason: "filter",
+    diagnostics: [referenceDiagnostic(reference, "!xml не требуется: ссылка доступна в расширении")],
   }
 }
 

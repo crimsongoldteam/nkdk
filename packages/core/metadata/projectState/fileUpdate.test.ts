@@ -293,6 +293,7 @@ describe("ProjectStateFileUpdateBatch", () => {
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, target: { ...pendingReference.target, root: 1 } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", extra: true } }] },
       { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, constraint: { kind: "object", allowNested: "yes" } }] },
+      { ...yamlUpdate("a.yaml"), pendingReferences: [{ ...pendingReference, tagged: "raw" }] },
       {
         ...yamlUpdate("a.yaml"),
         owners: [{ owner: { kind: "Справочник", name: "Товары" }, facts: { owners: ["Catalog.Товары"], extra: true } }],

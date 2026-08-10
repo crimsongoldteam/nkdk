@@ -116,12 +116,15 @@ function assertProjectStateFileUpdate(value: unknown, path: string): void {
   assertRows(
     update["pendingReferences"],
     `${path}.pendingReferences`,
-    ["yamlPath", "canonical", "target", "constraint"],
+    ["yamlPath", "canonical", "target", "constraint", "tagged"],
     (row, rowPath) => {
       assertYamlPath(row["yamlPath"], `${rowPath}.yamlPath`)
       assertString(row["canonical"], `${rowPath}.canonical`)
       assertParsedMetadataTarget(row["target"], `${rowPath}.target`)
       assertMetadataTargetConstraint(row["constraint"], `${rowPath}.constraint`)
+      if (row["tagged"] !== undefined && row["tagged"] !== "xml") {
+        throw new Error(`${rowPath}.tagged должен быть xml`)
+      }
     }
   )
   assertRows(update["owners"], `${path}.owners`, ["owner", "facts"], (row, rowPath) => {

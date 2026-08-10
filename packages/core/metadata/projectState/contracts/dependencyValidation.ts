@@ -81,6 +81,7 @@ export interface ProjectStatePendingMetadataTargetReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
+  readonly tagged?: "xml"
 }
 export interface ProjectStatePendingReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly reference: ProjectStatePendingMetadataTargetReference }
 export interface ProjectStatePendingOwnerCheck { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }

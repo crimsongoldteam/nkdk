@@ -2,6 +2,7 @@ import { join } from "node:path"
 import {
   referenceNotIncludedInExtensionResult,
   resolvedProjectReferenceResult,
+  unnecessaryXmlReferenceResult,
   unresolvedProjectReferenceResult,
   type PendingMetadataTargetReference,
 } from "./projectReferenceIndex"
@@ -237,8 +238,9 @@ export function validateProjectStateReferenceBatch(params: {
     })),
   )
   const resultByRequestId = new Map(results.map((result) => [result.requestId, result]))
-  const basePresenceChecks = params.checks.filter(({ requestId, componentPath }) =>
-    componentPath.startsWith("cfe/")
+  const basePresenceChecks = params.checks.filter(({ requestId, componentPath, reference }) =>
+    reference.tagged !== "xml"
+    && componentPath.startsWith("cfe/")
     && componentPath.length > "cfe/".length
     && resultByRequestId.get(requestId)?.status === "missing"
   )
@@ -253,7 +255,9 @@ export function validateProjectStateReferenceBatch(params: {
     basePresenceResults.map((result) => [result.requestId, result]),
   )
   const valueOwnerChecks = params.checks.filter(({ requestId, reference }) =>
-    resultByRequestId.get(requestId)?.status === "missing" && reference.target.kind === "value"
+    reference.tagged !== "xml"
+    && resultByRequestId.get(requestId)?.status === "missing"
+    && reference.target.kind === "value"
   )
   const valueOwnerResults = params.queryPort.readOwners(
     valueOwnerChecks.map(({ requestId, componentPath, reference }) => {
@@ -268,6 +272,14 @@ export function validateProjectStateReferenceBatch(params: {
   const valueOwnerResultByRequestId = new Map(valueOwnerResults.map((result) => [result.requestId, result]))
   const diagnostics: Diagnostic[] = []
   forEachDependencyResult(params.checks, results, (check, result) => {
+    if (check.reference.tagged === "xml") {
+      if (result.status === "found") {
+        diagnostics.push(...unnecessaryXmlReferenceResult(check.reference).diagnostics)
+      } else if (result.status === "ambiguous") {
+        diagnostics.push(...unresolvedProjectReferenceResult(check.reference, "ambiguous").diagnostics)
+      }
+      return
+    }
     if (result.status === "found") {
       const resolved = resolvedProjectReferenceResult(check.reference, result.target.details)
       if (!resolved.ok) diagnostics.push(...resolved.diagnostics)

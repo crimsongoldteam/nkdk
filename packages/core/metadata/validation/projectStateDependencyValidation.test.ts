@@ -281,6 +281,44 @@ describe("dependency validation из ProjectState", () => {
     }
   })
 
+  it.each([
+    [false, "found", 0],
+    [false, "missing", 1],
+    [true, "found", 1],
+    [true, "missing", 0],
+  ] as const)("проверяет FillValue: tagged=%s, target=%s", (tagged, status, errors) => {
+    const base = valueReference("Справочник.Товары.Основной", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
+    const reference = { ...base, ...(tagged ? { tagged: "xml" as const } : {}) }
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "fill-value", componentPath: "cfe/Расширение", reference }],
+      queryPort: {
+        resolveTargets: (requests) => requests.map(({ requestId, componentPath }) =>
+          componentPath === "cfe/Расширение" && status === "found"
+            ? {
+                requestId,
+                status: "found" as const,
+                target: { kind: "value" as const, canonical: reference.canonical },
+                source: { projectPath: "cfe/Расширение/Цель.yaml", componentPath },
+              }
+            : { requestId, status: "missing" as const }
+        ),
+        readOwners: () => [],
+      },
+    })
+
+    expect(diagnostics).toHaveLength(errors)
+    if (tagged && status === "found") {
+      expect(diagnostics[0]?.message).toBe("!xml не требуется: ссылка доступна в расширении")
+    }
+    if (!tagged && status === "missing") {
+      expect(diagnostics[0]?.message).toBe(`Не найдена ссылка "${reference.canonical}"`)
+    }
+  })
+
   it("проверяет одинакового владельца компонента один раз", () => {
     const owner = { kind: "Справочник", name: "Товары" }
     const requestBatchSizes: number[] = []

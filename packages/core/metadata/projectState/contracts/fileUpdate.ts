@@ -56,6 +56,7 @@ export interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
+  readonly tagged?: "xml"
 }
 export type ProjectStateNamedTypeItems = Array<{ name: string; type?: TypeDescriptionView }>
 export interface ProjectStateOwnerFacts {

@@ -439,7 +439,7 @@ it("переиспользует компактное разбиение стр�
   expect(decode.mock.calls.length).toBeLessThan(firstReadCalls)
 })
 
-it("восстанавливает вложенную цель отложенной ссылки без повторного разбора ограничения", () => {
+it("восстанавливает вложенную цель и !xml отложенной ссылки без повторного разбора ограничения", () => {
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const pendingReference = {
     yamlPath: ["Форма", "Источник"],
@@ -456,6 +456,7 @@ it("восстанавливает вложенную цель отложенн�
       allowedObjectPaths: [["ExternalDataSource", "Table"]] as const,
       allowOwner: true,
     },
+    tagged: "xml" as const,
   }
   const buffers = typedSnapshot([{ ...update, pendingReferences: [pendingReference] }])
   const reader = createTypedProjectStateReader(new ProjectStateSnapshotView(buffers))

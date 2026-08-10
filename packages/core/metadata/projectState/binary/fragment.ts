@@ -216,6 +216,7 @@ interface ProjectStatePendingReference {
   readonly canonical: string
   readonly target: ParsedMetadataTarget
   readonly constraint: MetadataTargetConstraint
+  readonly tagged?: "xml"
 }
 
 type ProjectStatePendingCheck =
@@ -583,6 +584,7 @@ export function createProjectStateFragmentWriter(options: {
         targetNameId: strings.intern(target.objectName),
         targetMemberId: optionalString(targetMember),
         constraintKindId: strings.intern(encodeMetadataTargetConstraint(reference.constraint)),
+        flags: reference.tagged === "xml" ? 1 : 0,
       })
     }
     const appendPayloadPendingCheck = (
