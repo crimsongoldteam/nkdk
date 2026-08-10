@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest"
 import { registerJSONSchemaIdentity } from "../ruleRuntime/jsonSchemaRefs"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { registerProjectSpec, unregisterProjectSpecForTests } from "./projectSpecRegistry"
-import { exportJSONSchemaForSchemaName, listJSONSchemaNames, registerProjectJSONSchema } from "./schemaRegistry"
+import {
+  defineProjectJSONSchema,
+  exportJSONSchemaForSchemaName,
+  listJSONSchemaNames,
+  registerProjectJSONSchema,
+} from "./schemaRegistry"
 
 const context = {
   defaultLanguage: "ru",
@@ -11,6 +16,18 @@ const context = {
 } as const
 
 describe("project schema registry", () => {
+  it("defines a schema without registering it globally", () => {
+    const definition = defineProjectJSONSchema(
+      "DefinedSchemaWithoutRegistration",
+      () => Type.String(),
+    )
+
+    expect(definition.schemas.DefinedSchemaWithoutRegistration?.export({ context })).toEqual({
+      type: "string",
+    })
+    expect(listJSONSchemaNames()).not.toContain("DefinedSchemaWithoutRegistration")
+  })
+
   it("accepts named schema registrations from metadata owners", () => {
     registerProjectJSONSchema("ProjectRegistrySample", () => Type.Object({ sample: Type.String() }))
 

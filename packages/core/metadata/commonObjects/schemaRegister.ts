@@ -1,7 +1,13 @@
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
-import { registerProjectJSONSchema } from "../projectDefinition/schemaRegistry"
+import { defineProjectJSONSchema } from "../projectDefinition/schemaRegistry"
 import { MetadataTaskAddressingAttributeRules } from "./metadataTaskAddressingAttribute/rules"
 
-registerProjectJSONSchema("MetadataTaskAddressingAttribute", ({ context }) =>
-  exportMetadataItemToJSONSchema({ context, rule: MetadataTaskAddressingAttributeRules })
+export const metadataRuleLayer000 = defineProjectJSONSchema(
+  "MetadataTaskAddressingAttribute",
+  ({ context }) =>
+    exportMetadataItemToJSONSchema({
+      context,
+      rule: MetadataTaskAddressingAttributeRules,
+    }),
+  MetadataTaskAddressingAttributeRules,
 )

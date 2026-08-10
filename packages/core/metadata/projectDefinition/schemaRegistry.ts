@@ -17,6 +17,8 @@ import {
 import type { PropertyRuleType } from "../ruleRuntime/property/registry"
 import type { MetadataItemRule, PropertyRule } from "../ruleRuntime/property/types"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
+import { defineMetadataRules, type MetadataRulesDefinition } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -212,8 +214,24 @@ export function ensureJSONSchemaRegistry(): void {
   namedSchemasInitialized = true
 }
 
+export function defineProjectJSONSchema(
+  name: string,
+  exporter: SchemaExporter,
+  source: object | string = name,
+): MetadataRulesDefinition<never> {
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    schemas: {
+      [name]: { source, export: exporter },
+    },
+  })
+}
+
 export function registerProjectJSONSchema(name: string, exporter: SchemaExporter): void {
-  schemaExporters.set(name, exporter)
+  const definition = defineProjectJSONSchema(name, exporter)
+  for (const [schemaName, schema] of Object.entries(definition.schemas)) {
+    schemaExporters.set(schemaName, schema.export)
+  }
 }
 
 export function registerProjectJSONSchemaPropertyRef(type: PropertyRuleType, schemaName: string): void {

@@ -69,6 +69,15 @@ describe("metadataRules", () => {
       expect(metadataRules.metadataItems.MetadataEnumeration?.itemType).toBe(
         "MetadataEnumeration",
       )
+      expect(metadataRules.metadataItems.MetadataCommand?.itemType).toBe(
+        "MetadataCommand",
+      )
+      expect(
+        metadataRules.schemas.MetadataTaskAddressingAttribute,
+      ).toBeDefined()
+      expect(
+        metadataRules.schemas.MetadataConfigurationExtension,
+      ).toBeDefined()
       expect(Object.keys(metadataRules.schemas).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.formElements).length).toBeGreaterThan(0)
       expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(48)
