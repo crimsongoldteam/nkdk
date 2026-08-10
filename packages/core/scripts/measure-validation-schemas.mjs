@@ -15,7 +15,7 @@ const context = {
 const projectDir = process.argv[2] === undefined ? undefined : resolve(process.argv[2])
 
 if (projectDir !== undefined) {
-  const files = discoverValidationProjectFiles(projectDir)
+  const files = await discoverValidationProjectFiles(projectDir)
   const byKind = countBy(files, (file) => file.kind)
   console.log(
     [

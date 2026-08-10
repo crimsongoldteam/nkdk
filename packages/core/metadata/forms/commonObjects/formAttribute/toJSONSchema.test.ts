@@ -16,7 +16,7 @@ describe("FormAttributeAdditionalColumns exportToJSONSchema", () => {
       value: undefined,
     })
     if (jsonSchema === undefined) throw new Error("FormAttributeAdditionalColumns schema is not registered")
-    schema = compileValidationSchema(jsonSchema, { eagerFallback: true })
+    schema = compileValidationSchema(jsonSchema)
   })
 
   it("accepts an empty additional-column group", () => {

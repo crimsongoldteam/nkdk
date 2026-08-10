@@ -160,13 +160,15 @@ describe("MCP server", () => {
     expect(packageJson.dependencies).toHaveProperty("structurae", "4.0.2")
   })
 
-  it("publishes the universal worker with standalone schemas", async () => {
-    const source = await import("node:fs/promises").then((fs) =>
-      fs.readFile(new URL("../scripts/build.mjs", import.meta.url), "utf8")
-    )
+  it("публикует universal worker без standalone-схем", { timeout: 30_000 }, async () => {
+    const { access } = await import("node:fs/promises")
+    const buildUrl = new URL(`../scripts/build.mjs?test=${Date.now()}`, import.meta.url)
 
-    expect(source).toContain('outfile: join(binDir, "worker.js")')
-    expect(source).toContain('join(binDir, "projectValidationAjvStandalone.js")')
+    await import(/* @vite-ignore */ buildUrl.href)
+
+    await expect(access(new URL("../dist/bin/worker.js", import.meta.url))).resolves.toBeUndefined()
+    await expect(access(new URL("../dist/bin/projectValidationAjvStandalone.js", import.meta.url)))
+      .rejects.toMatchObject({ code: "ENOENT" })
   })
 
   it("uses package version for MCP server metadata", async () => {
