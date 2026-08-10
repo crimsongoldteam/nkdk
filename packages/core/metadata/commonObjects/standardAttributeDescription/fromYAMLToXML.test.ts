@@ -7,9 +7,14 @@ import type { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
   createDirectRoundTripContexts,
+  serializeDirectXML,
+  testMetadataItemFromXMLToYAML,
+  testMetadataItemFromYAMLToXML,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { accountingExtDimensions, all, allYAML, minimal, minimalYAML, multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import {
@@ -21,6 +26,8 @@ import { StandartAttributeNameToYAML } from "./types"
 import { importFromYAML } from "../../../yaml/import"
 import { serializeYAMLDocument } from "../../../yaml/export"
 import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import type { PropertyRuleType } from "../../ruleRuntime/property/registry"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
@@ -44,6 +51,40 @@ function standardAttributesOwnerRule(
     },
   } as MetadataItemRule
 }
+
+const tabularSectionRule = {
+  itemType: "StandardAttributesTabularSectionProbe",
+  properties: {
+    name: { type: "string", yaml: "Имя", xml: "Name" },
+    standardAttributes: {
+      type: "StandardAttributeDescriptions",
+      yaml: "СтандартныеРеквизиты",
+      xml: "StandardAttributes",
+      standartAttributeNames: { LineNumber: "НомерСтроки" },
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const tabularSectionsType = "StandardAttributesTabularSectionsProbe" as PropertyRuleType
+
+registerMetadataItemCollectionRule({
+  propertyType: tabularSectionsType,
+  itemRule: tabularSectionRule,
+  xmlElement: "Item",
+  keyField: "name",
+  recordYamlKeyFromYAML: ({ name }) => name,
+})
+
+const tabularSectionsOwnerRule = {
+  itemType: "StandardAttributesOwnerProbe",
+  properties: {
+    tabularSections: {
+      type: tabularSectionsType,
+      yaml: "ТабличныеЧасти",
+      xml: "TabularSections",
+    },
+  },
+} as MetadataItemRule
 
 describe("StandardAttributeDescriptions direct YAML to XML", () => {
   const rule: PropertyRule = {
@@ -661,5 +702,44 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     }
     expect(items["xr:StandardAttribute"].map((item) => item._name)).toEqual(["Active", "LineNumber"])
     expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
+  })
+
+  it("независимо сохраняет дефолтную коллекцию соседних табличных частей", () => {
+    const fixture = readAndParseXMLFixture<{
+      StandardAttributes: { "xr:StandardAttribute": Array<Record<string, unknown>> }
+    }>(import.meta.url, "all.xml")
+    const defaultLineNumber = {
+      ...fixture.StandardAttributes["xr:StandardAttribute"][0],
+      _name: "LineNumber",
+    }
+    const sourceXML = {
+      TabularSections: {
+        Item: [
+          {
+            Name: "СНомеромСтроки",
+            StandardAttributes: { "xr:StandardAttribute": [defaultLineNumber] },
+          },
+          { Name: "БезНомераСтроки" },
+        ],
+      },
+    }
+
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: tabularSectionsOwnerRule,
+      xml: sourceXML,
+    })
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: tabularSectionsOwnerRule,
+      yaml: imported.yaml,
+    })
+    const sections = (imported.yaml as {
+      ТабличныеЧасти: Record<string, Record<string, unknown>>
+    }).ТабличныеЧасти
+
+    expect(sections.СНомеромСтроки?.СтандартныеРеквизиты).toBe(EMPTY_XML_TAG_VALUE)
+    expect(sections.БезНомераСтроки).not.toHaveProperty("СтандартныеРеквизиты")
+    expect(canonicalXML(serializeDirectXML(exported.xml))).toEqual(
+      canonicalXML(serializeDirectXML(sourceXML))
+    )
   })
 })

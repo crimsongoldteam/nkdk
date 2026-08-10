@@ -347,7 +347,6 @@ git commit -m "feat: :sparkles: восстанавливать StandardAttribute
 
 **Files:**
 - Modify: `packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts`
-- Modify: `packages/core/metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts`
 - Modify: `packages/core/metadata/validation/yamlFactExtractor.fillValue.test.ts`
 
 **Interfaces:**
@@ -393,14 +392,14 @@ const ownerRule = {
 } as MetadataItemRule
 ```
 
-Исходный XML задать прямо в тесте:
+Полный дефолтный элемент взять из существующей `standardAttributeDescription/__fixtures__/all.xml`, не изменяя фикстуру, и заменить только `_name` на `LineNumber`. Исходный XML собрать прямо в тесте:
 
 ```ts
 const sourceXML = {
   TabularSections: {
     Item: [
       { Name: "СНомеромСтроки", StandardAttributes: {
-        "xr:StandardAttribute": { _name: "LineNumber" },
+        "xr:StandardAttribute": [defaultLineNumber],
       } },
       { Name: "БезНомераСтроки" },
     ],
@@ -421,46 +420,16 @@ const secondYaml = sections.БезНомераСтроки
 
 expect(firstYaml.СтандартныеРеквизиты).toBe(EMPTY_XML_TAG_VALUE)
 expect(secondYaml).not.toHaveProperty("СтандартныеРеквизиты")
-expect(exported.xml).toEqual(sourceXML)
+expect(canonicalXML(serializeDirectXML(exported.xml))).toEqual(
+  canonicalXML(serializeDirectXML(sourceXML))
+)
 ```
 
 Это единственный новый интеграционный тест: модульные проверки уже покрывают отдельные ветви.
 
 - [ ] **Step 2: Закрепить validation-договор**
 
-В `toJSONSchema.test.ts` взять реальное правило свойства из `MetadataCatalogRules`, поместить его в минимального владельца и получить схему через `exportPropertiesToJSONSchema`:
-
-```ts
-const ownerRule = {
-  itemType: "StandardAttributesSchemaProbe",
-  properties: {
-    standardAttributes: MetadataCatalogRules.properties.standardAttributes,
-  },
-} as const satisfies MetadataItemRule
-const validationProperties = exportPropertiesToJSONSchema({
-  context: {
-    ...mockContext,
-    exportToJSONSchema: {
-      mode: "inline",
-      refs: new Set<string>(),
-      validationPropertyRefs: true,
-    },
-  },
-  rule: ownerRule,
-})
-const internal = compileValidationSchema(Type.Object(validationProperties))
-const external = exportPropertiesToJSONSchema({
-  context: {
-    ...mockContext,
-    exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
-  },
-  rule: ownerRule,
-})
-
-expect(internal.Check({ СтандартныеРеквизиты: "!xml" })).toBe(true)
-expect(internal.Check({ СтандартныеРеквизиты: "!xml payload" })).toBe(false)
-expect(JSON.stringify(external)).not.toContain('"const":"!xml"')
-```
+Не добавлять второй schema-тест: точный `StandardAttributeDescriptions` уже проверен в Task 1 через `toJSONSchemaExplicitXML.test.ts` для внутренней схемы, payload и внешних подсказок. Это сохраняет один тест на один наблюдаемый договор согласно `.agents/testing.md`.
 
 В `yamlFactExtractor.fillValue.test.ts` добавить `СтандартныеРеквизиты: !xml` как отдельный случай и проверить отсутствие semantic diagnostics и обхода дочерних стандартных реквизитов:
 
@@ -512,7 +481,6 @@ Expected: в YAML для полностью дефолтных коллекци�
 
 ```bash
 git add packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts \
-  packages/core/metadata/commonObjects/standardAttributeDescription/toJSONSchema.test.ts \
   packages/core/metadata/validation/yamlFactExtractor.fillValue.test.ts
 git commit -m "test: :white_check_mark: защитить round-trip StandardAttributes" -m "Проверка различает присутствующую и отсутствующую дефолтную коллекцию у соседних табличных частей без reference XML и configuration index."
 ```
