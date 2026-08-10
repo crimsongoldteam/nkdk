@@ -2,6 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
+import "../../../tests/registerCoreMetadata"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import {

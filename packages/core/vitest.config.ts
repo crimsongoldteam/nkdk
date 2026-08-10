@@ -54,11 +54,7 @@ export default defineConfig({
           name: "core-metadata",
           include: coreMetadataTests,
           sequence: { groupOrder: 1 },
-          setupFiles: [
-            forbiddenPiscinaSetup,
-            resolve(__dirname, "./tests/registerCoreMetadata"),
-            lightweightSetup,
-          ],
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
       },
     ],

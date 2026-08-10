@@ -131,6 +131,13 @@ describe("metadata import boundaries", () => {
     })
   })
 
+  it("не загружает полную композицию через setupFiles", () => {
+    const source = readFileSync(join(import.meta.dirname, "../vitest.config.ts"), "utf8")
+    const setupBlocks = source.match(/setupFiles:\s*\[[\s\S]*?\]/gu)?.join("\n") ?? ""
+
+    expect(setupBlocks).not.toContain("tests/registerCoreMetadata")
+  })
+
   it("composition roots own runtime assembly", () => {
     expect(existsSync(join(METADATA_DIR, "register.ts"))).toBe(false)
     expect(existsSync(join(METADATA_DIR, "projectState", "createDefaultService.ts"))).toBe(false)

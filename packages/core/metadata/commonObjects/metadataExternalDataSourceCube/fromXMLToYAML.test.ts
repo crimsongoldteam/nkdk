@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../../tests/registerCoreMetadata"
 
 import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
 import { MetadataExternalDataSourceCubeRules } from "./rules"
