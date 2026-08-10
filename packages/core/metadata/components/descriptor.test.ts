@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import "../../tests/registerCoreMetadata"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import { getMetadataComponentDescriptor } from "./descriptor"
