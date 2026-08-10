@@ -7,9 +7,14 @@ import type { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
 import {
   createDirectRoundTripContexts,
+  serializeDirectXML,
+  testMetadataItemFromXMLToYAML,
+  testMetadataItemFromYAMLToXML,
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { accountingExtDimensions, all, allYAML, minimal, minimalYAML, multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import {
@@ -19,12 +24,67 @@ import {
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
 import { importFromYAML } from "../../../yaml/import"
+import { serializeYAMLDocument } from "../../../yaml/export"
+import { EMPTY_XML_TAG_VALUE } from "../../../yaml/scalarTags"
+import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import type { PropertyRuleType } from "../../ruleRuntime/property/registry"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
   version: "2.20",
   exportToXML: { version: "2.20", itemsTree: [] },
 }
+
+function standardAttributesOwnerRule(
+  itemType: string,
+  standartAttributeNames: Readonly<Record<string, string>>
+): MetadataItemRule {
+  return {
+    itemType,
+    properties: {
+      standardAttributes: {
+        type: "StandardAttributeDescriptions",
+        yaml: "СтандартныеРеквизиты",
+        xml: "StandardAttributes",
+        standartAttributeNames,
+      },
+    },
+  } as MetadataItemRule
+}
+
+const tabularSectionRule = {
+  itemType: "StandardAttributesTabularSectionProbe",
+  properties: {
+    name: { type: "string", yaml: "Имя", xml: "Name" },
+    standardAttributes: {
+      type: "StandardAttributeDescriptions",
+      yaml: "СтандартныеРеквизиты",
+      xml: "StandardAttributes",
+      standartAttributeNames: { LineNumber: "НомерСтроки" },
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const tabularSectionsType = "StandardAttributesTabularSectionsProbe" as PropertyRuleType
+
+registerMetadataItemCollectionRule({
+  propertyType: tabularSectionsType,
+  itemRule: tabularSectionRule,
+  xmlElement: "Item",
+  keyField: "name",
+  recordYamlKeyFromYAML: ({ name }) => name,
+})
+
+const tabularSectionsOwnerRule = {
+  itemType: "StandardAttributesOwnerProbe",
+  properties: {
+    tabularSections: {
+      type: tabularSectionsType,
+      yaml: "ТабличныеЧасти",
+      xml: "TabularSections",
+    },
+  },
+} as MetadataItemRule
 
 describe("StandardAttributeDescriptions direct YAML to XML", () => {
   const rule: PropertyRule = {
@@ -489,18 +549,10 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     )
   })
 
-  it("не восстанавливает пустой канонический стандартный реквизит без данных YAML", () => {
-    const itemRule = {
-      itemType: "TestItem",
-      properties: {
-        standardAttributes: {
-          type: "StandardAttributeDescriptions",
-          yaml: "СтандартныеРеквизиты",
-          xml: "StandardAttributes",
-          standartAttributeNames: { LineNumber: "НомерСтроки" },
-        },
-      },
-    } as const satisfies MetadataItemRule
+  it("восстанавливает дефолтную коллекцию из пустого !xml", () => {
+    const itemRule = standardAttributesOwnerRule("DefaultStandardAttributesProbe", {
+      LineNumber: "НомерСтроки",
+    })
     const sourceXML = {
       StandardAttributes: {
         "xr:StandardAttribute": {
@@ -521,8 +573,42 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       yaml: imported.yaml,
     })
 
-    expect(imported.yaml).toEqual({})
-    expect(exported.xml).toEqual({})
+    expect(imported.yaml).toEqual({ СтандартныеРеквизиты: EMPTY_XML_TAG_VALUE })
+    expect(serializeYAMLDocument(imported.yaml).text).toBe("СтандартныеРеквизиты: !xml")
+    const items = (exported.xml.StandardAttributes as {
+      "xr:StandardAttribute": Array<Record<string, unknown>>
+    })["xr:StandardAttribute"]
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({
+      _name: "LineNumber",
+      "xr:FillChecking": "DontCheck",
+      "xr:MultiLine": false,
+      "xr:FillValue": { "_xsi:nil": true },
+    })
+  })
+
+  it("отклоняет непустой payload маркера коллекции", () => {
+    const itemRule = standardAttributesOwnerRule("StandardAttributesPayloadProbe", {
+      LineNumber: "НомерСтроки",
+    })
+
+    expect(() =>
+      testPropertyFromYAMLToXML({
+        rule: itemRule,
+        yaml: importFromYAML("СтандартныеРеквизиты: !xml payload\n"),
+      })
+    ).toThrow("СтандартныеРеквизиты допускает только пустой !xml")
+  })
+
+  it("отклоняет маркер владельца без канонических имён", () => {
+    const itemRule = standardAttributesOwnerRule("StandardAttributesWithoutNamesProbe", {})
+
+    expect(() =>
+      testPropertyFromYAMLToXML({
+        rule: itemRule,
+        yaml: importFromYAML("СтандартныеРеквизиты: !xml\n"),
+      })
+    ).toThrow("Для свойства СтандартныеРеквизиты не определены канонические стандартные реквизиты")
   })
 
   it("preserves an empty synonym without restoring the standard attribute name", () => {
@@ -616,5 +702,44 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     }
     expect(items["xr:StandardAttribute"].map((item) => item._name)).toEqual(["Active", "LineNumber"])
     expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
+  })
+
+  it("независимо сохраняет дефолтную коллекцию соседних табличных частей", () => {
+    const fixture = readAndParseXMLFixture<{
+      StandardAttributes: { "xr:StandardAttribute": Array<Record<string, unknown>> }
+    }>(import.meta.url, "all.xml")
+    const defaultLineNumber = {
+      ...fixture.StandardAttributes["xr:StandardAttribute"][0],
+      _name: "LineNumber",
+    }
+    const sourceXML = {
+      TabularSections: {
+        Item: [
+          {
+            Name: "СНомеромСтроки",
+            StandardAttributes: { "xr:StandardAttribute": [defaultLineNumber] },
+          },
+          { Name: "БезНомераСтроки" },
+        ],
+      },
+    }
+
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: tabularSectionsOwnerRule,
+      xml: sourceXML,
+    })
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: tabularSectionsOwnerRule,
+      yaml: imported.yaml,
+    })
+    const sections = (imported.yaml as {
+      ТабличныеЧасти: Record<string, Record<string, unknown>>
+    }).ТабличныеЧасти
+
+    expect(sections.СНомеромСтроки?.СтандартныеРеквизиты).toBe(EMPTY_XML_TAG_VALUE)
+    expect(sections.БезНомераСтроки).not.toHaveProperty("СтандартныеРеквизиты")
+    expect(canonicalXML(serializeDirectXML(exported.xml))).toEqual(
+      canonicalXML(serializeDirectXML(sourceXML))
+    )
   })
 })

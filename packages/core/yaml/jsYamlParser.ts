@@ -53,7 +53,7 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
 export function parseDataWithJsYaml(text: string): JsParsedYamlData {
   if (text.trim() === "") {
     return {
-      data: undefined,
+      data: {},
       syntaxErrors: [],
     }
   }

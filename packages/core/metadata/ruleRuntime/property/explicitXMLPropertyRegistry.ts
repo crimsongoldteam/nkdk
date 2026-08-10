@@ -25,12 +25,21 @@ export type ExplicitXMLPropertyRegistration =
       readonly overrides?: Readonly<Record<string, unknown>>
     }
 
+export interface ExplicitXMLPropertyTypeRegistration {
+  readonly action: "materializeCollection"
+  readonly propertyType: string
+  readonly yamlValue: typeof EMPTY_XML_TAG_VALUE
+}
+
 export type ExplicitXMLPropertyAction =
   | { readonly kind: "emit"; readonly xmlValue: unknown }
   | { readonly kind: "omit" }
   | { readonly kind: "useYamlValue"; readonly yamlValue: string }
+  | { readonly kind: "materializeCollection" }
+  | { readonly kind: "invalid"; readonly message: string }
 
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
+const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
 
 export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void {
   const key = registrationKey(registration.itemType, registration.propertyKey)
@@ -43,6 +52,21 @@ export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyReg
     return
   }
   throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
+}
+
+export function registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void {
+  const current = typeRegistrations.get(registration.propertyType)
+  if (current === undefined) {
+    typeRegistrations.set(registration.propertyType, registration)
+    return
+  }
+  if (
+    current.action === registration.action &&
+    Object.is(current.yamlValue, registration.yamlValue)
+  ) {
+    return
+  }
+  throw new Error(`Конфликт регистрации явного XML-значения типа ${registration.propertyType}`)
 }
 
 export function matchExplicitXMLPropertyFromXML(params: {
@@ -59,10 +83,23 @@ export function matchExplicitXMLPropertyFromXML(params: {
     : undefined
 }
 
+export function matchExplicitXMLPropertyTypeFromXML(params: {
+  readonly propertyType: string
+  readonly presentInXML: boolean
+  readonly yamlValue: unknown
+}): ExplicitXMLPropertyTypeRegistration | undefined {
+  const registration = typeRegistrations.get(params.propertyType)
+  return registration !== undefined &&
+    params.presentInXML &&
+    Object.is(params.yamlValue, registration.yamlValue)
+    ? registration
+    : undefined
+}
+
 export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string
-  readonly properties: Readonly<Record<string, { readonly yaml?: string }>>
+  readonly properties: Readonly<Record<string, { readonly type: string; readonly yaml?: string }>>
 }): ReadonlyMap<string, ExplicitXMLPropertyAction> {
   const actions = new Map<string, ExplicitXMLPropertyAction>()
   if (typeof params.yaml !== "object" || params.yaml === null || Array.isArray(params.yaml)) return actions
@@ -71,7 +108,25 @@ export function collectExplicitXMLPropertyActions(params: {
     if (typeof rule.yaml !== "string") continue
     if (!Object.prototype.hasOwnProperty.call(yaml, rule.yaml)) continue
     const registration = registrations.get(registrationKey(params.itemType, propertyKey))
-    if (registration === undefined) continue
+    if (registration === undefined) {
+      const typeRegistration = typeRegistrations.get(rule.type)
+      const rawValue = yaml[rule.yaml]
+      if (
+        typeRegistration === undefined ||
+        yamlScalarTagAt(yaml, rule.yaml) !== "xml" ||
+        typeof rawValue !== "string"
+      ) {
+        continue
+      }
+      const payload = xmlScalarTagPayload(rawValue)
+      actions.set(
+        propertyKey,
+        payload.length === 0
+          ? { kind: "materializeCollection" }
+          : { kind: "invalid", message: `${rule.yaml} допускает только пустой !xml` }
+      )
+      continue
+    }
     if (registration.action === "transportScalar") {
       const rawValue = yaml[rule.yaml]
       if (yamlScalarTagAt(yaml, rule.yaml) === "xml" && typeof rawValue === "string") {
@@ -100,11 +155,12 @@ export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey
 
 export function explicitXMLPropertyValidationMode(
   itemType: string,
-  propertyKey: string
+  propertyKey: string,
+  propertyType?: string
 ): "empty" | "scalar" | undefined {
   const registration = registrations.get(registrationKey(itemType, propertyKey))
-  if (registration === undefined) return undefined
-  return registration.action === "transportScalar" ? "scalar" : "empty"
+  if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
+  return propertyType !== undefined && typeRegistrations.has(propertyType) ? "empty" : undefined
 }
 
 function sameRegistration(

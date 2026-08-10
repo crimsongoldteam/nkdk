@@ -33,6 +33,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm type-check
       - run: pnpm test
+      - run: pnpm --filter @nkdk/mcp smoke:packed
 
   duplicates:
     runs-on: ubuntu-latest

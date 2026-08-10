@@ -184,6 +184,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (explicitXMLAction?.kind === "omit") continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
+    if (explicitXMLAction?.kind === "invalid") {
+      const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
+        propertyPath: [planned.yamlKey ?? propertyKey],
+        ...(planned.yamlKey === undefined ? {} : { yamlPath: [planned.yamlKey] }),
+      })
+      throw toYAMLImportError(new Error(explicitXMLAction.message), diagnosticContext)
+    }
     if (!source.has(propertyKey)) {
       copyConfigurationIndexPropertyValue(propertyContext, planned)
     }
@@ -374,8 +381,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedContext
+      const materializeCollection = explicitXMLAction?.kind === "materializeCollection"
       const sourceNestedYAML =
-        planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
+        materializeCollection
+          ? {}
+          : planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
           ? params.name
           : source.raw(propertyKey)
       const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
@@ -458,6 +468,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
               source,
               outputs: nestedOutputs,
+              materializeCanonicalItems: materializeCollection ? true : undefined,
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],

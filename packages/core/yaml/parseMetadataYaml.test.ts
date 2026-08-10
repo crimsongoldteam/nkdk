@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest"
-import { parsedYamlFromKnownData } from "./parseMetadataYaml"
+import { parsedYamlFromKnownData, parseMetadataYamlData } from "./parseMetadataYaml"
+
+describe("parseMetadataYamlData", () => {
+  it.each(["", " \n\t"])("читает пустой корневой документ как пустой объект", (text) => {
+    expect(parseMetadataYamlData(text)).toEqual({ data: {}, syntaxErrors: [] })
+  })
+
+  it.each([
+    ["null", null],
+    ["~", "~"],
+  ])("сохраняет явное значение %s", (text, data) => {
+    expect(parseMetadataYamlData(text)).toEqual({ data, syntaxErrors: [] })
+  })
+})
 
 describe("parsedYamlFromKnownData", () => {
   it("сохраняет известный объект и строит точные координаты ключей по тексту", () => {

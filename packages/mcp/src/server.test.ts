@@ -160,17 +160,6 @@ describe("MCP server", () => {
     expect(packageJson.dependencies).toHaveProperty("structurae", "4.0.2")
   })
 
-  it("публикует universal worker без standalone-схем", { timeout: 30_000 }, async () => {
-    const { access } = await import("node:fs/promises")
-    const buildUrl = new URL(`../scripts/build.mjs?test=${Date.now()}`, import.meta.url)
-
-    await import(/* @vite-ignore */ buildUrl.href)
-
-    await expect(access(new URL("../dist/bin/worker.js", import.meta.url))).resolves.toBeUndefined()
-    await expect(access(new URL("../dist/bin/projectValidationAjvStandalone.js", import.meta.url)))
-      .rejects.toMatchObject({ code: "ENOENT" })
-  })
-
   it("uses package version for MCP server metadata", async () => {
     const { createNkdkMcpServer } = await import("./server")
     const packageJson = await import("../package.json", { with: { type: "json" } })

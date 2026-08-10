@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import type { PropertyRule } from "../../ruleRuntime"
 import { testExportPropertyModelThroughXMLToYAML } from "../../../tests/property/exportPropertyModelThroughXMLToYAML"
+import { testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { serializeYAMLDocument } from "../../../yaml/export"
+import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { allYAML } from "./__fixtures__/data"
 import { StandartAttributeNameToYAML } from "./types"
 
@@ -23,16 +28,57 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
     expect(result).toEqual({ СтандартныеРеквизиты: allYAML })
   })
 
-  it.each(["minimal.xml", "default.xml"])("omits defaults from %s", (path) => {
+  it("помечает присутствующую дефолтную коллекцию пустым !xml", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: undefined,
-      path,
+      path: "minimal.xml",
+      xmlRootTag: "StandardAttributes",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual({ СтандартныеРеквизиты: EMPTY_XML_TAG_VALUE })
+    expect(serializeYAMLDocument(result).text).toBe("СтандартныеРеквизиты: !xml")
+  })
+
+  it("не создаёт маркер для отсутствующей коллекции", () => {
+    const result = testExportPropertyModelThroughXMLToYAML({
+      rule,
+      value: undefined,
+      path: "default.xml",
       xmlRootTag: "StandardAttributes",
       importMetaUrl: import.meta.url,
     })
 
     expect(result).toEqual({})
+  })
+
+  it("не добавляет транспортный тег при reference-импорте", () => {
+    const itemRule = {
+      itemType: "StandardAttributeReferenceImportProbe",
+      properties: {
+        standardAttributes: {
+          ...rule,
+          xml: "StandardAttributes",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: mockContextFromXML({ forReference: true }),
+      rule: itemRule,
+      xml: {
+        StandardAttributes: {
+          "xr:StandardAttribute": { _name: "PredefinedDataName" },
+        },
+      },
+    }).yaml as Record<string, unknown>
+
+    expect(imported).toEqual({
+      СтандартныеРеквизиты: {
+        ИмяПредопределенныхДанных: {},
+      },
+    })
+    expect(yamlScalarTagAt(imported, "СтандартныеРеквизиты")).toBeUndefined()
   })
 
   it("exports multiple.xml directly to YAML", () => {
