@@ -4,7 +4,7 @@
 
 **Goal:** Не хранить в YAML основной `ПутьКДанным`, если он однозначно выводится из основного реквизита либо ближайшей таблицы, сохранив отдельную семантику собственных и заимствованных элементов.
 
-**Architecture:** Формы получают один rule-driven обход и конкретный для форм подготовитель `FormDataPathContext`. Он материализует неявные пути перед YAML → XML, предоставляет те же кандидаты validation, а после XML → YAML выполняет обратное уплотнение. Для расширений существующий механизм `BaseForm` передаёт два подтверждённых источника: выбранное историческое представление для наследования и текущую форму `cf` для основного реквизита. Нейтральные runtime-слои получают только готовые YAML/индекс/структурные записи и не знают о формах или расширениях.
+**Architecture:** Формы получают один rule-driven обход и конкретный для форм подготовитель `FormDataPathContext`. Он материализует неявные пути только у собственных элементов, предоставляет те же кандидаты validation, а после XML → YAML выполняет обратное уплотнение. Для расширения текущая форма `cf` определяет заимствованность, основной реквизит и эффективные пути заимствованных таблиц; необязательная `БазоваяФорма.yaml` только дополняет множество исторически заимствованных имён. Нейтральные runtime-слои получают готовые YAML/индекс/структурные записи и не знают о формах или расширениях.
 
 **Tech Stack:** TypeScript, Vitest, существующие `rules.ts`, DataPath resolver, ProjectState, `pnpm`.
 
@@ -15,6 +15,8 @@
 - Не добавлять `!xml`.
 - Обрабатывать только правило свойства `dataPath` с YAML-именем `ПутьКДанным`; не затрагивать вспомогательные пути и кнопку `Данные`.
 - Не добавлять знания о формах в `ruleRuntime`, `project`, `projectState` и `resourceTopology/core`.
+- Для формы расширения всегда использовать текущую форму `cf`: она определяет заимствованные элементы, основной реквизит и пути заимствованных таблиц. `БазоваяФорма.yaml` может только добавить исторические заимствованные имена и никогда не служит источником пути.
+- Отсутствующий основной `ПутьКДанным` заимствованного элемента означает наследование текущей `cf` и не материализуется ни в YAML, ни в XML; неявный путь вычисляется только для собственного элемента.
 - После каждого законченного слоя выполнять `pnpm duplicates -- --base df2bf639c`.
 - Перед завершением выполнить `pnpm type-check`, `pnpm test`, `pnpm test:architecture:rules`, `pnpm test:architecture`.
 
@@ -112,7 +114,7 @@ export interface FormElementDataPathState {
   readonly tableOwnerName?: string
   readonly candidateYaml?: string
   readonly candidateInternal?: string
-  readonly inheritedYaml?: string
+  readonly currentConfigurationValue?: string
 }
 
 export interface FormDataPathContext {
@@ -123,27 +125,28 @@ export interface FormDataPathContext {
 
 export function prepareFormDataPathContextFromYAML(params: {
   readonly yaml: ClientApplicationFormYAML
-  readonly inheritedYaml?: ClientApplicationFormYAML
-  readonly currentBaseYaml?: ClientApplicationFormYAML
+  readonly currentConfigurationFormYaml?: ClientApplicationFormYAML
+  readonly savedBaseFormYaml?: ClientApplicationFormYAML
   readonly ownerCache: OwnerMetadataCache
   readonly rule?: MetadataItemRule
 }): FormDataPathContext
 ```
 
-Основной реквизит выбирать в порядке: рабочая форма, `currentBaseYaml`,
-`inheritedYaml`. Происхождение определять по карте имён `inheritedYaml`.
-Сначала тем же алгоритмом вычислить эффективные пути исторической основы, чтобы
-отсутствующий в компактной `БазоваяФорма.yaml` ключ тоже восстанавливался. Для
-стандартных имён вызывать `resolveDataPathCore` с `nameMode: "yaml"` и
-использовать `internalValue`; нерешённый путь не образует кандидат.
+Основной реквизит выбирать в порядке: рабочая форма,
+`currentConfigurationFormYaml`. Происхождение определять по объединению имён
+текущей формы `cf` и `savedBaseFormYaml`; имя только из сохранённой основы всё
+равно получает `origin: "borrowed"`. `savedBaseFormYaml` не использовать как
+источник пути. Для стандартных имён вызывать `resolveDataPathCore` с
+`nameMode: "yaml"` и использовать `internalValue`; нерешённый путь не образует
+кандидат.
 
 - [ ] **Step 4: Вычислять таблицы лениво с мемоизацией**
 
-Для каждого элемента таблицы хранить состояние `unresolved | resolving | resolved`; кандидат колонки строить только после получения эффективного пути владельца. Цикл должен давать отсутствие кандидата, а не рекурсию.
+Для каждого элемента таблицы хранить состояние `unresolved | resolving | resolved`; кандидат колонки строить только после получения эффективного пути владельца. У заимствованной таблицы без рабочего ключа брать эффективный путь одноимённой таблицы `currentConfigurationFormYaml`, подготовленной тем же алгоритмом как обычная форма. Сохранённую основу не читать как источник пути. Цикл должен давать отсутствие кандидата, а не рекурсию.
 
 - [ ] **Step 5: Добавить счётчик обходов только в тестовом переходнике**
 
-Тест должен доказывать один обход рабочей формы, один обход исторической основы и не более одного разрешения пути каждой таблицы. Не добавлять счётчики в production-типы.
+Тест должен доказывать один обход рабочей формы, один обход текущей формы `cf`, один обход имён сохранённой основы и не более одного разрешения пути каждой таблицы. Не добавлять счётчики в production-типы.
 
 - [ ] **Step 6: Запустить тесты и проверку типов**
 
@@ -261,7 +264,7 @@ Commit: `feat: :sparkles: уплотнять пути формы при импо
 
 ---
 
-## Task 5: Передать оба источника базовой формы в YAML → XML
+## Task 5: Передать текущую `cf` независимо от YAML-спутника
 
 **Files:**
 
@@ -277,13 +280,15 @@ Commit: `feat: :sparkles: уплотнять пути формы при импо
 
 - [ ] **Step 1: Зафиксировать тестом выбор источников**
 
-Для `savedProjectPath` результат должен содержать сохранённую форму как `inherited`, а подтверждённую текущую форму `cf` как `current`; без спутника оба назначения ссылаются на один подготовленный файл `cf`.
+Для `savedProjectPath` результат должен содержать сохранённую форму для сборки
+XML `BaseForm` и подтверждённую текущую форму `cf` для `DataPath`. Без спутника
+оба назначения ссылаются на один подготовленный файл `cf`.
 
 ```ts
 expect(result).toMatchObject({
   kind: "saved",
-  inherited: { projectPath: savedPath },
-  current: { projectPath: basePath },
+  baseForm: { projectPath: savedPath },
+  currentConfigurationForm: { projectPath: basePath },
 })
 ```
 
@@ -293,15 +298,51 @@ Run: `pnpm --filter @nakidka/core exec vitest run metadata/fullSyncToXml/baseFor
 
 - [ ] **Step 3: Расширить конкретный результат `BaseFormSource`**
 
-`readVerifiedYaml` должен по-прежнему читать каждый подтверждённый файл один раз. Для projected-ветви использовать один объект `prepared` в обоих назначениях. Не переносить различие `saved/projected` в нейтральные слои.
+Изменить `BaseFormSourceResult` на два именованных назначения:
+
+```ts
+export type BaseFormSourceResult = {
+  readonly kind: "saved" | "projected"
+  readonly baseForm: { readonly prepared: PreparedYamlFile; readonly projectPath: string }
+  readonly currentConfigurationForm: {
+    readonly prepared: PreparedYamlFile
+    readonly projectPath: string
+  }
+}
+```
+
+`readVerifiedYaml` должен читать каждый подтверждённый файл один раз. Для
+projected-ветви использовать один объект `prepared` в обоих назначениях. Для
+saved-ветви дополнительно прочитать текущую `cf`; проверка хэшей остаётся
+обязательной.
 
 - [ ] **Step 4: Протянуть нейтральные подготовленные YAML до обработчика формы**
 
-В capability использовать имена `basePreparedYamlFile` и `currentBasePreparedYamlFile`. Общий `yamlToXMLNestedRule` получает оба как `unknown`; только `clientApplicationForm/fromYAMLToXML.ts` приводит их к `ClientApplicationFormYAML` и создаёт `FormDataPathContext`.
+В capability использовать имена `basePreparedYamlFile` и
+`currentConfigurationFormPreparedYamlFile`. Не добавлять новое поле в общий тип
+правила. Существующий `baseYAML?: unknown` получает нейтральный конверт только
+когда переданы оба назначения:
+
+```ts
+export interface SelectedBaseYAMLInput {
+  readonly kind: "selectedBaseYAML"
+  readonly baseFormSourceKind: "saved" | "projected"
+  readonly baseFormYAML: unknown
+  readonly currentConfigurationFormYAML: unknown
+}
+```
+
+`clientApplicationForm/fromYAMLToXML.ts` распознаёт конверт, строит XML
+`BaseForm` из `baseFormYAML`, а `FormDataPathContext` — из текущей `cf` и, только
+для `kind: "saved"`, сохранённой основы. Остальные nested-конвертеры продолжают
+получать прежнее сырое `baseYAML`.
 
 - [ ] **Step 5: Проверить расширение**
 
-Добавить случаи: borrowed без ключа не создаёт XML-тег; own использует основной реквизит текущей `cf`; собственная колонка внутри borrowed-таблицы использует исторический путь таблицы; явный override сохраняется.
+Добавить случаи: borrowed без ключа не создаёт XML-тег при наличии и отсутствии
+`БазоваяФорма.yaml`; own использует основной реквизит текущей `cf`; собственная
+колонка внутри borrowed-таблицы использует путь таблицы из текущей `cf`; явный
+override сохраняется, даже если совпадает с текущей `cf`.
 
 - [ ] **Step 6: Запустить целевые тесты**
 
@@ -317,28 +358,54 @@ Commit: `feat: :sparkles: учитывать основу путей формы 
 
 ---
 
-## Task 6: Использовать встроенный BaseForm до записи XML-import
+## Task 6: Распознать заимствованную форму без `БазоваяФорма.yaml`
 
 **Files:**
 
 - Modify: `packages/core/metadata/importFromXml/worker.ts`
 - Modify: `packages/core/metadata/importFromXml/worker.test.ts`
 - Modify: `packages/core/metadata/importFromXml/importConfigurationExtension.test.ts`
+- Modify: `packages/core/metadata/importFromXml/prepareYaml.test.ts`
 
 - [ ] **Step 1: Добавить интеграционный тест порядка и семантики**
 
-Расширение должно импортироваться так: фактический исторический путь borrowed-поля наследуется и отсутствует в рабочем YAML; own-поле получает уплотнение; отсутствие XML `DataPath` у own-поля становится `""`; несовпадающий встроенный `BaseForm` сохраняется спутником.
+Добавить два случая одной заимствованной формы: со встроенным `BaseForm` и без
+него. В обоих случаях borrowed-поле без XML `DataPath` остаётся без YAML-ключа,
+хотя в текущей `cf` путь явный; own-поле с вычисляемым путём уплотняется, а
+отсутствующий XML `DataPath` own-поля становится `""`. Несовпадающий встроенный
+`BaseForm` по-прежнему сохраняется спутником.
 
 - [ ] **Step 2: Запустить тест и подтвердить падение**
 
 Run: `pnpm --filter @nakidka/core exec vitest run metadata/importFromXml/worker.test.ts metadata/importFromXml/importConfigurationExtension.test.ts`
 
-- [ ] **Step 3: Разделить подготовку основы и её условную запись**
+- [ ] **Step 3: Удерживать формы расширения до второго прохода**
+
+Добавить в `DeferredImportYaml` `logicalAddress: string`. Форму
+`ClientApplicationForm` компонента `cfe/*` нельзя записывать досрочно даже при
+пустых `deferred` и отсутствии `baseFormCandidate`: определение соответствующей
+формы `cf` требует открытой read-session второго прохода.
+
+- [ ] **Step 4: Найти текущую форму `cf` независимо от BaseForm**
+
+В `ActiveSecondPass.readSession` вызвать существующий
+`readStructuredDocumentEntries({ componentPath: "cf", logicalAddress })`.
+`workingProjectPath` записи `document` задаёт единственный подтверждённый путь
+формы `cf`. Прочитать и подготовить этот YAML ровно один раз; отсутствие записи
+означает собственную форму расширения. Несколько разных путей для одного адреса
+— техническая ошибка.
+
+- [ ] **Step 5: Разделить текущую форму и необязательный кандидат основы**
 
 До `serializePreparedYaml` выполнить:
 
 ```ts
-const base = await prepareBaseFormCandidate({
+const currentConfigurationForm = await readCurrentConfigurationForm({
+  queryPort: secondPass.readSession,
+  logicalAddress: prepared.logicalAddress,
+  projectDir: state.projectDir,
+})
+const savedBaseForm = await prepareBaseFormCandidate({
   candidate: prepared.baseFormCandidate,
   extensionYaml: prepared.yaml,
   contextWithOwners,
@@ -347,25 +414,33 @@ const base = await prepareBaseFormCandidate({
 })
 const formDataPathContext = prepareFormDataPathContextFromYAML({
   yaml: clientApplicationFormYaml(prepared.yaml, prepared.targetProjectPath),
-  inheritedYaml: base.candidateYaml,
-  currentBaseYaml: base.currentYaml,
+  ...(currentConfigurationForm === undefined
+    ? {}
+    : { currentConfigurationFormYaml: currentConfigurationForm.yaml }),
+  ...(savedBaseForm === undefined
+    ? {}
+    : { savedBaseFormYaml: savedBaseForm.candidateYaml }),
   ownerCache: requireOwnerMetadataCache(contextWithOwners),
   rule: prepared.rule,
 })
 compactImportedFormDataPaths({ yaml: prepared.yaml, context: formDataPathContext })
 ```
 
-`prepareBaseFormCandidate` возвращает уже финализированный кандидат, текущий `cf` и признак необходимости спутника. `writeBaseFormCandidate` только сериализует и записывает подготовленный результат после основной формы.
+`prepareBaseFormCandidate` принимает `undefined` и возвращает `undefined`; при
+наличии кандидата он возвращает финализированный YAML и признак необходимости
+спутника. `writeBaseFormCandidate` только сериализует и записывает подготовленный
+результат после основной формы.
 
-- [ ] **Step 4: Сохранить прежний порядок публикации файлов и индексов**
+- [ ] **Step 6: Сохранить прежний порядок публикации файлов и индексов**
 
 Основная форма остаётся первой в `files`, `indexContributions` и `finalStates`; меняется только вычислительный порядок до записи.
 
-- [ ] **Step 5: Проверить отсутствие лишних чтений**
+- [ ] **Step 7: Проверить отсутствие лишних чтений**
 
-Расширить существующий счётчик чтений worker: текущая форма `cf` читается ровно один раз, встроенный XML повторно не разбирается.
+Расширить существующий счётчик чтений worker: текущая форма `cf` читается ровно
+один раз и в случае без спутника, встроенный XML повторно не разбирается.
 
-- [ ] **Step 6: Запустить тесты, дубли и зафиксировать слой**
+- [ ] **Step 8: Запустить тесты, дубли и зафиксировать слой**
 
 Run: `pnpm --filter @nakidka/core exec vitest run metadata/importFromXml/worker.test.ts metadata/importFromXml/importConfigurationExtension.test.ts metadata/importFromXml/prepareYaml.test.ts`
 
@@ -400,7 +475,11 @@ Commit: `feat: :sparkles: уплотнять пути заимствованны
 
 - [ ] **Step 2: Добавить межфайловые падающие проверки**
 
-Для расширения проверить ошибку `ПутьКДанным: ""` borrowed-элемента и отсутствие ошибки у own-элемента. Источник borrowed-имён: сохранённая основа, если она есть, иначе текущая форма `cf`.
+Для расширения с `БазоваяФорма.yaml` и без неё проверить ошибку
+`ПутьКДанным: ""` borrowed-элемента и отсутствие ошибки у own-элемента.
+Borrowed-имена брать из объединения текущей формы `cf` и сохранённой основы.
+Имя, которое осталось только в сохранённой основе, должно дать отдельную ошибку:
+элемент считается заимствованным, но отсутствует в текущей `cf`.
 
 - [ ] **Step 3: Запустить тесты и подтвердить падение**
 
@@ -430,15 +509,21 @@ type FormElementDataPathPayloadV1 = {
 
 - [ ] **Step 6: Выполнить borrowed-проверку в существующем Б5**
 
-`validateBorrowedClientApplicationForms` группирует уже существующие
-working/base/cf entries по логическому адресу, выбирает исторический источник и
-проверяет пустые borrowed-пути. Для проверки явного пути own-элемента в
-расширении построить синтетический `ProjectStatePendingDependencyCheck` и вызвать
-существующий `resolveProjectStateDataPathReferenceBatch`; для этого расширить
-нейтральный `queryPort` структурной validation методами
-`readDependencyInputs/readDependencyOwnerInputs`. Конкретный валидатор сравнивает
-полученное internal-представление с кандидатом. Не читать YAML с диска и не
-создавать новый индекс базовых форм.
+`validateBorrowedClientApplicationForms` группирует существующие
+working/cf/saved-base entries по логическому адресу. Текущая `cf` всегда задаёт
+актуальные borrowed-имена и данные для кандидатов; сохранённая основа только
+добавляет имена. Для имени только из сохранённой основы выдавать диагностическое
+сообщение об отсутствии элемента в текущей `cf`. Отсутствующий путь borrowed-
+элемента не проверять на равенство кандидату и не материализовать.
+
+Для проверки явного пути собственного элемента расширения построить
+синтетический `ProjectStatePendingDependencyCheck` и вызвать существующий
+`resolveProjectStateDataPathReferenceBatch`; для этого расширить нейтральный
+`queryPort` структурной validation методами
+`readDependencyInputs/readDependencyOwnerInputs`. Конкретный валидатор берёт
+основной реквизит и эффективный путь borrowed-таблицы только из записей текущей
+`cf`, затем сравнивает полученное internal-представление с кандидатом. Не читать
+YAML с диска и не создавать новый индекс базовых форм.
 
 - [ ] **Step 7: Проверить двоичный round-trip ProjectState**
 
@@ -466,7 +551,11 @@ Commit: `feat: :sparkles: валидировать неявные пути фо�
 
 - [ ] **Step 1: Добавить сквозные round-trip-проверки**
 
-Покрыть обычную форму и расширение с сохранённой/проецируемой основой. Существующие XML-фикстуры только читать; ожидаемый YAML проверять объектными ожиданиями либо временным каталогом.
+Покрыть обычную форму, расширение без `БазоваяФорма.yaml`, расширение со
+спутником и ошибочный элемент только из сохранённой основы. Отдельно проверить
+собственную колонку внутри borrowed-таблицы: кандидат строится из пути таблицы
+текущей `cf`. Существующие XML-фикстуры только читать; ожидаемый YAML проверять
+объектными ожиданиями либо временным каталогом.
 
 - [ ] **Step 2: Запустить профиль затронутых операций на `erp`**
 
