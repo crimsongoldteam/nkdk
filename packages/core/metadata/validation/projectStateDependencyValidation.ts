@@ -120,6 +120,7 @@ export function resolveProjectStateDataPathReferenceBatch(params: {
         owners,
       }),
       ...(check.check.tableContext === undefined ? {} : { tableContext: check.check.tableContext }),
+      nameMode: check.check.tagged ? "internal" : "yaml",
     })
     if (resolution.status !== "error" && resolution.target !== undefined) {
       resolved.push({ ...check, target: resolution.target })
@@ -354,6 +355,7 @@ export function validateProjectStateDependencyBatch(params: {
               ...check.check,
               location: { ...check.check.location, filePath: check.projectPath },
               index,
+              nameMode: check.check.tagged ? "internal" : "yaml",
             }),
       }).diagnostics,
     )

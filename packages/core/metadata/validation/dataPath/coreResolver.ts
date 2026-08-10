@@ -125,7 +125,25 @@ interface TableColumnSource {
 }
 
 export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveDataPathCoreResult {
-  return withCanonicalValues(resolveDataPathCoreWithCurrentData(params, new Set()), params.nameMode)
+  const result = resolveDataPathCoreWithCurrentData(params, new Set())
+  return withCanonicalValues(resolveTerminalDefinedTypeTarget(params, result), params.nameMode)
+}
+
+function resolveTerminalDefinedTypeTarget(
+  params: ResolveDataPathCoreParams,
+  result: ResolveDataPathCoreResult
+): ResolveDataPathCoreResult {
+  if (result.target === undefined || (result.target.typeInfo.definedTypes?.length ?? 0) === 0) return result
+
+  const resolved = resolveDefinedTypeInfo({ params, typeInfo: result.target.typeInfo })
+  if (resolved.status !== "ok") return ownerError(params, result.segments, result.replacements, resolved)
+
+  const target = { ...result.target, typeInfo: resolved.typeInfo }
+  return {
+    ...result,
+    target,
+    targets: result.targets.map((item) => (item === result.target ? target : item)),
+  }
 }
 
 function withCanonicalValues(
@@ -569,7 +587,14 @@ function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | 
     return { typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "StandardPeriod.Variant" } }
   }
   if (segment === "StartDate" || segment === "EndDate") {
-    return { typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText: `StandardPeriod.${segment}` } }
+    return {
+      typeInfo: {
+        kinds: ["dateTime"],
+        nextTypes: [],
+        terminalTypes: ["dateTime"],
+        sourceText: `StandardPeriod.${segment}`,
+      },
+    }
   }
   return undefined
 }
@@ -612,9 +637,9 @@ function mergeResolvedDefinedTypeInfo(
 ): DataPathTypeInfo {
   const kinds = [...source.kinds]
   const nextTypes = [...source.nextTypes]
+  const terminalTypes = [...(source.terminalTypes ?? [])]
   const sourceTexts = source.sourceText !== undefined ? [source.sourceText] : []
   let table = source.table
-  let isComposite = source.isComposite === true
 
   for (const item of resolvedItems) {
     for (const kind of item.kinds) {
@@ -623,16 +648,20 @@ function mergeResolvedDefinedTypeInfo(
     for (const nextType of item.nextTypes) {
       if (!nextTypes.some((existing) => ownerRefEquals(existing, nextType))) nextTypes.push(nextType)
     }
+    for (const terminalType of item.terminalTypes ?? []) {
+      if (!terminalTypes.includes(terminalType)) terminalTypes.push(terminalType)
+    }
     if (table === undefined && item.table !== undefined) table = item.table
-    if (item.isComposite === true) isComposite = true
     if (item.sourceText !== undefined) sourceTexts.push(item.sourceText)
   }
 
   return {
     kinds,
     nextTypes,
+    ...(terminalTypes.length > 0 ? { terminalTypes } : {}),
+    ...(source.definedTypes !== undefined ? { definedTypes: source.definedTypes } : {}),
     ...(table !== undefined ? { table } : {}),
-    ...(isComposite || nextTypes.length > 1 ? { isComposite: true } : {}),
+    ...(terminalTypes.length > 1 ? { isComposite: true } : {}),
     ...(sourceTexts.length > 0 ? { sourceText: sourceTexts.join(" -> ") } : {}),
   }
 }

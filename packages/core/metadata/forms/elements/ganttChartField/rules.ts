@@ -121,6 +121,8 @@ export const GanttChartFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "GanttChart",
+      allowedKinds: ["GanttChart"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },

@@ -17,7 +17,7 @@ import {
   type MetadataOperationSnapshot,
   type OperationSnapshotItem,
 } from "./projectSnapshot"
-import { rewriteDataPathSegments } from "./dataPathReferences"
+import { findFormDataPathValueForItem, rewriteDataPathSegments } from "./dataPathReferences"
 import {
   collectStructuralReferencesForItem,
   rewriteCanonicalPrefix,
@@ -158,12 +158,12 @@ function buildRenamePlan(params: {
       return { ok: false, failure: metadataOperationFailure("rule_contract_violation", `Файл ссылки не найден: ${reference.projectPath}`, params.diagnostics) }
     }
     if (reference.kind === "dataPath") {
-      const current = valueAtYamlPath(item.yaml, reference.yamlPath)
-      if (current !== reference.value) {
+      const current = findFormDataPathValueForItem(item, reference.yamlPath)
+      if (current?.value !== reference.value) {
         return { ok: false, failure: metadataOperationFailure("rule_contract_violation", `DataPath изменился после refresh: ${reference.projectPath}`, params.diagnostics) }
       }
       const to = rewriteDataPathSegments(reference.value, reference.resolvedSegments, reference.segmentIndex, params.newName)
-      setValueAtYamlPath(item.yaml, reference.yamlPath, to)
+      current.setValue(to)
       touchedItems.add(item)
       rewrittenReferences.push({ filePath: item.filePath, yamlPath: reference.yamlPath, from: reference.value, to })
       continue
@@ -280,22 +280,6 @@ function hasNameConflict(resolved: ResolvedMetadataOperationPath, newName: strin
 function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefined {
   const root = rootFromYAML[item.resource.owner.dir]
   return root ? { root, objectName: item.resource.owner.name } : undefined
-}
-
-function valueAtYamlPath(root: unknown, path: readonly (string | number)[]): unknown {
-  let value = root
-  for (const segment of path) {
-    if (typeof value !== "object" || value === null) return undefined
-    value = (value as Record<string | number, unknown>)[segment]
-  }
-  return value
-}
-
-function setValueAtYamlPath(root: unknown, path: readonly (string | number)[], value: unknown): void {
-  if (path.length === 0) throw new Error("Нельзя заменить корень YAML через indexed reference")
-  const owner = valueAtYamlPath(root, path.slice(0, -1))
-  if (typeof owner !== "object" || owner === null) throw new Error("Владелец indexed YAML path не найден")
-  ;(owner as Record<string | number, unknown>)[path[path.length - 1]!] = value
 }
 
 function buildMigrationInfo(resolved: ResolvedMetadataOperationPath, newName: string): MetadataOperationMigrationInfo | undefined {

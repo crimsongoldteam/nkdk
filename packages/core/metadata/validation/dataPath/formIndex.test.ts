@@ -63,6 +63,7 @@ describe("buildFormDataPathIndex", () => {
       typeInfo: {
         kinds: ["scalar"],
         nextTypes: [],
+        terminalTypes: ["decimal"],
         sourceText: "decimal",
       },
     })
@@ -88,6 +89,7 @@ describe("buildFormDataPathIndex", () => {
       typeInfo: {
         kinds: ["scalar"],
         nextTypes: [],
+        terminalTypes: ["string"],
         sourceText: "string",
       },
     })
@@ -113,6 +115,7 @@ describe("buildFormDataPathIndex", () => {
       typeInfo: {
         kinds: ["tableSource"],
         nextTypes: [],
+        terminalTypes: ["ValueTable"],
         table: { kind: "ValueTable" },
         sourceText: "ValueTable",
       },
@@ -132,6 +135,7 @@ describe("buildFormDataPathIndex", () => {
     expect(source?.tableSource?.columns.get("Используется")?.typeInfo).toEqual({
       kinds: ["boolean"],
       nextTypes: [],
+      terminalTypes: ["boolean"],
       sourceText: "boolean",
     })
   })
@@ -155,6 +159,7 @@ describe("buildFormDataPathIndex", () => {
       typeInfo: {
         kinds: ["scalar"],
         nextTypes: [],
+        terminalTypes: ["decimal"],
         sourceText: "decimal",
       },
     })

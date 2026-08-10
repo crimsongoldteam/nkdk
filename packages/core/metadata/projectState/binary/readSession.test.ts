@@ -74,6 +74,7 @@ it("читает владельца и входы проверки зависи�
       location: { line: 1, col: 1 },
       owner,
       value: "Объект.Код",
+      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },
@@ -126,7 +127,12 @@ it("сохраняет декларации табличных элементо�
 it("сохраняет произвольный тип колонки в двоичном снимке", () => {
   const source = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
   const owner = { kind: "Справочник", name: "Catalog.Source" }
-  const arbitrary = { kinds: ["any"] as const, nextTypes: [], sourceText: "Произвольный" }
+  const arbitrary = {
+    kinds: ["any"] as const,
+    nextTypes: [],
+    terminalTypes: ["<any>"],
+    sourceText: "Произвольный",
+  }
   const update = {
     ...source,
     forms: [
@@ -299,6 +305,30 @@ it("читает fillValue-проверку из двоичного состоя
   expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
 })
 
+it("читает признак !xml DataPath из существующего reserved-байта", () => {
+  const taggedUpdate = richYamlUpdate("cf/tagged.yaml", "cf", "Catalog.Tagged")
+  const ordinaryUpdate = {
+    ...richYamlUpdate("cf/ordinary.yaml", "cf", "Catalog.Ordinary"),
+    pendingChecks: [{
+      ...richYamlUpdate("cf/ordinary.yaml", "cf", "Catalog.Ordinary").pendingChecks[0]!,
+      tagged: false,
+    }],
+  }
+  const taggedReader = createTypedProjectStateReader(
+    new ProjectStateSnapshotView(typedSnapshot([taggedUpdate]))
+  )
+  const ordinaryReader = createTypedProjectStateReader(
+    new ProjectStateSnapshotView(typedSnapshot([ordinaryUpdate]))
+  )
+
+  expect(taggedReader.pendingChecks(0)[0]).toMatchObject({
+    kind: "dataPath",
+    value: "Объект.Код",
+    tagged: true,
+  })
+  expect(ordinaryReader.pendingChecks(0)[0]).toMatchObject({ kind: "dataPath", tagged: false })
+})
+
 it("разрешает одинаковую цель один раз для всей серии запросов", () => {
   const buffers = typedSnapshot([
     richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source"),
@@ -356,6 +386,7 @@ it("читает входы DataPath без восстановления все�
       location: { line: 1, col: 1 },
       owner: { kind: "Справочник", name: "Catalog.Source" },
       value: "Объект.Код",
+      tagged: false,
       policyInput: { yaml: "ПутьКДанным" },
       policy: "formDataPath",
     },

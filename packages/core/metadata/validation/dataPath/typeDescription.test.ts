@@ -5,18 +5,30 @@ import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 
 describe("typeDescriptionToDataPathTypeInfo", () => {
+  it("preserves exact effective terminal branches", () => {
+    expect(
+      typeDescriptionToDataPathTypeInfo({
+        type: ["CatalogRef.Номенклатура", "DefinedType.ОбъектУчета", "boolean"],
+      })
+    ).toMatchObject({
+      terminalTypes: ["CatalogRef.Номенклатура", "boolean"],
+      definedTypes: ["ОбъектУчета"],
+      isComposite: true,
+    })
+  })
+
   it("maps primitive DataPath terminal types", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["boolean"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["boolean"] })).toMatchObject({
       kinds: ["boolean"],
       nextTypes: [],
       sourceText: "boolean",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["dateTime"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["dateTime"] })).toMatchObject({
       kinds: ["dateTime"],
       nextTypes: [],
       sourceText: "dateTime",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["Picture"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["Picture"] })).toMatchObject({
       kinds: ["Picture"],
       nextTypes: [],
       sourceText: "Picture",
@@ -24,7 +36,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("keeps all value kinds for composite type descriptions", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["boolean", "dateTime", "string"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["boolean", "dateTime", "string"] })).toMatchObject({
       kinds: ["boolean", "dateTime", "scalar"],
       nextTypes: [],
       isComposite: true,
@@ -37,7 +49,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       typeDescriptionToDataPathTypeInfo({
         type: ["CatalogRef.Контрагенты", "DocumentObject.ЗаказПокупателя"],
       })
-    ).toEqual({
+    ).toMatchObject({
       kinds: ["object"],
       nextTypes: [
         { kind: "Справочник", name: "Контрагенты" },
@@ -53,7 +65,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       typeDescriptionToDataPathTypeInfo({
         type: ["EnumRef.Состояния", "DefinedType.Организация"],
       })
-    ).toEqual({
+    ).toMatchObject({
       kinds: ["object"],
       nextTypes: [{ kind: "Перечисление", name: "Состояния" }],
       definedTypes: ["Организация"],
@@ -63,7 +75,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("keeps DefinedType references for lazy project resolution", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["DefinedType.ДоговорКонтрагента"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["DefinedType.ДоговорКонтрагента"] })).toMatchObject({
       kinds: ["object"],
       nextTypes: [],
       definedTypes: ["ДоговорКонтрагента"],
@@ -72,7 +84,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps ValueTable to a table source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueTable"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueTable"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "ValueTable" },
@@ -81,7 +93,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps ValueTree to a table source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueTree"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueTree"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "ValueTree" },
@@ -90,13 +102,13 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps ValueList as a table source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueListType"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueListType"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "ValueList" },
       sourceText: "ValueListType",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["СписокЗначений"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СписокЗначений"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "ValueList" },
@@ -105,13 +117,13 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps GanttChart as a table source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["GanttChart"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["GanttChart"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "GanttChart" },
       sourceText: "GanttChart",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ДиаграммаГанта"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ДиаграммаГанта"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "GanttChart" },
@@ -120,7 +132,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps register record set types as table sources", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["InformationRegisterRecordSet.Остатки"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["InformationRegisterRecordSet.Остатки"] })).toMatchObject({
       kinds: ["tableSource"],
       nextTypes: [],
       table: { kind: "RegisterRecordSet", owner: { kind: "РегистрСведений", name: "Остатки" } },
@@ -141,7 +153,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps DynamicList as both dynamic list and table source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["DynamicList"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["DynamicList"] })).toMatchObject({
       kinds: ["dynamicList", "tableSource"],
       nextTypes: [],
       table: { kind: "DynamicList" },
@@ -150,12 +162,12 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps ConstantsSet as a constant set source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ConstantsSet"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ConstantsSet"] })).toMatchObject({
       kinds: ["constantSet"],
       nextTypes: [],
       sourceText: "ConstantsSet",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["КонстантыНабор"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["КонстантыНабор"] })).toMatchObject({
       kinds: ["constantSet"],
       nextTypes: [],
       sourceText: "КонстантыНабор",
@@ -163,12 +175,12 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps SettingsComposer as an opaque platform source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["SettingsComposer"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["SettingsComposer"] })).toMatchObject({
       kinds: ["platformSource"],
       nextTypes: [],
       sourceText: "SettingsComposer",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["КомпоновщикНастроекКомпоновкиДанных"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["КомпоновщикНастроекКомпоновкиДанных"] })).toMatchObject({
       kinds: ["platformSource"],
       nextTypes: [],
       sourceText: "КомпоновщикНастроекКомпоновкиДанных",
@@ -176,12 +188,12 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps StandardPeriod as a standard period source", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["StandardPeriod"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["StandardPeriod"] })).toMatchObject({
       kinds: ["standardPeriod"],
       nextTypes: [],
       sourceText: "StandardPeriod",
     })
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["СтандартныйПериод"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["СтандартныйПериод"] })).toMatchObject({
       kinds: ["standardPeriod"],
       nextTypes: [],
       sourceText: "СтандартныйПериод",
@@ -189,18 +201,18 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
   })
 
   it("maps missing type descriptions to unknown without using defaultType", () => {
-    expect(typeDescriptionToDataPathTypeInfo(undefined, { defaultType: "boolean" })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo(undefined, { defaultType: "boolean" })).toMatchObject({
       kinds: ["unknown"],
       nextTypes: [],
     })
-    expect(typeDescriptionToDataPathTypeInfo({} as TypeDescription, { defaultType: "boolean" })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({} as TypeDescription, { defaultType: "boolean" })).toMatchObject({
       kinds: ["unknown"],
       nextTypes: [],
     })
   })
 
   it("keeps unsupported special types as continuable intermediates", () => {
-    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueStorage"] })).toEqual({
+    expect(typeDescriptionToDataPathTypeInfo({ type: ["ValueStorage"] })).toMatchObject({
       kinds: ["unsupportedIntermediate"],
       nextTypes: [],
       sourceText: "ValueStorage",

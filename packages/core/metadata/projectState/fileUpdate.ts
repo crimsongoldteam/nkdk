@@ -232,6 +232,7 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
     location,
     owner: check.owner,
     value: check.value,
+    tagged: check.tagged,
     policyInput: check.policyInput,
     ...(check.elementType === undefined ? {} : { elementType: check.elementType }),
     ...(check.hasValuesPicture === undefined ? {} : { hasValuesPicture: check.hasValuesPicture }),

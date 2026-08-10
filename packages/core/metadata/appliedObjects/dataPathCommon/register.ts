@@ -88,8 +88,8 @@ registerStandardAttributeTypeResolver(({ owner, internalName, yamlName }) => {
 })
 
 registerTableColumnResolver(({ table, segment }) => {
-  if (segment === "RowsCount") return scalarColumn(segment, "RowsCount")
-  if (segment.startsWith("Total")) return scalarColumn(segment, "Total")
+  if (segment === "RowsCount") return decimalColumn(segment, "RowsCount")
+  if (segment.startsWith("Total")) return decimalColumn(segment, "Total")
   if (table.kind === "ValueList") return valueListColumn(segment)
   if (table.kind === "GanttChart") return ganttChartColumn(segment)
   return undefined
@@ -112,12 +112,16 @@ export function scalarColumn(name: string, sourceText: string): FormDataPathColu
   return { name, typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText } }
 }
 
+export function decimalColumn(name: string, sourceText: string): FormDataPathColumnSource {
+  return { name, typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["decimal"], sourceText } }
+}
+
 export function booleanColumn(name: string, sourceText: string): FormDataPathColumnSource {
-  return { name, typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText } }
+  return { name, typeInfo: { kinds: ["boolean"], nextTypes: [], terminalTypes: ["boolean"], sourceText } }
 }
 
 export function dateTimeColumn(name: string, sourceText: string): FormDataPathColumnSource {
-  return { name, typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText } }
+  return { name, typeInfo: { kinds: ["dateTime"], nextTypes: [], terminalTypes: ["dateTime"], sourceText } }
 }
 
 export function metadataRecord(value: unknown): Record<string, unknown> {
@@ -156,13 +160,19 @@ function sameOwnerRef(ref: OwnerTypeRef): OwnerTypeRef {
 function valueListColumn(segment: string): FormDataPathColumnSource | undefined {
   switch (segment) {
     case "Value":
-      return scalarColumn(segment, "ValueList.Value")
+      return {
+        name: segment,
+        typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["<any>"], sourceText: "ValueList.Value" },
+      }
     case "Presentation":
-      return scalarColumn(segment, "ValueList.Presentation")
+      return { name: segment, typeInfo: { kinds: ["scalar"], nextTypes: [], terminalTypes: ["string"], sourceText: "ValueList.Presentation" } }
     case "Check":
       return booleanColumn(segment, "ValueList.Check")
     case "Picture":
-      return { name: segment, typeInfo: { kinds: ["Picture"], nextTypes: [], sourceText: "ValueList.Picture" } }
+      return {
+        name: segment,
+        typeInfo: { kinds: ["Picture"], nextTypes: [], terminalTypes: ["Picture"], sourceText: "ValueList.Picture" },
+      }
   }
 
   return undefined
@@ -193,7 +203,7 @@ function registerRecordSetStandardColumn(
       return { ...dateTimeColumn(yamlName, "RegisterRecordSet.Period"), targetName: "Period" }
     case "LineNumber":
     case "НомерСтроки":
-      return { ...scalarColumn(yamlName, "RegisterRecordSet.LineNumber"), targetName: "LineNumber" }
+      return { ...decimalColumn(yamlName, "RegisterRecordSet.LineNumber"), targetName: "LineNumber" }
     case "Recorder":
     case "Регистратор":
       return { ...scalarColumn(yamlName, "RegisterRecordSet.Recorder"), targetName: "Recorder" }

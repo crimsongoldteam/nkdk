@@ -64,21 +64,24 @@ describe("resolveDataPath", () => {
 
   it("reports yaml-to-internal replacement for a standard owner member", () => {
     const result = resolveDataPathCore({
+      ...catalogGoodsResolveParams(),
       value: "Объект.Код",
       nameMode: "yaml",
-      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
-      ownerCache: ownerCache([
-        owner({
-          ref: { kind: "Справочник", name: "Товары" },
-          rule: MetadataCatalogRules,
-          model: { itemType: "MetadataCatalog" },
-        }),
-      ]),
     })
 
     expect(result).toMatchObject({
       status: "ok",
       replacements: [{ segmentIndex: 1, from: "Код", to: "Code", reason: "standardMember" }],
+      target: { source: { kind: "objectField", name: "Код" } },
+    })
+  })
+
+  it("разрешает внутреннее имя стандартного реквизита только в internal режиме", () => {
+    const params = catalogGoodsResolveParams()
+
+    expect(resolve("Объект.Code", params)).toMatchObject({ status: "error" })
+    expect(resolve("Объект.Code", { ...params, nameMode: "internal" })).toMatchObject({
+      status: "ok",
       target: { source: { kind: "objectField", name: "Код" } },
     })
   })
@@ -201,7 +204,7 @@ describe("resolveDataPath", () => {
     const cases = [
       ["Список.Value", "Value", { kinds: ["scalar"], sourceText: "ValueList.Value" }],
       ["Список.Presentation", "Presentation", { kinds: ["scalar"], sourceText: "ValueList.Presentation" }],
-      ["Список.Check", "Check", { kinds: ["boolean"], sourceText: "ValueList.Check" }],
+      ["Список.Check", "Check", { kinds: ["boolean"], terminalTypes: ["boolean"], sourceText: "ValueList.Check" }],
       ["Список.Picture", "Picture", { kinds: ["Picture"], sourceText: "ValueList.Picture" }],
     ] as const
 
@@ -582,6 +585,37 @@ describe("resolveDataPath", () => {
         segments: ["ВключитьВДоговор", "Номер"],
         source: { kind: "objectField", owner: { kind: "Справочник", name: "ДоговорыКонтрагентов" }, name: "Номер" },
         typeInfo: { kinds: ["scalar"] },
+      },
+    })
+  })
+
+  it("merges effective terminal branches of DefinedType without counting its declaration", () => {
+    const result = resolve("ВключитьВДоговор", {
+      index: indexWithAttributes([
+        attribute("ВключитьВДоговор", {
+          type: ["DefinedType.ДоговорКонтрагента", "boolean"],
+        }),
+      ]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
+          rule: MetadataDefinedTypeRules,
+          model: {
+            itemType: "MetadataDefinedType",
+            type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      target: {
+        typeInfo: {
+          terminalTypes: ["boolean", "CatalogRef.ДоговорыКонтрагентов"],
+          definedTypes: ["ДоговорКонтрагента"],
+          isComposite: true,
+        },
       },
     })
   })
@@ -1118,8 +1152,11 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("keeps RegisterRecordSet standard columns available with form-only columns", () => {
-    const result = resolve("НаборЗаписей.Период", {
+  it.each([
+    ["Период", { kinds: ["dateTime"], terminalTypes: ["dateTime"], sourceText: "RegisterRecordSet.Period" }],
+    ["НомерСтроки", { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RegisterRecordSet.LineNumber" }],
+  ] as const)("keeps RegisterRecordSet standard column %s available with form-only columns", (columnName, typeInfo) => {
+    const result = resolve(`НаборЗаписей.${columnName}`, {
       index: indexWithAttributes([
         attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
           column("ПериодГод", { type: ["decimal"] }),
@@ -1132,8 +1169,8 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        source: { kind: "tableColumn", table: "НаборЗаписей", name: "Период" },
-        typeInfo: { kinds: ["dateTime"], sourceText: "RegisterRecordSet.Period" },
+        source: { kind: "tableColumn", table: "НаборЗаписей", name: columnName },
+        typeInfo,
       },
     })
   })
@@ -1576,7 +1613,7 @@ describe("resolveDataPath", () => {
         diagnostics: [],
         target: {
           source: { kind: "tableColumn", table: "Товары", name: "RowsCount" },
-          typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+          typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RowsCount" },
         },
       })
     }
@@ -1593,7 +1630,7 @@ describe("resolveDataPath", () => {
       diagnostics: [],
       target: {
         source: { kind: "tableColumn", table: "СкидкиНаценки", name: "RowsCount" },
-        typeInfo: { kinds: ["scalar"], sourceText: "RowsCount" },
+        typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "RowsCount" },
       },
     })
   })
@@ -1616,7 +1653,7 @@ describe("resolveDataPath", () => {
         diagnostics: [],
         target: {
           source: { kind: "tableColumn", table: "Товары", name: "TotalСумма" },
-          typeInfo: { kinds: ["scalar"], sourceText: "Total" },
+          typeInfo: { kinds: ["scalar"], terminalTypes: ["decimal"], sourceText: "Total" },
         },
       })
     }
@@ -2105,7 +2142,7 @@ describe("resolveDataPath", () => {
           owner: { kind: "Справочник", name: "ГруппыАналитик" },
           name: "Предопределенный",
         },
-        typeInfo: { kinds: ["boolean"], sourceText: "Справочник.Predefined" },
+        typeInfo: { kinds: ["boolean"], terminalTypes: ["boolean"], sourceText: "Справочник.Predefined" },
       },
     })
   })
@@ -2375,7 +2412,11 @@ describe("resolveDataPath", () => {
         target: {
           value: path,
           source: { kind: "standardPeriodField", name: path.split(".")[1] },
-          typeInfo: { kinds: ["dateTime"], sourceText: `StandardPeriod.${path.split(".")[1]}` },
+          typeInfo: {
+            kinds: ["dateTime"],
+            terminalTypes: ["dateTime"],
+            sourceText: `StandardPeriod.${path.split(".")[1]}`,
+          },
         },
       })
     }
@@ -2644,6 +2685,7 @@ function resolve(
     ownerCache?: OwnerMetadataCache
     tableContext?: { dataPath: string }
     yamlPath?: string[]
+    nameMode?: DataPathNameMode
   }
 ) {
   const parsed = parseMetadataYaml(`ПутьКДанным: ${JSON.stringify(value)}\n`)
@@ -2655,8 +2697,22 @@ function resolve(
     value,
     index: params.index,
     ownerCache: params.ownerCache ?? ownerCache([]),
+    ...(params.nameMode === undefined ? {} : { nameMode: params.nameMode }),
     ...(params.tableContext ? { tableContext: params.tableContext } : {}),
   })
+}
+
+function catalogGoodsResolveParams(): Pick<ResolveDataPathCoreParams, "index" | "ownerCache"> {
+  return {
+    index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
+    ownerCache: ownerCache([
+      owner({
+        ref: { kind: "Справочник", name: "Товары" },
+        rule: MetadataCatalogRules,
+        model: { itemType: "MetadataCatalog" },
+      }),
+    ]),
+  }
 }
 
 function documentWithGoods(): OwnerMetadataCache {

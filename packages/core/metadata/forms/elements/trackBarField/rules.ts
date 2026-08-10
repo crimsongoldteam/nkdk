@@ -101,6 +101,8 @@ export const TrackBarFieldRules = {
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
       defaultType: "decimal",
+      allowedKinds: ["decimal"],
+      allowComposite: false,
     }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
