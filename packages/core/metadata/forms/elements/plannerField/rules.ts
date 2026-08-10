@@ -3,7 +3,7 @@ import { commandSetRule } from "../../commonObjects/commandSet/types"
 import { eventsRule } from "../../commonObjects/event/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
@@ -126,4 +126,4 @@ export const PlannerFieldRules = {
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },
 } as const satisfies ElementRule
-registerElementRule("PlannerField", PlannerFieldRules)
+export const metadataRuleLayer000 = defineElementRule("PlannerField", PlannerFieldRules)

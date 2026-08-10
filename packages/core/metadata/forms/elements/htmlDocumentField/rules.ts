@@ -5,7 +5,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
@@ -111,4 +111,4 @@ export const HTMLDocumentFieldRules = {
     ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
-registerElementRule("HTMLDocumentField", HTMLDocumentFieldRules)
+export const metadataRuleLayer000 = defineElementRule("HTMLDocumentField", HTMLDocumentFieldRules)

@@ -8,7 +8,7 @@ import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
@@ -163,4 +163,4 @@ export const PictureDecorationRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("PictureDecoration", PictureDecorationRules)
+export const metadataRuleLayer000 = defineElementRule("PictureDecoration", PictureDecorationRules)

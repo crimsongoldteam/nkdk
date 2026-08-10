@@ -6,7 +6,7 @@ import { singleViewStatusAdditionRule } from "./builders"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties } from "../formField/rules"
@@ -120,4 +120,4 @@ export const PDFDocumentFieldRules = {
     },
   },
 } as const satisfies ElementRule
-registerElementRule("PDFDocumentField", PDFDocumentFieldRules)
+export const metadataRuleLayer000 = defineElementRule("PDFDocumentField", PDFDocumentFieldRules)

@@ -1,4 +1,4 @@
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { booleanRule } from "../../../commonObjects/boolean/types"
@@ -508,4 +508,4 @@ export const TableRules = {
   } as const,
 } as const satisfies ElementRule
 
-registerElementRule("Table", TableRules)
+export const metadataRuleLayer000 = defineElementRule("Table", TableRules)

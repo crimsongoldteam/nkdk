@@ -7,7 +7,7 @@ import { numberRule } from "../../../commonObjects/number/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
@@ -128,7 +128,7 @@ export const ExtendedTooltipRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementAsType({
+export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
   nameStyle: {
@@ -143,4 +143,4 @@ registerElementAsType({
     return { name }
   },
 })
-registerElementRule("ExtendedTooltip", ExtendedTooltipRules)
+export const metadataRuleLayer001 = defineElementRule("ExtendedTooltip", ExtendedTooltipRules)

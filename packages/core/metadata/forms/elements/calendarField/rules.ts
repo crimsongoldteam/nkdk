@@ -7,7 +7,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
@@ -144,4 +144,4 @@ export const CalendarFieldRules = {
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },
 } as const satisfies ElementRule
-registerElementRule("CalendarField", CalendarFieldRules)
+export const metadataRuleLayer000 = defineElementRule("CalendarField", CalendarFieldRules)

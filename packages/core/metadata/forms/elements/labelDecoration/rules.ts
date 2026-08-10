@@ -6,7 +6,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
@@ -115,4 +115,4 @@ export const LabelDecorationRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("LabelDecoration", LabelDecorationRules)
+export const metadataRuleLayer000 = defineElementRule("LabelDecoration", LabelDecorationRules)

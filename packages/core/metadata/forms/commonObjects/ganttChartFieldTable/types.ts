@@ -15,7 +15,7 @@ import {
   getCanonicalSingletonName,
   type SingletonNameStyle,
 } from "../../../ruleRuntime/formElement/singletonName"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/propertyRuleRegistrySet"
 import type { ElementXML } from "../../../ruleRuntime/formElement/types"
 import type { ExportToJSONSchemaFn } from "../../../ruleRuntime"
 
@@ -50,7 +50,7 @@ export const exportGanttChartFieldTableToJSONSchema: ExportToJSONSchemaFn = (par
   })
 }
 
-registerTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
+export const metadataPropertyRule000 = definePropertyTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
   importSingleFormElementFromXMLToYAML({
     context,
     rule: TableRules,
@@ -60,8 +60,8 @@ registerTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml,
     traversal,
   })
 )
-registerTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
-registerTypeRule("GanttChartFieldTable", "nestedItemIdentity", {
+export const metadataPropertyRule001 = definePropertyTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
+export const metadataPropertyRule002 = definePropertyTypeRule("GanttChartFieldTable", "nestedItemIdentity", {
   reserveWhenAbsent: true,
   resolveName: (ownerName) =>
     getCanonicalSingletonName({
@@ -69,7 +69,7 @@ registerTypeRule("GanttChartFieldTable", "nestedItemIdentity", {
       nameStyle,
     }),
 })
-registerTypeRule(
+export const metadataPropertyRule003 = definePropertyTypeRule(
   "GanttChartFieldTable",
   "yamlToXMLNestedRule",
   createSingletonElementYAMLToXMLNestedRule({
@@ -78,7 +78,7 @@ registerTypeRule(
     toXML: ({ context }) => ({ name: getGeneratedName(context, undefined) }),
   })
 )
-registerTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
+export const metadataPropertyRule004 = definePropertyTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
   type: "GanttChartFieldTable"

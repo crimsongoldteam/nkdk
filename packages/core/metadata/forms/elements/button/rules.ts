@@ -1,5 +1,5 @@
 import { stringRule } from "../../../commonObjects/string/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 export type { ElementRule, PropertyRule }
@@ -250,5 +250,5 @@ export const CommandBarButtonRules = {
     ...commonButtonProperties,
   },
 } as const satisfies ElementRule
-registerElementRule("Button", ButtonRules)
-registerElementRule("CommandBarButton", CommandBarButtonRules)
+export const metadataRuleLayer000 = defineElementRule("Button", ButtonRules)
+export const metadataRuleLayer001 = defineElementRule("CommandBarButton", CommandBarButtonRules)

@@ -6,7 +6,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { i8nTextRule } from "../../../commonObjects/i8nText/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -142,4 +142,4 @@ export const PageRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("Page", PageRules)
+export const metadataRuleLayer000 = defineElementRule("Page", PageRules)

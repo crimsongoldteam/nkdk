@@ -3,7 +3,7 @@ import { contextMenuRule, extendedTooltipRule } from "./builders"
 import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getViewStatusAdditionName } from "./helper"
@@ -149,7 +149,7 @@ export const ViewStatusAdditionRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementAsType({
+export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "SingleViewStatusAddition",
   elementRule: SingleViewStatusAdditionRules,
   nameStyle: {
@@ -164,5 +164,5 @@ registerElementAsType({
     return { name }
   },
 })
-registerElementRule("ViewStatusAddition", ViewStatusAdditionRules)
-registerElementRule("SingleViewStatusAddition", SingleViewStatusAdditionRules)
+export const metadataRuleLayer001 = defineElementRule("ViewStatusAddition", ViewStatusAdditionRules)
+export const metadataRuleLayer002 = defineElementRule("SingleViewStatusAddition", SingleViewStatusAdditionRules)

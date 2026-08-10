@@ -3,7 +3,7 @@ import { pictureRule } from "../../../commonObjects/picture/types"
 import { commandBarChildItemsRule } from "../../commonObjects/childItems/rules"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -109,4 +109,4 @@ export const PopupRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("Popup", PopupRules)
+export const metadataRuleLayer000 = defineElementRule("Popup", PopupRules)

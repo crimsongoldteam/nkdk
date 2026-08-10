@@ -2,7 +2,7 @@ import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSo
 import { stringRule } from "../../../commonObjects/string/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getSearchStringAdditionName } from "./helper"
@@ -136,7 +136,7 @@ export const SearchStringAdditionRules = {
     ...commonProperties,
   },
 } as const satisfies ElementRule
-registerElementAsType({
+export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
   nameStyle: {
@@ -152,5 +152,5 @@ registerElementAsType({
     return { name }
   },
 })
-registerElementRule("SearchStringAddition", SearchStringAdditionRules)
-registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)
+export const metadataRuleLayer001 = defineElementRule("SearchStringAddition", SearchStringAdditionRules)
+export const metadataRuleLayer002 = defineElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

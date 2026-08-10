@@ -2,7 +2,7 @@ import { commandBarChildItemsRule } from "../../commonObjects/childItems/rules"
 import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -83,4 +83,4 @@ export const CommandBarRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("CommandBar", CommandBarRules)
+export const metadataRuleLayer000 = defineElementRule("CommandBar", CommandBarRules)

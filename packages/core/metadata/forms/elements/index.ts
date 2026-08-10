@@ -110,3 +110,8 @@ import "./viewStatusAddition/rules"
 import "./viewStatusAddition/types"
 
 import "./register"
+
+import { registerLegacyRuleDefinitions } from "../../ruleRuntime/definition/legacyRuleRegistration"
+import { formElementRules } from "./metadataRules"
+
+registerLegacyRuleDefinitions(formElementRules)

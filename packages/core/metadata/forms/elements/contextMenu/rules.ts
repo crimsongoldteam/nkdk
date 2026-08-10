@@ -4,7 +4,7 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }
@@ -36,7 +36,7 @@ export const ContextMenuRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementAsType({
+export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "ContextMenu",
   elementRule: ContextMenuRules,
   nameStyle: {
@@ -51,4 +51,4 @@ registerElementAsType({
     return { name }
   },
 })
-registerElementRule("ContextMenu", ContextMenuRules)
+export const metadataRuleLayer001 = defineElementRule("ContextMenu", ContextMenuRules)

@@ -3,7 +3,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
-import { registerElementAsType, registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementAsType, defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -47,7 +47,7 @@ export const AutoCommandBarRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementAsType({
+export const metadataRuleLayer000 = defineElementAsType({
   propertyType: "AutoCommandBar",
   elementRule: AutoCommandBarRules,
   nameStyle: {
@@ -61,7 +61,7 @@ registerElementAsType({
     name: "ФормаКоманднаяПанель",
   }),
 })
-registerElementAsType({
+export const metadataRuleLayer001 = defineElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
   nameStyle: {
@@ -76,4 +76,4 @@ registerElementAsType({
     return { name: elementName }
   },
 })
-registerElementRule("AutoCommandBar", AutoCommandBarRules)
+export const metadataRuleLayer002 = defineElementRule("AutoCommandBar", AutoCommandBarRules)

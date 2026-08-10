@@ -3,7 +3,7 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { numberRule } from "../../../commonObjects/number/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
-import { registerElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
+import { defineElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ElementRule } from "../../../ruleRuntime/formElement/types"
@@ -69,4 +69,4 @@ export const ButtonGroupRules = {
     }),
   },
 } as const satisfies ElementRule
-registerElementRule("ButtonGroup", ButtonGroupRules)
+export const metadataRuleLayer000 = defineElementRule("ButtonGroup", ButtonGroupRules)
