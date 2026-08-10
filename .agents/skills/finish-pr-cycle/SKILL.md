@@ -27,25 +27,35 @@ git merge --no-edit origin/develop
 
 If the merge conflicts, stop and report the conflicted files. Do not resolve conflicts silently. This is required because stale feature branches can rediscover round-trip diffs that were already fixed and merged in another branch.
 
-3. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nkdk-core`, use:
+3. Review the tests added by the branch before verification:
+
+```bash
+git diff --name-status --diff-filter=A origin/develop...HEAD
+```
+
+Identify the added test files in this diff. Remove tests that only lock in implementation details and do not protect observable behavior or an explicit architectural contract. Keep behavior-driven tests that exercise stable public interfaces.
+
+Do not automatically remove round-trip, fixture-based, snapshot, architecture, or issue-linked regression tests; follow the project's test architecture. For every removed test, identify the remaining test that protects the behavior. If the review changes files, run the relevant tests, commit the removal, and verify that the worktree is clean before continuing.
+
+4. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nkdk-core`, use:
 
 ```bash
 pnpm --filter '@nkdk/core' test
 ```
 
-4. Push the current branch:
+5. Push the current branch:
 
 ```bash
 git push -u origin <branch>
 ```
 
-5. Create a PR into `develop`. The PR base branch must be exactly `develop`; do not target `main`, `master`, or any other branch unless the user explicitly overrides this in the current request:
+6. Create a PR into `develop`. The PR base branch must be exactly `develop`; do not target `main`, `master`, or any other branch unless the user explicitly overrides this in the current request:
 
 ```bash
 gh pr create --base develop --head <branch> --title "<title>" --body "<summary and test plan>"
 ```
 
-6. Merge the PR with a regular merge commit unless the user requested another merge method:
+7. Merge the PR with a regular merge commit unless the user requested another merge method:
 
 ```bash
 gh pr merge <number> --merge --delete-branch
@@ -59,20 +69,20 @@ gh pr view <number> --json state,mergedAt,mergeCommit,url,headRefName,baseRefNam
 
 If the PR is already `MERGED`, continue cleanup.
 
-7. Confirm the remote branch is gone. If it remains, delete it:
+8. Confirm the remote branch is gone. If it remains, delete it:
 
 ```bash
 git ls-remote --heads origin <branch>
 git push origin --delete <branch>
 ```
 
-8. Remove the feature worktree:
+9. Remove the feature worktree:
 
 ```bash
 git worktree remove <absolute-worktree-path>
 ```
 
-9. Delete the local branch:
+10. Delete the local branch:
 
 ```bash
 git branch -D <branch>
@@ -80,7 +90,7 @@ git branch -D <branch>
 
 Use `-D` only after confirming the PR is merged.
 
-10. Verify cleanup:
+11. Verify cleanup:
 
 ```bash
 git worktree list
