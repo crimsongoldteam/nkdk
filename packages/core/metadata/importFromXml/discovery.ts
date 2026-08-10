@@ -19,6 +19,7 @@ export interface XmlImportDiscoveryFileSystem {
 export interface DiscoverXmlImportParams {
   xmlDir: string
   topology: CompiledMetadataResourceTopology
+  rootItemName?: string
   fs?: XmlImportDiscoveryFileSystem
 }
 
@@ -105,6 +106,9 @@ export async function discoverXmlImport(
           role: compatible.assignment.role,
           itemType: compatible.assignment.itemRule.itemType,
           topologyNodeId: compatible.assignment.id,
+          ...(compatible.assignment.role === "configuration" && params.rootItemName !== undefined
+            ? { itemName: params.rootItemName }
+            : {}),
           ...(compatible.assignment.logicalAddressSegment === undefined
             ? {}
             : { logicalAddressSegment: compatible.assignment.logicalAddressSegment }),

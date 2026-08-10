@@ -17,7 +17,10 @@ function descriptor(params: {
   return {
     kind: params.kind,
     detect: params.detect,
-    resolveAddress: () => params.address ?? { kind: "configuration" },
+    resolveRoot: () => ({
+      address: params.address ?? { kind: "configuration" },
+      itemName: "ТестовыйКорень",
+    }),
   }
 }
 
@@ -56,8 +59,20 @@ describe("XML import component descriptors", () => {
     const component = resolveXmlImportComponent(root)
 
     expect(component.kind).toBe("configuration")
-    expect(component.resolveAddress(root)).toEqual({ kind: "configuration" })
+    expect(component.resolveRoot(root)).toEqual({
+      address: { kind: "configuration" },
+      itemName: "Конфигурация",
+    })
     expect(component.baseAddress).toBeUndefined()
     expect(component.metadataItemAugmenter).toBeUndefined()
+  })
+
+  it("rejects an empty root name", () => {
+    const root = {
+      Configuration: { Properties: { Name: "" } },
+    }
+    const component = resolveXmlImportComponent(root)
+
+    expect(() => component.resolveRoot(root)).toThrow(/имя/iu)
   })
 })

@@ -79,6 +79,7 @@ export interface ImportCoordinatorDependencies {
   discover(params: {
     xmlDir: string
     topology: CompiledMetadataResourceTopology
+    rootItemName: string
   }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
   collectSnapshotFragments?(params: {
     context: ConfigurationContextFromXML
@@ -101,8 +102,8 @@ export interface ImportCoordinatorDependencies {
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
-  async discover({ xmlDir, topology }) {
-    return discoverXmlImport({ xmlDir, topology })
+  async discover({ xmlDir, topology, rootItemName }) {
+    return discoverXmlImport({ xmlDir, topology, rootItemName })
   },
   collectSnapshotFragments,
   createProjectStateService,
@@ -152,7 +153,8 @@ export async function importConfigurationFromXml(
   try {
     const root = await readXmlImportComponentRoot(params.inputDir)
     const descriptor = resolveXmlImportComponent(root)
-    const address = descriptor.resolveAddress(root)
+    const resolvedRoot = descriptor.resolveRoot(root)
+    const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)
     const assertNoPending = deps.assertNoPending ?? assertNoPendingPartialXmlSync
     assertNoPending(params.projectDir, selectedComponentPath)
@@ -207,7 +209,11 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir, topology: validationComponent.topology })
+      () => deps.discover({
+        xmlDir: params.inputDir,
+        topology: validationComponent.topology,
+        rootItemName: resolvedRoot.itemName,
+      })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,
