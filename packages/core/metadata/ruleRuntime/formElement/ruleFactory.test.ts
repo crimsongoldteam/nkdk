@@ -6,10 +6,35 @@ import {
   testPropertyFromYAMLToXML,
 } from "../../../tests/directConversion"
 import type { MetadataItemRule } from "../property/types"
+import type { ElementRule } from "./types"
+import { defineElementAsType } from "./ruleFactory"
+import { typeRulesRegistryRevision } from "../property/typeRuleRegistry"
 
 import "../../forms/elements/index"
 
 describe("одиночный элемент формы", () => {
+  it("создаёт definition без записи в legacy registry", () => {
+    const revision = typeRulesRegistryRevision()
+    const elementRule = {
+      itemType: "ExtendedTooltip",
+      enterpriseField: "FormDecoration",
+      enterpriseFieldType: "None",
+      properties: {},
+    } as const satisfies ElementRule
+
+    const definition = defineElementAsType({
+      propertyType: "TestPureFormElement",
+      elementRule,
+      toXML: () => ({ name: "Поле" }),
+    })
+
+    expect(typeRulesRegistryRevision()).toBe(revision)
+    expect(
+      definition.propertyTypes.TestPureFormElement?.importFromXMLToYAML,
+    ).toBeTypeOf("function")
+    expect(definition.formElements.ExtendedTooltip).toBe(elementRule)
+  })
+
   it("восстанавливает имя и id перед остальными XML-атрибутами без reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.Элемент.Кнопка",

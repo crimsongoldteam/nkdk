@@ -3,7 +3,12 @@ import { getChildContextToXML } from "../../context/helpers"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
 import { PropertyRuleType } from "../property/registry"
-import { registerTypeRule } from "../property/typeRuleRegistry"
+import { registerLegacyPropertyTypeDefinitions } from "../property/typeRuleRegistry"
+import {
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  type PropertyTypeRuleContribution,
+} from "../property/propertyRuleRegistrySet"
 import type { YAMLToXMLNestedRule } from "../property/fromYAMLToXMLTypes"
 import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import {
@@ -14,6 +19,9 @@ import {
 } from "../../configurationIndex/referenceView"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import type { ElementRule, ElementXML, SingleElementType } from "./types"
+import { defineMetadataRules } from "../definition"
+import type { MetadataRulesDefinition } from "../definition"
+import { emptyMetadataRules } from "../definition/testSupport"
 export {
   clearElementRulesRegistry,
   getElementRule,
@@ -85,15 +93,16 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
   },
 })
 
-export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
+export const defineElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   nameStyle?: SingletonNameStyle
   directId?: string
-}): void => {
+}): MetadataRulesDefinition => {
   const { propertyType, elementRule, toXML, nameStyle } = params
-  registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
+  const propertyTypeRules: PropertyTypeRuleContribution[] = []
+  propertyTypeRules.push(definePropertyTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
     importSingleFormElementFromXMLToYAML({
       context,
       rule: elementRule,
@@ -102,33 +111,51 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
       nameStyle,
       traversal,
     })
-  )
-  registerTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule })
+  ))
+  propertyTypeRules.push(definePropertyTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule }))
   if (nameStyle !== undefined) {
-    registerTypeRule(propertyType, "nestedItemIdentity", {
+    propertyTypeRules.push(definePropertyTypeRule(propertyType, "nestedItemIdentity", {
       reserveWhenAbsent: true,
       resolveName: (ownerName) =>
         getCanonicalSingletonName({
           ownerLogicalAddress: ownerName ?? "",
           nameStyle,
         }),
-    })
+    }))
   }
-  registerTypeRule(
+  propertyTypeRules.push(definePropertyTypeRule(
     propertyType,
     "yamlToXMLNestedRule",
     createSingletonElementYAMLToXMLNestedRule({ elementRule, toXML, nameStyle, directId: params.directId })
-  )
-  registerExportToJSONSchema({ propertyType, elementRule })
+  ))
+  propertyTypeRules.push(defineExportToJSONSchema({ propertyType, elementRule }))
+
+  return defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: propertyTypesFromContributions(propertyTypeRules),
+    formElements: { [elementRule.itemType]: elementRule },
+  })
 }
 
-const registerExportToJSONSchema = <Rule extends ElementRule>(params: {
+export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
+  toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
+  nameStyle?: SingletonNameStyle
+  directId?: string
 }): void => {
+  registerLegacyPropertyTypeDefinitions(
+    defineElementAsType(params).propertyTypes,
+  )
+}
+
+const defineExportToJSONSchema = <Rule extends ElementRule>(params: {
+  propertyType: PropertyRuleType
+  elementRule: Rule
+}): PropertyTypeRuleContribution => {
   const { propertyType, elementRule } = params
 
-  registerTypeRule(propertyType, "exportToJSONSchema", ({ context }) =>
+  return definePropertyTypeRule(propertyType, "exportToJSONSchema", ({ context }) =>
     exportSingleElementRuleToJSONSchema({
       context,
       rule: elementRule,
