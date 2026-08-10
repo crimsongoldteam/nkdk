@@ -1,37 +1,8 @@
-import type { MetadataItemType } from "../ruleRuntime/metadataItem/registry"
-import type { ExternalMetadataItemRule } from "../ruleRuntime/externalMetadata/types"
+export { getChildContextToXML } from "@nkdk/runtime/rule-kit"
 import {
   ConfigurationContext,
-  ConfigurationContextWithExportToXML,
   ContextElementToEnterprise,
 } from "./types"
-
-export const getChildContextToXML = (params: {
-  context: ConfigurationContextWithExportToXML
-  itemType: MetadataItemType
-  path: string
-  name: string
-  externalMetadata?: ExternalMetadataItemRule
-}): ConfigurationContextWithExportToXML => {
-  const { context, itemType, path, name, externalMetadata } = params
-  const elements = context.exportToXML.itemsTree
-
-  return {
-    ...params.context,
-    exportToXML: {
-      ...params.context.exportToXML,
-      itemsTree: [
-        ...elements,
-        {
-          name: name,
-          itemType: itemType,
-          path: path,
-          ...(externalMetadata ? { externalMetadata } : {}),
-        },
-      ],
-    },
-  }
-}
 
 interface ParentContextElement {
   itemType: string

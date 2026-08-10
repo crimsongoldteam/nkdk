@@ -1,6 +1,6 @@
 import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
 import type { FormDataPathIndex } from "../dataPath/formIndex"
-import type { YamlPath } from "@nkdk/runtime"
+import type { YamlPath } from "../../diagnostics/types"
 import type {
   DeferredRulePathSegment,
   LocalIndexes,

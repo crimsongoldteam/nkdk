@@ -1,3 +1,1 @@
-export * from "./composeMetadataRules"
-export * from "./contracts"
-export * from "./defineMetadataRules"
+export * from "@nkdk/runtime/rule-kit"

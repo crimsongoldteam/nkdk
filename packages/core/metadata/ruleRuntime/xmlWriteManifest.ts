@@ -1,3 +1,1 @@
-export interface XmlWriteManifest {
-  addFile(absPath: string): void
-}
+export * from "@nkdk/runtime/rule-kit"

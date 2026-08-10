@@ -1,5 +1,4 @@
 export * from "@nkdk/runtime/rule-kit"
-export * from "./formElement/types"
 export * from "./definition"
 export * from "./ruleRegistrySet"
 
@@ -23,4 +22,3 @@ export * from "./property/propertyRuleExecutor"
 
 export * from "./formElement/factory"
 export * from "./formElement/ruleFactory"
-export * from "./formElement/types"

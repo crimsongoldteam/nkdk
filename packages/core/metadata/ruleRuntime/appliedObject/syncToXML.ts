@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { getChildContextToXML } from "../../context/helpers"
+import { getChildContextToXML } from "@nkdk/runtime/rule-kit"
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"

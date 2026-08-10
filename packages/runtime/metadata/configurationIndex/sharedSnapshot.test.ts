@@ -12,7 +12,7 @@ import {
   snapshotConfigurationIndex,
 } from "./sharedSnapshot"
 import { reverseInputOrder, sampleSnapshot, TEST_UUID } from "./testData"
-import { buildBinaryHashIndex } from "@nkdk/runtime"
+import { buildBinaryHashIndex } from "../binary/hashIndex"
 
 describe("shared configuration index snapshot", () => {
   const projectDirs: string[] = []

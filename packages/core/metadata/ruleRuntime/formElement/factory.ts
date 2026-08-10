@@ -1,1 +1,1 @@
-export { clearTypeRulesRegistry, getTypeRule, registerTypeRule } from "../property/typeRuleRegistry"
+export * from "@nkdk/runtime/rule-kit"
