@@ -30,6 +30,10 @@ export interface JSONSchemaExportContext {
   validationPropertyRefs?: true
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]
+  requiredPolicy?: {
+    readonly currentBoundary: "full" | "defer"
+    readonly cacheVariant: "full" | "extension-overlay"
+  }
 }
 
 export type ContextElementToEnterprise =

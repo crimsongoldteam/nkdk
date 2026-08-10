@@ -1,11 +1,11 @@
 import type { Diagnostic } from "../../diagnostics/types"
 import { openDiagnosticBatch } from "../../diagnostics/binaryBatch"
-import { readLocalDiagnosticBatch, validateDependencyDiagnosticBatch } from "./diagnosticBatches"
-import type {
-  ProjectStateDependencyValidator,
-  ProjectStatePendingOwnerCheck,
-  ProjectStatePendingReferenceCheck,
-} from "../contracts/dependencyValidation"
+import {
+  readLocalDiagnosticBatch,
+  validateDependencyDiagnosticBatch,
+  validateSnapshotDependencyDiagnostics,
+} from "./diagnosticBatches"
+import type { ProjectStateDependencyValidator } from "../contracts/dependencyValidation"
 import {
   assertProjectStateFileBaseline,
   assertProjectStateFileBaselinePage,
@@ -16,7 +16,7 @@ import {
   type ProjectStateFileUpdate,
 } from "../contracts/fileUpdate"
 import type { ProjectStateFileIdentity } from "../contracts/fileIdentity"
-import type { ProjectDependencyInputQuery, ProjectStateReadSession } from "../contracts/dependencyValidation"
+import type { ProjectStateReadSession } from "../contracts/dependencyValidation"
 import type {
   ProjectDependencyBatchQuery,
   ProjectDependencyValidationParams,
@@ -344,49 +344,5 @@ function validateSnapshotDependencies(
 ): Diagnostic[] {
   const { snapshot } = context
   const typed = createTypedProjectStateReader(snapshot, context.readIndex)
-  const queryPort = createBinaryProjectStateQueryPort(snapshot, { typedReader: typed, dependencyValidator })
-  const readiness = dependencyValidator.readReadiness({ queryPort })
-  const references: ProjectStatePendingReferenceCheck[] = []
-  const dependencies: ProjectDependencyInputQuery[] = []
-  const owners: ProjectStatePendingOwnerCheck[] = []
-  const structuredDocuments = []
-  const seenOwners = new Set<string>()
-  for (let fileId = 0; fileId < snapshot.fileCount; fileId += 1) {
-    const record = snapshot.fileRecord(fileId)
-    if (record.updateKind !== 1) continue
-    const componentPath = snapshot.componentPath(fileId)
-    const projectPath = snapshot.filePath(fileId)
-    if (readiness.blockedComponentPaths.has(componentPath)) continue
-    const pendingReferences = typed.pendingReferences(fileId)
-    const pendingChecks = typed.pendingChecks(fileId)
-    for (const entry of typed.structuredDocuments(fileId)) {
-      structuredDocuments.push({ componentPath, projectPath, entry })
-    }
-    pendingReferences.forEach((reference, index) => references.push({
-      requestId: `reference:${fileId}:${index}`,
-      componentPath,
-      reference: { ...reference, filePath: projectPath },
-    }))
-    pendingChecks.forEach((check, index) => {
-      dependencies.push({
-        requestId: `dependency:${fileId}:${index}`,
-        componentPath,
-        projectPath,
-        check,
-      })
-      if (check.kind !== "dataPath") return
-      const ownerKey = `${componentPath}\u0000${check.owner.kind}\u0000${check.owner.name ?? ""}`
-      if (!seenOwners.has(ownerKey)) {
-        seenOwners.add(ownerKey)
-        owners.push({ requestId: `owner:${fileId}:${index}`, componentPath, owner: check.owner })
-      }
-    })
-  }
-  return [
-    ...dependencyValidator.validateReferences({ checks: references, projectDir, queryPort }),
-    ...dependencyValidator.validateOwners({ checks: owners, projectDir, queryPort }),
-    ...dependencyValidator.validateDependencies({ checks: dependencies, projectDir, queryPort }),
-    ...dependencyValidator.validateStructuredDocuments({ facts: structuredDocuments, projectDir, queryPort }),
-    ...readiness.diagnostics,
-  ]
+  return validateSnapshotDependencyDiagnostics(snapshot, projectDir, dependencyValidator, typed)
 }

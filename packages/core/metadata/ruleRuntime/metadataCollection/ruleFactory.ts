@@ -17,6 +17,7 @@ import {
 } from "../property/typeRuleRegistry"
 import { getDeclaredPropertyItemRule } from "../property/propertyItemRuleDeclarations"
 import { importMetadataItemCollectionFromXMLToYAML } from "./fromXMLToYAML"
+import { withNestedJSONSchemaItemContext } from "../property/jsonSchemaRequiredPolicy"
 
 type JSONSchemaCollectionShape = "record" | "array" | "schema"
 
@@ -176,16 +177,7 @@ export const registerMetadataItemCollectionRule = <
     }
 
     const itemSchema = exportMetadataItemToJSONSchema({
-      context: {
-        ...context,
-        exportToJSONSchema: {
-          mode: context.exportToJSONSchema?.mode ?? "inline",
-          refs: context.exportToJSONSchema?.refs ?? new Set(),
-          includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
-          propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
-          schemaStack: [...schemaStack, propertyType],
-        },
-      },
+      context: withNestedJSONSchemaItemContext(context, resolvedItemRule, propertyType),
       rule: resolvedItemRule,
     })
     if (schemaShape === "schema") return itemSchema

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
-import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
@@ -14,6 +14,7 @@ import {
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
 import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
+import { createValidationProjectComponent } from "./projectComponents"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -119,6 +120,42 @@ describe("validateProjectFileFirstPass references", () => {
         expect.objectContaining({ source: "structure", severity: "error", path: "/НесуществующееПоле" }),
       ])
     )
+  })
+
+  it("откладывает required адресуемого объекта cfe и сохраняет проверку в ProjectState", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const component = createValidationProjectComponent(projectDir, {
+      kind: "configurationExtension",
+      name: "X",
+    })
+    const projectPath = "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
+    writeProjectFile(component.componentDir, projectPath, "Комментарий: тест")
+    const file = resolveValidationProjectFile(component.componentDir, projectPath, component)
+    if (!file) throw new Error("file not resolved")
+    const properties = vi.fn(sharedSchemaCache.properties)
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: { ...sharedSchemaCache, properties },
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const update = toProjectStateFileUpdate(first, {
+      projectPath: file.rootProjectPath,
+      componentPath: component.componentPath,
+      resourceKind: "yaml",
+      yamlRole: "properties",
+    })
+
+    expect(properties).toHaveBeenCalledWith(file.owner.spec.rule, "extension-overlay")
+    expect(update.pendingChecks).toContainEqual(expect.objectContaining({
+      kind: "addressableRequired",
+      canonicalTarget: "ExternalDataSource.Источник.Cube.Куб",
+      missing: ["ИмяВИсточникеДанных"],
+    }))
   })
 
   it.each([

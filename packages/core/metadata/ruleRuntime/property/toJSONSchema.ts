@@ -118,7 +118,9 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
         rule: ruleProp,
         schema: exportedValue,
       })
-      result[yamlKey] = ruleProp.required === true ? schema : Type.Optional(schema)
+      const required = ruleProp.required === true
+        && context.exportToJSONSchema?.requiredPolicy?.currentBoundary !== "defer"
+      result[yamlKey] = required ? schema : Type.Optional(schema)
     }
   }
 

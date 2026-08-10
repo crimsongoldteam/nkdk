@@ -41,6 +41,8 @@ import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinitio
 import type { ProjectStateDependencyValidator } from "../projectState/contracts/dependencyValidation"
 import type { ProjectStateStructuredDocumentValidator } from "../projectState/contracts/dependencyValidation"
 import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProjectionRegistry"
+import { diagnosticAtYamlLocation } from "./yamlLocations"
+import type { ProjectStateAddressableRequiredCheck } from "../projectState/contracts/dependencyValidation"
 
 export function createProjectStateDependencyValidator(params: {
   readonly structuredDocumentValidators?: readonly ProjectStateStructuredDocumentValidator[]
@@ -60,9 +62,49 @@ export function createProjectStateDependencyValidator(params: {
     validateReferences: validateProjectStateReferenceBatch,
     validateOwners: validateProjectStateOwnerBatch,
     validateDependencies: validateProjectStateDependencyBatch,
+    validateAddressableRequired: validateProjectStateAddressableRequiredBatch,
     validateStructuredDocuments: (validationParams) =>
       (params.structuredDocumentValidators ?? []).flatMap((validator) => validator(validationParams)),
   }
+}
+
+export function validateProjectStateAddressableRequiredBatch(params: {
+  readonly checks: readonly ProjectStateAddressableRequiredCheck[]
+  readonly projectDir: string
+  readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets">
+}): readonly Diagnostic[] {
+  const results = params.queryPort.resolveTargets(params.checks.map(({ requestId, check }) => ({
+    requestId,
+    componentPath: "cf",
+    canonicalTarget: check.canonicalTarget,
+  })))
+  const diagnostics: Diagnostic[] = []
+  forEachDependencyResult(params.checks, results, (entry, result) => {
+    if (result.status === "found") return
+    const location = {
+      ...entry.check.location,
+      filePath: join(params.projectDir, entry.projectPath),
+    }
+    if (result.status === "ambiguous") {
+      diagnostics.push(diagnosticAtYamlLocation({
+        location,
+        severity: "error",
+        source: "cross-file",
+        message: `Неоднозначная цель metadata "${entry.check.canonicalTarget}" в базовой конфигурации`,
+      }))
+    }
+    diagnostics.push(...entry.check.missing.map((name) => diagnosticAtYamlLocation({
+      location: { ...location, path: `${entry.check.location.path ?? ""}/${escapeYamlPointer(name)}` },
+      severity: "error",
+      source: "structure",
+      message: `Отсутствует обязательное свойство "${name}"`,
+    })))
+  })
+  return diagnostics
+}
+
+function escapeYamlPointer(value: string): string {
+  return value.replace(/~/g, "~0").replace(/\//g, "~1")
 }
 
 export interface ProjectStateDataPathReferenceCheck {

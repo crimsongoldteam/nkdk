@@ -90,6 +90,49 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
         : undefined
     ).toBe(override)
   })
+
+  it("restores full required inside a non-addressable nested item", () => {
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const context = createJSONSchemaExportContext(baseContext, "inline")
+    context.exportToJSONSchema!.requiredPolicy = {
+      currentBoundary: "defer",
+      cacheVariant: "extension-overlay",
+    }
+
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "RuleFactorySampleItemProperty" },
+      value: undefined,
+    })
+
+    expect(schema).toMatchObject({ required: ["Имя"] })
+  })
+
+  it("starts a new deferred boundary for an addressable nested item", () => {
+    const addressableRule = {
+      ...SampleItemRule,
+      itemType: "RuleFactoryAddressableSampleItem",
+      externalMetadata: { segment: "Sample", placement: "ownerChild" },
+    } as const satisfies MetadataItemRule
+    registerMetadataItemRule({
+      propertyType: "RuleFactoryAddressableSampleItemProperty",
+      itemRule: addressableRule,
+    })
+    const context = createJSONSchemaExportContext(baseContext, "inline")
+    context.exportToJSONSchema!.requiredPolicy = {
+      currentBoundary: "full",
+      cacheVariant: "full",
+    }
+
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "RuleFactoryAddressableSampleItemProperty" },
+      value: undefined,
+    })
+
+    expect(schema).not.toHaveProperty("required")
+    expect(schema).toHaveProperty("properties.Имя")
+  })
 })
 
 describe("Predefined JSON Schema", () => {

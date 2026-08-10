@@ -76,7 +76,7 @@ export function toProjectStateFileUpdate(
     fields: firstPassResult.objectRecords.flatMap(projectStateFieldEntries),
     forms: projectStateFormEntries(firstPassResult.form),
     pendingChecks:
-      firstPassResult.state.kind === "form"
+      firstPassResult.state.kind === "form" || firstPassResult.state.kind === "properties"
         ? firstPassResult.state.pendingChecks.map(projectStatePendingCheck)
         : [],
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
@@ -224,6 +224,15 @@ function projectStatePendingCheck(check: ValidationPendingCheck): ProjectStatePe
       value: check.value,
       tagged: check.tagged,
       ...(check.transport === undefined ? {} : { transport: check.transport }),
+    }
+  }
+  if (check.kind === "addressableRequired") {
+    return {
+      kind: "addressableRequired",
+      yamlPath: check.yamlPath,
+      location,
+      canonicalTarget: check.canonicalTarget,
+      missing: check.missing,
     }
   }
   return {

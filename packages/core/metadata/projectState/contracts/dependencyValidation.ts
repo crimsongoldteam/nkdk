@@ -31,7 +31,12 @@ export interface ProjectMetadataTargetReferenceLocation { readonly kind: "metada
 export interface ProjectDataPathReferenceLocation { readonly kind: "dataPath"; readonly projectPath: string; readonly componentPath: string; readonly yamlPath: ProjectStateYamlPath; readonly value: string; readonly resolvedSegments: readonly string[]; readonly segmentIndex: number }
 export type ProjectReferenceLocation = ProjectMetadataTargetReferenceLocation | ProjectDataPathReferenceLocation
 export interface ProjectReferenceLookupResult { readonly requestId: string; readonly references: readonly ProjectReferenceLocation[] }
-export interface ProjectDependencyInputQuery { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: ProjectStatePendingDependencyCheck }
+export type ProjectDependencyInputQuery = Readonly<{
+  requestId: string
+  componentPath: string
+  projectPath: string
+  check: Exclude<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" }>
+}>
 export interface ProjectDependencyInput { readonly owners: readonly { readonly owner: OwnerTypeRef; readonly facts: ProjectStateOwnerFacts }[]; readonly fields: readonly ProjectStateFieldEntry[]; readonly forms: readonly ProjectStateFormEntry[] }
 export type ProjectDependencyInputResult = { readonly requestId: string; readonly status: "found"; readonly input: ProjectDependencyInput } | { readonly requestId: string; readonly status: "missing" }
 export interface ProjectDependencyOwnerInputQuery { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
@@ -80,6 +85,7 @@ export interface ProjectStatePendingMetadataTargetReference {
 export interface ProjectStatePendingReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly reference: ProjectStatePendingMetadataTargetReference }
 export interface ProjectStatePendingOwnerCheck { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
 export interface ProjectStateDataPathReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }> }
+export interface ProjectStateAddressableRequiredCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "addressableRequired" }> }
 export interface ProjectStateDependencyReadiness { readonly blockedComponentPaths: ReadonlySet<string>; readonly diagnostics: readonly Diagnostic[] }
 export interface ProjectStateResolvedDataPathProjection { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly resolvedSegments: readonly string[]; readonly sourceOwner: OwnerTypeRef; readonly sourceFieldName?: string }
 
@@ -88,6 +94,7 @@ export interface ProjectStateResolveDataPathsParams { readonly checks: readonly 
 export interface ProjectStateReferenceValidationParams { readonly checks: readonly ProjectStatePendingReferenceCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
 export interface ProjectStateOwnerValidationParams { readonly checks: readonly ProjectStatePendingOwnerCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readOwners"> }
 export interface ProjectStateDependencyValidationParams { readonly checks: readonly ProjectDependencyInputQuery[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "readDependencyInputs" | "readDependencyOwnerInputs" | "readOwnerRefPage"> }
+export interface ProjectStateAddressableRequiredValidationParams { readonly checks: readonly ProjectStateAddressableRequiredCheck[]; readonly projectDir: string; readonly queryPort: Pick<ProjectStateQueryPort, "resolveTargets"> }
 export interface ProjectStateStructuredDocumentValidationParams {
   readonly facts: readonly ProjectStateStructuredDocumentFact[]
   readonly projectDir: string
@@ -104,5 +111,6 @@ export interface ProjectStateDependencyValidator {
   validateReferences(params: ProjectStateReferenceValidationParams): readonly Diagnostic[]
   validateOwners(params: ProjectStateOwnerValidationParams): readonly Diagnostic[]
   validateDependencies(params: ProjectStateDependencyValidationParams): readonly Diagnostic[]
+  validateAddressableRequired(params: ProjectStateAddressableRequiredValidationParams): readonly Diagnostic[]
   validateStructuredDocuments(params: ProjectStateStructuredDocumentValidationParams): readonly Diagnostic[]
 }

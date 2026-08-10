@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { fillValuePendingCheck, richYamlUpdate } from "./testData"
+import { addressableRequiredPendingCheck, fillValuePendingCheck, richYamlUpdate } from "./testData"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
@@ -67,6 +67,18 @@ it("записывает отдельный вид проектной прове
   const view = openProjectStateFragment(writer.finish())
   expect(view.tableRange("pendingChecks")?.records).toBe(1)
   expect(Array.from({ length: view.stringCount }, (_, id) => view.stringValue(id))).toContain("fillValue")
+})
+
+it("записывает отложенную проверку обязательных полей адресуемого объекта", () => {
+  const writer = createProjectStateFragmentWriter()
+  const update = richYamlUpdate("cfe/X/Товары.yaml", "cfe/X", "Catalog.Товары")
+  writer.appendFile({ ...update, pendingChecks: [addressableRequiredPendingCheck()] }, 9n)
+
+  const snapshot = new ProjectStateSnapshotView(buildTypedProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  }))
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([addressableRequiredPendingCheck()])
 })
 
 it("передаёт пять буферов фрагмента без копирования", () => {

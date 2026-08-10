@@ -126,6 +126,13 @@ export type ProjectStatePendingDependencyCheck =
       readonly tagged: boolean
       readonly transport?: "DesignTimeRef"
     }
+  | {
+      readonly kind: "addressableRequired"
+      readonly yamlPath: ProjectStateYamlPath
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly canonicalTarget: string
+      readonly missing: readonly string[]
+    }
 export interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
   readonly localValidation: ProjectStateLocalValidationResult

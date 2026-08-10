@@ -392,6 +392,25 @@ describe("ProjectStateFileUpdateBatch", () => {
 
     expect(() => assertProjectStateFileUpdateBatch(batch)).toThrow()
   })
+
+  it.each([
+    { canonicalTarget: 1, missing: ["Имя"] },
+    { canonicalTarget: "Catalog.Товары", missing: "Имя" },
+    { canonicalTarget: "Catalog.Товары", missing: [1] },
+  ])("rejects malformed addressableRequired payload: %o", (payload) => {
+    expect(() => assertProjectStateFileUpdateBatch({
+      updates: [{
+        ...yamlUpdate("a.yaml"),
+        pendingChecks: [{
+          kind: "addressableRequired",
+          yamlPath: [],
+          location: { line: 1, col: 1 },
+          ...payload,
+        }],
+      }],
+      hashBytes: new Uint8Array(8),
+    })).toThrow()
+  })
 })
 
 function resourceUpdate(projectPath: string): ProjectStateFileUpdate {

@@ -63,10 +63,11 @@ export function exportJSONSchemaForSchemaName(params: {
   excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
   validationPropertyRefs?: true
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
 }): TSchema {
   ensureJSONSchemaRegistry()
 
-  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs", validationPropertyRefs } = params
+  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs", validationPropertyRefs, requiredPolicy } = params
   const exporter = getSchemaExporter(name) ?? getSchemaExporter(encodeValidationSchemaKey(name))
   if (!exporter) {
     throw new ProjectFileSchemaError(
@@ -78,6 +79,7 @@ export function exportJSONSchemaForSchemaName(params: {
     excludeImplicitValueYAML,
     includeNestedChildItems,
     validationPropertyRefs,
+    requiredPolicy,
   })
   const schema = exporter({ context: schemaContext })
 
@@ -90,6 +92,7 @@ export function exportJSONSchemaGraph(params: {
   mode?: JSONSchemaExportMode
   excludeImplicitValueYAML?: boolean
   validationPropertyRefs?: true
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
 }): JSONSchemaGraph {
   ensureJSONSchemaRegistry()
 
@@ -108,6 +111,7 @@ export function exportJSONSchemaGraph(params: {
             excludeImplicitValueYAML: params.excludeImplicitValueYAML,
             includeNestedChildItems: root.includeNestedChildItems,
             validationPropertyRefs: params.validationPropertyRefs,
+            requiredPolicy: params.requiredPolicy,
           })
         : exportJSONSchemaForMetadataItemRule({
             context: params.context,
@@ -116,8 +120,11 @@ export function exportJSONSchemaGraph(params: {
             excludeImplicitValueYAML: params.excludeImplicitValueYAML,
             includeNestedChildItems: root.includeNestedChildItems,
             validationPropertyRefs: params.validationPropertyRefs,
+            requiredPolicy: params.requiredPolicy,
           })
-    const rewritten = params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, schema) : schema
+    const rewritten = params.validationPropertyRefs === true
+      ? rewriteValidationRefs(params.context, schema, params.requiredPolicy)
+      : schema
     roots[root.key] = rewritten
     pendingRefs.push(...collectSchemaRefs(rewritten))
   }
@@ -127,15 +134,20 @@ export function exportJSONSchemaGraph(params: {
     if (ref === undefined || schemas[ref] !== undefined) continue
 
     const validationSchema = params.validationPropertyRefs === true ? getValidationSchemaRef(ref) : undefined
-    const name = params.validationPropertyRefs === true ? validationSchemaName(params.context, ref) : schemaNameFromRef(ref)
+    const name = params.validationPropertyRefs === true
+      ? validationSchemaName(params.context, ref, params.requiredPolicy)
+      : schemaNameFromRef(ref)
     const exported = validationSchema ?? exportJSONSchemaForSchemaName({
       context: params.context,
       name,
       mode,
       excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       validationPropertyRefs: params.validationPropertyRefs,
+      requiredPolicy: params.requiredPolicy,
     })
-    const schema = withSchemaId(ref, params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, exported) : exported)
+    const schema = withSchemaId(ref, params.validationPropertyRefs === true
+      ? rewriteValidationRefs(params.context, exported, params.requiredPolicy)
+      : exported)
 
     schemas[ref] = schema
     pendingRefs.push(...collectSchemaRefs(schema))
@@ -151,6 +163,7 @@ export function exportJSONSchemaForMetadataItemRule(params: {
   excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
   validationPropertyRefs?: true
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
 }): TSchema {
   ensureJSONSchemaRegistry()
   const {
@@ -159,12 +172,14 @@ export function exportJSONSchemaForMetadataItemRule(params: {
     excludeImplicitValueYAML,
     includeNestedChildItems,
     validationPropertyRefs,
+    requiredPolicy,
     mode = "externalRefs",
   } = params
   const schemaContext = createJSONSchemaExportContext(context, mode, {
     excludeImplicitValueYAML,
     includeNestedChildItems,
     validationPropertyRefs,
+    requiredPolicy,
   })
   const schema = exportMetadataItemToJSONSchema({
     context: schemaContext,
@@ -175,14 +190,22 @@ export function exportJSONSchemaForMetadataItemRule(params: {
     : schema
 }
 
-function validationSchemaName(context: ConfigurationContext, ref: string): string {
-  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
+function validationSchemaName(
+  context: ConfigurationContext,
+  ref: string,
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"],
+): string {
+  const prefix = validationSchemaPrefix(context, requiredPolicy)
   if (!ref.startsWith(prefix)) throw new ProjectFileSchemaError(`Некорректная validation JSON Schema ссылка "${ref}"`)
   return decodeValidationSchemaKey(ref.slice(prefix.length))
 }
 
-function rewriteValidationRefs(context: ConfigurationContext, schema: TSchema): TSchema {
-  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
+function rewriteValidationRefs(
+  context: ConfigurationContext,
+  schema: TSchema,
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"],
+): TSchema {
+  const prefix = validationSchemaPrefix(context, requiredPolicy)
   const rewrite = (value: unknown): unknown => {
     if (typeof value === "string" && value.startsWith(JSON_SCHEMA_REF_PREFIX) && !value.startsWith(prefix)) {
       return `${prefix}${encodeValidationSchemaKey(value.slice(JSON_SCHEMA_REF_PREFIX.length))}`
@@ -194,6 +217,15 @@ function rewriteValidationRefs(context: ConfigurationContext, schema: TSchema): 
     }))
   }
   return rewrite(schema) as TSchema
+}
+
+function validationSchemaPrefix(
+  context: ConfigurationContext,
+  requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"],
+): string {
+  const variant = requiredPolicy?.cacheVariant ?? "full"
+  const variantPath = variant === "full" ? "" : `${variant}/`
+  return `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/${variantPath}`
 }
 
 export function schemaNameFromRef(ref: string): string {

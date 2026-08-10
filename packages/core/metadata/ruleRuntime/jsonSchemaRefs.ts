@@ -97,7 +97,12 @@ export function listJSONSchemaIdentityNames(): string[] {
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
   mode: JSONSchemaExportMode,
-  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean; validationPropertyRefs?: true } = {}
+  options: {
+    excludeImplicitValueYAML?: boolean
+    includeNestedChildItems?: boolean
+    validationPropertyRefs?: true
+    requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
+  } = {}
 ): ConfigurationContext {
   return {
     ...context,
@@ -113,6 +118,7 @@ export function createJSONSchemaExportContext(
       ...(options.validationPropertyRefs === undefined
         ? {}
         : { validationPropertyRefs: options.validationPropertyRefs }),
+      ...(options.requiredPolicy === undefined ? {} : { requiredPolicy: options.requiredPolicy }),
     },
   }
 }
@@ -216,7 +222,9 @@ export function decodeValidationSchemaKey(key: string): string {
 }
 
 function validationSchemaRefName(context: ConfigurationContext, key: string): string {
-  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`)
+  const variant = context.exportToJSONSchema?.requiredPolicy?.cacheVariant ?? "full"
+  const variantPath = variant === "full" ? "" : `${variant}/`
+  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${variantPath}${encodeValidationSchemaKey(key)}`)
 }
 
 function encodeValidationSchemaKeySegment(segment: string): string {

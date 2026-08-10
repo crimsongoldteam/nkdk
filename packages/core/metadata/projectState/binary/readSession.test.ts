@@ -6,7 +6,7 @@ import { createBinaryProjectStateQueryPort, openBinaryProjectStateReadSession } 
 import { createProjectStateDependencyValidator } from "../../validation/projectStateDependencyValidation"
 import { createBinaryProjectStateReadToken } from "./readToken"
 import { ProjectStateSnapshotView } from "./snapshot"
-import { fillValuePendingCheck, richYamlUpdate } from "./testData"
+import { addressableRequiredPendingCheck, fillValuePendingCheck, richYamlUpdate } from "./testData"
 import { createProjectStateFragmentWriter, openProjectStateFragment } from "./fragment"
 import { PROJECT_STATE_FACT_RECORD_VIEWS } from "./factTables"
 import {
@@ -101,12 +101,16 @@ it("сохраняет декларации табличных элементо�
     ],
   }
   const session = openSessionWithUpdates([update])
+  const dependencyCheck = source.pendingChecks[0]
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
 
   expect(session.readDependencyInputs([{
     requestId: "dependency",
     componentPath: "cf",
     projectPath: update.projectPath,
-    check: source.pendingChecks[0]!,
+    check: dependencyCheck,
   }])).toMatchObject([{
     status: "found",
     input: {
@@ -162,13 +166,17 @@ it("сохраняет произвольный тип колонки в дво�
     ],
   }
   const session = openSessionWithUpdates([update])
+  const dependencyCheck = source.pendingChecks[0]
+  if (dependencyCheck?.kind === "addressableRequired" || dependencyCheck === undefined) {
+    throw new Error("Ожидалась dependency-проверка")
+  }
 
   const response = session.readDependencyInputs([
     {
       requestId: "dependency",
       componentPath: "cf",
       projectPath: update.projectPath,
-      check: source.pendingChecks[0]!,
+      check: dependencyCheck,
     },
   ])[0]
 
@@ -300,6 +308,14 @@ it("использует переданный типизированный чи�
 it("читает fillValue-проверку из двоичного состояния без потери payload", () => {
   const expected = fillValuePendingCheck()
   const update = richYamlUpdate("cf/source.yaml", "cf", "Catalog.Source")
+  const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
+
+  expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])
+})
+
+it("читает addressableRequired-проверку из двоичного состояния без потери payload", () => {
+  const expected = addressableRequiredPendingCheck()
+  const update = richYamlUpdate("cfe/X/source.yaml", "cfe/X", "Catalog.Source")
   const snapshot = new ProjectStateSnapshotView(typedSnapshot([{ ...update, pendingChecks: [expected] }]))
 
   expect(createTypedProjectStateReader(snapshot).pendingChecks(0)).toEqual([expected])

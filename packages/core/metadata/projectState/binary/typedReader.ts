@@ -451,6 +451,14 @@ export function createTypedProjectStateReader(
           ...payload,
         }
       }
+      if (kind === "addressableRequired") {
+        return {
+          kind: "addressableRequired" as const,
+          yamlPath: yamlPath(value.yamlPathId),
+          location,
+          ...decodeAddressableRequiredPayload(string(value.payloadId)),
+        }
+      }
       if (kind !== "dataPath") throw new Error(`Неизвестный вид project-state проверки: ${kind}`)
       return {
         kind: "dataPath" as const, yamlPath: yamlPath(value.yamlPathId),
@@ -466,6 +474,31 @@ export function createTypedProjectStateReader(
         policy: "formDataPath" as const,
       }
     }) as ProjectStateYamlFileUpdate["pendingChecks"]
+  }
+
+  function decodeAddressableRequiredPayload(payload: string): {
+    canonicalTarget: string
+    missing: readonly string[]
+  } {
+    let decoded: unknown
+    try {
+      decoded = JSON.parse(payload)
+    } catch {
+      throw new Error("Повреждён JSON project-state проверки addressableRequired")
+    }
+    if (typeof decoded !== "object" || decoded === null || Array.isArray(decoded)) {
+      throw new Error("Повреждена project-state проверка addressableRequired")
+    }
+    const value = decoded as Record<string, unknown>
+    if (
+      value.version !== 1 ||
+      typeof value.canonicalTarget !== "string" ||
+      !Array.isArray(value.missing) ||
+      !value.missing.every((item) => typeof item === "string")
+    ) {
+      throw new Error("Неподдерживаемая project-state проверка addressableRequired")
+    }
+    return { canonicalTarget: value.canonicalTarget, missing: value.missing as string[] }
   }
 
   function decodeFillValuePayload(payload: string): {
