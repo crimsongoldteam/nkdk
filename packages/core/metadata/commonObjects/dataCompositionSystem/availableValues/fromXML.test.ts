@@ -6,6 +6,7 @@ import { mockContextFromXML } from "../../../../tests/mockContext"
 import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
+import "../index"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const
