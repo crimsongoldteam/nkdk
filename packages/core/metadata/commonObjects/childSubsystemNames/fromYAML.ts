@@ -1,3 +1,3 @@
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
-registerTypeRule("ChildSubsystemNames", "importFromYAML", (_context, _rule, value) => value)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildSubsystemNames", "importFromYAML", (_context, _rule, value) => value)

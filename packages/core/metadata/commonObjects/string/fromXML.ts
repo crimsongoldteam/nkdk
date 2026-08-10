@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 
 export const importStringFromXML = (
@@ -18,4 +18,4 @@ export const importStringFromXML = (
   return value.toString()
 }
 
-registerTypeRule("string", "importFromXML", importStringFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("string", "importFromXML", importStringFromXML)

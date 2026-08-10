@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, definePropertyTypeRule } from "../../ruleRuntime"
 import { mergeOmittedNames, readOmittedNames } from "../omittedChildren"
 import { setChildFileItemNamesOmittedChildren } from "./fromXML"
 
@@ -23,4 +23,4 @@ export const exportChildFileItemNamesToXML: ExportToXMLFunctionNew = (params): s
   return ordered
 }
 
-registerTypeRule("ChildFileItemNames", "exportToXML", exportChildFileItemNamesToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildFileItemNames", "exportToXML", exportChildFileItemNamesToXML)

@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinkXML } from "./types"
 
@@ -36,5 +36,5 @@ export function importMetadataItemLinksFromXML(
   return items.map((value) => (value === undefined ? "" : importMetadataItemLinkFromXML(context, undefined, value)!))
 }
 
-registerTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)
-registerTypeRule("MetadataItemLinks", "importFromXML", importMetadataItemLinksFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "importFromXML", importMetadataItemLinkFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "importFromXML", importMetadataItemLinksFromXML)

@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 
 export const exportScrollBarUseToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
@@ -14,4 +14,4 @@ export const exportScrollBarUseToJSONSchema: ExportToJSONSchemaFn = (): TSchema 
   return Type.Union(literals as [TSchema, TSchema, ...TSchema[]])
 }
 
-registerTypeRule("ScrollBarUseBoolean", "exportToJSONSchema", exportScrollBarUseToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("ScrollBarUseBoolean", "exportToJSONSchema", exportScrollBarUseToJSONSchema)

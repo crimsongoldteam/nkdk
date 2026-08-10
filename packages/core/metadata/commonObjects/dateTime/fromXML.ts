@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 
 type DateTimeXML = string | { "#text"?: string; "_xsi:type"?: string } | undefined
@@ -17,4 +17,4 @@ export const importDateTimeFromXML = (
   return String(rawValue)
 }
 
-registerTypeRule("dateTime", "importFromXML", importDateTimeFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("dateTime", "importFromXML", importDateTimeFromXML)

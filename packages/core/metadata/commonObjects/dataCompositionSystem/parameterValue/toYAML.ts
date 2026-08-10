@@ -1,7 +1,7 @@
 import { exportI8nTextToYAML } from "../../i8nText/toYAML"
 import type { Color } from "../../color/types"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
@@ -144,4 +144,4 @@ export const exportSettingsParameterValueToYAML = (
   })
 }
 
-registerTypeRule("SettingsParameterValue", "exportToYAML", exportSettingsParameterValueToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "exportToYAML", exportSettingsParameterValueToYAML)

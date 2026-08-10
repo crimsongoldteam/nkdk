@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { StringboolYAML } from "./types"
 
@@ -12,4 +12,4 @@ export const exportBooleanToYAML = (
   return value ? "Истина" : "Ложь"
 }
 
-registerTypeRule("boolean", "exportToYAML", exportBooleanToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("boolean", "exportToYAML", exportBooleanToYAML)

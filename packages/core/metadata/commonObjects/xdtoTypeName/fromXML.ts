@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { XDTOTypeName } from "./types"
 
 type XDTOTypeNameXMLObject = {
@@ -76,4 +76,4 @@ export const importXDTOTypeNameFromXML = (
   return fromQName(value.toString(), undefined)
 }
 
-registerTypeRule("XDTOTypeName", "importFromXML", importXDTOTypeNameFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOTypeName", "importFromXML", importXDTOTypeNameFromXML)

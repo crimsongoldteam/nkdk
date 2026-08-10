@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ControlBorderType } from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import type { Border, BorderXML } from "./types"
@@ -36,4 +36,4 @@ export const importBorderFromXML = (
   return result
 }
 
-registerTypeRule("Border", "importFromXML", importBorderFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Border", "importFromXML", importBorderFromXML)

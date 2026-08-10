@@ -1,6 +1,6 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
 export const exportMetadataCommandGroupToJSONSchema = () => Type.String()
 
-registerTypeRule("MetadataCommandGroup", "exportToJSONSchema", exportMetadataCommandGroupToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataCommandGroup", "exportToJSONSchema", exportMetadataCommandGroupToJSONSchema)

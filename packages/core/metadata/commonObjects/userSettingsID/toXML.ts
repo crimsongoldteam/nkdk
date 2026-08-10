@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { UserSettingsID, UserSettingsIDXML } from "./types"
 
@@ -20,4 +20,4 @@ export const exportUserSettingsIDToXML = (
   return undefined
 }
 
-registerTypeRule("UserSettingsID", "exportToXML", exportUserSettingsIDToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserSettingsID", "exportToXML", exportUserSettingsIDToXML)

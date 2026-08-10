@@ -10,7 +10,7 @@ import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescrip
 import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
 import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "../../../commonObjects/typeDescription/types"
 import type { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 
 export type ButtonParameter =
@@ -81,8 +81,8 @@ export const exportButtonParameterToYAML = (
 ): MetadataItemLinkYAML | undefined =>
   typeof value === "string" ? exportMetadataItemLinkToYAML(context, rule, value) : undefined
 
-registerTypeRule("ButtonParameter", "importFromXML", importButtonParameterFromXML)
-registerTypeRule("ButtonParameter", "exportToXML", exportButtonParameterToXML)
-registerTypeRule("ButtonParameter", "importFromYAML", importButtonParameterFromYAML)
-registerTypeRule("ButtonParameter", "exportToYAML", exportButtonParameterToYAML)
-registerTypeRule("ButtonParameter", "exportToJSONSchema", () => MetadataItemLinkJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("ButtonParameter", "importFromXML", importButtonParameterFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("ButtonParameter", "exportToXML", exportButtonParameterToXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("ButtonParameter", "importFromYAML", importButtonParameterFromYAML)
+export const metadataPropertyRule003 = definePropertyTypeRule("ButtonParameter", "exportToYAML", exportButtonParameterToYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("ButtonParameter", "exportToJSONSchema", () => MetadataItemLinkJSONSchema)

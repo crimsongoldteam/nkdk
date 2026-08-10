@@ -1,5 +1,5 @@
 import { Type, TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 
 export const XDTOTypeNameJSONSchema = Type.Object({
   ПространствоИмен: Type.String(),
@@ -10,4 +10,4 @@ export const exportXDTOTypeNameToJSONSchema: ExportToJSONSchemaFn = (): TSchema 
   return XDTOTypeNameJSONSchema
 }
 
-registerTypeRule("XDTOTypeName", "exportToJSONSchema", exportXDTOTypeNameToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOTypeName", "exportToJSONSchema", exportXDTOTypeNameToJSONSchema)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { XDTOTypeName, XDTOTypeNameYAML } from "./types"
 
 const isXDTOTypeNameYAML = (value: unknown): value is XDTOTypeNameYAML => {
@@ -28,4 +28,4 @@ export const importXDTOTypeNameFromYAML = (
   }
 }
 
-registerTypeRule("XDTOTypeName", "importFromYAML", importXDTOTypeNameFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOTypeName", "importFromYAML", importXDTOTypeNameFromYAML)

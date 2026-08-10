@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../../ruleRuntime"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 
 export const exportCommandNameToEnterprise = (_params: {
   context: ConfigurationContext
@@ -10,4 +10,4 @@ export const exportCommandNameToEnterprise = (_params: {
   return "КомандаЗаглушка"
 }
 
-registerTypeRule("CommandName", "exportToEnterprise", exportCommandNameToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandName", "exportToEnterprise", exportCommandNameToEnterprise)

@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../../../context/types"
 import { importPropertyFromXML } from "../../../../../ruleRuntime/property/fromXML"
 import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"
 
@@ -18,4 +18,4 @@ export const importGroupItemAutoFromXML = (
   } as GroupItemAuto
 }
 
-registerTypeRule("GroupItemAuto", "importFromXML", importGroupItemAutoFromXML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemAuto", "importFromXML", importGroupItemAutoFromXML as any)

@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../context/types"
-import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, InternalInfoPropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { getUUID } from "../../helpers/uuid"
 import {
   internalInfoContainedObjectIdAddress,
@@ -183,4 +183,4 @@ export const exportInternalInfoToXMLOld = <T extends InternalInfoParam[]>(
   }
 }
 
-registerTypeRule("InternalInfo", "exportToXML", exportInternalInfoToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("InternalInfo", "exportToXML", exportInternalInfoToXML)

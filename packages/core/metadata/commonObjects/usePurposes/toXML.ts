@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -21,4 +21,4 @@ export const exportUsePurposesToXML = (
   }
 }
 
-registerTypeRule("UsePurposes", "exportToXML", exportUsePurposesToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UsePurposes", "exportToXML", exportUsePurposesToXML)

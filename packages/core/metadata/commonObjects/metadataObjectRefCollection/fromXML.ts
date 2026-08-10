@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import type { MetadataObjectRefCollection, MetadataObjectRefCollectionXML } from "./types"
@@ -27,4 +27,4 @@ export const importMetadataObjectRefCollectionFromXML = (
   return result
 }
 
-registerTypeRule("MetadataObjectRefCollection", "importFromXML", importMetadataObjectRefCollectionFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "importFromXML", importMetadataObjectRefCollectionFromXML)

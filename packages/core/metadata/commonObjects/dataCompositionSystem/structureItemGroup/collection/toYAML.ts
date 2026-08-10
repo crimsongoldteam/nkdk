@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../../context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../../ruleRuntime"
+import { exportPropertyToYAML, PropertyRule, definePropertyTypeRule } from "../../../../ruleRuntime"
 import {
   StructureItemGroupCollectionItemYAML,
   StructureItemGroupCollectionYAML,
@@ -31,4 +31,4 @@ export const exportStructureItemGroupCollectionToYAML = (
   return result.length > 0 ? result : undefined
 }
 
-registerTypeRule("StructureItemGroupCollection", "exportToYAML", exportStructureItemGroupCollectionToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StructureItemGroupCollection", "exportToYAML", exportStructureItemGroupCollectionToYAML)

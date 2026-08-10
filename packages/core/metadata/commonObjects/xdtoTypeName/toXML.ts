@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { XDTOTypeName, XDTOTypeNameXML } from "./types"
 
 const XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
@@ -32,4 +32,4 @@ export const exportXDTOTypeNameToXML = (
   }
 }
 
-registerTypeRule("XDTOTypeName", "exportToXML", exportXDTOTypeNameToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOTypeName", "exportToXML", exportXDTOTypeNameToXML)

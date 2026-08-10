@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
@@ -38,5 +38,5 @@ const exportMetadataFieldOrFieldsToXML = (
     : exportMetadataFieldToXML(context, rule, data)
 }
 
-registerTypeRule("MetadataField", "exportToXML", exportMetadataFieldOrFieldsToXML)
-registerTypeRule("MetadataFields", "exportToXML", exportMetadataFieldOrFieldsToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "exportToXML", exportMetadataFieldOrFieldsToXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "exportToXML", exportMetadataFieldOrFieldsToXML)

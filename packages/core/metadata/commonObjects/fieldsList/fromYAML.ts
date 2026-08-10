@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { FieldsList, FieldsListYAML } from "./types"
 
 export const importFieldsListFromYAML = (
@@ -13,4 +13,4 @@ export const importFieldsListFromYAML = (
   return enterprise
 }
 
-registerTypeRule("FieldsList", "importFromYAML", importFieldsListFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("FieldsList", "importFromYAML", importFieldsListFromYAML)

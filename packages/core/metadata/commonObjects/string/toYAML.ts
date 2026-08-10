@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 
 export const exportStringToYAML = (
@@ -11,4 +11,4 @@ export const exportStringToYAML = (
   return value.toString()
 }
 
-registerTypeRule("string", "exportToYAML", exportStringToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("string", "exportToYAML", exportStringToYAML)

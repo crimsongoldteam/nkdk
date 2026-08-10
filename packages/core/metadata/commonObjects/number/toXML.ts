@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { NumberPropertyRule } from "./types"
 
 export const exportNumberToXML = (
@@ -17,4 +17,4 @@ export const exportNumberToXML = (
   return value
 }
 
-registerTypeRule("number", "exportToXML", exportNumberToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("number", "exportToXML", exportNumberToXML)

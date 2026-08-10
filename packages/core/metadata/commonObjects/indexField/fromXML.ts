@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../context/types"
 import {
   getConfigurationIndexCollectionContext,
@@ -18,8 +18,8 @@ export const importIndexFieldsFromXML = (
   return Array.isArray(fields) ? fields : [fields]
 }
 
-registerTypeRule("IndexField", "importFromXML", importIndexFieldsFromXML)
-registerTypeRule("IndexField", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("IndexField", "importFromXML", importIndexFieldsFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("IndexField", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (
     collection === undefined ||

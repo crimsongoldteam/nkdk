@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
 import type { MetadataObjectRefCollection, MetadataObjectRefCollectionYAML } from "./types"
@@ -24,4 +24,4 @@ export const exportMetadataObjectRefCollectionToYAML = (
   return data.map((item) => exportMetadataObjectStringToYAML(context, objectRule, item)!)
 }
 
-registerTypeRule("MetadataObjectRefCollection", "exportToYAML", exportMetadataObjectRefCollectionToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "exportToYAML", exportMetadataObjectRefCollectionToYAML)

@@ -4,7 +4,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
 export const importChildTemplateNamesFromXML = (
@@ -17,9 +17,9 @@ export const importChildTemplateNamesFromXML = (
   return [xml as string]
 }
 
-registerTypeRule("ChildTemplateNames", "importFromXML", importChildTemplateNamesFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildTemplateNames", "importFromXML", importChildTemplateNamesFromXML)
 
-registerTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
   const names = Array.isArray(xml) ? xml : [xml]

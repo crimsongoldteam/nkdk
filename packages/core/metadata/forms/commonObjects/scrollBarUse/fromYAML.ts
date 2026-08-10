@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 
 const importScrollBarUseFromYAML = (
@@ -14,4 +14,4 @@ const importScrollBarUseFromYAML = (
   return enumeration[value as keyof typeof enumeration]
 }
 
-registerTypeRule("ScrollBarUseBoolean", "importFromYAML", importScrollBarUseFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ScrollBarUseBoolean", "importFromYAML", importScrollBarUseFromYAML)

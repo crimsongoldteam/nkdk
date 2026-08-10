@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "../../ruleRuntime/property/fn"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { primitiveValueHandlers } from "./handlers"
@@ -146,7 +146,7 @@ export const importMetadataSimpleValueFromXML = (
   return (result as any).value as string | boolean | number
 }
 
-registerTypeRule("MetadataValue", "configurationIndexValueFromXML", {
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "configurationIndexValueFromXML", {
   xsiNilWhenNotRepresentable: true,
   xsiTypeWhenNotRepresentable: true,
 })
@@ -175,5 +175,5 @@ export const importAssociatedTableFromXML = (
 const importMetadataValueFromXMLForRule: ImportFromXMLFunction = (context, rule, value) =>
   importMetadataValueFromXML({ context, rule, value })
 
-registerTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)
-registerTypeRule("AssociatedTable", "importFromXML", importAssociatedTableFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataValue", "importFromXML", importMetadataValueFromXMLForRule)
+export const metadataPropertyRule002 = definePropertyTypeRule("AssociatedTable", "importFromXML", importAssociatedTableFromXML)

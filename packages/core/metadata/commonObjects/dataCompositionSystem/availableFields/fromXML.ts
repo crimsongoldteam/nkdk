@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
 
 const getFieldText = (field: AvailableFieldXML["dcsset:field"]): string | undefined => {
@@ -60,4 +60,4 @@ const importAvailableFieldsFromXML = (
   return fields.length > 0 ? fields : undefined
 }
 
-registerTypeRule("AvailableFields", "importFromXML", importAvailableFieldsFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "importFromXML", importAvailableFieldsFromXML)

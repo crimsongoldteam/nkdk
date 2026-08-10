@@ -4,7 +4,7 @@ import {
   getConfigurationIndexPropertyValueLogicalAddress,
 } from "../configurationIndex/collector/context"
 import type { PropertyRule } from "../ruleRuntime/property/types"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
@@ -21,8 +21,8 @@ export const importSystemEnumerationFromXML = <T extends string>(
   return value as T
 }
 
-registerTypeRule("SystemEnumeration", "importFromXML", importSystemEnumerationFromXML)
-registerTypeRule("SystemEnumeration", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "importFromXML", importSystemEnumerationFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("SystemEnumeration", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   const value = typeof xml === "string" ? xml : xmlValue(xml)
   if (collection === undefined || value === undefined) return
@@ -40,7 +40,7 @@ registerTypeRule("SystemEnumeration", "collectConfigurationIndexFromXML", ({ con
     value
   )
 })
-registerTypeRule("SystemEnumeration", "configurationIndexValueFromXML", {
+export const metadataPropertyRule002 = definePropertyTypeRule("SystemEnumeration", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => value.xmlText,
 })
 

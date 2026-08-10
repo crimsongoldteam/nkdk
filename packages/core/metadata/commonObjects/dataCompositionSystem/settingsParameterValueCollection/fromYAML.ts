@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import { asExplicitYAMLStringIfMarked } from "../../../../yaml/explicitString"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
@@ -60,4 +60,4 @@ const importSettingsParameterValueCollectionFromYAML = (
   return { itemType: "SettingsParameterValueCollection", parameters: orderedParameters }
 }
 
-registerTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)

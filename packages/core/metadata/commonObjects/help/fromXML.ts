@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { HelpPropertyRule, PropertyRule } from "../../ruleRuntime/property/types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
@@ -39,7 +39,7 @@ export const syncHelpFromXML = async (params: {
   await copyDirectoryFilesOnly(join(xmlDir, helpHtmlDir, "_files"), join(nkdkDir, rule.nkdkDir, "_files"))
 }
 
-registerTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
 const copyDirectoryFilesOnly = async (srcDir: string, dstDir: string): Promise<void> => {
   if (!fs.existsSync(srcDir)) return
   const srcStat = await fs.promises.lstat(srcDir)

@@ -1,5 +1,5 @@
 import { settingsParameterValueRule } from "../parameterValue/types"
-import { MetadataItemRule, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { MetadataItemRule, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { normalizeAppearanceFieldsStringYAML } from "./stringValues"
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"
@@ -58,7 +58,7 @@ export const AppearanceFieldsRules = {
     }),
   },
 } as const satisfies MetadataItemRule
-registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
+export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
   kind: "item",
   itemRule: AppearanceFieldsRules,
   sparseYAML: true,
@@ -73,4 +73,4 @@ registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
     return items.length === 0 ? {} : { "dcscor:item": items }
   },
 })
-registerTypeRule("AppearanceFields", "xmlImportPropertyBehavior", { presenceAffectsExport: true })
+export const metadataPropertyRule001 = definePropertyTypeRule("AppearanceFields", "xmlImportPropertyBehavior", { presenceAffectsExport: true })

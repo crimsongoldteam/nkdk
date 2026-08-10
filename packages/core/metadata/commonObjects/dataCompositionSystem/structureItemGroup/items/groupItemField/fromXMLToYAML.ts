@@ -1,6 +1,6 @@
 import { importMetadataItemFromXMLToYAML } from "../../../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { ImportFromXMLToYAMLFunction } from "../../../../../ruleRuntime/property/importYamlTypes"
-import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemFieldRules } from "./rules"
 
 export const importGroupItemFieldFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
@@ -25,4 +25,4 @@ export const importGroupItemFieldFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   return value
 }
 
-registerTypeRule("GroupItemField", "importFromXMLToYAML", importGroupItemFieldFromXMLToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemField", "importFromXMLToYAML", importGroupItemFieldFromXMLToYAML)

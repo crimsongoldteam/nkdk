@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../../context/types"
-import { callAtomicFromYAML, type PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { callAtomicFromYAML, type PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { StructureItemGroupCollection } from "./collection/types"
 import type { StructureItemGroup } from "./types"
 
@@ -36,4 +36,4 @@ export const importStructureItemGroupFromYAML = (
   return root
 }
 
-registerTypeRule("StructureItemGroup", "importFromYAML", importStructureItemGroupFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StructureItemGroup", "importFromYAML", importStructureItemGroupFromYAML)

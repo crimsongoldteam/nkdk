@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import { PropertyRule } from "../../ruleRuntime"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
@@ -29,4 +29,4 @@ export const importStringOrNumberFromXML = (
   return typeof value === "number" ? value : value.toString()
 }
 
-registerTypeRule("StringOrNumber", "importFromXML", importStringOrNumberFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StringOrNumber", "importFromXML", importStringOrNumberFromXML)

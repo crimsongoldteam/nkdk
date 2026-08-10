@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { exportSystemEnumerationToYAML } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { exportCommonAttributeContentPathToYAML } from "./metadataPath"
@@ -24,4 +24,4 @@ export const exportCommonAttributeContentToYAML = (
   }))
 }
 
-registerTypeRule("CommonAttributeContent", "exportToYAML", exportCommonAttributeContentToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommonAttributeContent", "exportToYAML", exportCommonAttributeContentToYAML)

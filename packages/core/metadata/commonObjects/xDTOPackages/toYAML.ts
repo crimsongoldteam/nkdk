@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ExportToYAMLFunction } from "../../ruleRuntime/property/fn"
 import { XDTOPackages, XDTOPackagesYAML } from "./types"
 
@@ -8,4 +8,4 @@ export const exportXDTOPackagesToYAML: ExportToYAMLFunction = (
   value: XDTOPackages | undefined
 ): XDTOPackagesYAML | undefined => value
 
-registerTypeRule("XDTOPackages", "exportToYAML", exportXDTOPackagesToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOPackages", "exportToYAML", exportXDTOPackagesToYAML)

@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../../../../context/types"
-import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
 import {
   DataCompositionGroupTypeFromYAML,
@@ -35,4 +35,4 @@ export const importGroupItemFieldFromYAML = (
   return isDisabled ? { itemType: "GroupItemField", field, use: false } : { itemType: "GroupItemField", field }
 }
 
-registerTypeRule("GroupItemField", "importFromYAML", importGroupItemFieldFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemField", "importFromYAML", importGroupItemFieldFromYAML)

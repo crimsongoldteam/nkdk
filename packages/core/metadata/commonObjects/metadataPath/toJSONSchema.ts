@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import type { MetadataTargetConstraint } from "../metadataTargets/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
@@ -38,8 +38,8 @@ function dataPathTargetFallback(rule: PropertyRule): MetadataTargetConstraint {
   }
 }
 
-registerTypeRule("DataPath", "exportToJSONSchema", exportDataPathToJSONSchema)
-registerTypeRule("MetadataItemLink", "exportToJSONSchema", exportMetadataItemLinkToJSONSchema)
-registerTypeRule("MetadataItemLinks", "exportToJSONSchema", exportMetadataItemLinksToJSONSchema)
-registerTypeRule("MetadataField", "exportToJSONSchema", exportMetadataFieldToJSONSchema)
-registerTypeRule("MetadataFields", "exportToJSONSchema", exportMetadataFieldsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("DataPath", "exportToJSONSchema", exportDataPathToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLink", "exportToJSONSchema", exportMetadataItemLinkToJSONSchema)
+export const metadataPropertyRule002 = definePropertyTypeRule("MetadataItemLinks", "exportToJSONSchema", exportMetadataItemLinksToJSONSchema)
+export const metadataPropertyRule003 = definePropertyTypeRule("MetadataField", "exportToJSONSchema", exportMetadataFieldToJSONSchema)
+export const metadataPropertyRule004 = definePropertyTypeRule("MetadataFields", "exportToJSONSchema", exportMetadataFieldsToJSONSchema)

@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListToYAML } from "../metadataValue/formChoiceList/toYAML"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
@@ -29,4 +29,4 @@ export const exportChoiceParametersToYAML = (
   return Object.fromEntries(data.map((param) => [param.name, exportChoiceParameterValueToYAML(context, param)]))
 }
 
-registerTypeRule("ChoiceParameters", "exportToYAML", exportChoiceParametersToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameters", "exportToYAML", exportChoiceParametersToYAML)

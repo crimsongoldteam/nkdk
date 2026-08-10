@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { exportI8nTextDefaultToYAML } from "../i8nText/toYAML"
 import { FormattedI8nText } from "./types"
 
@@ -13,4 +13,4 @@ export const exportFormattedI8nTextToEnterprise = (params: {
   return exportI8nTextDefaultToYAML(context, value)
 }
 
-registerTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("FormattedI8nText", "exportToEnterprise", exportFormattedI8nTextToEnterprise)

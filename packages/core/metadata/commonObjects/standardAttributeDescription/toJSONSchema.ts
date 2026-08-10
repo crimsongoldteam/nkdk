@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
 import { StandardAttributeDescriptionRules } from "./rules"
 import type { StandardAttributeDescriptionsPropertyRule } from "../../ruleRuntime/property/types"
@@ -46,4 +46,4 @@ function withoutFillValue(schema: TSchema): TSchema {
   }
 }
 
-registerTypeRule("StandardAttributeDescriptions", "exportToJSONSchema", exportStandardAttributeDescriptionToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("StandardAttributeDescriptions", "exportToJSONSchema", exportStandardAttributeDescriptionToJSONSchema)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { registerTypeRule } from "../ruleRuntime"
+import { definePropertyTypeRule } from "../ruleRuntime"
 import { SystemEnumerationEnterprise, SystemEnumerationPropertyRule } from "./types"
 
 export const exportSystemEnumerationToEnterprise = (params: {
@@ -18,4 +18,4 @@ export const exportSystemEnumerationToEnterprise = (params: {
   }
 }
 
-registerTypeRule("SystemEnumeration", "exportToEnterprise", exportSystemEnumerationToEnterprise as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "exportToEnterprise", exportSystemEnumerationToEnterprise as any)

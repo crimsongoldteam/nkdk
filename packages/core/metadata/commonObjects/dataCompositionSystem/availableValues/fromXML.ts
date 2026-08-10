@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { importDcsLocalStringTypeFromXML } from "../dcsLocalStringType/fromXML"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import type { DcsMetadataValuePropertyRule, MetadataDcsMetadataValueDcsRootXML } from "../dcsMetadataValue/types"
@@ -53,4 +53,4 @@ export const importDcsAvailableValuesFromXML = (
   })
 }
 
-registerTypeRule("DcsAvailableValues", "importFromXML", importDcsAvailableValuesFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsAvailableValues", "importFromXML", importDcsAvailableValuesFromXML)

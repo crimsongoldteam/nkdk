@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importFormChoiceListValueFromXML } from "../metadataValue/fromXML"
 import type { ChoiceList, ChoiceListXML } from "./types"
 import { ConfigurationContextFromXML } from "../../context/types"
@@ -22,4 +22,4 @@ export const importChoiceListFromXML = (
   return result
 }
 
-registerTypeRule("ChoiceList", "importFromXML", importChoiceListFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceList", "importFromXML", importChoiceListFromXML)

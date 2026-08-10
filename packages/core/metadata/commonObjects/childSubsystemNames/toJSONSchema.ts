@@ -1,6 +1,6 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
 export const exportChildSubsystemNamesToJSONSchema = () => Type.Array(Type.String())
 
-registerTypeRule("ChildSubsystemNames", "exportToJSONSchema", exportChildSubsystemNamesToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildSubsystemNames", "exportToJSONSchema", exportChildSubsystemNamesToJSONSchema)

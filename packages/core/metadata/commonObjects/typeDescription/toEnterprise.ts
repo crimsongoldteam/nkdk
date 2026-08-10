@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { getTypeDescriptionRule } from "./helper"
 import { TypeDescription, TypeDescriptionEnterprise } from "./types"
 
@@ -42,4 +42,4 @@ export const exportTypeDescriptionToEnterprise = (params: {
   return result
 }
 
-registerTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToEnterprise", exportTypeDescriptionToEnterprise)

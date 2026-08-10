@@ -1,4 +1,4 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
-registerTypeRule("MinMaxValue", "exportToJSONSchema", () => Type.Number())
+export const metadataPropertyRule000 = definePropertyTypeRule("MinMaxValue", "exportToJSONSchema", () => Type.Number())

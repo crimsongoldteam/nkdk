@@ -1,6 +1,6 @@
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import * as SE from "../../../systemEnumerations/types"
 import {
@@ -250,4 +250,4 @@ const importSettingsParameterValueFromYAMLForRule = (
     sourceValue as ParameterValue | SettingsParameterValue | undefined
   )
 
-registerTypeRule("SettingsParameterValue", "importFromYAML", importSettingsParameterValueFromYAMLForRule)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValue", "importFromYAML", importSettingsParameterValueFromYAMLForRule)

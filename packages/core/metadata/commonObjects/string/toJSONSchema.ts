@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { StringJSONSchema } from "./types"
 
 export const exportStringToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {
@@ -8,8 +8,8 @@ export const exportStringToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchem
   return StringJSONSchema
 }
 
-registerTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
-registerTypeRule("string", "validationSchemaRef", ({ rule }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("string", "validationSchemaRef", ({ rule }) => {
   if (rule.metadataTarget !== undefined) return undefined
   return rule.implicitValueYAML === "" ? "string/without-empty" : "string/base"
 })

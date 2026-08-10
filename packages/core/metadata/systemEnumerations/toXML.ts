@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { PropertyRule } from "../ruleRuntime/property/types"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "./types"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
@@ -19,4 +19,4 @@ export function exportSystemEnumerationToXML(
   return value
 }
 
-registerTypeRule("SystemEnumeration", "exportToXML", exportSystemEnumerationToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "exportToXML", exportSystemEnumerationToXML)

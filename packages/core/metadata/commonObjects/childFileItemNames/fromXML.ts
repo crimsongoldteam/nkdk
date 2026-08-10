@@ -1,6 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexXmlNodeLogicalAddress,
@@ -17,8 +17,8 @@ export const importChildFileItemNamesFromXML = (
   return names.length > 0 && names.every((item) => typeof item === "string") ? names : undefined
 }
 
-registerTypeRule("ChildFileItemNames", "importFromXML", importChildFileItemNamesFromXML)
-registerTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildFileItemNames", "importFromXML", importChildFileItemNamesFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
   const names = Array.isArray(xml) ? xml : [xml]

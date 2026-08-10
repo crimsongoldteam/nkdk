@@ -1,5 +1,5 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import { exportSystemEnumerationToJSONSchema } from "../../systemEnumerations/toJSONSchema"
 
 export const exportCommonAttributeContentToJSONSchema = ({
@@ -20,4 +20,4 @@ export const exportCommonAttributeContentToJSONSchema = ({
     )
   )
 
-registerTypeRule("CommonAttributeContent", "exportToJSONSchema", exportCommonAttributeContentToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommonAttributeContent", "exportToJSONSchema", exportCommonAttributeContentToJSONSchema)

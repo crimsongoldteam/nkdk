@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../../context/types"
-import { callAtomicToXML, PropertyRule, registerTypeRule } from "../../../../ruleRuntime"
+import { callAtomicToXML, PropertyRule, definePropertyTypeRule } from "../../../../ruleRuntime"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection, StructureItemGroupCollectionItem } from "./types"
 
@@ -41,4 +41,4 @@ export const exportStructureItemGroupCollectionToXML = ({
 const findStructureItemGroupRegistryItemByItemType = (itemType: StructureItemGroupCollectionItem["itemType"]) =>
   StructureItemGroupRegistry.find((item) => item.itemType === itemType)
 
-registerTypeRule("StructureItemGroupCollection", "exportToXML", exportStructureItemGroupCollectionToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StructureItemGroupCollection", "exportToXML", exportStructureItemGroupCollectionToXML)

@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 
@@ -24,4 +24,4 @@ export const exportXDTOPackagesToXML: ExportToXMLFunction = (
   }
 }
 
-registerTypeRule("XDTOPackages", "exportToXML", exportXDTOPackagesToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XDTOPackages", "exportToXML", exportXDTOPackagesToXML)

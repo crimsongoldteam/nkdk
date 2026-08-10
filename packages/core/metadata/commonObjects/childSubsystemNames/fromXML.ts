@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { ChildSubsystemNames, ChildSubsystemNamesXML } from "./types"
 
 export const importChildSubsystemNamesFromXML = (
@@ -8,6 +8,6 @@ export const importChildSubsystemNamesFromXML = (
   return Array.isArray(value) ? value : [value]
 }
 
-registerTypeRule("ChildSubsystemNames", "importFromXML", (_context, _rule, value) =>
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildSubsystemNames", "importFromXML", (_context, _rule, value) =>
   importChildSubsystemNamesFromXML(value as ChildSubsystemNamesXML | undefined)
 )

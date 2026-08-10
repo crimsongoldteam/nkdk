@@ -1,4 +1,4 @@
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
 
-registerTypeRule("DcsLocalStringType", "importFromYAML", importI8nTextFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "importFromYAML", importI8nTextFromYAML)

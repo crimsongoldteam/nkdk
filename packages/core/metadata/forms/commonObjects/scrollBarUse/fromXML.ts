@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 
 type ScrollBarUse = "AutoUse" | "DontUse" | "UseAlways"
 
@@ -15,4 +15,4 @@ const importScrollBarUseFromXML = (
   return undefined
 }
 
-registerTypeRule("ScrollBarUseBoolean", "importFromXML", importScrollBarUseFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ScrollBarUseBoolean", "importFromXML", importScrollBarUseFromXML)

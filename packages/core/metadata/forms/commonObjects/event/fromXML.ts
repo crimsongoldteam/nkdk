@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
@@ -55,7 +55,7 @@ export function getReferenceEventXmlName(value: object, key: string): string | u
   return referenceXmlNames.get(value)?.get(key)
 }
 
-registerTypeRule("Events", "importFromXML", importEventsFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Events", "importFromXML", importEventsFromXML)
 
 function parseEventXML(value: unknown): EventXML | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined

@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import type { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } from "./types"
 
@@ -31,5 +31,5 @@ export const importMetadataFieldsFromXML = (
   return result
 }
 
-registerTypeRule("MetadataField", "importFromXML", importMetadataFieldsFromXML)
-registerTypeRule("MetadataFields", "importFromXML", importMetadataFieldsFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "importFromXML", importMetadataFieldsFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "importFromXML", importMetadataFieldsFromXML)

@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
 import { InternalInfo, InternalInfoRootXML } from "./types"
 
@@ -46,5 +46,5 @@ export const importInternalInfoFromXML = (
   return result
 }
 
-registerTypeRule("InternalInfo", "importFromXML", importInternalInfoFromXML)
-registerTypeRule("InternalInfo", "collectConfigurationIndexFromXML", collectInternalInfoConfigurationIndexFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("InternalInfo", "importFromXML", importInternalInfoFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("InternalInfo", "collectConfigurationIndexFromXML", collectInternalInfoConfigurationIndexFromXML)

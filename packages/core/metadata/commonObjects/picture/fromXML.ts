@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { isRawPictureRefValue, type Picture, type PictureXML } from "./types"
 
@@ -57,4 +57,4 @@ export const importPictureFromXML = (
   }
 }
 
-registerTypeRule("Picture", "importFromXML", importPictureFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Picture", "importFromXML", importPictureFromXML)

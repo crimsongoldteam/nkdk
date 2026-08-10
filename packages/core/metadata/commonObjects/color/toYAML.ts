@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -49,4 +49,4 @@ export const exportColorToYAML = <T extends Color | undefined>(
   return color.value
 }
 
-registerTypeRule("Color", "exportToYAML", exportColorToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Color", "exportToYAML", exportColorToYAML)

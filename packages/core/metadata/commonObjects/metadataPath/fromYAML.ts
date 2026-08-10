@@ -2,7 +2,7 @@ import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
@@ -141,4 +141,4 @@ const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, yaml
   return importDataPathStandardMembersFromYAML(context, value)
 }
 
-registerTypeRule("DataPath", "importFromYAML", importDataPathFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("DataPath", "importFromYAML", importDataPathFromYAML)

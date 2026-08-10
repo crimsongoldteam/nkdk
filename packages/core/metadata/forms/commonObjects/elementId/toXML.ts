@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToXMLFunctionNew, definePropertyTypeRule } from "../../../ruleRuntime"
 import { ElementXMLWithoutId } from "../../../ruleRuntime/formElement/types"
 
 export const exportElementIdToXML: ExportToXMLFunctionNew = (params): undefined => {
@@ -21,4 +21,4 @@ export const exportElementIdToXML: ExportToXMLFunctionNew = (params): undefined 
   return undefined
 }
 
-registerTypeRule("ElementId", "exportToXML", exportElementIdToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ElementId", "exportToXML", exportElementIdToXML)

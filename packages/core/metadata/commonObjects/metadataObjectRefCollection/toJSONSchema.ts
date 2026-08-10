@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import type { MetadataTargetConstraint } from "../metadataTargets/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 
@@ -9,4 +9,4 @@ export const exportMetadataObjectRefCollectionToJSONSchema: ExportToJSONSchemaFn
   return Type.Array(buildMetadataTargetSchema(rule.metadataTarget ?? metadataObjectTargetFallback))
 }
 
-registerTypeRule("MetadataObjectRefCollection", "exportToJSONSchema", exportMetadataObjectRefCollectionToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataObjectRefCollection", "exportToJSONSchema", exportMetadataObjectRefCollectionToJSONSchema)

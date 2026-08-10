@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 
@@ -33,4 +33,4 @@ function isKnownStyleFont(ref: string): ref is SE.StyleFonts {
   return Object.prototype.hasOwnProperty.call(SE.StyleFontsToYAML, ref)
 }
 
-registerTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("Font", "exportToEnterprise", exportFontToEnterprise)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
 import { ScrollBarUse, ScrollBarUseEnterprise } from "./types"
 
 export const exportScrollBarUseToEnterprise = (params: {
@@ -16,4 +16,4 @@ export const exportScrollBarUseToEnterprise = (params: {
   }
 }
 
-registerTypeRule("ScrollBarUseBoolean", "exportToEnterprise", exportScrollBarUseToEnterprise as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("ScrollBarUseBoolean", "exportToEnterprise", exportScrollBarUseToEnterprise as any)

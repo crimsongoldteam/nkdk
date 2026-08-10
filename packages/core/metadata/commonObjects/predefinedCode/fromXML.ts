@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { PredefinedCode } from "./types"
 
 const TYPED_NUMERIC_XSI = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
@@ -28,4 +28,4 @@ export const importPredefinedCodeFromXML = (
   return typeof value === "number" ? value : String(value)
 }
 
-registerTypeRule("PredefinedCode", "importFromXML", importPredefinedCodeFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("PredefinedCode", "importFromXML", importPredefinedCodeFromXML)

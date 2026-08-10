@@ -1,6 +1,6 @@
 import { TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is EventsPropertyRule => {
@@ -34,4 +34,4 @@ export const exportEventsToJSONSchema = (params: {
   return Type.Object(props, { additionalProperties: false })
 }
 
-registerTypeRule("Events", "exportToJSONSchema", exportEventsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("Events", "exportToJSONSchema", exportEventsToJSONSchema)

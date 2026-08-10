@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { PrefixedFontsToXML, type Font, type FontXML } from "./types"
 
@@ -39,4 +39,4 @@ function exportFontRefToXML(font: Font): string {
   return ref
 }
 
-registerTypeRule("Font", "exportToXML", exportFontToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Font", "exportToXML", exportFontToXML)

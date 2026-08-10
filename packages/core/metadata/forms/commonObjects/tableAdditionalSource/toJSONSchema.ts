@@ -1,4 +1,4 @@
 import { Type } from "typebox"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
 
-registerTypeRule("TableAdditionalSource", "exportToJSONSchema", () => Type.String())
+export const metadataPropertyRule000 = definePropertyTypeRule("TableAdditionalSource", "exportToJSONSchema", () => Type.String())

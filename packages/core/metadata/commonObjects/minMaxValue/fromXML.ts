@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { attachMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
@@ -42,4 +42,4 @@ const isMinMaxValueXsiType = (value: string | undefined): value is MinMaxValueXs
   return value !== undefined && MIN_MAX_VALUE_XSI_TYPES.has(value as MinMaxValueXsiType)
 }
 
-registerTypeRule("MinMaxValue", "importFromXML", importMinMaxValueFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MinMaxValue", "importFromXML", importMinMaxValueFromXML)

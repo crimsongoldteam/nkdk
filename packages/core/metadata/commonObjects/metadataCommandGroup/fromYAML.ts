@@ -1,4 +1,4 @@
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -25,4 +25,4 @@ export const importMetadataCommandGroupFromYAML = (
   return importMetadataItemLinkFromYAML(context, undefined, data)!
 }
 
-registerTypeRule("MetadataCommandGroup", "importFromYAML", importMetadataCommandGroupFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataCommandGroup", "importFromYAML", importMetadataCommandGroupFromYAML)

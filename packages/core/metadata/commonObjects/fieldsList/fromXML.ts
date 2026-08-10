@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { FieldsList, FieldsListPropertyRule, FieldsListXML } from "./types"
 
 export const importFieldsListFromXML = (
@@ -17,4 +17,4 @@ export const importFieldsListFromXML = (
   return Array.isArray(rawFields) ? rawFields : [rawFields]
 }
 
-registerTypeRule("FieldsList", "importFromXML", importFieldsListFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("FieldsList", "importFromXML", importFieldsListFromXML)

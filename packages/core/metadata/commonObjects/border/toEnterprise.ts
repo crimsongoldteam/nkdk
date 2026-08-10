@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { Border, BorderEnterprise } from "./types"
 
 export const exportBorderToEnterprise = (params: { value: Border | undefined }): BorderEnterprise | undefined => {
@@ -19,4 +19,4 @@ export const exportBorderToEnterprise = (params: { value: Border | undefined }):
   return result
 }
 
-registerTypeRule("Border", "exportToEnterprise", exportBorderToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("Border", "exportToEnterprise", exportBorderToEnterprise)

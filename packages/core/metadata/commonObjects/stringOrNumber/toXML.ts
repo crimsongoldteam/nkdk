@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { PropertyRule } from "../../ruleRuntime"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const isReference = (value: unknown): value is StringOrNumberReference =>
@@ -23,4 +23,4 @@ export const exportStringOrNumberToXML = (
   return actualValue
 }
 
-registerTypeRule("StringOrNumber", "exportToXML", exportStringOrNumberToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StringOrNumber", "exportToXML", exportStringOrNumberToXML)

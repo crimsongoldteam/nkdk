@@ -2,7 +2,7 @@ import { formatMetadataTargetToYAML } from "../metadataTargets"
 import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ExportToYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { requiresDataPathStandardMemberFormatting } from "../../validation/dataPath/finalizationPredicate"
@@ -105,11 +105,11 @@ const exportDataPathToYAML: ExportToYAMLFunctionNew = ({ context, value }) => {
   return exportDataPathStandardMembersToYAML(context, value)
 }
 
-registerTypeRule("DataPath", "exportToYAML", exportDataPathToYAML)
-registerTypeRule("DataPath", "requiresImportedYAMLFinalization", ({ value }) =>
+export const metadataPropertyRule000 = definePropertyTypeRule("DataPath", "exportToYAML", exportDataPathToYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("DataPath", "requiresImportedYAMLFinalization", ({ value }) =>
   requiresDataPathStandardMemberFormatting(value, "internal-to-yaml")
 )
-registerTypeRule("DataPath", "finalizeImportedYAML", ({ context, value, formDataPathIndex }) => {
+export const metadataPropertyRule002 = definePropertyTypeRule("DataPath", "finalizeImportedYAML", ({ context, value, formDataPathIndex }) => {
   if (typeof value !== "string" || formDataPathIndex === undefined) return value
   const ownerCache = context.exportToYAML?.ownerMetadataCache
   if (ownerCache === undefined) return value

@@ -1,7 +1,7 @@
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
 export const exportXMLRootToXML = (): undefined => {
   return undefined
 }
 
-registerTypeRule("XMLRoot", "exportToXML", exportXMLRootToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XMLRoot", "exportToXML", exportXMLRootToXML)

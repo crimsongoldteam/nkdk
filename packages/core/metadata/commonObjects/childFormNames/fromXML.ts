@@ -4,7 +4,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Импортирует список имён форм из XML-тегов Form в ChildObjects. */
 export const importChildFormNamesFromXML = (
@@ -17,7 +17,7 @@ export const importChildFormNamesFromXML = (
   return [xml as string]
 }
 
-registerTypeRule("ChildFormNames", "importFromXML", importChildFormNamesFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildFormNames", "importFromXML", importChildFormNamesFromXML)
 
 export const collectChildFormNamesOmittedChildrenFromXML = (params: {
   context: ConfigurationContextFromXML
@@ -30,7 +30,7 @@ export const collectChildFormNamesOmittedChildrenFromXML = (params: {
   setChildFormNamesOmittedChildren(collection.collector, getConfigurationIndexXmlNodeLogicalAddress(collection), names)
 }
 
-registerTypeRule("ChildFormNames", "collectConfigurationIndexFromXML", collectChildFormNamesOmittedChildrenFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildFormNames", "collectConfigurationIndexFromXML", collectChildFormNamesOmittedChildrenFromXML)
 
 export function setChildFormNamesOmittedChildren(
   collector: ConfigurationIndexCollector,

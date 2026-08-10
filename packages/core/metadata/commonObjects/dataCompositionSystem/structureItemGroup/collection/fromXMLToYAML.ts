@@ -1,5 +1,5 @@
 import type { ImportFromXMLToYAMLFunction } from "../../../../ruleRuntime/property/importYamlTypes"
-import { getTypeRule, registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
+import { getTypeRule, definePropertyTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../../../../ruleRuntime/property/types"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"
@@ -42,7 +42,7 @@ function asArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [value]
 }
 
-registerTypeRule(
+export const metadataPropertyRule000 = definePropertyTypeRule(
   "StructureItemGroupCollection",
   "importFromXMLToYAML",
   importStructureItemGroupCollectionFromXMLToYAML

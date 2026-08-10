@@ -1,6 +1,6 @@
 import { TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
 import { FormCommandRules } from "./rules"
 
@@ -15,4 +15,4 @@ export const exportFormCommandsToJSONSchema: ExportToJSONSchemaFn = (params: {
   return Type.Record(Type.String(), attributeSchema)
 }
 
-registerTypeRule("FormCommands", "exportToJSONSchema", exportFormCommandsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("FormCommands", "exportToJSONSchema", exportFormCommandsToJSONSchema)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
 import { MetadataStringValue } from "../metadataValue/types"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"
@@ -22,4 +22,4 @@ export const exportMobileDeviceCommandBarContentToYAML = (
   return items.length === 0 ? undefined : items
 }
 
-registerTypeRule("MobileDeviceCommandBarContent", "exportToYAML", exportMobileDeviceCommandBarContentToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MobileDeviceCommandBarContent", "exportToYAML", exportMobileDeviceCommandBarContentToYAML)

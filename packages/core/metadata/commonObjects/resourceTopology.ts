@@ -4,7 +4,7 @@ import type {
 } from "./externalPicture/types"
 import type { ExternalFilePropertyRule } from "./externalFile/types"
 import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../ruleRuntime/property/types"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration, MetadataResourceSource } from "../resourceTopology/core/types"
 import { registerMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
 
@@ -109,10 +109,10 @@ const describeModuleResources = ({ propertyRule }: { propertyRule?: PropertyRule
   return result
 }
 
-registerTypeRule("Module", "resourceTopology", describeModuleResources)
-registerTypeRule("Template", "resourceTopology", describeModuleResources)
+export const metadataPropertyRule000 = definePropertyTypeRule("Module", "resourceTopology", describeModuleResources)
+export const metadataPropertyRule001 = definePropertyTypeRule("Template", "resourceTopology", describeModuleResources)
 
-registerTypeRule("Help", "resourceTopology", ({ propertyRule }) => {
+export const metadataPropertyRule002 = definePropertyTypeRule("Help", "resourceTopology", ({ propertyRule }) => {
   const rule = propertyRule as HelpPropertyRule
   const rawXmlPath = rule.xmlPath ?? rule.filePath
   const xmlPattern = pathPattern(rawXmlPath)
@@ -145,7 +145,7 @@ registerTypeRule("Help", "resourceTopology", ({ propertyRule }) => {
   ]
 })
 
-registerTypeRule("ExternalFile", "resourceTopology", ({ propertyRule }) => {
+export const metadataPropertyRule003 = definePropertyTypeRule("ExternalFile", "resourceTopology", ({ propertyRule }) => {
   const rule = propertyRule as ExternalFilePropertyRule
   return [
     external({
@@ -157,7 +157,7 @@ registerTypeRule("ExternalFile", "resourceTopology", ({ propertyRule }) => {
   ]
 })
 
-registerTypeRule("ExternalPicture", "resourceTopology", ({ propertyRule }) => {
+export const metadataPropertyRule004 = definePropertyTypeRule("ExternalPicture", "resourceTopology", ({ propertyRule }) => {
   const rule = propertyRule as ExternalPicturePropertyRule
   return [
     external({
@@ -178,7 +178,7 @@ registerTypeRule("ExternalPicture", "resourceTopology", ({ propertyRule }) => {
   ]
 })
 
-registerTypeRule("WSDefinitionSchemas", "resourceTopology", () => [
+export const metadataPropertyRule005 = definePropertyTypeRule("WSDefinitionSchemas", "resourceTopology", () => [
   external({
     description: "WSDefinitionSchemas",
     projectPattern: "XSD/{itemName}.xsd",
@@ -187,7 +187,7 @@ registerTypeRule("WSDefinitionSchemas", "resourceTopology", () => [
   }),
 ])
 
-registerTypeRule("Recalculations", "resourceTopology", () => [
+export const metadataPropertyRule006 = definePropertyTypeRule("Recalculations", "resourceTopology", () => [
   external({
     description: "Recalculations",
     projectPattern: "Перерасчеты/{itemName}/Свойства.xml",

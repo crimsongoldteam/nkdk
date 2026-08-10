@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import type { FormattedI8nText, FormattedI8nTextXML } from "./types"
@@ -29,8 +29,8 @@ export const importFormattedI8nTextFromXML = (
   }
 }
 
-registerTypeRule("FormattedI8nText", "importFromXML", importFormattedI8nTextFromXML)
-registerTypeRule("FormattedI8nText", "xmlImportPropertyBehavior", {
+export const metadataPropertyRule000 = definePropertyTypeRule("FormattedI8nText", "importFromXML", importFormattedI8nTextFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("FormattedI8nText", "xmlImportPropertyBehavior", {
   explicitEmptyValue: ({ rule }) =>
     rule.excludeIfEqualNameYAML === true
       ? { formatted: false, items: {} }

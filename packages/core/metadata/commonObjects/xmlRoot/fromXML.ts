@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 /** Маркерный обработчик: реальная работа выполняется единым обходом XML → YAML. */
 export const importXMLRootFromXML = (
@@ -10,4 +10,4 @@ export const importXMLRootFromXML = (
   return undefined
 }
 
-registerTypeRule("XMLRoot", "importFromXML", importXMLRootFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("XMLRoot", "importFromXML", importXMLRootFromXML)

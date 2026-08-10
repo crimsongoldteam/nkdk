@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { callAtomicFromYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { restoreExplicitMetadataValueYAMLString } from "../../metadataValue/explicitYAMLString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -38,4 +38,4 @@ export const importDcsAvailableValuesFromYAML = (
   })
 }
 
-registerTypeRule("DcsAvailableValues", "importFromYAML", importDcsAvailableValuesFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsAvailableValues", "importFromYAML", importDcsAvailableValuesFromYAML)

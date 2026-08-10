@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "../../../ruleRuntime/property/types"
 import { eventCallTypeToYAML } from "./callType"
 import type { EventCallHandlers, EventCallHandlersYAML, Events, EventsYAML } from "./types"
@@ -55,4 +55,4 @@ function isEventCallTypeXML(value: string): value is keyof EventCallHandlers {
   return value === "Before" || value === "After" || value === "Override"
 }
 
-registerTypeRule("Events", "exportToYAML", exportEventsToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Events", "exportToYAML", exportEventsToYAML)

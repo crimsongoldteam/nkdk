@@ -2,7 +2,7 @@ import { ConfigurationContextWithExportToXML } from "../../context/types"
 import "../border/toXML"
 import "../color/toXML"
 import "../font/toXML"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { callAtomicToXML } from "../../ruleRuntime/property/fromYAMLToXML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { BorderXML } from "../border/types"
@@ -31,4 +31,4 @@ export const exportStyleItemValueToXML = (
   return { "_xsi:type": "v8ui:Border", ...xml }
 }
 
-registerTypeRule("StyleItemValue", "exportToXML", exportStyleItemValueToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "exportToXML", exportStyleItemValueToXML)

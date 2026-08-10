@@ -1,7 +1,7 @@
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { I8nText, I8nTextXML } from "../../i8nText/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexPropertyValueLogicalAddress,
@@ -34,8 +34,8 @@ export const importDcsLocalStringTypeFromXML = (
   return importI8nTextFromXML(context, { type: "I8nText" } as any, xml as I8nTextXML)
 }
 
-registerTypeRule("DcsLocalStringType", "importFromXML", importDcsLocalStringTypeFromXML as any)
-registerTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "importFromXML", importDcsLocalStringTypeFromXML as any)
+export const metadataPropertyRule001 = definePropertyTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (
     collection === undefined ||

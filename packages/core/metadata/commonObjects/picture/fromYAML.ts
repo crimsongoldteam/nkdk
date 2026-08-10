@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { CollectLocalFactsFromYAMLFunction } from "../../ruleRuntime/property/importYamlTypes"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
@@ -138,5 +138,5 @@ const collectPictureLocalFactsFromYAML: CollectLocalFactsFromYAMLFunction = ({ f
   )
 }
 
-registerTypeRule("Picture", "importFromYAML", importPictureFromYAML)
-registerTypeRule("Picture", "collectLocalFactsFromYAML", collectPictureLocalFactsFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Picture", "importFromYAML", importPictureFromYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("Picture", "collectLocalFactsFromYAML", collectPictureLocalFactsFromYAML)

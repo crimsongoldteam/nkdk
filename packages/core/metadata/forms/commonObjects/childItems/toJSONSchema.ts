@@ -1,6 +1,6 @@
 import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { getElementRule } from "../../../ruleRuntime/formElement/ruleFactory"
 import {
   exportElementRuleToJSONSchema,
@@ -154,7 +154,7 @@ function isChildItemsTreePropertyType(type: unknown): type is ChildItemsTreeProp
   )
 }
 
-registerTypeRule("GroupChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
-registerTypeRule("CommandBarChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
-registerTypeRule("TableChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
-registerTypeRule("PagesChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("CommandBarChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+export const metadataPropertyRule002 = definePropertyTypeRule("TableChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)
+export const metadataPropertyRule003 = definePropertyTypeRule("PagesChildItems", "exportToJSONSchema", exportChildItemsToJSONSchema)

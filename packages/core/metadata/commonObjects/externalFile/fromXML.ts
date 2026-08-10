@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import type { ExternalFilePropertyRule } from "./types"
 
@@ -23,7 +23,7 @@ export const syncExternalFileFromXML = async (params: {
   await fs.promises.copyFile(srcPath, dstPath)
 }
 
-registerTypeRule("ExternalFile", "syncExternalFromXML", syncExternalFileFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ExternalFile", "syncExternalFromXML", syncExternalFileFromXML)
 const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)
   if (fs.existsSync(directPath) || !params.objectName) return directPath

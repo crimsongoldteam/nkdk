@@ -1,6 +1,6 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { SyncExternalFromXMLFunction } from "../../ruleRuntime/property/fn"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
@@ -50,4 +50,4 @@ async function copyDirectoryIfExists(params: { src: string; dst: string }): Prom
   await fs.promises.cp(params.src, params.dst, { recursive: true })
 }
 
-registerTypeRule("ChildTemplateNames", "syncExternalFromXML", syncChildTemplateNamesFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildTemplateNames", "syncExternalFromXML", syncChildTemplateNamesFromXML)

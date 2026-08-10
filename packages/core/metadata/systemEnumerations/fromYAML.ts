@@ -1,7 +1,7 @@
 import * as SE from "./types"
 import { ConfigurationContext } from "../context/types"
 import type { PropertyRule } from "../ruleRuntime/property/types"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 
 const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
 
@@ -37,4 +37,4 @@ export const importSystemEnumerationFromYAML = <T extends string>(params: {
   return enumeration[value] as T | undefined
 }
 
-registerTypeRule("SystemEnumeration", "importFromYAML", importSystemEnumerationFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "importFromYAML", importSystemEnumerationFromYAML)

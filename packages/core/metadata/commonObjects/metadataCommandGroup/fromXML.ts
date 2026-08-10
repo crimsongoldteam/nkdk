@@ -1,4 +1,4 @@
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
@@ -14,4 +14,4 @@ export const importMetadataCommandGroupFromXML = (
   return data["#text"]
 }
 
-registerTypeRule("MetadataCommandGroup", "importFromXML", importMetadataCommandGroupFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataCommandGroup", "importFromXML", importMetadataCommandGroupFromXML)

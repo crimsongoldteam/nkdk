@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { primitiveValueHandlers } from "./handlers"
 import { exportStandardPeriodToYAML } from "../standardPeriod/toYAML"
 import { DataCompositionComparisonTypeToYAML } from "../../systemEnumerations/types"
@@ -141,5 +141,5 @@ export const exportMedatataRefToYAML = (context: ConfigurationContext, value: st
   return result as string
 }
 
-registerTypeRule("MetadataValue", "exportToYAML", exportMetadataValueToYAML)
-registerTypeRule("AssociatedTable", "exportToYAML", exportAssociatedTableToYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "exportToYAML", exportMetadataValueToYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("AssociatedTable", "exportToYAML", exportAssociatedTableToYAML as any)

@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -45,4 +45,4 @@ function importStyleItemRefFromYAML(value: string): string {
   return parsed.target.kind === "object" && parsed.target.root === "StyleItem" ? parsed.target.objectName : value
 }
 
-registerTypeRule("Border", "importFromYAML", importBorderFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Border", "importFromYAML", importBorderFromYAML)

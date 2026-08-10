@@ -1,6 +1,6 @@
 import { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { MetadataValueJSONSchema } from "./types"
 
 export const exportMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {
@@ -9,4 +9,4 @@ export const exportMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ rule }):
   return MetadataValueJSONSchema
 }
 
-registerTypeRule("MetadataValue", "exportToJSONSchema", exportMetadataValueToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "exportToJSONSchema", exportMetadataValueToJSONSchema)

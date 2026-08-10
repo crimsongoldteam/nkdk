@@ -1,5 +1,5 @@
 import { recordCurrentExternalMetadataUuid } from "../../ruleRuntime/externalMetadata/record"
-import { ExportToXMLFunctionNew, registerTypeRule } from "../../ruleRuntime"
+import { ExportToXMLFunctionNew, definePropertyTypeRule } from "../../ruleRuntime"
 import { getUUID } from "../../helpers/uuid"
 
 export const exportUUIDToXML: ExportToXMLFunctionNew = (params): string => {
@@ -9,4 +9,4 @@ export const exportUUIDToXML: ExportToXMLFunctionNew = (params): string => {
   return uuid
 }
 
-registerTypeRule("uuid", "exportToXML", exportUUIDToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("uuid", "exportToXML", exportUUIDToXML)

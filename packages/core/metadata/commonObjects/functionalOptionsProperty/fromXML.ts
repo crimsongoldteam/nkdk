@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { FunctionalOptions, FunctionalOptionsXML } from "./types"
 
 export const importFunctionalOptionsFromXML = (
@@ -14,4 +14,4 @@ export const importFunctionalOptionsFromXML = (
   return items.map((item) => item ?? "")
 }
 
-registerTypeRule("FunctionalOptionsProperty", "importFromXML", importFunctionalOptionsFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("FunctionalOptionsProperty", "importFromXML", importFunctionalOptionsFromXML)

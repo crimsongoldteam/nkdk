@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -87,4 +87,4 @@ function isRawPrefixedColorRef(value: string): boolean {
   return value.startsWith("style:") || value.startsWith("win:") || value.startsWith("web:")
 }
 
-registerTypeRule("Color", "importFromYAML", importColorFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Color", "importFromYAML", importColorFromYAML)

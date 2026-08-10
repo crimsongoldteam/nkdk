@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, ValidationSchemaRefFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { BooleanJSONSchema } from "./types"
 
 export const exportBooleanToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
@@ -12,5 +12,5 @@ export const booleanValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
   return "boolean/base"
 }
 
-registerTypeRule("boolean", "exportToJSONSchema", exportBooleanToJSONSchema)
-registerTypeRule("boolean", "validationSchemaRef", booleanValidationSchemaRef)
+export const metadataPropertyRule000 = definePropertyTypeRule("boolean", "exportToJSONSchema", exportBooleanToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("boolean", "validationSchemaRef", booleanValidationSchemaRef)

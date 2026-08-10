@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { TableAdditionalSourceXML } from "./types"
 
 const importTableAdditionalSourceFromXML = (
@@ -14,4 +14,4 @@ const importTableAdditionalSourceFromXML = (
   return xml.Item
 }
 
-registerTypeRule("TableAdditionalSource", "importFromXML", importTableAdditionalSourceFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TableAdditionalSource", "importFromXML", importTableAdditionalSourceFromXML)

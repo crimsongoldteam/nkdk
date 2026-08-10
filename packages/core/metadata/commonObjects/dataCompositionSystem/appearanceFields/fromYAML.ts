@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { callAtomicFromYAML, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "./types"
 import { normalizeAppearanceFieldsStringYAML } from "./stringValues"
@@ -29,4 +29,4 @@ const importAppearanceFromYAML = (
   return { itemType: AppearanceFieldsRules.itemType, ...imported } as AppearanceFields
 }
 
-registerTypeRule("AppearanceFields", "importFromYAML", importAppearanceFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields", "importFromYAML", importAppearanceFromYAML)

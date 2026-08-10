@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ExportToXMLFunction } from "../../ruleRuntime/property/fn"
 import type { WebSocketClientHeaders, WebSocketClientHeadersXML } from "./types"
 
@@ -27,4 +27,4 @@ export const exportWebSocketClientHeadersToXML: ExportToXMLFunction = (
   }
 }
 
-registerTypeRule("WebSocketClientHeaders", "exportToXML", exportWebSocketClientHeadersToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("WebSocketClientHeaders", "exportToXML", exportWebSocketClientHeadersToXML)

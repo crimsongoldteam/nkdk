@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { isRawPictureRef, Picture, PictureEnterprise } from "./types"
 
 export const exportPictureToEnterprise = (params: { value: Picture | undefined }): PictureEnterprise | undefined => {
@@ -21,4 +21,4 @@ export const exportPictureToEnterprise = (params: { value: Picture | undefined }
   return undefined
 }
 
-registerTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)
+export const metadataPropertyRule000 = definePropertyTypeRule("Picture", "exportToEnterprise", exportPictureToEnterprise)

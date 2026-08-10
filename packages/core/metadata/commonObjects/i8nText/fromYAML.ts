@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "../../context/types"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import { ImportFromYAMLFunctionNew, PropertyRule } from "../../ruleRuntime"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
@@ -61,4 +61,4 @@ const importFromYAML = (context: ConfigurationContext, data: I8nTextYAML | undef
   }
 }
 
-registerTypeRule("I8nText", "importFromYAML", importI8nTextFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "importFromYAML", importI8nTextFromYAML)

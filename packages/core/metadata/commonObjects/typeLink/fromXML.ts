@@ -1,6 +1,6 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import type { TypeLink, TypeLinkXML } from "./types"
@@ -23,4 +23,4 @@ export const importTypeLinkFromXML = (
   return result
 }
 
-registerTypeRule("TypeLink", "importFromXML", importTypeLinkFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "importFromXML", importTypeLinkFromXML)

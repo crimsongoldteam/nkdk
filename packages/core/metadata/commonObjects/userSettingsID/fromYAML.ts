@@ -1,6 +1,6 @@
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { UserSettingsID, UserSettingsIDYAML } from "./types"
 
@@ -14,4 +14,4 @@ export const importUserSettingsIDFromYAML = (
   return importBooleanFromYAML(context, rule, value)
 }
 
-registerTypeRule("UserSettingsID", "importFromYAML", importUserSettingsIDFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserSettingsID", "importFromYAML", importUserSettingsIDFromYAML)

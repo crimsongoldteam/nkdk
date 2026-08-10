@@ -2,7 +2,7 @@ import { ConfigurationContext } from "../../context/types"
 import "../border/toYAML"
 import "../color/toYAML"
 import "../font/toYAML"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { exportPropertyToYAML } from "../../ruleRuntime/property/toYAML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { BorderYAML } from "../border/types"
@@ -59,4 +59,4 @@ export const exportStyleItemValueToYAML = (
   }
 }
 
-registerTypeRule("StyleItemValue", "exportToYAML", exportStyleItemValueToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "exportToYAML", exportStyleItemValueToYAML)

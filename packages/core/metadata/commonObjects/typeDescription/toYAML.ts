@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
@@ -156,4 +156,4 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   return rule.enterprise
 }
 
-registerTypeRule("TypeDescription", "exportToYAML", exportTypeDescriptionToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToYAML", exportTypeDescriptionToYAML)

@@ -1,5 +1,5 @@
 import { exportBooleanToYAML } from "../boolean/toYAML"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { UserVisiblePropertyRule } from "../../ruleRuntime/property/types"
 import { ConfigurationContext } from "../../context/types"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
@@ -34,4 +34,4 @@ export const exportUserVisibleToYAML = (
   }
 }
 
-registerTypeRule("UserVisible", "exportToYAML", exportUserVisibleToYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "exportToYAML", exportUserVisibleToYAML as any)

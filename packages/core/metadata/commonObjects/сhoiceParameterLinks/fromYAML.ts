@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importDataPathStandardMembersFromYAML } from "../metadataPath/dataPathStandardMembers"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
@@ -101,4 +101,4 @@ export const importChoiceParameterLinksFromYAML = (
   }))
 }
 
-registerTypeRule("ChoiceParameterLinks", "importFromYAML", importChoiceParameterLinksFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameterLinks", "importFromYAML", importChoiceParameterLinksFromYAML)

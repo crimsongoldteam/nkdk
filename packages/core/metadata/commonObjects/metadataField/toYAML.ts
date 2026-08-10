@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ExportToYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
@@ -34,5 +34,5 @@ const exportMetadataFieldToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
 const exportMetadataFieldsToYAMLProperty: ExportToYAMLFunctionNew = (params) =>
   exportMetadataFieldsToYAML(params.context, params.rule, params.value, params.owner)
 
-registerTypeRule("MetadataField", "exportToYAML", exportMetadataFieldToYAMLProperty)
-registerTypeRule("MetadataFields", "exportToYAML", exportMetadataFieldsToYAMLProperty)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "exportToYAML", exportMetadataFieldToYAMLProperty)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "exportToYAML", exportMetadataFieldsToYAMLProperty)

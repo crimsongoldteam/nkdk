@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { BorderJSONSchema } from "../border/types"
 import { ColorJSONSchema } from "../color/types"
 import { FontJSONSchema } from "../font/types"
@@ -21,4 +21,4 @@ export const StyleItemValueJSONSchema = Type.Union([
 
 export const exportStyleItemValueToJSONSchema: ExportToJSONSchemaFn = (): TSchema => StyleItemValueJSONSchema
 
-registerTypeRule("StyleItemValue", "exportToJSONSchema", exportStyleItemValueToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "exportToJSONSchema", exportStyleItemValueToJSONSchema)

@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { DateTimeYAML } from "./types"
 
@@ -20,4 +20,4 @@ export const exportDateTimeToYAML = (
   return format(date, "dd.MM.yyyy HH:mm")
 }
 
-registerTypeRule("dateTime", "exportToYAML", exportDateTimeToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("dateTime", "exportToYAML", exportDateTimeToYAML)

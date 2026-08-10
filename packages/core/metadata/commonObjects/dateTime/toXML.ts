@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { DateTimePropertyRule } from "./types"
 
 export const exportDateTimeToXML = (
@@ -16,4 +16,4 @@ export const exportDateTimeToXML = (
   return value
 }
 
-registerTypeRule("dateTime", "exportToXML", exportDateTimeToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("dateTime", "exportToXML", exportDateTimeToXML)

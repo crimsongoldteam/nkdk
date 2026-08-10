@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import type { UsePurposes, UsePurposesXML } from "./types"
 import { ConfigurationContextFromXML } from "../../context/types"
@@ -31,4 +31,4 @@ export const importUsePurposesFromXML = (
   return result.length > 0 ? result : undefined
 }
 
-registerTypeRule("UsePurposes", "importFromXML", importUsePurposesFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UsePurposes", "importFromXML", importUsePurposesFromXML)

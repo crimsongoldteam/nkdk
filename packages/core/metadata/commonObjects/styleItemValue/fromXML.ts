@@ -2,7 +2,7 @@ import { ConfigurationContextFromXML } from "../../context/types"
 import "../border/fromXML"
 import "../color/fromXML"
 import "../font/fromXML"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importPropertyFromXML } from "../../ruleRuntime/property/fromXML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { Border } from "../border/types"
@@ -41,4 +41,4 @@ export const importStyleItemValueFromXML = (
   throw new Error(`StyleItemValue: неподдержанный xsi:type ${String(value["_xsi:type"])}`)
 }
 
-registerTypeRule("StyleItemValue", "importFromXML", importStyleItemValueFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("StyleItemValue", "importFromXML", importStyleItemValueFromXML)

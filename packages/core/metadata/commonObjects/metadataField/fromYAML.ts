@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ImportFromYAMLFunctionNew } from "../../ruleRuntime/property/fn"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
@@ -34,5 +34,5 @@ const importMetadataFieldFromYAMLProperty: ImportFromYAMLFunctionNew = (params) 
 const importMetadataFieldsFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
   importMetadataFieldsFromYAML(params.context, params.rule, params.value, params.owner)
 
-registerTypeRule("MetadataField", "importFromYAML", importMetadataFieldFromYAMLProperty)
-registerTypeRule("MetadataFields", "importFromYAML", importMetadataFieldsFromYAMLProperty)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataField", "importFromYAML", importMetadataFieldFromYAMLProperty)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataFields", "importFromYAML", importMetadataFieldsFromYAMLProperty)

@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { PredefinedCode } from "./types"
 
 export const exportPredefinedCodeToXML = (
@@ -16,4 +16,4 @@ export const exportPredefinedCodeToXML = (
   return value
 }
 
-registerTypeRule("PredefinedCode", "exportToXML", exportPredefinedCodeToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("PredefinedCode", "exportToXML", exportPredefinedCodeToXML)

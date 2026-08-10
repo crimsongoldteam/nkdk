@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
@@ -39,5 +39,5 @@ export function exportMetadataItemLinksToXML(
   }
 }
 
-registerTypeRule("MetadataItemLink", "exportToXML", exportMetadataItemLinkToXML)
-registerTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "exportToXML", exportMetadataItemLinkToXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "exportToXML", exportMetadataItemLinksToXML)

@@ -1,8 +1,8 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { CommandInterfaceJSONSchema } from "./types"
 export const exportCommandInterfaceToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   return CommandInterfaceJSONSchema
 }
 
-registerTypeRule("CommandInterface", "exportToJSONSchema", exportCommandInterfaceToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommandInterface", "exportToJSONSchema", exportCommandInterfaceToJSONSchema)

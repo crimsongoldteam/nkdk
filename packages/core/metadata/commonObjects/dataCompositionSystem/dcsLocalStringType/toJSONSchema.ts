@@ -1,4 +1,4 @@
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
 
-registerTypeRule("DcsLocalStringType", "exportToJSONSchema", exportI8nTextToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("DcsLocalStringType", "exportToJSONSchema", exportI8nTextToJSONSchema)

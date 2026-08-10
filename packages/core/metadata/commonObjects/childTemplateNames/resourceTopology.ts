@@ -1,8 +1,8 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration } from "../../resourceTopology/core/types"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
-registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) => {
   const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
   const source = { kind: "property" as const, description: "ChildTemplateNames" }
   const fileBackedTarget = {
@@ -53,7 +53,7 @@ registerTypeRule("ChildTemplateNames", "resourceTopology", ({ propertyRule }) =>
   return declarations
 })
 
-registerTypeRule("ChildTemplateNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+export const metadataPropertyRule001 = definePropertyTypeRule("ChildTemplateNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
   const rule = propertyRule as ChildTemplateNamesPropertyRule
   return {
     folderName: rule.folderName,

@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../ruleRuntime"
+import { ExportToJSONSchemaFn, ValidationSchemaRefFn, definePropertyTypeRule } from "../ruleRuntime"
 import * as SE from "./types"
 import { SystemEnumerationPropertyRule } from "./types"
 
@@ -29,5 +29,5 @@ export const systemEnumerationValidationSchemaRef: ValidationSchemaRefFn = ({ ru
   return `SystemEnumeration/${systemEnumerationRule.typeSE}/without-${implicitValueYAML}`
 }
 
-registerTypeRule("SystemEnumeration", "exportToJSONSchema", exportSystemEnumerationToJSONSchema)
-registerTypeRule("SystemEnumeration", "validationSchemaRef", systemEnumerationValidationSchemaRef)
+export const metadataPropertyRule000 = definePropertyTypeRule("SystemEnumeration", "exportToJSONSchema", exportSystemEnumerationToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("SystemEnumeration", "validationSchemaRef", systemEnumerationValidationSchemaRef)

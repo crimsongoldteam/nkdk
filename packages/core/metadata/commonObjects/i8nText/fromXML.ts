@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
@@ -35,8 +35,8 @@ export const importI8nTextFromXML = (
   return result
 }
 
-registerTypeRule("I8nText", "importFromXML", importI8nTextFromXML)
-registerTypeRule("I8nText", "xmlImportPropertyBehavior", {
+export const metadataPropertyRule000 = definePropertyTypeRule("I8nText", "importFromXML", importI8nTextFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("I8nText", "xmlImportPropertyBehavior", {
   explicitEmptyValue: ({ rule }) =>
     rule.excludeIfEqualNameYAML === true ? { items: {} } : undefined,
 })

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { CommonAttributeContent, CommonAttributeContentXML } from "./types"
 
 const toArray = <T>(value: T | T[] | undefined): T[] => {
@@ -24,4 +24,4 @@ export const importCommonAttributeContentFromXML = (
   }))
 }
 
-registerTypeRule("CommonAttributeContent", "importFromXML", importCommonAttributeContentFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommonAttributeContent", "importFromXML", importCommonAttributeContentFromXML)

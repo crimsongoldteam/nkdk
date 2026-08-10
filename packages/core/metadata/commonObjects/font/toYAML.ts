@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -83,4 +83,4 @@ function tryFormatProjectStyleRefToYAML(ref: string): string | undefined {
   }
 }
 
-registerTypeRule("Font", "exportToYAML", exportFontToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Font", "exportToYAML", exportFontToYAML)

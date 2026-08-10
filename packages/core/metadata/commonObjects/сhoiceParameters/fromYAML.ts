@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListFromYAML } from "../metadataValue/formChoiceList/fromYAML"
@@ -54,4 +54,4 @@ function isEmptyObject(value: unknown): value is Record<string, never> {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 0
 }
 
-registerTypeRule("ChoiceParameters", "importFromYAML", importChoiceParametersFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameters", "importFromYAML", importChoiceParametersFromYAML)

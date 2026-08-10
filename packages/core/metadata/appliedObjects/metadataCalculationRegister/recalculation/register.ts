@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import type { ConfigurationContextFromXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { exportMetadataItemToJSONSchema } from "../../../ruleRuntime/metadataItem/toJSONSchema"
 import { ExportToJSONSchemaFn, SyncExternalFromXMLFunction } from "../../../ruleRuntime/property/fn"
 import { Type } from "typebox"
@@ -12,7 +12,7 @@ const RECALCULATIONS_XML_DIR = "Recalculations"
 const RECALCULATIONS_NKDK_DIR = "Перерасчеты"
 const RECALCULATION_NKDK_XML = "Recalculation.xml"
 
-registerTypeRule("Recalculations", "importFromXML", (_context: ConfigurationContextFromXML, _rule, xml) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("Recalculations", "importFromXML", (_context: ConfigurationContextFromXML, _rule, xml) => {
   if (xml === undefined || xml === null) return undefined
   const names = Array.isArray(xml) ? xml : [xml]
   const result = names
@@ -22,7 +22,7 @@ registerTypeRule("Recalculations", "importFromXML", (_context: ConfigurationCont
   return result.length > 0 ? result : undefined
 })
 
-registerTypeRule("Recalculations", "importFromXMLToYAML", ({ xml }) => {
+export const metadataPropertyRule001 = definePropertyTypeRule("Recalculations", "importFromXMLToYAML", ({ xml }) => {
   if (xml === undefined || xml === null) return undefined
   const names = (Array.isArray(xml) ? xml : [xml]).filter(
     (name): name is string => typeof name === "string" && name.length > 0
@@ -30,7 +30,7 @@ registerTypeRule("Recalculations", "importFromXMLToYAML", ({ xml }) => {
   return names.length === 0 ? undefined : Object.fromEntries(names.map((name) => [name, {}]))
 })
 
-registerTypeRule("Recalculations", "yamlToXMLNestedRule", {
+export const metadataPropertyRule002 = definePropertyTypeRule("Recalculations", "yamlToXMLNestedRule", {
   kind: "collection",
   itemRule: RecalculationRules,
   yamlShape: "record",
@@ -47,7 +47,7 @@ const exportRecalculationsToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
     })
   )
 
-registerTypeRule("Recalculations", "exportToJSONSchema", exportRecalculationsToJSONSchema)
+export const metadataPropertyRule003 = definePropertyTypeRule("Recalculations", "exportToJSONSchema", exportRecalculationsToJSONSchema)
 
 export const syncRecalculationsFromXML: SyncExternalFromXMLFunction = async ({ xmlDir, nkdkDir, name }) => {
   const recalculationsDir = join(resolveXmlObjectDir({ xmlDir, name }), RECALCULATIONS_XML_DIR)
@@ -79,4 +79,4 @@ async function copyIfExists(params: {
   await fs.promises.copyFile(src, dst)
 }
 
-registerTypeRule("Recalculations", "syncExternalFromXML", syncRecalculationsFromXML)
+export const metadataPropertyRule004 = definePropertyTypeRule("Recalculations", "syncExternalFromXML", syncRecalculationsFromXML)

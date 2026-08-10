@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import {
   getSystemEnumerationTypeDescriptionRule,
@@ -280,4 +280,4 @@ const getBinaryDataQualifiers = (
   }
 }
 
-registerTypeRule("TypeDescription", "exportToXML", exportTypeDescriptionToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "exportToXML", exportTypeDescriptionToXML)

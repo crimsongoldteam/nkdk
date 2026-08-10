@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { StringboolXML } from "./types"
 
@@ -15,4 +15,4 @@ export const importBooleanFromXML = (
   return value === "true" || value === true ? true : value === "false" || value === false ? false : undefined
 }
 
-registerTypeRule("boolean", "importFromXML", importBooleanFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("boolean", "importFromXML", importBooleanFromXML)

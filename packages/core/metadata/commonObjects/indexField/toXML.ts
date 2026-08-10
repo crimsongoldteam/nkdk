@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { IndexFields, IndexFieldsXML } from "./types"
 
@@ -12,4 +12,4 @@ export const exportIndexFieldsToXML = (
   return { Field: data.length === 1 ? data[0]! : data }
 }
 
-registerTypeRule("IndexField", "exportToXML", exportIndexFieldsToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("IndexField", "exportToXML", exportIndexFieldsToXML)

@@ -14,7 +14,7 @@ import { ChoiceParameterLinkDcsValueRootXML } from "../../сhoiceParameterLinks/
 import { importChoiceParameterFromDcsXML } from "../../сhoiceParameters/fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "../../сhoiceParameters/types"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { SystemEnumerationDcsValueRootXML } from "../../../systemEnumerations/dcsTypes"
 import { importSystemEnumerationFromDcsXML } from "../../../systemEnumerations/fromDcsXML"
 import * as SystemEnumerations from "../../../systemEnumerations/types"
@@ -265,8 +265,8 @@ const importDcsMetadataValueFromXMLForRule: (
   return importDcsMetadataValueFromDcsXMLInternal(context, rule as unknown as DcsMetadataValuePropertyRule, xml)
 }
 
-registerTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
-registerTypeRule("MetadataDcsMetadataValue", "configurationIndexValueFromXML", {
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "importFromXML", importDcsMetadataValueFromXMLForRule)
+export const metadataPropertyRule001 = definePropertyTypeRule("MetadataDcsMetadataValue", "configurationIndexValueFromXML", {
   xsiNilWhenNotRepresentable: true,
   referenceXMLFromValue: (value) => (value.xsiNil === true ? { "_xsi:nil": true } : undefined),
 })

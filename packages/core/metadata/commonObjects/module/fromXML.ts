@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../../ruleRuntime/property/types"
 
 /**
@@ -51,8 +51,8 @@ export const syncModuleFromXML = async (params: {
   }
 }
 
-registerTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
-registerTypeRule("Template", "syncExternalFromXML", syncModuleFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("Template", "syncExternalFromXML", syncModuleFromXML)
 
 const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)

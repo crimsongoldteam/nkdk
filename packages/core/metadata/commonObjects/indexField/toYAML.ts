@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { IndexField, IndexFieldYAML, IndexFields, IndexFieldsYAML } from "./types"
 
@@ -23,4 +23,4 @@ export const exportIndexFieldsToYAML = (
   return data.map((item) => exportIndexFieldToYAML(context, undefined, item)!)
 }
 
-registerTypeRule("IndexField", "exportToYAML", exportIndexFieldsToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("IndexField", "exportToYAML", exportIndexFieldsToYAML)

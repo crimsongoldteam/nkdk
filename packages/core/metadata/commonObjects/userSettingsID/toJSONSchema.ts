@@ -1,5 +1,5 @@
 import { Type } from "typebox"
 import { BooleanJSONSchema } from "../boolean/types"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 
-registerTypeRule("UserSettingsID", "exportToJSONSchema", () => Type.Union([BooleanJSONSchema, Type.String()]))
+export const metadataPropertyRule000 = definePropertyTypeRule("UserSettingsID", "exportToJSONSchema", () => Type.Union([BooleanJSONSchema, Type.String()]))

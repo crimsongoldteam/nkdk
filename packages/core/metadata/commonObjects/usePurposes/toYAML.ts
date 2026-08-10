@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { UsePurposes, UsePurposesYAML } from "./types"
 
@@ -26,4 +26,4 @@ export const exportUsePurposesToYAML = (
   return undefined
 }
 
-registerTypeRule("UsePurposes", "exportToYAML", exportUsePurposesToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UsePurposes", "exportToYAML", exportUsePurposesToYAML)

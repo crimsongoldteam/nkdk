@@ -1,6 +1,6 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 
 export const syncWSDefinitionSchemasFromXML = async (params: {
@@ -23,7 +23,7 @@ export const syncWSDefinitionSchemasFromXML = async (params: {
   }
 }
 
-registerTypeRule("WSDefinitionSchemas", "syncExternalFromXML", syncWSDefinitionSchemasFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("WSDefinitionSchemas", "syncExternalFromXML", syncWSDefinitionSchemasFromXML)
 const resolveExtDir = (params: { xmlDir: string; objectName?: string }): string => {
   const rootExtDir = join(params.xmlDir, "Ext")
   if (fs.existsSync(rootExtDir) || !params.objectName) return rootExtDir

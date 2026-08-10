@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/fromXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -39,4 +39,4 @@ const extractDataPath = (
   return importMetadataSimpleValueFromXML(context, undefined, dataPath) as string | undefined
 }
 
-registerTypeRule("ChoiceParameterLinks", "importFromXML", importChoiceParameterLinksFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameterLinks", "importFromXML", importChoiceParameterLinksFromXML)

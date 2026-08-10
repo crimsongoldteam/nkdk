@@ -3,7 +3,7 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { detectGroupItemAutoYAML } from "../items/groupItemAuto/detectYAML"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"
@@ -32,7 +32,7 @@ export function structureItemGroupCollectionRule<const Params extends StructureI
   })
 }
 
-registerTypeRule("StructureItemGroupCollection", "yamlToXMLNestedRule", {
+export const metadataPropertyRule000 = definePropertyTypeRule("StructureItemGroupCollection", "yamlToXMLNestedRule", {
   kind: "collection",
   itemRule: GroupItemFieldRules,
   resolveItemRule: ({ yaml }) => (detectGroupItemAutoYAML(yaml) ? GroupItemAutoRules : GroupItemFieldRules),

@@ -1,7 +1,7 @@
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { ImportFromYAMLFunctionNew } from "../../ruleRuntime"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 
@@ -30,4 +30,4 @@ export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   }
 }
 
-registerTypeRule("UserVisible", "importFromYAML", importUserVisibleFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "importFromYAML", importUserVisibleFromYAML)

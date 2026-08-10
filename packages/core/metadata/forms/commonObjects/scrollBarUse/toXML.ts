@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { ScrollBarUse } from "./types"
 
 const exportScrollBarUseToXML = (
@@ -14,4 +14,4 @@ const exportScrollBarUseToXML = (
   return undefined
 }
 
-registerTypeRule("ScrollBarUseBoolean", "exportToXML", exportScrollBarUseToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ScrollBarUseBoolean", "exportToXML", exportScrollBarUseToXML)

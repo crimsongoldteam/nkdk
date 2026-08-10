@@ -1,6 +1,6 @@
 import { capitalize } from "../../../../helpers/capitalize"
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 import { eventBindingKey } from "./callType"
 import { EVENT_CALL_TYPES_XML, type EventCallTypeXML, type EventXML, type Events, type EventsXML } from "./types"
@@ -45,7 +45,7 @@ export const exportEventsToXML = (
   return { Event: items }
 }
 
-registerTypeRule("Events", "exportToXML", exportEventsToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Events", "exportToXML", exportEventsToXML)
 
 interface EventBinding {
   readonly key: string

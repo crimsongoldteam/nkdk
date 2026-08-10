@@ -35,6 +35,9 @@ import type {
   RequiresImportedYAMLFinalizationFunction,
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
+import type { PropertyTypeDefinition } from "../definition"
+
+export { definePropertyTypeRule } from "./propertyRuleRegistrySet"
 
 const typeRulesRegistry = new Map<
   string,
@@ -89,6 +92,26 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
 }
 
 export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => [...typeRuleRegistrations.values()]
+
+export function registerLegacyPropertyTypeDefinitions(
+  definitions: Readonly<Record<string, PropertyTypeDefinition>>,
+): void {
+  for (const [type, definition] of Object.entries(definitions)) {
+    for (const [operation, handler] of Object.entries(definition)) {
+      const key = createRegistryKey(
+        type as PropertyRuleType,
+        operation as TypeRulesOperations,
+      )
+      typeRulesRegistry.set(key, handler)
+      typeRuleRegistrations.set(key, {
+        type: type as PropertyRuleType,
+        operation: operation as TypeRulesOperations,
+        handler,
+      })
+      registryRevision += 1
+    }
+  }
+}
 
 export const getTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,

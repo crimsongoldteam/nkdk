@@ -1,6 +1,6 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { registerTypeRule } from "../../ruleRuntime"
+import { definePropertyTypeRule } from "../../ruleRuntime"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import type { ExternalPicturePropertyRule } from "./types"
 
@@ -28,7 +28,7 @@ export const syncExternalPictureFromXML = async (params: {
   await copyRegularFiles({ srcDir: payloadDir, dstDir: nkdkPictureDir })
 }
 
-registerTypeRule("ExternalPicture", "syncExternalFromXML", syncExternalPictureFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ExternalPicture", "syncExternalFromXML", syncExternalPictureFromXML)
 const resolveSourceRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)
   if (fs.existsSync(directPath) || !params.objectName) return params.xmlDir

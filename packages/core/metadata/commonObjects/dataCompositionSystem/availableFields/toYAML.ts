@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../../../context/types"
 import { exportI8nTextToYAML } from "../../i8nText/toYAML"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import * as SE from "../../../systemEnumerations/types"
 import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, AvailableFieldsYAML } from "./types"
 
@@ -49,4 +49,4 @@ const exportAvailableFieldsToYAML = (
   return data.map((item) => exportItem(context, item))
 }
 
-registerTypeRule("AvailableFields", "exportToYAML", exportAvailableFieldsToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "exportToYAML", exportAvailableFieldsToYAML)

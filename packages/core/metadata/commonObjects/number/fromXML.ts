@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 
 const TYPED_DECIMAL_XSI = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
@@ -29,7 +29,7 @@ export const importNumberFromXML = (
   return typeof rawValue === "number" ? rawValue : Number(rawValue)
 }
 
-registerTypeRule("number", "importFromXML", importNumberFromXML)
-registerTypeRule("number", "configurationIndexValueFromXML", {
+export const metadataPropertyRule000 = definePropertyTypeRule("number", "importFromXML", importNumberFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("number", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => value.xmlText === undefined ? undefined : Number(value.xmlText),
 })

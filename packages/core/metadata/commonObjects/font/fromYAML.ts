@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
@@ -102,4 +102,4 @@ function parseProjectStyleRefFromYAML(value: string): string | undefined {
   return parsed.target.kind === "object" && parsed.target.root === "StyleItem" ? parsed.target.objectName : undefined
 }
 
-registerTypeRule("Font", "importFromYAML", importFontFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Font", "importFromYAML", importFontFromYAML)

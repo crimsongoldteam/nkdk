@@ -1,6 +1,6 @@
 import type { ConfigurationContext } from "../../../../../context/types"
 import type { PropertyRule } from "../../../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import type { GroupItemAuto, GroupItemAutoYAML } from "./types"
 
 export const importGroupItemAutoFromYAML = (
@@ -13,4 +13,4 @@ export const importGroupItemAutoFromYAML = (
   return undefined
 }
 
-registerTypeRule("GroupItemAuto", "importFromYAML", importGroupItemAutoFromYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemAuto", "importFromYAML", importGroupItemAutoFromYAML)

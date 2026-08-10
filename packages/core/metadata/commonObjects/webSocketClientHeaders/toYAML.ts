@@ -1,4 +1,4 @@
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ExportToYAMLFunction } from "../../ruleRuntime/property/fn"
 import type { WebSocketClientHeaders, WebSocketClientHeadersYAML } from "./types"
 
@@ -11,4 +11,4 @@ export const exportWebSocketClientHeadersToYAML: ExportToYAMLFunction = (
   return value.map((item) => ({ Ключ: item.Ключ, Значение: item.Значение }))
 }
 
-registerTypeRule("WebSocketClientHeaders", "exportToYAML", exportWebSocketClientHeadersToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("WebSocketClientHeaders", "exportToYAML", exportWebSocketClientHeadersToYAML)

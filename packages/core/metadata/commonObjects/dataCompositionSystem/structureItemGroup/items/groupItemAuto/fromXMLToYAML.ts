@@ -1,6 +1,6 @@
 import { importMetadataItemFromXMLToYAML } from "../../../../../ruleRuntime/metadataItem/fromXMLToYAML"
 import type { ImportFromXMLToYAMLFunction } from "../../../../../ruleRuntime/property/importYamlTypes"
-import { registerTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../../../ruleRuntime/property/typeRuleRegistry"
 import { GroupItemAutoRules } from "./rules"
 
 export const importGroupItemAutoFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
@@ -21,4 +21,4 @@ export const importGroupItemAutoFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   return (yaml as Record<string, unknown>).Использование === "Ложь" ? "([Авто])" : "[Авто]"
 }
 
-registerTypeRule("GroupItemAuto", "importFromXMLToYAML", importGroupItemAutoFromXMLToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemAuto", "importFromXMLToYAML", importGroupItemAutoFromXMLToYAML)

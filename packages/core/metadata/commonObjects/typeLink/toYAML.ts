@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToYAML } from "../metadataField/toYAML"
 import type { TypeLink, TypeLinkYAML } from "./types"
@@ -26,4 +26,4 @@ export const exportTypeLinkToYAML = (
   return dataPathYAML
 }
 
-registerTypeRule("TypeLink", "exportToYAML", exportTypeLinkToYAML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeLink", "exportToYAML", exportTypeLinkToYAML)

@@ -1,6 +1,6 @@
 import { Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
 
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD = "ПолеНабораДанныхСхемыКомпоновкиДанных"
@@ -85,15 +85,15 @@ export const getDataCompositionSchemaDataSetFieldKind = (
   item: { kind?: DataCompositionSchemaDataSetFieldKind } | undefined
 ): DataCompositionSchemaDataSetFieldKind => item?.kind ?? DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD
 
-registerTypeRule("DataCompositionSchemaDataSetFieldKind", "importFromXML", dataCompositionSchemaDataSetFieldKindFromXML)
-registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToXML", dataCompositionSchemaDataSetFieldKindToXML)
-registerTypeRule(
+export const metadataPropertyRule000 = definePropertyTypeRule("DataCompositionSchemaDataSetFieldKind", "importFromXML", dataCompositionSchemaDataSetFieldKindFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToXML", dataCompositionSchemaDataSetFieldKindToXML)
+export const metadataPropertyRule002 = definePropertyTypeRule(
   "DataCompositionSchemaDataSetFieldKind",
   "importFromYAML",
   dataCompositionSchemaDataSetFieldKindFromYAML
 )
-registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToYAML", dataCompositionSchemaDataSetFieldKindToYAML)
-registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToJSONSchema", () =>
+export const metadataPropertyRule003 = definePropertyTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToYAML", dataCompositionSchemaDataSetFieldKindToYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToJSONSchema", () =>
   Type.Union([
     Type.Literal(DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD),
     Type.Literal(DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER),

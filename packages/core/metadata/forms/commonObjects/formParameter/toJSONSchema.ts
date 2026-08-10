@@ -1,5 +1,5 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../../ruleRuntime"
 import { FormParameterJSONSchema, FormParametersJSONSchema } from "./types"
 
 export const exportFormParameterToJSONSchema = (): TSchema => {
@@ -10,4 +10,4 @@ export const exportFormParametersToJSONSchema: ExportToJSONSchemaFn = (): TSchem
   return FormParametersJSONSchema
 }
 
-registerTypeRule("FormParameters", "exportToJSONSchema", exportFormParametersToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("FormParameters", "exportToJSONSchema", exportFormParametersToJSONSchema)

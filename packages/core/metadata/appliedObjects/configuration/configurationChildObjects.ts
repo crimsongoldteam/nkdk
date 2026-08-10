@@ -4,7 +4,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
 import { readOmittedTypedNames } from "../../commonObjects/omittedChildren"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 
 const PROPERTY_KEY = "childObjects"
@@ -17,7 +17,7 @@ function normalizeNames(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
 }
 
-registerTypeRule("ConfigurationChildObjects", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("ConfigurationChildObjects", "collectConfigurationIndexFromXML", ({ context, xml }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined || typeof xml !== "object" || xml === null || Array.isArray(xml)) return
 

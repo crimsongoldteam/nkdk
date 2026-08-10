@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ExplicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { primitiveValueHandlers } from "./handlers"
@@ -267,5 +267,5 @@ export const importAssociatedTableFromYAML = (
   return { type: "string", value: data } satisfies MetadataStringValue
 }
 
-registerTypeRule("MetadataValue", "importFromYAML", importMetadataValueFromYAML)
-registerTypeRule("AssociatedTable", "importFromYAML", importAssociatedTableFromYAML as any)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataValue", "importFromYAML", importMetadataValueFromYAML)
+export const metadataPropertyRule001 = definePropertyTypeRule("AssociatedTable", "importFromYAML", importAssociatedTableFromYAML as any)

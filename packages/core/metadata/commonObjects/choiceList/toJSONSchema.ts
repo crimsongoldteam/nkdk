@@ -1,9 +1,9 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { ChoiceListJSONSchema } from "./types"
 
 export const exportChoiceListToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   return ChoiceListJSONSchema
 }
 
-registerTypeRule("ChoiceList", "exportToJSONSchema", exportChoiceListToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceList", "exportToJSONSchema", exportChoiceListToJSONSchema)

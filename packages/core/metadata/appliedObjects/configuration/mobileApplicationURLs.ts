@@ -3,7 +3,7 @@ import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import type { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import {
@@ -140,57 +140,57 @@ export const exportMobileApplicationURLsToYAML = (
 
 export const exportMobileApplicationURLsToJSONSchema: ExportToJSONSchemaFn = () => MobileApplicationURLsJSONSchema
 
-registerTypeRule("MobileApplicationURLs", "importFromXML", importMobileApplicationURLsFromXML)
-registerTypeRule("MobileApplicationURLs", "exportToXML", exportMobileApplicationURLsToXML)
-registerTypeRule("MobileApplicationURLs", "importFromYAML", importMobileApplicationURLsFromYAML)
-registerTypeRule("MobileApplicationURLs", "exportToYAML", exportMobileApplicationURLsToYAML)
-registerTypeRule("MobileApplicationURLs", "exportToJSONSchema", exportMobileApplicationURLsToJSONSchema)
-registerTypeRule(
+export const metadataPropertyRule000 = definePropertyTypeRule("MobileApplicationURLs", "importFromXML", importMobileApplicationURLsFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("MobileApplicationURLs", "exportToXML", exportMobileApplicationURLsToXML)
+export const metadataPropertyRule002 = definePropertyTypeRule("MobileApplicationURLs", "importFromYAML", importMobileApplicationURLsFromYAML)
+export const metadataPropertyRule003 = definePropertyTypeRule("MobileApplicationURLs", "exportToYAML", exportMobileApplicationURLsToYAML)
+export const metadataPropertyRule004 = definePropertyTypeRule("MobileApplicationURLs", "exportToJSONSchema", exportMobileApplicationURLsToJSONSchema)
+export const metadataPropertyRule005 = definePropertyTypeRule(
   "RequiredMobileApplicationPermissions",
   "importFromXML",
   importRequiredMobileApplicationPermissionsFromXML
 )
-registerTypeRule(
+export const metadataPropertyRule006 = definePropertyTypeRule(
   "RequiredMobileApplicationPermissions",
   "exportToXML",
   exportRequiredMobileApplicationPermissionsToXML
 )
-registerTypeRule(
+export const metadataPropertyRule007 = definePropertyTypeRule(
   "RequiredMobileApplicationPermissions",
   "importFromYAML",
   importRequiredMobileApplicationPermissionsFromYAML
 )
-registerTypeRule(
+export const metadataPropertyRule008 = definePropertyTypeRule(
   "RequiredMobileApplicationPermissions",
   "exportToYAML",
   exportRequiredMobileApplicationPermissionsToYAML
 )
-registerTypeRule(
+export const metadataPropertyRule009 = definePropertyTypeRule(
   "RequiredMobileApplicationPermissions",
   "exportToJSONSchema",
   exportRequiredMobileApplicationPermissionsToJSONSchema
 )
-registerTypeRule(
+export const metadataPropertyRule010 = definePropertyTypeRule(
   "UsedMobileApplicationFunctionalities",
   "importFromXML",
   importUsedMobileApplicationFunctionalitiesFromXML
 )
-registerTypeRule(
+export const metadataPropertyRule011 = definePropertyTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToXML",
   exportUsedMobileApplicationFunctionalitiesToXML
 )
-registerTypeRule(
+export const metadataPropertyRule012 = definePropertyTypeRule(
   "UsedMobileApplicationFunctionalities",
   "importFromYAML",
   importUsedMobileApplicationFunctionalitiesFromYAML
 )
-registerTypeRule(
+export const metadataPropertyRule013 = definePropertyTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToYAML",
   exportUsedMobileApplicationFunctionalitiesToYAML
 )
-registerTypeRule(
+export const metadataPropertyRule014 = definePropertyTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToJSONSchema",
   exportUsedMobileApplicationFunctionalitiesToJSONSchema

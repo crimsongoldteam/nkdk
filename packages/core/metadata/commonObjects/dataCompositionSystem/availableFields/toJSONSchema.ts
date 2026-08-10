@@ -1,7 +1,7 @@
 import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
-import { registerTypeRule } from "../../../ruleRuntime"
+import { definePropertyTypeRule } from "../../../ruleRuntime"
 import { ExportToJSONSchemaFn } from "../../../ruleRuntime/property/fn"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 
@@ -38,4 +38,4 @@ export const exportAvailableFieldsToJSONSchema: ExportToJSONSchemaFn = ({ contex
   return Type.Array(Type.Union([Type.String(), availableFieldItemObjectSchema]))
 }
 
-registerTypeRule("AvailableFields", "exportToJSONSchema", exportAvailableFieldsToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("AvailableFields", "exportToJSONSchema", exportAvailableFieldsToJSONSchema)

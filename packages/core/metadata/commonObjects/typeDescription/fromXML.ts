@@ -1,6 +1,6 @@
 import { importNumberFromXML } from "../number/fromXML"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
@@ -212,8 +212,8 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
   }
 }
 
-registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)
-registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
   const address = getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey)
@@ -230,7 +230,7 @@ registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ conte
   collection.collector.setXmlValue(address, "xmlPrefix", prefix)
   collection.collector.setXmlValue(address, "xmlText", `${namespace}\n${type["#text"]}`)
 })
-registerTypeRule("TypeDescription", "configurationIndexValueFromXML", {
+export const metadataPropertyRule002 = definePropertyTypeRule("TypeDescription", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => {
     if (value.xmlPrefix === undefined || value.xmlText === undefined) return undefined
     const separator = value.xmlText.indexOf("\n")

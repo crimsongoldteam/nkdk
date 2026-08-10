@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import type { UserVisible, UserVisibleXML } from "./types"
@@ -37,4 +37,4 @@ export const importUserVisibleFromXML = (
   return result
 }
 
-registerTypeRule("UserVisible", "importFromXML", importUserVisibleFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("UserVisible", "importFromXML", importUserVisibleFromXML)

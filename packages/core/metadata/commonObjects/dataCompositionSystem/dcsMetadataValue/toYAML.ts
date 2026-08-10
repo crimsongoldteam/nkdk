@@ -12,7 +12,7 @@ import { exportChoiceParameterLinksToYAML } from "../../сhoiceParameterLinks/to
 import { exportChoiceParametersToYAML } from "../../сhoiceParameters/toYAML"
 import { ChoiceParameter } from "../../сhoiceParameters/types"
 import type { PropertyRule } from "../../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../../ruleRuntime/property/typeRuleRegistry"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../../systemEnumerations/toYAML"
 import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
@@ -188,4 +188,4 @@ const exportDcsMetadataValueToYAMLForRule = (
     value as MetadataDcsMetadataValue
   )
 
-registerTypeRule("MetadataDcsMetadataValue", "exportToYAML", exportDcsMetadataValueToYAMLForRule)
+export const metadataPropertyRule000 = definePropertyTypeRule("MetadataDcsMetadataValue", "exportToYAML", exportDcsMetadataValueToYAMLForRule)

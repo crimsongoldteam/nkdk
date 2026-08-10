@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentXML } from "./types"
 
@@ -18,4 +18,4 @@ export const importMobileDeviceCommandBarContentFromXML = (
   return items.length === 0 ? undefined : items
 }
 
-registerTypeRule("MobileDeviceCommandBarContent", "importFromXML", importMobileDeviceCommandBarContentFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MobileDeviceCommandBarContent", "importFromXML", importMobileDeviceCommandBarContentFromXML)

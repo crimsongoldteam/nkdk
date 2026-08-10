@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 
 export const importUUIDFromXML = (
   _context: ConfigurationContextFromXML,
@@ -10,7 +10,7 @@ export const importUUIDFromXML = (
   return String(value)
 }
 
-registerTypeRule("uuid", "importFromXML", importUUIDFromXML)
-registerTypeRule("uuid", "configurationIndexValueFromXML", {
+export const metadataPropertyRule000 = definePropertyTypeRule("uuid", "importFromXML", importUUIDFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("uuid", "configurationIndexValueFromXML", {
   identityKind: "uuid",
 })

@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { ColorPrefixToType, isRawColorRefValue, type Color, type ColorXML } from "./types"
 
@@ -28,7 +28,7 @@ export const importColorFromXML = (
   }
 }
 
-registerTypeRule("Color", "importFromXML", importColorFromXML)
-registerTypeRule("Color", "xmlImportPropertyBehavior", {
+export const metadataPropertyRule000 = definePropertyTypeRule("Color", "importFromXML", importColorFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("Color", "xmlImportPropertyBehavior", {
   presenceAffectsExportForSourceValues: ["auto"],
 })

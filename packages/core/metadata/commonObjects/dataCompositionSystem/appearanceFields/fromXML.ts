@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportPropertyValueToYAML } from "../../../ruleRuntime/property/toYAML"
 import type { SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "../settingsParameterValueCollection/dcscorItemsXML"
@@ -101,8 +101,8 @@ const importAppearanceFromXML = (
   }
 }
 
-registerTypeRule("AppearanceFields", "importFromXML", importAppearanceFromXML)
-registerTypeRule("AppearanceFields", "importFromXMLToYAML", ({ context, rule, xml }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("AppearanceFields", "importFromXML", importAppearanceFromXML)
+export const metadataPropertyRule001 = definePropertyTypeRule("AppearanceFields", "importFromXMLToYAML", ({ context, rule, xml }) => {
   const imported = importAppearanceFromXML(context, rule, xml as AppearanceFieldsXML | undefined)
   if (imported === undefined) return undefined
   const yaml: Record<string, unknown> = {}

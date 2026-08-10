@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { ExportToJSONSchemaFn, PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { exportPropertyToJSONSchema } from "../../../ruleRuntime/property/toJSONSchema"
 import { GroupItemFieldRules } from "./items/groupItemField/rules"
 
@@ -73,7 +73,7 @@ export const exportStructureItemGroupCollectionToJSONSchema: ExportToJSONSchemaF
 
 export const exportStructureItemGroupToJSONSchema: ExportToJSONSchemaFn = exportStructureItemGroupCollectionToJSONSchema
 
-registerTypeRule("GroupItemAuto", "exportToJSONSchema", exportGroupItemAutoToJSONSchema)
-registerTypeRule("GroupItemField", "exportToJSONSchema", exportGroupItemFieldToJSONSchema)
-registerTypeRule("StructureItemGroup", "exportToJSONSchema", exportStructureItemGroupToJSONSchema)
-registerTypeRule("StructureItemGroupCollection", "exportToJSONSchema", exportStructureItemGroupCollectionToJSONSchema)
+export const metadataPropertyRule000 = definePropertyTypeRule("GroupItemAuto", "exportToJSONSchema", exportGroupItemAutoToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("GroupItemField", "exportToJSONSchema", exportGroupItemFieldToJSONSchema)
+export const metadataPropertyRule002 = definePropertyTypeRule("StructureItemGroup", "exportToJSONSchema", exportStructureItemGroupToJSONSchema)
+export const metadataPropertyRule003 = definePropertyTypeRule("StructureItemGroupCollection", "exportToJSONSchema", exportStructureItemGroupCollectionToJSONSchema)

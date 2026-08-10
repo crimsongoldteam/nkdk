@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
 import { getMinMaxValueXMLText, getMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
@@ -40,4 +40,4 @@ const getRuleMinMaxValueXsiType = (rule: PropertyRule | undefined): MinMaxValueX
   return typedXML === "xs:string" || typedXML === "xs:decimal" ? typedXML : undefined
 }
 
-registerTypeRule("MinMaxValue", "exportToXML", exportMinMaxValueToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("MinMaxValue", "exportToXML", exportMinMaxValueToXML)

@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { PropertyRule, registerTypeRule } from "../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../ruleRuntime"
 import { CommonAttributeContent, CommonAttributeContentXML } from "./types"
 
 export const exportCommonAttributeContentToXML = (
@@ -18,4 +18,4 @@ export const exportCommonAttributeContentToXML = (
   }
 }
 
-registerTypeRule("CommonAttributeContent", "exportToXML", exportCommonAttributeContentToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("CommonAttributeContent", "exportToXML", exportCommonAttributeContentToXML)

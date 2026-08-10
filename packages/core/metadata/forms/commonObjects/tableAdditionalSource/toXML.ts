@@ -1,6 +1,6 @@
 import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule, TableAdditionalSourcePropertyRule } from "../../../ruleRuntime"
+import { PropertyRule, TableAdditionalSourcePropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import { TableAdditionalSourceXML } from "./types"
 
 const exportTableAdditionalSourceToXML = (
@@ -24,4 +24,4 @@ const exportTableAdditionalSourceToXML = (
   return { Item: parentName, Type: ruleNarrow.additionalSourceType }
 }
 
-registerTypeRule("TableAdditionalSource", "exportToXML", exportTableAdditionalSourceToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("TableAdditionalSource", "exportToXML", exportTableAdditionalSourceToXML)

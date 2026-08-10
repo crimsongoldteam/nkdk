@@ -1,13 +1,13 @@
 import { TSchema } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../../ruleRuntime"
+import { ExportToJSONSchemaFn, definePropertyTypeRule } from "../../ruleRuntime"
 import { NumberJSONSchema } from "./types"
 
 export const exportNumberToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   return NumberJSONSchema
 }
 
-registerTypeRule("number", "exportToJSONSchema", exportNumberToJSONSchema)
-registerTypeRule("number", "validationSchemaRef", ({ rule }) => {
+export const metadataPropertyRule000 = definePropertyTypeRule("number", "exportToJSONSchema", exportNumberToJSONSchema)
+export const metadataPropertyRule001 = definePropertyTypeRule("number", "validationSchemaRef", ({ rule }) => {
   const implicit = rule.implicitValueYAML
   return typeof implicit === "number" ? `number/without-${implicit}` : "number/base"
 })

@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import type { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"
 
@@ -50,4 +50,4 @@ const importChoiceParameterFromXML = (
   return result
 }
 
-registerTypeRule("ChoiceParameters", "importFromXML", importChoiceParametersFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("ChoiceParameters", "importFromXML", importChoiceParametersFromXML)

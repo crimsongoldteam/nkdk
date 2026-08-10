@@ -1,5 +1,5 @@
 import type { PropertyRule } from "../../ruleRuntime/property/types"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
+import { definePropertyTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
@@ -44,4 +44,4 @@ function isRawFontRefFromXML(kind: SE.FontType, ref: string): boolean {
   return false
 }
 
-registerTypeRule("Font", "importFromXML", importFontFromXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("Font", "importFromXML", importFontFromXML)

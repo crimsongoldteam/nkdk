@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { PropertyRule, registerTypeRule } from "../../../ruleRuntime"
+import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
 import type { SettingsParameterValueCollectionPropertyRule } from "../../../ruleRuntime/property/types"
 import type { ParameterValueXML } from "../parameterValue/types"
 import { exportSettingsParameterValueDcscorItemsToXML, getDcscorItemExportValueForXmlParents } from "./dcscorItemsXML"
@@ -32,4 +32,4 @@ const exportSettingsParameterValueCollectionToXML = (
   return wrapped
 }
 
-registerTypeRule("SettingsParameterValueCollection", "exportToXML", exportSettingsParameterValueCollectionToXML)
+export const metadataPropertyRule000 = definePropertyTypeRule("SettingsParameterValueCollection", "exportToXML", exportSettingsParameterValueCollectionToXML)
