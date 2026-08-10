@@ -38,7 +38,7 @@
 - Consumes: `collectFormDataPathOccurrencesFromYAML`, `ClientApplicationFormRules`, `resolveClientApplicationFormCollectionItemRule`.
 - Produces: прежний `indexClientApplicationFormComponents(yaml): ClientApplicationFormComponentIndex`, но со всеми элементами и полными dotted YAML-путями.
 
-- [ ] **Step 1: Написать падающий тест вложенных коллекций**
+- [x] **Step 1: Написать падающий тест вложенных коллекций**
 
 Расширить первый тест таким представителем:
 
@@ -76,7 +76,7 @@ expect(index.elements.get("Удалить")?.path)
 
 Перенести повтор имени из второго теста во вложенную командную панель, чтобы проверить уникальность между разными коллекциями.
 
-- [ ] **Step 2: Подтвердить падение**
+- [x] **Step 2: Подтвердить падение**
 
 Run:
 
@@ -86,7 +86,7 @@ pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/fo
 
 Expected: FAIL — три вложенные кнопки не индексируются, межколлекционный повтор не обнаруживается.
 
-- [ ] **Step 3: Реализовать индекс поверх общего обхода**
+- [x] **Step 3: Реализовать индекс поверх общего обхода**
 
 Заменить `visitElements` функцией `indexElements`:
 
@@ -111,7 +111,7 @@ function indexElements(yaml: unknown): ReadonlyMap<string, FormComponentEntry> {
 
 Импортировать общий обход, `ClientApplicationFormRules` и resolver. В `indexClientApplicationFormComponents` использовать `elements: indexElements(yaml)`. `indexNamed` оставить для реквизитов, команд и параметров, старый `visitElements` удалить.
 
-- [ ] **Step 4: Запустить потребителей индекса**
+- [x] **Step 4: Запустить потребителей индекса**
 
 Run:
 
@@ -121,7 +121,7 @@ pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/fo
 
 Expected: PASS.
 
-- [ ] **Step 5: Проверить дубли и закоммитить**
+- [x] **Step 5: Проверить дубли и закоммитить**
 
 Run:
 
@@ -145,7 +145,7 @@ Expected: все команды завершаются успешно.
 - Consumes: существующий `Diagnostic`.
 - Produces: `warning` только для отсутствующих компонентов; diagnostics `ПутьКДанным` и `FormComponentIndexError` остаются `error`.
 
-- [ ] **Step 1: Сделать уровни явными в тестах**
+- [x] **Step 1: Сделать уровни явными в тестах**
 
 В `borrowedFormValidation.test.ts` добавить `severity: "warning"` к трём классам сравнения: компонент текущей `cf` отсутствует в рабочей форме; компонент сохранённой основы отсутствует в рабочей форме; элемент сохранённой основы отсутствует в текущей `cf`.
 
@@ -157,7 +157,7 @@ expect.objectContaining({ severity: "error" })
 
 В `baseFormCompatibility.test.ts` ожидать `warning` для отсутствующего компонента и `error` для пустого имени.
 
-- [ ] **Step 2: Подтвердить падение уровней**
+- [x] **Step 2: Подтвердить падение уровней**
 
 Run:
 
@@ -167,7 +167,7 @@ pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/bo
 
 Expected: FAIL — сравнения пока возвращают `error`.
 
-- [ ] **Step 3: Изменить только diagnostics сравнения**
+- [x] **Step 3: Изменить только diagnostics сравнения**
 
 В `borrowedFormValidation.ts` установить `severity: "warning"` в `missingDiagnostics` и в сообщении «из сохранённой основы отсутствует в текущей форме cf». Остальные уровни не менять.
 
@@ -186,7 +186,7 @@ function diagnostic(
 
 Для отсутствующего компонента передавать `"warning"`; обработка `FormComponentIndexError` использует `error` по умолчанию.
 
-- [ ] **Step 4: Запустить целевые проверки**
+- [x] **Step 4: Запустить целевые проверки**
 
 Run:
 
@@ -196,7 +196,7 @@ pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/bo
 
 Expected: PASS; сравнения дают `warning`, противоречия дают `error`.
 
-- [ ] **Step 5: Проверить дубли и закоммитить**
+- [x] **Step 5: Проверить дубли и закоммитить**
 
 Run:
 
@@ -215,9 +215,9 @@ Expected: все команды завершаются успешно.
 
 **Interfaces:**
 - Consumes: общий `ProjectStateService` существующего сценария import `cf` → `cfe`.
-- Produces: предупреждение для вложенной кнопки одинаково видно после import и последующей validation без rebuild.
+- Produces: вложенная кнопка одинаково видна в текущей `cf`, рабочей `cfe` и сохранённой основе, поэтому import и последующая validation не выдают для неё ложную диагностику без rebuild.
 
-- [ ] **Step 1: Собрать кнопку во временных XML**
+- [x] **Step 1: Собрать кнопку во временных XML**
 
 В `importBaseConfiguration`, только для `ФормаОтчета`, раскрыть самозакрывающийся `AutoCommandBar` во временной копии:
 
@@ -234,7 +234,7 @@ Expected: все команды завершаются успешно.
 
 В `importExtension` так же раскрыть `AutoCommandBar` только внутри `<BaseForm version="2.20">`. Верхнюю рабочую панель расширения оставить пустой. Использовать `replaceExactlyOnce`; файлы в `__fixtures__` не менять.
 
-- [ ] **Step 2: Сравнить результат import с повторной validation**
+- [x] **Step 2: Проверить отсутствие ложной диагностики после import и повторной validation**
 
 После import выполнить:
 
@@ -248,9 +248,9 @@ const validationDiagnostics = [...validation.diagnostics]
 validation.diagnostics.release()
 ```
 
-Проверить `arrayContaining` для `ОбщаяПанельнаяКнопка`: в `result.warnings` и `validationDiagnostics` присутствует `warning`; в `result.failed` его нет. Ни одна коллекция не содержит сообщения, что эта кнопка отсутствует в текущей форме `cf`.
+Отфильтровать `result.failed`, `result.warnings` и `validationDiagnostics` по `ОбщаяПанельнаяКнопка`. Все три результата должны быть пустыми: import включает компонент сохранённой основы в рабочее представление, а общий индекс видит ту же кнопку в текущей `cf`.
 
-- [ ] **Step 3: Запустить интеграционный и отчётный тесты**
+- [x] **Step 3: Запустить интеграционный и отчётный тесты**
 
 Run:
 
