@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "../../appliedObjects/metadataExchangePlan/standardMembers"
 import { formatMetadataTargetToYAML, parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "./index"
 
 describe("metadataTargets parser", () => {

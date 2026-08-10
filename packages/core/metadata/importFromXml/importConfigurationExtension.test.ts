@@ -43,7 +43,7 @@ describe("configuration extension XML import", () => {
 
     expect(result).toEqual({
       componentPath: "cfe/РасширениеКонтроль",
-      succeeded: 3,
+      succeeded: 4,
       failed: [
         {
           severity: "error",
@@ -56,16 +56,32 @@ describe("configuration extension XML import", () => {
           code: "project_validation",
           message: 'ПутьКДанным "БазовыйОбъект.БазовыйРеквизит.Description": неизвестный реквизит "БазовыйРеквизит"',
           targetProjectPath:
+            "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
+        },
+        {
+          severity: "error",
+          code: "project_validation",
+          message: 'ПутьКДанным "БазовыйОбъект.БазовыйРеквизит.Description": неизвестный реквизит "БазовыйРеквизит"',
+          targetProjectPath:
             "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
         },
       ],
-      warnings: [{
-        severity: "warning",
-        code: "unresolved_data_path",
-        message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
-        targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
-        value: "БазовыйОбъект.БазовыйРеквизит.Description",
-      }],
+      warnings: [
+        {
+          severity: "warning",
+          code: "unresolved_data_path",
+          message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
+          targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
+          value: "БазовыйОбъект.БазовыйРеквизит.Description",
+        },
+        {
+          severity: "warning",
+          code: "unresolved_data_path",
+          message: "Не удалось преобразовать ПутьКДанным: БазовыйОбъект.БазовыйРеквизит.Description",
+          targetProjectPath: "Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
+          value: "БазовыйОбъект.БазовыйРеквизит.Description",
+        },
+      ],
       configurationIndexPath: configurationIndexPath(projectDir, {
         kind: "configurationExtension",
         name: "РасширениеКонтроль",
@@ -166,22 +182,22 @@ describe("configuration extension XML import", () => {
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
 
-  it("распознаёт заимствованное поле по текущей cf без встроенного BaseForm", async () => {
-    const { projectDir, form } = await importExtension({ removeBaseForm: true })
+  it("распознаёт заимствованное поле по текущей cf без встроенного BaseForm", () => {
+    const { projectDir, formWithoutBase } = importedExtension
 
-    expect((form as { Элементы: Record<string, unknown> }).Элементы.СобственноеПоле)
+    expect((formWithoutBase as { Элементы: Record<string, unknown> }).Элементы.СобственноеПоле)
       .not.toHaveProperty("ПутьКДанным")
-    expect((form as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
+    expect((formWithoutBase as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
       .toMatchObject({ ПутьКДанным: "" })
     expect(fs.existsSync(join(
       projectDir,
-      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/БазоваяФорма.yaml",
     ))).toBe(false)
   })
 
 })
 
-async function importExtension(options: { removeBaseForm?: boolean } = {}) {
+async function importExtension() {
   const projectDir = temporaryDirectory()
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
@@ -202,17 +218,6 @@ async function importExtension(options: { removeBaseForm?: boolean } = {}) {
       "\t\t<LabelField name=\"ПолеБазовогоРеквизита\" id=\"5\">",
     ].join("\n")
   )
-  if (options.removeBaseForm === true) {
-    removeBaseFormElement(join(
-      inputDir,
-      "Catalogs",
-      "СправочникПолный",
-      "Forms",
-      "ФормаОтчета",
-      "Ext",
-      "Form.xml",
-    ))
-  }
   replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "<v8:Type>xs:dateTime</v8:Type>",
@@ -228,9 +233,11 @@ async function importExtension(options: { removeBaseForm?: boolean } = {}) {
     "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.БазовыйСправочник</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>",
     "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>"
   )
+  addFormWithoutBase(inputDir)
   writeBaseLanguage(projectDir)
   writeBaseCatalog(projectDir)
-  writeBaseForm(projectDir)
+  writeBaseForm(projectDir, "ФормаОтчета")
+  writeBaseForm(projectDir, "ФормаБезОсновы")
   writeBaseConfiguration(projectDir)
 
   const result = await importConfigurationFromXml({
@@ -245,6 +252,10 @@ async function importExtension(options: { removeBaseForm?: boolean } = {}) {
   const configuration = readYaml(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml")
   const catalog = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml")
   const form = readYaml(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml")
+  const formWithoutBase = readYaml(
+    projectDir,
+    "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаБезОсновы/Форма.yaml",
+  )
   const yamlText = [
     readText(projectDir, "cfe/РасширениеКонтроль/Конфигурация.yaml"),
     readText(projectDir, "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Свойства.yaml"),
@@ -259,7 +270,34 @@ async function importExtension(options: { removeBaseForm?: boolean } = {}) {
     address: { kind: "configurationExtension", name: "РасширениеКонтроль" },
   })
 
-  return { projectDir, result, configuration, catalog, form, yamlText, snapshot }
+  return { projectDir, result, configuration, catalog, form, formWithoutBase, yamlText, snapshot }
+}
+
+function addFormWithoutBase(inputDir: string): void {
+  const catalogDir = join(inputDir, "Catalogs", "СправочникПолный")
+  const formsDir = join(catalogDir, "Forms")
+  const sourceMetadataPath = join(formsDir, "ФормаОтчета.xml")
+  const targetMetadataPath = join(formsDir, "ФормаБезОсновы.xml")
+  const targetFormDir = join(formsDir, "ФормаБезОсновы")
+  fs.copyFileSync(sourceMetadataPath, targetMetadataPath)
+  fs.cpSync(join(formsDir, "ФормаОтчета"), targetFormDir, { recursive: true })
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "77777777-7777-4777-8777-777777777777",
+    "99999999-9999-4999-8999-999999999999",
+  )
+  replaceExactlyOnce(
+    targetMetadataPath,
+    "88888888-8888-4888-8888-888888888888",
+    "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  )
+  replaceExactlyOnce(targetMetadataPath, "<Name>ФормаОтчета</Name>", "<Name>ФормаБезОсновы</Name>")
+  removeBaseFormElement(join(targetFormDir, "Ext", "Form.xml"))
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный.xml"),
+    "\t\t\t<Form>ФормаОтчета</Form>",
+    "\t\t\t<Form>ФормаОтчета</Form>\n\t\t\t<Form>ФормаБезОсновы</Form>",
+  )
 }
 
 function removeBaseFormElement(path: string): void {
@@ -320,14 +358,14 @@ function writeBaseCatalog(projectDir: string): void {
   ].join("\n"))
 }
 
-function writeBaseForm(projectDir: string): void {
+function writeBaseForm(projectDir: string, formName: string): void {
   const path = join(
     projectDir,
     "cf",
     "Справочник",
     "СправочникПолный",
     "Формы",
-    "ФормаОтчета",
+    formName,
     "Форма.yaml",
   )
   fs.mkdirSync(dirname(path), { recursive: true })
