@@ -4,6 +4,10 @@ import type { MetadataFieldKind, ParsedMetadataTarget } from "../ruleRuntime/met
 import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import {
+  collectAddressableMetadataObjectEntries,
+  objectTargetForProjectFile,
+} from "../validation/addressableMetadataTargets"
 import { getProjectReferenceMemberIndexContributors } from "../validation/projectReferenceIndexRegistry"
 import {
   projectMemberIndexKey,
@@ -168,35 +172,19 @@ function objectIndexEntriesForFile(file: ValidationProjectFile, yaml: unknown): 
         details: typeof type === "string" ? { type } : {},
       },
     },
+    ...collectAddressableMetadataObjectEntries({
+      yaml,
+      rule: file.itemRule,
+      canonicalTarget: projectObjectIndexKey(target),
+      filePath: file.projectPath,
+    }),
   ]
 }
 
 function objectTargetForFile(
   file: ValidationProjectFile
 ): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
-  const root = rootFromYAML[file.owner.dir]
-  if (root === undefined || file.owner.name.length === 0) return undefined
-  const nesting = file.owner.spec.nesting
-  if (nesting?.kind !== "recursiveChildDir") {
-    return { kind: "object", root, objectName: file.owner.name }
-  }
-
-  const parts = file.projectPath.split("/")
-  const rootObjectName = parts[1]
-  if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
-  const nestedNames: string[] = []
-  for (let index = 2; index < parts.length - 2; index += 2) {
-    if (parts[index] !== nesting.childDir) return undefined
-    const objectName = parts[index + 1]
-    if (objectName === undefined || objectName.length === 0) return undefined
-    nestedNames.push(objectName)
-  }
-  return {
-    kind: "object",
-    root,
-    objectName: rootObjectName,
-    segments: nestedNames.map((objectName) => ({ kind: root, objectName })),
-  }
+  return objectTargetForProjectFile(file)
 }
 
 function ownerMemberIndexEntries(params: {

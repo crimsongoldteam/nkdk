@@ -1,4 +1,4 @@
-import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
+import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { rootFromYAML } from "../ruleRuntime/metadataTarget/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
 import type { ElementType } from "../ruleRuntime/formElement/types"
@@ -53,6 +53,10 @@ import { getRegisteredFormDataPathMetadataProjection } from "./formDataPathProje
 import type { FormElementNameCollectorView, FormStructuredComponent } from "./formContracts"
 import { requireFormValidationAdapter } from "./formValidationRegistry"
 import { xmlScalarTagPayload, yamlScalarTagAt } from "../../yaml/scalarTags"
+import {
+  collectAddressableMetadataObjectEntries,
+  objectTargetForProjectFile,
+} from "./addressableMetadataTargets"
 
 export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
@@ -134,21 +138,27 @@ export function extractValidationYamlFacts(params: {
           pendingChecks,
         })
   const localIndexes = localIndexesCollector.finish()
+  const objectIndexEntries = objectTarget === undefined
+    ? []
+    : [
+        {
+          canonical: projectObjectIndexKey(objectTarget),
+          target: objectTarget,
+          result: {
+            ok: true as const,
+            filePath: params.file.absolutePath,
+            details: objectIndexDetails(params.parsed.data),
+          },
+        },
+        ...collectAddressableMetadataObjectEntries({
+          yaml: params.parsed.data,
+          rule: params.file.itemRule,
+          canonicalTarget: projectObjectIndexKey(objectTarget),
+          filePath: params.file.absolutePath,
+        }),
+      ]
   return {
-    objectIndexEntries:
-      objectTarget === undefined
-        ? []
-        : [
-            {
-              canonical: projectObjectIndexKey(objectTarget),
-              target: objectTarget,
-              result: {
-                ok: true,
-                filePath: params.file.absolutePath,
-                details: objectIndexDetails(params.parsed.data),
-              },
-            },
-          ],
+    objectIndexEntries,
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences,
@@ -172,23 +182,6 @@ export function extractValidationOwnerYamlFacts(params: {
 }): ValidationOwnerYamlFacts | undefined {
   const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
   return spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.data, spec)
-}
-
-function objectTargetForProjectFile(
-  file: ValidationProjectFile,
-): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
-  if (file.kind === "configuration") return undefined
-  if (file.metadataTarget === undefined) {
-    throw new Error(`Для адресуемого YAML-файла не передан metadata target: ${file.projectPath}`)
-  }
-  const parsed = parseMetadataTargetFromModel({
-    canonical: file.metadataTarget.canonical,
-    constraint: { kind: "object", allowNested: true },
-  })
-  if (!parsed.ok || parsed.target.kind !== "object") {
-    throw new Error(`Некорректный topology metadata target для ${file.projectPath}: ${file.metadataTarget.canonical}`)
-  }
-  return parsed.target
 }
 
 function objectIndexDetails(data: unknown): { type?: string } {

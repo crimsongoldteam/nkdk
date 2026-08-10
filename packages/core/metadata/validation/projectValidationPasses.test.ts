@@ -634,6 +634,24 @@ describe("validateProjectFileFirstPass references", () => {
       })
     )
   })
+
+  it("builds an object index entry for an inline external data source function", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const projectPath = "ВнешнийИсточникДанных/Источник/Свойства.yaml"
+    writeProjectFile(projectDir, projectPath, [
+      "Функции:",
+      "  Функция1:",
+      "    Тип: Строка",
+    ])
+
+    const first = validateProjectPath(projectDir, projectPath)
+
+    expect(first.objectIndexEntries).toContainEqual(expect.objectContaining({
+      canonical: "ExternalDataSource.Источник.Function.Функция1",
+      result: expect.objectContaining({ ok: true }),
+    }))
+  })
 })
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
