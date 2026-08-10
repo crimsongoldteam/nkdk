@@ -1,3 +1,4 @@
+import { registerCommonObjects } from "../metadata/commonObjects"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../metadata/context/types"
 import type { MetadataTargetOwnerContext } from "../metadata/context/types"
 import { withConfigurationIndexCollector } from "../metadata/configurationIndex/collector/context"
@@ -33,6 +34,8 @@ interface ToXMLResult {
   xml: Record<string, unknown>
   externalWrites: readonly YAMLToXMLExternalWrite[]
 }
+
+registerCommonObjects()
 
 export interface DirectRoundTripContexts {
   readonly importContext: ConfigurationContextFromXML

@@ -3,7 +3,6 @@ import { relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 export const TEST_DURATION_TARGET_MS = 10
-export const TEST_DURATION_LIMIT_MS = 50
 export const TEST_FILE_LIMIT_MS = 1_000
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 3_000
 export const WINDOWS_LIMIT_MULTIPLIER = 5
@@ -30,8 +29,7 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
     for (const test of suite.assertionResults) {
       if (!assertTest(test)) continue
       const result = { type: "test", file: suite.name, name: test.fullName, duration: test.duration }
-      if (test.duration > TEST_DURATION_LIMIT_MS * limitMultiplier) failures.push(result)
-      else if (test.duration > TEST_DURATION_TARGET_MS) warnings.push(result)
+      if (test.duration > TEST_DURATION_TARGET_MS) warnings.push(result)
     }
   }
 

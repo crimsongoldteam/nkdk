@@ -8,7 +8,12 @@ export class ForbiddenPiscina {
   }
 }
 
-vi.mock("piscina", async (importOriginal) => {
-  const original = await importOriginal<typeof import("piscina")>()
-  return { ...original, default: ForbiddenPiscina }
-})
+const transferableSymbol = Symbol.for("Piscina.transferable")
+const valueSymbol = Symbol.for("Piscina.valueOf")
+
+vi.mock("piscina", () => ({
+  default: ForbiddenPiscina,
+  move: <T>(value: T): T => value,
+  transferableSymbol,
+  valueSymbol,
+}))

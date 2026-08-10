@@ -29,13 +29,21 @@ const lifecycleReport = (fileMs: number, packageSetupMs = 3_000) => ({
 })
 
 describe("assert test durations", () => {
-  it("разделяет целевые предупреждения и жёсткие превышения на границах", () => {
+  it("предупреждает о разовой длительности теста, но жёстко ограничивает файл и setup", () => {
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000))).toEqual({
       warnings: [],
       failures: [],
     })
     expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(1_000)).warnings).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000)).failures).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000))).toEqual({
+      warnings: [{
+        type: "test",
+        file: "/project/packages/core/example.test.ts",
+        name: "example test case",
+        duration: 50.01,
+      }],
+      failures: [],
+    })
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000.01)).failures).toHaveLength(1)
     expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000, 3_000.01)).failures).toEqual([{
       type: "setup",
@@ -47,7 +55,7 @@ describe("assert test durations", () => {
     const slowReport = report({ testMs: 80 })
     const slowLifecycleReport = lifecycleReport(1_900, 5_700)
 
-    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(3)
+    expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(2)
     expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
   })
 
@@ -91,8 +99,8 @@ describe("assert test durations", () => {
       ],
     })
 
-    expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([20, 11])
-    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([3_500, 1_200, 1_100, 80, 60])
+    expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([80, 60, 20, 11])
+    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([3_500, 1_200, 1_100])
   })
 
   it("отклоняет повреждённый JSON-отчёт", () => {

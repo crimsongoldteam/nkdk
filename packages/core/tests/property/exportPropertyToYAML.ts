@@ -13,3 +13,6 @@ export const testExportPropertyToYAML = (params: { rule: PropertyRule; value: un
 
   return result
 }
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()

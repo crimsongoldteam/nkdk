@@ -59,3 +59,6 @@ export function testAtomicToXML(params: Params & { importMetaUrl?: string; path?
       : xmlExport({ [effectiveRootTag ?? "Value"]: xml }, false)
   return { expectedResult, result }
 }
+import { registerCommonObjects } from "../../metadata/commonObjects"
+
+registerCommonObjects()
