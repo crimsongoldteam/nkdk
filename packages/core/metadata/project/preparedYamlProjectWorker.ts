@@ -707,7 +707,7 @@ function processValidationFirstPassFile(
         : [
             ...first.structuredComponents,
             ...(descriptor.indexContribution === "isolated" && first.state.kind === "form"
-              ? first.state.pendingChecks.map((check) => ({
+              ? first.state.pendingChecks.filter((check) => check.kind === "dataPath").map((check) => ({
                   componentKind: "dataPath",
                   name: check.value,
                   yamlPath: check.yamlPath,

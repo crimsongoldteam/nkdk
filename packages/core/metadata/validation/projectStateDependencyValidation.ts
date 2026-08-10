@@ -69,14 +69,14 @@ export interface ProjectStateDataPathReferenceCheck {
   readonly requestId: string
   readonly componentPath: string
   readonly projectPath: string
-  readonly check: ProjectStatePendingDependencyCheck
+  readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }>
 }
 
 export interface ProjectStateResolvedDataPathReference {
   readonly requestId: string
   readonly componentPath: string
   readonly projectPath: string
-  readonly check: ProjectStatePendingDependencyCheck
+  readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }>
   readonly target: ResolvedDataPathTarget
 }
 
@@ -345,11 +345,16 @@ export function validateProjectStateDependencyBatch(params: {
           componentPath: request.componentPath,
           queryPort: params.queryPort,
         }),
-        checks: group.map((check) => ({
-            ...check.check,
-            location: { ...check.check.location, filePath: check.projectPath },
-            index,
-          })),
+        checks: group.map((check) => check.check.kind === "fillValue"
+          ? {
+              ...check.check,
+              location: { ...check.check.location, filePath: check.projectPath },
+            }
+          : {
+              ...check.check,
+              location: { ...check.check.location, filePath: check.projectPath },
+              index,
+            }),
       }).diagnostics,
     )
   }

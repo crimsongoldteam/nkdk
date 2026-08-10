@@ -79,7 +79,7 @@ export interface ProjectStatePendingMetadataTargetReference {
 }
 export interface ProjectStatePendingReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly reference: ProjectStatePendingMetadataTargetReference }
 export interface ProjectStatePendingOwnerCheck { readonly requestId: string; readonly componentPath: string; readonly owner: OwnerTypeRef }
-export interface ProjectStateDataPathReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: ProjectStatePendingDependencyCheck }
+export interface ProjectStateDataPathReferenceCheck { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly check: Extract<ProjectStatePendingDependencyCheck, { kind: "dataPath" }> }
 export interface ProjectStateDependencyReadiness { readonly blockedComponentPaths: ReadonlySet<string>; readonly diagnostics: readonly Diagnostic[] }
 export interface ProjectStateResolvedDataPathProjection { readonly requestId: string; readonly componentPath: string; readonly projectPath: string; readonly resolvedSegments: readonly string[]; readonly sourceOwner: OwnerTypeRef; readonly sourceFieldName?: string }
 

@@ -44,6 +44,27 @@ describe("effectiveTypeFromTypeDescription", () => {
     })
   })
 
+  it.each(["Date", "Time", "DateTime"] as const)("maps %s qualifier", (dateFractions) => {
+    expect(
+      effectiveTypeFromTypeDescription({
+        type: ["dateTime"],
+        dateQualifiers: { dateFractions },
+      })
+    ).toEqual({
+      status: "known",
+      alternatives: [{ kind: "dateTime", dateFractions }],
+      composite: false,
+    })
+  })
+
+  it("defaults dateTime to DateTime", () => {
+    expect(effectiveTypeFromTypeDescription({ type: ["dateTime"] })).toEqual({
+      status: "known",
+      alternatives: [{ kind: "dateTime", dateFractions: "DateTime" }],
+      composite: false,
+    })
+  })
+
   it("does not guess an unknown type", () => {
     expect(effectiveTypeFromTypeDescription({ type: ["UnknownPlatformType"] })).toMatchObject({
       status: "unresolved",

@@ -26,7 +26,7 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
   if (text.trim() === "") {
     return {
       text,
-      data: undefined,
+      data: {},
       locations,
       syntaxErrors: [],
     }
@@ -43,7 +43,7 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
   } catch (error) {
     return {
       text,
-      data: undefined,
+      data: {},
       locations,
       syntaxErrors: [toSyntaxError(error, text)],
     }
@@ -91,8 +91,8 @@ function visitYamlData(
     return value.value
   }
 
-  if (value === null) return isExplicitNullValue(path, lines, locations) ? null : undefined
-  if (isSourceEmptyValue(value, path, lines, locations)) return undefined
+  if (value === null) return isExplicitNullValue(path, lines, locations) ? null : {}
+  if (isSourceEmptyValue(value, path, lines, locations)) return {}
 
   if (
     parent !== undefined &&

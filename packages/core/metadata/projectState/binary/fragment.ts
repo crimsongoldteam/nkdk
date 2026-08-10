@@ -217,20 +217,32 @@ interface ProjectStatePendingReference {
   readonly constraint: MetadataTargetConstraint
 }
 
-interface ProjectStatePendingCheck {
-  readonly yamlPath: readonly (string | number)[]
-  readonly location: { readonly line: number; readonly col: number; readonly path?: string }
-  readonly owner: OwnerTypeRef
-  readonly value: string
-  readonly policyInput: {
-    readonly yaml: string
-    readonly allowedKinds?: readonly string[]
-    readonly allowComposite?: boolean
-  }
-  readonly elementType?: string
-  readonly hasValuesPicture?: boolean
-  readonly tableContext?: { readonly dataPath: string }
-}
+type ProjectStatePendingCheck =
+  | {
+      readonly kind: "dataPath"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly owner: OwnerTypeRef
+      readonly value: string
+      readonly policyInput: {
+        readonly yaml: string
+        readonly allowedKinds?: readonly string[]
+        readonly allowComposite?: boolean
+      }
+      readonly elementType?: string
+      readonly hasValuesPicture?: boolean
+      readonly tableContext?: { readonly dataPath: string }
+    }
+  | {
+      readonly kind: "fillValue"
+      readonly yamlPath: readonly (string | number)[]
+      readonly location: { readonly line: number; readonly col: number; readonly path?: string }
+      readonly itemType: string
+      readonly type: unknown
+      readonly value: unknown
+      readonly tagged: boolean
+      readonly transport?: "DesignTimeRef"
+    }
 
 interface ProjectStateYamlFileUpdate extends ProjectStateFileIdentity {
   readonly kind: "yaml"
@@ -563,6 +575,35 @@ export function createProjectStateFragmentWriter(options: {
       })
     }
     for (const check of update.pendingChecks) {
+      if (check.kind === "fillValue") {
+        rows.pendingChecks.push({
+          sourceFileId: fileId,
+          yamlPathId: appendYamlPath(check.yamlPath),
+          kindId: strings.intern("fillValue"),
+          payloadId: strings.intern(JSON.stringify({
+            version: 1,
+            itemType: check.itemType,
+            type: check.type,
+            value: check.value,
+            tagged: check.tagged,
+            ...(check.transport === undefined ? {} : { transport: check.transport }),
+          })),
+          line: check.location.line,
+          col: check.location.col,
+          pathId: optionalString(check.location.path),
+          ownerTypeId: NONE,
+          valueId: NONE,
+          policyYamlId: NONE,
+          allowedKindsStart: rows.allowedKinds.length,
+          allowedKindsCount: 0,
+          elementTypeId: NONE,
+          tableContextId: NONE,
+          allowComposite: 0,
+          hasValuesPicture: 0,
+          reserved: 0,
+        })
+        continue
+      }
       const allowedKindsStart = rows.allowedKinds.length
       for (const kind of check.policyInput.allowedKinds ?? []) {
         rows.allowedKinds.push({ valueId: strings.intern(kind) })
@@ -570,6 +611,8 @@ export function createProjectStateFragmentWriter(options: {
       rows.pendingChecks.push({
         sourceFileId: fileId,
         yamlPathId: appendYamlPath(check.yamlPath),
+        kindId: strings.intern("dataPath"),
+        payloadId: NONE,
         line: check.location.line,
         col: check.location.col,
         pathId: optionalString(check.location.path),

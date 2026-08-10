@@ -72,4 +72,39 @@ describe("explicit XML property validation schema", () => {
 
     expect(JSON.stringify(properties)).not.toContain('"const":"!xml"')
   })
+
+  it("разрешает любой scalar только внутренней схеме зарегистрированного транспорта", () => {
+    const rule = probeRule("ExplicitXMLScalarSchemaProbe")
+    registerExplicitXMLProperty({
+      action: "transportScalar",
+      itemType: rule.itemType,
+      propertyKey: "flag",
+    })
+    const validationProperties = exportPropertiesToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: {
+          mode: "inline",
+          refs: new Set<string>(),
+          validationPropertyRefs: true,
+        },
+      },
+      rule,
+    })
+    const externalProperties = exportPropertiesToJSONSchema({
+      context: {
+        ...mockContext,
+        exportToJSONSchema: { mode: "externalRefs", refs: new Set<string>() },
+      },
+      rule,
+    })
+
+    const refName = "nkdk://schema/validation/2.20/ru/boolean/without-true"
+    const refSchema = getValidationSchemaRef(refName)
+    if (refSchema === undefined) throw new Error("Expected boolean validation schema")
+    const validation = compileValidationSchema({ [refName]: refSchema }, Type.Object(validationProperties))
+    expect(validation.Check({ Флаг: "!xml" })).toBe(true)
+    expect(validation.Check({ Флаг: "!xml Ложь" })).toBe(true)
+    expect(JSON.stringify(externalProperties)).not.toContain("!xml")
+  })
 })

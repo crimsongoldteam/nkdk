@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { richYamlUpdate } from "./testData"
+import { fillValuePendingCheck, richYamlUpdate } from "./testData"
 import type {
   ProjectStateImportFinalFileStateBatch,
   ProjectStateImportIndexContribution,
@@ -57,6 +57,16 @@ it("сохраняет структурные факты документа че
     logicalAddress: "Catalog.Товары.Form.Форма", workingProjectPath: "Форма.yaml",
     componentKind: "element", name: "Поле", yamlPath: ["Элементы", "Поле"],
   }])
+})
+
+it("записывает отдельный вид проектной проверки fillValue", () => {
+  const writer = createProjectStateFragmentWriter()
+  const update = richYamlUpdate("cf/Товары.yaml", "cf", "Catalog.Товары")
+  writer.appendFile({ ...update, pendingChecks: [fillValuePendingCheck()] }, 9n)
+
+  const view = openProjectStateFragment(writer.finish())
+  expect(view.tableRange("pendingChecks")?.records).toBe(1)
+  expect(Array.from({ length: view.stringCount }, (_, id) => view.stringValue(id))).toContain("fillValue")
 })
 
 it("передаёт пять буферов фрагмента без копирования", () => {

@@ -267,6 +267,8 @@ export interface ProjectStateStructuredDocumentRecord {
 export interface ProjectStatePendingCheckRecord {
   readonly sourceFileId: number
   readonly yamlPathId: number
+  readonly kindId: number
+  readonly payloadId: number
   readonly line: number
   readonly col: number
   readonly pathId: number
@@ -712,6 +714,8 @@ export const ProjectStatePendingCheckRecordView = projectStateView.create<Projec
   properties: {
     sourceFileId: { type: "integer", btype: "uint32" },
     yamlPathId: { type: "integer", btype: "uint32" },
+    kindId: { type: "integer", btype: "uint32" },
+    payloadId: { type: "integer", btype: "uint32" },
     line: { type: "integer", btype: "uint32" },
     col: { type: "integer", btype: "uint32" },
     pathId: { type: "integer", btype: "uint32" },

@@ -18,6 +18,7 @@ import {
 } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { StandardAttributeDescriptionRules } from "./rules"
 import { StandartAttributeNameToYAML } from "./types"
+import { importFromYAML } from "../../../yaml/import"
 
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
@@ -176,6 +177,58 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("exports a tagged forbidden boolean through MetadataValue", () => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Предопределенный:
+    ЗначениеЗаполнения: !xml Ложь
+`, { Predefined: "Предопределенный" })
+
+    expect(item["xr:FillValue"]).toEqual({ "_xsi:type": "xs:boolean", "#text": "false" })
+  })
+
+  it.each([
+    ["DesignTimeRef", { "_xsi:type": "xr:DesignTimeRef" }],
+    [
+      "Справочник.ПапкиФайлов.ПустаяСсылка",
+      { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.ПапкиФайлов.EmptyRef" },
+    ],
+  ] as const)("exports !xml %s as exact DesignTimeRef XML", (fillValue, expected) => {
+    const item = standardAttributeFillValueXML(`СтандартныеРеквизиты:
+  Владелец:
+    ЗначениеЗаполнения: !xml ${fillValue}
+`, { Owner: "Владелец" })
+
+    expect(item["xr:FillValue"]).toEqual(expected)
+    expect(JSON.stringify(item["xr:FillValue"])).not.toContain("!xml")
+  })
+
+  function standardAttributeFillValueXML(
+    yaml: string,
+    standartAttributeNames: Record<string, string>,
+  ): Record<string, unknown> {
+    const collectionRule = {
+      itemType: "StandardAttributeXMLTransportProbe",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: importFromYAML(yaml),
+      rule: collectionRule,
+      outputs: [{ key: "owner" }],
+    })
+    const rawItem = (result.outputs.get("owner")?.StandardAttributes as {
+      "xr:StandardAttribute": Record<string, unknown> | Record<string, unknown>[]
+    })["xr:StandardAttribute"]
+    return Array.isArray(rawItem) ? rawItem[0]! : rawItem
+  }
 
   it("preserves maxValue xsi type from reference", () => {
     const xmlString = '<xr:MaxValue xsi:type="xs:decimal">99.99</xr:MaxValue>'

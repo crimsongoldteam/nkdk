@@ -118,6 +118,49 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("передаёт payload зарегистрированного скалярного !xml штатному типу", () => {
+    const rule = {
+      itemType: "ExplicitXMLScalarProbe",
+      properties: {
+        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+      },
+    } as MetadataItemRule
+    registerExplicitXMLProperty({
+      action: "transportScalar",
+      itemType: rule.itemType,
+      propertyKey: "fillValue",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xr:DesignTimeRef", "#text": "Catalog.Роли.EmptyRef" },
+    })
+  })
+
+  it("не распаковывает скалярный !xml у незарегистрированной пары", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: importFromYAML("ЗначениеЗаполнения: !xml Справочник.Роли.ПустаяСсылка"),
+      rule: {
+        itemType: "UnregisteredExplicitXMLScalarProbe",
+        properties: {
+          fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+        },
+      } as MetadataItemRule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xs:string", "#text": "!xml Справочник.Роли.ПустаяСсылка" },
+    })
+  })
+
   it("экспортирует незарегистрированный !xml как обычный текст", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -685,6 +728,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
     [{ xsiNil: true as const }, { "_xsi:nil": true }],
     [{ xsiType: "xr:DesignTimeRef" }, { "_xsi:type": "xr:DesignTimeRef" }],
     [{ xsiType: "xs:string", xmlText: "   " }, { "_xsi:type": "xs:string", "#text": "   " }],
+    [
+      { xsiType: "xs:dateTime", xmlText: "0001-01-01T00:00:00" },
+      { "_xsi:type": "xs:dateTime", "#text": "0001-01-01T00:00:00" },
+    ],
   ])("восстанавливает удалённое значение заполнения из снимка %#", (xmlState, expected) => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant(
@@ -719,6 +766,40 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({
       FillValue: { "_xsi:type": "xs:string", "#text": "Новое" },
     })
+  })
+
+  it("явная дата имеет приоритет над снимком начальной даты", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant(
+        "indexed",
+        [],
+        false,
+        DEFAULT_TEST_LOGICAL_ADDRESS,
+        [{
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.fillValue`,
+          xsiType: "xs:dateTime",
+          xmlText: "0001-01-01T00:00:00",
+        }],
+      ),
+      yaml: { ЗначениеЗаполнения: "09.08.2026 12:30:00" },
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      FillValue: { "_xsi:type": "xs:dateTime", "#text": "2026-08-09T12:30:00" },
+    })
+  })
+
+  it("использует канонический XML-default без снимка и YAML-поля", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: fillValueTestRule(),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ FillValue: { "_xsi:nil": true } })
   })
 
   it("не восстанавливает значение пустого XML-default из старого present", () => {

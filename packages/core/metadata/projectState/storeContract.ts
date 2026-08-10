@@ -321,7 +321,9 @@ export function runProjectStateStoreContract(factory: ProjectStateStoreContractF
       const sourceBase = richYamlUpdate("cf/Справочник/Заказы/Формы/Форма/Форма.yaml", "cf", "Catalog.Заказы", "Ошибка")
       const source: ProjectStateYamlFileUpdate = {
         ...sourceBase,
-        pendingChecks: sourceBase.pendingChecks.map((check) => ({ ...check, value: "Объект.Артикул" })),
+        pendingChecks: sourceBase.pendingChecks.map((check) => check.kind === "dataPath"
+          ? { ...check, value: "Объект.Артикул" }
+          : check),
         forms: [{
           kind: "root",
           owner: owner("Catalog.Заказы"),

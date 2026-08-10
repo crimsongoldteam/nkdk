@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
+import { mockContext } from "../../tests/mockContext"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { validationComponentLayers } from "./componentVisibility"
 import {
@@ -10,6 +12,10 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { FormDataPathColumnSource, OwnerTypeRef } from "./dataPath/types"
 import type { ObjectFieldIndex } from "./dataPath/objectFields"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { resolveValidationProjectFile } from "./projectFiles"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
+import { createValidationProjectComponent } from "./projectComponents"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,
@@ -114,6 +120,31 @@ describe("dependency validation из ProjectState", () => {
     }])
     expect(store.validateDependencies({ requests: [] })).toEqual([])
     store.rollbackUpdate()
+  })
+
+  it("не наследует стандартный реквизит владельца заимствованного справочника из cf", () => {
+    const file = resolveValidationProjectFile(
+      "/project/cfe/Продажи",
+      "Справочник/Товары/Свойства.yaml",
+      createValidationProjectComponent("/project", { kind: "configurationExtension", name: "Продажи" }),
+    )
+    if (file === undefined) throw new Error("Не определён файл заимствованного справочника")
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(`Реквизиты:
+  Дополнительный:
+    Тип: Строка(10)
+`),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const get = vi.fn<OwnerMetadataCache["get"]>(() => {
+      throw new Error("Стандартные реквизиты заимствованного объекта не должны читаться из cf")
+    })
+    const ownerCache = { get, listRefs: () => [] } satisfies OwnerMetadataCache
+
+    expect(facts.pendingChecks).toEqual([])
+    expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks })).toEqual({ diagnostics: [] })
+    expect(get).not.toHaveBeenCalled()
   })
 
   it("Б5 принимает пустую ссылку, если владелец существует", () => {
@@ -231,6 +262,34 @@ describe("dependency validation из ProjectState", () => {
 
     expect(diagnostics).toEqual([])
     expect(requestBatchSizes).toEqual([1])
+  })
+
+  it("проверяет fillValue через сохранённые сведения DefinedType", () => {
+    const check = {
+      kind: "fillValue" as const,
+      yamlPath: ["Реквизиты", "Автор", "ЗначениеЗаполнения"],
+      location: { line: 4, col: 5 },
+      itemType: "MetadataAttribute",
+      type: { type: ["DefinedType.АвторДействия"] },
+      value: { type: "ref" as const, value: "Catalog.Пользователи.Администратор" },
+      tagged: false,
+    }
+    const query = { requestId: "fill", componentPath: "cf", projectPath: "cf/Справочник/Товары/Свойства.yaml", check }
+    const definedType = { kind: "ОпределяемыйТип", name: "АвторДействия" }
+
+    expect(validateProjectStateDependencyBatch({
+      projectDir: "/project",
+      checks: [query],
+      queryPort: {
+        readDependencyInputs: () => [{
+          requestId: "fill",
+          status: "found",
+          input: { owners: [{ owner: definedType, facts: { type: { type: ["CatalogRef.Пользователи"] } } }], fields: [], forms: [] },
+        }],
+        readDependencyOwnerInputs: () => [],
+        readOwnerRefPage: () => ({ refs: [] }),
+      },
+    })).toEqual([])
   })
 
   it.each([
@@ -1000,7 +1059,9 @@ function pagedDependencyQueryPort(params: {
   ownerFacts: ReadonlyMap<string, ProjectStateYamlFileUpdate["owners"][number]["facts"]>
   readPage: PagedDependencyQueryPort["readOwnerRefPage"]
 }) {
-  const currentOwner = params.source.pendingChecks[0]!.owner
+  const currentCheck = params.source.pendingChecks[0]!
+  if (currentCheck.kind !== "dataPath") throw new Error("Ожидалась DataPath-проверка")
+  const currentOwner = currentCheck.owner
   return {
     readDependencyInputs: (requests: readonly { readonly requestId: string }[]) =>
       requests.map(({ requestId }) => currentOwnerInput(requestId, currentOwner, params.source)),
@@ -1298,7 +1359,7 @@ function ownerUpdate(
 
 function ownerDependencySource(
   componentPath = "cf",
-  owner: ProjectStateYamlFileUpdate["pendingChecks"][number]["owner"] = { kind: "Справочник", name: "Товары" },
+  owner: Extract<ProjectStateYamlFileUpdate["pendingChecks"][number], { kind: "dataPath" }>["owner"] = { kind: "Справочник", name: "Товары" },
   value = "Объект.Артикул",
   projectPath = `${componentPath}/Форма.yaml`,
 ): ProjectStateYamlFileUpdate {

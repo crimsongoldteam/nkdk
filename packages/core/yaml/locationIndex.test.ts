@@ -31,6 +31,13 @@ describe("buildYamlLocationIndex", () => {
     expect(index.keyPosition(["Реквизиты", 1, "Тип"])).toEqual({ line: 6, col: 5 })
   })
 
+  it("находит пустой элемент последовательности без завершающего пробела", () => {
+    const index = buildYamlLocationIndex("Элементы:\n  -")
+
+    expect(index.nodePosition(["Элементы", 0])).toEqual({ line: 2, col: 5 })
+    expect(index.valuePosition(["Элементы", 0])).toBeUndefined()
+  })
+
   it("finds scalar value positions", () => {
     const index = buildYamlLocationIndex(yaml)
 

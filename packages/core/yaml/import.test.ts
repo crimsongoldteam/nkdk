@@ -25,16 +25,16 @@ describe("importFromYAML", () => {
     expect(asExplicitYAMLStringIfMarked(data.Значения, 1, data.Значения[1])).toBe(789)
   })
 
-  it("imports null-like empty values as undefined", () => {
-    expect(importFromYAML<{ Поле?: string }>("Поле:\n")).toEqual({ Поле: undefined })
+  it("разбирает пустое значение как пустой объект", () => {
+    expect(importFromYAML<{ Поле: object }>("Поле:\n")).toEqual({ Поле: {} })
   })
 
   it("preserves an explicit null value", () => {
     expect(importFromYAML<{ Поле: null }>("Поле: null\n")).toEqual({ Поле: null })
   })
 
-  it("imports empty documents as undefined", () => {
-    expect(importFromYAML("")).toBeUndefined()
+  it("разбирает пустой документ как пустой объект", () => {
+    expect(importFromYAML("")).toEqual({})
   })
 
   it("keeps double quoted string markers", () => {

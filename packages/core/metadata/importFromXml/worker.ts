@@ -61,6 +61,7 @@ import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { projectClientApplicationBaseForm } from "../forms/clientApplicationForm/baseFormProjection"
 import { equalBaseFormYaml } from "../forms/clientApplicationForm/baseFormYaml"
 import type { ClientApplicationFormYAML } from "../forms/clientApplicationForm/types"
+import { normalizeImportedDependentItems } from "./dependentItems"
 
 declare module "../workerPool/types" {
   interface MetadataWorkerOperationTypeMap {
@@ -103,6 +104,8 @@ interface DeferredImportYaml {
   ownerContext: PreparedImportYaml["ownerContext"]
   formDataPathIndex: PreparedImportYaml["localIndexes"]["metadata"]["formDataPathIndex"]
   deferred: PreparedImportYaml["deferred"]
+  dependentDeferred: PreparedImportYaml["dependentDeferred"]
+  dependentOwner: PreparedImportYaml["dependentOwner"]
   indexContribution: ProjectStateImportIndexContribution
   baseFormCandidate?: NonNullable<PreparedImportYaml["baseFormCandidate"]>
 }
@@ -383,6 +386,24 @@ async function writePreparedYamlToOutput(
         formDataPathIndex: prepared.formDataPathIndex,
       })
   )
+  profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Уточнение отложенных зависимых значений YAML",
+    { items: prepared.dependentDeferred.length },
+    () => normalizeImportedDependentItems({
+      yaml: prepared.yaml,
+      rule: prepared.rule,
+      candidates: prepared.dependentDeferred,
+      owner: prepared.dependentOwner,
+      definedTypeLookup: (name) => {
+        const result = ownerMetadataCache.get({ kind: "ОпределяемыйТип", name })
+        if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
+        const reason = result.diagnostics.map(({ message }) => message).join("; ")
+        return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
+      },
+      preserveRawXML: false,
+    })
+  )
   const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
   const main = await writeMainImportYaml({ serialized, profiler })
   const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
@@ -582,7 +603,11 @@ async function processFirstPass(
           accumulator.stateEntries += generatedStateEntries.length
         }
         assignmentFiles.push(...externalFiles)
-        if (prepared.deferred.length === 0 && prepared.baseFormCandidate === undefined) {
+        if (
+          prepared.deferred.length === 0
+          && prepared.dependentDeferred.length === 0
+          && prepared.baseFormCandidate === undefined
+        ) {
           const serialized = serializePreparedYaml(prepared.targetProjectPath, prepared.yaml, state, profiler)
           const main = await writeMainImportYaml({ serialized, profiler })
           const validated = measureSerializedImportYamlValidation(prepared, serialized, state, profiler)
@@ -607,13 +632,15 @@ async function processFirstPass(
             ownerContext: prepared.ownerContext,
             formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
             deferred: prepared.deferred,
+            dependentDeferred: prepared.dependentDeferred,
+            dependentOwner: prepared.dependentOwner,
             indexContribution,
             ...(prepared.baseFormCandidate === undefined
               ? {}
               : { baseFormCandidate: prepared.baseFormCandidate }),
           })
           retainedYamlCount += 1
-          deferredValueCount += prepared.deferred.length
+          deferredValueCount += prepared.deferred.length + prepared.dependentDeferred.length
         }
         accumulator.files.push(...assignmentFiles)
       } catch (caught) {

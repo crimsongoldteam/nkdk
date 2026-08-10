@@ -62,6 +62,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
+    expect(compiled.Check({ A: undefined })).toBe(false)
     expect(compiled.Check([{ name: "A" }])).toBe(false)
   })
 

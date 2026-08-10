@@ -1,5 +1,5 @@
 import { dump } from "js-yaml"
-import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString"
+import { isExplicitYAMLString, markDoubleQuotedScalar, unwrapExplicitYAMLString } from "./explicitString"
 import { copyYAMLScalarTags, NKDK_YAML_SCHEMA, taggedScalarForDump } from "./scalarTags"
 
 const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
@@ -13,6 +13,7 @@ export interface SerializedYAMLDocument {
 interface PreparedYAMLNode {
   readonly dumpValue: unknown
   readonly data: unknown
+  readonly doubleQuoted?: true
 }
 
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
@@ -51,10 +52,10 @@ function prepareForDump(
 ): PreparedYAMLNode {
   if (isExplicitYAMLString(value)) {
     const data = String(unwrapExplicitYAMLString(value))
-    return { dumpValue: explicitStringMarker(data, explicitStrings), data }
+    return { dumpValue: explicitStringMarker(data, explicitStrings), data, doubleQuoted: true }
   }
   if (typeof value === "string" && shouldExportAsExplicitString(value)) {
-    return { dumpValue: explicitStringMarker(value, explicitStrings), data: value }
+    return { dumpValue: explicitStringMarker(value, explicitStrings), data: value, doubleQuoted: true }
   }
   if (Array.isArray(value)) {
     const prepared = value.map((item, index) =>
@@ -62,16 +63,24 @@ function prepareForDump(
     )
     const dumpValue = prepared.map(({ dumpValue }) => dumpValue)
     const data = prepared.map(({ data }) => data)
+    prepared.forEach((item, index) => {
+      if (item.doubleQuoted === true) markDoubleQuotedScalar(data, index)
+    })
     copyYAMLScalarTags(value, data)
     return { dumpValue, data }
   }
   if (value !== null && typeof value === "object") {
-    const prepared = Object.entries(value).map(([key, item]) => [
+    const entries = Object.entries(value)
+    if (entries.length === 0) return { dumpValue: value, data: value }
+    const prepared = entries.map(([key, item]) => [
       key,
       prepareChildForDump(value, key, item, explicitStrings, undefinedValues),
     ] as const)
     const dumpValue = Object.fromEntries(prepared.map(([key, item]) => [key, item.dumpValue]))
     const data = Object.fromEntries(prepared.map(([key, item]) => [key, item.data]))
+    for (const [key, item] of prepared) {
+      if (item.doubleQuoted === true) markDoubleQuotedScalar(data, key)
+    }
     copyYAMLScalarTags(value, data)
     return { dumpValue, data }
   }
@@ -88,7 +97,7 @@ function prepareChildForDump(
   if (value === undefined && !Array.isArray(parent)) {
     const marker = `${UNDEFINED_VALUE_MARKER_PREFIX}${undefinedValues.size}__`
     undefinedValues.add(marker)
-    return { dumpValue: marker, data: undefined }
+    return { dumpValue: marker, data: {} }
   }
   const prepared = value === undefined
     ? { dumpValue: null, data: null }
@@ -96,6 +105,7 @@ function prepareChildForDump(
   return {
     dumpValue: taggedScalarForDump(parent, key, prepared.dumpValue),
     data: prepared.data,
+    ...(prepared.doubleQuoted === true ? { doubleQuoted: true } : {}),
   }
 }
 
@@ -127,6 +137,11 @@ function normalizeEmptyXMLTags(yaml: string): string {
   return yaml.replace(/!xml ""(?=[ \t]*(?:#.*)?$)/gm, "!xml")
 }
 
+function normalizeEmptyMappings(yaml: string): string {
+  if (yaml === "{}\n") return ""
+  return yaml.replace(/^(\s*(?:-|.+:)) \{\}$/gm, "$1")
+}
+
 function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>): string {
   let result = yaml
   for (const [marker, value] of explicitStrings) {
@@ -150,9 +165,11 @@ export function serializeYAMLDocument(source: unknown): SerializedYAMLDocument {
     quoteStyle: "double",
   })
   const text = removeDocumentFinalLineEnding(
-    normalizeEmptyXMLTags(
-      normalizeQuotedTypeLinkValues(
-        quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+    normalizeEmptyMappings(
+      normalizeEmptyXMLTags(
+        normalizeQuotedTypeLinkValues(
+          quoteExplicitStrings(restoreUndefinedValues(yaml, undefinedValues), explicitStrings)
+        )
       )
     )
   )

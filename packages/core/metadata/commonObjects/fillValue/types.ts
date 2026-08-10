@@ -1,35 +1,12 @@
-import type { MetadataTargetConstraint, MetadataRootName } from "../metadataTargets/types"
+import type { MetadataRootName } from "../metadataTargets/types"
 
-export type FillValueAlternative =
-  | { readonly kind: "string"; readonly length?: number; readonly allowedLength?: "Variable" | "Fixed" }
-  | {
-      readonly kind: "number"
-      readonly digits?: number
-      readonly fractionDigits?: number
-      readonly allowedSign?: "Any" | "Nonnegative"
-    }
-  | { readonly kind: "boolean" }
-  | {
-      readonly kind: "reference"
-      readonly constraint: Extract<MetadataTargetConstraint, { kind: "value" }>
-      readonly objectName?: string
-    }
-
-export type FillValueEffectiveType =
-  | {
-      readonly status: "known"
-      readonly alternatives: readonly FillValueAlternative[]
-      readonly composite: boolean
-    }
-  | { readonly status: "unresolved"; readonly reason: string }
-  | { readonly status: "notSpecified" }
-
-export type FillValueClassification =
-  | { readonly kind: "valid" }
-  | { readonly kind: "implicit" }
-  | { readonly kind: "invalid"; readonly reason: string }
-  | { readonly kind: "unresolved"; readonly reason: string }
-  | { readonly kind: "notSpecified" }
+export type {
+  DefinedTypeLookup,
+  FillValueAlternative,
+  FillValueClassification,
+  FillValueEffectiveType,
+  FillValueTypedValue,
+} from "../../ruleRuntime/property/fillValueSemantics"
 
 export interface FillValueReferenceTypeMapping {
   readonly root: MetadataRootName

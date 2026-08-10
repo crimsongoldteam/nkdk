@@ -126,6 +126,7 @@ function collectDependencyChecks(
         projectPath,
         check,
       })
+      if (check.kind !== "dataPath") continue
       const ownerKey = `${componentPath}\u0000${check.owner.kind}\u0000${check.owner.name ?? ""}`
       if (seenOwners.has(ownerKey)) continue
       seenOwners.add(ownerKey)
