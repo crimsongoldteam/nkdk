@@ -4,7 +4,7 @@ import type { DataPathPropertyRule, MetadataItemRule, PropertyRule } from "../..
 import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
-import { xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
+import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 export interface FormYAMLItemVisit {
   yaml: Record<string, unknown>
@@ -46,6 +46,9 @@ function collectItem(params: {
         value,
         setValue: (nextValue) => {
           record[propertyRule.yaml as string] = nextValue
+        },
+        markTag: (tag) => {
+          markYAMLScalarTag(record, propertyRule.yaml as string, tag)
         },
         yamlPath: [...params.yamlPath, propertyRule.yaml],
         tagged,
