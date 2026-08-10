@@ -297,6 +297,7 @@ async function processSecondPass(
       const written = await writePreparedYamlToOutput(
         prepared,
         secondPass.ownerMetadataCache,
+        secondPass.readSession,
         state,
         accumulator.warnings,
         profiler,
@@ -365,6 +366,7 @@ function endSecondPass(): void {
 async function writePreparedYamlToOutput(
   prepared: DeferredImportYaml,
   ownerMetadataCache: OwnerMetadataCache,
+  readSession: ActiveSecondPass["readSession"],
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
@@ -441,6 +443,14 @@ async function writePreparedYamlToOutput(
         if (result.status === "ok") return { status: "ok", type: result.owner.facts.type }
         const reason = result.diagnostics.map(({ message }) => message).join("; ")
         return { status: "unresolved", reason: reason || `не найден определяемый тип ${name}` }
+      },
+      metadataTargetLookup: (canonical) => {
+        const [result] = readSession.resolveTargets([{
+          requestId: canonical,
+          componentPath: state.componentPath,
+          canonicalTarget: canonical,
+        }])
+        return result?.status ?? "missing"
       },
       preserveRawXML: false,
     })

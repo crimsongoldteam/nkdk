@@ -179,7 +179,7 @@ describe("XML import worker first pass", () => {
     })
   })
 
-  it("writes ready YAML and returns the complete local validation contribution", () => {
+  it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")
     const {
@@ -224,6 +224,7 @@ describe("XML import worker first pass", () => {
       "files",
       "kind",
       "stateFragment",
+      "warnings",
     ])
     expect(workerState).toMatchObject({
       operationId: "second-pass-test",
@@ -401,7 +402,7 @@ describe("XML import worker first pass", () => {
     expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(
       assignments.form.targetProjectPath
     )
-    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
   })
 
   it("не генерирует внешний файл повторно, когда им владеет XML-выгрузка", async () => {
@@ -451,8 +452,9 @@ describe("XML import worker second pass", () => {
       assignments: [assignments.catalog, assignments.form],
     }))
 
-    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
     await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+    await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.catalog.id })
     const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignments.form.id })
     await runImportWorkerCommand({ kind: "endSecondPass" })
 
@@ -476,7 +478,10 @@ describe("XML import worker second pass", () => {
     await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
     error.mockClear()
 
-    await runImportWorkerCommand({ kind: "secondPassBatch", assignmentIds: [assignments.form.id] })
+    await runImportWorkerCommand({
+      kind: "secondPassBatch",
+      assignmentIds: [assignments.catalog.id, assignments.form.id],
+    })
     expect(error).not.toHaveBeenCalled()
 
     const finished = await runImportWorkerCommand({ kind: "finishSecondPass" })
@@ -535,7 +540,10 @@ describe("XML import worker second pass", () => {
       "Объект.Товары.LineNumber",
       undefined,
       ({ assignments: firstPassAssignments }) => {
-        expect(workerStateForTests().preparedYamlIds).toEqual([firstPassAssignments.form.id])
+        expect(workerStateForTests().preparedYamlIds).toEqual([
+          firstPassAssignments.catalog.id,
+          firstPassAssignments.form.id,
+        ])
       },
     )
     expectDeferredFormFirstPass(first, assignments, false)
@@ -722,9 +730,11 @@ function expectDeferredFormFirstPass(
   checkWorkerState = true,
 ): void {
   expect(first.diagnostics).toEqual([])
-  expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).toContain(assignments.catalog.targetProjectPath)
+  expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.catalog.targetProjectPath)
   expect(first.files.map(({ targetProjectPath }) => targetProjectPath)).not.toContain(assignments.form.targetProjectPath)
-  if (checkWorkerState) expect(workerStateForTests().preparedYamlIds).toEqual([assignments.form.id])
+  if (checkWorkerState) {
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignments.catalog.id, assignments.form.id])
+  }
 }
 
 function expectWrittenImportFile(
@@ -755,7 +765,7 @@ async function initializeWorker(
   })
 }
 
-function createReadToken(first: ImportFirstPassResult): ProjectStateReadToken {
+function createReadToken(first: { readonly stateFragment?: ImportFirstPassResult["stateFragment"] }): ProjectStateReadToken {
   const fixture = sharedStateFixture
   if (fixture === undefined) throw new Error("ProjectState test fixture не инициализирована")
   fixture.store.beginUpdate()
@@ -773,7 +783,12 @@ async function prepareReadyYamlValidationScenario() {
     logicalAddress: "Справочник.СправочникПолный",
     xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
   })
-  const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+  const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
+  await runImportWorkerCommand({ kind: "beginSecondPass", readToken: createReadToken(first) })
+  const second = await runImportWorkerCommand({ kind: "secondPass", assignmentId: assignment.id })
+  await runImportWorkerCommand({ kind: "endSecondPass" })
+  if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+  const result = { ...second, configurationFragments: first.configurationFragments }
 
   createReadToken(result)
   const fixture = sharedStateFixture
