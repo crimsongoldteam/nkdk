@@ -12,12 +12,18 @@ registerMetadataItemImportedYamlFinalizer(
   {
     requiresFinalization: (yaml, rule) =>
       requiresImportedFormDataPathCompaction(clientApplicationFormYaml(yaml), rule),
-    finalize: ({ yaml, rule, ownerMetadataCache }) => {
+    finalize: ({ yaml, rule, ownerMetadataCache, currentConfigurationYAML, savedBaseYAML }) => {
       const form = clientApplicationFormYaml(yaml)
       compactImportedFormDataPaths({
         yaml: form,
         context: prepareFormDataPathContextFromYAML({
           yaml: form,
+          ...(currentConfigurationYAML === undefined
+            ? {}
+            : { currentConfigurationFormYaml: clientApplicationFormYaml(currentConfigurationYAML) }),
+          ...(savedBaseYAML === undefined
+            ? {}
+            : { savedBaseFormYaml: clientApplicationFormYaml(savedBaseYAML) }),
           ownerCache: ownerMetadataCache,
           rule,
         }),

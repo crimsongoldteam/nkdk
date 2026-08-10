@@ -48,17 +48,15 @@ describe("configuration extension XML import", () => {
         {
           severity: "error",
           code: "project_validation",
-          message: "Не найден владелец СправочникОбъект.БазовыйСправочник",
-          targetProjectPath: join(
-            fs.realpathSync(projectDir),
-            "cfe/РасширениеКонтроль/Справочник/БазовыйСправочник/Свойства.yaml",
-          ),
+          message: 'Ссылка "Language.БазовыйЯзык" не включена в расширение',
+          targetProjectPath: "cfe/РасширениеКонтроль/Конфигурация.yaml",
         },
         {
           severity: "error",
           code: "project_validation",
-          message: 'Ссылка "Language.БазовыйЯзык" не включена в расширение',
-          targetProjectPath: "cfe/РасширениеКонтроль/Конфигурация.yaml",
+          message: 'ПутьКДанным "БазовыйОбъект.БазовыйРеквизит.Description": неизвестный реквизит "БазовыйРеквизит"',
+          targetProjectPath:
+            "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/Форма.yaml",
         },
       ],
       warnings: [{
@@ -103,7 +101,7 @@ describe("configuration extension XML import", () => {
       Реквизиты: {
         БазовыйОбъект: {
           Заголовок: "",
-          Тип: "СправочникОбъект.БазовыйСправочник",
+          Тип: "СправочникОбъект.СправочникПолный",
         },
         СобственныйРеквизитФормы: {
           Заголовок: "",
@@ -114,6 +112,10 @@ describe("configuration extension XML import", () => {
         СобственноеПоле: {
           Вид: "ПолеВвода",
           Ширина: 10,
+        },
+        Код: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "",
         },
         ПолеБазовогоРеквизита: {
           Вид: "ПолеНадписи",
@@ -164,9 +166,22 @@ describe("configuration extension XML import", () => {
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
   })
 
+  it("распознаёт заимствованное поле по текущей cf без встроенного BaseForm", async () => {
+    const { projectDir, form } = await importExtension({ removeBaseForm: true })
+
+    expect((form as { Элементы: Record<string, unknown> }).Элементы.СобственноеПоле)
+      .not.toHaveProperty("ПутьКДанным")
+    expect((form as { Элементы: Record<string, { ПутьКДанным?: unknown }> }).Элементы.Код)
+      .toMatchObject({ ПутьКДанным: "" })
+    expect(fs.existsSync(join(
+      projectDir,
+      "cfe/РасширениеКонтроль/Справочник/СправочникПолный/Формы/ФормаОтчета/БазоваяФорма.yaml",
+    ))).toBe(false)
+  })
+
 })
 
-async function importExtension() {
+async function importExtension(options: { removeBaseForm?: boolean } = {}) {
   const projectDir = temporaryDirectory()
   const inputDir = temporaryDirectory()
   fs.cpSync(fixtureDir, inputDir, { recursive: true })
@@ -177,6 +192,28 @@ async function importExtension() {
       "\t\t\t<DefaultRunMode>ManagedApplication</DefaultRunMode>"
   )
   replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "\t\t<LabelField name=\"ПолеБазовогоРеквизита\" id=\"5\">",
+    [
+      "\t\t<InputField name=\"Код\" id=\"20\">",
+      "\t\t\t<ContextMenu name=\"КодКонтекстноеМеню\" id=\"21\"/>",
+      "\t\t\t<ExtendedTooltip name=\"КодРасширеннаяПодсказка\" id=\"22\"/>",
+      "\t\t</InputField>",
+      "\t\t<LabelField name=\"ПолеБазовогоРеквизита\" id=\"5\">",
+    ].join("\n")
+  )
+  if (options.removeBaseForm === true) {
+    removeBaseFormElement(join(
+      inputDir,
+      "Catalogs",
+      "СправочникПолный",
+      "Forms",
+      "ФормаОтчета",
+      "Ext",
+      "Form.xml",
+    ))
+  }
+  replaceExactlyOnce(
     join(inputDir, "Catalogs", "СправочникПолный.xml"),
     "<v8:Type>xs:dateTime</v8:Type>",
     "<v8:TypeSet>cfg:AnyRef</v8:TypeSet>"
@@ -185,6 +222,11 @@ async function importExtension() {
     join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
     "<v8:Type>xs:string</v8:Type>",
     "<v8:TypeSet>cfg:AnyRef</v8:TypeSet>"
+  )
+  replaceExactlyOnce(
+    join(inputDir, "Catalogs", "СправочникПолный", "Forms", "ФормаОтчета", "Ext", "Form.xml"),
+    "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.БазовыйСправочник</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>",
+    "\t\t<Attribute name=\"БазовыйОбъект\" id=\"8\">\n\t\t\t<Type>\n\t\t\t\t<v8:Type>cfg:CatalogObject.СправочникПолный</v8:Type>\n\t\t\t</Type>\n\t\t</Attribute>"
   )
   writeBaseLanguage(projectDir)
   writeBaseCatalog(projectDir)
@@ -220,6 +262,15 @@ async function importExtension() {
   return { projectDir, result, configuration, catalog, form, yamlText, snapshot }
 }
 
+function removeBaseFormElement(path: string): void {
+  const content = fs.readFileSync(path, "utf8")
+  const start = content.indexOf("\t<BaseForm version=\"2.20\">")
+  const closing = "\t</BaseForm>"
+  const end = content.indexOf(closing, start)
+  if (start === -1 || end === -1) throw new Error(`Не найден BaseForm: ${path}`)
+  fs.writeFileSync(path, content.slice(0, start) + content.slice(end + closing.length + 1))
+}
+
 function replaceExactlyOnce(path: string, source: string, replacement: string): void {
   const content = fs.readFileSync(path, "utf8")
   const first = content.indexOf(source)
@@ -250,7 +301,23 @@ function writeBaseConfiguration(projectDir: string): void {
 function writeBaseCatalog(projectDir: string): void {
   const path = join(projectDir, "cf", "Справочник", "БазовыйСправочник", "Свойства.yaml")
   fs.mkdirSync(dirname(path), { recursive: true })
-  fs.writeFileSync(path, ["Реквизиты:", "  БазовыйРеквизит:", "    Тип: Справочник.БазовыйСправочник", ""].join("\n"))
+  fs.writeFileSync(path, [
+    "Реквизиты:",
+    "  БазовыйРеквизит:",
+    "    Тип: Справочник.БазовыйСправочник",
+    "  СобственноеПоле:",
+    "    Тип: Строка",
+    "",
+  ].join("\n"))
+  const formOwnerPath = join(projectDir, "cf", "Справочник", "СправочникПолный", "Свойства.yaml")
+  fs.mkdirSync(dirname(formOwnerPath), { recursive: true })
+  fs.writeFileSync(formOwnerPath, [
+    "Комментарий: Владелец текущей формы",
+    "Реквизиты:",
+    "  СобственноеПоле:",
+    "    Тип: Строка",
+    "",
+  ].join("\n"))
 }
 
 function writeBaseForm(projectDir: string): void {
@@ -265,7 +332,14 @@ function writeBaseForm(projectDir: string): void {
   )
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, [
+    "Реквизиты:",
+    "  БазовыйОбъект:",
+    "    Тип: СправочникОбъект.СправочникПолный",
+    "    ОсновнойРеквизит: Истина",
     "Элементы:",
+    "  СобственноеПоле:",
+    "    Вид: ПолеВвода",
+    "    ПутьКДанным: БазовыйОбъект.СобственноеПоле",
     "  БазовоеПоле:",
     "    Вид: ПолеВвода",
     "",

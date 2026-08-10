@@ -5,6 +5,8 @@ export interface MetadataItemImportedYamlFinalizerParams {
   yaml: unknown
   rule: MetadataItemRule
   ownerMetadataCache: OwnerMetadataCache
+  currentConfigurationYAML?: unknown
+  savedBaseYAML?: unknown
 }
 
 export interface MetadataItemImportedYamlFinalizer {
@@ -29,6 +31,10 @@ export function requiresMetadataItemImportedYamlFinalization(params: {
   rule: MetadataItemRule
 }): boolean {
   return finalizers.get(params.rule.itemType)?.requiresFinalization(params.yaml, params.rule) ?? false
+}
+
+export function supportsMetadataItemImportedYamlFinalization(rule: MetadataItemRule): boolean {
+  return finalizers.has(rule.itemType)
 }
 
 export function finalizeMetadataItemImportedYaml(

@@ -4,6 +4,7 @@ import {
   finalizeMetadataItemImportedYaml,
   registerMetadataItemImportedYamlFinalizer,
   requiresMetadataItemImportedYamlFinalization,
+  supportsMetadataItemImportedYamlFinalization,
 } from "./importedYamlFinalizerRegistry"
 
 const rule = {
@@ -22,6 +23,7 @@ describe("metadata item imported YAML finalizer registry", () => {
     const yaml: Record<string, unknown> = {}
 
     expect(requiresMetadataItemImportedYamlFinalization({ yaml, rule })).toBe(true)
+    expect(supportsMetadataItemImportedYamlFinalization(rule)).toBe(true)
 
     finalizeMetadataItemImportedYaml({
       yaml,
@@ -37,6 +39,7 @@ describe("metadata item imported YAML finalizer registry", () => {
     const yaml: Record<string, unknown> = {}
 
     expect(requiresMetadataItemImportedYamlFinalization({ yaml, rule: otherRule })).toBe(false)
+    expect(supportsMetadataItemImportedYamlFinalization(otherRule)).toBe(false)
     finalizeMetadataItemImportedYaml({ yaml, rule: otherRule, ownerMetadataCache: {} as never })
 
     expect(yaml).toEqual({})
