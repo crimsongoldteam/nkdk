@@ -8,6 +8,7 @@ import {
   collectDependentStructuralItemReferences,
   type DependentStructuralItemReference,
 } from "../ruleRuntime/property/dependentItemRegistry"
+import { yamlScalarTagAt } from "../../yaml/scalarTags"
 
 export interface StructuralReferencePropertyRule {
   readonly type: string
@@ -60,6 +61,7 @@ export interface StructuralReferenceRuntime {
     rule: StructuralReferencePropertyRule
     value: unknown
     owner?: MetadataTargetOwner
+    yaml?: unknown
   }) => unknown
   readonly valueToYAML: (params: {
     context: unknown
@@ -87,6 +89,12 @@ export interface StructuralReferenceRuntime {
     owner?: MetadataTargetOwner
   }) => IndexedStructuralReferenceCandidate[]
   readonly nestedRule: (rule: StructuralReferencePropertyRule) => StructuralReferenceNestedRule | undefined
+  readonly isTransportedBrokenXMLReference: (params: {
+    rule: StructuralReferencePropertyRule
+    yamlValue: unknown
+    path: readonly (string | number)[]
+    isTagged: (path: readonly (string | number)[]) => boolean
+  }) => boolean
 }
 
 export interface StructuralYamlReference extends StructuralReferenceCandidate {
@@ -175,6 +183,16 @@ function collectObjectReferences(params: {
     if (typeof propertyRule.yaml !== "string") continue
     const yamlValue = record[propertyRule.yaml]
     if (yamlValue === undefined) continue
+    const isTagged = (path: readonly (string | number)[]) =>
+      isRelativeYAMLScalarTagged(record, propertyRule.yaml!, path)
+    const isTransported = (path: readonly (string | number)[]) =>
+      params.runtime.isTransportedBrokenXMLReference({
+        rule: propertyRule,
+        yamlValue,
+        path,
+        isTagged,
+      })
+    if (isTransported([])) continue
 
     const handlerParams = {
       filePath: params.filePath,
@@ -189,6 +207,7 @@ function collectObjectReferences(params: {
       rule: propertyRule,
       value: yamlValue,
       owner: params.owner,
+      yaml: record,
     })
     const candidates = params.runtime.collectStructuralReferences({
       ...handlerParams,
@@ -220,6 +239,8 @@ function collectObjectReferences(params: {
         stagedCanonical = undefined
       }
       for (const candidate of candidates) {
+        const relativePath = candidate.yamlPath.slice(handlerParams.yamlPath.length)
+        if (isTransported(relativePath)) continue
         if (typeof candidate.setCanonical !== "function") {
           throw new Error(`Правило ${propertyRule.type} распознало ссылку без setter в ${params.filePath}`)
         }
@@ -262,6 +283,21 @@ function collectObjectReferences(params: {
     references.push(...nested.references)
   }
   return { ok: true, references }
+}
+
+function isRelativeYAMLScalarTagged(
+  parent: Readonly<Record<string, unknown>>,
+  propertyKey: string,
+  path: readonly (string | number)[],
+): boolean {
+  if (path.length === 0) return yamlScalarTagAt(parent, propertyKey) === "xml"
+  let current: unknown = parent[propertyKey]
+  for (const segment of path.slice(0, -1)) {
+    if ((typeof current !== "object" || current === null)) return false
+    current = (current as Readonly<Record<string | number, unknown>>)[segment]
+  }
+  const key = path[path.length - 1]
+  return key !== undefined && yamlScalarTagAt(current, key) === "xml"
 }
 
 function dependentStructuralTarget(

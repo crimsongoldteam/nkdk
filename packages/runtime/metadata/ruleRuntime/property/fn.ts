@@ -33,6 +33,7 @@ import type {
   ExplicitXMLPropertyMatcher,
 } from "./explicitXMLPropertyRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
+import type { BrokenXMLReferenceCarrierRegistry } from "./brokenXMLReferenceCarrierRegistry"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
 export type ExportToXMLFunction = (
@@ -61,7 +62,7 @@ export type ImportFromXMLFunction = (
   execution?: PropertyRuleExecution,
 ) => any | undefined
 
-export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher {
+export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher, BrokenXMLReferenceCarrierRegistry {
   applyMetadataItemXmlImportAugmenter(
     params: Parameters<import("../metadataItem/augmenterRegistry").MetadataItemXmlImportAugmenter["augment"]>[0],
   ): void

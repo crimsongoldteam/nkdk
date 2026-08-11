@@ -5,6 +5,8 @@ import { ConfigurationContext } from "@nkdk/runtime"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
 import type { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
+import { xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { isMDObjectRefUuid } from "./brokenMDObjectRef"
 
 export const importMetadataItemLinkFromYAML = (
   context: ConfigurationContext,
@@ -22,20 +24,36 @@ export const importMetadataItemLinksFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule | undefined,
   data: MetadataItemLinksYAML | undefined,
-  owner?: MetadataTargetOwner
+  owner?: MetadataTargetOwner,
+  isTransported?: (index: number) => boolean,
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined
 
-  return data
-    .map((item) => importMetadataItemLinkFromYAML(context, rule, item, owner)!)
-    .filter((item): item is MetadataItemLink => item !== undefined)
+  return data.flatMap((item, index) => {
+    const payload = xmlScalarTagPayload(item)
+    if (isTransported?.(index) === true && isMDObjectRefUuid(payload)) {
+      return [payload]
+    }
+    const imported = importMetadataItemLinkFromYAML(context, rule, item, owner)
+    return imported === undefined ? [] : [imported]
+  })
 }
 
 const importMetadataItemLinkFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
   importMetadataItemLinkFromYAML(params.context, params.rule, params.value, params.owner)
 
-const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) =>
-  importMetadataItemLinksFromYAML(params.context, params.rule, params.value, params.owner)
+const importMetadataItemLinksFromYAMLProperty: ImportFromYAMLFunctionNew = (params) => {
+  const yamlCollection = typeof params.rule.yaml === "string"
+    ? params.yaml?.[params.rule.yaml]
+    : undefined
+  return importMetadataItemLinksFromYAML(
+    params.context,
+    params.rule,
+    params.value,
+    params.owner,
+    (index) => yamlScalarTagAt(yamlCollection, index) === "xml",
+  )
+}
 
 export const metadataPropertyRule000 = definePropertyTypeRule("MetadataItemLink", "importFromYAML", importMetadataItemLinkFromYAMLProperty)
 export const metadataPropertyRule001 = definePropertyTypeRule("MetadataItemLinks", "importFromYAML", importMetadataItemLinksFromYAMLProperty)

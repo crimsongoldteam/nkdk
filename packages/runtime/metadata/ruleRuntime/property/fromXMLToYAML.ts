@@ -438,7 +438,18 @@ export function importPropertiesFromXMLToYAML(params: {
           presentInXML,
           yamlValue,
             }))
-      const exportedYamlValue = explicitXML?.yamlValue ?? yamlValue
+      const transported =
+        explicitXML === undefined && params.execution !== undefined
+          ? params.execution.normalizeImportedBrokenXMLReferences({
+              rule: propertyRule,
+              xmlValue,
+              yamlValue,
+            })
+          : {
+              yamlValue: explicitXML?.yamlValue ?? yamlValue,
+              taggedPaths: [],
+            }
+      const exportedYamlValue = transported.yamlValue
       if (!convertedDirectly) {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
@@ -478,7 +489,7 @@ export function importPropertiesFromXMLToYAML(params: {
           ? getExportToYAMLResult(
               propertyRule,
               propertyRule.yaml!,
-              yamlValue,
+              exportedYamlValue,
               value,
               params.execution,
             )
@@ -500,6 +511,9 @@ export function importPropertiesFromXMLToYAML(params: {
         })
       }
       if (explicitXML !== undefined) markYAMLScalarTag(result, propertyRule.yaml!, "xml")
+      for (const path of transported.taggedPaths) {
+        markRelativeYAMLScalarTag(result, propertyRule.yaml!, path)
+      }
       const profile = params.profile
       if (profile !== undefined) profile.exportedCount++
       addProfileTime(params.profile, "outputMs", outputStartedAt)
@@ -615,6 +629,29 @@ export function importPropertiesFromXMLToYAML(params: {
   }
 
   return sortYamlRuleProperties(result)
+}
+
+function markRelativeYAMLScalarTag(
+  result: Record<string, unknown>,
+  propertyKey: string,
+  path: YamlPath,
+): void {
+  if (path.length === 0) {
+    markYAMLScalarTag(result, propertyKey, "xml")
+    return
+  }
+  let parent: unknown = result[propertyKey]
+  for (const segment of path.slice(0, -1)) {
+    if (typeof parent !== "object" || parent === null) {
+      throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
+    }
+    parent = (parent as Record<string | number, unknown>)[segment]
+  }
+  const key = path[path.length - 1]
+  if (typeof parent !== "object" || parent === null || key === undefined) {
+    throw new Error(`Не найден YAML-путь переносчика: ${[propertyKey, ...path].join("/")}`)
+  }
+  markYAMLScalarTag(parent, key, "xml")
 }
 
 function nestedItemXMLTypeMatches(expectedXsiType: string | undefined, xmlValue: unknown): boolean {

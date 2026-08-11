@@ -8,6 +8,21 @@ export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
   const executor: PropertyRuleExecutor = {
+    normalizeImportedBrokenXMLReferences(params) {
+      return registries.normalizeImportedBrokenXMLReferences(params)
+    },
+    prepareBrokenXMLReferenceExport(params) {
+      return registries.prepareBrokenXMLReferenceExport(params)
+    },
+    patchExportedBrokenXMLReferences(params) {
+      return registries.patchExportedBrokenXMLReferences(params)
+    },
+    brokenXMLReferenceValidationSchema(params) {
+      return registries.brokenXMLReferenceValidationSchema(params)
+    },
+    isTransportedBrokenXMLReference(params) {
+      return registries.isTransportedBrokenXMLReference(params)
+    },
     applyMetadataItemXmlImportAugmenter(params) {
       registries.applyMetadataItemXmlImportAugmenter(params)
     },

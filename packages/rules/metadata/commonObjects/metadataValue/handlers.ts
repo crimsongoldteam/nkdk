@@ -68,11 +68,14 @@ const referenceValueRule = {
   metadataTarget: referenceValueConstraint,
 } as const satisfies MetadataValuePropertyRule
 
-const uuidPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-const designTimeRefUuidPattern = new RegExp(`^${uuidPattern}\\.${uuidPattern}$`, "i")
+export const DESIGN_TIME_REF_UUID_SOURCE =
+  "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+export const DESIGN_TIME_REF_UUID_PATTERN = new RegExp(
+  `^${DESIGN_TIME_REF_UUID_SOURCE}\\.${DESIGN_TIME_REF_UUID_SOURCE}$`,
+)
 
-function isDesignTimeRefUuid(value: string): boolean {
-  return designTimeRefUuidPattern.test(value)
+export function isDesignTimeRefUuid(value: string): boolean {
+  return DESIGN_TIME_REF_UUID_PATTERN.test(value)
 }
 
 /**
