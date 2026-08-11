@@ -38,6 +38,7 @@ export interface BrokenXMLReferenceCarrierRegistration {
     readonly transportedPaths: readonly YamlPath[]
   }): unknown
   validationSchema(params: {
+    readonly rule: PropertyRule
     readonly base: TSchema
     readonly validationGraph: boolean
   }): TSchema
@@ -136,6 +137,7 @@ export function createBrokenXMLReferenceCarrierRegistry(
     brokenXMLReferenceValidationSchema(params) {
       return carriers(params.rule).reduce(
         (schema, registration) => registration.validationSchema({
+          rule: params.rule,
           base: schema,
           validationGraph: params.validationGraph,
         }),

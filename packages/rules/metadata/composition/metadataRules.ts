@@ -61,6 +61,7 @@ import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/meta
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
 import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
+import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -103,6 +104,7 @@ export const legacyCoreRules = composeMetadataRules(
   staticPropertyRules,
   brokenDesignTimeRefRules,
   brokenMDObjectRefRules,
+  brokenLocalFormReferenceRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
   metadataExternalDataSourceTableOwnerRules,

@@ -432,7 +432,7 @@ export const TableRules = {
     width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
     ...dynamicListTableProperties,
     // additionalCreateParameters: { yaml: "ДополнительныеПараметрыСоздания", type: "boolean" },
-    userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
+    userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", xml: "UserSettingsGroup", type: "string" },
     // XML-only service fields are computed from the resolved table source.
     period: {
       yaml: "Период",
