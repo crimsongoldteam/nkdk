@@ -1036,3 +1036,437 @@ git commit -m "refactor!: :recycle: заменить core пакетами rules
 - [ ] **Step 9: Запросить code review перед PR**
 
 Использовать `superpowers:requesting-code-review`, устранить замечания через `superpowers:receiving-code-review`, затем повторить полный набор Step 6. Не запускать PR-цикл при любом падении.
+
+---
+
+## Передача работы на другой компьютер — состояние на 11 августа 2026
+
+Этот раздел является оперативным журналом выполнения. При расхождении между
+галочками в исходном плане и этим разделом ориентироваться на фактический Git и
+результаты команд ниже: исходные галочки намеренно не переписывались задним
+числом.
+
+### Где находится работа
+
+- Ветка: `codex/rules-runtime-split`.
+- Удалённая ветка: `origin/codex/rules-runtime-split` после публикации
+  handoff-коммита.
+- Актуальная база: `origin/develop` на
+  `27bf980f24bbc1d329f2c2ea0e0231080382799c`.
+- Функциональная вершина до этого handoff-раздела:
+  `fc6224b9cf9a093fee68f6fa5d275ab61091878d`.
+- На момент записи ветка не отставала от `origin/develop` и содержала 44
+  собственных коммита. Handoff-коммит добавляется поверх них.
+- Рабочий каталог в исходной сессии:
+  `C:\git\nkdk\.worktrees\rrsplit`. На другом компьютере этот путь не имеет
+  значения; нужна именно удалённая ветка.
+
+Команды для начала работы на новом компьютере:
+
+```powershell
+git fetch origin develop codex/rules-runtime-split
+git switch --track origin/codex/rules-runtime-split
+pnpm install --frozen-lockfile
+git status --short
+git rev-list --left-right --count origin/develop...HEAD
+```
+
+Ожидания после переключения:
+
+- `git status --short` ничего не выводит;
+- первая цифра `rev-list` равна `0`, если `develop` после этой записи не
+  продвинулся;
+- если `origin/develop` продвинулся, сначала влить его обычным merge в эту
+  ветку, не выполнять rebase уже опубликованной истории и повторить все
+  обязательные проверки.
+
+### Что фактически реализовано
+
+1. Исходный `@nkdk/core` физически разделён:
+
+   - `packages/runtime` — нейтральные договоры и механизмы;
+   - `packages/rules` — определения правил, конкретные обработчики и точки
+     запуска worker;
+   - `packages/core` отсутствует.
+
+2. Направление production-зависимости закреплено как
+   `@nkdk/rules → @nkdk/runtime`:
+
+   - runtime не импортирует rules ни напрямую, ни через типы, ни транзитивно;
+   - rules использует только разрешённые package exports runtime;
+   - MCP является верхней точкой сборки и загружает оба пакета;
+   - dependency-cruiser сообщает 0 нарушений границ и 0 циклов без baseline.
+
+3. Публичная граница пакетов ограничена:
+
+   - `@nkdk/runtime`;
+   - `@nkdk/runtime/rule-kit`;
+   - `@nkdk/runtime/worker`;
+   - корень `@nkdk/rules` с `metadataRules`;
+   - четыре именованные worker-точки `@nkdk/rules/workers/*`.
+
+   Wildcard `internal/*` и deep imports между пакетами не добавлялись.
+
+4. Создан структурированный `MetadataRulesDefinition`. В него перенесены или
+   явно собраны:
+
+   - property types и обработчики;
+   - metadata item и form element rules;
+   - project specs;
+   - JSON Schema и property refs;
+   - metadata components;
+   - import/synchronization descriptors;
+   - validation, project reference и DataPath contributions;
+   - operation augmenters;
+   - resource topology provider.
+
+5. Для нового пути созданы экземплярные наборы реестров:
+
+   - `RuleRegistrySet`;
+   - `ValidationRegistrySet`;
+   - `OperationRegistrySet`;
+   - property registry set;
+   - контекстный schema runtime.
+
+   `RuleRegistrySet` теперь также владеет `components`; обнаружение компонентов
+   и файлов проекта умеет получать этот экземпляр явно.
+
+6. MCP переведён на ленивый `MetadataRuntimeHandle`:
+
+   - runtime создаётся один раз при первом обращении;
+   - `metadataRules` передаётся в `createMetadataRuntime` явно;
+   - worker URL передаются обязательным manifest;
+   - `runtime.close()` закрывает созданные project state;
+   - MCP больше не импортирует удалённый core-пакет.
+
+7. `ProjectState` принадлежит конкретному runtime:
+
+   - runtime проверяет владение перед validation/import/sync/operations;
+   - state другого runtime отклоняется;
+   - конкретная фабрика полного `ProjectState` передаётся в
+     `createMetadataRuntime` из `metadata/composition`;
+   - внутренний runtime не импортирует слой composition, что отдельно проверяет
+     dependency-cruiser;
+   - обнаружение project files получает экземпляр `RuleRegistrySet`, а не
+     проверяет старый глобальный флаг.
+
+8. Общие тестовые скрипты вынесены из пакета в корневой `scripts/`:
+
+   - `assert-test-durations.mjs`;
+   - `run-test-duration-check.mjs`;
+   - `test-file-lifecycle-reporter.mjs`.
+
+   Ограничения длительности сейчас являются сообщениями, а не причиной падения
+   всего прогона. Предупреждения `Цель 10ms превышена` в зелёном `pnpm test`
+   ожидаемы и не означают ошибку этого разделения.
+
+9. Исправлена обязательная Windows-команда архитектурных тестов. Было:
+
+   ```text
+   node --test 'tools/dependency-cruiser/test/*.test.mjs'
+   ```
+
+   Одинарные кавычки на Windows попадали в аргумент буквально, поэтому команда
+   ложно завершалась успешно с `0 tests`. Теперь `pnpm
+   test:architecture:rules` действительно выполняет 66 тестов.
+
+### Последние найденные production-ошибки и их причины
+
+Эти ошибки обнаружил не unit-тест, а расширенный packed smoke. Важно сохранить
+этот контекст, чтобы не вернуть дефекты при удалении legacy-пути.
+
+#### 1. Worker не видел описание metadata-компонента
+
+Симптом:
+
+```text
+Не найдено описание metadata-компонента: configurationExtension
+```
+
+Причина: обычные статические imports worker-модулей выполнялись раньше тела
+rules-owned entrypoint. Validation cache создавался до загрузки правил внутри
+нового worker isolate.
+
+Текущее исправление находится в:
+
+- `packages/rules/metadata/composition/workers/generic.ts`;
+- `packages/rules/metadata/composition/workers/preparedYamlProject.ts`;
+- `packages/rules/metadata/composition/workers/importFromXml.ts`;
+- `packages/rules/metadata/composition/workers/fullSyncToXml.ts`.
+
+Сначала выполняется явная инициализация правил, после неё нужный worker-модуль
+загружается динамическим import. При окончательном удалении legacy globals
+порядок всё равно должен сохраниться: entrypoint сначала создаёт локальные
+registry sets из `metadataRules`, затем создаёт обработчик worker.
+
+#### 2. `ProjectState` не имел обработчика файлов
+
+Симптом:
+
+```text
+ProjectState refresh processFiles is not configured
+```
+
+Причина: `createMetadataRuntime` вызывал низкоуровневый
+`createProjectStateService` только с generic worker pool. Этого достаточно для
+простых unit-тестов владения, но недостаточно для настоящего refresh: отсутствуют
+writer, read session, dependency validator и prepared-YAML executor.
+
+Исправление: конкретная фабрика `createDefaultProjectStateService` передаётся
+из `metadata/composition/metadataRules.ts` через обязательную зависимость
+`CreateMetadataRuntimeOptions.createProjectStateService`. Не импортировать её
+обратно из внутреннего runtime: такой импорт нарушает
+`metadata-core-not-reach-composition`.
+
+#### 3. Main process всё ещё ожидал старую регистрацию при поиске файлов
+
+Симптом:
+
+```text
+Metadata не зарегистрирована перед операцией validation/projectComponents
+```
+
+Причина: `projectState/projectFiles.ts` вызывал
+`assertCoreMetadataRegistered()`, а `validation/projectComponents.ts` читал
+глобальный component descriptor.
+
+Исправление:
+
+- `RuleRegistrySet` получил экземплярную таблицу `components`;
+- `discoverValidationProjectComponents` может принимать registry set;
+- `discoverProjectStateValidationFileBatches` передаёт его дальше;
+- `ProjectState` получает связанную функцию discovery от конкретного runtime.
+
+Не возвращать fallback на глобальную регистрацию в этом новом пути.
+
+### Packed smoke, который нельзя ослаблять
+
+`packages/mcp/scripts/smoke-packed.mjs` теперь:
+
+1. собирает MCP и все worker;
+2. создаёт настоящий npm tarball;
+3. устанавливает tarball во временный пустой каталог;
+4. запускает установленный `nkdk-mcp` через stdio;
+5. проверяет регистрацию инструментов;
+6. вызывает `nkdk.get_schema`;
+7. копирует небольшой YAML-проект из rules fixtures;
+8. вызывает настоящий `nkdk.validate_project`, включая `ProjectState` и worker;
+9. проверяет защиту операций записи и закрытие соединений.
+
+Именно шаг 8 нашёл три ошибки выше. Не заменять его проверкой только сборки или
+моками. Временная переменная `NKDK_PACKED_SMOKE_DEBUG` и печать stack trace были
+удалены после исправления; в production-коде их нет.
+
+### Что проверено на функциональной вершине `fc6224b9c`
+
+Успешно выполнены:
+
+```powershell
+pnpm --filter @nkdk/runtime type-check
+pnpm --filter @nkdk/rules type-check
+pnpm --filter @nkdk/mcp type-check
+pnpm type-check
+pnpm test
+pnpm test:architecture:rules
+pnpm test:architecture
+pnpm duplicates -- --base 27bf980f24bbc1d329f2c2ea0e0231080382799c
+pnpm --filter @nkdk/mcp smoke:packed
+git diff --check
+```
+
+Фактические существенные результаты:
+
+- полный `pnpm test` завершился с кодом 0 во всех пакетах;
+- 66 тестов правил dependency-cruiser прошли;
+- dependency-cruiser: 0 нарушений границ, 0 циклов, baseline не менялся;
+- новых дублей относительно base commit нет;
+- packed MCP успешно выполнил schema и validation сценарии;
+- type-check runtime, rules и MCP прошёл;
+- worktree перед handoff-коммитом был чистым.
+
+После любого нового merge из `origin/develop` или изменения production-кода
+повторить весь набор, а не только целевые тесты.
+
+### ВАЖНО: строгая спека ещё не выполнена полностью
+
+Нельзя объявлять реализацию завершённой или открывать PR только потому, что все
+команды выше зелёные. Физическое разделение пакетов и направленность зависимостей
+готовы, но Task 9 Step 3а/4 и следующие критерии строгой спеки ещё не закрыты:
+
+- все таблицы rules должны быть экземплярными;
+- два runtime с пересекающимися ключами не должны видеть данные друг друга;
+- production lookup не должен работать без ссылки на runtime, bound service или
+  execution context;
+- `registerCoreMetadata()` и старые module-level registry maps должны быть
+  удалены;
+- `clear...ForTests`, `snapshot...ForTests`, `restore...ForTests` старого пути и
+  обслуживающие их тесты должны быть удалены;
+- worker entrypoint должен создавать локальные registry sets из
+  `metadataRules`, а не вызывать legacy bootstrap.
+
+На текущей вершине ещё существуют:
+
+- `packages/rules/metadata/composition/coreMetadata.ts`;
+- вызовы `registerCoreMetadata()` в четырёх официальных worker entrypoints;
+- `packages/rules/metadata/workerPool/preparedYamlProjectEntry.ts` со старой
+  инициализацией;
+- module-level registries в rule runtime, validation, project definition,
+  components, import и synchronization;
+- тестовая настройка `packages/rules/tests/registerCoreMetadata`;
+- множество legacy-тестов, использующих snapshot/restore/clear.
+
+Контрольная команда намеренно возвращает совпадения и тем самым показывает
+незавершённый слой:
+
+```powershell
+rg -n "registerCoreMetadata|clear.*RegistryForTests|snapshot.*RegistryForTests|restore.*RegistryForTests" packages/rules packages/runtime -g "*.ts"
+```
+
+Не исправлять это переименованием функций или исключением файлов из проверки.
+Нужно удалить состояние и перевести потребителей на экземплярный путь.
+
+### Почему нельзя просто удалить `coreMetadata.ts`
+
+Часть production-операций пока читает старые lookup-функции напрямую. Простое
+удаление bootstrap приведёт к поздним ошибкам вроде отсутствующего component,
+property type, project spec, import descriptor или sync profile. Особенно это
+касается worker-кода, потому что каждый worker является отдельным isolate и не
+наследует состояние main process.
+
+Также функции правил нельзя передать worker через structured clone. Правильный
+договор остаётся таким:
+
+1. rules-пакет владеет worker entrypoint;
+2. entrypoint статически импортирует `metadataRules`;
+3. внутри isolate из definitions создаются локальные registry sets;
+4. эти экземпляры передаются нейтральной worker-фабрике;
+5. main process передаёт только URL worker и сериализуемые команды.
+
+Не добавлять hash/handshake: это было явно исключено из первой версии.
+
+### Рекомендуемый следующий слой
+
+Продолжить Task 9, не начинать новую физическую перестановку каталогов.
+
+1. Составить production-only список чтений legacy registries, исключив
+   `*.test.ts`, `*.bench.ts` и test setup. Начать с:
+
+   ```powershell
+   rg -n "registerCoreMetadata" packages/rules/metadata -g "*.ts" -g "!*.test.ts" -g "!*.bench.ts"
+   rg -n "getRegistered|resolve.*Profile|find.*Descriptor|Registry" packages/rules/metadata -g "*.ts" -g "!*.test.ts" -g "!*.bench.ts"
+   ```
+
+2. Разделить потребителей по атомарным категориям:
+
+   - property/metadata item/form element execution;
+   - project specs, components и topology;
+   - validation/reference/DataPath;
+   - import descriptors;
+   - synchronization profiles;
+   - operation augmenters;
+   - worker persistent state и command operations.
+
+3. Для каждой категории использовать уже существующий экземплярный registry set
+   или добавить узкий bound service. Не вводить второй singleton и не записывать
+   одновременно в legacy и новый реестр.
+
+4. Перевести все чтения и записи категории одним законченным слоем, добавить
+   тест двух runtime с одинаковым ключом и разным поведением, затем удалить
+   legacy Map и test reset этой категории.
+
+5. После каждого слоя выполнять:
+
+   ```powershell
+   pnpm --filter @nkdk/rules type-check
+   pnpm --filter @nkdk/rules test
+   pnpm test:architecture
+   pnpm duplicates -- --base 27bf980f24bbc1d329f2c2ea0e0231080382799c
+   ```
+
+6. После перевода всех main-process потребителей заменить четыре worker
+   entrypoint на фабрики, получающие локальные registry sets, и удалить
+   `composition/coreMetadata.ts` вместе со старым setup.
+
+7. Расширить packed smoke реальным import/sync сценарием, если это можно сделать
+   на существующих неизменённых fixtures без внешнего процесса. Validation
+   сценарий сохранить в любом случае.
+
+8. Только после пустого контрольного `rg`, теста двух независимых runtime и
+   полного набора проверок перейти к code review и PR.
+
+### Архитектурные запреты, которые уже ловили реальные ошибки
+
+- `@nkdk/runtime` никогда не импортирует `@nkdk/rules`.
+- Внутренние metadata-модули не импортируют `metadata/composition`.
+- Конкретная сборка выполняется только в composition roots.
+- Rules не использует `@nkdk/runtime/internal/*` и исходные пути соседнего
+  пакета.
+- MCP и его build не обращаются к `packages/rules/**` или
+  `packages/runtime/**`; только к package exports.
+- Worker URL всегда передаётся manifest, worker pool создаётся лениво.
+- Не передавать функции rules через structured clone.
+- Не добавлять fallback на глобальный реестр в новом runtime-пути.
+- Не обновлять dependency-cruiser baseline ради прохождения проверки.
+- Не менять существующие XML-фикстуры, XML/YAML-семантику и не добавлять `!xml`.
+
+### Полезные файлы для входа в контекст
+
+Читать в таком порядке:
+
+1. `docs/superpowers/specs/2026-08-10-rules-runtime-package-split-design.md` —
+   утверждённый договор.
+2. Этот план и данный handoff-раздел.
+3. `packages/runtime/metadataRuntime.ts` — публичные contracts/factory.
+4. `packages/rules/metadata/composition/metadataRules.ts` — definitions и
+   concrete composition.
+5. `packages/rules/metadata/runtime/createMetadataRuntime.ts` — текущая сборка
+   capability groups и владение state.
+6. `packages/runtime/metadata/ruleRuntime/ruleRegistrySet.ts` — экземплярный
+   основной registry set.
+7. `packages/rules/metadata/composition/coreMetadata.ts` — legacy bootstrap,
+   который ещё предстоит удалить.
+8. `packages/rules/metadata/composition/workers/*.ts` — текущие worker
+   entrypoints и временная граница с legacy.
+9. `packages/mcp/src/metadataRuntimeHandle.ts` и
+   `packages/mcp/src/metadataWorkerManifest.ts` — верхняя сборка.
+10. `packages/mcp/scripts/smoke-packed.mjs` — наиболее ценная интеграционная
+    проверка готовой упаковки.
+11. `tools/dependency-cruiser/src/metadata-rules.mjs` и
+    `tools/dependency-cruiser/test/package-rules-runtime-boundary.test.mjs` —
+    формальные ограничения границы.
+
+### Ключевые коммиты для изучения истории
+
+- `92091feb9` — упрощённый договор rules/runtime.
+- `d9141a0e4` — единый подробный план.
+- `a0018a52f` — исходные архитектурные ограничения.
+- `ffe496150` — `MetadataRulesDefinition`.
+- `5cc39c128` — экземплярные property registries.
+- `a1c9c5562` — project/schema registries.
+- `7619c0379` — validation registries.
+- `ec32dfaad` — operation registries.
+- `f3b5714dc` — основа metadata runtime.
+- `c22b3a359` — MCP и экземплярный runtime.
+- `fbe5892b3` — нижний runtime-слой.
+- `2bf146178` — исполнитель правил в runtime.
+- `85a275751` — нейтральная validation-механика.
+- `116276970` — DataPath-механика в runtime.
+- `ac4b9bffa` — пакет rules.
+- `f7be1f2df` — физическая граница пакетов и обязательные проверки.
+- `fc6224b9c` — packed validation, worker initialization и экземплярное project
+  discovery.
+
+### Чего не делать при продолжении
+
+- Не считать текущий `registerCoreMetadata()` окончательным worker API: это
+  временно работающий legacy bootstrap.
+- Не скрывать совпадения контрольного `rg` исключениями или переименованиями.
+- Не переносить оставшиеся файлы только по названию каталога; делить по
+  ответственности и направлению зависимости.
+- Не возвращать `@nkdk/core` как совместимый фасад.
+- Не добавлять Turborepo, удалённый кэш, plugin API, версии definitions,
+  handshake или новую иерархию ошибок в эту ветку.
+- Не менять XML fixtures даже для упрощения теста.
+- Не делать force-push опубликованной ветки.
+- Не открывать PR до полного удаления legacy globals, независимости двух
+  runtime и повторного code review.
