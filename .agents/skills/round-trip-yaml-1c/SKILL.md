@@ -1,16 +1,9 @@
 ---
 name: round-trip-yaml-1c
-description: Диагностирует XML -> YAML -> XML без reference и проверяет загрузку результата в файловую базу 1С через ibcmd.
+description: Диагностирует XML → YAML → XML без reference и проверяет загрузку результата в файловую базу 1С через ibcmd.
 ---
 
 # round-trip-yaml-1c — проверка XML без reference через 1С
-
-Перед диагностикой обязательно прочитай:
-
-1. `.agents/knowledge/metadata/INDEX.md`
-2. `.agents/knowledge/metadata/sources-of-truth.md`
-3. `.agents/knowledge/metadata/round-trip-cycle.md`
-4. `.agents/knowledge/metadata/yaml-contract.md`
 
 ## Что делает skill
 

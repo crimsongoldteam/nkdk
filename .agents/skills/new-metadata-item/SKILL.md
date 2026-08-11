@@ -5,26 +5,17 @@ description: Создание нового объекта метаданных (
 
 # Добавление нового объекта метаданных
 
-Скилл запускает сценарий добавления или существенной правки metadataItem. Устойчивые правила реализации живут в `.agents/knowledge/metadata/`.
-
-Перед работой обязательно прочитай:
-
-1. `.agents/knowledge/metadata/INDEX.md`
-2. `.agents/knowledge/metadata/sources-of-truth.md`
-3. `.agents/knowledge/metadata/metadata-item-implementation.md`
-4. `.agents/knowledge/metadata/round-trip-cycle.md`
-5. `.agents/knowledge/metadata/yaml-contract.md`
-6. `.agents/knowledge/metadata/registries.md`
+Скилл запускает сценарий добавления или существенной правки metadataItem.
 
 ## Точка входа
 
-Новый объект — начинай с брифа из `.agents/knowledge/metadata/metadata-item-implementation.md`.
+Новый объект — начинай с брифа.
 
-Существующий объект — начинай с XML-цикла из `.agents/knowledge/metadata/round-trip-cycle.md`. Если XML-цикл уже зелёный и проблема только в YAML, начинай с YAML-цикла.
+Существующий объект — начинай с XML-цикла. Если XML-цикл уже зелёный и проблема только в YAML, начинай с YAML-цикла.
 
 ## Шаг 1. Бриф (последовательный)
 
-Не задавай всё списком. Перед каждым вопросом быстро исследуй кодовую базу и спрашивай только то, что не выводится из кода, схемы или соседей. Базовый список брифа — в `.agents/knowledge/metadata/metadata-item-implementation.md`.
+Не задавай всё списком. Перед каждым вопросом быстро исследуй кодовую базу и спрашивай только то, что не выводится из кода, схемы или соседей. Базовый список брифа приведён ниже.
 
 Пункты брифа — в этом порядке, по одному:
 
@@ -52,7 +43,7 @@ description: Создание нового объекта метаданных (
 
 ## Шаг 2. Анализ
 
-Прочитай XML-фикстуры, схему, список свойств и 1–2 похожих metadataItem. Источники истины и приоритеты — в `.agents/knowledge/metadata/sources-of-truth.md`.
+Прочитай XML-фикстуры, схему, список свойств и 1–2 похожих metadataItem.
 
 ## Шаг 3. `types.ts`
 
@@ -66,7 +57,7 @@ description: Создание нового объекта метаданных (
 
 ## Шаг 5. Регистрация типов
 
-Без регистрации round-trip не запустится. Проверь и обнови реестры по `.agents/knowledge/metadata/registries.md`, а привязку правила к типу делай по [types.md](../_shared/metadata/types.md).
+Без регистрации round-trip не запустится. Проверь и обнови необходимые реестры, а привязку правила к типу делай по [types.md](../_shared/metadata/types.md).
 
 ## Шаг 6. `index.ts`
 
@@ -76,11 +67,11 @@ description: Создание нового объекта метаданных (
 
 ## XML-цикл
 
-Шаги 7–10 образуют цикл из `.agents/knowledge/metadata/round-trip-cycle.md`. Ошибка на любом шаге → фикс `rules.ts` → перезапуск с шага 7.
+Шаги 7–10 образуют цикл. Ошибка на любом шаге → фикс `rules.ts` → перезапуск с шага 7.
 
 ## Шаг 7. XML round-trip ⟲ (жёсткий барьер)
 
-Напиши `fromXML.test.ts` с round-trip блоком. Шаблоны и протокол эскалации — в [tests.md](../_shared/metadata/tests.md), порядок цикла — в `.agents/knowledge/metadata/round-trip-cycle.md`.
+Напиши `fromXML.test.ts` с round-trip блоком. Шаблоны и протокол эскалации — в [tests.md](../_shared/metadata/tests.md).
 
 Если расхождение относится к подчинённому metadataItem, остановись и спроси пользователя: укажи имя, путь и XML-фрагмент. Не правь чужой `rules.ts` сам.
 
@@ -104,17 +95,17 @@ YAML-поля на этом шаге **не заполняй** — `<fixtureName
 
 ## Барьер: обсуждение YAML-структуры
 
-Не переходи к YAML-циклу, пока XML-цикл не завершён полностью. Сгенерируй черновик YAML по `.agents/knowledge/metadata/yaml-contract.md` и аналогии с соседями. Без подтверждения пользователя YAML-правила не пиши.
+Не переходи к YAML-циклу, пока XML-цикл не завершён полностью. Сгенерируй черновик YAML по аналогии с соседями. Без подтверждения пользователя YAML-правила не пиши.
 
 ---
 
 ## YAML-цикл
 
-Шаги 11–13 образуют цикл из `.agents/knowledge/metadata/round-trip-cycle.md`. Ошибка на любом шаге → фикс `rules.ts` → перезапуск с шага 11.
+Шаги 11–13 образуют цикл. Ошибка на любом шаге → фикс `rules.ts` → перезапуск с шага 11.
 
 ## Шаг 11. YAML round-trip ⟲ (жёсткий барьер)
 
-Допиши YAML-часть в `rules.ts`, добавь `<fixtureName>YAML` в TS-фикстуры и напиши `fromYAML.test.ts` с round-trip блоком. Шаблоны — [tests.md](../_shared/metadata/tests.md), YAML-контракт — `.agents/knowledge/metadata/yaml-contract.md`.
+Допиши YAML-часть в `rules.ts`, добавь `<fixtureName>YAML` в TS-фикстуры и напиши `fromYAML.test.ts` с round-trip блоком. Шаблоны — в [tests.md](../_shared/metadata/tests.md).
 
 Если расхождение относится к подчинённому metadataItem, остановись и спроси пользователя: укажи имя, путь и YAML-фрагмент. Не правь чужой `rules.ts` сам.
 
