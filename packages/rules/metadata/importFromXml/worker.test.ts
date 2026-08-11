@@ -21,13 +21,17 @@ import {
 } from "../validation/projectValidationPasses"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import {
-  createFirstPassTransferable,
-  resetImportWorkerStateForTests,
-  runImportWorkerCommand,
-  workerStateForTests,
+  createImportFirstPassTransferable,
+  createImportWorkerCommandRunner,
 } from "./worker"
 import type { ImportAssignment } from "./types"
 import { createValidationProjectComponent } from "../validation/projectComponents"
+
+const importWorker = createImportWorkerCommandRunner()
+const runImportWorkerCommand = importWorker.run
+const workerStateForTests = importWorker.stateForTests
+const resetImportWorkerStateForTests = importWorker.resetForTests
+const createFirstPassTransferable = createImportFirstPassTransferable
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
@@ -101,6 +105,36 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
+  it("keeps command runner state isolated between worker instances", async () => {
+    const first = createImportWorkerCommandRunner()
+    const second = createImportWorkerCommandRunner()
+    const initialize = (operationId: string, workerIndex: number) => ({
+      kind: "initialize" as const,
+      operationId,
+      workerIndex,
+      context: mockXmlImportContext(),
+      outputDir: `/tmp/${operationId}`,
+    })
+    const options = {
+      persistentValidationState: {
+        schemaCache: fastValidationSchemaCache,
+        rulesSnapshot: validationRulesSnapshot,
+      },
+    }
+
+    await first.run(initialize("first-runner", 1), options)
+    await second.run(initialize("second-runner", 2), options)
+    first.resetForTests()
+
+    expect(first.stateForTests()).toEqual({ initialized: false, preparedYamlIds: [] })
+    expect(second.stateForTests()).toMatchObject({
+      initialized: true,
+      operationId: "second-runner",
+      workerIndex: 2,
+    })
+    second.resetForTests()
+  })
+
   it("writes deferred YAML and returns the complete local validation contribution", () => {
     const scenario = readyYamlValidationScenario
     if (scenario === undefined) throw new Error("Сценарий validation импортированного YAML не подготовлен")

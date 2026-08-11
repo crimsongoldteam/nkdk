@@ -415,7 +415,7 @@ export function normalizeFullXmlSyncConcurrency(value: number | undefined): numb
 function createPiscinaWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "worker.ts")
+    ? join(dirname(currentFile), "../composition/workers/fullSyncToXml.ts")
     : join(dirname(currentFile), "fullSyncToXmlWorker.js")
   const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({

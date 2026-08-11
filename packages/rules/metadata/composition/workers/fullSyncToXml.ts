@@ -4,7 +4,8 @@ import {
 } from "../metadataExecutionContext"
 
 const registries = createMetadataExecutionRegistrySets()
-const worker = (await import("../../fullSyncToXml/worker")).default
+const { createFullXmlSyncWorkerCommandRunner } = await import("../../fullSyncToXml/worker")
+const worker = createFullXmlSyncWorkerCommandRunner().entryPoint
 
 export default (command: Parameters<typeof worker>[0]) =>
   withMetadataExecutionRegistrySets(registries, () => worker(command))

@@ -658,7 +658,7 @@ function normalizeConcurrency(concurrency: number): number {
 function createPiscinaWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "worker.ts")
+    ? join(dirname(currentFile), "../composition/workers/importFromXml.ts")
     : join(dirname(currentFile), "importFromXmlWorker.js")
   const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({

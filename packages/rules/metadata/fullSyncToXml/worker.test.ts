@@ -27,10 +27,13 @@ import type {
 import { emptyProjectStateReadSession } from "./testHelpers"
 import { openFullXmlSyncBinaryResult } from "./binaryResult"
 import {
-  fullXmlSyncWorkerStateForTests,
-  resetFullXmlSyncWorkerStateForTests,
-  runFullXmlSyncWorkerCommand,
+  createFullXmlSyncWorkerCommandRunner,
 } from "./worker"
+
+const fullSyncWorker = createFullXmlSyncWorkerCommandRunner()
+const runFullXmlSyncWorkerCommand = fullSyncWorker.run
+const fullXmlSyncWorkerStateForTests = fullSyncWorker.stateForTests
+const resetFullXmlSyncWorkerStateForTests = fullSyncWorker.resetForTests
 
 describe("full XML sync worker", () => {
   const tempDirs: string[] = []

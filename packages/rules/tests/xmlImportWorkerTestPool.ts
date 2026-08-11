@@ -1,5 +1,5 @@
 import { createXmlImportWorkerPoolHandle, type XmlImportWorkerPoolHandle } from "../metadata/importFromXml/workerPool"
-import { runImportWorkerCommand, setImportWorkerSchemaCacheForTests } from "../metadata/importFromXml/worker"
+import { createImportWorkerCommandRunner } from "../metadata/importFromXml/worker"
 import type { ImportWorkerCommand, ImportWorkerCommandResult } from "../metadata/importFromXml/types"
 import { createProjectStateService, type CreateProjectStateServiceOptions } from "../metadata/projectState/service"
 import { createBinaryProjectStateStore } from "../metadata/projectState/binary/store"
@@ -40,13 +40,14 @@ export function createImportProjectStateTestService(
 }
 
 export function createXmlImportWorkerTestPool(concurrency = 1): XmlImportWorkerPoolHandle {
+  const worker = createImportWorkerCommandRunner()
   const threadPools = createMockWorkerThreadPoolFactory<ImportWorkerCommand, ImportWorkerCommandResult>(async (command) => {
-    if (command.kind !== "initialize") return runImportWorkerCommand(command)
-    setImportWorkerSchemaCacheForTests(fastSchemaCache)
+    if (command.kind !== "initialize") return worker.run(command)
+    worker.setSchemaCacheForTests(fastSchemaCache)
     try {
-      return await runImportWorkerCommand(command)
+      return await worker.run(command)
     } finally {
-      setImportWorkerSchemaCacheForTests(undefined)
+      worker.setSchemaCacheForTests(undefined)
     }
   })
   return createXmlImportWorkerPoolHandle({

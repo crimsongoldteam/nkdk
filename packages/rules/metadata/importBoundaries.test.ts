@@ -314,6 +314,18 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain('type === "DataPath"')
   })
 
+  it("worker entrypoints не хранят состояние операции на уровне модуля", () => {
+    const sources = ["importFromXml/worker.ts", "fullSyncToXml/worker.ts"]
+      .map((file) => readFileSync(join(METADATA_DIR, file), "utf-8"))
+
+    for (const source of sources) {
+      expect(source).not.toMatch(/^let initializedState:/m)
+      expect(source).not.toMatch(/^const preparedYaml = new Map/m)
+      expect(source).toContain("create")
+      expect(source).toContain("WorkerCommandRunner")
+    }
+  })
+
   it("source worker pools resolve their TypeScript loader through one runtime helper", () => {
     const sourceWorkerPools = [
       "workerPool/handle.ts",

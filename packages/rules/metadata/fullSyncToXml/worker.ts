@@ -58,16 +58,17 @@ declare module "../workerPool/types" {
 export function registerFullSyncWorkerOperation(
   registry: MetadataWorkerOperationRegistry,
 ): void {
+  const runner = createFullXmlSyncWorkerCommandRunner()
   registry.register(
     "fullSync",
     async (operation, state) => ({
       kind: "fullSyncResult",
-      result: await runFullXmlSyncWorkerCommand(operation.command, {
+      result: await runner.run(operation.command, {
         openReadSession() { throw new Error("Состояние проекта не установлено в универсальный worker") },
         ...(state.projectState === undefined ? {} : { projectStateReadSession: state.projectState }),
       }),
     }),
-    async () => { await runFullXmlSyncWorkerCommand({ kind: "dispose" }) },
+    async () => { await runner.run({ kind: "dispose" }) },
   )
 }
 
@@ -90,9 +91,34 @@ interface InitializedFullXmlSyncWorkerState {
   activeAssignmentId: string | undefined
 }
 
-let initializedState: InitializedFullXmlSyncWorkerState | undefined
+export interface FullXmlSyncWorkerDependencies {
+  readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
+  readonly projectStateReadSession?: ProjectStateReadSession
+  readonly createCompositionReader?: typeof createFullXmlSyncCompositionReader
+}
 
-export async function runFullXmlSyncWorkerCommand(
+export interface FullXmlSyncWorkerCommandRunner {
+  readonly run: (
+    command: FullXmlSyncWorkerCommand,
+    dependencies?: FullXmlSyncWorkerDependencies,
+  ) => Promise<FullXmlSyncWorkerCommandResult>
+  readonly entryPoint: (command: FullXmlSyncWorkerCommand) => Promise<FullXmlSyncWorkerCommandResult>
+  readonly stateForTests: () => {
+    readonly initialized: boolean
+    readonly workerIndex?: number
+    readonly componentDir?: string
+    readonly importProjectDir?: string
+    readonly outputDir?: string
+    readonly activeAssignmentId?: string
+    readonly baseIndexSnapshot?: ConfigurationIndexReader["snapshot"]
+  }
+  readonly resetForTests: () => void
+}
+
+export function createFullXmlSyncWorkerCommandRunner(): FullXmlSyncWorkerCommandRunner {
+  let initializedState: InitializedFullXmlSyncWorkerState | undefined
+
+async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand,
   dependencies: FullXmlSyncWorkerDependencies = defaultWorkerDependencies,
 ): Promise<FullXmlSyncWorkerCommandResult> {
@@ -175,12 +201,6 @@ export async function runFullXmlSyncWorkerCommand(
   return executeAssignments(command.assignments, requireInitializedState())
 }
 
-export interface FullXmlSyncWorkerDependencies {
-  readonly openReadSession: (token: ProjectStateReadToken) => ProjectStateReadSession
-  readonly projectStateReadSession?: ProjectStateReadSession
-  readonly createCompositionReader?: typeof createFullXmlSyncCompositionReader
-}
-
 function requireProjectStateReadToken(token: ProjectStateReadToken | undefined): ProjectStateReadToken {
   if (token === undefined) throw new Error("Full XML sync worker не получил состояние проекта")
   return token
@@ -190,7 +210,7 @@ const defaultWorkerDependencies: FullXmlSyncWorkerDependencies = {
   openReadSession: openProjectStateReadSession,
 }
 
-export default async function fullXmlSyncWorkerEntryPoint(
+async function fullXmlSyncWorkerEntryPoint(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   const result = await runFullXmlSyncWorkerCommand(command)
@@ -499,7 +519,7 @@ function requireInitializedState(): InitializedFullXmlSyncWorkerState {
   return initializedState
 }
 
-export function fullXmlSyncWorkerStateForTests(): {
+function fullXmlSyncWorkerStateForTests(): {
   readonly initialized: boolean
   readonly workerIndex?: number
   readonly componentDir?: string
@@ -524,11 +544,11 @@ export function fullXmlSyncWorkerStateForTests(): {
   }
 }
 
-export function resetFullXmlSyncWorkerStateForTests(): void {
+function resetFullXmlSyncWorkerStateForTests(): void {
   initializedState = undefined
 }
 
-export function createExecutionTransferable(result: FullXmlSyncExecutionResult) {
+function createExecutionTransferable(result: FullXmlSyncExecutionResult) {
   return {
     get [transferableSymbol]() {
       return [
@@ -552,4 +572,12 @@ function movableExecutionResult(result: FullXmlSyncExecutionResult): FullXmlSync
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+return {
+  run: runFullXmlSyncWorkerCommand,
+  entryPoint: fullXmlSyncWorkerEntryPoint,
+  stateForTests: fullXmlSyncWorkerStateForTests,
+  resetForTests: resetFullXmlSyncWorkerStateForTests,
+}
 }

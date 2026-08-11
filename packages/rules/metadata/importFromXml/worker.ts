@@ -82,15 +82,16 @@ declare module "../workerPool/types" {
 export function registerImportWorkerOperation(
   registry: MetadataWorkerOperationRegistry,
 ): void {
+  const runner = createImportWorkerCommandRunner()
   registry.register(
     "import",
     async (operation, state) => ({
       kind: "importResult",
-      result: await runImportWorkerCommand(operation.command, {
+      result: await runner.run(operation.command, {
         persistentValidationState: { schemaCache: state.schemaCache, rulesSnapshot: state.rulesSnapshot },
       }),
     }),
-    async () => { await runImportWorkerCommand({ kind: "dispose" }) },
+    async () => { await runner.run({ kind: "dispose" }) },
   )
 }
 
@@ -126,13 +127,36 @@ interface ActiveSecondPass {
   readonly ownerMetadataCache: OwnerMetadataCache
 }
 
-let initializedState: InitializedImportWorkerState | undefined
-let schemaCacheForTests: ValidationSchemaCache | undefined
-const preparedYaml = new Map<string, DeferredImportYaml>()
-const assignedImportIds = new Set<string>()
-let activeSecondPass: ActiveSecondPass | undefined
-let firstPassAccumulator: FirstPassAccumulator | undefined
-let secondPassAccumulator: SecondPassAccumulator | undefined
+export interface ImportWorkerCommandRunner {
+  readonly run: (
+    command: ImportWorkerCommand,
+    options?: {
+      persistentValidationState?: {
+        schemaCache: ValidationSchemaCache
+        rulesSnapshot: ValidationRulesSnapshot
+      }
+    },
+  ) => Promise<ImportWorkerCommandResult>
+  readonly entryPoint: (command: ImportWorkerCommand) => Promise<ImportWorkerCommandResult>
+  readonly stateForTests: () => {
+    initialized: boolean
+    operationId?: string
+    workerIndex?: number
+    outputDir?: string
+    preparedYamlIds: string[]
+  }
+  readonly resetForTests: () => void
+  readonly setSchemaCacheForTests: (schemaCache: ValidationSchemaCache | undefined) => void
+}
+
+export function createImportWorkerCommandRunner(): ImportWorkerCommandRunner {
+  let initializedState: InitializedImportWorkerState | undefined
+  let schemaCacheForTests: ValidationSchemaCache | undefined
+  const preparedYaml = new Map<string, DeferredImportYaml>()
+  const assignedImportIds = new Set<string>()
+  let activeSecondPass: ActiveSecondPass | undefined
+  let firstPassAccumulator: FirstPassAccumulator | undefined
+  let secondPassAccumulator: SecondPassAccumulator | undefined
 
 interface FirstPassAccumulator {
   readonly diagnostics: ImportDiagnostic[]
@@ -153,7 +177,7 @@ interface SecondPassAccumulator {
   stateEntries: number
 }
 
-export async function runImportWorkerCommand(
+async function runImportWorkerCommand(
   command: ImportWorkerCommand,
   options: {
     persistentValidationState?: {
@@ -685,7 +709,7 @@ function secondPassExportContext(params: {
   }
 }
 
-export default async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
+async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   const result = await runImportWorkerCommand(command)
   return result?.kind === "binaryResult"
     ? createMovableBinaryResult(result)
@@ -904,7 +928,7 @@ function encodeImportBinaryResult(
   return result
 }
 
-export function createFirstPassTransferable(result: ImportFirstPassResult) {
+function createFirstPassTransferable(result: ImportFirstPassResult) {
   return {
     get [transferableSymbol]() {
       return [
@@ -917,7 +941,7 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
   }
 }
 
-export function createSecondPassTransferable(result: ImportSecondPassResult) {
+function createSecondPassTransferable(result: ImportSecondPassResult) {
   return {
     get [transferableSymbol]() {
       return Object.values(result.stateFragment?.buffers ?? {})
@@ -1192,7 +1216,7 @@ function disposeWorkerState(): void {
   initializedState = undefined
 }
 
-export function workerStateForTests(): {
+function workerStateForTests(): {
   initialized: boolean
   operationId?: string
   workerIndex?: number
@@ -1212,14 +1236,34 @@ export function workerStateForTests(): {
   }
 }
 
-export function resetImportWorkerStateForTests(): void {
+function resetImportWorkerStateForTests(): void {
   disposeWorkerState()
 }
 
-export function setImportWorkerSchemaCacheForTests(schemaCache: ValidationSchemaCache | undefined): void {
+function setImportWorkerSchemaCacheForTests(schemaCache: ValidationSchemaCache | undefined): void {
   schemaCacheForTests = schemaCache
 }
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+return {
+  run: runImportWorkerCommand,
+  entryPoint: importWorkerEntryPoint,
+  stateForTests: workerStateForTests,
+  resetForTests: resetImportWorkerStateForTests,
+  setSchemaCacheForTests: setImportWorkerSchemaCacheForTests,
+}
+}
+
+export function createImportFirstPassTransferable(result: ImportFirstPassResult) {
+  return {
+    get [transferableSymbol]() {
+      return [...Object.values(result.stateFragment?.buffers ?? {})]
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
 }
