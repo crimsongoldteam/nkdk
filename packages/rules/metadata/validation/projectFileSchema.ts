@@ -1,6 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import { classifyMetadataProjectPath } from "../projectDefinition/resources"
+import type { RuleRegistrySet, RuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import {
   ensureJSONSchemaRegistry,
@@ -32,24 +33,70 @@ export interface ExportJSONSchemaForSchemaNameParams {
   includeNestedChildItems?: boolean
 }
 
+export interface ProjectFileSchemaRuntime {
+  readonly rules: Pick<RuleRegistrySet, "projectSpecs" | "resourceTopology">
+  readonly schemas: RuleSchemaRuntime
+}
+
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
-export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
-  ensureJSONSchemaRegistry()
+export function exportJSONSchemaForProjectFile(
+  params: ExportJSONSchemaForProjectFileParams,
+  runtime?: ProjectFileSchemaRuntime,
+): TSchema {
+  if (runtime === undefined) ensureJSONSchemaRegistry()
   const normalized = normalizeProjectPath(params)
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {
     throw new ProjectFileSchemaError("JSON Schema поддерживается только для .yaml файлов")
   }
 
-  const resource = classifyMetadataProjectPath(normalized)
+  const resourceContext = (() => {
+    if (runtime === undefined) return undefined
+    const rootSpec = runtime.rules.projectSpecs.get("")
+    if (rootSpec === undefined) {
+      throw new ProjectFileSchemaError("Не найден корневой project spec")
+    }
+    return {
+      topology: runtime.rules.resourceTopology.get(),
+      rootSpec,
+      projectSpecs: runtime.rules.projectSpecs,
+    }
+  })()
+  const resource = classifyMetadataProjectPath(
+    normalized,
+    resourceContext,
+  )
   if (!resource) {
     throw new ProjectFileSchemaError(expectedPatterns)
   }
 
   if (resource.kind !== "yaml") {
     throw new ProjectFileSchemaError("JSON Schema для этого вида metadata-ресурса не поддерживается")
+  }
+
+  if (runtime !== undefined) {
+    if (resource.role === "form") {
+      return runtime.schemas.exportRule({
+        context: params.context,
+        rule: resource.itemRule,
+        mode: params.mode,
+      })
+    }
+    return runtime.schemas.exportDefinition({
+      context: params.context,
+      mode: params.mode,
+      excludeImplicitValueYAML: true,
+      definition: {
+        export: ({ context, execution }) => resource.owner.spec.exportSchema({
+          context,
+          execution,
+          mode: params.mode,
+          ...(resource.role === "properties" ? { name: resource.owner.name } : {}),
+        }),
+      },
+    })
   }
 
   if (resource.role === "form") {

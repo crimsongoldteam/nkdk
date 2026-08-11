@@ -9,6 +9,8 @@ import { createMetadataRuntime } from "./createMetadataRuntime"
 import { createProjectStateService } from "../projectState/service"
 import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
+import { compileMetadataResourceTopologyForProjectSpecs } from "../resourceTopology/adapters/ruleTopology"
+import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/projectSpecHelpers"
 
 const workers = {
   preparedYamlProject: new URL("file:///test/prepared.js"),
@@ -300,6 +302,52 @@ describe("createMetadataRuntime", () => {
 
     expect(directories(first)).toEqual(["first"])
     expect(directories(second)).toEqual(["second"])
+
+    await first.close()
+    await second.close()
+  })
+
+  it("exports project file schemas from the owning runtime", async () => {
+    const rulesWithValue = (value: string) => {
+      const rootRule = {
+        itemType: "RuntimeConfiguration",
+        properties: {
+          value: { type: "RuntimeProjectValue", yaml: "Значение" },
+        },
+      }
+      const rootSpec = {
+        dir: "",
+        kind: "configuration",
+        rule: rootRule,
+        exportSchema: createMetadataItemProjectSchemaExporter(rootRule),
+      }
+      return defineMetadataRules({
+        ...emptyMetadataRules,
+        propertyTypes: {
+          RuntimeProjectValue: {
+            exportToJSONSchema: () => Type.Literal(value),
+          },
+        },
+        projectSpecs: { "": rootSpec },
+        resourceTopology: [{
+          revision: () => value,
+          compile: () => compileMetadataResourceTopologyForProjectSpecs([rootSpec]),
+        }],
+      })
+    }
+    const { first, second } = createRuntimePair(rulesWithValue)
+    const context = { defaultLanguage: "ru", version: "test" }
+
+    expect(first.schemas.exportForProjectFile({
+      context,
+      filePath: "Конфигурация.yaml",
+      mode: "inline",
+    })).toMatchObject({ properties: { "Значение": { const: "first" } } })
+    expect(second.schemas.exportForProjectFile({
+      context,
+      filePath: "Конфигурация.yaml",
+      mode: "inline",
+    })).toMatchObject({ properties: { "Значение": { const: "second" } } })
 
     await first.close()
     await second.close()

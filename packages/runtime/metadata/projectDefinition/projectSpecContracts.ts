@@ -4,6 +4,7 @@ import type {
   JSONSchemaExportMode,
 } from "../context/types"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import type { PropertyRuleExecution } from "../ruleRuntime/property/fn"
 import type { MetadataResourceTopologySpec } from "../resourceTopology/core/types"
 
 export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
@@ -14,6 +15,7 @@ export interface RegisteredProjectSpec extends MetadataResourceTopologySpec {
     context: ConfigurationContext
     mode?: JSONSchemaExportMode
     name?: string
+    execution?: PropertyRuleExecution
   }) => TSchema
   nesting?: ProjectSpecNesting
 }

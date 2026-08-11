@@ -34,24 +34,24 @@ const fixedAppliedObjectProjectRules = composeMetadataRules(
     kind: "catalog",
     dir: "Справочник",
     rule: MetadataCatalogRules,
-    exportSchema: createProjectSchemaExporter(({ context }) =>
-      exportMetadataCatalogToJSONSchema({ context }),
+    exportSchema: createProjectSchemaExporter(({ context, execution }) =>
+      exportMetadataCatalogToJSONSchema({ context, execution }),
     ),
   }),
   defineProjectSpec({
     kind: "document",
     dir: "Документ",
     rule: MetadataDocumentRules,
-    exportSchema: createProjectSchemaExporter(({ context }) =>
-      exportMetadataDocumentToJSONSchema({ context }),
+    exportSchema: createProjectSchemaExporter(({ context, execution }) =>
+      exportMetadataDocumentToJSONSchema({ context, execution }),
     ),
   }),
   defineProjectSpec({
     kind: "enumeration",
     dir: "Перечисление",
     rule: MetadataEnumerationRules,
-    exportSchema: createProjectSchemaExporter(({ context }) =>
-      exportMetadataEnumerationToJSONSchema({ context }),
+    exportSchema: createProjectSchemaExporter(({ context, execution }) =>
+      exportMetadataEnumerationToJSONSchema({ context, execution }),
     ),
   }),
 )

@@ -23,9 +23,10 @@ export function defineProjectSpec(
     schemas: {
       [spec.rule.itemType]: {
         source: spec.rule,
-        export: ({ context }) =>
+        export: ({ context, execution }) =>
           spec.exportSchema({
             context,
+            execution,
             mode: context.exportToJSONSchema?.mode ?? "externalRefs",
           }),
       },

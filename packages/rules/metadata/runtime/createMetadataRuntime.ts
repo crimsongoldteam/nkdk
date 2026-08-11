@@ -84,7 +84,10 @@ export function createMetadataRuntime(
     schemas: {
       ...rules.schemas,
       ProjectFileSchemaError,
-      exportForProjectFile: exportJSONSchemaForProjectFile,
+      exportForProjectFile: (params) => exportJSONSchemaForProjectFile(params, {
+        rules,
+        schemas: schemaRuntime,
+      }),
       exportByName: schemaRuntime.exportByName,
       splitSearchTerms,
       listSummaryKeys: listSchemaSummaryKeys,
