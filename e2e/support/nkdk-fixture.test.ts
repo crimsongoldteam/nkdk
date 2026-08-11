@@ -56,6 +56,7 @@ describe("updateNkdkFixture", () => {
     const projectDir = join(importedRoot, "project")
     await write(join(targetDir, "old.txt"), "old")
     await write(join(projectDir, "cf", "Конфигурация.yaml"), "Имя: Новая\n")
+    await write(join(projectDir, ".nkdk", "cache", "project-state.bin"), "cache")
 
     await updateNkdkFixture({
       targetDir,
@@ -72,6 +73,8 @@ describe("updateNkdkFixture", () => {
     await expect(readFile(join(targetDir, "cf", "Конфигурация.yaml"), "utf8"))
       .resolves.toBe("Имя: Новая\n")
     await expect(readFile(join(targetDir, "old.txt"), "utf8"))
+      .rejects.toMatchObject({ code: "ENOENT" })
+    await expect(readFile(join(targetDir, ".nkdk", "cache", "project-state.bin"), "utf8"))
       .rejects.toMatchObject({ code: "ENOENT" })
   })
 })

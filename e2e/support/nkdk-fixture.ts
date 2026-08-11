@@ -27,6 +27,7 @@ export async function updateNkdkFixture(params: {
   const imported = await importProject()
   try {
     assertSuccessfulImport(imported)
+    await rm(join(imported.projectDir, ".nkdk"), { recursive: true, force: true })
     await replaceDirectoryWithRollback({ sourceDir: imported.projectDir, targetDir, renamePath })
   } finally {
     await removeProject(imported)

@@ -1,8 +1,9 @@
-import { access, readFile } from "node:fs/promises"
+import { access, readFile, rm } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
   E2E_COMPONENTS,
+  NKDK_FIXTURES_ROOT,
   cloneImportedProject,
   importMetadataProject,
   removeImportedProject,
@@ -11,6 +12,7 @@ import {
   validateCleanProject,
   type ImportedMetadataProject,
 } from "./support/metadata-project"
+import { compareFileTrees } from "./support/file-tree"
 
 let baseline: ImportedMetadataProject | undefined
 
@@ -51,6 +53,30 @@ describe.sequential("metadata project E2E", () => {
     expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml Истина")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
+  })
+
+  it("matches the committed NKDK project byte for byte", async () => {
+    if (baseline === undefined) throw new Error("E2E import prerequisite did not complete")
+    const reportDir = resolve(import.meta.dirname, "../reports/e2e/nkdk-import")
+    const projectDir = await cloneImportedProject(baseline, "nkdk-import-comparison")
+    await rm(reportDir, { recursive: true, force: true })
+    await rm(join(projectDir, ".nkdk"), { recursive: true, force: true })
+    try {
+      const comparison = await compareFileTrees({
+        expectedDir: NKDK_FIXTURES_ROOT,
+        actualDir: projectDir,
+        reportDir,
+      })
+
+      expect(comparison, comparison.reportDir).toMatchObject({
+        equal: true,
+        added: [],
+        removed: [],
+        changed: [],
+      })
+    } finally {
+      await rm(projectDir, { recursive: true, force: true })
+    }
   })
 
   it("validates a clean project and reports the same changed YAML without .nkdk", async () => {
