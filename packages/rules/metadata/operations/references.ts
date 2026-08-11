@@ -14,6 +14,7 @@ import type { ParsedYaml } from "@nkdk/runtime"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataOperationBlockedReference, MetadataOperationReferenceChange } from "./types"
 import { defaultMetadataOperationsContext } from "./context"
+import type { MetadataOperationRules } from "./targetResolver"
 
 export type StructuralReferenceInput = Pick<
   StructuralYamlReference,
@@ -65,6 +66,7 @@ export function collectStructuralReferencesForItem(params: {
   parsed: ParsedYaml
   owner?: MetadataTargetOwner
   context?: ConfigurationContext
+  rules?: MetadataOperationRules
 }): StructuralReferenceCollectionResult {
   const collected = collectStructuralYamlReferences({
     filePath: params.item.filePath,
@@ -73,35 +75,46 @@ export function collectStructuralReferencesForItem(params: {
     yaml: params.item.yaml,
     owner: params.owner,
     context: params.context ?? defaultMetadataOperationsContext(),
-    runtime: createPropertyStructuralReferenceRuntime(),
+    runtime: createPropertyStructuralReferenceRuntime(params.rules),
   })
   return collected.ok
     ? collected
     : { ok: false, code: "rule_contract_violation", message: collected.message }
 }
 
-export function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime {
+export function createPropertyStructuralReferenceRuntime(
+  rules?: MetadataOperationRules,
+): StructuralReferenceRuntime {
+  const execution = rules?.execution
   return {
     valueFromYAML: (params) => callAtomicFromYAML(
-      params as Parameters<typeof callAtomicFromYAML>[0]
+      { ...params, execution } as Parameters<typeof callAtomicFromYAML>[0]
     ),
     valueToYAML: (params) => exportPropertyValueToYAML(
-      params as Parameters<typeof exportPropertyValueToYAML>[0]
+      { ...params, execution } as Parameters<typeof exportPropertyValueToYAML>[0]
     ),
     collectStructuralReferences: (params) => {
       const propertyRule = params.propRule as PropertyRule
-      const handler = getTypeRule(propertyRule.type, "structuralReferences")
+      const handler = execution === undefined
+        ? getTypeRule(propertyRule.type, "structuralReferences")
+        : execution.getTypeRule(propertyRule.type, "structuralReferences")
       return handler?.({ ...params, propRule: propertyRule })
     },
     collectIndexedReferences: (params) => {
       const propertyRule = params.propRule as PropertyRule
-      const handler = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+      const handler = execution === undefined
+        ? getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+        : execution.getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
       return handler?.({ ...params, propRule: propertyRule }).references ?? []
     },
-    nestedRule: (rule) => getTypeRule(
-      (rule as PropertyRule).type,
-      "yamlToXMLNestedRule"
-    ) as unknown as StructuralReferenceNestedRule | undefined,
+    nestedRule: (rule) => {
+      const propertyRule = rule as PropertyRule
+      return (
+        execution === undefined
+          ? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+          : execution.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      ) as unknown as StructuralReferenceNestedRule | undefined
+    },
   }
 }
 

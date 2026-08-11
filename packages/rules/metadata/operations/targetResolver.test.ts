@@ -4,7 +4,13 @@ import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot } from "./projectSnapshot"
-import { resolveMetadataOperationPath } from "./targetResolver"
+import {
+  resolveMetadataOperationCanonicalTarget,
+  resolveMetadataOperationPath,
+} from "./targetResolver"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 
 describe("resolveMetadataOperationPath", () => {
   const tempDirs: string[] = []
@@ -98,5 +104,48 @@ describe("resolveMetadataOperationPath", () => {
     expect(result.yamlNode).toEqual({ Тип: "Строка" })
     result.renameYaml("Код")
     expect(result.item.yaml).toMatchObject({ Реквизиты: { Код: { Тип: "Строка" } } })
+  })
+
+  it("resolves canonical targets only from the owning rules", () => {
+    const rulesWithTarget = (enabled: boolean) => createRuleRegistrySet(
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        projectSpecs: {
+          Проба: {
+            dir: "Проба",
+            kind: "probe",
+            rule: {
+              itemType: "ProbeOwner",
+              properties: enabled
+                ? {
+                    items: {
+                      type: "ProbeItems",
+                      yaml: "Элементы",
+                      operationTarget: {
+                        kind: "namedCollectionTarget",
+                        targetKind: "attribute",
+                        migrationSegment: "Элемент",
+                        requiresMigration: false,
+                      },
+                    },
+                  }
+                : {},
+            },
+            exportSchema: () => ({}),
+          },
+        },
+      }),
+    )
+    const parsed = parseMetadataOperationPath("Проба.Владелец.Элемент.Один")
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) return
+    expect(resolveMetadataOperationCanonicalTarget(parsed, rulesWithTarget(true))).toMatchObject({
+      ok: true,
+      canonical: "Проба.Владелец.Attribute.Один",
+    })
+    expect(resolveMetadataOperationCanonicalTarget(parsed, rulesWithTarget(false))).toMatchObject({
+      ok: false,
+      code: "unsupported_target",
+    })
   })
 })

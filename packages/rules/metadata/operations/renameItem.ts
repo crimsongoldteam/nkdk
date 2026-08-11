@@ -33,6 +33,7 @@ import {
   resolveMetadataOperationCanonicalTarget,
   resolveMetadataOperationPath,
   type ResolvedMetadataOperationPath,
+  type MetadataOperationRules,
 } from "./targetResolver"
 import type {
   MetadataOperationDiagnostic,
@@ -53,7 +54,10 @@ interface RenamePlan {
 
 type RenamePlanResult = { ok: true; plan: RenamePlan } | { ok: false; failure: MetadataOperationFailure }
 
-export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
+export async function renameMetadataItem(
+  params: RenameMetadataItemParams,
+  rules?: MetadataOperationRules,
+): Promise<MetadataOperationResult> {
   const before = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
   const beforeDiagnostics = [...before.diagnostics]
   before.diagnostics.release()
@@ -65,7 +69,7 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
   if (!name.ok) return metadataOperationFailure("invalid_name", name.message, beforeDiagnostics)
   const parsedPath = parseMetadataOperationPath(params.path)
   if (!parsedPath.ok) return metadataOperationFailure(parsedPath.code, parsedPath.message, beforeDiagnostics)
-  const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
+  const canonical = resolveMetadataOperationCanonicalTarget(parsedPath, rules)
   if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, beforeDiagnostics)
 
   const indexed = await readIndexedOperationReferences({
@@ -89,7 +93,7 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
     ...(indexed.source.itemProjectPath === undefined ? {} : { itemProjectPath: indexed.source.itemProjectPath }),
     ...(indexed.source.ownerProjectPath === undefined ? {} : { ownerProjectPath: indexed.source.ownerProjectPath }),
     collectionNames: indexed.collectionNames,
-  })
+  }, rules)
   if (!resolved.ok) return metadataOperationFailure(resolved.code, resolved.message, beforeDiagnostics)
   if (hasNameConflict(resolved, params.newName)) {
     return metadataOperationFailure("name_conflict", `Имя "${params.newName}" уже занято в этой области имен`, beforeDiagnostics)
@@ -105,6 +109,7 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
     allowWrite: params.allowWrite === true,
     now: params.now,
     diagnostics: beforeDiagnostics,
+    rules,
   })
   if (!planResult.ok) return planResult.failure
   const plan = planResult.plan
@@ -141,6 +146,7 @@ function buildRenamePlan(params: {
   allowWrite: boolean
   now?: Date
   diagnostics: MetadataOperationDiagnostic[]
+  rules?: MetadataOperationRules
 }): RenamePlanResult {
   const touchedItems = new Set<OperationSnapshotItem>()
   const itemsByProjectPath = new Map(params.snapshot.items.map((item) => [item.resource.rootProjectPath, item]))
@@ -171,7 +177,11 @@ function buildRenamePlan(params: {
     const to = rewriteCanonicalPrefix(reference.canonical, params.fromPrefix, toPrefix)
     if (to === undefined) continue
     const indexedReferences = structuralReferencesByItem.get(item)
-      ?? setStructuralReferenceIndex(structuralReferencesByItem, item, buildStructuralReferenceIndex(item, params.snapshot))
+      ?? setStructuralReferenceIndex(
+        structuralReferencesByItem,
+        item,
+        buildStructuralReferenceIndex(item, params.snapshot, params.rules),
+      )
     if (!indexedReferences.ok) {
       return { ok: false, failure: metadataOperationFailure(indexedReferences.code, indexedReferences.message, params.diagnostics) }
     }
@@ -238,12 +248,14 @@ type StructuralReferenceIndexResult =
 function buildStructuralReferenceIndex(
   item: OperationSnapshotItem,
   snapshot: MetadataOperationSnapshot,
+  rules?: MetadataOperationRules,
 ): StructuralReferenceIndexResult {
   const collected = collectStructuralReferencesForItem({
     item,
     parsed: item.parsed,
     owner: ownerForItem(item),
     context: snapshot.context,
+    rules,
   })
   if (!collected.ok) return collected
   return {

@@ -124,11 +124,11 @@ export function createMetadataRuntime(
       operations,
       async rename(params) {
         assertOwnedState(params.projectState)
-        return renameMetadataItem(params)
+        return renameMetadataItem(params, rules)
       },
       async findReferences(params) {
         assertOwnedState(params.projectState)
-        return findMetadataReferences(params)
+        return findMetadataReferences(params, rules)
       },
     },
     close() {

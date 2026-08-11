@@ -13,8 +13,12 @@ import type {
   MetadataOperationDiagnostic,
   MetadataOperationResult,
 } from "./types"
+import type { MetadataOperationRules } from "./targetResolver"
 
-export async function findMetadataReferences(params: FindMetadataReferencesParams): Promise<MetadataOperationResult> {
+export async function findMetadataReferences(
+  params: FindMetadataReferencesParams,
+  rules?: MetadataOperationRules,
+): Promise<MetadataOperationResult> {
   const refreshed = await params.projectState.refreshAndValidate({ projectDir: params.projectDir })
   const diagnostics = [...refreshed.diagnostics]
   refreshed.diagnostics.release()
@@ -27,7 +31,7 @@ export async function findMetadataReferences(params: FindMetadataReferencesParam
 
   const parsedPath = parseMetadataOperationPath(params.path)
   if (!parsedPath.ok) return metadataOperationFailure(parsedPath.code, parsedPath.message, resultDiagnostics)
-  const canonical = resolveMetadataOperationCanonicalTarget(parsedPath)
+  const canonical = resolveMetadataOperationCanonicalTarget(parsedPath, rules)
   if (!canonical.ok) return metadataOperationFailure(canonical.code, canonical.message, resultDiagnostics)
 
   const indexed = await readIndexedOperationReferences({

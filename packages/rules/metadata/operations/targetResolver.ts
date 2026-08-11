@@ -12,6 +12,12 @@ import type { OwnerTypeRef } from "../validation/dataPath/types"
 import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } from "./operationPath"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataFileItemRole, MetadataNamedChildKind } from "./types"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+
+export type MetadataOperationRules = Pick<
+  RuleRegistrySet,
+  "projectSpecs" | "execution"
+>
 
 type FileItemTargetDescriptor = MetadataRuleOperationTargetDescriptor & {
   declaration: Extract<MetadataRuleOperationTargetDescriptor["declaration"], { kind: "fileItemCollectionTarget" }>
@@ -59,8 +65,11 @@ export interface IndexedMetadataOperationTarget {
 
 export function resolveMetadataOperationCanonicalTarget(
   path: ParsedMetadataOperationPath,
+  rules?: MetadataOperationRules,
 ): MetadataOperationCanonicalTargetResult {
-  const spec = getMetadataProjectSpecByDir(path.owner.itemTypePrefix)
+  const spec = rules === undefined
+    ? getMetadataProjectSpecByDir(path.owner.itemTypePrefix)
+    : rules.projectSpecs.get(path.owner.itemTypePrefix)
   if (spec === undefined) return unsupportedTarget(`Неизвестный вид metadata-объекта: ${path.owner.itemTypePrefix}`)
   let rule = spec.rule
   const canonicalParts = [canonicalObjectPrefix(path.owner.itemTypePrefix, path.owner.name)]
@@ -85,7 +94,7 @@ export function resolveMetadataOperationCanonicalTarget(
     if (declaration.kind !== "namedCollectionTarget") {
       return unsupportedTarget(`Файловая цель "${segment.collectionSegment}" не может иметь вложенные цели`)
     }
-    const nested = nestedItemRule(rule.properties[descriptor.propertyName])
+    const nested = nestedItemRule(rule.properties[descriptor.propertyName], rules)
     if (nested === undefined) {
       return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" не описано правило вложенного элемента`)
     }
@@ -106,9 +115,10 @@ export function resolveMetadataOperationPath(
   snapshot: MetadataOperationSnapshot,
   path: ParsedMetadataOperationPath,
   indexed?: IndexedMetadataOperationTarget,
+  rules?: MetadataOperationRules,
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   if (path.chain.length === 0) return resolveObjectTarget(snapshot, path)
-  return resolveChainedTarget(snapshot, path, indexed)
+  return resolveChainedTarget(snapshot, path, indexed, rules)
 }
 
 function resolveObjectTarget(
@@ -143,6 +153,7 @@ function resolveChainedTarget(
   snapshot: MetadataOperationSnapshot,
   path: ParsedMetadataOperationPath,
   indexed?: IndexedMetadataOperationTarget,
+  rules?: MetadataOperationRules,
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Владелец не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
@@ -183,6 +194,7 @@ function resolveChainedTarget(
       ownerRule: currentRule,
       propertyName: descriptor.propertyName,
       name: segment.name,
+      rules,
     })
     if (!resolvedCollection) return targetNotFound(`Элемент не найден: ${segment.name}`)
 
@@ -210,7 +222,7 @@ function resolveChainedTarget(
       }
     }
 
-    const nextRule = nestedItemRule(currentRule.properties[descriptor.propertyName])
+    const nextRule = nestedItemRule(currentRule.properties[descriptor.propertyName], rules)
     if (!nextRule) {
       return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" не описано правило вложенного элемента`)
     }
@@ -297,10 +309,13 @@ function resolveYamlCollectionItem(params: {
   ownerRule: MetadataItemRule
   propertyName: string
   name: string
+  rules?: MetadataOperationRules
 }): { node: Record<string, unknown>; names: string[]; rename(nextName: string): void } | undefined {
   const propertyRule = params.ownerRule.properties[params.propertyName]
   if (propertyRule?.yaml === undefined) return undefined
-  const descriptor = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+  const descriptor = params.rules === undefined
+    ? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+    : params.rules.execution.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
   if (descriptor?.kind !== "collection") return undefined
   const collection = params.owner[propertyRule.yaml]
 
@@ -354,9 +369,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
-function nestedItemRule(propRule: MetadataItemRule["properties"][string] | undefined): MetadataItemRule | undefined {
+function nestedItemRule(
+  propRule: MetadataItemRule["properties"][string] | undefined,
+  rules?: MetadataOperationRules,
+): MetadataItemRule | undefined {
   if (!propRule) return undefined
-  return resolvePropertyItemRule(propRule)
+  return rules === undefined
+    ? resolvePropertyItemRule(propRule)
+    : rules.execution.resolvePropertyItemRule(propRule)
 }
 
 function canonicalObjectPrefix(itemTypePrefix: string, name: string): string {
