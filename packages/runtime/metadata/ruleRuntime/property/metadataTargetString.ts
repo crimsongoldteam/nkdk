@@ -3,11 +3,13 @@ import type { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTarget/types"
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import type { PropertyRuleExecution } from "./fn"
 
 export function metadataTargetOwnerFromRule(params: {
   itemRule: MetadataItemRule
   name: string | undefined
   context?: ConfigurationContext
+  execution?: PropertyRuleExecution
 }): MetadataTargetOwner | undefined {
   const frames = metadataTargetOwnerFrames(params.context)
   return metadataTargetOwnerFromFrames({ ...params, frames })
@@ -18,12 +20,15 @@ export function metadataTargetOwnerFromFrames(params: {
   name: string | undefined
   frames: readonly MetadataTargetOwnerFrame[]
   context?: ConfigurationContext
+  execution?: PropertyRuleExecution
 }): MetadataTargetOwner | undefined {
   const currentFrame = params.frames.at(-1)
   if (currentFrame?.itemType === params.itemRule.itemType && currentFrame.name === params.name) {
     return currentFrame.owner
   }
-  const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType)
+  const resolver = params.execution === undefined
+    ? getMetadataTargetOwnerResolver(params.itemRule.itemType)
+    : params.execution.getMetadataTargetOwnerResolver(params.itemRule.itemType)
   if (resolver) {
     const resolved = resolver(params)
     if (resolved) return resolved

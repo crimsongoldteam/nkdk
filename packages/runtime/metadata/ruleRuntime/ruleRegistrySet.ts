@@ -16,9 +16,14 @@ import {
   createPropertyRuleRegistrySet,
   type PropertyRuleRegistrySet,
 } from "./property/propertyRuleRegistrySet"
+import {
+  createPropertyRuleExecutor,
+  type PropertyRuleExecutor,
+} from "./property/propertyRuleExecutor"
 
 export interface RuleRegistrySet {
   readonly property: PropertyRuleRegistrySet
+  readonly execution: PropertyRuleExecutor
   readonly metadataItems: ReadonlyMap<string, MetadataItemRule>
   readonly formElements: ReadonlyMap<string, ElementRule>
   readonly formElementKinds: ReadonlyMap<string, string>
@@ -57,8 +62,10 @@ export function createRuleRegistrySet(
     }
   >()
 
+  const property = createPropertyRuleRegistrySet(definition)
   return {
-    property: createPropertyRuleRegistrySet(definition),
+    property,
+    execution: createPropertyRuleExecutor(property),
     metadataItems,
     formElements,
     formElementKinds,

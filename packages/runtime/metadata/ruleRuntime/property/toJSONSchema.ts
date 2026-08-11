@@ -2,6 +2,7 @@ import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
+import type { PropertyRuleExecution } from "./fn"
 import {
   exportPropertyExternalRefSchema,
   exportPropertyOverrideSchema,
@@ -33,6 +34,7 @@ function withExplicitXMLValidationValue(params: {
   propertyKey: string
   rule: PropertyRule
   schema: TSchema
+  execution?: PropertyRuleExecution
 }): TSchema {
   if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
   if (
@@ -42,7 +44,13 @@ function withExplicitXMLValidationValue(params: {
   ) {
     return Type.Union([params.schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
   }
-  const mode = explicitXMLPropertyValidationMode(params.itemType, params.propertyKey, params.rule.type)
+  const mode = params.execution === undefined
+    ? explicitXMLPropertyValidationMode(params.itemType, params.propertyKey, params.rule.type)
+    : params.execution.explicitXMLPropertyValidationMode(
+        params.itemType,
+        params.propertyKey,
+        params.rule.type,
+      )
   if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
   if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
   return params.schema
@@ -52,7 +60,10 @@ function withExplicitXMLValidationValue(params: {
  * Возвращает YAML-представление implicitValueYAML.
  * Только для литеральных значений: функции зависят от контекста объекта.
  */
-function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
+function getImplicitValueYAML(
+  rule: PropertyRule,
+  execution?: PropertyRuleExecution,
+): string | number | undefined {
   const v = rule.implicitValueYAML
   if (v === undefined || typeof v === "function") return undefined
   if (rule.type === "boolean" && typeof v === "boolean") return v ? "Истина" : "Ложь"
@@ -61,7 +72,8 @@ function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (rule.type === "SystemEnumeration" && typeof v === "string") {
     const typeSE = (rule as { typeSE?: string }).typeSE
     if (typeSE === undefined) return v
-    return getSystemEnumeration(typeSE)?.toYAML[v] ?? v
+    return (execution?.getSystemEnumeration(typeSE) ?? getSystemEnumeration(typeSE))
+      ?.toYAML[v] ?? v
   }
   return undefined
 }
@@ -88,6 +100,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
   metadataItem?: T
+  execution?: PropertyRuleExecution
 }): TProperties => {
   const { context, metadataItem, rule } = params
 
@@ -109,6 +122,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       context,
       rule: ruleProp,
       value,
+      execution: params.execution,
     })
     if (exportedValue !== undefined) {
       const schema = withExplicitXMLValidationValue({
@@ -117,6 +131,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
         propertyKey: key,
         rule: ruleProp,
         schema: exportedValue,
+        execution: params.execution,
       })
       const required = ruleProp.required === true
         && context.exportToJSONSchema?.requiredPolicy?.currentBoundary !== "defer"
@@ -131,6 +146,7 @@ export const exportPropertyToJSONSchema = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
+  execution?: PropertyRuleExecution
 }): TSchema | undefined => {
   const { context, rule, value } = params
 
@@ -146,19 +162,15 @@ export const exportPropertyToJSONSchema = (params: {
   })
   if (externalRefSchema !== undefined) return withPropertyDescription(externalRefSchema, rule.description)
 
-  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToJSONSchema") : undefined
+  const exportedValue = params.execution === undefined
+    ? getTypeRule(rule.type, "exportToJSONSchema")?.({ context, rule, value })
+    : params.execution.toJSONSchema({ context, rule, value })
 
-  if (!typeExportFn) {
+  if (exportedValue === undefined) {
     return value === undefined ? undefined : withPropertyDescription(value, rule.description)
   }
 
-  const exportedValue = typeExportFn({
-    context,
-    rule,
-    value,
-  })
-
-  const implicitYAML = getImplicitValueYAML(rule)
+  const implicitYAML = getImplicitValueYAML(rule, params.execution)
   const schemaWithDefaults =
     context.exportToJSONSchema?.excludeImplicitValueYAML === true &&
     implicitYAML !== undefined &&
@@ -178,6 +190,7 @@ export const exportPropertyToJSONSchema = (params: {
       context,
       rule,
       schema: completedSchema,
+      execution: params.execution,
     }) ?? completedSchema
 
   return withPropertyDescription(completed, rule.description)

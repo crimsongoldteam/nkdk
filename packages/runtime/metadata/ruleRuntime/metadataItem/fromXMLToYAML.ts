@@ -4,6 +4,7 @@ import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import type { MetadataItemRule } from "../property/types"
+import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
@@ -38,6 +39,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     dependent: params.traversal.dependent,
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
+    execution: propertyExecutionFromTraversal(params.traversal),
   })
   if (yaml !== undefined) {
     applyMetadataItemXmlImportAugmenter({
@@ -49,6 +51,12 @@ export function importMetadataItemFromXMLToYAML(params: {
   }
   const inline = findInlinePropertyCached(params.rule)
   return inline === undefined ? yaml : yaml?.[inline.yamlKey]
+}
+
+function propertyExecutionFromTraversal(
+  traversal: DirectImportTraversal,
+): PropertyRuleExecution | undefined {
+  return traversal.execution as PropertyRuleExecution | undefined
 }
 
 function findInlinePropertyCached(rule: MetadataItemRule): InlineProperty {

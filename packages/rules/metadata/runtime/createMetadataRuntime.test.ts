@@ -1,8 +1,13 @@
+import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 
+import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { defineMetadataItemRule } from "../ruleRuntime/metadataItem/ruleFactory"
+import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import { createMetadataRuntime } from "./createMetadataRuntime"
 import { createProjectStateService } from "../projectState/service"
+import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
 
 const workers = {
   preparedYamlProject: new URL("file:///test/prepared.js"),
@@ -15,6 +20,23 @@ const runtimeOptions = {
   rules: emptyMetadataRules,
   workers,
   createProjectStateService,
+}
+
+function createRuntimePair(
+  rulesWithValue: (
+    value: string,
+  ) => Parameters<typeof createMetadataRuntime>[0]["rules"],
+) {
+  return {
+    first: createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithValue("first"),
+    }),
+    second: createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithValue("second"),
+    }),
+  }
 }
 
 describe("createMetadataRuntime", () => {
@@ -63,6 +85,185 @@ describe("createMetadataRuntime", () => {
     await first.close()
     await first.close()
     await expect(state.rebuild({ projectDir: "test" })).rejects.toThrow("закрыт")
+    await second.close()
+  })
+
+  it("exports property schemas from the owning runtime rules", async () => {
+    const itemRule = {
+      itemType: "SampleItem",
+      properties: {
+        value: { type: "Sample", yaml: "Значение" },
+      },
+    }
+    const rulesWithValue = (value: string) => defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: {
+        Sample: { exportToJSONSchema: () => Type.Literal(value) },
+      },
+      schemas: {
+        SampleItem: {
+          source: itemRule,
+          export: ({ context, execution }) =>
+            exportMetadataItemToJSONSchema({ context, rule: itemRule, execution }),
+        },
+      },
+    })
+    const { first, second } = createRuntimePair(rulesWithValue)
+
+    const context = { defaultLanguage: "ru", version: "test" }
+    const firstSchema = first.schemas.exportByName({ context, name: "SampleItem" })
+    const secondSchema = second.schemas.exportByName({ context, name: "SampleItem" })
+
+    expect(firstSchema).toMatchObject({
+      properties: { "Значение": { const: "first" } },
+    })
+    expect(secondSchema).toMatchObject({
+      properties: { "Значение": { const: "second" } },
+    })
+
+    await first.close()
+    await second.close()
+  })
+
+  it("keeps the owning property execution through metadata item schema builders", async () => {
+    const rulesWithValue = (value: string) => {
+      const itemRule = {
+        itemType: "BuiltSampleItem",
+        properties: {
+          value: { type: "BuiltSample", yaml: "Значение" },
+        },
+      }
+      return composeMetadataRules(
+        defineMetadataRules({
+          ...emptyMetadataRules,
+          propertyTypes: {
+            BuiltSample: { exportToJSONSchema: () => Type.Literal(value) },
+          },
+        }),
+        defineMetadataItemRule({
+          propertyType: "BuiltSampleItem" as never,
+          itemRule,
+        }),
+      )
+    }
+    const { first, second } = createRuntimePair(rulesWithValue)
+    const context = { defaultLanguage: "ru", version: "test" }
+
+    expect(first.schemas.exportByName({ context, name: "BuiltSampleItem" }))
+      .toMatchObject({ properties: { "Значение": { const: "first" } } })
+    expect(second.schemas.exportByName({ context, name: "BuiltSampleItem" }))
+      .toMatchObject({ properties: { "Значение": { const: "second" } } })
+
+    await first.close()
+    await second.close()
+  })
+
+  it("keeps the owning property execution through collection schema builders", async () => {
+    const rulesWithValue = (value: string) => {
+      const itemRule = {
+        itemType: "BuiltCollectionItem",
+        properties: {
+          value: { type: "BuiltCollectionValue", yaml: "Значение" },
+        },
+      }
+      return composeMetadataRules(
+        defineMetadataRules({
+          ...emptyMetadataRules,
+          propertyTypes: {
+            BuiltCollectionValue: {
+              exportToJSONSchema: () => Type.Literal(value),
+            },
+          },
+        }),
+        defineMetadataItemCollectionRule({
+          propertyType: "BuiltCollection" as never,
+          itemRule,
+          yamlAsArray: true,
+        }),
+      )
+    }
+    const { first, second } = createRuntimePair(rulesWithValue)
+    const context = { defaultLanguage: "ru", version: "test" }
+
+    expect(first.schemas.exportByName({ context, name: "BuiltCollectionItem" }))
+      .toMatchObject({
+        type: "object",
+        properties: { "Значение": { const: "first" } },
+      })
+    expect(second.schemas.exportByName({ context, name: "BuiltCollectionItem" }))
+      .toMatchObject({
+        type: "object",
+        properties: { "Значение": { const: "second" } },
+      })
+
+    await first.close()
+    await second.close()
+  })
+
+  it("uses system enumerations from the owning runtime when excluding implicit YAML", async () => {
+    const itemRule = {
+      itemType: "EnumerationOwner",
+      properties: {
+        value: {
+          type: "SystemEnumeration",
+          typeSE: "Probe",
+          yaml: "Значение",
+          implicitValueYAML: "internal",
+        },
+      },
+    }
+    const rulesWithImplicit = (implicitYaml: string) => defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: {
+        SystemEnumeration: {
+          exportToJSONSchema: () => Type.Union([
+            Type.Literal("first"),
+            Type.Literal("second"),
+          ]),
+        },
+      },
+      systemEnumerations: {
+        Probe: {
+          fromYAML: { [implicitYaml]: "internal" },
+          toYAML: { internal: implicitYaml },
+        },
+      },
+      schemas: {
+        EnumerationOwner: {
+          source: itemRule,
+          export: ({ context, execution }) =>
+            exportMetadataItemToJSONSchema({ context, rule: itemRule, execution }),
+        },
+      },
+    })
+    const first = createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithImplicit("first"),
+    })
+    const second = createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithImplicit("second"),
+    })
+    const context = { defaultLanguage: "ru", version: "test" }
+
+    expect(first.schemas.exportByName({
+      context,
+      name: "EnumerationOwner",
+      mode: "inline",
+      excludeImplicitValueYAML: true,
+    })).toMatchObject({
+      properties: { "Значение": { const: "second" } },
+    })
+    expect(second.schemas.exportByName({
+      context,
+      name: "EnumerationOwner",
+      mode: "inline",
+      excludeImplicitValueYAML: true,
+    })).toMatchObject({
+      properties: { "Значение": { const: "first" } },
+    })
+
+    await first.close()
     await second.close()
   })
 })

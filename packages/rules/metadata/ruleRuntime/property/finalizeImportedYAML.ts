@@ -4,6 +4,7 @@ import { finalizeDeferredObjectValues, type DeferredObjectValue } from "./deferr
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import type { PropertyRuleExecution } from "./fn"
 
 export function finalizeImportedYamlValues(params: {
   yaml: unknown
@@ -11,6 +12,7 @@ export function finalizeImportedYamlValues(params: {
   deferred: readonly DeferredObjectValue[]
   context: ConfigurationContext
   formDataPathIndex?: FormDataPathIndex
+  execution?: PropertyRuleExecution
 }): void {
   finalizeDeferredObjectValues({
     root: params.yaml,
@@ -19,8 +21,14 @@ export function finalizeImportedYamlValues(params: {
       const valuePath = printableYamlPath(deferred.valuePath)
       const rulePath = printableRulePath(deferred.rulePath)
       try {
-      const rule = resolveDeferredPropertyRule(params.rootRule, deferred.rulePath)
-      const finalize = getTypeRule(rule.type, "finalizeImportedYAML")
+      const rule = resolveDeferredPropertyRule(
+        params.rootRule,
+        deferred.rulePath,
+        params.execution,
+      )
+      const finalize = params.execution === undefined
+        ? getTypeRule(rule.type, "finalizeImportedYAML")
+        : params.execution.getTypeRule(rule.type, "finalizeImportedYAML")
       if (finalize === undefined) throw new Error(`Для типа ${rule.type} не зарегистрирован finalizeImportedYAML`)
       return finalize({
         context: params.context,
@@ -38,7 +46,8 @@ export function finalizeImportedYamlValues(params: {
 
 export function resolveDeferredPropertyRule(
   rootRule: MetadataItemRule,
-  rulePath: readonly DeferredRulePathSegment[]
+  rulePath: readonly DeferredRulePathSegment[],
+  execution?: PropertyRuleExecution,
 ): PropertyRule {
   if (rulePath.length === 0) throw new Error("Пустой rulePath отложенного YAML")
   const printablePath = printableRulePath(rulePath)
@@ -49,7 +58,9 @@ export function resolveDeferredPropertyRule(
     if (propertyRule === undefined) throw new Error(`Не найден rulePath ${printablePath}`)
     if (index === rulePath.length - 1) return propertyRule
 
-    const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+    const nested = execution === undefined
+      ? getTypeRule(propertyRule.type, "nestedItemRule")
+      : execution.getTypeRule(propertyRule.type, "nestedItemRule")
     if (nested === undefined) {
       throw new Error(`rulePath ${printablePath} проходит через атомарное свойство ${segment.propertyKey}`)
     }

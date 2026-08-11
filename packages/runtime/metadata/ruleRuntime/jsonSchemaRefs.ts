@@ -2,6 +2,7 @@ import { type TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
+import type { PropertyRuleExecution } from "./property/fn"
 import { getTypeRule } from "./property/typeRuleRegistry"
 
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
@@ -176,13 +177,16 @@ export function exportValidationPropertyRefSchema(params: {
   context: ConfigurationContext
   rule: PropertyRule
   schema: TSchema
+  execution?: PropertyRuleExecution
 }): TSchema | undefined {
   const { context, rule, schema } = params
   if (context.exportToJSONSchema?.validationPropertyRefs !== true) return undefined
   if (isValidationInlinePropertyRule(rule)) return undefined
 
-  const validationSchemaRef = getTypeRule(rule.type, "validationSchemaRef")
-  const key = validationSchemaRef?.(params) ?? defaultValidationSchemaRefKey({ rule })
+  const key = (params.execution === undefined
+    ? getTypeRule(rule.type, "validationSchemaRef")?.(params)
+    : params.execution.validationSchemaRef(params))
+    ?? defaultValidationSchemaRefKey({ rule })
   if (key === undefined) return undefined
 
   const name = validationSchemaRefName(context, key)

@@ -19,6 +19,7 @@ import type {
 } from "../property/explicitXMLPropertyRegistry"
 import type {
   importExportFunction,
+  PropertyRuleExecution,
   TypeRulesOperations,
 } from "../property/fn"
 import type { RegisteredSystemEnumeration } from "../property/systemEnumerationRegistry"
@@ -36,12 +37,16 @@ export type PropertyTypeDefinition = {
 
 export interface MetadataSchemaDefinition {
   readonly source?: object | string
-  readonly export: (params: { context: ConfigurationContext }) => TSchema
+  readonly export: (params: {
+    context: ConfigurationContext
+    execution?: PropertyRuleExecution
+  }) => TSchema
 }
 
 export type MetadataSchemaPropertyRefDefinition = (params: {
   readonly context: ConfigurationContext
   readonly rule: import("../property/types").PropertyRule
+  readonly execution?: PropertyRuleExecution
 }) => TSchema | undefined
 
 export interface RuleRegistrationContribution {

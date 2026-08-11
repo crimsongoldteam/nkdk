@@ -1,5 +1,4 @@
 import { Type } from "typebox"
-import type { ConfigurationContext } from "../../context/types"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import { registerLegacyPropertyTypeDefinitions } from "../property/typeRuleRegistry"
@@ -7,7 +6,7 @@ import {
   definePropertyTypeRule,
   propertyTypesFromContributions,
 } from "../property/propertyRuleRegistrySet"
-import { defineMetadataRules } from "../definition"
+import { defineMetadataRules, type MetadataRulesDefinition } from "../definition"
 import { registerLegacySchemaDefinitions } from "../definition/legacyRuleRegistration"
 import { emptyMetadataRules } from "../definition/testSupport"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
@@ -28,8 +27,10 @@ export const defineMetadataItemRule = <
 ): import("../definition").MetadataRulesDefinition<never> => {
   const { propertyType, itemRule } = params
   const schemaName = params.schemaName ?? itemRule.itemType
-  const schemaExporter = ({ context }: { context: ConfigurationContext }) =>
-    exportMetadataItemToJSONSchema({ context, rule: itemRule })
+  const schemaExporter = ({ context, execution }: Parameters<
+    MetadataRulesDefinition["schemas"][string]["export"]
+  >[0]) =>
+    exportMetadataItemToJSONSchema({ context, rule: itemRule, execution })
 
   return defineMetadataRules({
     ...emptyMetadataRules,
@@ -71,7 +72,7 @@ export const defineMetadataItemRule = <
           },
         ]
       }),
-      definePropertyTypeRule(propertyType, "exportToJSONSchema", ({ context, rule }) => {
+      definePropertyTypeRule(propertyType, "exportToJSONSchema", ({ context, rule, execution }) => {
         const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
         if (schemaStack.includes(propertyType)) return Type.Unknown()
 
@@ -79,6 +80,7 @@ export const defineMetadataItemRule = <
         return exportMetadataItemToJSONSchema({
           context: withNestedJSONSchemaItemContext(context, resolvedItemRule, propertyType),
           rule: resolvedItemRule,
+          execution,
         })
       }),
     ]),

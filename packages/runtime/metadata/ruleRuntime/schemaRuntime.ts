@@ -25,6 +25,7 @@ export function createRuleSchemaRuntime(
   rules: RuleRegistrySet,
   unknownSchemaError: (name: string, availableNames: readonly string[]) => Error,
 ): RuleSchemaRuntime {
+  const execution = rules.execution
   return {
     exportByName(params) {
       const dynamicSchemas = new Map<string, MetadataSchemaDefinition>()
@@ -50,6 +51,7 @@ export function createRuleSchemaRuntime(
             return rules.schemas.propertyRef(propertyRule.type)?.({
               context: propertyContext,
               rule: propertyRule,
+              execution,
             })
           },
         },
@@ -58,7 +60,7 @@ export function createRuleSchemaRuntime(
       if (definition === undefined) {
         throw unknownSchemaError(params.name, listSchemaNames(rules))
       }
-      const schema = definition.export({ context })
+      const schema = definition.export({ context, execution })
       return context.exportToJSONSchema?.mode === "externalRefs"
         ? attachCollectedSchemaRefs(context, schema)
         : schema

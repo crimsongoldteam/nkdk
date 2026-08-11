@@ -8,6 +8,7 @@ import {
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
+import type { PropertyRuleExecution } from "../property/fn"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
@@ -42,6 +43,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
     collector: params.traversal.collector,
     deferred: params.traversal.deferred,
     profile: params.traversal.profile,
+    execution: propertyExecutionFromTraversal(params.traversal),
   })
 }
 
@@ -90,6 +92,13 @@ export function importSingleFormElementFromXMLToYAML(params: {
       collector: params.traversal.collector,
       deferred: params.traversal.deferred,
       profile: params.traversal.profile,
+      execution: propertyExecutionFromTraversal(params.traversal),
     }) ?? {}
   )
+}
+
+function propertyExecutionFromTraversal(
+  traversal: DirectImportTraversal,
+): PropertyRuleExecution | undefined {
+  return traversal.execution as PropertyRuleExecution | undefined
 }

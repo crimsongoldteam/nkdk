@@ -5,6 +5,7 @@ import type {
 import {
   collectExplicitXMLPropertyActions,
   explicitXMLPropertyValidationMode,
+  type ExplicitXMLPropertyMatcher,
   registrationKey as propertyRegistrationKey,
   type ExplicitXMLPropertyAction,
   type ExplicitXMLPropertyRegistration,
@@ -77,7 +78,7 @@ function setPropertyTypeOperation(
   mutableDefinition[contribution.operation] = contribution.handler
 }
 
-export interface PropertyRuleRegistrySet {
+export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher {
   getTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
@@ -91,15 +92,6 @@ export interface PropertyRuleRegistrySet {
     propertyType: string,
   ): Rule | undefined
   hasExplicitXMLProperty(itemType: string, propertyKey: string): boolean
-  matchExplicitXMLPropertyFromXML(params: {
-    readonly itemType: string
-    readonly propertyKey: string
-    readonly presentInXML: boolean
-    readonly xmlValue: unknown
-  }): Exclude<
-    ExplicitXMLPropertyRegistration,
-    { readonly action: "transportScalar" }
-  > | undefined
   collectExplicitXMLPropertyActions(params: {
     readonly yaml: unknown
     readonly itemType: string
@@ -215,6 +207,14 @@ export function createPropertyRuleRegistrySet(
       return registration !== undefined &&
         params.presentInXML &&
         Object.is(registration.xmlValue, params.xmlValue)
+        ? registration
+        : undefined
+    },
+    matchExplicitXMLPropertyTypeFromXML(params) {
+      const registration = explicitXMLPropertyTypes.get(params.propertyType)
+      return registration !== undefined &&
+        params.presentInXML &&
+        Object.is(params.yamlValue, registration.yamlValue)
         ? registration
         : undefined
     },

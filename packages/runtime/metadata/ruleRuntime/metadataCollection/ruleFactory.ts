@@ -99,31 +99,39 @@ export const defineMetadataItemCollectionRule = <
   const schemaName = params.schemaName ?? itemRule.itemType
   const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
   const propertyTypeRules: PropertyTypeRuleContribution[] = []
-  const schemaExporter = ({ context }: Parameters<MetadataRulesDefinition["schemas"][string]["export"]>[0]) => {
+  const schemaExporter = ({ context, execution }: Parameters<MetadataRulesDefinition["schemas"][string]["export"]>[0]) => {
       if (schemaShape === "schema" && params.toJSONSchema !== undefined) {
         return (
           params.toJSONSchema({
             context,
             rule: { type: propertyType } as PropertyRule,
             value: undefined,
+            execution,
           }) ?? Type.Unknown()
         )
       }
 
-      return exportMetadataItemToJSONSchema({ context, rule: declaredMetadataItemRule(propertyType) ?? itemRule })
+      return exportMetadataItemToJSONSchema({
+        context,
+        rule: execution?.getDeclaredPropertyItemRule(propertyType)
+          ?? declaredMetadataItemRule(propertyType)
+          ?? itemRule,
+        execution,
+      })
     }
 
-  const schemaPropertyRef: MetadataSchemaPropertyRefDefinition = ({ context, rule }) => {
-    const resolvedItemRule = resolvePropertyItemRule(rule, itemRule)
+  const schemaPropertyRef: MetadataSchemaPropertyRefDefinition = ({ context, rule, execution }) => {
+    const resolvedItemRule = execution?.resolvePropertyItemRule(rule, itemRule)
+      ?? resolvePropertyItemRuleLegacy(rule, itemRule)
     if (resolvedItemRule === itemRule) {
       if (schemaShape === "schema") return schemaRef(schemaName)
       return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
-    if (resolvedItemRule === declaredMetadataItemRule(propertyType)) {
+    if (resolvedItemRule === (execution?.getDeclaredPropertyItemRule(propertyType) ?? declaredMetadataItemRule(propertyType))) {
       if (schemaShape === "schema") return schemaRef(schemaName)
       return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
     }
-    return exportCollectionSchema({ context, propertyRule: rule, resolvedItemRule })
+    return exportCollectionSchema({ context, propertyRule: rule, resolvedItemRule, execution })
   }
 
   if (params.fromXMLToYAML !== undefined) {
@@ -175,9 +183,13 @@ export const defineMetadataItemCollectionRule = <
     context: Parameters<ExportToJSONSchemaFn>[0]["context"]
     propertyRule: PropertyRule
     resolvedItemRule?: MetadataItemRule
+    execution?: Parameters<ExportToJSONSchemaFn>[0]["execution"]
   }) => {
     const { context, propertyRule } = paramsForSchema
-    const resolvedItemRule = paramsForSchema.resolvedItemRule ?? resolvePropertyItemRule(propertyRule, itemRule) ?? itemRule
+    const resolvedItemRule = paramsForSchema.resolvedItemRule
+      ?? paramsForSchema.execution?.resolvePropertyItemRule(propertyRule, itemRule)
+      ?? resolvePropertyItemRuleLegacy(propertyRule, itemRule)
+      ?? itemRule
     const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
     if (schemaStack.includes(propertyType)) {
       return params.yamlAsArray ? Type.Array(Type.Unknown()) : Type.Record(Type.String(), Type.Unknown())
@@ -186,26 +198,29 @@ export const defineMetadataItemCollectionRule = <
     const itemSchema = exportMetadataItemToJSONSchema({
       context: withNestedJSONSchemaItemContext(context, resolvedItemRule, propertyType),
       rule: resolvedItemRule,
+      execution: paramsForSchema.execution,
     })
     if (schemaShape === "schema") return itemSchema
     if (schemaShape === "array") return Type.Array(itemSchema)
     return Type.Record(Type.String(), itemSchema)
   }
 
-  const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context, rule }) =>
-    exportCollectionSchema({ context, propertyRule: rule })
+  const toJSONSchemaDefault: ExportToJSONSchemaFn = ({ context, rule, execution }) =>
+    exportCollectionSchema({ context, propertyRule: rule, execution })
 
   const customToJSONSchema = params.toJSONSchema
   const toJSONSchema: ExportToJSONSchemaFn =
     customToJSONSchema === undefined
       ? toJSONSchemaDefault
       : (schemaParams) => {
-          const resolvedItemRule = resolvePropertyItemRule(schemaParams.rule, itemRule)
+          const resolvedItemRule = schemaParams.execution?.resolvePropertyItemRule(schemaParams.rule, itemRule)
+            ?? resolvePropertyItemRuleLegacy(schemaParams.rule, itemRule)
           if (resolvedItemRule === itemRule) return customToJSONSchema(schemaParams)
           return exportCollectionSchema({
             context: schemaParams.context,
             propertyRule: schemaParams.rule,
             resolvedItemRule,
+            execution: schemaParams.execution,
           })
         }
   propertyTypeRules.push(definePropertyTypeRule(propertyType, "exportToJSONSchema", toJSONSchema))
@@ -242,4 +257,13 @@ export const registerMetadataItemCollectionRule = <
 
 function declaredMetadataItemRule(propertyType: PropertyRuleType): MetadataItemRule | undefined {
   return getDeclaredPropertyItemRule<MetadataItemRule>(propertyType)
+}
+
+function resolvePropertyItemRuleLegacy(
+  rule: PropertyRule,
+  fallback?: MetadataItemRule,
+): MetadataItemRule | undefined {
+  return (rule.itemRule as MetadataItemRule | undefined) ??
+    getDeclaredPropertyItemRule<MetadataItemRule>(rule.type) ??
+    fallback
 }

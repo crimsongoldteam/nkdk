@@ -13,7 +13,8 @@ import type { DeferredValuePath } from "./deferredObjectValues"
 
 export type { DeferredValuePath } from "./deferredObjectValues"
 
-export interface DirectImportTraversal {
+export interface DirectImportTraversal<Execution = unknown> {
+  execution?: Execution
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector

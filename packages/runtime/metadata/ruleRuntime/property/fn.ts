@@ -27,6 +27,12 @@ import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 import type { TypeRulesOperations } from "./ruleContracts"
+import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
+import type { ExplicitXMLPropertyAction } from "./explicitXMLPropertyRegistry"
+import type {
+  ExplicitXMLPropertyMatcher,
+} from "./explicitXMLPropertyRegistry"
+import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
 export type { TypeRulesOperations, YAMLToXMLCondition } from "./ruleContracts"
 
 export type ExportToXMLFunction = (
@@ -55,7 +61,11 @@ export type ImportFromXMLFunction = (
   execution?: PropertyRuleExecution,
 ) => any | undefined
 
-export interface PropertyRuleExecution {
+export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher {
+  getTypeRule<Operation extends TypeRulesOperations>(
+    type: PropertyRuleType,
+    operation: Operation,
+  ): importExportFunction<Operation>
   fromXML(params: {
     readonly context: ConfigurationContextFromXML
     readonly rule: PropertyRule
@@ -63,6 +73,38 @@ export interface PropertyRuleExecution {
     readonly name?: string
     readonly ownerXmlName?: string
   }): unknown
+  toJSONSchema(params: {
+    readonly context: ConfigurationContext
+    readonly rule: PropertyRule
+    readonly value: unknown
+  }): TSchema | undefined
+  resolvePropertyItemRule(
+    rule: PropertyRule,
+    fallback?: MetadataItemRule,
+  ): MetadataItemRule | undefined
+  getDeclaredPropertyItemRule(propertyType: string): MetadataItemRule | undefined
+  getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined
+  explicitXMLPropertyValidationMode(
+    itemType: string,
+    propertyKey: string,
+    propertyType?: string,
+  ): "empty" | "scalar" | undefined
+  validationSchemaRef(params: {
+    readonly context: ConfigurationContext
+    readonly rule: PropertyRule
+    readonly schema: TSchema
+  }): string | undefined
+  collectExplicitXMLPropertyActions(params: {
+    readonly yaml: unknown
+    readonly itemType: string
+    readonly properties: Readonly<
+      Record<string, { readonly type?: string; readonly yaml?: string }>
+    >
+  }): ReadonlyMap<string, ExplicitXMLPropertyAction>
+  isDependentImportProperty(itemType: string, propertyKey: string): boolean
+  getMetadataTargetOwnerResolver(
+    itemType: string,
+  ): MetadataTargetOwnerResolver | undefined
 }
 
 export type ImportFromYAMLFunctionNew = (params: {
@@ -113,6 +155,7 @@ export type ExportToJSONSchemaFn = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any | undefined
+  execution?: PropertyRuleExecution
 }) => TSchema | undefined
 
 export type ValidationSchemaRefFn = (params: {

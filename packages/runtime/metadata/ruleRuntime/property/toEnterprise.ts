@@ -3,12 +3,14 @@ import { ConfigurationContext } from "../../context/types"
 import type { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from "../metadataItem/registry"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import type { PropertyRuleExecution } from "./fn"
 import { shouldProcessProperty } from "./helpers"
 
 export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMetadataType>(params: {
   context: ConfigurationContext
   metadataItem: ToMetadata<Type>
   rule: MetadataItemRule & { itemType: Type }
+  execution?: PropertyRuleExecution
 }): ToEnterprise<Type> => {
   const { context, metadataItem, rule } = params
 
@@ -24,6 +26,7 @@ export const exportPropertiesToEnterprise = <Type extends EnterpriseExportableMe
       context,
       rule: ruleProp,
       value,
+      execution: params.execution,
     })
 
     if (exportedValue !== undefined) {
@@ -38,10 +41,13 @@ export const exportPropertyToEnterprise = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
+  execution?: PropertyRuleExecution
 }): any | undefined => {
   const { context, rule, value } = params
 
-  const typeExportFn = rule.type ? getTypeRule(rule.type, "exportToEnterprise") : undefined
+  const typeExportFn = params.execution === undefined
+    ? getTypeRule(rule.type, "exportToEnterprise")
+    : params.execution.getTypeRule(rule.type, "exportToEnterprise")
 
   if (!typeExportFn) {
     return value

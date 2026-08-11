@@ -21,6 +21,7 @@ import type {
   ExportToXMLFunctionNew,
   importFromYAMLFunction,
   ImportFromYAMLFunctionNew,
+  PropertyRuleExecution,
 } from "./fn"
 import { applyAutoRequiredXMLParents, collectAutoRequiredXMLParentRoot, getOrderedKeysToXML } from "./helpers"
 import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXMLPlan"
@@ -40,6 +41,7 @@ import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
+  readonly execution?: PropertyRuleExecution
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly rule: MetadataItemRule
@@ -58,6 +60,7 @@ export interface ConvertPropertiesFromYAMLToXMLParams {
 
 export interface AtomicFromYAMLParams {
   readonly handler?: importFromYAMLFunction | ImportFromYAMLFunctionNew
+  readonly execution?: PropertyRuleExecution
   readonly context: ConfigurationContext
   readonly rule: PropertyRule
   readonly value: unknown
@@ -70,6 +73,7 @@ export interface AtomicFromYAMLParams {
 
 export interface AtomicToXMLParams {
   readonly handler?: ExportToXMLFunction | ExportToXMLFunctionNew
+  readonly execution?: PropertyRuleExecution
   readonly context: ConfigurationContextWithExportToXML
   readonly rule: PropertyRule
   readonly value: unknown
@@ -139,12 +143,27 @@ export function createYAMLPropertySource(params: {
 }
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
+  const typeRule = <Operation extends import("./fn").TypeRulesOperations>(
+    type: PropertyRule["type"],
+    operation: Operation,
+  ) => params.execution === undefined
+    ? getTypeRule(type, operation)
+    : params.execution.getTypeRule(type, operation)
+  const convertNestedProperties = (
+    nestedParams: Omit<ConvertPropertiesFromYAMLToXMLParams, "execution">,
+  ) => convertPropertiesFromYAMLToXML({
+    ...nestedParams,
+    execution: params.execution,
+  })
   const yaml = asRecord(params.yaml)
-  const explicitXMLActions = collectExplicitXMLPropertyActions({
+  const explicitXMLParams = {
     yaml,
     itemType: params.rule.itemType,
     properties: params.rule.properties,
-  })
+  }
+  const explicitXMLActions = params.execution === undefined
+    ? collectExplicitXMLPropertyActions(explicitXMLParams)
+    : params.execution.collectExplicitXMLPropertyActions(explicitXMLParams)
   const propertyValues = new Map(params.propertyValues)
   for (const [propertyKey, action] of explicitXMLActions) {
     if (action.kind === "useYamlValue") propertyValues.set(propertyKey, action.yamlValue)
@@ -163,6 +182,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     itemRule: params.rule,
     name: params.name ?? params.sourceItemName,
     context: params.context,
+    execution: params.execution,
   })
   const orderedKeys = getOrderedKeysToXML({
     rule: params.rule,
@@ -197,12 +217,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       copyConfigurationIndexPropertyValue(propertyContext, planned)
     }
     const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
-    const exportHandler = getTypeRule(planned.propertyRule.type, "exportToXML")
+    const exportHandler = typeRule(planned.propertyRule.type, "exportToXML")
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
         context: request.context ?? propertyContext,
         referenceXML: request.referenceXML,
         planned,
+        execution: params.execution,
       })
     )
     if (explicitXMLAction?.kind === "emit") {
@@ -283,6 +304,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           rule: planned.propertyRule,
           value: reference.value,
           name: params.name,
+          execution: params.execution,
         })
         if (referenceValue === planned.propertyRule.implicitValueYAML) {
           writeXMLValue({ context: propertyContext, output, planned, value: reference.value, reference })
@@ -300,7 +322,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.preserveEmptyXML !== true &&
       planned.propertyRule.preserveUnknownReferenceXML !== false &&
       planned.propertyRule.excludeIfEqualNameYAML !== true &&
-      getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
+      typeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
       references.every(
@@ -369,7 +391,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       continue
     }
 
-    const nestedRule = getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+    const nestedRule = typeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
       const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
@@ -494,7 +516,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
               convertItem: convertMetadataItemFromYAMLToXML,
-              convertProperties: convertPropertiesFromYAMLToXML,
+              convertProperties: convertNestedProperties,
               context: nestedContext,
               yaml: nestedYAML,
               descriptor: effectiveNestedRule,
@@ -508,7 +530,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
           : convertMetadataItemFromYAMLToXML({
-              convertProperties: convertPropertiesFromYAMLToXML,
+              convertProperties: convertNestedProperties,
               context: nestedItemContext,
               yaml: normalizedNestedYAML,
               rule:
@@ -610,11 +632,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
                 rule: planned.propertyRule,
                 value: reference.value,
                 name: params.name,
+                execution: params.execution,
               })
             : undefined
       )
       const importParams: AtomicFromYAMLParams = {
-        handler: getTypeRule(planned.propertyRule.type, "importFromYAML"),
+        handler: typeRule(planned.propertyRule.type, "importFromYAML"),
+        execution: params.execution,
         context: diagnosticContext,
         rule: planned.propertyRule,
         value: sourceValue,
@@ -641,6 +665,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         )
         const exported = callAtomicToXML({
           handler: exportHandler,
+          execution: params.execution,
           context: outputContext,
           rule: planned.propertyRule,
           value: imported,
@@ -653,7 +678,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
         const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
-        if (valuePath !== undefined && getTypeRule(planned.propertyRule.type, "finalizeExportedXML") !== undefined) {
+        if (valuePath !== undefined && typeRule(planned.propertyRule.type, "finalizeExportedXML") !== undefined) {
           output.deferred.push({
             valuePath,
             rulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
@@ -714,15 +739,20 @@ function callAtomicFromXML(params: {
   rule: PropertyRule
   value: unknown
   name?: string
+  execution?: PropertyRuleExecution
 }): unknown {
-  const handler = getTypeRule(params.rule.type, "importFromXML")
+  const handler = params.execution === undefined
+    ? getTypeRule(params.rule.type, "importFromXML")
+    : params.execution.getTypeRule(params.rule.type, "importFromXML")
   if (handler === undefined) return params.value
   return handler({ ...params.context, fromXML: { forReference: true } }, params.rule, params.value, params.name)
 }
 
 export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
   const { context, rule, value, referenceValue, yaml, name, owner } = params
-  const handler = params.handler ?? getTypeRule(rule.type, "importFromYAML")
+  const handler = params.handler ?? (params.execution === undefined
+    ? getTypeRule(rule.type, "importFromYAML")
+    : params.execution.getTypeRule(rule.type, "importFromYAML"))
   if (handler === undefined) {
     const imported =
       rule.type === "string"
@@ -770,7 +800,9 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   if (Object.prototype.hasOwnProperty.call(rule, "implicitValueXML") && value === rule.implicitValueXML) {
     return undefined
   }
-  const handler = params.handler ?? getTypeRule(rule.type, "exportToXML")
+  const handler = params.handler ?? (params.execution === undefined
+    ? getTypeRule(rule.type, "exportToXML")
+    : params.execution.getTypeRule(rule.type, "exportToXML"))
   const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
   const xmlDefault =
     params.preserveIndexedImplicitValue === true && Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
@@ -842,10 +874,17 @@ function readReferenceProperty(params: {
   context: ConfigurationContextWithExportToXML
   referenceXML: unknown
   planned: YAMLToXMLPlannedProperty
+  execution?: PropertyRuleExecution
 }): ReferenceProperty {
   let current: unknown = params.referenceXML
   for (const parent of params.planned.propertyRule.xmlParents ?? []) {
-    if (!isRecord(current)) return referenceFromConfigurationIndex(params.context, params.planned)
+    if (!isRecord(current)) {
+      return referenceFromConfigurationIndex(
+        params.context,
+        params.planned,
+        params.execution,
+      )
+    }
     current = current[parent]
   }
   if (isRecord(current)) {
@@ -867,14 +906,23 @@ function readReferenceProperty(params: {
       }
     }
   }
-  return referenceFromConfigurationIndex(params.context, params.planned)
+  return referenceFromConfigurationIndex(
+    params.context,
+    params.planned,
+    params.execution,
+  )
 }
 
 function referenceFromConfigurationIndex(
   context: ConfigurationContextWithExportToXML,
-  planned: YAMLToXMLPlannedProperty
+  planned: YAMLToXMLPlannedProperty,
+  execution?: PropertyRuleExecution,
 ): ReferenceProperty {
-  const identity = identityReferenceFromConfigurationIndex(context, planned)
+  const identity = identityReferenceFromConfigurationIndex(
+    context,
+    planned,
+    execution,
+  )
   if (identity !== undefined) return identity
   const property = configurationIndexPropertyXmlStateAddress(planned)
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
@@ -888,7 +936,12 @@ function referenceFromConfigurationIndex(
       synthesizedDefault: true,
     }
   }
-  const indexedDescriptor = getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
+  const indexedDescriptor = execution === undefined
+    ? getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
+    : execution.getTypeRule(
+        planned.propertyRule.type,
+        "configurationIndexValueFromXML",
+      )
   const value =
     (indexedValue === undefined ? undefined : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
     getConfigurationIndexPropertyReferenceXMLValue(context, property)
@@ -925,7 +978,8 @@ function configurationIndexPropertyXmlStateAddress(
 
 function identityReferenceFromConfigurationIndex(
   context: ConfigurationContextWithExportToXML,
-  planned: YAMLToXMLPlannedProperty
+  planned: YAMLToXMLPlannedProperty,
+  execution?: PropertyRuleExecution,
 ): ReferenceProperty | undefined {
   if ((planned.propertyRule.xmlParents?.length ?? 0) > 0) return undefined
   const xmlKey = planned.propertyRule.xml ?? planned.xmlPath.at(-1)
@@ -936,7 +990,15 @@ function identityReferenceFromConfigurationIndex(
       ? "uuid"
       : xmlKey === "_name"
         ? "xmlName"
-        : getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")?.identityKind === "uuid"
+        : (execution === undefined
+            ? getTypeRule(
+                planned.propertyRule.type,
+                "configurationIndexValueFromXML",
+              )
+            : execution.getTypeRule(
+                planned.propertyRule.type,
+                "configurationIndexValueFromXML",
+              ))?.identityKind === "uuid"
           ? "uuid"
           : "xmlId"
   const value = kind === "xmlName" ? getConfigurationIndexXmlName(context) : runtime.identity(kind)

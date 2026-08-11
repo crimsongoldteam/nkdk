@@ -1,6 +1,10 @@
 import { ConfigurationContext } from "../../context/types"
 import { getTypeRule } from "./typeRuleRegistry"
-import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
+import {
+  ExportToYAMLFunction,
+  ExportToYAMLFunctionNew,
+  type PropertyRuleExecution,
+} from "./fn"
 import { exportStringMetadataTargetToYAML } from "./metadataTargetString"
 import type { PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../metadataTarget/types"
@@ -11,9 +15,16 @@ export const exportPropertyToYAML = (params: {
   value: any
   name?: string
   owner?: MetadataTargetOwner
+  execution?: PropertyRuleExecution
 }): Record<string, any> | undefined => {
   const exportedValue = exportPropertyValueToYAML(params)
-  return getExportToYAMLResult(params.rule, params.rule.yaml!, exportedValue, params.value)
+  return getExportToYAMLResult(
+    params.rule,
+    params.rule.yaml!,
+    exportedValue,
+    params.value,
+    params.execution,
+  )
 }
 
 export function exportPropertyValueToYAML(params: {
@@ -22,6 +33,7 @@ export function exportPropertyValueToYAML(params: {
   value: unknown
   name?: string
   owner?: MetadataTargetOwner
+  execution?: PropertyRuleExecution
 }): unknown {
   const { context, rule, value, name } = params
 
@@ -29,7 +41,9 @@ export function exportPropertyValueToYAML(params: {
 
   if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
-  const typeExportFn = getTypeRule(rule.type, "exportToYAML")
+  const typeExportFn = params.execution === undefined
+    ? getTypeRule(rule.type, "exportToYAML")
+    : params.execution.getTypeRule(rule.type, "exportToYAML")
 
   if (!typeExportFn) {
     const exportedValue =
@@ -94,7 +108,8 @@ export const getExportToYAMLResult = (
   rule: PropertyRule,
   yamlKey: string,
   value: any,
-  sourceValue?: any
+  sourceValue?: any,
+  execution?: PropertyRuleExecution
 ): Record<string, any> | undefined => {
   if (rule.type == "UserVisible" || rule.type == "FormattedI8nText") {
     return value
@@ -121,8 +136,10 @@ export const getExportToYAMLResult = (
   )
     return undefined
 
-  const preservesPresence =
-    getTypeRule(rule.type, "xmlImportPropertyBehavior")?.presenceAffectsExport === true
+  const preservesPresence = (execution === undefined
+    ? getTypeRule(rule.type, "xmlImportPropertyBehavior")
+    : execution.getTypeRule(rule.type, "xmlImportPropertyBehavior"))
+    ?.presenceAffectsExport === true
   if (
     value &&
     typeof value === "object" &&

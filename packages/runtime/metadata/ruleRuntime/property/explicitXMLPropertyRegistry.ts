@@ -38,6 +38,23 @@ export type ExplicitXMLPropertyAction =
   | { readonly kind: "materializeCollection" }
   | { readonly kind: "invalid"; readonly message: string }
 
+export interface ExplicitXMLPropertyMatcher {
+  matchExplicitXMLPropertyFromXML(params: {
+    readonly itemType: string
+    readonly propertyKey: string
+    readonly presentInXML: boolean
+    readonly xmlValue: unknown
+  }): Exclude<
+    ExplicitXMLPropertyRegistration,
+    { readonly action: "transportScalar" }
+  > | undefined
+  matchExplicitXMLPropertyTypeFromXML(params: {
+    readonly propertyType: string
+    readonly presentInXML: boolean
+    readonly yamlValue: unknown
+  }): ExplicitXMLPropertyTypeRegistration | undefined
+}
+
 const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
 const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
 

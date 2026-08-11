@@ -8,6 +8,9 @@ export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
   const executor: PropertyRuleExecutor = {
+    getTypeRule(type, operation) {
+      return registries.getTypeRule(type, operation)
+    },
     fromXML(params) {
       const { context, rule, value, name, ownerXmlName } = params
       const handler = registries.getTypeRule(rule.type, "importFromXML")
@@ -27,6 +30,49 @@ export function createPropertyRuleExecutor(
         name,
         operation: "importFromXML",
       })
+    },
+    toJSONSchema(params) {
+      return registries.getTypeRule(params.rule.type, "exportToJSONSchema")?.({
+        ...params,
+        execution: executor,
+      })
+    },
+    resolvePropertyItemRule(rule, fallback) {
+      return registries.resolvePropertyItemRule(rule, fallback)
+    },
+    getDeclaredPropertyItemRule(propertyType) {
+      return registries.getDeclaredPropertyItemRule(propertyType)
+    },
+    getSystemEnumeration(name) {
+      return registries.getSystemEnumeration(name)
+    },
+    explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType) {
+      return registries.explicitXMLPropertyValidationMode(
+        itemType,
+        propertyKey,
+        propertyType,
+      )
+    },
+    validationSchemaRef(params) {
+      return registries.getTypeRule(
+        params.rule.type,
+        "validationSchemaRef",
+      )?.(params)
+    },
+    collectExplicitXMLPropertyActions(params) {
+      return registries.collectExplicitXMLPropertyActions(params)
+    },
+    matchExplicitXMLPropertyFromXML(params) {
+      return registries.matchExplicitXMLPropertyFromXML(params)
+    },
+    matchExplicitXMLPropertyTypeFromXML(params) {
+      return registries.matchExplicitXMLPropertyTypeFromXML(params)
+    },
+    isDependentImportProperty(itemType, propertyKey) {
+      return registries.isDependentImportProperty(itemType, propertyKey)
+    },
+    getMetadataTargetOwnerResolver(itemType) {
+      return registries.getMetadataTargetOwnerResolver(itemType)
     },
   }
   return executor
