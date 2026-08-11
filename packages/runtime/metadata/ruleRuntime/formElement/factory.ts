@@ -1,1 +1,1 @@
-export { clearTypeRulesRegistry, getTypeRule, registerTypeRule } from "../property/typeRuleRegistry"
+export { getTypeRule, registerTypeRule } from "../property/typeRuleRegistry"

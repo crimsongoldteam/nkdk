@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import {
   createValidationRulesSnapshot,
@@ -10,17 +10,23 @@ import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
+})
 
 describe("ValidationRulesSnapshot", () => {
-  it("is JSON-compatible", () => {
-    const snapshot = createValidationRulesSnapshot(mockContext)
+  it("supports structured cloning", () => {
+    expect(structuredClone(rulesSnapshot)).toEqual(rulesSnapshot)
+  })
 
-    expect(structuredClone(snapshot)).toEqual(snapshot)
-    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot)
+  it("is JSON-compatible", () => {
+    expect(JSON.parse(JSON.stringify(rulesSnapshot))).toEqual(rulesSnapshot)
   })
 
   it("includes catalog properties descriptor", () => {
-    const snapshot = createValidationRulesSnapshot(mockContext)
+    const snapshot = rulesSnapshot
     const catalog = findValidationRulesSpec(snapshot, "Справочник")
 
     expect(catalog).toMatchObject({
@@ -37,7 +43,7 @@ describe("ValidationRulesSnapshot", () => {
   })
 
   it("includes metadata target descriptors", () => {
-    const snapshot = createValidationRulesSnapshot(mockContext)
+    const snapshot = rulesSnapshot
     const catalog = findValidationRulesSpec(snapshot, "Справочник")
 
     expect(catalog?.properties).toEqual(
@@ -52,7 +58,7 @@ describe("ValidationRulesSnapshot", () => {
   })
 
   it("preserves nested item types for dependent validation", () => {
-    const catalog = findValidationRulesSpec(createValidationRulesSnapshot(mockContext), "Справочник")
+    const catalog = findValidationRulesSpec(rulesSnapshot, "Справочник")
     const attributes = catalog?.properties.find(({ modelKey }) => modelKey === "attributes")
     const standardAttributes = catalog?.properties.find(({ modelKey }) => modelKey === "standardAttributes")
 
@@ -62,7 +68,7 @@ describe("ValidationRulesSnapshot", () => {
 
   it("includes the actual rule of a nested file assignment", () => {
     const cube = findValidationRulesItem(
-      createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       "MetadataExternalDataSourceCube",
     )
 

@@ -20,9 +20,11 @@ import { createValidationRegistrySet } from "./validationRegistrySet"
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
   let sharedSchemaCache: ValidationSchemaCache
+  let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
   beforeAll(() => {
     sharedSchemaCache = createTestValidationSchemaCache()
+    rulesSnapshot = createValidationRulesSnapshot(mockContext)
   }, 120_000)
 
   afterEach(() => {
@@ -38,7 +40,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
   }
 
@@ -68,7 +70,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.contributedFacts).toBe(false)
@@ -89,7 +91,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.contributedFacts).toBe(false)
@@ -112,7 +114,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.contributedFacts).toBe(true)
@@ -142,7 +144,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: { ...sharedSchemaCache, properties },
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
     const update = toProjectStateFileUpdate(first, {
       projectPath: file.rootProjectPath,
@@ -218,7 +220,7 @@ describe("validateProjectFileFirstPass references", () => {
         cache: createProjectYamlCache(),
         context: mockContext,
         schemaCache: sharedSchemaCache,
-        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+        rulesSnapshot,
         runtime,
       })
 
@@ -242,7 +244,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.diagnostics).toEqual(
@@ -345,7 +347,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.diagnostics).toEqual(
@@ -399,7 +401,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.objectIndexEntries).toContainEqual(
@@ -437,7 +439,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.memberIndexEntries).toContainEqual(
@@ -527,7 +529,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.memberIndexEntries).toEqual(
@@ -562,7 +564,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     const objectRecord = first.objectRecords[0]
@@ -590,7 +592,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.pendingReferences).toEqual([
@@ -621,7 +623,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(first.objectIndexEntries).toContainEqual(

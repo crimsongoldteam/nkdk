@@ -1,25 +1,20 @@
 import {
   enterPropertyRuleRegistrySet,
   enterRuleRegistrySet,
-  setDefaultPropertyRuleRegistrySet,
-  setDefaultRuleRegistrySet,
   withPropertyRuleRegistrySet,
   withRuleRegistrySet,
 } from "@nkdk/runtime/rule-kit"
 import {
   enterOperationRegistrySet,
-  setDefaultOperationRegistrySet,
   withOperationRegistrySet,
 } from "../operations/operationExecutionContext"
 import type { OperationRegistrySet } from "../operations/operationRegistrySet"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import {
   enterValidationRegistrySet,
-  setDefaultValidationRegistrySet,
   withValidationRegistrySet,
 } from "../validation/validationExecutionContext"
 import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
-import { metadataRules } from "./metadataRules"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
@@ -30,12 +25,16 @@ export interface MetadataExecutionRegistrySets {
   readonly operations: OperationRegistrySet
 }
 
-export function createMetadataExecutionRegistrySets(): MetadataExecutionRegistrySets {
-  const rules = createRuleRegistrySet(metadataRules)
+export function createMetadataExecutionRegistrySets(
+  definition: Parameters<typeof createRuleRegistrySet>[0]
+    & Parameters<typeof createValidationRegistrySet>[0]
+    & Parameters<typeof createOperationRegistrySet>[0],
+): MetadataExecutionRegistrySets {
+  const rules = createRuleRegistrySet(definition)
   return {
     rules,
-    validation: createValidationRegistrySet(metadataRules, rules),
-    operations: createOperationRegistrySet(metadataRules),
+    validation: createValidationRegistrySet(definition, rules),
+    operations: createOperationRegistrySet(definition),
   }
 }
 
@@ -54,11 +53,4 @@ export function enterMetadataExecutionRegistrySets(registries: MetadataExecution
   enterPropertyRuleRegistrySet(registries.rules.property)
   enterValidationRegistrySet(registries.validation)
   enterOperationRegistrySet(registries.operations)
-}
-
-export function setDefaultMetadataExecutionRegistrySets(registries: MetadataExecutionRegistrySets): void {
-  setDefaultRuleRegistrySet(registries.rules)
-  setDefaultPropertyRuleRegistrySet(registries.rules.property)
-  setDefaultValidationRegistrySet(registries.validation)
-  setDefaultOperationRegistrySet(registries.operations)
 }

@@ -1423,10 +1423,10 @@ property type, project spec, import descriptor или sync profile. Особен
    capability groups и владение state.
 6. `packages/runtime/metadata/ruleRuntime/ruleRegistrySet.ts` — экземплярный
    основной registry set.
-7. `packages/rules/metadata/composition/coreMetadata.ts` — legacy bootstrap,
-   который ещё предстоит удалить.
-8. `packages/rules/metadata/composition/workers/*.ts` — текущие worker
-   entrypoints и временная граница с legacy.
+7. `packages/rules/metadata/composition/metadataExecutionContext.ts` — явная
+   граница execution context без process-default registry.
+8. `packages/rules/metadata/composition/workers/*.ts` — worker entrypoints с
+   локальными registry sets.
 9. `packages/mcp/src/metadataRuntimeHandle.ts` и
    `packages/mcp/src/metadataWorkerManifest.ts` — верхняя сборка.
 10. `packages/mcp/scripts/smoke-packed.mjs` — наиболее ценная интеграционная
@@ -1458,8 +1458,7 @@ property type, project spec, import descriptor или sync profile. Особен
 
 ### Чего не делать при продолжении
 
-- Не считать текущий `registerCoreMetadata()` окончательным worker API: это
-  временно работающий legacy bootstrap.
+- Не возвращать `registerCoreMetadata()` или другой process-global bootstrap.
 - Не скрывать совпадения контрольного `rg` исключениями или переименованиями.
 - Не переносить оставшиеся файлы только по названию каталога; делить по
   ответственности и направлению зависимости.
@@ -1487,8 +1486,27 @@ property type, project spec, import descriptor или sync profile. Особен
   `metadataRules` как явные contributions.
 - Удалены оставшиеся legacy fallback для dependent items; контрольный поиск по
   `registerCoreMetadata` и `clear/snapshot/restore *RegistryForTests` пуст.
-- Проверены типы `@nkdk/runtime` и `@nkdk/rules`; 6031 функциональный тест
-  `@nkdk/rules` проходит. Обёртка проверки длительности пока завершает этот же
-  прогон ошибкой из-за превышения лимита тремя файлами, без тестовых падений.
+- Property item rules, JSON Schema definitions, system enumerations,
+  metadata target owners и form element rules собираются в экземплярных
+  registry sets; process-global fallback и legacy schema registration удалены.
+- Import/full-sync worker state принадлежит отдельным command runner, а
+  официальные entrypoints явно импортируют `metadataRules` и создают локальные
+  registry sets. Тест подтверждает изоляцию двух worker runner.
+- Удалены process-default `RuleRegistrySet`, `PropertyRuleRegistrySet`,
+  `ValidationRegistrySet`, `DataPathRegistrySet` и `OperationRegistrySet`;
+  production и тесты выполняются внутри явного `AsyncLocalStorage` context.
+  Unit/core-metadata тесты запускаются с `--no-isolate`: test runner создаёт
+  отдельный execution context на файл и повторно входит в него перед каждым
+  тестом, поэтому порядок файлов не возвращает process-global состояние.
+- Проверены типы `@nkdk/runtime` и `@nkdk/rules`. Unit/core-metadata набор без
+  изоляции и отдельный integration-набор проходят без функциональных падений.
+  Обычные тесты имеют жёсткий предел 50ms, а восемь сценариев с полной сборкой
+  metadata, worker или файловым вводом-выводом выделены в отдельный
+  integration-проект с изоляцией и пределом 100ms. Import worker использует переданный
+  `persistentValidationState.rulesSnapshot` вместо повторной сборки.
+- Диагностический `measure-validation-schemas.mjs` переведён на явный
+  `metadataRules` execution context; итоговый контрольный поиск по
+  `registerCoreMetadata`, `@nkdk/core`, `@nkdk/runtime/internal` и legacy
+  reset/snapshot/restore API пуст.
 - `pnpm duplicates -- --base 27bf980f24bbc1d329f2c2ea0e0231080382799c`
   не находит новых дублей.

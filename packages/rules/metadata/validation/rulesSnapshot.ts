@@ -9,10 +9,8 @@ import type { OwnerFactRole } from "@nkdk/runtime/rule-kit"
 import { registeredStandardMemberAliases } from "@nkdk/runtime/rule-kit"
 import {
   getTypeRule,
-  registerTypeRule,
   resolvePropertyItemRule,
 } from "../ruleRuntime/property/typeRuleRegistry"
-import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
   getConfigurationValidationProjectSpec,
   getValidationProjectSpecs,
@@ -85,6 +83,9 @@ export function createValidationRulesSnapshot(
   rules?: RuleRegistrySet,
 ): ValidationRulesSnapshot {
   const effectiveRules = rules ?? currentRuleRegistrySet<RuleRegistrySet>()
+  if (effectiveRules === undefined) {
+    throw new Error("Не задан execution context metadata rules")
+  }
   const effectiveTopology = topology ?? validationRulesTopologies(effectiveRules)
   const topologies: readonly CompiledMetadataResourceTopology[] = isCompiledTopology(effectiveTopology)
     ? [effectiveTopology]
@@ -112,7 +113,7 @@ function isCompiledTopology(
 }
 
 function validationRulesTopologies(
-  rules?: RuleRegistrySet,
+  rules: RuleRegistrySet,
 ): readonly CompiledMetadataResourceTopology[] {
   if (rules !== undefined) {
     return [...rules.components.values()].map(({ rootRule }) =>
@@ -201,10 +202,6 @@ function snapshotProperties(
 ): ValidationRulesPropertySnapshot[] {
   return Object.entries(properties as Readonly<Record<string, SnapshotSourceProperty>>).flatMap(([modelKey, property]) => {
     if (property.yaml === undefined) return []
-    if (rules === undefined && property.ownerFactRole !== undefined) {
-      registerTypeRule(property.type as never, "collectLocalFactsFromYAML", collectOwnerFactFromYAML)
-    }
-
     return [
       {
         modelKey,

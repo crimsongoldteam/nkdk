@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { DependentYamlItemParams } from "../ruleRuntime/property/dependentItemRegistry"
@@ -11,6 +11,11 @@ import { metadataRules } from "../composition/metadataRules"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
+})
 
 describe("dependent fill value validation", () => {
   it("visits each nested item with its name, paths and root values", () => {
@@ -26,7 +31,7 @@ describe("dependent fill value validation", () => {
     extractValidationYamlFacts({
       file: catalogFile(),
       parsed,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       runtime,
     })
 
@@ -45,7 +50,7 @@ describe("dependent fill value validation", () => {
     const facts = extractValidationYamlFacts({
       file: catalogFile(),
       parsed: parseMetadataYaml('Реквизиты:\n  Артикул:\n    Тип: Строка(250)\n    ЗначениеЗаполнения: ""\n'),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Артикул/ЗначениеЗаполнения")).toEqual([
@@ -62,7 +67,7 @@ describe("dependent fill value validation", () => {
       parsed: parseMetadataYaml(
         "Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: 01.01.0001 00:00:00\n"
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения")).toEqual([
@@ -79,7 +84,7 @@ describe("dependent fill value validation", () => {
       parsed: parseMetadataYaml(
         "Реквизиты:\n  Момент:\n    Тип: ДатаВремя\n    ЗначениеЗаполнения: 09.08.2026 12:30:00\n"
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Момент/ЗначениеЗаполнения")).toEqual([])
@@ -204,7 +209,7 @@ describe("dependent fill value validation", () => {
     Тип: ОпределяемыйТип.АвторДействия
     ЗначениеЗаполнения: Справочник.Пользователи.ПустаяСсылка
 `),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.diagnostics.filter(({ path }) => path === "/Реквизиты/Автор/ЗначениеЗаполнения")).toEqual([])
@@ -229,7 +234,7 @@ describe("dependent fill value validation", () => {
     Тип: Справочник.Контрагенты
     ЗначениеЗаполнения: !xml DesignTimeRef
 `),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
     expect(referenceFacts.diagnostics.filter(({ path }) => path === "/Реквизиты/Получатель/ЗначениеЗаполнения")).toEqual([])
     expect(referenceFacts.pendingReferences.filter(({ yamlPath }) => yamlPath.at(-1) === "ЗначениеЗаполнения")).toEqual([])
@@ -239,16 +244,16 @@ describe("dependent fill value validation", () => {
   })
 
   it.each([
-    ["Родитель справочника", catalogFile(), "Родитель"],
-    ["БизнесПроцесс задачи", taskFile(), "БизнесПроцесс"],
-  ])("разрешает DesignTimeRef для ссылочного стандартного реквизита %s", (_name, file, member) => {
+    ["Родитель справочника", catalogFile, "Родитель"],
+    ["БизнесПроцесс задачи", taskFile, "БизнесПроцесс"],
+  ])("разрешает DesignTimeRef для ссылочного стандартного реквизита %s", (_name, fileFactory, member) => {
     const facts = extractValidationYamlFacts({
-      file,
+      file: fileFactory(),
       parsed: parseMetadataYaml(`СтандартныеРеквизиты:
   ${member}:
     ЗначениеЗаполнения: !xml DesignTimeRef
 `),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
@@ -269,7 +274,7 @@ function extractFacts(yaml: string) {
   return extractValidationYamlFacts({
     file: catalogFile(),
     parsed: parseMetadataYaml(yaml),
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
 }
 

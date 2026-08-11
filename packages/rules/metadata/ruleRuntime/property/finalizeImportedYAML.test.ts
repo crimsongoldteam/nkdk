@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "./types"
 import type { PropertyRuleType } from "./registry"
@@ -21,8 +21,10 @@ const rootRule = {
   },
 } as const satisfies MetadataItemRule
 
-registerTypeRule(itemsType, "nestedItemRule", { itemRule })
-registerTypeRule(pathType, "finalizeImportedYAML", ({ value }) => (value === "old" ? "new" : value))
+beforeAll(() => {
+  registerTypeRule(itemsType, "nestedItemRule", { itemRule })
+  registerTypeRule(pathType, "finalizeImportedYAML", ({ value }) => (value === "old" ? "new" : value))
+})
 
 describe("finalizeImportedYamlValues", () => {
   it.each([

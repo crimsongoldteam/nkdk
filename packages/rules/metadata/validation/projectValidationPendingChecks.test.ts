@@ -1,22 +1,26 @@
-import { describe, expect, it } from "vitest"
-import { mockContext } from "../../tests/mockContext"
+import { beforeAll, describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { OwnerMetadataCache } from "./dataPath/ownerCache"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { validatePendingChecks } from "./projectValidationPendingChecks"
-import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 import { toDataPathPolicyInput } from "./dataPath/policies"
 import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import { ownerMetadataFromFacts } from "./dataPath/ownerCache"
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import {
+  createTestValidationRulesSnapshot,
+  missingOwnerMetadataCache,
+} from "./tests/validationTestSupport"
 
 
-const ownerCache: OwnerMetadataCache = {
-  get: () => ({ status: "not-found", diagnostics: [] }),
-  listRefs: () => [],
-}
+const ownerCache = missingOwnerMetadataCache
+let rulesSnapshot: ReturnType<typeof createTestValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createTestValidationRulesSnapshot()
+})
 
 describe("validatePendingChecks", () => {
   it("отклоняет пустой payload tagged ПутьКДанным", () => {
@@ -33,7 +37,7 @@ describe("validatePendingChecks", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual([
@@ -74,7 +78,7 @@ describe("validatePendingChecks", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual(
@@ -131,7 +135,7 @@ describe("validatePendingChecks", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(JSON.stringify(facts.pendingChecks)).not.toContain("syntaxErrors")

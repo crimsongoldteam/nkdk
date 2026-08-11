@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest"
-import { mockContext } from "../../../tests/mockContext"
+import { beforeAll, describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
-import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { resolveValidationProjectFile } from "../../validation/projectFiles"
 import { validatePendingChecks } from "../../validation/projectValidationPendingChecks"
-import { createValidationRulesSnapshot } from "../../validation/rulesSnapshot"
 import { extractValidationYamlFacts } from "../../validation/yamlFactExtractor"
+import {
+  createTestValidationRulesSnapshot,
+  missingOwnerMetadataCache,
+} from "../../validation/tests/validationTestSupport"
 
 
-const ownerCache: OwnerMetadataCache = {
-  get: () => ({ status: "not-found", diagnostics: [] }),
-  listRefs: () => [],
-}
-const rulesSnapshot = createValidationRulesSnapshot(mockContext)
+let rulesSnapshot: ReturnType<typeof createTestValidationRulesSnapshot>
+beforeAll(() => {
+  rulesSnapshot = createTestValidationRulesSnapshot()
+})
 
 const cases = [
   ["ПолеВвода", "[Строка, Булево]", true],
@@ -135,7 +135,7 @@ function validate(
     parsed,
     rulesSnapshot,
   })
-  return validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics
+  return validatePendingChecks({ ownerCache: missingOwnerMetadataCache, checks: facts.pendingChecks }).diagnostics
 }
 
 function validateVirtualColumn(elementKind: string, column: string) {
@@ -157,5 +157,5 @@ function validateVirtualColumn(elementKind: string, column: string) {
     parsed,
     rulesSnapshot,
   })
-  return validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics
+  return validatePendingChecks({ ownerCache: missingOwnerMetadataCache, checks: facts.pendingChecks }).diagnostics
 }

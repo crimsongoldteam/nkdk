@@ -50,31 +50,36 @@ const fastValidationSchemaCache = {
   properties: () => validSchema,
   compileAll: () => ({ formMs: 0, propertiesMs: 0, totalMs: 0 }),
 } satisfies ValidationSchemaCache
-const validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
-const configurationTopology = createValidationProjectComponent(
-  "/project",
-  { kind: "configuration" },
-).topology
+let validationRulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+let configurationTopology: ReturnType<typeof createValidationProjectComponent>["topology"]
 function requireTopologyNode(projectPattern: string) {
   const node = configurationTopology.assignments.find((candidate) => candidate.projectPattern === projectPattern)
   if (node === undefined) throw new Error(`Не найден topology-узел тестового задания: ${projectPattern}`)
   return node
 }
-const catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
-const catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
-const catalogValidationFile = resolveValidationProjectFile(
-  "/project",
-  "/project/Справочник/Товары/Свойства.yaml",
-)
-if (catalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
-
-fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
+let catalogTopologyNode: ReturnType<typeof requireTopologyNode>
+let catalogFormTopologyNode: ReturnType<typeof requireTopologyNode>
+let catalogValidationFile: NonNullable<ReturnType<typeof resolveValidationProjectFile>>
 const tempDirs: string[] = []
 const stateStores: Array<ReturnType<typeof createBinaryProjectStateStore>["store"]> = []
 let sharedStateFixture: ReturnType<typeof createBinaryProjectStateStore> | undefined
 let readyYamlValidationScenario: Awaited<ReturnType<typeof prepareReadyYamlValidationScenario>> | undefined
 
 beforeAll(async () => {
+  validationRulesSnapshot = createValidationRulesSnapshot(mockXmlImportContext())
+  configurationTopology = createValidationProjectComponent(
+    "/project",
+    { kind: "configuration" },
+  ).topology
+  catalogTopologyNode = requireTopologyNode("Справочник/{ownerName}/Свойства.yaml")
+  catalogFormTopologyNode = requireTopologyNode("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml")
+  const resolvedCatalogValidationFile = resolveValidationProjectFile(
+    "/project",
+    "/project/Справочник/Товары/Свойства.yaml",
+  )
+  if (resolvedCatalogValidationFile === undefined) throw new Error("Не удалось классифицировать тестовый YAML")
+  catalogValidationFile = resolvedCatalogValidationFile
+  fullValidationSchemaCache.properties(catalogValidationFile.owner.spec.rule)
   sharedStateFixture = createBinaryProjectStateStore({
     dependencyValidator: createProjectStateDependencyValidator(),
     projectDir: "/project",

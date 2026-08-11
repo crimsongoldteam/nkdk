@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { bindDeferredObjectValues } from "./deferredObjectValues"
 import { finalizeExportedXmlValues } from "./finalizeExportedXML"
@@ -16,7 +16,9 @@ const rootRule = {
   },
 } as const satisfies MetadataItemRule
 
-registerTypeRule(deferredType, "finalizeExportedXML", ({ value }) => `${String(value)}:final`)
+beforeAll(() => {
+  registerTypeRule(deferredType, "finalizeExportedXML", ({ value }) => `${String(value)}:final`)
+})
 
 describe("finalizeExportedXmlValues", () => {
   it("уточняет связанную цель готового XML", () => {

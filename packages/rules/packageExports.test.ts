@@ -1,8 +1,12 @@
-import { expect, it } from "vitest"
+import { beforeAll, expect, it } from "vitest"
+
+let packageExports: typeof import("./index")
+
+beforeAll(async () => {
+  packageExports = await import("./index")
+})
 
 it("exports only metadataRules from the package root", async () => {
-  const module = await import("./index")
-
-  expect(Object.keys(module)).toEqual(["metadataRules"])
-  expect(module.metadataRules).toEqual(expect.any(Object))
+  expect(Object.keys(packageExports)).toEqual(["metadataRules"])
+  expect(packageExports.metadataRules).toEqual(expect.any(Object))
 }, 30_000)

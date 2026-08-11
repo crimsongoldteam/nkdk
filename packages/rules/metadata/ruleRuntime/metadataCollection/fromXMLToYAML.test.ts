@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
@@ -20,6 +20,7 @@ const itemRule = {
   },
 } as MetadataItemRule
 
+beforeAll(() => {
 registerTypeRule("TestDeferred" as PropertyRuleType, "finalizeImportedYAML", ({ value }) => value)
 registerMetadataItemCollectionRule({
   propertyType: "TestRecordCollection" as PropertyRuleType,
@@ -79,6 +80,7 @@ registerMetadataItemCollectionRule({
   },
   xmlElement: "Item",
   keyField: "name",
+})
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {

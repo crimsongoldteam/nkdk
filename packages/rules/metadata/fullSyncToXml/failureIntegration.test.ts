@@ -30,7 +30,11 @@ import {
   createFullXmlSyncFileCollectionFromFiles,
 } from "./workerPool"
 
-const fullSyncTopology = compileRegisteredMetadataResourceTopology()
+let fullSyncTopology: ReturnType<typeof compileRegisteredMetadataResourceTopology>
+
+beforeAll(() => {
+  fullSyncTopology = compileRegisteredMetadataResourceTopology()
+})
 
 afterEach(async () => {
   await removeFullSyncTempDirs()

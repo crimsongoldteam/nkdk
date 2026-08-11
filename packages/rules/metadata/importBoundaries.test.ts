@@ -326,6 +326,23 @@ describe("metadata import boundaries", () => {
     }
   })
 
+  it("execution contexts не содержат process-default registries", () => {
+    const files = [
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "ruleRegistryExecutionContext.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "propertyRuleExecutionContext.ts"),
+      join(RUNTIME_METADATA_DIR, "validation", "validationExecutionContext.ts"),
+      join(RUNTIME_METADATA_DIR, "validation", "dataPath", "dataPathExecutionContext.ts"),
+      join(METADATA_DIR, "operations", "operationExecutionContext.ts"),
+      join(METADATA_DIR, "composition", "metadataExecutionContext.ts"),
+    ]
+
+    for (const file of files) {
+      const source = readFileSync(file, "utf-8")
+      expect(source).not.toMatch(/\bdefault(?:Rules|Registries|Validation|DataPaths|Operations)\b/)
+      expect(source).not.toContain("setDefault")
+    }
+  })
+
   it("source worker pools resolve their TypeScript loader through one runtime helper", () => {
     const sourceWorkerPools = [
       "workerPool/handle.ts",

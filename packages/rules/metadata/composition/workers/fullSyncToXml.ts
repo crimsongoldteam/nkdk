@@ -2,8 +2,9 @@ import {
   createMetadataExecutionRegistrySets,
   withMetadataExecutionRegistrySets,
 } from "../metadataExecutionContext"
+import { metadataRules } from "../metadataRules"
 
-const registries = createMetadataExecutionRegistrySets()
+const registries = createMetadataExecutionRegistrySets(metadataRules)
 const { createFullXmlSyncWorkerCommandRunner } = await import("../../fullSyncToXml/worker")
 const worker = createFullXmlSyncWorkerCommandRunner().entryPoint
 

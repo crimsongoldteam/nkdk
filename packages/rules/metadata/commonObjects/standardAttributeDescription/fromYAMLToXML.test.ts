@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import type { ConfigurationContextWithExportToXML } from "@nkdk/runtime"
 import { convertPropertiesFromYAMLToXML } from "../../ruleRuntime/property/fromYAMLToXML"
@@ -91,12 +91,14 @@ const tabularSectionRule = {
 
 const tabularSectionsType = "StandardAttributesTabularSectionsProbe" as PropertyRuleType
 
-registerMetadataItemCollectionRule({
-  propertyType: tabularSectionsType,
-  itemRule: tabularSectionRule,
-  xmlElement: "Item",
-  keyField: "name",
-  recordYamlKeyFromYAML: ({ name }) => name,
+beforeAll(() => {
+  registerMetadataItemCollectionRule({
+    propertyType: tabularSectionsType,
+    itemRule: tabularSectionRule,
+    xmlElement: "Item",
+    keyField: "name",
+    recordYamlKeyFromYAML: ({ name }) => name,
+  })
 })
 
 const tabularSectionsOwnerRule = {

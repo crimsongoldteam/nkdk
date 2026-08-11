@@ -11,9 +11,10 @@ import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
 
 const schemaCache = createValidationSchemaCache(mockContext)
-const rulesSnapshot = createValidationRulesSnapshot(mockContext)
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
 beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
   const file = catalogFile()
   if (file.kind !== "properties") throw new Error("properties file expected")
   schemaCache.properties(file.owner.spec.rule)

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { join } from "node:path"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
@@ -43,6 +43,12 @@ import {
   validateProjectStateReferenceBatch,
 } from "./projectStateDependencyValidation"
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
+
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
+})
 
 const memberTargetResult = parseMetadataTargetFromYAML({
   value: "Справочник.Товары.Реквизит.Артикул",
@@ -198,7 +204,7 @@ describe("dependency validation из ProjectState", () => {
   Дополнительный:
     Тип: Строка(10)
 `),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
     const get = vi.fn<OwnerMetadataCache["get"]>(() => {
       throw new Error("Стандартные реквизиты заимствованного объекта не должны читаться из cf")

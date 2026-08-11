@@ -81,7 +81,6 @@ export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, Dep
     operation: Operation,
     handler: NonNullable<importExportFunction<Operation>>,
   ): void
-  clearTypeRules(): void
   revision(): number
   registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void
   registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void
@@ -199,10 +198,6 @@ export function createPropertyRuleRegistrySet(
       const definition = { ...typeRules.get(type) }
       ;(definition as Record<string, unknown>)[operation] = handler
       typeRules.set(type, definition)
-      revision += 1
-    },
-    clearTypeRules() {
-      typeRules.clear()
       revision += 1
     },
     revision: () => revision,

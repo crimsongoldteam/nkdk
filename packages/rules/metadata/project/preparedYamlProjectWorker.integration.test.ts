@@ -32,13 +32,15 @@ import preparedYamlProjectWorkerEntryPoint, {
 import { projectFormStructureDocuments } from "./projectStateYamlUpdate"
 
 const tempDirs: string[] = []
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
 
 beforeAll(async () => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
   await runPreparedYamlProjectWorkerTask({
     kind: "initValidation",
     workerIndex: 0,
     context: mockContext,
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   }, {
     createValidationSchemaCache: async () => createTestValidationSchemaCache(),
   })
@@ -357,7 +359,7 @@ describe("collectValidationFacts", () => {
         workerIndex: 0,
         projectDir,
         files: [descriptor(filePath)],
-        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+        rulesSnapshot,
       })
     ).rejects.toThrow("Не удалось прочитать YAML-файл")
   })
@@ -375,7 +377,7 @@ describe("collectValidationFacts", () => {
           workerIndex: 0,
           projectDir,
           files: [descriptor(filePath)],
-          rulesSnapshot: createValidationRulesSnapshot(mockContext),
+          rulesSnapshot,
         },
         {
           extractFacts() {
@@ -408,7 +410,7 @@ describe("collectValidationFacts", () => {
           itemType: "FunctionalOption",
         },
       ],
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(contribution.pendingReferences).toEqual([

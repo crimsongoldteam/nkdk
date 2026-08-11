@@ -208,7 +208,8 @@ async function runImportWorkerCommand(
       schemaCache: options.persistentValidationState?.schemaCache
         ?? schemaCacheForTests
         ?? createValidationSchemaCache(command.context),
-      rulesSnapshot: createValidationRulesSnapshot(command.context, validationComponent.topology),
+      rulesSnapshot: options.persistentValidationState?.rulesSnapshot
+        ?? createValidationRulesSnapshot(command.context, validationComponent.topology),
     }
     firstPassAccumulator = createFirstPassAccumulator(command.workerIndex)
     return undefined

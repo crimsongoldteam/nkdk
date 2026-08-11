@@ -1,21 +1,29 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
 import { validateProjectFileFirstPass } from "../validation/projectValidationPasses"
-import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createTestValidationSchemaCache } from "../validation/tests/testValidationSchemaCache"
+import {
+  createTestValidationRulesSnapshot,
+  removeTrackedDirectories,
+} from "../validation/tests/validationTestSupport"
 import { buildProjectStateYamlFileUpdate } from "./projectStateYamlUpdate"
 
 describe("buildProjectStateYamlFileUpdate", () => {
   const tempDirs: string[] = []
   const schemaCache = createTestValidationSchemaCache()
+  let rulesSnapshot: ReturnType<typeof createTestValidationRulesSnapshot>
+
+  beforeAll(() => {
+    rulesSnapshot = createTestValidationRulesSnapshot()
+  })
 
   afterEach(() => {
-    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+    removeTrackedDirectories(tempDirs)
   })
 
   it("строит structuredDocuments рабочей формы из результата первого прохода", () => {
@@ -37,7 +45,7 @@ describe("buildProjectStateYamlFileUpdate", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     const update = buildProjectStateYamlFileUpdate({

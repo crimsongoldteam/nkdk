@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { createConfigurationIndexExportRuntime } from "@nkdk/runtime"
@@ -11,11 +11,6 @@ import type { MetadataItemRule } from "./types"
 import { createMetadataItemYamlToXmlAugmenterRegistry, registerMetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 
 const calls: Array<{ itemType: string; logicalAddress: string }> = []
-registerMetadataItemYamlToXmlAugmenter("recursive-augmenter-test", {
-  augment({ rule, logicalAddress }) {
-    calls.push({ itemType: rule.itemType, logicalAddress })
-  },
-})
 
 const leafRule = rule("Leaf", {
   name: { type: "string", xml: "Name" },
@@ -26,6 +21,12 @@ const childRule = rule("Child", {
     type: "RecursiveAugmenterLeaves" as never,
     yaml: "Поля",
     xml: "Leaf",
+  },
+})
+beforeAll(() => {
+registerMetadataItemYamlToXmlAugmenter("recursive-augmenter-test", {
+  augment({ rule, logicalAddress }) {
+    calls.push({ itemType: rule.itemType, logicalAddress })
   },
 })
 registerTypeRule("RecursiveAugmenterLeaves" as never, "yamlToXMLNestedRule", {
@@ -41,6 +42,7 @@ registerTypeRule("RecursiveAugmenterChildren" as never, "yamlToXMLNestedRule", {
   yamlShape: "record",
   xmlElement: "Child",
   configurationIndexUidSegment: "Реквизит",
+})
 })
 
 describe("metadata item YAML-to-XML augmenter", () => {

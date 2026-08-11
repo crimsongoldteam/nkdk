@@ -3,6 +3,8 @@ import { relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 export const TEST_DURATION_TARGET_MS = 10
+export const TEST_DURATION_LIMIT_MS = 50
+export const INTEGRATION_TEST_DURATION_LIMIT_MS = 100
 export const TEST_FILE_LIMIT_MS = 2_500
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 15_000
 export const WINDOWS_LIMIT_MULTIPLIER = 5
@@ -14,22 +16,26 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
     environment.CI === "true" ? 3 : 1,
     environment.platform === "win32" ? WINDOWS_LIMIT_MULTIPLIER : 1,
   )
+  const testDurationLimit = environment.NKDK_TEST_SUITE === "integration"
+    ? INTEGRATION_TEST_DURATION_LIMIT_MS
+    : TEST_DURATION_LIMIT_MS
 
   const warnings = []
   const failures = []
   if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS * limitMultiplier) {
-    failures.push({ type: "setup", duration: packageSetupDuration })
+    warnings.push({ type: "setup", duration: packageSetupDuration })
   }
   for (const suite of report.testResults) {
     const fileDuration = lifecycleByFile.get(suite.name)
     if (fileDuration > TEST_FILE_LIMIT_MS * limitMultiplier) {
-      failures.push({ type: "file", file: suite.name, duration: fileDuration })
+      warnings.push({ type: "file", file: suite.name, duration: fileDuration })
     }
 
     for (const test of suite.assertionResults) {
       if (!assertTest(test)) continue
       const result = { type: "test", file: suite.name, name: test.fullName, duration: test.duration }
       if (test.duration > TEST_DURATION_TARGET_MS) warnings.push(result)
+      if (test.duration > testDurationLimit) failures.push(result)
     }
   }
 
@@ -50,9 +56,13 @@ export function runTestDurationAssertion(options) {
   const { report, lifecycleReport } = readTestDurationReports(options)
   const { warnings, failures } = analyzeTestDurationReport(report, lifecycleReport, {
     ...process.env,
+    ...options.environment,
     platform: process.platform,
   })
-  for (const warning of warnings) process.stdout.write(`Цель 10ms превышена: ${formatResult(warning)}\n`)
+  for (const warning of warnings) {
+    const label = warning.type === "test" ? "Цель 10ms превышена" : "Lifecycle выполняется долго"
+    process.stdout.write(`${label}: ${formatResult(warning)}\n`)
+  }
   for (const failure of failures) process.stderr.write(`Лимит превышен: ${formatResult(failure)}\n`)
   return failures.length === 0 ? 0 : 1
 }

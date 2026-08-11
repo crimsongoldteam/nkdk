@@ -12,7 +12,15 @@ export function parseVitestArguments(argv) {
   return argv[0] === "--" ? argv.slice(1) : argv
 }
 
-export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawnSync) {
+export function parseDurationCheckArguments(argv) {
+  const integration = argv[0] === "--integration"
+  return {
+    suite: integration ? "integration" : "standard",
+    vitestArguments: parseVitestArguments(integration ? argv.slice(1) : argv),
+  }
+}
+
+export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawnSync, suite = "standard") {
   const reportDirectory = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-duration-"))
   const reportPath = join(reportDirectory, "test-cases.json")
   const lifecycleReportPath = join(reportDirectory, "test-files.json")
@@ -40,6 +48,7 @@ export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawn
     return runTestDurationAssertion({
       report: reportPath,
       lifecycleReport: lifecycleReportPath,
+      environment: { NKDK_TEST_SUITE: suite },
     })
   } finally {
     fs.rmSync(reportDirectory, { recursive: true, force: true })
@@ -48,7 +57,8 @@ export function runTestDurationCheck(projectRoot, vitestArguments, spawn = spawn
 
 if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try {
-    process.exitCode = runTestDurationCheck(process.cwd(), parseVitestArguments(process.argv.slice(2)))
+    const options = parseDurationCheckArguments(process.argv.slice(2))
+    process.exitCode = runTestDurationCheck(process.cwd(), options.vitestArguments, spawnSync, options.suite)
   } catch (error) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
     process.exitCode = 1

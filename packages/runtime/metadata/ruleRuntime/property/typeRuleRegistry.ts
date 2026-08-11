@@ -162,11 +162,5 @@ export function resolvePropertyItemRule(
   )
 }
 
-export const clearTypeRulesRegistry = (): void => {
-  const registry = currentPropertyRuleRegistrySet<{ clearTypeRules(): void }>()
-  if (registry === undefined) throw new Error("Не задан execution context property rules")
-  registry.clearTypeRules()
-}
-
 export const typeRulesRegistryRevision = (): number =>
   currentPropertyRuleRegistrySet<{ revision(): number }>()?.revision() ?? 0

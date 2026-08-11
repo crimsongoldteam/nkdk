@@ -1,12 +1,17 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+
+let metadataRules: (typeof import("./metadataRules"))["metadataRules"]
+
+beforeAll(async () => {
+  ({ metadataRules } = await import("./metadataRules"))
+})
 
 describe("metadataRules", () => {
   it(
     "exports property rules without writing to the legacy registry",
     async () => {
-      const { metadataRules } = await import("./metadataRules")
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
       )

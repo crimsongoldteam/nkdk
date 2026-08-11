@@ -25,6 +25,8 @@ const coreMetadataTests = [
 const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
 const metadataRulesSetup = resolve(__dirname, "./tests/metadataExecutionContext")
+const metadataTestRunner = resolve(__dirname, "./tests/metadataTestRunner")
+const integrationTests = ["**/*.integration.test.ts"]
 const bundleContractTests = [
   "metadata/composition/metadataRules.test.ts",
   "metadata/composition/runtimeSchemaContract.test.ts",
@@ -51,9 +53,10 @@ export default defineConfig({
       {
         test: {
           name: "unit",
+          runner: metadataTestRunner,
           exclude: [...configDefaults.exclude, ...coreMetadataTests, ...bundleContractTests],
           sequence: { groupOrder: 0 },
-          setupFiles: [forbiddenPiscinaSetup, metadataRulesSetup, lightweightSetup],
+          setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
       },
       {
@@ -67,8 +70,21 @@ export default defineConfig({
       {
         test: {
           name: "core-metadata",
+          runner: metadataTestRunner,
           include: coreMetadataTests,
+          exclude: integrationTests,
           sequence: { groupOrder: 2 },
+          setupFiles: [
+            forbiddenPiscinaSetup,
+            lightweightSetup,
+          ],
+        },
+      },
+      {
+        test: {
+          name: "integration",
+          include: integrationTests,
+          sequence: { groupOrder: 3 },
           setupFiles: [
             forbiddenPiscinaSetup,
             metadataRulesSetup,

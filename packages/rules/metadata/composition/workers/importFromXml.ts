@@ -2,8 +2,9 @@ import {
   createMetadataExecutionRegistrySets,
   withMetadataExecutionRegistrySets,
 } from "../metadataExecutionContext"
+import { metadataRules } from "../metadataRules"
 
-const registries = createMetadataExecutionRegistrySets()
+const registries = createMetadataExecutionRegistrySets(metadataRules)
 const { createImportWorkerCommandRunner } = await import("../../importFromXml/worker")
 const worker = createImportWorkerCommandRunner().entryPoint
 

@@ -1,9 +1,15 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
+})
 
 describe("extractValidationYamlFacts form", () => {
   it("находит одинаковые имена элементов в разных ветвях без учёта регистра", () => {
@@ -134,7 +140,7 @@ describe("extractValidationYamlFacts form", () => {
           "    ПутьКДанным: КакоеТоПоле",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.pendingChecks).toEqual([
@@ -174,7 +180,7 @@ describe("extractValidationYamlFacts form", () => {
           "          Данные: Объект.Товары.LineNumber",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.pendingChecks).toEqual(
@@ -226,7 +232,7 @@ describe("extractValidationYamlFacts form", () => {
           "    Вид: ТаблицаФормы",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.formDataPathIndex?.tabularElementsByName.get("Товары")).toEqual({
@@ -254,7 +260,7 @@ describe("extractValidationYamlFacts form", () => {
           "    ПутьКДанным: КакоеТоПоле",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       validationDiagnostics: false,
     })
 
@@ -302,6 +308,6 @@ function extractFormFacts(yaml: string): ReturnType<typeof extractValidationYaml
   return extractValidationYamlFacts({
     file,
     parsed: parseMetadataYaml(yaml),
-    rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    rulesSnapshot,
   })
 }

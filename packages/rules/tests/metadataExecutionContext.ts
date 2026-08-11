@@ -1,6 +1,15 @@
 import {
   createMetadataExecutionRegistrySets,
-  setDefaultMetadataExecutionRegistrySets,
+  enterMetadataExecutionRegistrySets,
 } from "../metadata/composition/metadataExecutionContext"
+import { metadataRules } from "../metadata/composition/metadataRules"
+import { beforeAll, beforeEach } from "vitest"
 
-setDefaultMetadataExecutionRegistrySets(createMetadataExecutionRegistrySets())
+let registries = createMetadataExecutionRegistrySets(metadataRules)
+enterMetadataExecutionRegistrySets(registries)
+
+beforeAll(() => {
+  registries = createMetadataExecutionRegistrySets(metadataRules)
+  enterMetadataExecutionRegistrySets(registries)
+})
+beforeEach(() => enterMetadataExecutionRegistrySets(registries))

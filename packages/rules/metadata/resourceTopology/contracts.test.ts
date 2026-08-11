@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
+import type { CompiledMetadataResourceTopology } from "./core/types"
 import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./adapters/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "./adapters/registeredRules"
 import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"
@@ -12,7 +13,10 @@ import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolic
 
 
 describe("registered metadata resource topology contracts", () => {
-  const topology = compileRegisteredMetadataResourceTopology()
+  let topology: CompiledMetadataResourceTopology
+  beforeAll(() => {
+    topology = compileRegisteredMetadataResourceTopology()
+  })
 
   it("gives every assignment XML or external resources", () => {
     for (const assignment of topology.assignments) {

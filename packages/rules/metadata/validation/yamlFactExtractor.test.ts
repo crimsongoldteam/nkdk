@@ -1,6 +1,6 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -12,6 +12,12 @@ import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createValidationRegistrySet } from "./validationRegistrySet"
+
+let rulesSnapshot: ReturnType<typeof createValidationRulesSnapshot>
+
+beforeAll(() => {
+  rulesSnapshot = createValidationRulesSnapshot(mockContext)
+})
 
 
 describe("extractValidationYamlFacts", () => {
@@ -34,7 +40,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("{}\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       runtime,
     })
 
@@ -67,7 +73,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       runtime,
     })
 
@@ -91,7 +97,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.objectIndexEntries).toEqual([
@@ -121,7 +127,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("{}\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.objectIndexEntries).toEqual([
@@ -154,7 +160,7 @@ describe("extractValidationYamlFacts", () => {
           "    ПутьКДанным: Объект.Товары.Артикул",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     const check = facts.pendingChecks.find((item) => item.kind === "dataPath" && item.value === "Объект.Товары.Артикул")
@@ -191,7 +197,7 @@ describe("extractValidationYamlFacts", () => {
           "    ПутьКДанным: Объект.Товары.ИндексКартинки",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     const check = facts.pendingChecks.find((item) => item.kind === "dataPath" && item.value === "Объект.Товары.ИндексКартинки")
@@ -213,7 +219,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Картинка: Печать\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.pendingReferences).toEqual([])
@@ -228,7 +234,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.pendingReferences).toEqual([
@@ -254,7 +260,7 @@ describe("extractValidationYamlFacts", () => {
           "  - РегистрНакопления.Продажи",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.localIndexes?.metadata.ownerFacts?.["registerRecords"]).toEqual([
@@ -272,7 +278,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("ПланСчетов: ChartOfAccounts.Хозрасчетный\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.localIndexes?.metadata.ownerFacts?.["chartOfAccounts"]).toBe("ChartOfAccounts.Хозрасчетный")
@@ -287,7 +293,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Движения:\n  - РегистрБухгалтерии.Хозрасчетный\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
     })
 
     expect(facts.localIndexes?.metadata.events).toEqual([])
@@ -314,7 +320,7 @@ describe("extractValidationYamlFacts", () => {
           "    Реквизиты: {}",
         ].join("\n")
       ),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       validationDiagnostics: false,
     })
 
@@ -333,7 +339,7 @@ describe("extractValidationYamlFacts", () => {
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot,
       validationDiagnostics: false,
     })
 
