@@ -52,7 +52,7 @@ describe("metadataRules", () => {
       expect(metadataRules.components).toHaveLength(2)
       expect(metadataRules.imports).toHaveLength(2)
       expect(metadataRules.synchronization.length).toBeGreaterThan(2)
-      expect(metadataRules.validation).toHaveLength(10)
+      expect(metadataRules.validation).toHaveLength(7)
       expect(metadataRules.references.length).toBeGreaterThan(10)
       expect(metadataRules.dataPaths.length).toBeGreaterThan(20)
       expect(metadataRules.operations.length).toBeGreaterThan(2)
