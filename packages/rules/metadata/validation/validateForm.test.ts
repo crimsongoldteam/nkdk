@@ -1893,6 +1893,50 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("rejects a type-dependent Table property for an unsupported SettingsComposer collection", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки",
+        "    РежимОтображения: БыстрыйДоступ",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        path: "/Элементы/Таблица/РежимОтображения",
+        message: expect.stringContaining("недоступно для конечного типа DataCompositionSettings"),
+      }),
+    ])
+  })
+
+  it("accepts registered and common Table properties for a SettingsComposer filter", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки.Отбор",
+        "    РежимОтображения: БыстрыйДоступ",
+        "    ПодробноеОтображениеИменованныхЭлементовНастройки: Истина",
+        "    РежимВыбора: Истина",
+        "    РазрешитьНачалоПеретаскивания: Истина",
+        "    РазрешитьПеретаскивание: Истина",
+        "    Ширина: 20",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("deduplicates owner diagnostics reused by multiple DataPath values", () => {
     const project = createProject({
       form: [

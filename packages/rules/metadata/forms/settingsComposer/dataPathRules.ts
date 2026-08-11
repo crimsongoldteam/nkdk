@@ -12,6 +12,22 @@ export const settingsComposerDataPathRules: readonly DataPathContribution[] = [
     pairs: settingsComposerNamePairs.map(([internal, yaml]) => ({ internal, yaml })),
   },
   {
+    kind: "elementProperty",
+    registration: {
+      itemType: "Table",
+      propertyYaml: "РежимОтображения",
+      terminalTypes: ["DataCompositionFilter", "DataCompositionUserSettings"],
+    },
+  },
+  {
+    kind: "elementProperty",
+    registration: {
+      itemType: "Table",
+      propertyYaml: "ПодробноеОтображениеИменованныхЭлементовНастройки",
+      terminalTypes: ["DataCompositionFilter", "DataCompositionConditionalAppearance"],
+    },
+  },
+  {
     kind: "typeResolver",
     resolver: ({ baseType }) =>
       baseType === "SettingsComposer" || baseType === "КомпоновщикНастроекКомпоновкиДанных"
