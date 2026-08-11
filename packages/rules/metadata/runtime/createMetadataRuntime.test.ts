@@ -8,6 +8,7 @@ import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJS
 import { createMetadataRuntime } from "./createMetadataRuntime"
 import { createProjectStateService } from "../projectState/service"
 import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 
 const workers = {
   preparedYamlProject: new URL("file:///test/prepared.js"),
@@ -262,6 +263,43 @@ describe("createMetadataRuntime", () => {
     })).toMatchObject({
       properties: { "Значение": { const: "first" } },
     })
+
+    await first.close()
+    await second.close()
+  })
+
+  it("describes project structure from the owning runtime", async () => {
+    const rulesWithDirectory = (dir: string) => defineMetadataRules({
+      ...emptyMetadataRules,
+      projectSpecs: {
+        [dir]: {
+          dir,
+          kind: dir,
+          rule: { itemType: `Item-${dir}`, properties: {} },
+          exportSchema: () => Type.Object({}),
+        },
+      },
+      resourceTopology: [{
+        revision: () => dir,
+        compile: () => compileMetadataResourceTopology([]),
+      }],
+    })
+    const first = createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithDirectory("first"),
+    })
+    const second = createMetadataRuntime({
+      ...runtimeOptions,
+      rules: rulesWithDirectory("second"),
+    })
+
+    const directories = (runtime: typeof first) =>
+      runtime.projects.describeStructure({ projectDir: "/project" }).node.children
+        ?.filter((node) => node.kind === "directory")
+        .map((node) => node.name)
+
+    expect(directories(first)).toEqual(["first"])
+    expect(directories(second)).toEqual(["second"])
 
     await first.close()
     await second.close()

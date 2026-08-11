@@ -67,7 +67,8 @@ export function createMetadataRuntime(
     projects: {
       specs: rules.projectSpecs,
       parsePath: parseProjectPath,
-      describeStructure: describeMetadataProjectDirectoryStructure,
+      describeStructure: (params) =>
+        describeMetadataProjectDirectoryStructure(params, rules),
       createState() {
         assertOpen()
         const state = options.createProjectStateService({

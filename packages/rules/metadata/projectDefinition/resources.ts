@@ -35,6 +35,7 @@ export interface MetadataProjectResourceDiscoveryOptions {
 export interface MetadataProjectResourceContext {
   topology: CompiledMetadataResourceTopology
   rootSpec: MetadataProjectSpec
+  projectSpecs?: ReadonlyMap<string, MetadataProjectSpec>
 }
 
 export interface MetadataProjectResourceCandidate {
@@ -269,7 +270,7 @@ function toLegacyResource(
     && (match.assignment.role === "properties"
       || (match.assignment.role === "fileItem" && match.assignment.projectRole !== "form"))
   ) {
-    const owner = legacyOwner(match)
+    const owner = legacyOwner(match, context)
     return {
       kind: "yaml",
       role: "properties",
@@ -328,9 +329,12 @@ function yamlContext(
   }
 }
 
-function legacyOwner(match: MetadataProjectResourceMatch): MetadataProjectResourceOwner {
+function legacyOwner(
+  match: MetadataProjectResourceMatch,
+  context: MetadataProjectResourceContext,
+): MetadataProjectResourceOwner {
   const dir = match.projectPath.split("/")[0] ?? ""
-  const spec = getMetadataProjectSpecByDir(dir)
+  const spec = projectSpecByDir(dir, context)
   if (spec === undefined) throw new Error(`Не найден project spec для ${match.projectPath}`)
   return {
     dir,
@@ -347,7 +351,7 @@ function rootOwner(
     return { dir: "", name: "Конфигурация", spec: context.rootSpec }
   }
   const dir = match.projectPath.split("/")[0] ?? ""
-  const spec = getMetadataProjectSpecByDir(dir)
+  const spec = projectSpecByDir(dir, context)
   if (spec === undefined) throw new Error(`Не найден project spec для ${match.projectPath}`)
   return { dir, name: match.values.ownerName ?? match.projectPath.split("/")[1] ?? "", spec }
 }
@@ -360,6 +364,15 @@ function defaultResourceContext(): MetadataProjectResourceContext {
     ]),
     rootSpec: configurationMetadataProjectSpec,
   }
+}
+
+function projectSpecByDir(
+  dir: string,
+  context: MetadataProjectResourceContext,
+): MetadataProjectSpec | undefined {
+  return context.projectSpecs === undefined
+    ? getMetadataProjectSpecByDir(dir)
+    : context.projectSpecs.get(dir)
 }
 
 function lastOwnerName(values: Readonly<Record<string, string>>): string {

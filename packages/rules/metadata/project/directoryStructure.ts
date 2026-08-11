@@ -3,6 +3,7 @@ import { CONFIGURATION_YAML_FILE } from "./constants"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "../projectDefinition/specs"
 import { projectPathFromFileSystem } from "../projectDefinition/path"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
 const PROPERTIES_FILE = "Свойства.yaml"
 
@@ -30,6 +31,11 @@ export interface MetadataProjectStructureNode {
   children?: MetadataProjectStructureNode[]
 }
 
+type ProjectStructureRegistries = Pick<
+  RuleRegistrySet,
+  "projectSpecs" | "resourceTopology"
+>
+
 type DirectoryPosition =
   | { kind: "root" }
   | { kind: "metadataKind"; dir: string; spec: MetadataProjectSpec }
@@ -39,12 +45,13 @@ type DirectoryPosition =
   | { kind: "recursiveChildren"; ownerPath: string; spec: MetadataProjectSpec }
 
 export function describeMetadataProjectDirectoryStructure(
-  params: DescribeMetadataProjectDirectoryStructureParams
+  params: DescribeMetadataProjectDirectoryStructureParams,
+  registries?: ProjectStructureRegistries,
 ): MetadataProjectDirectoryStructure {
   const projectDir = resolve(params.projectDir)
   const directoryPath = normalizeProjectDirectoryPath(projectDir, params.directoryPath)
   const depth = normalizeDepth(params.depth)
-  const position = classifyDirectoryPosition(directoryPath)
+  const position = classifyDirectoryPosition(directoryPath, registries)
 
   if (position === undefined) {
     throw new Error("Каталог не соответствует структуре metadata-проекта")
@@ -54,7 +61,7 @@ export function describeMetadataProjectDirectoryStructure(
     projectDir,
     directoryPath,
     depth,
-    node: withLimitedChildren(createNode(position, directoryPath), depth),
+    node: withLimitedChildren(createNode(position, directoryPath, registries), depth),
   }
 }
 
@@ -76,26 +83,34 @@ function normalizeProjectDirectoryPath(projectDir: string, directoryPath: string
   }
 }
 
-function classifyDirectoryPosition(directoryPath: string): DirectoryPosition | undefined {
+function classifyDirectoryPosition(
+  directoryPath: string,
+  registries?: ProjectStructureRegistries,
+): DirectoryPosition | undefined {
   if (directoryPath === "") return { kind: "root" }
 
   const parts = directoryPath.split("/")
   if (parts.some((part) => part.length === 0)) return undefined
 
   if (parts.length === 1) {
-    const spec = getMetadataProjectSpecByDir(parts[0])
+    const spec = projectSpecByDir(parts[0], registries)
     return spec ? { kind: "metadataKind", dir: parts[0], spec } : undefined
   }
 
   if (parts.length === 2) {
-    const spec = getMetadataProjectSpecByDir(parts[0])
+    const spec = projectSpecByDir(parts[0], registries)
     return spec ? { kind: "metadataObject", dir: parts[0], name: parts[1], spec } : undefined
   }
 
-  const spec = getMetadataProjectSpecByDir(parts[0])
+  const spec = projectSpecByDir(parts[0], registries)
   if (!spec) return undefined
   const ownerPath = parts.slice(0, 2).join("/")
-  const fileItemPosition = classifyFileItemPosition(parts.slice(2), ownerPath, spec)
+  const fileItemPosition = classifyFileItemPosition(
+    parts.slice(2),
+    ownerPath,
+    spec,
+    registries,
+  )
   if (fileItemPosition) return fileItemPosition
 
   const recursivePosition = classifyRecursiveChildrenPosition(parts, spec)
@@ -107,9 +122,10 @@ function classifyDirectoryPosition(directoryPath: string): DirectoryPosition | u
 function classifyFileItemPosition(
   relativeParts: string[],
   ownerPath: string,
-  spec: MetadataProjectSpec
+  spec: MetadataProjectSpec,
+  registries?: ProjectStructureRegistries,
 ): DirectoryPosition | undefined {
-  for (const resource of topologyResourcesForSpec(spec)) {
+  for (const resource of topologyResourcesForSpec(spec, registries)) {
     if (resource.kind !== "content" || resource.role !== "fileItem") continue
     const [dirName, itemPlaceholder, fileName] = resource.projectPattern.split("/")
     if (!dirName || itemPlaceholder !== "{itemName}" || !fileName) continue
@@ -153,7 +169,11 @@ function classifyRecursiveChildrenPosition(parts: string[], spec: MetadataProjec
   return undefined
 }
 
-function createNode(position: DirectoryPosition, directoryPath: string): MetadataProjectStructureNode {
+function createNode(
+  position: DirectoryPosition,
+  directoryPath: string,
+  registries?: ProjectStructureRegistries,
+): MetadataProjectStructureNode {
   switch (position.kind) {
     case "root":
       return directory("", "root", "", "Корень YAML-проекта", false, false, [
@@ -164,7 +184,7 @@ function createNode(position: DirectoryPosition, directoryPath: string): Metadat
           "Корневой YAML-файл конфигурации",
           true
         ),
-        ...metadataProjectSpecs.map((spec) =>
+        ...projectSpecs(registries).map((spec) =>
           directory(spec.dir, "metadataKind", spec.dir, `Каталог metadata-объектов вида ${spec.dir}`, false, false, [
             objectTemplate(spec.dir),
           ])
@@ -181,7 +201,7 @@ function createNode(position: DirectoryPosition, directoryPath: string): Metadat
         [objectTemplate(position.dir)]
       )
     case "metadataObject":
-      return metadataObjectNode(position, directoryPath)
+      return metadataObjectNode(position, directoryPath, registries)
     case "fileItemDirectory":
       return directory(
         lastSegment(directoryPath),
@@ -261,7 +281,8 @@ function createNode(position: DirectoryPosition, directoryPath: string): Metadat
 
 function metadataObjectNode(
   position: Extract<DirectoryPosition, { kind: "metadataObject" }>,
-  directoryPath: string
+  directoryPath: string,
+  registries?: ProjectStructureRegistries,
 ): MetadataProjectStructureNode {
   const children: MetadataProjectStructureNode[] = [
     file(
@@ -271,7 +292,7 @@ function metadataObjectNode(
       `YAML-файл свойств объекта ${position.dir}`,
       true
     ),
-    ...projectResourceNodes(position.spec, directoryPath),
+    ...projectResourceNodes(position.spec, directoryPath, registries),
   ]
 
   if (position.spec.nesting?.kind === "recursiveChildDir") {
@@ -317,8 +338,12 @@ function metadataObjectNode(
   )
 }
 
-function projectResourceNodes(spec: MetadataProjectSpec, objectPath: string): MetadataProjectStructureNode[] {
-  return topologyResourcesForSpec(spec).flatMap((resource) => {
+function projectResourceNodes(
+  spec: MetadataProjectSpec,
+  objectPath: string,
+  registries?: ProjectStructureRegistries,
+): MetadataProjectStructureNode[] {
+  return topologyResourcesForSpec(spec, registries).flatMap((resource) => {
     if (resource.kind === "content" && resource.role === "fileItem") {
       const [dirName, itemName, fileName] = resource.projectPattern.split("/")
       return [
@@ -384,8 +409,12 @@ type DirectoryTopologyResource =
       repeatable: boolean
     }
 
-function topologyResourcesForSpec(spec: MetadataProjectSpec): DirectoryTopologyResource[] {
-  const topology = compileRegisteredMetadataResourceTopology()
+function topologyResourcesForSpec(
+  spec: MetadataProjectSpec,
+  registries?: ProjectStructureRegistries,
+): DirectoryTopologyResource[] {
+  const topology = registries?.resourceTopology.get()
+    ?? compileRegisteredMetadataResourceTopology()
   const ownerPattern = `${spec.dir}/{ownerName}/Свойства.yaml`
   const prefix = `${spec.dir}/{ownerName}/`
   const contents = topology.assignments
@@ -410,6 +439,25 @@ function topologyResourcesForSpec(spec: MetadataProjectSpec): DirectoryTopologyR
       repeatable: false,
     }))
   return [...contents, ...directories]
+}
+
+function projectSpecs(
+  registries?: ProjectStructureRegistries,
+): MetadataProjectSpec[] {
+  return registries === undefined
+    ? metadataProjectSpecs
+    : [...registries.projectSpecs.values()]
+      .filter((spec) => spec.dir !== "")
+      .sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
+}
+
+function projectSpecByDir(
+  dir: string,
+  registries?: ProjectStructureRegistries,
+): MetadataProjectSpec | undefined {
+  return registries === undefined
+    ? getMetadataProjectSpecByDir(dir)
+    : registries.projectSpecs.get(dir)
 }
 
 function objectTemplate(dir: string): MetadataProjectStructureNode {

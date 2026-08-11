@@ -22,6 +22,7 @@ export interface ValidationProjectComponent {
   rootRule: MetadataItemRule
   rootSpec: RegisteredProjectSpec
   topology: CompiledMetadataResourceTopology
+  projectSpecs?: ReadonlyMap<string, RegisteredProjectSpec>
 }
 
 export interface ValidationProjectComponentDiscovery {
@@ -82,6 +83,7 @@ export function createValidationProjectComponent(
         descriptor.rootRule,
         [configurationValidationProjectSpec, ...validationProjectSpecs],
       ),
+    ...(rules === undefined ? {} : { projectSpecs: rules.projectSpecs }),
   }
 }
 
