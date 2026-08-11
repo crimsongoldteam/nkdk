@@ -18,6 +18,7 @@
     "architecture:report": "node tools/dependency-cruiser/src/report.mjs",
     "check:duplicates": "node scripts/check-new-duplicates.mjs",
     "duplicates": "node scripts/check-new-duplicates.mjs",
+    "fixtures:e2e:nkdk": "pnpm --filter @nkdk/rules exec tsx ../../e2e/update-nkdk-fixture.ts",
     "type-check": "pnpm --filter \"./packages/*\" -r exec tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
     "test": "pnpm test:duplicates-script && pnpm -r --workspace-concurrency=1 run test",
     "test:duplicates-script": "node --test scripts/check-new-duplicates.test.mjs",

@@ -249,6 +249,7 @@ export function importPropertiesFromXMLToYAML(params: {
     if (
       !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
       !shouldImportForReference &&
+      explicitXMLByProperty === undefined &&
       propertyXML?.has(key) !== true
     )
       return
@@ -481,7 +482,7 @@ export function importPropertiesFromXMLToYAML(params: {
         addProfileTime(params.profile, "outputMs", outputStartedAt)
       }
 
-      if (!canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })) return
+      if (explicitXML === undefined && !canExportPropertyToYAML({ context: sourceContext, rule: propertyRule })) return
       const outputStartedAt = performance.now()
       const exportedValues =
         explicitXML === undefined

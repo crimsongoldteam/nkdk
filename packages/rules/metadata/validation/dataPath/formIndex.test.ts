@@ -239,22 +239,9 @@ describe("buildFormDataPathIndex", () => {
 })
 
 describe("getKnownPlatformFormSource", () => {
-  it("detects exact known platform form sources", () => {
-    expect(getKnownPlatformFormSource("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter")).toEqual({
-      kind: "platformSource",
-      path: "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
-      matchedSource: "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
-      match: "exact",
-    })
-  })
-
-  it("detects known platform form source prefixes only with path continuation", () => {
-    expect(getKnownPlatformFormSource("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items")).toEqual({
-      kind: "platformSource",
-      path: "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items",
-      matchedSource: "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
-      match: "prefix",
-    })
+  it("does not hide SettingsComposer paths behind an opaque platform source", () => {
+    expect(getKnownPlatformFormSource("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter")).toBeUndefined()
+    expect(getKnownPlatformFormSource("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items")).toBeUndefined()
     expect(getKnownPlatformFormSource("КомпоновщикНастроекКомпоновкиДанных.SettingsFilter")).toBeUndefined()
   })
 })

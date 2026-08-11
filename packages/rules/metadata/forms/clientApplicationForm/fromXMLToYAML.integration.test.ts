@@ -24,6 +24,7 @@ import { finalizeImportedYamlValues } from "../../ruleRuntime/property/finalizeI
 import type { FormAttributeColumnsXML } from "../commonObjects/formAttribute/types"
 import { createLocalIndexesCollector } from "../../projectDefinition/localIndexes"
 import { createDeferredValuePathCollector } from "@nkdk/runtime/rule-kit"
+import { EMPTY_XML_TAG_VALUE, yamlScalarTagAt } from "@nkdk/runtime"
 
 const emptyOwnerMetadataCache = {
   listRefs: () => [],
@@ -134,6 +135,65 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(JSON.stringify(result.yaml)).toContain("Элементы.Строки.ТекущиеДанные.Значение")
     expect(JSON.stringify(result.yaml)).not.toContain("Items.Строки.CurrentData.Значение")
+  })
+
+  it("преобразует рекурсивные пути SettingsComposer и сохраняет имена элементов", () => {
+    const result = importClientApplicationFormFromXMLToYAML({
+      context: currentDataImportContext(),
+      formName: "Форма",
+      formXML: {
+        Attributes: {
+          Attribute: [{
+            _name: "КомпоновщикНастроек",
+            _id: "1",
+            Type: { "v8:Type": "dcsset:SettingsComposer" },
+          }],
+        },
+        ChildItems: [
+          {
+            Table: {
+              _name: "КомпоновщикНастроекНастройки",
+              _id: "2",
+              DataPath: "КомпоновщикНастроек.Settings",
+            },
+          },
+          {
+            Table: {
+              _name: "КомпоновщикНастроекНастройкиЭлементПараметрыДанных",
+              _id: "3",
+              DataPath: "Items.КомпоновщикНастроекНастройки.CurrentData.ItemDataParameters",
+              RowFilter: { "_xsi:nil": "true" },
+            },
+          },
+          {
+            InputField: {
+              _name: "Параметр",
+              _id: "4",
+              DataPath: "Items.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.CurrentData.Parameter",
+            },
+          },
+        ],
+      },
+      metadataXML: { Form: { Properties: { FormType: "Managed" } } },
+    })
+
+    finalizeImportedFormDataPaths(result)
+
+    const yaml = result.yaml as ClientApplicationFormYAML
+    expect(yaml.Элементы).toMatchObject({
+      КомпоновщикНастроекНастройки: {
+        ПутьКДанным: "КомпоновщикНастроек.Настройки",
+      },
+      КомпоновщикНастроекНастройкиЭлементПараметрыДанных: {
+        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройки.ТекущиеДанные.ЭлементПараметрыДанных",
+      },
+      Параметр: {
+        ПутьКДанным: "Элементы.КомпоновщикНастроекНастройкиЭлементПараметрыДанных.ТекущиеДанные.Параметр",
+      },
+    })
+    const parameters = yaml.Элементы?.КомпоновщикНастроекНастройкиЭлементПараметрыДанных as unknown as Record<string, unknown>
+    expect(parameters.ОтборСтрок).toBe(EMPTY_XML_TAG_VALUE)
+    expect(yamlScalarTagAt(parameters, "ОтборСтрок")).toBe("xml")
   })
 
   it("индексирует дополнительные колонки до уточнения CurrentData", () => {

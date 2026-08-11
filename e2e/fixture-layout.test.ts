@@ -2,30 +2,45 @@ import { readdir } from "node:fs/promises"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 
-const fixturesRoot = resolve(import.meta.dirname, "fixtures/xml")
+const fixturesRoot = resolve(import.meta.dirname, "fixtures")
 const componentRoots = [
-  "cf",
-  "cfe/all-extension",
-  "cfe/control",
-  "cfe/default",
+  { path: "xml/cf", rootFile: "Configuration.xml" },
+  { path: "xml/cfe/all-extension", rootFile: "Configuration.xml" },
+  { path: "xml/cfe/control", rootFile: "Configuration.xml" },
+  { path: "xml/cfe/default", rootFile: "Configuration.xml" },
+  { path: "nkdk/cf", rootFile: "Конфигурация.yaml" },
+  { path: "nkdk/cfe/Расширение_All", rootFile: "Конфигурация.yaml" },
+  { path: "nkdk/cfe/РасширениеКонтроль", rootFile: "Конфигурация.yaml" },
+  { path: "nkdk/cfe/РасширениеПоУмолчанию", rootFile: "Конфигурация.yaml" },
 ] as const
 
 describe("metadata E2E fixture layout", () => {
-  it.each(componentRoots)("contains %s without Finder metadata", async (component) => {
-    const files = await collectRelativeFiles(resolve(fixturesRoot, component))
-    expect(files.length).toBeGreaterThan(0)
-    expect(files.some((path) => path === ".DS_Store" || path.endsWith("/.DS_Store"))).toBe(false)
-    expect(files).toContain("Configuration.xml")
+  it.each(componentRoots)("contains $path without service metadata", async (component) => {
+    const paths = await collectRelativePaths(resolve(fixturesRoot, component.path))
+    expect(paths.length).toBeGreaterThan(0)
+    expect(paths.some((path) => path.split("/").some((segment) =>
+      segment === ".DS_Store" || segment === ".nkdk"
+    ))).toBe(false)
+    expect(paths).toContain(component.rootFile)
+  })
+
+  it("contains round-trip indexes without transient NKDK cache", async () => {
+    const paths = await collectRelativePaths(resolve(fixturesRoot, "nkdk"))
+    expect(paths.some((path) => path === ".nkdk/cache" || path.startsWith(".nkdk/cache/"))).toBe(false)
+    expect(paths).toContain(".nkdk/components/cf/configuration-index.bin")
+    expect(paths).toContain(".nkdk/components/cfe/Расширение_All/configuration-index.bin")
+    expect(paths).toContain(".nkdk/components/cfe/РасширениеКонтроль/configuration-index.bin")
+    expect(paths).toContain(".nkdk/components/cfe/РасширениеПоУмолчанию/configuration-index.bin")
   })
 })
 
-async function collectRelativeFiles(root: string, prefix = ""): Promise<string[]> {
+async function collectRelativePaths(root: string, prefix = ""): Promise<string[]> {
   const entries = await readdir(resolve(root, prefix), { withFileTypes: true })
-  const files: string[] = []
+  const paths: string[] = []
   for (const entry of entries) {
     const relative = prefix === "" ? entry.name : `${prefix}/${entry.name}`
-    if (entry.isDirectory()) files.push(...await collectRelativeFiles(root, relative))
-    else if (entry.isFile()) files.push(relative)
+    paths.push(relative)
+    if (entry.isDirectory()) paths.push(...await collectRelativePaths(root, relative))
   }
-  return files.sort()
+  return paths.sort()
 }

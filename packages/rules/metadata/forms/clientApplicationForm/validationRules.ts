@@ -44,17 +44,5 @@ export const clientApplicationFormValidationRules = defineMetadataRules({
       kind: "formWarningProvider",
       provider: ({ filePath, parsed }) => collectDynamicListTypeValueWarnings({ filePath, parsed }),
     },
-    ...[
-      "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
-      "КомпоновщикНастроекКомпоновкиДанных.Settings.Use",
-      "КомпоновщикНастроекКомпоновкиДанных.Settings",
-    ].map((source) => ({
-      kind: "formPlatformSourceMatcher" as const,
-      matcher: (path: string) => {
-        if (path === source) return { kind: "platformSource" as const, path, matchedSource: source, match: "exact" as const }
-        if (path.startsWith(`${source}.`)) return { kind: "platformSource" as const, path, matchedSource: source, match: "prefix" as const }
-        return undefined
-      },
-    })),
   ],
 })

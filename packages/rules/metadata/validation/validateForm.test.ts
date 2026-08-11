@@ -1428,7 +1428,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("skips SettingsComposer data paths without validating platform internals", () => {
+  it("validates typed SettingsComposer internals", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -1437,7 +1437,7 @@ describe("validateForm", () => {
         "Элементы:",
         "  Отбор:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: КомпоновщикНастроек.Settings.Filter",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки.Отбор.Использование",
       ],
     })
 
@@ -1895,13 +1895,60 @@ describe("validateForm", () => {
     expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Неизвестный": неизвестный корень "Неизвестный"')
   })
 
-  it("does not add Table.dataPath policy errors for known platform sources without resolver target", () => {
+  it("accepts a typed SettingsComposer collection for a table", () => {
     const project = createProject({
       form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
         "Элементы:",
         "  Таблица:",
         "    Вид: ТаблицаФормы",
-        "    ПутьКДанным: КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки.Отбор",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
+  it("rejects a type-dependent Table property for an unsupported SettingsComposer collection", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки",
+        "    РежимОтображения: БыстрыйДоступ",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([
+      expect.objectContaining({
+        path: "/Элементы/Таблица/РежимОтображения",
+        message: expect.stringContaining("недоступно для конечного типа DataCompositionSettings"),
+      }),
+    ])
+  })
+
+  it("accepts registered and common Table properties for a SettingsComposer filter", () => {
+    const project = createProject({
+      form: [
+        "Реквизиты:",
+        "  КомпоновщикНастроек:",
+        "    Тип: КомпоновщикНастроекКомпоновкиДанных",
+        "Элементы:",
+        "  Таблица:",
+        "    Вид: ТаблицаФормы",
+        "    ПутьКДанным: КомпоновщикНастроек.Настройки.Отбор",
+        "    РежимОтображения: БыстрыйДоступ",
+        "    ПодробноеОтображениеИменованныхЭлементовНастройки: Истина",
+        "    РежимВыбора: Истина",
+        "    РазрешитьНачалоПеретаскивания: Истина",
+        "    РазрешитьПеретаскивание: Истина",
+        "    Ширина: 20",
       ],
     })
 

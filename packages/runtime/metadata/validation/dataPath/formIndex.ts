@@ -101,6 +101,7 @@ function tableSourceFromAttribute(
     columns: columnsToMap(columns),
     hasColumns:
       columns.length > 0 ||
+      typeInfo.table.kind === "Registered" ||
       typeInfo.table.kind === "ValueList" ||
       typeInfo.table.kind === "GanttChart" ||
       typeInfo.table.kind === "RegisterRecordSet",

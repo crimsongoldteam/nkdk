@@ -174,16 +174,18 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     })
   })
 
-  it("maps SettingsComposer as an opaque platform source", () => {
+  it("maps SettingsComposer through the registered typed graph", () => {
     expect(typeDescriptionToDataPathTypeInfo({ type: ["SettingsComposer"] })).toMatchObject({
-      kinds: ["platformSource"],
+      kinds: ["tableSource"],
       nextTypes: [],
-      sourceText: "SettingsComposer",
+      terminalTypes: ["DataCompositionSettingsComposer"],
+      table: { kind: "Registered", type: "DataCompositionSettingsComposer" },
     })
     expect(typeDescriptionToDataPathTypeInfo({ type: ["КомпоновщикНастроекКомпоновкиДанных"] })).toMatchObject({
-      kinds: ["platformSource"],
+      kinds: ["tableSource"],
       nextTypes: [],
-      sourceText: "КомпоновщикНастроекКомпоновкиДанных",
+      terminalTypes: ["DataCompositionSettingsComposer"],
+      table: { kind: "Registered", type: "DataCompositionSettingsComposer" },
     })
   })
 

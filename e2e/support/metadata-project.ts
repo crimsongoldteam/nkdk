@@ -77,6 +77,7 @@ export type ComponentRoundTripResult = {
 )
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
+export const NKDK_FIXTURES_ROOT = resolve(import.meta.dirname, "../fixtures/nkdk")
 
 export const E2E_COMPONENTS = [
   { fixturePath: "cf", componentPath: "cf", reportName: "cf" },
@@ -144,6 +145,16 @@ export async function importMetadataProject(): Promise<ImportedMetadataProject> 
 export async function cloneImportedProject(source: ImportedMetadataProject, name: string): Promise<string> {
   const target = join(source.root, name)
   await cp(source.projectDir, target, { recursive: true })
+  return target
+}
+
+export async function cloneNkdkFixtureProject(
+  owner: Pick<ImportedMetadataProject, "root">,
+  name: string,
+  fixtureRoot = NKDK_FIXTURES_ROOT,
+): Promise<string> {
+  const target = join(owner.root, name)
+  await cp(fixtureRoot, target, { recursive: true })
   return target
 }
 

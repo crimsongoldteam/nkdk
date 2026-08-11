@@ -7,6 +7,7 @@ import {
   hasRowFilterTableSource,
   isDirectDynamicListTable,
 } from "./dynamicListProperties"
+import { settingsComposerTableKinds } from "../../settingsComposer/dataPathModel"
 export type { ElementRule, PropertyRule }
 
 export const TableRules = {
@@ -194,6 +195,7 @@ export const TableRules = {
         "ChartOfAccountsExtDimensionTypes.*", "InformationRegisterRecordSet.*",
         "AccumulationRegisterRecordSet.*", "AccountingRegisterRecordSet.*",
         "CalculationRegisterRecordSet.*",
+        ...settingsComposerTableKinds,
       ],
       allowComposite: false,
     },

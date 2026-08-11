@@ -63,6 +63,7 @@ export type TraversalTransitionResolver = (params: {
       kind?: "state"
       typeInfo: DataPathTypeInfo
       sourceName: string
+      targetName?: string
       sourceKind?: "objectField" | "registerRecords"
       tableSource?: {
         table: DataPathTableInfo
@@ -93,6 +94,12 @@ export type RegisterRecordsItemResolver = (params: { owner: OwnerMetadata; segme
     }
   | undefined
 
+export interface DataPathElementPropertyRegistration {
+  readonly itemType: string
+  readonly propertyYaml: string
+  readonly terminalTypes: readonly string[]
+}
+
 export interface DataPathOwnerKindLookup {
   get(kind: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
   getByItemType(itemType: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
@@ -112,6 +119,11 @@ type DataPathRegistrationContribution =
   | { readonly kind: "traversalTransition"; readonly resolver: TraversalTransitionResolver }
   | { readonly kind: "opaqueTraversal"; readonly resolver: OpaqueTraversalResolver }
   | { readonly kind: "registerRecordsItem"; readonly resolver: RegisterRecordsItemResolver }
+  | { readonly kind: "elementProperty"; readonly registration: DataPathElementPropertyRegistration }
+  | {
+      readonly kind: "formattingNamePairs"
+      readonly pairs: readonly import("../../standardMembers/declarations").StandardMemberNames[]
+    }
   | { readonly kind: "standardMembers"; readonly ownerKind: string; readonly members: readonly StandardMemberDeclaration[] }
 
 export type DataPathContribution = DataPathRegistrationContribution | {
@@ -135,6 +147,7 @@ export interface DataPathRegistrySet {
   resolveTraversalTransition(params: Parameters<TraversalTransitionResolver>[0]): ReturnType<TraversalTransitionResolver>
   isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean
   resolveRegisterRecordsItem(params: Parameters<RegisterRecordsItemResolver>[0]): ReturnType<RegisterRecordsItemResolver>
+  getElementPropertyTerminalTypes(itemType: string, propertyYaml: string): readonly string[] | undefined
   getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[]
   standardMemberInternalToYaml(internalName: string): string | undefined
   standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined
@@ -158,6 +171,8 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     registerRecords: [] as RegisterRecordsItemResolver[],
   }
   const standardMembers = new Map<string, StandardMemberDeclaration[]>()
+  const formattingNamePairs: import("../../standardMembers/declarations").StandardMemberNames[] = []
+  const elementProperties = new Map<string, readonly string[]>()
   const addStandardMembers = (ownerKind: string, members: readonly StandardMemberDeclaration[]) => {
     const normalized = members.map((member) => {
       if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
@@ -196,6 +211,11 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     else if (contribution.kind === "traversalTransition") resolvers.traversal.push(contribution.resolver)
     else if (contribution.kind === "opaqueTraversal") resolvers.opaque.push(contribution.resolver)
     else if (contribution.kind === "registerRecordsItem") resolvers.registerRecords.push(contribution.resolver)
+    else if (contribution.kind === "elementProperty") {
+      const registration = contribution.registration
+      elementProperties.set(`${registration.itemType}\u0000${registration.propertyYaml}`, registration.terminalTypes)
+    }
+    else if (contribution.kind === "formattingNamePairs") formattingNamePairs.push(...contribution.pairs)
     else {
       addStandardMembers(contribution.ownerKind, contribution.members)
     }
@@ -226,6 +246,8 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     resolveTraversalTransition: (params) => first(resolvers.traversal, params),
     isOpaqueTraversal: (params) => resolvers.opaque.some((resolver) => resolver(params)),
     resolveRegisterRecordsItem: (params) => first(resolvers.registerRecords, params),
+    getElementPropertyTerminalTypes: (itemType, propertyYaml) =>
+      elementProperties.get(`${itemType}\u0000${propertyYaml}`),
     getStandardMembers: (ownerKind) => standardMembers.get(ownerKind) ?? [],
     standardMemberInternalToYaml: (internalName) => {
       for (const members of standardMembers.values()) {
@@ -238,6 +260,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
       standardMembers.get(ownerKind)?.find(({ names }) => names.yaml === yamlName)?.names.internal,
     getStandardMemberNamePairs: () => {
       const pairs = new Map<string, import("../../standardMembers/declarations").StandardMemberNames>()
+      for (const names of formattingNamePairs) pairs.set(`${names.internal}\u0000${names.yaml}`, names)
       for (const members of standardMembers.values()) {
         for (const member of members) {
           pairs.set(`${member.names.internal}\u0000${member.names.yaml}`, member.names)
@@ -302,6 +325,14 @@ export function resolveMovementItem(
   params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
   return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveRegisterRecordsItem(params)
+}
+
+export function getDataPathElementPropertyTerminalTypes(
+  itemType: string,
+  propertyYaml: string,
+): readonly string[] | undefined {
+  return currentDataPathRegistrySet<DataPathRegistrySet>()
+    ?.getElementPropertyTerminalTypes(itemType, propertyYaml)
 }
 
 export {

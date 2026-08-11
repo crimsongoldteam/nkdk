@@ -420,6 +420,7 @@
 			<CommonForm>DynamicList</CommonForm>
 			<CommonForm>FormCommand</CommonForm>
 			<CommonForm>LabelDecoration</CommonForm>
+			<CommonForm>КомпоновщикНастроек</CommonForm>
 			<Catalog>СправочникПолный</Catalog>
 			<Catalog>ПоУмолчанию</Catalog>
 			<Catalog>СправочникВладелец</Catalog>

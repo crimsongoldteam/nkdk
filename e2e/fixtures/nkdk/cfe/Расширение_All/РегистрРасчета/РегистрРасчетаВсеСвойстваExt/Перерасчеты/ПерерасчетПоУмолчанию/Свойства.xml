@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Recalculation uuid="46c42bcc-a10f-4b99-a41e-0cbd41187010">
+		<InternalInfo>
+			<xr:GeneratedType name="RecalculationRecord.РегистрРасчетаВсеСвойстваExt.ПерерасчетПоУмолчанию" category="Record">
+				<xr:TypeId>29067a0b-f401-402f-83a7-724f8a0eb6fa</xr:TypeId>
+				<xr:ValueId>77e209a4-747c-417a-87ce-8079ff84903e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="RecalculationManager.РегистрРасчетаВсеСвойстваExt.ПерерасчетПоУмолчанию" category="Manager">
+				<xr:TypeId>5d5f48b8-de4e-4693-b9d8-6f52198d2998</xr:TypeId>
+				<xr:ValueId>0b9bf8a3-c967-4985-b767-de2d6a9e8301</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="RecalculationRecordSet.РегистрРасчетаВсеСвойстваExt.ПерерасчетПоУмолчанию" category="RecordSet">
+				<xr:TypeId>30ba50c0-9479-44b4-8dd1-bd9ece872697</xr:TypeId>
+				<xr:ValueId>e90cf2a1-e7a9-4215-ac7b-a0e591664b8f</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Name>ПерерасчетПоУмолчанию</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Перерасчет по умолчанию</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<DataLockControlMode>Managed</DataLockControlMode>
+		</Properties>
+		<ChildObjects/>
+	</Recalculation>
+</MetaDataObject>

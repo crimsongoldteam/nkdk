@@ -320,6 +320,16 @@ function resolveDataPathCoreWithCurrentData(
       return okWithoutTarget({ value, segments, replacements })
     }
     if (transition !== undefined) {
+      if (transition.targetName !== undefined) {
+        recordTableColumnStandardMemberReplacement({
+          replacements,
+          nameMode: params.nameMode,
+          segmentIndex: index,
+          input: lookupSegment,
+          internalName: transition.targetName,
+          yamlName: transition.sourceName,
+        })
+      }
       state = {
         typeInfo: transition.typeInfo,
         source:
@@ -578,7 +588,9 @@ function tableSourceFromObjectField(field: {
   return {
     table,
     columns: new Map(),
-    hasColumns: table.kind === "ValueList" || table.kind === "GanttChart" || table.kind === "RegisterRecordSet",
+    hasColumns:
+      table.kind === "Registered" || table.kind === "ValueList" || table.kind === "GanttChart" ||
+      table.kind === "RegisterRecordSet",
   }
 }
 
@@ -836,15 +848,6 @@ function resolveTableColumn(params: {
   if (tableSource === undefined) return { status: "continue", state: params.state }
 
   const lookupSegment = segmentLookupName(params.segment)
-  if (tableSource.table.kind === "DynamicList") {
-    return {
-      status: "done",
-      result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
-    }
-  }
-
-  const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
-  const normalizedTablePath = normalizeIndexedPath(tablePath)
   const registeredColumnResult = resolveRegisteredColumn({
     params: params.params,
     tableSource,
@@ -855,6 +858,15 @@ function resolveTableColumn(params: {
     return { status: "done", result: registeredColumnResult.result }
   }
 
+  if (tableSource.table.kind === "DynamicList" && registeredColumnResult.column === undefined) {
+    return {
+      status: "done",
+      result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
+    }
+  }
+
+  const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
+  const normalizedTablePath = normalizeIndexedPath(tablePath)
   const resolvedColumn =
     resolveTableColumnSource({
       columns: tableSource.columns,
@@ -937,6 +949,7 @@ function tableSourceFromColumn(params: {
     columns,
     hasColumns:
       columns.size > 0 ||
+      table.kind === "Registered" ||
       table.kind === "ValueList" ||
       table.kind === "GanttChart" ||
       table.kind === "RegisterRecordSet",

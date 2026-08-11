@@ -115,6 +115,7 @@ interface OwnerTypeRef {
 }
 
 type DataPathTableInfo =
+  | { readonly kind: "Registered"; readonly type: string }
   | { readonly kind: "ValueTable" | "ValueTree" | "ValueList" | "GanttChart" | "DynamicList" }
   | { readonly kind: "RegisterRecordSet"; readonly owner: OwnerTypeRef }
   | { readonly kind: "TabularSection"; readonly owner: OwnerTypeRef; readonly name: string }
@@ -795,10 +796,10 @@ export function createProjectStateFragmentWriter(options: {
 
   function appendTableInfo(table: DataPathTableInfo): number {
     const owner = "owner" in table ? table.owner : undefined
-    const name = "name" in table ? table.name : undefined
+    const name = table.kind === "Registered" ? table.type : "name" in table ? table.name : undefined
     const kinds: Record<DataPathTableInfo["kind"], number> = {
       ValueTable: 1, ValueTree: 2, ValueList: 3, GanttChart: 4, DynamicList: 5,
-      RegisterRecordSet: 6, TabularSection: 7,
+      RegisterRecordSet: 6, TabularSection: 7, Registered: 8,
     }
     const id = rows.tableInfo.length
     rows.tableInfo.push({

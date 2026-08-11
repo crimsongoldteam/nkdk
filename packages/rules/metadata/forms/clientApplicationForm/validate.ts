@@ -18,6 +18,7 @@ import type { ParsedYaml } from "@nkdk/runtime"
 import { ClientApplicationFormRules } from "./rules"
 import { validateFormElementNames } from "./validateElementNames"
 import { validateDynamicListTableProperties } from "../elements/table/validateDynamicListProperties"
+import { validateTypeDependentProperties } from "../elements/table/validateTypeDependentProperties"
 import { hasMainAttributeKind } from "./mainAttributeKinds"
 import {
   collectClientApplicationFormDataPathPreparation,
@@ -47,6 +48,7 @@ interface ClientApplicationFormValidationState {
   index: FormDataPathIndex
   occurrences: ClientApplicationFormDataPathPreparation["collected"]["occurrences"]
   dataPathPreparation: ClientApplicationFormDataPathPreparation
+  visitedItems: readonly FormYAMLItemVisit[]
 }
 
 export function validateClientApplicationFormFirstPass(
@@ -120,6 +122,7 @@ export function validateClientApplicationFormFirstPass(
       index,
       occurrences,
       dataPathPreparation,
+      visitedItems,
     },
   }
 }
@@ -263,9 +266,28 @@ export function validateClientApplicationFormSecondPass(params: {
         ...(occurrence.tagged === undefined ? {} : { tagged: occurrence.tagged }),
       })
     )
+    const visit = itemVisitForOccurrence(params.state.visitedItems, occurrence.yamlPath)
+    if (visit !== undefined) {
+      diagnostics.push(...validateTypeDependentProperties({
+        filePath: params.state.filePath,
+        parsed: params.state.parsed,
+        visit,
+        target: result.target,
+      }))
+    }
   }
 
   return dedupeDiagnostics(diagnostics)
+}
+
+function itemVisitForOccurrence(
+  visits: readonly FormYAMLItemVisit[],
+  occurrencePath: readonly (string | number)[],
+): FormYAMLItemVisit | undefined {
+  if (occurrencePath.at(-1) !== "ПутьКДанным") return undefined
+  const itemPath = occurrencePath.slice(0, -1)
+  return visits.find((visit) =>
+    visit.yamlPath.length === itemPath.length && visit.yamlPath.every((part, index) => part === itemPath[index]))
 }
 
 export const validateClientApplicationForm: RegisteredFormValidator = (params) => {
