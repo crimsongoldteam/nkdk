@@ -4,7 +4,10 @@ import {
   composeMetadataRules,
   defineMetadataRules,
 } from "."
-import { emptyMetadataRules } from "./testSupport"
+import {
+  brokenXMLReferenceCarrier,
+  emptyMetadataRules,
+} from "./testSupport"
 
 describe("metadata rules definition", () => {
   it("replaces keyed entries with the later layer and appends ordered entries", () => {
@@ -64,5 +67,26 @@ describe("metadata rules definition", () => {
 
     expect(result.propertyTypes.Sample?.importFromXML).toBe(importFromXML)
     expect(result.propertyTypes.Sample?.exportToXML).toBe(secondExportToXML)
+  })
+
+  it("appends broken XML reference carriers in layer order", () => {
+    const firstCarrier = brokenXMLReferenceCarrier("first", "MetadataValue")
+    const secondCarrier = brokenXMLReferenceCarrier("second", "DataPath")
+
+    const result = composeMetadataRules(
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        brokenXMLReferenceCarriers: [firstCarrier],
+      }),
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        brokenXMLReferenceCarriers: [secondCarrier],
+      }),
+    )
+
+    expect(result.brokenXMLReferenceCarriers).toEqual([
+      firstCarrier,
+      secondCarrier,
+    ])
   })
 })

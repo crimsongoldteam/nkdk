@@ -25,6 +25,10 @@ import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRe
 import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
 import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
 import type { MetadataItemRule } from "./types"
+import {
+  createBrokenXMLReferenceCarrierRegistry,
+  type BrokenXMLReferenceCarrierRegistry,
+} from "./brokenXMLReferenceCarrierRegistry"
 
 type ResolvedPropertyItemRule = CollectionItemRule["itemRule"]
 
@@ -75,7 +79,7 @@ function setPropertyTypeOperation(
   mutableDefinition[contribution.operation] = contribution.handler
 }
 
-export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup {
+export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup, BrokenXMLReferenceCarrierRegistry {
   registerTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
@@ -133,6 +137,7 @@ export function createPropertyRuleRegistrySet(
     | "projectSpecs"
     | "explicitXMLProperties"
     | "explicitXMLPropertyTypes"
+    | "brokenXMLReferenceCarriers"
     | "dependentItems"
     | "indexValuesFromYAML"
     | "metadataTargetOwners"
@@ -173,6 +178,9 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
+  const brokenXMLReferenceCarriers = createBrokenXMLReferenceCarrierRegistry(
+    definition.brokenXMLReferenceCarriers,
+  )
   const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
   const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
   const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
@@ -194,6 +202,7 @@ export function createPropertyRuleRegistrySet(
   }
 
   return {
+    ...brokenXMLReferenceCarriers,
     registerTypeRule(type, operation, handler) {
       const definition = { ...typeRules.get(type) }
       ;(definition as Record<string, unknown>)[operation] = handler
