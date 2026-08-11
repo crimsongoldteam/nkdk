@@ -51,9 +51,10 @@ const fixedAppliedObjectProjectRules = composeMetadataRules(
 export function defineAppliedObjectProjectRules(
   metadataItems: Readonly<Record<string, MetadataItemRule>>,
 ) {
+  const fixedDirs = new Set(Object.keys(fixedAppliedObjectProjectRules.projectSpecs))
   const dynamicProjectRules = Object.values(metadataItems).flatMap((rule) => {
     const dir = rule.itemTypePrefix
-    if (typeof dir !== "string") return []
+    if (typeof dir !== "string" || fixedDirs.has(dir)) return []
     return [
       defineProjectSpec({
         kind: rule.itemType,

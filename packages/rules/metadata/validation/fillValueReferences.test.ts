@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest"
+import { resolve } from "node:path"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { serializeYAMLDocument } from "@nkdk/runtime"
@@ -112,7 +113,7 @@ describe("fill value references", () => {
     ])
     expect(result.diagnostics).toEqual([
       expect.objectContaining({
-        filePath: "/project/Справочник/Товары/Свойства.yaml",
+        filePath: resolve("/project/Справочник/Товары/Свойства.yaml"),
         message: 'Не найдена ссылка "Catalog.ПапкиФайлов.EmptyRef"',
         severity: "error",
       }),

@@ -22,7 +22,7 @@ export interface SettingsParameterValuePropertyRule extends BasePropertyRule {
   exportSettingsXsiType?: boolean
 }
 
-declare module "../../../ruleRuntime/property/types" {
+declare module "@nkdk/runtime/rule-kit" {
   interface PropertyRuleExtensionMap {
     SettingsParameterValue: SettingsParameterValuePropertyRule
   }

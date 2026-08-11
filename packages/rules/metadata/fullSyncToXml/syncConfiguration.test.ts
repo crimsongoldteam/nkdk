@@ -372,7 +372,7 @@ describe("shared full XML sync coordinator", () => {
 
     expect("failed" in result ? result.failed : []).toEqual([])
     expect(preparations).toBe(1)
-    expect(readPaths).toEqual(["/project/cfe/Дополнение/Конфигурация.yaml"])
+    expect(readPaths).toEqual([resolve("/project/cfe/Дополнение/Конфигурация.yaml")])
     if (mode === "sync") {
       expect(harness.initializedProfile?.typeDescriptionXMLNameByType).toEqual({ AnyIBRef: "AnyRef" })
     }

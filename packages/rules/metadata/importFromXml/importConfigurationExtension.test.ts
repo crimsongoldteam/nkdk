@@ -4,7 +4,8 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
-import { configurationIndexPath, importConfigurationFromXml, readConfigurationIndex } from "../../index"
+import { configurationIndexPath, readConfigurationIndex } from "@nkdk/runtime"
+import { importConfigurationFromXml } from "./importConfiguration"
 import { mockContextFromXML } from "../../tests/mockContext"
 import {
   createImportProjectStateTestService,

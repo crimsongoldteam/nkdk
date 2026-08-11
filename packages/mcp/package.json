@@ -17,7 +17,7 @@
     "dev": "tsx src/server.ts",
     "prepack": "pnpm run build",
     "smoke:packed": "node scripts/smoke-packed.mjs",
-    "test": "node ../rules/scripts/run-test-duration-check.mjs -- --passWithNoTests",
+    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -37,6 +37,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@nkdk/runtime": "workspace:*",
     "@nkdk/rules": "workspace:*",
     "@nkdk/platform": "workspace:*",
     "@types/node": "^26.1.2",

@@ -9,7 +9,7 @@
     "./worker": "./worker.ts"
   },
   "scripts": {
-    "test": "vitest run --passWithNoTests",
+    "test": "node ../../scripts/run-test-duration-check.mjs -- --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

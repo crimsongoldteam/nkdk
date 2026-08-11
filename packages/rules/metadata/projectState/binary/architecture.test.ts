@@ -3,6 +3,7 @@ import { join } from "node:path"
 import { expect, it } from "vitest"
 
 const metadataRoot = join(import.meta.dirname, "../..")
+const runtimeMetadataRoot = join(import.meta.dirname, "../../../../runtime/metadata")
 
 it("не возвращает старый объектный протокол в рабочих путях validation и import", () => {
   const importWorker = source("importFromXml/worker.ts")
@@ -27,7 +28,7 @@ it("не сохраняет неизменившийся снимок", () => {
 it("не восстанавливает полные локальные lookup-структуры в full sync worker", () => {
   const composition = source("fullSyncToXml/sharedMetadata.ts")
   const worker = source("fullSyncToXml/worker.ts")
-  const configurationIndex = source("configurationIndex/sharedSnapshot.ts")
+  const configurationIndex = sourceRuntime("configurationIndex/sharedSnapshot.ts")
 
   expect(worker).not.toContain("composition.assignments()")
   expect(configurationIndex).not.toContain("private stringIds?: Map")
@@ -40,4 +41,8 @@ it("не восстанавливает полные локальные lookup-�
 
 function source(relativePath: string): string {
   return readFileSync(join(metadataRoot, relativePath), "utf8")
+}
+
+function sourceRuntime(relativePath: string): string {
+  return readFileSync(join(runtimeMetadataRoot, relativePath), "utf8")
 }

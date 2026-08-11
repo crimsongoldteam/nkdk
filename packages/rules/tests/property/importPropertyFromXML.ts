@@ -1,11 +1,12 @@
-import { registerCommonObjects } from "../../metadata/commonObjects"
-import { ElementXML, importPropertyFromXML, PropertyRule } from "../../metadata/ruleRuntime"
+import type { ElementXML, PropertyRule } from "../../metadata/ruleRuntime"
 import { importContentFromXML } from "@nkdk/runtime"
+import { createPropertyRuleExecutor, createRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../../metadata/composition/metadataRules"
 import { mockContextFromXML } from "../mockContext"
 import { readAndParseXMLFile } from "../readAndParseXMLFile"
 import { testFixturesDir } from "../testFixturesDir"
 
-registerCommonObjects()
+const propertyRules = createPropertyRuleExecutor(createRuleRegistrySet(metadataRules).property)
 
 export const testImportPropertyFromXML = (
   params: {
@@ -38,7 +39,7 @@ export const testImportPropertyFromXML = (
         )
   const referenceXML = xmlRootTag !== undefined ? referenceXMLData[xmlRootTag] : referenceXMLData
 
-  return importPropertyFromXML({
+  return propertyRules.fromXML({
     context: mockContextFromXML({ forReference: forReference ?? false }),
     rule,
     value: referenceXML,

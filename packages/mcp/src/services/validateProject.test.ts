@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { parseProjectPath as parseCoreProjectPath } from "@nkdk/rules"
+import { parseProjectPath as parseCoreProjectPath } from "@nkdk/runtime"
 import { validateYamlProject } from "./validateProject"
 import { createDiagnosticCollectionForTest } from "./projectStateTestSupport"
 

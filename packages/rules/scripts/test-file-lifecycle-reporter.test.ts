@@ -3,7 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
-import { createTestFileLifecycleReporter } from "./test-file-lifecycle-reporter.mjs"
+import { createTestFileLifecycleReporter } from "../../../scripts/test-file-lifecycle-reporter.mjs"
 
 const reportPaths: string[] = []
 

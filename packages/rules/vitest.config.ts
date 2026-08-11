@@ -24,6 +24,12 @@ const coreMetadataTests = [
 ]
 const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
+const metadataRulesSetup = resolve(__dirname, "./tests/registerCoreMetadata")
+const bundleContractTests = [
+  "metadata/composition/metadataRules.test.ts",
+  "metadata/composition/runtimeSchemaContract.test.ts",
+  "packageExports.test.ts",
+]
 
 export default defineConfig({
   plugins: [],
@@ -45,8 +51,16 @@ export default defineConfig({
       {
         test: {
           name: "unit",
-          exclude: [...configDefaults.exclude, ...coreMetadataTests],
+          exclude: [...configDefaults.exclude, ...coreMetadataTests, ...bundleContractTests],
           sequence: { groupOrder: 0 },
+          setupFiles: [forbiddenPiscinaSetup, metadataRulesSetup, lightweightSetup],
+        },
+      },
+      {
+        test: {
+          name: "bundle-contract",
+          include: bundleContractTests,
+          sequence: { groupOrder: 1 },
           setupFiles: [forbiddenPiscinaSetup, lightweightSetup],
         },
       },
@@ -54,7 +68,7 @@ export default defineConfig({
         test: {
           name: "core-metadata",
           include: coreMetadataTests,
-          sequence: { groupOrder: 1 },
+          sequence: { groupOrder: 2 },
           setupFiles: [
             forbiddenPiscinaSetup,
             resolve(__dirname, "./tests/registerCoreMetadata"),

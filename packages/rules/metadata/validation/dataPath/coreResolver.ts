@@ -101,7 +101,7 @@ export type ResolveDataPathCoreResult =
       issues: ResolveDataPathCoreIssue[]
     }
 
-declare module "../../context/types" {
+declare module "@nkdk/runtime" {
   interface FormimportFromYAMLContext {
     readonly resolveDataPath?: (params: {
       value: string

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { resolve } from "node:path"
 import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { snapshotConfigurationIndex } from "@nkdk/runtime"
 import type { ConfirmedComponentState } from "../project/componentState/types"
@@ -30,7 +31,7 @@ describe("prepareFullXmlSyncProfileRuntime", () => {
       },
     })
 
-    expect(readPaths).toEqual(["/project/cfe/Дополнение/Конфигурация.yaml"])
+    expect(readPaths).toEqual([resolve("/project/cfe/Дополнение/Конфигурация.yaml")])
     expect(prepared.workerProfile.typeDescriptionXMLNameByType).toEqual({ AnyIBRef: "AnyRef" })
   })
 
@@ -75,7 +76,7 @@ describe("prepareFullXmlSyncProfileRuntime", () => {
           return Buffer.from("legacy: [\n")
         },
       })
-    ).rejects.toThrow(/\/project\/cfe\/Дополнение\/Конфигурация\.yaml:\d+:\d+/)
+    ).rejects.toThrow(`${resolve("/project/cfe/Дополнение/Конфигурация.yaml")}:1:`)
   })
 })
 

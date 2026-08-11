@@ -34,6 +34,10 @@ export interface JSONSchemaExportContext {
     name: string,
     exporter: (params: { context: ConfigurationContext }) => TSchema,
   ) => void
+  propertyRef?: (params: {
+    context: ConfigurationContext
+    rule: unknown
+  }) => TSchema | undefined
 }
 
 export type ContextElementToEnterprise =

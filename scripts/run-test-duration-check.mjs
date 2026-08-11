@@ -4,7 +4,7 @@ import os from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { runTestDurationAssertion } from "./assert-test-durations.mjs"
-import { resolveNodePackageBinary } from "../../../scripts/node-package-binary.mjs"
+import { resolveNodePackageBinary } from "./node-package-binary.mjs"
 
 const lifecycleReporterPath = fileURLToPath(new URL("./test-file-lifecycle-reporter.mjs", import.meta.url))
 

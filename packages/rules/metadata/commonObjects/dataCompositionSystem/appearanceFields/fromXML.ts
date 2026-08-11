@@ -1,5 +1,6 @@
 import { ConfigurationContextFromXML } from "@nkdk/runtime"
 import { PropertyRule, definePropertyTypeRule } from "../../../ruleRuntime"
+import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import { exportPropertyValueToYAML } from "../../../ruleRuntime/property/toYAML"
 import type { SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "../settingsParameterValueCollection/dcscorItemsXML"
@@ -83,13 +84,16 @@ const restoreAppearanceStringNilValues = (
 const importAppearanceFromXML = (
   context: ConfigurationContextFromXML,
   _rule: PropertyRule,
-  xml: AppearanceFieldsXML | undefined
+  xml: AppearanceFieldsXML | undefined,
+  _ownerXmlName?: string,
+  execution?: PropertyRuleExecution,
 ): AppearanceFields | undefined => {
   const parameters = importSettingsParameterValueDcscorItemsFromXML({
     context,
     ruleSet: { parameterRules: appearanceParameterRules },
     xml,
     skipUnknownParameters: true,
+    execution,
   })
 
   if (!parameters) return undefined

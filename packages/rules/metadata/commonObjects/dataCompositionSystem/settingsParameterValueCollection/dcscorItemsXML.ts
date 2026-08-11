@@ -5,7 +5,8 @@ import {
   withConfigurationIndexYamlCollectionItemContext,
 } from "@nkdk/runtime"
 import { withConfigurationIndexExportYamlCollectionItemContext } from "@nkdk/runtime"
-import { callAtomicToXML, importPropertyFromXML } from "../../../ruleRuntime"
+import { callAtomicToXML, importPropertyFromXML } from "@nkdk/runtime/rule-kit"
+import type { PropertyRuleExecution } from "@nkdk/runtime/rule-kit"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollectionXML, SettingsParameterValueRuleSet } from "./types"
@@ -34,6 +35,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
   xml: SettingsParameterValueCollectionXML | ParameterValueXML[] | undefined
   /** Если true — элементы без правила в наборе пропускаются (оформление полей). */
   skipUnknownParameters: boolean
+  execution?: PropertyRuleExecution
 }): Record<string, SettingsParameterValue> | undefined => {
   const { context, ruleSet, xml, skipUnknownParameters } = params
 
@@ -71,7 +73,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
       itemCollection.collector.setXmlFlag(`${itemCollection.logicalAddress}.value`, "xsiNil")
     }
 
-    const value = importPropertyFromXML({
+    const value = (params.execution?.fromXML ?? importPropertyFromXML)({
       context: itemContext,
       rule: itemRule,
       value: itemXml,

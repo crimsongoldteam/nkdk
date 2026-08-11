@@ -189,7 +189,6 @@ import { metadataPropertyRule000 as contribution167 } from "../forms/commonObjec
 import { metadataPropertyRule001 as contribution168 } from "../forms/commonObjects/formAttribute/toJSONSchema"
 
 import { metadataPropertyRule000 as latePropertyContribution000 } from "../commonObjects/choiceList/toXML"
-import { metadataPropertyRule000 as latePropertyContribution001, metadataPropertyRule001 as latePropertyContribution002, metadataPropertyRule002 as latePropertyContribution003, metadataPropertyRule003 as latePropertyContribution004 } from "../commonObjects/dataCompositionSystem/appearanceFields/registerDataCompositionSelectionTypeRules"
 import { metadataPropertyRule000 as latePropertyContribution005 } from "../commonObjects/dataCompositionSystem/appearanceFields/toJSONSchema"
 import { metadataPropertyRule000 as latePropertyContribution006 } from "../commonObjects/dataCompositionSystem/availableFields/toXML"
 import { metadataPropertyRule000 as latePropertyContribution007 } from "../commonObjects/dataCompositionSystem/availableValues/toJSONSchema"
@@ -313,10 +312,6 @@ const factoryPropertyRules = defineMetadataRules({
   contribution167,
   contribution168,
   latePropertyContribution000,
-  latePropertyContribution001,
-  latePropertyContribution002,
-  latePropertyContribution003,
-  latePropertyContribution004,
   latePropertyContribution005,
   latePropertyContribution006,
   latePropertyContribution007,

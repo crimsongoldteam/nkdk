@@ -12,6 +12,7 @@ const PROJECT_STATE_DIR = join(METADATA_DIR, "projectState")
 const PROJECT_STATE_BINARY_DIR = join(PROJECT_STATE_DIR, "binary")
 const SHARED_METADATA_BINARY_DIR = join(METADATA_DIR, "binary")
 const WORKSPACE_ROOT = join(process.cwd(), "..", "..")
+const RUNTIME_METADATA_DIR = join(WORKSPACE_ROOT, "packages", "runtime", "metadata")
 const PACKAGES_FOR_ALIAS_SCAN = ["packages/rules", "packages/mcp"] as const
 const CONFIG_FILES_FOR_ALIAS_SCAN = [
   "packages/rules/tsconfig.json",
@@ -93,7 +94,8 @@ let legacyFullValidationIndexOffenders: readonly {
 describe("metadata import boundaries", () => {
   beforeAll(() => {
     sourceFiles = [
-      ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "core")),
+      ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "rules")),
+      ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "runtime")),
       ...readSourceTreeOnce(join(WORKSPACE_ROOT, "packages", "mcp")),
     ]
     sourceByAbsolutePath = new Map(sourceFiles.map((file) => [file.absolutePath, file.source]))
@@ -251,7 +253,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("validateForm делегирует concrete form behavior зарегистрированному validator", () => {
-    const source = readFileSync(join(METADATA_DIR, "validation", "validateForm.ts"), "utf-8")
+    const source = readFileSync(join(RUNTIME_METADATA_DIR, "validation", "validateForm.ts"), "utf-8")
 
     expect(source).not.toContain("importClientApplicationFormFromYAML")
     expect(source).not.toContain("ДинамическийСписок")
@@ -337,7 +339,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("I8nText registry entry живёт рядом с владельцем", () => {
-    const globalRegistry = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
+    const globalRegistry = readFileSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
 
     expect(globalRegistry).not.toMatch(/^\s+I8nText: \{/m)
@@ -349,7 +351,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("ruleRuntime property registry is no longer a concrete metadata type list", () => {
-    const source = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
+    const source = readFileSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
 
     expect(source).not.toContain("interface PropertyTypeRegistry")
     expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
@@ -357,7 +359,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("ruleRuntime metadata item registry is no longer a concrete metadata type list", () => {
-    const source = readFileSync(join(METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"), "utf-8")
+    const source = readFileSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"), "utf-8")
 
     expect(source).not.toContain("interface MetadataItemTypeRegistry")
     expect(source).not.toContain("//#region Applied objects")
@@ -366,9 +368,9 @@ describe("metadata import boundaries", () => {
   })
 
   it("central metadata registries expose only neutral string keys", () => {
-    const propertyRegistry = readFileSync(join(METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
+    const propertyRegistry = readFileSync(join(RUNTIME_METADATA_DIR, "ruleRuntime", "property", "registry.ts"), "utf-8")
     const metadataItemRegistry = readFileSync(
-      join(METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"),
+      join(RUNTIME_METADATA_DIR, "ruleRuntime", "metadataItem", "registry.ts"),
       "utf-8"
     )
 
@@ -399,7 +401,7 @@ describe("metadata import boundaries", () => {
 
     expect(typesSource).not.toContain("registerMetadataItemRule")
     expect(typesSource).toContain("import type { MetadataLanguageRules }")
-    expect(registerSource).toContain("registerMetadataItemRule")
+    expect(registerSource).toContain("defineMetadataItemRule")
     expect(registerSource).toContain('propertyType: "MetadataLanguage"')
   })
 

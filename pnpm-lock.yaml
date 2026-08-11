@@ -83,6 +83,9 @@ importers:
       '@nkdk/rules':
         specifier: workspace:*
         version: link:../rules
+      '@nkdk/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       '@types/node':
         specifier: ^26.1.2
         version: 26.1.2

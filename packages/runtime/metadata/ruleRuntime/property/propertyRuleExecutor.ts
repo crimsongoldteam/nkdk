@@ -1,22 +1,13 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
 import { getValueOrDefault } from "./helpers"
 import type { PropertyRuleRegistrySet } from "./propertyRuleRegistrySet"
-import type { PropertyRule } from "./types"
+import type { PropertyRuleExecution } from "./fn"
 
-export interface PropertyRuleExecutor {
-  fromXML(params: {
-    readonly context: ConfigurationContextFromXML
-    readonly rule: PropertyRule
-    readonly value: unknown
-    readonly name?: string
-    readonly ownerXmlName?: string
-  }): unknown
-}
+export interface PropertyRuleExecutor extends PropertyRuleExecution {}
 
 export function createPropertyRuleExecutor(
   registries: PropertyRuleRegistrySet,
 ): PropertyRuleExecutor {
-  return {
+  const executor: PropertyRuleExecutor = {
     fromXML(params) {
       const { context, rule, value, name, ownerXmlName } = params
       const handler = registries.getTypeRule(rule.type, "importFromXML")
@@ -32,10 +23,11 @@ export function createPropertyRuleExecutor(
       return getValueOrDefault({
         context,
         rule,
-        value: handler(context, rule, value, ownerXmlName),
+        value: handler(context, rule, value, ownerXmlName, executor),
         name,
         operation: "importFromXML",
       })
     },
   }
+  return executor
 }

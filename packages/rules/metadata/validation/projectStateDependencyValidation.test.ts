@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+import { join } from "node:path"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
@@ -86,7 +87,7 @@ describe("dependency validation из ProjectState", () => {
     }))
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: `/project/${extension.projectPath}`,
+        filePath: join("/project", extension.projectPath),
         message: expect.stringContaining("ПолеCF"),
       }),
     ])

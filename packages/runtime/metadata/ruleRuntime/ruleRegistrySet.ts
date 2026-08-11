@@ -23,6 +23,7 @@ export interface RuleRegistrySet {
   readonly formElementKinds: ReadonlyMap<string, string>
   readonly schemas: {
     get(name: string): MetadataSchemaDefinition | undefined
+    names(): Iterable<string>
     propertyRef(
       propertyType: string,
     ): MetadataSchemaPropertyRefDefinition | undefined
@@ -61,6 +62,9 @@ export function createRuleRegistrySet(
     schemas: {
       get(name) {
         return schemas.get(name)
+      },
+      names() {
+        return schemas.keys()
       },
       propertyRef(propertyType) {
         return schemaPropertyRefs.get(propertyType)

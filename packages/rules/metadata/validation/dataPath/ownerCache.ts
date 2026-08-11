@@ -14,7 +14,7 @@ import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./owne
 import type { OwnerTypeRef } from "./types"
 import { ownerFactFromYAML } from "./ownerFacts"
 
-declare module "../../context/types" {
+declare module "@nkdk/runtime" {
   interface FormExportToYAMLContext {
     readonly ownerMetadataCache?: OwnerMetadataCache
   }

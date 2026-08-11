@@ -136,12 +136,13 @@ describe("MCP server", () => {
     ]))
 
     expect(coreApiSource).not.toContain("../../rules/index.ts")
-    expect(coreApiSource).toContain('from "@nkdk/rules"')
+    expect(coreApiSource).toContain('from "@nkdk/runtime"')
+    expect(coreApiSource).not.toContain('from "@nkdk/rules"')
     expect(coreApiSource).not.toContain('import("@nkdk/rules")')
     expect(runtimeHandleSource).toContain('import("@nkdk/rules")')
   })
 
-  it("keeps private rules as a build-only dependency", async () => {
+  it("keeps rules and runtime as build-only dependencies", async () => {
     const packageJson = (
       await import("../package.json", {
         with: { type: "json" },
@@ -150,6 +151,8 @@ describe("MCP server", () => {
 
     expect(packageJson.dependencies).not.toHaveProperty("@nkdk/rules")
     expect(packageJson.devDependencies).toHaveProperty("@nkdk/rules", "workspace:*")
+    expect(packageJson.dependencies).not.toHaveProperty("@nkdk/runtime")
+    expect(packageJson.devDependencies).toHaveProperty("@nkdk/runtime", "workspace:*")
   })
 
   it("declares binary project-state runtime dependencies", async () => {

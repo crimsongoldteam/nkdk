@@ -102,6 +102,7 @@ export function createJSONSchemaExportContext(
     includeNestedChildItems?: boolean
     validationPropertyRefs?: true
     defineSchema?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["defineSchema"]
+    propertyRef?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["propertyRef"]
   } = {}
 ): ConfigurationContext {
   return {
@@ -121,6 +122,9 @@ export function createJSONSchemaExportContext(
       ...(options.defineSchema === undefined
         ? {}
         : { defineSchema: options.defineSchema }),
+      ...(options.propertyRef === undefined
+        ? {}
+        : { propertyRef: options.propertyRef }),
     },
   }
 }
@@ -158,7 +162,7 @@ export function exportPropertyExternalRefSchema(params: {
   const { context, rule } = params
   if (context.exportToJSONSchema?.mode !== "externalRefs") return undefined
 
-  const factory = propertyRefFactories.get(rule.type)
+  const factory = context.exportToJSONSchema.propertyRef ?? propertyRefFactories.get(rule.type)
   if (!factory) return undefined
 
   const schema = factory(params)

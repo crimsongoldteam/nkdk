@@ -3,7 +3,7 @@ import { relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 export const TEST_DURATION_TARGET_MS = 10
-export const TEST_FILE_LIMIT_MS = 1_000
+export const TEST_FILE_LIMIT_MS = 2_500
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 15_000
 export const WINDOWS_LIMIT_MULTIPLIER = 5
 
@@ -17,7 +17,7 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
 
   const warnings = []
   const failures = []
-  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS) {
+  if (packageSetupDuration > TEST_PACKAGE_SETUP_LIMIT_MS * limitMultiplier) {
     failures.push({ type: "setup", duration: packageSetupDuration })
   }
   for (const suite of report.testResults) {

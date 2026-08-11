@@ -3,7 +3,7 @@ import type {
   MetadataOperationDiagnostic,
   MetadataOperationReferenceChange,
   MetadataOperationResult,
-} from "@nkdk/rules"
+} from "@nkdk/runtime"
 import type { ToolPayload } from "../contracts/common"
 import type { DiagnosticReportOperation } from "./diagnosticReport"
 import { prepareDiagnosticOutput } from "./diagnosticReport"
@@ -76,12 +76,12 @@ function* operationRecords(result: MetadataOperationResult): Iterable<OperationO
     yield { recordKind: "diagnostic", ...diagnostic }
   }
   if ("blockedReferences" in result) {
-    for (const reference of result.blockedReferences) {
+    for (const reference of result.blockedReferences ?? []) {
       yield referenceRecord("blocked-reference", reference)
     }
   }
   if ("rewrittenReferences" in result) {
-    for (const reference of result.rewrittenReferences) {
+    for (const reference of result.rewrittenReferences ?? []) {
       yield referenceRecord("rewritten-reference", reference)
     }
   }

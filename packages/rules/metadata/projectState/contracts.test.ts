@@ -24,7 +24,7 @@ import { ProjectStateSnapshotView } from "./binary/snapshot"
 import { createTypedProjectStateReader } from "./binary/typedReader"
 import { createBinaryProjectStateReadToken } from "./binary/readToken"
 import { openBinaryProjectStateReadSession } from "./binary/readSession"
-import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "../../index"
+import { ProjectStateReadSessionClosedError as PublicReadSessionClosedError } from "./readSession"
 import { createProjectStateDependencyValidator } from "../validation/projectStateDependencyValidation"
 
 describe("ProjectStateFileHashBatch", () => {

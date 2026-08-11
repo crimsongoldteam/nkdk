@@ -10,7 +10,7 @@ import { metadataResourceTopologyProvider } from "../resourceTopology/adapters/m
 import { registerMetadataResourceTopologyProvider } from "../resourceTopology/core/providerRegistry"
 import "../ruleRuntime/appliedObject/syncToXML"
 import { legacyCoreRules } from "./metadataRules"
-import { registerLegacyRuleDefinitions } from "../ruleRuntime/definition/legacyRuleRegistration"
+import { registerLegacyRuleDefinitions } from "@nkdk/runtime/rule-kit"
 import { registerLegacyProjectSpecDefinitions } from "../projectDefinition/projectSpecRegistry"
 import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import { registerXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"

@@ -213,9 +213,13 @@ export function validateClientApplicationFormSecondPass(params: {
   )
 
   for (const element of dataPathContext.elementsByName.values()) {
+    const inheritsExplicitTablePath =
+      element.tableOwnerName !== undefined &&
+      dataPathContext.elementsByName.get(element.tableOwnerName)?.present === true
     if (
       element.origin !== "own" ||
       !element.present ||
+      inheritsExplicitTablePath ||
       element.candidateInternal === undefined ||
       element.valueInternal !== element.candidateInternal
     ) continue

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 // @ts-expect-error CLI-модуль остаётся исполняемым JavaScript без отдельной декларации типов.
-import { analyzeTestDurationReport, parseArguments, readTestDurationReports } from "./assert-test-durations.mjs"
+import { analyzeTestDurationReport, parseArguments, readTestDurationReports } from "../../../scripts/assert-test-durations.mjs"
 
 const report = ({ testMs }: { testMs: number }) => ({
   success: true,
@@ -30,12 +30,12 @@ const lifecycleReport = (fileMs: number, packageSetupMs = 15_000) => ({
 
 describe("assert test durations", () => {
   it("предупреждает о разовой длительности теста, но жёстко ограничивает файл и setup", () => {
-    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000))).toEqual({
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(2_500))).toEqual({
       warnings: [],
       failures: [],
     })
-    expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(1_000)).warnings).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(1_000))).toEqual({
+    expect(analyzeTestDurationReport(report({ testMs: 10.01 }), lifecycleReport(2_500)).warnings).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 50.01 }), lifecycleReport(2_500))).toEqual({
       warnings: [{
         type: "test",
         file: "/project/packages/rules/example.test.ts",
@@ -44,8 +44,8 @@ describe("assert test durations", () => {
       }],
       failures: [],
     })
-    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000.01)).failures).toHaveLength(1)
-    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(1_000, 15_000.01)).failures).toEqual([{
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(2_500.01)).failures).toHaveLength(1)
+    expect(analyzeTestDurationReport(report({ testMs: 10 }), lifecycleReport(2_500, 15_000.01)).failures).toEqual([{
       type: "setup",
       duration: 15_000.01,
     }])
@@ -53,28 +53,28 @@ describe("assert test durations", () => {
 
   it("учитывает замедление стандартного CI runner для жёстких лимитов", () => {
     const slowReport = report({ testMs: 80 })
-    const slowLifecycleReport = lifecycleReport(1_900, 5_700)
+    const slowLifecycleReport = lifecycleReport(6_000, 14_000)
 
     expect(analyzeTestDurationReport(slowReport, slowLifecycleReport).failures).toHaveLength(1)
     expect(analyzeTestDurationReport(slowReport, slowLifecycleReport, { CI: "true" }).failures).toEqual([])
     expect(analyzeTestDurationReport(
       slowReport,
-      lifecycleReport(1_900, 15_000.01),
+      lifecycleReport(6_000, 45_000.01),
       { CI: "true" },
-    ).failures).toContainEqual({ type: "setup", duration: 15_000.01 })
+    ).failures).toContainEqual({ type: "setup", duration: 45_000.01 })
   })
 
   it("учитывает системное замедление Windows для жёстких лимитов", () => {
     expect(analyzeTestDurationReport(
       report({ testMs: 200 }),
-      lifecycleReport(4_500, 14_500),
+      lifecycleReport(12_000, 74_500),
       { platform: "win32" },
     ).failures).toEqual([])
     expect(analyzeTestDurationReport(
       report({ testMs: 200 }),
-      lifecycleReport(4_500, 15_000.01),
+      lifecycleReport(12_000, 75_000.01),
       { platform: "win32" },
-    ).failures).toContainEqual({ type: "setup", duration: 15_000.01 })
+    ).failures).toContainEqual({ type: "setup", duration: 75_000.01 })
   })
 
   it("сортирует предупреждения и превышения по убыванию длительности", () => {
@@ -104,13 +104,13 @@ describe("assert test durations", () => {
     }, {
       packageSetupDuration: 15_500,
       testFiles: [
-        { file: "/project/first.test.ts", duration: 1_100 },
-        { file: "/project/second.test.ts", duration: 1_200 },
+        { file: "/project/first.test.ts", duration: 3_100 },
+        { file: "/project/second.test.ts", duration: 3_200 },
       ],
     })
 
     expect(result.warnings.map(({ duration }: { duration: number }) => duration)).toEqual([80, 60, 20, 11])
-    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([15_500, 1_200, 1_100])
+    expect(result.failures.map(({ duration }: { duration: number }) => duration)).toEqual([15_500, 3_200, 3_100])
   })
 
   it("отклоняет повреждённый JSON-отчёт", () => {

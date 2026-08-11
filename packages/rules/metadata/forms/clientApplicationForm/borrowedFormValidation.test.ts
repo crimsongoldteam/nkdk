@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { join } from "node:path"
 import type {
   ProjectStateStructuredDocumentFact,
   ProjectStateStructuredDocumentValidationParams,
@@ -13,7 +14,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: "/project/cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        filePath: join("/project/cfe/X/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"),
         severity: "warning",
         message: expect.stringContaining("ПолеCF"),
       }),
@@ -95,7 +96,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: "/project/cfe/X/БазоваяФорма.yaml",
+        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
         severity: "warning",
         path: `/${dottedPath.replaceAll(".", "/")}`,
         message: expect.stringContaining(name),
@@ -113,7 +114,7 @@ describe("проверка заимствованной формы", () => {
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
-        filePath: "/project/cfe/X/БазоваяФорма.yaml",
+        filePath: join("/project/cfe/X/БазоваяФорма.yaml"),
         severity: "error",
         path: "/Элементы/Поле/ПутьКДанным",
         message: expect.stringContaining("РеквизитРабочейФормы"),

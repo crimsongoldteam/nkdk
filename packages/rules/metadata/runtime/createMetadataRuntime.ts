@@ -2,6 +2,7 @@ import { createOperationRegistrySet } from "../operations/operationRegistrySet"
 import { validateProject } from "../project/validateProject"
 import { createProjectStateService } from "../projectState/service"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createRuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
 import type {
   CreateMetadataRuntimeOptions,
@@ -11,7 +12,6 @@ import { parseProjectPath } from "../projectDefinition/path"
 import { describeMetadataProjectDirectoryStructure } from "../project/directoryStructure"
 import {
   exportJSONSchemaForProjectFile,
-  exportJSONSchemaForSchemaName,
   ProjectFileSchemaError,
 } from "../validation/projectFileSchema"
 import {
@@ -40,6 +40,12 @@ export function createMetadataRuntime(
   const rules = createRuleRegistrySet(options.rules)
   const validation = createValidationRegistrySet(options.rules)
   const operations = createOperationRegistrySet(options.rules)
+  const schemaRuntime = createRuleSchemaRuntime(
+    rules,
+    (name, availableNames) => new ProjectFileSchemaError(
+      `Неизвестная JSON Schema "${name}". Доступные имена: ${availableNames.join(", ")}`,
+    ),
+  )
   const createWorkerPool = options.createWorkerPool
     ?? ((workerUrl: URL) => createMetadataWorkerPoolHandle({ workerUrl }))
   const ownedStates = new WeakSet<object>()
@@ -76,7 +82,7 @@ export function createMetadataRuntime(
       ...rules.schemas,
       ProjectFileSchemaError,
       exportForProjectFile: exportJSONSchemaForProjectFile,
-      exportByName: exportJSONSchemaForSchemaName,
+      exportByName: schemaRuntime.exportByName,
       splitSearchTerms,
       listSummaryKeys: listSchemaSummaryKeys,
       summarize: summarizeJSONSchema,

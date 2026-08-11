@@ -8,11 +8,11 @@ import type {
   MetadataDiagnosticCollection,
   MetadataProjectDirectoryStructure,
   MetadataProjectStructureNode,
-  ProjectStateService,
-} from "@nkdk/rules"
+  MetadataRuntimeProjectState,
+} from "@nkdk/runtime"
 import { metadataRuntimeHandle } from "./metadataRuntimeHandle"
 
-export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/rules"
+export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/runtime"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
@@ -204,9 +204,9 @@ export async function loadCoreApi(): Promise<CoreApi> {
   }
 }
 
-function requireRuntimeProjectState(state: CoreProjectStateService): ProjectStateService {
+function requireRuntimeProjectState(state: CoreProjectStateService): MetadataRuntimeProjectState {
   if (!("workers" in state)) {
     throw new Error("ProjectStateService создан вне MetadataRuntime")
   }
-  return state as ProjectStateService
+  return state as MetadataRuntimeProjectState
 }

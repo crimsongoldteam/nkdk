@@ -23,6 +23,17 @@ import { metadataDocumentReferenceRules } from "../appliedObjects/metadataDocume
 import { configurationReferenceRules } from "../appliedObjects/configuration/referenceRules"
 import { appliedObjectDataPathRules } from "../appliedObjects/dataPathRules"
 import { configurationExtensionOperationRules } from "../appliedObjects/configurationExtension/operationRules"
+import { createMetadataRuntime as createRulesMetadataRuntime } from "../runtime/createMetadataRuntime"
+import type { MetadataRuntime, MetadataWorkerManifest } from "@nkdk/runtime"
+import type { MetadataRuntime as RulesMetadataRuntime } from "../runtime/contracts"
+import type {} from "../forms/clientApplicationForm/context.types"
+import type {} from "../commonObjects/formattedI8nText/registry.types"
+import type {} from "../commonObjects/i8nText/registry.types"
+import type {} from "../commonObjects/userVisible/registry.types"
+import type {} from "../fullSyncToXml/worker"
+import type {} from "../importFromXml/worker"
+import type {} from "../project/workerOperation.types"
+import type {} from "../workerPool/projectQueries"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -58,8 +69,8 @@ const operationRules = defineMetadataRules({
 })
 
 export const legacyCoreRules = composeMetadataRules(
-  staticPropertyRules,
   staticFactoryRules,
+  staticPropertyRules,
   appliedObjectProjectRules,
   appliedObjectComponentRules,
   clientApplicationFormValidationRules,
@@ -82,7 +93,20 @@ const resourceTopologyRules = defineMetadataRules({
   resourceTopology: [createMetadataResourceTopologyProvider(rulesWithoutTopology)],
 })
 
-export const metadataRules = composeMetadataRules(
+const composedMetadataRules = composeMetadataRules(
   rulesWithoutTopology,
   resourceTopologyRules,
 )
+
+export const metadataRules = Object.assign(composedMetadataRules, {
+  createRuntime(options: { readonly workers: MetadataWorkerManifest }): MetadataRuntime {
+    return adaptRulesMetadataRuntime(createRulesMetadataRuntime({
+      rules: composedMetadataRules,
+      workers: options.workers,
+    }))
+  },
+})
+
+function adaptRulesMetadataRuntime(runtime: RulesMetadataRuntime): MetadataRuntime {
+  return runtime as unknown as MetadataRuntime
+}

@@ -19,7 +19,7 @@ export interface DataPathFormatDiagnosticSink {
   append(diagnostic: DataPathFormatDiagnostic): void
 }
 
-declare module "../../context/types" {
+declare module "@nkdk/runtime" {
   interface FormExportToYAMLContext {
     readonly dataPathDiagnosticSink?: DataPathFormatDiagnosticSink
   }

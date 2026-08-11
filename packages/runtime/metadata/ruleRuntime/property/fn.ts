@@ -51,8 +51,19 @@ export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
   rule: PropertyRule,
   xml: any,
-  ownerXmlName?: string
+  ownerXmlName?: string,
+  execution?: PropertyRuleExecution,
 ) => any | undefined
+
+export interface PropertyRuleExecution {
+  fromXML(params: {
+    readonly context: ConfigurationContextFromXML
+    readonly rule: PropertyRule
+    readonly value: unknown
+    readonly name?: string
+    readonly ownerXmlName?: string
+  }): unknown
+}
 
 export type ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext
