@@ -17,6 +17,7 @@ import {
   validationProjectSpecs,
 } from "../validation/projectSpecs"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
 const validationSpecs = [configurationValidationProjectSpec, ...validationProjectSpecs]
 const validationTopologies = appliedObjectComponentRules.components.map(({ rootRule }) =>
@@ -34,6 +35,7 @@ export const openProjectStateReadSession = (token: ProjectStateReadToken) =>
 
 export function createDefaultProjectStateService(
   options: CreateProjectStateServiceOptions = {},
+  rules?: RuleRegistrySet,
 ): ProjectStateService {
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
   const validator = dependencyValidator()
@@ -51,7 +53,14 @@ export function createDefaultProjectStateService(
         concurrency,
         operation,
         createRulesSnapshot: (validationContext) =>
-          createValidationRulesSnapshot(validationContext, validationTopologies),
+          createValidationRulesSnapshot(
+            validationContext,
+            rules === undefined
+              ? validationTopologies
+              : [...rules.components.values()].map(({ rootRule }) =>
+                  rules.resourceTopology.get(rootRule)),
+            rules,
+          ),
       })
       const executor = createPreparedYamlProjectRefreshExecutor(pool, context)
       return {

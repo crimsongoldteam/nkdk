@@ -7,6 +7,10 @@ import {
 } from "./rulesSnapshot"
 import { registerValidationMetadata } from "./registerValidationMetadata"
 import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
+import { defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 
 registerValidationMetadata(getRegisteredProjectSpecs())
 
@@ -71,5 +75,49 @@ describe("ValidationRulesSnapshot", () => {
         expect.objectContaining({ modelKey: "nameInDataSource" }),
       ]),
     })
+  })
+
+  it("resolves project and nested rules from the owning registry set", () => {
+    const registryWithChild = (childType: string) => createRuleRegistrySet(
+      defineMetadataRules({
+        ...emptyMetadataRules,
+        propertyTypes: {
+          Children: {
+            collectionItemRule: {
+              itemRule: { itemType: childType, properties: {} },
+            },
+          },
+        },
+        projectSpecs: {
+          sample: {
+            dir: "sample",
+            kind: "sample",
+            rule: {
+              itemType: "Owner",
+              properties: {
+                children: { type: "Children", yaml: "Дети" },
+              },
+            },
+            exportSchema: () => ({ type: "object" }),
+          },
+        },
+      }),
+    )
+    const topology = compileMetadataResourceTopology([])
+    const first = createValidationRulesSnapshot(
+      mockContext,
+      topology,
+      registryWithChild("FirstChild"),
+    )
+    const second = createValidationRulesSnapshot(
+      mockContext,
+      topology,
+      registryWithChild("SecondChild"),
+    )
+
+    expect(findValidationRulesSpec(first, "sample")?.properties[0]?.nestedItemType)
+      .toBe("FirstChild")
+    expect(findValidationRulesSpec(second, "sample")?.properties[0]?.nestedItemType)
+      .toBe("SecondChild")
   })
 })

@@ -52,6 +52,7 @@ export interface CreateMetadataRuntimeOptions {
   readonly createWorkerPool?: (workerUrl: URL) => MetadataWorkerPoolHandle
   readonly createProjectStateService: (
     options: CreateProjectStateServiceOptions,
+    rules: RuleRegistrySet,
   ) => ProjectStateService
 }
 

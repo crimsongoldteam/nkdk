@@ -75,7 +75,7 @@ export function createMetadataRuntime(
           workerPool: createWorkerPool(options.workers.generic),
           discoverFiles: ({ projectDir }) =>
             discoverProjectStateValidationFileBatches(projectDir, undefined, rules),
-        })
+        }, rules)
         ownedStates.add(state)
         openStates.add(state)
         return state

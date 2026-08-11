@@ -21,6 +21,7 @@ import {
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
 export interface ValidationRulesSnapshot {
   version: 1
@@ -80,6 +81,7 @@ interface SnapshotSourceProperty {
 export function createValidationRulesSnapshot(
   _context: ConfigurationContext,
   topology: CompiledMetadataResourceTopology | readonly CompiledMetadataResourceTopology[] = validationRulesTopologies(),
+  rules?: RuleRegistrySet,
 ): ValidationRulesSnapshot {
   const topologies: readonly CompiledMetadataResourceTopology[] = isCompiledTopology(topology)
     ? [topology]
@@ -89,13 +91,13 @@ export function createValidationRulesSnapshot(
     for (const assignment of current.assignments) {
       items.set(
         `${assignment.id}\u0000${assignment.itemRule.itemType}`,
-        snapshotItem(assignment.id, assignment.itemRule),
+        snapshotItem(assignment.id, assignment.itemRule, rules),
       )
     }
   }
   return {
     version: 1,
-    specs: [configurationValidationProjectSpec, ...validationProjectSpecs].map(snapshotSpec),
+    specs: validationRulesSpecs(rules).map((spec) => snapshotSpec(spec, rules)),
     items: [...items.values()],
   }
 }
@@ -106,8 +108,14 @@ function isCompiledTopology(
   return !Array.isArray(value)
 }
 
-function validationRulesTopologies(): readonly CompiledMetadataResourceTopology[] {
-  const specs = [configurationValidationProjectSpec, ...validationProjectSpecs]
+function validationRulesTopologies(
+  rules?: RuleRegistrySet,
+): readonly CompiledMetadataResourceTopology[] {
+  if (rules !== undefined) {
+    return [...rules.components.values()].map(({ rootRule }) =>
+      rules.resourceTopology.get(rootRule))
+  }
+  const specs = validationRulesSpecs()
   return (["configuration", "configurationExtension"] as const).map((kind) =>
     compileMetadataResourceTopologyForRootRule(getMetadataComponentDescriptor(kind).rootRule, specs)
   )
@@ -134,42 +142,54 @@ export function findValidationRulesItem(
 function snapshotItem(
   topologyNodeId: string,
   rule: ValidationProjectSpec["rule"],
+  rules?: RuleRegistrySet,
 ): ValidationRulesItemSnapshot {
   return {
     topologyNodeId,
-    ...snapshotRule(rule),
+    ...snapshotRule(rule, rules),
   }
 }
 
-function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot {
+function snapshotSpec(
+  spec: ValidationProjectSpec,
+  rules?: RuleRegistrySet,
+): ValidationRulesSpecSnapshot {
   const rule = spec.rule
 
   return {
     dir: spec.dir,
     kind: spec.kind,
-    ...snapshotRule(rule),
+    ...snapshotRule(rule, rules),
     ...(rootFromYAML[spec.dir] === undefined ? {} : { root: rootFromYAML[spec.dir] }),
     ...(spec.nesting === undefined ? {} : { nesting: { kind: spec.nesting.kind, childDir: spec.nesting.childDir } }),
   }
 }
 
-function snapshotRule(rule: ValidationProjectSpec["rule"]): Omit<ValidationRulesItemSnapshot, "topologyNodeId"> {
+function snapshotRule(
+  rule: ValidationProjectSpec["rule"],
+  rules?: RuleRegistrySet,
+): Omit<ValidationRulesItemSnapshot, "topologyNodeId"> {
   return {
     itemType: rule.itemType,
     ...(rule.metadataTargetOwner === undefined ? {} : { metadataTargetOwner: rule.metadataTargetOwner }),
     uniqueNameScopes: (rule.uniqueNameScopes ?? []).map((scope) => ({ collections: [...scope.collections] })),
-    properties: snapshotProperties(rule.properties, new Set([rule.itemType])),
+    properties: snapshotProperties(
+      rule.properties,
+      new Set([rule.itemType]),
+      rules,
+    ),
     standardMemberAliases: registeredStandardMemberAliases(),
   }
 }
 
 function snapshotProperties(
   properties: ValidationProjectSpec["rule"]["properties"],
-  ancestorItemTypes: ReadonlySet<string>
+  ancestorItemTypes: ReadonlySet<string>,
+  rules?: RuleRegistrySet,
 ): ValidationRulesPropertySnapshot[] {
   return Object.entries(properties as Readonly<Record<string, SnapshotSourceProperty>>).flatMap(([modelKey, property]) => {
     if (property.yaml === undefined) return []
-    if (property.ownerFactRole !== undefined) {
+    if (rules === undefined && property.ownerFactRole !== undefined) {
       registerTypeRule(property.type as never, "collectLocalFactsFromYAML", collectOwnerFactFromYAML)
     }
 
@@ -180,28 +200,51 @@ function snapshotProperties(
         type: property.type,
         ...(property.metadataTarget === undefined ? {} : { metadataTarget: property.metadataTarget }),
         ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
-        ...childrenSnapshot(property, ancestorItemTypes),
+        ...childrenSnapshot(property, ancestorItemTypes, rules),
       },
     ]
   })
 }
 
-function childrenSnapshot(property: SnapshotSourceProperty, ancestorItemTypes: ReadonlySet<string>): {
+function childrenSnapshot(
+  property: SnapshotSourceProperty,
+  ancestorItemTypes: ReadonlySet<string>,
+  rules?: RuleRegistrySet,
+): {
   nestedItemType?: string
   children?: readonly ValidationRulesPropertySnapshot[]
 } {
-  const itemRule = nestedItemRule(property)
+  const itemRule = nestedItemRule(property, rules)
   if (itemRule === undefined) return {}
   if (ancestorItemTypes.has(itemRule.itemType)) return { nestedItemType: itemRule.itemType }
   return {
     nestedItemType: itemRule.itemType,
-    children: snapshotProperties(itemRule.properties, new Set([...ancestorItemTypes, itemRule.itemType])),
+    children: snapshotProperties(
+      itemRule.properties,
+      new Set([...ancestorItemTypes, itemRule.itemType]),
+      rules,
+    ),
   }
 }
 
-function nestedItemRule(property: SnapshotSourceProperty): ValidationProjectSpec["rule"] | undefined {
-  const collectionRule = resolvePropertyItemRule(property)
+function nestedItemRule(
+  property: SnapshotSourceProperty,
+  rules?: RuleRegistrySet,
+): ValidationProjectSpec["rule"] | undefined {
+  const collectionRule = rules?.execution.resolvePropertyItemRule(property)
+    ?? (rules === undefined ? resolvePropertyItemRule(property) : undefined)
   if (collectionRule !== undefined) return collectionRule
-  const nested = getTypeRule(property.type, "nestedItemRule")
+  const nested = rules === undefined
+    ? getTypeRule(property.type, "nestedItemRule")
+    : rules.execution.getTypeRule(property.type, "nestedItemRule")
   return nested !== undefined && "itemRule" in nested ? nested.itemRule : undefined
+}
+
+function validationRulesSpecs(
+  rules?: RuleRegistrySet,
+): ValidationProjectSpec[] {
+  return rules === undefined
+    ? [configurationValidationProjectSpec, ...validationProjectSpecs]
+    : [...rules.projectSpecs.values()]
+      .sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
 }

@@ -104,7 +104,8 @@ export const metadataRules = Object.assign(composedMetadataRules, {
     return adaptRulesMetadataRuntime(createRulesMetadataRuntime({
       rules: composedMetadataRules,
       workers: options.workers,
-      createProjectStateService: createDefaultProjectStateService,
+      createProjectStateService: (stateOptions, rules) =>
+        createDefaultProjectStateService(stateOptions, rules),
     }))
   },
 })
