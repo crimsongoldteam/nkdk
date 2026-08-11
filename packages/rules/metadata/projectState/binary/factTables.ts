@@ -300,7 +300,7 @@ function validateFactRows(params: {
   forEachRecord(params.tables.get("tableInfo"), ProjectStateTableInfoRecordView, view, (record) => {
     assertOptionalRowId(record.ownerTypeId, params.tables.get("ownerTypes")?.records ?? 0, "tableInfo.ownerTypeId")
     assertOptionalStringId(record.nameId, params.stringCount, "tableInfo.nameId")
-    if (record.kind < 1 || record.kind > 7) throw new Error("Неизвестный вид таблицы DataPath")
+    if (record.kind < 1 || record.kind > 8) throw new Error("Неизвестный вид таблицы DataPath")
   })
   for (const kind of ["forms", "formColumns"] as const) {
     forEachRecord(params.tables.get(kind), ProjectStateFormRecordView, view, (record) => {

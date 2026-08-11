@@ -39,6 +39,34 @@ it("накапливает несколько файлов в одном тип�
   expect(view.diagnosticCount).toBe(2)
 })
 
+it("сохраняет зарегистрированный источник DataPath в двоичном состоянии", () => {
+  const writer = createProjectStateFragmentWriter()
+  const update = richYamlUpdate("cf/Форма.yaml", "cf", "CommonForm.Форма")
+  writer.appendFile({
+    ...update,
+    fields: [{
+      ...update.fields[0]!,
+      typeInfo: {
+        kinds: ["tableSource"],
+        nextTypes: [],
+        terminalTypes: ["DataCompositionSettings"],
+        table: { kind: "Registered", type: "DataCompositionSettings" },
+      },
+      table: { kind: "Registered", type: "DataCompositionSettings" },
+    }],
+  }, 9n)
+
+  const snapshot = new ProjectStateSnapshotView(buildTypedProjectStateSnapshot({
+    fragments: [openProjectStateFragment(writer.finish())],
+    deletions: [],
+  }))
+
+  expect(createTypedProjectStateReader(snapshot).fields(0)[0]).toMatchObject({
+    typeInfo: { table: { kind: "Registered", type: "DataCompositionSettings" } },
+    table: { kind: "Registered", type: "DataCompositionSettings" },
+  })
+})
+
 it("сохраняет структурные факты документа через fragment и snapshot", () => {
   const writer = createProjectStateFragmentWriter()
   writer.appendFile({
