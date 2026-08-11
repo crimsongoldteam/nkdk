@@ -1,4 +1,5 @@
 import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecContracts"
+import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type {
   CompiledMetadataResourceTopology,
   MetadataResourceItemRule,
@@ -29,6 +30,7 @@ export interface RuleRegistrySet {
     ): MetadataSchemaPropertyRefDefinition | undefined
   }
   readonly projectSpecs: ReadonlyMap<string, RegisteredProjectSpec>
+  readonly components: ReadonlyMap<string, MetadataComponentDescriptor>
   readonly resourceTopology: {
     get(rootRule?: MetadataResourceItemRule): CompiledMetadataResourceTopology
   }
@@ -45,6 +47,7 @@ export function createRuleRegistrySet(
     Object.entries(definition.schemaPropertyRefs),
   )
   const projectSpecs = new Map(Object.entries(definition.projectSpecs))
+  const components = new Map(definition.components.map((component) => [component.kind, component]))
   const topologyProviders = [...definition.resourceTopology]
   const topologyCache = new Map<
     MetadataResourceItemRule | undefined,
@@ -71,6 +74,7 @@ export function createRuleRegistrySet(
       },
     },
     projectSpecs,
+    components,
     resourceTopology: {
       get(rootRule) {
         if (topologyProviders.length !== 1) {

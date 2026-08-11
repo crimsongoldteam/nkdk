@@ -114,12 +114,14 @@ export function createProjectStateRefreshDependencies(params: {
   readonly executor: ProjectStateRefreshExecutor
   readonly afterProcessFiles?: () => Promise<void>
   readonly beforeCheckpoint?: () => Promise<void>
+  readonly discoverFiles?: ProjectStateRefreshDependencies["discoverFiles"]
 }): ProjectStateRefreshDependencies {
   return {
     handle: params.handle,
     ...(params.afterProcessFiles === undefined ? {} : { afterProcessFiles: params.afterProcessFiles }),
     ...(params.beforeCheckpoint === undefined ? {} : { beforeCheckpoint: params.beforeCheckpoint }),
-    discoverFiles: ({ projectDir }) => discoverProjectStateValidationFileBatches(projectDir),
+    discoverFiles: params.discoverFiles
+      ?? (({ projectDir }) => discoverProjectStateValidationFileBatches(projectDir)),
     processFiles(batches, producer, operation, projectDir) {
       return params.executor.processFiles(batches, producer, operation, projectDir)
     },

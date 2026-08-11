@@ -34,6 +34,7 @@ import type {} from "../fullSyncToXml/worker"
 import type {} from "../importFromXml/worker"
 import type {} from "../project/workerOperation.types"
 import type {} from "../workerPool/projectQueries"
+import { createDefaultProjectStateService } from "./projectState"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -103,6 +104,7 @@ export const metadataRules = Object.assign(composedMetadataRules, {
     return adaptRulesMetadataRuntime(createRulesMetadataRuntime({
       rules: composedMetadataRules,
       workers: options.workers,
+      createProjectStateService: createDefaultProjectStateService,
     }))
   },
 })

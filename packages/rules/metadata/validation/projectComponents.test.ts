@@ -7,6 +7,8 @@ import {
   createValidationProjectComponent,
   discoverValidationProjectComponents,
 } from "./projectComponents"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 
 describe("validation project components", () => {
   const tempDirs: string[] = []
@@ -53,6 +55,16 @@ describe("validation project components", () => {
 
     expect(discovery.hasConfiguration).toBe(false)
     expect(discovery.components.map(({ componentPath }) => componentPath)).toEqual(["cfe/Продажи"])
+  })
+
+  it("uses component descriptions from the supplied registry set", () => {
+    const rules = createRuleRegistrySet(emptyMetadataRules)
+
+    expect(() => createValidationProjectComponent(
+      "/project",
+      { kind: "configuration" },
+      rules,
+    )).toThrow("Не найдено описание metadata-компонента: configuration")
   })
 
   it.each([

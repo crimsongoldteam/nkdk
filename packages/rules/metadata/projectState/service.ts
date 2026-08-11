@@ -88,6 +88,7 @@ export interface CreateProjectStateServiceOptions {
   ) => ProjectStateServiceRefreshExecutor | ProjectStateServiceRefreshPool
   readonly workerPool?: MetadataWorkerPoolHandle
   readonly useWorkerOperation?: boolean
+  readonly discoverFiles?: ProjectStateRefreshDependencies["discoverFiles"]
   readonly refresh?: (
     params: ProjectStateRefreshParams,
     dependencies: ProjectStateRefreshDependencies,
@@ -100,6 +101,7 @@ export function createProjectStateService(
 ): ProjectStateService {
   const createWriter = options.createWriter ?? (() => createProjectStateWriterHandle())
   const createPool = options.createPool
+  const discoverFiles = options.discoverFiles
   const useWorkerOperation = options.useWorkerOperation ?? createPool === undefined
   const workers = options.workerPool ?? createIdleMetadataWorkerPoolHandle()
   const refresh = options.refresh ?? refreshProjectState
@@ -446,6 +448,7 @@ export function createProjectStateService(
       const dependencies = createProjectStateRefreshDependencies({
         handle: refreshHandle,
         executor,
+        ...(discoverFiles === undefined ? {} : { discoverFiles }),
         afterProcessFiles: closePool,
         ...(options.closePoolBeforeCheckpoint === true ? { beforeCheckpoint: closePool } : {}),
       })

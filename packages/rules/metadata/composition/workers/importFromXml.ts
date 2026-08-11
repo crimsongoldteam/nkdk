@@ -1,1 +1,5 @@
-export { default } from "../../importFromXml/worker"
+import { registerCoreMetadata } from "../coreMetadata"
+
+registerCoreMetadata()
+
+export default (await import("../../importFromXml/worker")).default

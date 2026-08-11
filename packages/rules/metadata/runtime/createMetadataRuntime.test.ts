@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createMetadataRuntime } from "./createMetadataRuntime"
+import { createProjectStateService } from "../projectState/service"
 
 const workers = {
   preparedYamlProject: new URL("file:///test/prepared.js"),
@@ -10,11 +11,16 @@ const workers = {
   generic: new URL("file:///test/generic.js"),
 }
 
+const runtimeOptions = {
+  rules: emptyMetadataRules,
+  workers,
+  createProjectStateService,
+}
+
 describe("createMetadataRuntime", () => {
   it("binds project state to the generic worker entrypoint", async () => {
     const runtime = createMetadataRuntime({
-      rules: emptyMetadataRules,
-      workers,
+      ...runtimeOptions,
       createWorkerPool(workerUrl) {
         const size = workerUrl === workers.generic ? 17 : -1
         return {
@@ -33,7 +39,7 @@ describe("createMetadataRuntime", () => {
   })
 
   it("exposes the grouped services used by the composition root", async () => {
-    const runtime = createMetadataRuntime({ rules: emptyMetadataRules, workers })
+    const runtime = createMetadataRuntime(runtimeOptions)
 
     expect(runtime.projects.parsePath("cf", { allowRoot: true })).toBe("cf")
     expect(runtime.schemas.exportByName).toBeTypeOf("function")
@@ -46,8 +52,8 @@ describe("createMetadataRuntime", () => {
   })
 
   it("isolates project state ownership and closes owned state once", async () => {
-    const first = createMetadataRuntime({ rules: emptyMetadataRules, workers })
-    const second = createMetadataRuntime({ rules: emptyMetadataRules, workers })
+    const first = createMetadataRuntime(runtimeOptions)
+    const second = createMetadataRuntime(runtimeOptions)
     const state = first.projects.createState()
 
     await expect(

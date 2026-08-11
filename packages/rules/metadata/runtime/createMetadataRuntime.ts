@@ -1,6 +1,5 @@
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
 import { validateProject } from "../project/validateProject"
-import { createProjectStateService } from "../projectState/service"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { createRuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
@@ -33,6 +32,7 @@ import { renameMetadataItem } from "../operations/renameItem"
 import { findMetadataReferences } from "../operations/findMetadataReferences"
 import type { ProjectStateService } from "../projectState/service"
 import { createMetadataWorkerPoolHandle } from "../workerPool/handle"
+import { discoverProjectStateValidationFileBatches } from "../projectState/projectFiles"
 
 export function createMetadataRuntime(
   options: CreateMetadataRuntimeOptions,
@@ -49,7 +49,7 @@ export function createMetadataRuntime(
   const createWorkerPool = options.createWorkerPool
     ?? ((workerUrl: URL) => createMetadataWorkerPoolHandle({ workerUrl }))
   const ownedStates = new WeakSet<object>()
-  const openStates = new Set<ReturnType<typeof createProjectStateService>>()
+  const openStates = new Set<ProjectStateService>()
   let closed = false
   let closePromise: Promise<void> | undefined
 
@@ -70,8 +70,10 @@ export function createMetadataRuntime(
       describeStructure: describeMetadataProjectDirectoryStructure,
       createState() {
         assertOpen()
-        const state = createProjectStateService({
+        const state = options.createProjectStateService({
           workerPool: createWorkerPool(options.workers.generic),
+          discoverFiles: ({ projectDir }) =>
+            discoverProjectStateValidationFileBatches(projectDir, undefined, rules),
         })
         ownedStates.add(state)
         openStates.add(state)

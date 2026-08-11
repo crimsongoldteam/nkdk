@@ -7,7 +7,7 @@ import {
   type MetadataProjectResourceRef,
 } from "../projectDefinition/resources"
 import { discoverValidationProjectComponents } from "../validation/projectComponents"
-import { assertCoreMetadataRegistered } from "../projectDefinition/projectSpecRegistry"
+import type { ValidationProjectRules } from "../validation/projectComponents"
 import type { ProjectStateFileIdentity } from "./fileUpdate"
 import type { ProjectStateTargetEntry } from "./fileUpdate"
 
@@ -43,10 +43,10 @@ export const PROJECT_STATE_VALIDATION_BATCH_SIZE = 256
 export async function* discoverProjectStateValidationFileBatches(
   projectDir: string,
   batchSize = PROJECT_STATE_VALIDATION_BATCH_SIZE,
+  rules?: ValidationProjectRules,
 ): AsyncGenerator<ProjectStateDiscoveredFileBatch> {
   if (!Number.isSafeInteger(batchSize) || batchSize < 1) throw new Error("Размер пачки должен быть положительным целым")
-  assertCoreMetadataRegistered("validation/projectComponents")
-  const { components } = await discoverValidationProjectComponents(projectDir)
+  const { components } = await discoverValidationProjectComponents(projectDir, rules)
   let batch: ProjectStateDiscoveredPath[] = []
   for (const component of components) {
     for await (const candidate of iterateMetadataProjectResourceCandidates(
@@ -79,9 +79,9 @@ export async function* discoverProjectStateValidationFileBatches(
 
 export async function discoverProjectStateValidationFiles(
   projectDir: string,
+  rules?: ValidationProjectRules,
 ): Promise<readonly ProjectStateValidationFile[]> {
-  assertCoreMetadataRegistered("validation/projectComponents")
-  const { components } = await discoverValidationProjectComponents(projectDir)
+  const { components } = await discoverValidationProjectComponents(projectDir, rules)
   const files = await Promise.all(components.map(async (component) => {
     const resources = await discoverMetadataProjectResources(component.componentDir, { include: "all" }, component)
     return resources.flatMap((resource): ProjectStateValidationFile[] => {

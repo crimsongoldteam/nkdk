@@ -8,6 +8,12 @@ import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecCont
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+
+export type ValidationProjectRules = Pick<
+  RuleRegistrySet,
+  "components" | "projectSpecs" | "resourceTopology"
+>
 
 export interface ValidationProjectComponent {
   componentPath: string
@@ -24,13 +30,14 @@ export interface ValidationProjectComponentDiscovery {
 }
 
 export async function discoverValidationProjectComponents(
-  projectDir: string
+  projectDir: string,
+  rules?: ValidationProjectRules,
 ): Promise<ValidationProjectComponentDiscovery> {
   const root = resolve(projectDir)
   const components: ValidationProjectComponent[] = []
 
   if (await isDirectory(join(root, "cf"))) {
-    components.push(createValidationProjectComponent(root, { kind: "configuration" }))
+    components.push(createValidationProjectComponent(root, { kind: "configuration" }, rules))
   }
 
   const extensionsDir = join(root, "cfe")
@@ -39,7 +46,7 @@ export async function discoverValidationProjectComponents(
     for (const entry of entries
       .filter((entry) => entry.isDirectory())
       .sort((left, right) => left.name.localeCompare(right.name, "ru"))) {
-      components.push(createValidationProjectComponent(root, { kind: "configurationExtension", name: entry.name }))
+      components.push(createValidationProjectComponent(root, { kind: "configurationExtension", name: entry.name }, rules))
     }
   }
 
@@ -49,8 +56,14 @@ export async function discoverValidationProjectComponents(
 export function createValidationProjectComponent(
   projectDir: string,
   address: ComponentAddress,
+  rules?: ValidationProjectRules,
 ): ValidationProjectComponent {
-  const descriptor = getMetadataComponentDescriptor(address.kind)
+  const descriptor = rules === undefined
+    ? getMetadataComponentDescriptor(address.kind)
+    : rules.components.get(address.kind)
+  if (descriptor === undefined) {
+    throw new Error(`Не найдено описание metadata-компонента: ${address.kind}`)
+  }
   const rootSpec: RegisteredProjectSpec = {
     dir: "",
     kind: descriptor.kind,
@@ -64,10 +77,11 @@ export function createValidationProjectComponent(
     kind: address.kind,
     rootRule: descriptor.rootRule,
     rootSpec,
-    topology: compileMetadataResourceTopologyForRootRule(
-      descriptor.rootRule,
-      [configurationValidationProjectSpec, ...validationProjectSpecs],
-    ),
+    topology: rules?.resourceTopology.get(descriptor.rootRule)
+      ?? compileMetadataResourceTopologyForRootRule(
+        descriptor.rootRule,
+        [configurationValidationProjectSpec, ...validationProjectSpecs],
+      ),
   }
 }
 

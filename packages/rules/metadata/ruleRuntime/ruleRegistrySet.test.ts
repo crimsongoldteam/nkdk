@@ -55,6 +55,7 @@ it("keeps form, schema, project and topology state inside its registry set", () 
           exportSchema: () => Type.Literal(label),
         },
       },
+      components: [{ kind: "configuration", rootRule: itemRule }],
       resourceTopology: [
         {
           revision: () => label,
@@ -78,6 +79,8 @@ it("keeps form, schema, project and topology state inside its registry set", () 
     rule: { type: "string" },
   })).toMatchObject({ const: "second" })
   expect(second.projectSpecs.get("Main")?.kind).toBe("second")
+  expect(first.components.get("configuration")?.rootRule).toBe(firstItem)
+  expect(second.components.get("configuration")?.rootRule).toBe(secondItem)
   expect(first.formElements.get("Field")?.itemType).toBe("InputField")
   expect(first.resourceTopology.get()).not.toBe(second.resourceTopology.get())
 })
