@@ -6,6 +6,8 @@ import { yamlScalarTagAt } from "@nkdk/runtime"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
+import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
+import { metadataRules } from "../composition/metadataRules"
 
 
 describe("fill value structural references", () => {
@@ -83,6 +85,16 @@ describe("fill value structural references", () => {
     expect(serializeYAMLDocument(parsed.data).text).toContain(
       "ЗначениеЗаполнения: !xml Справочник.КаталогиФайлов.ПустаяСсылка"
     )
+  })
+
+  it("не добавляет транспортный DesignTimeRef в граф ссылок", () => {
+    const parsed = parseMetadataYaml(`Реквизиты:\n  Получатель:\n    Тип: Справочник.Контрагенты\n    ЗначениеЗаполнения: !xml 447e2bd8-fa43-442e-91db-b17634e036d9.c26f06ab-fb3e-46a7-a391-fdccd77b4231\n`)
+    const result = withPropertyRuleRegistrySet(
+      createPropertyRuleRegistrySet(metadataRules),
+      () => collect(parsed),
+    )
+
+    expect(result).toMatchObject({ ok: true, references: [] })
   })
 })
 

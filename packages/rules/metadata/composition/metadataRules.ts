@@ -59,6 +59,9 @@ import { typeDescriptionIndexRules } from "../commonObjects/typeDescription/from
 import { metadataExternalDataSourceCubeOwnerRules } from "../commonObjects/metadataExternalDataSourceCube/register"
 import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/metadataExternalDataSourceTable/register"
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
+import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
+import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
+import { brokenLocalFormReferenceRules } from "../forms/clientApplicationForm/brokenLocalReferences"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -99,6 +102,9 @@ const operationRules = defineMetadataRules({
 export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
+  brokenDesignTimeRefRules,
+  brokenMDObjectRefRules,
+  brokenLocalFormReferenceRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
   metadataExternalDataSourceTableOwnerRules,

@@ -5,6 +5,7 @@ import type { TableContext } from "./resolver"
 import type { FormDataPathOccurrence } from "./formTraversal"
 import type { YamlPath } from "../yamlLocations"
 import { markYAMLScalarTag, xmlScalarTagPayload, yamlScalarTagAt } from "@nkdk/runtime"
+import { isTransportedBrokenPropertyScalar } from "../transportedBrokenReference"
 
 export interface FormYAMLItemVisit {
   yaml: Record<string, unknown>
@@ -84,6 +85,11 @@ function collectItem(params: {
     const rawValue = record[propertyRule.yaml]
     if (isDataPathRule(propertyRule) && typeof rawValue === "string") {
       const tagged = yamlScalarTagAt(record, propertyRule.yaml) === "xml"
+      if (isTransportedBrokenPropertyScalar({
+        rule: propertyRule,
+        yamlValue: rawValue,
+        tagged,
+      })) continue
       const value = tagged ? xmlScalarTagPayload(rawValue) : rawValue
       if (value.trim().length === 0) continue
       occurrences.push({

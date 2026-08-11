@@ -40,12 +40,13 @@ function withExplicitXMLValidationValue(params: {
     params.context.exportToJSONSchema?.explicitXMLValues !== true
     && params.context.exportToJSONSchema?.validationPropertyRefs !== true
   ) return params.schema
+  let schema = params.schema
   if (
     params.rule.type === "DataPath" &&
     params.rule.yaml === "ПутьКДанным" &&
     params.rule.allowedKinds !== undefined
   ) {
-    return Type.Union([params.schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
+    schema = Type.Union([schema, Type.String({ pattern: "^!xml[ \\t]+\\S.*$" })])
   }
   const mode = params.execution === undefined
     ? explicitXMLPropertyValidationMode(params.itemType, params.propertyKey, params.rule.type)
@@ -54,9 +55,14 @@ function withExplicitXMLValidationValue(params: {
         params.propertyKey,
         params.rule.type,
       )
-  if (mode === "empty") return Type.Union([params.schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
-  if (mode === "scalar") return Type.Union([params.schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
-  return params.schema
+  if (mode === "empty") schema = Type.Union([schema, Type.Literal(EMPTY_XML_TAG_VALUE)])
+  if (mode === "scalar") schema = Type.Union([schema, Type.String({ pattern: "^!xml(?: .*)?$" })])
+  return params.execution?.brokenXMLReferenceValidationSchema({
+    rule: params.rule,
+    base: schema,
+    validationGraph:
+      params.context.exportToJSONSchema?.validationPropertyRefs === true,
+  }) ?? schema
 }
 
 /**

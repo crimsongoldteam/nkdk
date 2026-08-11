@@ -39,6 +39,7 @@ import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
 import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
+import { yamlScalarTagAt } from "../../../yaml/scalarTags"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly execution?: PropertyRuleExecution
@@ -617,6 +618,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             name: params.name,
           })
         : rawSourceValue
+    const transportPreparation = params.execution?.prepareBrokenXMLReferenceExport({
+      rule: planned.propertyRule,
+      yamlValue: sourceValue,
+      isTagged: (path) => isRelativeYAMLScalarTagged(yaml, yamlKey, path),
+    })
+    const importSourceValue = transportPreparation?.yamlValue ?? sourceValue
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],
       ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),
@@ -641,7 +648,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         execution: params.execution,
         context: diagnosticContext,
         rule: planned.propertyRule,
-        value: sourceValue,
+        value: importSourceValue,
         referenceValue: atomicReferences[0],
         yaml,
         name: params.name,
@@ -677,7 +684,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             : {}),
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
-        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
+        const transportedXML =
+          transportPreparation === undefined || params.execution === undefined
+            ? exported
+            : params.execution.patchExportedBrokenXMLReferences({
+                rule: planned.propertyRule,
+                yamlValue: sourceValue,
+                xmlValue: exported,
+                preparation: transportPreparation,
+              })
+        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: transportedXML, reference })
         if (valuePath !== undefined && typeRule(planned.propertyRule.type, "finalizeExportedXML") !== undefined) {
           output.deferred.push({
             valuePath,
@@ -713,6 +729,22 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
     externalWrites,
   }
+}
+
+function isRelativeYAMLScalarTagged(
+  yaml: Readonly<Record<string, unknown>> | undefined,
+  propertyKey: string | undefined,
+  path: readonly (string | number)[],
+): boolean {
+  if (yaml === undefined || propertyKey === undefined) return false
+  if (path.length === 0) return yamlScalarTagAt(yaml, propertyKey) === "xml"
+  let parent: unknown = yaml[propertyKey]
+  for (const segment of path.slice(0, -1)) {
+    if (typeof parent !== "object" || parent === null) return false
+    parent = (parent as Readonly<Record<string | number, unknown>>)[segment]
+  }
+  const key = path[path.length - 1]
+  return key !== undefined && yamlScalarTagAt(parent, key) === "xml"
 }
 
 function configurationIndexContainsCurrentItem(context: ConfigurationContextWithExportToXML): boolean {
