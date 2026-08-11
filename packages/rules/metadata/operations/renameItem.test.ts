@@ -3,7 +3,6 @@ import { join } from "path"
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
 import { createTestProjectStateReadToken } from "../projectState/tests/readToken"
 import { createMetadataDiagnosticCollectionFromDiagnostics } from "@nkdk/runtime"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import type { ProjectStateService } from "../projectState/service"
 import type { Diagnostic } from "../validation/types"
 import {
@@ -20,7 +19,6 @@ import {
 } from "./tests/operationTestSupport"
 import { renameMetadataItem } from "./renameItem"
 
-registerCoreMetadata()
 
 const validationError = operationValidationError
 
@@ -335,7 +333,6 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
        projectState,
       ignoreValidationErrors: true,
     })
-
     expect(result.ok).toBe(true)
     expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
   })
@@ -393,7 +390,6 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectState,
       ignoreValidationErrors: true,
     })
-
     expect(result.ok).toBe(true)
     expect(readFileSync(formPath, "utf-8")).toContain(`ПутьКДанным: ${tagPrefix}Объект.Код`)
   })

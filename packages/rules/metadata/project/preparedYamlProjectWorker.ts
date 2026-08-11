@@ -38,7 +38,6 @@ import {
   type ValidationSchemaCacheCompileProfile,
 } from "../validation/projectValidationPasses"
 import { createProjectValidationWorkerSchemaCache } from "../validation/projectValidationWorkerSchemaCache"
-import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type {
@@ -62,16 +61,10 @@ import {
   type MetadataWorkerBinaryResult,
 } from "../workerPool/binaryResult"
 import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBinaryResult"
-import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
-import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 import { buildProjectStateYamlFileUpdate } from "./projectStateYamlUpdate"
 import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
-
-const projectSpecs = getRegisteredProjectSpecs()
-registerMetadataProjectSpecs(projectSpecs)
-registerValidationMetadata(projectSpecs)
 
 export type PreparedYamlProjectWorkerTask =
   | {

@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
-import { configurationValidationProjectSpec } from "./projectSpecs"
+import { getConfigurationMetadataProjectSpec } from "../projectDefinition/specs"
 
 const context = {
   version: "2.20",
@@ -20,7 +20,7 @@ describe("projectValidationWorkerSchemaCache", () => {
     }
     const cache = await createProjectValidationWorkerSchemaCache(workerParams)
     acceptsConfigurationNameOnly = cache
-      .properties(configurationValidationProjectSpec.rule)
+      .properties(getConfigurationMetadataProjectSpec().rule)
       .Check({ Имя: "Конфигурация" })
     rejectsNonObjectForm = cache.form(registeredProjectValidationFormRules()[0]!.rule).Check(42)
   })

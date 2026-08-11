@@ -1,24 +1,5 @@
-import {
-  getRegisteredSystemEnumerationNames,
-  registerSystemEnumeration,
-} from "@nkdk/runtime/rule-kit"
-import * as systemEnumerationExports from "./types"
-
-type EnumerationTables = Record<string, Readonly<Record<string, string>> | undefined>
-
-const systemEnumerationTables = systemEnumerationExports as unknown as EnumerationTables
-
-for (const [exportName, fromYAML] of Object.entries(systemEnumerationTables)) {
-  if (!exportName.endsWith("FromYAML") || fromYAML === undefined) continue
-  const name = exportName.slice(0, -"FromYAML".length)
-  const toYAML = systemEnumerationTables[`${name}ToYAML`]
-  if (toYAML === undefined) {
-    throw new Error(`System enumeration ${name} has no ToYAML table`)
-  }
-  registerSystemEnumeration(name, { fromYAML, toYAML })
-}
-
-export { getRegisteredSystemEnumerationNames }
+export { getRegisteredSystemEnumerationNames } from "@nkdk/runtime/rule-kit"
+export { systemEnumerationRules } from "./metadataRules"
 
 import "./fromXML"
 import "./fromYAML"

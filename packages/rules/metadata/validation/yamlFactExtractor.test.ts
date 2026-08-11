@@ -1,42 +1,26 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
-import { registerValidationMetadata } from "./registerValidationMetadata"
-import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
-import {
-  registerLocalYamlValueValidator,
-  restoreLocalYamlValueValidationRegistryForTests,
-  snapshotLocalYamlValueValidationRegistryForTests,
-  type LocalYamlValueValidationRegistrySnapshot,
-} from "./yamlValueValidationRegistry"
+import type { LocalYamlValueValidator } from "./yamlValueValidationRegistry"
 import { diagnosticAtYamlPath } from "./yamlLocations"
+import { defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createValidationRegistrySet } from "./validationRegistrySet"
 
-registerValidationMetadata(getRegisteredProjectSpecs())
 
 describe("extractValidationYamlFacts", () => {
-  let valueValidationRegistry: LocalYamlValueValidationRegistrySnapshot
-
-  beforeEach(() => {
-    valueValidationRegistry = snapshotLocalYamlValueValidationRegistryForTests()
-  })
-
-  afterEach(() => {
-    restoreLocalYamlValueValidationRegistryForTests(valueValidationRegistry)
-  })
-
   it("запускает локальную проверку для корневого item type", () => {
     const projectDir = "/project"
     const filePath = "/project/Справочник/Товары/Свойства.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
-    registerLocalYamlValueValidator({
-      type: file.itemType,
-      validator: (params) => [
+    const runtime = localValidationRuntime(file.itemType, (params) => [
         diagnosticAtYamlPath({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -45,13 +29,13 @@ describe("extractValidationYamlFacts", () => {
           source: "structure",
           message: `${params.owner.dir}.${params.owner.name}:${String(params.value === params.parsed.data)}`,
         }),
-      ],
-    })
+      ])
 
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("{}\n"),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      runtime,
     })
 
     expect(facts.diagnostics).toEqual(
@@ -69,9 +53,7 @@ describe("extractValidationYamlFacts", () => {
     const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
     if (file === undefined) throw new Error("file not resolved")
-    registerLocalYamlValueValidator({
-      type: "Picture",
-      validator: (params) => [
+    const runtime = localValidationRuntime("Picture", (params) => [
         diagnosticAtYamlPath({
           filePath: params.filePath,
           parsed: params.parsed,
@@ -80,13 +62,13 @@ describe("extractValidationYamlFacts", () => {
           source: "structure",
           message: String(params.value),
         }),
-      ],
-    })
+      ])
 
     const facts = extractValidationYamlFacts({
       file,
       parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      runtime,
     })
 
     expect(facts.diagnostics).toEqual(
@@ -364,3 +346,11 @@ describe("extractValidationYamlFacts", () => {
     expect(facts.diagnostics).toEqual([])
   })
 })
+
+function localValidationRuntime(type: string, validator: LocalYamlValueValidator) {
+  const rules = defineMetadataRules({
+    ...emptyMetadataRules,
+    validation: [{ kind: "localYamlValue", propertyType: type, validate: validator }],
+  })
+  return createValidationRegistrySet(rules, createRuleRegistrySet(rules))
+}

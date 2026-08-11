@@ -24,11 +24,6 @@ import {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
 } from "./projectReferenceIndex"
-import {
-  registerProjectReferenceValueContributor,
-  restoreProjectReferenceIndexRegistryForTests,
-  snapshotProjectReferenceIndexRegistryForTests,
-} from "./projectReferenceIndexRegistry"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 import type {
   ComponentValidationLayer,
@@ -232,54 +227,36 @@ describe("dependency validation из ProjectState", () => {
   })
 
   it("Б5 проверяет предопределённое значение общим поставщиком по сведениям владельца", () => {
-    const registry = snapshotProjectReferenceIndexRegistryForTests()
-    try {
-      registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
-        if (target.valueKind === "emptyRef") return undefined
-        const predefined = owner.facts.predefined as readonly { name: string }[] | undefined
-        return predefined?.some(({ name }) => name === target.valueName) === true
-          ? { ok: true, filePath: owner.filePath }
-          : undefined
-      })
-      const reference = valueReference("Справочник.Товары.Основной", {
-        roots: ["Catalog"],
-        valueKinds: ["predefinedValue"],
-      })
+    const reference = valueReference("Справочник.Товары.Основной", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
 
-      const diagnostics = validateProjectStateReferenceBatch({
-        projectDir: "/project",
-        checks: [{ requestId: "predefined", componentPath: "cf", reference }],
-        queryPort: missingValueQueryPort({ predefined: [{ name: "Основной" }] }),
-      })
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "predefined", componentPath: "cf", reference }],
+      queryPort: missingValueQueryPort({ predefined: [{ name: "Основной" }] }),
+    })
 
-      expect(diagnostics).toEqual([])
-    } finally {
-      restoreProjectReferenceIndexRegistryForTests(registry)
-    }
+    expect(diagnostics).toEqual([])
   })
 
   it("Б5 сообщает об отсутствующем предопределённом значении существующего владельца", () => {
-    const registry = snapshotProjectReferenceIndexRegistryForTests()
-    try {
-      registerProjectReferenceValueContributor("Catalog", () => undefined)
-      const reference = valueReference("Справочник.Товары.НетТакого", {
-        roots: ["Catalog"],
-        valueKinds: ["predefinedValue"],
-      })
+    const reference = valueReference("Справочник.Товары.НетТакого", {
+      roots: ["Catalog"],
+      valueKinds: ["predefinedValue"],
+    })
 
-      const diagnostics = validateProjectStateReferenceBatch({
-        projectDir: "/project",
-        checks: [{ requestId: "missing-predefined", componentPath: "cf", reference }],
-        queryPort: missingValueQueryPort({ predefined: [] }),
-      })
+    const diagnostics = validateProjectStateReferenceBatch({
+      projectDir: "/project",
+      checks: [{ requestId: "missing-predefined", componentPath: "cf", reference }],
+      queryPort: missingValueQueryPort({ predefined: [] }),
+    })
 
-      expect(diagnostics).toEqual([expect.objectContaining({
-        source: "reference",
-        message: 'Не найдена ссылка "Catalog.Товары.НетТакого"',
-      })])
-    } finally {
-      restoreProjectReferenceIndexRegistryForTests(registry)
-    }
+    expect(diagnostics).toEqual([expect.objectContaining({
+      source: "reference",
+      message: 'Не найдена ссылка "Catalog.Товары.НетТакого"',
+    })])
   })
 
   it.each([

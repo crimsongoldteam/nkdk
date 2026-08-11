@@ -100,133 +100,28 @@ export function createProjectReferenceRegistrySet(
   }
 }
 
-export function applyLegacyProjectReferenceContributions(
-  contributions: readonly ProjectReferenceContribution[],
-): void {
-  for (const contribution of contributions) {
-    if (contribution.kind === "objectPath") {
-      registerProjectReferenceObjectPathContributor(contribution.root, contribution.contributor)
-    } else if (contribution.kind === "member") {
-      registerProjectReferenceMemberContributor(contribution.memberKind, contribution.contributor)
-    } else if (contribution.kind === "value") {
-      registerProjectReferenceValueContributor(contribution.root, contribution.contributor)
-    } else if (contribution.kind === "fileValidator") {
-      registerProjectFileValidator(contribution.role, contribution.validator)
-    } else {
-      registerProjectReferenceMemberIndexContributor(contribution.contributor)
-    }
-  }
-}
-
-const objectPathContributors = new Map<MetadataRootName, ProjectReferenceObjectPathContributor>()
-const memberContributors = new Map<MetadataMemberKind, ProjectReferenceMemberContributor[]>()
-const valueContributors = new Map<MetadataRootName, ProjectReferenceValueContributor>()
-const projectFileValidators = new Map<string, ProjectFileValidator[]>()
-const memberIndexContributors: ProjectReferenceMemberIndexContributor[] = []
-
-export interface ProjectReferenceIndexRegistrySnapshot {
-  objectPathContributors: Map<MetadataRootName, ProjectReferenceObjectPathContributor>
-  memberContributors: Map<MetadataMemberKind, ProjectReferenceMemberContributor[]>
-  valueContributors: Map<MetadataRootName, ProjectReferenceValueContributor>
-  projectFileValidators: Map<string, ProjectFileValidator[]>
-  memberIndexContributors: ProjectReferenceMemberIndexContributor[]
-}
-
-export function registerProjectReferenceObjectPathContributor(
-  root: MetadataRootName,
-  contributor: ProjectReferenceObjectPathContributor
-): void {
-  objectPathContributors.set(root, contributor)
-}
-
 export function getProjectReferenceObjectPathContributor(
   root: MetadataRootName
 ): ProjectReferenceObjectPathContributor | undefined {
   return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getObjectPathContributor(root)
-    ?? objectPathContributors.get(root)
-}
-
-export function registerProjectReferenceMemberContributor(
-  kind: MetadataMemberKind,
-  contributor: ProjectReferenceMemberContributor
-): void {
-  memberContributors.set(kind, [...(memberContributors.get(kind) ?? []), contributor])
 }
 
 export function getProjectReferenceMemberContributors(
   kind: MetadataMemberKind
 ): readonly ProjectReferenceMemberContributor[] {
-  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberContributors(kind)
-    ?? memberContributors.get(kind) ?? []
-}
-
-export function registerProjectReferenceValueContributor(
-  root: MetadataRootName,
-  contributor: ProjectReferenceValueContributor
-): void {
-  valueContributors.set(root, contributor)
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberContributors(kind) ?? []
 }
 
 export function getProjectReferenceValueContributor(
   root: MetadataRootName
 ): ProjectReferenceValueContributor | undefined {
   return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getValueContributor(root)
-    ?? valueContributors.get(root)
-}
-
-export function registerProjectFileValidator(role: string, validator: ProjectFileValidator): void {
-  projectFileValidators.set(role, [...(projectFileValidators.get(role) ?? []), validator])
 }
 
 export function getProjectFileValidators(role: string): readonly ProjectFileValidator[] {
-  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getFileValidators(role)
-    ?? projectFileValidators.get(role) ?? []
-}
-
-export function registerProjectReferenceMemberIndexContributor(
-  contributor: ProjectReferenceMemberIndexContributor
-): void {
-  memberIndexContributors.push(contributor)
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getFileValidators(role) ?? []
 }
 
 export function getProjectReferenceMemberIndexContributors(): readonly ProjectReferenceMemberIndexContributor[] {
-  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberIndexContributors()
-    ?? memberIndexContributors
-}
-
-export function clearProjectReferenceIndexRegistryForTests(): void {
-  objectPathContributors.clear()
-  memberContributors.clear()
-  valueContributors.clear()
-  projectFileValidators.clear()
-  memberIndexContributors.splice(0)
-}
-
-export function snapshotProjectReferenceIndexRegistryForTests(): ProjectReferenceIndexRegistrySnapshot {
-  return {
-    objectPathContributors: new Map(objectPathContributors),
-    memberContributors: cloneArrayMap(memberContributors),
-    valueContributors: new Map(valueContributors),
-    projectFileValidators: cloneArrayMap(projectFileValidators),
-    memberIndexContributors: [...memberIndexContributors],
-  }
-}
-
-export function restoreProjectReferenceIndexRegistryForTests(
-  snapshot: ProjectReferenceIndexRegistrySnapshot
-): void {
-  replaceMap(objectPathContributors, snapshot.objectPathContributors)
-  replaceMap(memberContributors, snapshot.memberContributors)
-  replaceMap(valueContributors, snapshot.valueContributors)
-  replaceMap(projectFileValidators, snapshot.projectFileValidators)
-  memberIndexContributors.splice(0, memberIndexContributors.length, ...snapshot.memberIndexContributors)
-}
-
-function cloneArrayMap<Key, Value>(map: Map<Key, Value[]>): Map<Key, Value[]> {
-  return new Map([...map.entries()].map(([key, value]) => [key, [...value]]))
-}
-
-function replaceMap<Key, Value>(target: Map<Key, Value>, source: Map<Key, Value>): void {
-  target.clear()
-  for (const [key, value] of source) target.set(key, value)
+  return currentValidationRegistrySet<ContextualValidationRegistry>()?.references.getMemberIndexContributors() ?? []
 }

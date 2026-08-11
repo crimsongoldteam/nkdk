@@ -2,7 +2,8 @@ import { compileValidationSchema, type ValidationSchemaValidator } from "./compi
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { resolve } from "path"
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import { createRuleSchemaRuntime, currentRuleRegistrySet, rootFromYAML } from "@nkdk/runtime/rule-kit"
+import type { RuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
@@ -27,7 +28,7 @@ import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from "./projectSpecs"
 import type { ValidationFormIndexContribution, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
@@ -42,6 +43,7 @@ import type { FormStructuredComponent } from "./formContracts"
 import { collectAddressableRequiredChecks } from "./addressableRequired"
 import { collectAddressableMetadataLogicalAddresses } from "./addressableMetadataTargets"
 import type { ValidationRegistrySet } from "./validationRegistrySet"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-overlay"
@@ -180,6 +182,10 @@ export function readProjectYamlDiagnostic(entry: { filePath: string; error: Erro
 }
 
 export function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
+  const contextualRules = currentRuleRegistrySet<RuleRegistrySet>()
+  const schemaRuntime = contextualRules === undefined
+    ? undefined
+    : createRuleSchemaRuntime(contextualRules, (name) => new Error(`Неизвестная JSON Schema: ${name}`))
   const propertiesSchemas = new Map<string, CompiledSchema>()
   const formSchemas = new WeakMap<MetadataItemRule, Partial<Record<ValidationSchemaVariant, CompiledSchema>>>()
 
@@ -187,7 +193,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
     form(rule, variant = "full") {
       const existing = formSchemas.get(rule)?.[variant]
       if (existing !== undefined) return existing
-      const compiled = compileRegisteredFormSchema(context, rule, variant)
+      const compiled = compileRegisteredFormSchema(context, rule, variant, schemaRuntime)
       formSchemas.set(rule, { ...formSchemas.get(rule), [variant]: compiled })
       return compiled
     },
@@ -197,7 +203,8 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       if (existing) return existing
 
       const globalKey = [context.version, context.defaultLanguage, variant, rule.itemType].join(":")
-      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, rule, variant)
+      const compiled = propertiesSchemaCache.get(globalKey)
+        ?? compileProjectPropertiesSchema(context, rule, variant, schemaRuntime)
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -230,7 +237,17 @@ function compileProjectPropertiesSchema(
   context: ConfigurationContext,
   rule: MetadataItemRule,
   variant: ValidationSchemaVariant,
+  runtime?: RuleSchemaRuntime,
 ): CompiledSchema {
+  if (runtime !== undefined) {
+    return compileValidationSchema(runtime.exportRule({
+      context,
+      rule,
+      mode: "inline",
+      excludeImplicitValueYAML: true,
+      requiredPolicy: requiredPolicy(variant),
+    }))
+  }
   const graph = exportJSONSchemaGraph({
     context,
     excludeImplicitValueYAML: true,
@@ -243,10 +260,17 @@ function compileProjectPropertiesSchema(
 }
 
 function validationProjectPropertyRules(): MetadataItemRule[] {
+  const rules = currentRuleRegistrySet<RuleRegistrySet>()
+  if (rules !== undefined) {
+    return uniqueRulesByItemType([
+      ...rules.projectSpecs.values().map(({ rule }) => rule),
+      ...rules.components.values().map(({ rootRule }) => rootRule),
+    ])
+  }
   return uniqueRulesByItemType([
-    configurationValidationProjectSpec.rule,
+    ...[getConfigurationValidationProjectSpec()?.rule].filter((rule): rule is MetadataItemRule => rule !== undefined),
     getMetadataComponentDescriptor("configurationExtension").rootRule,
-    ...validationProjectSpecs.map((spec) => spec.rule),
+    ...getValidationProjectSpecs().map((spec) => spec.rule),
   ])
 }
 
@@ -262,11 +286,26 @@ function compileRegisteredFormSchema(
   context: ConfigurationContext,
   rule: MetadataItemRule,
   variant: ValidationSchemaVariant,
+  runtime?: RuleSchemaRuntime,
 ): CompiledSchema {
   const cacheKey = `${context.version}:${context.defaultLanguage}:${variant}`
   let schemasByContext = formSchemaCache.get(rule)
   const cached = schemasByContext?.get(cacheKey)
   if (cached !== undefined) return cached
+
+  if (runtime !== undefined) {
+    const compiled = compileValidationSchema(runtime.exportRule({
+      context,
+      rule,
+      mode: "inline",
+      includeNestedChildItems: true,
+      requiredPolicy: requiredPolicy(variant),
+    }))
+    schemasByContext ??= new Map()
+    schemasByContext.set(cacheKey, compiled)
+    formSchemaCache.set(rule, schemasByContext)
+    return compiled
+  }
 
   const graph = exportJSONSchemaGraph({
     context,
@@ -631,6 +670,7 @@ function validateProjectPropertiesFirstPass(params: {
   const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
     parsed,
+    runtime: params.runtime,
   })
   const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
@@ -885,8 +925,11 @@ function metadataFieldKindFromObjectFieldKind(kind: ObjectFieldKind): MetadataFi
 function validateRegisteredProjectFileValidators(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
+  runtime?: ValidationRegistrySet
 }): Diagnostic[] {
-  return getProjectFileValidators(params.file.owner.spec.kind).flatMap((validator) =>
+  const validators = params.runtime?.references.getFileValidators(params.file.owner.spec.kind)
+    ?? getProjectFileValidators(params.file.owner.spec.kind)
+  return validators.flatMap((validator) =>
     validator({ filePath: params.file.absolutePath, parsed: params.parsed })
   )
 }

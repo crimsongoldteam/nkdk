@@ -1,4 +1,5 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { composeMetadataRules } from "../../ruleRuntime/definition"
 import { MetadataRegisterDimensionRules } from "./rules"
 
 const propertyTypes = [
@@ -9,8 +10,9 @@ const propertyTypes = [
   "MetadataCalculationRegisterDimensions",
 ] as const
 
-for (const propertyType of propertyTypes) {
-  registerMetadataItemCollectionRule({
+export const metadataRegisterDimensionCollectionRules = composeMetadataRules(
+  ...propertyTypes.map((propertyType) =>
+    defineMetadataItemCollectionRule({
     propertyType,
     ...(propertyType === "MetadataRegisterDimensions"
       ? {}
@@ -19,5 +21,5 @@ for (const propertyType of propertyTypes) {
     xmlElement: "Dimension",
     keyField: "name",
     collectionItemRule: true,
-  })
-}
+    })),
+)

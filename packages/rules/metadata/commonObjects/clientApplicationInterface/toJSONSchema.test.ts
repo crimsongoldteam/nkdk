@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { getValidationSchemaRef } from "../../ruleRuntime/jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import "./register"
 
-registerCoreMetadata()
 
 describe("ClientApplicationInterfaceItems JSON Schema", () => {
   it("показывает ПустоеОпределение только validation-схеме", () => {

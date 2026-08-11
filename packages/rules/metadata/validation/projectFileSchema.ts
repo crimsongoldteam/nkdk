@@ -2,6 +2,7 @@ import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "@nkdk/runtime"
 import { classifyMetadataProjectPath } from "../projectDefinition/resources"
 import type { RuleRegistrySet, RuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
+import { createRuleSchemaRuntime, currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import { parseProjectPath, projectPathFromFileSystem } from "../projectDefinition/path"
 import {
   ensureJSONSchemaRegistry,
@@ -45,7 +46,17 @@ export function exportJSONSchemaForProjectFile(
   params: ExportJSONSchemaForProjectFileParams,
   runtime?: ProjectFileSchemaRuntime,
 ): TSchema {
-  if (runtime === undefined) ensureJSONSchemaRegistry()
+  const contextualRules = currentRuleRegistrySet<RuleRegistrySet>()
+  const effectiveRuntime = runtime ?? (contextualRules === undefined ? undefined : {
+    rules: contextualRules,
+    schemas: createRuleSchemaRuntime(
+      contextualRules,
+      (name, available) => new ProjectFileSchemaError(
+        `Неизвестная JSON Schema "${name}". Доступные имена: ${available.join(", ")}`,
+      ),
+    ),
+  })
+  if (effectiveRuntime === undefined) ensureJSONSchemaRegistry()
   const normalized = normalizeProjectPath(params)
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {
@@ -53,15 +64,15 @@ export function exportJSONSchemaForProjectFile(
   }
 
   const resourceContext = (() => {
-    if (runtime === undefined) return undefined
-    const rootSpec = runtime.rules.projectSpecs.get("")
+    if (effectiveRuntime === undefined) return undefined
+    const rootSpec = effectiveRuntime.rules.projectSpecs.get("")
     if (rootSpec === undefined) {
       throw new ProjectFileSchemaError("Не найден корневой project spec")
     }
     return {
-      topology: runtime.rules.resourceTopology.get(),
+      topology: effectiveRuntime.rules.resourceTopology.get(),
       rootSpec,
-      projectSpecs: runtime.rules.projectSpecs,
+      projectSpecs: effectiveRuntime.rules.projectSpecs,
     }
   })()
   const resource = classifyMetadataProjectPath(
@@ -76,15 +87,15 @@ export function exportJSONSchemaForProjectFile(
     throw new ProjectFileSchemaError("JSON Schema для этого вида metadata-ресурса не поддерживается")
   }
 
-  if (runtime !== undefined) {
+  if (effectiveRuntime !== undefined) {
     if (resource.role === "form") {
-      return runtime.schemas.exportRule({
+      return effectiveRuntime.schemas.exportRule({
         context: params.context,
         rule: resource.itemRule,
         mode: params.mode,
       })
     }
-    return runtime.schemas.exportDefinition({
+    return effectiveRuntime.schemas.exportDefinition({
       context: params.context,
       mode: params.mode,
       excludeImplicitValueYAML: true,
@@ -111,6 +122,7 @@ export function exportJSONSchemaForProjectFile(
     return resource.owner.spec.exportSchema({
       context: params.context,
       mode: params.mode,
+      execution: currentRuleRegistrySet<RuleRegistrySet>()?.execution,
     })
   }
 
@@ -119,6 +131,7 @@ export function exportJSONSchemaForProjectFile(
       context: params.context,
       mode: params.mode,
       name: resource.owner.name,
+      execution: currentRuleRegistrySet<RuleRegistrySet>()?.execution,
     })
   }
 

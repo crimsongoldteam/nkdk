@@ -1,11 +1,12 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { applyMetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import type { MetadataItemRule } from "../property/types"
 import type { PropertyRuleExecution } from "../property/fn"
 import { findInlineProperty } from "./yamlInline"
+import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
+import type { MetadataItemXmlImportAugmenter } from "./augmenterRegistry"
 
 type InlineProperty = ReturnType<typeof findInlineProperty>
 
@@ -42,7 +43,13 @@ export function importMetadataItemFromXMLToYAML(params: {
     execution: propertyExecutionFromTraversal(params.traversal),
   })
   if (yaml !== undefined) {
-    applyMetadataItemXmlImportAugmenter({
+    const augmenterRegistry = propertyExecutionFromTraversal(params.traversal) ??
+      currentPropertyRuleRegistrySet<{
+        applyMetadataItemXmlImportAugmenter(
+          value: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0],
+        ): void
+      }>()
+    augmenterRegistry?.applyMetadataItemXmlImportAugmenter({
       context,
       rule: params.rule,
       source,

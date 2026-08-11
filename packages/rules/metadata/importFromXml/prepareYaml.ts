@@ -23,22 +23,19 @@ import {
 } from "@nkdk/runtime/rule-kit"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "@nkdk/runtime/rule-kit"
 import { createLocalIndexesCollector, type LocalIndexes } from "../projectDefinition/localIndexes"
-import { findRegisteredProjectRule, getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
+import { findRegisteredProjectRule } from "../projectDefinition/projectSpecRegistry"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { ValidationProfiler } from "../validation/profile"
 import type { ConfigurationSnapshotFragment } from "@nkdk/runtime"
 import { expandMetadataPathPattern, matchMetadataPathPattern } from "../resourceTopology/core/patterns"
-import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 import {
   normalizeImportedDependentItems,
   partitionImportedDependentItems,
   preserveDeferredDependentRawXML,
 } from "./dependentItems"
-
-registerOwnerFactCollectors(getRegisteredProjectSpecs())
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment

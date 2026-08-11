@@ -35,6 +35,26 @@ import type {} from "../importFromXml/worker"
 import type {} from "../project/workerOperation.types"
 import type {} from "../workerPool/projectQueries"
 import { createDefaultProjectStateService } from "./projectState"
+import { fillValueRules } from "../commonObjects/fillValue/register"
+import { metadataAttributeCollectionRules } from "../commonObjects/metadataAttribute/register"
+import { metadataTabularSectionCollectionRules } from "../commonObjects/metadataTabularSection/register"
+import { formElementCollectionRules } from "../forms/elements/collectionRules"
+import { defineOwnerFactCollectorRules } from "../validation/registerValidationMetadata"
+import { systemEnumerationRules } from "../systemEnumerations/metadataRules"
+import { metadataRegisterAttributeCollectionRules } from "../commonObjects/metadataRegisterAttribute/register"
+import { metadataRegisterDimensionCollectionRules } from "../commonObjects/metadataRegisterDimension/register"
+import { metadataRegisterResourceCollectionRules } from "../commonObjects/metadataRegisterResource/register"
+import { eventBaseFormProjectionRules } from "../forms/commonObjects/event/baseFormProjection"
+import { dataPathBaseFormProjectionRules } from "../forms/commonObjects/dataPath/baseFormProjection"
+import { commandNameBaseFormProjectionRules } from "../forms/commonObjects/commandName/baseFormProjection"
+import { commandInterfaceBaseFormProjectionRules } from "../forms/commonObjects/commandInterface/baseFormProjection"
+import { clientApplicationFormResourceCapabilityRules } from "../forms/clientApplicationForm/propertyRules"
+import { childFormNamesResourceCapabilityRules } from "../forms/clientApplicationForm/childFormNamesResourceAdapter"
+import { helpResourceCapabilityRules } from "../commonObjects/help/toXML"
+import { configurationResourceCapabilityRules } from "../appliedObjects/configuration/register"
+import { commonObjectExternalTransferCapabilityRules } from "../commonObjects/resourceTopology"
+import { appliedObjectResourceCapabilityRules } from "../ruleRuntime/appliedObject/syncToXML"
+import { clientApplicationFormImportedYamlFinalizerRules } from "../forms/clientApplicationForm/importedYamlFinalizer"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -43,6 +63,9 @@ const staticPropertyRules = defineMetadataRules({
 
 const appliedObjectProjectRules = defineAppliedObjectProjectRules(
   staticFactoryRules.metadataItems,
+)
+const ownerFactCollectorRules = defineOwnerFactCollectorRules(
+  Object.values(appliedObjectProjectRules.projectSpecs),
 )
 const formSchemaRules = defineFormSchemaRules(
   formElementRules.formElements,
@@ -72,16 +95,36 @@ const operationRules = defineMetadataRules({
 export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
+  systemEnumerationRules,
   appliedObjectProjectRules,
+  ownerFactCollectorRules,
   appliedObjectComponentRules,
   clientApplicationFormValidationRules,
   clientApplicationFormPropertyRules,
   childFormNamesPropertyRules,
+  fillValueRules,
+  metadataAttributeCollectionRules,
+  metadataTabularSectionCollectionRules,
+  metadataRegisterAttributeCollectionRules,
+  metadataRegisterDimensionCollectionRules,
+  metadataRegisterResourceCollectionRules,
+  formElementCollectionRules,
   formElementCatalogRules,
   formSchemaRules,
   projectReferenceRules,
   dataPathRules,
   operationRules,
+  eventBaseFormProjectionRules,
+  dataPathBaseFormProjectionRules,
+  commandNameBaseFormProjectionRules,
+  commandInterfaceBaseFormProjectionRules,
+  clientApplicationFormResourceCapabilityRules,
+  childFormNamesResourceCapabilityRules,
+  helpResourceCapabilityRules,
+  configurationResourceCapabilityRules,
+  commonObjectExternalTransferCapabilityRules,
+  appliedObjectResourceCapabilityRules,
+  clientApplicationFormImportedYamlFinalizerRules,
 )
 
 const rulesWithoutTopology = composeMetadataRules(

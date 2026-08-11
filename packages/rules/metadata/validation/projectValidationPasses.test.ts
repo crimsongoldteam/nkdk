@@ -6,15 +6,16 @@ import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { type ValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
-import {
-  registerProjectFileValidator,
-  restoreProjectReferenceIndexRegistryForTests,
-  snapshotProjectReferenceIndexRegistryForTests,
-} from "./projectReferenceIndexRegistry"
+import type { ProjectFileValidator } from "./projectReferenceIndexRegistry"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { assertProjectStateFileUpdateBatch, toProjectStateFileUpdate } from "../projectState/fileUpdate"
 import { createTestValidationSchemaCache } from "./tests/testValidationSchemaCache"
 import { createValidationProjectComponent } from "./projectComponents"
+import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { metadataRules } from "../composition/metadataRules"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createValidationRegistrySet } from "./validationRegistrySet"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -199,9 +200,7 @@ describe("validateProjectFileFirstPass references", () => {
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
     const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
     if (!file) throw new Error("file not resolved")
-    const registry = snapshotProjectReferenceIndexRegistryForTests()
-    try {
-      registerProjectFileValidator(file.owner.spec.kind, ({ filePath }) => [
+    const runtime = validationRuntimeWithFileValidator(file.owner.spec.kind, ({ filePath }) => [
         {
           filePath,
           line: 1,
@@ -220,6 +219,7 @@ describe("validateProjectFileFirstPass references", () => {
         context: mockContext,
         schemaCache: sharedSchemaCache,
         rulesSnapshot: createValidationRulesSnapshot(mockContext),
+        runtime,
       })
 
       expect(first.contributedFacts).toBe(false)
@@ -227,9 +227,6 @@ describe("validateProjectFileFirstPass references", () => {
         expect.arrayContaining([expect.objectContaining({ path: "/RegisteredFailure", source: "structure" })])
       )
       expect(first.schemaDiagnostics).toEqual([])
-    } finally {
-      restoreProjectReferenceIndexRegistryForTests(registry)
-    }
   })
 
   it("validates common form body through the shared form schema", () => {
@@ -659,4 +656,16 @@ function writeProjectFile(projectDir: string, projectPath: string, lines: string
   mkdirSync(dirname(filePath), { recursive: true })
   const text = Array.isArray(lines) ? lines.join("\n") : lines
   writeFileSync(filePath, `${text.trimEnd()}\n`)
+}
+
+function validationRuntimeWithFileValidator(role: string, validator: ProjectFileValidator) {
+  const definition = composeMetadataRules(
+    metadataRules,
+    defineMetadataRules({
+      ...emptyMetadataRules,
+      references: [{ kind: "fileValidator", role, validator }],
+    }),
+  )
+  const rules = createRuleRegistrySet(definition)
+  return createValidationRegistrySet(definition, rules)
 }

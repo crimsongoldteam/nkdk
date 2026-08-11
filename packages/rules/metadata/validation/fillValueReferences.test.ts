@@ -2,7 +2,6 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { serializeYAMLDocument } from "@nkdk/runtime"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
@@ -10,7 +9,6 @@ import { createValidationSchemaCache } from "./projectValidationPasses"
 import { validateSerializedProjectYaml } from "../importFromXml/serializedYamlValidation"
 import { toProjectStateFileUpdate } from "../projectState/fileUpdate"
 
-registerCoreMetadata()
 
 const schemaCache = createValidationSchemaCache(mockContext)
 const rulesSnapshot = createValidationRulesSnapshot(mockContext)

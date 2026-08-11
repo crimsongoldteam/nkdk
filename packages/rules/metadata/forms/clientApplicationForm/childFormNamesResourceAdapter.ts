@@ -1,10 +1,10 @@
 import fs from "fs"
 import { dirname, join } from "path"
 
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
+import { defineMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import "./partialXmlPackage"
 
-registerMetadataXmlPrepareCapability({
+export const childFormNamesResourceCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "ClientApplicationFormHelp",
   run: ({ assignment, preparedYamlFile, outputs }) => {
     const output = outputs.find((candidate) => candidate.role === "property")

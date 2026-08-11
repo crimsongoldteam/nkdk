@@ -1,5 +1,11 @@
-import { registerBaseFormPropertyProjector } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
-registerBaseFormPropertyProjector("Events", {
-  project: () => ({ kind: "omit" }),
+export const eventBaseFormProjectionRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: [{
+    kind: "baseFormPropertyProjector",
+    propertyType: "Events",
+    projector: { project: () => ({ kind: "omit" }) },
+  }],
 })

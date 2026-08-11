@@ -5,7 +5,6 @@ import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
-import "../../appliedObjects/dataPathCommon/register"
 import type { MetadataItem } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadata } from "./ownerCache"
 import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"

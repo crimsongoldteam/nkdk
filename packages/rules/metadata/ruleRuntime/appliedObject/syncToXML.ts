@@ -14,7 +14,8 @@ import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../property/deferredObjectValues"
 import { withYAMLImportDiagnostics } from "../yamlImportError"
 import { getFileItemXMLRootContainer } from "./fileItemChildCollections"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
+import { defineMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
+import { composeMetadataRules } from "../definition"
 import { withConfigurationIndexExportPropertyContext } from "@nkdk/runtime"
 import type { MetadataXmlPrepareComposition } from "../../resourceTopology/adapters/capabilities"
 
@@ -130,7 +131,7 @@ function collectFileChildPropertyValues(params: {
   return values
 }
 
-registerMetadataXmlPrepareCapability({
+const appliedObjectPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "appliedObject",
   run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
@@ -173,7 +174,7 @@ function collectCompositionChildPropertyValues(params: {
   return values
 }
 
-registerMetadataXmlPrepareCapability({
+const itemPropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "itemProperty",
   run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, profile }) => {
     const yaml = preparedYamlFile.data
@@ -242,7 +243,7 @@ registerMetadataXmlPrepareCapability({
   },
 })
 
-registerMetadataXmlPrepareCapability({
+const externalFilePropertyPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "externalFileProperty",
   run: ({
     assignment,
@@ -355,6 +356,12 @@ registerMetadataXmlPrepareCapability({
     })
   },
 })
+
+export const appliedObjectResourceCapabilityRules = composeMetadataRules(
+  appliedObjectPrepareCapabilityRules,
+  itemPropertyPrepareCapabilityRules,
+  externalFilePropertyPrepareCapabilityRules,
+)
 
 function selectedBasePropertyYAML(
   output: { readonly baseInput?: { readonly value: string; readonly propertyName?: string } },

@@ -1,7 +1,7 @@
 import { resolve } from "path"
 import { CONFIGURATION_YAML_FILE } from "./constants"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
-import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "../projectDefinition/specs"
+import { getMetadataProjectSpecByDir, getMetadataProjectSpecs, type MetadataProjectSpec } from "../projectDefinition/specs"
 import { projectPathFromFileSystem } from "../projectDefinition/path"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 
@@ -445,7 +445,7 @@ function projectSpecs(
   registries?: ProjectStructureRegistries,
 ): MetadataProjectSpec[] {
   return registries === undefined
-    ? metadataProjectSpecs
+    ? [...getMetadataProjectSpecs()]
     : [...registries.projectSpecs.values()]
       .filter((spec) => spec.dir !== "")
       .sort((left, right) => left.dir.localeCompare(right.dir, "ru"))

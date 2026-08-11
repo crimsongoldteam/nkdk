@@ -3,27 +3,9 @@ import type { ObjectField, OwnerMetadata, OwnerMetadataCache } from "./contracts
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 import {
   commonStandardMemberFillValuePolicy,
-  clearStandardMembersForTests,
-  registerStandardMembers,
-  restoreStandardMembersForTests,
-  snapshotStandardMembersForTests,
-  type StandardMemberDeclaration as SnapshotStandardMemberDeclaration,
 } from "../../standardMembers/declarations"
 import type { StandardMemberDeclaration } from "../../standardMembers/declarations"
 import { currentDataPathRegistrySet } from "./dataPathExecutionContext"
-import {
-  clearOwnerKindRegistryForTests,
-  getDataPathOwnerKind,
-  getDataPathOwnerKindByItemType,
-  getMetadataLinkPrefixesByOwnerKind,
-  getOwnerKindByMetadataLinkPrefix,
-  getOwnerKindByRegisterRecordSetBase,
-  getOwnerKindByTypeDescriptionBase,
-  registerDataPathOwnerKind,
-  restoreOwnerKindRegistryForTests,
-  snapshotOwnerKindRegistryForTests,
-  type OwnerKindRegistrySnapshot,
-} from "./ownerKindRegistry"
 export {
   getDataPathOwnerKind,
   getDataPathOwnerKindByItemType,
@@ -31,7 +13,6 @@ export {
   getOwnerKindByMetadataLinkPrefix,
   getOwnerKindByRegisterRecordSetBase,
   getOwnerKindByTypeDescriptionBase,
-  registerDataPathOwnerKind,
   type DataPathOwnerKindRegistration,
 } from "./ownerKindRegistry"
 
@@ -139,6 +120,7 @@ export type DataPathContribution = DataPathRegistrationContribution | {
 }
 
 export interface DataPathRegistrySet {
+  registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void
   getOwnerKind(kind: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
   getOwnerKindByItemType(itemType: string): import("./ownerKindRegistry").DataPathOwnerKindRegistration | undefined
   getOwnerKindByTypeDescriptionBase(baseType: string): string | undefined
@@ -156,6 +138,7 @@ export interface DataPathRegistrySet {
   getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[]
   standardMemberInternalToYaml(internalName: string): string | undefined
   standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined
+  getStandardMemberNamePairs(): readonly import("../../standardMembers/declarations").StandardMemberNames[]
 }
 
 export function createDataPathRegistrySet(contributions: readonly DataPathContribution[]): DataPathRegistrySet {
@@ -175,6 +158,14 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     registerRecords: [] as RegisterRecordsItemResolver[],
   }
   const standardMembers = new Map<string, StandardMemberDeclaration[]>()
+  const addStandardMembers = (ownerKind: string, members: readonly StandardMemberDeclaration[]) => {
+    const normalized = members.map((member) => {
+      if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
+      const fillValue = commonStandardMemberFillValuePolicy(member.names.internal)
+      return fillValue === undefined ? member : { ...member, fillValue }
+    })
+    standardMembers.set(ownerKind, [...(standardMembers.get(ownerKind) ?? []), ...normalized])
+  }
   const ownerKindLookup: DataPathOwnerKindLookup = {
     get: (kind) => ownerKinds.get(kind),
     getByItemType: (itemType) => [...new Set(ownerKinds.values())].find(({ rule }) => rule.itemType === itemType),
@@ -206,12 +197,7 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     else if (contribution.kind === "opaqueTraversal") resolvers.opaque.push(contribution.resolver)
     else if (contribution.kind === "registerRecordsItem") resolvers.registerRecords.push(contribution.resolver)
     else {
-      const normalized = contribution.members.map((member) => {
-        if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
-        const fillValue = commonStandardMemberFillValuePolicy(member.names.internal)
-        return fillValue === undefined ? member : { ...member, fillValue }
-      })
-      standardMembers.set(contribution.ownerKind, [...(standardMembers.get(contribution.ownerKind) ?? []), ...normalized])
+      addStandardMembers(contribution.ownerKind, contribution.members)
     }
   }
 
@@ -223,6 +209,9 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     return undefined
   }
   return {
+    registerStandardMembers(ownerKind, members) {
+      addStandardMembers(ownerKind, members)
+    },
     getOwnerKind: (kind) => ownerKinds.get(kind),
     getOwnerKindByItemType: (itemType) => [...new Set(ownerKinds.values())].find(({ rule }) => rule.itemType === itemType),
     getOwnerKindByTypeDescriptionBase: (baseType) => ownerKindsByTypeBase.get(baseType),
@@ -247,227 +236,79 @@ export function createDataPathRegistrySet(contributions: readonly DataPathContri
     },
     standardMemberYamlToInternalForOwnerKind: (ownerKind, yamlName) =>
       standardMembers.get(ownerKind)?.find(({ names }) => names.yaml === yamlName)?.names.internal,
+    getStandardMemberNamePairs: () => {
+      const pairs = new Map<string, import("../../standardMembers/declarations").StandardMemberNames>()
+      for (const members of standardMembers.values()) {
+        for (const member of members) {
+          pairs.set(`${member.names.internal}\u0000${member.names.yaml}`, member.names)
+          if (member.memberKind === "standardTabularSection") {
+            for (const column of member.columns) {
+              pairs.set(`${column.names.internal}\u0000${column.names.yaml}`, column.names)
+            }
+          }
+        }
+      }
+      return [...pairs.values()]
+    },
   }
-}
-
-export function applyLegacyDataPathContributions(contributions: readonly DataPathContribution[]): void {
-  const lookup: DataPathOwnerKindLookup = {
-    get: getDataPathOwnerKind,
-    getByItemType: getDataPathOwnerKindByItemType,
-    getByTypeDescriptionBase: getOwnerKindByTypeDescriptionBase,
-    getByRegisterRecordSetBase: getOwnerKindByRegisterRecordSetBase,
-    getByMetadataLinkPrefix: getOwnerKindByMetadataLinkPrefix,
-    getMetadataLinkPrefixes: getMetadataLinkPrefixesByOwnerKind,
-  }
-  const registrations = contributions.flatMap((contribution) =>
-    contribution.kind === "provider" ? contribution.create(lookup) : [contribution],
-  )
-  for (const contribution of registrations) {
-    if (contribution.kind === "ownerKind") registerDataPathOwnerKind(contribution.registration)
-    else if (contribution.kind === "typeResolver") registerDataPathTypeResolver(contribution.resolver)
-    else if (contribution.kind === "objectFieldCollections") registerObjectFieldCollectionProvider(contribution.provider)
-    else if (contribution.kind === "standardAttributeType") registerStandardAttributeTypeResolver(contribution.resolver)
-    else if (contribution.kind === "virtualOwnerField") registerVirtualOwnerFieldResolver(contribution.resolver)
-    else if (contribution.kind === "tableColumn") registerTableColumnResolver(contribution.resolver)
-    else if (contribution.kind === "traversalTransition") registerTraversalTransitionResolver(contribution.resolver)
-    else if (contribution.kind === "opaqueTraversal") registerOpaqueTraversalResolver(contribution.resolver)
-    else if (contribution.kind === "registerRecordsItem") registerRegisterRecordsItemResolver(contribution.resolver)
-    else registerStandardMembers(contribution.ownerKind, contribution.members)
-  }
-}
-
-const typeResolvers: DataPathTypeResolver[] = []
-const objectFieldCollectionProviders: ObjectFieldCollectionProvider[] = []
-const standardAttributeTypeResolvers: StandardAttributeTypeResolver[] = []
-const virtualOwnerFieldResolvers: VirtualOwnerFieldResolver[] = []
-const tableColumnResolvers: TableColumnResolver[] = []
-const traversalTransitionResolvers: TraversalTransitionResolver[] = []
-const opaqueTraversalResolvers: OpaqueTraversalResolver[] = []
-const registerRecordsItemResolvers: RegisterRecordsItemResolver[] = []
-
-export interface DataPathResolverRegistrySnapshot {
-  ownerKinds: OwnerKindRegistrySnapshot
-  typeResolvers: DataPathTypeResolver[]
-  objectFieldCollectionProviders: ObjectFieldCollectionProvider[]
-  standardAttributeTypeResolvers: StandardAttributeTypeResolver[]
-  virtualOwnerFieldResolvers: VirtualOwnerFieldResolver[]
-  tableColumnResolvers: TableColumnResolver[]
-  traversalTransitionResolvers: TraversalTransitionResolver[]
-  opaqueTraversalResolvers: OpaqueTraversalResolver[]
-  registerRecordsItemResolvers: RegisterRecordsItemResolver[]
-  standardMembers: Map<string, SnapshotStandardMemberDeclaration[]>
-}
-
-export function registerDataPathTypeResolver(resolver: DataPathTypeResolver): void {
-  typeResolvers.push(resolver)
 }
 
 export function resolveRegisteredDataPathType(params: {
   baseType: string
   name?: string
 }): DataPathTypeInfo | undefined {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveType(params)
-  for (const resolver of typeResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function registerObjectFieldCollectionProvider(provider: ObjectFieldCollectionProvider): void {
-  objectFieldCollectionProviders.push(provider)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveType(params)
 }
 
 export function getObjectFieldCollectionDescriptors(owner: OwnerMetadata): readonly ObjectFieldCollectionDescriptor[] {
-  return currentDataPathRegistrySet<DataPathRegistrySet>()?.getObjectFieldCollections(owner)
-    ?? objectFieldCollectionProviders.flatMap((provider) => [...provider({ owner })])
-}
-
-export function registerStandardAttributeTypeResolver(resolver: StandardAttributeTypeResolver): void {
-  standardAttributeTypeResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.getObjectFieldCollections(owner) ?? []
 }
 
 export function resolveStandardAttributeType(
   params: Parameters<StandardAttributeTypeResolver>[0]
 ): DataPathTypeInfo | undefined {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveStandardAttributeType(params)
-  for (const resolver of standardAttributeTypeResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function registerVirtualOwnerFieldResolver(resolver: VirtualOwnerFieldResolver): void {
-  virtualOwnerFieldResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveStandardAttributeType(params)
 }
 
 export function resolveVirtualOwnerField(
   params: Parameters<VirtualOwnerFieldResolver>[0]
 ): ReturnType<VirtualOwnerFieldResolver> {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveVirtualOwnerField(params)
-  for (const resolver of virtualOwnerFieldResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function registerTableColumnResolver(resolver: TableColumnResolver): void {
-  tableColumnResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveVirtualOwnerField(params)
 }
 
 export function resolveRegisteredTableColumn(
   params: Parameters<TableColumnResolver>[0]
 ): FormDataPathColumnSource | undefined {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveTableColumn(params)
-  for (const resolver of tableColumnResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function registerTraversalTransitionResolver(resolver: TraversalTransitionResolver): void {
-  traversalTransitionResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveTableColumn(params)
 }
 
 export function resolveTraversalTransition(
   params: Parameters<TraversalTransitionResolver>[0]
 ): ReturnType<TraversalTransitionResolver> {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveTraversalTransition(params)
-  for (const resolver of traversalTransitionResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function registerOpaqueTraversalResolver(resolver: OpaqueTraversalResolver): void {
-  opaqueTraversalResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveTraversalTransition(params)
 }
 
 export function isOpaqueTraversal(params: Parameters<OpaqueTraversalResolver>[0]): boolean {
-  return currentDataPathRegistrySet<DataPathRegistrySet>()?.isOpaqueTraversal(params)
-    ?? opaqueTraversalResolvers.some((resolver) => resolver(params))
-}
-
-export function registerRegisterRecordsItemResolver(resolver: RegisterRecordsItemResolver): void {
-  registerRecordsItemResolvers.push(resolver)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.isOpaqueTraversal(params) ?? false
 }
 
 export function resolveRegisterRecordsItem(
   params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
-  const contextual = currentDataPathRegistrySet<DataPathRegistrySet>()
-  if (contextual !== undefined) return contextual.resolveRegisterRecordsItem(params)
-  return resolveMovementItem(params)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveRegisterRecordsItem(params)
 }
 
 export function resolveMovementItem(
   params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
-  for (const resolver of registerRecordsItemResolvers) {
-    const result = resolver(params)
-    if (result !== undefined) return result
-  }
-  return undefined
-}
-
-export function clearDataPathResolverRegistryForTests(): void {
-  clearOwnerKindRegistryForTests()
-  typeResolvers.length = 0
-  objectFieldCollectionProviders.length = 0
-  standardAttributeTypeResolvers.length = 0
-  virtualOwnerFieldResolvers.length = 0
-  tableColumnResolvers.length = 0
-  traversalTransitionResolvers.length = 0
-  opaqueTraversalResolvers.length = 0
-  registerRecordsItemResolvers.length = 0
-  clearStandardMembersForTests()
-}
-
-export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegistrySnapshot {
-  return {
-    ownerKinds: snapshotOwnerKindRegistryForTests(),
-    typeResolvers: [...typeResolvers],
-    objectFieldCollectionProviders: [...objectFieldCollectionProviders],
-    standardAttributeTypeResolvers: [...standardAttributeTypeResolvers],
-    virtualOwnerFieldResolvers: [...virtualOwnerFieldResolvers],
-    tableColumnResolvers: [...tableColumnResolvers],
-    traversalTransitionResolvers: [...traversalTransitionResolvers],
-    opaqueTraversalResolvers: [...opaqueTraversalResolvers],
-    registerRecordsItemResolvers: [...registerRecordsItemResolvers],
-    standardMembers: snapshotStandardMembersForTests(),
-  }
-}
-
-export function restoreDataPathResolverRegistryForTests(snapshot: DataPathResolverRegistrySnapshot): void {
-  clearDataPathResolverRegistryForTests()
-  restoreOwnerKindRegistryForTests(snapshot.ownerKinds)
-  typeResolvers.push(...snapshot.typeResolvers)
-  objectFieldCollectionProviders.push(...snapshot.objectFieldCollectionProviders)
-  standardAttributeTypeResolvers.push(...snapshot.standardAttributeTypeResolvers)
-  virtualOwnerFieldResolvers.push(...snapshot.virtualOwnerFieldResolvers)
-  tableColumnResolvers.push(...snapshot.tableColumnResolvers)
-  traversalTransitionResolvers.push(...snapshot.traversalTransitionResolvers)
-  opaqueTraversalResolvers.push(...snapshot.opaqueTraversalResolvers)
-  registerRecordsItemResolvers.push(...snapshot.registerRecordsItemResolvers)
-  restoreStandardMembersForTests(snapshot.standardMembers)
+  return currentDataPathRegistrySet<DataPathRegistrySet>()?.resolveRegisterRecordsItem(params)
 }
 
 export {
   getStandardMembers,
-  registerStandardMembers,
   standardMemberInternalToYamlForOwnerKind,
   standardMemberNamePairs,
   standardMemberYamlToInternalForOwnerKind,
-  standardMembersRegistryRevision,
 } from "../../standardMembers/declarations"
 export {
   resolveIndexTimeStandardMember,

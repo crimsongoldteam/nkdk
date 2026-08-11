@@ -6,7 +6,6 @@ import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   ensureJSONSchemaRegistry,
@@ -64,7 +63,6 @@ function commonFormValidationGraph(): ReturnType<typeof exportJSONSchemaGraph> {
 
 describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeAll(() => {
-    registerCoreMetadata()
     clientApplicationFormGraph()
     commonFormValidationGraph()
     for (const name of [

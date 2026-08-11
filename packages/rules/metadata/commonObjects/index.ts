@@ -215,7 +215,6 @@ import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"
-import "./metadataTargetProjectResolvers/register"
 
 import "./metadataRef/fromXML"
 import "./metadataRef/fromYAML"
@@ -314,16 +313,4 @@ import "./help/fromXML"
 import "./help/toXML"
 
 import "./module/fromXML"
-import {
-  registerFillValueImport,
-  registerFillValueValidation,
-} from "./fillValue/register"
-
-let commonObjectsRegistered = false
-
-export function registerCommonObjects(): void {
-  if (commonObjectsRegistered) return
-  commonObjectsRegistered = true
-  registerFillValueImport()
-  registerFillValueValidation()
-}
+export function registerCommonObjects(): void {}

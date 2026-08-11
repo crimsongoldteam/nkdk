@@ -89,16 +89,6 @@ export interface DependentImportItemHandler {
   shouldDefer?(params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }): boolean
 }
 
-export interface DependentItemRegistrySnapshot {
-  readonly yaml: Map<string, DependentYamlItemHandler>
-  readonly structural: Map<string, DependentStructuralItemHandler>
-  readonly imported: Map<string, DependentImportItemHandler>
-}
-
-const yamlHandlers = new Map<string, DependentYamlItemHandler>()
-const structuralHandlers = new Map<string, DependentStructuralItemHandler>()
-const importHandlers = new Map<string, DependentImportItemHandler>()
-
 export interface DependentItemRegistryLookup {
   analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis
   collectDependentStructuralItemReferences(params: DependentStructuralItemParams): readonly DependentStructuralItemReference[]
@@ -114,71 +104,35 @@ export interface DependentItemRegistryLookup {
   ): boolean
 }
 
-export function registerDependentYamlItemHandler(itemType: string, handler: DependentYamlItemHandler): void {
-  yamlHandlers.set(itemType, handler)
-}
-
 export function analyzeDependentYamlItem(params: DependentYamlItemParams): DependentYamlItemAnalysis {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.analyzeDependentYamlItem(params)
-  return yamlHandlers.get(params.itemType)?.(params) ?? { diagnostics: [], references: [], projectChecks: [] }
-}
-
-export function registerDependentStructuralItemHandler(itemType: string, handler: DependentStructuralItemHandler): void {
-  structuralHandlers.set(itemType, handler)
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.analyzeDependentYamlItem(params)
+    ?? { diagnostics: [], references: [], projectChecks: [] }
 }
 
 export function collectDependentStructuralItemReferences(
   params: DependentStructuralItemParams
 ): readonly DependentStructuralItemReference[] {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.collectDependentStructuralItemReferences(params)
-  return structuralHandlers.get(params.itemType)?.(params) ?? []
-}
-
-export function registerDependentImportItemHandler(itemType: string, handler: DependentImportItemHandler): void {
-  importHandlers.set(itemType, handler)
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.collectDependentStructuralItemReferences(params) ?? []
 }
 
 export function isDependentImportProperty(itemType: string, propertyKey: string): boolean {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.isDependentImportProperty(itemType, propertyKey)
-  return importHandlers.get(itemType)?.propertyKeys.includes(propertyKey) === true
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.isDependentImportProperty(itemType, propertyKey) ?? false
 }
 
 export function shouldRemoveImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.shouldRemoveImportedDependentProperty(params)
-  return importHandlers.get(params.itemType)?.shouldRemove(params) === true
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.shouldRemoveImportedDependentProperty(params) ?? false
 }
 
 export function shouldTagImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.shouldTagImportedDependentProperty(params)
-  return importHandlers.get(params.itemType)?.shouldTagXML?.(params) === true
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.shouldTagImportedDependentProperty(params) ?? false
 }
 
 export function shouldDeferImportedDependentProperty(
   params: DependentItemParams & { readonly candidate: DependentImportedPropertyCandidate }
 ): boolean {
-  const contextual = currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()
-  if (contextual !== undefined) return contextual.shouldDeferImportedDependentProperty(params)
-  return importHandlers.get(params.itemType)?.shouldDefer?.(params) === true
-}
-
-export function snapshotDependentItemRegistryForTests(): DependentItemRegistrySnapshot {
-  return { yaml: new Map(yamlHandlers), structural: new Map(structuralHandlers), imported: new Map(importHandlers) }
-}
-
-export function restoreDependentItemRegistryForTests(snapshot: DependentItemRegistrySnapshot): void {
-  yamlHandlers.clear()
-  structuralHandlers.clear()
-  importHandlers.clear()
-  for (const [itemType, handler] of snapshot.yaml) yamlHandlers.set(itemType, handler)
-  for (const [itemType, handler] of snapshot.structural) structuralHandlers.set(itemType, handler)
-  for (const [itemType, handler] of snapshot.imported) importHandlers.set(itemType, handler)
+  return currentPropertyRuleRegistrySet<DependentItemRegistryLookup>()?.shouldDeferImportedDependentProperty(params) ?? false
 }

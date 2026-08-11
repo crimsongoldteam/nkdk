@@ -5,14 +5,11 @@ import {
   findValidationRulesItem,
   findValidationRulesSpec,
 } from "./rulesSnapshot"
-import { registerValidationMetadata } from "./registerValidationMetadata"
-import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { defineMetadataRules } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 
-registerValidationMetadata(getRegisteredProjectSpecs())
 
 describe("ValidationRulesSnapshot", () => {
   it("is JSON-compatible", () => {

@@ -18,9 +18,7 @@ import {
   testPropertyFromXMLToYAML,
   testPropertyFromYAMLToXML,
 } from "./directConversion"
-import { registerCoreMetadata } from "../metadata/composition/coreMetadata"
 
-registerCoreMetadata()
 
 describe("direct conversion test helpers", () => {
   it("вызывает атомарные операции в порядке единого обхода", () => {

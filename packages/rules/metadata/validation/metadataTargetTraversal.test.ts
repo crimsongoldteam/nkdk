@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest"
 import "../commonObjects/metadataTargets/validationHandlers"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import {
+  composeMetadataRules,
+  createPropertyRuleRegistrySet,
+  defineMetadataRules,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  withPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { metadataRules } from "../composition/metadataRules"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
@@ -22,9 +31,12 @@ describe("collectMetadataTargetReferencesInModel", () => {
       },
     } as never
 
-    registerTypeRule(testCollectionType, "collectionItemRule", {
-      itemRule: tabularSectionRule,
-    })
+    const definition = composeMetadataRules(metadataRules, defineMetadataRules({
+      ...emptyMetadataRules,
+      propertyTypes: propertyTypesFromContributions([
+        definePropertyTypeRule(testCollectionType, "collectionItemRule", { itemRule: tabularSectionRule }),
+      ]),
+    }))
 
     const rule: MetadataItemRule = {
       itemType: "MetadataDocument",
@@ -36,7 +48,7 @@ describe("collectMetadataTargetReferencesInModel", () => {
       },
     } as never
 
-    const result = collectMetadataTargetReferencesInModel({
+    const result = withPropertyRuleRegistrySet(createPropertyRuleRegistrySet(definition), () => collectMetadataTargetReferencesInModel({
       filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
       parsed: emptyParsedYaml(),
       model: {
@@ -51,7 +63,7 @@ describe("collectMetadataTargetReferencesInModel", () => {
       } as never,
       rule,
       owner: { root: "Document", objectName: "АвансовыйОтчет" },
-    })
+    }))
 
     expect(result.diagnostics).toEqual([])
     expect(result.references).toEqual([

@@ -5,6 +5,7 @@ import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { createValidationRegistrySet } from "./validationRegistrySet"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
 
 it("uses the local YAML validator from its own definition", () => {
   const createRules = (message: string) =>
@@ -42,6 +43,26 @@ it("uses the local YAML validator from its own definition", () => {
 
   expect(first.validateLocalValue(input).diagnostics[0]?.message).toBe("first")
   expect(second.validateLocalValue(input).diagnostics[0]?.message).toBe("second")
+})
+
+it("uses the validation registry from the active execution context", () => {
+  const value = {
+    Элементы: {
+      Поле: { Вид: "ПолеВвода" },
+      полерасширеннаяподсказка: { Вид: "ПолеВвода" },
+    },
+  }
+  const result = validateRegisteredLocalYamlValue({
+    type: "ClientApplicationForm",
+    filePath: "project/Form.yaml",
+    parsed: parseMetadataYaml("Элементы: {}"),
+    value,
+    yamlPath: [],
+    owner: { dir: "ОбщаяФорма", name: "Форма" },
+  })
+
+  expect(result.profile?.substep).toBe("Проверка уникальности имён элементов формы")
+  expect(result.diagnostics[0]?.message).toContain("занято")
 })
 
 it("exposes project reference contributions from its own definition", () => {

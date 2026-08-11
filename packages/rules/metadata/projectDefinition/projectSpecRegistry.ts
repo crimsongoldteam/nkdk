@@ -67,7 +67,7 @@ export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {
 }
 
 export function assertCoreMetadataRegistered(operation: string): void {
-  if (specsByDir.size === 0) {
+  if (getRegisteredProjectSpecs().length === 0) {
     throw new Error(`Metadata не зарегистрирована перед операцией ${operation}`)
   }
 }
@@ -84,11 +84,6 @@ export function findRegisteredProjectRule(itemType: string): MetadataItemRule | 
     if (rule !== undefined) return rule
   }
   return undefined
-}
-
-export function clearProjectSpecRegistryForTests(): void {
-  specsByDir.clear()
-  registryRevision += 1
 }
 
 export function unregisterProjectSpecForTests(dir: string): void {

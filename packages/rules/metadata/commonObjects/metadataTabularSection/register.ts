@@ -1,5 +1,6 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { MetadataTabularSectionRules } from "./rules"
+import { composeMetadataRules } from "../../ruleRuntime/definition"
 
 const tabularSectionPropertyTypes = [
   "MetadataTabularSections",
@@ -15,8 +16,8 @@ const tabularSectionPropertyTypes = [
   "MetadataReportTabularSections",
 ] as const
 
-for (const propertyType of tabularSectionPropertyTypes) {
-  registerMetadataItemCollectionRule({
+export const metadataTabularSectionCollectionRules = composeMetadataRules(...tabularSectionPropertyTypes.map((propertyType) =>
+  defineMetadataItemCollectionRule({
     propertyType,
     schemaName: propertyType.replace(/TabularSections$/, "TabularSection"),
     itemRule: MetadataTabularSectionRules,
@@ -24,4 +25,4 @@ for (const propertyType of tabularSectionPropertyTypes) {
     keyField: "name",
     collectionItemRule: true,
   })
-}
+))

@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { exportStandardAttributeDescriptionToJSONSchema } from "./toJSONSchema"
 
-registerCoreMetadata()
 
 const standardAttributesRule = MetadataCatalogRules.properties.standardAttributes
 

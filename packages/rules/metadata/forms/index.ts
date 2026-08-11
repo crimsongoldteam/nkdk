@@ -7,7 +7,6 @@ import "./elements"
 import "./commonObjects/index"
 import "./commonObjects/dynamicList/types"
 import "./schemaRegister"
-import "./clientApplicationForm/register"
 
 let formsRegistered = false
 

@@ -1,5 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "./types"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface MetadataItemYamlToXmlAugmenter {
   augment(params: {
@@ -33,18 +34,15 @@ export function createMetadataItemYamlToXmlAugmenterRegistry(
   return { augment: (params) => augmentFromRegistry(instanceAugmenters, params) }
 }
 
-const augmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
-
 export function registerMetadataItemYamlToXmlAugmenter(
   componentKind: string,
   augmenter: MetadataItemYamlToXmlAugmenter
 ): void {
-  if (augmenters.has(componentKind)) {
-    throw new Error(
-      `Дополнение YAML-to-XML metadata-item уже зарегистрировано: ${componentKind}`
-    )
-  }
-  augmenters.set(componentKind, augmenter)
+  const registry = currentPropertyRuleRegistrySet<{
+    registerMetadataItemYamlToXmlAugmenter(kind: string, value: MetadataItemYamlToXmlAugmenter): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.registerMetadataItemYamlToXmlAugmenter(componentKind, augmenter)
 }
 
 export function augmentMetadataItemYamlToXml(params: {
@@ -53,7 +51,11 @@ export function augmentMetadataItemYamlToXml(params: {
   readonly yaml: Readonly<Record<string, unknown>>
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
 }): void {
-  augmentFromRegistry(augmenters, params)
+  const registry = currentPropertyRuleRegistrySet<{
+    augmentMetadataItemYamlToXml(value: typeof params): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.augmentMetadataItemYamlToXml(params)
 }
 
 function augmentFromRegistry(

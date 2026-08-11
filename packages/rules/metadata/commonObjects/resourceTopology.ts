@@ -6,7 +6,8 @@ import type { ExternalFilePropertyRule } from "./externalFile/types"
 import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "@nkdk/runtime/rule-kit"
 import { definePropertyTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration, MetadataResourceSource } from "@nkdk/runtime/rule-kit"
-import { registerMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
+import { defineMetadataExternalTransferCapability } from "../resourceTopology/adapters/capabilities"
+import { composeMetadataRules } from "../ruleRuntime/definition"
 
 const source = (description: string): MetadataResourceSource => ({
   kind: "property",
@@ -14,7 +15,7 @@ const source = (description: string): MetadataResourceSource => ({
 })
 
 const identityTransfer = (params: { sourcePath: string; targetPath: string }) => params
-for (const id of [
+const externalTransferCapabilityIds = [
   "Module",
   "Template",
   "Help",
@@ -24,9 +25,12 @@ for (const id of [
   "Recalculations",
   "ChildFormNames",
   "ChildTemplateNames",
-] as const) {
-  registerMetadataExternalTransferCapability({ id, projectToXml: identityTransfer })
-}
+] as const
+
+export const commonObjectExternalTransferCapabilityRules = composeMetadataRules(
+  ...externalTransferCapabilityIds.map((id) =>
+    defineMetadataExternalTransferCapability({ id, projectToXml: identityTransfer })),
+)
 
 const pathPattern = (
   value: string | ((params: { name: string; parentName?: string }) => string)

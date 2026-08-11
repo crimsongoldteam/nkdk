@@ -6,10 +6,8 @@ import { mockXmlImportContext } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment } from "./types"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { serializeYAMLDocument } from "@nkdk/runtime"
 
-registerCoreMetadata()
 
 const fixture = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
 const adoptedExtensionFixture = join(

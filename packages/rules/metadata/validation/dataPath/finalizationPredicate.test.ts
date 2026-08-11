@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest"
-import "../../appliedObjects/metadataChartOfCalculationTypes/register"
-import "../../appliedObjects/metadataCatalog/register"
-import "../../forms/clientApplicationForm/register"
 import { requiresDataPathStandardMemberFormatting } from "./finalizationPredicate"
 import {
-  registerStandardMembers,
-  restoreDataPathResolverRegistryForTests,
-  snapshotDataPathResolverRegistryForTests,
+  createDataPathRegistrySet,
 } from "./registry"
+import { withDataPathRegistrySet } from "@nkdk/runtime/rule-kit"
 
 describe("requiresDataPathStandardMemberFormatting", () => {
   it.each([
@@ -27,11 +23,10 @@ describe("requiresDataPathStandardMemberFormatting", () => {
   })
 
   it("rebuilds the matcher after registering a nested standard-table column", () => {
-    const snapshot = snapshotDataPathResolverRegistryForTests()
-    try {
-      expect(requiresDataPathStandardMemberFormatting("Объект.UniqueEnglish", "internal-to-yaml")).toBe(false)
-
-      registerStandardMembers("TestOwner", [
+    const registry = createDataPathRegistrySet([{
+      kind: "standardMembers",
+      ownerKind: "TestOwner",
+      members: [
         {
           memberKind: "standardTabularSection",
           names: { internal: "UniqueTable", yaml: "УникальнаяТаблица" },
@@ -48,11 +43,11 @@ describe("requiresDataPathStandardMemberFormatting", () => {
             },
           ],
         },
-      ])
+      ],
+    }])
 
+    withDataPathRegistrySet(registry, () => {
       expect(requiresDataPathStandardMemberFormatting("Объект.UniqueEnglish", "internal-to-yaml")).toBe(true)
-    } finally {
-      restoreDataPathResolverRegistryForTests(snapshot)
-    }
+    })
   })
 })

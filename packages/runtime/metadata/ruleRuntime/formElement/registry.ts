@@ -1,5 +1,6 @@
 import type { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../property/types"
+import { getTypeRule } from "../property/typeRuleRegistry"
 import {
   CollectableElementTypeFromYAML,
   CollectableElementTypeToYAML,
@@ -13,7 +14,6 @@ type EnterpriseDataPathExporter = (params: {
   value: string
 }) => string | undefined
 
-let enterpriseDataPathExporter: EnterpriseDataPathExporter | undefined
 const collectionElementTypes = new Map<string, readonly CollectableElementType[]>()
 
 export function registerFormElementAdapter<Type extends CollectableElementType>(params: {
@@ -24,12 +24,9 @@ export function registerFormElementAdapter<Type extends CollectableElementType>(
   CollectableElementTypeFromYAML[params.yamlName] = params.type
 }
 
-export function registerFormElementDataPathExporter(exporter: EnterpriseDataPathExporter): void {
-  enterpriseDataPathExporter = exporter
-}
-
 export function exportFormElementDataPath(params: Parameters<EnterpriseDataPathExporter>[0]): string | undefined {
-  return enterpriseDataPathExporter?.(params)
+  const exporter = getTypeRule("DataPath", "exportToEnterprise")
+  return exporter?.(params) as string | undefined
 }
 
 export function registerFormElementCollection(

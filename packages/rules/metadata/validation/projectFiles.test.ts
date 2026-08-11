@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { discoverValidationProjectComponents } from "./projectComponents"
 import { assertProjectFileInside, discoverValidationProjectFiles, resolveValidationProjectFile } from "./projectFiles"
-import { validationProjectSpecs } from "./projectSpecs"
+import { getValidationProjectSpecs } from "./projectSpecs"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
@@ -33,11 +33,12 @@ describe("validation project files", () => {
   }
 
   it("has validation specs for every top-level metadata object with YAML directory", () => {
-    const topLevelDirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
-    ).sort((left, right) => left.localeCompare(right, "ru"))
+    const topLevelDirs = TopLevelMetadataItemRules
+      .map(({ itemTypePrefix }) => itemTypePrefix)
+      .filter((dir): dir is string => typeof dir === "string")
+      .sort((left, right) => left.localeCompare(right, "ru"))
 
-    const validationDirs = validationProjectSpecs
+    const validationDirs = getValidationProjectSpecs()
       .map((spec) => spec.dir)
       .sort((left, right) => left.localeCompare(right, "ru"))
 

@@ -1,9 +1,7 @@
 import { bench, describe } from "vitest"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { requiresDataPathStandardMemberFormatting } from "./finalizationPredicate"
 import { standardMemberNamePairs } from "./registry"
 
-registerCoreMetadata()
 
 const paths = [
   "Объект.ТабличнаяЧасть.LineNumber",

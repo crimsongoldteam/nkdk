@@ -3,7 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { describeMetadataProjectDirectoryStructure } from "./directoryStructure"
-import { metadataProjectSpecs } from "../projectDefinition/specs"
+import { getMetadataProjectSpecs } from "../projectDefinition/specs"
 
 describe("metadata project directory structure", () => {
   const tempDirs: string[] = []
@@ -29,7 +29,7 @@ describe("metadata project directory structure", () => {
     expect(result.depth).toBe(1)
     expect(result.node.children?.map((child) => child.name)).toContain("Конфигурация.yaml")
     expect(result.node.children?.map((child) => child.name)).toEqual(
-      expect.arrayContaining(metadataProjectSpecs.map((spec) => spec.dir))
+      expect.arrayContaining(getMetadataProjectSpecs().map((spec) => spec.dir))
     )
     expect(result.node.children?.find((child) => child.name === "Справочник")).toMatchObject({
       kind: "directory",

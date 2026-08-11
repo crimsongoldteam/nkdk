@@ -1470,3 +1470,25 @@ property type, project spec, import descriptor или sync profile. Особен
 - Не делать force-push опубликованной ветки.
 - Не открывать PR до полного удаления legacy globals, независимости двух
   runtime и повторного code review.
+
+### Что сделано по замечаниям
+
+- Ветка обновлена с `origin/develop` merge-коммитом без переписывания истории;
+  работа ведётся в отдельном worktree.
+- Production validation, references и DataPath переведены на экземплярные
+  `RuleRegistrySet`/`ValidationRegistrySet`/`DataPathRegistrySet`; module-level
+  таблицы, legacy adapters и test reset/snapshot API удалены.
+- Worker entrypoints создают локальные наборы registry и выполняются внутри
+  явного execution context; старый `registerCoreMetadata()` и пять его вызовов,
+  bootstrap/setup-файлы и side-effect registrations удалены.
+- Импорт XML, full sync, prepared YAML validation и generic worker используют
+  связанные с runtime операции; imported YAML finalizer, form projections,
+  resource capabilities, component descriptors и standard members включены в
+  `metadataRules` как явные contributions.
+- Удалены оставшиеся legacy fallback для dependent items; контрольный поиск по
+  `registerCoreMetadata` и `clear/snapshot/restore *RegistryForTests` пуст.
+- Проверены типы `@nkdk/runtime` и `@nkdk/rules`; 6031 функциональный тест
+  `@nkdk/rules` проходит. Обёртка проверки длительности пока завершает этот же
+  прогон ошибкой из-за превышения лимита тремя файлами, без тестовых падений.
+- `pnpm duplicates -- --base 27bf980f24bbc1d329f2c2ea0e0231080382799c`
+  не находит новых дублей.

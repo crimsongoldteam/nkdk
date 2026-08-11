@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { mockContext } from "../../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
@@ -8,7 +7,6 @@ import { validatePendingChecks } from "../../validation/projectValidationPending
 import { createValidationRulesSnapshot } from "../../validation/rulesSnapshot"
 import { extractValidationYamlFacts } from "../../validation/yamlFactExtractor"
 
-registerCoreMetadata()
 
 const ownerCache: OwnerMetadataCache = {
   get: () => ({ status: "not-found", diagnostics: [] }),

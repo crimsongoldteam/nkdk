@@ -365,13 +365,11 @@ function objectRefsFromProperty(owner: Pick<OwnerMetadata, "facts">, property: s
 
 export {
   getStandardMembers,
-  registerStandardMembers,
   standardMemberInternalToYaml,
   standardMemberInternalToYamlForOwnerKind,
   standardMemberNamePairs,
   standardMemberYamlToInternal,
   standardMemberYamlToInternalForOwnerKind,
-  standardMembersRegistryRevision,
 } from "../../standardMembers/declarations"
 export type {
   PrimitiveKind,

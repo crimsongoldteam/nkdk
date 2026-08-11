@@ -1,5 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { MetadataItemRule } from "../property/types"
+import { currentPropertyRuleRegistrySet } from "../property/propertyRuleExecutionContext"
 
 export interface MetadataItemXmlImportAugmenter {
   augment(params: {
@@ -30,14 +31,15 @@ export function createMetadataItemXmlImportAugmenterRegistry(
   return { apply: (params) => applyFromRegistry(instanceAugmenters, params) }
 }
 
-const augmenters = new Map<string, MetadataItemXmlImportAugmenter>()
-
 export function registerMetadataItemXmlImportAugmenter(
   name: string,
   augmenter: MetadataItemXmlImportAugmenter
 ): void {
-  if (augmenters.has(name)) throw new Error(`Дополнение XML-import metadata-item уже зарегистрировано: ${name}`)
-  augmenters.set(name, augmenter)
+  const registry = currentPropertyRuleRegistrySet<{
+    registerMetadataItemXmlImportAugmenter(name: string, value: MetadataItemXmlImportAugmenter): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.registerMetadataItemXmlImportAugmenter(name, augmenter)
 }
 
 export function applyMetadataItemXmlImportAugmenter(params: {
@@ -46,7 +48,11 @@ export function applyMetadataItemXmlImportAugmenter(params: {
   source: Record<string, unknown>
   yaml: Record<string, unknown>
 }): void {
-  applyFromRegistry(augmenters, params)
+  const registry = currentPropertyRuleRegistrySet<{
+    applyMetadataItemXmlImportAugmenter(value: typeof params): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.applyMetadataItemXmlImportAugmenter(params)
 }
 
 function applyFromRegistry(

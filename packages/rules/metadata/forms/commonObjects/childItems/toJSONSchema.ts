@@ -9,6 +9,7 @@ import {
 import { ElementRule, CollectableElementTypeToYAML } from "../../../ruleRuntime/formElement/types"
 import { createJSONSchemaPropertyOverrideContext } from "../../../ruleRuntime/jsonSchemaRefs"
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import {
   childItemsTreePropertyTypes,
   ChildItemsTreePropertyType,
@@ -118,7 +119,9 @@ function exportGenericChildItemsDefinitionToJSONSchema(params: {
       context,
       propertyAliases: getTreeNodeJSONSchemaPropertyAliases(itemType),
       rule: omitNestedChildItems ? omitNestedChildItemsRule(getElementRule(itemType)) : getElementRule(itemType),
-      yamlKind: CollectableElementTypeToYAML[itemType],
+      yamlKind: currentRuleRegistrySet<{
+        formElementKinds: ReadonlyMap<string, string>
+      }>()?.formElementKinds.get(itemType) ?? CollectableElementTypeToYAML[itemType],
     })
   )
 

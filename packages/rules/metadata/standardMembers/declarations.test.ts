@@ -1,40 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest"
-import { metadataAccountingRegisterStandardMemberRules } from "../appliedObjects/metadataAccountingRegister/standardMembers"
-import { metadataAccumulationRegisterStandardMemberRules } from "../appliedObjects/metadataAccumulationRegister/standardMembers"
-import { metadataBusinessProcessStandardMemberRules } from "../appliedObjects/metadataBusinessProcess/standardMembers"
-import { metadataCalculationRegisterStandardMemberRules } from "../appliedObjects/metadataCalculationRegister/standardMembers"
-import { metadataDocumentStandardMemberRules } from "../appliedObjects/metadataDocument/standardMembers"
-import { metadataDocumentJournalStandardMemberRules } from "../appliedObjects/metadataDocumentJournal/standardMembers"
-import { metadataExchangePlanStandardMemberRules } from "../appliedObjects/metadataExchangePlan/standardMembers"
-import { metadataInformationRegisterStandardMemberRules } from "../appliedObjects/metadataInformationRegister/standardMembers"
-import { metadataTaskStandardMemberRules } from "../appliedObjects/metadataTask/standardMembers"
-import { applyLegacyDataPathContributions } from "../validation/dataPath/registry"
+import { describe, expect, it } from "vitest"
+import { createDataPathRegistrySet } from "../validation/dataPath/registry"
 import {
-  clearStandardMembersForTests,
   getStandardMembers,
-  registerStandardMembers,
-  restoreStandardMembersForTests,
-  snapshotStandardMembersForTests,
   type StandardMemberDeclaration,
 } from "./declarations"
 
-applyLegacyDataPathContributions([
-  ...metadataAccountingRegisterStandardMemberRules,
-  ...metadataAccumulationRegisterStandardMemberRules,
-  ...metadataBusinessProcessStandardMemberRules,
-  ...metadataCalculationRegisterStandardMemberRules,
-  ...metadataDocumentStandardMemberRules,
-  ...metadataDocumentJournalStandardMemberRules,
-  ...metadataExchangePlanStandardMemberRules,
-  ...metadataInformationRegisterStandardMemberRules,
-  ...metadataTaskStandardMemberRules,
-])
-
 describe("standard member declarations", () => {
-  const initial = snapshotStandardMembersForTests()
-
-  afterEach(() => restoreStandardMembersForTests(initial))
-
   it.each([
     ["Документ", "Дата"],
     ["БизнесПроцесс", "Дата"],
@@ -55,8 +26,7 @@ describe("standard member declarations", () => {
     expect(member?.fillValue).toEqual({ policy: "byEffectiveType" })
   })
 
-  it("stores declarations independently from DataPath", () => {
-    clearStandardMembersForTests()
+  it("stores declarations in an isolated DataPath registry", () => {
     const declaration = {
       memberKind: "standardAttribute",
       family: "primitive",
@@ -66,9 +36,10 @@ describe("standard member declarations", () => {
       sourceScope: "ownerModel",
       fillValue: { policy: "byEffectiveType" },
     } as const satisfies StandardMemberDeclaration
+    const dataPaths = createDataPathRegistrySet([
+      { kind: "standardMembers", ownerKind: "Catalog", members: [declaration] },
+    ])
 
-    registerStandardMembers("Catalog", [declaration])
-
-    expect(getStandardMembers("Catalog")).toEqual([declaration])
+    expect(dataPaths.getStandardMembers("Catalog")).toEqual([declaration])
   })
 })

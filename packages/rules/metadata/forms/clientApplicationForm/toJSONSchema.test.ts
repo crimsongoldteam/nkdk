@@ -1,13 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTypeRule } from "../../ruleRuntime"
 import { exportPropertyToJSONSchema } from "../../ruleRuntime/property/toJSONSchema"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { compileValidationSchema } from "../../validation/compileValidationSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { ClientApplicationFormRules } from "./rules"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 
-registerCoreMetadata()
 
 let usePurposesSchema: ReturnType<typeof compileValidationSchema>
 

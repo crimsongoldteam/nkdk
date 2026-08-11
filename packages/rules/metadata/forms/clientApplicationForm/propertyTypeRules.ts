@@ -14,6 +14,7 @@ import { copyExistingRawFile } from "./externalRawFiles"
 import { ClientApplicationFormRules } from "./rules"
 import { createClientApplicationFormBodyImportSource } from "./xmlImportSources"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
+import { clientApplicationFormYamlToXmlNestedRule } from "./fromYAMLToXML"
 
 const getDirectFormXmlDir = (params: {
   baseDir: string
@@ -41,6 +42,11 @@ const syncClientApplicationFormExternalFromXML: SyncExternalFromXMLFunction =
 export const clientApplicationFormPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
   propertyTypes: propertyTypesFromContributions([
+    definePropertyTypeRule(
+      "ClientApplicationForm",
+      "yamlToXMLNestedRule",
+      clientApplicationFormYamlToXmlNestedRule,
+    ),
     definePropertyTypeRule("ClientApplicationForm", "nestedItemRule", {
       itemRule: ClientApplicationFormRules,
     }),

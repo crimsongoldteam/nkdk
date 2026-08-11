@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import {
+  createPropertyRuleRegistrySet,
+  defineMetadataRules,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  withPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
@@ -53,15 +60,13 @@ describe("validateExcludedEqualNameYAML", () => {
       },
     } as never
 
-    registerTypeRule(testCollectionType, "collectionItemRule", { itemRule })
-
-    const diagnostics = validateExcludedEqualNameYAML({
+    const diagnostics = withCollectionItemRule(testCollectionType, itemRule, () => validateExcludedEqualNameYAML({
       context,
       filePath: "/tmp/Форма.yaml",
       parsed,
       rule: rootRule,
       name: "ФормаЭлемента",
-    })
+    }))
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -96,15 +101,13 @@ describe("validateExcludedEqualNameYAML", () => {
       },
     } as never
 
-    registerTypeRule(testCollectionType, "collectionItemRule", { itemRule })
-
-    const diagnostics = validateExcludedEqualNameYAML({
+    const diagnostics = withCollectionItemRule(testCollectionType, itemRule, () => validateExcludedEqualNameYAML({
       context,
       filePath: "/tmp/Форма.yaml",
       parsed,
       rule: rootRule,
       name: "ФормаЭлемента",
-    })
+    }))
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -113,3 +116,17 @@ describe("validateExcludedEqualNameYAML", () => {
     ])
   })
 })
+
+function withCollectionItemRule<Result>(
+  propertyType: string,
+  itemRule: MetadataItemRule,
+  execute: () => Result,
+): Result {
+  const definition = defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: propertyTypesFromContributions([
+      definePropertyTypeRule(propertyType as never, "collectionItemRule", { itemRule }),
+    ]),
+  })
+  return withPropertyRuleRegistrySet(createPropertyRuleRegistrySet(definition), execute)
+}

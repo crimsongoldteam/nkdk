@@ -11,9 +11,7 @@ import type { DataPathPropertyRule } from "@nkdk/runtime/rule-kit"
 import { ownerMetadataFromFacts } from "./dataPath/ownerCache"
 import type { TypeDescriptionView } from "../ruleRuntime/property/typeDescriptionView"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 
-registerCoreMetadata()
 
 const ownerCache: OwnerMetadataCache = {
   get: () => ({ status: "not-found", diagnostics: [] }),

@@ -1,14 +1,12 @@
-import { applyLegacyProjectReferenceContributions } from "../../validation/projectReferenceIndexRegistry"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
+import { defineMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
-import { configurationReferenceRules } from "./referenceRules"
 import "./registerPartialXmlPackage"
 
-registerMetadataXmlPrepareCapability({
+export const configurationResourceCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "configuration",
   run: ({ context, preparedYamlFile, assignment, logicalAddress, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
@@ -31,5 +29,3 @@ registerMetadataXmlPrepareCapability({
     return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
   },
 })
-
-applyLegacyProjectReferenceContributions(configurationReferenceRules)

@@ -1,10 +1,10 @@
 import type { FormDataPathTabularElementDeclaration } from "@nkdk/runtime/rule-kit"
 import { acceptFormTabularElementVisit } from "../../ruleRuntime/formElement/formTableDataPaths"
-import { getFormElementCollectionTypes } from "../../ruleRuntime/formElement/registry"
 import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { TableRules } from "../elements/table/rules"
 import { ClientApplicationFormRules } from "./rules"
 import { findMainAttributeName } from "./mainAttributeKinds"
+import { getChildItemTypesByPropertyType, childItemsTreePropertyTypes } from "../commonObjects/childItems/treeYAML"
 
 const collectFormTabularElementsFromYAML = (
   yaml: unknown,
@@ -35,7 +35,8 @@ export const resolveClientApplicationFormCollectionItemRule = (params: {
   propertyRule: { type: string }
 }) =>
   asRecord(params.yaml)?.["Вид"] === "ДеревоФормы" &&
-  getFormElementCollectionTypes(params.propertyRule.type)?.includes("Table")
+  childItemsTreePropertyTypes.includes(params.propertyRule.type as typeof childItemsTreePropertyTypes[number]) &&
+  getChildItemTypesByPropertyType(params.propertyRule.type as typeof childItemsTreePropertyTypes[number]).includes("Table")
     ? TableRules
     : undefined
 

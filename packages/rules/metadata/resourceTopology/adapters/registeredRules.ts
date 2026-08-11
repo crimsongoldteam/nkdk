@@ -7,7 +7,7 @@ import {
   compileMetadataResourceTopologyForRootRule as compileRootRuleTopology,
 } from "./ruleTopology"
 
-export { getMetadataResourceTopology, registerMetadataResourceTopologyProvider } from "../core/providerRegistry"
+export { getMetadataResourceTopology } from "../core/providerRegistry"
 export { describeProjectSpecResourceTopology, describePropertyResourceTopology } from "./ruleTopology"
 
 let cachedTopology: { readonly revision: string; readonly topology: CompiledMetadataResourceTopology } | undefined

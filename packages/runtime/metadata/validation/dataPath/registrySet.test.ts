@@ -3,13 +3,7 @@ import { expect, it } from "vitest"
 import type { FormDataPathIndex } from "@nkdk/runtime/rule-kit"
 import type { OwnerMetadata } from "./contracts"
 import {
-  applyLegacyDataPathContributions,
   createDataPathRegistrySet,
-  getDataPathOwnerKind,
-  getStandardMembers,
-  resolveRegisteredDataPathType,
-  restoreDataPathResolverRegistryForTests,
-  snapshotDataPathResolverRegistryForTests,
   type DataPathContribution,
 } from "./registry"
 import type { DataPathTableInfo } from "./types"
@@ -57,23 +51,6 @@ it("isolates every data path contribution between rule sets", () => {
   expect(first.getStandardMembers("first")[0]?.names.internal).toBe("first")
   expect(first.standardMemberInternalToYaml("first")).toBe("first")
   expect(first.standardMemberYamlToInternalForOwnerKind("first", "first")).toBe("first")
-})
-
-it("adapts pure data path contributions to legacy registries", () => {
-  const snapshot = snapshotDataPathResolverRegistryForTests()
-  try {
-    applyLegacyDataPathContributions([
-      { kind: "ownerKind", registration: { kind: "Sample", projectDir: "Sample", rule: { itemType: "Sample", properties: {} } } },
-      { kind: "typeResolver", resolver: () => ({ kinds: ["scalar"], nextTypes: [], sourceText: "legacy" }) },
-      { kind: "standardMembers", ownerKind: "Sample", members: [{ memberKind: "standardAttribute", family: "primitive", kind: "string", names: { internal: "Code", yaml: "Код" }, phase: "index-time", sourceScope: "self" }] },
-    ])
-
-    expect(getDataPathOwnerKind("Sample")?.projectDir).toBe("Sample")
-    expect(resolveRegisteredDataPathType({ baseType: "x" })?.sourceText).toBe("legacy")
-    expect(getStandardMembers("Sample")[0]?.names.yaml).toBe("Код")
-  } finally {
-    restoreDataPathResolverRegistryForTests(snapshot)
-  }
 })
 
 it("binds resolver providers to the owner kinds of their registry set", () => {

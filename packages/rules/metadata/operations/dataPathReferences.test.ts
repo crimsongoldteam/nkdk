@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 import { createLayeredOwnerMetadataCacheForTests } from "../../tests/layeredOwnerMetadataCache"
@@ -14,7 +13,6 @@ import {
   rewriteDataPathSegments,
 } from "./dataPathReferences"
 
-registerCoreMetadata()
 
 describe("rewriteDataPathSegments", () => {
   it("rewrites only the resolved segment", () => {

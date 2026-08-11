@@ -26,9 +26,7 @@ import {
   registeredExplicitXMLTestRule,
   registeredMissingExplicitXMLTestRule,
 } from "../../../tests/property/explicitXMLPropertyRegistry"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 
-registerCoreMetadata()
 
 const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 

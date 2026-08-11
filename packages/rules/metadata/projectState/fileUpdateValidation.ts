@@ -2,6 +2,7 @@ import { CollectableElementTypeToYAML } from "../ruleRuntime/formElement/types"
 import type { MetadataProjectResourceKind } from "../projectDefinition/resources"
 import { memberKindToYAML, rootToYAML } from "@nkdk/runtime/rule-kit"
 import type { ProjectStateFileUpdateBatch, ProjectStateImportIndexContribution } from "./contracts/fileUpdate"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 export const PROJECT_STATE_HASH_BYTE_LENGTH = 8
 const HASH_BYTE_LENGTH = PROJECT_STATE_HASH_BYTE_LENGTH
@@ -244,15 +245,12 @@ const DATA_PATH_VALUE_KINDS = [
   "standardPeriod",
   "unsupportedIntermediate",
 ]
-const ELEMENT_TYPES = [
-  ...Object.keys(CollectableElementTypeToYAML),
-  "SingleSearchControlAddition",
-  "SingleSearchStringAddition",
-  "SingleViewStatusAddition",
-  "ContextMenu",
-  "ExtendedTooltip",
-  "AutoCommandBar",
-]
+function elementTypes(): readonly string[] {
+  const contextual = currentRuleRegistrySet<{ formElements: ReadonlyMap<string, object> }>()
+  return contextual === undefined
+    ? Object.keys(CollectableElementTypeToYAML)
+    : [...contextual.formElements.keys()]
+}
 
 function assertParsedMetadataTarget(value: unknown, path: string): void {
   const target = requiredRecord(value, path)
@@ -652,7 +650,7 @@ function assertPendingCheck(row: Record<string, unknown>, path: string): void {
   if (policyInput["allowComposite"] !== undefined && typeof policyInput["allowComposite"] !== "boolean") {
     throw new Error(`${path}.policyInput.allowComposite должен быть boolean`)
   }
-  assertOptionalStringIn(row["elementType"], ELEMENT_TYPES, `${path}.elementType`)
+  assertOptionalStringIn(row["elementType"], elementTypes(), `${path}.elementType`)
   assertOptionalBoolean(row["hasValuesPicture"], `${path}.hasValuesPicture`)
   if (row["tableContext"] !== undefined) {
     const tableContext = requiredRecord(row["tableContext"], `${path}.tableContext`)

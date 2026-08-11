@@ -3,11 +3,22 @@ import type {
   MetadataWorkerOperationContribution,
   MetadataWorkerOperationOutcome,
   MetadataWorkerOperationRuleTypeMap,
+  MetadataBaseFormProjector,
 } from "../ruleRuntime/definition"
 import type { MetadataComponentDescriptor } from "../components/descriptor"
 import type { MetadataImportComponentDescriptor } from "../ruleRuntime/definition"
 import type { ComponentAddress } from "@nkdk/runtime"
 import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
+import type {
+  MetadataExternalTransferCapability,
+  MetadataResourceCapabilityContribution,
+  MetadataSnapshotImportCapability,
+  MetadataXmlPrepareCapability,
+} from "../resourceTopology/adapters/capabilities"
+
+export type RulesSynchronizationContribution =
+  | FullXmlSyncComponentProfile
+  | MetadataResourceCapabilityContribution
 import { createMetadataItemXmlImportAugmenterRegistry, type MetadataItemXmlImportAugmenterRegistry } from "../ruleRuntime/metadataItem/augmenterRegistry"
 import { createMetadataItemYamlToXmlAugmenterRegistry, type MetadataItemYamlToXmlAugmenterRegistry } from "../ruleRuntime/property/yamlToXmlAugmenter"
 
@@ -30,11 +41,16 @@ export interface OperationRegistrySet {
     readonly xmlImport: MetadataItemXmlImportAugmenterRegistry
     readonly yamlToXml: MetadataItemYamlToXmlAugmenterRegistry
   }
+  readonly baseFormProjection: {
+    property(propertyType: string): MetadataBaseFormProjector | undefined
+    reference(propertyType: string): MetadataBaseFormProjector | undefined
+  }
   readonly components: {
     get(kind: string): MetadataComponentDescriptor
     find(kind: string): MetadataComponentDescriptor | undefined
   }
   readonly imports: {
+    register(descriptor: MetadataImportComponentDescriptor): void
     resolve(
       root: Readonly<Record<string, unknown>>,
     ): MetadataImportComponentDescriptor
@@ -43,12 +59,17 @@ export interface OperationRegistrySet {
   readonly synchronization: {
     resolve(address: ComponentAddress): FullXmlSyncComponentProfile
   }
+  readonly resourceCapabilities: {
+    xmlPrepare(id: string): MetadataXmlPrepareCapability | undefined
+    externalTransfer(id: string): MetadataExternalTransferCapability | undefined
+    snapshotImport(id: string): MetadataSnapshotImportCapability | undefined
+  }
   readonly worker: WorkerOperationRegistry
 }
 
 export function createOperationRegistrySet(
   definition: Pick<
-    MetadataRulesDefinition<FullXmlSyncComponentProfile>,
+    MetadataRulesDefinition<RulesSynchronizationContribution>,
     "components" | "imports" | "synchronization" | "operations" | "workerOperations"
   >,
 ): OperationRegistrySet {
@@ -75,7 +96,23 @@ export function createOperationRegistrySet(
     MetadataWorkerOperationContribution
   >()
   const synchronization = new Map<string, FullXmlSyncComponentProfile>()
-  for (const profile of definition.synchronization) {
+  const xmlPrepareCapabilities = new Map<string, MetadataXmlPrepareCapability>()
+  const externalTransferCapabilities = new Map<string, MetadataExternalTransferCapability>()
+  const snapshotImportCapabilities = new Map<string, MetadataSnapshotImportCapability>()
+  for (const contribution of definition.synchronization) {
+    if (contribution.kind === "xmlPrepareCapability") {
+      xmlPrepareCapabilities.set(contribution.capability.id, contribution.capability)
+      continue
+    }
+    if (contribution.kind === "externalTransferCapability") {
+      externalTransferCapabilities.set(contribution.capability.id, contribution.capability)
+      continue
+    }
+    if (contribution.kind === "snapshotImportCapability") {
+      snapshotImportCapabilities.set(contribution.capability.id, contribution.capability)
+      continue
+    }
+    const profile = contribution
     if (synchronization.has(profile.kind)) {
       throw new Error(
         `Профиль XML-синхронизации уже зарегистрирован: ${profile.kind}`,
@@ -101,9 +138,22 @@ export function createOperationRegistrySet(
       ? [{ componentKind: operation.componentKind, augmenter: operation.augmenter }]
       : []),
   )
+  const baseFormPropertyProjectors = new Map<string, MetadataBaseFormProjector>()
+  const baseFormReferenceProjectors = new Map<string, MetadataBaseFormProjector>()
+  for (const operation of definition.operations) {
+    if (operation.kind === "baseFormPropertyProjector") {
+      baseFormPropertyProjectors.set(operation.propertyType, operation.projector)
+    } else if (operation.kind === "baseFormReferenceProjector") {
+      baseFormReferenceProjectors.set(operation.propertyType, operation.projector)
+    }
+  }
 
   return {
     augmentation: { xmlImport: xmlImportAugmenters, yamlToXml: yamlToXmlAugmenters },
+    baseFormProjection: {
+      property: (propertyType) => baseFormPropertyProjectors.get(propertyType),
+      reference: (propertyType) => baseFormReferenceProjectors.get(propertyType),
+    },
     components: {
       get(kind) {
         const component = components.get(kind)
@@ -117,6 +167,12 @@ export function createOperationRegistrySet(
       },
     },
     imports: {
+      register(descriptor) {
+        if (imports.has(descriptor.kind)) {
+          throw new Error(`Вид XML-компонента уже зарегистрирован: ${descriptor.kind}`)
+        }
+        imports.set(descriptor.kind, descriptor)
+      },
       resolve(root) {
         const matches = [...imports.values()].filter((descriptor) =>
           descriptor.detect(root),
@@ -158,6 +214,11 @@ export function createOperationRegistrySet(
         }
         return matches[0] as FullXmlSyncComponentProfile
       },
+    },
+    resourceCapabilities: {
+      xmlPrepare: (id) => xmlPrepareCapabilities.get(id),
+      externalTransfer: (id) => externalTransferCapabilities.get(id),
+      snapshotImport: (id) => snapshotImportCapabilities.get(id),
     },
     worker: {
       async run<Kind extends WorkerOperationKind>(

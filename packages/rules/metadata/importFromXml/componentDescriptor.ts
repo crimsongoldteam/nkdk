@@ -13,37 +13,28 @@ export function resolveXmlImportRootItemName(root: Readonly<Record<string, unkno
   return name
 }
 
-const descriptorsByKind = new Map<string, XmlImportComponentDescriptor>()
-
 export function registerXmlImportComponentDescriptor(descriptor: XmlImportComponentDescriptor): void {
-  if (descriptorsByKind.has(descriptor.kind)) {
-    throw new Error(`Вид XML-компонента уже зарегистрирован: ${descriptor.kind}`)
-  }
-  descriptorsByKind.set(descriptor.kind, descriptor)
+  const imports = contextualImports()
+  if (imports === undefined) throw new Error("Не задан execution context import descriptors")
+  imports.register(descriptor)
 }
 
 export function resolveXmlImportComponent(root: Record<string, unknown>): XmlImportComponentDescriptor {
   const contextual = contextualImports()
-  if (contextual !== undefined) return contextual.resolve(root)
-  const matches = [...descriptorsByKind.values()].filter((descriptor) => descriptor.detect(root))
-  if (matches.length === 0) throw new Error("Не найдено описание XML-компонента")
-  if (matches.length > 1) {
-    throw new Error(`Несколько описаний XML-компонента распознали корень: ${matches.map(({ kind }) => kind).join(", ")}`)
-  }
-  return matches[0] as XmlImportComponentDescriptor
+  if (contextual === undefined) throw new Error("Не задан execution context import descriptors")
+  return contextual.resolve(root)
 }
 
 export function getRegisteredXmlImportComponentDescriptor(kind: string): XmlImportComponentDescriptor {
   const contextual = contextualImports()
-  if (contextual !== undefined) return contextual.get(kind)
-  const descriptor = descriptorsByKind.get(kind)
-  if (descriptor === undefined) throw new Error(`Не найдено описание XML-компонента: ${kind}`)
-  return descriptor
+  if (contextual === undefined) throw new Error("Не задан execution context import descriptors")
+  return contextual.get(kind)
 }
 
 function contextualImports() {
   return currentOperationRegistrySet<{
     imports: {
+      register(descriptor: XmlImportComponentDescriptor): void
       resolve(input: Readonly<Record<string, unknown>>): XmlImportComponentDescriptor
       get(kind: string): XmlImportComponentDescriptor
     }

@@ -14,7 +14,6 @@ import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefa
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
-import { augmentMetadataItemYamlToXml } from "./yamlToXmlAugmenter"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 import type {
   ExportToXMLFunction,
@@ -39,6 +38,7 @@ import { readExternalFile } from "./externalFile"
 import type { DeferredValuePath } from "./deferredObjectValues"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { collectExplicitXMLPropertyActions } from "./explicitXMLPropertyRegistry"
+import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly execution?: PropertyRuleExecution
@@ -693,7 +693,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   for (const output of outputs) applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
   const outputMap = new Map(outputs.map(({ request, xml }) => [request.key, xml]))
   if (yaml !== undefined) {
-    augmentMetadataItemYamlToXml({
+    const augmenterRegistry = params.execution ?? currentPropertyRuleRegistrySet<{
+      augmentMetadataItemYamlToXml(value: {
+        readonly context: ConfigurationContextWithExportToXML
+        readonly rule: MetadataItemRule
+        readonly yaml: Readonly<Record<string, unknown>>
+        readonly outputs: ReadonlyMap<string, Record<string, unknown>>
+      }): void
+    }>()
+    augmenterRegistry?.augmentMetadataItemYamlToXml({
       context: params.context,
       rule: params.rule,
       yaml,

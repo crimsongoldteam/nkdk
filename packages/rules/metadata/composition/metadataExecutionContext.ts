@@ -1,8 +1,23 @@
-import { withPropertyRuleRegistrySet, withRuleRegistrySet } from "@nkdk/runtime/rule-kit"
-import { withOperationRegistrySet } from "../operations/operationExecutionContext"
+import {
+  enterPropertyRuleRegistrySet,
+  enterRuleRegistrySet,
+  setDefaultPropertyRuleRegistrySet,
+  setDefaultRuleRegistrySet,
+  withPropertyRuleRegistrySet,
+  withRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import {
+  enterOperationRegistrySet,
+  setDefaultOperationRegistrySet,
+  withOperationRegistrySet,
+} from "../operations/operationExecutionContext"
 import type { OperationRegistrySet } from "../operations/operationRegistrySet"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-import { withValidationRegistrySet } from "../validation/validationExecutionContext"
+import {
+  enterValidationRegistrySet,
+  setDefaultValidationRegistrySet,
+  withValidationRegistrySet,
+} from "../validation/validationExecutionContext"
 import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 import { metadataRules } from "./metadataRules"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
@@ -32,4 +47,18 @@ export function withMetadataExecutionRegistrySets<Result>(
     withPropertyRuleRegistrySet(registries.rules.property, () =>
       withValidationRegistrySet(registries.validation, () =>
         withOperationRegistrySet(registries.operations, execute))))
+}
+
+export function enterMetadataExecutionRegistrySets(registries: MetadataExecutionRegistrySets): void {
+  enterRuleRegistrySet(registries.rules)
+  enterPropertyRuleRegistrySet(registries.rules.property)
+  enterValidationRegistrySet(registries.validation)
+  enterOperationRegistrySet(registries.operations)
+}
+
+export function setDefaultMetadataExecutionRegistrySets(registries: MetadataExecutionRegistrySets): void {
+  setDefaultRuleRegistrySet(registries.rules)
+  setDefaultPropertyRuleRegistrySet(registries.rules.property)
+  setDefaultValidationRegistrySet(registries.validation)
+  setDefaultOperationRegistrySet(registries.operations)
 }

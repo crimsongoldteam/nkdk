@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./adapters/capabilities"
 import { compileRegisteredMetadataResourceTopology } from "./adapters/registeredRules"
 import { resolveTopologyMetadataTargetOwner } from "./adapters/metadataTargetOwner"
@@ -11,7 +10,6 @@ import { encodeConfigurationIndex } from "@nkdk/runtime"
 import { sampleSnapshot } from "@nkdk/runtime"
 import { resolvePartialXmlPackagePolicy } from "../partialSyncToXml/packagePolicy"
 
-registerCoreMetadata()
 
 describe("registered metadata resource topology contracts", () => {
   const topology = compileRegisteredMetadataResourceTopology()

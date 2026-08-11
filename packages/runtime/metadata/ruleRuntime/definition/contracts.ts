@@ -28,6 +28,15 @@ import type { MetadataTargetOwnerResolver } from "../property/metadataTargetOwne
 import type { MetadataItemRule } from "../property/types"
 import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRegistry"
 import type { MetadataItemYamlToXmlAugmenter } from "../property/yamlToXmlAugmenter"
+import type { FormDataPathMetadataProjection } from "../../validation/formDataPathProjection"
+import type {
+  FormPlatformSourceMatcher,
+  FormWarningProvider,
+  RegisteredFormFirstPassValidator,
+  RegisteredFormSecondPassValidator,
+  RegisteredFormValidator,
+} from "../../validation/formValidationRegistry"
+import type { FormValidationAdapter } from "../../validation/formContracts"
 
 export type PropertyTypeDefinition = {
   readonly [Operation in TypeRulesOperations]?: NonNullable<
@@ -69,6 +78,36 @@ export interface LocalYamlValueValidationContribution {
   ) => readonly Diagnostic[]
   readonly profileSubstep?: string
 }
+
+export type MetadataValidationContribution =
+  | LocalYamlValueValidationContribution
+  | { readonly kind: "formValidator"; readonly validator: RegisteredFormValidator }
+  | { readonly kind: "formValidationAdapter"; readonly adapter: FormValidationAdapter }
+  | {
+      readonly kind: "formValidationPasses"
+      readonly firstPass: RegisteredFormFirstPassValidator
+      readonly secondPass: RegisteredFormSecondPassValidator
+    }
+  | { readonly kind: "formDataPathProjection"; readonly projection: FormDataPathMetadataProjection }
+  | { readonly kind: "formPlatformSourceMatcher"; readonly matcher: FormPlatformSourceMatcher }
+  | { readonly kind: "formWarningProvider"; readonly provider: FormWarningProvider }
+  | { readonly kind: "formStructureProjection"; readonly projection: MetadataFormStructureProjection }
+
+export type MetadataFormStructureProjection = (params: {
+  readonly components: readonly import("../../validation/formContracts").FormStructuredComponent[]
+  readonly representation: "working" | "base"
+  readonly logicalAddress: string
+  readonly workingProjectPath: string
+}) => readonly {
+  readonly documentKind: string
+  readonly representation: string
+  readonly logicalAddress: string
+  readonly workingProjectPath: string
+  readonly componentKind: string
+  readonly name: string
+  readonly yamlPath: readonly (string | number)[]
+  readonly payload?: string
+}[]
 
 export interface MetadataImportComponentDescriptor {
   readonly kind: string
@@ -121,6 +160,41 @@ export interface MetadataSynchronizationContribution {
 export type MetadataOperationContribution =
   | { readonly kind: "xmlImportAugmenter"; readonly name: string; readonly augmenter: MetadataItemXmlImportAugmenter }
   | { readonly kind: "yamlToXmlAugmenter"; readonly componentKind: string; readonly augmenter: MetadataItemYamlToXmlAugmenter }
+  | { readonly kind: "baseFormPropertyProjector"; readonly propertyType: string; readonly projector: MetadataBaseFormProjector }
+  | { readonly kind: "baseFormReferenceProjector"; readonly propertyType: string; readonly projector: MetadataBaseFormProjector }
+  | { readonly kind: "importedYamlFinalizer"; readonly itemType: string; readonly finalizer: MetadataImportedYamlFinalizer }
+
+export interface MetadataImportedYamlFinalizerParams {
+  yaml: unknown
+  rule: MetadataItemRule
+  ownerMetadataCache: import("../../validation/dataPath/contracts").OwnerMetadataCache
+  currentConfigurationYAML?: unknown
+  savedBaseYAML?: unknown
+}
+
+export interface MetadataImportedYamlFinalizer {
+  requiresFinalization(yaml: unknown, rule: MetadataItemRule): boolean
+  finalize(params: MetadataImportedYamlFinalizerParams): void
+}
+
+export interface MetadataBaseFormProjectionContext {
+  readonly attributeNames: ReadonlySet<string>
+  readonly commandNames: ReadonlySet<string>
+  readonly parameterNames: ReadonlySet<string>
+}
+
+export type MetadataBaseFormProjection =
+  | { readonly kind: "include"; readonly value: unknown }
+  | { readonly kind: "omit" }
+
+export interface MetadataBaseFormProjector {
+  project(params: {
+    readonly rule: import("../property/types").PropertyRule
+    readonly baseValue: unknown
+    readonly extensionValue: unknown
+    readonly context: MetadataBaseFormProjectionContext
+  }): MetadataBaseFormProjection
+}
 
 export interface MetadataRulesDefinition<
   SynchronizationContribution extends MetadataSynchronizationContribution = MetadataSynchronizationContribution,
@@ -154,7 +228,7 @@ export interface MetadataRulesDefinition<
   >
   readonly projectSpecs: Readonly<Record<string, RegisteredProjectSpec>>
   readonly resourceTopology: readonly MetadataResourceTopologyProvider[]
-  readonly validation: readonly LocalYamlValueValidationContribution[]
+  readonly validation: readonly MetadataValidationContribution[]
   readonly dataPaths: readonly DataPathContribution[]
   readonly references: readonly ReferenceContribution[]
   readonly components: readonly MetadataComponentDescriptor[]

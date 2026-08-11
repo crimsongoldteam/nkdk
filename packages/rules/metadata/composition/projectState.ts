@@ -12,17 +12,9 @@ import {
 import { validateBorrowedClientApplicationForms } from "../forms/clientApplicationForm/borrowedFormValidation"
 import { appliedObjectComponentRules } from "../appliedObjects/componentRules"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
-import {
-  configurationValidationProjectSpec,
-  validationProjectSpecs,
-} from "../validation/projectSpecs"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-
-const validationSpecs = [configurationValidationProjectSpec, ...validationProjectSpecs]
-const validationTopologies = appliedObjectComponentRules.components.map(({ rootRule }) =>
-  compileMetadataResourceTopologyForRootRule(rootRule, validationSpecs)
-)
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 function dependencyValidator() {
   return createProjectStateDependencyValidator({
@@ -37,6 +29,7 @@ export function createDefaultProjectStateService(
   options: CreateProjectStateServiceOptions = {},
   rules?: RuleRegistrySet,
 ): ProjectStateService {
+  const effectiveRules = rules ?? currentRuleRegistrySet<RuleRegistrySet>()
   const workers = options.workerPool ?? createMetadataWorkerPoolHandle()
   const validator = dependencyValidator()
   return createProjectStateService({
@@ -55,11 +48,12 @@ export function createDefaultProjectStateService(
         createRulesSnapshot: (validationContext) =>
           createValidationRulesSnapshot(
             validationContext,
-            rules === undefined
-              ? validationTopologies
-              : [...rules.components.values()].map(({ rootRule }) =>
-                  rules.resourceTopology.get(rootRule)),
-            rules,
+            effectiveRules === undefined
+              ? appliedObjectComponentRules.components.map(({ rootRule }) =>
+                  compileMetadataResourceTopologyForRootRule(rootRule, []))
+              : [...effectiveRules.components.values()].map(({ rootRule }) =>
+                  effectiveRules.resourceTopology.get(rootRule)),
+            effectiveRules,
           ),
       })
       const executor = createPreparedYamlProjectRefreshExecutor(pool, context)

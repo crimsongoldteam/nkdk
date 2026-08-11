@@ -1,10 +1,11 @@
 import { prepareFormXML } from "./syncToXML"
 import {
-  registerMetadataExternalTransferCapability,
-  registerMetadataXmlPrepareCapability,
+  defineMetadataExternalTransferCapability,
+  defineMetadataXmlPrepareCapability,
 } from "../../resourceTopology/adapters/capabilities"
+import { composeMetadataRules } from "../../ruleRuntime/definition"
 
-registerMetadataXmlPrepareCapability({
+const formPrepareCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "ClientApplicationForm",
   run: ({
     context,
@@ -54,7 +55,12 @@ registerMetadataXmlPrepareCapability({
   },
 })
 
-registerMetadataExternalTransferCapability({
+const formTransferCapabilityRules = defineMetadataExternalTransferCapability({
   id: "ClientApplicationForm",
   projectToXml: (params) => params,
 })
+
+export const clientApplicationFormResourceCapabilityRules = composeMetadataRules(
+  formPrepareCapabilityRules,
+  formTransferCapabilityRules,
+)

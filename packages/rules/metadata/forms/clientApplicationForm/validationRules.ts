@@ -5,6 +5,15 @@ import {
   FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
   validateFormElementNames,
 } from "./validateElementNames"
+import {
+  collectDynamicListTypeValueWarnings,
+  validateClientApplicationForm,
+  validateClientApplicationFormFirstPass,
+  validateClientApplicationFormSecondPass,
+} from "./validate"
+import { clientApplicationFormDataPathProjection } from "./formDataPathProjection"
+import { clientApplicationFormValidationAdapter } from "./validationAdapter"
+import { projectClientApplicationFormStructure } from "./formStructureProjection"
 
 export const clientApplicationFormValidationRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -19,5 +28,33 @@ export const clientApplicationFormValidationRules = defineMetadataRules({
           rule: ClientApplicationFormRules,
         }),
     },
+    { kind: "formValidationAdapter", adapter: clientApplicationFormValidationAdapter },
+    { kind: "formValidator", validator: validateClientApplicationForm },
+    { kind: "formDataPathProjection", projection: clientApplicationFormDataPathProjection },
+    { kind: "formStructureProjection", projection: projectClientApplicationFormStructure },
+    {
+      kind: "formValidationPasses",
+      firstPass: validateClientApplicationFormFirstPass,
+      secondPass: ({ state, ownerCache }) => validateClientApplicationFormSecondPass({
+        state: state as Parameters<typeof validateClientApplicationFormSecondPass>[0]["state"],
+        ownerCache,
+      }),
+    },
+    {
+      kind: "formWarningProvider",
+      provider: ({ filePath, parsed }) => collectDynamicListTypeValueWarnings({ filePath, parsed }),
+    },
+    ...[
+      "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
+      "КомпоновщикНастроекКомпоновкиДанных.Settings.Use",
+      "КомпоновщикНастроекКомпоновкиДанных.Settings",
+    ].map((source) => ({
+      kind: "formPlatformSourceMatcher" as const,
+      matcher: (path: string) => {
+        if (path === source) return { kind: "platformSource" as const, path, matchedSource: source, match: "exact" as const }
+        if (path.startsWith(`${source}.`)) return { kind: "platformSource" as const, path, matchedSource: source, match: "prefix" as const }
+        return undefined
+      },
+    })),
   ],
 })

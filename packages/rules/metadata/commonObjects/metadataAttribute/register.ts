@@ -1,5 +1,6 @@
-import { registerMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../../ruleRuntime/metadataCollection/ruleFactory"
 import { MetadataAttributeRules } from "./rules"
+import { composeMetadataRules } from "../../ruleRuntime/definition"
 
 const attributePropertyTypes = [
   ["MetadataAttributes", "MetadataAttribute"],
@@ -28,10 +29,10 @@ const attributePropertyTypes = [
   "MetadataReportTabularSectionAttributes",
 ] as const satisfies readonly (readonly [string, string] | string)[]
 
-for (const entry of attributePropertyTypes) {
+export const metadataAttributeCollectionRules = composeMetadataRules(...attributePropertyTypes.map((entry) => {
   const propertyType = typeof entry === "string" ? entry : entry[0]
   const schemaName = typeof entry === "string" ? propertyType.replace(/Attributes$/, "Attribute") : entry[1]
-  registerMetadataItemCollectionRule({
+  return defineMetadataItemCollectionRule({
     propertyType,
     schemaName,
     itemRule: MetadataAttributeRules,
@@ -39,4 +40,4 @@ for (const entry of attributePropertyTypes) {
     keyField: "name",
     collectionItemRule: true,
   })
-}
+}))

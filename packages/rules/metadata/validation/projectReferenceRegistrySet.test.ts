@@ -2,11 +2,7 @@ import { expect, it } from "vitest"
 
 import type { ParsedMetadataTarget } from "../ruleRuntime/metadataTarget"
 import {
-  applyLegacyProjectReferenceContributions,
   createProjectReferenceRegistrySet,
-  getProjectReferenceObjectPathContributor,
-  restoreProjectReferenceIndexRegistryForTests,
-  snapshotProjectReferenceIndexRegistryForTests,
   type ProjectReferenceContribution,
 } from "./projectReferenceIndexRegistry"
 
@@ -56,19 +52,4 @@ it("isolates project reference contributions between rule sets", () => {
   expect(first.getValueContributor("Enum")).toBeTypeOf("function")
   expect(first.getFileValidators("configuration")).toHaveLength(1)
   expect(first.getMemberIndexContributors()).toHaveLength(1)
-})
-
-it("adapts pure contributions to the legacy global registry during migration", () => {
-  const snapshot = snapshotProjectReferenceIndexRegistryForTests()
-  try {
-    applyLegacyProjectReferenceContributions([{
-      kind: "objectPath",
-      root: "Document",
-      contributor: () => ({ filePath: "legacy.yaml" }),
-    }])
-
-    expect(getProjectReferenceObjectPathContributor("Document")).toBeTypeOf("function")
-  } finally {
-    restoreProjectReferenceIndexRegistryForTests(snapshot)
-  }
 })

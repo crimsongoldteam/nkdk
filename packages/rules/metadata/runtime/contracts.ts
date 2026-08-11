@@ -1,5 +1,4 @@
-import type { FullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
-import type { OperationRegistrySet } from "../operations/operationRegistrySet"
+import type { OperationRegistrySet, RulesSynchronizationContribution } from "../operations/operationRegistrySet"
 import type { ValidateProjectParams, ValidateProjectResult } from "../project/validateProject"
 import type {
   CreateProjectStateServiceOptions,
@@ -47,7 +46,7 @@ export interface MetadataWorkerManifest {
 }
 
 export interface CreateMetadataRuntimeOptions {
-  readonly rules: MetadataRulesDefinition<FullXmlSyncComponentProfile, ProjectReferenceContribution, DataPathContribution>
+  readonly rules: MetadataRulesDefinition<RulesSynchronizationContribution, ProjectReferenceContribution, DataPathContribution>
   readonly workers: MetadataWorkerManifest
   readonly createWorkerPool?: (workerUrl: URL) => MetadataWorkerPoolHandle
   readonly createProjectStateService: (

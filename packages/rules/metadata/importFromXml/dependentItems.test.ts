@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createConfigurationIndexCollector } from "@nkdk/runtime"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { yamlScalarTagAt } from "@nkdk/runtime"
 import type { ImportedDependentPropertyCandidate } from "@nkdk/runtime/rule-kit"
 import {
@@ -10,7 +9,6 @@ import {
   preserveDeferredDependentRawXML,
 } from "./dependentItems"
 
-registerCoreMetadata()
 
 describe("normalizeImportedDependentItems", () => {
   it.each([

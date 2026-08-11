@@ -1,31 +1,22 @@
-const internalNameByYaml = new Map<string, string>()
-
-export function registerStandardMemberAlias(
-  yamlName: string,
-  internalName: string
-): void {
-  if (!internalNameByYaml.has(yamlName)) {
-    internalNameByYaml.set(yamlName, internalName)
-  }
-}
+import { currentDataPathRegistrySet } from "../../validation/dataPath/dataPathExecutionContext"
 
 export function standardMemberYamlToInternal(
   yamlName: string
 ): string | undefined {
-  return internalNameByYaml.get(yamlName)
+  return currentDataPathRegistrySet<{
+    getStandardMemberNamePairs(): readonly { readonly yaml: string; readonly internal: string }[]
+  }>()?.getStandardMemberNamePairs().find((names) => names.yaml === yamlName)?.internal
 }
 
 export function standardMemberInternalToYaml(internalName: string): string | undefined {
-  for (const [yamlName, registeredInternalName] of internalNameByYaml) {
-    if (registeredInternalName === internalName) return yamlName
-  }
-  return undefined
+  return currentDataPathRegistrySet<{
+    getStandardMemberNamePairs(): readonly { readonly yaml: string; readonly internal: string }[]
+  }>()?.getStandardMemberNamePairs().find((names) => names.internal === internalName)?.yaml
 }
 
 export function registeredStandardMemberAliases(): Readonly<Record<string, string>> {
-  return Object.fromEntries(internalNameByYaml)
-}
-
-export function clearStandardMemberAliasesForTests(): void {
-  internalNameByYaml.clear()
+  const pairs = currentDataPathRegistrySet<{
+    getStandardMemberNamePairs(): readonly { readonly yaml: string; readonly internal: string }[]
+  }>()?.getStandardMemberNamePairs() ?? []
+  return Object.fromEntries(pairs.map(({ yaml, internal }) => [yaml, internal]))
 }

@@ -16,6 +16,7 @@ export interface ExportRuleSchemaParams {
   readonly mode?: JSONSchemaExportMode
   readonly excludeImplicitValueYAML?: boolean
   readonly includeNestedChildItems?: boolean
+  readonly requiredPolicy?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["requiredPolicy"]
 }
 
 export interface ExportRuleSchemaByNameParams extends ExportRuleSchemaParams {
@@ -95,6 +96,7 @@ function createExportSession(
       {
         excludeImplicitValueYAML: params.excludeImplicitValueYAML,
         includeNestedChildItems: params.includeNestedChildItems,
+        requiredPolicy: params.requiredPolicy,
         defineSchema,
         propertyRef: ({ context, rule }) => {
           const propertyRule = asPropertyRule(rule)

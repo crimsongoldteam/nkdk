@@ -12,7 +12,11 @@ import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 import { compileMetadataResourceTopology } from "../resourceTopology/core/compiler"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/adapters/registeredRules"
-import { registerMetadataXmlPrepareCapability } from "../resourceTopology/adapters/capabilities"
+import { defineMetadataXmlPrepareCapability } from "../resourceTopology/adapters/capabilities"
+import { composeMetadataRules } from "../ruleRuntime/definition"
+import { metadataRules } from "../composition/metadataRules"
+import { createOperationRegistrySet } from "../operations/operationRegistrySet"
+import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
@@ -99,7 +103,10 @@ describe("prepareFullXmlSyncAssignment", () => {
         rootRule: rule,
       }))
     )
-    registerMetadataXmlPrepareCapability({ id: "test-two-documents", run })
+    const operations = createOperationRegistrySet(composeMetadataRules(
+      metadataRules,
+      defineMetadataXmlPrepareCapability({ id: "test-two-documents", run }),
+    ))
     const assignment: FullXmlSyncAssignment = {
       id: "Объект/One/Свойства.yaml",
       sourceProjectPath: "Объект/One/Свойства.yaml",
@@ -113,7 +120,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       potentialOutputs: outputs,
     }
 
-    const prepared = prepareFullXmlSyncAssignment({
+    const prepared = withOperationRegistrySet(operations, () => prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: {
         projectPath: assignment.sourceProjectPath,
@@ -128,7 +135,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       baseConfigurationIndex,
       composition: emptyComposition,
       topology,
-    })
+    }))
 
     expect(run).toHaveBeenCalledTimes(1)
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([

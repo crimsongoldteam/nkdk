@@ -1,7 +1,8 @@
 import {
   createStructuredBaseFormPropertyProjector,
-  registerBaseFormPropertyProjector,
 } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 const commandInterfaceItem = {
   kind: "object",
@@ -18,9 +19,12 @@ const commandInterfaceItem = {
   },
 } as const
 
-registerBaseFormPropertyProjector(
-  "CommandInterface",
-  createStructuredBaseFormPropertyProjector({
+export const commandInterfaceBaseFormProjectionRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: [{
+    kind: "baseFormPropertyProjector",
+    propertyType: "CommandInterface",
+    projector: createStructuredBaseFormPropertyProjector({
     kind: "object",
     omitIfEmpty: true,
     properties: {
@@ -35,5 +39,6 @@ registerBaseFormPropertyProjector(
         omitIfEmpty: true,
       },
     },
-  })
-)
+    }),
+  }],
+})

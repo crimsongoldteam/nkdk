@@ -1,4 +1,3 @@
-import { registerMetadataItemImportedYamlFinalizer } from "../../ruleRuntime/metadataItem/importedYamlFinalizerRegistry"
 import type { ClientApplicationFormYAML } from "./types"
 import {
   compactImportedFormDataPaths,
@@ -6,10 +5,15 @@ import {
   requiresImportedFormDataPathCompaction,
 } from "./formDataPathContext"
 import { ClientApplicationFormRules } from "./rules"
+import { defineMetadataRules } from "../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
-registerMetadataItemImportedYamlFinalizer(
-  ClientApplicationFormRules.itemType,
-  {
+export const clientApplicationFormImportedYamlFinalizerRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: [{
+    kind: "importedYamlFinalizer",
+    itemType: ClientApplicationFormRules.itemType,
+    finalizer: {
     requiresFinalization: (yaml, rule) =>
       requiresImportedFormDataPathCompaction(clientApplicationFormYaml(yaml), rule),
     finalize: ({ yaml, rule, ownerMetadataCache, currentConfigurationYAML, savedBaseYAML }) => {
@@ -29,8 +33,9 @@ registerMetadataItemImportedYamlFinalizer(
         }),
       })
     },
-  }
-)
+    },
+  }],
+})
 
 function clientApplicationFormYaml(value: unknown): ClientApplicationFormYAML {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {

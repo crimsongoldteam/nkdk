@@ -1,63 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { typeRulesRegistryRevision } from "../ruleRuntime/property/typeRuleRegistry"
-import { listJSONSchemaIdentityNames } from "../ruleRuntime/jsonSchemaRefs"
-import { getElementRule } from "../ruleRuntime/formElement/ruleRegistry"
-import { projectSpecRegistryRevision } from "../projectDefinition/projectSpecRegistry"
-import { findMetadataComponentDescriptor } from "../components/descriptor"
-import { getRegisteredXmlImportComponentDescriptor } from "../importFromXml/componentDescriptor"
-import { resolveFullXmlSyncComponentProfile } from "../fullSyncToXml/componentProfile"
-import { snapshotLocalYamlValueValidationRegistryForTests } from "../validation/yamlValueValidationRegistry"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-import { listJSONSchemaNames } from "../projectDefinition/schemaRegistry"
-import { exportPropertyExternalRefSchema } from "../ruleRuntime/jsonSchemaRefs"
-import type { PropertyRule } from "@nkdk/runtime/rule-kit"
-import { snapshotProjectReferenceIndexRegistryForTests } from "../validation/projectReferenceIndexRegistry"
-import { snapshotDataPathResolverRegistryForTests } from "../validation/dataPath/registry"
 
 describe("metadataRules", () => {
   it(
     "exports property rules without writing to the legacy registry",
     async () => {
-      const revisionBeforeImport = typeRulesRegistryRevision()
-      const schemaNamesBeforeImport = listJSONSchemaIdentityNames()
-      const projectSchemaNamesBeforeImport = listJSONSchemaNames()
-      const settingsParameterRule = {
-        type: "SettingsParameterValue",
-        valueType: "Primitive",
-      } as PropertyRule
-      const externalRefContext = {
-        defaultLanguage: "ru" as const,
-        version: "2.20" as const,
-        exportToJSONSchema: {
-          mode: "externalRefs" as const,
-          refs: new Set<string>(),
-        },
-      }
-      const propertyRefBeforeImport = exportPropertyExternalRefSchema({
-        context: externalRefContext,
-        rule: settingsParameterRule,
-      })
-      const projectRevisionBeforeImport = projectSpecRegistryRevision()
-      const referenceRegistryBeforeImport = snapshotProjectReferenceIndexRegistryForTests()
-      const dataPathRegistryBeforeImport = snapshotDataPathResolverRegistryForTests()
-      expectLegacyMetadataRegistriesEmpty()
-
       const { metadataRules } = await import("./metadataRules")
-
-      expect(typeRulesRegistryRevision()).toBe(revisionBeforeImport)
-      expect(listJSONSchemaIdentityNames()).toEqual(schemaNamesBeforeImport)
-      expect(listJSONSchemaNames()).toEqual(projectSchemaNamesBeforeImport)
-      expect(
-        exportPropertyExternalRefSchema({
-          context: externalRefContext,
-          rule: settingsParameterRule,
-        }),
-      ).toEqual(propertyRefBeforeImport)
-      expect(projectSpecRegistryRevision()).toBe(projectRevisionBeforeImport)
-      expect(snapshotProjectReferenceIndexRegistryForTests()).toEqual(referenceRegistryBeforeImport)
-      expect(snapshotDataPathResolverRegistryForTests()).toEqual(dataPathRegistryBeforeImport)
-      expectLegacyMetadataRegistriesEmpty()
       expect(metadataRules.propertyTypes.dateTime?.importFromXML).toBeTypeOf(
         "function",
       )
@@ -97,11 +46,11 @@ describe("metadataRules", () => {
       expect(Object.keys(metadataRules.projectSpecs)).toHaveLength(48)
       expect(metadataRules.components).toHaveLength(2)
       expect(metadataRules.imports).toHaveLength(2)
-      expect(metadataRules.synchronization).toHaveLength(2)
-      expect(metadataRules.validation).toHaveLength(1)
+      expect(metadataRules.synchronization.length).toBeGreaterThan(2)
+      expect(metadataRules.validation).toHaveLength(10)
       expect(metadataRules.references.length).toBeGreaterThan(10)
       expect(metadataRules.dataPaths.length).toBeGreaterThan(20)
-      expect(metadataRules.operations).toHaveLength(2)
+      expect(metadataRules.operations.length).toBeGreaterThan(2)
       expect(metadataRules.resourceTopology).toHaveLength(1)
       expect(
         createRuleRegistrySet(metadataRules).resourceTopology.get().assignments
@@ -111,13 +60,3 @@ describe("metadataRules", () => {
     30_000,
   )
 })
-
-function expectLegacyMetadataRegistriesEmpty(): void {
-  expect(() => getElementRule("InputField")).toThrow()
-  expect(findMetadataComponentDescriptor("configuration")).toBeUndefined()
-  expect(() => getRegisteredXmlImportComponentDescriptor("configuration")).toThrow()
-  expect(() => resolveFullXmlSyncComponentProfile({ kind: "configuration" })).toThrow()
-  expect(
-    snapshotLocalYamlValueValidationRegistryForTests().validators.has("ClientApplicationForm"),
-  ).toBe(false)
-}

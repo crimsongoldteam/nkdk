@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { registerMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
+import { composeMetadataRules } from "../ruleRuntime/definition"
+import { createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
 import "../commonObjects/metadataExternalDataSourceField/types"
@@ -65,27 +67,27 @@ const ownerWithIndexedUuidRule = {
   },
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+const addressableRules = createPropertyRuleRegistrySet(composeMetadataRules(defineMetadataItemCollectionRule({
   propertyType: collectionType,
   itemRule: functionRule,
   xmlElement: "Function",
   keyField: "name",
-})
+}),
 
-registerMetadataItemCollectionRule({
+defineMetadataItemCollectionRule({
   propertyType: indexedUuidType,
   itemRule: indexedUuidItemRule,
   xmlElement: "Method",
   keyField: "name",
   configurationIndexUidSegment: "Метод",
-})
+}),
 
-registerMetadataItemCollectionRule({
+defineMetadataItemCollectionRule({
   propertyType: ownerChildType,
   itemRule: ownerChildRule,
   xmlElement: "EnumValue",
   keyField: "name",
-})
+})))
 
 describe("collectAddressableMetadataObjectEntries", () => {
   it("reads the exact nested object target declared by topology", () => {
@@ -102,12 +104,12 @@ describe("collectAddressableMetadataObjectEntries", () => {
   })
 
   it("indexes an addressable inline item from its declared external metadata segment", () => {
-    const entries = collectAddressableMetadataObjectEntries({
+    const entries = withPropertyRuleRegistrySet(addressableRules, () => collectAddressableMetadataObjectEntries({
       yaml: { Функции: { Функция1: { Тип: "Строка" } } },
       rule: ownerRule,
       canonicalTarget: "ExternalDataSource.Источник",
       filePath: "/project/ВнешнийИсточникДанных/Источник/Свойства.yaml",
-    })
+    }))
 
     expect(entries).toEqual([
       expect.objectContaining({
@@ -127,12 +129,12 @@ describe("collectAddressableMetadataObjectEntries", () => {
   })
 
   it("collects an owner child as a logical address", () => {
-    const entries = collectAddressableMetadataLogicalAddresses({
+    const entries = withPropertyRuleRegistrySet(addressableRules, () => collectAddressableMetadataLogicalAddresses({
       yaml: { Значения: { Новый: {} } },
       rule: ownerWithChildRule,
       logicalAddress: "Перечисление.Статусы",
       filePath: "/project/Перечисление/Статусы/Свойства.yaml",
-    })
+    }))
 
     expect(entries).toEqual([{
       logicalAddress: "Перечисление.Статусы.EnumValue.Новый",
@@ -153,12 +155,12 @@ describe("collectAddressableMetadataObjectEntries", () => {
   })
 
   it("collects an indexed UUID item without a separate external metadata declaration", () => {
-    expect(collectAddressableMetadataLogicalAddresses({
+    expect(withPropertyRuleRegistrySet(addressableRules, () => collectAddressableMetadataLogicalAddresses({
       yaml: { Методы: { Получить: {} } },
       rule: ownerWithIndexedUuidRule,
       logicalAddress: "HTTPСервис.API",
       filePath: "/project/HTTPСервис/API/Свойства.yaml",
-    })).toEqual([{
+    }))).toEqual([{
       logicalAddress: "HTTPСервис.API.Метод.Получить",
       sourceProjectPath: "/project/HTTPСервис/API/Свойства.yaml",
     }])

@@ -1,11 +1,9 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { mockContext } from "../../../tests/mockContext"
 import { RootCommandInterfaceRules } from "./rules"
 
-registerCoreMetadata()
 
 describe("RootCommandInterface JSON Schema", () => {
   it("accepts empty subsystem order separators", () => {

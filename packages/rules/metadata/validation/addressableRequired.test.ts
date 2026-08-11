@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
-import { registerMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
+import { defineMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
+import { composeMetadataRules, createPropertyRuleRegistrySet, withPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { collectAddressableRequiredChecks } from "./addressableRequired"
 
@@ -20,16 +21,15 @@ const valueChildRule = {
   },
 } as const satisfies MetadataItemRule
 
-registerMetadataItemCollectionRule({
+const requiredRules = createPropertyRuleRegistrySet(composeMetadataRules(defineMetadataItemCollectionRule({
   propertyType: "RequiredAddressableChildren",
   itemRule: addressableChildRule,
   xmlElement: "Cube",
-})
-registerMetadataItemCollectionRule({
+}), defineMetadataItemCollectionRule({
   propertyType: "RequiredValueChildren",
   itemRule: valueChildRule,
   xmlElement: "Value",
-})
+})))
 
 const rootRule = {
   itemType: "RequiredRoot",
@@ -78,11 +78,11 @@ describe("collectAddressableRequiredChecks", () => {
 
 function checks(text: string) {
   const parsed = parseMetadataYaml(text)
-  return collectAddressableRequiredChecks({
+  return withPropertyRuleRegistrySet(requiredRules, () => collectAddressableRequiredChecks({
     filePath: "/project/cfe/Расширение/Источник.yaml",
     parsed,
     yaml: parsed.data,
     rule: rootRule,
     canonicalTarget: "ExternalDataSource.Источник",
-  })
+  }))
 }

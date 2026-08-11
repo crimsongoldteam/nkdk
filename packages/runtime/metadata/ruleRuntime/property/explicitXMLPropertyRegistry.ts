@@ -56,9 +56,6 @@ export interface ExplicitXMLPropertyMatcher {
   }): ExplicitXMLPropertyTypeRegistration | undefined
 }
 
-const registrations = new Map<string, ExplicitXMLPropertyRegistration>()
-const typeRegistrations = new Map<string, ExplicitXMLPropertyTypeRegistration>()
-
 export interface ExplicitXMLPropertyRegistryView {
   readonly properties: ReadonlyMap<string, ExplicitXMLPropertyRegistration>
   readonly propertyTypes: ReadonlyMap<string, ExplicitXMLPropertyTypeRegistration>
@@ -78,37 +75,20 @@ interface ContextualExplicitXMLPropertyRegistry extends ExplicitXMLPropertyMatch
   ): "empty" | "scalar" | undefined
 }
 
-const globalRegistryView: ExplicitXMLPropertyRegistryView = {
-  properties: registrations,
-  propertyTypes: typeRegistrations,
-}
-
 export function registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void {
-  const key = registrationKey(registration.itemType, registration.propertyKey)
-  const current = registrations.get(key)
-  if (current === undefined) {
-    registrations.set(key, registration)
-    return
-  }
-  if (sameRegistration(current, registration)) {
-    return
-  }
-  throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
+  const registry = currentPropertyRuleRegistrySet<{
+    registerExplicitXMLProperty(value: ExplicitXMLPropertyRegistration): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.registerExplicitXMLProperty(registration)
 }
 
 export function registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void {
-  const current = typeRegistrations.get(registration.propertyType)
-  if (current === undefined) {
-    typeRegistrations.set(registration.propertyType, registration)
-    return
-  }
-  if (
-    current.action === registration.action &&
-    Object.is(current.yamlValue, registration.yamlValue)
-  ) {
-    return
-  }
-  throw new Error(`Конфликт регистрации явного XML-значения типа ${registration.propertyType}`)
+  const registry = currentPropertyRuleRegistrySet<{
+    registerExplicitXMLPropertyType(value: ExplicitXMLPropertyTypeRegistration): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.registerExplicitXMLPropertyType(registration)
 }
 
 export function matchExplicitXMLPropertyFromXML(params: {
@@ -118,13 +98,7 @@ export function matchExplicitXMLPropertyFromXML(params: {
   readonly xmlValue: unknown
 }): Exclude<ExplicitXMLPropertyRegistration, { readonly action: "transportScalar" }> | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
-  if (contextual !== undefined) return contextual.matchExplicitXMLPropertyFromXML(params)
-  const registration = registrations.get(registrationKey(params.itemType, params.propertyKey))
-  if (registration?.action === "transportScalar") return undefined
-  if (registration?.action === "omit") return params.presentInXML ? undefined : registration
-  return registration !== undefined && params.presentInXML && Object.is(registration.xmlValue, params.xmlValue)
-    ? registration
-    : undefined
+  return contextual?.matchExplicitXMLPropertyFromXML(params)
 }
 
 export function matchExplicitXMLPropertyTypeFromXML(params: {
@@ -133,22 +107,17 @@ export function matchExplicitXMLPropertyTypeFromXML(params: {
   readonly yamlValue: unknown
 }): ExplicitXMLPropertyTypeRegistration | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
-  if (contextual !== undefined) return contextual.matchExplicitXMLPropertyTypeFromXML(params)
-  const registration = typeRegistrations.get(params.propertyType)
-  return registration !== undefined &&
-    params.presentInXML &&
-    Object.is(params.yamlValue, registration.yamlValue)
-    ? registration
-    : undefined
+  return contextual?.matchExplicitXMLPropertyTypeFromXML(params)
 }
 
 export function collectExplicitXMLPropertyActions(params: {
   readonly yaml: unknown
   readonly itemType: string
   readonly properties: Readonly<Record<string, { readonly type?: string; readonly yaml?: string }>>
-}, registry: ExplicitXMLPropertyRegistryView = globalRegistryView): ReadonlyMap<string, ExplicitXMLPropertyAction> {
+}, registry?: ExplicitXMLPropertyRegistryView): ReadonlyMap<string, ExplicitXMLPropertyAction> {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
-  if (registry === globalRegistryView && contextual !== undefined) {
+  if (registry === undefined) {
+    if (contextual === undefined) throw new Error("Не задан execution context property rules")
     return contextual.collectExplicitXMLPropertyActions(params)
   }
   const actions = new Map<string, ExplicitXMLPropertyAction>()
@@ -202,38 +171,23 @@ export function collectExplicitXMLPropertyActions(params: {
 export function hasExplicitXMLPropertyRegistration(itemType: string, propertyKey: string): boolean {
   return currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
     ?.hasExplicitXMLProperty(itemType, propertyKey)
-    ?? registrations.has(registrationKey(itemType, propertyKey))
+    ?? false
 }
 
 export function explicitXMLPropertyValidationMode(
   itemType: string,
   propertyKey: string,
   propertyType?: string,
-  registry: ExplicitXMLPropertyRegistryView = globalRegistryView,
+  registry?: ExplicitXMLPropertyRegistryView,
 ): "empty" | "scalar" | undefined {
   const contextual = currentPropertyRuleRegistrySet<ContextualExplicitXMLPropertyRegistry>()
-  if (registry === globalRegistryView && contextual !== undefined) {
+  if (registry === undefined) {
+    if (contextual === undefined) throw new Error("Не задан execution context property rules")
     return contextual.explicitXMLPropertyValidationMode(itemType, propertyKey, propertyType)
   }
   const registration = registry.properties.get(registrationKey(itemType, propertyKey))
   if (registration !== undefined) return registration.action === "transportScalar" ? "scalar" : "empty"
   return propertyType !== undefined && registry.propertyTypes.has(propertyType) ? "empty" : undefined
-}
-
-function sameRegistration(
-  left: ExplicitXMLPropertyRegistration,
-  right: ExplicitXMLPropertyRegistration
-): boolean {
-  if (left.action === "transportScalar" || right.action === "transportScalar") {
-    return left.action === "transportScalar" && right.action === "transportScalar" &&
-      JSON.stringify(left.overrides) === JSON.stringify(right.overrides)
-  }
-  const leftAction = left.action ?? "emit"
-  const rightAction = right.action ?? "emit"
-  if (leftAction !== rightAction) return false
-  if (!Object.is(left.yamlValue, right.yamlValue)) return false
-  return leftAction === "omit" ||
-    ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }
 
 export function registrationKey(itemType: string, propertyKey: string): string {

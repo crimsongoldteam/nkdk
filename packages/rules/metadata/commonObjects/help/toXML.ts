@@ -1,7 +1,7 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import type { HelpPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
+import { defineMetadataXmlPrepareCapability } from "../../resourceTopology/adapters/capabilities"
 
 export function prepareHelpXML(params: {
   rule: PropertyRule
@@ -29,7 +29,7 @@ export function prepareHelpXML(params: {
   }
 }
 
-registerMetadataXmlPrepareCapability({
+export const helpResourceCapabilityRules = defineMetadataXmlPrepareCapability({
   id: "Help",
   run: ({ assignment, preparedYamlFile, outputs }) => {
     const output = outputs.find((candidate) => candidate.role === "property")

@@ -1,13 +1,6 @@
-import { standardMemberNamePairs, standardMembersRegistryRevision } from "./registry"
+import { standardMemberNamePairs } from "./registry"
 import type { DataPathFormatDirection } from "./formatContracts"
 import { getRegisteredFormDataPathMetadataProjection } from "../formDataPathProjectionRegistry"
-
-interface CachedMatcher {
-  revision: number
-  matcher: RegExp | undefined
-}
-
-const cachedMatchers: Partial<Record<DataPathFormatDirection, CachedMatcher>> = {}
 
 export function requiresDataPathStandardMemberFormatting(
   value: unknown,
@@ -28,10 +21,6 @@ function requiresRegisteredDialectFormatting(value: string, direction: DataPathF
 }
 
 function matcher(direction: DataPathFormatDirection): RegExp | undefined {
-  const revision = standardMembersRegistryRevision()
-  const cached = cachedMatchers[direction]
-  if (cached !== undefined && cached.revision === revision) return cached.matcher
-
   const nameKey = direction === "internal-to-yaml" ? "internal" : "yaml"
   const names = standardMemberNamePairs()
     .filter(({ internal, yaml }) => internal !== yaml)
@@ -39,7 +28,6 @@ function matcher(direction: DataPathFormatDirection): RegExp | undefined {
     .sort((left, right) => right.length - left.length)
     .map(escapeRegExp)
   const compiled = names.length === 0 ? undefined : new RegExp(`(?:^|\\.)(?:${names.join("|")})(?=\\.|\\[|$)`)
-  cachedMatchers[direction] = { revision, matcher: compiled }
   return compiled
 }
 

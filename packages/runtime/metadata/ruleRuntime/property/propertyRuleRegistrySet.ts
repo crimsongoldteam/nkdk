@@ -21,6 +21,10 @@ import type { PropertyRuleType } from "./registry"
 import type { RegisteredSystemEnumeration } from "./systemEnumerationRegistry"
 import type { IndexValueFromYAMLFunction } from "./indexValueFromYAMLRegistry"
 import type { MetadataTargetOwnerResolver } from "./metadataTargetOwnerRegistry"
+import type { MetadataItemXmlImportAugmenter } from "../metadataItem/augmenterRegistry"
+import type { MetadataItemYamlToXmlAugmenter } from "./yamlToXmlAugmenter"
+import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
+import type { MetadataItemRule } from "./types"
 
 type ResolvedPropertyItemRule = CollectionItemRule["itemRule"]
 
@@ -72,6 +76,23 @@ function setPropertyTypeOperation(
 }
 
 export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, DependentItemRegistryLookup {
+  registerTypeRule<Operation extends TypeRulesOperations>(
+    type: PropertyRuleType,
+    operation: Operation,
+    handler: NonNullable<importExportFunction<Operation>>,
+  ): void
+  clearTypeRules(): void
+  revision(): number
+  registerExplicitXMLProperty(registration: ExplicitXMLPropertyRegistration): void
+  registerExplicitXMLPropertyType(registration: ExplicitXMLPropertyTypeRegistration): void
+  registerMetadataItemXmlImportAugmenter(name: string, augmenter: MetadataItemXmlImportAugmenter): void
+  applyMetadataItemXmlImportAugmenter(params: Parameters<MetadataItemXmlImportAugmenter["augment"]>[0]): void
+  registerMetadataItemYamlToXmlAugmenter(componentKind: string, augmenter: MetadataItemYamlToXmlAugmenter): void
+  augmentMetadataItemYamlToXml(params: Omit<Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0], "logicalAddress">): void
+  registerImportedYamlFinalizer(itemType: string, finalizer: MetadataImportedYamlFinalizer): void
+  requiresImportedYamlFinalization(yaml: unknown, rule: MetadataItemRule): boolean
+  supportsImportedYamlFinalization(itemType: string): boolean
+  finalizeImportedYaml(params: MetadataImportedYamlFinalizerParams): void
   getTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,
@@ -81,6 +102,7 @@ export interface PropertyRuleRegistrySet extends ExplicitXMLPropertyMatcher, Dep
     fallback?: ResolvedPropertyItemRule,
   ): ResolvedPropertyItemRule | undefined
   getSystemEnumeration(name: string): RegisteredSystemEnumeration | undefined
+  getSystemEnumerationNames(): readonly string[]
   getDeclaredPropertyItemRule<Rule extends object = object>(
     propertyType: string,
   ): Rule | undefined
@@ -114,9 +136,16 @@ export function createPropertyRuleRegistrySet(
     | "indexValuesFromYAML"
     | "metadataTargetOwners"
     | "systemEnumerations"
+    | "operations"
   >,
 ): PropertyRuleRegistrySet {
-  const typeRules = new Map(Object.entries(definition.propertyTypes))
+  const typeRules = new Map(
+    Object.entries(definition.propertyTypes).map(([type, operations]) => [
+      type,
+      { ...operations },
+    ]),
+  )
+  let revision = 0
   const enumerations = new Map(Object.entries(definition.systemEnumerations))
   const propertyItemRules = collectPropertyItemRules(definition.propertyItemRules)
   const explicitXMLProperties = new Map<string, ExplicitXMLPropertyRegistration>()
@@ -137,6 +166,18 @@ export function createPropertyRuleRegistrySet(
     Object.entries(definition.metadataTargetOwners),
   )
   const dependentItems = new Map(Object.entries(definition.dependentItems))
+  const xmlImportAugmenters = new Map<string, MetadataItemXmlImportAugmenter>()
+  const yamlToXmlAugmenters = new Map<string, MetadataItemYamlToXmlAugmenter>()
+  const importedYamlFinalizers = new Map<string, MetadataImportedYamlFinalizer>()
+  for (const operation of definition.operations) {
+    if (operation.kind === "xmlImportAugmenter") {
+      xmlImportAugmenters.set(operation.name, operation.augmenter)
+    } else if (operation.kind === "yamlToXmlAugmenter") {
+      yamlToXmlAugmenters.set(operation.componentKind, operation.augmenter)
+    } else if (operation.kind === "importedYamlFinalizer") {
+      importedYamlFinalizers.set(operation.itemType, operation.finalizer)
+    }
+  }
 
   function getTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
@@ -146,6 +187,77 @@ export function createPropertyRuleRegistrySet(
   }
 
   return {
+    registerTypeRule(type, operation, handler) {
+      const definition = { ...typeRules.get(type) }
+      ;(definition as Record<string, unknown>)[operation] = handler
+      typeRules.set(type, definition)
+      revision += 1
+    },
+    clearTypeRules() {
+      typeRules.clear()
+      revision += 1
+    },
+    revision: () => revision,
+    registerExplicitXMLProperty(registration) {
+      const key = propertyRegistrationKey(registration.itemType, registration.propertyKey)
+      const current = explicitXMLProperties.get(key)
+      if (current !== undefined && !sameExplicitXMLPropertyRegistration(current, registration)) {
+        throw new Error(`Конфликт регистрации явного XML-значения ${registration.itemType}.${registration.propertyKey}`)
+      }
+      explicitXMLProperties.set(key, registration)
+    },
+    registerExplicitXMLPropertyType(registration) {
+      const current = explicitXMLPropertyTypes.get(registration.propertyType)
+      if (
+        current !== undefined &&
+        !(current.action === registration.action && Object.is(current.yamlValue, registration.yamlValue))
+      ) {
+        throw new Error(`Конфликт регистрации явного XML-значения типа ${registration.propertyType}`)
+      }
+      explicitXMLPropertyTypes.set(registration.propertyType, registration)
+    },
+    registerMetadataItemXmlImportAugmenter(name, augmenter) {
+      if (xmlImportAugmenters.has(name)) {
+        throw new Error(`Дополнение XML-import metadata-item уже зарегистрировано: ${name}`)
+      }
+      xmlImportAugmenters.set(name, augmenter)
+    },
+    applyMetadataItemXmlImportAugmenter(params) {
+      const fromXML = params.context.fromXML
+      if (!("metadataItemAugmenter" in fromXML) || typeof fromXML.metadataItemAugmenter !== "string") return
+      const augmenter = xmlImportAugmenters.get(fromXML.metadataItemAugmenter)
+      if (augmenter === undefined) {
+        throw new Error(`Не зарегистрировано дополнение XML-import metadata-item: ${fromXML.metadataItemAugmenter}`)
+      }
+      augmenter.augment(params)
+    },
+    registerMetadataItemYamlToXmlAugmenter(componentKind, augmenter) {
+      if (yamlToXmlAugmenters.has(componentKind)) {
+        throw new Error(`Дополнение YAML-to-XML metadata-item уже зарегистрировано: ${componentKind}`)
+      }
+      yamlToXmlAugmenters.set(componentKind, augmenter)
+    },
+    augmentMetadataItemYamlToXml(params) {
+      const componentKind = params.context.exportToXML.componentKind
+      const logicalAddress = params.context.exportToXML.configurationIndex?.logicalAddress
+      if (componentKind === undefined || logicalAddress === undefined) return
+      yamlToXmlAugmenters.get(componentKind)?.augment({ ...params, logicalAddress })
+    },
+    registerImportedYamlFinalizer(itemType, finalizer) {
+      if (importedYamlFinalizers.has(itemType)) {
+        throw new Error(`Уточнение импортированного YAML уже зарегистрировано: ${itemType}`)
+      }
+      importedYamlFinalizers.set(itemType, finalizer)
+    },
+    requiresImportedYamlFinalization(yaml, rule) {
+      return importedYamlFinalizers.get(rule.itemType)?.requiresFinalization(yaml, rule) ?? false
+    },
+    supportsImportedYamlFinalization(itemType) {
+      return importedYamlFinalizers.has(itemType)
+    },
+    finalizeImportedYaml(params) {
+      importedYamlFinalizers.get(params.rule.itemType)?.finalize(params)
+    },
     getTypeRule,
     resolvePropertyItemRule(rule, fallback) {
       return (
@@ -156,6 +268,9 @@ export function createPropertyRuleRegistrySet(
     },
     getSystemEnumeration(name) {
       return enumerations.get(name)
+    },
+    getSystemEnumerationNames() {
+      return [...enumerations.keys()].sort()
     },
     getDeclaredPropertyItemRule<Rule extends object = object>(
       propertyType: string,
@@ -245,6 +360,22 @@ export function createPropertyRuleRegistrySet(
       )
     },
   }
+}
+
+function sameExplicitXMLPropertyRegistration(
+  left: ExplicitXMLPropertyRegistration,
+  right: ExplicitXMLPropertyRegistration,
+): boolean {
+  if (left.action === "transportScalar" || right.action === "transportScalar") {
+    return left.action === "transportScalar" &&
+      right.action === "transportScalar" &&
+      JSON.stringify(left.overrides) === JSON.stringify(right.overrides)
+  }
+  const leftAction = left.action ?? "emit"
+  const rightAction = right.action ?? "emit"
+  if (leftAction !== rightAction || !Object.is(left.yamlValue, right.yamlValue)) return false
+  return leftAction === "omit" ||
+    ("xmlValue" in left && "xmlValue" in right && Object.is(left.xmlValue, right.xmlValue))
 }
 
 export function collectPropertyItemRules(

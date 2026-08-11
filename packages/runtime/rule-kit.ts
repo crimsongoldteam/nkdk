@@ -13,6 +13,7 @@ export * from "./metadata/validation/dataPath/ownerKindRegistry"
 export * from "./metadata/validation/dataPath/ownerFacts"
 export * from "./metadata/validation/dataPath/registry"
 export * from "./metadata/validation/dataPath/dataPathExecutionContext"
+export * from "./metadata/validation/validationExecutionContext"
 export * from "./metadata/validation/dataPath/terminalTypes"
 export * from "./metadata/validation/dataPath/typeDescription"
 export * from "./metadata/validation/dataPath/finalizationPredicate"
@@ -21,11 +22,8 @@ export * from "./metadata/validation/dataPath/formYamlIndex"
 export * from "./metadata/validation/dataPath/objectFields"
 export * from "./metadata/validation/formValidationRegistry"
 export {
-  clearStandardMembersForTests,
   commonStandardMemberFillValuePolicy,
-  restoreStandardMembersForTests,
   selfIndexStandardAttribute,
-  snapshotStandardMembersForTests,
 } from "./metadata/standardMembers/declarations"
 export * from "./metadata/resourceTopology/core/compiler"
 export * from "./metadata/resourceTopology/core/pathIndex"

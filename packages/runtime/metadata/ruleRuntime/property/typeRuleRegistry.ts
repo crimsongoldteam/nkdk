@@ -4,7 +4,6 @@ import {
   CollectConfigurationIndexFromXMLFunction,
   CollectMetadataTargetReferencesFunction,
   ConfigurationIndexValueFromXMLDescriptor,
-  createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
   ValidationSchemaRefFn,
@@ -40,41 +39,6 @@ import { currentPropertyRuleRegistrySet } from "./propertyRuleExecutionContext"
 
 export { definePropertyTypeRule } from "./propertyRuleRegistrySet"
 
-const typeRulesRegistry = new Map<
-  string,
-  | ImportFromYAMLFunction
-  | ExportToYAMLFunction
-  | ImportFromXMLFunction
-  | ExportToXMLFunction
-  | ExportToEnterpriseFunction
-  | ExportToJSONSchemaFn
-  | ValidationSchemaRefFn
-  | ExportToXMLFunctionNew
-  | ImportFromYAMLFunctionNew
-  | ExportToYAMLFunctionNew
-  | CollectionItemRule
-  | SyncExternalFromXMLFunction
-  | ValidateMetadataTargetFunction
-  | CollectMetadataTargetReferencesFunction
-  | StructuralReferencesFunction
-  | MetadataResourceTopologyFunction
-  | FileChildNamesDescriptorFunction
-  | ConfigurationIndexValueFromXMLDescriptor
-  | CollectConfigurationIndexFromXMLFunction
-  | XMLImportPropertyBehavior
-  | ImportFromXMLToYAMLFunction
-  | NestedItemRule
-  | ResolveNestedImportXMLSourcesFunction
-  | FinalizeImportedYAMLFunction
-  | RequiresImportedYAMLFinalizationFunction
-  | FinalizeExportedXMLFunction
-  | CollectLocalFactsFromYAMLFunction
-  | NestedItemIdentityDescriptor
-  | YAMLToXMLNestedRule
->()
-const typeRuleRegistrations = new Map<string, RegisteredTypeRule>()
-let registryRevision = 0
-
 export interface RegisteredTypeRule {
   readonly type: PropertyRuleType
   readonly operation: TypeRulesOperations
@@ -86,30 +50,29 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
   operation: O,
   ruleFunction: NonNullable<importExportFunction<O>>
 ) => {
-  const key = createRegistryKey(type, operation)
-  typeRulesRegistry.set(key, ruleFunction)
-  typeRuleRegistrations.set(key, { type, operation, handler: ruleFunction })
-  registryRevision += 1
+  const registry = currentPropertyRuleRegistrySet<{
+    registerTypeRule<Operation extends TypeRulesOperations>(
+      propertyType: PropertyRuleType,
+      operation: Operation,
+      handler: NonNullable<importExportFunction<Operation>>,
+    ): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.registerTypeRule(type, operation, ruleFunction)
 }
 
-export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => [...typeRuleRegistrations.values()]
+export const getRegisteredTypeRules = (): readonly RegisteredTypeRule[] => []
 
 export function registerLegacyPropertyTypeDefinitions(
   definitions: Readonly<Record<string, PropertyTypeDefinition>>,
 ): void {
   for (const [type, definition] of Object.entries(definitions)) {
     for (const [operation, handler] of Object.entries(definition)) {
-      const key = createRegistryKey(
+      registerTypeRule(
         type as PropertyRuleType,
         operation as TypeRulesOperations,
+        handler as never,
       )
-      typeRulesRegistry.set(key, handler)
-      typeRuleRegistrations.set(key, {
-        type: type as PropertyRuleType,
-        operation: operation as TypeRulesOperations,
-        handler,
-      })
-      registryRevision += 1
     }
   }
 }
@@ -170,16 +133,13 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                                   : O extends "yamlToXMLNestedRule"
                                                     ? YAMLToXMLNestedRule | undefined
                                                     : never => {
-  const key = createRegistryKey(type, operation)
   const contextual = currentPropertyRuleRegistrySet<{
     getTypeRule<Operation extends TypeRulesOperations>(
       propertyType: PropertyRuleType,
       operation: Operation,
     ): importExportFunction<Operation>
   }>()
-  const result = contextual === undefined
-    ? typeRulesRegistry.get(key)
-    : contextual.getTypeRule(type, operation)
+  const result = contextual?.getTypeRule(type, operation)
   return result as any
 }
 
@@ -203,9 +163,10 @@ export function resolvePropertyItemRule(
 }
 
 export const clearTypeRulesRegistry = (): void => {
-  typeRulesRegistry.clear()
-  typeRuleRegistrations.clear()
-  registryRevision += 1
+  const registry = currentPropertyRuleRegistrySet<{ clearTypeRules(): void }>()
+  if (registry === undefined) throw new Error("Не задан execution context property rules")
+  registry.clearTypeRules()
 }
 
-export const typeRulesRegistryRevision = (): number => registryRevision
+export const typeRulesRegistryRevision = (): number =>
+  currentPropertyRuleRegistrySet<{ revision(): number }>()?.revision() ?? 0

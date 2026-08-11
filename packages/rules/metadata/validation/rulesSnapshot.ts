@@ -1,4 +1,4 @@
-import { rootFromYAML } from "@nkdk/runtime/rule-kit"
+import { currentRuleRegistrySet, rootFromYAML } from "@nkdk/runtime/rule-kit"
 import type {
   MetadataRootName,
   MetadataTargetConstraint,
@@ -14,14 +14,15 @@ import {
 } from "../ruleRuntime/property/typeRuleRegistry"
 import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
-  configurationValidationProjectSpec,
-  validationProjectSpecs,
+  getConfigurationValidationProjectSpec,
+  getValidationProjectSpecs,
   type ValidationProjectSpec,
 } from "./projectSpecs"
 import { getMetadataComponentDescriptor } from "../components/descriptor"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/core/types"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { currentValidationRegistrySet } from "./validationExecutionContext"
 
 export interface ValidationRulesSnapshot {
   version: 1
@@ -80,24 +81,26 @@ interface SnapshotSourceProperty {
 
 export function createValidationRulesSnapshot(
   _context: ConfigurationContext,
-  topology: CompiledMetadataResourceTopology | readonly CompiledMetadataResourceTopology[] = validationRulesTopologies(),
+  topology?: CompiledMetadataResourceTopology | readonly CompiledMetadataResourceTopology[],
   rules?: RuleRegistrySet,
 ): ValidationRulesSnapshot {
-  const topologies: readonly CompiledMetadataResourceTopology[] = isCompiledTopology(topology)
-    ? [topology]
-    : topology
+  const effectiveRules = rules ?? currentRuleRegistrySet<RuleRegistrySet>()
+  const effectiveTopology = topology ?? validationRulesTopologies(effectiveRules)
+  const topologies: readonly CompiledMetadataResourceTopology[] = isCompiledTopology(effectiveTopology)
+    ? [effectiveTopology]
+    : effectiveTopology
   const items = new Map<string, ValidationRulesItemSnapshot>()
   for (const current of topologies) {
     for (const assignment of current.assignments) {
       items.set(
         `${assignment.id}\u0000${assignment.itemRule.itemType}`,
-        snapshotItem(assignment.id, assignment.itemRule, rules),
+        snapshotItem(assignment.id, assignment.itemRule, effectiveRules),
       )
     }
   }
   return {
     version: 1,
-    specs: validationRulesSpecs(rules).map((spec) => snapshotSpec(spec, rules)),
+    specs: validationRulesSpecs(effectiveRules).map((spec) => snapshotSpec(spec, effectiveRules)),
     items: [...items.values()],
   }
 }
@@ -178,8 +181,17 @@ function snapshotRule(
       new Set([rule.itemType]),
       rules,
     ),
-    standardMemberAliases: registeredStandardMemberAliases(),
+    standardMemberAliases: contextualStandardMemberAliases(),
   }
+}
+
+function contextualStandardMemberAliases(): Readonly<Record<string, string>> {
+  const pairs = currentValidationRegistrySet<{
+    dataPaths: { getStandardMemberNamePairs(): readonly { internal: string; yaml: string }[] }
+  }>()?.dataPaths.getStandardMemberNamePairs()
+  return pairs === undefined
+    ? registeredStandardMemberAliases()
+    : Object.fromEntries(pairs.map(({ yaml, internal }) => [yaml, internal]))
 }
 
 function snapshotProperties(
@@ -244,7 +256,9 @@ function validationRulesSpecs(
   rules?: RuleRegistrySet,
 ): ValidationProjectSpec[] {
   return rules === undefined
-    ? [configurationValidationProjectSpec, ...validationProjectSpecs]
+    ? [getConfigurationValidationProjectSpec(), ...getValidationProjectSpecs()].filter(
+        (spec): spec is ValidationProjectSpec => spec !== undefined,
+      )
     : [...rules.projectSpecs.values()]
       .sort((left, right) => left.dir.localeCompare(right.dir, "ru"))
 }

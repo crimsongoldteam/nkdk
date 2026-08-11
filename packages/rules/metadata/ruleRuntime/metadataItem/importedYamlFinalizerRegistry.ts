@@ -1,44 +1,42 @@
-import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import type { MetadataItemRule } from "../property/types"
+import type { MetadataImportedYamlFinalizer, MetadataImportedYamlFinalizerParams } from "../definition"
+import { currentPropertyRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
-export interface MetadataItemImportedYamlFinalizerParams {
-  yaml: unknown
-  rule: MetadataItemRule
-  ownerMetadataCache: OwnerMetadataCache
-  currentConfigurationYAML?: unknown
-  savedBaseYAML?: unknown
-}
-
-export interface MetadataItemImportedYamlFinalizer {
-  requiresFinalization(yaml: unknown, rule: MetadataItemRule): boolean
-  finalize(params: MetadataItemImportedYamlFinalizerParams): void
-}
-
-const finalizers = new Map<string, MetadataItemImportedYamlFinalizer>()
+export type MetadataItemImportedYamlFinalizerParams = MetadataImportedYamlFinalizerParams
+export type MetadataItemImportedYamlFinalizer = MetadataImportedYamlFinalizer
 
 export function registerMetadataItemImportedYamlFinalizer(
   itemType: string,
   finalizer: MetadataItemImportedYamlFinalizer
 ): void {
-  if (finalizers.has(itemType)) {
-    throw new Error(`Уточнение импортированного YAML уже зарегистрировано: ${itemType}`)
-  }
-  finalizers.set(itemType, finalizer)
+  const registry = requireRegistry()
+  registry.registerImportedYamlFinalizer(itemType, finalizer)
 }
 
 export function requiresMetadataItemImportedYamlFinalization(params: {
   yaml: unknown
   rule: MetadataItemRule
 }): boolean {
-  return finalizers.get(params.rule.itemType)?.requiresFinalization(params.yaml, params.rule) ?? false
+  return requireRegistry().requiresImportedYamlFinalization(params.yaml, params.rule)
 }
 
 export function supportsMetadataItemImportedYamlFinalization(rule: MetadataItemRule): boolean {
-  return finalizers.has(rule.itemType)
+  return requireRegistry().supportsImportedYamlFinalization(rule.itemType)
 }
 
 export function finalizeMetadataItemImportedYaml(
   params: MetadataItemImportedYamlFinalizerParams
 ): void {
-  finalizers.get(params.rule.itemType)?.finalize(params)
+  requireRegistry().finalizeImportedYaml(params)
+}
+
+function requireRegistry() {
+  const registry = currentPropertyRuleRegistrySet<{
+    registerImportedYamlFinalizer(itemType: string, finalizer: MetadataImportedYamlFinalizer): void
+    requiresImportedYamlFinalization(yaml: unknown, rule: MetadataItemRule): boolean
+    supportsImportedYamlFinalization(itemType: string): boolean
+    finalizeImportedYaml(params: MetadataImportedYamlFinalizerParams): void
+  }>()
+  if (registry === undefined) throw new Error("Не задан execution context imported YAML finalizers")
+  return registry
 }

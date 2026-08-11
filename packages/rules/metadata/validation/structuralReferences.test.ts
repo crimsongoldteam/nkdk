@@ -1,8 +1,17 @@
 import { expect, it } from "vitest"
 import { parseMetadataYaml } from "@nkdk/runtime"
 import type { StructuralReferenceCandidate } from "@nkdk/runtime/rule-kit"
-import { getTypeRule, registerTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
+import {
+  composeMetadataRules,
+  createPropertyRuleRegistrySet,
+  defineMetadataRules,
+  definePropertyTypeRule,
+  propertyTypesFromContributions,
+  withPropertyRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { metadataRules } from "../composition/metadataRules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
@@ -10,21 +19,20 @@ it.each([
   ["setter", "без setter"],
   ["index", "не материализовало индекс"],
 ] as const)("останавливает сбор при нарушении %s contract", (brokenContract, message) => {
-  const originalStructural = getTypeRule("string", "structuralReferences")
-  const originalIndex = getTypeRule("string", "collectMetadataTargetReferences")
-  if (originalStructural === undefined || originalIndex === undefined) throw new Error("string reference handlers не зарегистрированы")
   const candidate = {
     yamlPath: ["Ссылка"],
     canonical: "Catalog.Товары",
     setCanonical() {},
   } satisfies StructuralReferenceCandidate
-  try {
-    registerTypeRule("string", "structuralReferences", () => [
+  const definition = composeMetadataRules(metadataRules, defineMetadataRules({
+    ...emptyMetadataRules,
+    propertyTypes: propertyTypesFromContributions([
+      definePropertyTypeRule("string", "structuralReferences", () => [
       brokenContract === "setter"
         ? { yamlPath: candidate.yamlPath, canonical: candidate.canonical } as unknown as StructuralReferenceCandidate
         : candidate,
-    ])
-    registerTypeRule("string", "collectMetadataTargetReferences", () => ({
+      ]),
+      definePropertyTypeRule("string", "collectMetadataTargetReferences", () => ({
       references: brokenContract === "index"
         ? []
         : [{
@@ -34,7 +42,10 @@ it.each([
             constraint: { kind: "object" },
           }],
       diagnostics: [],
-    }))
+      })),
+    ]),
+  }))
+  const registry = createPropertyRuleRegistrySet(definition)
 
     const parsed = parseMetadataYaml("Ссылка: Справочник.Товары")
     const rule = {
@@ -42,16 +53,12 @@ it.each([
       properties: { reference: { type: "string", yaml: "Ссылка" } },
     } as MetadataItemRule
 
-    expect(() => collectStructuralYamlReferences({
+    expect(() => withPropertyRuleRegistrySet(registry, () => collectStructuralYamlReferences({
       filePath: "/project/Свойства.yaml",
       parsed,
       rule,
       yaml: parsed.data,
       context: { version: "2.20", defaultLanguage: "ru" },
       runtime: createPropertyStructuralReferenceRuntime(),
-    })).toThrow(message)
-  } finally {
-    registerTypeRule("string", "structuralReferences", originalStructural)
-    registerTypeRule("string", "collectMetadataTargetReferences", originalIndex)
-  }
+    }))).toThrow(message)
 })

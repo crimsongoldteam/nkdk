@@ -1,11 +1,8 @@
 import type { FormDataPathMetadataProjection } from "./formDataPathProjection"
-
-let formDataPathMetadataProjection: FormDataPathMetadataProjection | undefined
-
-export function registerFormDataPathMetadataProjection(projection: FormDataPathMetadataProjection): void {
-  formDataPathMetadataProjection = projection
-}
+import { currentValidationRegistrySet } from "./validationExecutionContext"
 
 export function getRegisteredFormDataPathMetadataProjection(): FormDataPathMetadataProjection | undefined {
-  return formDataPathMetadataProjection
+  return currentValidationRegistrySet<{
+    form: { readonly dataPathProjection?: FormDataPathMetadataProjection }
+  }>()?.form.dataPathProjection
 }

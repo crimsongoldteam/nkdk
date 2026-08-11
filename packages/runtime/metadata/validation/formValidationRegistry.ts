@@ -4,6 +4,7 @@ import type { OwnerMetadataCache } from "./dataPath/contracts"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
 import type { FormValidationAdapter } from "./formContracts"
+import { currentValidationRegistrySet } from "./validationExecutionContext"
 
 export interface RegisteredFormValidatorParams {
   projectDir: string
@@ -53,72 +54,49 @@ export type FormPlatformSourceMatcher = (path: string) =>
 
 export type FormWarningProvider = (params: { filePath: string; parsed: ParsedYaml }) => Diagnostic[]
 
-let formValidator: RegisteredFormValidator | undefined
-let formFirstPassValidator: RegisteredFormFirstPassValidator | undefined
-let formSecondPassValidator: RegisteredFormSecondPassValidator | undefined
-let formValidationAdapter: FormValidationAdapter | undefined
-const platformSourceMatchers: FormPlatformSourceMatcher[] = []
-const warningProviders: FormWarningProvider[] = []
-
-export function registerFormValidationAdapter(adapter: FormValidationAdapter): void {
-  formValidationAdapter = adapter
-}
-
 export function getFormValidationAdapter(): FormValidationAdapter | undefined {
-  return formValidationAdapter
+  return currentFormRegistry()?.adapter
 }
 
 export function requireFormValidationAdapter(): FormValidationAdapter {
-  if (formValidationAdapter === undefined) {
+  const adapter = getFormValidationAdapter()
+  if (adapter === undefined) {
     throw new Error("Не зарегистрирован адаптер validation для ClientApplicationForm")
   }
-  return formValidationAdapter
-}
-
-export function clearFormValidationAdapterForTests(): void {
-  formValidationAdapter = undefined
-}
-
-export function registerFormValidator(validator: RegisteredFormValidator): void {
-  formValidator = validator
+  return adapter
 }
 
 export function getRegisteredFormValidator(): RegisteredFormValidator | undefined {
-  return formValidator
-}
-
-export function registerFormValidationPasses(params: {
-  firstPass: RegisteredFormFirstPassValidator
-  secondPass: RegisteredFormSecondPassValidator
-}): void {
-  formFirstPassValidator = params.firstPass
-  formSecondPassValidator = params.secondPass
+  return currentFormRegistry()?.validator
 }
 
 export function getRegisteredFormValidationPasses():
   | { firstPass: RegisteredFormFirstPassValidator; secondPass: RegisteredFormSecondPassValidator }
   | undefined {
-  return formFirstPassValidator && formSecondPassValidator
-    ? { firstPass: formFirstPassValidator, secondPass: formSecondPassValidator }
-    : undefined
-}
-
-export function registerFormPlatformSourceMatcher(matcher: FormPlatformSourceMatcher): void {
-  platformSourceMatchers.push(matcher)
+  return currentFormRegistry()?.passes
 }
 
 export function matchRegisteredFormPlatformSource(path: string): ReturnType<FormPlatformSourceMatcher> {
-  for (const matcher of platformSourceMatchers) {
+  for (const matcher of currentFormRegistry()?.platformSourceMatchers ?? []) {
     const result = matcher(path)
     if (result !== undefined) return result
   }
   return undefined
 }
 
-export function registerFormWarningProvider(provider: FormWarningProvider): void {
-  warningProviders.push(provider)
+export function getFormWarningProviders(): readonly FormWarningProvider[] {
+  return currentFormRegistry()?.warningProviders ?? []
 }
 
-export function getFormWarningProviders(): readonly FormWarningProvider[] {
-  return warningProviders
+function currentFormRegistry(): {
+  readonly validator?: RegisteredFormValidator
+  readonly adapter?: FormValidationAdapter
+  readonly passes?: {
+    readonly firstPass: RegisteredFormFirstPassValidator
+    readonly secondPass: RegisteredFormSecondPassValidator
+  }
+  readonly platformSourceMatchers: readonly FormPlatformSourceMatcher[]
+  readonly warningProviders: readonly FormWarningProvider[]
+} | undefined {
+  return currentValidationRegistrySet<{ form: ReturnType<typeof currentFormRegistry> }>()?.form
 }

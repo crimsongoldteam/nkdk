@@ -1,9 +1,7 @@
 import { expect, it } from "vitest"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { resolvePartialXmlPackagePolicy } from "../../partialSyncToXml/packagePolicy"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/adapters/registeredRules"
 
-registerCoreMetadata()
 
 it("регистрирует состав частичного XML-пакета формы", () => {
   const topology = compileRegisteredMetadataResourceTopology()

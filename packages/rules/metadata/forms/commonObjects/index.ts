@@ -19,7 +19,6 @@ import "./commandInterface/fromYAML"
 import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
-import "./commandInterface/baseFormProjection"
 
 import "./formCommand/toJSONSchema"
 import "./formCommand/types"
@@ -36,20 +35,14 @@ import "./formAttribute/toJSONSchema"
 import "./childItems/fromXMLToYAML"
 import "./childItems/toEnterprise"
 import "./childItems/toJSONSchema"
-import { registerDirectFormElementCollections } from "../elements/ruleRuntime/fromYAMLToXML"
-
-registerDirectFormElementCollections()
 
 import "./dataPath/toEnterprise"
-import "./dataPath/baseFormProjection"
 
 import "./commandName/toEnterprise"
 import "./commandName/toJSONSchema"
-import "./commandName/baseFormProjection"
 
 import "./event/fromXML"
 import "./event/fromYAML"
-import "./event/baseFormProjection"
 import "./event/toJSONSchema"
 import "./event/toXML"
 import "./event/toYAML"

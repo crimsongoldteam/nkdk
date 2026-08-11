@@ -12,6 +12,7 @@ import type { PropertyRuleExecution } from "../property/fn"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
+import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -21,7 +22,8 @@ export function importFormElementFromXMLToYAML(params: {
   traversal: DirectImportTraversal
 }): Record<string, unknown> {
   return {
-    Вид: CollectableElementTypeToYAML[params.rule.itemType],
+    Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
+      ?.formElementKinds.get(params.rule.itemType) ?? CollectableElementTypeToYAML[params.rule.itemType],
     ...importFormElementPropertiesFromXMLToYAML(params),
   }
 }

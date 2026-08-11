@@ -11,6 +11,7 @@ import type {
   ElementXML,
 } from "../../../ruleRuntime/formElement/types"
 import { CollectableElementTypeToYAML } from "../../elements/ruleRuntime/types"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 import type { ImportFromXMLToYAMLFunction } from "@nkdk/runtime/rule-kit"
 import {
   definePropertyTypeRule,
@@ -78,7 +79,8 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ con
     })
     const treeProperties = moveButtonTypeToTreeYAML({ itemType, yaml: properties })
     const treeItem = {
-      Вид: CollectableElementTypeToYAML[itemType],
+      Вид: currentRuleRegistrySet<{ formElementKinds: ReadonlyMap<string, string> }>()
+        ?.formElementKinds.get(itemType) ?? CollectableElementTypeToYAML[itemType],
       ...treeProperties,
     }
     copyYAMLScalarTags(treeProperties, treeItem)

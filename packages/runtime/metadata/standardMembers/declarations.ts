@@ -1,7 +1,3 @@
-import {
-  clearStandardMemberAliasesForTests,
-  registerStandardMemberAlias,
-} from "../ruleRuntime/metadataTarget/standardMemberAliases"
 import { currentDataPathRegistrySet } from "../validation/dataPath/dataPathExecutionContext"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
@@ -13,6 +9,7 @@ interface ContextualStandardMemberRegistry {
   getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[]
   standardMemberInternalToYaml(internalName: string): string | undefined
   standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined
+  getStandardMemberNamePairs(): readonly StandardMemberNames[]
 }
 
 export type StandardMemberFillValuePolicy =
@@ -208,83 +205,16 @@ export function selfIndexStandardAttribute<const Params extends SelfIndexStandar
   }
 }
 
-const membersByOwnerKind = new Map<string, StandardMemberDeclaration[]>()
-let standardMembersRevision = 0
-
-export function registerStandardMembers(ownerKind: string, members: readonly StandardMemberDeclaration[]): void {
-  const existing = membersByOwnerKind.get(ownerKind) ?? []
-  const registered = members.map(withCommonFillValuePolicy)
-  membersByOwnerKind.set(ownerKind, [...existing, ...registered])
-  registerMetadataTargetAliases(registered)
-  standardMembersRevision += 1
-}
-
-function withCommonFillValuePolicy(member: StandardMemberDeclaration): StandardMemberDeclaration {
-  if (member.memberKind !== "standardAttribute" || member.fillValue !== undefined) return member
-  const fillValue = commonStandardAttributeFillValuePolicies[member.names.internal]
-  return fillValue === undefined ? member : { ...member, fillValue }
-}
-
 export function getStandardMembers(ownerKind: string): readonly StandardMemberDeclaration[] {
-  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()?.getStandardMembers(ownerKind)
-    ?? membersByOwnerKind.get(ownerKind) ?? []
-}
-
-export function clearStandardMembersForTests(): void {
-  membersByOwnerKind.clear()
-  clearStandardMemberAliasesForTests()
-  standardMembersRevision += 1
-}
-
-export function snapshotStandardMembersForTests(): Map<string, StandardMemberDeclaration[]> {
-  return new Map([...membersByOwnerKind].map(([kind, members]) => [kind, [...members]]))
-}
-
-export function restoreStandardMembersForTests(snapshot: Map<string, StandardMemberDeclaration[]>): void {
-  membersByOwnerKind.clear()
-  clearStandardMemberAliasesForTests()
-  for (const [kind, members] of snapshot) {
-    membersByOwnerKind.set(kind, [...members])
-    registerMetadataTargetAliases(members)
-  }
-  standardMembersRevision += 1
-}
-
-function registerMetadataTargetAliases(members: readonly StandardMemberDeclaration[]): void {
-  for (const member of members) {
-    registerStandardMemberAlias(member.names.yaml, member.names.internal)
-    if (member.memberKind !== "standardTabularSection") continue
-    for (const column of member.columns) {
-      registerStandardMemberAlias(column.names.yaml, column.names.internal)
-    }
-  }
+  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()?.getStandardMembers(ownerKind) ?? []
 }
 
 export function standardMemberNamePairs(): readonly StandardMemberNames[] {
-  const pairs = new Map<string, StandardMemberNames>()
-  for (const members of membersByOwnerKind.values()) {
-    for (const member of members) {
-      addStandardMemberNamePair(pairs, member.names)
-      if (member.memberKind === "standardTabularSection") {
-        for (const column of member.columns) addStandardMemberNamePair(pairs, column.names)
-      }
-    }
-  }
-  return [...pairs.values()]
-}
-
-export function standardMembersRegistryRevision(): number {
-  return standardMembersRevision
+  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()?.getStandardMemberNamePairs() ?? []
 }
 
 export function standardMemberInternalToYaml(internalName: string): string | undefined {
-  const contextual = currentDataPathRegistrySet<ContextualStandardMemberRegistry>()
-  if (contextual !== undefined) return contextual.standardMemberInternalToYaml(internalName)
-  for (const members of membersByOwnerKind.values()) {
-    const member = members.find((item) => item.names.internal === internalName)
-    if (member !== undefined) return member.names.yaml
-  }
-  return undefined
+  return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()?.standardMemberInternalToYaml(internalName)
 }
 
 export function standardMemberInternalToYamlForOwnerKind(ownerKind: string, internalName: string): string | undefined {
@@ -292,19 +222,10 @@ export function standardMemberInternalToYamlForOwnerKind(ownerKind: string, inte
 }
 
 export function standardMemberYamlToInternal(yamlName: string): string | undefined {
-  for (const members of membersByOwnerKind.values()) {
-    const member = members.find((item) => item.names.yaml === yamlName)
-    if (member !== undefined) return member.names.internal
-  }
-  return undefined
+  return standardMemberNamePairs().find((names) => names.yaml === yamlName)?.internal
 }
 
 export function standardMemberYamlToInternalForOwnerKind(ownerKind: string, yamlName: string): string | undefined {
   return currentDataPathRegistrySet<ContextualStandardMemberRegistry>()
     ?.standardMemberYamlToInternalForOwnerKind(ownerKind, yamlName)
-    ?? getStandardMembers(ownerKind).find((item) => item.names.yaml === yamlName)?.names.internal
-}
-
-function addStandardMemberNamePair(pairs: Map<string, StandardMemberNames>, names: StandardMemberNames): void {
-  pairs.set(`${names.internal}\u0000${names.yaml}`, names)
 }

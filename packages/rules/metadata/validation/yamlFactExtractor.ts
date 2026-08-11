@@ -371,6 +371,7 @@ function collectPendingReferences(params: {
           yamlPath,
           diagnostics: params.localValueDiagnostics,
           profile: params.localValueValidationProfile,
+          runtime: params.runtime,
         })
       }
       params.collector.acceptProperty({
@@ -422,6 +423,7 @@ function collectPendingReferences(params: {
           nestedItemType: property.nestedItemType,
           validationDiagnostics: params.validationDiagnostics,
           pendingChecks: params.pendingChecks,
+          runtime: params.runtime,
         })
       )
     }
@@ -467,7 +469,8 @@ function collectNestedItem(
   const item = asRecord(params.item)
   const references: PendingMetadataTargetReference[] = []
   if (item !== undefined && params.nestedItemType !== undefined) {
-    const analysis = analyzeDependentYamlItem({
+    const analyze = params.runtime?.rules.property.analyzeDependentYamlItem ?? analyzeDependentYamlItem
+    const analysis = analyze({
       itemType: params.nestedItemType,
       ...(typeof params.itemKey === "string" ? { itemName: params.itemKey } : {}),
       item,

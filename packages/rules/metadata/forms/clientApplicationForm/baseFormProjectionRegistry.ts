@@ -1,24 +1,15 @@
 import type { PropertyRule } from "@nkdk/runtime/rule-kit"
 import type { PropertyRuleType } from "@nkdk/runtime/rule-kit"
+import type {
+  MetadataBaseFormProjection,
+  MetadataBaseFormProjectionContext,
+  MetadataBaseFormProjector,
+} from "@nkdk/runtime/rule-kit"
+import { currentOperationRegistrySet } from "../../operations/operationExecutionContext"
 
-export interface BaseFormProjectionContext {
-  readonly attributeNames: ReadonlySet<string>
-  readonly commandNames: ReadonlySet<string>
-  readonly parameterNames: ReadonlySet<string>
-}
-
-export type BaseFormPropertyProjection =
-  | { readonly kind: "include"; readonly value: unknown }
-  | { readonly kind: "omit" }
-
-export interface BaseFormPropertyProjector {
-  project(params: {
-    readonly rule: PropertyRule
-    readonly baseValue: unknown
-    readonly extensionValue: unknown
-    readonly context: BaseFormProjectionContext
-  }): BaseFormPropertyProjection
-}
+export type BaseFormProjectionContext = MetadataBaseFormProjectionContext
+export type BaseFormPropertyProjection = MetadataBaseFormProjection
+export type BaseFormPropertyProjector = MetadataBaseFormProjector
 
 export type BaseFormStructuredProjectionRule =
   | {
@@ -40,33 +31,7 @@ export type BaseFormStructuredProjectionRule =
       readonly kind: "intersection"
     }
 
-export interface BaseFormReferenceProjector {
-  project(params: {
-    readonly baseValue: unknown
-    readonly extensionValue: unknown
-    readonly context: BaseFormProjectionContext
-  }): BaseFormPropertyProjection
-}
-
-const projectors = new Map<PropertyRuleType, BaseFormPropertyProjector>()
-const referenceProjectors = new Map<
-  PropertyRuleType,
-  BaseFormReferenceProjector
->()
-
-export function registerBaseFormPropertyProjector(
-  type: PropertyRuleType,
-  projector: BaseFormPropertyProjector
-): void {
-  projectors.set(type, projector)
-}
-
-export function registerBaseFormReferenceProjector(
-  type: PropertyRuleType,
-  projector: BaseFormReferenceProjector
-): void {
-  referenceProjectors.set(type, projector)
-}
+export type BaseFormReferenceProjector = MetadataBaseFormProjector
 
 export function createStructuredBaseFormPropertyProjector(
   rule: BaseFormStructuredProjectionRule
@@ -88,7 +53,7 @@ export function projectProperty(params: {
   readonly extensionValue: unknown
   readonly context: BaseFormProjectionContext
 }): BaseFormPropertyProjection {
-  const projector = projectors.get(params.rule.type)
+  const projector = projectionRegistry().property(params.rule.type)
   if (projector !== undefined) return projector.project(params)
 
   if (isUnavailableLocalReference(params)) {
@@ -145,13 +110,16 @@ function projectStructuredValue(params: {
   }
 
   if (params.rule.kind === "reference") {
-    const projector = referenceProjectors.get(params.rule.type)
+    const projector = projectionRegistry().reference(params.rule.type)
     if (projector === undefined) {
       throw new Error(
         `Property type "${params.rule.type}" does not define BaseForm reference projection`
       )
     }
-    return projector.project(params)
+    return projector.project({
+      ...params,
+      rule: { type: params.rule.type },
+    })
   }
 
   if (params.rule.kind === "array") {
@@ -213,6 +181,22 @@ function projectStructuredValue(params: {
     return { kind: "omit" }
   }
   return { kind: "include", value }
+}
+
+function projectionRegistry(): {
+  property(propertyType: string): BaseFormPropertyProjector | undefined
+  reference(propertyType: string): BaseFormReferenceProjector | undefined
+} {
+  const registry = currentOperationRegistrySet<{
+    readonly baseFormProjection: {
+      property(propertyType: string): BaseFormPropertyProjector | undefined
+      reference(propertyType: string): BaseFormReferenceProjector | undefined
+    }
+  }>()
+  if (registry === undefined) {
+    throw new Error("Не задан execution context проекции BaseForm")
+  }
+  return registry.baseFormProjection
 }
 
 function isUnavailableLocalReference(params: {

@@ -2,12 +2,10 @@ import { readFileSync } from "fs"
 import { fileURLToPath } from "url"
 import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { resolveXmlSyncAreaForProjectPath } from "./xmlAreas"
 
 describe("resolveXmlSyncAreaForProjectPath", () => {
   beforeEach(() => {
-    registerCoreMetadata()
   })
 
   it("maps owner properties yaml to owner xml area", () => {

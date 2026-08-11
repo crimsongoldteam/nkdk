@@ -36,5 +36,9 @@ export function getSystemEnumeration(name: string): RegisteredSystemEnumeration 
 }
 
 export function getRegisteredSystemEnumerationNames(): string[] {
-  return [...systemEnumerations.keys()].sort()
+  return [...(
+    currentPropertyRuleRegistrySet<{
+      getSystemEnumerationNames(): readonly string[]
+    }>()?.getSystemEnumerationNames() ?? systemEnumerations.keys()
+  )].sort()
 }

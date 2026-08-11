@@ -8,7 +8,7 @@ import {
 import { classifyMetadataProjectPath } from "../resourceTopology/core/projectProjection"
 import { expandMetadataPathPattern } from "../resourceTopology/core/patterns"
 import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
-import { getRegisteredFormStructureProjection } from "../validation/formStructureProjectionRegistry"
+import { currentValidationRegistrySet } from "../validation/validationExecutionContext"
 import { validationProjectComponentFromAddress } from "../validation/projectComponents"
 import type { ProjectValidationFirstPassResult } from "../validation/projectValidationPasses"
 
@@ -77,7 +77,9 @@ export function projectFormStructureDocuments(params: {
   const workingMatch = classifyMetadataProjectPath(component.topology, workingProjectPath)
   if (workingMatch === undefined || workingMatch.kind !== "content") return []
   const logicalAddress = projectXmlExportAssignment(component.topology, workingMatch).logicalAddress
-  const projection = getRegisteredFormStructureProjection()
+  const projection = currentValidationRegistrySet<{
+    form: { structureProjection?: import("../ruleRuntime/definition").MetadataFormStructureProjection }
+  }>()?.form.structureProjection
   if (projection === undefined) throw new Error("Не зарегистрирована проекция структуры формы")
   return projection({
     components: params.components,

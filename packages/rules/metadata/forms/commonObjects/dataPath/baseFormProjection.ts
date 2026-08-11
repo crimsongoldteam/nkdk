@@ -3,10 +3,10 @@ import type { FormDataPathIndex } from "../../../validation/dataPath/formIndex"
 import type { OwnerMetadataCache } from "../../../validation/dataPath/ownerCache"
 import type { FormDataPathSource } from "../../../validation/dataPath/types"
 import {
-  registerBaseFormPropertyProjector,
-  registerBaseFormReferenceProjector,
   type BaseFormReferenceProjector,
 } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 const unusedOwnerCache: OwnerMetadataCache = {
   get: () => {
@@ -26,14 +26,13 @@ const dataPathReferenceProjector = {
   },
 } satisfies BaseFormReferenceProjector
 
-registerBaseFormReferenceProjector(
-  "DataPath",
-  dataPathReferenceProjector
-)
-registerBaseFormPropertyProjector(
-  "DataPath",
-  dataPathReferenceProjector
-)
+export const dataPathBaseFormProjectionRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: [
+    { kind: "baseFormReferenceProjector", propertyType: "DataPath", projector: dataPathReferenceProjector },
+    { kind: "baseFormPropertyProjector", propertyType: "DataPath", projector: dataPathReferenceProjector },
+  ],
+})
 
 function isBaseFormDataPathRootAvailable(value: string, attributeNames: ReadonlySet<string>): boolean {
   const rootIndex = createBaseFormDataPathRootIndex(attributeNames)

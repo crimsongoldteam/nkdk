@@ -16,9 +16,9 @@ import type {
 } from "@nkdk/runtime/rule-kit"
 import { projectXmlExportAssignment } from "@nkdk/runtime/rule-kit"
 import {
-  configurationMetadataProjectSpec,
+  getConfigurationMetadataProjectSpec,
+  getMetadataProjectSpecs,
   getMetadataProjectSpecByDir,
-  metadataProjectSpecs,
   type MetadataProjectSpec,
 } from "./specs"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
@@ -357,12 +357,13 @@ function rootOwner(
 }
 
 function defaultResourceContext(): MetadataProjectResourceContext {
+  const rootSpec = getConfigurationMetadataProjectSpec()
   return {
     topology: compileMetadataResourceTopologyForProjectSpecs([
-      configurationMetadataProjectSpec,
-      ...metadataProjectSpecs,
+      rootSpec,
+      ...getMetadataProjectSpecs(),
     ]),
-    rootSpec: configurationMetadataProjectSpec,
+    rootSpec,
   }
 }
 

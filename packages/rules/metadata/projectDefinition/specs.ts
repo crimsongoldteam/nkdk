@@ -2,6 +2,7 @@ import { Type } from "typebox"
 import type { MetadataItemRule } from "@nkdk/runtime/rule-kit"
 import type { RegisteredProjectSpec } from "./projectSpecContracts"
 import { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter } from "./projectSpecHelpers"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 export { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter }
 
@@ -27,5 +28,24 @@ export function registerMetadataProjectSpecs(projectSpecs: readonly RegisteredPr
 }
 
 export function getMetadataProjectSpecByDir(dir: string): MetadataProjectSpec | undefined {
+  const contextual = currentRuleRegistrySet<{
+    projectSpecs: ReadonlyMap<string, MetadataProjectSpec>
+  }>()?.projectSpecs.get(dir)
+  if (contextual !== undefined) return contextual
   return dir === "" ? configurationMetadataProjectSpec : metadataProjectSpecByDir.get(dir)
+}
+
+export function getMetadataProjectSpecs(): readonly MetadataProjectSpec[] {
+  const contextual = currentRuleRegistrySet<{
+    projectSpecs: ReadonlyMap<string, MetadataProjectSpec>
+  }>()
+  return contextual === undefined
+    ? metadataProjectSpecs
+    : [...contextual.projectSpecs.values()].filter((spec) => spec.dir !== "")
+}
+
+export function getConfigurationMetadataProjectSpec(): MetadataProjectSpec {
+  return currentRuleRegistrySet<{
+    projectSpecs: ReadonlyMap<string, MetadataProjectSpec>
+  }>()?.projectSpecs.get("") ?? configurationMetadataProjectSpec
 }

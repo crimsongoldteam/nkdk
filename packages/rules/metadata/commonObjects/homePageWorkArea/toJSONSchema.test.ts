@@ -1,13 +1,11 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../ruleRuntime/metadataItem/toJSONSchema"
-import { registerCoreMetadata } from "../../composition/coreMetadata"
 import { mockContext } from "../../../tests/mockContext"
 import { HomePageWorkAreaRules } from "./rules"
 
 import "./register"
 
-registerCoreMetadata()
 
 describe("HomePageWorkArea JSON Schema", () => {
   it("accepts working area columns and item visibility", () => {

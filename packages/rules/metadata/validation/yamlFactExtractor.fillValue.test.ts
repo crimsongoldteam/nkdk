@@ -1,38 +1,33 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { parseMetadataYaml } from "@nkdk/runtime"
-import {
-  registerDependentYamlItemHandler,
-  restoreDependentItemRegistryForTests,
-  snapshotDependentItemRegistryForTests,
-  type DependentItemRegistrySnapshot,
-  type DependentYamlItemParams,
-} from "../ruleRuntime/property/dependentItemRegistry"
-import { registerCoreMetadata } from "../composition/coreMetadata"
+import type { DependentYamlItemParams } from "../ruleRuntime/property/dependentItemRegistry"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { composeMetadataRules, defineMetadataRules } from "../ruleRuntime/definition"
+import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { metadataRules } from "../composition/metadataRules"
+import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { createValidationRegistrySet } from "./validationRegistrySet"
 
-registerCoreMetadata()
 
 describe("dependent fill value validation", () => {
-  let registry: DependentItemRegistrySnapshot
-
-  beforeEach(() => {
-    registry = snapshotDependentItemRegistryForTests()
-  })
-
-  afterEach(() => restoreDependentItemRegistryForTests(registry))
-
   it("visits each nested item with its name, paths and root values", () => {
     const analyze = vi.fn((_params: DependentYamlItemParams) => ({ diagnostics: [], references: [], projectChecks: [] }))
-    registerDependentYamlItemHandler("MetadataAttribute", analyze)
+    const definition = composeMetadataRules(metadataRules, defineMetadataRules({
+      ...emptyMetadataRules,
+      dependentItems: { MetadataAttribute: { yaml: analyze } },
+    }))
+    const rules = createRuleRegistrySet(definition)
+    const runtime = createValidationRegistrySet(definition, rules)
     const parsed = parseMetadataYaml("Реквизиты:\n  Артикул:\n    Тип: Строка\n")
 
     extractValidationYamlFacts({
       file: catalogFile(),
       parsed,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      runtime,
     })
 
     expect(analyze).toHaveBeenCalledOnce()

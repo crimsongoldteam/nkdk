@@ -6,7 +6,7 @@ import {
   getMetadataLinkPrefixesByOwnerKind,
   isOpaqueTraversal,
   resolveRegisteredTableColumn,
-  resolveMovementItem as resolveRegisteredMovementItem,
+  resolveRegisterRecordsItem as resolveRegisteredMovementItem,
   resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
   resolveVirtualOwnerField,

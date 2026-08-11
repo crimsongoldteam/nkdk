@@ -1,9 +1,6 @@
-import {
-  registerDependentStructuralItemHandler,
-  registerDependentImportItemHandler,
-  registerDependentYamlItemHandler,
-  type DependentImportItemHandler,
-  type DependentStructuralItemHandler,
+import type {
+  DependentImportItemHandler,
+  DependentStructuralItemHandler,
 } from "../../ruleRuntime/property/dependentItemRegistry"
 import {
   analyzeMetadataAttributeFillValue,
@@ -20,66 +17,9 @@ import type { MetadataTargetOwner } from "../metadataTargets/types"
 import type { ParsedYaml } from "@nkdk/runtime"
 import type { ConfigurationContext } from "@nkdk/runtime"
 import { exportMetadataValueToYAML } from "../metadataValue/toYAML"
-import { registerExplicitXMLProperty } from "../../ruleRuntime/property/explicitXMLPropertyRegistry"
 import { markYAMLScalarTag, xmlScalarTagValue } from "@nkdk/runtime"
-
-let validationRegistered = false
-let structuralReferencesRegistered = false
-let importRegistered = false
-let xmlTransportRegistered = false
-
-function registerFillValueXMLTransport(): void {
-  if (xmlTransportRegistered) return
-  xmlTransportRegistered = true
-  registerExplicitXMLProperty({
-    action: "transportScalar",
-    itemType: "MetadataAttribute",
-    propertyKey: "fillValue",
-    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
-  })
-  registerExplicitXMLProperty({
-    action: "transportScalar",
-    itemType: "StandardAttributeDescription",
-    propertyKey: "fillValue",
-    overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
-  })
-}
-
-export function registerFillValueValidation(): void {
-  registerFillValueXMLTransport()
-  registerFillValueStructuralReferences()
-  if (validationRegistered) return
-  validationRegistered = true
-  registerDependentYamlItemHandler("MetadataAttribute", analyzeMetadataAttributeFillValue)
-  registerDependentYamlItemHandler("StandardAttributeDescription", analyzeStandardAttributeFillValue)
-}
-
-export function registerFillValueStructuralReferences(): void {
-  if (structuralReferencesRegistered) return
-  structuralReferencesRegistered = true
-  registerDependentStructuralItemHandler("MetadataAttribute", collectFillValueStructuralReference)
-  registerDependentStructuralItemHandler("StandardAttributeDescription", collectFillValueStructuralReference)
-}
-
-export function registerFillValueImport(): void {
-  registerFillValueXMLTransport()
-  if (importRegistered) return
-  importRegistered = true
-  registerDependentImportItemHandler("MetadataAttribute", {
-    propertyKeys: ["fillValue"],
-    shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
-    shouldTagXML: (params) => shouldTagFillValueXML(params, classifyMetadataAttributeFillValue(params).kind),
-    shouldDefer: (params) =>
-      (params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item)) ||
-      namedDesignTimeRef(params) !== undefined,
-  })
-  registerDependentImportItemHandler("StandardAttributeDescription", {
-    propertyKeys: ["fillValue"],
-    shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
-    shouldTagXML: (params) => shouldTagFillValueXML(params, classifyStandardAttributeFillValue(params).kind),
-    shouldDefer: (params) => namedDesignTimeRef(params) !== undefined,
-  })
-}
+import { defineMetadataRules } from "../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../ruleRuntime/definition/testSupport"
 
 function shouldTagFillValueXML(
   params: DependentImportParams,
@@ -140,6 +80,52 @@ const collectFillValueStructuralReference: DependentStructuralItemHandler = (par
     },
   }))
 }
+
+const metadataAttributeImport: DependentImportItemHandler = {
+  propertyKeys: ["fillValue"],
+  shouldRemove: (params) => classifyMetadataAttributeFillValue(params).kind === "implicit",
+  shouldTagXML: (params) => shouldTagFillValueXML(params, classifyMetadataAttributeFillValue(params).kind),
+  shouldDefer: (params) =>
+    (params.definedTypeLookup === undefined && metadataAttributeUsesDefinedType(params.item)) ||
+    namedDesignTimeRef(params) !== undefined,
+}
+
+const standardAttributeImport: DependentImportItemHandler = {
+  propertyKeys: ["fillValue"],
+  shouldRemove: (params) => classifyStandardAttributeFillValue(params).kind === "implicit",
+  shouldTagXML: (params) => shouldTagFillValueXML(params, classifyStandardAttributeFillValue(params).kind),
+  shouldDefer: (params) => namedDesignTimeRef(params) !== undefined,
+}
+
+export const fillValueRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  explicitXMLProperties: {
+    metadataAttributeFillValue: {
+      action: "transportScalar",
+      itemType: "MetadataAttribute",
+      propertyKey: "fillValue",
+      overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
+    },
+    standardAttributeFillValue: {
+      action: "transportScalar",
+      itemType: "StandardAttributeDescription",
+      propertyKey: "fillValue",
+      overrides: { DesignTimeRef: { "_xsi:type": "xr:DesignTimeRef" } },
+    },
+  },
+  dependentItems: {
+    MetadataAttribute: {
+      yaml: analyzeMetadataAttributeFillValue,
+      structural: collectFillValueStructuralReference,
+      imported: metadataAttributeImport,
+    },
+    StandardAttributeDescription: {
+      yaml: analyzeStandardAttributeFillValue,
+      structural: collectFillValueStructuralReference,
+      imported: standardAttributeImport,
+    },
+  },
+})
 
 function fillValueTargetOwner(
   owner: DependentParametersOwner,

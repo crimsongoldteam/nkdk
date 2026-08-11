@@ -19,6 +19,7 @@ import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import { defineMetadataRules, type MetadataRulesDefinition } from "../ruleRuntime/definition"
 import { emptyMetadataRules } from "../ruleRuntime/definition/testSupport"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -60,7 +61,12 @@ let namedSchemasInitialized = false
 
 export function listJSONSchemaNames(): string[] {
   ensureJSONSchemaRegistry()
-  return [...new Set([...schemaExporters.keys(), ...listJSONSchemaIdentityNames()])].sort()
+  const contextual = currentSchemaRegistry()
+  return [...new Set([
+    ...schemaExporters.keys(),
+    ...listJSONSchemaIdentityNames(),
+    ...(contextual === undefined ? [] : contextual.names()),
+  ])].sort()
 }
 
 export function exportJSONSchemaForSchemaName(params: {
@@ -100,6 +106,7 @@ function exportJSONSchemaForSchemaNameInSession(params: {
     validationPropertyRefs,
     defineSchema: session.defineSchema,
     requiredPolicy,
+    propertyRef: currentSchemaPropertyRef(),
   })
   const schema = exporter({ context: schemaContext })
 
@@ -291,7 +298,46 @@ export function registerProjectJSONSchemaPropertyRefFactory(type: PropertyRuleTy
 }
 
 function getSchemaExporter(name: string, session?: JSONSchemaExportSession): SchemaExporter | undefined {
-  return session?.exporters.get(name) ?? schemaExporters.get(name) ?? getJSONSchemaIdentityExporter(name)
+  const contextual = currentRuleRegistrySet<{
+    execution: object
+    schemas: { get(name: string): { export: (params: { context: ConfigurationContext; execution: object }) => TSchema } | undefined }
+  }>()
+  const contextualDefinition = contextual?.schemas.get(name)
+  const execution = contextual?.execution
+  return session?.exporters.get(name) ??
+    (contextualDefinition === undefined || execution === undefined
+      ? undefined
+      : ({ context }) => contextualDefinition.export({ context, execution })) ??
+    schemaExporters.get(name) ??
+    getJSONSchemaIdentityExporter(name)
+}
+
+function currentSchemaPropertyRef(): NonNullable<ConfigurationContext["exportToJSONSchema"]>["propertyRef"] | undefined {
+  const contextual = currentRuleRegistrySet<{
+    execution: object
+    schemas: {
+      propertyRef(type: string): ((params: { context: ConfigurationContext; rule: PropertyRule; execution: object }) => TSchema | undefined) | undefined
+    }
+  }>()
+  if (contextual === undefined) return undefined
+  return ({ context, rule }) => {
+    const propertyRule = rule as PropertyRule
+    return contextual.schemas.propertyRef(propertyRule.type)?.({
+    context,
+    rule: propertyRule,
+    execution: contextual.execution,
+  })
+  }
+}
+
+function currentSchemaRegistry(): {
+  get(name: string): { export: SchemaExporter } | undefined
+  names(): Iterable<string>
+} | undefined {
+  return currentRuleRegistrySet<{ schemas: {
+    get(name: string): { export: SchemaExporter } | undefined
+    names(): Iterable<string>
+  } }>()?.schemas
 }
 
 function createJSONSchemaExportSession(): JSONSchemaExportSession {

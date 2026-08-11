@@ -1,6 +1,5 @@
 import "./metadataCommand/register"
 import "./metadataCommonCommand"
-import "./configurationExtension/register"
 
 import "./metadataCatalog/register"
 
@@ -74,11 +73,6 @@ import "./metadataIntegrationService"
 import "./metadataTask/register"
 import "./metadataTask"
 import "./metadataWebService"
-import { applyLegacyDataPathContributions } from "../validation/dataPath/registry"
-import { appliedObjectDataPathRules } from "./dataPathRules"
-
-applyLegacyDataPathContributions(appliedObjectDataPathRules)
-
 let appliedObjectsRegistered = false
 
 export function registerAppliedObjects(): void {

@@ -2,11 +2,14 @@ import type { ElementRule, ElementType } from "./types"
 import { defineMetadataRules } from "../definition"
 import type { MetadataRulesDefinition } from "../definition"
 import { emptyMetadataRules } from "../definition/testSupport"
+import { currentRuleRegistrySet } from "../ruleRegistryExecutionContext"
 
 const elementRulesRegistry = new Map<ElementType, ElementRule>()
 
 export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
-  const rule = elementRulesRegistry.get(itemType)
+  const rule = currentRuleRegistrySet<{
+    formElements: ReadonlyMap<string, ElementRule>
+  }>()?.formElements.get(itemType) ?? elementRulesRegistry.get(itemType)
   if (!rule) throw new Error(`Unknown element type: ${itemType}`)
   return rule as Rule
 }

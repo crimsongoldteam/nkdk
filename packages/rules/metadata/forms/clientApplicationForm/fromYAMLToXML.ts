@@ -1,11 +1,11 @@
 import type { ConfigurationIndexReader } from "@nkdk/runtime"
 import "../../commonObjects"
-import { registerTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormYAMLToXMLCore } from "./convertYAMLToXML"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML } from "./types"
 import type { SelectedBaseYAMLInput } from "@nkdk/runtime/rule-kit"
+import type { YAMLToXMLNestedRule } from "@nkdk/runtime/rule-kit"
 
 export const convertClientApplicationFormFromYAMLToXML =
   convertClientApplicationFormYAMLToXMLCore
@@ -14,7 +14,10 @@ export type {
   DirectClientApplicationFormXMLResult,
 } from "./convertYAMLToXML"
 
-registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
+export const clientApplicationFormYamlToXmlNestedRule: Extract<
+  YAMLToXMLNestedRule,
+  { readonly kind: "externalFile" }
+> = {
   kind: "externalFile",
   convert: ({
     context,
@@ -72,7 +75,7 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
       }).formXML,
     }
   },
-})
+}
 
 function selectedBaseYAMLInput(value: unknown): SelectedBaseYAMLInput | undefined {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined

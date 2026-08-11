@@ -1,8 +1,8 @@
 import {
-  registerBaseFormPropertyProjector,
-  registerBaseFormReferenceProjector,
   type BaseFormReferenceProjector,
 } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import { defineMetadataRules } from "../../../ruleRuntime/definition"
+import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
 
 const commandNameReferenceProjector = {
   project: ({ baseValue, extensionValue, context }) => {
@@ -19,18 +19,21 @@ const commandNameReferenceProjector = {
   },
 } satisfies BaseFormReferenceProjector
 
-registerBaseFormReferenceProjector(
-  "CommandName",
-  commandNameReferenceProjector
-)
-
-registerBaseFormPropertyProjector("CommandName", {
+const commandNamePropertyProjector: BaseFormReferenceProjector = {
   project: (params) => {
     const result = commandNameReferenceProjector.project(params)
     return result.kind === "include"
       ? result
       : { kind: "include", value: "0" }
   },
+}
+
+export const commandNameBaseFormProjectionRules = defineMetadataRules({
+  ...emptyMetadataRules,
+  operations: [
+    { kind: "baseFormReferenceProjector", propertyType: "CommandName", projector: commandNameReferenceProjector },
+    { kind: "baseFormPropertyProjector", propertyType: "CommandName", projector: commandNamePropertyProjector },
+  ],
 })
 
 function localFormCommandName(value: string): string | undefined {

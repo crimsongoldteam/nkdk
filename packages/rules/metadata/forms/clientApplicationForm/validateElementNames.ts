@@ -3,7 +3,13 @@ import type { MetadataItemRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { getTypeRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
-import { resolveFormElementRule } from "../elements/ruleRuntime/fromYAMLToXML"
+import {
+  childItemsTreePropertyTypes,
+  getChildItemTypesByPropertyType,
+  type ChildItemsTreePropertyType,
+} from "../commonObjects/childItems/treeYAML"
+import { formElementTypeToYAML } from "../elements/formElementCatalog"
+import { formElementRules } from "../elements/metadataRules"
 
 export const FORM_ELEMENT_NAMES_PROFILE_SUBSTEP = "Проверка уникальности имён элементов формы"
 
@@ -146,11 +152,7 @@ function collectExplicitElementNames(params: {
 
     let rule: MetadataItemRule
     try {
-      rule = resolveFormElementRule({
-        yaml: element,
-        name,
-        propertyRule: params.propertyRule,
-      })
+      rule = resolveDefinedFormElementRule(element, name, params.propertyRule)
     } catch {
       continue
     }
@@ -164,6 +166,28 @@ function collectExplicitElementNames(params: {
       singletonRuleStack: params.singletonRuleStack,
     })
   }
+}
+
+function resolveDefinedFormElementRule(
+  element: Record<string, unknown>,
+  name: string,
+  propertyRule: PropertyRule,
+): MetadataItemRule {
+  const kind = element.Вид
+  if (typeof kind !== "string") throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)
+  if (!isChildItemsTreePropertyType(propertyRule.type)) {
+    throw new Error(`Неизвестный тип коллекции элементов формы: ${propertyRule.type}`)
+  }
+  const itemType = getChildItemTypesByPropertyType(propertyRule.type).find(
+    (candidate) => formElementTypeToYAML[candidate] === kind,
+  )
+  const rule = itemType === undefined ? undefined : formElementRules.formElements[itemType]
+  if (rule === undefined) throw new Error(`Элемент "${name}": неизвестный Вид "${kind}"`)
+  return rule
+}
+
+function isChildItemsTreePropertyType(value: string): value is ChildItemsTreePropertyType {
+  return (childItemsTreePropertyTypes as readonly string[]).includes(value)
 }
 
 function duplicateNameDiagnostics(params: {

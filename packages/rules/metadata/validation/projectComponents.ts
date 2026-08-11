@@ -7,8 +7,9 @@ import { createMetadataItemProjectSchemaExporter } from "../projectDefinition/pr
 import type { RegisteredProjectSpec } from "../projectDefinition/projectSpecContracts"
 import { compileMetadataResourceTopologyForRootRule } from "../resourceTopology/adapters/ruleTopology"
 import type { CompiledMetadataResourceTopology } from "@nkdk/runtime/rule-kit"
-import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
+import { getConfigurationValidationProjectSpec, getValidationProjectSpecs } from "./projectSpecs"
 import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import { currentRuleRegistrySet } from "@nkdk/runtime/rule-kit"
 
 export type ValidationProjectRules = Pick<
   RuleRegistrySet,
@@ -59,9 +60,10 @@ export function createValidationProjectComponent(
   address: ComponentAddress,
   rules?: ValidationProjectRules,
 ): ValidationProjectComponent {
-  const descriptor = rules === undefined
+  const effectiveRules = rules ?? currentRuleRegistrySet<ValidationProjectRules>()
+  const descriptor = effectiveRules === undefined
     ? getMetadataComponentDescriptor(address.kind)
-    : rules.components.get(address.kind)
+    : effectiveRules.components.get(address.kind)
   if (descriptor === undefined) {
     throw new Error(`Не найдено описание metadata-компонента: ${address.kind}`)
   }
@@ -78,12 +80,14 @@ export function createValidationProjectComponent(
     kind: address.kind,
     rootRule: descriptor.rootRule,
     rootSpec,
-    topology: rules?.resourceTopology.get(descriptor.rootRule)
+    topology: effectiveRules?.resourceTopology.get(descriptor.rootRule)
       ?? compileMetadataResourceTopologyForRootRule(
         descriptor.rootRule,
-        [configurationValidationProjectSpec, ...validationProjectSpecs],
+        [getConfigurationValidationProjectSpec(), ...getValidationProjectSpecs()].filter(
+          (spec): spec is RegisteredProjectSpec => spec !== undefined,
+        ),
       ),
-    ...(rules === undefined ? {} : { projectSpecs: rules.projectSpecs }),
+    ...(effectiveRules === undefined ? {} : { projectSpecs: effectiveRules.projectSpecs }),
   }
 }
 

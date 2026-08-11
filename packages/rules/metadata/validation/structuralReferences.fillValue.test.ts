@@ -5,10 +5,8 @@ import { serializeYAMLDocument } from "@nkdk/runtime"
 import { yamlScalarTagAt } from "@nkdk/runtime"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { createPropertyStructuralReferenceRuntime } from "../operations/references"
-import { registerCoreMetadata } from "../composition/coreMetadata"
 import { collectStructuralYamlReferences } from "./structuralReferences"
 
-registerCoreMetadata()
 
 describe("fill value structural references", () => {
   it("uses the indexed canonical and rewrites only the fill value", () => {

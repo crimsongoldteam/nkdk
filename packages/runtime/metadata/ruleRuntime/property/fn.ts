@@ -62,6 +62,12 @@ export type ImportFromXMLFunction = (
 ) => any | undefined
 
 export interface PropertyRuleExecution extends ExplicitXMLPropertyMatcher {
+  applyMetadataItemXmlImportAugmenter(
+    params: Parameters<import("../metadataItem/augmenterRegistry").MetadataItemXmlImportAugmenter["augment"]>[0],
+  ): void
+  augmentMetadataItemYamlToXml(
+    params: Omit<Parameters<import("./yamlToXmlAugmenter").MetadataItemYamlToXmlAugmenter["augment"]>[0], "logicalAddress">,
+  ): void
   getTypeRule<Operation extends TypeRulesOperations>(
     type: PropertyRuleType,
     operation: Operation,

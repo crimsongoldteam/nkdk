@@ -1,4 +1,3 @@
-import { registerExplicitXMLProperty } from "../../../ruleRuntime/property/explicitXMLPropertyRegistry"
 import { EMPTY_XML_TAG_VALUE } from "@nkdk/runtime"
 import { defineMetadataRules } from "../../../ruleRuntime/definition"
 import { emptyMetadataRules } from "../../../ruleRuntime/definition/testSupport"
@@ -16,12 +15,4 @@ export function defineExplicitHeaderHorizontalAlign(itemType: string) {
       [`${itemType}\0headerHorizontalAlign`]: registration,
     },
   })
-}
-
-export function registerExplicitHeaderHorizontalAlign(itemType: string): void {
-  for (const registration of Object.values(
-    defineExplicitHeaderHorizontalAlign(itemType).explicitXMLProperties,
-  )) {
-    registerExplicitXMLProperty(registration)
-  }
 }

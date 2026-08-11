@@ -36,7 +36,9 @@ describe("metadata rules definition", () => {
     const result = composeMetadataRules(first, second)
 
     expect(result.metadataItems.Item?.itemType).toBe("Second")
-    expect(result.validation.map(({ validate }) => validate)).toEqual([
+    expect(result.validation
+      .filter((contribution) => contribution.kind === "localYamlValue")
+      .map(({ validate }) => validate)).toEqual([
       firstValidation,
       secondValidation,
     ])
