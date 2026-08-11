@@ -5,14 +5,7 @@ description: Исследование прикладного объекта ме
 
 # Исследование прикладного объекта
 
-Скилл запускает сценарий исследования нового прикладного объекта. Устойчивые правила исследования живут в `.agents/knowledge/metadata/`.
-
-Перед работой обязательно прочитай:
-
-1. `.agents/knowledge/metadata/INDEX.md`
-2. `.agents/knowledge/metadata/sources-of-truth.md`
-3. `.agents/knowledge/metadata/object-research.md`
-4. `.agents/knowledge/metadata/registries.md`
+Скилл запускает сценарий исследования нового прикладного объекта.
 
 Скилл ничего не реализует: не пишет `rules.ts`, `types.ts`, `register.ts`, тесты и не трогает реестры. Единственные файловые результаты — папки и XML-фикстуры подчинённых объектов, извлечённые из фикстур родителя.
 
@@ -35,7 +28,7 @@ description: Исследование прикладного объекта ме
 
 ## Фаза 1. Deep Scan
 
-Работай автономно, без вопросов пользователю. Следуй `.agents/knowledge/metadata/object-research.md` и источникам истины из `.agents/knowledge/metadata/sources-of-truth.md`.
+Работай автономно, без вопросов пользователю.
 
 ### Внутренний отчёт (не в чат)
 
