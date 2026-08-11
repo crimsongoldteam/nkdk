@@ -1,7 +1,13 @@
+import { withOperationRegistrySet } from "../operations/operationExecutionContext"
 import { createOperationRegistrySet } from "../operations/operationRegistrySet"
 import { validateProject } from "../project/validateProject"
 import { createRuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
-import { createRuleSchemaRuntime } from "@nkdk/runtime/rule-kit"
+import {
+  createRuleSchemaRuntime,
+  withPropertyRuleRegistrySet,
+  withRuleRegistrySet,
+} from "@nkdk/runtime/rule-kit"
+import { withValidationRegistrySet } from "../validation/validationExecutionContext"
 import { createValidationRegistrySet } from "../validation/validationRegistrySet"
 import type {
   CreateMetadataRuntimeOptions,
@@ -44,6 +50,12 @@ export function createMetadataRuntime(
   const rules = createRuleRegistrySet(options.rules)
   const validation = createValidationRegistrySet(options.rules, rules)
   const operations = createOperationRegistrySet(options.rules)
+  const executionRegistries = { rules, validation, operations }
+  const withExecutionRegistries = <Result>(execute: () => Result): Result =>
+    withRuleRegistrySet(executionRegistries.rules, () =>
+      withPropertyRuleRegistrySet(executionRegistries.rules.property, () =>
+        withValidationRegistrySet(executionRegistries.validation, () =>
+          withOperationRegistrySet(executionRegistries.operations, execute))))
   const syncDependencies = createFullXmlSyncCoordinatorDependencies(
     operations.synchronization.resolve,
   )
@@ -107,24 +119,28 @@ export function createMetadataRuntime(
       ...validation,
       async validateProject(params) {
         assertOwnedState(params.projectState)
-        return validateProject(params)
+        return withExecutionRegistries(() => validateProject(params))
       },
     },
     import: {
       async configurationFromXml(params) {
         assertOwnedState(params.projectState)
-        return importConfigurationFromXml(params, importDependencies)
+        return withExecutionRegistries(() =>
+          importConfigurationFromXml(params, importDependencies))
       },
-      configurationFromSourceXml: syncConfigurationFromXML,
+      configurationFromSourceXml: (params) =>
+        withExecutionRegistries(() => syncConfigurationFromXML(params)),
     },
     sync: {
       async planToXml(params) {
         assertOwnedState(params.projectState)
-        return planSyncConfigurationToXml(params, syncDependencies)
+        return withExecutionRegistries(() =>
+          planSyncConfigurationToXml(params, syncDependencies))
       },
       async configurationToXml(params) {
         assertOwnedState(params.projectState)
-        return syncConfigurationToXml(params, syncDependencies)
+        return withExecutionRegistries(() =>
+          syncConfigurationToXml(params, syncDependencies))
       },
       readState: readXmlSyncState,
       initializeState: initializeXmlSyncState,
@@ -134,11 +150,11 @@ export function createMetadataRuntime(
       operations,
       async rename(params) {
         assertOwnedState(params.projectState)
-        return renameMetadataItem(params, rules)
+        return withExecutionRegistries(() => renameMetadataItem(params, rules))
       },
       async findReferences(params) {
         assertOwnedState(params.projectState)
-        return findMetadataReferences(params, rules)
+        return withExecutionRegistries(() => findMetadataReferences(params, rules))
       },
     },
     close() {

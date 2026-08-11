@@ -36,7 +36,10 @@ function withExplicitXMLValidationValue(params: {
   schema: TSchema
   execution?: PropertyRuleExecution
 }): TSchema {
-  if (params.context.exportToJSONSchema?.validationPropertyRefs !== true) return params.schema
+  if (
+    params.context.exportToJSONSchema?.explicitXMLValues !== true
+    && params.context.exportToJSONSchema?.validationPropertyRefs !== true
+  ) return params.schema
   if (
     params.rule.type === "DataPath" &&
     params.rule.yaml === "ПутьКДанным" &&

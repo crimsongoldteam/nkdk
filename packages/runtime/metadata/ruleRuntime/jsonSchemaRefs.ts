@@ -55,6 +55,7 @@ export function createJSONSchemaExportContext(
   options: {
     excludeImplicitValueYAML?: boolean
     includeNestedChildItems?: boolean
+    explicitXMLValues?: true
     validationPropertyRefs?: true
     defineSchema?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["defineSchema"]
     propertyRef?: NonNullable<ConfigurationContext["exportToJSONSchema"]>["propertyRef"]
@@ -72,6 +73,9 @@ export function createJSONSchemaExportContext(
       ...(options.includeNestedChildItems === undefined
         ? {}
         : { includeNestedChildItems: options.includeNestedChildItems }),
+      ...(options.explicitXMLValues === undefined
+        ? {}
+        : { explicitXMLValues: options.explicitXMLValues }),
       ...(options.validationPropertyRefs === undefined
         ? {}
         : { validationPropertyRefs: options.validationPropertyRefs }),

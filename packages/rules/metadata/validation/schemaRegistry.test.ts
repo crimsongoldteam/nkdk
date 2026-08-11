@@ -6,6 +6,7 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
+import { MetadataExternalDataSourceCubeRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import { exportMetadataItemToJSONSchema } from "../ruleRuntime/metadataItem/toJSONSchema"
 import {
   exportJSONSchemaForSchemaName,
@@ -472,6 +473,18 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     }
 
     expect(JSON.stringify(root.properties?.СтандартныеРеквизиты)).toContain('"const":"!xml"')
+  })
+
+  it("откладывает required для заимствованного ресурса куба в extension overlay", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      requiredPolicy: { currentBoundary: "defer", cacheVariant: "extension-overlay" },
+      roots: [{ key: "cube", rule: MetadataExternalDataSourceCubeRules }],
+    })
+    const compiled = compileValidationSchema(graph.schemas, graph.roots.cube!)
+
+    expect(compiled.Check({ Ресурсы: { Ресурс: {} } })).toBe(true)
   })
 
   it("exports reusable form property types as validation refs by default", () => {

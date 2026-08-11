@@ -245,6 +245,7 @@ function compileProjectPropertiesSchema(
       rule,
       mode: "inline",
       excludeImplicitValueYAML: true,
+      explicitXMLValues: true,
       requiredPolicy: requiredPolicy(variant),
     }))
   }
@@ -299,6 +300,7 @@ function compileRegisteredFormSchema(
       rule,
       mode: "inline",
       includeNestedChildItems: true,
+      explicitXMLValues: true,
       requiredPolicy: requiredPolicy(variant),
     }))
     schemasByContext ??= new Map()

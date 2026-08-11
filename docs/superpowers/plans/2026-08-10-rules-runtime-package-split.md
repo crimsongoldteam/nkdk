@@ -1510,3 +1510,11 @@ property type, project spec, import descriptor или sync profile. Особен
   reset/snapshot/restore API пуст.
 - `pnpm duplicates -- --base 27bf980f24bbc1d329f2c2ea0e0231080382799c`
   не находит новых дублей.
+- E2E переведён со снятого `registerCoreMetadata()` и прямых внутренних вызовов
+  на публичный `MetadataRuntime`. Публичные операции входят в принадлежащие
+  runtime registry-контексты; validation schema cache сохраняет допустимые
+  исключительные `!xml`-значения, а ресурс куба внешнего источника помечен как
+  `ownerChild`, поэтому required-поля заимствованного ресурса проверяются с
+  политикой extension overlay.
+- После исправлений повторно прошли `pnpm test`, `pnpm test:e2e`, полный
+  type-check, обе архитектурные проверки и контроль новых дублей.

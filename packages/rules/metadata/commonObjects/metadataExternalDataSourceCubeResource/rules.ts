@@ -22,6 +22,7 @@ const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string):
     : Object.prototype.hasOwnProperty.call(source, propertyKey))
 export const MetadataExternalDataSourceCubeResourceRules = {
   itemType: "MetadataExternalDataSourceCubeResource",
+  externalMetadata: { segment: "Resource", placement: "ownerChild" },
   xmlOrder: [
     "objectBelonging",
     "name",
