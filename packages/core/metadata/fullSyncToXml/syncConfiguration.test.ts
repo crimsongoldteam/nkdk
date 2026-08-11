@@ -81,7 +81,7 @@ describe("shared full XML sync coordinator", () => {
       "close",
     ])
     expect(harness.writtenIndex).toMatchObject({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       componentPath: "cf",
       indexGeneration: 2n,
     })
@@ -815,7 +815,7 @@ function snapshot(address: ComponentAddress, options: HarnessOptions) {
   const componentPath =
     address.kind === "configuration" ? "cf" : `cfe/${address.name}`
   return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath,
     files: options.previousFiles ?? [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],

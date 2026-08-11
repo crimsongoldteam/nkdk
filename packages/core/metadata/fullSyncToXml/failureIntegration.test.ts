@@ -312,7 +312,7 @@ async function createIndexedProject() {
   const xmlDir = join(projectDir, "xml")
   fs.mkdirSync(xmlDir)
   const previous: ConfigurationSnapshot = {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: "cf",
     files: [

@@ -120,7 +120,7 @@ function createState(resources: readonly MetadataProjectResourceMatch[]): Confir
     indexes: { componentPath: "cfe/Дополнение", sourceProjectFiles: [], logicalAddresses: [] },
     snapshot: snapshotConfigurationIndex(
       encodeConfigurationIndex({
-        specificationVersion: "1.3",
+        specificationVersion: "1.4",
         indexGeneration: 1n,
         componentPath: "cfe/Дополнение",
         files: [],

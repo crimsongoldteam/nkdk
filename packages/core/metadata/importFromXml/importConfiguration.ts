@@ -527,7 +527,7 @@ function buildImportedConfigurationSnapshot(params: {
   fragmentData: MergedConfigurationSnapshotFragments
 }): ConfigurationSnapshot {
   return {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: params.componentPath,
     files: params.projectFiles,

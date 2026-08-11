@@ -8,6 +8,7 @@ import type { ConfigurationSnapshot } from "../../configurationIndex/types"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "../../ruleRuntime/property/types"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
 
@@ -52,6 +53,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       ExtendedConfigurationObject: BASE_UUID,
     })
     expect(Object.keys(record(form.Properties))).toEqual(["ObjectBelonging", "Format", "ExtendedConfigurationObject"])
+    expect(Object.keys(form)).toEqual(["InternalInfo", "Properties"])
     expect(record(form.InternalInfo)["xr:PropertyState"]).toEqual([
       { "xr:Property": "ExtendedConfigurationObject", "xr:State": "Notify" },
       { "xr:Property": "Format", "xr:State": "Notify" },
@@ -68,6 +70,7 @@ describe("configuration extension YAML-to-XML augmenter", () => {
           Properties: {
             Name: "Товары",
             Synonym: "Товары",
+            Comment: "",
           },
         },
       ],
@@ -85,9 +88,60 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     expect(Object.keys(record(record(outputs.get("metadata")).Properties))).toEqual([
       "ObjectBelonging",
       "Name",
-      "ExtendedConfigurationObject",
       "Synonym",
+      "Comment",
+      "ExtendedConfigurationObject",
     ])
+  })
+
+  it("places extension root service fields in the platform XML order", () => {
+    const outputs = new Map([
+      [
+        "metadata",
+        {
+          Properties: {
+            Name: "Расширение",
+            Comment: "",
+            ConfigurationExtensionPurpose: "Customization",
+          },
+          InternalInfo: {},
+        },
+      ],
+    ])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: { Конфигурация: BASE_UUID } }),
+      rule: MetadataConfigurationExtensionRules,
+      yaml: {},
+      outputs,
+      logicalAddress: "Конфигурация",
+    })
+
+    expect(Object.keys(record(outputs.get("metadata")))).toEqual(["InternalInfo", "Properties"])
+    expect(Object.keys(record(record(outputs.get("metadata")).Properties))).toEqual([
+      "ObjectBelonging",
+      "Name",
+      "Comment",
+      "ConfigurationExtensionPurpose",
+      "ExtendedConfigurationObject",
+    ])
+  })
+
+  it("writes service properties for an addressable root without declared service properties", () => {
+    const outputs = new Map([["metadata", { Properties: { Name: "InputField" } }]])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({
+        adoptedUuids: { "CommonForm.InputField": BASE_UUID },
+      }),
+      rule: MetadataCommonFormRules,
+      yaml: {},
+      outputs,
+      logicalAddress: "CommonForm.InputField",
+    })
+
+    expect(record(outputs.get("metadata")).Properties).toMatchObject({
+      ObjectBelonging: "Adopted",
+      ExtendedConfigurationObject: BASE_UUID,
+    })
   })
 
   it("copies only xml.extended into the next snapshot", () => {
@@ -184,19 +238,22 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     ])
   })
 
-  it("does not restore empty InternalInfo absent from current rules and YAML", () => {
+  it("does not restore owner InternalInfo into an external XML file", () => {
     const outputs = new Map([["metadata", { Properties: { Name: "Русский" } }]])
     configurationExtensionYamlToXmlAugmenter.augment({
       context: context({
         adoptedUuids: { [logicalAddress]: BASE_UUID },
+        internalInfoPresent: true,
       }),
       rule: {
-        itemType: "MetadataLanguage",
+        itemType: "ExternalProperties",
         properties: {
-          name: {
-            type: "string",
-            xml: "Name",
-            xmlParents: ["Properties"],
+          xmlRoot: {
+            type: "XMLRoot",
+            container: "ExternalProperties",
+            rootAttributes: {},
+            forReferenceOnly: true,
+            isFileRoot: true,
           },
         },
       },
@@ -206,6 +263,39 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
 
     expect(record(outputs.get("metadata"))).not.toHaveProperty("InternalInfo")
+  })
+
+  it("restores empty InternalInfo saved for a metadata item", () => {
+    const outputs = new Map([[
+      "metadata",
+      { Properties: { Name: "Код" } },
+    ]])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({
+        adoptedUuids: {},
+        internalInfoPresent: true,
+      }),
+      rule: {
+        itemType: "MetadataAttribute",
+        properties: {
+          objectBelonging: {
+            type: "string",
+            xml: "ObjectBelonging",
+            xmlParents: ["Properties"],
+          },
+        },
+      } as MetadataItemRule,
+      yaml: {},
+      outputs,
+      logicalAddress,
+    })
+
+    expect(record(outputs.get("metadata"))).toEqual({
+      InternalInfo: {},
+      Properties: {
+        Name: "Код",
+      },
+    })
   })
 
   it("rejects an unknown control name with the logical address", () => {
@@ -262,17 +352,27 @@ describe("configuration extension YAML-to-XML augmenter", () => {
 function context(params: {
   adoptedUuids: Readonly<Record<string, string>>
   extended?: readonly string[]
+  internalInfoPresent?: true
 }): ConfigurationContextWithExportToXML {
   const snapshot: ConfigurationSnapshot = {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: "cfe/Дополнение",
     files: [{ projectPath: "Форма.yaml", contentHash: 1n }],
-    entities: (params.extended ?? []).map((segment) => ({
-      logicalAddress: childSegmentUid(logicalAddress, segment),
-      sourceProjectPath: "Форма.yaml",
-      xml: { extended: true },
-    })),
+    entities: [
+      ...(params.extended ?? []).map((segment) => ({
+        logicalAddress: childSegmentUid(logicalAddress, segment),
+        sourceProjectPath: "Форма.yaml",
+        xml: { extended: true as const },
+      })),
+      ...(params.internalInfoPresent === true
+        ? [{
+            logicalAddress: childSegmentUid(logicalAddress, "InternalInfo"),
+            sourceProjectPath: "Форма.yaml",
+            xml: { present: true as const },
+          }]
+        : []),
+    ],
   }
   return {
     version: "2.20",

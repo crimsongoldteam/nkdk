@@ -7,7 +7,7 @@ describe("compareSuccessfulSync", () => {
     const compare = vi.fn()
 
     await expect(compareSuccessfulSync({
-      sync: syncResult([{ message: "Ошибка sync" }]),
+      sync: syncResult([{ severity: "error", code: "sync-failed", message: "Ошибка sync" }]),
       expectedDir: "/expected",
       actualDir: "/actual",
       reportDir: "/report",
@@ -35,6 +35,6 @@ describe("compareSuccessfulSync", () => {
   })
 })
 
-function syncResult(failed: readonly { message: string }[] = []): FullXmlSyncResult {
+function syncResult(failed: FullXmlSyncResult["failed"] = []): FullXmlSyncResult {
   return { succeeded: 1, failed, warnings: [], diagnostics: failed }
 }

@@ -168,7 +168,7 @@ describe("configuration extension XML import", () => {
     })
 
     expect(snapshot).toMatchObject({
-      specificationVersion: "1.3",
+      specificationVersion: "1.4",
       componentPath: "cfe/РасширениеКонтроль",
       indexGeneration: 1n,
     })

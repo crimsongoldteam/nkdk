@@ -87,6 +87,11 @@ describe("MetadataConfigurationExtensionRules", () => {
     })
     expect(yaml).not.toHaveProperty("ОсновнойЯзык")
     expect(yaml).not.toHaveProperty("Контроль")
+    expect(yaml).not.toHaveProperty("РежимИспользованияМодальности")
+    expect(yaml).not.toHaveProperty(
+      "РежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент"
+    )
+    expect(yaml).not.toHaveProperty("РежимСовместимости")
   })
 
   it("восстанавливает InternalInfo корня из снимка расширения", () => {

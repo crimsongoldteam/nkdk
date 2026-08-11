@@ -235,7 +235,7 @@ describe("configuration XML import coordinator", () => {
     expect(writtenIndexes[0]).toMatchObject({
       address: { kind: "configurationExtension", name: "Расширение_All" },
       data: {
-        specificationVersion: "1.3",
+        specificationVersion: "1.4",
         componentPath: "cfe/Расширение_All",
         indexGeneration: 1n,
       },
@@ -1030,7 +1030,7 @@ function fileCollection(items: readonly ImportResultFile[]): ImportResultFileCol
 
 function configurationIndex(component: string): ConfigurationSnapshot {
   return {
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: component,
     files: projectFiles,

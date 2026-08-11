@@ -68,7 +68,7 @@ export function normalizeBaseFormYaml(value: unknown): unknown {
 
   const normalized: Record<string, unknown> = {}
   for (const [key, child] of Object.entries(value)) {
-    if (isXmlServiceKey(key) || child === undefined) continue
+    if (isXmlServiceKey(key)) continue
     normalized[key] = normalizeBaseFormYaml(child)
   }
   return normalized

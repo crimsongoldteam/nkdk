@@ -31,6 +31,7 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
       logicalAddress,
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
+    restoreIndexedInternalInfo(context, outputs, rule, logicalAddress)
     reorderServiceProperties(outputs, rule)
     reorderMetadataRoot(outputs, rule)
   },
@@ -127,22 +128,56 @@ function reorderServiceProperties(outputs: ReadonlyMap<string, Record<string, un
 
 function currentPropertyOrder(rule: MetadataItemRule): readonly string[] {
   const compiled = getCompiledXMLPropertyOrder(rule)
-  if (rule.itemType === "MetadataConfigurationExtension") {
-    return ["objectBelonging", "extendedConfigurationObject", ...compiled]
+  const order = compiled.filter(
+    (propertyKey) => propertyKey !== "objectBelonging" && propertyKey !== "extendedConfigurationObject"
+  )
+  if (!order.includes("internalInfo")) {
+    order.unshift("internalInfo")
   }
-  if (rule.itemType === "ClientApplicationForm" && !compiled.includes("internalInfo")) {
-    return [
-      "internalInfo",
-      ...(compiled.includes("objectBelonging") ? [] : ["objectBelonging"]),
-      ...compiled,
-      ...(compiled.includes("extendedConfigurationObject") ? [] : ["extendedConfigurationObject"]),
-    ]
+
+  insertAfter(order, "objectBelonging", "internalInfo", "start")
+  insertAfter(
+    order,
+    "extendedConfigurationObject",
+    rule.itemType === "MetadataConfigurationExtension" ? "configurationExtensionPurpose" : "comment",
+    "end"
+  )
+  return order
+}
+
+function restoreIndexedInternalInfo(
+  context: ConfigurationContextWithExportToXML,
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule,
+  logicalAddress: string
+): void {
+  const xmlRoot = rule.properties.xmlRoot
+  if (xmlRoot?.type === "XMLRoot" && xmlRoot.isFileRoot === true) return
+  if (
+    context.exportToXML.configurationIndex?.xml(childSegmentUid(logicalAddress, "InternalInfo"))?.present !== true
+  ) {
+    return
   }
-  return compiled
+  const propertiesParents = rule.itemType === "ClientApplicationForm" ? ["Form", "Properties"] : ["Properties"]
+  const output = findMetadataOutput(outputs, propertiesParents)
+  if (output === undefined) return
+  const ownerParents = rule.itemType === "ClientApplicationForm" ? ["Form"] : []
+  const owner = recordAt(output, ownerParents)
+  if (!Object.prototype.hasOwnProperty.call(owner, "InternalInfo")) owner.InternalInfo = {}
+}
+
+function insertAfter(
+  order: string[],
+  propertyKey: string,
+  anchor: string,
+  fallback: "start" | "end"
+): void {
+  const anchorIndex = order.indexOf(anchor)
+  order.splice(anchorIndex < 0 ? (fallback === "start" ? 0 : order.length) : anchorIndex + 1, 0, propertyKey)
 }
 
 function supportsAdoptionServiceProperties(rule: MetadataItemRule): boolean {
-  return rule.itemType === "ClientApplicationForm" || rule.properties.objectBelonging !== undefined
+  return rule.itemType === "ClientApplicationForm" || rule.properties.uuid !== undefined
 }
 
 function propertyStates(params: {

@@ -76,6 +76,9 @@ function analyzeFillValue(
   if (!(fillValueYamlKey in params.item)) return emptyAnalysis()
   const parsed = parseFillValueItem(params.item)
   if (parsed === undefined) return unresolvedAnalysis(params, "не удалось разобрать значение заполнения")
+  if (parsed.tagged && parsed.value.type === "ref") {
+    return withValueReference(params, parsed.value, emptyAnalysis(), parsed.tagged)
+  }
   const classification = classify(params, parsed.value)
   const diagnostic = parsed.transport === "DesignTimeRef"
     ? designTimeRefDiagnostic(params, classification)

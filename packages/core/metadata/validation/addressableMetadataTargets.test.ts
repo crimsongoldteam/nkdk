@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { registerMetadataItemCollectionRule } from "../ruleRuntime/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
+import { MetadataEnumerationRules } from "../appliedObjects/metadataEnumeration/rules"
+import "../commonObjects/metadataExternalDataSourceField/types"
+import { MetadataExternalDataSourceDimensionTableRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/rules"
 import {
+  collectAddressableMetadataLogicalAddresses,
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
 } from "./addressableMetadataTargets"
@@ -24,10 +28,62 @@ const ownerRule = {
   },
 } as const satisfies MetadataItemRule
 
+const ownerChildType = "__AddressableMetadataTargetsOwnerChildCollection" as never
+
+const ownerChildRule = {
+  itemType: "MetadataEnumerationValue",
+  externalMetadata: { segment: "EnumValue", placement: "ownerChild" },
+  properties: {
+    name: { type: "string" },
+  },
+} as const satisfies MetadataItemRule
+
+const ownerWithChildRule = {
+  itemType: "MetadataEnumeration",
+  properties: {
+    values: { type: ownerChildType, yaml: "Значения" },
+  },
+} as const satisfies MetadataItemRule
+
+const indexedUuidType = "__AddressableMetadataTargetsIndexedUuidCollection" as never
+
+const indexedUuidItemRule = {
+  itemType: "MetadataHTTPServiceMethod",
+  properties: {
+    uuid: { type: "string" },
+    name: { type: "string" },
+  },
+} as const satisfies MetadataItemRule
+
+const ownerWithIndexedUuidRule = {
+  itemType: "MetadataHTTPService",
+  properties: {
+    methods: {
+      type: indexedUuidType,
+      yaml: "Методы",
+    },
+  },
+} as const satisfies MetadataItemRule
+
 registerMetadataItemCollectionRule({
   propertyType: collectionType,
   itemRule: functionRule,
   xmlElement: "Function",
+  keyField: "name",
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: indexedUuidType,
+  itemRule: indexedUuidItemRule,
+  xmlElement: "Method",
+  keyField: "name",
+  configurationIndexUidSegment: "Метод",
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: ownerChildType,
+  itemRule: ownerChildRule,
+  xmlElement: "EnumValue",
   keyField: "name",
 })
 
@@ -68,5 +124,59 @@ describe("collectAddressableMetadataObjectEntries", () => {
         }),
       }),
     ])
+  })
+
+  it("collects an owner child as a logical address", () => {
+    const entries = collectAddressableMetadataLogicalAddresses({
+      yaml: { Значения: { Новый: {} } },
+      rule: ownerWithChildRule,
+      logicalAddress: "Перечисление.Статусы",
+      filePath: "/project/Перечисление/Статусы/Свойства.yaml",
+    })
+
+    expect(entries).toEqual([{
+      logicalAddress: "Перечисление.Статусы.EnumValue.Новый",
+      sourceProjectPath: "/project/Перечисление/Статусы/Свойства.yaml",
+    }])
+  })
+
+  it("collects enumeration values through the production rule", () => {
+    expect(collectAddressableMetadataLogicalAddresses({
+      yaml: { Значения: { Новый: {} } },
+      rule: MetadataEnumerationRules,
+      logicalAddress: "Перечисление.Статусы",
+      filePath: "/project/Перечисление/Статусы/Свойства.yaml",
+    })).toEqual([{
+      logicalAddress: "Перечисление.Статусы.Значение.Новый",
+      sourceProjectPath: "/project/Перечисление/Статусы/Свойства.yaml",
+    }])
+  })
+
+  it("collects an indexed UUID item without a separate external metadata declaration", () => {
+    expect(collectAddressableMetadataLogicalAddresses({
+      yaml: { Методы: { Получить: {} } },
+      rule: ownerWithIndexedUuidRule,
+      logicalAddress: "HTTPСервис.API",
+      filePath: "/project/HTTPСервис/API/Свойства.yaml",
+    })).toEqual([{
+      logicalAddress: "HTTPСервис.API.Метод.Получить",
+      sourceProjectPath: "/project/HTTPСервис/API/Свойства.yaml",
+    }])
+  })
+
+  it("continues the owner's topology logical address for nested dimension table fields", () => {
+    expect(collectAddressableMetadataLogicalAddresses({
+      yaml: { Поля: { Поле: {} } },
+      rule: MetadataExternalDataSourceDimensionTableRules,
+      logicalAddress:
+        "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерений.Таблица",
+      filePath:
+        "/project/ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
+    })).toEqual([{
+      logicalAddress:
+        "ВнешнийИсточникДанных.Источник.Куб.Куб.ТаблицаИзмерений.Таблица.Поле.Поле",
+      sourceProjectPath:
+        "/project/ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
+    }])
   })
 })

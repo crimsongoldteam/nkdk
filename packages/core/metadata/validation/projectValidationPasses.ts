@@ -40,6 +40,7 @@ import {
 import { registeredProjectValidationFormRules } from "./projectValidationFormRules"
 import type { FormStructuredComponent } from "./formContracts"
 import { collectAddressableRequiredChecks } from "./addressableRequired"
+import { collectAddressableMetadataLogicalAddresses } from "./addressableMetadataTargets"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-overlay"
@@ -87,6 +88,7 @@ export interface ProjectValidationFirstPassResult {
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
   dependencies: string[]
+  logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
   diagnostics: Diagnostic[]
@@ -119,6 +121,7 @@ export interface ProjectValidationFileFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   localDependencies: import("../projectDefinition/componentIndexFacts").ProjectLocalDependency[]
+  logicalAddresses?: import("../projectDefinition/componentIndexFacts").ProjectLogicalAddressEntry[]
   form?: ValidationFormIndexContribution
   structuredComponents?: readonly FormStructuredComponent[]
   profile: {
@@ -394,6 +397,7 @@ export function extractProjectValidationFileFacts(params: {
     })
   )
   const memberIndexEntries = measuredMemberIndex.value
+  const canonicalTarget = yamlFacts.objectIndexEntries[0]?.canonical
 
   return {
     objectIndexEntries: yamlFacts.objectIndexEntries,
@@ -406,6 +410,16 @@ export function extractProjectValidationFileFacts(params: {
       params.file.projectPath,
       yamlFacts.localIndexes?.metadata.metadataTargets ?? []
     ),
+    ...(canonicalTarget === undefined || params.file.logicalAddress === undefined
+      ? {}
+      : {
+          logicalAddresses: collectAddressableMetadataLogicalAddresses({
+            yaml: parsed.data,
+            rule: params.file.itemRule,
+            logicalAddress: params.file.logicalAddress,
+            filePath: params.file.projectPath,
+          }),
+        }),
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -524,6 +538,7 @@ function validateProjectFormFirstPass(params: {
         ...facts.pendingReferences.map(({ canonical }) => canonical),
       ]),
     ],
+    ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     ...(facts.form === undefined ? {} : { form: facts.form }),
     ...(facts.structuredComponents === undefined
       ? {}
@@ -667,6 +682,7 @@ function validateProjectPropertiesFirstPass(params: {
     valueIndexEntries: facts.valueIndexEntries,
     pendingReferences: facts.pendingReferences,
     dependencies: facts.localDependencies.map(({ canonical }) => canonical),
+    ...(facts.logicalAddresses === undefined ? {} : { logicalAddresses: facts.logicalAddresses }),
     objectRecords: facts.objectRecords,
     profile: {
       key: validationFirstPassProfileKey(params.file),

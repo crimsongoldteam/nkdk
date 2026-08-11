@@ -11,6 +11,8 @@ export interface MetadataRuleYamlObject<State> {
 
 export interface MetadataRuleYamlCollectionItem<State> extends MetadataRuleYamlObject<State> {
   readonly itemName: string | undefined
+  readonly propertyRule: PropertyRule
+  readonly collectionUidSegment: string | undefined
 }
 
 interface MetadataRuleYamlCallbacks<State> {
@@ -82,6 +84,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
         rule,
         yamlPath: [...params.yamlPath, index],
         itemName: itemNameFromArrayItem(item),
+        collectionUidSegment: nested.configurationIndexUidSegment,
       }
       visitObject({ ...object, state: params.enterCollectionItem?.(object) ?? params.state })
     })
@@ -107,6 +110,7 @@ function visitNested<State>(params: MetadataRuleYamlContext<State> & {
       rule,
       yamlPath: [...params.yamlPath, yamlKey],
       itemName,
+      collectionUidSegment: nested.configurationIndexUidSegment,
     }
     visitObject({ ...object, state: params.enterCollectionItem?.(object) ?? params.state })
     index += 1

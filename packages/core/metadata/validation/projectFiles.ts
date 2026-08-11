@@ -26,6 +26,7 @@ export interface ValidationProjectFile extends ComponentFileAddress {
   formName?: string
   itemRule: MetadataItemRule
   metadataTarget?: TopologyMetadataTarget
+  logicalAddress?: string
 }
 
 export async function discoverValidationProjectFiles(
@@ -78,6 +79,7 @@ function toValidationProjectFile(
       itemType: resource.itemType,
       owner: resource.owner,
       itemRule: resource.itemRule,
+      ...(resource.logicalAddress === undefined ? {} : { logicalAddress: resource.logicalAddress }),
     }
   }
 
@@ -91,6 +93,7 @@ function toValidationProjectFile(
       itemType: resource.itemType,
       owner: resource.owner,
       itemRule: resource.itemRule,
+      ...(resource.logicalAddress === undefined ? {} : { logicalAddress: resource.logicalAddress }),
       ...(resource.metadataTarget === undefined ? {} : { metadataTarget: resource.metadataTarget }),
     }
   }
@@ -106,6 +109,7 @@ function toValidationProjectFile(
       owner: resource.owner,
       formName: resource.formName,
       itemRule: resource.itemRule,
+      ...(resource.logicalAddress === undefined ? {} : { logicalAddress: resource.logicalAddress }),
       ...(resource.metadataTarget === undefined ? {} : { metadataTarget: resource.metadataTarget }),
     }
   }

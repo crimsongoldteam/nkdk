@@ -93,6 +93,19 @@ describe("fill value references", () => {
     expect(facts.pendingChecks).toEqual([])
   })
 
+  it("не отвергает локально совместимую !xml ссылку до компонентного lookup", () => {
+    const facts = extract(`Реквизиты:
+  Получатель:
+    Тип: Справочник.Контрагенты
+    ЗначениеЗаполнения: !xml Справочник.Контрагенты.Поставщик
+`)
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({ canonical: "Catalog.Контрагенты.Поставщик", tagged: "xml" }),
+    ])
+    expect(facts.diagnostics.filter(({ path }) => path?.endsWith("/ЗначениеЗаполнения"))).toEqual([])
+  })
+
   it("сохраняет !xml отсутствующей ссылки для второго прохода", () => {
     const facts = extract(`Владельцы: []
 СтандартныеРеквизиты:

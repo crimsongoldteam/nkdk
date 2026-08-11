@@ -3,6 +3,7 @@ import type { ParsedMetadataTarget } from "../ruleRuntime/metadataTarget/types"
 import type { MetadataItemRule } from "../ruleRuntime/property/types"
 import { projectObjectIndexKey, type ProjectObjectIndexEntry } from "./projectReferenceIndex"
 import { traverseMetadataRuleYaml } from "./metadataRuleYamlTraversal"
+import type { ProjectLogicalAddressEntry } from "../projectDefinition/componentIndexFacts"
 
 export function objectTargetForProjectFile(file: {
   readonly kind: "configuration" | "properties" | "form"
@@ -55,6 +56,33 @@ export function collectAddressableMetadataObjectEntries(params: {
         },
       })
       return target
+    },
+  })
+  return entries
+}
+
+export function collectAddressableMetadataLogicalAddresses(params: {
+  readonly yaml: unknown
+  readonly rule: MetadataItemRule
+  readonly logicalAddress: string
+  readonly filePath: string
+}): ProjectLogicalAddressEntry[] {
+  const entries: ProjectLogicalAddressEntry[] = []
+  traverseMetadataRuleYaml({
+    yaml: params.yaml,
+    rule: params.rule,
+    initialState: params.logicalAddress,
+    enterCollectionItem: ({ rule, propertyRule, collectionUidSegment, itemName, state: boundaryTarget }) => {
+      const externalMetadata = rule.externalMetadata
+      const externalAddressable =
+        externalMetadata?.placement === "ownedEntry" || externalMetadata?.placement === "ownerChild"
+      const segment = propertyRule.configurationIndexUidSegment ?? collectionUidSegment ?? externalMetadata?.segment
+      if ((!externalAddressable && rule.properties.uuid === undefined) || itemName === undefined || segment === undefined) {
+        return boundaryTarget
+      }
+      const logicalAddress = `${boundaryTarget}.${segment}.${itemName}`
+      entries.push({ logicalAddress, sourceProjectPath: params.filePath })
+      return logicalAddress
     },
   })
   return entries

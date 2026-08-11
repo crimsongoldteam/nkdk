@@ -14,6 +14,7 @@ import type {
   MetadataResourceSource,
   TopologyMetadataTarget,
 } from "../resourceTopology/core/types"
+import { projectXmlExportAssignment } from "../resourceTopology/core/xmlExportProjection"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
@@ -68,6 +69,7 @@ export interface MetadataProjectYamlContext {
   readonly itemType: string
   readonly itemRule: MetadataItemRule
   readonly metadataTarget?: TopologyMetadataTarget
+  readonly logicalAddress?: string
 }
 
 export interface MetadataProjectStateTargetRef {
@@ -246,7 +248,7 @@ function toLegacyResource(
       fileBackedTargets,
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
-      ...yamlContext(match, match.yamlCompanion.itemRule),
+      ...yamlContext(match, match.yamlCompanion.itemRule, context.topology),
       indexContribution: match.yamlCompanion.indexContribution,
     }
   }
@@ -257,7 +259,7 @@ function toLegacyResource(
       projectPath: match.projectPath,
       fileBackedTargets,
       owner: { dir: "", name: "Конфигурация", spec: context.rootSpec },
-      ...yamlContext(match, match.assignment.itemRule),
+      ...yamlContext(match, match.assignment.itemRule, context.topology),
     }
   }
 
@@ -275,7 +277,7 @@ function toLegacyResource(
       fileBackedTargets,
       owner,
       nesting: nestingSegments(match, owner.dir),
-      ...yamlContext(match, match.assignment.itemRule),
+      ...yamlContext(match, match.assignment.itemRule, context.topology),
     }
   }
   if (
@@ -290,7 +292,7 @@ function toLegacyResource(
       fileBackedTargets,
       owner: rootOwner(match, context),
       formName: lastItemName(match.values),
-      ...yamlContext(match, match.assignment.itemRule),
+      ...yamlContext(match, match.assignment.itemRule, context.topology),
     }
   }
   return {
@@ -310,6 +312,7 @@ function toLegacyResource(
 function yamlContext(
   match: MetadataProjectResourceMatch,
   itemRule: MetadataItemRule,
+  topology: CompiledMetadataResourceTopology,
 ): MetadataProjectYamlContext {
   if (match.assignment === undefined) {
     throw new Error(`Для YAML-ресурса не найден assignment: ${match.projectPath}`)
@@ -318,6 +321,9 @@ function yamlContext(
     topologyNodeId: match.assignment.id,
     itemType: itemRule.itemType,
     itemRule,
+    ...(match.kind === "content"
+      ? { logicalAddress: projectXmlExportAssignment(topology, match).logicalAddress }
+      : {}),
     ...(match.metadataTarget === undefined ? {} : { metadataTarget: match.metadataTarget }),
   }
 }

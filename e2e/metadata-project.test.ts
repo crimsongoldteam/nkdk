@@ -1,4 +1,4 @@
-import { access } from "node:fs/promises"
+import { access, readFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
@@ -36,6 +36,19 @@ describe.sequential("metadata project E2E", () => {
       await expect(access(join(baseline.projectDir, componentPath, "Конфигурация.yaml")))
         .resolves.toBeUndefined()
     }
+    const missingTargetYaml = await readFile(join(
+      baseline.projectDir,
+      "cfe/Расширение_All/БизнесПроцесс/БизнесПроцессВсеСвойстваExt/Свойства.yaml",
+    ), "utf8")
+    expect(missingTargetYaml).toContain(
+      "ЗначениеЗаполнения: !xml Справочник.СправочникРеквизит.ПредопредленноеЗначение",
+    )
+    const ordinaryValueYaml = await readFile(join(
+      baseline.projectDir,
+      "cfe/Расширение_All/Справочник/СправочникВладелецExt/Свойства.yaml",
+    ), "utf8")
+    expect(ordinaryValueYaml).toContain("ЗначениеЗаполнения: Истина")
+    expect(ordinaryValueYaml).not.toContain("ЗначениеЗаполнения: !xml Истина")
     await expect(access(join(baseline.projectDir, ".nkdk"))).resolves.toBeUndefined()
     console.info("E2E import durations, ms", baseline.durationsMs)
   })

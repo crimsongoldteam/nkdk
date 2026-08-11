@@ -53,6 +53,9 @@ export const EXTENDED_SNAPSHOT_SEGMENTS: Readonly<Record<string, Readonly<Record
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
     const collection = getConfigurationIndexCollectionContext(context)
+    if (collection !== undefined && Object.prototype.hasOwnProperty.call(source, "InternalInfo")) {
+      collection.collector.setXmlFlag(childSegmentUid(collection.logicalAddress, "InternalInfo"), "present")
+    }
     const properties = asRecord(source["Properties"])
     if (
       collection !== undefined &&

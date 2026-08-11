@@ -10,12 +10,12 @@ const SECTION_COUNT = 4
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 
 describe("encodeConfigurationIndex", () => {
-  it("пишет строгий контейнер 1.3 с четырьмя секциями", () => {
+  it("пишет строгий контейнер 1.4 с четырьмя секциями", () => {
     const encoded = encodeConfigurationIndex(sampleSnapshot())
 
     expect(encoded.subarray(0, 8).toString("ascii")).toBe("NKDK1CIX")
     expect(encoded.readUInt16LE(8)).toBe(1)
-    expect(encoded.readUInt16LE(10)).toBe(3)
+    expect(encoded.readUInt16LE(10)).toBe(4)
     expect(encoded.readUInt32LE(12)).toBe(HEADER_LENGTH)
     expect([...encoded.subarray(16, 20)]).toEqual([1, 1, 1, 1])
     expect(encoded.readUInt32LE(20)).toBe(DIRECTORY_ENTRY_LENGTH)

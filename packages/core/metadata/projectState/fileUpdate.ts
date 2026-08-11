@@ -69,6 +69,7 @@ export function toProjectStateFileUpdate(
       ...firstPassResult.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
       ...firstPassResult.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
       ...firstPassResult.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...logicalAddressTargetEntries(firstPassResult),
       ...fileBackedTargets,
     ],
     pendingReferences: firstPassResult.pendingReferences.map(({ filePath: _filePath, ...reference }) => reference),
@@ -82,6 +83,19 @@ export function toProjectStateFileUpdate(
     dependencies: [...new Set(firstPassResult.dependencies ?? [])],
     ...(structuredDocuments.length === 0 ? {} : { structuredDocuments }),
   }
+}
+
+function logicalAddressTargetEntries(
+  result: ProjectValidationFirstPassResult,
+): ProjectStateTargetEntry[] {
+  const indexed = new Set([
+    ...result.objectIndexEntries,
+    ...result.memberIndexEntries,
+    ...result.valueIndexEntries,
+  ].map(({ canonical }) => canonical))
+  return (result.logicalAddresses ?? [])
+    .filter(({ logicalAddress }) => !indexed.has(logicalAddress))
+    .map(({ logicalAddress }) => ({ kind: "object", canonical: logicalAddress }))
 }
 
 export function projectStateTargetEntry(

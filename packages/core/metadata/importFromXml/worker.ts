@@ -479,11 +479,34 @@ async function writePreparedYamlToOutput(
         state,
         profiler,
       })
+  const baseFormConfigurationFragment = prepared.baseFormCandidate === undefined
+    ? undefined
+    : preparedBaseFormCandidate === undefined
+      ? retargetConfigurationFragment(
+          prepared.baseFormCandidate.configurationFragment,
+          prepared.targetProjectPath,
+        )
+      : prepared.baseFormCandidate.configurationFragment
   return {
     files: [main.file, ...(baseForm === undefined ? [] : [baseForm.file])],
     indexContributions: [validated.index, ...(baseForm === undefined ? [] : [baseForm.indexContribution])],
     finalStates: [validated.final, ...(baseForm === undefined ? [] : [baseForm.finalState])],
-    configurationFragments: baseForm === undefined ? [] : [baseForm.configurationFragment],
+    configurationFragments:
+      baseFormConfigurationFragment === undefined ? [] : [baseFormConfigurationFragment],
+  }
+}
+
+function retargetConfigurationFragment(
+  fragment: ConfigurationSnapshotFragment,
+  targetProjectPath: string,
+): ConfigurationSnapshotFragment {
+  return {
+    ...fragment,
+    targetProjectPath,
+    entities: fragment.entities.map((entity) => ({
+      ...entity,
+      sourceProjectPath: targetProjectPath,
+    })),
   }
 }
 
@@ -1093,6 +1116,13 @@ function importIndexContribution(
       ...validation.objectIndexEntries.map((entry) => projectStateTargetEntry("object", entry)),
       ...validation.memberIndexEntries.map((entry) => projectStateTargetEntry("member", entry)),
       ...validation.valueIndexEntries.map((entry) => projectStateTargetEntry("value", entry)),
+      ...validation.logicalAddresses
+        .filter(({ logicalAddress }) => ![
+          ...validation.objectIndexEntries,
+          ...validation.memberIndexEntries,
+          ...validation.valueIndexEntries,
+        ].some(({ canonical }) => canonical === logicalAddress))
+        .map(({ logicalAddress }) => ({ kind: "object" as const, canonical: logicalAddress })),
     ],
     owners: validation.objectRecords.flatMap(projectStateOwnerFacts),
     fields: validation.objectRecords.flatMap(projectStateFieldEntries),

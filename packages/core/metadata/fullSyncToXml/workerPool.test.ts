@@ -312,7 +312,7 @@ function assignment(id: string): FullXmlSyncAssignment {
 
 function targetIndex(entities: readonly ConfigurationSnapshotEntity[]) {
   return snapshotConfigurationIndex(encodeConfigurationIndex({
-    specificationVersion: "1.3",
+    specificationVersion: "1.4",
     indexGeneration: 1n,
     componentPath: "cf",
     files: [...new Set(entities.map(({ sourceProjectPath }) => sourceProjectPath))]

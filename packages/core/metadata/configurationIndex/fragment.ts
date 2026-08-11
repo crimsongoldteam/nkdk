@@ -5,7 +5,7 @@ import type {
   OmittedChildren,
 } from "./types"
 
-const FRAGMENT_MAGIC = "NKDKCIF3"
+const FRAGMENT_MAGIC = "NKDKCIF4"
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 const utf8Encoder = new TextEncoder()
 
@@ -31,6 +31,7 @@ type EncodedOmittedChildren =
     }
 
 interface EncodedXml {
+  readonly present?: true
   readonly extended?: true
   readonly xsiNil?: true
   readonly explicitEmpty?: true
@@ -40,8 +41,8 @@ interface EncodedXml {
 }
 
 interface FragmentEnvelope {
-  readonly magic: "NKDKCIF3"
-  readonly version: 3
+  readonly magic: "NKDKCIF4"
+  readonly version: 4
   readonly strings: readonly string[]
   readonly fragments: readonly {
     readonly targetProjectPathStringId: number
@@ -120,7 +121,7 @@ export function encodeConfigurationIndexFragments(
 
   const envelope: FragmentEnvelope = {
     magic: FRAGMENT_MAGIC,
-    version: 3,
+    version: 4,
     strings,
     fragments: fragments.map((fragment) => ({
       targetProjectPathStringId: stringId(fragment.targetProjectPath),
@@ -186,6 +187,7 @@ function encodeEntity(
       ? {}
       : {
           xml: {
+            ...(entity.xml.present === undefined ? {} : { present: entity.xml.present }),
             ...(entity.xml.extended === undefined ? {} : { extended: entity.xml.extended }),
             ...(entity.xml.xsiNil === undefined ? {} : { xsiNil: entity.xml.xsiNil }),
             ...(entity.xml.explicitEmpty === undefined ? {} : { explicitEmpty: entity.xml.explicitEmpty }),
@@ -203,14 +205,14 @@ function decodeEnvelope(buffer: ArrayBuffer): FragmentEnvelope {
   if (!isRecord(parsed)) throw new Error("конверт должен быть объектом")
   assertExactKeys(parsed, ["magic", "version", "strings", "fragments"], "конверт")
   if (parsed.magic !== FRAGMENT_MAGIC) throw new Error("неверный magic")
-  if (parsed.version !== 3) throw new Error("неподдерживаемая версия")
+  if (parsed.version !== 4) throw new Error("неподдерживаемая версия")
   const strings = parsed.strings
   if (!isStringArray(strings)) throw new Error("некорректный пул строк")
   if (!Array.isArray(parsed.fragments)) throw new Error("некорректные фрагменты")
 
   return {
     magic: FRAGMENT_MAGIC,
-    version: 3,
+    version: 4,
     strings,
     fragments: parsed.fragments.map((fragment) => decodeEncodedFragment(fragment, strings)),
   }
@@ -300,13 +302,14 @@ function decodeEncodedXml(value: unknown, strings: readonly string[]): EncodedXm
   if (!isRecord(value)) throw new Error("xml должна быть объектом")
   assertExactKeys(
     value,
-    ["extended", "xsiNil", "explicitEmpty", "xsiTypeStringId", "xmlTextStringId", "xmlPrefixStringId"],
+    ["present", "extended", "xsiNil", "explicitEmpty", "xsiTypeStringId", "xmlTextStringId", "xmlPrefixStringId"],
     "xml"
   )
-  for (const field of ["extended", "xsiNil", "explicitEmpty"] as const) {
+  for (const field of ["present", "extended", "xsiNil", "explicitEmpty"] as const) {
     if (value[field] !== undefined && value[field] !== true) throw new Error(`некорректный ${field}`)
   }
   const xml = {
+    ...(value.present === undefined ? {} : { present: true as const }),
     ...(value.extended === undefined ? {} : { extended: true as const }),
     ...(value.xsiNil === undefined ? {} : { xsiNil: true as const }),
     ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: true as const }),
@@ -362,6 +365,7 @@ function decodeFragment(
         ? {}
         : {
             xml: {
+              ...(entity.xml.present === undefined ? {} : { present: true as const }),
               ...(entity.xml.extended === undefined ? {} : { extended: true as const }),
               ...(entity.xml.xsiNil === undefined ? {} : { xsiNil: true as const }),
               ...(entity.xml.explicitEmpty === undefined ? {} : { explicitEmpty: true as const }),

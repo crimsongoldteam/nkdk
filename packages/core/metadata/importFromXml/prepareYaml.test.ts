@@ -347,7 +347,7 @@ describe("prepareImportYaml", () => {
       expect(collector.fragment(targetProjectPath).entities).toContainEqual({
         logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию.fillValue",
         sourceProjectPath: targetProjectPath,
-        xml: { xsiNil: true },
+        xml: { present: true, xsiNil: true },
       })
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })

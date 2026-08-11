@@ -70,7 +70,7 @@ describe("StructureItemGroup YAML → XML", () => {
     })
     expect(imported.yaml).toEqual({ Группировка: ["Корень", "Левый", "Правый"] })
     const fragment = contexts.importContext.fromXML.configurationIndex?.collector.fragment("Тест.yaml")
-    expect(JSON.stringify(fragment?.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order|present/)
+    expect(JSON.stringify(fragment?.entities)).not.toMatch(/aliases|excludedEqualName|userSettingsId|order/)
     const restored = testPropertyFromYAMLToXML({
       rule,
       yaml: imported.yaml,

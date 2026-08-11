@@ -5,6 +5,7 @@ import type { OwnerMetadata } from "../validation/dataPath/ownerCache"
 import type { ObjectField, ObjectFieldKind } from "../validation/dataPath/objectFields"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import {
+  collectAddressableMetadataLogicalAddresses,
   collectAddressableMetadataObjectEntries,
   objectTargetForProjectFile,
 } from "../validation/addressableMetadataTargets"
@@ -80,6 +81,7 @@ export function extractImportValidationContribution(params: {
       pendingReferences,
     })
   )
+  const canonicalTarget = objectIndexEntries[0]?.canonical
 
   return {
     localDependencies,
@@ -90,7 +92,14 @@ export function extractImportValidationContribution(params: {
       valueIndexEntries: [],
       pendingReferences,
       localDependencies: [],
-      logicalAddresses: [],
+      logicalAddresses: canonicalTarget === undefined
+        ? []
+        : collectAddressableMetadataLogicalAddresses({
+            yaml: params.prepared.yaml,
+            rule: file.itemRule,
+            logicalAddress: params.prepared.assignment.logicalAddress,
+            filePath: params.prepared.assignment.targetProjectPath,
+          }),
     },
   }
 }

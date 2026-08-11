@@ -4,7 +4,7 @@ export interface ConfigurationProjectFile {
 }
 
 export interface ConfigurationSnapshot {
-  readonly specificationVersion: "1.3"
+  readonly specificationVersion: "1.4"
   readonly indexGeneration: bigint
   readonly componentPath: string
   readonly files: readonly ConfigurationSnapshotFile[]
@@ -39,6 +39,7 @@ export type OmittedChildren =
     }
 
 export interface ConfigurationSnapshotXml {
+  readonly present?: true
   readonly extended?: true
   readonly xsiNil?: true
   readonly explicitEmpty?: true
