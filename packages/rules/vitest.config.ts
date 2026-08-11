@@ -24,7 +24,6 @@ const coreMetadataTests = [
 ]
 const forbiddenPiscinaSetup = resolve(__dirname, "./tests/forbidRealPiscina")
 const lightweightSetup = resolve(__dirname, "./tests/setupTests")
-const metadataRulesSetup = resolve(__dirname, "./tests/metadataExecutionContext")
 const metadataTestRunner = resolve(__dirname, "./tests/metadataTestRunner")
 const integrationTests = ["**/*.integration.test.ts"]
 const bundleContractTests = [
@@ -83,11 +82,11 @@ export default defineConfig({
       {
         test: {
           name: "integration",
+          runner: metadataTestRunner,
           include: integrationTests,
           sequence: { groupOrder: 3 },
           setupFiles: [
             forbiddenPiscinaSetup,
-            metadataRulesSetup,
             lightweightSetup,
           ],
         },

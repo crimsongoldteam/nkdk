@@ -18,7 +18,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node ../../scripts/run-test-duration-check.mjs -- --no-isolate --project unit --project bundle-contract --project core-metadata --sequence.shuffle && pnpm run test:integration",
-    "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --project integration --sequence.shuffle",
+    "test:integration": "node ../../scripts/run-test-duration-check.mjs --integration -- --no-isolate --project integration --sequence.shuffle",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "measure:configuration-snapshot": "node scripts/measure-configuration-snapshot.mjs",
