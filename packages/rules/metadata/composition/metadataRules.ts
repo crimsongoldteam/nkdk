@@ -60,6 +60,7 @@ import { metadataExternalDataSourceCubeOwnerRules } from "../commonObjects/metad
 import { metadataExternalDataSourceTableOwnerRules } from "../commonObjects/metadataExternalDataSourceTable/register"
 import { metadataExternalDataSourceDimensionTableOwnerRules } from "../commonObjects/metadataExternalDataSourceDimensionTable/register"
 import { brokenDesignTimeRefRules } from "../commonObjects/metadataValue/brokenDesignTimeRef"
+import { brokenMDObjectRefRules } from "../commonObjects/metadataRef/brokenMDObjectRef"
 
 const staticPropertyRules = defineMetadataRules({
   ...emptyMetadataRules,
@@ -101,6 +102,7 @@ export const legacyCoreRules = composeMetadataRules(
   staticFactoryRules,
   staticPropertyRules,
   brokenDesignTimeRefRules,
+  brokenMDObjectRefRules,
   typeDescriptionIndexRules,
   metadataExternalDataSourceCubeOwnerRules,
   metadataExternalDataSourceTableOwnerRules,
