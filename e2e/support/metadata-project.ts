@@ -77,6 +77,7 @@ export type ComponentRoundTripResult = {
 )
 
 const fixturesRoot = resolve(import.meta.dirname, "../fixtures/xml")
+export const NKDK_FIXTURES_ROOT = resolve(import.meta.dirname, "../fixtures/nkdk")
 
 export const E2E_COMPONENTS = [
   { fixturePath: "cf", componentPath: "cf", reportName: "cf" },
