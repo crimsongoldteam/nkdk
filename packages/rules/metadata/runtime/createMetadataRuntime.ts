@@ -18,11 +18,15 @@ import {
   splitSearchTerms,
   summarizeJSONSchema,
 } from "../validation/schemaSummary"
-import { importConfigurationFromXml } from "../importFromXml/importConfiguration"
+import {
+  createImportCoordinatorDependencies,
+  importConfigurationFromXml,
+} from "../importFromXml/importConfiguration"
 import { syncConfigurationFromXML } from "../appliedObjects/configuration/convertFromXML"
 import {
   planSyncConfigurationToXml,
   syncConfigurationToXml,
+  createFullXmlSyncCoordinatorDependencies,
 } from "../fullSyncToXml/syncConfiguration"
 import {
   initializeXmlSyncState,
@@ -40,6 +44,12 @@ export function createMetadataRuntime(
   const rules = createRuleRegistrySet(options.rules)
   const validation = createValidationRegistrySet(options.rules, rules)
   const operations = createOperationRegistrySet(options.rules)
+  const syncDependencies = createFullXmlSyncCoordinatorDependencies(
+    operations.synchronization.resolve,
+  )
+  const importDependencies = createImportCoordinatorDependencies(
+    operations.imports.resolve,
+  )
   const schemaRuntime = createRuleSchemaRuntime(
     rules,
     (name, availableNames) => new ProjectFileSchemaError(
@@ -103,18 +113,18 @@ export function createMetadataRuntime(
     import: {
       async configurationFromXml(params) {
         assertOwnedState(params.projectState)
-        return importConfigurationFromXml(params)
+        return importConfigurationFromXml(params, importDependencies)
       },
       configurationFromSourceXml: syncConfigurationFromXML,
     },
     sync: {
       async planToXml(params) {
         assertOwnedState(params.projectState)
-        return planSyncConfigurationToXml(params)
+        return planSyncConfigurationToXml(params, syncDependencies)
       },
       async configurationToXml(params) {
         assertOwnedState(params.projectState)
-        return syncConfigurationToXml(params)
+        return syncConfigurationToXml(params, syncDependencies)
       },
       readState: readXmlSyncState,
       initializeState: initializeXmlSyncState,

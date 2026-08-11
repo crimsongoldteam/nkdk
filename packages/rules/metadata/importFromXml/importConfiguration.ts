@@ -74,6 +74,7 @@ export interface ImportConfigurationFromXmlParams {
 }
 
 export interface ImportCoordinatorDependencies {
+  resolveComponent?(root: Record<string, unknown>): XmlImportComponentDescriptor
   assertNoPending?(projectDir: string, componentPath: string): void
   createWorkerPool?(params: { concurrency: number }): XmlImportWorkerPool
   discover(params: {
@@ -102,6 +103,7 @@ export interface ImportCoordinatorDependencies {
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
+  resolveComponent: resolveXmlImportComponent,
   async discover({ xmlDir, topology, rootItemName }) {
     return discoverXmlImport({ xmlDir, topology, rootItemName })
   },
@@ -111,6 +113,12 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
   writeIndex: writeConfigurationIndex,
+}
+
+export function createImportCoordinatorDependencies(
+  resolveComponent: NonNullable<ImportCoordinatorDependencies["resolveComponent"]>,
+): ImportCoordinatorDependencies {
+  return { ...defaultImportDependencies, resolveComponent }
 }
 
 export async function importConfigurationFromXml(
@@ -152,7 +160,7 @@ export async function importConfigurationFromXml(
 
   try {
     const root = await readXmlImportComponentRoot(params.inputDir)
-    const descriptor = resolveXmlImportComponent(root)
+    const descriptor = (deps.resolveComponent ?? resolveXmlImportComponent)(root)
     const resolvedRoot = descriptor.resolveRoot(root)
     const { address } = resolvedRoot
     const selectedComponentPath = componentPath(address)

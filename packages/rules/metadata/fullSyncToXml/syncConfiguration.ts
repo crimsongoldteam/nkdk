@@ -126,6 +126,12 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   writeIndex: writeConfigurationIndex,
 }
 
+export function createFullXmlSyncCoordinatorDependencies(
+  resolveProfile: FullXmlSyncCoordinatorDependencies["resolveProfile"],
+): FullXmlSyncCoordinatorDependencies {
+  return { ...defaultDependencies, resolveProfile }
+}
+
 export async function syncComponentToXml(
   params: SyncComponentToXmlParams,
   deps: FullXmlSyncCoordinatorDependencies = defaultDependencies
