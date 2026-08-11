@@ -41,6 +41,7 @@ import { registeredProjectValidationFormRules } from "./projectValidationFormRul
 import type { FormStructuredComponent } from "./formContracts"
 import { collectAddressableRequiredChecks } from "./addressableRequired"
 import { collectAddressableMetadataLogicalAddresses } from "./addressableMetadataTargets"
+import type { ValidationRegistrySet } from "./validationRegistrySet"
 
 type CompiledSchema = ValidationSchemaValidator
 type ValidationSchemaVariant = "full" | "extension-overlay"
@@ -299,6 +300,7 @@ export function validateProjectFileFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
   rulesSnapshot?: ValidationRulesSnapshot
+  runtime?: ValidationRegistrySet
 }): ProjectValidationFirstPassResult {
   if (params.file.kind === "form") return validateProjectFormFirstPass(params)
   return validateProjectPropertiesFirstPass(params)
@@ -310,6 +312,7 @@ export function extractProjectValidationFileFacts(params: {
   entry: ProjectYamlEntry
   rulesSnapshot: ValidationRulesSnapshot
   validationDiagnostics?: boolean
+  runtime?: ValidationRegistrySet
 }): ProjectValidationFileFacts {
   const parsed = parsedForProjectFile(params.file, params.entry.parsed)
   const measuredYamlFacts = measureValidationPhase(() =>
@@ -317,6 +320,7 @@ export function extractProjectValidationFileFacts(params: {
       file: params.file,
       parsed,
       rulesSnapshot: params.rulesSnapshot,
+      runtime: params.runtime,
       ...(params.validationDiagnostics === undefined
         ? {}
         : { validationDiagnostics: params.validationDiagnostics }),
@@ -383,7 +387,8 @@ export function extractProjectValidationFileFacts(params: {
       rule: params.file.itemRule,
       spec: params.file.owner.spec,
     }
-    const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+    const fieldIndex = params.runtime?.buildObjectFieldIndex(ownerWithoutIndex)
+      ?? buildObjectFieldIndex(ownerWithoutIndex)
     const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
     const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
     return { fieldIndex, ownerFacts, owner }
@@ -476,6 +481,7 @@ function validateProjectFormFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
   rulesSnapshot?: ValidationRulesSnapshot
+  runtime?: ValidationRegistrySet
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const schemaStartedAt = performance.now()
@@ -514,6 +520,7 @@ function validateProjectFormFirstPass(params: {
     file: params.file,
     entry,
     rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
+    runtime: params.runtime,
   })
   const diagnostics = [...schemaDiagnostics, ...facts.diagnostics]
 
@@ -572,6 +579,7 @@ function validateProjectPropertiesFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
   rulesSnapshot?: ValidationRulesSnapshot
+  runtime?: ValidationRegistrySet
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const cacheStartedAt = performance.now()
@@ -658,6 +666,7 @@ function validateProjectPropertiesFirstPass(params: {
     file: params.file,
     entry: { ...entry, parsed },
     rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
+    runtime: params.runtime,
   })
   const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const diagnostics = [

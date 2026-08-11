@@ -12,10 +12,19 @@ import {
   type ProjectReferenceRegistrySet,
 } from "./projectReferenceIndexRegistry"
 import { createDataPathRegistrySet, type DataPathContribution, type DataPathRegistrySet } from "./dataPath/registry"
+import type { RuleRegistrySet } from "../ruleRuntime/ruleRegistrySet"
+import {
+  buildObjectFieldIndex,
+  type ObjectFieldIndexRuntime,
+} from "./dataPath/objectFields"
+import type { ObjectFieldIndex } from "./dataPath/contracts"
 
 export interface ValidationRegistrySet {
+  readonly rules: Pick<RuleRegistrySet, "execution">
   readonly references: ProjectReferenceRegistrySet
   readonly dataPaths: DataPathRegistrySet
+  readonly execution: ObjectFieldIndexRuntime
+  buildObjectFieldIndex(owner: Parameters<typeof buildObjectFieldIndex>[0]): ObjectFieldIndex
   validateLocalValue(
     params: LocalYamlValueValidationParams & { readonly type: string },
   ): LocalYamlValueValidationResult
@@ -26,6 +35,7 @@ export function createValidationRegistrySet(
     MetadataRulesDefinition<never, ProjectReferenceContribution, DataPathContribution>,
     "validation" | "references" | "dataPaths"
   >,
+  rules: Pick<RuleRegistrySet, "execution">,
 ): ValidationRegistrySet {
   const localYamlValidators = new Map(
     definition.validation.map((contribution) => [
@@ -34,9 +44,14 @@ export function createValidationRegistrySet(
     ]),
   )
 
+  const dataPaths = createDataPathRegistrySet(definition.dataPaths)
+  const execution = { dataPaths, execution: rules.execution }
   return {
+    rules,
     references: createProjectReferenceRegistrySet(definition.references),
-    dataPaths: createDataPathRegistrySet(definition.dataPaths),
+    dataPaths,
+    execution,
+    buildObjectFieldIndex: (owner) => buildObjectFieldIndex(owner, execution),
     validateLocalValue(params) {
       const contribution = localYamlValidators.get(params.type)
       if (contribution === undefined) return { diagnostics: [] }

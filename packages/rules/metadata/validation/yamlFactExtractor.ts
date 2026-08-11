@@ -2,12 +2,12 @@ import { parseMetadataTargetFromYAML } from "../ruleRuntime/metadataTarget"
 import { rootFromYAML } from "@nkdk/runtime/rule-kit"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "@nkdk/runtime/rule-kit"
 import type { ElementType } from "../ruleRuntime/formElement/types"
+import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
+import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
 import type { DataPathPropertyRule, PropertyRule } from "@nkdk/runtime/rule-kit"
 import { callAtomicFromYAML } from "../ruleRuntime/property/fromYAMLToXML"
 import { exportPropertyValueToYAML } from "../ruleRuntime/property/toYAML"
 import { getElementRule } from "../ruleRuntime/formElement/ruleFactory"
-import { getTypeRule } from "../ruleRuntime/property/typeRuleRegistry"
-import { getSystemEnumeration } from "@nkdk/runtime/rule-kit"
 import { enterNestedYamlRule, enterYamlProperty } from "../ruleRuntime/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "@nkdk/runtime/rule-kit"
 import type { ParsedYaml } from "@nkdk/runtime"
@@ -43,6 +43,7 @@ import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../projectDefinition/localIndexes"
 import type { LocalIndexesCollector } from "../projectDefinition/localIndexes"
 import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+import type { ValidationRegistrySet } from "./validationRegistrySet"
 import {
   analyzeDependentYamlItem,
   type DependentReferenceCandidate,
@@ -84,10 +85,11 @@ export function extractValidationYamlFacts(params: {
   parsed: ParsedYaml
   rulesSnapshot: ValidationRulesSnapshot
   validationDiagnostics?: boolean
+  runtime?: ValidationRegistrySet
 }): ValidationYamlFacts {
   const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
-    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed) : emptyFacts()
+    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed, params.runtime) : emptyFacts()
   }
 
   const spec = findValidationRulesItem(
@@ -112,6 +114,7 @@ export function extractValidationYamlFacts(params: {
       yamlPath: [],
       diagnostics: localValueDiagnostics,
       profile: localValueValidationProfile,
+      runtime: params.runtime,
     })
   }
   const localIndexesCollector = createLocalIndexesCollector({ recordEvents: false })
@@ -136,6 +139,7 @@ export function extractValidationYamlFacts(params: {
           rootRule: params.file.itemRule,
           validationDiagnostics,
           pendingChecks,
+          runtime: params.runtime,
         })
   const localIndexes = localIndexesCollector.finish()
   const objectIndexEntries = objectTarget === undefined
@@ -179,9 +183,10 @@ export function extractValidationOwnerYamlFacts(params: {
   file: ValidationProjectFile
   data: unknown
   rulesSnapshot: ValidationRulesSnapshot
+  runtime?: ValidationRegistrySet
 }): ValidationOwnerYamlFacts | undefined {
   const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
-  return spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.data, spec)
+  return spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.data, spec, params.runtime)
 }
 
 function objectIndexDetails(data: unknown): { type?: string } {
@@ -208,7 +213,8 @@ function emptyFacts(): ValidationYamlFacts {
 function buildOwnerFactsFromYaml(
   file: ValidationProjectFile,
   data: unknown,
-  spec: ValidationRulesSpecSnapshot
+  spec: ValidationRulesSpecSnapshot,
+  runtime?: ValidationRegistrySet,
 ): ValidationOwnerYamlFacts {
   const record = asRecord(data) ?? {}
   const compactFacts: Record<string, unknown> = {}
@@ -227,11 +233,12 @@ function buildOwnerFactsFromYaml(
     fieldIndex: emptyObjectFieldIndex(),
     ...compactFacts,
   } as ValidationOwnerFacts
-  const fieldIndex = buildObjectFieldIndex({
+  const owner = {
     ref,
     facts: ownerFactsWithoutIndex,
     rule: file.owner.spec.rule,
-  })
+  }
+  const fieldIndex = runtime?.buildObjectFieldIndex(owner) ?? buildObjectFieldIndex(owner)
   return {
     fieldIndex,
     ownerFacts: { ...ownerFactsWithoutIndex, fieldIndex },
@@ -304,15 +311,17 @@ function collectLocalValueValidation(params: {
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
   profile: LocalValueValidationProfile
+  runtime?: ValidationRegistrySet
 }): void {
-  const result = validateRegisteredLocalYamlValue({
+  const input = {
     type: params.type,
     filePath: params.filePath,
     parsed: params.parsed,
     owner: { dir: params.owner.dir, name: params.owner.name },
     value: params.value,
     yamlPath: params.yamlPath,
-  })
+  }
+  const result = params.runtime?.validateLocalValue(input) ?? validateRegisteredLocalYamlValue(input)
   params.diagnostics.push(...result.diagnostics)
   if (result.profile === undefined) return
 
@@ -340,6 +349,7 @@ function collectPendingReferences(params: {
   rootRule: MetadataItemRule
   validationDiagnostics: boolean
   pendingChecks: ValidationPendingCheck[]
+  runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -438,6 +448,7 @@ function collectNestedReferences(params: {
   nestedItemType?: string
   validationDiagnostics: boolean
   pendingChecks: ValidationPendingCheck[]
+  runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) => collectNestedItem({ ...params, item, itemKey: index }))
@@ -510,6 +521,7 @@ function collectTargetValues(params: {
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
+  runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
   if (params.type === "Picture") {
     return collectPictureTargetValues(params)
@@ -538,6 +550,7 @@ function collectPictureTargetValues(params: {
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
+  runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference[] {
   if (typeof params.value === "string") {
     const reference = pendingPictureReferenceFromYamlValue({
@@ -569,8 +582,10 @@ function pendingPictureReferenceFromYamlValue(params: {
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
   validationDiagnostics: boolean
+  runtime?: ValidationRegistrySet
 }): PendingMetadataTargetReference | undefined {
-  if (params.value in (getSystemEnumeration("PictureLib")?.fromYAML ?? {})) return undefined
+  const pictureLib = params.runtime?.rules.execution.getSystemEnumeration("PictureLib") ?? getSystemEnumeration("PictureLib")
+  if (params.value in (pictureLib?.fromYAML ?? {})) return undefined
   if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
 
   return pendingReferenceFromYamlValue({
@@ -624,7 +639,11 @@ function targetKey(target: ParsedMetadataTarget): string {
   return projectValueIndexKey(target)
 }
 
-function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): ValidationYamlFacts {
+function extractFormYamlFacts(
+  file: ValidationProjectFile,
+  parsed: ParsedYaml,
+  runtime?: ValidationRegistrySet,
+): ValidationYamlFacts {
   const data = asRecord(parsed.data)
   if (data === undefined) return emptyFacts()
 
@@ -649,7 +668,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
     yaml: data,
     owner: root === undefined ? undefined : { root, objectName: file.owner.name },
     context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
-    runtime: createPropertyStructuralReferenceRuntime(),
+    runtime: createPropertyStructuralReferenceRuntime(runtime),
   })
   if (!structuralReferences.ok) throw new Error(structuralReferences.message)
   const pendingReferences = structuralReferences.references.map(({
@@ -688,7 +707,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   }
 }
 
-function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime {
+function createPropertyStructuralReferenceRuntime(runtime?: ValidationRegistrySet): StructuralReferenceRuntime {
   return {
     valueFromYAML: (params) => callAtomicFromYAML(
       params as Parameters<typeof callAtomicFromYAML>[0]
@@ -698,18 +717,22 @@ function createPropertyStructuralReferenceRuntime(): StructuralReferenceRuntime 
     ),
     collectStructuralReferences: (params) => {
       const propertyRule = params.propRule as PropertyRule
-      const handler = getTypeRule(propertyRule.type, "structuralReferences")
+      const handler = runtime?.rules.execution.getTypeRule(propertyRule.type, "structuralReferences")
+        ?? getTypeRule(propertyRule.type, "structuralReferences")
       return handler?.({ ...params, propRule: propertyRule })
     },
     collectIndexedReferences: (params) => {
       const propertyRule = params.propRule as PropertyRule
-      const handler = getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+      const handler = runtime?.rules.execution.getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
+        ?? getTypeRule(propertyRule.type, "collectMetadataTargetReferences")
       return handler?.({ ...params, propRule: propertyRule }).references ?? []
     },
-    nestedRule: (rule) => getTypeRule(
-      (rule as PropertyRule).type,
-      "yamlToXMLNestedRule"
-    ) as unknown as StructuralReferenceNestedRule | undefined,
+    nestedRule: (rule) => {
+      const propertyRule = rule as PropertyRule
+      const nested = runtime?.rules.execution.getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+        ?? getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      return nested as unknown as StructuralReferenceNestedRule | undefined
+    },
   }
 }
 function collectFormPendingChecks(params: {
@@ -719,6 +742,7 @@ function collectFormPendingChecks(params: {
   index: FormDataPathIndex
   yamlPath: readonly (string | number)[]
   tableContext?: { dataPath: string }
+  runtime?: ValidationRegistrySet
 }): {
   pendingChecks: DataPathValidationPendingCheck[]
   formElementNameDiagnostics: Diagnostic[]
@@ -739,6 +763,7 @@ function collectFormPendingChecks(params: {
     tableContext: params.tableContext,
     nameCollector,
     singletonRuleStack: new Set(),
+    runtime: params.runtime,
   })
   const namesStartedAt = performance.now()
   const formElementNameDiagnostics = nameCollector.finish()
@@ -760,11 +785,13 @@ function collectNestedFormElementChecks(params: {
   nameCollector?: FormElementNameCollectorView
   ownerName?: string
   singletonRuleStack: ReadonlySet<string>
+  runtime?: ValidationRegistrySet
 }): DataPathValidationPendingCheck[] {
   const checks: DataPathValidationPendingCheck[] = []
   for (const [propertyKey, propertyRule] of Object.entries(params.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
-    const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+    const nested = params.runtime?.rules.execution.getTypeRule(propertyRule.type, "nestedItemRule")
+      ?? getTypeRule(propertyRule.type, "nestedItemRule")
     if (nested === undefined) continue
     const propertyCursor = enterYamlProperty({
       cursor: params.cursor,
@@ -774,7 +801,8 @@ function collectNestedFormElementChecks(params: {
     const value = asRecord(params.owner[propertyRule.yaml])
 
     if ("itemRule" in nested) {
-      const identity = getTypeRule(propertyRule.type, "nestedItemIdentity")
+      const identity = params.runtime?.rules.execution.getTypeRule(propertyRule.type, "nestedItemIdentity")
+        ?? getTypeRule(propertyRule.type, "nestedItemIdentity")
       const singletonName = identity?.resolveName(params.ownerName)
       if (singletonName !== undefined && singletonName.length > 0) {
         params.nameCollector?.acceptReserved({

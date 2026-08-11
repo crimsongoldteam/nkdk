@@ -11,12 +11,14 @@ import {
   createValidationRulesSnapshot,
   type ValidationRulesSnapshot,
 } from "../validation/rulesSnapshot"
+import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 
 export interface MetadataWorkerPersistentState {
   readonly workerIndex: number
   readonly context: ConfigurationContext
   readonly schemaCache: ValidationSchemaCache
   readonly rulesSnapshot: ValidationRulesSnapshot
+  readonly validationRuntime?: ValidationRegistrySet
   readonly projectState: ProjectStateReadSession | undefined
   installProjectState(token: ProjectStateReadToken): void
   clearProjectState(): void
@@ -24,10 +26,11 @@ export interface MetadataWorkerPersistentState {
   resetOperation(operationId: string): void
 }
 
-interface MetadataWorkerStateDependencies {
+export interface MetadataWorkerStateDependencies {
   readonly createSchemaCache?: typeof createProjectValidationWorkerSchemaCache
   readonly createRulesSnapshot?: typeof createValidationRulesSnapshot
   readonly openReadSession?: (token: ProjectStateReadToken) => ProjectStateReadSession
+  readonly validationRuntime?: ValidationRegistrySet
 }
 
 export async function createMetadataWorkerPersistentState(
@@ -48,6 +51,7 @@ export async function createMetadataWorkerPersistentState(
     context: params.context,
     schemaCache,
     rulesSnapshot,
+    validationRuntime: dependencies.validationRuntime,
     get projectState() {
       return projectState
     },

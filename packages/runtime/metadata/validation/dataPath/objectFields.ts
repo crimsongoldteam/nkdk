@@ -1,5 +1,5 @@
-import { standardMemberInternalToYaml } from "../../ruleRuntime/metadataTarget/standardMemberAliases"
 import type { TypeDescriptionView } from "../../ruleRuntime/property/typeDescriptionView"
+import type { PropertyRuleExecution } from "../../ruleRuntime/property/fn"
 import { resolvePropertyItemRule } from "../../ruleRuntime/property/typeRuleRegistry"
 import type {
   PropertyRule,
@@ -12,11 +12,18 @@ import {
   getObjectFieldCollectionDescriptors,
   resolveIndexTimeStandardMember,
   resolveStandardAttributeType,
+  type DataPathRegistrySet,
 } from "./registry"
+import { standardMemberInternalToYaml } from "../../standardMembers/declarations"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import { type DataPathTableInfo, type DataPathTypeInfo, unknownDataPathTypeInfo } from "./types"
 
 type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "facts" | "rule">
+
+export interface ObjectFieldIndexRuntime {
+  readonly dataPaths: DataPathRegistrySet
+  readonly execution: PropertyRuleExecution
+}
 
 interface NamedTypedItem {
   name?: unknown
@@ -25,18 +32,22 @@ interface NamedTypedItem {
   standardAttributes?: NamedTypedItem[]
 }
 
-export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectFieldIndex {
+export function buildObjectFieldIndex(
+  owner: ObjectFieldIndexOwner,
+  runtime?: ObjectFieldIndexRuntime,
+): ObjectFieldIndex {
   const fields = new Map<string, ObjectField>()
   const standardAttributeAliases = new Map<string, string>()
   const diagnostics: Diagnostic[] = []
 
-  addDataCollectionFields({ owner, fields })
+  addDataCollectionFields({ owner, fields, ...(runtime === undefined ? {} : { runtime }) })
   addStandardAttributeFields({
     owner,
     fields,
     standardAttributeAliases,
     propertyRule: owner.rule.properties.standardAttributes,
     sourceCollection: "standardAttributes",
+    ...(runtime === undefined ? {} : { runtime }),
   })
 
   return { fields, standardAttributeAliases, diagnostics }
@@ -50,6 +61,7 @@ export function resolveObjectFieldSegment(params: {
   index: ObjectFieldIndex
   segment: string
   nameMode: "internal" | "yaml"
+  dataPaths?: DataPathRegistrySet
 }): ObjectField | undefined {
   const direct = params.index.fields.get(params.segment)
   if (direct !== undefined) {
@@ -60,25 +72,35 @@ export function resolveObjectFieldSegment(params: {
   if (params.nameMode === "yaml") return undefined
 
   const alias =
-    params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
+    params.index.standardAttributeAliases.get(params.segment)
+      ?? standardAttributeAliasToYAML(params.segment, params.dataPaths)
   if (alias !== undefined) return params.index.fields.get(alias)
   return undefined
 }
 
-export function standardAttributeAliasToYAML(segment: string): string | undefined {
-  return standardMemberInternalToYaml(segment)
+export function standardAttributeAliasToYAML(
+  segment: string,
+  dataPaths?: DataPathRegistrySet,
+): string | undefined {
+  return dataPaths?.standardMemberInternalToYaml(segment) ?? standardMemberInternalToYaml(segment)
 }
 
-function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields: Map<string, ObjectField> }): void {
-  const { owner, fields } = params
+function addDataCollectionFields(params: {
+  owner: ObjectFieldIndexOwner
+  fields: Map<string, ObjectField>
+  runtime?: ObjectFieldIndexRuntime
+}): void {
+  const { owner, fields, runtime } = params
 
-  for (const descriptor of getObjectFieldCollectionDescriptors(owner as OwnerMetadata)) {
+  const descriptors = runtime?.dataPaths.getObjectFieldCollections(owner as OwnerMetadata)
+    ?? getObjectFieldCollectionDescriptors(owner as OwnerMetadata)
+  for (const descriptor of descriptors) {
     const items = getNamedItems(getCollectionValue(owner, descriptor.collection))
     for (const item of items) {
       if (typeof item.name !== "string" || item.name.length === 0) continue
 
       if (descriptor.kind === "tabularSection") {
-        fields.set(item.name, buildTabularSectionField(owner, item, descriptor.collection))
+        fields.set(item.name, buildTabularSectionField(owner, item, descriptor.collection, runtime))
         continue
       }
 
@@ -98,8 +120,9 @@ function addStandardAttributeFields(params: {
   standardAttributeAliases: Map<string, string>
   propertyRule: PropertyRule | undefined
   sourceCollection: string
+  runtime?: ObjectFieldIndexRuntime
 }): void {
-  const { owner, fields, standardAttributeAliases, propertyRule, sourceCollection } = params
+  const { owner, fields, standardAttributeAliases, propertyRule, sourceCollection, runtime } = params
   if (propertyRule?.type !== "StandardAttributeDescriptions") return
 
   const rule = propertyRule as StandardAttributeDescriptionsPropertyRule
@@ -114,7 +137,13 @@ function addStandardAttributeFields(params: {
       targetName: internalName,
       kind: "standardAttribute",
       sourceCollection,
-      typeInfo: standardAttributeTypeInfo({ owner, internalName, yamlName, explicit }),
+      typeInfo: standardAttributeTypeInfo({
+        owner,
+        internalName,
+        yamlName,
+        explicit,
+        ...(runtime === undefined ? {} : { runtime }),
+      }),
     } satisfies ObjectField
     fields.set(internalName, field)
     if (!fields.has(yamlName)) fields.set(yamlName, field)
@@ -124,10 +153,13 @@ function addStandardAttributeFields(params: {
 function buildTabularSectionField(
   owner: ObjectFieldIndexOwner,
   tabularSection: NamedTypedItem,
-  sourceCollection: string
+  sourceCollection: string,
+  runtime: ObjectFieldIndexRuntime | undefined,
 ): ObjectField {
   const collectionRule = owner.rule.properties[sourceCollection]
-  const tabularSectionRule = collectionRule === undefined ? undefined : resolvePropertyItemRule(collectionRule)
+  const tabularSectionRule = collectionRule === undefined
+    ? undefined
+    : runtime?.execution.resolvePropertyItemRule(collectionRule) ?? resolvePropertyItemRule(collectionRule)
   const tabularSectionOwner = {
     ...owner,
     facts: {
@@ -161,6 +193,7 @@ function buildTabularSectionField(
     standardAttributeAliases: new Map(),
     propertyRule: tabularSectionRule?.properties.standardAttributes,
     sourceCollection: "standardAttributes",
+    ...(runtime === undefined ? {} : { runtime }),
   })
 
   return {
@@ -191,6 +224,7 @@ function standardAttributeTypeInfo(params: {
   internalName: string
   yamlName: string
   explicit: NamedTypedItem | undefined
+  runtime?: ObjectFieldIndexRuntime
 }): DataPathTypeInfo {
   const explicitTypeInfo =
     params.explicit?.type === undefined ? undefined : typeDescriptionToDataPathTypeInfo(params.explicit.type)
@@ -203,12 +237,17 @@ function standardAttributeTypeInfo(params: {
   if (declarative !== undefined) return declarative.typeInfo
 
   return (
-    resolveStandardAttributeType({
+    (params.runtime?.dataPaths.resolveStandardAttributeType({
       owner: params.owner as OwnerMetadata,
       internalName: params.internalName,
       yamlName: params.yamlName,
       ...(explicitTypeInfo !== undefined ? { explicitTypeInfo } : {}),
-    }) ?? unknownDataPathTypeInfo
+    }) ?? resolveStandardAttributeType({
+      owner: params.owner as OwnerMetadata,
+      internalName: params.internalName,
+      yamlName: params.yamlName,
+      ...(explicitTypeInfo !== undefined ? { explicitTypeInfo } : {}),
+    })) ?? unknownDataPathTypeInfo
   )
 }
 

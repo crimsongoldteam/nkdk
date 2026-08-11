@@ -38,7 +38,7 @@ export function createMetadataRuntime(
   options: CreateMetadataRuntimeOptions,
 ): MetadataRuntime {
   const rules = createRuleRegistrySet(options.rules)
-  const validation = createValidationRegistrySet(options.rules)
+  const validation = createValidationRegistrySet(options.rules, rules)
   const operations = createOperationRegistrySet(options.rules)
   const schemaRuntime = createRuleSchemaRuntime(
     rules,

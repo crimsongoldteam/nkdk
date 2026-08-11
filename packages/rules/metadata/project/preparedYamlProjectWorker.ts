@@ -65,6 +65,7 @@ import { createProjectStateRefreshBinaryResult } from "./projectStateRefreshBina
 import { getRegisteredProjectSpecs } from "../projectDefinition/projectSpecRegistry"
 import { registerMetadataProjectSpecs } from "../projectDefinition/specs"
 import { buildProjectStateYamlFileUpdate } from "./projectStateYamlUpdate"
+import type { ValidationRegistrySet } from "../validation/validationRegistrySet"
 
 export const LOCAL_VALIDATION_BATCH_SIZE = 32
 
@@ -146,6 +147,7 @@ export async function runPreparedYamlProjectWorkerTask(
       readonly schemaCache: ValidationSchemaCache
       readonly rulesSnapshot: ValidationRulesSnapshot
     }
+    validationRuntime?: ValidationRegistrySet
   } = {},
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
@@ -159,6 +161,7 @@ export async function runPreparedYamlProjectWorkerTask(
       })
     )
     validationRulesSnapshot = options.persistentValidationState?.rulesSnapshot ?? message.rulesSnapshot
+    validationRuntime = options.validationRuntime
     projectStateComponentTemplates = {
       configuration: createValidationProjectComponent("/", { kind: "configuration" }),
       configurationExtension: createValidationProjectComponent("/", {
@@ -187,7 +190,7 @@ export async function runPreparedYamlProjectWorkerTask(
   if (message.kind === "collectValidationFacts") {
     return {
       kind: "collectValidationFactsResult",
-      contribution: await collectValidationFacts(message),
+      contribution: await collectValidationFacts(message, { runtime: options.validationRuntime }),
     }
   }
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
@@ -397,6 +400,14 @@ export default async function preparedYamlProjectWorkerEntryPoint(
   return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
 }
 
+export function createPreparedYamlProjectWorkerEntryPoint(runtime: ValidationRegistrySet) {
+  return async (message: PreparedYamlProjectWorkerTask): Promise<PreparedYamlProjectWorkerTaskResult> => {
+    const result = await runPreparedYamlProjectWorkerTask(message, { validationRuntime: runtime })
+    if (result.kind === "binaryResult") return createMovableBinaryResult(result)
+    return result.kind === "validateFirstPassResult" ? movableValidationResult(result) : result
+  }
+}
+
 type TransferableValidationWorkerResult = Extract<
   PreparedYamlProjectWorkerTaskResult,
   { kind: "validateFirstPassResult" }
@@ -420,6 +431,7 @@ function movableValidationResult(result: TransferableValidationWorkerResult): Tr
 interface CollectValidationFactsDependencies {
   readEntry?: typeof readProjectYamlEntryForValidation
   extractFacts?: typeof extractProjectValidationFileFacts
+  runtime?: ValidationRegistrySet
 }
 
 export async function collectValidationFacts(
@@ -455,6 +467,7 @@ export async function collectValidationFacts(
       entry,
       rulesSnapshot: message.rulesSnapshot,
       validationDiagnostics: false,
+      runtime: dependencies.runtime,
     })
     contribution.objectRecords.push(...facts.objectRecords)
     contribution.objectIndexEntries.push(...facts.objectIndexEntries)
@@ -505,6 +518,7 @@ function estimateProfilePayloadBytes(value: unknown): number | undefined {
 
 let validationSchemaCache: ValidationSchemaCache | undefined
 let validationRulesSnapshot: ValidationRulesSnapshot | undefined
+let validationRuntime: ValidationRegistrySet | undefined
 let projectStateComponentTemplates: {
   readonly configuration: ValidationProjectComponent
   readonly configurationExtension: ValidationProjectComponent
@@ -666,6 +680,7 @@ function processValidationFirstPassFile(
       context: input.context,
       schemaCache: accumulator.schemaCache,
       rulesSnapshot: requireValidationRulesSnapshot(),
+      runtime: validationRuntime,
     })
     if (accumulator.detailedProfile.enabled) {
       accumulator.detailedProfile.validationMs += performance.now() - startedAt

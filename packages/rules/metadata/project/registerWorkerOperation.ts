@@ -13,5 +13,6 @@ export function registerValidationWorkerOperation(
         schemaCache: state.schemaCache,
         rulesSnapshot: state.rulesSnapshot,
       },
+      validationRuntime: state.validationRuntime,
     }))
 }

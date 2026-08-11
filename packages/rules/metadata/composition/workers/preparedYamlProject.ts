@@ -1,5 +1,9 @@
-import { registerCoreMetadata } from "../coreMetadata"
+import { metadataRules } from "../metadataRules"
+import { createRuleRegistrySet } from "../../ruleRuntime/ruleRegistrySet"
+import { createValidationRegistrySet } from "../../validation/validationRegistrySet"
 
-registerCoreMetadata()
+const rules = createRuleRegistrySet(metadataRules)
+const validation = createValidationRegistrySet(metadataRules, rules)
+const { createPreparedYamlProjectWorkerEntryPoint } = await import("../../project/preparedYamlProjectWorker")
 
-export default (await import("../../project/preparedYamlProjectWorker")).default
+export default createPreparedYamlProjectWorkerEntryPoint(validation)
