@@ -86,6 +86,29 @@ describe("assert test durations", () => {
     ).warnings).toContainEqual({ type: "setup", duration: 45_000.01 })
   })
 
+  it("удваивает жёсткий лимит отдельного теста на CI", () => {
+    expect(analyzeTestDurationReport(
+      report({ testMs: 100 }),
+      lifecycleReport(2_500),
+      { CI: "true" },
+    ).failures).toEqual([])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 100.01 }),
+      lifecycleReport(2_500),
+      { CI: "true" },
+    ).failures).toEqual([{
+      type: "test",
+      file: "/project/packages/rules/example.test.ts",
+      name: "example test case",
+      duration: 100.01,
+    }])
+    expect(analyzeTestDurationReport(
+      report({ testMs: 200 }),
+      lifecycleReport(2_500),
+      { CI: "true", NKDK_TEST_SUITE: "integration" },
+    ).failures).toEqual([])
+  })
+
   it("учитывает системное замедление Windows для жёстких лимитов", () => {
     expect(analyzeTestDurationReport(
       report({ testMs: 40 }),

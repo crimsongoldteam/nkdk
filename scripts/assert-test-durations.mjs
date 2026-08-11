@@ -8,6 +8,7 @@ export const INTEGRATION_TEST_DURATION_LIMIT_MS = 100
 export const TEST_FILE_LIMIT_MS = 2_500
 export const TEST_PACKAGE_SETUP_LIMIT_MS = 15_000
 export const WINDOWS_LIMIT_MULTIPLIER = 5
+export const CI_TEST_DURATION_LIMIT_MULTIPLIER = 2
 
 export function analyzeTestDurationReport(report, lifecycleReport, environment = {}) {
   assertTestDurationReport(report)
@@ -16,9 +17,11 @@ export function analyzeTestDurationReport(report, lifecycleReport, environment =
     environment.CI === "true" ? 3 : 1,
     environment.platform === "win32" ? WINDOWS_LIMIT_MULTIPLIER : 1,
   )
-  const testDurationLimit = environment.NKDK_TEST_SUITE === "integration"
+  const baseTestDurationLimit = environment.NKDK_TEST_SUITE === "integration"
     ? INTEGRATION_TEST_DURATION_LIMIT_MS
     : TEST_DURATION_LIMIT_MS
+  const testDurationLimit = baseTestDurationLimit *
+    (environment.CI === "true" ? CI_TEST_DURATION_LIMIT_MULTIPLIER : 1)
 
   const warnings = []
   const failures = []
